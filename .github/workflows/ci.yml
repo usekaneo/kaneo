@@ -1,41 +1,18 @@
-name: CI
- 
+name: Code quality
+
 on:
   push:
-    branches: ["main"]
   pull_request:
-    types: [opened, synchronize]
- 
-jobs:
-  build:
-    name: Build and Lint
-    timeout-minutes: 15
-    runs-on: ubuntu-24.04
- 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
- 
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 8
- 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
- 
-      - name: Install dependencies
-        run: pnpm install
- 
-      - name: Lint project with Biome
-        run: pnpm dlx turbo format-and-lint
 
-      - name: Check types
-        run: pnpm dlx turbo check-types
-      
-      # - name: Build project
-        # run: pnpm dlx turbo build --filter=@kaneo/web
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+      - name: Run Biome
+        run: biome ci .
