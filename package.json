@@ -1,27 +1,27 @@
 {
-	"name": "kaneo",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"build": "turbo build",
-		"dev": "turbo dev",
-		"prepare": "husky"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
-		"@commitlint/cli": "^19.6.1",
-		"@commitlint/config-conventional": "^19.6.0",
-		"husky": "^9.1.7",
-		"turbo": "^2.3.4",
-		"typescript": "5.5.4"
-	},
-	"engines": {
-		"node": ">=18"
-	},
-	"packageManager": "bun@1.1.42",
-	"workspaces": [
-		"apps/*",
-		"packages/*"
-	],
-	"version": "0.0.1"
+  "name": "kaneo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "husky": "^9.1.7",
+    "turbo": "^2.3.4",
+    "typescript": "5.5.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "bun@1.1.42",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "version": "0.1.0"
 }
