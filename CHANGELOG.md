@@ -1,27 +1,4 @@
-# Changelog
-
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
-
-### [0.1.4](https://github.com/kaneo-app/app/compare/v0.1.3...v0.1.4) (2025-01-26)
-
-
-### Bug Fixes
-
-* :bug: remove unused import ([fa639e1](https://github.com/kaneo-app/app/commit/fa639e15e1c847d4ac89b7925fb2606b6e5900a4))
-
-### [0.1.3](https://github.com/kaneo-app/app/compare/v0.1.2...v0.1.3) (2025-01-26)
-
-
-### Features
-
-* :sparkles: finishing socket communication for tasks ([dcb8475](https://github.com/kaneo-app/app/commit/dcb84754b3bb970415bb7e16200224bef5271823))
-* :sparkles: initial commit for projects ([200d9a6](https://github.com/kaneo-app/app/commit/200d9a6df400bab61bbc63f2a28dc3807da77606))
-
-### [0.1.2](https://github.com/kaneo-app/app/compare/v0.1.1...v0.1.2) (2025-01-25)
-
-### [0.1.1](https://github.com/kaneo-app/app/compare/v0.1.0...v0.1.1) (2025-01-25)
-
-# 0.1.0 (2025-01-25)
+# 0.5.0 (2025-01-26)
 
 
 ### Bug Fixes
@@ -29,6 +6,7 @@ All notable changes to this project will be documented in this file. See [standa
 * :bug: fixing deleted workspaces being cached ([624b206](https://github.com/kaneo-app/app/commit/624b20676fedf1b1a5871f916a5c1d5c38a5d2cb))
 * :bug: fixing overflowing workspace names ([0c2ab27](https://github.com/kaneo-app/app/commit/0c2ab2705d82c86ace8b4919c59d7773b63e989d))
 * :bug: fixing route generation for vite ([73ddd6d](https://github.com/kaneo-app/app/commit/73ddd6d0138e9223921cbefdd727b2fa61408be0))
+* :bug: remove unused import ([fa639e1](https://github.com/kaneo-app/app/commit/fa639e15e1c847d4ac89b7925fb2606b6e5900a4))
 * :construction_worker: fixing build on pipeline ([767ba10](https://github.com/kaneo-app/app/commit/767ba103aca3beeda0a6f0a0df4459ce071f3b74))
 * :green_heart: fixing formatting in package.json ([4644f0f](https://github.com/kaneo-app/app/commit/4644f0f6e3413591c9dd837a67df7cf8e735718e))
 * :sparkles: format drizzle.config.ts ([cccd3ae](https://github.com/kaneo-app/app/commit/cccd3aea9420d4815501ec0d15ef1dc08a1f1b15))
@@ -58,8 +36,13 @@ All notable changes to this project will be documented in this file. See [standa
 * :sparkles: adding marketing image ([a8568c1](https://github.com/kaneo-app/app/commit/a8568c1f6d04685d387996448830b1fb166740e5))
 * :sparkles: adding projects ([db2f600](https://github.com/kaneo-app/app/commit/db2f600d58ea45bf410f8b91de0577f969b2fbda))
 * :sparkles: finishing authentication, adding color modes ([da9c10f](https://github.com/kaneo-app/app/commit/da9c10fa56ccf479977d3fad8a547d684067256d))
+* :sparkles: finishing socket communication for tasks ([dcb8475](https://github.com/kaneo-app/app/commit/dcb84754b3bb970415bb7e16200224bef5271823))
+* :sparkles: initial commit for projects ([200d9a6](https://github.com/kaneo-app/app/commit/200d9a6df400bab61bbc63f2a28dc3807da77606))
 * :sparkles: updating logo design ([b8250e6](https://github.com/kaneo-app/app/commit/b8250e68fc3f8013b548750fb87140cb55811ac7))
 * adding docker images and compose ([537b47e](https://github.com/kaneo-app/app/commit/537b47e328b8b5ee2ef1f0ffb71e78e8e3a42ee8))
 * **create-turbo:** apply official-starter transform ([6fcda66](https://github.com/kaneo-app/app/commit/6fcda66be3d9e10f32705cd0a59d62eae0e8ef27))
 * **create-turbo:** apply package-manager transform ([2aaf064](https://github.com/kaneo-app/app/commit/2aaf064f095549ad6600e89954aba9fc2c8385d9))
 * **create-turbo:** create basic ([3b8654f](https://github.com/kaneo-app/app/commit/3b8654f88adfe575bdd6190af85ce8daeea7f810))
+
+
+
