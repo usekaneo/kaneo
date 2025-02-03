@@ -19,7 +19,7 @@
 		"drizzle-kit": "^0.30.2",
 		"drizzle-orm": "^0.39.1",
 		"drizzle-typebox": "^0.3.0",
-		"elysia": "1.2.10"
+		"elysia": "1.2.11"
 	},
 	"devDependencies": {
 		"bun-types": "latest"
