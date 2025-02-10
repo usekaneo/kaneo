@@ -1,11 +1,14 @@
-import { eq } from "drizzle-orm";
-import db from "../../database";
-import { taskTable } from "../../database/schema";
+import { eq } from 'drizzle-orm';
+import db from '../../database';
+import { taskTable } from '../../database/schema';
 
 async function updateTaskStatus({
   id,
   status,
-}: { id: string; status: string }) {
+}: {
+  id: string;
+  status: string;
+}) {
   await db
     .update(taskTable)
     .set({ status: status })

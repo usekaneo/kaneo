@@ -1,14 +1,14 @@
-import Elysia, { t } from "elysia";
-import createProject from "./controllers/create-project";
-import deleteProject from "./controllers/delete-project";
-import getProject from "./controllers/get-project";
-import getProjects from "./controllers/get-projects";
-import updateProject from "./controllers/update-project";
-import { updateProjectSchema } from "./db/queries";
+import Elysia, { t } from 'elysia';
+import createProject from './controllers/create-project';
+import deleteProject from './controllers/delete-project';
+import getProject from './controllers/get-project';
+import getProjects from './controllers/get-projects';
+import updateProject from './controllers/update-project';
+import { updateProjectSchema } from './db/queries';
 
-const project = new Elysia({ prefix: "/project" })
+const project = new Elysia({ prefix: '/project' })
   .post(
-    "/create",
+    '/create',
     async ({ body }) => {
       const createdProject = await createProject(body);
 
@@ -23,20 +23,20 @@ const project = new Elysia({ prefix: "/project" })
       }),
     },
   )
-  .get("/list/:workspaceId", async ({ params: { workspaceId } }) => {
+  .get('/list/:workspaceId', async ({ params: { workspaceId } }) => {
     const projects = await getProjects({ workspaceId });
 
     return projects;
   })
-  .get("/:id", async ({ params: { id }, query: { workspaceId } }) => {
-    if (!workspaceId) throw new Error("Workspace ID is required");
+  .get('/:id', async ({ params: { id }, query: { workspaceId } }) => {
+    if (!workspaceId) throw new Error('Workspace ID is required');
 
-    const project = await getProject({ id, workspaceId });
+    const acquiredProject = await getProject({ id, workspaceId });
 
-    return project;
+    return acquiredProject;
   })
   .put(
-    "/:id",
+    '/:id',
     async ({ params: { id }, body: { workspaceId, name, description } }) => {
       const updatedProject = await updateProject({
         id,
@@ -51,8 +51,8 @@ const project = new Elysia({ prefix: "/project" })
       body: updateProjectSchema,
     },
   )
-  .delete("/:id", async ({ params: { id }, query: { workspaceId } }) => {
-    if (!workspaceId) throw new Error("Workspace ID is required");
+  .delete('/:id', async ({ params: { id }, query: { workspaceId } }) => {
+    if (!workspaceId) throw new Error('Workspace ID is required');
 
     const deletedProject = await deleteProject({ id, workspaceId });
 

@@ -1,4 +1,4 @@
-import { api } from "@kaneo/libs";
+import { api } from '@kaneo/libs';
 
 const deleteWorkspace = async ({ id }: { id: string }) => {
   const response = await api.workspace({ id }).delete();

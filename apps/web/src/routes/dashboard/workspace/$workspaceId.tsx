@@ -1,13 +1,9 @@
-import useGetWorkspace from "@/hooks/queries/workspace/use-get-workspace";
-import useWorkspaceStore from "@/store/workspace";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import useGetWorkspace from '@/hooks/queries/workspace/use-get-workspace';
+import useWorkspaceStore from '@/store/workspace';
+import { Outlet, createFileRoute } from '@tanstack/react-router';
+import { useEffect } from 'react';
 
-export const Route = createFileRoute("/dashboard/workspace/$workspaceId")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+const RouteComponent = () => {
   const { workspaceId } = Route.useParams();
   const { setWorkspace } = useWorkspaceStore();
   const { data } = useGetWorkspace({ workspaceId });
@@ -19,4 +15,8 @@ function RouteComponent() {
   }, [data, setWorkspace]);
 
   return <Outlet />;
-}
+};
+
+export const Route = createFileRoute('/dashboard/workspace/$workspaceId')({
+  component: RouteComponent,
+});

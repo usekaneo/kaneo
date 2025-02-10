@@ -1,11 +1,11 @@
-import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
-import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as Dialog from "@radix-ui/react-dialog";
-import { Building2, X } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "../ui/button";
+import useInviteWorkspaceUser from '@/hooks/mutations/workspace-user/use-invite-workspace-user';
+import useGetWorkspaces from '@/hooks/queries/workspace/use-get-workspaces';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as Dialog from '@radix-ui/react-dialog';
+import { Building2, X } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '../ui/button';
 import {
   Form,
   FormControl,
@@ -13,13 +13,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Select } from "../ui/select";
+} from '../ui/form';
+import { Input } from '../ui/input';
+import { Select } from '../ui/select';
 
 type Props = {
-  open: boolean;
-  onClose: () => void;
+  readonly open: boolean;
+  readonly onClose: () => void;
 };
 
 const teamMemberSchema = z.object({
@@ -29,15 +29,15 @@ const teamMemberSchema = z.object({
 
 type TeamMemberFormValues = z.infer<typeof teamMemberSchema>;
 
-function InviteTeamMemberModal({ open, onClose }: Props) {
+const InviteTeamMemberModal = ({ open, onClose }: Props) => {
   const { data: workspaces } = useGetWorkspaces();
   const { mutateAsync } = useInviteWorkspaceUser();
 
   const form = useForm<TeamMemberFormValues>({
     resolver: zodResolver(teamMemberSchema),
     defaultValues: {
-      userEmail: "",
-      workspaceId: "",
+      userEmail: '',
+      workspaceId: '',
     },
   });
 
@@ -49,7 +49,10 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={onClose}
+    >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
         <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
@@ -62,9 +65,11 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                 <X size={20} />
               </Dialog.Close>
             </div>
-
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="p-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="p-4"
+              >
                 <div className="space-y-4">
                   <div>
                     <FormField
@@ -87,7 +92,6 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                       )}
                     />
                   </div>
-
                   <FormField
                     control={form.control}
                     name="workspaceId"
@@ -101,8 +105,8 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                             {...field}
                             options={[
                               {
-                                value: "",
-                                label: "Select a workspace",
+                                value: '',
+                                label: 'Select a workspace',
                                 icon: (
                                   <Building2 className="w-4 h-4 text-zinc-400" />
                                 ),
@@ -120,7 +124,6 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                     )}
                   />
                 </div>
-
                 <div className="flex justify-end gap-2 mt-6">
                   <Dialog.Close asChild>
                     <Button
@@ -144,6 +147,6 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       </Dialog.Portal>
     </Dialog.Root>
   );
-}
+};
 
 export default InviteTeamMemberModal;

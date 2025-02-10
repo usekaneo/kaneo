@@ -1,6 +1,6 @@
-import useGetMe from "@/hooks/queries/use-get-me";
-import type { LoggedInUser } from "@/types/user";
-import { LayoutGrid } from "lucide-react";
+import useGetMe from '@/hooks/queries/use-get-me';
+import type { LoggedInUser } from '@/types/user';
+import { LayoutGrid } from 'lucide-react';
 import {
   type Dispatch,
   type PropsWithChildren,
@@ -9,7 +9,7 @@ import {
   useEffect,
   useMemo,
   useState,
-} from "react";
+} from 'react';
 
 export const AuthContext = createContext<{
   user: LoggedInUser | null | undefined;
@@ -19,7 +19,9 @@ export const AuthContext = createContext<{
   setUser: () => undefined,
 });
 
-function AuthProvider({ children }: PropsWithChildren) {
+AuthContext.displayName = 'AuthContext';
+
+const AuthProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<LoggedInUser | undefined | null>(undefined);
   const { data, isFetching } = useGetMe();
 
@@ -54,6 +56,6 @@ function AuthProvider({ children }: PropsWithChildren) {
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
 export default AuthProvider;

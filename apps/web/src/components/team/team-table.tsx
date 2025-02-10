@@ -1,9 +1,9 @@
-import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
-import { Route } from "@/routes/dashboard/workspace/$workspaceId";
-import { MoreHorizontal } from "lucide-react";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import useGetWorkspaceUsers from '@/hooks/queries/workspace-users/use-get-workspace-users';
+import { Route } from '@/routes/dashboard/workspace/$workspaceId';
+import { MoreHorizontal } from 'lucide-react';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
-function TeamTable() {
+const TeamTable = () => {
   const { workspaceId } = Route.useParams();
   const { data: users } = useGetWorkspaceUsers({ workspaceId });
 
@@ -46,10 +46,10 @@ function TeamTable() {
               </span>
             </td>
             <td className="py-3 px-4 text-sm text-zinc-500 dark:text-zinc-400">
-              {new Date(user.joinedAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
+              {new Date(user.joinedAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
               })}
             </td>
             <td className="py-3 px-4">
@@ -65,6 +65,6 @@ function TeamTable() {
       </tbody>
     </table>
   );
-}
+};
 
 export default TeamTable;

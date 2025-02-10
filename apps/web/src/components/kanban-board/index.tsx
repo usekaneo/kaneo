@@ -1,5 +1,5 @@
-import useBoardWebsocket from "@/hooks/use-board-websocket";
-import useProjectStore from "@/store/project";
+import useBoardWebsocket from '@/hooks/use-board-websocket';
+import useProjectStore from '@/store/project';
 import {
   DndContext,
   type DragEndEvent,
@@ -7,13 +7,13 @@ import {
   type DragStartEvent,
   type UniqueIdentifier,
   closestCorners,
-} from "@dnd-kit/core";
-import { produce } from "immer";
-import { useState } from "react";
-import Column from "./column";
-import TaskCard from "./task-card";
+} from '@dnd-kit/core';
+import { produce } from 'immer';
+import { useState } from 'react';
+import Column from './column';
+import TaskCard from './task-card';
 
-function KanbanBoard() {
+const KanbanBoard = () => {
   const { project, setProject } = useProjectStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { ws } = useBoardWebsocket();
@@ -54,7 +54,7 @@ function KanbanBoard() {
         destinationColumn.tasks.splice(destinationIndex, 0, task);
       } else {
         const updatedTask = { ...task, status: destinationColumn.id };
-        ws?.send(JSON.stringify({ type: "UPDATE_TASK", ...updatedTask }));
+        ws?.send(JSON.stringify({ type: 'UPDATE_TASK', ...updatedTask }));
 
         const destinationIndex =
           overId === destinationColumn.id
@@ -91,11 +91,13 @@ function KanbanBoard() {
             </h1>
           </div>
         </header>
-
         <div className="flex-1 relative min-h-0">
           <div className="flex gap-6 overflow-x-auto pb-4 px-4 md:px-6 h-full snap-x snap-mandatory">
             {project?.columns.map((column) => (
-              <Column key={column.id} column={column} />
+              <Column
+                key={column.id}
+                column={column}
+              />
             ))}
           </div>
         </div>
@@ -109,6 +111,6 @@ function KanbanBoard() {
       </DragOverlay>
     </DndContext>
   );
-}
+};
 
 export default KanbanBoard;

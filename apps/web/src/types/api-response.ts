@@ -1,5 +1,5 @@
 type ApiResponse<T extends (...args: never[]) => Promise<unknown>> = Awaited<
   ReturnType<T>
->["data"];
+>['data'];
 
 export default ApiResponse;

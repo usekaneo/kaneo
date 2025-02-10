@@ -1,10 +1,10 @@
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid } from 'lucide-react';
 
 interface LogoProps {
-  className?: string;
+  readonly className?: string;
 }
 
-export function Logo({ className = "" }: LogoProps) {
+export const Logo = ({ className = '' }: LogoProps) => {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="p-1.5">
@@ -15,4 +15,4 @@ export function Logo({ className = "" }: LogoProps) {
       </span>
     </div>
   );
-}
+};

@@ -1,19 +1,7 @@
-import { Sidebar } from "@/components/common/sidebar";
-import { Outlet, redirect } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
+import { Sidebar } from '@/components/common/sidebar';
+import { Outlet, redirect, createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/dashboard")({
-  component: DashboardIndexRouteComponent,
-  async beforeLoad({ context: { user } }) {
-    if (user === null) {
-      throw redirect({
-        to: "/auth/sign-in",
-      });
-    }
-  },
-});
-
-function DashboardIndexRouteComponent() {
+const DashboardIndexRouteComponent = () => {
   return (
     <>
       <Sidebar />
@@ -22,4 +10,15 @@ function DashboardIndexRouteComponent() {
       </main>
     </>
   );
-}
+};
+
+export const Route = createFileRoute('/dashboard')({
+  component: DashboardIndexRouteComponent,
+  beforeLoad({ context: { user } }) {
+    if (user === null) {
+      throw redirect({
+        to: '/auth/sign-in',
+      });
+    }
+  },
+});

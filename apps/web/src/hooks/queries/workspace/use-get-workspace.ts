@@ -1,5 +1,5 @@
-import getWorkspace from "@/fetchers/workspace/get-workspace";
-import { useQuery } from "@tanstack/react-query";
+import getWorkspace from '@/fetchers/workspace/get-workspace';
+import { useQuery } from '@tanstack/react-query';
 
 function useGetWorkspace({ workspaceId }: { workspaceId: string }) {
   return useQuery({

@@ -1,7 +1,7 @@
-import { Moon, Sun } from "lucide-react";
-import useTheme from "../providers/theme-provider/hooks/use-theme";
+import { Moon, Sun } from 'lucide-react';
+import useTheme from '../providers/theme-provider/hooks/use-theme';
 
-export function ThemeToggle() {
+export const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -9,13 +9,13 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       className="p-2 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-300 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
-      {theme === "dark" ? (
+      {theme === 'dark' ? (
         <Sun className="h-5 w-5" />
       ) : (
         <Moon className="h-5 w-5" />
       )}
     </button>
   );
-}
+};

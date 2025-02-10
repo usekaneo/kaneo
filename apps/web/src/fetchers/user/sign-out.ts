@@ -1,7 +1,7 @@
-import { api } from "@kaneo/libs";
+import { api } from '@kaneo/libs';
 
 const signOut = async () => {
-  const response = await api.user["sign-out"].post();
+  const response = await api.user['sign-out'].post();
 
   return response;
 };

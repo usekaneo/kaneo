@@ -1,13 +1,17 @@
-import { and, eq } from "drizzle-orm";
-import db from "../../database";
-import { workspaceTable } from "../../database/schema";
-import type { UpdateWorkspacePayload } from "../db/queries";
+import { and, eq } from 'drizzle-orm';
+import db from '../../database';
+import { workspaceTable } from '../../database/schema';
+import type { UpdateWorkspacePayload } from '../db/queries';
 
 async function updateWorkspace({
   userEmail,
   workspaceId,
   body,
-}: { userEmail: string; workspaceId: string; body: UpdateWorkspacePayload }) {
+}: {
+  userEmail: string;
+  workspaceId: string;
+  body: UpdateWorkspacePayload;
+}) {
   const [existingWorkspace] = await db
     .select({
       id: workspaceTable.id,

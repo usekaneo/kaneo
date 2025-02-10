@@ -1,8 +1,8 @@
-import { sha256 } from "@oslojs/crypto/sha2";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import db from "../../database";
-import { sessionTable } from "../../database/schema";
-import type { Session } from "../types";
+import { sha256 } from '@oslojs/crypto/sha2';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+import db from '../../database';
+import { sessionTable } from '../../database/schema';
+import type { Session } from '../types';
 
 async function createSession(token: string, userId: string): Promise<Session> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));

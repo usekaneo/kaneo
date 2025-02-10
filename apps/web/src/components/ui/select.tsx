@@ -1,7 +1,7 @@
-import { cn } from "@/lib/cn";
-import { Check, ChevronDown } from "lucide-react";
-import type * as React from "react";
-import { useEffect, useRef, useState } from "react";
+import { cn } from '@/lib/cn';
+import { Check, ChevronDown } from 'lucide-react';
+import type * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface SelectOption {
   value: string;
@@ -11,20 +11,20 @@ interface SelectOption {
 }
 
 interface SelectProps {
-  value: string;
-  onChange: (value: string) => void;
-  options: SelectOption[];
-  placeholder?: string;
-  className?: string;
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  readonly options: SelectOption[];
+  readonly placeholder?: string;
+  readonly className?: string;
 }
 
-export function Select({
+export const Select = ({
   value,
   onChange,
   options,
-  placeholder = "Select option",
+  placeholder = 'Select option',
   className,
-}: SelectProps) {
+}: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -40,20 +40,23 @@ export function Select({
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div
+      className="relative"
+      ref={containerRef}
+    >
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center justify-between rounded-md border px-3 py-2 text-sm",
-          "focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400",
-          "bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50",
-          "text-zinc-900 dark:text-zinc-100",
+          'w-full flex items-center justify-between rounded-md border px-3 py-2 text-sm',
+          'focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400',
+          'bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50',
+          'text-zinc-900 dark:text-zinc-100',
           className,
         )}
       >
@@ -71,8 +74,7 @@ export function Select({
         </div>
         <ChevronDown className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
       </button>
-
-      {isOpen && (
+      {isOpen ? (
         <div className="absolute z-50 w-full mt-1 py-1 rounded-md shadow-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/50">
           {options.map((option) => (
             <button
@@ -83,26 +85,26 @@ export function Select({
                 setIsOpen(false);
               }}
               className={cn(
-                "w-full flex items-center gap-2 px-3 py-2 text-sm",
-                "hover:bg-zinc-100 dark:hover:bg-zinc-700/50",
+                'w-full flex items-center gap-2 px-3 py-2 text-sm',
+                'hover:bg-zinc-100 dark:hover:bg-zinc-700/50',
                 value === option.value &&
-                  "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400",
+                  'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400',
               )}
             >
-              {option.avatar && (
+              {option.avatar ? (
                 <img
                   src={option.avatar}
                   alt={option.label}
                   className="w-5 h-5 rounded-full object-cover"
                 />
-              )}
+              ) : null}
               {option.icon}
               <span className="flex-1 text-left truncate">{option.label}</span>
               {value === option.value && <Check className="w-4 h-4" />}
             </button>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
-}
+};

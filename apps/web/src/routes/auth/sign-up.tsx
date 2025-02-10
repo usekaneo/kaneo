@@ -1,13 +1,9 @@
-import { AuthLayout } from "@/components/auth/layout";
-import { SignUpForm } from "@/components/auth/sign-up-form";
-import { AuthToggle } from "@/components/auth/toggle";
-import { createFileRoute } from "@tanstack/react-router";
+import { AuthLayout } from '@/components/auth/layout';
+import { SignUpForm } from '@/components/auth/sign-up-form';
+import { AuthToggle } from '@/components/auth/toggle';
+import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/auth/sign-up")({
-  component: SignUp,
-});
-
-function SignUp() {
+const SignUp = () => {
   return (
     <AuthLayout
       title="Create account"
@@ -21,4 +17,8 @@ function SignUp() {
       />
     </AuthLayout>
   );
-}
+};
+
+export const Route = createFileRoute('/auth/sign-up')({
+  component: SignUp,
+});

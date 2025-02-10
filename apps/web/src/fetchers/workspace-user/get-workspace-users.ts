@@ -1,7 +1,7 @@
-import { api } from "@kaneo/libs";
+import { api } from '@kaneo/libs';
 
 async function getWorkspaceUsers({ workspaceId }: { workspaceId: string }) {
-  const response = await api["workspace-user"]
+  const response = await api['workspace-user']
     .list({ workspaceId: workspaceId })
     .get();
 

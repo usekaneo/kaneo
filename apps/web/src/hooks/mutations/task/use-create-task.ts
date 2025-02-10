@@ -1,5 +1,5 @@
-import createTask from "@/fetchers/task/create-task";
-import { useMutation } from "@tanstack/react-query";
+import createTask from '@/fetchers/task/create-task';
+import { useMutation } from '@tanstack/react-query';
 
 type CreateTaskInput = {
   title: string;
@@ -9,7 +9,7 @@ type CreateTaskInput = {
   status: string;
   dueDate: Date;
   number?: number;
-  priority: "low" | "medium" | "high" | "urgent";
+  priority: 'low' | 'medium' | 'high' | 'urgent';
 };
 
 function useCreateTask() {

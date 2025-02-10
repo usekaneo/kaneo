@@ -1,4 +1,4 @@
-import { api } from "@kaneo/libs";
+import { api } from '@kaneo/libs';
 
 const me = async () => {
   const response = await api.me.get();

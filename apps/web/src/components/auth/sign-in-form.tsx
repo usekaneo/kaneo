@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -6,17 +6,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import useSignIn from "@/hooks/mutations/use-sign-in";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "@tanstack/react-router";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { type ZodType, z } from "zod";
-import useAuth from "../providers/auth-provider/hooks/use-auth";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useSignIn from '@/hooks/mutations/use-sign-in';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from '@tanstack/react-router';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { type ZodType, z } from 'zod';
+import useAuth from '../providers/auth-provider/hooks/use-auth';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 export type SignInFormValues = {
   email: string;
@@ -28,20 +28,20 @@ const signInSchema: ZodType<SignInFormValues> = z.object({
   password: z.string(),
 });
 
-export function SignInForm() {
+export const SignInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { history } = useRouter();
   const { setUser } = useAuth();
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
   const { error, isError, mutateAsync, isPending } = useSignIn({
-    email: form.getValues("email"),
-    password: form.getValues("password"),
+    email: form.getValues('email'),
+    password: form.getValues('password'),
   });
 
   const onSubmit = async () => {
@@ -49,13 +49,16 @@ export function SignInForm() {
     setUser(user);
 
     setTimeout(() => {
-      history.push("/dashboard");
+      history.push('/dashboard');
     }, 500);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
         <div className="space-y-4">
           <div>
             <FormField
@@ -78,7 +81,6 @@ export function SignInForm() {
               )}
             />
           </div>
-
           <div>
             <FormField
               control={form.control}
@@ -93,7 +95,7 @@ export function SignInForm() {
                       <Input
                         className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
                         placeholder="••••••••"
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         {...field}
                       />
                       <button
@@ -123,23 +125,21 @@ export function SignInForm() {
             </div>
           </div>
         </div>
-
-        {isError && (
+        {isError ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
-        )}
-
+        ) : null}
         <Button
           type="submit"
           disabled={isPending}
           className="w-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 mt-6"
         >
-          {isPending ? "Signing In..." : "Sign In"}
+          {isPending ? 'Signing In...' : 'Sign In'}
         </Button>
       </form>
     </Form>
   );
-}
+};

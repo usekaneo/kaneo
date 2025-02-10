@@ -1,9 +1,9 @@
-import { sha256 } from "@oslojs/crypto/sha2";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { eq } from "drizzle-orm";
-import db from "../../database";
-import { sessionTable, userTable } from "../../database/schema";
-import type { SessionValidationResult } from "../types";
+import { sha256 } from '@oslojs/crypto/sha2';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+import { eq } from 'drizzle-orm';
+import db from '../../database';
+import { sessionTable, userTable } from '../../database/schema';
+import type { SessionValidationResult } from '../types';
 
 export async function validateSessionToken(
   token: string,

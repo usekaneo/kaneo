@@ -1,6 +1,6 @@
-import { API_URL } from "@/constants/urls";
-import useProjectStore from "@/store/project";
-import { useEffect, useRef } from "react";
+import { API_URL } from '@/constants/urls';
+import useProjectStore from '@/store/project';
+import { useEffect, useRef } from 'react';
 
 type WebSocketHook = {
   ws: WebSocket | null;
@@ -20,7 +20,7 @@ function useBoardWebSocket(): WebSocketHook {
         const data = JSON.parse(event.data);
         setProject(data);
       } catch (error) {
-        console.error("WebSocket message parsing error", error);
+        console.error('WebSocket message parsing error', error);
       }
     };
 

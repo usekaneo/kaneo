@@ -1,11 +1,14 @@
-import { and, eq, or } from "drizzle-orm";
-import db from "../../database";
-import { workspaceTable, workspaceUserTable } from "../../database/schema";
+import { and, eq, or } from 'drizzle-orm';
+import db from '../../database';
+import { workspaceTable, workspaceUserTable } from '../../database/schema';
 
 async function getWorkspace({
   userEmail,
   workspaceId,
-}: { userEmail: string; workspaceId: string }) {
+}: {
+  userEmail: string;
+  workspaceId: string;
+}) {
   const [existingWorkspace] = await db
     .select({
       id: workspaceTable.id,

@@ -1,10 +1,10 @@
-import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
-import useSignOut from "@/hooks/mutations/use-sign-out";
-import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
+import useAuth from '@/components/providers/auth-provider/hooks/use-auth';
+import useSignOut from '@/hooks/mutations/use-sign-out';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
+import { LogOut } from 'lucide-react';
 
-function SignOutButton() {
+const SignOutButton = () => {
   const { setUser } = useAuth();
   const { mutateAsync, isPending } = useSignOut();
   const queryClient = useQueryClient();
@@ -13,11 +13,11 @@ function SignOutButton() {
   const handleSignOut = async () => {
     await mutateAsync();
     queryClient.invalidateQueries({
-      queryKey: ["me"],
-      type: "all",
+      queryKey: ['me'],
+      type: 'all',
     });
     setUser(null);
-    history.push("/auth/sign-in");
+    history.push('/auth/sign-in');
   };
 
   return (
@@ -31,6 +31,6 @@ function SignOutButton() {
       Sign out
     </button>
   );
-}
+};
 
 export default SignOutButton;

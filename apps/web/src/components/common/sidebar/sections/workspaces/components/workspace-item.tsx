@@ -1,17 +1,17 @@
-import { cn } from "@/lib/cn";
-import { ChevronDown, ChevronRight, Folder, FolderOpen } from "lucide-react";
-import { Fragment } from "react/jsx-runtime";
-import Projects from "../../projects";
-import WorkspaceMenu from "./workspace-menu";
+import { cn } from '@/lib/cn';
+import { ChevronDown, ChevronRight, Folder, FolderOpen } from 'lucide-react';
+import { Fragment } from 'react/jsx-runtime';
+import Projects from '../../projects';
+import WorkspaceMenu from './workspace-menu';
 
 type WorkspaceItemProps = {
-  workspace: {
+  readonly workspace: {
     id: string;
     name: string;
   };
-  isExpanded: boolean;
-  onExpandWorkspace: (id: string) => void;
-  onSelectWorkspace: (
+  readonly isExpanded: boolean;
+  readonly onExpandWorkspace: (id: string) => void;
+  readonly onSelectWorkspace: (
     event:
       | React.KeyboardEvent<HTMLDivElement>
       | React.MouseEvent<HTMLDivElement>,
@@ -19,24 +19,24 @@ type WorkspaceItemProps = {
   ) => void;
 };
 
-function WorkspaceItem({
+const WorkspaceItem = ({
   workspace,
   isExpanded,
   onSelectWorkspace,
   onExpandWorkspace,
-}: WorkspaceItemProps) {
+}: WorkspaceItemProps) => {
   return (
     <Fragment>
       <div
         onClick={(e) => onSelectWorkspace(e, workspace.id)}
-        onKeyUp={(e) => e.key === "Enter" && onSelectWorkspace(e, workspace.id)}
+        onKeyUp={(e) => e.key === 'Enter' && onSelectWorkspace(e, workspace.id)}
         onKeyDown={(e) =>
-          e.key === "Enter" && onSelectWorkspace(e, workspace.id)
+          e.key === 'Enter' && onSelectWorkspace(e, workspace.id)
         }
         className={cn(
-          "w-full text-left px-2 py-1.5 rounded-md flex items-center transition-all cursor-pointer group",
-          "hover:bg-zinc-100 dark:hover:bg-zinc-800/50",
-          isExpanded && "bg-zinc-50 dark:bg-zinc-800/30",
+          'w-full text-left px-2 py-1.5 rounded-md flex items-center transition-all cursor-pointer group',
+          'hover:bg-zinc-100 dark:hover:bg-zinc-800/50',
+          isExpanded && 'bg-zinc-50 dark:bg-zinc-800/30',
         )}
       >
         <button
@@ -57,20 +57,19 @@ function WorkspaceItem({
         )}
         <span
           className={cn(
-            "text-sm font-medium",
+            'text-sm font-medium',
             isExpanded
-              ? "text-zinc-900 dark:text-zinc-100"
-              : "text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-300",
+              ? 'text-zinc-900 dark:text-zinc-100'
+              : 'text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-300',
           )}
         >
           {workspace.name}
         </span>
-
         <WorkspaceMenu id={workspace?.id} />
       </div>
-      {isExpanded && <Projects workspaceId={workspace?.id} />}
+      {isExpanded ? <Projects workspaceId={workspace?.id} /> : null}
     </Fragment>
   );
-}
+};
 
 export default WorkspaceItem;

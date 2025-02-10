@@ -1,9 +1,9 @@
-import me from "@/fetchers/user/me";
-import { useQuery } from "@tanstack/react-query";
+import me from '@/fetchers/user/me';
+import { useQuery } from '@tanstack/react-query';
 
 function useGetMe() {
   return useQuery({
-    queryKey: ["me"],
+    queryKey: ['me'],
     queryFn: () => me(),
     retry: 0,
     refetchOnMount: false,

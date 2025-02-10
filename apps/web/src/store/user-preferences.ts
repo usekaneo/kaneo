@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 type UserPreferncesStore = {
   isSidebarOpened: boolean;
@@ -10,11 +10,12 @@ export const useUserPreferencesStore = create<UserPreferncesStore>()(
   persist(
     (set, get) => ({
       isSidebarOpened: true,
-      setIsSidebarOpened: () =>
-        set({ isSidebarOpened: !get().isSidebarOpened }),
+      setIsSidebarOpened: () => {
+        set({ isSidebarOpened: !get().isSidebarOpened });
+      },
     }),
     {
-      name: "user-preferences",
+      name: 'user-preferences',
       storage: createJSONStorage(() => localStorage),
     },
   ),

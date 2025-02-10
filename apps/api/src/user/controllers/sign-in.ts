@@ -1,14 +1,14 @@
-import type { Static } from "elysia";
-import db from "../../database";
-import type { signInUserSchema } from "../db/queries";
-import { UserErrors } from "../errors";
+import type { Static } from 'elysia';
+import db from '../../database';
+import type { signInUserSchema } from '../db/queries';
+import { UserErrors } from '../errors';
 
 type SignInArgs = Static<typeof signInUserSchema>;
 
 async function signIn({
   email,
   password,
-}: Pick<SignInArgs, "email" | "password">) {
+}: Pick<SignInArgs, 'email' | 'password'>) {
   const user = await db.query.userTable.findFirst({
     where: (users, { eq }) => eq(users.email, email),
   });
@@ -20,7 +20,7 @@ async function signIn({
   const isPasswordValid = await Bun.password.verify(
     password,
     user.password,
-    "bcrypt",
+    'bcrypt',
   );
 
   if (!isPasswordValid) {

@@ -1,7 +1,7 @@
-import { and, eq } from "drizzle-orm";
-import db from "../../database";
-import { workspaceTable } from "../../database/schema";
-import type { DeleteWorkspacePayload } from "../db/queries";
+import { and, eq } from 'drizzle-orm';
+import db from '../../database';
+import { workspaceTable } from '../../database/schema';
+import type { DeleteWorkspacePayload } from '../db/queries';
 
 async function deleteWorkspace({
   userEmail,
@@ -24,7 +24,7 @@ async function deleteWorkspace({
   const isWorkspaceExisting = Boolean(existingWorkspace);
 
   if (!isWorkspaceExisting) {
-    throw new Error("Workspace not found or access denied");
+    throw new Error('Workspace not found or access denied');
   }
 
   const [deletedWorkspace] = await db

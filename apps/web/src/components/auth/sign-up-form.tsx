@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -6,17 +6,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import useSignUp from "@/hooks/mutations/use-sign-up";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "@tanstack/react-router";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { type ZodType, z } from "zod";
-import useAuth from "../providers/auth-provider/hooks/use-auth";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useSignUp from '@/hooks/mutations/use-sign-up';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from '@tanstack/react-router';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { type ZodType, z } from 'zod';
+import useAuth from '../providers/auth-provider/hooks/use-auth';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 export type SignUpFormValues = {
   email: string;
@@ -26,26 +26,26 @@ export type SignUpFormValues = {
 
 const signUpSchema: ZodType<SignUpFormValues> = z.object({
   email: z.string().email(),
-  password: z.string().min(8, { message: "Password is too short" }),
+  password: z.string().min(8, { message: 'Password is too short' }),
   name: z.string(),
 });
 
-export function SignUpForm() {
+export const SignUpForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { setUser } = useAuth();
   const { history } = useRouter();
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      name: "",
+      email: '',
+      password: '',
+      name: '',
     },
   });
   const { isError, error, mutateAsync } = useSignUp({
-    email: form.getValues("email"),
-    password: form.getValues("password"),
-    name: form.getValues("name"),
+    email: form.getValues('email'),
+    password: form.getValues('password'),
+    name: form.getValues('name'),
   });
 
   const onSubmit = async () => {
@@ -53,13 +53,16 @@ export function SignUpForm() {
     setUser(user);
 
     setTimeout(() => {
-      history.push("/dashboard");
+      history.push('/dashboard');
     }, 500);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
         <div className="space-y-4">
           <FormField
             control={form.control}
@@ -80,7 +83,6 @@ export function SignUpForm() {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="email"
@@ -100,7 +102,6 @@ export function SignUpForm() {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="password"
@@ -114,7 +115,7 @@ export function SignUpForm() {
                     <Input
                       className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
                       placeholder="••••••••"
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       {...field}
                     />
                     <button
@@ -131,15 +132,13 @@ export function SignUpForm() {
             )}
           />
         </div>
-
-        {isError && (
+        {isError ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
-        )}
-
+        ) : null}
         <Button
           type="submit"
           className="w-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 mt-6"
@@ -149,4 +148,4 @@ export function SignUpForm() {
       </form>
     </Form>
   );
-}
+};

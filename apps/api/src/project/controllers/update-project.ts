@@ -1,7 +1,7 @@
-import { and, eq } from "drizzle-orm";
-import db from "../../database";
-import { projectTable } from "../../database/schema";
-import type { UpdateProjectPayload } from "../db/queries";
+import { and, eq } from 'drizzle-orm';
+import db from '../../database';
+import { projectTable } from '../../database/schema';
+import type { UpdateProjectPayload } from '../db/queries';
 
 async function updateProject({
   id,

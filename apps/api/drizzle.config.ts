@@ -1,10 +1,10 @@
-import { type Config, defineConfig } from "drizzle-kit";
+import { type Config, defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
-  out: "./drizzle",
-  schema: "./src/database/schema.ts",
-  dialect: "sqlite",
+  out: './drizzle',
+  schema: './src/database/schema.ts',
+  dialect: 'sqlite',
   dbCredentials: {
-    url: "file:kaneo.db",
+    url: 'file:kaneo.db',
   },
 }) satisfies Config;

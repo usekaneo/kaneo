@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -6,53 +6,53 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import useCreateTask from "@/hooks/mutations/task/use-create-task";
-import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
-import useProjectStore from "@/store/project";
-import useWorkspaceStore from "@/store/workspace";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as Dialog from "@radix-ui/react-dialog";
-import { produce } from "immer";
-import { Flag, UserIcon, X } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Select } from "../ui/select";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useCreateTask from '@/hooks/mutations/task/use-create-task';
+import useGetWorkspaceUsers from '@/hooks/queries/workspace-users/use-get-workspace-users';
+import useProjectStore from '@/store/project';
+import useWorkspaceStore from '@/store/workspace';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as Dialog from '@radix-ui/react-dialog';
+import { produce } from 'immer';
+import { Flag, UserIcon, X } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Select } from '../ui/select';
 
 interface CreateTaskModalProps {
-  open: boolean;
-  onClose: () => void;
-  status?: string;
+  readonly open: boolean;
+  readonly onClose: () => void;
+  readonly status?: string;
 }
 
 const taskSchema = z.object({
-  title: z.string().min(1, { message: "Title is required" }),
+  title: z.string().min(1, { message: 'Title is required' }),
   description: z.string().optional(),
-  priority: z.enum(["low", "medium", "high", "urgent"]),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']),
   email: z.string(),
 });
 
 type TaskFormValues = z.infer<typeof taskSchema>;
 
-export function CreateTaskModal({
+export const CreateTaskModal = ({
   open,
   onClose,
   status,
-}: CreateTaskModalProps) {
+}: CreateTaskModalProps) => {
   const { project, setProject } = useProjectStore();
   const { workspace } = useWorkspaceStore();
   const { data: users } = useGetWorkspaceUsers({
-    workspaceId: workspace?.id ?? "",
+    workspaceId: workspace?.id ?? '',
   });
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      priority: "low",
-      email: "",
+      title: '',
+      description: '',
+      priority: 'low',
+      email: '',
     },
   });
   const { mutateAsync } = useCreateTask();
@@ -62,12 +62,12 @@ export function CreateTaskModal({
 
     const newTask = await mutateAsync({
       title: data.title.trim(),
-      description: data.description?.trim() || "",
+      description: data.description?.trim() || '',
       userEmail: data.email,
       priority: data.priority,
       projectId: project?.id,
       dueDate: new Date(),
-      status: status ?? "to-do",
+      status: status ?? 'to-do',
     });
 
     const updatedProject = produce(project, (draft) => {
@@ -86,7 +86,10 @@ export function CreateTaskModal({
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={onClose}
+    >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
         <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
@@ -99,9 +102,11 @@ export function CreateTaskModal({
                 <X size={20} />
               </Dialog.Close>
             </div>
-
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="p-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="p-4"
+              >
                 <div className="space-y-4">
                   <FormField
                     control={form.control}
@@ -122,7 +127,6 @@ export function CreateTaskModal({
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="description"
@@ -143,7 +147,6 @@ export function CreateTaskModal({
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="email"
@@ -157,15 +160,15 @@ export function CreateTaskModal({
                             {...field}
                             options={[
                               {
-                                value: "",
-                                label: "Unassigned",
+                                value: '',
+                                label: 'Unassigned',
                                 icon: (
                                   <UserIcon className="w-4 h-4 text-zinc-400" />
                                 ),
                               },
                               ...(users ?? []).map((user) => ({
-                                value: user.userEmail ?? "",
-                                label: user.userName ?? "",
+                                value: user.userEmail ?? '',
+                                label: user.userName ?? '',
                               })),
                             ]}
                             placeholder="Select assignee"
@@ -175,7 +178,6 @@ export function CreateTaskModal({
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="priority"
@@ -189,29 +191,29 @@ export function CreateTaskModal({
                             {...field}
                             options={[
                               {
-                                value: "low",
-                                label: "Low",
+                                value: 'low',
+                                label: 'Low',
                                 icon: (
                                   <Flag className="w-4 h-4 text-blue-500" />
                                 ),
                               },
                               {
-                                value: "medium",
-                                label: "Medium",
+                                value: 'medium',
+                                label: 'Medium',
                                 icon: (
                                   <Flag className="w-4 h-4 text-yellow-500" />
                                 ),
                               },
                               {
-                                value: "high",
-                                label: "High",
+                                value: 'high',
+                                label: 'High',
                                 icon: (
                                   <Flag className="w-4 h-4 text-orange-500" />
                                 ),
                               },
                               {
-                                value: "urgent",
-                                label: "Urgent",
+                                value: 'urgent',
+                                label: 'Urgent',
                                 icon: <Flag className="w-4 h-4 text-red-500" />,
                               },
                             ]}
@@ -223,7 +225,6 @@ export function CreateTaskModal({
                     )}
                   />
                 </div>
-
                 <div className="flex justify-end gap-2 mt-6">
                   <Dialog.Close asChild>
                     <Button
@@ -247,4 +248,4 @@ export function CreateTaskModal({
       </Dialog.Portal>
     </Dialog.Root>
   );
-}
+};

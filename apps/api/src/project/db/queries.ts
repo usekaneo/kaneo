@@ -2,9 +2,9 @@ import {
   createInsertSchema,
   createSelectSchema,
   createUpdateSchema,
-} from "drizzle-typebox";
-import { type Static, t } from "elysia";
-import { projectTable } from "../../database/schema";
+} from 'drizzle-typebox';
+import { type Static, t } from 'elysia';
+import { projectTable } from '../../database/schema';
 
 export const getProjectSchema = createSelectSchema(projectTable, {
   workspaceId: t.String(),

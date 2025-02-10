@@ -1,4 +1,4 @@
-import { api } from "@kaneo/libs";
+import { api } from '@kaneo/libs';
 
 async function createProject(
   title: string,

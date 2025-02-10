@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm";
-import db from "../../database";
-import { taskTable } from "../../database/schema";
+import { and, eq } from 'drizzle-orm';
+import db from '../../database';
+import { taskTable } from '../../database/schema';
 
 async function updateTask({
   id,

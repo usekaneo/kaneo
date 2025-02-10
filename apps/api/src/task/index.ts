@@ -1,14 +1,15 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import createTask from "./controllers/create-task";
-import getTasks from "./controllers/get-tasks";
-import updateTaskStatus from "./controllers/update-task-status";
+import type { ElysiaWS } from '@elysiajs/websocket';
+import createTask from './controllers/create-task';
+import getTasks from './controllers/get-tasks';
+import updateTaskStatus from './controllers/update-task-status';
 
-const connections = new Map();
+const connections = new Map<string, Set<ElysiaWS>>();
 
-const task = new Elysia({ prefix: "/task" })
+const task = new Elysia({ prefix: '/task' })
   .post(
-    "/create",
+    '/create',
     async ({ body }) => {
       const createdTask = await createTask(body);
 
@@ -26,7 +27,7 @@ const task = new Elysia({ prefix: "/task" })
       }),
     },
   )
-  .ws("/ws/:projectId", {
+  .ws('/ws/:projectId', {
     async open(ws) {
       const projectId = ws.data.params.projectId;
 
@@ -34,7 +35,11 @@ const task = new Elysia({ prefix: "/task" })
         connections.set(projectId, new Set());
       }
 
-      connections.get(projectId).add(ws);
+      const connection = connections.get(projectId);
+
+      if (connection) {
+        connection.add(ws);
+      }
 
       const boardState = await getTasks(projectId);
       ws.send(boardState);
@@ -51,7 +56,7 @@ const task = new Elysia({ prefix: "/task" })
 
       const { type, id, status } = message;
 
-      if (type === "UPDATE_TASK") {
+      if (type === 'UPDATE_TASK') {
         await updateTaskStatus({
           id,
           status,

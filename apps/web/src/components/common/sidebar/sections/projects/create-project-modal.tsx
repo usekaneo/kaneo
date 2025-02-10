@@ -1,30 +1,30 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import icons from "@/constants/project-icons";
-import useCreateProject from "@/hooks/mutations/project/use-create-project";
-import { cn } from "@/lib/cn";
-import generateProjectSlug from "@/lib/generate-project-id";
-import useWorkspaceStore from "@/store/workspace";
-import * as Dialog from "@radix-ui/react-dialog";
-import { useQueryClient } from "@tanstack/react-query";
-import { X } from "lucide-react";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import icons from '@/constants/project-icons';
+import useCreateProject from '@/hooks/mutations/project/use-create-project';
+import { cn } from '@/lib/cn';
+import generateProjectSlug from '@/lib/generate-project-id';
+import useWorkspaceStore from '@/store/workspace';
+import * as Dialog from '@radix-ui/react-dialog';
+import { useQueryClient } from '@tanstack/react-query';
+import { X } from 'lucide-react';
+import { useState } from 'react';
 
 type CreateProjectModalProps = {
-  open: boolean;
-  onClose: () => void;
+  readonly open: boolean;
+  readonly onClose: () => void;
 };
 
-function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState("Layout");
+const CreateProjectModal = ({ open, onClose }: CreateProjectModalProps) => {
+  const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
+  const [selectedIcon, setSelectedIcon] = useState('Layout');
   const queryClient = useQueryClient();
   const { workspace } = useWorkspaceStore();
   const { mutateAsync } = useCreateProject({
     name,
     slug,
-    workspaceId: workspace?.id ?? "",
+    workspaceId: workspace?.id ?? '',
     icon: selectedIcon,
   });
   const IconComponent = icons[selectedIcon as keyof typeof icons];
@@ -34,11 +34,11 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     if (!name.trim()) return;
 
     await mutateAsync();
-    await queryClient.invalidateQueries({ queryKey: ["projects"] });
+    await queryClient.invalidateQueries({ queryKey: ['projects'] });
 
-    setName("");
-    setSlug("");
-    setSelectedIcon("Layout");
+    setName('');
+    setSlug('');
+    setSelectedIcon('Layout');
     onClose();
   };
 
@@ -49,7 +49,10 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={onClose}
+    >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-xs" />
         <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
@@ -62,8 +65,10 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                 <X size={20} />
               </Dialog.Close>
             </div>
-
-            <form onSubmit={handleSubmit} className="p-4">
+            <form
+              onSubmit={handleSubmit}
+              className="p-4"
+            >
               <div className="mb-4">
                 <label
                   htmlFor="projectName"
@@ -80,7 +85,6 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   required
                 />
               </div>
-
               <div className="mb-4">
                 <label
                   htmlFor="slug"
@@ -110,7 +114,6 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   This key will be used for ticket IDs (e.g., ABC-123)
                 </p>
               </div>
-
               <div>
                 <label
                   htmlFor="icon"
@@ -126,10 +129,10 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                         type="button"
                         onClick={() => setSelectedIcon(name)}
                         className={cn(
-                          "p-2 rounded-lg transition-colors flex items-center justify-center group",
+                          'p-2 rounded-lg transition-colors flex items-center justify-center group',
                           selectedIcon === name
-                            ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                            : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
+                            ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400'
+                            : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800',
                         )}
                         title={name}
                       >
@@ -146,7 +149,6 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   </span>
                 </div>
               </div>
-
               <div className="flex justify-end gap-2">
                 <Dialog.Close asChild>
                   <Button
@@ -169,6 +171,6 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
       </Dialog.Portal>
     </Dialog.Root>
   );
-}
+};
 
 export default CreateProjectModal;

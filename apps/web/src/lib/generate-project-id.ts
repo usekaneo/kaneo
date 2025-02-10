@@ -1,7 +1,7 @@
 function generateProjectSlug(projectName: string) {
   const words = projectName
     .toUpperCase()
-    .replace(/[^A-Z0-9\s]/g, "")
+    .replace(/[^A-Z0-9\s]/g, '')
     .split(/\s+/);
 
   if (words.length === 1) {
@@ -11,7 +11,7 @@ function generateProjectSlug(projectName: string) {
   return words
     .slice(0, 3)
     .map((word) => word[0])
-    .join("");
+    .join('');
 }
 
 export default generateProjectSlug;

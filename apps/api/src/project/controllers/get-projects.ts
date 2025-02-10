@@ -1,11 +1,11 @@
-import { and, eq } from "drizzle-orm";
-import db from "../../database";
-import { projectTable, workspaceTable } from "../../database/schema";
-import type { GetProjectsPayload } from "../db/queries";
+import { and, eq } from 'drizzle-orm';
+import db from '../../database';
+import { projectTable, workspaceTable } from '../../database/schema';
+import type { GetProjectsPayload } from '../db/queries';
 
 async function getProjects({
   workspaceId,
-}: Pick<GetProjectsPayload, "workspaceId">) {
+}: Pick<GetProjectsPayload, 'workspaceId'>) {
   const projects = await db
     .select({
       id: projectTable.id,

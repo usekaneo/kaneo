@@ -1,6 +1,6 @@
-import { count, eq } from "drizzle-orm";
-import db from "../../database";
-import { taskTable, userTable } from "../../database/schema";
+import { count, eq } from 'drizzle-orm';
+import db from '../../database';
+import { taskTable, userTable } from '../../database/schema';
 
 async function getNextTaskNumber(projectId: string) {
   const [task] = await db
@@ -24,9 +24,8 @@ async function createTask(body: {
     .select({ name: userTable.name })
     .from(userTable)
     .where(eq(userTable.email, body.userEmail));
-
-  if (!assignee) {
-    throw new Error("Assignee not found");
+  if (!assignee.name) {
+    throw new Error('Assignee not found');
   }
 
   const nextTaskNumber = await getNextTaskNumber(body.projectId);

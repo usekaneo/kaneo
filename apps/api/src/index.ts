@@ -1,43 +1,44 @@
-import { logger } from "@bogeychan/elysia-logger";
-import { cors } from "@elysiajs/cors";
-import { Elysia } from "elysia";
-import project from "./project";
-import task from "./task";
-import user from "./user";
-import { validateSessionToken } from "./user/controllers/validate-session-token";
-import workspace from "./workspace";
-import workspaceUser from "./workspace-user";
+import { logger } from '@bogeychan/elysia-logger';
+import { cors } from '@elysiajs/cors';
+import { Elysia } from 'elysia';
+import project from './project';
+import task from './task';
+import user from './user';
+import { validateSessionToken } from './user/controllers/validate-session-token';
+import workspace from './workspace';
+import workspaceUser from './workspace-user';
 
 const app = new Elysia()
-  .state("userEmail", "")
+  .state('userEmail', '')
   .use(cors())
   .use(logger())
   .use(user)
   .guard({
     async beforeHandle({ store, cookie: { session } }) {
-      if (!session?.value) {
+      if (!session.value) {
         return { user: null };
       }
 
-      const { user, session: validatedSession } = await validateSessionToken(
-        session.value,
-      );
+      const { user: sessionUser, session: validatedSession } =
+        await validateSessionToken(session.value);
 
-      if (!user || !validatedSession) {
+      if (!sessionUser || Boolean(validatedSession)) {
         return { user: null };
       }
 
-      store.userEmail = user.email;
+      store.userEmail = sessionUser.email;
     },
   })
-  .get("/me", async ({ cookie: { session } }) => {
-    const { user } = await validateSessionToken(session.value ?? "");
+  .get('/me', async ({ cookie: { session } }) => {
+    const { user: sessionUser } = await validateSessionToken(
+      session.value ?? '',
+    );
 
-    if (user === null) {
+    if (sessionUser === null) {
       return { user: null };
     }
 
-    return { user };
+    return { sessionUser };
   })
   .use(workspace)
   .use(project)
@@ -45,8 +46,6 @@ const app = new Elysia()
   .use(workspaceUser)
   .onError(({ code, error }) => {
     switch (code) {
-      case "VALIDATION":
-        return error.all;
       default:
         if (error instanceof Error) {
           return {

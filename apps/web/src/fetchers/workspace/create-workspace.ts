@@ -1,4 +1,4 @@
-import { api } from "@kaneo/libs";
+import { api } from '@kaneo/libs';
 
 const createWorkspace = async ({ name }: { name: string }) => {
   const response = await api.workspace.create.post({ name });

@@ -1,14 +1,14 @@
-import { CreateTaskModal } from "@/components/task/create-task-modal";
-import toKebabCase from "@/lib/to-kebab-case";
-import type { Column } from "@/types/project";
-import { Plus } from "lucide-react";
-import { useState } from "react";
+import { CreateTaskModal } from '@/components/task/create-task-modal';
+import toKebabCase from '@/lib/to-kebab-case';
+import type { Column } from '@/types/project';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
 
 interface ColumnHeaderProps {
-  column: Column;
+  readonly column: Column;
 }
 
-export function ColumnHeader({ column }: ColumnHeaderProps) {
+export const ColumnHeader = ({ column }: ColumnHeaderProps) => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   return (
@@ -27,7 +27,6 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
             {column.tasks.length}
           </span>
         </div>
-
         <button
           type="button"
           onClick={() => setIsTaskModalOpen(true)}
@@ -38,4 +37,4 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
       </div>
     </>
   );
-}
+};

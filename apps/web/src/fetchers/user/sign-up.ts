@@ -1,8 +1,8 @@
-import type { SignUpFormValues } from "@/components/auth/sign-up-form";
-import { api } from "@kaneo/libs";
+import type { SignUpFormValues } from '@/components/auth/sign-up-form';
+import { api } from '@kaneo/libs';
 
 const signUp = async ({ email, password, name }: SignUpFormValues) => {
-  const response = await api.user["sign-up"].post({
+  const response = await api.user['sign-up'].post({
     email,
     password,
     name,

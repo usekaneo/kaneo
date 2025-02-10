@@ -1,13 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AuthLayout } from "../../components/auth/layout";
-import { SignInForm } from "../../components/auth/sign-in-form";
-import { AuthToggle } from "../../components/auth/toggle";
+import { createFileRoute } from '@tanstack/react-router';
+import { AuthLayout } from '../../components/auth/layout';
+import { SignInForm } from '../../components/auth/sign-in-form';
+import { AuthToggle } from '../../components/auth/toggle';
 
-export const Route = createFileRoute("/auth/sign-in")({
-  component: SignIn,
-});
-
-function SignIn() {
+const SignIn = () => {
   return (
     <AuthLayout
       title="Welcome back"
@@ -21,4 +17,8 @@ function SignIn() {
       />
     </AuthLayout>
   );
-}
+};
+
+export const Route = createFileRoute('/auth/sign-in')({
+  component: SignIn,
+});

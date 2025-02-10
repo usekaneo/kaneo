@@ -1,9 +1,9 @@
-import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/cn";
-import { useUserPreferencesStore } from "@/store/user-preferences";
+import useAuth from '@/components/providers/auth-provider/hooks/use-auth';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { cn } from '@/lib/cn';
+import { useUserPreferencesStore } from '@/store/user-preferences';
 
-function UserInfo() {
+const UserInfo = () => {
   const { user } = useAuth();
   const { isSidebarOpened } = useUserPreferencesStore();
 
@@ -12,7 +12,7 @@ function UserInfo() {
       <Avatar className="text-zinc-900 dark:text-zinc-100">
         <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
       </Avatar>
-      <div className={cn("flex-1 min-w-0", !isSidebarOpened && "hidden")}>
+      <div className={cn('flex-1 min-w-0', !isSidebarOpened && 'hidden')}>
         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
           {user?.name}
         </p>
@@ -22,6 +22,6 @@ function UserInfo() {
       </div>
     </div>
   );
-}
+};
 
 export default UserInfo;

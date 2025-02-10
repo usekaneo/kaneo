@@ -1,10 +1,10 @@
-import { eq } from "drizzle-orm";
-import db from "../../database";
+import { eq } from 'drizzle-orm';
+import db from '../../database';
 import {
   userTable,
   workspaceTable,
   workspaceUserTable,
-} from "../../database/schema";
+} from '../../database/schema';
 
 function getWorkspaceUsers({ workspaceId }: { workspaceId: string }) {
   return db

@@ -1,5 +1,5 @@
-import type { InferSelectModel } from "drizzle-orm";
-import type { sessionTable, userTable } from "../database/schema";
+import type { InferSelectModel } from 'drizzle-orm';
+import type { sessionTable, userTable } from '../database/schema';
 
 export type User = InferSelectModel<typeof userTable>;
 export type Session = InferSelectModel<typeof sessionTable>;

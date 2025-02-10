@@ -1,14 +1,13 @@
-import { useUserPreferencesStore } from "@/store/user-preferences";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Logo } from "../logo";
+import { useUserPreferencesStore } from '@/store/user-preferences';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Logo } from '../logo';
 
-export function SidebarHeader() {
+export const SidebarHeader = () => {
   const { isSidebarOpened, setIsSidebarOpened } = useUserPreferencesStore();
 
   return (
     <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-      {isSidebarOpened && <Logo />}
-
+      {isSidebarOpened ? <Logo /> : null}
       <button
         type="button"
         onClick={() => setIsSidebarOpened()}
@@ -22,4 +21,4 @@ export function SidebarHeader() {
       </button>
     </div>
   );
-}
+};

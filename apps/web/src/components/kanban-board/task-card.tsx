@@ -1,16 +1,16 @@
-import useProjectStore from "@/store/project";
-import type { Task } from "@/types/project";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { format } from "date-fns";
-import { Calendar, Flag, UserIcon } from "lucide-react";
-import type { CSSProperties } from "react";
+import useProjectStore from '@/store/project';
+import type { Task } from '@/types/project';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { format } from 'date-fns';
+import { Calendar, Flag, UserIcon } from 'lucide-react';
+import type { CSSProperties } from 'react';
 
 interface TaskCardProps {
-  task: Task;
+  readonly task: Task;
 }
 
-function TaskCard({ task }: TaskCardProps) {
+const TaskCard = ({ task }: TaskCardProps) => {
   const {
     attributes,
     listeners,
@@ -25,15 +25,15 @@ function TaskCard({ task }: TaskCardProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    touchAction: "none",
+    touchAction: 'none',
   };
 
   const priorityColors = {
-    low: "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-500",
+    low: 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-500',
     medium:
-      "bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-500",
-    high: "bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-500",
-    urgent: "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-500",
+      'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-500',
+    high: 'bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-500',
+    urgent: 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-500',
   };
 
   return (
@@ -47,13 +47,11 @@ function TaskCard({ task }: TaskCardProps) {
       <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-2">
         {project?.slug}-{task.number}
       </div>
-
       <div className="flex items-center gap-2 mb-2">
         <h3 className="font-medium text-zinc-900 dark:text-zinc-100 max-w-4/5 truncate">
           {task.title}
         </h3>
       </div>
-
       <div className="flex items-center gap-2 mt-auto">
         {task.assigneeName ? (
           <div
@@ -75,16 +73,14 @@ function TaskCard({ task }: TaskCardProps) {
             </span>
           </div>
         )}
-
-        {task.dueDate && (
+        {task.dueDate ? (
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors">
             <Calendar className="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
             <span className="text-xs text-zinc-600 dark:text-zinc-400">
-              {format(new Date(task.dueDate), "MMM d")}
+              {format(new Date(task.dueDate), 'MMM d')}
             </span>
           </div>
-        )}
-
+        ) : null}
         <div className="flex-shrink-0">
           <span
             className={`text-xs px-2 py-1 rounded-full ${priorityColors[task.priority as keyof typeof priorityColors]}`}
@@ -96,6 +92,6 @@ function TaskCard({ task }: TaskCardProps) {
       </div>
     </div>
   );
-}
+};
 
 export default TaskCard;

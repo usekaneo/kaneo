@@ -1,10 +1,10 @@
-import { eq, or } from "drizzle-orm";
-import db from "../../database";
+import { eq, or } from 'drizzle-orm';
+import db from '../../database';
 import {
   projectTable,
   workspaceTable,
   workspaceUserTable,
-} from "../../database/schema";
+} from '../../database/schema';
 
 async function getWorkspaces({ userEmail }: { userEmail: string }) {
   const workspaces = await db

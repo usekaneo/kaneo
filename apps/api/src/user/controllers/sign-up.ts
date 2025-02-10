@@ -1,8 +1,8 @@
-import type { Static } from "elysia";
-import db from "../../database";
-import { userTable } from "../../database/schema";
-import type { signUpUserSchema } from "../db/queries";
-import { UserErrors } from "../errors";
+import type { Static } from 'elysia';
+import db from '../../database';
+import { userTable } from '../../database/schema';
+import type { signUpUserSchema } from '../db/queries';
+import { UserErrors } from '../errors';
 
 type SignUpArgs = Static<typeof signUpUserSchema>;
 
@@ -18,7 +18,7 @@ async function signUp({ email, name, password }: SignUpArgs) {
   }
 
   const hashedPassword = await Bun.password.hash(password, {
-    algorithm: "bcrypt",
+    algorithm: 'bcrypt',
   });
 
   const user = (

@@ -1,17 +1,11 @@
-import KanbanBoard from "@/components/kanban-board";
-import useGetProject from "@/hooks/queries/project/use-get-project";
-import useProjectStore from "@/store/project";
-import { createFileRoute } from "@tanstack/react-router";
-import { LayoutGrid } from "lucide-react";
-import { useEffect } from "react";
+import KanbanBoard from '@/components/kanban-board';
+import useGetProject from '@/hooks/queries/project/use-get-project';
+import useProjectStore from '@/store/project';
+import { createFileRoute } from '@tanstack/react-router';
+import { LayoutGrid } from 'lucide-react';
+import { useEffect } from 'react';
 
-export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/project/$projectId",
-)({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+const RouteComponent = () => {
   const { workspaceId, projectId } = Route.useParams();
   const { data, isFetching } = useGetProject({ id: projectId, workspaceId });
   const { setProject } = useProjectStore();
@@ -33,4 +27,10 @@ function RouteComponent() {
   }
 
   return <KanbanBoard />;
-}
+};
+
+export const Route = createFileRoute(
+  '/dashboard/workspace/$workspaceId/project/$projectId',
+)({
+  component: RouteComponent,
+});

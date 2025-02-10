@@ -1,9 +1,12 @@
-import { api } from "@kaneo/libs";
+import { api } from '@kaneo/libs';
 
 async function getProject({
   id,
   workspaceId,
-}: { id: string; workspaceId: string }) {
+}: {
+  id: string;
+  workspaceId: string;
+}) {
   const response = await api.project({ id }).get({ query: { workspaceId } });
 
   if (response.error) {

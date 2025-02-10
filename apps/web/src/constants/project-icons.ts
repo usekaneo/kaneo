@@ -60,7 +60,7 @@ import {
   Wand2,
   Watch,
   Zap,
-} from "lucide-react";
+} from 'lucide-react';
 
 const icons = {
   Layout,
