@@ -8,6 +8,13 @@
 			"when": 1739135000822,
 			"tag": "0000_conscious_golden_guardian",
 			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1739297520379,
+			"tag": "0001_safe_green_goblin",
+			"breakpoints": true
 		}
 	]
 }
