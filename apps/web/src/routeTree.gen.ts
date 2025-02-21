@@ -24,7 +24,6 @@ import { Route as DashboardTeamsWorkspaceIdLayoutImport } from './routes/dashboa
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId'
 import { Route as DashboardTeamsWorkspaceIdLayoutRolesImport } from './routes/dashboard/teams/$workspaceId/_layout.roles'
 import { Route as DashboardTeamsWorkspaceIdLayoutMembersImport } from './routes/dashboard/teams/$workspaceId/_layout.members'
-import { Route as DashboardTeamsWorkspaceIdLayoutInvitationsImport } from './routes/dashboard/teams/$workspaceId/_layout.invitations'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdBoardImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/board'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId'
 
@@ -113,13 +112,6 @@ const DashboardTeamsWorkspaceIdLayoutMembersRoute =
     getParentRoute: () => DashboardTeamsWorkspaceIdLayoutRoute,
   } as any)
 
-const DashboardTeamsWorkspaceIdLayoutInvitationsRoute =
-  DashboardTeamsWorkspaceIdLayoutInvitationsImport.update({
-    id: '/invitations',
-    path: '/invitations',
-    getParentRoute: () => DashboardTeamsWorkspaceIdLayoutRoute,
-  } as any)
-
 const DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute =
   DashboardWorkspaceWorkspaceIdProjectProjectIdBoardImport.update({
     id: '/board',
@@ -200,13 +192,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/teams/$workspaceId'
       preLoaderRoute: typeof DashboardTeamsWorkspaceIdLayoutImport
       parentRoute: typeof DashboardTeamsWorkspaceIdRoute
-    }
-    '/dashboard/teams/$workspaceId/_layout/invitations': {
-      id: '/dashboard/teams/$workspaceId/_layout/invitations'
-      path: '/invitations'
-      fullPath: '/dashboard/teams/$workspaceId/invitations'
-      preLoaderRoute: typeof DashboardTeamsWorkspaceIdLayoutInvitationsImport
-      parentRoute: typeof DashboardTeamsWorkspaceIdLayoutImport
     }
     '/dashboard/teams/$workspaceId/_layout/members': {
       id: '/dashboard/teams/$workspaceId/_layout/members'
@@ -293,15 +278,12 @@ const DashboardWorkspaceWorkspaceIdRouteWithChildren =
   )
 
 interface DashboardTeamsWorkspaceIdLayoutRouteChildren {
-  DashboardTeamsWorkspaceIdLayoutInvitationsRoute: typeof DashboardTeamsWorkspaceIdLayoutInvitationsRoute
   DashboardTeamsWorkspaceIdLayoutMembersRoute: typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   DashboardTeamsWorkspaceIdLayoutRolesRoute: typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
 }
 
 const DashboardTeamsWorkspaceIdLayoutRouteChildren: DashboardTeamsWorkspaceIdLayoutRouteChildren =
   {
-    DashboardTeamsWorkspaceIdLayoutInvitationsRoute:
-      DashboardTeamsWorkspaceIdLayoutInvitationsRoute,
     DashboardTeamsWorkspaceIdLayoutMembersRoute:
       DashboardTeamsWorkspaceIdLayoutMembersRoute,
     DashboardTeamsWorkspaceIdLayoutRolesRoute:
@@ -354,7 +336,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
-  '/dashboard/teams/$workspaceId/invitations': typeof DashboardTeamsWorkspaceIdLayoutInvitationsRoute
   '/dashboard/teams/$workspaceId/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
@@ -371,7 +352,6 @@ export interface FileRoutesByTo {
   '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
-  '/dashboard/teams/$workspaceId/invitations': typeof DashboardTeamsWorkspaceIdLayoutInvitationsRoute
   '/dashboard/teams/$workspaceId/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
@@ -390,7 +370,6 @@ export interface FileRoutesById {
   '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdRouteWithChildren
   '/dashboard/teams/$workspaceId/_layout': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
-  '/dashboard/teams/$workspaceId/_layout/invitations': typeof DashboardTeamsWorkspaceIdLayoutInvitationsRoute
   '/dashboard/teams/$workspaceId/_layout/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/_layout/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
@@ -409,7 +388,6 @@ export interface FileRouteTypes {
     | '/dashboard/settings/appearance'
     | '/dashboard/workspace/$workspaceId'
     | '/dashboard/teams/$workspaceId'
-    | '/dashboard/teams/$workspaceId/invitations'
     | '/dashboard/teams/$workspaceId/members'
     | '/dashboard/teams/$workspaceId/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
@@ -425,7 +403,6 @@ export interface FileRouteTypes {
     | '/dashboard/settings/appearance'
     | '/dashboard/workspace/$workspaceId'
     | '/dashboard/teams/$workspaceId'
-    | '/dashboard/teams/$workspaceId/invitations'
     | '/dashboard/teams/$workspaceId/members'
     | '/dashboard/teams/$workspaceId/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
@@ -442,7 +419,6 @@ export interface FileRouteTypes {
     | '/dashboard/workspace/$workspaceId'
     | '/dashboard/teams/$workspaceId'
     | '/dashboard/teams/$workspaceId/_layout'
-    | '/dashboard/teams/$workspaceId/_layout/invitations'
     | '/dashboard/teams/$workspaceId/_layout/members'
     | '/dashboard/teams/$workspaceId/_layout/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
@@ -527,14 +503,9 @@ export const routeTree = rootRoute
       "filePath": "dashboard/teams/$workspaceId/_layout.tsx",
       "parent": "/dashboard/teams/$workspaceId",
       "children": [
-        "/dashboard/teams/$workspaceId/_layout/invitations",
         "/dashboard/teams/$workspaceId/_layout/members",
         "/dashboard/teams/$workspaceId/_layout/roles"
       ]
-    },
-    "/dashboard/teams/$workspaceId/_layout/invitations": {
-      "filePath": "dashboard/teams/$workspaceId/_layout.invitations.tsx",
-      "parent": "/dashboard/teams/$workspaceId/_layout"
     },
     "/dashboard/teams/$workspaceId/_layout/members": {
       "filePath": "dashboard/teams/$workspaceId/_layout.members.tsx",

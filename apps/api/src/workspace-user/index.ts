@@ -1,21 +1,24 @@
 import Elysia, { t } from "elysia";
-import getPendingWorkspaceUsers from "./controllers/get-pending-workspace-users";
+import deleteWorkspaceUser from "./controllers/delete-workspace-user";
 import getWorkspaceUsers from "./controllers/get-workspace-users";
 import inviteWorkspaceUser from "./controllers/invite-workspace-user";
 
 const workspaceUser = new Elysia({ prefix: "/workspace-user" })
-  .get("/list/:workspaceId", async ({ params: { workspaceId } }) => {
-    const workspaceUsersInWorkspace = await getWorkspaceUsers({ workspaceId });
+  .get(
+    "/list/:workspaceId",
+    async ({ params: { workspaceId } }) => {
+      const workspaceUsersInWorkspace = await getWorkspaceUsers({
+        workspaceId,
+      });
 
-    return workspaceUsersInWorkspace;
-  })
-  .get("/pending/list/:workspaceId", async ({ params: { workspaceId } }) => {
-    const pendingWorkspaceUsersInWorkspace = await getPendingWorkspaceUsers({
-      workspaceId,
-    });
-
-    return pendingWorkspaceUsersInWorkspace;
-  })
+      return workspaceUsersInWorkspace;
+    },
+    {
+      params: t.Object({
+        workspaceId: t.String(),
+      }),
+    },
+  )
   .post(
     "/:workspaceId/invite",
     async ({ body }) => {
@@ -27,6 +30,18 @@ const workspaceUser = new Elysia({ prefix: "/workspace-user" })
       body: t.Object({
         userEmail: t.String(),
         workspaceId: t.String(),
+      }),
+    },
+  )
+  .delete(
+    "/:workspaceId/:userEmail",
+    async ({ params: { workspaceId, userEmail } }) => {
+      await deleteWorkspaceUser({ workspaceId, userEmail });
+    },
+    {
+      params: t.Object({
+        workspaceId: t.String(),
+        userEmail: t.String(),
       }),
     },
   );

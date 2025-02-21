@@ -6,7 +6,7 @@ CREATE TABLE `__new_project` (
 	`icon` text DEFAULT 'Layout',
 	`name` text NOT NULL,
 	`description` text,
-	`created_at` integer DEFAULT '"2025-02-11T18:12:00.369Z"' NOT NULL,
+	`created_at` integer DEFAULT '"2025-02-18T21:46:39.855Z"' NOT NULL,
 	FOREIGN KEY (`workspace_id`) REFERENCES `workspace`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
@@ -24,7 +24,7 @@ CREATE TABLE `__new_task` (
 	`status` text DEFAULT 'to-do' NOT NULL,
 	`priority` text DEFAULT 'low',
 	`due_date` integer,
-	`created_at` integer DEFAULT '"2025-02-11T18:12:00.369Z"' NOT NULL,
+	`created_at` integer DEFAULT '"2025-02-18T21:46:39.856Z"' NOT NULL,
 	FOREIGN KEY (`project_id`) REFERENCES `project`(`id`) ON UPDATE cascade ON DELETE cascade,
 	FOREIGN KEY (`assignee_email`) REFERENCES `user`(`email`) ON UPDATE cascade ON DELETE cascade
 );
@@ -37,7 +37,7 @@ CREATE TABLE `__new_user` (
 	`name` text NOT NULL,
 	`password` text NOT NULL,
 	`email` text NOT NULL,
-	`created_at` integer DEFAULT '"2025-02-11T18:12:00.368Z"' NOT NULL
+	`created_at` integer DEFAULT '"2025-02-18T21:46:39.855Z"' NOT NULL
 );
 --> statement-breakpoint
 INSERT INTO `__new_user`("id", "name", "password", "email", "created_at") SELECT "id", "name", "password", "email", "created_at" FROM `user`;--> statement-breakpoint
@@ -49,7 +49,7 @@ CREATE TABLE `__new_workspace` (
 	`name` text NOT NULL,
 	`description` text,
 	`owner_email` text NOT NULL,
-	`created_at` integer DEFAULT '"2025-02-11T18:12:00.368Z"' NOT NULL,
+	`created_at` integer DEFAULT '"2025-02-18T21:46:39.855Z"' NOT NULL,
 	FOREIGN KEY (`owner_email`) REFERENCES `user`(`email`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
@@ -60,12 +60,13 @@ CREATE TABLE `__new_workspace_member` (
 	`id` text PRIMARY KEY NOT NULL,
 	`workspace_id` text NOT NULL,
 	`user_email` text NOT NULL,
-	`role` text,
-	`joined_at` integer DEFAULT '"2025-02-11T18:12:00.369Z"' NOT NULL,
+	`role` text DEFAULT 'member' NOT NULL,
+	`joined_at` integer DEFAULT '"2025-02-18T21:46:39.855Z"' NOT NULL,
+	`status` text DEFAULT 'active' NOT NULL,
 	FOREIGN KEY (`workspace_id`) REFERENCES `workspace`(`id`) ON UPDATE cascade ON DELETE cascade,
 	FOREIGN KEY (`user_email`) REFERENCES `user`(`email`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
-INSERT INTO `__new_workspace_member`("id", "workspace_id", "user_email", "role", "joined_at") SELECT "id", "workspace_id", "user_email", "role", "joined_at" FROM `workspace_member`;--> statement-breakpoint
+INSERT INTO `__new_workspace_member`("id", "workspace_id", "user_email", "role", "joined_at", "status") SELECT "id", "workspace_id", "user_email", "role", "joined_at", "status" FROM `workspace_member`;--> statement-breakpoint
 DROP TABLE `workspace_member`;--> statement-breakpoint
 ALTER TABLE `__new_workspace_member` RENAME TO `workspace_member`;

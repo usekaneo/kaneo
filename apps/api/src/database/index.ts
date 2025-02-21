@@ -11,6 +11,4 @@ const sqlite = new Database(dbPath);
 
 const db = drizzle(sqlite, { schema });
 
-void migrate(db, { migrationsFolder: "drizzle" });
-
 export default db;

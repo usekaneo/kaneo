@@ -1,5 +1,7 @@
 import { cors } from "@elysiajs/cors";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { Elysia } from "elysia";
+import db from "./database";
 import project from "./project";
 import task from "./task";
 import user from "./user";
@@ -57,5 +59,9 @@ const app = new Elysia()
   .listen(1337);
 
 export type App = typeof app;
+
+console.log("Migrating database...");
+migrate(db, { migrationsFolder: "drizzle" });
+console.log("Database migrated");
 
 console.log(`🏃 Kaneo is running at ${app.server?.url}`);

@@ -59,10 +59,11 @@ export const workspaceUserTable = sqliteTable("workspace_member", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  role: text("role"),
+  role: text("role").default("member").notNull(),
   joinedAt: integer("joined_at", { mode: "timestamp" })
     .default(new Date())
     .notNull(),
+  status: text("status").default("pending").notNull(),
 });
 
 export const projectTable = sqliteTable("project", {
