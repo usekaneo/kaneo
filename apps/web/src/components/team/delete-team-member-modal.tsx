@@ -17,8 +17,6 @@ function DeleteTeamMemberModal({
   const { mutateAsync: deleteWorkspaceUser } = useDeleteWorkspaceUser();
   const queryClient = useQueryClient();
 
-  console.log({ workspaceId, userEmail });
-
   const onRemoveMember = async () => {
     await deleteWorkspaceUser({
       workspaceId: workspaceId,

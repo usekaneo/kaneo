@@ -24,6 +24,24 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - traefik-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     image: ghcr.io/kaneo-app/api:latest
     labels:
@@ -36,10 +54,14 @@ services:
     environment:
       JWT_ACCESS: "change_me"
       DB_PATH: "/app/apps/api/data/kaneo.db"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
     volumes:
       - sqlite_data:/app/apps/api/data:rw
     networks:
       - traefik-net
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -64,4 +86,7 @@ networks:
 volumes:
   sqlite_data:
     name: kaneo_sqlite_data
+    external: true
+  rabbitmq_data:
+    name: kaneo_rabbitmq_data
     external: true
