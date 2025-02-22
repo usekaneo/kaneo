@@ -2,6 +2,7 @@ import Elysia, { t } from "elysia";
 import deleteWorkspaceUser from "./controllers/delete-workspace-user";
 import getWorkspaceUsers from "./controllers/get-workspace-users";
 import inviteWorkspaceUser from "./controllers/invite-workspace-user";
+import "./events";
 
 const workspaceUser = new Elysia({ prefix: "/workspace-user" })
   .get(

@@ -31,7 +31,9 @@ function TeamTable() {
             <td className="py-3 px-4">
               <div className="flex items-center">
                 <Avatar className="h-8 w-8 mr-3">
-                  <AvatarFallback>{user.userName.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>
+                    {user.userName?.charAt(0) ?? "U"}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <div className="font-medium text-zinc-900 dark:text-zinc-100">

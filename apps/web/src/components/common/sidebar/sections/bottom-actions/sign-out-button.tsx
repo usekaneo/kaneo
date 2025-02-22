@@ -16,10 +16,7 @@ function SignOutButton() {
 
   const handleSignOut = async () => {
     await mutateAsync();
-    queryClient.invalidateQueries({
-      queryKey: ["me"],
-      type: "all",
-    });
+    queryClient.clear();
     setUser(null);
     setProject(undefined);
     setWorkspace(undefined);

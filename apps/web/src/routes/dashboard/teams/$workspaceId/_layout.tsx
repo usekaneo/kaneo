@@ -9,7 +9,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Shield, UserPlus, Users } from "lucide-react";
+import { Shield, Users } from "lucide-react";
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -138,12 +138,14 @@ function RouteComponent() {
       </AnimatePresence>
 
       <motion.div
-        className="flex-1 overflow-auto"
+        className="flex-1"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <Outlet />
+        <div className="h-full overflow-auto">
+          <Outlet />
+        </div>
       </motion.div>
     </div>
   );

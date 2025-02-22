@@ -1,0 +1,28 @@
+FROM --platform=$BUILDPLATFORM oven/bun:1
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY package.json .
+COPY bun.lockb .
+COPY apps/api/package.json ./apps/api/package.json
+COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
+
+RUN bun install --no-frozen-lockfile
+
+COPY packages/typescript-config ./packages/typescript-config
+COPY apps/api ./apps/api
+
+RUN mkdir -p /app/apps/api/data && chmod 777 /app/apps/api/data
+
+RUN touch /app/apps/api/data/kaneo.db && chmod 666 /app/apps/api/data/kaneo.db
+
+RUN mkdir -p /app/apps/api/drizzle/meta && chmod -R 777 /app/apps/api/drizzle
+
+EXPOSE 1337
+
+CMD ["bun", "--watch", "/app/apps/api/src/index.ts"]

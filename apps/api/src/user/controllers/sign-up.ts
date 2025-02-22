@@ -1,6 +1,7 @@
 import type { Static } from "elysia";
 import db from "../../database";
 import { userTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 import type { signUpUserSchema } from "../db/queries";
 import { UserErrors } from "../errors";
 
@@ -27,6 +28,14 @@ async function signUp({ email, name, password }: SignUpArgs) {
       .values({ email, name, password: hashedPassword })
       .returning()
   ).at(0);
+
+  if (!user) {
+    throw new Error(UserErrors.NotFound);
+  }
+
+  publishEvent("user.signed_up", {
+    email: user.email,
+  });
 
   return user;
 }

@@ -1,0 +1,28 @@
+FROM oven/bun:1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY package.json bun.lockb ./
+COPY apps/web/package.json ./apps/web/package.json
+COPY apps/api/package.json ./apps/api/package.json
+COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
+COPY packages/libs/package.json ./packages/libs/package.json
+
+COPY packages/typescript-config ./packages/typescript-config
+COPY packages/libs ./packages/libs
+
+RUN bun install
+
+COPY apps/web ./apps/web
+
+EXPOSE 5173
+
+WORKDIR /app/apps/web
+CMD ["bun", "run", "dev", "--host"]
