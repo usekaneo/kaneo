@@ -86,7 +86,5 @@ networks:
 volumes:
   sqlite_data:
     name: kaneo_sqlite_data
-    external: true
   rabbitmq_data:
     name: kaneo_rabbitmq_data
-    external: true
