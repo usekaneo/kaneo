@@ -46,10 +46,15 @@ services:
     environment:
       JWT_ACCESS: "change_me"
       DB_PATH: "/app/apps/api/data/kaneo.db"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
     ports:
       - 1337:1337
+    restart: unless-stopped
     volumes:
       - sqlite_data:/app/apps/api/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   frontend:
     image: ghcr.io/kaneo-app/web:latest
@@ -59,9 +64,28 @@ services:
       - 5173:80
     depends_on:
       - backend
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
   sqlite_data:
+  rabbitmq_data:
 ```
 
 2. Run `docker compose up -d` to start the services.
