@@ -8,6 +8,7 @@
 	},
 	"dependencies": {
 		"@elysiajs/cors": "^1.2.0",
+		"@elysiajs/cron": "^1.2.0",
 		"@elysiajs/jwt": "^1.2.0",
 		"@elysiajs/websocket": "^0.2.8",
 		"@kaneo/typescript-config": "workspace:*",
