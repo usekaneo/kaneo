@@ -140,8 +140,8 @@ function KanbanBoard() {
       onDragEnd={handleDragEnd}
       sensors={sensors}
     >
-      <div className="h-full flex flex-col">
-        <header className="mb-6 space-y-6 shrink-0 px-6">
+      <div className="flex flex-col flex-1">
+        <header className="mt-6 ml-6 mr-6 space-y-6 shrink-0">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
               {project?.name}
@@ -149,8 +149,8 @@ function KanbanBoard() {
           </div>
         </header>
 
-        <div className="flex-1 relative min-h-0">
-          <div className="flex gap-6 overflow-x-auto pb-4 px-4 md:px-6 h-full snap-x snap-mandatory">
+        <div className="flex-1 relative min-h-0 p-6">
+          <div className="flex gap-6 overflow-x-auto h-full snap-x snap-mandatory">
             {project?.columns.map((column) => (
               <Column key={column.id} column={column} />
             ))}

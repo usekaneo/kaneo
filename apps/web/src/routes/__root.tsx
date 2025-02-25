@@ -34,7 +34,7 @@ export const Route = createRootRouteWithContext<{
 function RootComponent() {
   return (
     <>
-      <div className="flex w-full h-screen flex-row bg-zinc-50 dark:bg-zinc-950 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
+      <div className="flex w-full h-svh overflow-x-hidden overflow-y-hidden flex-row bg-zinc-50 dark:bg-zinc-950 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
         <Outlet />
       </div>
       <ReactQueryDevtools buttonPosition="top-right" />

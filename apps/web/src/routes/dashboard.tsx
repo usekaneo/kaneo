@@ -1,6 +1,8 @@
 import { Sidebar } from "@/components/common/sidebar";
+import { DemoAlert } from "@/components/demo-alert";
 import EmptyWorkspaceState from "@/components/workspace/empty-state";
 import SelectWorkspaceState from "@/components/workspace/select-workspace-state";
+import { isDemoMode } from "@/constants/urls";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import useWorkspaceStore from "@/store/workspace";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
@@ -26,7 +28,8 @@ function DashboardIndexRouteComponent() {
   return (
     <>
       <Sidebar />
-      <main className="flex-1 overflow-hidden scroll-smooth">
+      <main className="w-full overflow-auto scroll-smooth flex flex-col">
+        {isDemoMode && <DemoAlert />}
         {hasNoWorkspacesAndNoSelectedWorkspace && <EmptyWorkspaceState />}
         {!workspace && workspaces && workspaces.length > 0 && (
           <SelectWorkspaceState />
