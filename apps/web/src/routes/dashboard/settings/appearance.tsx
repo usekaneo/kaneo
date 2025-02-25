@@ -63,7 +63,7 @@ function AppearanceSettings() {
                 <button
                   key={theme.id}
                   onClick={() => {
-                    setSelectedTheme(theme.id as "dark" | "light");
+                    setSelectedTheme(theme.id as "dark" | "light" | "system");
                   }}
                   type="button"
                   className={cn(

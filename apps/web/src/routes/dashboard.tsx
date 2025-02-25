@@ -5,7 +5,12 @@ import SelectWorkspaceState from "@/components/workspace/select-workspace-state"
 import { isDemoMode } from "@/constants/urls";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import useWorkspaceStore from "@/store/workspace";
-import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  useRouterState,
+} from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardIndexRouteComponent,
@@ -21,18 +26,25 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardIndexRouteComponent() {
   const { workspace } = useWorkspaceStore();
   const { data: workspaces } = useGetWorkspaces();
+  const location = useRouterState({ select: (s) => s.location.pathname });
 
   const hasNoWorkspacesAndNoSelectedWorkspace =
     workspaces?.length === 0 && !workspace;
+
+  const isOnWorkspaceRoute = location.includes("/dashboard/workspace");
 
   return (
     <>
       <Sidebar />
       <main className="w-full overflow-auto scroll-smooth flex flex-col">
         {isDemoMode && <DemoAlert />}
-        {hasNoWorkspacesAndNoSelectedWorkspace && <EmptyWorkspaceState />}
-        {!workspace && workspaces && workspaces.length > 0 && (
-          <SelectWorkspaceState />
+        {isOnWorkspaceRoute && (
+          <>
+            {hasNoWorkspacesAndNoSelectedWorkspace && <EmptyWorkspaceState />}
+            {!workspace && workspaces && workspaces.length > 0 && (
+              <SelectWorkspaceState />
+            )}
+          </>
         )}
         <Outlet />
       </main>
