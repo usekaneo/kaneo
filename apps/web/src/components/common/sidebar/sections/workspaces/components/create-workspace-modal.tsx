@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
@@ -6,6 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface CreateWorkspaceModalProps {
   open: boolean;

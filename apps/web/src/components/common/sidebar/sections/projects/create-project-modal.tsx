@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import icons from "@/constants/project-icons";
@@ -10,6 +9,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 type CreateProjectModalProps = {
   open: boolean;
