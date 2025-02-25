@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
@@ -5,7 +6,6 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
-import { useState } from "react";
 
 interface CreateWorkspaceModalProps {
   open: boolean;
@@ -21,15 +21,15 @@ export function CreateWorkspaceModal({
   const navigate = useNavigate();
   const { mutateAsync } = useCreateWorkspace({ name });
 
+  const workspaceInputRef = useRef<HTMLInputElement>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
     const createdWorkspace = await mutateAsync();
-    await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    resetAndCloseModal();
 
-    setName("");
-    onClose();
     navigate({
       to: "/dashboard/workspace/$workspaceId",
       params: {
@@ -38,8 +38,26 @@ export function CreateWorkspaceModal({
     });
   };
 
+  const resetWorkspaceState = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    setName("");
+  };
+
+  const resetAndCloseModal = () => {
+    resetWorkspaceState();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => {
+        workspaceInputRef.current?.focus();
+      });
+    }
+  }, [open]);
+
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40" />
         <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
@@ -63,6 +81,7 @@ export function CreateWorkspaceModal({
                   Workspace Name
                 </label>
                 <Input
+                  ref={workspaceInputRef}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="My Workspace"

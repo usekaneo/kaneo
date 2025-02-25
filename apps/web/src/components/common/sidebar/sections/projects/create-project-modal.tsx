@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import icons from "@/constants/project-icons";
@@ -9,7 +10,6 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
-import { useState } from "react";
 
 type CreateProjectModalProps = {
   open: boolean;
@@ -31,12 +31,15 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   const IconComponent = icons[selectedIcon as keyof typeof icons];
   const navigate = useNavigate();
 
+  const projectNameRef = useRef<HTMLInputElement>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
     const { data } = await mutateAsync();
     await queryClient.invalidateQueries({ queryKey: ["projects"] });
+
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
       params: {
@@ -45,9 +48,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
       },
     });
 
-    setName("");
-    setSlug("");
-    setSelectedIcon("Layout");
+    resetState();
     onClose();
   };
 
@@ -57,8 +58,32 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     setSlug(generateProjectSlug(newName));
   };
 
+  const resetProjectState = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["projects"] });
+    resetState();
+  };
+
+  const resetState = () => {
+    setName("");
+    setSlug("");
+    setSelectedIcon("Layout");
+  };
+
+  const resetAndCloseModal = () => {
+    resetProjectState();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => {
+        projectNameRef.current?.focus();
+      });
+    }
+  }, [open]);
+
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40" />
         <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
@@ -82,6 +107,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   Project Name
                 </label>
                 <Input
+                  ref={projectNameRef}
                   value={name}
                   onChange={handleNameChange}
                   placeholder="Designers"

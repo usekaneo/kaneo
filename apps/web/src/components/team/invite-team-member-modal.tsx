@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
 import { Route } from "@/routes/dashboard/teams/$workspaceId/_layout";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +34,8 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const queryClient = useQueryClient();
   const { workspaceId } = Route.useParams();
 
+  const emailRef = useRef<HTMLInputElement>(null);
+
   const form = useForm<TeamMemberFormValues>({
     resolver: zodResolver(teamMemberSchema),
     defaultValues: {
@@ -46,12 +49,30 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       queryKey: ["workspace-users", workspaceId],
     });
 
-    form.reset();
+    resetInviteTeamMember();
     onClose();
   };
 
+  const resetInviteTeamMember = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["workspace-users"] });
+    form.reset();
+  };
+
+  const resetAndCloseModal = () => {
+    resetInviteTeamMember();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => {
+        emailRef.current?.focus();
+      });
+    }
+  }, [open]);
+
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
         <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
@@ -80,6 +101,10 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                           <FormControl>
                             <Input
                               {...field}
+                              ref={(e) => {
+                                field.ref(e);
+                                emailRef.current = e;
+                              }}
                               placeholder="colleague@company.com"
                               className="bg-white dark:bg-zinc-800/50"
                             />
