@@ -51,7 +51,9 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   };
 
   const resetInviteTeamMember = async () => {
-    await queryClient.invalidateQueries({ queryKey: ["workspace-users"] });
+    await queryClient.invalidateQueries({
+      queryKey: ["workspace-users", workspaceId],
+    });
     form.reset();
   };
 
