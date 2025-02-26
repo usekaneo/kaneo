@@ -5,7 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 interface CreateWorkspaceModalProps {
   open: boolean;
@@ -20,8 +20,6 @@ export function CreateWorkspaceModal({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { mutateAsync } = useCreateWorkspace({ name });
-
-  const workspaceInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,14 +46,6 @@ export function CreateWorkspaceModal({
     onClose();
   };
 
-  useEffect(() => {
-    if (open) {
-      requestAnimationFrame(() => {
-        workspaceInputRef.current?.focus();
-      });
-    }
-  }, [open]);
-
   return (
     <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
@@ -66,7 +56,10 @@ export function CreateWorkspaceModal({
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 New Workspace
               </Dialog.Title>
-              <Dialog.Close className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+              <Dialog.Close
+                asChild
+                className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+              >
                 <X size={20} />
               </Dialog.Close>
             </div>
@@ -81,12 +74,12 @@ export function CreateWorkspaceModal({
                   Workspace Name
                 </label>
                 <Input
-                  ref={workspaceInputRef}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="My Workspace"
                   className="bg-white dark:bg-zinc-800/50"
                   required
+                  autoFocus
                 />
               </div>
 

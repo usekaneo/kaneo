@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
-import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -34,8 +33,6 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const queryClient = useQueryClient();
   const { workspaceId } = Route.useParams();
 
-  const emailRef = useRef<HTMLInputElement>(null);
-
   const form = useForm<TeamMemberFormValues>({
     resolver: zodResolver(teamMemberSchema),
     defaultValues: {
@@ -63,14 +60,6 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     onClose();
   };
 
-  useEffect(() => {
-    if (open) {
-      requestAnimationFrame(() => {
-        emailRef.current?.focus();
-      });
-    }
-  }, [open]);
-
   return (
     <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
@@ -81,7 +70,10 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 Invite Team Member
               </Dialog.Title>
-              <Dialog.Close className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+              <Dialog.Close
+                asChild
+                className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+              >
                 <X size={20} />
               </Dialog.Close>
             </div>
@@ -101,12 +93,9 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                           <FormControl>
                             <Input
                               {...field}
-                              ref={(e) => {
-                                field.ref(e);
-                                emailRef.current = e;
-                              }}
                               placeholder="colleague@company.com"
                               className="bg-white dark:bg-zinc-800/50"
+                              autoFocus
                             />
                           </FormControl>
                           <FormMessage />

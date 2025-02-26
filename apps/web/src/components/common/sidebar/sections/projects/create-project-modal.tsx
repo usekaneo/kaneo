@@ -9,7 +9,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 type CreateProjectModalProps = {
   open: boolean;
@@ -30,8 +30,6 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   });
   const IconComponent = icons[selectedIcon as keyof typeof icons];
   const navigate = useNavigate();
-
-  const projectNameRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,14 +72,6 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     onClose();
   };
 
-  useEffect(() => {
-    if (open) {
-      requestAnimationFrame(() => {
-        projectNameRef.current?.focus();
-      });
-    }
-  }, [open]);
-
   return (
     <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
@@ -92,7 +82,10 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 New Project
               </Dialog.Title>
-              <Dialog.Close className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+              <Dialog.Close
+                asChild
+                className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+              >
                 <X size={20} />
               </Dialog.Close>
             </div>
@@ -107,7 +100,6 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   Project Name
                 </label>
                 <Input
-                  ref={projectNameRef}
                   value={name}
                   onChange={handleNameChange}
                   placeholder="Designers"
