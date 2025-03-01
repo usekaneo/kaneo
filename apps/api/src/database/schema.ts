@@ -109,3 +109,26 @@ export const taskTable = sqliteTable("task", {
     .default(new Date())
     .notNull(),
 });
+
+export const activityTable = sqliteTable("activity", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  taskId: text("task_id")
+    .notNull()
+    .references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  type: text("type").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(new Date())
+    .notNull(),
+  userEmail: text("user_email")
+    .notNull()
+    .references(() => userTable.email, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  content: text("content"),
+});

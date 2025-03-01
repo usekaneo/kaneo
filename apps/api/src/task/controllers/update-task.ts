@@ -1,27 +1,23 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
 
-async function updateTask({
-  id,
-  projectId,
-  title,
-  status,
-  dueDate,
-  description,
-}: {
-  id: string;
-  projectId: string;
-  assigneeId: string;
-  title: string;
-  status: string;
-  dueDate: Date;
-  description: string;
-}) {
+async function updateTask(
+  taskId: string,
+  body: {
+    projectId: string;
+    assigneeId: string | null;
+    title: string;
+    status: string;
+    dueDate: Date | null;
+    description: string;
+    priority: string;
+  },
+) {
   const [existingTask] = await db
     .select()
     .from(taskTable)
-    .where(and(eq(taskTable.id, id), eq(taskTable.projectId, projectId)));
+    .where(eq(taskTable.id, taskId));
 
   const isTaskExisting = Boolean(existingTask);
 
@@ -29,18 +25,19 @@ async function updateTask({
     throw new Error("Task doesn't exist");
   }
 
-  const [updatedWorkspace] = await db
+  const [updatedTask] = await db
     .update(taskTable)
     .set({
-      title,
-      description,
-      status,
-      dueDate,
+      title: body.title,
+      description: body.description,
+      status: body.status,
+      dueDate: new Date(body.dueDate ?? ""),
+      priority: body.priority,
     })
-    .where(and(eq(taskTable.id, id), eq(taskTable.projectId, projectId)))
+    .where(eq(taskTable.id, taskId))
     .returning();
 
-  return updatedWorkspace;
+  return updatedTask;
 }
 
 export default updateTask;

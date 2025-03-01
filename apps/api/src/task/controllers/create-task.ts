@@ -1,6 +1,7 @@
 import { count, eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable, userTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 
 async function getNextTaskNumber(projectId: string) {
   const [task] = await db
@@ -34,6 +35,13 @@ async function createTask(body: {
       number: nextTaskNumber + 1,
     })
     .returning();
+
+  await publishEvent("task.created", {
+    taskId: createdTask.id,
+    userEmail: createdTask.userEmail ?? "",
+    type: "create",
+    content: "created the task",
+  });
 
   return {
     ...createdTask,
