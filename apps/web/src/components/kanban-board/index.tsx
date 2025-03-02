@@ -65,7 +65,6 @@ function KanbanBoard() {
           destinationIndex += 1;
         }
         destinationColumn.tasks.splice(destinationIndex, 0, task);
-        console.log("chnaged colums");
       } else {
         const updatedTask = { ...task, status: destinationColumn.id };
         ws?.send(JSON.stringify({ type: "UPDATE_TASK", ...updatedTask }));
@@ -76,7 +75,6 @@ function KanbanBoard() {
             : destinationColumn.tasks.findIndex((t) => t.id === overId);
 
         destinationColumn.tasks.splice(destinationIndex + 1, 0, updatedTask);
-        console.log("else colums");
       }
     });
 
