@@ -61,7 +61,7 @@ function KanbanBoard() {
         let destinationIndex = destinationColumn.tasks.findIndex(
           (t) => t.id === overId,
         );
-        if (sourceTaskIndex < destinationIndex) {
+        if (sourceTaskIndex <= destinationIndex) {
           destinationIndex += 1;
         }
         destinationColumn.tasks.splice(destinationIndex, 0, task);
