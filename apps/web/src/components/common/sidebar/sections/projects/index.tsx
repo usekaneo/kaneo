@@ -88,7 +88,7 @@ function Projects({ workspaceId }: ProjectsProps) {
                 key={project.id}
                 onClick={() => handleSelectProject(project)}
                 className={cn(
-                  "w-full px-4 py-2 rounded-md flex items-center  text-sm transition-all group",
+                  "w-full px-4 py-2 rounded-md flex items-center  text-sm transition-all group relative",
                   !isSidebarOpened && "px-3",
                   !isSidebarOpened && "justify-center px-2",
                   location.pathname.includes("/board") &&
@@ -106,6 +106,19 @@ function Projects({ workspaceId }: ProjectsProps) {
                     ),
                   },
                 )}
+
+                {!isSidebarOpened && (
+                  <div
+                    className={cn(
+                      "fixed z-[100] px-2 py-1 bg-black text-white text-xs rounded-md whitespace-nowrap opacity-0 transition-opacity",
+                      "group-hover:opacity-100"
+                    )}
+                  >
+                    {project.name.length < 5 ? project.name: project.name.substring(0, 5)+"..."}
+                  </div>
+                )}
+
+
                 {isSidebarOpened && project.name}
               </button>
             ))
