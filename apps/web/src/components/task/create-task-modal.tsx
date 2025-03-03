@@ -77,7 +77,10 @@ export function CreateTaskModal({
         (col) => col.id === newTask.status,
       );
       if (targetColumn) {
-        targetColumn.tasks.push(newTask);
+        targetColumn.tasks.push({
+          ...newTask,
+          userEmail: data.email,
+        });
       }
     });
 

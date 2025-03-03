@@ -3,6 +3,7 @@ import { cors } from "@elysiajs/cors";
 import { cron } from "@elysiajs/cron";
 import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { Elysia } from "elysia";
+import activity from "./activity";
 import db from "./database";
 import project from "./project";
 import task from "./task";
@@ -92,6 +93,7 @@ const app = new Elysia()
   .use(project)
   .use(task)
   .use(workspaceUser)
+  .use(activity)
   .onError(({ code, error }) => {
     switch (code) {
       case "VALIDATION":

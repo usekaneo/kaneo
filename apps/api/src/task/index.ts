@@ -1,9 +1,10 @@
 import Elysia, { t } from "elysia";
 
 import createTask from "./controllers/create-task";
+import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
+import updateTask from "./controllers/update-task";
 import updateTaskStatus from "./controllers/update-task-status";
-
 const connections = new Map();
 
 const task = new Elysia({ prefix: "/task" })
@@ -13,6 +14,38 @@ const task = new Elysia({ prefix: "/task" })
       const createdTask = await createTask(body);
 
       return createdTask;
+    },
+    {
+      body: t.Object({
+        projectId: t.String(),
+        userEmail: t.String(),
+        title: t.String(),
+        status: t.String(),
+        dueDate: t.Date(),
+        description: t.String(),
+        priority: t.String(),
+      }),
+    },
+  )
+  .get(
+    "/:taskId",
+    async ({ params }) => {
+      const task = await getTask(params.taskId);
+
+      return task;
+    },
+    {
+      params: t.Object({
+        taskId: t.String(),
+      }),
+    },
+  )
+  .put(
+    "/:taskId/update",
+    async ({ params, body }) => {
+      const updatedTask = await updateTask(params.taskId, body);
+
+      return updatedTask;
     },
     {
       body: t.Object({
