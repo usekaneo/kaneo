@@ -21,7 +21,7 @@ const app = new Elysia()
   .use(
     cron({
       name: "purge-demo-data",
-      pattern: "0 0 * * *",
+      pattern: "0 * * * *",
       run: async () => {
         const isDemoMode = process.env.DEMO_MODE === "true";
 
@@ -36,7 +36,7 @@ const app = new Elysia()
     async beforeHandle({ store, cookie: { session }, set }) {
       const isDemoMode = process.env.DEMO_MODE === "true";
 
-      if (isDemoMode && !session?.value) {
+      if (isDemoMode) {
         const {
           id,
           name,
