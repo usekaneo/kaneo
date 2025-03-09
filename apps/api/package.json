@@ -18,7 +18,7 @@
 		"amqplib": "^0.10.5",
 		"better-sqlite3": "^11.8.1",
 		"drizzle-kit": "^0.30.2",
-		"drizzle-orm": "^0.39.1",
+		"drizzle-orm": "^0.40.0",
 		"drizzle-typebox": "^0.2.0",
 		"elysia": "1.2.24"
 	},
