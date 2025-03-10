@@ -1,5 +1,6 @@
 import db from "../../database";
-import { workspaceTable, workspaceUserTable } from "../../database/schema";
+import { workspaceTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 
 async function createWorkspace(name: string, ownerEmail: string) {
   const [workspace] = await db
@@ -10,12 +11,9 @@ async function createWorkspace(name: string, ownerEmail: string) {
     })
     .returning();
 
-  // TODO: Replace with event
-  await db.insert(workspaceUserTable).values({
+  publishEvent("workspace.created", {
     workspaceId: workspace.id,
-    userEmail: ownerEmail,
-    role: "owner",
-    status: "active",
+    ownerEmail,
   });
 
   return workspace;

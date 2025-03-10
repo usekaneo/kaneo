@@ -46,7 +46,7 @@ bun install
 3. Start the development server:
 
 ```bash
-docker compose -f compose.local.yml up -d
+bun run dev
 ```
 
 This will start the frontend and backend servers on [http://localhost:5173](http://localhost:5173) and [http://localhost:1337](http://localhost:1337) respectively.
