@@ -35,14 +35,15 @@ const app = new Elysia()
   .guard({
     async beforeHandle({ store, cookie: { session }, set }) {
       const isDemoMode = process.env.DEMO_MODE === "true";
+      const demoExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-      if (isDemoMode) {
+      if (isDemoMode && !session?.value) {
         const {
           id,
           name,
           email,
           session: demoSession,
-          expiresAt,
+          expiresAt = demoExpiresAt,
         } = await createDemoUser();
 
         set.cookie = {

@@ -1,12 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
-import type { DeleteProjectPayload } from "../db/queries";
 
-async function deleteProject({
-  id,
-  workspaceId,
-}: Pick<DeleteProjectPayload, "id" | "workspaceId">) {
+async function deleteProject(id: string, workspaceId: string) {
   const [existingProject] = await db
     .select()
     .from(projectTable)

@@ -1,13 +1,9 @@
-import type { Static } from "elysia";
 import db from "../../database";
 import { userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-import type { signUpUserSchema } from "../db/queries";
 import { UserErrors } from "../errors";
 
-type SignUpArgs = Static<typeof signUpUserSchema>;
-
-async function signUp({ email, name, password }: SignUpArgs) {
+async function signUp(email: string, password: string, name: string) {
   const isEmailTaken = Boolean(
     await db.query.userTable.findFirst({
       where: (users, { eq }) => eq(users.email, email),

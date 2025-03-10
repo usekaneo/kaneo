@@ -1,14 +1,13 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
-import type { UpdateProjectPayload } from "../db/queries";
 
-async function updateProject({
-  id,
-  workspaceId,
-  name,
-  description,
-}: UpdateProjectPayload) {
+async function updateProject(
+  id: string,
+  workspaceId: string,
+  name: string,
+  description: string,
+) {
   const [existingProject] = await db
     .select()
     .from(projectTable)

@@ -1,12 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { workspaceTable } from "../../database/schema";
-import type { DeleteWorkspacePayload } from "../db/queries";
 
-async function deleteWorkspace({
-  userEmail,
-  workspaceId,
-}: DeleteWorkspacePayload) {
+async function deleteWorkspace(userEmail: string, workspaceId: string) {
   const [existingWorkspace] = await db
     .select({
       id: workspaceTable.id,

@@ -1,13 +1,13 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { workspaceTable } from "../../database/schema";
-import type { UpdateWorkspacePayload } from "../db/queries";
 
-async function updateWorkspace({
-  userEmail,
-  workspaceId,
-  body,
-}: { userEmail: string; workspaceId: string; body: UpdateWorkspacePayload }) {
+async function updateWorkspace(
+  userEmail: string,
+  workspaceId: string,
+  name: string,
+  description: string,
+) {
   const [existingWorkspace] = await db
     .select({
       id: workspaceTable.id,
@@ -31,7 +31,8 @@ async function updateWorkspace({
   const updatedWorkspace = await db
     .update(workspaceTable)
     .set({
-      ...body,
+      name,
+      description,
     })
     .where(eq(workspaceTable.id, workspaceId))
     .returning({
