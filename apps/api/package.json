@@ -15,7 +15,6 @@
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"@paralleldrive/cuid2": "^2.2.2",
-		"amqplib": "^0.10.5",
 		"better-sqlite3": "^11.8.1",
 		"drizzle-kit": "^0.30.2",
 		"drizzle-orm": "^0.40.0",
@@ -23,7 +22,6 @@
 		"elysia": "1.2.25"
 	},
 	"devDependencies": {
-		"@types/amqplib": "^0.10.6",
 		"bun-types": "latest"
 	},
 	"override": {
