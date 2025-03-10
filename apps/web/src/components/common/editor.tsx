@@ -57,6 +57,11 @@ export function Editor({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
+    editorProps: {
+      attributes: {
+        class: "h-full flex-1",
+      },
+    },
     extensions: [
       StarterKit.configure({
         heading: {
@@ -290,7 +295,7 @@ export function Editor({
       </div>
       <EditorContent
         editor={editor}
-        className="min-h-[200px] [&_*]:focus:outline-none px-2"
+        className="flex-1 flex flex-col min-h-[200px] h-full [&_*]:focus:outline-none px-2"
       />
     </div>
   );

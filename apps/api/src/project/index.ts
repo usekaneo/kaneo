@@ -4,13 +4,12 @@ import deleteProject from "./controllers/delete-project";
 import getProject from "./controllers/get-project";
 import getProjects from "./controllers/get-projects";
 import updateProject from "./controllers/update-project";
-import { updateProjectSchema } from "./db/queries";
 
 const project = new Elysia({ prefix: "/project" })
   .post(
     "/create",
-    async ({ body }) => {
-      const createdProject = await createProject(body);
+    async ({ body: { workspaceId, icon, slug, name } }) => {
+      const createdProject = await createProject(workspaceId, name, icon, slug);
 
       return createdProject;
     },
@@ -24,37 +23,41 @@ const project = new Elysia({ prefix: "/project" })
     },
   )
   .get("/list/:workspaceId", async ({ params: { workspaceId } }) => {
-    const projects = await getProjects({ workspaceId });
+    const projects = await getProjects(workspaceId);
 
     return projects;
   })
   .get("/:id", async ({ params: { id }, query: { workspaceId } }) => {
     if (!workspaceId) throw new Error("Workspace ID is required");
 
-    const project = await getProject({ id, workspaceId });
+    const project = await getProject(id, workspaceId);
 
     return project;
   })
   .put(
     "/:id",
     async ({ params: { id }, body: { workspaceId, name, description } }) => {
-      const updatedProject = await updateProject({
+      const updatedProject = await updateProject(
         id,
         workspaceId,
         name,
         description,
-      });
+      );
 
       return updatedProject;
     },
     {
-      body: updateProjectSchema,
+      body: t.Object({
+        workspaceId: t.String(),
+        name: t.String(),
+        description: t.String(),
+      }),
     },
   )
   .delete("/:id", async ({ params: { id }, query: { workspaceId } }) => {
     if (!workspaceId) throw new Error("Workspace ID is required");
 
-    const deletedProject = await deleteProject({ id, workspaceId });
+    const deletedProject = await deleteProject(id, workspaceId);
 
     return deletedProject;
   });

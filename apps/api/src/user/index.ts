@@ -4,7 +4,6 @@ import createSession from "./controllers/create-session";
 import invalidateSession from "./controllers/invalidate-session";
 import signIn from "./controllers/sign-in";
 import signUp from "./controllers/sign-up";
-import { signInUserSchema, signUpUserSchema } from "./db/queries";
 import { UserErrors } from "./errors";
 import generateSessionToken from "./utils/generate-session-token";
 
@@ -17,8 +16,8 @@ const user = new Elysia({ prefix: "/user" })
   )
   .post(
     "/sign-in",
-    async ({ body, set }) => {
-      const user = await signIn(body);
+    async ({ body: { email, password }, set }) => {
+      const user = await signIn(email, password);
 
       const token = generateSessionToken();
       const session = await createSession(token, user.id);
@@ -36,13 +35,16 @@ const user = new Elysia({ prefix: "/user" })
       return user;
     },
     {
-      body: t.Omit(signInUserSchema, ["id", "name", "createdAt"]),
+      body: t.Object({
+        email: t.String(),
+        password: t.String(),
+      }),
     },
   )
   .post(
     "/sign-up",
-    async ({ body, set }) => {
-      const user = await signUp(body);
+    async ({ body: { email, password, name }, set }) => {
+      const user = await signUp(email, password, name);
 
       if (!user) throw new Error(UserErrors.FailedToCreateAnAccount);
 
@@ -62,7 +64,11 @@ const user = new Elysia({ prefix: "/user" })
       return user;
     },
     {
-      body: signUpUserSchema,
+      body: t.Object({
+        email: t.String(),
+        password: t.String(),
+        name: t.String(),
+      }),
     },
   )
   .post("/sign-out", async ({ cookie, cookie: { session } }) => {

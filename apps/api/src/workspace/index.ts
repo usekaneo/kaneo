@@ -4,19 +4,15 @@ import deleteWorkspace from "./controllers/delete-workspace";
 import getWorkspace from "./controllers/get-workspace";
 import getWorkspaces from "./controllers/get-workspaces";
 import updateWorkspace from "./controllers/update-workspace";
-import { updateWorkspaceSchema } from "./db/queries";
 
 const workspace = new Elysia({ prefix: "/workspace" })
   .state("userEmail", "")
   .post(
     "/create",
-    async ({ body, store }) => {
+    async ({ body: { name }, store }) => {
       const userEmail = store.userEmail;
 
-      const createdWorkspace = await createWorkspace({
-        ...body,
-        ownerEmail: userEmail,
-      });
+      const createdWorkspace = await createWorkspace(name, userEmail);
 
       return createdWorkspace;
     },
@@ -29,7 +25,7 @@ const workspace = new Elysia({ prefix: "/workspace" })
   .get("/list", async ({ store }) => {
     const userEmail = store.userEmail;
 
-    const workspaces = await getWorkspaces({ userEmail });
+    const workspaces = await getWorkspaces(userEmail);
 
     return workspaces;
   })
@@ -37,31 +33,37 @@ const workspace = new Elysia({ prefix: "/workspace" })
     const userEmail = store.userEmail;
     const workspaceId = params.id;
 
-    const workspace = await getWorkspace({ userEmail, workspaceId });
+    const workspace = await getWorkspace(userEmail, workspaceId);
 
     return workspace;
   })
   .put(
     "/:id",
-    async ({ store, params, body }) => {
+    async ({ store, params, body: { name, description } }) => {
       const userEmail = store.userEmail;
       const workspaceId = params.id;
 
-      const updatedWorkspace = await updateWorkspace({
+      const updatedWorkspace = await updateWorkspace(
         userEmail,
         workspaceId,
-        body,
-      });
+        name,
+        description,
+      );
 
       return updatedWorkspace;
     },
-    { body: updateWorkspaceSchema },
+    {
+      body: t.Object({
+        name: t.String(),
+        description: t.String(),
+      }),
+    },
   )
   .delete("/:id", async ({ store, params }) => {
     const userEmail = store.userEmail;
     const workspaceId = params.id;
 
-    const deletedWorkspace = await deleteWorkspace({ userEmail, workspaceId });
+    const deletedWorkspace = await deleteWorkspace(userEmail, workspaceId);
 
     return deletedWorkspace;
   });

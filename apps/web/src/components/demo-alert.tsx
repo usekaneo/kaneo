@@ -6,7 +6,7 @@ export function DemoAlert() {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-amber-900 dark:text-amber-300">
         <p className="flex flex-col sm:flex-row items-center gap-2">
           This is a demo environment. All data will be automatically purged
-          every 24 hours.
+          every hour.
           <Button
             onClick={() =>
               window.open("https://github.com/kaneo-app/app", "_blank")

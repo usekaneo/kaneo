@@ -1,15 +1,23 @@
 import db from "../../database";
 import { workspaceTable, workspaceUserTable } from "../../database/schema";
-import type { CreateWorkspacePayload } from "../db/queries";
 
-async function createWorkspace(body: CreateWorkspacePayload) {
-  const [workspace] = await db.insert(workspaceTable).values(body).returning();
+async function createWorkspace(name: string, ownerEmail: string) {
+  const [workspace] = await db
+    .insert(workspaceTable)
+    .values({
+      name,
+      ownerEmail,
+    })
+    .returning();
+
+  // TODO: Replace with event
   await db.insert(workspaceUserTable).values({
     workspaceId: workspace.id,
-    userEmail: body.ownerEmail,
+    userEmail: ownerEmail,
     role: "owner",
     status: "active",
   });
+
   return workspace;
 }
 
