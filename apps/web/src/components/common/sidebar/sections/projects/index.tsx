@@ -111,13 +111,14 @@ function Projects({ workspaceId }: ProjectsProps) {
                   <div
                     className={cn(
                       "fixed z-[100] px-2 py-1 bg-black text-white text-xs rounded-md whitespace-nowrap opacity-0 transition-opacity",
-                      "group-hover:opacity-100"
+                      "group-hover:opacity-100",
                     )}
                   >
-                    {project.name.length < 5 ? project.name: project.name.substring(0, 5)+"..."}
+                    {project.name.length < 5
+                      ? project.name
+                      : `${project.name.substring(0, 5)}...`}
                   </div>
                 )}
-
 
                 {isSidebarOpened && project.name}
               </button>
