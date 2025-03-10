@@ -20,7 +20,7 @@
 		"drizzle-kit": "^0.30.2",
 		"drizzle-orm": "^0.40.0",
 		"drizzle-typebox": "^0.2.0",
-		"elysia": "1.2.24"
+		"elysia": "1.2.25"
 	},
 	"devDependencies": {
 		"@types/amqplib": "^0.10.6",
