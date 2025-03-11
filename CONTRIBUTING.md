@@ -14,7 +14,7 @@ Thank you for your interest in contributing to Kaneo! All kinds of contributions
 - [Development Guidelines](#development-guidelines)
   - [Code Style](#code-style)
   - [Conventional Commits](#conventional-commits)
-- [Project Structure](#project-structure)
+  - [Project Structure](#project-structure)
 - [Need Help?](#need-help)
 
 ## Code of Conduct
@@ -43,10 +43,16 @@ git clone https://github.com/kaneo-app/app.git
 bun install
 ```
 
-3. Start the development server:
+3. Add JWT_ACCESS environment variable:
 
 ```bash
-docker compose -f compose.local.yml up -d
+echo "JWT_ACCESS=<token>" > apps/api/.env
+```
+
+4. Start the development server:
+
+```bash
+bun run dev
 ```
 
 This will start the frontend and backend servers on [http://localhost:5173](http://localhost:5173) and [http://localhost:1337](http://localhost:1337) respectively.
