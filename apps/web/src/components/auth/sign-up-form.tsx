@@ -64,7 +64,7 @@ export function SignUpForm() {
           <FormField
             control={form.control}
             name="name"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
                   Full Name
@@ -76,7 +76,7 @@ export function SignUpForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage>{fieldState.error?.message}</FormMessage>
               </FormItem>
             )}
           />
@@ -84,7 +84,7 @@ export function SignUpForm() {
           <FormField
             control={form.control}
             name="email"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
                   Email
@@ -96,7 +96,7 @@ export function SignUpForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage>{fieldState.error?.message}</FormMessage>
               </FormItem>
             )}
           />
@@ -104,7 +104,7 @@ export function SignUpForm() {
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
                   Password
@@ -126,7 +126,7 @@ export function SignUpForm() {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage>{fieldState.error?.message}</FormMessage>
               </FormItem>
             )}
           />
