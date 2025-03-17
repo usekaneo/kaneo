@@ -50,21 +50,21 @@ const app = new Elysia()
         }
 
         store.userEmail = user?.email ?? "";
+      } else {
+        if (!session?.value) {
+          return { user: null };
+        }
+
+        const { user, session: validatedSession } = await validateSessionToken(
+          session.value,
+        );
+
+        if (!user || !validatedSession) {
+          return { user: null };
+        }
+
+        store.userEmail = user.email;
       }
-
-      if (!session?.value) {
-        return { user: null };
-      }
-
-      const { user, session: validatedSession } = await validateSessionToken(
-        session.value,
-      );
-
-      if (!user || !validatedSession) {
-        return { user: null };
-      }
-
-      store.userEmail = user.email;
     },
   })
   .get("/me", async ({ cookie: { session } }) => {
