@@ -3,6 +3,7 @@ import deleteWorkspaceUser from "./controllers/delete-workspace-user";
 import getWorkspaceUsers from "./controllers/get-workspace-users";
 import inviteWorkspaceUser from "./controllers/invite-workspace-user";
 import "./events";
+import getActiveWorkspaceUsers from "./controllers/get-active-workspace-users";
 
 const workspaceUser = new Elysia({ prefix: "/workspace-user" })
   .get(
@@ -45,6 +46,24 @@ const workspaceUser = new Elysia({ prefix: "/workspace-user" })
         userEmail: t.String(),
       }),
     },
-  );
+  )
+  .get("/:workspaceId/active", async ({ params: { workspaceId } }) => {
+    const activeWorkspaceUsers = await getActiveWorkspaceUsers(workspaceId);
+
+    return activeWorkspaceUsers;
+  })
+  .onError(({ code, error }) => {
+    switch (code) {
+      case "VALIDATION":
+        return error.all;
+      default:
+        if (error instanceof Error) {
+          return {
+            name: error.name,
+            message: error.message,
+          };
+        }
+    }
+  });
 
 export default workspaceUser;

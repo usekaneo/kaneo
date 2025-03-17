@@ -9,6 +9,10 @@ const inviteWorkspaceMember = async ({
     userEmail,
   });
 
+  if (response.error) {
+    throw new Error(response.error.value.message);
+  }
+
   return response.data;
 };
 

@@ -53,7 +53,9 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       resetInviteTeamMember();
       onClose();
     } catch (error) {
-      toast.error("Failed to invite team member");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to invite team member",
+      );
     }
   };
 

@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
+import useActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,9 +46,7 @@ export function CreateTaskModal({
   const { project, setProject } = useProjectStore();
   const { workspace } = useWorkspaceStore();
   const { mutate: updateTask } = useUpdateTask();
-  const { data: users } = useGetWorkspaceUsers({
-    workspaceId: workspace?.id ?? "",
-  });
+  const { data: users } = useActiveWorkspaceUsers(workspace?.id ?? "");
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -182,8 +180,8 @@ export function CreateTaskModal({
                                 ),
                               },
                               ...(users ?? []).map((user) => ({
-                                value: user.userEmail ?? "",
-                                label: user.userName ?? "",
+                                value: user.user?.email ?? "",
+                                label: user.user?.name ?? "",
                               })),
                             ]}
                             placeholder="Select assignee"

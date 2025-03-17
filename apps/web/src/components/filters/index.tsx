@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { priorityColorsFilter } from "@/constants/priority-colors";
-import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
+import useActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import * as Popover from "@radix-ui/react-popover";
@@ -32,11 +32,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
   const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
   const [selectedDueDate, setSelectedDueDate] = useState<string | null>(null);
 
-  const { data: users } = useGetWorkspaceUsers({
-    workspaceId: project?.workspaceId ?? "",
-  });
-
-  const activeUsers = users?.filter((user) => user.status === "active");
+  const { data: users } = useActiveWorkspaceUsers(project?.workspaceId ?? "");
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
@@ -157,20 +153,22 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 <UserIcon className="w-3.5 h-3.5" />
                 <span>Unassigned</span>
               </button>
-              {activeUsers?.map((user) => (
+              {users?.map((user) => (
                 <button
                   type="button"
-                  key={user?.userEmail}
-                  onClick={() => handleAssigneeChange(user?.userEmail ?? null)}
+                  key={user?.user?.email}
+                  onClick={() =>
+                    handleAssigneeChange(user?.user?.email ?? null)
+                  }
                   className={cn(
                     "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors",
-                    selectedAssignee === user?.userEmail
+                    selectedAssignee === user?.user?.email
                       ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
                       : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
                   )}
                 >
                   <UserIcon className="w-3.5 h-3.5" />
-                  <span>{user?.userName}</span>
+                  <span>{user?.user?.name}</span>
                 </button>
               ))}
 
@@ -230,8 +228,8 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             >
               <UserIcon className="w-3.5 h-3.5" />
               <span>
-                {activeUsers?.find((u) => u.userEmail === selectedAssignee)
-                  ?.userName || "Unassigned"}
+                {users?.find((u) => u.user?.email === selectedAssignee)?.user
+                  ?.name || "Unassigned"}
               </span>
               <X className="w-3.5 h-3.5 ml-1 text-zinc-400" />
             </button>
