@@ -30,6 +30,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    touchAction: "none",
   };
 
   const handleClick = () => {
