@@ -1,6 +1,6 @@
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useProjectStore from "@/store/project";
-import type { Project, Task } from "@/types/project";
+import type { Project } from "@/types/project";
 import {
   DndContext,
   type DragEndEvent,
@@ -14,25 +14,19 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { produce } from "immer";
 import { useState } from "react";
-import BoardFilters, {
-  type BoardFilters as BoardFiltersType,
-} from "../filters";
 import Column from "./column";
 import TaskCard from "./task-card";
 
-function KanbanBoard({ project }: { project: Project | undefined }) {
+interface KanbanBoardProps {
+  project: Project | undefined;
+}
+
+function KanbanBoard({ project }: KanbanBoardProps) {
   const { setProject } = useProjectStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { mutate: updateTask } = useUpdateTask();
-  const [filters, setFilters] = useState<BoardFiltersType>({
-    search: "",
-    assignee: null,
-    priority: null,
-    dueDate: null,
-  });
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
@@ -100,66 +94,6 @@ function KanbanBoard({ project }: { project: Project | undefined }) {
     setActiveId(null);
   };
 
-  const filterTasks = (tasks: Task[]): Task[] => {
-    return tasks.filter((task) => {
-      if (
-        filters.search &&
-        !task.title.toLowerCase().includes(filters.search.toLowerCase())
-      ) {
-        return false;
-      }
-
-      if (filters.assignee && task.userEmail !== filters.assignee) {
-        return false;
-      }
-
-      if (filters.priority && task.priority !== filters.priority) {
-        return false;
-      }
-
-      if (filters.dueDate && task.dueDate) {
-        const today = new Date();
-        const taskDate = new Date(task.dueDate);
-
-        switch (filters.dueDate) {
-          case "Due this week": {
-            const weekStart = startOfWeek(today);
-            const weekEnd = endOfWeek(today);
-            if (
-              !isWithinInterval(taskDate, { start: weekStart, end: weekEnd })
-            ) {
-              return false;
-            }
-            break;
-          }
-          case "Due next week": {
-            const nextWeekStart = startOfWeek(addWeeks(today, 1));
-            const nextWeekEnd = endOfWeek(addWeeks(today, 1));
-            if (
-              !isWithinInterval(taskDate, {
-                start: nextWeekStart,
-                end: nextWeekEnd,
-              })
-            ) {
-              return false;
-            }
-            break;
-          }
-          case "No due date": {
-            return false;
-          }
-        }
-      }
-
-      return true;
-    });
-  };
-
-  const filteredColumns = project?.columns?.map((column) => ({
-    ...column,
-    tasks: filterTasks(column.tasks),
-  }));
-
   if (!project || !project?.columns) {
     return (
       <div className="h-full flex flex-col w-full">
@@ -222,20 +156,9 @@ function KanbanBoard({ project }: { project: Project | undefined }) {
       onDragEnd={handleDragEnd}
     >
       <div className="h-full flex flex-col overflow-hidden w-full">
-        <header className="sticky top-0 z-10 bg-white/30 dark:bg-zinc-900/30 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
-          <div className="p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h1 className="text-lg font-medium text-zinc-900 dark:text-zinc-100 truncate">
-                {project.name}
-              </h1>
-              <BoardFilters onFiltersChange={setFilters} />
-            </div>
-          </div>
-        </header>
-
         <div className="flex-1 h-full overflow-auto">
           <div className="flex gap-6 p-6 min-h-full">
-            {filteredColumns?.map((column) => (
+            {project.columns?.map((column) => (
               <Column key={column.id} column={column} />
             ))}
           </div>
