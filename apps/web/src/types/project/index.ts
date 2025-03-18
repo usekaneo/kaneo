@@ -19,10 +19,11 @@ export type Task = {
   number: number | null;
   description: string | null;
   projectId: string;
-  userEmail: string;
+  userEmail: string | null;
   title: string;
   status: string;
   dueDate: Date | null;
   priority: string | null;
   projectSlug?: string;
+  position: number | null;
 };

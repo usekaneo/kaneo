@@ -5,8 +5,8 @@ function useGetTask(taskId: string) {
   return useQuery({
     queryKey: ["task", taskId],
     queryFn: () => getTask(taskId),
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 }
 

@@ -95,6 +95,7 @@ export const taskTable = sqliteTable("task", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
+  position: integer("position").default(0),
   number: int().default(1),
   userEmail: text("assignee_email").references(() => userTable.email, {
     onDelete: "cascade",

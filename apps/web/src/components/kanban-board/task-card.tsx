@@ -1,3 +1,4 @@
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
 import type { Task } from "@/types/project";
@@ -30,14 +31,6 @@ function TaskCard({ task }: TaskCardProps) {
     transition,
     opacity: isDragging ? 0.5 : 1,
     touchAction: "none",
-  };
-
-  const priorityColors = {
-    low: "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-500",
-    medium:
-      "bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-500",
-    high: "bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-500",
-    urgent: "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-500",
   };
 
   function handleTaskCardClick() {
@@ -105,7 +98,7 @@ function TaskCard({ task }: TaskCardProps) {
 
         <div className="flex-shrink-0">
           <span
-            className={`text-xs px-2 py-1 rounded-full ${priorityColors[task.priority as keyof typeof priorityColors]}`}
+            className={`text-xs px-2 py-1 rounded-full ${priorityColorsTaskCard[task.priority as keyof typeof priorityColorsTaskCard]}`}
           >
             <Flag className="w-3 h-3 inline-block mr-1" />
             {task.priority}

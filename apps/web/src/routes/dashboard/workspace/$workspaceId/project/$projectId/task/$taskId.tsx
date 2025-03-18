@@ -5,9 +5,9 @@ import TaskInfo from "@/components/task/task-info";
 import TaskTitle from "@/components/task/task-title";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useProjectStore from "@/store/project";
-import { Link, Navigate, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { X } from "lucide-react";
+import { LayoutGrid, X } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute(
@@ -18,19 +18,17 @@ export const Route = createFileRoute(
 
 function TaskEditPage() {
   const { taskId, workspaceId, projectId } = Route.useParams();
-  const { data: task } = useGetTask(taskId);
+  const { data: task, isLoading } = useGetTask(taskId);
   const { project } = useProjectStore();
   const [isSaving, setIsSaving] = useState(false);
 
-  if (!task || !project) {
+  if (isLoading) {
     return (
-      <Navigate
-        to="/dashboard/workspace/$workspaceId/project/$projectId/board"
-        params={{
-          workspaceId,
-          projectId,
-        }}
-      />
+      <div className="flex w-full items-center justify-center h-screen flex-col md:flex-row bg-zinc-50 dark:bg-zinc-950">
+        <div className="p-1.5 bg-linear-to-br from-indigo-500 to-purple-500 rounded-lg shadow-xs animate-spin">
+          <LayoutGrid className="w-5 h-5 text-white" />
+        </div>
+      </div>
     );
   }
 
@@ -54,7 +52,7 @@ function TaskEditPage() {
           </Link>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-0.5">
-              {project?.slug}-{task.number}
+              {project?.slug}-{task?.number}
             </div>
             <TaskTitle setIsSaving={setIsSaving} />
           </div>
@@ -96,7 +94,7 @@ function TaskEditPage() {
               </div>
             </div>
           </div>
-          <TaskInfo setIsSaving={setIsSaving} />
+          {task && <TaskInfo task={task} setIsSaving={setIsSaving} />}
         </div>
       </div>
     </motion.div>

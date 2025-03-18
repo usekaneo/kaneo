@@ -1,7 +1,6 @@
 import db from "../../database";
 import { userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-import { UserErrors } from "../errors";
 
 async function signUp(email: string, password: string, name: string) {
   const isEmailTaken = Boolean(
@@ -11,7 +10,7 @@ async function signUp(email: string, password: string, name: string) {
   );
 
   if (isEmailTaken) {
-    throw new Error(UserErrors.EmailTaken);
+    throw new Error("Email taken");
   }
 
   const hashedPassword = await Bun.password.hash(password, {
@@ -26,14 +25,18 @@ async function signUp(email: string, password: string, name: string) {
   ).at(0);
 
   if (!user) {
-    throw new Error(UserErrors.NotFound);
+    throw new Error("Failed to create an account");
   }
 
   publishEvent("user.signed_up", {
     email: user.email,
   });
 
-  return user;
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+  };
 }
 
 export default signUp;

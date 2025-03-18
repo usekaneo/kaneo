@@ -1,5 +1,4 @@
 import db from "../../database";
-import { UserErrors } from "../errors";
 
 async function signIn(email: string, password: string) {
   const user = await db.query.userTable.findFirst({
@@ -7,7 +6,7 @@ async function signIn(email: string, password: string) {
   });
 
   if (!user) {
-    throw new Error(UserErrors.NotFound);
+    throw new Error("User not found");
   }
 
   const isPasswordValid = await Bun.password.verify(
@@ -17,10 +16,14 @@ async function signIn(email: string, password: string) {
   );
 
   if (!isPasswordValid) {
-    throw new Error(UserErrors.InvalidCredentials);
+    throw new Error("Invalid credentials");
   }
 
-  return user;
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+  };
 }
 
 export default signIn;

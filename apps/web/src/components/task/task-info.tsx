@@ -1,13 +1,13 @@
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useGetTask from "@/hooks/queries/task/use-get-task";
-import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
-import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
+import useActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
+import type { Task } from "@/types/project";
 import { Flag } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import TaskCalendar from "./task-calendar";
 
@@ -19,37 +19,48 @@ export const taskInfoSchema = z.object({
 });
 
 function TaskInfo({
+  task,
   setIsSaving,
-}: { setIsSaving: (isSaving: boolean) => void }) {
-  const { taskId, workspaceId } = Route.useParams();
+}: {
+  task: Task;
+  setIsSaving: (isSaving: boolean) => void;
+}) {
   const { project } = useProjectStore();
-  const { data: task } = useGetTask(taskId);
-  const { data: workspaceUsers } = useGetWorkspaceUsers({ workspaceId });
+  const { data: workspaceUsers } = useActiveWorkspaceUsers(
+    project?.workspaceId || "",
+  );
   const { mutateAsync: updateTask } = useUpdateTask();
 
   const form = useForm<z.infer<typeof taskInfoSchema>>({
-    values: {
+    defaultValues: {
       status: task?.status || "",
       userEmail: task?.userEmail || "",
       priority: task?.priority || "",
       dueDate: task?.dueDate || new Date(),
     },
-    shouldUnregister: true,
-    mode: "onChange",
   });
 
   const handleChange = async (data: z.infer<typeof taskInfoSchema>) => {
     if (!task) return;
 
     setIsSaving(true);
-    await updateTask({
-      ...task,
-      userEmail: data.userEmail,
-      status: data.status || "",
-      priority: data.priority || "",
-      dueDate: data.dueDate || new Date(),
-    });
-    setIsSaving(false);
+    try {
+      await updateTask({
+        ...task,
+        userEmail: data.userEmail,
+        status: data.status || "",
+        priority: data.priority || "",
+        dueDate: data.dueDate || new Date(),
+        projectId: project?.id || "",
+      });
+      toast.success("Task updated successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update task",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   useEffect(() => {
@@ -104,8 +115,8 @@ function TaskInfo({
                     label: "Unassigned",
                   },
                   ...(workspaceUsers?.map((user) => ({
-                    value: user.userEmail,
-                    label: user.userName || "",
+                    value: user.user?.email ?? "",
+                    label: user.user?.name ?? "",
                   })) || []),
                 ]}
               />
@@ -142,8 +153,8 @@ function TaskInfo({
                     icon: <Flag className="w-4 h-4 text-red-500" />,
                   },
                   {
-                    value: "critical",
-                    label: "Critical",
+                    value: "urgent",
+                    label: "Urgent",
                     icon: <Flag className="w-4 h-4 text-red-500" />,
                   },
                 ]}

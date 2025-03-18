@@ -3,6 +3,7 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import debounce from "@/lib/debounce";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Form, FormField } from "../ui/form";
 
@@ -26,15 +27,24 @@ function TaskTitle({
     if (!task) return;
 
     setIsSaving(true);
-    await updateTask({
-      ...task,
-      title: value,
-      userEmail: task.userEmail || "",
-      status: task.status || "",
-      dueDate: task.dueDate || new Date(),
-      priority: task.priority || "",
-    });
-    setIsSaving(false);
+    try {
+      await updateTask({
+        ...task,
+        title: value,
+        userEmail: task.userEmail || "",
+        status: task.status || "",
+        dueDate: task.dueDate || new Date(),
+        priority: task.priority || "",
+        position: task.position || 0,
+      });
+      toast.success("Task title updated", { duration: 2000 });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update task title",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }, 1000);
 
   async function handleTitleChange(value: string) {

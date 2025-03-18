@@ -12,6 +12,7 @@ async function updateTask(
     dueDate: Date | null;
     description: string;
     priority: string;
+    position: number;
   },
 ) {
   const [existingTask] = await db
@@ -34,6 +35,7 @@ async function updateTask(
       dueDate: new Date(body.dueDate ?? ""),
       priority: body.priority,
       userEmail: body.userEmail,
+      position: body.position,
     })
     .where(eq(taskTable.id, taskId))
     .returning();

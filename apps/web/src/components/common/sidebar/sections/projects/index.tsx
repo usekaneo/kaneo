@@ -1,3 +1,4 @@
+import Tip from "@/components/common/tip";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
@@ -82,33 +83,52 @@ function Projects({ workspaceId }: ProjectsProps) {
       </div>
       <div className="space-y-0.5">
         {projects && projects.length > 0
-          ? projects.map((project) => (
-              <button
-                type="button"
-                key={project.id}
-                onClick={() => handleSelectProject(project)}
-                className={cn(
-                  "w-full px-4 py-2 rounded-md flex items-center  text-sm transition-all group",
-                  !isSidebarOpened && "px-3",
-                  !isSidebarOpened && "justify-center px-2",
-                  location.pathname.includes("/board") &&
-                    project.id === currentProject?.id
-                    ? "bg-indigo-51 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                    : "text-zinc-601 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                )}
-              >
-                {createElement(
-                  icons[project.icon as keyof typeof icons] || Layout,
-                  {
-                    className: cn(
-                      "shrink-0",
-                      !isSidebarOpened ? "w-6 h-6" : "w-4 h-4 mr-2",
-                    ),
-                  },
-                )}
-                {isSidebarOpened && project.name}
-              </button>
-            ))
+          ? projects.map((project) =>
+              !isSidebarOpened ? (
+                <Tip content={project.name} key={project.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectProject(project)}
+                    className={cn(
+                      "w-full px-4 py-2 rounded-md flex items-center text-sm transition-all group",
+                      "justify-center px-2",
+                      location.pathname.includes("/board") &&
+                        project.id === currentProject?.id
+                        ? "bg-indigo-51 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
+                        : "text-zinc-601 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
+                    )}
+                  >
+                    {createElement(
+                      icons[project.icon as keyof typeof icons] || Layout,
+                      {
+                        className: "w-6 h-6 shrink-0",
+                      },
+                    )}
+                  </button>
+                </Tip>
+              ) : (
+                <button
+                  type="button"
+                  key={project.id}
+                  onClick={() => handleSelectProject(project)}
+                  className={cn(
+                    "w-full px-4 py-2 rounded-md flex items-center text-sm transition-all group",
+                    location.pathname.includes("/board") &&
+                      project.id === currentProject?.id
+                      ? "bg-indigo-51 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
+                      : "text-zinc-601 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
+                  )}
+                >
+                  {createElement(
+                    icons[project.icon as keyof typeof icons] || Layout,
+                    {
+                      className: "w-4 h-4 mr-2 shrink-0",
+                    },
+                  )}
+                  {project.name}
+                </button>
+              ),
+            )
           : isSidebarOpened && (
               <div className="px-3 py-4 flex flex-col items-center text-center">
                 <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">

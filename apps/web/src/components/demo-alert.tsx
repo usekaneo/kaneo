@@ -9,7 +9,7 @@ export function DemoAlert() {
           every hour.
           <Button
             onClick={() =>
-              window.open("https://github.com/kaneo-app/app", "_blank")
+              window.open("https://github.com/usekaneo/kaneo", "_blank")
             }
             className="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 h-7 sm:h-6 px-3 sm:px-2 whitespace-nowrap"
           >

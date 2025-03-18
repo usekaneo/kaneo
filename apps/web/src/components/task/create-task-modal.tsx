@@ -1,3 +1,4 @@
+import { Editor } from "@/components/common/editor";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -9,8 +10,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
-import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
-import useBoardWebSocket from "@/hooks/use-board-websocket";
+import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+import useActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +19,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { produce } from "immer";
 import { Flag, UserIcon, X } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Select } from "../ui/select";
 
@@ -43,10 +45,8 @@ export function CreateTaskModal({
 }: CreateTaskModalProps) {
   const { project, setProject } = useProjectStore();
   const { workspace } = useWorkspaceStore();
-  const { data: users } = useGetWorkspaceUsers({
-    workspaceId: workspace?.id ?? "",
-  });
-  const { ws } = useBoardWebSocket();
+  const { mutate: updateTask } = useUpdateTask();
+  const { data: users } = useActiveWorkspaceUsers(workspace?.id ?? "");
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -62,40 +62,49 @@ export function CreateTaskModal({
   const onSubmit = async (data: TaskFormValues) => {
     if (!project?.id || !workspace?.id) return;
 
-    const newTask = await mutateAsync({
-      title: data.title.trim(),
-      description: data.description?.trim() || "",
-      userEmail: data.email,
-      priority: data.priority,
-      projectId: project?.id,
-      dueDate: new Date(),
-      status: status ?? "to-do",
-    });
+    try {
+      const newTask = await mutateAsync({
+        title: data.title.trim(),
+        description: data.description?.trim() || "",
+        userEmail: data.email,
+        priority: data.priority,
+        projectId: project?.id,
+        dueDate: new Date(),
+        status: status ?? "to-do",
+        position: 0,
+      });
 
-    const updatedProject = produce(project, (draft) => {
-      const targetColumn = draft.columns?.find(
-        (col) => col.id === newTask.status,
+      const updatedProject = produce(project, (draft) => {
+        const targetColumn = draft.columns?.find(
+          (col) => col.id === newTask.status,
+        );
+        if (targetColumn) {
+          targetColumn.tasks.push({
+            ...newTask,
+            userEmail: data.email,
+            position: 0,
+          });
+        }
+      });
+
+      setProject(updatedProject);
+      updateTask({ ...newTask, position: 0 });
+      toast.success("Task created successfully");
+
+      form.reset();
+      onClose();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create task",
       );
-      if (targetColumn) {
-        targetColumn.tasks.push({
-          ...newTask,
-          userEmail: data.email,
-        });
-      }
-    });
-
-    setProject(updatedProject);
-    ws?.send(JSON.stringify({ type: "UPDATE_TASK", ...newTask }));
-
-    form.reset();
-    onClose();
+    }
   };
 
   return (
     <Dialog.Root open={open} onOpenChange={onClose}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
-        <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+        <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg">
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
@@ -138,12 +147,13 @@ export function CreateTaskModal({
                           Description
                         </FormLabel>
                         <FormControl>
-                          <textarea
-                            {...field}
-                            placeholder="Task description"
-                            className="w-full rounded-md border border-zinc-200 dark:border-zinc-700/50 bg-white dark:bg-zinc-800/50 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
-                            rows={3}
-                          />
+                          <div className="border border-zinc-200 dark:border-zinc-700/50 rounded-md overflow-hidden">
+                            <Editor
+                              value={field.value || ""}
+                              onChange={(value) => field.onChange(value)}
+                              placeholder="Add a detailed description..."
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -170,8 +180,8 @@ export function CreateTaskModal({
                                 ),
                               },
                               ...(users ?? []).map((user) => ({
-                                value: user.userEmail ?? "",
-                                label: user.userName ?? "",
+                                value: user.user?.email ?? "",
+                                label: user.user?.name ?? "",
                               })),
                             ]}
                             placeholder="Select assignee"

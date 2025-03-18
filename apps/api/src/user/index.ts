@@ -4,8 +4,8 @@ import createSession from "./controllers/create-session";
 import invalidateSession from "./controllers/invalidate-session";
 import signIn from "./controllers/sign-in";
 import signUp from "./controllers/sign-up";
-import { UserErrors } from "./errors";
 import generateSessionToken from "./utils/generate-session-token";
+import isInSecureMode from "./utils/is-in-secure-mode";
 
 const user = new Elysia({ prefix: "/user" })
   .use(
@@ -16,7 +16,7 @@ const user = new Elysia({ prefix: "/user" })
   )
   .post(
     "/sign-in",
-    async ({ body: { email, password }, set }) => {
+    async ({ body: { email, password }, set, request }) => {
       const user = await signIn(email, password);
 
       const token = generateSessionToken();
@@ -26,7 +26,7 @@ const user = new Elysia({ prefix: "/user" })
           value: token,
           httpOnly: true,
           path: "/",
-          secure: process.env.NODE_ENV === "production",
+          secure: isInSecureMode(request),
           sameSite: "lax",
           expires: session.expiresAt,
         },
@@ -43,10 +43,10 @@ const user = new Elysia({ prefix: "/user" })
   )
   .post(
     "/sign-up",
-    async ({ body: { email, password, name }, set }) => {
+    async ({ body: { email, password, name }, set, request }) => {
       const user = await signUp(email, password, name);
 
-      if (!user) throw new Error(UserErrors.FailedToCreateAnAccount);
+      if (!user) throw new Error("Failed to create an account");
 
       const token = generateSessionToken();
       const session = await createSession(token, user.id);
@@ -55,7 +55,7 @@ const user = new Elysia({ prefix: "/user" })
           value: token,
           httpOnly: true,
           path: "/",
-          secure: process.env.NODE_ENV === "production",
+          secure: isInSecureMode(request),
           sameSite: "lax",
           expires: session.expiresAt,
         },

@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface CreateWorkspaceModalProps {
   open: boolean;
@@ -25,15 +26,22 @@ export function CreateWorkspaceModal({
     e.preventDefault();
     if (!name.trim()) return;
 
-    const createdWorkspace = await mutateAsync();
-    resetAndCloseModal();
+    try {
+      const createdWorkspace = await mutateAsync();
+      toast.success("Workspace created successfully");
+      resetAndCloseModal();
 
-    navigate({
-      to: "/dashboard/workspace/$workspaceId",
-      params: {
-        workspaceId: createdWorkspace.id,
-      },
-    });
+      navigate({
+        to: "/dashboard/workspace/$workspaceId",
+        params: {
+          workspaceId: createdWorkspace.id,
+        },
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create workspace",
+      );
+    }
   };
 
   const resetWorkspaceState = async () => {

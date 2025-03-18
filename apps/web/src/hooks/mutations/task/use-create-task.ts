@@ -10,6 +10,7 @@ type CreateTaskInput = {
   dueDate: Date;
   number?: number;
   priority: "low" | "medium" | "high" | "urgent";
+  position: number;
 };
 
 function useCreateTask() {
@@ -22,6 +23,7 @@ function useCreateTask() {
       status,
       dueDate,
       priority,
+      position,
     }: CreateTaskInput) =>
       createTask(
         title,
@@ -31,6 +33,7 @@ function useCreateTask() {
         status,
         dueDate,
         priority,
+        position,
       ),
   });
 }

@@ -9,10 +9,12 @@ import project from "./project";
 import task from "./task";
 import user from "./user";
 import { validateSessionToken } from "./user/controllers/validate-session-token";
-import { createDemoUser } from "./utils/create-demo-user";
 import purgeData from "./utils/purge-demo-data";
+import setDemoUser from "./utils/set-demo-user";
 import workspace from "./workspace";
 import workspaceUser from "./workspace-user";
+
+const isDemoMode = process.env.DEMO_MODE === "true";
 
 const app = new Elysia()
   .state("userEmail", "")
@@ -21,7 +23,7 @@ const app = new Elysia()
   .use(
     cron({
       name: "purge-demo-data",
-      pattern: "0 * * * *",
+      pattern: "30 * * * *",
       run: async () => {
         const isDemoMode = process.env.DEMO_MODE === "true";
 
@@ -34,51 +36,35 @@ const app = new Elysia()
   )
   .guard({
     async beforeHandle({ store, cookie: { session }, set }) {
-      const isDemoMode = process.env.DEMO_MODE === "true";
-      const demoExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+      if (isDemoMode) {
+        if (!session?.value) {
+          await setDemoUser(set);
+        }
 
-      if (isDemoMode && !session?.value) {
-        const {
-          id,
-          name,
-          email,
-          session: demoSession,
-          expiresAt = demoExpiresAt,
-        } = await createDemoUser();
+        const { user, session: validatedSession } = await validateSessionToken(
+          session.value ?? "",
+        );
 
-        set.cookie = {
-          session: {
-            value: demoSession,
-            httpOnly: true,
-            path: "/",
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            expires: expiresAt,
-          },
-        };
+        if (!user || !validatedSession) {
+          await setDemoUser(set);
+        }
 
-        return {
-          user: {
-            id,
-            name,
-            email,
-          },
-        };
+        store.userEmail = user?.email ?? "";
+      } else {
+        if (!session?.value) {
+          return { user: null };
+        }
+
+        const { user, session: validatedSession } = await validateSessionToken(
+          session.value,
+        );
+
+        if (!user || !validatedSession) {
+          return { user: null };
+        }
+
+        store.userEmail = user.email;
       }
-
-      if (!session?.value) {
-        return { user: null };
-      }
-
-      const { user, session: validatedSession } = await validateSessionToken(
-        session.value,
-      );
-
-      if (!user || !validatedSession) {
-        return { user: null };
-      }
-
-      store.userEmail = user.email;
     },
   })
   .get("/me", async ({ cookie: { session } }) => {

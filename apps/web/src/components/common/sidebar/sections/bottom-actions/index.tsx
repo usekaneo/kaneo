@@ -1,7 +1,5 @@
 import { cn } from "@/lib/cn";
-import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import useWorkspaceStore from "@/store/workspace";
 import { useNavigate } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
 import SignOutButton from "./sign-out-button";
@@ -9,12 +7,8 @@ import SignOutButton from "./sign-out-button";
 function BottomActions() {
   const { isSidebarOpened } = useUserPreferencesStore();
   const navigate = useNavigate();
-  const { setProject } = useProjectStore();
-  const { setWorkspace } = useWorkspaceStore();
 
   const handleClickSettings = () => {
-    setProject(undefined);
-    setWorkspace(undefined);
     navigate({ to: "/dashboard/settings/appearance" });
   };
 

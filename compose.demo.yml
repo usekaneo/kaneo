@@ -25,7 +25,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   backend:
-    image: ghcr.io/kaneo-app/api:latest
+    image: ghcr.io/usekaneo/api:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`demo-api.kaneo.app`)"
@@ -43,7 +43,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: ghcr.io/kaneo-app/web:latest
+    image: ghcr.io/usekaneo/web:latest
     environment:
       KANEO_API_URL: "https://demo-api.kaneo.app"
     labels:

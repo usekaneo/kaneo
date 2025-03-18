@@ -5,6 +5,7 @@ import useWorkspaceStore from "@/store/workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 function SignOutButton() {
   const { setUser } = useAuth();
@@ -15,12 +16,19 @@ function SignOutButton() {
   const { history } = useRouter();
 
   const handleSignOut = async () => {
-    await mutateAsync();
-    queryClient.clear();
-    setUser(null);
-    setProject(undefined);
-    setWorkspace(undefined);
-    history.push("/auth/sign-in");
+    try {
+      await mutateAsync();
+      queryClient.clear();
+      setUser(null);
+      setProject(undefined);
+      setWorkspace(undefined);
+      toast.success("Signed out successfully");
+      history.push("/auth/sign-in");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to sign out",
+      );
+    }
   };
 
   return (

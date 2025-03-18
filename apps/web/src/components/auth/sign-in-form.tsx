@@ -11,12 +11,12 @@ import { Input } from "@/components/ui/input";
 import useSignIn from "@/hooks/mutations/use-sign-in";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { type ZodType, z } from "zod";
 import useAuth from "../providers/auth-provider/hooks/use-auth";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 export type SignInFormValues = {
   email: string;
@@ -39,18 +39,23 @@ export function SignInForm() {
       password: "",
     },
   });
-  const { error, isError, mutateAsync, isPending } = useSignIn();
+  const { mutateAsync, isPending } = useSignIn();
 
   const onSubmit = async (data: SignInFormValues) => {
-    const { data: user } = await mutateAsync({
-      email: data.email,
-      password: data.password,
-    });
-    setUser(user);
+    try {
+      const { data: user } = await mutateAsync({
+        email: data.email,
+        password: data.password,
+      });
+      setUser(user);
+      toast.success("Signed in successfully");
 
-    setTimeout(() => {
-      history.push("/dashboard");
-    }, 500);
+      setTimeout(() => {
+        history.push("/dashboard");
+      }, 500);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to sign in");
+    }
   };
 
   return (
@@ -123,14 +128,6 @@ export function SignInForm() {
             </div>
           </div>
         </div>
-
-        {isError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error.message}</AlertDescription>
-          </Alert>
-        )}
 
         <Button
           type="submit"

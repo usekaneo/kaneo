@@ -1,6 +1,6 @@
 import { api } from "@kaneo/libs";
 
-async function createProject(
+async function createTask(
   title: string,
   description: string,
   projectId: string,
@@ -8,6 +8,7 @@ async function createProject(
   status: string,
   dueDate: Date,
   priority: string,
+  position: number,
 ) {
   const response = await api.task.create.post({
     title,
@@ -17,6 +18,7 @@ async function createProject(
     status,
     dueDate,
     priority,
+    position,
   });
 
   if (response.error) {
@@ -26,4 +28,4 @@ async function createProject(
   return response?.data;
 }
 
-export default createProject;
+export default createTask;

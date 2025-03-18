@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type CreateProjectModalProps = {
   open: boolean;
@@ -35,19 +36,25 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     e.preventDefault();
     if (!name.trim()) return;
 
-    const { data } = await mutateAsync();
-    await queryClient.invalidateQueries({ queryKey: ["projects"] });
+    try {
+      const { data } = await mutateAsync();
+      toast.success("Project created successfully");
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
 
-    navigate({
-      to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
-      params: {
-        workspaceId: workspace?.id ?? "",
-        projectId: data?.id ?? "",
-      },
-    });
+      navigate({
+        to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+        params: {
+          workspaceId: workspace?.id ?? "",
+          projectId: data?.id ?? "",
+        },
+      });
 
-    resetState();
-    onClose();
+      resetAndCloseModal();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create project",
+      );
+    }
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

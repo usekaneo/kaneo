@@ -27,17 +27,18 @@ async function getTasks(projectId: string) {
       status: taskTable.status,
       priority: taskTable.priority,
       dueDate: taskTable.dueDate,
+      position: taskTable.position,
       createdAt: taskTable.createdAt,
       userEmail: taskTable.userEmail,
       assigneeName: userTable.name,
       assigneeEmail: userTable.email,
       projectId: taskTable.projectId,
-      projectSlug: projectTable.slug,
     })
     .from(taskTable)
     .leftJoin(userTable, eq(taskTable.userEmail, userTable.email))
     .leftJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(taskTable.projectId, projectId));
+    .where(eq(taskTable.projectId, projectId))
+    .orderBy(taskTable.position);
 
   const columns = DEFAULT_COLUMNS.map((column) => ({
     id: column.id,
@@ -53,6 +54,7 @@ async function getTasks(projectId: string) {
     id: project.id,
     name: project.name,
     slug: project.slug,
+    description: project.description,
     workspaceId: project.workspaceId,
     columns,
   };

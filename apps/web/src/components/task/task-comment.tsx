@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const commentSchema = z.object({
@@ -40,15 +41,24 @@ function TaskComment() {
       return;
     }
 
-    await createComment({
-      taskId: taskId,
-      content: data.comment,
-      userEmail: user?.email,
-    });
+    try {
+      await createComment({
+        taskId: taskId,
+        content: data.comment,
+        userEmail: user?.email,
+      });
 
-    queryClient.invalidateQueries({
-      queryKey: ["activities", taskId],
-    });
+      await queryClient.invalidateQueries({
+        queryKey: ["activities", taskId],
+      });
+
+      toast.success("Comment added successfully");
+      form.reset();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add comment",
+      );
+    }
   }
 
   useEffect(() => {

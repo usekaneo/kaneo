@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://kaneo.app">
-    <img src="https://github.com/kaneo-app/.github/blob/main/profile/assets/logo-mono-rounded.png?raw=true" alt="Kaneo's logo" width="200" />
+    <img src="https://assets.kaneo.app/logo-mono-rounded.png" alt="Kaneo's logo" width="200" />
   </a>
 </p>
 
@@ -9,7 +9,7 @@
 <div align="center">
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/kaneo-app/app/ci.yml?branch=main)](https://github.com/kaneo-app/app/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/usekaneo/kaneo/ci.yml?branch=main)](https://github.com/usekaneo/kaneo/actions)
 [![Discord](https://img.shields.io/discord/1326250681530843178?color=7389D8&label=&logo=discord&logoColor=ffffff)](https://discord.gg/rU4tSyhXXU)
 
 </div>
@@ -42,7 +42,7 @@
 ```yaml
 services:
   backend:
-    image: ghcr.io/kaneo-app/api:latest
+    image: ghcr.io/usekaneo/api:latest
     environment:
       JWT_ACCESS: "change_me"
       DB_PATH: "/app/apps/api/data/kaneo.db"
@@ -53,7 +53,7 @@ services:
       - sqlite_data:/app/apps/api/data
 
   frontend:
-    image: ghcr.io/kaneo-app/web:latest
+    image: ghcr.io/usekaneo/web:latest
     environment:
       KANEO_API_URL: "http://localhost:1337"
     ports:
@@ -70,6 +70,12 @@ volumes:
 
 4. Create your first project and start managing your tasks!
 
+| Variable | Description |
+| -------- | ----------- |
+| `KANEO_API_URL` | The URL of the API |
+| `JWT_ACCESS` | Secret key for generating JWT tokens |
+| `DB_PATH` | The path to the database file |
+
 ## 📖 Documentation
 
 For detailed instructions and documentation, visit our [Documentation](https://kaneo.app/quick-start).
@@ -81,7 +87,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## 💬 Community
 
 - [Discord](https://discord.gg/rU4tSyhXXU) - Chat with the community
-- [GitHub Issues](https://github.com/kaneo-app/app/issues) - Report bugs or suggest features
+- [GitHub Issues](https://github.com/usekaneo/kaneo/issues) - Report bugs or suggest features
 - [Website](https://kaneo.app) - Official website
 
 ## 📝 License

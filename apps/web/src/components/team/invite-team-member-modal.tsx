@@ -5,6 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import {
@@ -41,13 +42,21 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   });
 
   const onSubmit = async ({ userEmail }: TeamMemberFormValues) => {
-    await mutateAsync({ userEmail, workspaceId });
-    await queryClient.refetchQueries({
-      queryKey: ["workspace-users", workspaceId],
-    });
+    try {
+      await mutateAsync({ userEmail, workspaceId });
+      await queryClient.refetchQueries({
+        queryKey: ["workspace-users", workspaceId],
+      });
 
-    resetInviteTeamMember();
-    onClose();
+      toast.success("Invitation sent successfully");
+
+      resetInviteTeamMember();
+      onClose();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to invite team member",
+      );
+    }
   };
 
   const resetInviteTeamMember = async () => {

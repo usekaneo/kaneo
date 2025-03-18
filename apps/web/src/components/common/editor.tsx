@@ -94,7 +94,8 @@ export function Editor({
       }),
       Highlight.configure({
         HTMLAttributes: {
-          class: "bg-yellow-100 dark:bg-yellow-900/50 rounded-sm px-1",
+          class:
+            "bg-indigo-100 text-indigo-900 dark:bg-indigo-500/20 dark:text-indigo-300 rounded-sm px-1",
         },
       }),
       TaskList.configure({

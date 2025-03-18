@@ -31,7 +31,7 @@ function DashboardIndexRouteComponent() {
   const hasNoWorkspacesAndNoSelectedWorkspace =
     workspaces?.length === 0 && !workspace;
 
-  const isOnWorkspaceRoute = location.includes("/dashboard/workspace");
+  const isOnWorkspaceRoute = location === "/dashboard";
 
   return (
     <>
