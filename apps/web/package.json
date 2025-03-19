@@ -43,7 +43,7 @@
 		"date-fns": "^4.1.0",
 		"framer-motion": "^12.0.1",
 		"immer": "^10.1.1",
-		"lucide-react": "^0.482.0",
+		"lucide-react": "^0.483.0",
 		"react": "^19.0.0",
 		"react-day-picker": "8.10.1",
 		"react-dom": "^19.0.0",
