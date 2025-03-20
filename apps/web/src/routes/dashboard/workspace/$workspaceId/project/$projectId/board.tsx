@@ -4,13 +4,11 @@ import BoardFilters, {
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
-import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { Task } from "@/types/project";
 import { createFileRoute } from "@tanstack/react-router";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
-import { LayoutGrid, List } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
@@ -23,7 +21,7 @@ function RouteComponent() {
   const { projectId } = Route.useParams();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
-  const { viewMode, setViewMode } = useUserPreferencesStore();
+  const { viewMode } = useUserPreferencesStore();
   const [filters, setFilters] = useState<BoardFiltersType>({
     search: "",
     assignee: null,
@@ -109,34 +107,8 @@ function RouteComponent() {
           {project?.name}
         </h1>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center">
           <BoardFilters onFiltersChange={setFilters} />
-          <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
-            <button
-              type="button"
-              onClick={() => setViewMode("board")}
-              className={cn(
-                "p-1.5 rounded-md transition-colors",
-                viewMode === "board"
-                  ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100",
-              )}
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "p-1.5 rounded-md transition-colors",
-                viewMode === "list"
-                  ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100",
-              )}
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
         </div>
       </div>
 

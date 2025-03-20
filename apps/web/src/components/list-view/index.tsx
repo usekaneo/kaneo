@@ -168,7 +168,7 @@ function ListView({ project }: ListViewProps) {
                 ))}
 
                 {column.tasks.length === 0 && (
-                  <div className="px-10 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg min-h-[60px] flex items-center justify-center">
+                  <div className="px-10 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg min-h-[60px] flex items-center justify-center">
                     No tasks in {column.name.toLowerCase()}
                   </div>
                 )}
