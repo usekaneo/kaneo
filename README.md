@@ -102,9 +102,7 @@ Thank you to all the amazing contributors who have helped make Kaneo better!
 
 ### Sponsors
 
-<a href="https://github.com/sponsors/usekaneo">
-  <img src="https://raw.githubusercontent.com/usekaneo/kaneo/main/.github/sponsors.svg" alt="Sponsors" />
-</a>
+<!-- sponsors --><!-- sponsors -->
 
 ## 📝 License
 
