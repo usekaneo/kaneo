@@ -1,4 +1,4 @@
-import { CreateTaskModal } from "@/components/task/create-task-modal";
+import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import toKebabCase from "@/lib/to-kebab-case";
 import type { Column } from "@/types/project";
 import { Plus } from "lucide-react";

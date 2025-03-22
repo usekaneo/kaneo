@@ -8,7 +8,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
-import { CreateWorkspaceModal } from "./create-workspace-modal";
+import CreateWorkspaceModal from "../../../../../shared/modals/create-workspace-modal";
 
 function WorkspacePicker() {
   const { workspace: selectedWorkspace, setWorkspace } = useWorkspaceStore();

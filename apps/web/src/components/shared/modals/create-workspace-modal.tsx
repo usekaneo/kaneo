@@ -12,11 +12,7 @@ interface CreateWorkspaceModalProps {
   open: boolean;
   onClose: () => void;
 }
-
-export function CreateWorkspaceModal({
-  open,
-  onClose,
-}: CreateWorkspaceModalProps) {
+function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
   const [name, setName] = useState("");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -114,3 +110,5 @@ export function CreateWorkspaceModal({
     </Dialog.Root>
   );
 }
+
+export default CreateWorkspaceModal;

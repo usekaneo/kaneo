@@ -21,7 +21,7 @@ import { Flag, UserIcon, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Select } from "../ui/select";
+import { Select } from "../../ui/select";
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -38,11 +38,7 @@ const taskSchema = z.object({
 
 type TaskFormValues = z.infer<typeof taskSchema>;
 
-export function CreateTaskModal({
-  open,
-  onClose,
-  status,
-}: CreateTaskModalProps) {
+function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const { project, setProject } = useProjectStore();
   const { workspace } = useWorkspaceStore();
   const { mutate: updateTask } = useUpdateTask();
@@ -264,3 +260,5 @@ export function CreateTaskModal({
     </Dialog.Root>
   );
 }
+
+export default CreateTaskModal;
