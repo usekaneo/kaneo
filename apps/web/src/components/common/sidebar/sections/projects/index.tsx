@@ -8,7 +8,7 @@ import type { Project } from "@/types/project";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Layout, LayoutDashboard, Plus, Settings } from "lucide-react";
 import { createElement, useState } from "react";
-import CreateProjectModal from "./create-project-modal";
+import CreateProjectModal from "../../../../shared/modals/create-project-modal";
 
 type ProjectsProps = {
   workspaceId: string;
