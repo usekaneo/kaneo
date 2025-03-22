@@ -55,6 +55,11 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   });
   const { mutateAsync } = useCreateTask();
 
+  const handleClose = () => {
+    form.reset();
+    onClose();
+  };
+
   const onSubmit = async (data: TaskFormValues) => {
     if (!project?.id || !workspace?.id) return;
 
@@ -87,8 +92,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       updateTask({ ...newTask, position: 0 });
       toast.success("Task created successfully");
 
-      form.reset();
-      onClose();
+      handleClose();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to create task",
@@ -97,7 +101,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root open={open} onOpenChange={handleClose}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
         <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg">
