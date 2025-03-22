@@ -92,9 +92,9 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## ❤️ Contributors & Supporters
 
-### Contributors
+Thank you to all the contributors and sponsors who have helped make Kaneo better! 💖
 
-Thank you to all the amazing contributors who have helped make Kaneo better!
+### Contributors
 
 <a href="https://github.com/usekaneo/kaneo/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=usekaneo/kaneo" alt="Contributors" />
