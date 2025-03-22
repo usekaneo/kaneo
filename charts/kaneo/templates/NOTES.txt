@@ -1,0 +1,56 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+{{- if .Values.ingress.enabled }}
+You can access the application using these URLs:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else }}
+To access the application, you need to set up port forwarding to both services:
+
+  $ kubectl port-forward svc/{{ include "kaneo.fullname" . }}-web 5173:{{ .Values.web.service.port }} -n {{ .Release.Namespace }} &
+  $ kubectl port-forward svc/{{ include "kaneo.fullname" . }}-api 1337:{{ .Values.api.service.port }} -n {{ .Release.Namespace }} &
+
+  Then access the application at http://localhost:5173
+  The web frontend will communicate with the API at http://localhost:1337
+
+Alternatively, you can expose the services using an Ingress by setting .Values.ingress.enabled=true
+{{- end }}
+
+NOTES:
+1. Kaneo is configured with SQLite database for persistence.
+   {{- if .Values.api.persistence.enabled }}
+   A PersistentVolumeClaim is used to store the SQLite database file.
+   {{- else }}
+   WARNING: Persistence is disabled. Your data will be lost when the pod is terminated.
+   To enable persistence, set .Values.api.persistence.enabled=true
+   {{- end }}
+
+2. Important environment variables:
+   - API:
+     - JWT_ACCESS: Secret key for generating JWT tokens (currently set to: {{ .Values.api.env.jwtAccess }})
+     - DB_PATH: Path to the SQLite database file (set to: "{{ .Values.api.persistence.mountPath }}/{{ .Values.api.persistence.dbFilename }}")
+
+   - Web:
+     - KANEO_API_URL: URL of the API service (set to: "{{- if .Values.web.env.apiUrl -}}
+       {{- if hasSuffix "/" .Values.web.env.apiUrl -}}
+         {{- .Values.web.env.apiUrl -}}api
+       {{- else -}}
+         {{- .Values.web.env.apiUrl -}}/api
+       {{- end -}}
+     {{- else -}}
+       http://localhost:{{ .Values.api.service.targetPort }}
+     {{- end -}}")
+
+   You can customize these values in your values.yaml file.
+
+3. IMPORTANT: This chart uses a combined pod approach where both the API and Web containers
+   run in the same pod. This allows the web frontend to connect directly to the API via
+   localhost, simplifying the deployment and eliminating cross-origin issues.

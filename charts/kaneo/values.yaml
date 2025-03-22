@@ -1,0 +1,147 @@
+# Global values
+nameOverride: ""
+fullnameOverride: ""
+replicaCount: 1
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Pod configuration
+podAnnotations: {}
+podSecurityContext: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Service account configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# API backend configuration
+api:
+  image:
+    repository: ghcr.io/usekaneo/api
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 1337
+    targetPort: 1337
+
+  # Resources are optional and disabled by default
+  resources: {}
+  # resources:
+  #   limits:
+  #     cpu: 500m
+  #     memory: 512Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+
+  # Environment variables for the API
+  env:
+    jwtAccess: "change_me"
+    existingSecret:
+      enabled: false
+      name: ""
+      key: "jwt-access"
+
+  # SQLite data persistence
+  persistence:
+    enabled: true
+    mountPath: "/app/apps/api/data"
+    dbFilename: "kaneo.db"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: ""
+
+  livenessProbe:
+    httpGet:
+      path: /me
+      port: api
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /me
+      port: api
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+# Web frontend configuration
+web:
+  image:
+    repository: ghcr.io/usekaneo/web
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  # Environment variables for the Web
+  env:
+    # Optional: Override the default API URL (http://localhost:1337)
+    # The /api path will be automatically appended to the URL
+    # apiUrl: "https://kaneo.example.com"
+    apiUrl: ""
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+
+  # Resources are optional and disabled by default
+  resources: {}
+  # resources:
+  #   limits:
+  #     cpu: 300m
+  #     memory: 256Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: web
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: web
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+    # When using nginx ingress controller, these annotations provide URL rewriting
+    # similar to the URLRewrite filter in the Gateway API
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # Other ingress controllers may require different annotations
+  hosts:
+    - host: kaneo.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web
+          port: 80
+        - path: /api(/|$)(.*)
+          pathType: Prefix
+          service: api
+          port: 1337
+  tls: []
