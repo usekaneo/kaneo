@@ -90,6 +90,22 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 - [GitHub Issues](https://github.com/usekaneo/kaneo/issues) - Report bugs or suggest features
 - [Website](https://kaneo.app) - Official website
 
+## ❤️ Contributors & Supporters
+
+### Contributors
+
+Thank you to all the amazing contributors who have helped make Kaneo better!
+
+<a href="https://github.com/usekaneo/kaneo/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=usekaneo/kaneo" alt="Contributors" />
+</a>
+
+### Sponsors
+
+<a href="https://github.com/sponsors/usekaneo">
+  <img src="https://raw.githubusercontent.com/usekaneo/kaneo/main/.github/sponsors.svg" alt="Sponsors" />
+</a>
+
 ## 📝 License
 
 This project is licensed under the [MIT License](LICENSE).
