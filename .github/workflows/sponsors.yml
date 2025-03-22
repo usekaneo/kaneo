@@ -2,7 +2,7 @@ name: Generate Sponsors
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *' # Runs daily at midnight
 
 permissions:
   contents: write
@@ -22,15 +22,11 @@ jobs:
           minimum: 5
           maximum: 24
           marker: '<!-- sponsors -->'
-          template: |
-            <a href="https://github.com/{{{ login }}}">
-              <img src="{{{ avatarUrl }}}" width="60" alt="{{{ name }}}" style="border-radius: 50%;margin: 0 10px 10px 0;">
-            </a>
 
-      - name: Deploy to GitHub Pages 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: main
-          folder: .
-          target-folder: .github
-          commit-message: "chore: update sponsors" 
+      - name: Commit and Push Changes 🚀
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/sponsors.svg
+          git commit -m "chore: update sponsors" || exit 0
+          git push 
