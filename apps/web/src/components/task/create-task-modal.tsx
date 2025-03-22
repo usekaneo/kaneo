@@ -96,7 +96,6 @@ export function CreateTaskModal({
       updateTask({ ...newTask, position: 0 });
       toast.success("Task created successfully");
 
-      form.reset();
       handleClose();
     } catch (error) {
       toast.error(
