@@ -127,20 +127,22 @@ web:
 # Ingress configuration
 ingress:
   enabled: false
-  className: ""
+  className: "nginx"
   annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
     # When using nginx ingress controller, these annotations provide URL rewriting
     # similar to the URLRewrite filter in the Gateway API
-    # nginx.ingress.kubernetes.io/rewrite-target: /$2
-    # Other ingress controllers may require different annotations
+    # Other ingress controllers may require different annotations, handle carefully
+    # because it can break the API calls from the frontend to the backend
   hosts:
+    # Use the same host in the web env variable apiUrl (with http:// or https://)
     - host: kaneo.local
       paths:
-        - path: /
+        - path: /?(.*)
           pathType: Prefix
           service: web
           port: 80
-        - path: /api(/|$)(.*)
+        - path: /api/?(.*)
           pathType: Prefix
           service: api
           port: 1337

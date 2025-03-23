@@ -125,15 +125,15 @@ ingress:
   enabled: true
   className: nginx
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
   hosts:
     - host: your-domain.com
       paths:
-        - path: /
+        - path: /?(.*)
           pathType: Prefix
           service: web
           port: 80
-        - path: /api(/|$)(.*)
+        - path: /api/?(.*)
           pathType: Prefix
           service: api
           port: 1337
@@ -176,7 +176,7 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
   hosts:
     - host: your-domain.com
       paths:
@@ -184,7 +184,7 @@ ingress:
           pathType: Prefix
           service: web
           port: 80
-        - path: /api(/|$)(.*)
+        - path: /api/?(.*)
           pathType: Prefix
           service: api
           port: 1337
@@ -248,7 +248,7 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
   hosts:
     - host: your-domain.com
       paths:
@@ -256,7 +256,7 @@ ingress:
           pathType: Prefix
           service: web
           port: 80
-        - path: /api(/|$)(.*)
+        - path: /api/?(.*)
           pathType: Prefix
           service: api
           port: 1337

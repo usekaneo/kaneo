@@ -12,6 +12,12 @@ You can access the application using these URLs:
 {{- range .Values.ingress.hosts }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
 {{- end }}
+
+Note: This chart uses path patterns with regex capture groups for nginx:
+  - /?(.*)     -> for web frontend
+  - /api/?(.*)  -> for API requests
+Make sure your ingress controller supports the configured annotations:
+  nginx.ingress.kubernetes.io/rewrite-target: /$1
 {{- else }}
 To access the application, you need to set up port forwarding to both services:
 
