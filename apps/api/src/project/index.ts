@@ -36,12 +36,17 @@ const project = new Elysia({ prefix: "/project" })
   })
   .put(
     "/:id",
-    async ({ params: { id }, body: { workspaceId, name, description } }) => {
+    async ({
+      params: { id },
+      body: { workspaceId, name, description, icon, slug },
+    }) => {
       const updatedProject = await updateProject(
         id,
         workspaceId,
         name,
         description,
+        icon,
+        slug,
       );
 
       return updatedProject;
@@ -51,13 +56,13 @@ const project = new Elysia({ prefix: "/project" })
         workspaceId: t.String(),
         name: t.String(),
         description: t.String(),
+        icon: t.String(),
+        slug: t.String(),
       }),
     },
   )
-  .delete("/:id", async ({ params: { id }, query: { workspaceId } }) => {
-    if (!workspaceId) throw new Error("Workspace ID is required");
-
-    const deletedProject = await deleteProject(id, workspaceId);
+  .delete("/:id", async ({ params: { id } }) => {
+    const deletedProject = await deleteProject(id);
 
     return deletedProject;
   });

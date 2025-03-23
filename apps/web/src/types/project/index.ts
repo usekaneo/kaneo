@@ -5,6 +5,7 @@ export type Project = {
   description: string | null;
   workspaceId: string;
   columns?: Column[];
+  icon: string | null;
 };
 
 export type Column = {

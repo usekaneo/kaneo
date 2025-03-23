@@ -21,7 +21,7 @@ import { Flag, UserIcon, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Select } from "../ui/select";
+import { Select } from "../../ui/select";
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -38,11 +38,7 @@ const taskSchema = z.object({
 
 type TaskFormValues = z.infer<typeof taskSchema>;
 
-export function CreateTaskModal({
-  open,
-  onClose,
-  status,
-}: CreateTaskModalProps) {
+function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const { project, setProject } = useProjectStore();
   const { workspace } = useWorkspaceStore();
   const { mutate: updateTask } = useUpdateTask();
@@ -58,6 +54,11 @@ export function CreateTaskModal({
     },
   });
   const { mutateAsync } = useCreateTask();
+
+  const handleClose = () => {
+    form.reset();
+    onClose();
+  };
 
   const onSubmit = async (data: TaskFormValues) => {
     if (!project?.id || !workspace?.id) return;
@@ -91,8 +92,7 @@ export function CreateTaskModal({
       updateTask({ ...newTask, position: 0 });
       toast.success("Task created successfully");
 
-      form.reset();
-      onClose();
+      handleClose();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to create task",
@@ -101,7 +101,7 @@ export function CreateTaskModal({
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root open={open} onOpenChange={handleClose}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
         <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg">
@@ -264,3 +264,5 @@ export function CreateTaskModal({
     </Dialog.Root>
   );
 }
+
+export default CreateTaskModal;

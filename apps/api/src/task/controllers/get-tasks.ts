@@ -54,6 +54,7 @@ async function getTasks(projectId: string) {
     id: project.id,
     name: project.name,
     slug: project.slug,
+    icon: project.icon,
     description: project.description,
     workspaceId: project.workspaceId,
     columns,
