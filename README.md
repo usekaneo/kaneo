@@ -76,6 +76,122 @@ volumes:
 | `JWT_ACCESS` | Secret key for generating JWT tokens |
 | `DB_PATH` | The path to the database file |
 
+## 🚢 Kubernetes Deployment
+
+Kaneo can also be deployed on Kubernetes using our Helm chart:
+
+1. Clone this repository:
+
+```bash
+git clone https://github.com/usekaneo/kaneo.git
+cd kaneo
+```
+
+2. Install the Helm chart:
+
+```bash
+helm install kaneo ./charts/kaneo --namespace kaneo --create-namespace
+```
+
+3. Access Kaneo:
+
+```bash
+# Port forward to access both services
+kubectl port-forward svc/kaneo-web 5173:80 -n kaneo &
+kubectl port-forward svc/kaneo-api 1337:1337 -n kaneo &
+
+# Access the application at http://localhost:5173
+# The web frontend will communicate with the API at http://localhost:1337
+```
+
+### Production Deployments
+
+For production environments, we recommend using Ingress to expose Kaneo:
+
+```bash
+# Basic installation with ingress
+helm install kaneo ./charts/kaneo \
+  --namespace kaneo \
+  --create-namespace \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set "ingress.hosts[0].host=kaneo.example.com"
+```
+
+For detailed production deployment examples, including:
+
+- TLS configuration
+- Cert-manager integration
+- Path rewriting with regex capture groups
+- Gateway API usage
+- Resource configuration
+
+Please refer to the [Helm chart documentation](./charts/kaneo/README.md).
+
+### Local Deployments with Minikube
+
+For local deployments with Minikube:
+
+1. Start Minikube:
+
+```bash
+minikube start
+```
+
+2. Install the Helm chart with Ingress enabled:
+
+```bash
+helm install kaneo ./charts/kaneo \
+  --namespace kaneo \
+  --create-namespace \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set "ingress.hosts[0].host=kaneo.local"
+```
+
+3. Enable the Ingress addon if not already enabled:
+
+```bash
+minikube addons enable ingress
+```
+
+4. Access Kaneo based on your OS:
+
+#### macOS
+
+For macOS, you need to use `minikube tunnel` to access the Ingress:
+
+```bash
+# Start minikube tunnel in a separate terminal
+minikube tunnel
+```
+
+Update your /etc/hosts file:
+
+```bash
+# Add to /etc/hosts
+127.0.0.1 kaneo.local
+```
+
+Access Kaneo at http://kaneo.local
+
+#### Linux/Windows
+
+Get the Minikube IP:
+
+```bash
+minikube ip
+```
+
+Update your hosts file with the Minikube IP:
+
+```bash
+# Add to /etc/hosts (Linux) or C:\Windows\System32\drivers\etc\hosts (Windows)
+192.168.49.2 kaneo.local  # Replace with the actual Minikube IP
+```
+
+Access Kaneo at http://kaneo.local
+
 ## 📖 Documentation
 
 For detailed instructions and documentation, visit our [Documentation](https://kaneo.app/quick-start).

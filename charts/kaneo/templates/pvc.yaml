@@ -1,0 +1,21 @@
+{{- if .Values.api.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "kaneo.fullname" . }}-sqlite-data
+  labels:
+    {{- include "kaneo.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.api.persistence.accessMode | default "ReadWriteOnce" }}
+  {{- if .Values.api.persistence.storageClass }}
+  {{- if (eq "-" .Values.api.persistence.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: {{ .Values.api.persistence.storageClass }}
+  {{- end }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.api.persistence.size | default "1Gi" }}
+{{- end }}

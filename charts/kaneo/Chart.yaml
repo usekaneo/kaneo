@@ -1,0 +1,30 @@
+apiVersion: v2
+name: kaneo
+description: A Helm chart for Kaneo - an open source project management platform focused on simplicity and efficiency
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - project-management
+  - kanban
+  - task-management
+  - productivity
+  - collaboration
+home: https://kaneo.app
+sources:
+  - https://github.com/usekaneo/kaneo
+icon: https://assets.kaneo.app/logo-mono-rounded.png
+maintainers:
+  - name: Kaneo Team
+    url: https://github.com/usekaneo
+    email: info@kaneo.app
+annotations:
+  artifacthub.io/license: MIT
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/features: |
+    - Simple & Fast: Minimalist interface with powerful features
+    - Self-hosted: Full control over your data
+    - Customizable: Make it yours with extensive customization options
+    - Open Source: MIT licensed, free forever
+kubeVersion: ">=1.19.0-0"
