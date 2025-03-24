@@ -1,3 +1,60 @@
+# [0.2.0](https://github.com/usekaneo/kaneo/compare/v0.1.0...v0.2.0) (2025-03-24)
+
+
+### Bug Fixes
+
+* adapting list view on mobile drag ([217ceab](https://github.com/usekaneo/kaneo/commit/217ceabaa2c40ecad76d571fa450d6adfa89ae19))
+* adding clear all filters buttons, making responsive ([e5d04dc](https://github.com/usekaneo/kaneo/commit/e5d04dc5f5cfcf5e5ea6b9a41f7e1848bfcdb87b))
+* adding loading spinner on task edit page ([d61ffe6](https://github.com/usekaneo/kaneo/commit/d61ffe6d6b7170f01a94e24c4eeacc41800a4c38))
+* clear input fields when closing create task dialog ([#115](https://github.com/usekaneo/kaneo/issues/115)) ([731687e](https://github.com/usekaneo/kaneo/commit/731687ecd6b2dee74f8ff1805a39639dd18719b5))
+* Clear input fields when closing dialogs ([#89](https://github.com/usekaneo/kaneo/issues/89)) ([1578c0e](https://github.com/usekaneo/kaneo/commit/1578c0ecb6c675c6162f8421ce48d18bd69d9ab0))
+* deciding scure of cookie based on request protocol ([3980cdf](https://github.com/usekaneo/kaneo/commit/3980cdf125e5b21c0ab1e3c67bad52084f7f4f25))
+* disabling inviting already invited users ([7d13439](https://github.com/usekaneo/kaneo/commit/7d134396c1f2b5d57a0e3fc594ba35fbb65067d5))
+* fixing desktop layout for task edition ([07ec9bf](https://github.com/usekaneo/kaneo/commit/07ec9bf183dbcb60b0a3517ea0ed9882f247ae2d))
+* fixing desktop styles for task edit ([cb40454](https://github.com/usekaneo/kaneo/commit/cb404545e3a6df3ec86f9b6492f68c4541382c9a))
+* force field validation errors ([#109](https://github.com/usekaneo/kaneo/issues/109)) ([654a185](https://github.com/usekaneo/kaneo/commit/654a185c9dbe6f679327c634af016af50e947efa))
+* loading tasks initially ([91174ca](https://github.com/usekaneo/kaneo/commit/91174cac3f1a92d0a563926a9bd00b79ce0d902c))
+* lowering elysia version to 1.2.15 ([30de754](https://github.com/usekaneo/kaneo/commit/30de7540d940738f12c8fb50cc3debbe4a0410a3))
+* making alert have only 12 rem height ([df9a798](https://github.com/usekaneo/kaneo/commit/df9a798c5ccf73d39d9969c8045a398a4b7daf22))
+* making board skeletons full width ([77fd7b4](https://github.com/usekaneo/kaneo/commit/77fd7b44cff4df4e261a90c52fd8f8f2c4ce9a85))
+* making columns grow as much space as they have ([a8a3540](https://github.com/usekaneo/kaneo/commit/a8a35406d9dcee3b2d44c20637b4778a5fd8768a))
+* making demo email unique ([cd42ed2](https://github.com/usekaneo/kaneo/commit/cd42ed2fb0b0e776eec119637cfdcfe45aca2b67))
+* making new session for demo user and updating data purge for every hour ([4db1105](https://github.com/usekaneo/kaneo/commit/4db1105681b8fdb6134641456ea60adb87b4402c))
+* making tooltip work on mobile ([66ff3f3](https://github.com/usekaneo/kaneo/commit/66ff3f3b3b457bcfe7fc05e00feaf8bb962f5036))
+* not returning from middleware ([b71f4c6](https://github.com/usekaneo/kaneo/commit/b71f4c6adb3bfbb2f0d06beee9bdfe14a6510526))
+* removing console log ([19bfbc6](https://github.com/usekaneo/kaneo/commit/19bfbc6d31792597b9ef4db61d422445b81dcec7))
+* removing fixed height on alert ([cacec48](https://github.com/usekaneo/kaneo/commit/cacec486995634e416c2b8867f13e526c2facacf))
+* removing un-setting to workspace and projects when going to settings ([d4b8e5a](https://github.com/usekaneo/kaneo/commit/d4b8e5aa7858958fca15ddc5a24ef7385e099e90))
+* renewing sessions on demo mode ([2118510](https://github.com/usekaneo/kaneo/commit/2118510f61f6aa336213387217210ec9e0e530a7))
+* returing padding to board ([56d3086](https://github.com/usekaneo/kaneo/commit/56d30860f6ad42acebad16de81099be27eefcc69))
+* session expired wasn't getting recreated on demo ([30c0fbb](https://github.com/usekaneo/kaneo/commit/30c0fbbc25fdbf7d4913107098f90a4734efb3ab))
+* setting demo sessions to 15m ([d45129c](https://github.com/usekaneo/kaneo/commit/d45129c13c6a190099bfe2ef2cf97fe1a7d21187))
+* settings page had workspace selection screen ([6dfa90f](https://github.com/usekaneo/kaneo/commit/6dfa90f483e78906dee087efd44b043b91321504))
+* showing empty state for workspaces ([cdf8b11](https://github.com/usekaneo/kaneo/commit/cdf8b119092c77bdd6627ad775ecc291bbcf8e88))
+
+
+### Features
+
+* add alert for demo page ([#85](https://github.com/usekaneo/kaneo/issues/85)) ([eeca442](https://github.com/usekaneo/kaneo/commit/eeca442f0ef7d9462c83b387ddc20622850ee8aa))
+* adding board filters ([8c55b37](https://github.com/usekaneo/kaneo/commit/8c55b37a5ce1d77a926955f18409e92b91e12e93))
+* adding demo setup ([#83](https://github.com/usekaneo/kaneo/issues/83)) ([2ff307a](https://github.com/usekaneo/kaneo/commit/2ff307a0b60d6c453dd2806cfb3d42c49f6e2489))
+* adding dynamic titles ([6c7d5f2](https://github.com/usekaneo/kaneo/commit/6c7d5f2a09015c190b90714c72a5e669c10d8067))
+* adding option to update/remove projects ([8478ab0](https://github.com/usekaneo/kaneo/commit/8478ab06d8daf6487227c7723073129fbf177881))
+* adding position of tickets in columns ([93556e7](https://github.com/usekaneo/kaneo/commit/93556e7f71aefe202ee68366004d4b10ab4bcb31))
+* adding rich text editor in create task modal ([0f18b94](https://github.com/usekaneo/kaneo/commit/0f18b94f8e6dcecc63ceb6d200c17aa467953782))
+* adding seo support ([029a3af](https://github.com/usekaneo/kaneo/commit/029a3afabb660b3b087a8090eccd254caed9f5fa))
+* adding toast component ([2bb4f1c](https://github.com/usekaneo/kaneo/commit/2bb4f1cf8f54000030014336a41300a4a84cb359))
+* **deployment:** add Helm chart and improve container security ([#116](https://github.com/usekaneo/kaneo/issues/116)) ([139fb51](https://github.com/usekaneo/kaneo/commit/139fb51c5e7e64d5b7bb646f4dfefa5ca954008a)), closes [#80](https://github.com/usekaneo/kaneo/issues/80) [#80](https://github.com/usekaneo/kaneo/issues/80)
+* **frontend:** :sparkles: adds cmd+k ([70e0407](https://github.com/usekaneo/kaneo/commit/70e0407c0cc0ad6347e8c6019f7c37904c3224a9))
+* improved seo ([15b3747](https://github.com/usekaneo/kaneo/commit/15b37477f5a4e13c02505d6102b1a8a1eb0d387f))
+* list view ([5f15ebc](https://github.com/usekaneo/kaneo/commit/5f15ebc1ca8c75d8480beaaa8dfadbdef8548d60))
+* making tasks editable ([#97](https://github.com/usekaneo/kaneo/issues/97)) ([67448aa](https://github.com/usekaneo/kaneo/commit/67448aa550e1f14a3f5b80019bab707a11e509bb))
+* migrating from rabbit mq to node's event emitter ([1a3fe5f](https://github.com/usekaneo/kaneo/commit/1a3fe5f7c410fd64d263338b772a121c7c0f6158))
+* moving from websockets and using polling ([da4dc1a](https://github.com/usekaneo/kaneo/commit/da4dc1a9ab0db3d9094d55af365147a5f9e32b65))
+* updating user info popup ([ed75a39](https://github.com/usekaneo/kaneo/commit/ed75a391ac4a4ee6b214f97655e864b218ac5a8a))
+
+
+
 # 0.1.0 (2025-02-22)
 
 
