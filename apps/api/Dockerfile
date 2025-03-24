@@ -31,7 +31,7 @@ WORKDIR /app/apps/api
 
 # Create data directory with proper permissions
 RUN mkdir -p /app/apps/api/data && \
-    chown -R appuser:appuser /app \
+    chown -R appuser:appuser /app && \
     chmod 755 /app/apps/api/data
 
 # Copy built files from base stage
