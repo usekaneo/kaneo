@@ -114,7 +114,11 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 New Task
               </Dialog.Title>
-              <Dialog.Close className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+              <Dialog.Close
+                asChild
+                tabIndex={-1}
+                className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+              >
                 <X size={20} />
               </Dialog.Close>
             </div>
@@ -133,6 +137,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                         <FormControl>
                           <Input
                             {...field}
+                            autoFocus
                             placeholder="Task title"
                             className="bg-white dark:bg-zinc-800/50"
                           />
