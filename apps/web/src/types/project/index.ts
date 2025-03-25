@@ -2,10 +2,12 @@ export type Project = {
   id: string;
   name: string;
   slug: string;
+  icon: string | null;
   description: string | null;
   workspaceId: string;
   columns?: Column[];
-  icon: string | null;
+  archivedTasks?: Task[];
+  plannedTasks?: Task[];
 };
 
 export type Column = {

@@ -6,7 +6,13 @@ import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { Project } from "@/types/project";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { Layout, LayoutDashboard, Plus, Settings } from "lucide-react";
+import {
+  Layout,
+  LayoutDashboard,
+  ListTodo,
+  Plus,
+  Settings,
+} from "lucide-react";
 import { createElement, useState } from "react";
 import CreateProjectModal from "../../../../shared/modals/create-project-modal";
 
@@ -162,13 +168,35 @@ function Projects({ workspaceId }: ProjectsProps) {
                           }
                           className={cn(
                             "w-full px-3 py-1.5 rounded-md flex items-center text-sm transition-all group",
-                            location.pathname.includes("/board")
+                            location.pathname.includes("/board") &&
+                              !location.pathname.includes("/backlog")
                               ? "bg-indigo-500/10 text-indigo-500 dark:bg-indigo-400/10 dark:text-indigo-400"
                               : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50",
                           )}
                         >
                           <LayoutDashboard className="w-3.5 h-3.5 mr-2 shrink-0" />
                           Board
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate({
+                              to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
+                              params: {
+                                workspaceId,
+                                projectId: project.id,
+                              },
+                            })
+                          }
+                          className={cn(
+                            "w-full px-3 py-1.5 rounded-md flex items-center text-sm transition-all group",
+                            location.pathname.includes("/backlog")
+                              ? "bg-indigo-500/10 text-indigo-500 dark:bg-indigo-400/10 dark:text-indigo-400"
+                              : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50",
+                          )}
+                        >
+                          <ListTodo className="w-3.5 h-3.5 mr-2 shrink-0" />
+                          Backlog
                         </button>
                         <button
                           type="button"

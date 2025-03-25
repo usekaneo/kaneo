@@ -64,6 +64,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     if (!project?.id || !workspace?.id) return;
 
     try {
+      const taskStatus = status ?? "to-do";
+
       const newTask = await mutateAsync({
         title: data.title.trim(),
         description: data.description?.trim() || "",
@@ -71,20 +73,22 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         priority: data.priority,
         projectId: project?.id,
         dueDate: new Date(),
-        status: status ?? "to-do",
+        status: taskStatus,
         position: 0,
       });
 
       const updatedProject = produce(project, (draft) => {
-        const targetColumn = draft.columns?.find(
-          (col) => col.id === newTask.status,
-        );
-        if (targetColumn) {
-          targetColumn.tasks.push({
-            ...newTask,
-            userEmail: data.email,
-            position: 0,
-          });
+        if (newTask.status !== "planned" && newTask.status !== "archived") {
+          const targetColumn = draft.columns?.find(
+            (col) => col.id === newTask.status,
+          );
+          if (targetColumn) {
+            targetColumn.tasks.push({
+              ...newTask,
+              userEmail: data.email,
+              position: 0,
+            });
+          }
         }
       });
 
