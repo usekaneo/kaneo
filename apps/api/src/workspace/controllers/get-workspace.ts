@@ -8,6 +8,7 @@ async function getWorkspace(userEmail: string, workspaceId: string) {
       id: workspaceTable.id,
       name: workspaceTable.name,
       ownerEmail: workspaceTable.ownerEmail,
+      description: workspaceTable.description,
       createdAt: workspaceTable.createdAt,
     })
     .from(workspaceTable)

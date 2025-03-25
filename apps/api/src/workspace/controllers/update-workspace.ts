@@ -39,6 +39,7 @@ async function updateWorkspace(
       id: workspaceTable.id,
       name: workspaceTable.name,
       ownerEmail: workspaceTable.ownerEmail,
+      description: workspaceTable.description,
       createdAt: workspaceTable.createdAt,
     });
 
