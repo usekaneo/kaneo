@@ -176,7 +176,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
           </button>
         </Popover.Trigger>
         <Popover.Content
-          className="w-56 p-0 overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-lg rounded-md"
+          className="bg-white dark:bg-zinc-900 rounded-md shadow-md border border-zinc-200 dark:border-zinc-700 p-1 z-50"
           align="end"
           sideOffset={5}
         >

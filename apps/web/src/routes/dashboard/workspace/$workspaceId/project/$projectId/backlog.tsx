@@ -175,7 +175,7 @@ function RouteComponent() {
             <button
               type="button"
               onClick={() => setIsTaskModalOpen(true)}
-              className="h-8 bg-indigo-600 text-white text-xs font-medium rounded-l-md flex items-center"
+              className="h-8 bg-indigo-500 text-white text-xs font-medium rounded-l-md flex items-center"
             >
               <span className="px-1.5 flex items-center justify-center h-full">
                 <Plus className="w-3.5 h-3.5" />

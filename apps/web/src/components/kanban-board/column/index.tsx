@@ -29,7 +29,7 @@ function Column({ column }: ColumnProps) {
         <ColumnDropzone column={column} />
       </div>
 
-      <div className="p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="p-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
         <button
           type="button"
           onClick={() => setIsTaskModalOpen(true)}
