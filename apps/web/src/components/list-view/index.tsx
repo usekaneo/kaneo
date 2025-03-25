@@ -1,5 +1,6 @@
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
+import toKebabCase from "@/lib/to-kebab-case";
 import useProjectStore from "@/store/project";
 import type { Column, Project, Task } from "@/types/project";
 import {
@@ -20,8 +21,10 @@ import {
 } from "@dnd-kit/sortable";
 import { motion } from "framer-motion";
 import { produce } from "immer";
-import { ChevronDown } from "lucide-react";
+import { Archive, ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 import TaskRowOverlay from "./task-row-overlay";
 
@@ -46,6 +49,8 @@ function ListView({ project }: ListViewProps) {
     "in-review": true,
     done: true,
   });
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [activeColumn, setActiveColumn] = useState<string | null>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -121,18 +126,48 @@ function ListView({ project }: ListViewProps) {
       },
     });
 
+    const handleArchiveTasks = () => {
+      if (column.id !== "done") return;
+
+      if (column.tasks.length === 0) {
+        toast.info("No tasks to archive");
+        return;
+      }
+
+      if (!confirm(`Archive all ${column.tasks.length} completed tasks?`)) {
+        return;
+      }
+
+      const updatedProject = produce(project, (draft) => {
+        const doneColumn = draft?.columns?.find((col) => col.id === "done");
+        if (!doneColumn) return;
+
+        for (const task of doneColumn.tasks) {
+          updateTask({
+            ...task,
+            status: "archived",
+          });
+        }
+
+        doneColumn.tasks = [];
+      });
+
+      setProject(updatedProject);
+      toast.success(`Archived ${column.tasks.length} tasks`);
+    };
+
     return (
       <div key={column.id} className="space-y-2">
-        <button
-          type="button"
-          onClick={() => toggleSection(column.id)}
-          className={cn(
-            "w-full flex items-center justify-between p-2 text-left rounded-lg",
-            "hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors",
-            "group",
-          )}
-        >
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => toggleSection(column.id)}
+            className={cn(
+              "flex-1 flex items-center gap-2 p-2 text-left rounded-lg",
+              "hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors",
+              "group",
+            )}
+          >
             <ChevronDown
               className={cn(
                 "w-4 h-4 text-zinc-500 dark:text-zinc-400 transition-transform",
@@ -145,8 +180,19 @@ function ListView({ project }: ListViewProps) {
             <span className="text-sm text-zinc-500 dark:text-zinc-400">
               {column.tasks.length}
             </span>
-          </div>
-        </button>
+          </button>
+
+          {column.id === "done" && column.tasks.length > 0 && (
+            <button
+              type="button"
+              onClick={handleArchiveTasks}
+              className="p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/50 rounded-md flex items-center transition-all"
+              title="Archive all completed tasks"
+            >
+              <Archive className="w-4 h-4" />
+            </button>
+          )}
+        </div>
 
         {expandedSections[column.id] && (
           <div ref={setNodeRef} className="min-h-[60px] rounded-lg">
@@ -174,6 +220,18 @@ function ListView({ project }: ListViewProps) {
                 )}
               </motion.div>
             </SortableContext>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsTaskModalOpen(true);
+                setActiveColumn(column.id);
+              }}
+              className="w-full mt-2 text-left px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/50 rounded-md flex items-center gap-2 transition-all"
+            >
+              <Plus className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+              <span>Add task</span>
+            </button>
           </div>
         )}
       </div>
@@ -200,6 +258,11 @@ function ListView({ project }: ListViewProps) {
           <TaskRowOverlay task={activeTask} projectSlug={project?.slug ?? ""} />
         )}
       </DragOverlay>
+      <CreateTaskModal
+        open={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        status={toKebabCase(activeColumn ?? "done")}
+      />
     </DndContext>
   );
 }
