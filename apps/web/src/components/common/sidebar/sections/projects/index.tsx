@@ -140,7 +140,8 @@ function Projects({ workspaceId }: ProjectsProps) {
                         "w-full px-4 py-2 rounded-md flex items-center text-sm transition-all group",
                         project.id === currentProject?.id &&
                           !location.pathname.includes("/settings") &&
-                          !location.pathname.includes("/board")
+                          !location.pathname.includes("/board") &&
+                          !location.pathname.includes("/backlog")
                           ? "bg-indigo-500/10 text-indigo-500 dark:bg-indigo-400/10 dark:text-indigo-400 font-medium"
                           : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
                       )}
