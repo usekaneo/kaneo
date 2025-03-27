@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM oven/bun:1 AS builder
+FROM --platform=$BUILDPLATFORM oven/bun:1.2.5 AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \

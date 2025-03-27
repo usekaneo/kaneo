@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM oven/bun:1 AS base
+FROM --platform=$BUILDPLATFORM oven/bun:1.2.5 AS base
 WORKDIR /app
 
 # Install build dependencies
