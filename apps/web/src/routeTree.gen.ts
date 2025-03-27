@@ -26,6 +26,7 @@ import { Route as DashboardTeamsWorkspaceIdLayoutRolesImport } from './routes/da
 import { Route as DashboardTeamsWorkspaceIdLayoutMembersImport } from './routes/dashboard/teams/$workspaceId/_layout.members'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/settings'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdBoardImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/board'
+import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/backlog'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId'
 
 // Create Virtual Routes
@@ -127,6 +128,13 @@ const DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute =
     getParentRoute: () => DashboardWorkspaceWorkspaceIdProjectProjectIdRoute,
   } as any)
 
+const DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute =
+  DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogImport.update({
+    id: '/backlog',
+    path: '/backlog',
+    getParentRoute: () => DashboardWorkspaceWorkspaceIdProjectProjectIdRoute,
+  } as any)
+
 const DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRoute =
   DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdImport.update({
     id: '/task/$taskId',
@@ -222,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWorkspaceWorkspaceIdProjectProjectIdImport
       parentRoute: typeof DashboardWorkspaceWorkspaceIdImport
     }
+    '/dashboard/workspace/$workspaceId/project/$projectId/backlog': {
+      id: '/dashboard/workspace/$workspaceId/project/$projectId/backlog'
+      path: '/backlog'
+      fullPath: '/dashboard/workspace/$workspaceId/project/$projectId/backlog'
+      preLoaderRoute: typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogImport
+      parentRoute: typeof DashboardWorkspaceWorkspaceIdProjectProjectIdImport
+    }
     '/dashboard/workspace/$workspaceId/project/$projectId/board': {
       id: '/dashboard/workspace/$workspaceId/project/$projectId/board'
       path: '/board'
@@ -260,6 +275,7 @@ const DashboardSettingsRouteWithChildren =
   DashboardSettingsRoute._addFileChildren(DashboardSettingsRouteChildren)
 
 interface DashboardWorkspaceWorkspaceIdProjectProjectIdRouteChildren {
+  DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute: typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute
   DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute: typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute
   DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute: typeof DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute
   DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRoute: typeof DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRoute
@@ -267,6 +283,8 @@ interface DashboardWorkspaceWorkspaceIdProjectProjectIdRouteChildren {
 
 const DashboardWorkspaceWorkspaceIdProjectProjectIdRouteChildren: DashboardWorkspaceWorkspaceIdProjectProjectIdRouteChildren =
   {
+    DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute:
+      DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute,
     DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute:
       DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute,
     DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute:
@@ -357,6 +375,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/teams/$workspaceId/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
+  '/dashboard/workspace/$workspaceId/project/$projectId/backlog': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/board': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/settings': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRoute
@@ -374,6 +393,7 @@ export interface FileRoutesByTo {
   '/dashboard/teams/$workspaceId/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
+  '/dashboard/workspace/$workspaceId/project/$projectId/backlog': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/board': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/settings': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRoute
@@ -393,6 +413,7 @@ export interface FileRoutesById {
   '/dashboard/teams/$workspaceId/_layout/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/_layout/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
+  '/dashboard/workspace/$workspaceId/project/$projectId/backlog': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/board': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/settings': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRoute
@@ -412,6 +433,7 @@ export interface FileRouteTypes {
     | '/dashboard/teams/$workspaceId/members'
     | '/dashboard/teams/$workspaceId/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
+    | '/dashboard/workspace/$workspaceId/project/$projectId/backlog'
     | '/dashboard/workspace/$workspaceId/project/$projectId/board'
     | '/dashboard/workspace/$workspaceId/project/$projectId/settings'
     | '/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId'
@@ -428,6 +450,7 @@ export interface FileRouteTypes {
     | '/dashboard/teams/$workspaceId/members'
     | '/dashboard/teams/$workspaceId/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
+    | '/dashboard/workspace/$workspaceId/project/$projectId/backlog'
     | '/dashboard/workspace/$workspaceId/project/$projectId/board'
     | '/dashboard/workspace/$workspaceId/project/$projectId/settings'
     | '/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId'
@@ -445,6 +468,7 @@ export interface FileRouteTypes {
     | '/dashboard/teams/$workspaceId/_layout/members'
     | '/dashboard/teams/$workspaceId/_layout/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
+    | '/dashboard/workspace/$workspaceId/project/$projectId/backlog'
     | '/dashboard/workspace/$workspaceId/project/$projectId/board'
     | '/dashboard/workspace/$workspaceId/project/$projectId/settings'
     | '/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId'
@@ -543,10 +567,15 @@ export const routeTree = rootRoute
       "filePath": "dashboard/workspace/$workspaceId/project/$projectId.tsx",
       "parent": "/dashboard/workspace/$workspaceId",
       "children": [
+        "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
         "/dashboard/workspace/$workspaceId/project/$projectId/board",
         "/dashboard/workspace/$workspaceId/project/$projectId/settings",
         "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId"
       ]
+    },
+    "/dashboard/workspace/$workspaceId/project/$projectId/backlog": {
+      "filePath": "dashboard/workspace/$workspaceId/project/$projectId/backlog.tsx",
+      "parent": "/dashboard/workspace/$workspaceId/project/$projectId"
     },
     "/dashboard/workspace/$workspaceId/project/$projectId/board": {
       "filePath": "dashboard/workspace/$workspaceId/project/$projectId/board.tsx",

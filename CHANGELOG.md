@@ -1,3 +1,20 @@
+# [0.3.0](https://github.com/usekaneo/kaneo/compare/v0.2.0...v0.3.0) (2025-03-26)
+
+
+### Bug Fixes
+
+* accessibility issues with workspace picker ([78cf89e](https://github.com/usekaneo/kaneo/commit/78cf89ec44054ce2d2ed049c436ad1c3864a5291))
+* improves bakclog task row popover styles ([cfd7ea8](https://github.com/usekaneo/kaneo/commit/cfd7ea88f2797511ca6afda3b8e2f0508b99bec7))
+
+
+### Features
+
+* adds acl's and removing of team members ([43963a0](https://github.com/usekaneo/kaneo/commit/43963a0f70ab10d32606b4adac3d646d3836ba74))
+* adds archiving of tasks ([4bfb3eb](https://github.com/usekaneo/kaneo/commit/4bfb3eb5dd8a9228d534ecba9ded5796a8e74357))
+* adds backlog ([5fb541c](https://github.com/usekaneo/kaneo/commit/5fb541c81501b08255c227aaacee9694e8160fcd))
+
+
+
 # [0.2.0](https://github.com/usekaneo/kaneo/compare/v0.1.0...v0.2.0) (2025-03-24)
 
 
