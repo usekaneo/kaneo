@@ -79,6 +79,9 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     onClose();
   };
 
+  const isCreateButtonDisabled =
+    name.trim().length === 0 || slug.trim().length === 0;
+
   return (
     <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
@@ -185,6 +188,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                 </Dialog.Close>
                 <Button
                   type="submit"
+                  disabled={isCreateButtonDisabled && open}
                   className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                 >
                   Create Project
