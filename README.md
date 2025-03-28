@@ -207,6 +207,16 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 - [GitHub Issues](https://github.com/usekaneo/kaneo/issues) - Report bugs or suggest features
 - [Website](https://kaneo.app) - Official website
 
+## ❤️ Sponsors
+
+<!-- sponsors --><!-- sponsors -->
+
+## 👥 Contributors
+
+<p align="center">
+  <img src="CONTRIBUTORS.svg" alt="Contributors" />
+</p>
+
 ## 📝 License
 
 This project is licensed under the [MIT License](LICENSE).
