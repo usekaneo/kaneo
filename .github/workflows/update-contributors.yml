@@ -3,7 +3,7 @@ name: Update Contributors
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0'  # Runs weekly on Sunday at midnight
+    - cron: '0 0 * * 0'
   push:
     branches:
       - main
@@ -24,7 +24,7 @@ jobs:
       - name: Generate Contributors Images
         uses: jaywcjlove/github-action-contributors@main
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_ANDREJ }}
           filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
           output: CONTRIBUTORS.svg
           avatarSize: 42
@@ -33,7 +33,7 @@ jobs:
         if: ${{ github.repository_owner == 'usekaneo' }}
         uses: JamesIves/github-sponsors-readme-action@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_ANDREJ }}
           file: 'README.md'
           minimum: 1
           marker: sponsors
