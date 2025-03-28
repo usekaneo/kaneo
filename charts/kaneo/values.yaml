@@ -55,6 +55,7 @@ api:
       enabled: false
       name: ""
       key: "jwt-access"
+    allowRegistration: true
 
   # SQLite data persistence
   persistence:

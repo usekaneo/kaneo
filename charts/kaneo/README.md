@@ -324,3 +324,17 @@ For production deployments, consider the following security recommendations:
 3. Enable and set resource limits to prevent resource exhaustion
 4. Use a dedicated storage class for the SQLite database
 5. Consider using a network policy to restrict traffic between components
+
+### Registration Control
+
+By default, user registration is enabled. To disable new user registration:
+
+```yaml
+api:
+  env:
+    allowRegistration: false
+```
+
+This will prevent new users from registering while still allowing existing users to log in. The registration option will be hidden from the login page.
+
+Note: This setting is ignored in demo mode where registration remains enabled.

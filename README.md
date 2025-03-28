@@ -75,6 +75,7 @@ volumes:
 | `KANEO_API_URL` | The URL of the API |
 | `JWT_ACCESS` | Secret key for generating JWT tokens |
 | `DB_PATH` | The path to the database file |
+| `ALLOW_REGISTRATION` | Enable/disable new user registration (default: true) |
 
 ## 🚢 Kubernetes Deployment
 
@@ -205,20 +206,6 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 - [Discord](https://discord.gg/rU4tSyhXXU) - Chat with the community
 - [GitHub Issues](https://github.com/usekaneo/kaneo/issues) - Report bugs or suggest features
 - [Website](https://kaneo.app) - Official website
-
-## ❤️ Contributors & Supporters
-
-Thank you to all the contributors and sponsors who have helped make Kaneo better! 💖
-
-### Contributors
-
-<a href="https://github.com/usekaneo/kaneo/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=usekaneo/kaneo" alt="Contributors" />
-</a>
-
-### Sponsors
-
-<!-- sponsors --><a href="https://github.com/alexgutjahr"><img src="https:&#x2F;&#x2F;github.com&#x2F;alexgutjahr.png" width="60px" alt="User avatar: Alex Gutjahr" /></a><!-- sponsors -->
 
 ## 📝 License
 
