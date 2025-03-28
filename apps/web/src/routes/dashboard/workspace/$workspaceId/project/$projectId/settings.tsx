@@ -12,12 +12,13 @@ import { Input } from "@/components/ui/input";
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
+import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Lock } from "lucide-react";
 import { createElement, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ export const Route = createFileRoute(
 
 function ProjectSettings() {
   const { project, setProject } = useProjectStore();
+  const { isOwner } = useWorkspacePermission();
   const [confirmProjectName, setConfirmProjectName] = useState("");
   const { mutateAsync: updateProject, isPending } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
@@ -115,6 +117,46 @@ function ProjectSettings() {
       );
     }
   };
+
+  if (!isOwner) {
+    return (
+      <div className="flex-1 p-6">
+        <PageTitle title="Project Settings" />
+        <div className="mt-6 max-w-2xl mx-auto">
+          <div className="bg-white dark:bg-zinc-800/50 rounded-lg p-8 shadow-sm border border-zinc-200 dark:border-zinc-700/50 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+              </div>
+            </div>
+            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+              Permission Required
+            </h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-md mx-auto">
+              Only workspace owners can modify project settings. Please contact
+              the workspace owner if you need to make changes.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate({
+                  to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+                  params: {
+                    workspaceId: project?.workspaceId ?? "",
+                    projectId: project?.id ?? "",
+                  },
+                })
+              }
+              className="gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Project
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -300,3 +342,5 @@ function ProjectSettings() {
     </>
   );
 }
+
+export default ProjectSettings;

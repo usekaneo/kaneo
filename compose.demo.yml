@@ -37,7 +37,7 @@ services:
       DB_PATH: "/app/apps/api/data/kaneo.db"
       DEMO_MODE: "true"
     volumes:
-      - sqlite_data:/app/apps/api/data:rw
+      - sqlite_data:/app/apps/api/data
     networks:
       - traefik-net
     restart: unless-stopped

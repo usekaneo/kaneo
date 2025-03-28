@@ -44,7 +44,7 @@
 		"date-fns": "^4.1.0",
 		"framer-motion": "^12.0.1",
 		"immer": "^10.1.1",
-		"lucide-react": "^0.483.0",
+		"lucide-react": "^0.484.0",
 		"react": "^19.0.0",
 		"react-day-picker": "8.10.1",
 		"react-dom": "^19.0.0",
@@ -65,7 +65,7 @@
 		"globals": "^16.0.0",
 		"postcss": "^8.5.1",
 		"tailwindcss": "^4.0.0",
-		"typescript": "~5.7.3",
+		"typescript": "~5.8.2",
 		"vite": "^6.0.11"
 	}
 }

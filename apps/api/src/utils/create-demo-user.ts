@@ -8,7 +8,7 @@ import { generateDemoName } from "./generate-demo-name";
 export async function createDemoUser() {
   const demoId = createId();
   const demoName = generateDemoName();
-  const demoEmail = `${demoName}@kaneo.app`;
+  const demoEmail = `${demoName}-${demoId}@kaneo.app`;
 
   const hashedPassword = await Bun.password.hash("demo", {
     algorithm: "bcrypt",
