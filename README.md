@@ -209,7 +209,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## ❤️ Sponsors
 
-<!-- sponsors --><!-- sponsors -->
+<!-- sponsors --><a href="https://github.com/alexgutjahr"><img src="https:&#x2F;&#x2F;github.com&#x2F;alexgutjahr.png" width="60px" alt="User avatar: Alex Gutjahr" /></a><!-- sponsors -->
 
 ## 👥 Contributors
 
