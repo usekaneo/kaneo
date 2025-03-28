@@ -1,0 +1,47 @@
+name: Update Contributors
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs weekly on Sunday at midnight
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/FUNDING.yml'
+
+jobs:
+  update-contributors:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Contributors Images
+        uses: jaywcjlove/github-action-contributors@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
+          output: CONTRIBUTORS.svg
+          avatarSize: 42
+
+      - name: Generate Sponsors Section
+        if: ${{ github.repository_owner == 'usekaneo' }}
+        uses: JamesIves/github-sponsors-readme-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          file: 'README.md'
+          minimum: 1
+          marker: sponsors
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add CONTRIBUTORS.svg README.md
+          git commit -m "docs: update contributors and sponsors" || exit 0
+          git push 
