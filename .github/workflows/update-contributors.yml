@@ -24,7 +24,7 @@ jobs:
       - name: Generate Contributors Images
         uses: jaywcjlove/github-action-contributors@main
         with:
-          token: ${{ secrets.GH_ANDREJ }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
           output: CONTRIBUTORS.svg
           avatarSize: 42
