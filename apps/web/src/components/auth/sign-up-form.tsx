@@ -14,6 +14,7 @@ import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { type ZodType, z } from "zod";
 import useAuth from "../providers/auth-provider/hooks/use-auth";
 
@@ -44,16 +45,20 @@ export function SignUpForm() {
   const { mutateAsync } = useSignUp();
 
   const onSubmit = async (data: SignUpFormValues) => {
-    const { data: user } = await mutateAsync({
-      email: data.email,
-      name: data.name,
-      password: data.password,
-    });
-    setUser(user);
+    try {
+      const { data: user } = await mutateAsync({
+        email: data.email,
+        name: data.name,
+        password: data.password,
+      });
+      setUser(user);
 
-    setTimeout(() => {
-      history.push("/dashboard");
-    }, 500);
+      setTimeout(() => {
+        history.push("/dashboard");
+      }, 500);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to sign up");
+    }
   };
 
   return (

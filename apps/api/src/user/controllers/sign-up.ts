@@ -1,8 +1,15 @@
 import db from "../../database";
 import { userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import getSettings from "../../utils/get-settings";
 
 async function signUp(email: string, password: string, name: string) {
+  const { allowRegistration, isDemoMode } = getSettings();
+
+  if (!allowRegistration && !isDemoMode) {
+    throw new Error("Registration is disabled on this instance");
+  }
+
   const isEmailTaken = Boolean(
     await db.query.userTable.findFirst({
       where: (users, { eq }) => eq(users.email, email),

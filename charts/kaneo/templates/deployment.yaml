@@ -45,6 +45,8 @@ spec:
               {{- end }}
             - name: DB_PATH
               value: "{{ .Values.api.persistence.mountPath }}/{{ .Values.api.persistence.dbFilename }}"
+            - name: ALLOW_REGISTRATION
+              value: {{ .Values.api.env.allowRegistration | quote }}
           livenessProbe:
             {{- toYaml .Values.api.livenessProbe | nindent 12 }}
           readinessProbe:
