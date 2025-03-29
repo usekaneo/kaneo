@@ -1,13 +1,16 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
+
+export type GetTaskRequest = InferRequestType<
+  (typeof client)["task"][":id"]["$get"]
+>["param"];
 
 async function getTask(taskId: string) {
-  const response = await api.task({ taskId }).get();
+  const response = await client.task[":id"].$get({ param: { id: taskId } });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const data = await response.json();
 
-  return response.data;
+  return data;
 }
 
 export default getTask;

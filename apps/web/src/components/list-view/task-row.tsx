@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
-import type { Task } from "@/types/project";
+import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";

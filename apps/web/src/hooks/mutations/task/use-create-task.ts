@@ -1,17 +1,7 @@
-import createTask from "@/fetchers/task/create-task";
+import createTask, {
+  type CreateTaskRequest,
+} from "@/fetchers/task/create-task";
 import { useMutation } from "@tanstack/react-query";
-
-type CreateTaskInput = {
-  title: string;
-  description: string;
-  userEmail: string;
-  projectId: string;
-  status: string;
-  dueDate: Date;
-  number?: number;
-  priority: "low" | "medium" | "high" | "urgent";
-  position: number;
-};
 
 function useCreateTask() {
   return useMutation({
@@ -23,17 +13,15 @@ function useCreateTask() {
       status,
       dueDate,
       priority,
-      position,
-    }: CreateTaskInput) =>
+    }: CreateTaskRequest) =>
       createTask(
         title,
         description,
         projectId,
-        userEmail,
+        userEmail ?? "",
         status,
-        dueDate,
+        new Date(dueDate),
         priority,
-        position,
       ),
   });
 }

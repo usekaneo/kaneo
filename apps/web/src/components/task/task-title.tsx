@@ -33,7 +33,7 @@ function TaskTitle({
         title: value,
         userEmail: task.userEmail || "",
         status: task.status || "",
-        dueDate: task.dueDate || new Date(),
+        dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
         priority: task.priority || "",
         position: task.position || 0,
       });

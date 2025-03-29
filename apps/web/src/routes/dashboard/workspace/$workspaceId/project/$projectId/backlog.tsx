@@ -7,7 +7,7 @@ import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useProjectStore from "@/store/project";
-import type { Task } from "@/types/project";
+import type Task from "@/types/task";
 import { createFileRoute } from "@tanstack/react-router";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { produce } from "immer";
@@ -100,25 +100,41 @@ function RouteComponent() {
         ...project,
         columns: [
           {
-            id: "planned",
-            name: "Planned Tasks",
+            id: "to-do" as const,
+            name: "To Do" as const,
             tasks: project.plannedTasks
-              ? filterTasks(project.plannedTasks)
+              ? filterTasks(project.plannedTasks).map((task) => ({
+                  ...task,
+                  assigneeName: null,
+                  assigneeEmail: null,
+                }))
               : [],
           },
           {
-            id: "archived",
-            name: "Archived Tasks",
+            id: "done" as const,
+            name: "Done" as const,
             tasks: project.archivedTasks
-              ? filterTasks(project.archivedTasks)
+              ? filterTasks(project.archivedTasks).map((task) => ({
+                  ...task,
+                  assigneeName: null,
+                  assigneeEmail: null,
+                }))
               : [],
           },
         ],
         plannedTasks: project.plannedTasks
-          ? filterTasks(project.plannedTasks)
+          ? filterTasks(project.plannedTasks).map((task) => ({
+              ...task,
+              assigneeName: null,
+              assigneeEmail: null,
+            }))
           : [],
         archivedTasks: project.archivedTasks
-          ? filterTasks(project.archivedTasks)
+          ? filterTasks(project.archivedTasks).map((task) => ({
+              ...task,
+              assigneeName: null,
+              assigneeEmail: null,
+            }))
           : [],
       }
     : undefined;

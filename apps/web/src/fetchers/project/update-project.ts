@@ -1,33 +1,20 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
 
-async function updateProject({
-  id,
-  workspaceId,
-  name,
-  description,
-  icon,
-  slug,
-}: {
-  id: string;
-  workspaceId: string;
-  name: string;
-  description: string;
-  icon: string;
-  slug: string;
-}) {
-  const response = await api.project({ id }).put({
-    workspaceId,
-    name,
-    description,
-    icon,
-    slug,
+export type UpdateProjectRequest = InferRequestType<
+  (typeof client)["project"][":id"]["$put"]
+>["json"] &
+  InferRequestType<(typeof client)["project"][":id"]["$put"]>["param"];
+
+async function updateProject({ id, name, icon, slug }: UpdateProjectRequest) {
+  const response = await client.project[":id"].$put({
+    param: { id },
+    json: { name, icon, slug },
   });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const data = await response.json();
 
-  return response?.data;
+  return data;
 }
 
 export default updateProject;

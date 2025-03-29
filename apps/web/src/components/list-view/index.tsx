@@ -2,7 +2,8 @@ import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import toKebabCase from "@/lib/to-kebab-case";
 import useProjectStore from "@/store/project";
-import type { Column, Project, Task } from "@/types/project";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 import {
   DndContext,
   type DragEndEvent,
@@ -28,9 +29,9 @@ import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 import TaskRowOverlay from "./task-row-overlay";
 
-interface ListViewProps {
-  project: Project | undefined;
-}
+type ListViewProps = {
+  project: ProjectWithTasks;
+};
 
 function ListView({ project }: ListViewProps) {
   const { setProject } = useProjectStore();
@@ -117,7 +118,9 @@ function ListView({ project }: ListViewProps) {
     }));
   };
 
-  function ColumnSection({ column }: { column: Column }) {
+  function ColumnSection({
+    column,
+  }: { column: ProjectWithTasks["columns"][number] }) {
     const { setNodeRef } = useDroppable({
       id: column.id,
       data: {

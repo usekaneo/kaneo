@@ -74,9 +74,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         userEmail: data.email,
         priority: data.priority,
         projectId: project?.id,
-        dueDate: new Date(),
+        dueDate: new Date().toISOString(),
         status: taskStatus,
-        position: 0,
       });
 
       const updatedProject = produce(project, (draft) => {
@@ -87,7 +86,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
           if (targetColumn) {
             targetColumn.tasks.push({
               ...newTask,
-              userEmail: data.email,
+              assigneeEmail: data.email,
+              assigneeName: data.email,
               position: 0,
             });
           }

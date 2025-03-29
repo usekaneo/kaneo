@@ -7,7 +7,7 @@ import PageTitle from "@/components/page-title";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import type { Task } from "@/types/project";
+import type Task from "@/types/task";
 import { createFileRoute } from "@tanstack/react-router";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
@@ -37,69 +37,125 @@ function RouteComponent() {
   }, [data, setProject]);
 
   const filterTasks = (tasks: Task[]): Task[] => {
-    return tasks.filter((task) => {
-      if (
-        filters.search &&
-        !task.title.toLowerCase().includes(filters.search.toLowerCase())
-      ) {
-        return false;
-      }
+    return tasks
+      .filter((task) => {
+        if (
+          filters.search &&
+          !task.title.toLowerCase().includes(filters.search.toLowerCase())
+        ) {
+          return false;
+        }
 
-      if (filters.assignee && task.userEmail !== filters.assignee) {
-        return false;
-      }
+        if (filters.assignee && task.userEmail !== filters.assignee) {
+          return false;
+        }
 
-      if (filters.priority && task.priority !== filters.priority) {
-        return false;
-      }
+        if (filters.priority && task.priority !== filters.priority) {
+          return false;
+        }
 
-      if (filters.dueDate && task.dueDate) {
-        const today = new Date();
-        const taskDate = new Date(task.dueDate);
+        if (filters.dueDate && task.dueDate) {
+          const today = new Date();
+          const taskDate = new Date(task.dueDate);
 
-        switch (filters.dueDate) {
-          case "Due this week": {
-            const weekStart = startOfWeek(today);
-            const weekEnd = endOfWeek(today);
-            if (
-              !isWithinInterval(taskDate, { start: weekStart, end: weekEnd })
-            ) {
+          switch (filters.dueDate) {
+            case "Due this week": {
+              const weekStart = startOfWeek(today);
+              const weekEnd = endOfWeek(today);
+              if (
+                !isWithinInterval(taskDate, { start: weekStart, end: weekEnd })
+              ) {
+                return false;
+              }
+              break;
+            }
+            case "Due next week": {
+              const nextWeekStart = startOfWeek(addWeeks(today, 1));
+              const nextWeekEnd = endOfWeek(addWeeks(today, 1));
+              if (
+                !isWithinInterval(taskDate, {
+                  start: nextWeekStart,
+                  end: nextWeekEnd,
+                })
+              ) {
+                return false;
+              }
+              break;
+            }
+            case "No due date": {
               return false;
             }
-            break;
-          }
-          case "Due next week": {
-            const nextWeekStart = startOfWeek(addWeeks(today, 1));
-            const nextWeekEnd = endOfWeek(addWeeks(today, 1));
-            if (
-              !isWithinInterval(taskDate, {
-                start: nextWeekStart,
-                end: nextWeekEnd,
-              })
-            ) {
-              return false;
-            }
-            break;
-          }
-          case "No due date": {
-            return false;
           }
         }
-      }
 
-      return true;
-    });
+        return true;
+      })
+      .map((task) => ({
+        ...task,
+        assigneeName: null,
+        assigneeEmail: task.userEmail ?? null,
+      }));
   };
 
   const filteredProject = project
     ? {
         ...project,
-        columns: project.columns?.map((column) => ({
-          ...column,
-          tasks: filterTasks(column.tasks),
+        columns:
+          project.columns?.map((column) => ({
+            id: column.id as "to-do" | "in-progress" | "in-review" | "done",
+            name: column.name as "To Do" | "In Progress" | "In Review" | "Done",
+            tasks: filterTasks(column.tasks).map((task) => ({
+              id: task.id,
+              title: task.title,
+              number: task.number,
+              description: task.description,
+              status: task.status,
+              priority: task.priority,
+              dueDate: task.dueDate,
+              position: task.position,
+              createdAt: task.createdAt,
+              userEmail: task.userEmail,
+              assigneeName: null,
+              assigneeEmail: task.userEmail ?? null,
+              projectId: task.projectId,
+            })),
+          })) ?? [],
+        archivedTasks: filterTasks(project.archivedTasks).map((task) => ({
+          id: task.id,
+          title: task.title,
+          number: task.number,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
+          dueDate: task.dueDate,
+          position: task.position,
+          createdAt: task.createdAt,
+          userEmail: task.userEmail,
+          assigneeName: null,
+          assigneeEmail: task.userEmail ?? null,
+          projectId: task.projectId,
+        })),
+        plannedTasks: filterTasks(project.plannedTasks).map((task) => ({
+          id: task.id,
+          title: task.title,
+          number: task.number,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
+          dueDate: task.dueDate,
+          position: task.position,
+          createdAt: task.createdAt,
+          userEmail: task.userEmail,
+          assigneeName: null,
+          assigneeEmail: task.userEmail ?? null,
+          projectId: task.projectId,
         })),
       }
     : undefined;
+
+  if (!filteredProject) {
+    return <div>No project found</div>;
+  }
 
   return (
     <div className="flex flex-col flex-1">

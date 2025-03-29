@@ -4,6 +4,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import db from "../database";
 import { auth } from "./middlewares/is-authenticated";
+import project from "./project";
+import task from "./task";
 import user from "./user";
 import workspace from "./workspace";
 import workspaceUser from "./workspace-user";
@@ -18,6 +20,9 @@ app.use("*", auth);
 
 const workspaceRoute = app.route("/workspace", workspace);
 const workspaceUserRoute = app.route("/workspace-user", workspaceUser);
+const projectRoute = app.route("/project", project);
+const taskRoute = app.route("/task", task);
+
 migrate(db, {
   migrationsFolder: `${process.cwd()}/drizzle`,
 });
@@ -35,4 +40,6 @@ serve(
 export type AppType =
   | typeof userRoute
   | typeof workspaceRoute
-  | typeof workspaceUserRoute;
+  | typeof workspaceUserRoute
+  | typeof projectRoute
+  | typeof taskRoute;

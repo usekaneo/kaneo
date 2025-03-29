@@ -2,7 +2,8 @@ import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import toKebabCase from "@/lib/to-kebab-case";
 import useProjectStore from "@/store/project";
-import type { Column, Project, Task } from "@/types/project";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 import {
   DndContext,
   type DragEndEvent,
@@ -29,7 +30,7 @@ import CreateTaskModal from "../shared/modals/create-task-modal";
 import BacklogTaskRow from "./backlog-task-row";
 
 interface BacklogListViewProps {
-  project?: Project;
+  project?: ProjectWithTasks;
 }
 
 function BacklogListView({ project }: BacklogListViewProps) {
@@ -143,6 +144,8 @@ function BacklogListView({ project }: BacklogListViewProps) {
             targetColumn.tasks.push({
               ...task,
               status: targetColumnId,
+              assigneeName: task.userEmail,
+              assigneeEmail: task.userEmail,
             });
           }
         }
@@ -162,7 +165,11 @@ function BacklogListView({ project }: BacklogListViewProps) {
     }));
   };
 
-  function ColumnSection({ column }: { column: Column }) {
+  function ColumnSection({
+    column,
+  }: {
+    column: ProjectWithTasks["columns"][number];
+  }) {
     const { setNodeRef } = useDroppable({
       id: column.id,
       data: {
@@ -214,12 +221,14 @@ function BacklogListView({ project }: BacklogListViewProps) {
                   ))
                 ) : (
                   <div className="p-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                    {/* @ts-expect-error */}
                     No {column.id === "planned" ? "planned" : "archived"} tasks
                   </div>
                 )}
               </motion.div>
             </SortableContext>
 
+            {/* @ts-expect-error */}
             {column.id === "planned" && (
               <button
                 type="button"
