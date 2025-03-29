@@ -4,8 +4,15 @@ import { hc } from "hono/client";
 export const client = hc<AppType>(
   import.meta.env.VITE_API_URL ?? "http://localhost:1336",
   {
-    headers: {
-      "Content-Type": "application/json",
+    fetch: (input: RequestInfo | URL, init?: RequestInit) => {
+      return fetch(input, {
+        ...init,
+        headers: {
+          ...init?.headers,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
     },
   },
 );
