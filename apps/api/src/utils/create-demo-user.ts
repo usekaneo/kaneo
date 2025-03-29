@@ -1,8 +1,6 @@
 import { createId } from "@paralleldrive/cuid2";
 import db from "../database";
 import { userTable } from "../database/schema";
-import createSession from "../user/controllers/create-session";
-import generateSessionToken from "../user/utils/generate-session-token";
 import { generateDemoName } from "./generate-demo-name";
 
 export async function createDemoUser() {
@@ -23,14 +21,15 @@ export async function createDemoUser() {
     password: hashedPassword,
   });
 
-  const token = generateSessionToken();
-  const demoSession = await createSession(token, demoId);
+  // TODO:
+  // const token = generateSessionToken();
+  // const demoSession = await createSession(token, demoId);
 
   return {
     id: demoId,
     name: demoName,
     email: demoEmail,
-    session: token,
-    expiresAt: demoSession.expiresAt,
+    // session: token,
+    // expiresAt: demoSession.expiresAt,
   };
 }
