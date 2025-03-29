@@ -1,4 +1,5 @@
 import PageTitle from "@/components/page-title";
+import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -35,6 +36,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { workspaceId } = Route.useParams();
   const [confirmWorkSpaceName, setConfirmWorkSpaceName] = useState("");
@@ -43,7 +45,7 @@ function RouteComponent() {
 
   const { mutateAsync: updateWorkspace, isPending } = useUpdateWorkspace();
   const { mutateAsync: deleteWorkspace, isPending: isDeleting } =
-    useDeleteWorkspace({ id: workspace?.id ?? "" });
+    useDeleteWorkspace();
 
   const form = useForm<WorkspaceFormValues>({
     resolver: zodResolver(workspaceFormSchema),
@@ -87,7 +89,9 @@ function RouteComponent() {
     }
 
     try {
-      await deleteWorkspace();
+      await deleteWorkspace({
+        id: workspace.id,
+      });
 
       queryClient.invalidateQueries({
         queryKey: ["workspace", workspace.id],
@@ -187,7 +191,7 @@ function RouteComponent() {
                 )}
               </div>
             </div>
-            {workspace && (
+            {workspace && workspace.ownerEmail === user?.email && (
               <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
                 <div className="p-4 md:p-6">
                   <h2 className="text-base font-medium text-red-600 dark:text-red-400 mb-1">
