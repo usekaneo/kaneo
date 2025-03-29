@@ -31,7 +31,7 @@ async function updateWorkspace(
     });
   }
 
-  const updatedWorkspace = await db
+  const [updatedWorkspace] = await db
     .update(workspaceTable)
     .set({
       name,
@@ -45,7 +45,7 @@ async function updateWorkspace(
       createdAt: workspaceTable.createdAt,
     });
 
-  return updatedWorkspace.at(0);
+  return updatedWorkspace;
 }
 
 export default updateWorkspace;
