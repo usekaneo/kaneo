@@ -98,6 +98,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
                 </Dialog.Close>
                 <Button
                   type="submit"
+                  disabled={!name.trim()}
                   className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                 >
                   Create Workspace
