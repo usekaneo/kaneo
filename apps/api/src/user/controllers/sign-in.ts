@@ -1,12 +1,14 @@
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-
 async function signIn(email: string, password: string) {
   const user = await db.query.userTable.findFirst({
     where: (users, { eq }) => eq(users.email, email),
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new HTTPException(401, {
+      message: "User not found",
+    });
   }
 
   const isPasswordValid = await Bun.password.verify(
@@ -16,7 +18,9 @@ async function signIn(email: string, password: string) {
   );
 
   if (!isPasswordValid) {
-    throw new Error("Invalid credentials");
+    throw new HTTPException(401, {
+      message: "Invalid credentials",
+    });
   }
 
   return {

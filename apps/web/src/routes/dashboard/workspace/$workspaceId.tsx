@@ -14,7 +14,7 @@ export const Route = createFileRoute("/dashboard/workspace/$workspaceId")({
 function RouteComponent() {
   const { workspaceId } = Route.useParams();
   const { data } = useGetWorkspace({
-    workspaceId,
+    id: workspaceId,
   });
   const { setWorkspace } = useWorkspaceStore();
   const { project } = useProjectStore();

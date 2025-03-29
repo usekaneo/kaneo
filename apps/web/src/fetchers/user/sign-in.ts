@@ -1,17 +1,17 @@
 import type { SignInFormValues } from "@/components/auth/sign-in-form";
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
 
 const signIn = async ({ email, password }: SignInFormValues) => {
-  const response = await api.user["sign-in"].post({
-    email,
-    password,
+  const response = await client.user["sign-in"].$post({
+    json: {
+      email,
+      password,
+    },
   });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const user = await response.json();
 
-  return response;
+  return user;
 };
 
 export default signIn;

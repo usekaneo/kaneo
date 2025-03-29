@@ -1,13 +1,18 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
 
-const deleteWorkspace = async ({ id }: { id: string }) => {
-  const response = await api.workspace({ id }).delete();
+type DeleteWorkspaceRequest = InferRequestType<
+  (typeof client.workspace)[":id"]["$delete"]
+>["param"];
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+const deleteWorkspace = async ({ id }: DeleteWorkspaceRequest) => {
+  const response = await client.workspace[":id"].$delete({
+    param: { id },
+  });
 
-  return response;
+  const workspace = await response.json();
+
+  return workspace;
 };
 
 export default deleteWorkspace;

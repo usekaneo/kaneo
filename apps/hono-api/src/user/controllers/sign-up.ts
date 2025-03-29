@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { HTTPException } from "hono/http-exception";
 import db from "../../../database";
 import { userTable } from "../../../database/schema";
 
@@ -17,7 +18,9 @@ async function signUp(email: string, password: string, name: string) {
   );
 
   if (isEmailTaken) {
-    throw new Error("Email taken");
+    throw new HTTPException(400, {
+      message: "Email taken",
+    });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,7 +33,9 @@ async function signUp(email: string, password: string, name: string) {
   ).at(0);
 
   if (!user) {
-    throw new Error("Failed to create an account");
+    throw new HTTPException(500, {
+      message: "Failed to create an account",
+    });
   }
 
   // TODO:

@@ -1,13 +1,18 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
 
-const createWorkspace = async ({ name }: { name: string }) => {
-  const response = await api.workspace.create.post({ name });
+type CreateWorkspaceRequest = InferRequestType<
+  typeof client.workspace.$post
+>["json"];
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+const createWorkspace = async ({ name }: CreateWorkspaceRequest) => {
+  const response = await client.workspace.$post({
+    json: { name },
+  });
 
-  return response.data;
+  const workspace = await response.json();
+
+  return workspace;
 };
 
 export default createWorkspace;
