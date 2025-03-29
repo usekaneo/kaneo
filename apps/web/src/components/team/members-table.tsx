@@ -7,11 +7,7 @@ import { useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import DeleteTeamMemberModal from "./delete-team-member-modal";
 
-type MembersTableProps = {
-  users: WorkspaceUser[];
-};
-
-function MembersTable({ users }: MembersTableProps) {
+function MembersTable({ users }: { users: WorkspaceUser[] }) {
   const { isOwner } = useWorkspacePermission();
   const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<WorkspaceUser | null>(

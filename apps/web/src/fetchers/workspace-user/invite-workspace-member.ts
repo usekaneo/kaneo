@@ -1,19 +1,25 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
+
+export type InviteWorkspaceMemberRequest = InferRequestType<
+  (typeof client)["workspace-user"][":workspaceId"]["invite"]["$post"]
+>["json"] &
+  InferRequestType<
+    (typeof client)["workspace-user"][":workspaceId"]["invite"]["$post"]
+  >["param"];
 
 const inviteWorkspaceMember = async ({
   workspaceId,
   userEmail,
-}: { workspaceId: string; userEmail: string }) => {
-  const response = await api["workspace-user"]({ workspaceId }).invite.post({
-    workspaceId,
-    userEmail,
+}: InviteWorkspaceMemberRequest) => {
+  const response = await client["workspace-user"][":workspaceId"].invite.$post({
+    json: { userEmail },
+    param: { workspaceId },
   });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const data = await response.json();
 
-  return response.data;
+  return data;
 };
 
 export default inviteWorkspaceMember;

@@ -2,7 +2,7 @@ import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
-import type { Task } from "@/types/project";
+import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import * as Popover from "@radix-ui/react-popover";
@@ -78,6 +78,8 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
         targetColumn.tasks.push({
           ...task,
           status: columnId,
+          assigneeName: task.userEmail,
+          assigneeEmail: task.userEmail,
         });
       }
     });

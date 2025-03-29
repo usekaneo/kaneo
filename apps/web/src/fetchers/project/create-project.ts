@@ -1,23 +1,23 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
+
+export type CreateProjectRequest = InferRequestType<
+  (typeof client)["project"]["$post"]
+>["json"];
 
 async function createProject({
   name,
   slug,
   workspaceId,
   icon,
-}: { name: string; slug: string; workspaceId: string; icon: string }) {
-  const response = await api.project.create.post({
-    name,
-    workspaceId,
-    icon,
-    slug,
+}: CreateProjectRequest) {
+  const response = await client.project.$post({
+    json: { name, slug, icon, workspaceId },
   });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const data = await response.json();
 
-  return response;
+  return data;
 }
 
 export default createProject;

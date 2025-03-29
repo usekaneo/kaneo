@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash2, X } from "lucide-react";
 import { Button } from "../ui/button";
+
 function DeleteTeamMemberModal({
   userEmail,
   open,
@@ -19,8 +20,8 @@ function DeleteTeamMemberModal({
 
   const onRemoveMember = async () => {
     await deleteWorkspaceUser({
-      workspaceId: workspaceId,
-      userEmail: userEmail,
+      workspaceId,
+      userEmail,
     });
 
     queryClient.invalidateQueries({
