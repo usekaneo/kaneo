@@ -1,6 +1,7 @@
 import { cn } from "@/lib/cn";
 import useWorkspaceStore from "@/store/workspace";
 import ManageTeams from "./sections/manage-teams";
+import WorkspaceSettings from "./sections/workspace-settings";
 import Workspaces from "./sections/workspaces";
 
 export function SidebarContent() {
@@ -11,6 +12,7 @@ export function SidebarContent() {
       <div className={cn("space-y-4")}>
         <Workspaces />
         {workspace && <ManageTeams />}
+        {workspace && <WorkspaceSettings />}
       </div>
     </nav>
   );
