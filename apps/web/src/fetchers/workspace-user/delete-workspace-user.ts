@@ -1,18 +1,25 @@
-import { api } from "@kaneo/libs/src/eden";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
+
+export type DeleteWorkspaceUserRequest = InferRequestType<
+  (typeof client)["workspace-user"][":workspaceId"]["$delete"]
+>["param"] &
+  InferRequestType<
+    (typeof client)["workspace-user"][":workspaceId"]["$delete"]
+  >["query"];
 
 async function deleteWorkspaceUser({
   workspaceId,
   userEmail,
-}: { workspaceId: string; userEmail: string }) {
-  const response = await api["workspace-user"]({ workspaceId })({
-    userEmail,
-  }).delete();
+}: DeleteWorkspaceUserRequest) {
+  const response = await client["workspace-user"][":workspaceId"].$delete({
+    param: { workspaceId },
+    query: { userEmail },
+  });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const data = await response.json();
 
-  return response.data;
+  return data;
 }
 
 export default deleteWorkspaceUser;

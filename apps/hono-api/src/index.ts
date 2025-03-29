@@ -6,6 +6,7 @@ import db from "../database";
 import { auth } from "./middlewares/is-authenticated";
 import user from "./user";
 import workspace from "./workspace";
+import workspaceUser from "./workspace-user";
 
 const app = new Hono();
 
@@ -16,7 +17,7 @@ const userRoute = app.route("/user", user);
 app.use("*", auth);
 
 const workspaceRoute = app.route("/workspace", workspace);
-
+const workspaceUserRoute = app.route("/workspace-user", workspaceUser);
 migrate(db, {
   migrationsFolder: `${process.cwd()}/drizzle`,
 });
@@ -31,4 +32,7 @@ serve(
   },
 );
 
-export type AppType = typeof userRoute | typeof workspaceRoute;
+export type AppType =
+  | typeof userRoute
+  | typeof workspaceRoute
+  | typeof workspaceUserRoute;

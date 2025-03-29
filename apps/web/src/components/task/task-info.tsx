@@ -1,7 +1,7 @@
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import type { Task } from "@/types/project";
 import { Flag } from "lucide-react";
@@ -26,9 +26,9 @@ function TaskInfo({
   setIsSaving: (isSaving: boolean) => void;
 }) {
   const { project } = useProjectStore();
-  const { data: workspaceUsers } = useActiveWorkspaceUsers(
-    project?.workspaceId || "",
-  );
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
+    workspaceId: project?.workspaceId ?? "",
+  });
   const { mutateAsync: updateTask } = useUpdateTask();
 
   const form = useForm<z.infer<typeof taskInfoSchema>>({
@@ -115,8 +115,8 @@ function TaskInfo({
                     label: "Unassigned",
                   },
                   ...(workspaceUsers?.map((user) => ({
-                    value: user.user?.email ?? "",
-                    label: user.user?.name ?? "",
+                    value: user.userEmail ?? "",
+                    label: user.userName ?? "",
                   })) || []),
                 ]}
               />
