@@ -14,6 +14,7 @@ function WorkspacePicker() {
   const { workspace: selectedWorkspace, setWorkspace } = useWorkspaceStore();
   const { setProject } = useProjectStore();
   const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { data: workspaces } = useGetWorkspaces();
   const { isSidebarOpened } = useUserPreferencesStore();
   const navigate = useNavigate();
@@ -29,13 +30,18 @@ function WorkspacePicker() {
     });
   };
 
+  const handleCreateWorkspace = () => {
+    setIsCreateWorkspaceOpen(true);
+    setIsDropdownOpen(false);
+  };
+
   return (
     <div className={isSidebarOpened ? undefined : "hidden"}>
-      <DropdownMenu.Root>
+      <DropdownMenu.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
-            className="w-full z-30 px-3 py-2 text-left rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors group"
+            className="w-full px-3 py-2 text-left rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors group"
           >
             <div className="flex items-center">
               <div className="flex-1 min-w-0">
@@ -52,7 +58,7 @@ function WorkspacePicker() {
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
           <DropdownMenu.Content
-            className="w-56 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 py-1 z-50"
+            className="w-56 z-50 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 py-1"
             align="start"
             sideOffset={5}
           >
@@ -77,7 +83,7 @@ function WorkspacePicker() {
             )}
             <DropdownMenu.Item
               className="flex items-center px-3 py-2 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer outline-none"
-              onClick={() => setIsCreateWorkspaceOpen(true)}
+              onClick={handleCreateWorkspace}
             >
               <Plus className="w-4 h-4 mr-2" />
               New Workspace
@@ -85,6 +91,7 @@ function WorkspacePicker() {
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
+
       <CreateWorkspaceModal
         open={isCreateWorkspaceOpen}
         onClose={() => setIsCreateWorkspaceOpen(false)}

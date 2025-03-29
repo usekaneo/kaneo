@@ -8,7 +8,14 @@ import { useNavigate } from "@tanstack/react-router";
 import { Command } from "cmdk";
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
-import { CommandIcon, LayoutGrid, Plus, Search, Settings } from "lucide-react";
+import {
+  CommandIcon,
+  LayoutDashboard,
+  ListTodo,
+  Plus,
+  Search,
+  Settings,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import CommandGroup from "./command-group";
 
@@ -24,6 +31,14 @@ export function CommandPalette() {
   const { workspace } = useWorkspaceStore();
   const { project } = useProjectStore();
   const navigate = useNavigate();
+
+  const commandItemStyles = cn(
+    "px-3 py-2 rounded-lg cursor-pointer flex items-center gap-3",
+    "text-sm text-zinc-900 dark:text-zinc-100",
+    "aria-selected:bg-zinc-100 dark:aria-selected:bg-zinc-800/50",
+    "transition-colors duration-100",
+    "disabled:opacity-50 disabled:cursor-not-allowed",
+  );
 
   useEffect(() => {
     let timeout: Timer;
@@ -129,13 +144,7 @@ export function CommandPalette() {
                         setPendingAction({ type: "task", status: "to-do" });
                       }}
                       disabled={!project}
-                      className={cn(
-                        "px-3 py-2 rounded-lg cursor-pointer flex items-center gap-3",
-                        "text-sm text-zinc-900 dark:text-zinc-100",
-                        "aria-selected:bg-zinc-100 dark:aria-selected:bg-zinc-800/50",
-                        "transition-colors duration-100",
-                        "disabled:opacity-50 disabled:cursor-not-allowed",
-                      )}
+                      className={commandItemStyles}
                     >
                       <Plus className="w-4 h-4" />
                       Create new task
@@ -154,13 +163,7 @@ export function CommandPalette() {
                         setPendingAction({ type: "project" });
                       }}
                       disabled={!workspace}
-                      className={cn(
-                        "px-3 py-2 rounded-lg cursor-pointer flex items-center gap-3",
-                        "text-sm text-zinc-900 dark:text-zinc-100",
-                        "aria-selected:bg-zinc-100 dark:aria-selected:bg-zinc-800/50",
-                        "transition-colors duration-100",
-                        "disabled:opacity-50 disabled:cursor-not-allowed",
-                      )}
+                      className={commandItemStyles}
                     >
                       <Plus className="w-4 h-4" />
                       Create new project
@@ -170,11 +173,12 @@ export function CommandPalette() {
                         </span>
                       )}
                     </Command.Item>
+                  </CommandGroup>
 
+                  <CommandGroup heading="Project" className="mt-4">
                     {project && (
                       <Command.Item
                         onSelect={() => {
-                          setOpen(false);
                           navigate({
                             to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
                             params: {
@@ -182,16 +186,31 @@ export function CommandPalette() {
                               projectId: project.id,
                             },
                           });
+                          setOpen(false);
                         }}
-                        className={cn(
-                          "px-3 py-2 rounded-lg cursor-pointer flex items-center gap-3",
-                          "text-sm text-zinc-900 dark:text-zinc-100",
-                          "aria-selected:bg-zinc-100 dark:aria-selected:bg-zinc-800/50",
-                          "transition-colors duration-100",
-                        )}
+                        className={commandItemStyles}
                       >
-                        <LayoutGrid className="w-4 h-4" />
-                        Go to board
+                        <LayoutDashboard className="w-4 h-4" />
+                        Go to Board
+                      </Command.Item>
+                    )}
+
+                    {project && (
+                      <Command.Item
+                        className={commandItemStyles}
+                        onSelect={() => {
+                          navigate({
+                            to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
+                            params: {
+                              workspaceId: workspace?.id ?? "",
+                              projectId: project?.id ?? "",
+                            },
+                          });
+                          setOpen(false);
+                        }}
+                      >
+                        <ListTodo className="w-4 h-4" />
+                        Go to Backlog
                       </Command.Item>
                     )}
 
@@ -207,12 +226,7 @@ export function CommandPalette() {
                             },
                           });
                         }}
-                        className={cn(
-                          "px-3 py-2 rounded-lg cursor-pointer flex items-center gap-3",
-                          "text-sm text-zinc-900 dark:text-zinc-100",
-                          "aria-selected:bg-zinc-100 dark:aria-selected:bg-zinc-800/50",
-                          "transition-colors duration-100",
-                        )}
+                        className={commandItemStyles}
                       >
                         <Settings className="w-4 h-4" />
                         Project settings
@@ -226,12 +240,7 @@ export function CommandPalette() {
                         setOpen(false);
                         setPendingAction({ type: "workspace" });
                       }}
-                      className={cn(
-                        "px-3 py-2 rounded-lg cursor-pointer flex items-center gap-3",
-                        "text-sm text-zinc-900 dark:text-zinc-100",
-                        "aria-selected:bg-zinc-100 dark:aria-selected:bg-zinc-800/50",
-                        "transition-colors duration-100",
-                      )}
+                      className={commandItemStyles}
                     >
                       <Plus className="w-4 h-4" />
                       Create new workspace

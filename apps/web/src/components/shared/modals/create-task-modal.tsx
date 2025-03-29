@@ -64,6 +64,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     if (!project?.id || !workspace?.id) return;
 
     try {
+      const taskStatus = status ?? "to-do";
+
       const newTask = await mutateAsync({
         title: data.title.trim(),
         description: data.description?.trim() || "",
@@ -71,20 +73,22 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         priority: data.priority,
         projectId: project?.id,
         dueDate: new Date(),
-        status: status ?? "to-do",
+        status: taskStatus,
         position: 0,
       });
 
       const updatedProject = produce(project, (draft) => {
-        const targetColumn = draft.columns?.find(
-          (col) => col.id === newTask.status,
-        );
-        if (targetColumn) {
-          targetColumn.tasks.push({
-            ...newTask,
-            userEmail: data.email,
-            position: 0,
-          });
+        if (newTask.status !== "planned" && newTask.status !== "archived") {
+          const targetColumn = draft.columns?.find(
+            (col) => col.id === newTask.status,
+          );
+          if (targetColumn) {
+            targetColumn.tasks.push({
+              ...newTask,
+              userEmail: data.email,
+              position: 0,
+            });
+          }
         }
       });
 
@@ -110,7 +114,11 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 New Task
               </Dialog.Title>
-              <Dialog.Close className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+              <Dialog.Close
+                asChild
+                tabIndex={-1}
+                className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+              >
                 <X size={20} />
               </Dialog.Close>
             </div>
@@ -129,6 +137,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                         <FormControl>
                           <Input
                             {...field}
+                            autoFocus
                             placeholder="Task title"
                             className="bg-white dark:bg-zinc-800/50"
                           />

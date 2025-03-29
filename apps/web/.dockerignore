@@ -1,0 +1,44 @@
+# Version control
+.git
+.gitignore
+
+# Build artifacts
+node_modules
+dist
+build
+*.log
+
+# Development files
+.env
+.env.*
+!.env.production
+*.local
+
+# Editor directories and files
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing
+coverage
+*.test.ts
+*.spec.ts
+test
+__tests__
+
+# Documentation
+docs
+*.md
+
+# Temporary files
+.DS_Store
+Thumbs.db
+
+# Debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
