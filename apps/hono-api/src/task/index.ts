@@ -5,9 +5,10 @@ import createTask from "./controllers/create-task";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
 import updateTask from "./controllers/update-task";
+
 const task = new Hono<{
   Variables: {
-    userEmail: string | null;
+    userEmail: string;
   };
 }>()
   .get(
@@ -88,7 +89,7 @@ const task = new Hono<{
 
       const task = await updateTask(
         id,
-        userEmail,
+        userEmail ?? "",
         title,
         status,
         new Date(dueDate),

@@ -1,21 +1,26 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
 
-async function createActivity(data: {
-  taskId: string;
-  content: string;
-  userEmail: string;
-}) {
-  const response = await api.activity.comment.post({
-    taskId: data.taskId,
-    content: data.content,
-    userEmail: data.userEmail,
+export type CreateActivityRequest = InferRequestType<
+  (typeof client)["activity"]["comment"]["$post"]
+>["json"];
+
+async function createActivity({
+  taskId,
+  content,
+  userEmail,
+}: CreateActivityRequest) {
+  const response = await client.activity.comment.$post({
+    json: {
+      taskId,
+      content,
+      userEmail,
+    },
   });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const data = await response.json();
 
-  return response.data;
+  return data;
 }
 
 export default createActivity;

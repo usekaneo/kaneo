@@ -5,10 +5,10 @@ import { taskTable } from "../../../database/schema";
 
 async function updateTask(
   taskId: string,
-  userEmail: string | null,
+  userEmail: string,
   title: string,
   status: string,
-  dueDate: Date | null,
+  dueDate: Date,
   description: string,
   priority: string,
   position: number,
@@ -32,7 +32,7 @@ async function updateTask(
       title,
       description,
       status,
-      dueDate: dueDate ?? new Date(),
+      dueDate,
       priority,
       userEmail,
       position,

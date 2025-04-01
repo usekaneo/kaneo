@@ -2,14 +2,17 @@ import bcrypt from "bcrypt";
 import { HTTPException } from "hono/http-exception";
 import db from "../../../database";
 import { userTable } from "../../../database/schema";
+import { publishEvent } from "../../events";
+import getSettings from "../../utils/get-settings";
 
 async function signUp(email: string, password: string, name: string) {
-  // TODO:
-  //   const { allowRegistration, isDemoMode } = getSettings();
+  const { allowRegistration, isDemoMode } = getSettings();
 
-  //   if (!allowRegistration && !isDemoMode) {
-  //     throw new Error("Registration is disabled on this instance");
-  //   }
+  if (!allowRegistration && !isDemoMode) {
+    throw new HTTPException(400, {
+      message: "Registration is disabled on this instance",
+    });
+  }
 
   const isEmailTaken = Boolean(
     await db.query.userTable.findFirst({
@@ -38,10 +41,9 @@ async function signUp(email: string, password: string, name: string) {
     });
   }
 
-  // TODO:
-  //   publishEvent("user.signed_up", {
-  //     email: user.email,
-  //   });
+  publishEvent("user.signed_up", {
+    email: user.email,
+  });
 
   return {
     id: user.id,

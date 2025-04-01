@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
+import { subscribeToEvent } from "../events";
 import createRootWorkspaceUser from "./controllers/create-root-workspace-user";
 import deleteWorkspaceUser from "./controllers/delete-workspace-user";
 import getActiveWorkspaceUsers from "./controllers/get-active-workspace-users";
@@ -114,5 +115,27 @@ const workspaceUser = new Hono<{
       return c.json(deletedWorkspaceUser);
     },
   );
+
+subscribeToEvent("user.signed_up", async ({ email }: { email: string }) => {
+  if (!email) {
+    return;
+  }
+
+  await updateWorkspaceUser(email, "active");
+});
+
+subscribeToEvent(
+  "workspace.created",
+  async ({
+    workspaceId,
+    ownerEmail,
+  }: { workspaceId: string; ownerEmail: string }) => {
+    if (!workspaceId || !ownerEmail) {
+      return;
+    }
+
+    await createRootWorkspaceUser(workspaceId, ownerEmail);
+  },
+);
 
 export default workspaceUser;

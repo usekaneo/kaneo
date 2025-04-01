@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { taskTable, userTable } from "../../../database/schema";
+import { publishEvent } from "../../events";
 import getNextTaskNumber from "./get-next-task-number";
 
 async function createTask({
@@ -31,23 +32,22 @@ async function createTask({
     .insert(taskTable)
     .values({
       projectId,
-      userEmail: userEmail ?? "",
-      title: title ?? "",
-      status: status ?? "",
-      dueDate: dueDate ?? new Date(),
-      description: description ?? "",
-      priority: priority ?? "",
+      userEmail: userEmail || null,
+      title: title || "",
+      status: status || "",
+      dueDate: dueDate || new Date(),
+      description: description || "",
+      priority: priority || "",
       number: nextTaskNumber + 1,
     })
     .returning();
 
-  // TODO:
-  // await publishEvent("task.created", {
-  //   taskId: createdTask.id,
-  //   userEmail: createdTask.userEmail ?? "",
-  //   type: "create",
-  //   content: "created the task",
-  // });
+  await publishEvent("task.created", {
+    taskId: createdTask.id,
+    userEmail: createdTask.userEmail ?? "",
+    type: "create",
+    content: "created the task",
+  });
 
   return {
     ...createdTask,

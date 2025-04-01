@@ -1,5 +1,6 @@
 import db from "../../../database";
 import { workspaceTable } from "../../../database/schema";
+import { publishEvent } from "../../events";
 
 async function createWorkspace(name: string, ownerEmail: string) {
   const [workspace] = await db
@@ -10,11 +11,10 @@ async function createWorkspace(name: string, ownerEmail: string) {
     })
     .returning();
 
-  // TODO:
-  // publishEvent("workspace.created", {
-  //   workspaceId: workspace.id,
-  //   ownerEmail,
-  // });
+  publishEvent("workspace.created", {
+    workspaceId: workspace.id,
+    ownerEmail,
+  });
 
   return workspace;
 }
