@@ -6,8 +6,7 @@ import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
 import { useNavigate } from "@tanstack/react-router";
 import { Command } from "cmdk";
-import { motion } from "framer-motion";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   CommandIcon,
   LayoutDashboard,
@@ -17,8 +16,8 @@ import {
   Settings,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CommandGroup from "./command-group";
-
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
@@ -75,7 +74,7 @@ export function CommandPalette() {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
-
+  const { t } = useTranslation();
   return (
     <>
       <AnimatePresence>
@@ -130,12 +129,15 @@ export function CommandPalette() {
                     )}
                   />
                   <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-xs font-mono text-zinc-600 dark:text-zinc-400 rounded border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
-                    <CommandIcon className="w-3 h-3" />K
+                    <CommandIcon className="w-3 h-3" />
+                    {t("k", { defaultValue: "K" })}
                   </kbd>
                 </div>
                 <Command.List className="max-h-[300px] overflow-y-auto px-3">
                   <Command.Empty className="py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                    No results found.
+                    {t("no_results_found", {
+                      defaultValue: "No results found.",
+                    })}
                   </Command.Empty>
                   <CommandGroup heading="Tasks">
                     <Command.Item
@@ -147,10 +149,14 @@ export function CommandPalette() {
                       className={commandItemStyles}
                     >
                       <Plus className="w-4 h-4" />
-                      Create new task
+                      {t("create_new_task", {
+                        defaultValue: "Create new task",
+                      })}
                       {!project && (
                         <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">
-                          Select a project first
+                          {t("select_a_project_first", {
+                            defaultValue: "Select a project first",
+                          })}
                         </span>
                       )}
                     </Command.Item>
@@ -166,10 +172,14 @@ export function CommandPalette() {
                       className={commandItemStyles}
                     >
                       <Plus className="w-4 h-4" />
-                      Create new project
+                      {t("create_new_project", {
+                        defaultValue: "Create new project",
+                      })}
                       {!workspace && (
                         <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">
-                          Select a workspace first
+                          {t("select_a_workspace_first", {
+                            defaultValue: "Select a workspace first",
+                          })}
                         </span>
                       )}
                     </Command.Item>
@@ -191,7 +201,7 @@ export function CommandPalette() {
                         className={commandItemStyles}
                       >
                         <LayoutDashboard className="w-4 h-4" />
-                        Go to Board
+                        {t("go_to_board", { defaultValue: "Go to Board" })}
                       </Command.Item>
                     )}
 
@@ -210,7 +220,7 @@ export function CommandPalette() {
                         }}
                       >
                         <ListTodo className="w-4 h-4" />
-                        Go to Backlog
+                        {t("go_to_backlog", { defaultValue: "Go to Backlog" })}
                       </Command.Item>
                     )}
 
@@ -229,7 +239,9 @@ export function CommandPalette() {
                         className={commandItemStyles}
                       >
                         <Settings className="w-4 h-4" />
-                        Project settings
+                        {t("project_settings", {
+                          defaultValue: "Project Settings",
+                        })}
                       </Command.Item>
                     )}
                   </CommandGroup>
@@ -243,7 +255,9 @@ export function CommandPalette() {
                       className={commandItemStyles}
                     >
                       <Plus className="w-4 h-4" />
-                      Create new workspace
+                      {t("create_new_workspace", {
+                        defaultValue: "Create new workspace",
+                      })}
                     </Command.Item>
                   </CommandGroup>
                 </Command.List>

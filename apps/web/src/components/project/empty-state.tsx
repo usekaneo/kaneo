@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { LayoutGrid, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateProjectModal from "../shared/modals/create-project-modal";
-
 function EmptyProjectState() {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
-
+  const { t } = useTranslation();
   return (
     <div className="flex w-full items-center justify-center h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
       <motion.div
@@ -37,11 +37,18 @@ function EmptyProjectState() {
             </motion.div>
           </div>
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
-            Create Your First Project
+            {t("create_your_first_project", {
+              defaultValue: "Create Your First Project",
+            })}
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-center max-w-md mb-8">
-            Start organizing your tasks and collaborating with your team by
-            creating your first project.
+            {t(
+              "start_organizing_your_tasks_and_collaborating_with_your_team_by_creating_your_first_project",
+              {
+                defaultValue:
+                  "Start organizing your tasks and collaborating with your team by creating your first project.",
+              },
+            )}
           </p>
         </div>
 
@@ -57,10 +64,12 @@ function EmptyProjectState() {
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  New Project
+                  {t("new_project", { defaultValue: "New Project" })}
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Create a project to organize your tasks
+                  {t("create_a_project_to_organize_your_tasks", {
+                    defaultValue: "Create a project to organize your tasks",
+                  })}
                 </p>
               </div>
             </div>
@@ -69,7 +78,7 @@ function EmptyProjectState() {
               onClick={() => setIsCreateProjectOpen(true)}
               className="w-full px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg transition-colors font-medium inline-flex items-center justify-center gap-2 text-sm"
             >
-              Create Project
+              {t("create_project", { defaultValue: "Create Project" })}
             </button>
           </motion.div>
         </div>

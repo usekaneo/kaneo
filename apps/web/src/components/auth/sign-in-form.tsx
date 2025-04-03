@@ -14,10 +14,10 @@ import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { type ZodType, z } from "zod";
 import useAuth from "../providers/auth-provider/hooks/use-auth";
-
 export type SignInFormValues = {
   email: string;
   password: string;
@@ -57,7 +57,7 @@ export function SignInForm() {
       toast.error(error instanceof Error ? error.message : "Failed to sign in");
     }
   };
-
+  const { t } = useTranslation();
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -69,7 +69,7 @@ export function SignInForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                    Email
+                    {t("email", { defaultValue: "Email" })}
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -91,7 +91,7 @@ export function SignInForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                    Password
+                    {t("password", { defaultValue: "Password" })}
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
@@ -123,7 +123,7 @@ export function SignInForm() {
                 type="button"
                 className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Forgot password?
+                {t("forgot_password", { defaultValue: "Forgot password?" })}
               </button>
             </div>
           </div>

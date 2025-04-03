@@ -5,6 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -17,7 +18,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -70,7 +70,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     resetInviteTeamMember();
     onClose();
   };
-
+  const { t } = useTranslation();
   return (
     <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
@@ -79,7 +79,9 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                Invite Team Member
+                {t("invite_team_member", {
+                  defaultValue: "Invite Team Member",
+                })}
               </Dialog.Title>
               <Dialog.Close
                 asChild
@@ -99,7 +101,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1">
-                            Email
+                            {t("email", { defaultValue: "Email" })}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -122,14 +124,14 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                       type="button"
                       className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                     >
-                      Cancel
+                      {t("cancel", { defaultValue: "Cancel" })}
                     </Button>
                   </Dialog.Close>
                   <Button
                     type="submit"
                     className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                   >
-                    Send Invitation
+                    {t("send_invitation", { defaultValue: "Send Invitation" })}
                   </Button>
                 </div>
               </form>

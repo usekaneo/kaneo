@@ -13,8 +13,8 @@ import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { produce } from "immer";
 import { ArrowRight, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 export const Route = createFileRoute(
   "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
 )({
@@ -161,14 +161,14 @@ function RouteComponent() {
     setProject(updatedProject);
     toast.success(`Moved ${plannedTasks.length} tasks to To Do`);
   };
-
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col flex-1">
       <PageTitle title={`${project?.name || "Project"} · Backlog`} />
       <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-            Project - Backlog
+            {t("project_backlog", { defaultValue: "Project - Backlog" })}
           </h1>
 
           <div className="flex items-center gap-1">
@@ -180,7 +180,9 @@ function RouteComponent() {
               <span className="px-1.5 flex items-center justify-center h-full">
                 <Plus className="w-3.5 h-3.5" />
               </span>
-              <span className="px-2">Plan Task</span>
+              <span className="px-2">
+                {t("plan_task", { defaultValue: "Plan Task" })}
+              </span>
             </button>
 
             <button
@@ -192,7 +194,9 @@ function RouteComponent() {
               <span className="px-1.5 flex items-center justify-center h-full">
                 <ArrowRight className="w-3.5 h-3.5" />
               </span>
-              <span className="px-2 hidden sm:inline">Move All</span>
+              <span className="px-2 hidden sm:inline">
+                {t("move_all", { defaultValue: "Move All" })}
+              </span>
             </button>
           </div>
         </div>

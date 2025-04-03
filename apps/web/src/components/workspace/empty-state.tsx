@@ -2,10 +2,10 @@ import CreateWorkspaceModal from "../shared/modals/create-workspace-modal";
 
 import { LayoutGrid, Plus } from "lucide-react";
 import { useState } from "react";
-
+import { useTranslation } from "react-i18next";
 function EmptyWorkspaceState() {
   const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);
-
+  const { t } = useTranslation();
   return (
     <div className="flex w-full items-center justify-center h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
       <div className="max-w-md w-full px-8">
@@ -14,11 +14,18 @@ function EmptyWorkspaceState() {
             <LayoutGrid className="w-7 h-7 text-indigo-500 dark:text-indigo-400" />
           </div>
           <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-            Create your first workspace
+            {t("create_your_first_workspace", {
+              defaultValue: "Create your first workspace",
+            })}
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-center max-w-md mb-6">
-            Get started by creating a workspace to organize your projects and
-            collaborate with your team.
+            {t(
+              "get_started_by_creating_a_workspace_to_organize_your_projects_and_collaborate_with_your_team",
+              {
+                defaultValue:
+                  "Get started by creating a workspace to organize your projects and collaborate with your team.",
+              },
+            )}
           </p>
         </div>
 
@@ -30,10 +37,12 @@ function EmptyWorkspaceState() {
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  New Workspace
+                  {t("new_workspace", { defaultValue: "New Workspace" })}
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Create a workspace for your team
+                  {t("create_a_workspace_for_your_team", {
+                    defaultValue: "Create a workspace for your team",
+                  })}
                 </p>
               </div>
             </div>
@@ -42,7 +51,7 @@ function EmptyWorkspaceState() {
               onClick={() => setIsCreateWorkspaceOpen(true)}
               className="w-full px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg transition-colors font-medium inline-flex items-center justify-center gap-2 text-sm"
             >
-              Create Workspace
+              {t("create_workspace", { defaultValue: "Create Workspace" })}
             </button>
           </div>
         </div>

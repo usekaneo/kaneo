@@ -17,8 +17,8 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 interface BacklogTaskRowProps {
   task: Task;
 }
@@ -99,7 +99,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       },
     });
   };
-
+  const { t } = useTranslation();
   return (
     <div
       ref={setNodeRef}
@@ -182,7 +182,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
         >
           <div className="bg-zinc-50 dark:bg-zinc-900 px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">
             <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Move to column
+              {t("move_to_column", { defaultValue: "Move to column" })}
             </div>
           </div>
           <div className="p-1 max-h-60 overflow-y-auto">

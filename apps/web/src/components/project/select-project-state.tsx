@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, LayoutGrid } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function SelectProjectState() {
+  const { t } = useTranslation();
   return (
     <div className="flex w-full items-center justify-center h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
       <motion.div
@@ -37,11 +39,16 @@ function SelectProjectState() {
             </motion.div>
           </div>
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
-            Select a Project
+            {t("select_a_project", { defaultValue: "Select a Project" })}
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-center max-w-md">
-            Choose a project from the sidebar to view its kanban board and start
-            managing your tasks.
+            {t(
+              "choose_a_project_from_the_sidebar_to_view_its_kanban_board_and_start_managing_your_tasks",
+              {
+                defaultValue:
+                  "Choose a project from the sidebar to view its kanban board and start managing your tasks.",
+              },
+            )}
           </p>
         </div>
       </motion.div>

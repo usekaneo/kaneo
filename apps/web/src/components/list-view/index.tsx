@@ -23,11 +23,11 @@ import { motion } from "framer-motion";
 import { produce } from "immer";
 import { Archive, ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 import TaskRowOverlay from "./task-row-overlay";
-
 interface ListViewProps {
   project: Project | undefined;
 }
@@ -155,7 +155,7 @@ function ListView({ project }: ListViewProps) {
       setProject(updatedProject);
       toast.success(`Archived ${column.tasks.length} tasks`);
     };
-
+    const { t } = useTranslation();
     return (
       <div key={column.id} className="space-y-2">
         <div className="flex items-center justify-between">
@@ -215,7 +215,8 @@ function ListView({ project }: ListViewProps) {
 
                 {column.tasks.length === 0 && (
                   <div className="px-10 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg min-h-[60px] flex items-center justify-center">
-                    No tasks in {column.name.toLowerCase()}
+                    {t("no_tasks_in", { defaultValue: "No tasks in" })}{" "}
+                    {column.name.toLowerCase()}
                   </div>
                 )}
               </motion.div>
@@ -230,7 +231,7 @@ function ListView({ project }: ListViewProps) {
               className="w-full mt-2 text-left px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/50 rounded-md flex items-center gap-2 transition-all"
             >
               <Plus className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-              <span>Add task</span>
+              <span>{t("add_task", { defaultValue: "Add task" })}</span>
             </button>
           </div>
         )}

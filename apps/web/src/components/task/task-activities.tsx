@@ -4,11 +4,11 @@ import { cn } from "@/lib/cn";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
 import { formatDistanceToNow } from "date-fns";
 import { History, MessageSquare, Pencil, PlusCircle } from "lucide-react";
-
+import { useTranslation } from "react-i18next";
 function TaskActivities() {
   const { taskId } = Route.useParams();
   const { data: activities } = useGetActivitiesByTaskId(taskId);
-
+  const { t } = useTranslation();
   return (
     <div className="space-y-3">
       {activities?.map((activity) => (
@@ -44,7 +44,8 @@ function TaskActivities() {
                 {activity.userEmail}
               </span>
               <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                {formatDistanceToNow(activity.createdAt)} ago
+                {formatDistanceToNow(activity.createdAt)}{" "}
+                {t("ago", { defaultValue: "ago" })}
               </span>
             </div>
             <div className="mt-1.5">

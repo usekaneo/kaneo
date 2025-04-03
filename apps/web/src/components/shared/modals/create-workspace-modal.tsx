@@ -6,8 +6,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 interface CreateWorkspaceModalProps {
   open: boolean;
   onClose: () => void;
@@ -49,7 +49,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
     resetWorkspaceState();
     onClose();
   };
-
+  const { t } = useTranslation();
   return (
     <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
       <Dialog.Portal>
@@ -58,7 +58,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                New Workspace
+                {t("new_workspace", { defaultValue: "New Workspace" })}
               </Dialog.Title>
               <Dialog.Close
                 asChild
@@ -75,7 +75,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
                   aria-label="Workspace name"
                   className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1"
                 >
-                  Workspace Name
+                  {t("workspace_name", { defaultValue: "Workspace Name" })}
                 </label>
                 <Input
                   value={name}
@@ -93,7 +93,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
                     type="button"
                     className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                   >
-                    Cancel
+                    {t("cancel", { defaultValue: "Cancel" })}
                   </Button>
                 </Dialog.Close>
                 <Button
@@ -101,7 +101,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
                   disabled={!name.trim()}
                   className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                 >
-                  Create Workspace
+                  {t("create_workspace", { defaultValue: "Create Workspace" })}
                 </Button>
               </div>
             </form>

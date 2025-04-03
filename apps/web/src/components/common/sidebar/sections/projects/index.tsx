@@ -14,7 +14,9 @@ import {
   Settings,
 } from "lucide-react";
 import { createElement, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateProjectModal from "../../../../shared/modals/create-project-modal";
+const { t } = useTranslation();
 
 type ProjectsProps = {
   workspaceId: string;
@@ -176,7 +178,7 @@ function Projects({ workspaceId }: ProjectsProps) {
                           )}
                         >
                           <LayoutDashboard className="w-3.5 h-3.5 mr-2 shrink-0" />
-                          Board
+                          {t("board", { defaultValue: "Board" })}
                         </button>
                         <button
                           type="button"
@@ -197,7 +199,7 @@ function Projects({ workspaceId }: ProjectsProps) {
                           )}
                         >
                           <ListTodo className="w-3.5 h-3.5 mr-2 shrink-0" />
-                          Backlog
+                          {t("backlog", { defaultValue: "Backlog" })}
                         </button>
                         <button
                           type="button"
@@ -218,7 +220,7 @@ function Projects({ workspaceId }: ProjectsProps) {
                           )}
                         >
                           <Settings className="w-3.5 h-3.5 mr-2 shrink-0" />
-                          Settings
+                          {t("settings", { defaultValue: "Settings" })}
                         </button>
                       </div>
                     )}
@@ -229,7 +231,7 @@ function Projects({ workspaceId }: ProjectsProps) {
           : isSidebarOpened && (
               <div className="px-3 py-4 flex flex-col items-center text-center">
                 <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                  No projects yet
+                  {t("no_projects_yet", { defaultValue: "No projects yet" })}
                 </p>
               </div>
             )}

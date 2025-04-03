@@ -1,19 +1,25 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
-
 export function DemoAlert() {
+  const { t } = useTranslation();
   return (
     <div className="flex sticky top-0 left-0 right-0 flex-col bg-amber-500/10 border-b border-amber-500/20 px-4 py-3 text-center">
       <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-amber-900 dark:text-amber-300">
         <p className="flex flex-col sm:flex-row items-center gap-2">
-          This is a demo environment. All data will be automatically purged
-          every hour.
+          {t(
+            "this_is_a_demo_environment_all_data_will_be_automatically_purged_every_hour",
+            {
+              defaultValue:
+                "This is a demo environment. All data will be automatically purged every hour.",
+            },
+          )}
           <Button
             onClick={() =>
               window.open("https://github.com/usekaneo/kaneo", "_blank")
             }
             className="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 h-7 sm:h-6 px-3 sm:px-2 whitespace-nowrap"
           >
-            Deploy your own
+            {t("deploy_your_own", { defaultValue: "Deploy your own" })}
           </Button>
         </p>
       </div>

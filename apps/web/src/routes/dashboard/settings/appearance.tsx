@@ -6,7 +6,7 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Monitor, Moon, Sun } from "lucide-react";
-
+import { useTranslation } from "react-i18next";
 export const Route = createFileRoute("/dashboard/settings/appearance")({
   component: AppearanceSettings,
 });
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/dashboard/settings/appearance")({
 function AppearanceSettings() {
   const { theme: selectedTheme, setTheme: setSelectedTheme } = useTheme();
   const { isSidebarOpened, setIsSidebarOpened } = useUserPreferencesStore();
-
+  const { t } = useTranslation();
   return (
     <>
       <PageTitle title="Appearance Settings" />
@@ -26,20 +26,25 @@ function AppearanceSettings() {
         >
           <div>
             <h1 className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-              Appearance
+              {t("appearance", { defaultValue: "Appearance" })}
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Customize how Kaneo looks on your device.
+              {t("customize_how_kaneo_looks_on_your_device", {
+                defaultValue: "Customize how Kaneo looks on your device.",
+              })}
             </p>
           </div>
 
           <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
             <div className="p-4 md:p-6">
               <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
-                Theme
+                {t("theme", { defaultValue: "Theme" })}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 md:mb-6">
-                Select your preferred theme for Kaneo's interface.
+                {t("select_your_preferred_theme_for_kaneo_s_interface", {
+                  defaultValue:
+                    "Select your preferred theme for Kaneo's interface.",
+                })}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -110,10 +115,14 @@ function AppearanceSettings() {
           <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
             <div className="p-4 md:p-6">
               <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
-                Interface Preferences
+                {t("interface_preferences", {
+                  defaultValue: "Interface Preferences",
+                })}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 md:mb-6">
-                Customize your interface preferences.
+                {t("customize_your_interface_preferences", {
+                  defaultValue: "Customize your interface preferences.",
+                })}
               </p>
 
               <div className="space-y-4">
@@ -123,10 +132,14 @@ function AppearanceSettings() {
                       htmlFor="sidebar-navigation"
                       className="text-sm font-medium text-zinc-900 dark:text-zinc-100"
                     >
-                      Sidebar navigation
+                      {t("sidebar_navigation", {
+                        defaultValue: "Sidebar navigation",
+                      })}
                     </label>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Show or hide the sidebar
+                      {t("show_or_hide_the_sidebar", {
+                        defaultValue: "Show or hide the sidebar",
+                      })}
                     </p>
                   </div>
                   <div className="flex items-center">

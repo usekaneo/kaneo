@@ -8,8 +8,8 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateWorkspaceModal from "../../../../../shared/modals/create-workspace-modal";
-
 function WorkspacePicker() {
   const { workspace: selectedWorkspace, setWorkspace } = useWorkspaceStore();
   const { setProject } = useProjectStore();
@@ -34,7 +34,7 @@ function WorkspacePicker() {
     setIsCreateWorkspaceOpen(true);
     setIsDropdownOpen(false);
   };
-
+  const { t } = useTranslation();
   return (
     <div className={isSidebarOpened ? undefined : "hidden"}>
       <DropdownMenu.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
@@ -46,7 +46,7 @@ function WorkspacePicker() {
             <div className="flex items-center">
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-0.5">
-                  Workspace
+                  {t("workspace", { defaultValue: "Workspace" })}
                 </div>
                 <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
                   {selectedWorkspace?.name || "Select Workspace"}
@@ -86,7 +86,7 @@ function WorkspacePicker() {
               onClick={handleCreateWorkspace}
             >
               <Plus className="w-4 h-4 mr-2" />
-              New Workspace
+              {t("new_workspace", { defaultValue: "New Workspace" })}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>

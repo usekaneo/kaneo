@@ -19,10 +19,10 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { produce } from "immer";
 import { Flag, UserIcon, X } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Select } from "../../ui/select";
-
 interface CreateTaskModalProps {
   open: boolean;
   onClose: () => void;
@@ -103,7 +103,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       );
     }
   };
-
+  const { t } = useTranslation();
   return (
     <Dialog.Root open={open} onOpenChange={handleClose}>
       <Dialog.Portal>
@@ -112,7 +112,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                New Task
+                {t("new_task", { defaultValue: "New Task" })}
               </Dialog.Title>
               <Dialog.Close
                 asChild
@@ -132,7 +132,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1">
-                          Title
+                          {t("title", { defaultValue: "Title" })}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -153,7 +153,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1">
-                          Description
+                          {t("description", { defaultValue: "Description" })}
                         </FormLabel>
                         <FormControl>
                           <div className="border border-zinc-200 dark:border-zinc-700/50 rounded-md overflow-hidden">
@@ -175,7 +175,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1">
-                          Asignees
+                          {t("asignees", { defaultValue: "Asignees" })}
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -207,7 +207,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1">
-                          Priority
+                          {t("priority", { defaultValue: "Priority" })}
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -255,14 +255,14 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                       type="button"
                       className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                     >
-                      Cancel
+                      {t("cancel", { defaultValue: "Cancel" })}
                     </Button>
                   </Dialog.Close>
                   <Button
                     type="submit"
                     className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                   >
-                    Create Task
+                    {t("create_task", { defaultValue: "Create Task" })}
                   </Button>
                 </div>
               </form>

@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-
+import { useTranslation } from "react-i18next";
 interface BoardFiltersProps {
   onFiltersChange: (filters: BoardFilters) => void;
 }
@@ -90,7 +90,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
       dueDate: null,
     });
   };
-
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="flex items-center justify-between gap-2 w-full">
@@ -117,7 +117,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 )}
               >
                 <Filter className="w-3.5 h-3.5" />
-                <span>Filter</span>
+                <span>{t("filter", { defaultValue: "Filter" })}</span>
               </button>
             </Popover.Trigger>
             <Popover.Portal>
@@ -127,7 +127,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 sideOffset={4}
               >
                 <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  Priority
+                  {t("priority", { defaultValue: "Priority" })}
                 </div>
                 {["urgent", "high", "medium", "low"].map((priority) => (
                   <button
@@ -156,7 +156,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
 
                 <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  Assignee
+                  {t("assignee", { defaultValue: "Assignee" })}
                 </div>
                 <button
                   type="button"
@@ -169,7 +169,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                   )}
                 >
                   <UserIcon className="w-3.5 h-3.5" />
-                  <span>Unassigned</span>
+                  <span>{t("unassigned", { defaultValue: "Unassigned" })}</span>
                 </button>
                 {users?.map((user) => (
                   <button
@@ -193,7 +193,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
 
                 <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  Due Date
+                  {t("due_date", { defaultValue: "Due Date" })}
                 </div>
                 {["No due date", "Due this week", "Due next week"].map(
                   (option) => (
@@ -230,7 +230,9 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             )}
           >
             <LayoutGrid className="w-3.5 h-3.5" />
-            <span className="text-xs">Board</span>
+            <span className="text-xs">
+              {t("board", { defaultValue: "Board" })}
+            </span>
           </button>
           <button
             type="button"
@@ -243,7 +245,9 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             )}
           >
             <List className="w-3.5 h-3.5" />
-            <span className="text-xs">List</span>
+            <span className="text-xs">
+              {t("list", { defaultValue: "List" })}
+            </span>
           </button>
         </div>
       </div>
@@ -313,7 +317,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             className="flex items-center gap-1 px-1.5 py-1 text-xs rounded text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <X className="w-3 h-3" />
-            <span>Clear all</span>
+            <span>{t("clear_all", { defaultValue: "Clear all" })}</span>
           </button>
         </div>
       )}

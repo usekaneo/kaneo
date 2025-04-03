@@ -9,8 +9,8 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 function UserInfo() {
   const { user, setUser } = useAuth();
   const { isSidebarOpened } = useUserPreferencesStore();
@@ -39,7 +39,7 @@ function UserInfo() {
   const handleClickSettings = () => {
     navigate({ to: "/dashboard/settings/appearance" });
   };
-
+  const { t } = useTranslation();
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -80,7 +80,7 @@ function UserInfo() {
             onClick={handleClickSettings}
           >
             <Settings className="w-4 h-4 mr-2" />
-            Settings
+            {t("settings", { defaultValue: "Settings" })}
           </DropdownMenu.Item>
 
           <DropdownMenu.Separator className="h-px bg-zinc-200 dark:bg-zinc-700 my-1" />
