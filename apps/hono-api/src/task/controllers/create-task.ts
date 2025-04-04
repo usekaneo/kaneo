@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import db from "../../../database";
-import { taskTable, userTable } from "../../../database/schema";
+import db from "../../database";
+import { taskTable, userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import getNextTaskNumber from "./get-next-task-number";
 

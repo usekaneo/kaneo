@@ -1,5 +1,5 @@
-import db from "../../../database";
-import { projectTable } from "../../../database/schema";
+import db from "../../database";
+import { projectTable } from "../../database/schema";
 
 async function createProject(
   workspaceId: string,

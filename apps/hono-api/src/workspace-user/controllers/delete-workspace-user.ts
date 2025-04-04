@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
-import db from "../../../database";
-import { workspaceUserTable } from "../../../database/schema";
+import db from "../../database";
+import { workspaceUserTable } from "../../database/schema";
 
 async function deleteWorkspaceUser(workspaceId: string, userEmail: string) {
   const [deletedWorkspaceUser] = await db

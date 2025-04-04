@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import db from "../../../database";
-import { workspaceTable } from "../../../database/schema";
+import db from "../../database";
+import { workspaceTable } from "../../database/schema";
 
 async function updateWorkspace(
   userEmail: string,

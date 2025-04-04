@@ -61,17 +61,17 @@ importers:
         version: 0.30.6
       drizzle-orm:
         specifier: ^0.41.0
-        version: 0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.7)(gel@2.0.1)
+        version: 0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.8)(gel@2.0.1)
       drizzle-typebox:
         specifier: ^0.2.0
-        version: 0.2.1(@sinclair/typebox@0.34.31)(drizzle-orm@0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.7)(gel@2.0.1))
+        version: 0.2.1(@sinclair/typebox@0.34.31)(drizzle-orm@0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.8)(gel@2.0.1))
       elysia:
         specifier: 1.2.25
         version: 1.2.25(@sinclair/typebox@0.34.31)(typescript@5.8.2)
     devDependencies:
       bun-types:
         specifier: latest
-        version: 1.2.7
+        version: 1.2.8
 
   apps/hono-api:
     dependencies:
@@ -81,6 +81,15 @@ importers:
       '@hono/zod-validator':
         specifier: ^0.4.3
         version: 0.4.3(hono@4.7.5)(zod@3.24.2)
+      '@oslojs/crypto':
+        specifier: ^1.0.1
+        version: 1.0.1
+      '@oslojs/encoding':
+        specifier: ^1.1.0
+        version: 1.1.0
+      '@paralleldrive/cuid2':
+        specifier: ^2.2.2
+        version: 2.2.2
       '@types/bcrypt':
         specifier: ^5.0.2
         version: 5.0.2
@@ -90,22 +99,31 @@ importers:
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
+      better-sqlite3:
+        specifier: ^11.9.1
+        version: 11.9.1
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
       drizzle-orm:
         specifier: ^0.41.0
-        version: 0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.7)(gel@2.0.1)
+        version: 0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.8)(gel@2.0.1)
       hono:
         specifier: ^4.7.5
         version: 4.7.5
+      zod:
+        specifier: ^3.22.0
+        version: 3.24.2
     devDependencies:
       '@types/node':
-        specifier: ^20.11.17
-        version: 20.17.28
+        specifier: ^20.0.0
+        version: 20.17.30
       tsx:
         specifier: ^4.7.1
         version: 4.19.3
+      typescript:
+        specifier: ^5.0.0
+        version: 5.8.2
 
   apps/web:
     dependencies:
@@ -1988,8 +2006,8 @@ packages:
   '@types/mdurl@2.0.0':
     resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
 
-  '@types/node@20.17.28':
-    resolution: {integrity: sha512-DHlH/fNL6Mho38jTy7/JT7sn2wnXI+wULR6PV4gy4VHLVvnrV/d3pHAMQHhc4gjdLmK2ZiPoMxzp6B3yRajLSQ==}
+  '@types/node@20.17.30':
+    resolution: {integrity: sha512-7zf4YyHA+jvBNfVrk2Gtvs6x7E8V+YDW05bNfG2XkWDJfYRXrTiP/DsB2zSYTaHX0bGIujTBQdMVAhb+j7mwpg==}
 
   '@types/node@22.13.14':
     resolution: {integrity: sha512-Zs/Ollc1SJ8nKUAgc7ivOEdIBM8JAKgrqqUYi2J997JuKO7/tpQC+WCetQ1sypiKCQWHdvdg9wBNpUPEWZae7w==}
@@ -2116,6 +2134,9 @@ packages:
 
   bun-types@1.2.7:
     resolution: {integrity: sha512-P4hHhk7kjF99acXqKvltyuMQ2kf/rzIw3ylEDpCxDS9Xa0X0Yp/gJu/vDCucmWpiur5qJ0lwB2bWzOXa2GlHqA==}
+
+  bun-types@1.2.8:
+    resolution: {integrity: sha512-D5npfxKIGuYe9dTHLK1hi4XFmbMdKYoLrgyd25rrUyCrnyU4ljmQW7vDdonvibKeyU72mZuixIhQ2J+q6uM0Mg==}
 
   callsites@3.1.0:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
@@ -4940,11 +4961,11 @@ snapshots:
 
   '@types/bcrypt@5.0.2':
     dependencies:
-      '@types/node': 22.13.14
+      '@types/node': 20.17.30
 
   '@types/better-sqlite3@7.6.12':
     dependencies:
-      '@types/node': 22.13.14
+      '@types/node': 20.17.30
 
   '@types/bun@1.2.8':
     dependencies:
@@ -4965,7 +4986,7 @@ snapshots:
 
   '@types/mdurl@2.0.0': {}
 
-  '@types/node@20.17.28':
+  '@types/node@20.17.30':
     dependencies:
       undici-types: 6.19.8
 
@@ -5118,6 +5139,11 @@ snapshots:
       '@types/node': 22.13.14
       '@types/ws': 8.18.0
 
+  bun-types@1.2.8:
+    dependencies:
+      '@types/node': 22.13.14
+      '@types/ws': 8.18.0
+
   callsites@3.1.0: {}
 
   caniuse-lite@1.0.30001707: {}
@@ -5260,17 +5286,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.7)(gel@2.0.1):
+  drizzle-orm@0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.8)(gel@2.0.1):
     optionalDependencies:
       '@types/better-sqlite3': 7.6.12
       better-sqlite3: 11.9.1
-      bun-types: 1.2.7
+      bun-types: 1.2.8
       gel: 2.0.1
 
-  drizzle-typebox@0.2.1(@sinclair/typebox@0.34.31)(drizzle-orm@0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.7)(gel@2.0.1)):
+  drizzle-typebox@0.2.1(@sinclair/typebox@0.34.31)(drizzle-orm@0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.8)(gel@2.0.1)):
     dependencies:
       '@sinclair/typebox': 0.34.31
-      drizzle-orm: 0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.7)(gel@2.0.1)
+      drizzle-orm: 0.41.0(@types/better-sqlite3@7.6.12)(better-sqlite3@11.9.1)(bun-types@1.2.8)(gel@2.0.1)
 
   electron-to-chromium@1.5.128: {}
 

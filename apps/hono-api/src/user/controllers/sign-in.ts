@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import db from "../../../database";
+import db from "../../database";
 
 async function signIn(email: string, password: string) {
   const user = await db.query.userTable.findFirst({

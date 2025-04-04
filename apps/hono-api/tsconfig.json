@@ -1,15 +1,20 @@
 {
+  "extends": "@kaneo/typescript-config/base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ES2022",
-    "strict": true,
-    "verbatimModuleSyntax": true,
-    "skipLibCheck": true,
-    "types": [
-      "node"
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": [
+      "ES2022"
     ],
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
-    "moduleResolution": "bundler"
-  }
+    "sourceMap": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

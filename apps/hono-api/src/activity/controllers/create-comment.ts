@@ -1,5 +1,5 @@
-import db from "../../../database";
-import { activityTable } from "../../../database/schema";
+import db from "../../database";
+import { activityTable } from "../../database/schema";
 
 async function createComment(
   taskId: string,

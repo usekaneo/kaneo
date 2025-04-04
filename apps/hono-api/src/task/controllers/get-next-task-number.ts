@@ -1,6 +1,6 @@
 import { count, eq } from "drizzle-orm";
-import db from "../../../database";
-import { taskTable } from "../../../database/schema";
+import db from "../../database";
+import { taskTable } from "../../database/schema";
 
 async function getNextTaskNumber(projectId: string) {
   const [task] = await db

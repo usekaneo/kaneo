@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import db from "../../../database";
-import { workspaceUserTable } from "../../../database/schema";
+import db from "../../database";
+import { workspaceUserTable } from "../../database/schema";
 
 async function updateWorkspaceUser(userEmail: string, status: string) {
   const [updatedWorkspaceUser] = await db

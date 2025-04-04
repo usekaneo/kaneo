@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import db from "../../../database";
-import { projectTable, taskTable, userTable } from "../../../database/schema";
+import db from "../../database";
+import { projectTable, taskTable, userTable } from "../../database/schema";
 
 const DEFAULT_COLUMNS = [
   { id: "to-do", name: "To Do" },

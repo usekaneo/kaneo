@@ -1,5 +1,5 @@
-import db from "../../../database";
-import { workspaceTable } from "../../../database/schema";
+import db from "../../database";
+import { workspaceTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 
 async function createWorkspace(name: string, ownerEmail: string) {

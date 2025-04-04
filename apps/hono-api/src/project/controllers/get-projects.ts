@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
-import db from "../../../database";
-import { projectTable, workspaceTable } from "../../../database/schema";
+import db from "../../database";
+import { projectTable, workspaceTable } from "../../database/schema";
 
 async function getProjects(workspaceId: string) {
   const projects = await db

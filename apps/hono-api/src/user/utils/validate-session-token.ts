@@ -1,8 +1,8 @@
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { eq } from "drizzle-orm";
-import db from "../../../database";
-import { sessionTable, userTable } from "../../../database/schema";
+import db from "../../database";
+import { sessionTable, userTable } from "../../database/schema";
 
 export async function validateSessionToken(token: string) {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));

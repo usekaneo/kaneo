@@ -1,7 +1,7 @@
 import { and, eq, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import db from "../../../database";
-import { workspaceTable, workspaceUserTable } from "../../../database/schema";
+import db from "../../database";
+import { workspaceTable, workspaceUserTable } from "../../database/schema";
 
 async function getWorkspace(userEmail: string, workspaceId: string) {
   const [existingWorkspace] = await db

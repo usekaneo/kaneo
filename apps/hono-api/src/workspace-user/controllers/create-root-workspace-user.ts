@@ -1,5 +1,5 @@
-import db from "../../../database";
-import { workspaceUserTable } from "../../../database/schema";
+import db from "../../database";
+import { workspaceUserTable } from "../../database/schema";
 
 async function createRootWorkspaceUser(workspaceId: string, userEmail: string) {
   const [workspaceUser] = await db

@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import db from "../../../database";
-import { projectTable } from "../../../database/schema";
+import db from "../../database";
+import { projectTable } from "../../database/schema";
 
 async function deleteProject(id: string) {
   const [existingProject] = await db

@@ -1,7 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import bcrypt from "bcrypt";
-import db from "../../database";
-import { userTable } from "../../database/schema";
+import db from "../database";
+import { userTable } from "../database/schema";
 import createSession from "../user/utils/create-session";
 import generateSessionToken from "../user/utils/generate-session-token";
 import { generateDemoName } from "./generate-demo-name";

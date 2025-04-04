@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
-import db from "../../../database";
-import { activityTable } from "../../../database/schema";
+import db from "../../database";
+import { activityTable } from "../../database/schema";
 
 async function getActivitiesFromTaskId(taskId: string) {
   const activities = await db.query.activityTable.findMany({
