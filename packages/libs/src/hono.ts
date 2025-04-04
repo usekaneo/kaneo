@@ -1,4 +1,4 @@
-import type { AppType } from "@kaneo/hono-api";
+import type { AppType } from "@kaneo/api";
 import { hc } from "hono/client";
 
 export const client = hc<AppType>(

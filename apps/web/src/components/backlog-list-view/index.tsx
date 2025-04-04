@@ -87,10 +87,12 @@ function BacklogListView({ project }: BacklogListViewProps) {
         status: targetColumnId,
       });
 
-      const updatedProject = produce(project, (draft) => {
+      const updatedProject = produce(project, (draft: ProjectWithTasks) => {
         if (task.status === "planned" && targetColumnId === "archived") {
           if (draft.plannedTasks) {
-            const index = draft.plannedTasks.findIndex((t) => t.id === task.id);
+            const index = draft.plannedTasks.findIndex(
+              (t: Task) => t.id === task.id,
+            );
             if (index !== -1) {
               const [removedTask] = draft.plannedTasks.splice(index, 1);
               if (draft.archivedTasks) {
@@ -104,7 +106,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
         } else if (task.status === "archived" && targetColumnId === "planned") {
           if (draft.archivedTasks) {
             const index = draft.archivedTasks.findIndex(
-              (t) => t.id === task.id,
+              (t: Task) => t.id === task.id,
             );
             if (index !== -1) {
               const [removedTask] = draft.archivedTasks.splice(index, 1);
@@ -124,13 +126,15 @@ function BacklogListView({ project }: BacklogListViewProps) {
             targetColumnId === "done")
         ) {
           if (task.status === "planned" && draft.plannedTasks) {
-            const index = draft.plannedTasks.findIndex((t) => t.id === task.id);
+            const index = draft.plannedTasks.findIndex(
+              (t: Task) => t.id === task.id,
+            );
             if (index !== -1) {
               draft.plannedTasks.splice(index, 1);
             }
           } else if (task.status === "archived" && draft.archivedTasks) {
             const index = draft.archivedTasks.findIndex(
-              (t) => t.id === task.id,
+              (t: Task) => t.id === task.id,
             );
             if (index !== -1) {
               draft.archivedTasks.splice(index, 1);
@@ -138,7 +142,8 @@ function BacklogListView({ project }: BacklogListViewProps) {
           }
 
           const targetColumn = draft.columns?.find(
-            (col) => col.id === targetColumnId,
+            (col: ProjectWithTasks["columns"][number]) =>
+              col.id === targetColumnId,
           );
           if (targetColumn) {
             targetColumn.tasks.push({
@@ -216,7 +221,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
                 className="space-y-1 p-2"
               >
                 {column.tasks.length > 0 ? (
-                  column.tasks.map((task) => (
+                  column.tasks.map((task: Task) => (
                     <BacklogTaskRow key={task.id} task={task} />
                   ))
                 ) : (
@@ -259,7 +264,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
       onDragEnd={handleDragEnd}
     >
       <div className="w-full h-full p-4 space-y-4">
-        {project.columns.map((column) => (
+        {project.columns.map((column: ProjectWithTasks["columns"][number]) => (
           <ColumnSection key={column.id} column={column} />
         ))}
       </div>

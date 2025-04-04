@@ -90,7 +90,7 @@ function Projects({ workspaceId }: ProjectsProps) {
       </div>
       <div className="space-y-0.5">
         {projects && projects.length > 0
-          ? projects.map((project) => (
+          ? projects.map((project: ProjectWithTasks) => (
               <div key={project.id} className="space-y-0.5">
                 {!isSidebarOpened ? (
                   <Tip content={project.name}>
