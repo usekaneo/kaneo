@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { LayoutGrid, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateWorkspaceModal from "../shared/modals/create-workspace-modal";
-
 function EmptyDashboardState() {
   const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);
-
+  const { t } = useTranslation();
   return (
     <div className="flex w-full items-center justify-center h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
       <motion.div
@@ -37,11 +37,16 @@ function EmptyDashboardState() {
             </motion.div>
           </div>
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
-            Welcome to Kaneo
+            {t("welcome_to_kaneo", { defaultValue: "Welcome to Kaneo" })}
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-center max-w-md mb-8">
-            Get started by creating your first workspace to organize projects
-            and collaborate with your team.
+            {t(
+              "get_started_by_creating_your_first_workspace_to_organize_projects_and_collaborate_with_your_team",
+              {
+                defaultValue:
+                  "Get started by creating your first workspace to organize projects and collaborate with your team.",
+              },
+            )}
           </p>
         </div>
 
@@ -57,10 +62,14 @@ function EmptyDashboardState() {
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  Create Your First Workspace
+                  {t("create_your_first_workspace", {
+                    defaultValue: "Create your first workspace",
+                  })}
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Start organizing your work in one place
+                  {t("start_organizing_your_work_in_one_place", {
+                    defaultValue: "Start organizing your work in one place",
+                  })}
                 </p>
               </div>
             </div>
@@ -69,7 +78,7 @@ function EmptyDashboardState() {
               onClick={() => setIsCreateWorkspaceOpen(true)}
               className="w-full px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg transition-colors font-medium inline-flex items-center justify-center gap-2 text-sm"
             >
-              Get Started
+              {t("get_started", { defaultValue: "Get Started" })}
             </button>
           </motion.div>
         </div>

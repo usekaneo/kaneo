@@ -7,10 +7,10 @@ import type { Task } from "@/types/project";
 import { Flag } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 import TaskCalendar from "./task-calendar";
-
 export const taskInfoSchema = z.object({
   status: z.string(),
   userEmail: z.string(),
@@ -69,6 +69,7 @@ function TaskInfo({
     };
   }, [form]);
 
+  const { t } = useTranslation();
   return (
     <div className="w-full md:w-96 flex-shrink-0 overflow-y-auto border-b border-zinc-200 dark:border-zinc-800 p-4 gap-4 border-l flex flex-col">
       <Form {...form}>
@@ -77,7 +78,7 @@ function TaskInfo({
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Status</FormLabel>
+              <FormLabel>{t("status", { defaultValue: "Status" })}</FormLabel>
               <Select
                 value={field.value}
                 placeholder="Select status"
@@ -101,7 +102,9 @@ function TaskInfo({
           name="userEmail"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Assign to</FormLabel>
+              <FormLabel>
+                {t("assign_to", { defaultValue: "Assign to" })}
+              </FormLabel>
               <Select
                 value={field.value}
                 placeholder="Assign to"
@@ -128,7 +131,9 @@ function TaskInfo({
           name="priority"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Priority</FormLabel>
+              <FormLabel>
+                {t("priority", { defaultValue: "Priority" })}
+              </FormLabel>
               <Select
                 value={field.value || ""}
                 placeholder="Select priority"

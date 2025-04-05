@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Shield, Users } from "lucide-react";
 import { Menu } from "lucide-react";
 import { useState } from "react";
-
+import { useTranslation } from "react-i18next";
 export const Route = createFileRoute("/dashboard/teams/$workspaceId/_layout")({
   component: RouteComponent,
 });
@@ -20,7 +20,7 @@ function RouteComponent() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { workspaceId } = Route.useParams();
-
+  const { t } = useTranslation();
   return (
     <>
       <PageTitle title="Team Members" />
@@ -75,7 +75,7 @@ function RouteComponent() {
                   transition={{ delay: 0.1 }}
                   className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4"
                 >
-                  Team
+                  {t("team", { defaultValue: "Team" })}
                 </motion.h2>
                 <nav className="space-y-1">
                   <motion.div
@@ -97,7 +97,7 @@ function RouteComponent() {
                       onClick={() => setIsMobileNavOpen(false)}
                     >
                       <Users className="w-4 h-4 mr-3" />
-                      Members
+                      {t("members", { defaultValue: "Members" })}
                     </Link>
                   </motion.div>
 
@@ -114,9 +114,9 @@ function RouteComponent() {
                     >
                       <Shield className="w-4 h-4 mr-3" />
                       <span className="flex items-center gap-2">
-                        Roles
+                        {t("roles", { defaultValue: "Roles" })}
                         <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
-                          Soon
+                          {t("soon", { defaultValue: "Soon" })}
                         </span>
                       </span>
                     </div>

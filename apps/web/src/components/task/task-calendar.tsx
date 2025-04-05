@@ -3,10 +3,10 @@ import { cn } from "@/lib/cn";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import type { ControllerRenderProps } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { z } from "zod";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import type { taskInfoSchema } from "./task-info";
-
 type SelectSingleEventHandler = (date: Date | undefined) => void;
 
 function TaskCalendar({
@@ -17,11 +17,11 @@ function TaskCalendar({
   onChange: SelectSingleEventHandler;
 }) {
   const { value } = field;
-
+  const { t } = useTranslation();
   return (
     <div className="w-full">
       <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2">
-        Due Date
+        {t("due_date", { defaultValue: "Due Date" })}
       </h3>
       <Popover>
         <PopoverTrigger asChild>
@@ -41,7 +41,7 @@ function TaskCalendar({
                 format(new Date(value), "PPP")
               ) : (
                 <span className="text-zinc-500 dark:text-zinc-400">
-                  Pick a date
+                  {t("pick_a_date", { defaultValue: "Pick a date" })}
                 </span>
               )}
             </span>

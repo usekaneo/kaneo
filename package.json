@@ -23,5 +23,8 @@
     "apps/*",
     "packages/*"
   ],
-  "version": "0.3.0"
+  "version": "0.3.0",
+  "dependencies": {
+    "ts-morph": "^25.0.1"
+  }
 }

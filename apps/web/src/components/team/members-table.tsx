@@ -4,9 +4,9 @@ import type WorkspaceUser from "@/types/workspace-user";
 import * as Popover from "@radix-ui/react-popover";
 import { MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import DeleteTeamMemberModal from "./delete-team-member-modal";
-
 type MembersTableProps = {
   users: WorkspaceUser[];
 };
@@ -17,27 +17,27 @@ function MembersTable({ users }: MembersTableProps) {
   const [selectedMember, setSelectedMember] = useState<WorkspaceUser | null>(
     null,
   );
-
+  const { t } = useTranslation();
   return (
     <>
       <table className="w-full table-auto min-w-[800px]">
         <thead>
           <tr className="border-b border-zinc-200 dark:border-zinc-800">
             <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              Email
+              {t("email", { defaultValue: "Email" })}
             </th>
             <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              Role
+              {t("role", { defaultValue: "Role" })}
             </th>
             <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              Status
+              {t("status", { defaultValue: "Status" })}
             </th>
             <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              Date
+              {t("date", { defaultValue: "Date" })}
             </th>
             {isOwner && (
               <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                Actions
+                {t("actions", { defaultValue: "Actions" })}
               </th>
             )}
           </tr>
@@ -86,7 +86,9 @@ function MembersTable({ users }: MembersTableProps) {
                 <td className="py-3 px-4">
                   {member.role === "owner" ? (
                     <span className="text-xs text-zinc-400 dark:text-zinc-500 italic">
-                      Workspace owner
+                      {t("workspace_owner", {
+                        defaultValue: "Workspace owner",
+                      })}
                     </span>
                   ) : (
                     <Popover.Root>
@@ -113,7 +115,11 @@ function MembersTable({ users }: MembersTableProps) {
                             className="flex items-center gap-2 px-3 py-2 text-sm rounded text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-left"
                           >
                             <Trash2 className="w-4 h-4" />
-                            <span>Remove member</span>
+                            <span>
+                              {t("remove_member", {
+                                defaultValue: "Remove member",
+                              })}
+                            </span>
                           </button>
                           <Popover.Arrow className="fill-white dark:fill-zinc-900" />
                         </Popover.Content>

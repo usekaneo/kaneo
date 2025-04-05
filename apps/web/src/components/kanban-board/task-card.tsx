@@ -8,7 +8,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, Flag, UserIcon } from "lucide-react";
 import type { CSSProperties } from "react";
-
+import { useTranslation } from "react-i18next";
 interface TaskCardProps {
   task: Task;
 }
@@ -45,7 +45,7 @@ function TaskCard({ task }: TaskCardProps) {
       },
     });
   }
-
+  const { t } = useTranslation();
   return (
     <div
       ref={setNodeRef}
@@ -82,7 +82,7 @@ function TaskCard({ task }: TaskCardProps) {
           >
             <UserIcon className="h-3 w-3 text-zinc-400 dark:text-zinc-500" />
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
-              Unassigned
+              {t("unassigned", { defaultValue: "Unassigned" })}
             </span>
           </div>
         )}

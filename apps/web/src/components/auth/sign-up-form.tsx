@@ -14,6 +14,7 @@ import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { type ZodType, z } from "zod";
 import useAuth from "../providers/auth-provider/hooks/use-auth";
@@ -60,6 +61,7 @@ export function SignUpForm() {
       toast.error(error instanceof Error ? error.message : "Failed to sign up");
     }
   };
+  const { t } = useTranslation();
 
   return (
     <Form {...form}>
@@ -71,7 +73,7 @@ export function SignUpForm() {
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Full Name
+                  {t("full_name", { defaultValue: "Full Name" })}
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -91,7 +93,7 @@ export function SignUpForm() {
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Email
+                  {t("email", { defaultValue: "Email" })}
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -111,7 +113,7 @@ export function SignUpForm() {
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Password
+                  {t("password", { defaultValue: "Password" })}
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
@@ -140,7 +142,7 @@ export function SignUpForm() {
           type="submit"
           className="w-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 mt-6"
         >
-          Sign Up
+          {t("sign_up", { defaultValue: "Sign Up" })}
         </Button>
       </form>
     </Form>

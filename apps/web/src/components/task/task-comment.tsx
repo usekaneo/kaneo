@@ -15,9 +15,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
-
 const commentSchema = z.object({
   comment: z.string().min(1),
 });
@@ -66,7 +66,7 @@ function TaskComment() {
       form.reset();
     };
   }, [form]);
-
+  const { t } = useTranslation();
   return (
     <div className="flex items-start gap-3">
       <Avatar className="w-8 h-8">
@@ -80,7 +80,9 @@ function TaskComment() {
               name="comment"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Comment</FormLabel>
+                  <FormLabel>
+                    {t("comment", { defaultValue: "Comment" })}
+                  </FormLabel>
                   <FormControl>
                     <textarea
                       placeholder="Add a comment..."
@@ -97,7 +99,7 @@ function TaskComment() {
                 className="bg-indigo-600/10 text-indigo-600 hover:bg-indigo-600/20 dark:bg-indigo-400/10 dark:text-indigo-400 dark:hover:bg-indigo-400/20"
               >
                 <MessageSquare className="w-4 h-4 mr-2" />
-                Comment
+                {t("comment", { defaultValue: "Comment" })}
               </Button>
             </div>
           </form>
