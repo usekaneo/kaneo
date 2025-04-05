@@ -1,12 +1,9 @@
 import deleteWorkspace from "@/fetchers/workspace/delete-workspace";
 import { useMutation } from "@tanstack/react-query";
 
-function useDeleteWorkspace({ id }: { id: string }) {
+function useDeleteWorkspace() {
   return useMutation({
-    mutationFn: () =>
-      deleteWorkspace({
-        id,
-      }),
+    mutationFn: deleteWorkspace,
   });
 }
 
