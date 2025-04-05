@@ -2,7 +2,8 @@ import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
-import type { Task } from "@/types/project";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import * as Popover from "@radix-ui/react-popover";
@@ -58,26 +59,34 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       status: columnId,
     });
 
-    const updatedProject = produce(project, (draft) => {
+    const updatedProject = produce(project, (draft: ProjectWithTasks) => {
       if (draft.archivedTasks) {
-        const index = draft.archivedTasks.findIndex((t) => t.id === task.id);
+        const index = draft.archivedTasks.findIndex(
+          (t: Task) => t.id === task.id,
+        );
         if (index !== -1) {
           draft.archivedTasks.splice(index, 1);
         }
       }
 
       if (draft.plannedTasks) {
-        const index = draft.plannedTasks.findIndex((t) => t.id === task.id);
+        const index = draft.plannedTasks.findIndex(
+          (t: Task) => t.id === task.id,
+        );
         if (index !== -1) {
           draft.plannedTasks.splice(index, 1);
         }
       }
 
-      const targetColumn = draft.columns?.find((col) => col.id === columnId);
+      const targetColumn = draft.columns?.find(
+        (col: ProjectWithTasks["columns"][number]) => col.id === columnId,
+      );
       if (targetColumn) {
         targetColumn.tasks.push({
           ...task,
           status: columnId,
+          assigneeName: task.userEmail,
+          assigneeEmail: task.userEmail,
         });
       }
     });
@@ -186,17 +195,19 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
             </div>
           </div>
           <div className="p-1 max-h-60 overflow-y-auto">
-            {project?.columns?.map((column) => (
-              <button
-                key={column.id}
-                type="button"
-                className="w-full text-left px-2 py-1.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md flex items-center gap-2 transition-colors"
-                onClick={() => handleMoveToColumn(column.id)}
-              >
-                <MoveRight className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
-                <span>{column.name}</span>
-              </button>
-            ))}
+            {project?.columns?.map(
+              (column: ProjectWithTasks["columns"][number]) => (
+                <button
+                  key={column.id}
+                  type="button"
+                  className="w-full text-left px-2 py-1.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md flex items-center gap-2 transition-colors"
+                  onClick={() => handleMoveToColumn(column.id)}
+                >
+                  <MoveRight className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
+                  <span>{column.name}</span>
+                </button>
+              ),
+            )}
           </div>
         </Popover.Content>
       </Popover.Root>

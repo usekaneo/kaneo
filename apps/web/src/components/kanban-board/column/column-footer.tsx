@@ -1,11 +1,11 @@
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import toKebabCase from "@/lib/to-kebab-case";
-import type { Column } from "@/types/project";
+import type { ProjectWithTasks } from "@/types/project";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
 interface ColumnFooterProps {
-  column: Column;
+  column: ProjectWithTasks["columns"][number];
 }
 
 export function ColumnFooter({ column }: ColumnFooterProps) {

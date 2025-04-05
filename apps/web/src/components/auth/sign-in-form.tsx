@@ -43,7 +43,7 @@ export function SignInForm() {
 
   const onSubmit = async (data: SignInFormValues) => {
     try {
-      const { data: user } = await mutateAsync({
+      const user = await mutateAsync({
         email: data.email,
         password: data.password,
       });

@@ -1,9 +1,11 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
 
 const signOut = async () => {
-  const response = await api.user["sign-out"].post();
+  const response = await client.user["sign-out"].$post();
 
-  return response;
+  const { message } = await response.json();
+
+  return message;
 };
 
 export default signOut;

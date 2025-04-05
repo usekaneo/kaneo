@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
 
@@ -8,7 +9,9 @@ async function getTask(taskId: string) {
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new HTTPException(404, {
+      message: "Task not found",
+    });
   }
 
   return task;

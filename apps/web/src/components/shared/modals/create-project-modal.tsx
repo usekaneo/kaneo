@@ -37,7 +37,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     if (!name.trim()) return;
 
     try {
-      const { data } = await mutateAsync();
+      const { id } = await mutateAsync();
       toast.success("Project created successfully");
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
 
@@ -45,7 +45,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
         to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
         params: {
           workspaceId: workspace?.id ?? "",
-          projectId: data?.id ?? "",
+          projectId: id,
         },
       });
 

@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable, taskTable, userTable } from "../../database/schema";
 
@@ -15,7 +16,9 @@ async function getTasks(projectId: string) {
   });
 
   if (!project) {
-    throw new Error("Project not found");
+    throw new HTTPException(404, {
+      message: "Project not found",
+    });
   }
 
   const tasks = await db

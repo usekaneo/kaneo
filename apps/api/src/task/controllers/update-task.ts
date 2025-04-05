@@ -1,19 +1,17 @@
 import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
 
 async function updateTask(
   taskId: string,
-  body: {
-    projectId: string;
-    userEmail: string;
-    title: string;
-    status: string;
-    dueDate: Date | null;
-    description: string;
-    priority: string;
-    position: number;
-  },
+  userEmail: string,
+  title: string,
+  status: string,
+  dueDate: Date,
+  description: string,
+  priority: string,
+  position: number,
 ) {
   const [existingTask] = await db
     .select()
@@ -23,19 +21,21 @@ async function updateTask(
   const isTaskExisting = Boolean(existingTask);
 
   if (!isTaskExisting) {
-    throw new Error("Task doesn't exist");
+    throw new HTTPException(404, {
+      message: "Task doesn't exist",
+    });
   }
 
   const [updatedTask] = await db
     .update(taskTable)
     .set({
-      title: body.title,
-      description: body.description,
-      status: body.status,
-      dueDate: new Date(body.dueDate ?? ""),
-      priority: body.priority,
-      userEmail: body.userEmail,
-      position: body.position,
+      title,
+      description,
+      status,
+      dueDate,
+      priority,
+      userEmail,
+      position,
     })
     .where(eq(taskTable.id, taskId))
     .returning();
