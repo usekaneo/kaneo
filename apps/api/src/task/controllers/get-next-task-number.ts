@@ -8,7 +8,7 @@ async function getNextTaskNumber(projectId: string) {
     .from(taskTable)
     .where(eq(taskTable.projectId, projectId));
 
-  return task.count;
+  return task ? task.count : 0;
 }
 
 export default getNextTaskNumber;

@@ -12,7 +12,7 @@ export async function validateSessionToken(token: string) {
     .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
     .where(eq(sessionTable.id, sessionId));
 
-  if (sessions.length < 1) {
+  if (sessions.length < 1 || !sessions[0]) {
     return { session: null, user: null };
   }
 

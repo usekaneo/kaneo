@@ -92,7 +92,7 @@ try {
 serve(
   {
     fetch: app.fetch,
-    port: 1336,
+    port: 1337,
   },
   (info) => {
     console.log(`🏃 Hono API is running at http://localhost:${info.port}`);

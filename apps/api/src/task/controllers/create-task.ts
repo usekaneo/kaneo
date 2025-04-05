@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable, userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
@@ -41,6 +42,12 @@ async function createTask({
       number: nextTaskNumber + 1,
     })
     .returning();
+
+  if (!createdTask) {
+    throw new HTTPException(500, {
+      message: "Failed to create task",
+    });
+  }
 
   await publishEvent("task.created", {
     taskId: createdTask.id,
