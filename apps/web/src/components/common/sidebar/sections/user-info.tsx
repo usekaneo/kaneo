@@ -47,7 +47,7 @@ function UserInfo() {
           type="button"
           className={cn(
             "flex items-center w-full",
-            isSidebarOpened ? "gap-3 justify-center" : "justify-center",
+            isSidebarOpened ? "gap-3 justify-start" : "justify-center",
             "rounded-lg p-2 transition-all",
             "border border-transparent",
             "hover:bg-white dark:hover:bg-zinc-800/50",
@@ -58,8 +58,8 @@ function UserInfo() {
           <Avatar className="text-zinc-900 dark:text-zinc-100">
             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className={cn("flex-1 min-w-0", !isSidebarOpened && "hidden")}>
-            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
+          <div className={cn(!isSidebarOpened && "hidden")}>
+            <p className="text-sm text-left font-medium text-zinc-900 dark:text-zinc-100 truncate">
               {user?.name}
             </p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">

@@ -28,13 +28,7 @@ app.use(
 
 const userRoute = app.route("/user", user);
 
-app.use("*", async (c, next) => {
-  if (isDemoMode) {
-    await next();
-  }
-
-  await auth(c, next);
-});
+app.use("*", auth);
 
 app.use("*", async (c, next) => {
   if (isDemoMode) {

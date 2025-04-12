@@ -6,5 +6,5 @@ export type Project = InferResponseType<
 >;
 
 export type ProjectWithTasks = InferResponseType<
-  (typeof client)["task"][":projectId"]["$get"]
+  (typeof client)["task"]["tasks"][":projectId"]["$get"]
 >;

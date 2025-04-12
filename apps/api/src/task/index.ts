@@ -12,7 +12,7 @@ const task = new Hono<{
   };
 }>()
   .get(
-    "/:projectId",
+    "/tasks/:projectId",
     zValidator("param", z.object({ projectId: z.string() })),
     async (c) => {
       const { projectId } = c.req.valid("param");
