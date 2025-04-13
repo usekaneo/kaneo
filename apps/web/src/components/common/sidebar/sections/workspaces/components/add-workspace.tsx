@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { CreateWorkspaceModal } from "./create-workspace-modal";
+import CreateWorkspaceModal from "../../../../../shared/modals/create-workspace-modal";
 
 function AddWorkspace() {
   const [isAddWorkspaceModalOpen, setIsAddWorkspaceModalOpen] =

@@ -1,4 +1,4 @@
-import { CreateWorkspaceModal } from "../common/sidebar/sections/workspaces/components/create-workspace-modal";
+import CreateWorkspaceModal from "../shared/modals/create-workspace-modal";
 
 import { LayoutGrid, Plus } from "lucide-react";
 import { useState } from "react";

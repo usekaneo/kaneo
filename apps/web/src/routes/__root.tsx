@@ -1,3 +1,4 @@
+import { CommandPalette } from "@/components/command-palette";
 import useTheme from "@/components/providers/theme-provider/hooks/use-theme";
 import TanStackRouterDevtools from "@/tanstack/router";
 import type { LoggedInUser } from "@/types/user";
@@ -40,6 +41,7 @@ function RootComponent() {
     <>
       <div className="flex w-full h-svh overflow-x-hidden overflow-y-hidden flex-row bg-zinc-50 dark:bg-zinc-950 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
         <Outlet />
+        <CommandPalette />
       </div>
       <Toaster
         position="bottom-right"

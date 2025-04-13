@@ -7,6 +7,8 @@ async function updateProject(
   workspaceId: string,
   name: string,
   description: string,
+  icon: string,
+  slug: string,
 ) {
   const [existingProject] = await db
     .select()
@@ -26,6 +28,8 @@ async function updateProject(
     .set({
       name,
       description,
+      icon,
+      slug,
     })
     .where(
       and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),

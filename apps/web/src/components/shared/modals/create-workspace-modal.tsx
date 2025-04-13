@@ -12,11 +12,7 @@ interface CreateWorkspaceModalProps {
   open: boolean;
   onClose: () => void;
 }
-
-export function CreateWorkspaceModal({
-  open,
-  onClose,
-}: CreateWorkspaceModalProps) {
+function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
   const [name, setName] = useState("");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -102,6 +98,7 @@ export function CreateWorkspaceModal({
                 </Dialog.Close>
                 <Button
                   type="submit"
+                  disabled={!name.trim()}
                   className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                 >
                   Create Workspace
@@ -114,3 +111,5 @@ export function CreateWorkspaceModal({
     </Dialog.Root>
   );
 }
+
+export default CreateWorkspaceModal;

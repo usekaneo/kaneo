@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { LayoutGrid, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
-import { CreateWorkspaceModal } from "../common/sidebar/sections/workspaces/components/create-workspace-modal";
+import CreateWorkspaceModal from "../shared/modals/create-workspace-modal";
 
 function EmptyDashboardState() {
   const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);

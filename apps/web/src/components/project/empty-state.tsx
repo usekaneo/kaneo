@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { LayoutGrid, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
-import CreateProjectModal from "../common/sidebar/sections/projects/create-project-modal";
+import CreateProjectModal from "../shared/modals/create-project-modal";
 
 function EmptyProjectState() {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);

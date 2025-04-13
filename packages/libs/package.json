@@ -18,6 +18,6 @@
 		"elysia": "^1.2.10",
 		"react": "^19.0.0",
 		"@kaneo/typescript-config": "workspace:*",
-		"typescript": "^5.7.3"
+		"typescript": "^5.5.4"
 	}
 }

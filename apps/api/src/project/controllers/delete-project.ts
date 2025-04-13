@@ -1,14 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
 
-async function deleteProject(id: string, workspaceId: string) {
+async function deleteProject(id: string) {
   const [existingProject] = await db
     .select()
     .from(projectTable)
-    .where(
-      and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
-    );
+    .where(eq(projectTable.id, id));
 
   const isProjectExisting = Boolean(existingProject);
 
@@ -18,9 +16,7 @@ async function deleteProject(id: string, workspaceId: string) {
 
   const [deletedProject] = await db
     .delete(projectTable)
-    .where(
-      and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
-    )
+    .where(eq(projectTable.id, id))
     .returning();
 
   return deletedProject;

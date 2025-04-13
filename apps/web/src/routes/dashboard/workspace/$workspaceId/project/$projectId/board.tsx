@@ -3,6 +3,7 @@ import BoardFilters, {
 } from "@/components/filters";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
+import PageTitle from "@/components/page-title";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -102,6 +103,9 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col flex-1">
+      <PageTitle
+        title={`${project?.name || "Board"} · ${viewMode === "board" ? "Kanban" : "List"}`}
+      />
       <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between flex-wrap gap-2">
         <h1 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
           {project?.name}

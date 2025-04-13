@@ -50,13 +50,19 @@ async function getTasks(projectId: string) {
       })),
   }));
 
+  const archivedTasks = tasks.filter((task) => task.status === "archived");
+  const plannedTasks = tasks.filter((task) => task.status === "planned");
+
   return {
     id: project.id,
     name: project.name,
     slug: project.slug,
+    icon: project.icon,
     description: project.description,
     workspaceId: project.workspaceId,
     columns,
+    archivedTasks,
+    plannedTasks,
   };
 }
 
