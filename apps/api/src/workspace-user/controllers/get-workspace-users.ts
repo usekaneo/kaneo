@@ -2,7 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import db from "../../database";
 import { userTable, workspaceUserTable } from "../../database/schema";
 
-function getWorkspaceUsers({ workspaceId }: { workspaceId: string }) {
+function getWorkspaceUsers(workspaceId: string) {
   return db
     .select({
       userEmail: workspaceUserTable.userEmail,

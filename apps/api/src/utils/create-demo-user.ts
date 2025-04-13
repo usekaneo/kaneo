@@ -1,18 +1,17 @@
 import { createId } from "@paralleldrive/cuid2";
+import bcrypt from "bcrypt";
 import db from "../database";
 import { userTable } from "../database/schema";
-import createSession from "../user/controllers/create-session";
+import createSession from "../user/utils/create-session";
 import generateSessionToken from "../user/utils/generate-session-token";
 import { generateDemoName } from "./generate-demo-name";
-
 export async function createDemoUser() {
   const demoId = createId();
   const demoName = generateDemoName();
   const demoEmail = `${demoName}-${demoId}@kaneo.app`;
 
-  const hashedPassword = await Bun.password.hash("demo", {
-    algorithm: "bcrypt",
-  });
+  const hashedPassword = await bcrypt.hash("demo", 10);
+
   await db.insert(userTable).values({
     id: demoId,
     name: demoName

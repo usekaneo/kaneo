@@ -1,51 +1,81 @@
-FROM --platform=$BUILDPLATFORM oven/bun:1.2.5 AS base
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     python3 \
     make \
     g++ \
-    && rm -rf /var/lib/apt/lists/*
+    sqlite
 
-# Copy package files first for better layer caching
-COPY package.json bun.lockb ./
-COPY apps/api/package.json ./apps/api/
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
+
+# Copy workspace config and root package files
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+
+# Copy all package.json files from the monorepo
 COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/libs/package.json ./packages/libs/
+COPY apps/api/package.json ./apps/api/
 
 # Install dependencies
-RUN bun install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
-# Copy source code
+# Copy source files
 COPY packages/typescript-config ./packages/typescript-config
+COPY packages/libs ./packages/libs
 COPY apps/api ./apps/api
 
+# Fix TypeScript config to use relative path
+RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/..\/packages\/typescript-config\/base.json"/g' /app/apps/api/tsconfig.json
+
+# Build the application
+WORKDIR /app/apps/api
+RUN pnpm run build
+
 # Production stage
-FROM oven/bun:1-alpine AS runtime
+FROM node:20-alpine AS runtime
+
+# Install SQLite
+RUN apk add --no-cache sqlite
 
 # Create non-root user
 RUN addgroup -g 1001 appuser && \
     adduser -u 1001 -G appuser -D appuser
 
-WORKDIR /app/apps/api
+WORKDIR /app
+
+# Copy package files for production install
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/packages/typescript-config/package.json ./packages/typescript-config/
+COPY --from=builder /app/packages/libs/package.json ./packages/libs/
+
+# Temporarily modify package.json to remove husky prepare script
+RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json
+
+# Install production dependencies only
+RUN corepack enable && corepack prepare pnpm@10.7.0 --activate && \
+    HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
+
+# Copy built files
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/drizzle ./apps/api/drizzle
 
 # Create data directory with proper permissions
 RUN mkdir -p /app/apps/api/data && \
-     chown -R appuser:appuser /app
-
-# Copy built files from base stage
-COPY --from=base --chown=appuser:appuser /app/apps/api ./
-COPY --from=base --chown=appuser:appuser /app/node_modules ../node_modules
-COPY --from=base --chown=appuser:appuser /app/packages ../packages
+    chown -R appuser:appuser /app
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV BUN_ENV=production
 
 # Switch to non-root user
 USER appuser
 
+WORKDIR /app/apps/api
+
 EXPOSE 1337
 
-# Use exec form of CMD for proper signal handling
-CMD ["bun", "run", "/app/apps/api/src/index.ts"]
+CMD ["node", "--enable-source-maps", "dist/index.js"]

@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
 
@@ -11,7 +12,9 @@ async function deleteProject(id: string) {
   const isProjectExisting = Boolean(existingProject);
 
   if (!isProjectExisting) {
-    throw new Error("Project doesn't exist");
+    throw new HTTPException(404, {
+      message: "Project doesn't exist",
+    });
   }
 
   const [deletedProject] = await db

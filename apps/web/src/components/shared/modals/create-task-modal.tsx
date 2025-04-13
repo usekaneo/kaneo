@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,7 +42,9 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const { project, setProject } = useProjectStore();
   const { workspace } = useWorkspaceStore();
   const { mutate: updateTask } = useUpdateTask();
-  const { data: users } = useActiveWorkspaceUsers(workspace?.id ?? "");
+  const { data: users } = useGetActiveWorkspaceUsers({
+    workspaceId: workspace?.id ?? "",
+  });
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -72,9 +74,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         userEmail: data.email,
         priority: data.priority,
         projectId: project?.id,
-        dueDate: new Date(),
+        dueDate: new Date().toISOString(),
         status: taskStatus,
-        position: 0,
       });
 
       const updatedProject = produce(project, (draft) => {
@@ -85,7 +86,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
           if (targetColumn) {
             targetColumn.tasks.push({
               ...newTask,
-              userEmail: data.email,
+              assigneeEmail: data.email,
+              assigneeName: data.email,
               position: 0,
             });
           }
@@ -189,8 +191,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                                 ),
                               },
                               ...(users ?? []).map((user) => ({
-                                value: user.user?.email ?? "",
-                                label: user.user?.name ?? "",
+                                value: user.userEmail ?? "",
+                                label: user.userName ?? "",
                               })),
                             ]}
                             placeholder="Select assignee"

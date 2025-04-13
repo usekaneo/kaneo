@@ -1,3 +1,5 @@
-export default function isInSecureMode(request: Request) {
-  return request.headers.get("x-forwarded-proto") === "https";
+import type { Context } from "hono";
+
+export default function isInSecureMode(request: Context["req"]) {
+  return request.header("x-forwarded-proto") === "https";
 }

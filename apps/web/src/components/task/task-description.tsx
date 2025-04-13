@@ -35,7 +35,7 @@ function TaskDescription({ setIsSaving }: TaskDescriptionProps) {
       userEmail: task.userEmail || "",
       title: task.title || "",
       status: task.status || "",
-      dueDate: task.dueDate || new Date(),
+      dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
       priority: task.priority || "",
       position: task.position || 0,
     });

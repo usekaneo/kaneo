@@ -61,8 +61,6 @@ function ProjectSettings() {
     try {
       await updateProject({
         id: project?.id ?? "",
-        workspaceId: project?.workspaceId ?? "",
-        description: project?.description ?? "",
         name: data.name,
         icon: data.icon,
         slug: data.slug,

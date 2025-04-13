@@ -1,13 +1,18 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
 
-async function getActivitesByTaskId(taskId: string) {
-  const response = await api.activity.list({ taskId }).get();
+export type GetActivitesByTaskIdRequest = InferRequestType<
+  (typeof client)["activity"][":taskId"]["$get"]
+>["param"];
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+async function getActivitesByTaskId({ taskId }: GetActivitesByTaskIdRequest) {
+  const response = await client.activity[":taskId"].$get({
+    param: { taskId },
+  });
 
-  return response.data;
+  const data = await response.json();
+
+  return data;
 }
 
 export default getActivitesByTaskId;

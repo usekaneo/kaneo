@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 function useGetActivitiesByTaskId(taskId: string) {
   return useQuery({
     queryKey: ["activities", taskId],
-    queryFn: () => getActivitesByTaskId(taskId),
+    queryFn: () => getActivitesByTaskId({ taskId }),
   });
 }
 

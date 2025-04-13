@@ -1,13 +1,13 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
 
 async function getTasks(projectId: string) {
-  const response = await api.task.list({ projectId }).get();
+  const response = await client.task.tasks[":projectId"].$get({
+    param: { projectId },
+  });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const data = await response.json();
 
-  return response.data;
+  return data;
 }
 
 export default getTasks;
