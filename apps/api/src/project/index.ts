@@ -62,8 +62,7 @@ const project = new Elysia({ prefix: "/project" })
     },
   )
   .use(requireWorkspacePermission("owner"))
-  .delete("/:id", async ({ params: { id }, query: { workspaceId } }) => {
-    if (!workspaceId) throw new Error("Workspace ID is required");
+  .delete("/:id", async ({ params: { id } }) => {
     const deletedProject = await deleteProject(id);
     return deletedProject;
   })
