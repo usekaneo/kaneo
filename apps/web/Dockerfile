@@ -1,23 +1,25 @@
-FROM --platform=$BUILDPLATFORM oven/bun:1.2.5 AS builder
+FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     python3 \
     make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
+    g++
 
 WORKDIR /app
 
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
+
 # Copy package files first for better layer caching
-COPY package.json bun.lockb ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
 COPY apps/api/package.json ./apps/api/
 
 # Install dependencies
-RUN bun install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Copy only necessary source code
 COPY packages/typescript-config ./packages/typescript-config
@@ -27,7 +29,7 @@ COPY apps/web ./apps/web
 
 # Build the application
 WORKDIR /app/apps/web
-RUN bun run build
+RUN pnpm run build
 
 # Production stage with pinned version
 FROM nginx:alpine

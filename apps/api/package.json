@@ -1,9 +1,10 @@
 {
   "name": "@kaneo/api",
-  "type": "module",
+  "type": "commonjs",
   "main": "./src/index.ts",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=cjs --external:better-sqlite3 --external:bcrypt --external:mock-aws-s3 --external:aws-sdk --external:nock"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.0",
@@ -16,13 +17,14 @@
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.9.1",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.41.0",
+    "drizzle-orm": "^0.30.3",
     "hono": "^4.7.5",
     "zod": "^3.22.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "tsx": "^4.7.1",
-    "typescript": "^5.0.0"
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "esbuild": "^0.20.0"
   }
 }
