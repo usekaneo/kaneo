@@ -215,6 +215,7 @@ function ProjectSettings() {
                                 <Input
                                   {...field}
                                   className="bg-white dark:bg-zinc-800/50 font-mono"
+                                  maxLength={5}
                                 />
                               </FormControl>
                               <FormMessage />
