@@ -10,6 +10,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
+// import { useTranslation } from "react-i18next";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -36,6 +37,7 @@ export const Route = createRootRouteWithContext<{
 
 function RootComponent() {
   const { theme } = useTheme();
+  // const { t } = useTranslation();
 
   return (
     <>
@@ -65,6 +67,9 @@ function RootComponent() {
             info: "!bg-white dark:!bg-zinc-900 border-zinc-200 dark:border-zinc-800",
           },
           duration: 2000,
+          // If you want to use the default values for the toast options, you can uncomment the lines below
+          // actionButton: t("toast.action", { defaultValue: "Action" }),
+          // cancelButton: t("toast.cancel", { defaultValue: "Cancel" }),
         }}
       />
       <ReactQueryDevtools buttonPosition="top-right" />

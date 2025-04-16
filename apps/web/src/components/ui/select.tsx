@@ -2,6 +2,7 @@ import { cn } from "@/lib/cn";
 import { Check, ChevronDown } from "lucide-react";
 import type * as React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface SelectOption {
   value: string;
@@ -22,11 +23,12 @@ export function Select({
   value,
   onChange,
   options,
-  placeholder = "Select option",
+  placeholder,
   className,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   const selectedOption = options.find((option) => option.value === value);
 
@@ -65,7 +67,8 @@ export function Select({
             </>
           ) : (
             <span className="text-zinc-500 dark:text-zinc-400">
-              {placeholder}
+              {placeholder ||
+                t("select.placeholder", { defaultValue: "Select option" })}
             </span>
           )}
         </div>

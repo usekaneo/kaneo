@@ -3,10 +3,12 @@ import useWorkspaceStore from "@/store/workspace";
 import { Link } from "@tanstack/react-router";
 import { useLocation } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function WorkspaceSettings() {
   const { workspace } = useWorkspaceStore();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const isOnWorkspaceRoute = location.pathname.includes("/workspace-settings");
 
@@ -24,7 +26,9 @@ function WorkspaceSettings() {
       )}
     >
       <Settings className="w-4 h-4" />
-      <span>Workspace Settings</span>
+      <span>
+        {t("workspace_settings.title", { defaultValue: "Workspace Settings" })}
+      </span>
     </Link>
   );
 }

@@ -14,6 +14,7 @@ import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { type ZodType, z } from "zod";
 import useAuth from "../providers/auth-provider/hooks/use-auth";
@@ -34,6 +35,7 @@ export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const { setUser } = useAuth();
   const { history } = useRouter();
+  const { t } = useTranslation();
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -71,12 +73,14 @@ export function SignUpForm() {
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Full Name
+                  {t("sign_up.full_name", { defaultValue: "Full Name" })}
                 </FormLabel>
                 <FormControl>
                   <Input
                     className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                    placeholder="Andrej Acevski"
+                    placeholder={t("sign_up.full_name_placeholder", {
+                      defaultValue: "Andrej Acevski",
+                    })}
                     {...field}
                   />
                 </FormControl>
@@ -91,12 +95,14 @@ export function SignUpForm() {
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Email
+                  {t("sign_up.email", { defaultValue: "Email" })}
                 </FormLabel>
                 <FormControl>
                   <Input
                     className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                    placeholder="you@example.com"
+                    placeholder={t("sign_up.email_placeholder", {
+                      defaultValue: "you@example.com",
+                    })}
                     {...field}
                   />
                 </FormControl>
@@ -111,13 +117,15 @@ export function SignUpForm() {
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Password
+                  {t("sign_up.password", { defaultValue: "Password" })}
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
                       className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                      placeholder="••••••••"
+                      placeholder={t("sign_up.password_placeholder", {
+                        defaultValue: "••••••••",
+                      })}
                       type={showPassword ? "text" : "password"}
                       {...field}
                     />
@@ -140,7 +148,7 @@ export function SignUpForm() {
           type="submit"
           className="w-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 mt-6"
         >
-          Sign Up
+          {t("sign_up.sign_up", { defaultValue: "Sign Up" })}
         </Button>
       </form>
     </Form>

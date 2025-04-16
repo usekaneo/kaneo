@@ -10,6 +10,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { LayoutGrid, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute(
   "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
@@ -22,6 +23,7 @@ function TaskEditPage() {
   const { data: task, isLoading } = useGetTask(taskId);
   const { project } = useProjectStore();
   const [isSaving, setIsSaving] = useState(false);
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
@@ -36,7 +38,7 @@ function TaskEditPage() {
   return (
     <>
       <PageTitle
-        title={`${project?.slug}-${task?.number} · ${task?.title || "Task"}`}
+        title={`${project?.slug}-${task?.number} · ${task?.title || t("task.title_fallback", { defaultValue: "Task" })}`}
         hideAppName
       />
       <motion.div
@@ -66,7 +68,7 @@ function TaskEditPage() {
           <div className="flex items-center gap-1.5 ml-4">
             {isSaving && (
               <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                Saving...
+                {t("task.saving", { defaultValue: "Saving..." })}
               </span>
             )}
           </div>
@@ -81,14 +83,16 @@ function TaskEditPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-base font-medium text-zinc-900 dark:text-zinc-100">
-                      Comments & Activity
+                      {t("task.comments_activity", {
+                        defaultValue: "Comments & Activity",
+                      })}
                     </h2>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
                       >
-                        Show all
+                        {t("task.show_all", { defaultValue: "Show all" })}
                       </button>
                     </div>
                   </div>

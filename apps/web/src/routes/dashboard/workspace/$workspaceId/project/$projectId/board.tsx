@@ -11,6 +11,7 @@ import type { Task } from "@/types/project";
 import { createFileRoute } from "@tanstack/react-router";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute(
   "/dashboard/workspace/$workspaceId/project/$projectId/board",
@@ -29,6 +30,7 @@ function RouteComponent() {
     priority: null,
     dueDate: null,
   });
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (data) {
@@ -58,7 +60,7 @@ function RouteComponent() {
         const taskDate = new Date(task.dueDate);
 
         switch (filters.dueDate) {
-          case "Due this week": {
+          case t("filters.due_this_week", { defaultValue: "Due this week" }): {
             const weekStart = startOfWeek(today);
             const weekEnd = endOfWeek(today);
             if (
@@ -68,7 +70,7 @@ function RouteComponent() {
             }
             break;
           }
-          case "Due next week": {
+          case t("filters.due_next_week", { defaultValue: "Due next week" }): {
             const nextWeekStart = startOfWeek(addWeeks(today, 1));
             const nextWeekEnd = endOfWeek(addWeeks(today, 1));
             if (
@@ -81,7 +83,7 @@ function RouteComponent() {
             }
             break;
           }
-          case "No due date": {
+          case t("filters.no_due_date", { defaultValue: "No due date" }): {
             return false;
           }
         }
@@ -104,7 +106,11 @@ function RouteComponent() {
   return (
     <div className="flex flex-col flex-1">
       <PageTitle
-        title={`${project?.name || "Board"} · ${viewMode === "board" ? "Kanban" : "List"}`}
+        title={`${project?.name || t("board.title_fallback", { defaultValue: "Board" })} · ${
+          viewMode === "board"
+            ? t("board.kanban", { defaultValue: "Kanban" })
+            : t("board.list", { defaultValue: "List" })
+        }`}
       />
       <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between flex-wrap gap-2">
         <h1 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">

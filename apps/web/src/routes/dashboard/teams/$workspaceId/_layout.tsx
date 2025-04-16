@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Shield, Users } from "lucide-react";
 import { Menu } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/dashboard/teams/$workspaceId/_layout")({
   component: RouteComponent,
@@ -20,10 +21,13 @@ function RouteComponent() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { workspaceId } = Route.useParams();
+  const { t } = useTranslation();
 
   return (
     <>
-      <PageTitle title="Team Members" />
+      <PageTitle
+        title={t("team.members.title", { defaultValue: "Team Members" })}
+      />
       <div className="flex-1 flex flex-col md:flex-row h-screen">
         <motion.div
           className="md:hidden border-b border-zinc-200 dark:border-zinc-800 p-4"
@@ -38,7 +42,11 @@ function RouteComponent() {
             className="flex items-center gap-2 group"
           >
             <Menu className="w-4 h-4 transition-transform duration-200 ease-in-out group-hover:rotate-90" />
-            <span>{isMobileNavOpen ? "Close Menu" : "Menu"}</span>
+            <span>
+              {isMobileNavOpen
+                ? t("team.menu.close", { defaultValue: "Close Menu" })
+                : t("team.menu.open", { defaultValue: "Menu" })}
+            </span>
           </Button>
         </motion.div>
 
@@ -64,8 +72,8 @@ function RouteComponent() {
               className={cn(
                 "border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800",
                 "md:w-64 bg-white dark:bg-zinc-950",
-                "md:block", // Always show on desktop
-                isMobileNavOpen ? "block" : "hidden", // Toggle on mobile
+                "md:block",
+                isMobileNavOpen ? "block" : "hidden",
               )}
             >
               <div className="p-4 md:p-6">
@@ -75,7 +83,7 @@ function RouteComponent() {
                   transition={{ delay: 0.1 }}
                   className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4"
                 >
-                  Team
+                  {t("team.sidebar.title", { defaultValue: "Team" })}
                 </motion.h2>
                 <nav className="space-y-1">
                   <motion.div
@@ -97,7 +105,7 @@ function RouteComponent() {
                       onClick={() => setIsMobileNavOpen(false)}
                     >
                       <Users className="w-4 h-4 mr-3" />
-                      Members
+                      {t("team.sidebar.members", { defaultValue: "Members" })}
                     </Link>
                   </motion.div>
 
@@ -114,9 +122,9 @@ function RouteComponent() {
                     >
                       <Shield className="w-4 h-4 mr-3" />
                       <span className="flex items-center gap-2">
-                        Roles
+                        {t("team.sidebar.roles", { defaultValue: "Roles" })}
                         <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
-                          Soon
+                          {t("team.sidebar.soon", { defaultValue: "Soon" })}
                         </span>
                       </span>
                     </div>

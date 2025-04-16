@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface BoardFiltersProps {
   onFiltersChange: (filters: BoardFilters) => void;
@@ -35,6 +36,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
   const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
   const [selectedDueDate, setSelectedDueDate] = useState<string | null>(null);
   const { viewMode, setViewMode } = useUserPreferencesStore();
+  const { t } = useTranslation();
 
   const { data: users } = useActiveWorkspaceUsers(project?.workspaceId ?? "");
 
@@ -100,7 +102,9 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             <Input
               value={searchValue}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Search tasks..."
+              placeholder={t("filters.search_tasks", {
+                defaultValue: "Search tasks...",
+              })}
               className="h-7 pl-7 pr-2 text-xs bg-transparent w-full"
             />
           </div>
@@ -117,7 +121,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 )}
               >
                 <Filter className="w-3.5 h-3.5" />
-                <span>Filter</span>
+                <span>{t("filters.filter", { defaultValue: "Filter" })}</span>
               </button>
             </Popover.Trigger>
             <Popover.Portal>
@@ -127,7 +131,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 sideOffset={4}
               >
                 <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  Priority
+                  {t("filters.priority", { defaultValue: "Priority" })}
                 </div>
                 {["urgent", "high", "medium", "low"].map((priority) => (
                   <button
@@ -156,7 +160,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
 
                 <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  Assignee
+                  {t("filters.assignee", { defaultValue: "Assignee" })}
                 </div>
                 <button
                   type="button"
@@ -169,7 +173,9 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                   )}
                 >
                   <UserIcon className="w-3.5 h-3.5" />
-                  <span>Unassigned</span>
+                  <span>
+                    {t("filters.unassigned", { defaultValue: "Unassigned" })}
+                  </span>
                 </button>
                 {users?.map((user) => (
                   <button
@@ -193,7 +199,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
 
                 <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  Due Date
+                  {t("filters.due_date", { defaultValue: "Due Date" })}
                 </div>
                 {["No due date", "Due this week", "Due next week"].map(
                   (option) => (
@@ -209,7 +215,12 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                       )}
                     >
                       <Calendar className="w-3.5 h-3.5" />
-                      <span>{option}</span>
+                      <span>
+                        {t(
+                          `filters.${option.replace(/ /g, "_").toLowerCase()}`,
+                          { defaultValue: option },
+                        )}
+                      </span>
                     </button>
                   ),
                 )}
@@ -230,7 +241,9 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             )}
           >
             <LayoutGrid className="w-3.5 h-3.5" />
-            <span className="text-xs">Board</span>
+            <span className="text-xs">
+              {t("filters.board", { defaultValue: "Board" })}
+            </span>
           </button>
           <button
             type="button"
@@ -243,7 +256,9 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             )}
           >
             <List className="w-3.5 h-3.5" />
-            <span className="text-xs">List</span>
+            <span className="text-xs">
+              {t("filters.list", { defaultValue: "List" })}
+            </span>
           </button>
         </div>
       </div>
@@ -291,7 +306,8 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
               <UserIcon className="w-3 h-3" />
               <span>
                 {users?.find((u) => u.user?.email === selectedAssignee)?.user
-                  ?.name || "Unassigned"}
+                  ?.name ||
+                  t("filters.unassigned", { defaultValue: "Unassigned" })}
               </span>
               <X className="w-3 h-3 ml-1 text-zinc-400" />
             </button>
@@ -313,7 +329,7 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             className="flex items-center gap-1 px-1.5 py-1 text-xs rounded text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <X className="w-3 h-3" />
-            <span>Clear all</span>
+            <span>{t("filters.clear_all", { defaultValue: "Clear all" })}</span>
           </button>
         </div>
       )}

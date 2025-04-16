@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 import { produce } from "immer";
 import { ChevronDown, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import TaskRowOverlay from "../list-view/task-row-overlay";
 import CreateTaskModal from "../shared/modals/create-task-modal";
@@ -41,6 +42,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (project?.columns) {
@@ -214,7 +216,17 @@ function BacklogListView({ project }: BacklogListViewProps) {
                   ))
                 ) : (
                   <div className="p-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                    No {column.id === "planned" ? "planned" : "archived"} tasks
+                    {t(
+                      column.id === "planned"
+                        ? "backlog_list.no_planned_tasks"
+                        : "backlog_list.no_archived_tasks",
+                      {
+                        defaultValue:
+                          column.id === "planned"
+                            ? "No planned tasks"
+                            : "No archived tasks",
+                      },
+                    )}
                   </div>
                 )}
               </motion.div>
@@ -230,7 +242,11 @@ function BacklogListView({ project }: BacklogListViewProps) {
                 className="w-full mt-2 text-left px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/50 rounded-md flex items-center gap-2 transition-all"
               >
                 <Plus className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-                <span>Add planned task</span>
+                <span>
+                  {t("backlog_list.add_planned_task", {
+                    defaultValue: "Add planned task",
+                  })}
+                </span>
               </button>
             )}
           </div>

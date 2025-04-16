@@ -8,6 +8,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateWorkspaceModal from "../../../../../shared/modals/create-workspace-modal";
 
 function WorkspacePicker() {
@@ -18,6 +19,7 @@ function WorkspacePicker() {
   const { data: workspaces } = useGetWorkspaces();
   const { isSidebarOpened } = useUserPreferencesStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSelectWorkspace = (selectedWorkspace: Workspace) => {
     setProject(undefined);
@@ -46,10 +48,15 @@ function WorkspacePicker() {
             <div className="flex items-center">
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-0.5">
-                  Workspace
+                  {t("workspace_picker.workspace", {
+                    defaultValue: "Workspace",
+                  })}
                 </div>
                 <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
-                  {selectedWorkspace?.name || "Select Workspace"}
+                  {selectedWorkspace?.name ||
+                    t("workspace_picker.select_workspace", {
+                      defaultValue: "Select Workspace",
+                    })}
                 </div>
               </div>
               <ChevronDown className="w-4 h-4 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 ml-2" />
@@ -86,7 +93,9 @@ function WorkspacePicker() {
               onClick={handleCreateWorkspace}
             >
               <Plus className="w-4 h-4 mr-2" />
-              New Workspace
+              {t("workspace_picker.new_workspace", {
+                defaultValue: "New Workspace",
+              })}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>

@@ -8,6 +8,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, Flag, UserIcon } from "lucide-react";
 import type { CSSProperties } from "react";
+import { useTranslation } from "react-i18next";
 
 interface TaskCardProps {
   task: Task;
@@ -25,6 +26,7 @@ function TaskCard({ task }: TaskCardProps) {
   const { project } = useProjectStore();
   const { workspace } = useWorkspaceStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -78,11 +80,11 @@ function TaskCard({ task }: TaskCardProps) {
         ) : (
           <div
             className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
-            title="Unassigned"
+            title={t("task_card.unassigned", { defaultValue: "Unassigned" })}
           >
             <UserIcon className="h-3 w-3 text-zinc-400 dark:text-zinc-500" />
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
-              Unassigned
+              {t("task_card.unassigned", { defaultValue: "Unassigned" })}
             </span>
           </div>
         )}

@@ -19,6 +19,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -47,6 +48,8 @@ function RouteComponent() {
   const { mutateAsync: deleteWorkspace, isPending: isDeleting } =
     useDeleteWorkspace();
 
+  const { t } = useTranslation();
+
   const form = useForm<WorkspaceFormValues>({
     resolver: zodResolver(workspaceFormSchema),
 
@@ -72,10 +75,18 @@ function RouteComponent() {
         queryKey: ["workspaces", workspace?.ownerEmail],
       });
 
-      toast.success("Workspace updated successfully");
+      toast.success(
+        t("workspace_settings.updated", {
+          defaultValue: "Workspace updated successfully",
+        }),
+      );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update workspace",
+        error instanceof Error
+          ? error.message
+          : t("workspace_settings.update_failed", {
+              defaultValue: "Failed to update workspace",
+            }),
       );
     }
   };
@@ -84,7 +95,11 @@ function RouteComponent() {
     if (!workspace) return;
 
     if (confirmWorkSpaceName !== workspace.name) {
-      toast.error("Workspace name does not match");
+      toast.error(
+        t("workspace_settings.name_mismatch", {
+          defaultValue: "Workspace name does not match",
+        }),
+      );
       return;
     }
 
@@ -105,23 +120,35 @@ function RouteComponent() {
         to: "/dashboard",
       });
 
-      toast.success("Workspace deleted successfully");
+      toast.success(
+        t("workspace_settings.deleted", {
+          defaultValue: "Workspace deleted successfully",
+        }),
+      );
       setConfirmWorkSpaceName("");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete workspace",
+        error instanceof Error
+          ? error.message
+          : t("workspace_settings.delete_failed", {
+              defaultValue: "Failed to delete workspace",
+            }),
       );
     }
   };
 
   return (
     <>
-      <PageTitle title={`${workspace?.name} Settings`} />
+      <PageTitle
+        title={`${workspace?.name} ${t("workspace_settings.title", { defaultValue: "Workspace Settings" })}`}
+      />
       <div className="h-full flex flex-col bg-white dark:bg-zinc-900 overflow-hidden">
         <header className="sticky top-0 z-10 flex items-center px-4 h-[65px] bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              Workspace Settings
+              {t("workspace_settings.title", {
+                defaultValue: "Workspace Settings",
+              })}
             </h1>
           </div>
         </header>
@@ -131,10 +158,14 @@ function RouteComponent() {
             <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
               <div className="p-4 md:p-6">
                 <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
-                  General Settings
+                  {t("workspace_settings.general", {
+                    defaultValue: "General Settings",
+                  })}
                 </h2>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                  Basic Workspace information and settings.
+                  {t("workspace_settings.general_desc", {
+                    defaultValue: "Basic Workspace information and settings.",
+                  })}
                 </p>
 
                 {workspace ? (
@@ -149,7 +180,11 @@ function RouteComponent() {
                           name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>WorkSpace Name</FormLabel>
+                              <FormLabel>
+                                {t("workspace_settings.name", {
+                                  defaultValue: "Workspace Name",
+                                })}
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -166,7 +201,11 @@ function RouteComponent() {
                           name="description"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Workspace description</FormLabel>
+                              <FormLabel>
+                                {t("workspace_settings.description", {
+                                  defaultValue: "Workspace description",
+                                })}
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -180,13 +219,21 @@ function RouteComponent() {
                       </div>
 
                       <Button type="submit" disabled={isPending}>
-                        {isPending ? "Saving..." : "Save Changes"}
+                        {isPending
+                          ? t("workspace_settings.saving", {
+                              defaultValue: "Saving...",
+                            })
+                          : t("workspace_settings.save_changes", {
+                              defaultValue: "Save Changes",
+                            })}
                       </Button>
                     </form>
                   </Form>
                 ) : (
                   <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                    Select a Workspace to view its settings
+                    {t("workspace_settings.select_workspace", {
+                      defaultValue: "Select a Workspace to view its settings",
+                    })}
                   </div>
                 )}
               </div>
@@ -195,11 +242,15 @@ function RouteComponent() {
               <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
                 <div className="p-4 md:p-6">
                   <h2 className="text-base font-medium text-red-600 dark:text-red-400 mb-1">
-                    Danger Zone
+                    {t("workspace_settings.danger_zone", {
+                      defaultValue: "Danger Zone",
+                    })}
                   </h2>
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-                    Permanently delete your Workspace. This action cannot be
-                    undone.
+                    {t("workspace_settings.danger_zone_desc", {
+                      defaultValue:
+                        "Permanently delete your Workspace. This action cannot be undone.",
+                    })}
                   </p>
 
                   <div className="space-y-4">
@@ -207,14 +258,35 @@ function RouteComponent() {
                       <div className="flex items-center gap-3 text-red-600 dark:text-red-400 mb-3">
                         <AlertTriangle className="w-5 h-5" />
                         <p className="font-medium">
-                          Warning: This action cannot be undone
+                          {t("workspace_settings.warning", {
+                            defaultValue:
+                              "Warning: This action cannot be undone",
+                          })}
                         </p>
                       </div>
                       <ul className="list-disc list-inside space-y-1 text-sm text-red-600/90 dark:text-red-400/90">
-                        <li>All Projects will be permanently deleted</li>
-                        <li>All tasks will be removed</li>
-                        <li>All task history will be removed</li>
-                        <li>Project settings will be erased</li>
+                        <li>
+                          {t("workspace_settings.delete_projects", {
+                            defaultValue:
+                              "All Projects will be permanently deleted",
+                          })}
+                        </li>
+                        <li>
+                          {t("workspace_settings.delete_tasks", {
+                            defaultValue: "All tasks will be removed",
+                          })}
+                        </li>
+                        <li>
+                          {t("workspace_settings.delete_history", {
+                            defaultValue: "All task history will be removed",
+                          })}
+                        </li>
+                        <li>
+                          {t("workspace_settings.delete_settings", {
+                            defaultValue: "Project settings will be erased",
+                          })}
+                          ㅉ
+                        </li>
                       </ul>
                     </div>
 
@@ -239,7 +311,13 @@ function RouteComponent() {
                           disabled={confirmWorkSpaceName !== workspace.name}
                           className="bg-red-600 text-white hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400 disabled:opacity-50"
                         >
-                          {isDeleting ? "Deleting..." : "Delete Workspace"}
+                          {isDeleting
+                            ? t("workspace_settings.deleting", {
+                                defaultValue: "Deleting...",
+                              })
+                            : t("workspace_settings.delete_workspace", {
+                                defaultValue: "Delete Workspace",
+                              })}
                         </Button>
                       </div>
                     </div>

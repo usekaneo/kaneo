@@ -9,6 +9,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 function UserInfo() {
@@ -19,6 +20,7 @@ function UserInfo() {
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
   const { setWorkspace } = useWorkspaceStore();
+  const { t } = useTranslation();
 
   const handleSignOut = async () => {
     try {
@@ -27,11 +29,19 @@ function UserInfo() {
       setUser(null);
       setProject(undefined);
       setWorkspace(undefined);
-      toast.success("Signed out successfully");
+      toast.success(
+        t("user_info.signed_out_success", {
+          defaultValue: "Signed out successfully",
+        }),
+      );
       navigate({ to: "/auth/sign-in" });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to sign out",
+        error instanceof Error
+          ? error.message
+          : t("user_info.failed_to_sign_out", {
+              defaultValue: "Failed to sign out",
+            }),
       );
     }
   };
@@ -80,7 +90,7 @@ function UserInfo() {
             onClick={handleClickSettings}
           >
             <Settings className="w-4 h-4 mr-2" />
-            Settings
+            {t("user_info.settings", { defaultValue: "Settings" })}
           </DropdownMenu.Item>
 
           <DropdownMenu.Separator className="h-px bg-zinc-200 dark:bg-zinc-700 my-1" />
@@ -91,7 +101,9 @@ function UserInfo() {
             disabled={isPending}
           >
             <LogOut className="w-4 h-4 mr-2" />
-            {isPending ? "Signing out..." : "Sign out"}
+            {isPending
+              ? t("user_info.signing_out", { defaultValue: "Signing out..." })
+              : t("user_info.sign_out", { defaultValue: "Sign out" })}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

@@ -9,6 +9,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Palette } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/dashboard/settings")({
   component: SettingsLayout,
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/dashboard/settings")({
 function SettingsLayout() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { t } = useTranslation();
 
   return (
     <div className="flex-1 flex flex-col md:flex-row h-screen">
@@ -33,7 +35,11 @@ function SettingsLayout() {
           className="flex items-center gap-2 group"
         >
           <Menu className="w-4 h-4 transition-transform duration-200 ease-in-out group-hover:rotate-90" />
-          <span>{isMobileNavOpen ? "Close Menu" : "Menu"}</span>
+          <span>
+            {isMobileNavOpen
+              ? t("settings.close_menu", { defaultValue: "Close Menu" })
+              : t("settings.menu", { defaultValue: "Menu" })}
+          </span>
         </Button>
       </motion.div>
 
@@ -70,7 +76,7 @@ function SettingsLayout() {
                 transition={{ delay: 0.1 }}
                 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4"
               >
-                Settings
+                {t("settings.title", { defaultValue: "Settings" })}
               </motion.h2>
               <nav className="space-y-1">
                 <motion.div
@@ -89,7 +95,7 @@ function SettingsLayout() {
                     )}
                   >
                     <Palette className="w-4 h-4 mr-3" />
-                    Appearance
+                    {t("settings.appearance", { defaultValue: "Appearance" })}
                   </Link>
                 </motion.div>
               </nav>

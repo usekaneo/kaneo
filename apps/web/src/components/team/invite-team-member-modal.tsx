@@ -5,6 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -33,6 +34,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const { mutateAsync } = useInviteWorkspaceUser();
   const queryClient = useQueryClient();
   const { workspaceId } = Route.useParams();
+  const { t } = useTranslation();
 
   const form = useForm<TeamMemberFormValues>({
     resolver: zodResolver(teamMemberSchema),
@@ -48,13 +50,21 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
         queryKey: ["workspace-users", workspaceId],
       });
 
-      toast.success("Invitation sent successfully");
+      toast.success(
+        t("invite_team_member.success", {
+          defaultValue: "Invitation sent successfully",
+        }),
+      );
 
       resetInviteTeamMember();
       onClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to invite team member",
+        error instanceof Error
+          ? error.message
+          : t("invite_team_member.failed", {
+              defaultValue: "Failed to invite team member",
+            }),
       );
     }
   };
@@ -99,12 +109,19 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1">
-                            Email
+                            {t("invite_team_member.email", {
+                              defaultValue: "Email",
+                            })}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="colleague@company.com"
+                              placeholder={t(
+                                "invite_team_member.email_placeholder",
+                                {
+                                  defaultValue: "colleague@company.com",
+                                },
+                              )}
                               className="bg-white dark:bg-zinc-800/50"
                               autoFocus
                             />
@@ -122,14 +139,16 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                       type="button"
                       className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                     >
-                      Cancel
+                      {t("common.cancel", { defaultValue: "Cancel" })}
                     </Button>
                   </Dialog.Close>
                   <Button
                     type="submit"
                     className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                   >
-                    Send Invitation
+                    {t("invite_team_member.send_invitation", {
+                      defaultValue: "Send Invitation",
+                    })}
                   </Button>
                 </div>
               </form>

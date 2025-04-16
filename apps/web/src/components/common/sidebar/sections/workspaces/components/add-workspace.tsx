@@ -1,10 +1,12 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateWorkspaceModal from "../../../../../shared/modals/create-workspace-modal";
 
 function AddWorkspace() {
   const [isAddWorkspaceModalOpen, setIsAddWorkspaceModalOpen] =
     useState<boolean>(false);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -17,7 +19,7 @@ function AddWorkspace() {
           <Plus className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
         </div>
         <span className="text-sm font-medium group-hover:text-zinc-900 dark:group-hover:text-zinc-300">
-          Add Workspace
+          {t("add_workspace.add_workspace", { defaultValue: "Add Workspace" })}
         </span>
       </button>
       <CreateWorkspaceModal
