@@ -13,6 +13,7 @@ import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { produce } from "immer";
 import { ArrowRight, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export const Route = createFileRoute(
@@ -33,6 +34,7 @@ function RouteComponent() {
     priority: null,
     dueDate: null,
   });
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (data) {
@@ -129,11 +131,22 @@ function RouteComponent() {
     const plannedTasks = project.plannedTasks || [];
 
     if (plannedTasks.length === 0) {
-      toast.info("No planned tasks to move");
+      toast.info(
+        t("backlog.no_planned_tasks_to_move", {
+          defaultValue: "No planned tasks to move",
+        }),
+      );
       return;
     }
 
-    if (!confirm(`Move all ${plannedTasks.length} planned tasks to To Do?`)) {
+    if (
+      !confirm(
+        t("backlog.move_all_confirm", {
+          defaultValue: "Move all {{count}} planned tasks to To Do?",
+          count: plannedTasks.length,
+        }),
+      )
+    ) {
       return;
     }
 
@@ -159,16 +172,23 @@ function RouteComponent() {
     });
 
     setProject(updatedProject);
-    toast.success(`Moved ${plannedTasks.length} tasks to To Do`);
+    toast.success(
+      t("backlog.moved_tasks", {
+        defaultValue: "Moved {{count}} tasks to To Do",
+        count: plannedTasks.length,
+      }),
+    );
   };
 
   return (
     <div className="flex flex-col flex-1">
-      <PageTitle title={`${project?.name || "Project"} · Backlog`} />
+      <PageTitle
+        title={`${project?.name || t("backlog.project_fallback", { defaultValue: "Project" })} · ${t("backlog.title", { defaultValue: "Backlog" })}`}
+      />
       <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-            Project - Backlog
+            {t("backlog.header", { defaultValue: "Project - Backlog" })}
           </h1>
 
           <div className="flex items-center gap-1">
@@ -180,19 +200,25 @@ function RouteComponent() {
               <span className="px-1.5 flex items-center justify-center h-full">
                 <Plus className="w-3.5 h-3.5" />
               </span>
-              <span className="px-2">Plan Task</span>
+              <span className="px-2">
+                {t("backlog.plan_task", { defaultValue: "Plan Task" })}
+              </span>
             </button>
 
             <button
               type="button"
               onClick={handleMoveAllPlannedToTodo}
               className="h-8 bg-zinc-700 text-zinc-100 text-xs font-medium rounded-r-md flex items-center"
-              title="Move All Planned to To Do"
+              title={t("backlog.move_all_title", {
+                defaultValue: "Move All Planned to To Do",
+              })}
             >
               <span className="px-1.5 flex items-center justify-center h-full">
                 <ArrowRight className="w-3.5 h-3.5" />
               </span>
-              <span className="px-2 hidden sm:inline">Move All</span>
+              <span className="px-2 hidden sm:inline">
+                {t("backlog.move_all", { defaultValue: "Move All" })}
+              </span>
             </button>
           </div>
         </div>

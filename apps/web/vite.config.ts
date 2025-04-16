@@ -2,6 +2,7 @@ import path from "node:path";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -12,6 +13,14 @@ export default defineConfig({
       babel: {
         plugins: [["babel-plugin-react-compiler"]],
       },
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: "src/i18n/locales",
+          dest: "",
+        },
+      ],
     }),
   ],
   server: {

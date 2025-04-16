@@ -3,6 +3,7 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import useWorkspaceStore from "@/store/workspace";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function ManageTeams() {
   const { isSidebarOpened } = useUserPreferencesStore();
@@ -10,6 +11,7 @@ function ManageTeams() {
   const { workspace } = useWorkspaceStore();
   const location = useRouterState({ select: (s) => s.location });
   const isOnTeamsRoute = location.pathname.includes("/teams");
+  const { t } = useTranslation();
 
   const onManageTeams = () => {
     if (!workspace) return;
@@ -30,7 +32,7 @@ function ManageTeams() {
           isSidebarOpened && "px-3",
         )}
       >
-        {isSidebarOpened && "Team"}
+        {isSidebarOpened && t("manage_teams.team", { defaultValue: "Team" })}
       </h2>
       <button
         type="button"
@@ -42,7 +44,11 @@ function ManageTeams() {
           isOnTeamsRoute &&
             "bg-indigo-51 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400",
         )}
-        title={!isSidebarOpened ? "Manage Team" : undefined}
+        title={
+          !isSidebarOpened
+            ? t("manage_teams.manage_team", { defaultValue: "Manage Team" })
+            : undefined
+        }
         onClick={() => onManageTeams()}
       >
         <Users
@@ -51,7 +57,8 @@ function ManageTeams() {
             !isSidebarOpened ? "w-6 h-6" : "w-4 h-4 mr-2",
           )}
         />
-        {isSidebarOpened && "Manage Team"}
+        {isSidebarOpened &&
+          t("manage_teams.manage_team", { defaultValue: "Manage Team" })}
       </button>
     </div>
   );

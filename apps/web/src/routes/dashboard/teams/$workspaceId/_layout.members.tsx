@@ -6,6 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute(
   "/dashboard/teams/$workspaceId/_layout/members",
@@ -18,6 +19,7 @@ function RouteComponent() {
   const { data: users } = useGetWorkspaceUsers({ workspaceId });
   const [isInviteTeamMemberModalOpen, setIsInviteTeamMemberModalOpen] =
     useState(false);
+  const { t } = useTranslation();
 
   return (
     <motion.div
@@ -28,7 +30,7 @@ function RouteComponent() {
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-          Team Members
+          {t("team.members.title", { defaultValue: "Team Members" })}
         </h1>
 
         <Button
@@ -36,7 +38,7 @@ function RouteComponent() {
           className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 w-full md:w-auto"
         >
           <UserPlus className="w-4 h-4 mr-2" />
-          New Invitation
+          {t("team.members.new_invitation", { defaultValue: "New Invitation" })}
         </Button>
       </div>
 
@@ -47,19 +49,14 @@ function RouteComponent() {
           {users?.length === 0 && (
             <div className="py-12 text-center">
               <p className="text-zinc-500 dark:text-zinc-400">
-                No team members found
+                {t("team.members.no_team_members", {
+                  defaultValue: "No team members found",
+                })}
               </p>
             </div>
           )}
         </div>
       </div>
-
-      {/* TODO: Implement delete member */}
-      {/* <DeleteTeamMemberModal
-        userEmail={selectedMember?.userEmail ?? ""}
-        open={isRemoveMemberModalOpen}
-        onClose={() => setIsRemoveMemberModalOpen(false)}
-      /> */}
 
       <InviteTeamMemberModal
         open={isInviteTeamMemberModalOpen}

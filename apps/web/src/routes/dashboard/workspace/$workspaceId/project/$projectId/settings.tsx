@@ -21,6 +21,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, Lock } from "lucide-react";
 import { createElement, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -47,6 +48,7 @@ function ProjectSettings() {
     useDeleteProject();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
@@ -75,10 +77,18 @@ function ProjectSettings() {
         queryKey: ["projects", project?.workspaceId],
       });
 
-      toast.success("Project updated successfully");
+      toast.success(
+        t("project_settings.updated", {
+          defaultValue: "Project updated successfully",
+        }),
+      );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update project",
+        error instanceof Error
+          ? error.message
+          : t("project_settings.update_failed", {
+              defaultValue: "Failed to update project",
+            }),
       );
     }
   };
@@ -87,7 +97,11 @@ function ProjectSettings() {
     if (!project) return;
 
     if (confirmProjectName !== project.name) {
-      toast.error("Project name does not match");
+      toast.error(
+        t("project_settings.name_mismatch", {
+          defaultValue: "Project name does not match",
+        }),
+      );
       return;
     }
 
@@ -109,11 +123,19 @@ function ProjectSettings() {
         },
       });
 
-      toast.success("Project deleted successfully");
+      toast.success(
+        t("project_settings.deleted", {
+          defaultValue: "Project deleted successfully",
+        }),
+      );
       setConfirmProjectName("");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete project",
+        error instanceof Error
+          ? error.message
+          : t("project_settings.delete_failed", {
+              defaultValue: "Failed to delete project",
+            }),
       );
     }
   };
@@ -121,7 +143,11 @@ function ProjectSettings() {
   if (!isOwner) {
     return (
       <div className="flex-1 p-6">
-        <PageTitle title="Project Settings" />
+        <PageTitle
+          title={t("project_settings.title", {
+            defaultValue: "Project Settings",
+          })}
+        />
         <div className="mt-6 max-w-2xl mx-auto">
           <div className="bg-white dark:bg-zinc-800/50 rounded-lg p-8 shadow-sm border border-zinc-200 dark:border-zinc-700/50 text-center">
             <div className="flex justify-center mb-4">
@@ -130,11 +156,15 @@ function ProjectSettings() {
               </div>
             </div>
             <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-              Permission Required
+              {t("project_settings.permission_required", {
+                defaultValue: "Permission Required",
+              })}
             </h2>
             <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-md mx-auto">
-              Only workspace owners can modify project settings. Please contact
-              the workspace owner if you need to make changes.
+              {t("project_settings.permission_required_desc", {
+                defaultValue:
+                  "Only workspace owners can modify project settings. Please contact the workspace owner if you need to make changes.",
+              })}
             </p>
             <Button
               variant="outline"
@@ -150,7 +180,9 @@ function ProjectSettings() {
               className="gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Project
+              {t("project_settings.back_to_project", {
+                defaultValue: "Back to Project",
+              })}
             </Button>
           </div>
         </div>
@@ -160,12 +192,18 @@ function ProjectSettings() {
 
   return (
     <>
-      <PageTitle title="Project Settings" />
+      <PageTitle
+        title={t("project_settings.title", {
+          defaultValue: "Project Settings",
+        })}
+      />
       <div className="h-full flex flex-col bg-white dark:bg-zinc-900 overflow-hidden">
         <header className="sticky top-0 z-10 flex items-center px-4 h-[65px] bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              Project Settings
+              {t("project_settings.title", {
+                defaultValue: "Project Settings",
+              })}
             </h1>
           </div>
         </header>
@@ -175,10 +213,14 @@ function ProjectSettings() {
             <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
               <div className="p-4 md:p-6">
                 <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
-                  General Settings
+                  {t("project_settings.general", {
+                    defaultValue: "General Settings",
+                  })}
                 </h2>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                  Basic project information and settings.
+                  {t("project_settings.general_desc", {
+                    defaultValue: "Basic project information and settings.",
+                  })}
                 </p>
 
                 {project ? (
@@ -193,7 +235,11 @@ function ProjectSettings() {
                           name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Project Name</FormLabel>
+                              <FormLabel>
+                                {t("project_settings.name", {
+                                  defaultValue: "Project Name",
+                                })}
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -210,7 +256,11 @@ function ProjectSettings() {
                           name="slug"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Project Slug</FormLabel>
+                              <FormLabel>
+                                {t("project_settings.slug", {
+                                  defaultValue: "Project Slug",
+                                })}
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -229,7 +279,11 @@ function ProjectSettings() {
                         name="icon"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Project Icon</FormLabel>
+                            <FormLabel>
+                              {t("project_settings.icon", {
+                                defaultValue: "Project Icon",
+                              })}
+                            </FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-[240px] overflow-y-auto p-2 rounded-lg border border-zinc-200 dark:border-zinc-700/50">
@@ -270,13 +324,21 @@ function ProjectSettings() {
                       />
 
                       <Button type="submit" disabled={isPending}>
-                        {isPending ? "Saving..." : "Save Changes"}
+                        {isPending
+                          ? t("project_settings.saving", {
+                              defaultValue: "Saving...",
+                            })
+                          : t("project_settings.save_changes", {
+                              defaultValue: "Save Changes",
+                            })}
                       </Button>
                     </form>
                   </Form>
                 ) : (
                   <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                    Select a project to view its settings
+                    {t("project_settings.select_project", {
+                      defaultValue: "Select a project to view its settings",
+                    })}
                   </div>
                 )}
               </div>
@@ -286,11 +348,15 @@ function ProjectSettings() {
               <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
                 <div className="p-4 md:p-6">
                   <h2 className="text-base font-medium text-red-600 dark:text-red-400 mb-1">
-                    Danger Zone
+                    {t("project_settings.danger_zone", {
+                      defaultValue: "Danger Zone",
+                    })}
                   </h2>
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-                    Permanently delete your project. This action cannot be
-                    undone.
+                    {t("project_settings.danger_zone_desc", {
+                      defaultValue:
+                        "Permanently delete your project. This action cannot be undone.",
+                    })}
                   </p>
 
                   <div className="space-y-4">
@@ -298,13 +364,29 @@ function ProjectSettings() {
                       <div className="flex items-center gap-3 text-red-600 dark:text-red-400 mb-3">
                         <AlertTriangle className="w-5 h-5" />
                         <p className="font-medium">
-                          Warning: This action cannot be undone
+                          {t("project_settings.warning", {
+                            defaultValue:
+                              "Warning: This action cannot be undone",
+                          })}
                         </p>
                       </div>
                       <ul className="list-disc list-inside space-y-1 text-sm text-red-600/90 dark:text-red-400/90">
-                        <li>All tasks will be permanently deleted</li>
-                        <li>All task history will be removed</li>
-                        <li>Project settings will be erased</li>
+                        <li>
+                          {t("project_settings.delete_tasks", {
+                            defaultValue:
+                              "All tasks will be permanently deleted",
+                          })}
+                        </li>
+                        <li>
+                          {t("project_settings.delete_history", {
+                            defaultValue: "All task history will be removed",
+                          })}
+                        </li>
+                        <li>
+                          {t("project_settings.delete_settings", {
+                            defaultValue: "Project settings will be erased",
+                          })}
+                        </li>
                       </ul>
                     </div>
 
@@ -329,7 +411,13 @@ function ProjectSettings() {
                           disabled={confirmProjectName !== project.name}
                           className="bg-red-600 text-white hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400 disabled:opacity-50"
                         >
-                          {isDeleting ? "Deleting..." : "Delete Project"}
+                          {isDeleting
+                            ? t("project_settings.deleting", {
+                                defaultValue: "Deleting...",
+                              })
+                            : t("project_settings.delete_project", {
+                                defaultValue: "Delete Project",
+                              })}
                         </Button>
                       </div>
                     </div>

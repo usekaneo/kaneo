@@ -1,0 +1,269 @@
+{
+	"add_workspace": {
+		"add_workspace": "Add Workspace"
+	},
+	"appearance": {
+		"interface_prefs": "Interface Preferences",
+		"interface_prefs_desc": "Customize your interface preferences.",
+		"page_title": "Appearance Settings",
+		"sidebar_nav": "Sidebar navigation",
+		"sidebar_nav_desc": "Show or hide the sidebar",
+		"subtitle": "Customize how Kaneo looks on your device.",
+		"theme": "Theme",
+		"theme_dark": "Dark",
+		"theme_dark_desc": "Dark mode for low-light environments",
+		"theme_desc": "Select your preferred theme for Kaneo's interface.",
+		"theme_light": "Light",
+		"theme_light_desc": "Light mode for bright environments",
+		"theme_system": "System",
+		"theme_system_desc": "Follows your system preferences",
+		"title": "Appearance"
+	},
+	"auth": {
+		"already_have_account": "Already have an account?",
+		"create_account": "Create account",
+		"email": "Email",
+		"email_placeholder": "you@example.com",
+		"enter_credentials": "Enter your credentials to access your workspace",
+		"forgot_password": "Forgot password?",
+		"get_started": "Get started with your free workspace",
+		"no_account": "Don't have an account?",
+		"password": "Password",
+		"password_placeholder": "••••••••",
+		"sign_in": "Sign in",
+		"signing_in": "Signing In...",
+		"welcome_back": "Welcome back"
+	},
+	"backlog": {
+		"header": "Project - Backlog",
+		"move_all": "Move All",
+		"move_all_confirm_other": "Move all {{count}} planned tasks to To Do?",
+		"move_all_title": "Move All Planned to To Do",
+		"moved_tasks_other": "Moved {{count}} tasks to To Do",
+		"no_planned_tasks_to_move": "No planned tasks to move",
+		"plan_task": "빈 태스크",
+		"project_fallback": "Project",
+		"title": "Backlog"
+	},
+	"backlog_list": {
+		"add_planned_task": "Add planned task"
+	},
+	"backlog_task_row": {
+		"move_to_column": "Move to column"
+	},
+	"board": {
+		"kanban": "Kanban",
+		"list": "List",
+		"title_fallback": "Board"
+	},
+	"column": {
+		"add_task": "Add task"
+	},
+	"column_footer": {
+		"add_task": "Add task"
+	},
+	"column_header": {
+		"archive_all_completed": "Archive all completed tasks",
+		"archive_confirm_other": "Archive all {{count}} completed tasks?",
+		"archived_tasks_other": "Archived {{count}} tasks",
+		"no_tasks_to_archive": "No tasks to archive"
+	},
+	"command_palette": {
+		"create_new_workspace": "Create new workspace",
+		"go_to_backlog": "Go to Backlog",
+		"go_to_board": "Go to Board",
+		"no_results_found": "No results found.",
+		"project": "Project",
+		"project_settings": "Project settings",
+		"projects": "Projects",
+		"select_project_first": "Select a project first",
+		"select_workspace_first": "Select a workspace first",
+		"tasks": "Tasks",
+		"workspace": "Workspace"
+	},
+	"common": {
+		"cancel": "Cancel"
+	},
+	"dashboard_empty_state": {
+		"create_first_workspace": "Create Your First Workspace",
+		"get_started": "Get started by creating your first workspace to organize projects and collaborate with your team.",
+		"get_started_button": "Get Started",
+		"start_organizing": "Start organizing your work in one place",
+		"welcome": "Welcome to Kaneo"
+	},
+	"demo_alert": {
+		"deploy": "Deploy your own",
+		"description": "This is a demo environment. All data will be automatically purged every hour."
+	},
+	"dialog": {
+		"close": "Close"
+	},
+	"empty_state": {
+		"create_first_project": "Create Your First Project",
+		"create_project": "Create Project",
+		"create_project_to_organize": "Create a project to organize your tasks",
+		"new_project": "New Project",
+		"start_organizing": "Start organizing your tasks and collaborating with your team by creating your first project."
+	},
+	"filters": {
+		"assignee": "Assignee",
+		"board": "Board",
+		"clear_all": "Clear all",
+		"due_date": "Due Date",
+		"due_next_week": "Due next week",
+		"due_this_week": "Due this week",
+		"filter": "Filter",
+		"list": "List",
+		"no_due_date": "No due date",
+		"priority": "Priority",
+		"search_tasks": "Search tasks...",
+		"unassigned": "Unassigned"
+	},
+	"invite_team_member": {
+		"email": "Email",
+		"email_placeholder": "colleague@company.com",
+		"failed": "Failed to invite team member",
+		"send_invitation": "Send Invitation",
+		"success": "Invitation sent successfully"
+	},
+	"manage_teams": {
+		"manage_team": "Manage Team",
+		"team": "Team"
+	},
+	"members_table": {
+		"actions": "Actions",
+		"date": "Date",
+		"email": "Email",
+		"remove_member": "Remove member",
+		"role": "Role",
+		"status": "Status",
+		"workspace_owner": "Workspace owner"
+	},
+	"project": {
+		"create_project": "Create Project",
+		"new_project": "New Project",
+		"project_icon": "Project Icon",
+		"project_name": "Project Name",
+		"project_name_placeholder": "Designers",
+		"project_slug": "Project Slug",
+		"project_slug_placeholder": "ABC",
+		"slug_desc": "This key will be used for ticket IDs (e.g., ABC-123)"
+	},
+	"project_settings": {
+		"back_to_project": "Back to Project",
+		"danger_zone": "Danger Zone",
+		"danger_zone_desc": "Permanently delete your project. This action cannot be undone.",
+		"delete_failed": "Failed to delete project",
+		"delete_history": "All task history will be removed",
+		"delete_project": "Delete Project",
+		"delete_settings": "Project settings will be erased",
+		"delete_tasks": "All tasks will be permanently deleted",
+		"deleted": "Project deleted successfully",
+		"deleting": "Deleting...",
+		"general": "General Settings",
+		"general_desc": "Basic project information and settings.",
+		"icon": "Project Icon",
+		"name": "Project Name",
+		"name_mismatch": "Project name does not match",
+		"permission_required": "Permission Required",
+		"permission_required_desc": "Only workspace owners can modify project settings. Please contact the workspace owner if you need to make changes.",
+		"save_changes": "Save Changes",
+		"saving": "Saving...",
+		"select_project": "Select a project to view its settings",
+		"slug": "Project Slug",
+		"title": "Project Settings",
+		"update_failed": "Failed to update project",
+		"updated": "Project updated successfully",
+		"warning": "Warning: This action cannot be undone"
+	},
+	"projects": {
+		"no_projects_yet": "No projects yet",
+		"title": "Projects"
+	},
+	"select": {
+		"placeholder": "Select option"
+	},
+	"settings": {
+		"appearance": "Appearance",
+		"close_menu": "Close Menu",
+		"menu": "Menu",
+		"title": "Settings"
+	},
+	"sign_up": {
+		"email": "Email",
+		"email_placeholder": "you@example.com",
+		"full_name": "Full Name",
+		"full_name_placeholder": "Andrej Acevski",
+		"password": "Password",
+		"password_placeholder": "••••••••",
+		"sign_up": "Sign Up"
+	},
+	"task": {
+		"comments_activity": "Comments & Activity",
+		"saving": "Saving...",
+		"show_all": "Show all",
+		"title_fallback": "Task"
+	},
+	"task_card": {
+		"unassigned": "Unassigned"
+	},
+	"team": {
+		"members": {
+			"new_invitation": "New Invitation",
+			"no_team_members": "No team members found",
+			"title": "Team Members"
+		},
+		"menu": {
+			"close": "Close Menu",
+			"open": "Menu"
+		},
+		"remove_confirm": "Are you sure you want to remove <1>{{userEmail}}</1> from the team? This action cannot be undone.",
+		"remove_member": "Remove Team Member",
+		"remove_member_short": "Remove Member",
+		"roles": {
+			"title": "Team Roles"
+		},
+		"sidebar": {
+			"members": "Members",
+			"roles": "Roles",
+			"soon": "Soon",
+			"title": "Team"
+		}
+	},
+	"user_info": {
+		"failed_to_sign_out": "Failed to sign out",
+		"settings": "Settings",
+		"sign_out": "Sign out",
+		"signed_out_success": "Signed out successfully",
+		"signing_out": "Signing out..."
+	},
+	"workspace_picker": {
+		"new_workspace": "New Workspace",
+		"select_workspace": "Select Workspace",
+		"workspace": "Workspace"
+	},
+	"workspace_settings": {
+		"danger_zone": "Danger Zone",
+		"danger_zone_desc": "Permanently delete your Workspace. This action cannot be undone.",
+		"delete_failed": "Failed to delete workspace",
+		"delete_history": "All task history will be removed",
+		"delete_projects": "All Projects will be permanently deleted",
+		"delete_settings": "Project settings will be erased",
+		"delete_tasks": "All tasks will be removed",
+		"delete_workspace": "Delete Workspace",
+		"deleted": "Workspace deleted successfully",
+		"deleting": "Deleting...",
+		"description": "Workspace description",
+		"general": "General Settings",
+		"general_desc": "Basic Workspace information and settings.",
+		"name": "Workspace Name",
+		"name_mismatch": "Workspace name does not match",
+		"save_changes": "Save Changes",
+		"saving": "Saving...",
+		"select_workspace": "Select a Workspace to view its settings",
+		"title": "Workspace Settings",
+		"update_failed": "Failed to update workspace",
+		"updated": "Workspace updated successfully",
+		"warning": "Warning: This action cannot be undone"
+	}
+}

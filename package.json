@@ -23,5 +23,9 @@
     "apps/*",
     "packages/*"
   ],
-  "version": "0.3.0"
+  "version": "0.3.0",
+  "dependencies": {
+    "i18next": "^25.0.0",
+    "react-i18next": "^15.4.1"
+  }
 }

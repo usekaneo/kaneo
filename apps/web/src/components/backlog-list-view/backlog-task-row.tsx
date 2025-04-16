@@ -17,6 +17,7 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 interface BacklogTaskRowProps {
@@ -28,6 +29,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
   const { project, setProject } = useProjectStore();
   const { mutate: updateTask } = useUpdateTask();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const {
     attributes,
@@ -128,7 +130,15 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
               {task.title}
             </span>
             <span className="text-xs px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 rounded">
-              {task.status === "archived" ? "Archived" : "Planned"}
+              {t(
+                task.status === "archived"
+                  ? "backlog_task_row.archived"
+                  : "backlog_task_row.planned",
+                {
+                  defaultValue:
+                    task.status === "archived" ? "Archived" : "Planned",
+                },
+              )}
             </span>
           </div>
           <div className="flex items-center gap-2 mt-1">
@@ -182,7 +192,9 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
         >
           <div className="bg-zinc-50 dark:bg-zinc-900 px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">
             <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Move to column
+              {t("backlog_task_row.move_to_column", {
+                defaultValue: "Move to column",
+              })}
             </div>
           </div>
           <div className="p-1 max-h-60 overflow-y-auto">

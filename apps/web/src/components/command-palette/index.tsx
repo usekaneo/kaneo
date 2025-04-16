@@ -17,6 +17,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CommandGroup from "./command-group";
 
 export function CommandPalette() {
@@ -31,6 +32,7 @@ export function CommandPalette() {
   const { workspace } = useWorkspaceStore();
   const { project } = useProjectStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const commandItemStyles = cn(
     "px-3 py-2 rounded-lg cursor-pointer flex items-center gap-3",
@@ -135,9 +137,15 @@ export function CommandPalette() {
                 </div>
                 <Command.List className="max-h-[300px] overflow-y-auto px-3">
                   <Command.Empty className="py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                    No results found.
+                    {t("command_palette.no_results_found", {
+                      defaultValue: "No results found.",
+                    })}
                   </Command.Empty>
-                  <CommandGroup heading="Tasks">
+                  <CommandGroup
+                    heading={t("command_palette.tasks", {
+                      defaultValue: "Tasks",
+                    })}
+                  >
                     <Command.Item
                       onSelect={() => {
                         setOpen(false);
@@ -150,13 +158,20 @@ export function CommandPalette() {
                       Create new task
                       {!project && (
                         <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">
-                          Select a project first
+                          {t("command_palette.select_project_first", {
+                            defaultValue: "Select a project first",
+                          })}
                         </span>
                       )}
                     </Command.Item>
                   </CommandGroup>
 
-                  <CommandGroup heading="Projects" className="mt-4">
+                  <CommandGroup
+                    heading={t("command_palette.projects", {
+                      defaultValue: "Projects",
+                    })}
+                    className="mt-4"
+                  >
                     <Command.Item
                       onSelect={() => {
                         setOpen(false);
@@ -169,13 +184,20 @@ export function CommandPalette() {
                       Create new project
                       {!workspace && (
                         <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">
-                          Select a workspace first
+                          {t("command_palette.select_workspace_first", {
+                            defaultValue: "Select a workspace first",
+                          })}
                         </span>
                       )}
                     </Command.Item>
                   </CommandGroup>
 
-                  <CommandGroup heading="Project" className="mt-4">
+                  <CommandGroup
+                    heading={t("command_palette.project", {
+                      defaultValue: "Project",
+                    })}
+                    className="mt-4"
+                  >
                     {project && (
                       <Command.Item
                         onSelect={() => {
@@ -191,7 +213,9 @@ export function CommandPalette() {
                         className={commandItemStyles}
                       >
                         <LayoutDashboard className="w-4 h-4" />
-                        Go to Board
+                        {t("command_palette.go_to_board", {
+                          defaultValue: "Go to Board",
+                        })}
                       </Command.Item>
                     )}
 
@@ -210,7 +234,9 @@ export function CommandPalette() {
                         }}
                       >
                         <ListTodo className="w-4 h-4" />
-                        Go to Backlog
+                        {t("command_palette.go_to_backlog", {
+                          defaultValue: "Go to Backlog",
+                        })}
                       </Command.Item>
                     )}
 
@@ -229,12 +255,19 @@ export function CommandPalette() {
                         className={commandItemStyles}
                       >
                         <Settings className="w-4 h-4" />
-                        Project settings
+                        {t("command_palette.project_settings", {
+                          defaultValue: "Project settings",
+                        })}
                       </Command.Item>
                     )}
                   </CommandGroup>
 
-                  <CommandGroup heading="Workspace" className="mt-4 mb-2">
+                  <CommandGroup
+                    heading={t("command_palette.workspace", {
+                      defaultValue: "Workspace",
+                    })}
+                    className="mt-4 mb-2"
+                  >
                     <Command.Item
                       onSelect={() => {
                         setOpen(false);
@@ -243,7 +276,9 @@ export function CommandPalette() {
                       className={commandItemStyles}
                     >
                       <Plus className="w-4 h-4" />
-                      Create new workspace
+                      {t("command_palette.create_new_workspace", {
+                        defaultValue: "Create new workspace",
+                      })}
                     </Command.Item>
                   </CommandGroup>
                 </Command.List>

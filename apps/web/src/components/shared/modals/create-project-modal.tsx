@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 type CreateProjectModalProps = {
@@ -31,6 +32,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   });
   const IconComponent = icons[selectedIcon as keyof typeof icons];
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +89,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
               <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                New Project
+                {t("project.new_project", { defaultValue: "New Project" })}
               </Dialog.Title>
               <Dialog.Close
                 asChild
@@ -104,12 +106,14 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   aria-label="Project name"
                   className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1"
                 >
-                  Project Name
+                  {t("project.project_name", { defaultValue: "Project Name" })}
                 </label>
                 <Input
                   value={name}
                   onChange={handleNameChange}
-                  placeholder="Designers"
+                  placeholder={t("project.project_name_placeholder", {
+                    defaultValue: "Designers",
+                  })}
                   className="bg-white dark:bg-zinc-800/50"
                   required
                 />
@@ -120,13 +124,15 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   htmlFor="slug"
                   className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1"
                 >
-                  Project Slug
+                  {t("project.project_slug", { defaultValue: "Project Slug" })}
                 </label>
                 <div className="flex gap-3">
                   <Input
                     value={slug}
                     onChange={(e) => setSlug(e.target.value.toUpperCase())}
-                    placeholder="ABC"
+                    placeholder={t("project.project_slug_placeholder", {
+                      defaultValue: "ABC",
+                    })}
                     className="bg-white dark:bg-zinc-800/50 uppercase"
                     maxLength={5}
                     pattern="[A-Z0-9]+"
@@ -134,7 +140,10 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   />
                 </div>
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  This key will be used for ticket IDs (e.g., ABC-123)
+                  {t("project.slug_desc", {
+                    defaultValue:
+                      "This key will be used for ticket IDs (e.g., ABC-123)",
+                  })}
                 </p>
               </div>
 
@@ -143,7 +152,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   htmlFor="icon"
                   className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-3"
                 >
-                  Project Icon
+                  {t("project.project_icon", { defaultValue: "Project Icon" })}
                 </label>
                 <div className="relative">
                   <div className="grid grid-cols-8 gap-2 max-h-[240px] overflow-y-auto p-2 rounded-lg border border-zinc-200 dark:border-zinc-700/50">
@@ -180,7 +189,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                     type="button"
                     className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                   >
-                    Cancel
+                    {t("common.cancel", { defaultValue: "Cancel" })}
                   </Button>
                 </Dialog.Close>
                 <Button
@@ -188,7 +197,9 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   disabled={!name.trim() || !slug.trim()}
                   className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
                 >
-                  Create Project
+                  {t("project.create_project", {
+                    defaultValue: "Create Project",
+                  })}
                 </Button>
               </div>
             </form>

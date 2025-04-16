@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute(
   "/dashboard/teams/$workspaceId/_layout/roles",
@@ -7,5 +8,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  return <div>Hello "/dashboard/workspace/$workspaceId/team/roles"!</div>;
+  const { t } = useTranslation();
+
+  return <div>{t("team.roles.title", { defaultValue: "Team Roles" })}</div>;
 }

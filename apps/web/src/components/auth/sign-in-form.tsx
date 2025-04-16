@@ -14,6 +14,7 @@ import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { type ZodType, z } from "zod";
 import useAuth from "../providers/auth-provider/hooks/use-auth";
@@ -32,6 +33,7 @@ export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const { history } = useRouter();
   const { setUser } = useAuth();
+  const { t } = useTranslation();
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -69,12 +71,14 @@ export function SignInForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                    Email
+                    {t("auth.email", { defaultValue: "Email" })}
                   </FormLabel>
                   <FormControl>
                     <Input
                       className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                      placeholder="you@example.com"
+                      placeholder={t("auth.email_placeholder", {
+                        defaultValue: "you@example.com",
+                      })}
                       {...field}
                     />
                   </FormControl>
@@ -91,13 +95,15 @@ export function SignInForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                    Password
+                    {t("auth.password", { defaultValue: "Password" })}
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                        placeholder="••••••••"
+                        placeholder={t("auth.password_placeholder", {
+                          defaultValue: "••••••••",
+                        })}
                         type={showPassword ? "text" : "password"}
                         {...field}
                       />
@@ -123,7 +129,9 @@ export function SignInForm() {
                 type="button"
                 className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Forgot password?
+                {t("auth.forgot_password", {
+                  defaultValue: "Forgot password?",
+                })}
               </button>
             </div>
           </div>
@@ -134,7 +142,9 @@ export function SignInForm() {
           disabled={isPending}
           className="w-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 mt-6"
         >
-          {isPending ? "Signing In..." : "Sign In"}
+          {isPending
+            ? t("auth.signing_in", { defaultValue: "Signing In..." })
+            : t("auth.sign_in", { defaultValue: "Sign In" })}
         </Button>
       </form>
     </Form>

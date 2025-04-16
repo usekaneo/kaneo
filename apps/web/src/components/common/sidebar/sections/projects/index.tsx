@@ -14,6 +14,7 @@ import {
   Settings,
 } from "lucide-react";
 import { createElement, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateProjectModal from "../../../../shared/modals/create-project-modal";
 
 type ProjectsProps = {
@@ -27,6 +28,7 @@ function Projects({ workspaceId }: ProjectsProps) {
   const { isSidebarOpened } = useUserPreferencesStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const handleSelectProject = (selectedProject: Project) => {
     if (
@@ -70,7 +72,7 @@ function Projects({ workspaceId }: ProjectsProps) {
         )}
       >
         <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-          {isSidebarOpened && "Projects"}
+          {isSidebarOpened && t("projects.title", { defaultValue: "Projects" })}
         </h2>
         <button
           type="button"
@@ -229,7 +231,9 @@ function Projects({ workspaceId }: ProjectsProps) {
           : isSidebarOpened && (
               <div className="px-3 py-4 flex flex-col items-center text-center">
                 <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                  No projects yet
+                  {t("projects.no_projects_yet", {
+                    defaultValue: "No projects yet",
+                  })}
                 </p>
               </div>
             )}

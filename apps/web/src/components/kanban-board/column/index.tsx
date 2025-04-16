@@ -3,6 +3,7 @@ import toKebabCase from "@/lib/to-kebab-case";
 import type { Column as ColumnType } from "@/types/project";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
 
@@ -12,6 +13,7 @@ interface ColumnProps {
 
 function Column({ column }: ColumnProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col flex-1 min-w-80 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-xs rounded-lg border border-zinc-200 dark:border-zinc-800/50 shadow-xs relative group">
@@ -36,7 +38,7 @@ function Column({ column }: ColumnProps) {
           className="w-full text-left px-2 py-1.5 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/50 rounded-md flex items-center gap-2 transition-all"
         >
           <Plus className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-          <span>Add task</span>
+          <span>{t("column.add_task", { defaultValue: "Add task" })}</span>
         </button>
       </div>
     </div>
