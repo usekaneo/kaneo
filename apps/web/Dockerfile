@@ -1,15 +1,12 @@
+# Build stage
 FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 
-# Install build dependencies
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++
+# Install build dependencies in a single layer
+RUN apk add --no-cache python3 make g++ && \
+    corepack enable && \
+    corepack prepare pnpm@10.7.0 --activate
 
 WORKDIR /app
-
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
 
 # Copy package files first for better layer caching
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
@@ -31,10 +28,10 @@ COPY apps/web ./apps/web
 WORKDIR /app/apps/web
 RUN pnpm run build
 
-# Production stage with pinned version
-FROM nginx:alpine
+# Production stage with specific version
+FROM nginx:1.25-alpine AS runtime
 
-# Create non-root user for nginx
+# Create non-root user and configure nginx in a single layer
 RUN addgroup -g 1001 appuser && \
     adduser -u 1001 -G appuser -D appuser && \
     # Set permissions for nginx directories
@@ -65,8 +62,11 @@ RUN chmod +x /docker-entrypoint.d/env.sh
 
 # Switch to non-root user
 USER appuser
-
 EXPOSE 80
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
 
 # Use exec form of CMD for proper signal handling
 CMD ["nginx", "-g", "daemon off;"]

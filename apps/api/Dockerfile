@@ -1,21 +1,15 @@
+# Build stage
 FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 
-# Install build dependencies
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    sqlite
+# Install build dependencies in a single layer
+RUN apk add --no-cache python3 make g++ sqlite && \
+    corepack enable && \
+    corepack prepare pnpm@10.7.0 --activate
 
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
-
-# Copy workspace config and root package files
+# Copy only package files first for better caching
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
-
-# Copy all package.json files from the monorepo
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
 COPY apps/api/package.json ./apps/api/
@@ -28,22 +22,20 @@ COPY packages/typescript-config ./packages/typescript-config
 COPY packages/libs ./packages/libs
 COPY apps/api ./apps/api
 
-# Fix TypeScript config to use relative path
-RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/..\/packages\/typescript-config\/base.json"/g' /app/apps/api/tsconfig.json
-
-# Build the application
+# Fix TypeScript config and build in one layer
 WORKDIR /app/apps/api
-RUN pnpm run build
+RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/..\/packages\/typescript-config\/base.json"/g' /app/apps/api/tsconfig.json && \
+    pnpm run build
 
-# Production stage
-FROM node:20-alpine AS runtime
+# Production stage - use specific version tag without SHA256
+FROM node:20.12-alpine AS runtime
 
-# Install SQLite
-RUN apk add --no-cache sqlite
-
-# Create non-root user
-RUN addgroup -g 1001 appuser && \
-    adduser -u 1001 -G appuser -D appuser
+# Install SQLite and set up user in a single layer
+RUN apk add --no-cache sqlite && \
+    addgroup -g 1001 appuser && \
+    adduser -u 1001 -G appuser -D appuser && \
+    mkdir -p /app/apps/api/data && \
+    chown -R appuser:appuser /app
 
 WORKDIR /app
 
@@ -53,29 +45,26 @@ COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/packages/typescript-config/package.json ./packages/typescript-config/
 COPY --from=builder /app/packages/libs/package.json ./packages/libs/
 
-# Temporarily modify package.json to remove husky prepare script
-RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json
-
 # Install production dependencies only
-RUN corepack enable && corepack prepare pnpm@10.7.0 --activate && \
+RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
+    corepack enable && \
+    corepack prepare pnpm@10.7.0 --activate && \
     HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
 
 # Copy built files
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/drizzle ./apps/api/drizzle
 
-# Create data directory with proper permissions
-RUN mkdir -p /app/apps/api/data && \
-    chown -R appuser:appuser /app
-
 # Set environment variables
 ENV NODE_ENV=production
 
 # Switch to non-root user
 USER appuser
-
 WORKDIR /app/apps/api
-
 EXPOSE 1337
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:1337/me || exit 1
 
 CMD ["node", "--enable-source-maps", "dist/index.js"]
