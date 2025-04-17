@@ -22,7 +22,7 @@ app.use(
   "*",
   cors({
     credentials: true,
-    origin: ["https://kaneo.app", "http://localhost:5173"],
+    origin: (origin) => origin || "*",
   }),
 );
 
