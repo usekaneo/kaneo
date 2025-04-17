@@ -16,7 +16,7 @@
 		"@oslojs/encoding": "^1.1.0",
 		"@paralleldrive/cuid2": "^2.2.2",
 		"better-sqlite3": "^11.8.1",
-		"drizzle-kit": "^0.30.2",
+		"drizzle-kit": "^0.31.0",
 		"drizzle-orm": "^0.41.0",
 		"drizzle-typebox": "^0.3.1",
 		"elysia": "1.2.25"
