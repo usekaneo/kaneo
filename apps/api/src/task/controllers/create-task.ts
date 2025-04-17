@@ -15,12 +15,12 @@ async function createTask({
   priority,
 }: {
   projectId: string;
-  userEmail: string | null;
-  title: string | null;
-  status: string | null;
-  dueDate: Date | null;
-  description: string | null;
-  priority: string | null;
+  userEmail?: string;
+  title: string;
+  status: string;
+  dueDate?: Date;
+  description?: string;
+  priority?: string;
 }) {
   const [assignee] = await db
     .select({ name: userTable.name })

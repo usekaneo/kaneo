@@ -32,7 +32,7 @@ const task = new Hono<{
         dueDate: z.string(),
         priority: z.string(),
         status: z.string(),
-        userEmail: z.string().nullable(),
+        userEmail: z.string().optional(),
       }),
     ),
     async (c) => {
@@ -71,8 +71,9 @@ const task = new Hono<{
         dueDate: z.string(),
         priority: z.string(),
         status: z.string(),
-        userEmail: z.string().nullable(),
+        projectId: z.string(),
         position: z.number(),
+        userEmail: z.string().optional(),
       }),
     ),
     async (c) => {
@@ -83,19 +84,21 @@ const task = new Hono<{
         dueDate,
         priority,
         status,
-        userEmail,
+        projectId,
         position,
+        userEmail,
       } = c.req.valid("json");
 
       const task = await updateTask(
         id,
-        userEmail ?? "",
         title,
         status,
         new Date(dueDate),
+        projectId,
         description,
         priority,
         position,
+        userEmail,
       );
 
       return c.json(task);

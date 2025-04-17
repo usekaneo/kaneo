@@ -5,13 +5,14 @@ import { taskTable } from "../../database/schema";
 
 async function updateTask(
   taskId: string,
-  userEmail: string,
   title: string,
   status: string,
   dueDate: Date,
-  description: string,
-  priority: string,
-  position: number,
+  projectId: string,
+  description?: string,
+  priority?: string,
+  position?: number,
+  userEmail?: string,
 ) {
   const [existingTask] = await db
     .select()
@@ -26,6 +27,8 @@ async function updateTask(
     });
   }
 
+  const userEmailToUpdate = userEmail?.length ? userEmail : null;
+
   const [updatedTask] = await db
     .update(taskTable)
     .set({
@@ -34,8 +37,9 @@ async function updateTask(
       status,
       dueDate,
       priority,
-      userEmail,
+      userEmail: userEmailToUpdate,
       position,
+      projectId,
     })
     .where(eq(taskTable.id, taskId))
     .returning();
