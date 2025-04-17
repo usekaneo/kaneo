@@ -37,14 +37,14 @@ jobs:
           password: ${{ secrets.GH_PACKAGE_TOKEN }}
 
       - name: Tag web image with :node
-        if: ${{ inputs.tag_web }}
+        if: ${{ inputs.tag_web || github.event_name == 'push' }}
         run: |
           docker pull ghcr.io/${{ github.repository_owner }}/web:latest
           docker tag ghcr.io/${{ github.repository_owner }}/web:latest ghcr.io/${{ github.repository_owner }}/web:node
           docker push ghcr.io/${{ github.repository_owner }}/web:node
 
       - name: Tag api image with :node
-        if: ${{ inputs.tag_api }}
+        if: ${{ inputs.tag_api || github.event_name == 'push' }}
         run: |
           docker pull ghcr.io/${{ github.repository_owner }}/api:latest
           docker tag ghcr.io/${{ github.repository_owner }}/api:latest ghcr.io/${{ github.repository_owner }}/api:node
