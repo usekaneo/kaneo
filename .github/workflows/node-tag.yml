@@ -11,6 +11,9 @@ on:
         description: 'Tag api image with :node'
         type: boolean
         default: true
+  push:
+    branches:
+      - feat/migrate-to-node-js
 
 env:
   REGISTRY: ghcr.io
