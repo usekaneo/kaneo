@@ -1,0 +1,48 @@
+name: Tag Docker images with :node tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_web:
+        description: 'Tag web image with :node'
+        type: boolean
+        default: true
+      tag_api:
+        description: 'Tag api image with :node'
+        type: boolean
+        default: true
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  tag-images:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGE_TOKEN }}
+
+      - name: Tag web image with :node
+        if: ${{ inputs.tag_web }}
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/web:latest
+          docker tag ghcr.io/${{ github.repository_owner }}/web:latest ghcr.io/${{ github.repository_owner }}/web:node
+          docker push ghcr.io/${{ github.repository_owner }}/web:node
+
+      - name: Tag api image with :node
+        if: ${{ inputs.tag_api }}
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/api:latest
+          docker tag ghcr.io/${{ github.repository_owner }}/api:latest ghcr.io/${{ github.repository_owner }}/api:node
+          docker push ghcr.io/${{ github.repository_owner }}/api:node
