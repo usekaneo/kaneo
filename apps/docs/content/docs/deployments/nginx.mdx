@@ -1,0 +1,214 @@
+---
+title: Nginx
+description: Deploy Kaneo with Nginx as a reverse proxy
+---
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+This guide explains how to deploy Kaneo using Nginx as a reverse proxy. This setup is ideal for production environments where you want to expose Kaneo through a domain name with HTTPS.
+
+## Prerequisites
+
+- A server with Docker and Docker Compose installed
+- A domain name pointing to your server
+- Basic knowledge of Nginx configuration
+
+<Steps>
+<Step>
+Create a `compose.yml` file with the following content:
+</Step>
+
+```yaml
+services:
+  backend:
+    image: ghcr.io/usekaneo/api:latest
+    environment:
+      JWT_ACCESS: "your_secure_jwt_token"
+      DB_PATH: "/app/apps/api/data/kaneo.db"
+    ports:
+      - "1337:1337"
+    restart: unless-stopped
+    volumes:
+      - sqlite_data:/app/apps/api/data
+
+  frontend:
+    image: ghcr.io/usekaneo/web:latest
+    environment:
+      KANEO_API_URL: "http://localhost:1337"
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+```
+
+<Step>
+Create a `nginx.conf` file with the following content in `/etc/nginx/sites-available/kaneo.conf`:
+</Step>
+
+```nginx
+server {
+  listen 80;
+  server_name your-domain.com;
+
+  location / {
+    proxy_pass http://localhost:5173;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+
+server {
+  listen 80;
+  server_name api.your-domain.com;
+
+  location / {
+    proxy_pass http://localhost:1337;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+```
+
+<Step>
+Start the containers:
+
+```bash
+docker compose up -d
+```
+</Step>
+
+<Step>
+Enable the configuration:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/kaneo.conf /etc/nginx/sites-enabled/
+```
+</Step>
+
+<Step>
+Test the configuration:
+
+```bash
+sudo nginx -t
+```
+</Step>
+
+<Step>
+Restart Nginx:
+
+```bash
+sudo systemctl restart nginx
+```
+</Step>
+
+<Step>
+Configure your DNS settings to point both `your-domain.com` and `api.your-domain.com` to your server's IP address.
+</Step>
+
+<Step>
+You should now be able to access Kaneo at `http://your-domain.com` and the API at `http://api.your-domain.com`. 🎉
+</Step>
+</Steps>
+
+## Alternative Configuration: Single Domain with Path-Based Routing
+
+If you prefer to use a single domain with path-based routing, you can use the following configuration:
+
+<Steps>
+<Step>
+Create a `compose.yml` file with the following content:
+</Step>
+
+```yaml
+services:
+  backend:
+    image: ghcr.io/usekaneo/api:latest
+    environment:
+      JWT_ACCESS: "your_secure_jwt_token"
+      DB_PATH: "/app/apps/api/data/kaneo.db"
+    ports:
+      - "1337:1337"
+    restart: unless-stopped
+    volumes:
+      - sqlite_data:/app/apps/api/data
+
+  frontend:
+    image: ghcr.io/usekaneo/web:latest
+    environment:
+      KANEO_API_URL: "http://your-domain.com/api"
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+```
+
+<Step>
+Create a `nginx.conf` file with the following content in `/etc/nginx/sites-available/kaneo.conf`:
+</Step>
+
+```nginx
+server {
+  listen 80;
+  server_name your-domain.com;
+
+  location / {
+    proxy_pass http://localhost:5173;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+
+  location /api/ {
+    proxy_pass http://localhost:1337/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+```
+
+<Step>
+Start the containers:
+
+```bash
+docker compose up -d
+```
+</Step>
+
+<Step>
+Enable the configuration:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/kaneo.conf /etc/nginx/sites-enabled/
+```
+</Step>
+
+<Step>
+Test the configuration:
+
+```bash
+sudo nginx -t
+```
+</Step>
+
+<Step>
+Restart Nginx:
+
+```bash
+sudo systemctl restart nginx
+```
+</Step>
+
+<Step>
+Configure your DNS settings to point `your-domain.com` to your server's IP address.
+</Step>
+
+<Step>
+You should now be able to access Kaneo at `http://your-domain.com` and the API will be accessible at `http://your-domain.com/api`. 🎉
+</Step>
+</Steps>

@@ -1,0 +1,244 @@
+---
+title: Kubernetes
+description: Deploy Kaneo on Kubernetes
+---
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+This guide explains how to deploy Kaneo on Kubernetes using our Helm chart. This setup is ideal for production environments where you need scalability and high availability.
+
+## Prerequisites
+
+- A Kubernetes cluster (v1.19+)
+- Helm 3 installed
+- `kubectl` configured to communicate with your cluster
+- Basic knowledge of Kubernetes and Helm
+
+<Steps>
+<Step>
+Clone the Kaneo repository:
+
+```bash
+git clone https://github.com/usekaneo/kaneo.git
+cd kaneo
+```
+</Step>
+
+<Step>
+Install the Helm chart with default values:
+
+```bash
+helm install kaneo ./charts/kaneo --namespace kaneo --create-namespace
+```
+</Step>
+
+<Step>
+Access Kaneo using port forwarding:
+
+```bash
+# Port forward to access both services
+kubectl port-forward svc/kaneo-web 5173:80 -n kaneo &
+kubectl port-forward svc/kaneo-api 1337:1337 -n kaneo &
+
+# Access the application at http://localhost:5173
+```
+</Step>
+</Steps>
+
+## Production Deployment with Ingress
+
+For production environments, you should expose Kaneo through an Ingress controller:
+
+<Steps>
+<Step>
+Create a values file named `kaneo-values.yaml`:
+
+```yaml
+api:
+  env:
+    jwtAccess: "your-secure-jwt-token"
+
+  # For production, consider setting resource limits
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+web:
+  env:
+    apiUrl: "https://your-domain.com"
+
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  hosts:
+    - host: your-domain.com
+      paths:
+        - path: /?(.*)
+          pathType: Prefix
+          service: web
+          port: 80
+        - path: /api/?(.*)
+          pathType: Prefix
+          service: api
+          port: 1337
+  tls:
+    - secretName: kaneo-tls
+      hosts:
+        - your-domain.com
+```
+</Step>
+
+<Step>
+Install the Helm chart with your custom values:
+
+```bash
+helm install kaneo ./charts/kaneo \
+  --namespace kaneo \
+  --create-namespace \
+  -f kaneo-values.yaml
+```
+</Step>
+
+<Step>
+Configure your DNS settings to point `your-domain.com` to your Ingress controller's external IP or load balancer.
+</Step>
+
+<Step>
+You should now be able to access Kaneo at `https://your-domain.com` and the API will be accessible at `https://your-domain.com/api`. 🎉
+</Step>
+</Steps>
+
+## Using Secrets for Sensitive Data
+
+For better security, you can store sensitive data like JWT tokens in Kubernetes Secrets:
+
+<Steps>
+<Step>
+Create a Secret for the JWT access token:
+
+```bash
+kubectl create secret generic kaneo-secrets \
+  --namespace kaneo \
+  --from-literal=jwt-access="your-secure-jwt-token"
+```
+</Step>
+
+<Step>
+Update your values file to use the Secret:
+
+```yaml
+api:
+  env:
+    existingSecret:
+      enabled: true
+      name: "kaneo-secrets"
+      key: "jwt-access"
+```
+</Step>
+
+<Step>
+Upgrade your Helm release:
+
+```bash
+helm upgrade kaneo ./charts/kaneo \
+  --namespace kaneo \
+  -f kaneo-values.yaml
+```
+</Step>
+</Steps>
+
+## Using Gateway API
+
+As an alternative to Ingress, you can use the Kubernetes Gateway API for more advanced routing capabilities:
+
+<Steps>
+<Step>
+Make sure the Gateway API is installed in your cluster.
+</Step>
+
+<Step>
+Create a file named `kaneo-gateway.yaml`:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: kaneo
+  namespace: kaneo
+spec:
+  parentRefs:
+  - name: main-gateway  # Your gateway name
+    namespace: gateway-system  # Your gateway namespace
+    sectionName: https
+  hostnames:
+  - "your-domain.com"
+  rules:
+  # Frontend route (root path)
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: kaneo-web
+      port: 80
+  # API route (api path prefix)
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api
+    backendRefs:
+    - name: kaneo-api
+      port: 1337
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+```
+</Step>
+
+<Step>
+Apply the Gateway configuration:
+
+```bash
+kubectl apply -f kaneo-gateway.yaml
+```
+</Step>
+</Steps>
+
+## Uninstalling
+
+To uninstall Kaneo from your Kubernetes cluster:
+
+```bash
+helm uninstall kaneo -n kaneo
+```
+
+This will remove all the Kubernetes components associated with the chart and delete the release.
+
+## Next Steps
+
+- Configure monitoring with Prometheus and Grafana
+- Set up automated backups for your SQLite database
+- Implement horizontal pod autoscaling for high availability
+```
