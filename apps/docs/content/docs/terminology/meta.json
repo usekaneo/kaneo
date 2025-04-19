@@ -1,0 +1,6 @@
+{
+	"title": "Terminology",
+	"icon": "Book",
+	"pages": ["index", "workspaces", "projects", "tasks", "teams"],
+	"defaultOpen": true
+}
