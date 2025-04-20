@@ -39,10 +39,8 @@ function generate(options: GenerateProps): ReactElement {
         width: "100%",
         height: "100%",
         display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        justifyContent: "flex-end",
-        padding: "60px",
+        alignItems: "center",
+        padding: "80px",
         position: "relative",
         overflow: "hidden",
       }}
@@ -51,16 +49,33 @@ function generate(options: GenerateProps): ReactElement {
       <div
         style={{
           position: "absolute",
-          top: "-50%",
-          right: "-25%",
-          width: "80%",
-          height: "150%",
+          top: "-30%",
+          right: "-20%",
+          width: "100%",
+          height: "160%",
           background:
-            "linear-gradient(to bottom right, rgb(99,102,241), rgb(129,140,248))",
-          opacity: 0.15,
+            "linear-gradient(135deg, rgb(99,102,241) 0%, rgb(129,140,248) 100%)",
+          opacity: 0.12,
           borderRadius: "30%",
           transform: "rotate(-12deg)",
-          filter: "blur(100px)",
+          filter: "blur(120px)",
+        }}
+      />
+
+      {/* Secondary Gradient */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "-40%",
+          left: "-20%",
+          width: "80%",
+          height: "140%",
+          background:
+            "linear-gradient(225deg, rgb(99,102,241) 0%, rgb(129,140,248) 100%)",
+          opacity: 0.08,
+          borderRadius: "30%",
+          transform: "rotate(12deg)",
+          filter: "blur(120px)",
         }}
       />
 
@@ -68,26 +83,26 @@ function generate(options: GenerateProps): ReactElement {
       <div
         style={{
           position: "absolute",
-          top: "60px",
-          left: "60px",
+          top: "80px",
+          left: "80px",
           display: "flex",
           alignItems: "center",
-          gap: "12px",
+          gap: "16px",
         }}
       >
         <div
           style={{
             background: "rgba(99,102,241,0.1)",
-            padding: "12px",
-            borderRadius: "12px",
+            padding: "16px",
+            borderRadius: "16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
           <svg
-            width="24"
-            height="24"
+            width="32"
+            height="32"
             viewBox="0 0 24 24"
             fill="none"
             stroke="rgb(99,102,241)"
@@ -104,9 +119,10 @@ function generate(options: GenerateProps): ReactElement {
         </div>
         <span
           style={{
-            fontSize: "24px",
+            fontSize: "32px",
             fontWeight: 600,
             color: primaryTextColor,
+            opacity: 0.9,
           }}
         >
           Kaneo
@@ -117,19 +133,23 @@ function generate(options: GenerateProps): ReactElement {
       <div
         style={{
           zIndex: 10,
-          maxWidth: "80%",
+          maxWidth: "85%",
           display: "flex",
           flexDirection: "column",
+          gap: "24px",
         }}
       >
         <h1
           style={{
-            fontSize: "64px",
-            fontWeight: 600,
-            color: primaryTextColor,
-            lineHeight: 1.2,
+            fontSize: description ? "72px" : "82px",
+            fontWeight: 700,
+            background:
+              "linear-gradient(to right, rgb(255,255,255), rgb(228,228,231))",
+            backgroundClip: "text",
+            color: "transparent",
+            lineHeight: 1.1,
+            letterSpacing: "-0.02em",
             margin: 0,
-            marginBottom: description ? "24px" : 0,
           }}
         >
           {title}
@@ -137,10 +157,12 @@ function generate(options: GenerateProps): ReactElement {
         {description && (
           <p
             style={{
-              fontSize: "32px",
+              fontSize: "36px",
               color: "rgb(161,161,170)",
               margin: 0,
               lineHeight: 1.4,
+              fontWeight: 400,
+              opacity: 0.9,
             }}
           >
             {description}
