@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type { ImageResponseOptions } from "next/dist/compiled/@vercel/og/types";
 import { ImageResponse } from "next/og";
 import type { ReactElement, ReactNode } from "react";
@@ -8,6 +9,9 @@ interface GenerateProps {
   primaryTextColor?: string;
   site?: string;
 }
+
+const font = readFileSync("./lib/fonts/Inter_18pt-Regular.ttf");
+const fontBold = readFileSync("./lib/fonts/Inter_18pt-Bold.ttf");
 
 export function generateOgImage(options: GenerateProps & ImageResponseOptions) {
   const { title, description, primaryTextColor, ...rest } = options;
@@ -21,6 +25,18 @@ export function generateOgImage(options: GenerateProps & ImageResponseOptions) {
     {
       width: 1200,
       height: 630,
+      fonts: [
+        {
+          name: "Inter",
+          data: font,
+          weight: 400,
+        },
+        {
+          name: "Inter",
+          data: fontBold,
+          weight: 700,
+        },
+      ],
       headers: new Headers({
         path: "/docs-og",
       }),
@@ -39,7 +55,8 @@ function generate(options: GenerateProps): ReactElement {
         width: "100%",
         height: "100%",
         display: "flex",
-        alignItems: "center",
+        flexDirection: "column",
+        justifyContent: "space-between",
         padding: "80px",
         position: "relative",
         overflow: "hidden",
@@ -49,60 +66,80 @@ function generate(options: GenerateProps): ReactElement {
       <div
         style={{
           position: "absolute",
-          top: "-30%",
-          right: "-20%",
-          width: "100%",
-          height: "160%",
+          top: "-20%",
+          right: "-10%",
+          width: "120%",
+          height: "140%",
           background:
             "linear-gradient(135deg, rgb(99,102,241) 0%, rgb(129,140,248) 100%)",
-          opacity: 0.12,
-          borderRadius: "30%",
+          opacity: 0.15,
           transform: "rotate(-12deg)",
-          filter: "blur(120px)",
+          filter: "blur(140px)",
         }}
       />
 
-      {/* Secondary Gradient */}
+      {/* Content */}
       <div
         style={{
-          position: "absolute",
-          bottom: "-40%",
-          left: "-20%",
-          width: "80%",
-          height: "140%",
-          background:
-            "linear-gradient(225deg, rgb(99,102,241) 0%, rgb(129,140,248) 100%)",
-          opacity: 0.08,
-          borderRadius: "30%",
-          transform: "rotate(12deg)",
-          filter: "blur(120px)",
+          zIndex: 10,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: "32px",
         }}
-      />
+      >
+        <h1
+          style={{
+            fontSize: "120px",
+            fontWeight: 800,
+            color: primaryTextColor,
+            lineHeight: 1,
+            letterSpacing: "-0.03em",
+            margin: 0,
+            fontFamily: "Inter",
+          }}
+        >
+          {title}
+        </h1>
+        {description && (
+          <p
+            style={{
+              fontSize: "48px",
+              color: "rgb(161,161,170)",
+              margin: 0,
+              lineHeight: 1.3,
+              fontWeight: 400,
+              maxWidth: "90%",
+              fontFamily: "Inter",
+            }}
+          >
+            {description}
+          </p>
+        )}
+      </div>
 
       {/* Logo */}
       <div
         style={{
-          position: "absolute",
-          top: "80px",
-          left: "80px",
           display: "flex",
           alignItems: "center",
-          gap: "16px",
+          gap: "20px",
+          zIndex: 10,
         }}
       >
         <div
           style={{
             background: "rgba(99,102,241,0.1)",
-            padding: "16px",
-            borderRadius: "16px",
+            padding: "20px",
+            borderRadius: "20px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
           <svg
-            width="32"
-            height="32"
+            width="40"
+            height="40"
             viewBox="0 0 24 24"
             fill="none"
             stroke="rgb(99,102,241)"
@@ -119,55 +156,15 @@ function generate(options: GenerateProps): ReactElement {
         </div>
         <span
           style={{
-            fontSize: "32px",
-            fontWeight: 600,
+            fontSize: "40px",
+            fontWeight: 700,
             color: primaryTextColor,
             opacity: 0.9,
+            fontFamily: "Inter",
           }}
         >
           Kaneo
         </span>
-      </div>
-
-      {/* Content */}
-      <div
-        style={{
-          zIndex: 10,
-          maxWidth: "85%",
-          display: "flex",
-          flexDirection: "column",
-          gap: "24px",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: description ? "72px" : "82px",
-            fontWeight: 700,
-            background:
-              "linear-gradient(to right, rgb(255,255,255), rgb(228,228,231))",
-            backgroundClip: "text",
-            color: "transparent",
-            lineHeight: 1.1,
-            letterSpacing: "-0.02em",
-            margin: 0,
-          }}
-        >
-          {title}
-        </h1>
-        {description && (
-          <p
-            style={{
-              fontSize: "36px",
-              color: "rgb(161,161,170)",
-              margin: 0,
-              lineHeight: 1.4,
-              fontWeight: 400,
-              opacity: 0.9,
-            }}
-          >
-            {description}
-          </p>
-        )}
       </div>
     </div>
   );
