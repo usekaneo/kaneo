@@ -27,6 +27,11 @@ import { toast } from "sonner";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 import TaskRowOverlay from "./task-row-overlay";
+import {
+  type SortDirection,
+  type SortField,
+  TaskSortControls,
+} from "./task-sort-controls";
 
 interface ListViewProps {
   project: Project | undefined;
@@ -51,6 +56,58 @@ function ListView({ project }: ListViewProps) {
   });
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<SortField>("createdAt");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  const handleSortChange = (field: SortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
+
+  const sortTasks = (tasks: Task[]) => {
+    return [...tasks].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortField) {
+        case "title":
+          comparison = a.title.localeCompare(b.title);
+          break;
+        case "dueDate": {
+          if (!a.dueDate && !b.dueDate) comparison = 0;
+          else if (!a.dueDate) comparison = 1;
+          else if (!b.dueDate) comparison = -1;
+          else {
+            const dateA = new Date(a.dueDate);
+            const dateB = new Date(b.dueDate);
+            comparison = dateA.getTime() - dateB.getTime();
+          }
+          break;
+        }
+        case "priority": {
+          if (!a.priority && !b.priority) comparison = 0;
+          else if (!a.priority) comparison = 1;
+          else if (!b.priority) comparison = -1;
+          else comparison = a.priority.localeCompare(b.priority);
+          break;
+        }
+        case "userEmail": {
+          if (!a.userEmail && !b.userEmail) comparison = 0;
+          else if (!a.userEmail) comparison = 1;
+          else if (!b.userEmail) comparison = -1;
+          else comparison = a.userEmail.localeCompare(b.userEmail);
+          break;
+        }
+        case "createdAt": {
+          const dateA = new Date(a.createdAt);
+          const dateB = new Date(b.createdAt);
+          comparison = dateA.getTime() - dateB.getTime();
+          break;
+        }
+      }
+
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -126,6 +183,8 @@ function ListView({ project }: ListViewProps) {
       },
     });
 
+    const sortedTasks = sortTasks(column.tasks);
+
     const handleArchiveTasks = () => {
       if (column.id !== "done") return;
 
@@ -196,8 +255,15 @@ function ListView({ project }: ListViewProps) {
 
         {expandedSections[column.id] && (
           <div ref={setNodeRef} className="min-h-[60px] rounded-lg">
+            <div className="mb-2">
+              <TaskSortControls
+                sortField={sortField}
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
+              />
+            </div>
             <SortableContext
-              items={column.tasks}
+              items={sortedTasks}
               strategy={verticalListSortingStrategy}
             >
               <motion.div
@@ -205,7 +271,7 @@ function ListView({ project }: ListViewProps) {
                 animate={{ opacity: 1 }}
                 className="space-y-1"
               >
-                {column.tasks.map((task) => (
+                {sortedTasks.map((task) => (
                   <TaskRow
                     key={task.id}
                     task={task}
@@ -213,7 +279,7 @@ function ListView({ project }: ListViewProps) {
                   />
                 ))}
 
-                {column.tasks.length === 0 && (
+                {sortedTasks.length === 0 && (
                   <div className="px-10 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg min-h-[60px] flex items-center justify-center">
                     No tasks in {column.name.toLowerCase()}
                   </div>
