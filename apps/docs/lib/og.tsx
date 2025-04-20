@@ -123,41 +123,34 @@ function generate(options: GenerateProps): ReactElement {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "20px",
+          gap: "16px",
           zIndex: 10,
+          background: "rgba(99,102,241,0.1)",
+          padding: "16px 24px",
+          borderRadius: "16px",
+          width: "fit-content",
         }}
       >
-        <div
-          style={{
-            background: "rgba(99,102,241,0.1)",
-            padding: "20px",
-            borderRadius: "20px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="rgb(99,102,241)"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="rgb(99,102,241)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <title>Kaneo Logo</title>
-            <rect width="7" height="7" x="3" y="3" rx="1" />
-            <rect width="7" height="7" x="14" y="3" rx="1" />
-            <rect width="7" height="7" x="14" y="14" rx="1" />
-            <rect width="7" height="7" x="3" y="14" rx="1" />
-          </svg>
-        </div>
+          <title>Kaneo Logo</title>
+          <rect width="7" height="7" x="3" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="14" rx="1" />
+          <rect width="7" height="7" x="3" y="14" rx="1" />
+        </svg>
         <span
           style={{
-            fontSize: "40px",
-            fontWeight: 700,
+            fontSize: "32px",
+            fontWeight: 600,
             color: primaryTextColor,
             opacity: 0.9,
             fontFamily: "Inter",
