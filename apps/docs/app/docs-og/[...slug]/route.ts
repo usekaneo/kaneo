@@ -14,7 +14,7 @@ export async function GET(
     primaryTextColor: "rgb(240,240,240)",
     title: page.data.title,
     description: page.data.description,
-    site: "https://kaneo.app",
+    site: "Kaneo",
   });
 }
 

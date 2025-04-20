@@ -1,4 +1,4 @@
-import { ImageResponse } from "next/dist/compiled/@vercel/og";
+import { ImageResponse } from "next/og";
 import type { ImageResponseOptions } from "next/dist/compiled/@vercel/og/types";
 import type { ReactElement, ReactNode } from "react";
 
@@ -21,6 +21,9 @@ export function generateOgImage(options: GenerateProps & ImageResponseOptions) {
     {
       width: 1200,
       height: 630,
+      headers: new Headers({
+        path: "/docs-og",
+      }),
       ...rest,
     },
   );
@@ -111,7 +114,14 @@ function generate(options: GenerateProps): ReactElement {
       </div>
 
       {/* Content */}
-      <div style={{ zIndex: 10, maxWidth: "80%" }}>
+      <div
+        style={{
+          zIndex: 10,
+          maxWidth: "80%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <h1
           style={{
             fontSize: "64px",
