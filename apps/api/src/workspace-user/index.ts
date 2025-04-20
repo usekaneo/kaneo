@@ -35,7 +35,7 @@ const workspaceUser = new Hono<{
     },
   )
   .get(
-    "/",
+    "/:workspaceId",
     zValidator("param", z.object({ workspaceId: z.string() })),
     async (c) => {
       const { workspaceId } = c.req.valid("param");

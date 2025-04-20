@@ -1,9 +1,24 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { workspaceUserTable } from "../../database/schema";
+import {
+  userTable,
+  workspaceTable,
+  workspaceUserTable,
+} from "../../database/schema";
 
 async function inviteWorkspaceUser(workspaceId: string, userEmail: string) {
+  const [workspace] = await db
+    .select()
+    .from(workspaceTable)
+    .where(eq(workspaceTable.id, workspaceId));
+
+  if (!workspace) {
+    throw new HTTPException(404, {
+      message: "Workspace not found",
+    });
+  }
+
   const [existingUser] = await db
     .select()
     .from(workspaceUserTable)

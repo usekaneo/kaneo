@@ -53,12 +53,7 @@ export const workspaceUserTable = sqliteTable("workspace_member", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  userEmail: text("user_email")
-    .notNull()
-    .references(() => userTable.email, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+  userEmail: text("user_email"),
   role: text("role").default("member").notNull(),
   joinedAt: integer("joined_at", { mode: "timestamp" })
     .default(new Date())
