@@ -10,8 +10,8 @@ interface GenerateProps {
   site?: string;
 }
 
-const font = readFileSync("./lib/fonts/Inter_18pt-Regular.ttf");
-const fontBold = readFileSync("./lib/fonts/Inter_18pt-Bold.ttf");
+const font = readFileSync("./lib/Inter_18pt-Regular.ttf");
+const fontBold = readFileSync("./lib/Inter_18pt-Bold.ttf");
 
 export function generateOgImage(options: GenerateProps & ImageResponseOptions) {
   const { title, description, primaryTextColor, ...rest } = options;
