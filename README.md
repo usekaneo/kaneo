@@ -57,7 +57,7 @@ services:
     environment:
       KANEO_API_URL: "http://localhost:1337"
     ports:
-      - 5173:80
+      - 5173:5173
     restart: unless-stopped
 
 volumes:
