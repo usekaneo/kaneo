@@ -19,23 +19,12 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  build-and-tag-images:
+  build-web:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - dockerfile: ./apps/web/Dockerfile
-            image: ghcr.io/${{ github.repository_owner }}/web
-            build_if: ${{ inputs.tag_web || github.event_name == 'push' }}
-          - dockerfile: ./apps/api/Dockerfile
-            image: ghcr.io/${{ github.repository_owner }}/api
-            build_if: ${{ inputs.tag_api || github.event_name == 'push' }}
+    if: ${{ inputs.tag_web || github.event_name == 'push' }}
     permissions:
       contents: read
       packages: write
-
-    if: ${{ matrix.build_if }}
 
     steps:
       - name: Checkout repository
@@ -54,13 +43,48 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PACKAGE_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push web image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: ./apps/web/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ matrix.image }}:node-new
+          tags: ghcr.io/${{ github.repository_owner }}/web:node-new
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-api:
+    runs-on: ubuntu-24.04
+    if: ${{ inputs.tag_api || github.event_name == 'push' }}
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGE_TOKEN }}
+
+      - name: Build and push api image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/api/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/api:node-new
           cache-from: type=gha
           cache-to: type=gha,mode=max
