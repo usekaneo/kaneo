@@ -96,6 +96,9 @@ importers:
       fumadocs-ui:
         specifier: 15.2.8
         version: 15.2.8(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(next@15.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@4.1.4)
+      lucide-react:
+        specifier: ^0.488.0
+        version: 0.488.0(react@19.1.0)
       motion:
         specifier: ^12.7.4
         version: 12.7.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
