@@ -128,7 +128,7 @@ function generate(options: GenerateProps): ReactElement {
           background: "rgba(99,102,241,0.1)",
           padding: "16px 24px",
           borderRadius: "16px",
-          width: "fit-content",
+          width: "auto",
         }}
       >
         <svg
