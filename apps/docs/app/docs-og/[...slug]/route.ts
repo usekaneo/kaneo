@@ -1,5 +1,5 @@
+import { generateOgImage } from "@/lib/og";
 import { source } from "@/lib/source";
-import { generateOGImage } from "fumadocs-ui/og";
 import { notFound } from "next/navigation";
 
 export async function GET(
@@ -10,11 +10,11 @@ export async function GET(
   const page = source.getPage(slug.slice(0, -1));
   if (!page) notFound();
 
-  return generateOGImage({
+  return generateOgImage({
     primaryTextColor: "rgb(240,240,240)",
     title: page.data.title,
     description: page.data.description,
-    site: "Kaneo",
+    site: "https://kaneo.app",
   });
 }
 
