@@ -1,14 +1,14 @@
-name: Tag Docker images with :node tag
+name: Tag Docker images with :node-new tag
 
 on:
   workflow_dispatch:
     inputs:
       tag_web:
-        description: 'Tag web image with :node'
+        description: 'Tag web image with :node-new'
         type: boolean
         default: true
       tag_api:
-        description: 'Tag api image with :node'
+        description: 'Tag api image with :node-new'
         type: boolean
         default: true
   push:
@@ -36,16 +36,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PACKAGE_TOKEN }}
 
-      - name: Tag web image with :node
+      - name: Tag web image with :node-new
         if: ${{ inputs.tag_web || github.event_name == 'push' }}
         run: |
           docker pull ghcr.io/${{ github.repository_owner }}/web:latest
-          docker tag ghcr.io/${{ github.repository_owner }}/web:latest ghcr.io/${{ github.repository_owner }}/web:node
-          docker push ghcr.io/${{ github.repository_owner }}/web:node
+          docker tag ghcr.io/${{ github.repository_owner }}/web:latest ghcr.io/${{ github.repository_owner }}/web:node-new
+          docker push ghcr.io/${{ github.repository_owner }}/web:node-new
 
-      - name: Tag api image with :node
+      - name: Tag api image with :node-new
         if: ${{ inputs.tag_api || github.event_name == 'push' }}
         run: |
           docker pull ghcr.io/${{ github.repository_owner }}/api:latest
-          docker tag ghcr.io/${{ github.repository_owner }}/api:latest ghcr.io/${{ github.repository_owner }}/api:node
-          docker push ghcr.io/${{ github.repository_owner }}/api:node
+          docker tag ghcr.io/${{ github.repository_owner }}/api:latest ghcr.io/${{ github.repository_owner }}/api:node-new
+          docker push ghcr.io/${{ github.repository_owner }}/api:node-new
