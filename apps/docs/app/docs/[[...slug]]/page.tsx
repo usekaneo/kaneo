@@ -48,11 +48,14 @@ export async function generateMetadata({
   ].join("/");
 
   return {
-    title: page.data.title,
+    title: `${page.data.title} | Kaneo`,
     description: page.data.description,
+    alternates: {
+      canonical: `/docs/${page.slugs.join("/")}`,
+    },
     openGraph: {
       images: image,
-      title: page.data.title,
+      title: `${page.data.title} | Kaneo`,
       description: page.data.description,
       url: `/docs/${page.slugs.join("/")}`,
       siteName: "Kaneo",
@@ -62,7 +65,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       images: image,
-      title: page.data.title,
+      title: `${page.data.title} | Kaneo`,
       description: page.data.description,
       creator: "@aacevski",
       site: "https://kaneo.app",
