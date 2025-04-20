@@ -41,11 +41,9 @@ export async function generateMetadata({
   const page = source.getPage(slug);
   if (!page) notFound();
 
-  const image = [
-    "https://usekaneo.github.io/kaneo/docs-og",
-    ...slug,
-    "image.png",
-  ].join("/");
+  const image = ["https://docs.kaneo.app/docs-og", ...slug, "image.png"].join(
+    "/",
+  );
 
   return {
     title: `${page.data.title} | Kaneo`,
