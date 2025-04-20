@@ -9,6 +9,7 @@ async function getWorkspaces(userEmail: string) {
       name: workspaceTable.name,
       ownerEmail: workspaceTable.ownerEmail,
       createdAt: workspaceTable.createdAt,
+      description: workspaceTable.description,
     })
     .from(workspaceTable)
     .leftJoin(
@@ -21,7 +22,12 @@ async function getWorkspaces(userEmail: string) {
         eq(workspaceUserTable.userEmail, userEmail),
       ),
     )
-    .groupBy(workspaceTable.id, workspaceTable.name, workspaceTable.ownerEmail);
+    .groupBy(
+      workspaceTable.id,
+      workspaceTable.name,
+      workspaceTable.ownerEmail,
+      workspaceTable.description,
+    );
 
   return workspaces;
 }
