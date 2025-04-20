@@ -131,6 +131,7 @@ function generate(options: GenerateProps): ReactElement {
           width: "auto",
         }}
       >
+        {/* biome-ignore lint/a11y/noSvgWithoutTitle: It goes over the logo */}
         <svg
           width="32"
           height="32"
@@ -141,7 +142,6 @@ function generate(options: GenerateProps): ReactElement {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <title>Kaneo Logo</title>
           <rect width="7" height="7" x="3" y="3" rx="1" />
           <rect width="7" height="7" x="14" y="3" rx="1" />
           <rect width="7" height="7" x="14" y="14" rx="1" />
