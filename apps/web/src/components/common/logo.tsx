@@ -1,7 +1,7 @@
+import useProjectStore from "@/store/project";
+import useWorkspaceStore from "@/store/workspace";
 import { Link } from "@tanstack/react-router";
 import { LayoutGrid } from "lucide-react";
-import useWorkspaceStore from "@/store/workspace";
-import useProjectStore from "@/store/project";
 
 interface LogoProps {
   className?: string;

@@ -1,2 +1,1 @@
-bun x biome ci .
-bun x turbo run build
+pnpm dlx @biomejs/biome ci .
