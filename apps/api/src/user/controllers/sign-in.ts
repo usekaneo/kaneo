@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import db from "../../database";
 
 async function signIn(email: string, password: string) {
@@ -9,11 +10,7 @@ async function signIn(email: string, password: string) {
     throw new Error("User not found");
   }
 
-  const isPasswordValid = await Bun.password.verify(
-    password,
-    user.password,
-    "bcrypt",
-  );
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     throw new Error("Invalid credentials");

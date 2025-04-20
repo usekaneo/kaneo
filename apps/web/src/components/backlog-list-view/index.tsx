@@ -2,7 +2,8 @@ import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import toKebabCase from "@/lib/to-kebab-case";
 import useProjectStore from "@/store/project";
-import type { Column, Project, Task } from "@/types/project";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 import {
   DndContext,
   type DragEndEvent,
@@ -29,7 +30,7 @@ import CreateTaskModal from "../shared/modals/create-task-modal";
 import BacklogTaskRow from "./backlog-task-row";
 
 interface BacklogListViewProps {
-  project?: Project;
+  project?: ProjectWithTasks;
 }
 
 function BacklogListView({ project }: BacklogListViewProps) {
@@ -86,10 +87,12 @@ function BacklogListView({ project }: BacklogListViewProps) {
         status: targetColumnId,
       });
 
-      const updatedProject = produce(project, (draft) => {
+      const updatedProject = produce(project, (draft: ProjectWithTasks) => {
         if (task.status === "planned" && targetColumnId === "archived") {
           if (draft.plannedTasks) {
-            const index = draft.plannedTasks.findIndex((t) => t.id === task.id);
+            const index = draft.plannedTasks.findIndex(
+              (t: Task) => t.id === task.id,
+            );
             if (index !== -1) {
               const [removedTask] = draft.plannedTasks.splice(index, 1);
               if (draft.archivedTasks) {
@@ -103,7 +106,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
         } else if (task.status === "archived" && targetColumnId === "planned") {
           if (draft.archivedTasks) {
             const index = draft.archivedTasks.findIndex(
-              (t) => t.id === task.id,
+              (t: Task) => t.id === task.id,
             );
             if (index !== -1) {
               const [removedTask] = draft.archivedTasks.splice(index, 1);
@@ -123,13 +126,15 @@ function BacklogListView({ project }: BacklogListViewProps) {
             targetColumnId === "done")
         ) {
           if (task.status === "planned" && draft.plannedTasks) {
-            const index = draft.plannedTasks.findIndex((t) => t.id === task.id);
+            const index = draft.plannedTasks.findIndex(
+              (t: Task) => t.id === task.id,
+            );
             if (index !== -1) {
               draft.plannedTasks.splice(index, 1);
             }
           } else if (task.status === "archived" && draft.archivedTasks) {
             const index = draft.archivedTasks.findIndex(
-              (t) => t.id === task.id,
+              (t: Task) => t.id === task.id,
             );
             if (index !== -1) {
               draft.archivedTasks.splice(index, 1);
@@ -137,12 +142,15 @@ function BacklogListView({ project }: BacklogListViewProps) {
           }
 
           const targetColumn = draft.columns?.find(
-            (col) => col.id === targetColumnId,
+            (col: ProjectWithTasks["columns"][number]) =>
+              col.id === targetColumnId,
           );
           if (targetColumn) {
             targetColumn.tasks.push({
               ...task,
               status: targetColumnId,
+              assigneeName: task.userEmail,
+              assigneeEmail: task.userEmail,
             });
           }
         }
@@ -162,7 +170,11 @@ function BacklogListView({ project }: BacklogListViewProps) {
     }));
   };
 
-  function ColumnSection({ column }: { column: Column }) {
+  function ColumnSection({
+    column,
+  }: {
+    column: ProjectWithTasks["columns"][number];
+  }) {
     const { setNodeRef } = useDroppable({
       id: column.id,
       data: {
@@ -209,17 +221,19 @@ function BacklogListView({ project }: BacklogListViewProps) {
                 className="space-y-1 p-2"
               >
                 {column.tasks.length > 0 ? (
-                  column.tasks.map((task) => (
+                  column.tasks.map((task: Task) => (
                     <BacklogTaskRow key={task.id} task={task} />
                   ))
                 ) : (
                   <div className="p-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                    {/* @ts-expect-error */}
                     No {column.id === "planned" ? "planned" : "archived"} tasks
                   </div>
                 )}
               </motion.div>
             </SortableContext>
 
+            {/* @ts-expect-error */}
             {column.id === "planned" && (
               <button
                 type="button"
@@ -250,7 +264,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
       onDragEnd={handleDragEnd}
     >
       <div className="w-full h-full p-4 space-y-4">
-        {project.columns.map((column) => (
+        {project.columns.map((column: ProjectWithTasks["columns"][number]) => (
           <ColumnSection key={column.id} column={column} />
         ))}
       </div>

@@ -1,9 +1,9 @@
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
-import type { Task } from "@/types/project";
+import type Task from "@/types/task";
 import { Flag } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -26,9 +26,9 @@ function TaskInfo({
   setIsSaving: (isSaving: boolean) => void;
 }) {
   const { project } = useProjectStore();
-  const { data: workspaceUsers } = useActiveWorkspaceUsers(
-    project?.workspaceId || "",
-  );
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
+    workspaceId: project?.workspaceId ?? "",
+  });
   const { mutateAsync: updateTask } = useUpdateTask();
 
   const form = useForm<z.infer<typeof taskInfoSchema>>({
@@ -36,7 +36,7 @@ function TaskInfo({
       status: task?.status || "",
       userEmail: task?.userEmail || "",
       priority: task?.priority || "",
-      dueDate: task?.dueDate || new Date(),
+      dueDate: task?.dueDate ? new Date(task.dueDate) : new Date(),
     },
   });
 
@@ -50,7 +50,7 @@ function TaskInfo({
         userEmail: data.userEmail,
         status: data.status || "",
         priority: data.priority || "",
-        dueDate: data.dueDate || new Date(),
+        dueDate: data.dueDate.toISOString(),
         projectId: project?.id || "",
       });
       toast.success("Task updated successfully");
@@ -115,8 +115,8 @@ function TaskInfo({
                     label: "Unassigned",
                   },
                   ...(workspaceUsers?.map((user) => ({
-                    value: user.user?.email ?? "",
-                    label: user.user?.name ?? "",
+                    value: user.userEmail ?? "",
+                    label: user.userName ?? "",
                   })) || []),
                 ]}
               />

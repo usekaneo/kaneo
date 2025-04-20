@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceTable } from "../../database/schema";
 
@@ -20,7 +21,9 @@ async function deleteWorkspace(userEmail: string, workspaceId: string) {
   const isWorkspaceExisting = Boolean(existingWorkspace);
 
   if (!isWorkspaceExisting) {
-    throw new Error("Workspace not found or access denied");
+    throw new HTTPException(404, {
+      message: "Workspace not found",
+    });
   }
 
   const [deletedWorkspace] = await db

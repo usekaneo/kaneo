@@ -1,3 +1,5 @@
+import bcrypt from "bcrypt";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
@@ -7,7 +9,9 @@ async function signUp(email: string, password: string, name: string) {
   const { allowRegistration, isDemoMode } = getSettings();
 
   if (!allowRegistration && !isDemoMode) {
-    throw new Error("Registration is disabled on this instance");
+    throw new HTTPException(400, {
+      message: "Registration is disabled on this instance",
+    });
   }
 
   const isEmailTaken = Boolean(
@@ -17,12 +21,12 @@ async function signUp(email: string, password: string, name: string) {
   );
 
   if (isEmailTaken) {
-    throw new Error("Email taken");
+    throw new HTTPException(400, {
+      message: "Email taken",
+    });
   }
 
-  const hashedPassword = await Bun.password.hash(password, {
-    algorithm: "bcrypt",
-  });
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = (
     await db
@@ -32,7 +36,9 @@ async function signUp(email: string, password: string, name: string) {
   ).at(0);
 
   if (!user) {
-    throw new Error("Failed to create an account");
+    throw new HTTPException(500, {
+      message: "Failed to create an account",
+    });
   }
 
   publishEvent("user.signed_up", {

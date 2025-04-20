@@ -1,23 +1,24 @@
-import type { Task } from "@/types/project";
-import { api } from "@kaneo/libs";
+import type Task from "@/types/task";
+import { client } from "@kaneo/libs";
 
 async function updateTask(taskId: string, task: Task) {
-  const response = await api.task({ taskId }).update.put({
-    userEmail: task.userEmail || "",
-    title: task.title,
-    description: task.description || "",
-    status: task.status,
-    projectId: task.projectId,
-    priority: task.priority || "",
-    dueDate: task.dueDate || new Date(),
-    position: task.position || 0,
+  const response = await client.task[":id"].$put({
+    param: { id: taskId },
+    json: {
+      userEmail: task.userEmail || "",
+      title: task.title,
+      description: task.description || "",
+      status: task.status,
+      priority: task.priority || "",
+      dueDate: task.dueDate?.toString() || new Date().toString(),
+      position: task.position || 0,
+      projectId: task.projectId,
+    },
   });
 
-  if (response.status !== 200) {
-    throw new Error("Failed to update task");
-  }
+  const data = await response.json();
 
-  return response.data;
+  return data;
 }
 
 export default updateTask;

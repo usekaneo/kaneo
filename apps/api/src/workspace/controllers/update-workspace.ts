@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceTable } from "../../database/schema";
 
@@ -25,10 +26,12 @@ async function updateWorkspace(
   const isWorkspaceExisting = Boolean(existingWorkspace);
 
   if (!isWorkspaceExisting) {
-    throw new Error("Workspace doesn't exist");
+    throw new HTTPException(404, {
+      message: "Workspace not found",
+    });
   }
 
-  const updatedWorkspace = await db
+  const [updatedWorkspace] = await db
     .update(workspaceTable)
     .set({
       name,
@@ -43,7 +46,7 @@ async function updateWorkspace(
       createdAt: workspaceTable.createdAt,
     });
 
-  return updatedWorkspace.at(0);
+  return updatedWorkspace;
 }
 
 export default updateWorkspace;

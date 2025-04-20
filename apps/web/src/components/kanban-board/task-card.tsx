@@ -1,7 +1,7 @@
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
-import type { Task } from "@/types/project";
+import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";

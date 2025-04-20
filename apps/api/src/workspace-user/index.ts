@@ -1,79 +1,141 @@
-import Elysia, { t } from "elysia";
-import { requireWorkspacePermission } from "../middleware/check-permissions";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { z } from "zod";
+import { subscribeToEvent } from "../events";
+import createRootWorkspaceUser from "./controllers/create-root-workspace-user";
 import deleteWorkspaceUser from "./controllers/delete-workspace-user";
+import getActiveWorkspaceUsers from "./controllers/get-active-workspace-users";
 import getWorkspaceUsers from "./controllers/get-workspace-users";
 import inviteWorkspaceUser from "./controllers/invite-workspace-user";
-import "./events";
-import getActiveWorkspaceUsers from "./controllers/get-active-workspace-users";
+import updateWorkspaceUser from "./controllers/update-workspace-user";
 
-const workspaceUser = new Elysia({ prefix: "/workspace-user" })
-  .state("userEmail", "")
-  .get(
-    "/list/:workspaceId",
-    async ({ params: { workspaceId } }) => {
-      const workspaceUsersInWorkspace = await getWorkspaceUsers({
-        workspaceId,
-      });
-
-      return workspaceUsersInWorkspace;
-    },
-    {
-      params: t.Object({
-        workspaceId: t.String(),
+const workspaceUser = new Hono<{
+  Variables: {
+    userEmail: string;
+  };
+}>()
+  .post(
+    "/root",
+    zValidator(
+      "json",
+      z.object({
+        workspaceId: z.string(),
+        userEmail: z.string(),
       }),
+    ),
+    async (c) => {
+      const { workspaceId, userEmail } = c.req.valid("json");
+
+      const workspaceUser = await createRootWorkspaceUser(
+        workspaceId,
+        userEmail,
+      );
+
+      return c.json(workspaceUser);
     },
   )
-  .use(requireWorkspacePermission("member"))
+  .get(
+    "/:workspaceId",
+    zValidator("param", z.object({ workspaceId: z.string() })),
+    async (c) => {
+      const { workspaceId } = c.req.valid("param");
+
+      const workspaceUsers = await getWorkspaceUsers(workspaceId);
+
+      return c.json(workspaceUsers);
+    },
+  )
+  .delete(
+    "/:workspaceId",
+    zValidator("param", z.object({ workspaceId: z.string() })),
+    zValidator("query", z.object({ userEmail: z.string() })),
+    async (c) => {
+      const { workspaceId } = c.req.valid("param");
+      const { userEmail } = c.req.valid("query");
+
+      const deletedWorkspaceUser = await deleteWorkspaceUser(
+        workspaceId,
+        userEmail,
+      );
+
+      return c.json(deletedWorkspaceUser);
+    },
+  )
+  .put(
+    "/:userEmail",
+    zValidator("param", z.object({ userEmail: z.string() })),
+    zValidator("json", z.object({ status: z.string() })),
+    async (c) => {
+      const { userEmail } = c.req.valid("param");
+      const { status } = c.req.valid("json");
+
+      const updatedWorkspaceUser = await updateWorkspaceUser(userEmail, status);
+
+      return c.json(updatedWorkspaceUser);
+    },
+  )
+  .get(
+    "/:workspaceId/active",
+    zValidator("param", z.object({ workspaceId: z.string() })),
+    async (c) => {
+      const { workspaceId } = c.req.valid("param");
+
+      const activeWorkspaceUsers = await getActiveWorkspaceUsers(workspaceId);
+
+      return c.json(activeWorkspaceUsers);
+    },
+  )
   .post(
     "/:workspaceId/invite",
-    async ({ params: { workspaceId }, body: { userEmail } }) => {
-      const invitedUser = await inviteWorkspaceUser({
-        workspaceId,
-        userEmail,
-      });
-      return invitedUser;
-    },
-    {
-      body: t.Object({
-        workspaceId: t.String(),
-        userEmail: t.String(),
-      }),
-    },
-  )
-  .use(requireWorkspacePermission("owner"))
-  .delete(
-    "/:workspaceId/:userEmail",
-    async ({ params: { workspaceId, userEmail } }) => {
-      const deletedUser = await deleteWorkspaceUser({
-        workspaceId,
-        userEmail,
-      });
-      return deletedUser;
-    },
-    {
-      params: t.Object({
-        workspaceId: t.String(),
-        userEmail: t.String(),
-      }),
-    },
-  )
-  .get("/:workspaceId/active", async ({ params: { workspaceId } }) => {
-    const activeWorkspaceUsers = await getActiveWorkspaceUsers(workspaceId);
+    zValidator("param", z.object({ workspaceId: z.string() })),
+    zValidator("json", z.object({ userEmail: z.string() })),
+    async (c) => {
+      const { workspaceId } = c.req.valid("param");
+      const { userEmail } = c.req.valid("json");
 
-    return activeWorkspaceUsers;
-  })
-  .onError(({ code, error }) => {
-    switch (code) {
-      case "VALIDATION":
-        return error.all;
-      default:
-        if (error instanceof Error) {
-          return {
-            name: error.name,
-            message: error.message,
-          };
-        }
+      const workspaceUser = await inviteWorkspaceUser(workspaceId, userEmail);
+
+      return c.json(workspaceUser);
+    },
+  )
+  .delete(
+    "/:workspaceId/invite/:userEmail",
+    zValidator(
+      "param",
+      z.object({ workspaceId: z.string(), userEmail: z.string() }),
+    ),
+    async (c) => {
+      const { workspaceId, userEmail } = c.req.valid("param");
+
+      const deletedWorkspaceUser = await deleteWorkspaceUser(
+        workspaceId,
+        userEmail,
+      );
+
+      return c.json(deletedWorkspaceUser);
+    },
+  );
+
+subscribeToEvent("user.signed_up", async ({ email }: { email: string }) => {
+  if (!email) {
+    return;
+  }
+
+  await updateWorkspaceUser(email, "active");
+});
+
+subscribeToEvent(
+  "workspace.created",
+  async ({
+    workspaceId,
+    ownerEmail,
+  }: { workspaceId: string; ownerEmail: string }) => {
+    if (!workspaceId || !ownerEmail) {
+      return;
     }
-  });
+
+    await createRootWorkspaceUser(workspaceId, ownerEmail);
+  },
+);
 
 export default workspaceUser;

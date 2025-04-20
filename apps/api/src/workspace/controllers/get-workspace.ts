@@ -1,4 +1,5 @@
 import { and, eq, or } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceTable, workspaceUserTable } from "../../database/schema";
 
@@ -26,6 +27,14 @@ async function getWorkspace(userEmail: string, workspaceId: string) {
       ),
     )
     .limit(1);
+
+  const isWorkspaceExisting = Boolean(existingWorkspace);
+
+  if (!isWorkspaceExisting) {
+    throw new HTTPException(404, {
+      message: "Workspace not found",
+    });
+  }
 
   return existingWorkspace;
 }

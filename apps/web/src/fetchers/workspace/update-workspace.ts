@@ -1,25 +1,24 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
+
+type UpdateWorkspaceRequest = InferRequestType<
+  (typeof client.workspace)[":id"]["$put"]
+>["param"] &
+  InferRequestType<(typeof client.workspace)[":id"]["$put"]>["json"];
 
 const updateWorkspace = async ({
-  workspaceId,
-  userEmail,
+  id,
   name,
   description,
-}: {
-  workspaceId: string;
-  userEmail: string;
-  name: string;
-  description: string;
-}) => {
-  const response = await api
-    .workspace({ id: workspaceId })
-    .put({ name, description }, { headers: { "x-user-email": userEmail } });
+}: UpdateWorkspaceRequest) => {
+  const response = await client.workspace[":id"].$put({
+    param: { id },
+    json: { name, description },
+  });
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+  const workspace = await response.json();
 
-  return response.data;
+  return workspace;
 };
 
 export default updateWorkspace;

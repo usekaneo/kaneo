@@ -1,5 +1,5 @@
 import updateTask from "@/fetchers/task/update-task";
-import type { Task } from "@/types/project";
+import type Task from "@/types/task";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 function useUpdateTask() {

@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { priorityColorsFilter } from "@/constants/priority-colors";
-import useActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -36,7 +36,9 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
   const [selectedDueDate, setSelectedDueDate] = useState<string | null>(null);
   const { viewMode, setViewMode } = useUserPreferencesStore();
 
-  const { data: users } = useActiveWorkspaceUsers(project?.workspaceId ?? "");
+  const { data: users } = useGetActiveWorkspaceUsers({
+    workspaceId: project?.workspaceId ?? "",
+  });
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
@@ -174,19 +176,17 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
                 {users?.map((user) => (
                   <button
                     type="button"
-                    key={user?.user?.email}
-                    onClick={() =>
-                      handleAssigneeChange(user?.user?.email ?? null)
-                    }
+                    key={user.userEmail}
+                    onClick={() => handleAssigneeChange(user.userEmail ?? null)}
                     className={cn(
                       "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors",
-                      selectedAssignee === user?.user?.email
+                      selectedAssignee === user.userEmail
                         ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
                         : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
                     )}
                   >
                     <UserIcon className="w-3.5 h-3.5" />
-                    <span>{user?.user?.name}</span>
+                    <span>{user.userName}</span>
                   </button>
                 ))}
 
@@ -290,8 +290,8 @@ function BoardFilters({ onFiltersChange }: BoardFiltersProps) {
             >
               <UserIcon className="w-3 h-3" />
               <span>
-                {users?.find((u) => u.user?.email === selectedAssignee)?.user
-                  ?.name || "Unassigned"}
+                {users?.find((u) => u.userEmail === selectedAssignee)
+                  ?.userName || "Unassigned"}
               </span>
               <X className="w-3 h-3 ml-1 text-zinc-400" />
             </button>

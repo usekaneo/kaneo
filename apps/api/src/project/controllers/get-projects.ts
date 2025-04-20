@@ -21,7 +21,12 @@ async function getProjects(workspaceId: string) {
     .leftJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
     .where(and(eq(projectTable.workspaceId, workspaceId)));
 
-  return projects;
+  return projects.map((project) => ({
+    ...project,
+    columns: [],
+    plannedTasks: [],
+    archivedTasks: [],
+  }));
 }
 
 export default getProjects;

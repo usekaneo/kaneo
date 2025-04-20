@@ -1,105 +1,103 @@
-import path from "node:path";
-import { cors } from "@elysiajs/cors";
-import { cron } from "@elysiajs/cron";
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
-import { Elysia } from "elysia";
+import { serve } from "@hono/node-server";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { Hono } from "hono";
+import { getCookie } from "hono/cookie";
+import { cors } from "hono/cors";
 import activity from "./activity";
 import db from "./database";
+import { auth } from "./middlewares/auth";
 import project from "./project";
 import task from "./task";
 import user from "./user";
-import { validateSessionToken } from "./user/controllers/validate-session-token";
-import purgeData from "./utils/purge-demo-data";
+import { validateSessionToken } from "./user/utils/validate-session-token";
 import setDemoUser from "./utils/set-demo-user";
 import workspace from "./workspace";
 import workspaceUser from "./workspace-user";
 
+const app = new Hono<{ Variables: { userEmail: string } }>();
+
 const isDemoMode = process.env.DEMO_MODE === "true";
 
-const app = new Elysia()
-  .state("userEmail", "")
-  .use(cors())
-  .use(user)
-  .use(
-    cron({
-      name: "purge-demo-data",
-      pattern: "30 * * * *",
-      run: async () => {
-        const isDemoMode = process.env.DEMO_MODE === "true";
+app.use(
+  "*",
+  cors({
+    credentials: true,
+    origin: (origin) => origin || "*",
+  }),
+);
 
-        if (isDemoMode) {
-          console.log("Purging demo data");
-          await purgeData();
-        }
-      },
-    }),
-  )
-  .guard({
-    async beforeHandle({ store, cookie: { session }, set }) {
-      if (isDemoMode) {
-        if (!session?.value) {
-          await setDemoUser(set);
-        }
+const userRoute = app.route("/user", user);
 
-        const { user, session: validatedSession } = await validateSessionToken(
-          session.value ?? "",
-        );
+app.use("*", auth);
 
-        if (!user || !validatedSession) {
-          await setDemoUser(set);
-        }
+app.use("*", async (c, next) => {
+  if (isDemoMode) {
+    const session = getCookie(c, "session");
 
-        store.userEmail = user?.email ?? "";
-      } else {
-        if (!session?.value) {
-          return { user: null };
-        }
-
-        const { user, session: validatedSession } = await validateSessionToken(
-          session.value,
-        );
-
-        if (!user || !validatedSession) {
-          return { user: null };
-        }
-
-        store.userEmail = user.email;
-      }
-    },
-  })
-  .get("/me", async ({ cookie: { session } }) => {
-    const { user } = await validateSessionToken(session.value ?? "");
-
-    if (user === null) {
-      return { user: null };
+    if (!session) {
+      await setDemoUser(c);
     }
 
-    return { user };
-  })
-  .use(workspace)
-  .use(project)
-  .use(task)
-  .use(workspaceUser)
-  .use(activity)
-  .onError(({ code, error }) => {
-    switch (code) {
-      case "VALIDATION":
-        return error.all;
-      default:
-        if (error instanceof Error) {
-          return {
-            name: error.name,
-            message: error.message,
-          };
-        }
+    const { user, session: validatedSession } = await validateSessionToken(
+      session ?? "",
+    );
+
+    if (!user || !validatedSession) {
+      await setDemoUser(c);
     }
-  })
-  .listen(1337);
 
-export type App = typeof app;
+    c.set("userEmail", user?.email ?? "");
+  }
 
-migrate(db, {
-  migrationsFolder: path.join(__dirname, "../drizzle"),
+  await next();
 });
 
-console.log(`🏃 Kaneo is running at ${app.server?.url}`);
+const meRoute = app.get("/me", async (c) => {
+  const session = getCookie(c, "session");
+
+  if (!session) {
+    return c.json({ user: null });
+  }
+
+  const { user } = await validateSessionToken(session);
+
+  if (user === null) {
+    return c.json({ user: null });
+  }
+
+  return c.json({ user });
+});
+
+const workspaceRoute = app.route("/workspace", workspace);
+const workspaceUserRoute = app.route("/workspace-user", workspaceUser);
+const projectRoute = app.route("/project", project);
+const taskRoute = app.route("/task", task);
+const activityRoute = app.route("/activity", activity);
+
+try {
+  console.log("Migrating database...");
+  migrate(db, {
+    migrationsFolder: `${process.cwd()}/drizzle`,
+  });
+} catch (error) {
+  console.error(error);
+}
+
+serve(
+  {
+    fetch: app.fetch,
+    port: 1337,
+  },
+  (info) => {
+    console.log(`🏃 Hono API is running at http://localhost:${info.port}`);
+  },
+);
+
+export type AppType =
+  | typeof userRoute
+  | typeof workspaceRoute
+  | typeof workspaceUserRoute
+  | typeof projectRoute
+  | typeof taskRoute
+  | typeof activityRoute
+  | typeof meRoute;

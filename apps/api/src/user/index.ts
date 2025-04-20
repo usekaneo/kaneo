@@ -1,95 +1,71 @@
-import { jwt } from "@elysiajs/jwt";
-import { Elysia, t } from "elysia";
-import createSession from "./controllers/create-session";
-import invalidateSession from "./controllers/invalidate-session";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { z } from "zod";
 import signIn from "./controllers/sign-in";
 import signUp from "./controllers/sign-up";
+import createSession from "./utils/create-session";
 import generateSessionToken from "./utils/generate-session-token";
+import invalidateSession from "./utils/invalidate-session";
 import isInSecureMode from "./utils/is-in-secure-mode";
 
-const user = new Elysia({ prefix: "/user" })
-  .use(
-    jwt({
-      name: "sessionToken",
-      secret: process.env.JWT_ACCESS ?? "",
-    }),
-  )
+const user = new Hono()
   .post(
     "/sign-in",
-    async ({ body: { email, password }, set, request }) => {
+    zValidator("json", z.object({ email: z.string(), password: z.string() })),
+    async (c) => {
+      const { email, password } = c.req.valid("json");
+
       const user = await signIn(email, password);
 
       const token = generateSessionToken();
       const session = await createSession(token, user.id);
-      set.cookie = {
-        session: {
-          value: token,
-          httpOnly: true,
-          path: "/",
-          secure: isInSecureMode(request),
-          sameSite: "lax",
-          expires: session.expiresAt,
-        },
-      };
 
-      return user;
-    },
-    {
-      body: t.Object({
-        email: t.String(),
-        password: t.String(),
-      }),
+      setCookie(c, "session", token, {
+        path: "/",
+        secure: isInSecureMode(c.req),
+        sameSite: "lax",
+        expires: session.expiresAt,
+      });
+
+      return c.json(user);
     },
   )
   .post(
     "/sign-up",
-    async ({ body: { email, password, name }, set, request }) => {
-      const user = await signUp(email, password, name);
+    zValidator(
+      "json",
+      z.object({ email: z.string(), password: z.string(), name: z.string() }),
+    ),
+    async (c) => {
+      const { email, password, name } = c.req.valid("json");
 
-      if (!user) throw new Error("Failed to create an account");
+      const user = await signUp(email, password, name);
 
       const token = generateSessionToken();
       const session = await createSession(token, user.id);
-      set.cookie = {
-        session: {
-          value: token,
-          httpOnly: true,
-          path: "/",
-          secure: isInSecureMode(request),
-          sameSite: "lax",
-          expires: session.expiresAt,
-        },
-      };
 
-      return user;
-    },
-    {
-      body: t.Object({
-        email: t.String(),
-        password: t.String(),
-        name: t.String(),
-      }),
+      setCookie(c, "session", token, {
+        path: "/",
+        secure: isInSecureMode(c.req),
+        sameSite: "lax",
+        expires: session.expiresAt,
+      });
+
+      return c.json(user);
     },
   )
-  .post("/sign-out", async ({ cookie, cookie: { session } }) => {
-    await invalidateSession(session?.value ?? "");
-    session.remove();
+  .post("/sign-out", async (c) => {
+    const token = getCookie(c, "session");
 
-    // biome-ignore lint/performance/noDelete: https://elysiajs.com/patterns/cookie#remove
-    delete cookie.session;
-  })
-  .onError(({ code, error }) => {
-    switch (code) {
-      case "VALIDATION":
-        return error.all;
-      default:
-        if (error instanceof Error) {
-          return {
-            name: error.name,
-            message: error.message,
-          };
-        }
+    if (!token) {
+      return c.json({ message: "No session token found" }, 401);
     }
+
+    await invalidateSession(token);
+    deleteCookie(c, "session");
+
+    return c.json({ message: "Signed out" });
   });
 
 export default user;

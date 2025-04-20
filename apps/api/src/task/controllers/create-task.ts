@@ -1,46 +1,53 @@
-import { count, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable, userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import getNextTaskNumber from "./get-next-task-number";
 
-async function getNextTaskNumber(projectId: string) {
-  const [task] = await db
-    .select({ count: count() })
-    .from(taskTable)
-    .where(eq(taskTable.projectId, projectId));
-
-  return task.count;
-}
-
-async function createTask(body: {
+async function createTask({
+  projectId,
+  userEmail,
+  title,
+  status,
+  dueDate,
+  description,
+  priority,
+}: {
   projectId: string;
-  userEmail: string | null;
-  title: string | null;
-  status: string | null;
-  dueDate: Date | null;
-  description: string | null;
-  priority: string | null;
+  userEmail?: string;
+  title: string;
+  status: string;
+  dueDate?: Date;
+  description?: string;
+  priority?: string;
 }) {
   const [assignee] = await db
     .select({ name: userTable.name })
     .from(userTable)
-    .where(eq(userTable.email, body.userEmail ?? ""));
+    .where(eq(userTable.email, userEmail ?? ""));
 
-  const nextTaskNumber = await getNextTaskNumber(body.projectId);
+  const nextTaskNumber = await getNextTaskNumber(projectId);
 
   const [createdTask] = await db
     .insert(taskTable)
     .values({
-      ...body,
-      userEmail: body.userEmail ?? "",
-      title: body.title ?? "",
-      status: body.status ?? "",
-      dueDate: body.dueDate ?? new Date(),
-      description: body.description ?? "",
-      priority: body.priority ?? "",
+      projectId,
+      userEmail: userEmail || null,
+      title: title || "",
+      status: status || "",
+      dueDate: dueDate || new Date(),
+      description: description || "",
+      priority: priority || "",
       number: nextTaskNumber + 1,
     })
     .returning();
+
+  if (!createdTask) {
+    throw new HTTPException(500, {
+      message: "Failed to create task",
+    });
+  }
 
   await publishEvent("task.created", {
     taskId: createdTask.id,

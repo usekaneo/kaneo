@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { int, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const userTable = sqliteTable("user", {
   id: text("id")
@@ -53,12 +53,7 @@ export const workspaceUserTable = sqliteTable("workspace_member", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  userEmail: text("user_email")
-    .notNull()
-    .references(() => userTable.email, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+  userEmail: text("user_email"),
   role: text("role").default("member").notNull(),
   joinedAt: integer("joined_at", { mode: "timestamp" })
     .default(new Date())
@@ -95,8 +90,8 @@ export const taskTable = sqliteTable("task", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  position: integer("position").default(0),
-  number: integer("number").default(1),
+  position: int("position").default(0),
+  number: int("number").default(1),
   userEmail: text("assignee_email").references(() => userTable.email, {
     onDelete: "cascade",
     onUpdate: "cascade",

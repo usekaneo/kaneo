@@ -1,9 +1,11 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
 
 const getWorkspaces = async () => {
-  const response = await api.workspace.list.get();
+  const response = await client.workspace.$get();
 
-  return response.data;
+  const workspaces = await response.json();
+
+  return workspaces;
 };
 
 export default getWorkspaces;

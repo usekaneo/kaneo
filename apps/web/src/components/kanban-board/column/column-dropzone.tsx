@@ -1,4 +1,4 @@
-import type { Column } from "@/types/project";
+import type { ProjectWithTasks } from "@/types/project";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -7,7 +7,7 @@ import {
 import TaskCard from "../task-card";
 
 interface ColumnDropzoneProps {
-  column: Column;
+  column: ProjectWithTasks["columns"][number];
 }
 
 export function ColumnDropzone({ column }: ColumnDropzoneProps) {

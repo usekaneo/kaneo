@@ -4,7 +4,7 @@ import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import type { Project } from "@/types/project";
+import type { ProjectWithTasks } from "@/types/project";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   Layout,
@@ -28,7 +28,7 @@ function Projects({ workspaceId }: ProjectsProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleSelectProject = (selectedProject: Project) => {
+  const handleSelectProject = (selectedProject: ProjectWithTasks) => {
     if (
       currentProject?.id === selectedProject.id &&
       location.pathname.includes("/board")
@@ -90,7 +90,7 @@ function Projects({ workspaceId }: ProjectsProps) {
       </div>
       <div className="space-y-0.5">
         {projects && projects.length > 0
-          ? projects.map((project) => (
+          ? projects.map((project: ProjectWithTasks) => (
               <div key={project.id} className="space-y-0.5">
                 {!isSidebarOpened ? (
                   <Tip content={project.name}>
@@ -104,6 +104,9 @@ function Projects({ workspaceId }: ProjectsProps) {
                           description: project.description,
                           workspaceId: project.workspaceId,
                           icon: project.icon ?? "Layout",
+                          columns: project.columns,
+                          archivedTasks: project.archivedTasks,
+                          plannedTasks: project.plannedTasks,
                         })
                       }
                       className={cn(
@@ -134,6 +137,9 @@ function Projects({ workspaceId }: ProjectsProps) {
                           description: project.description,
                           workspaceId: project.workspaceId,
                           icon: project.icon ?? "Layout",
+                          columns: project.columns,
+                          archivedTasks: project.archivedTasks,
+                          plannedTasks: project.plannedTasks,
                         })
                       }
                       className={cn(

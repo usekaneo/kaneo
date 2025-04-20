@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
-import type { Task } from "@/types/project";
+import type Task from "@/types/task";
 import { format } from "date-fns";
 import { Flag } from "lucide-react";
 

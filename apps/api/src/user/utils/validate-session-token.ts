@@ -3,11 +3,8 @@ import { encodeHexLowerCase } from "@oslojs/encoding";
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { sessionTable, userTable } from "../../database/schema";
-import type { SessionValidationResult } from "../types";
 
-export async function validateSessionToken(
-  token: string,
-): Promise<SessionValidationResult> {
+export async function validateSessionToken(token: string) {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const sessions = await db
     .select({ user: userTable, session: sessionTable })
@@ -15,7 +12,7 @@ export async function validateSessionToken(
     .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
     .where(eq(sessionTable.id, sessionId));
 
-  if (sessions.length < 1) {
+  if (sessions.length < 1 || !sessions[0]) {
     return { session: null, user: null };
   }
 

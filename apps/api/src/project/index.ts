@@ -1,71 +1,83 @@
-import Elysia, { t } from "elysia";
-import { requireWorkspacePermission } from "../middleware/check-permissions";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { z } from "zod";
 import createProject from "./controllers/create-project";
 import deleteProject from "./controllers/delete-project";
 import getProject from "./controllers/get-project";
 import getProjects from "./controllers/get-projects";
 import updateProject from "./controllers/update-project";
 
-const project = new Elysia({ prefix: "/project" })
-  .state("userEmail", "")
-  .post(
-    "/create",
-    async ({ body: { workspaceId, icon, slug, name } }) => {
-      const createdProject = await createProject(workspaceId, name, icon, slug);
-      return createdProject;
-    },
-    {
-      body: t.Object({
-        name: t.String(),
-        workspaceId: t.String(),
-        icon: t.String(),
-        slug: t.String(),
-      }),
+const project = new Hono()
+  .get(
+    "/",
+    zValidator("query", z.object({ workspaceId: z.string() })),
+    async (c) => {
+      const { workspaceId } = c.req.valid("query");
+      const projects = await getProjects(workspaceId);
+      return c.json(projects);
     },
   )
-  .use(requireWorkspacePermission("owner"))
-  .get("/list/:workspaceId", async ({ params: { workspaceId } }) => {
-    const projects = await getProjects(workspaceId);
-    return projects;
-  })
-  .use(requireWorkspacePermission("member"))
-  .get("/:id", async ({ params: { id }, query: { workspaceId } }) => {
-    if (!workspaceId) throw new Error("Workspace ID is required");
-    const project = await getProject(id, workspaceId);
-    return project;
-  })
-  .use(requireWorkspacePermission("owner"))
+  .post(
+    "/",
+    zValidator(
+      "json",
+      z.object({
+        name: z.string(),
+        workspaceId: z.string(),
+        icon: z.string(),
+        slug: z.string(),
+      }),
+    ),
+    async (c) => {
+      const { name, workspaceId, icon, slug } = c.req.valid("json");
+      const project = await createProject(workspaceId, name, icon, slug);
+      return c.json(project);
+    },
+  )
+  .delete(
+    "/:id",
+    zValidator("param", z.object({ id: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+
+      const project = await deleteProject(id);
+
+      return c.json(project);
+    },
+  )
   .put(
     "/:id",
-    async ({
-      params: { id },
-      body: { workspaceId, name, description, icon, slug },
-    }) => {
-      const updatedProject = await updateProject(
-        id,
-        workspaceId,
-        name,
-        description,
-        icon,
-        slug,
-      );
-      return updatedProject;
-    },
-    {
-      body: t.Object({
-        workspaceId: t.String(),
-        name: t.String(),
-        description: t.String(),
-        icon: t.String(),
-        slug: t.String(),
+    zValidator("param", z.object({ id: z.string() })),
+    zValidator(
+      "json",
+      z.object({
+        name: z.string(),
+        icon: z.string(),
+        slug: z.string(),
+        description: z.string(),
       }),
+    ),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { name, icon, slug, description } = c.req.valid("json");
+
+      const project = await updateProject(id, name, icon, slug, description);
+
+      return c.json(project);
     },
   )
-  .use(requireWorkspacePermission("owner"))
-  .delete("/:id", async ({ params: { id } }) => {
-    const deletedProject = await deleteProject(id);
-    return deletedProject;
-  })
-  .use(requireWorkspacePermission("owner"));
+  .get(
+    "/:id",
+    zValidator("param", z.object({ id: z.string() })),
+    zValidator("query", z.object({ workspaceId: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { workspaceId } = c.req.valid("query");
+
+      const project = await getProject(id, workspaceId);
+
+      return c.json(project);
+    },
+  );
 
 export default project;

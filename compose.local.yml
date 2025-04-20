@@ -1,0 +1,29 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "1337:1337"
+    environment:
+      - JWT_ACCESS="change-me"
+      - DB_PATH=/app/apps/api/data/kaneo.db
+    volumes:
+      - sqlite_data:/app/apps/api/data
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - KANEO_API_URL=http://localhost:1337
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+    name: kaneo_sqlite_data

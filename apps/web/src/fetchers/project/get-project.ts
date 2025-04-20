@@ -1,16 +1,20 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
 
-async function getProject({
-  id,
-  workspaceId,
-}: { id: string; workspaceId: string }) {
-  const response = await api.project({ id }).get({ query: { workspaceId } });
+export type GetProjectRequest = InferRequestType<
+  (typeof client)["project"][":id"]["$get"]
+>["param"] &
+  InferRequestType<(typeof client)["project"][":id"]["$get"]>["query"];
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+async function getProject({ id, workspaceId }: GetProjectRequest) {
+  const response = await client.project[":id"].$get({
+    param: { id },
+    query: { workspaceId },
+  });
 
-  return response?.data;
+  const data = await response.json();
+
+  return data;
 }
 
 export default getProject;

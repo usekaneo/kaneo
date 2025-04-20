@@ -41,7 +41,7 @@ export function CommandPalette() {
   );
 
   useEffect(() => {
-    let timeout: Timer;
+    let timeout: ReturnType<typeof setTimeout>;
     if (!open && pendingAction) {
       setOpen(false);
       timeout = setTimeout(() => {

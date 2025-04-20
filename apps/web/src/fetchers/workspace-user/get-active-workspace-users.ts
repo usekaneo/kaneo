@@ -1,13 +1,20 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
 
-async function getActiveWorkspaceUsers(workspaceId: string) {
-  const response = await api["workspace-user"]({ workspaceId }).active.get();
+export type GetActiveWorkspaceUsersRequest = InferRequestType<
+  (typeof client)["workspace-user"][":workspaceId"]["active"]["$get"]
+>["param"];
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+async function getActiveWorkspaceUsers({
+  workspaceId,
+}: GetActiveWorkspaceUsersRequest) {
+  const response = await client["workspace-user"][":workspaceId"].active.$get({
+    param: { workspaceId },
+  });
 
-  return response.data;
+  const data = await response.json();
+
+  return data;
 }
 
 export default getActiveWorkspaceUsers;

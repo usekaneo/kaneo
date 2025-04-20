@@ -24,10 +24,10 @@ function AuthProvider({ children }: PropsWithChildren) {
   const { data, isFetching } = useGetMe();
 
   useEffect(() => {
-    if (data?.data?.user === null) {
+    if (data?.user === null) {
       setUser(null);
-    } else if (data?.data?.user) {
-      setUser({ ...data?.data?.user });
+    } else if (data?.user) {
+      setUser({ ...data?.user });
     }
   }, [data]);
 

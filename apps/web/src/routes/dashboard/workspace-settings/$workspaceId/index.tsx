@@ -12,11 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import useDeleteWorkspace from "@/hooks/mutations/workspace/use-delete-workspace";
 import useUpdateWorkspace from "@/hooks/mutations/workspace/use-update-workspace";
+import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
 import queryClient from "@/query-client";
 import useWorkspaceStore from "@/store/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Lock } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -40,6 +41,7 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { workspaceId } = Route.useParams();
   const [confirmWorkSpaceName, setConfirmWorkSpaceName] = useState("");
+  const { isOwner } = useWorkspacePermission();
 
   const { workspace, setWorkspace } = useWorkspaceStore();
 
@@ -114,6 +116,45 @@ function RouteComponent() {
     }
   };
 
+  if (!isOwner) {
+    return (
+      <div className="flex-1 p-6">
+        <PageTitle title="Project Settings" />
+        <div className="mt-6 max-w-2xl mx-auto">
+          <div className="bg-white dark:bg-zinc-800/50 rounded-lg p-8 shadow-sm border border-zinc-200 dark:border-zinc-700/50 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+              </div>
+            </div>
+            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+              Permission Required
+            </h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-md mx-auto">
+              Only workspace owners can modify workspace settings. Please
+              contact the workspace owner if you need to make changes.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate({
+                  to: "/dashboard/workspace/$workspaceId",
+                  params: {
+                    workspaceId: workspaceId ?? "",
+                  },
+                })
+              }
+              className="gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Workspace
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <PageTitle title={`${workspace?.name} Settings`} />
@@ -149,7 +190,7 @@ function RouteComponent() {
                           name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>WorkSpace Name</FormLabel>
+                              <FormLabel>Workspace Name</FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -191,7 +232,7 @@ function RouteComponent() {
                 )}
               </div>
             </div>
-            {workspace && workspace.ownerEmail === user?.email && (
+            {workspace && isOwner && (
               <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
                 <div className="p-4 md:p-6">
                   <h2 className="text-base font-medium text-red-600 dark:text-red-400 mb-1">

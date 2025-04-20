@@ -1,8 +1,8 @@
 {
 	"version": "6",
 	"dialect": "sqlite",
-	"id": "8acd32cb-c859-4926-ae60-df1b4ea9a6bf",
-	"prevId": "f146a115-68e7-4707-b858-8d9029a87136",
+	"id": "8c533750-62a3-432a-9006-5a6bac28c095",
+	"prevId": "85665cab-8b3a-4f4c-97a2-35c752fc7ad2",
 	"tables": {
 		"activity": {
 			"name": "activity",
@@ -34,7 +34,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-03-13T21:45:13.973Z\"'"
+					"default": "'\"2025-04-20T15:06:18.576Z\"'"
 				},
 				"user_email": {
 					"name": "user_email",
@@ -128,7 +128,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-03-13T21:45:13.973Z\"'"
+					"default": "'\"2025-04-20T15:06:18.576Z\"'"
 				}
 			},
 			"indexes": {},
@@ -271,7 +271,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-03-13T21:45:13.973Z\"'"
+					"default": "'\"2025-04-20T15:06:18.576Z\"'"
 				}
 			},
 			"indexes": {},
@@ -336,7 +336,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-03-13T21:45:13.972Z\"'"
+					"default": "'\"2025-04-20T15:06:18.575Z\"'"
 				}
 			},
 			"indexes": {
@@ -388,7 +388,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-03-13T21:45:13.973Z\"'"
+					"default": "'\"2025-04-20T15:06:18.575Z\"'"
 				}
 			},
 			"indexes": {},
@@ -428,7 +428,7 @@
 					"name": "user_email",
 					"type": "text",
 					"primaryKey": false,
-					"notNull": true,
+					"notNull": false,
 					"autoincrement": false
 				},
 				"role": {
@@ -445,7 +445,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-03-13T21:45:13.973Z\"'"
+					"default": "'\"2025-04-20T15:06:18.575Z\"'"
 				},
 				"status": {
 					"name": "status",

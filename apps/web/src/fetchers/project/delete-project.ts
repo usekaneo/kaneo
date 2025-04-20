@@ -1,11 +1,16 @@
-import { api } from "@kaneo/libs";
+import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono/client";
 
-export default async function deleteProject({ id }: { id: string }) {
-  const response = await api.project({ id }).delete();
+export type DeleteProjectRequest = InferRequestType<
+  (typeof client)["project"][":id"]["$delete"]
+>["param"];
 
-  if (response.error) {
-    throw new Error(response.error.value.message);
-  }
+async function deleteProject({ id }: DeleteProjectRequest) {
+  const response = await client.project[":id"].$delete({ param: { id } });
 
-  return response?.data;
+  const data = await response.json();
+
+  return data;
 }
+
+export default deleteProject;

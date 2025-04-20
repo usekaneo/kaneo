@@ -1,32 +1,30 @@
 {
-	"name": "@kaneo/api",
-	"version": "1.0.50",
-	"main": "./src/index.ts",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "bun run --watch src/index.ts"
-	},
-	"dependencies": {
-		"@elysiajs/cors": "^1.2.0",
-		"@elysiajs/cron": "^1.2.0",
-		"@elysiajs/jwt": "^1.2.0",
-		"@elysiajs/websocket": "^0.2.8",
-		"@kaneo/typescript-config": "workspace:*",
-		"@oslojs/crypto": "^1.0.1",
-		"@oslojs/encoding": "^1.1.0",
-		"@paralleldrive/cuid2": "^2.2.2",
-		"better-sqlite3": "^11.8.1",
-		"drizzle-kit": "^0.31.0",
-		"drizzle-orm": "^0.42.0",
-		"drizzle-typebox": "^0.3.1",
-		"elysia": "1.2.25"
-	},
-	"devDependencies": {
-		"bun-types": "latest"
-	},
-	"override": {
-		"@sinclair/typebox": "0.32.4"
-	},
-	"module": "src/index.ts",
-	"type": "module"
+  "name": "@kaneo/api",
+  "type": "commonjs",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=cjs --external:better-sqlite3 --external:bcrypt --external:mock-aws-s3 --external:aws-sdk --external:nock"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "@hono/zod-validator": "^0.4.3",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.9.1",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.42.0",
+    "hono": "^4.7.7",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "esbuild": "^0.25.2",
+    "@types/bcrypt": "^5.0.2",
+    "@types/better-sqlite3": "^7.6.13"
+  }
 }

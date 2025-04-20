@@ -1,39 +1,37 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
 
 async function updateProject(
   id: string,
-  workspaceId: string,
   name: string,
-  description: string,
   icon: string,
   slug: string,
+  description: string,
 ) {
   const [existingProject] = await db
     .select()
     .from(projectTable)
-    .where(
-      and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
-    );
+    .where(eq(projectTable.id, id));
 
   const isProjectExisting = Boolean(existingProject);
 
   if (!isProjectExisting) {
-    throw new Error("Project doesn't exist");
+    throw new HTTPException(404, {
+      message: "Project doesn't exist",
+    });
   }
 
   const [updatedWorkspace] = await db
     .update(projectTable)
     .set({
       name,
-      description,
       icon,
       slug,
+      description,
     })
-    .where(
-      and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
-    )
+    .where(eq(projectTable.id, id))
     .returning();
 
   return updatedWorkspace;

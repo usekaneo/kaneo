@@ -46,7 +46,7 @@ export function SignUpForm() {
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
-      const { data: user } = await mutateAsync({
+      const user = await mutateAsync({
         email: data.email,
         name: data.name,
         password: data.password,
