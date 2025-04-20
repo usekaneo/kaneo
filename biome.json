@@ -16,7 +16,8 @@
 			"package.json",
 			".turbo",
 			".source",
-			".next"
+			".next",
+			"out"
 		]
 	},
 	"formatter": {
