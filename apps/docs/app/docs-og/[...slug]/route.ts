@@ -11,13 +11,16 @@ export async function GET(
   if (!page) notFound();
 
   return generateOGImage({
+    primaryTextColor: "rgb(240,240,240)",
     title: page.data.title,
     description: page.data.description,
-    site: "My App",
+    site: "Kaneo",
   });
 }
 
-export function generateStaticParams() {
+export function generateStaticParams(): {
+  slug: string[];
+}[] {
   return source.generateParams().map((page) => ({
     ...page,
     slug: [...page.slug, "image.png"],

@@ -38,6 +38,7 @@ export async function generateMetadata({
   params: Promise<{ slug?: string[] }>;
 }) {
   const { slug = [] } = await params;
+  console.log({ slug });
   const page = source.getPage(slug);
   if (!page) notFound();
 
