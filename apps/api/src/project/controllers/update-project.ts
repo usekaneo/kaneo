@@ -8,6 +8,7 @@ async function updateProject(
   name: string,
   icon: string,
   slug: string,
+  description: string,
 ) {
   const [existingProject] = await db
     .select()
@@ -28,6 +29,7 @@ async function updateProject(
       name,
       icon,
       slug,
+      description,
     })
     .where(eq(projectTable.id, id))
     .returning();

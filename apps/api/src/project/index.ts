@@ -50,13 +50,18 @@ const project = new Hono()
     zValidator("param", z.object({ id: z.string() })),
     zValidator(
       "json",
-      z.object({ name: z.string(), icon: z.string(), slug: z.string() }),
+      z.object({
+        name: z.string(),
+        icon: z.string(),
+        slug: z.string(),
+        description: z.string(),
+      }),
     ),
     async (c) => {
       const { id } = c.req.valid("param");
-      const { name, icon, slug } = c.req.valid("json");
+      const { name, icon, slug, description } = c.req.valid("json");
 
-      const project = await updateProject(id, name, icon, slug);
+      const project = await updateProject(id, name, icon, slug, description);
 
       return c.json(project);
     },
