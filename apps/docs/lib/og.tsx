@@ -129,6 +129,7 @@ function generate(options: GenerateProps): ReactElement {
           padding: "16px 24px",
           borderRadius: "16px",
           width: "auto",
+          alignSelf: "flex-start",
         }}
       >
         {/* biome-ignore lint/a11y/noSvgWithoutTitle: It goes over the logo */}
