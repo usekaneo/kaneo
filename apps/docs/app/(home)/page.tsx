@@ -1,19 +1,24 @@
-import Link from "next/link";
+import Community from "@/components/community";
+import Features from "@/components/features";
+import Footer from "@/components/footer";
+import Hero from "@/components/hero";
+import Stats from "@/components/stats";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Kaneo",
+  description:
+    "An open source project management platform focused on simplicity and efficiency.",
+};
 
 export default function HomePage() {
   return (
-    <main className="flex flex-1 flex-col justify-center text-center">
-      <h1 className="mb-4 text-2xl font-bold">Hello World</h1>
-      <p className="text-fd-muted-foreground">
-        You can open{" "}
-        <Link
-          href="/docs"
-          className="text-fd-foreground font-semibold underline"
-        >
-          /docs
-        </Link>{" "}
-        and see the documentation.
-      </p>
+    <main>
+      <Hero />
+      <Stats />
+      <Features />
+      <Community />
+      <Footer />
     </main>
   );
 }

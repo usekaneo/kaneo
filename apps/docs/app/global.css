@@ -4,4 +4,67 @@
 
 @import 'fumadocs-ui/css/vitepress.css';
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
+@keyframes fadeInDelay {
+  0% { opacity: 0; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes fadeInDelay2 {
+  0% { opacity: 0; }
+  66% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes fadeInDelay3 {
+  0% { opacity: 0; }
+  75% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-fade-in-delay {
+  animation: fadeInDelay 1.2s ease-out forwards;
+}
+
+.animate-fade-in-delay-2 {
+  animation: fadeInDelay2 1.5s ease-out forwards;
+}
+
+.animate-fade-in-delay-3 {
+  animation: fadeInDelay3 1.8s ease-out forwards;
+}
+
+.animate-fade-in-up-0 {
+  animation: fadeInUp 0.5s ease-out forwards;
+  animation-delay: 0.1s;
+}
+
+.animate-fade-in-up-1 {
+  animation: fadeInUp 0.5s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+.animate-fade-in-up-2 {
+  animation: fadeInUp 0.5s ease-out forwards;
+  animation-delay: 0.3s;
+}

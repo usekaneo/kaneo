@@ -3,6 +3,8 @@ title: Tasks
 description: Understanding tasks in Kaneo
 ---
 
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 ## What are Tasks?
 
 Tasks are the fundamental work items in Kaneo. They represent specific actions that need to be completed within a project. Each task can have various attributes such as assignees, due dates, and status.
@@ -11,11 +13,26 @@ Tasks are the fundamental work items in Kaneo. They represent specific actions t
 
 To create a new task:
 
-1. Navigate to the project where you want to create the task
-2. Click the "New Task" button
-3. Enter a title for your task
-4. Add any additional details
-5. Click "Create"
+<Steps>
+<Step>
+Navigate to the project where you want to create the task
+</Step>
+<Step>
+Click the "New Task" button
+</Step>
+<Step>
+Enter a title for your task
+</Step>
+<Step>
+Add any additional details
+</Step>
+<Step>
+Click "Create"
+</Step>
+<Step>
+The task will be added to the project's task list 🎉
+</Step>
+</Steps>
 
 ## Task Properties
 
@@ -36,12 +53,3 @@ You can manage tasks in several ways:
 - **Change Status**: Drag tasks between columns in Board view or select a new status in List view
 - **Assign**: Assign or reassign tasks to team members
 - **Comment**: Add comments to discuss the task with your team
-
-## Task Relationships
-
-Tasks can be related to each other in various ways:
-
-- **Subtasks**: Break down complex tasks into smaller, manageable pieces
-- **Dependencies**: Specify that one task depends on the completion of another
-
-To create these relationships, open a task and use the corresponding options in the task details panel.
