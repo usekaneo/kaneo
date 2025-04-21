@@ -8,6 +8,7 @@ import db from "./database";
 import { auth } from "./middlewares/auth";
 import project from "./project";
 import task from "./task";
+import timeEntry from "./time-entry";
 import user from "./user";
 import { validateSessionToken } from "./user/utils/validate-session-token";
 import setDemoUser from "./utils/set-demo-user";
@@ -73,6 +74,7 @@ const workspaceUserRoute = app.route("/workspace-user", workspaceUser);
 const projectRoute = app.route("/project", project);
 const taskRoute = app.route("/task", task);
 const activityRoute = app.route("/activity", activity);
+const timeEntryRoute = app.route("/time-entry", timeEntry);
 
 try {
   console.log("Migrating database...");
@@ -100,4 +102,5 @@ export type AppType =
   | typeof projectRoute
   | typeof taskRoute
   | typeof activityRoute
-  | typeof meRoute;
+  | typeof meRoute
+  | typeof timeEntryRoute;

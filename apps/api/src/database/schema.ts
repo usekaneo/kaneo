@@ -106,6 +106,29 @@ export const taskTable = sqliteTable("task", {
     .notNull(),
 });
 
+export const timeEntryTable = sqliteTable("time_entry", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  taskId: text("task_id")
+    .notNull()
+    .references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  userEmail: text("user_email").references(() => userTable.email, {
+    onDelete: "cascade",
+    onUpdate: "cascade",
+  }),
+  description: text("description"),
+  startTime: integer("start_time", { mode: "timestamp" }).notNull(),
+  endTime: integer("end_time", { mode: "timestamp" }),
+  duration: integer("duration").default(0), // Duration in seconds
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(new Date())
+    .notNull(),
+});
+
 export const activityTable = sqliteTable("activity", {
   id: text("id")
     .$defaultFn(() => createId())
