@@ -62,14 +62,8 @@ const timeEntry = new Hono<{
     async (c) => {
       const { id } = c.req.valid("param");
       const { endTime, duration } = c.req.valid("json");
-      const userEmail = c.get("userEmail");
 
-      const timeEntry = await updateTimeEntry(
-        id,
-        new Date(endTime),
-        duration,
-        userEmail,
-      );
+      const timeEntry = await updateTimeEntry(id, new Date(endTime), duration);
 
       return c.json(timeEntry);
     },
