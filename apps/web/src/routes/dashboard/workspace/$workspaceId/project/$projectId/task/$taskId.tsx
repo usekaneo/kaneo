@@ -5,7 +5,6 @@ import TaskDescription from "@/components/task/task-description";
 import TaskInfo from "@/components/task/task-info";
 import TaskTimeTracking from "@/components/task/task-time-tracking";
 import TaskTitle from "@/components/task/task-title";
-import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useProjectStore from "@/store/project";
