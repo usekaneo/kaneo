@@ -1,6 +1,73 @@
 ---
-title: Hello World
-description: Your first document
+title: Quick Start
+description: Get started with Kaneo in minutes
+icon: Rocket
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+Kaneo is an open source project management platform focused on simplicity and efficiency. This guide will help you get up and running quickly.
+
+### Docker Compose Installation
+
+The easiest way to get started with Kaneo is using Docker Compose:
+
+<Steps>
+<Step>
+Create a `compose.yml` file with the following content:
+</Step>
+
+```yaml
+services:
+  backend:
+    image: ghcr.io/usekaneo/api:latest
+    environment:
+      JWT_ACCESS: "your_secure_jwt_token"
+      DB_PATH: "/app/apps/api/data/kaneo.db"
+    ports:
+      - 1337:1337
+    restart: unless-stopped
+    volumes:
+      - sqlite_data:/app/apps/api/data
+
+  frontend:
+    image: ghcr.io/usekaneo/web:latest
+    environment:
+      KANEO_API_URL: "http://localhost:1337"
+    ports:
+      - 5173:80
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+```
+
+<Step>
+Run `docker compose up -d` to start the services.
+</Step>
+
+<Step>
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+</Step>
+
+<Step>
+Create your first project and start managing your tasks! 🎉
+</Step>
+
+</Steps>
+
+## Environment Variables
+
+| Variable | Description |
+| -------- | ----------- |
+| `KANEO_API_URL` | The URL of the API |
+| `JWT_ACCESS` | Secret key for generating JWT tokens |
+| `DB_PATH` | The path to the database file |
+| `ALLOW_REGISTRATION` | Enable/disable new user registration (default: true) |
+
+## Next Steps
+
+- [Deploy with Nginx](/docs/deployments/nginx)
+- [Deploy with Traefik](/docs/deployments/traefik)
+- [Kubernetes Deployment](/docs/deployments/kubernetes)
+- [Core Concepts](/docs/concepts/overview)

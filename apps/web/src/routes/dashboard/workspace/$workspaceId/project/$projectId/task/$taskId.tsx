@@ -3,13 +3,16 @@ import TaskActivities from "@/components/task/task-activities";
 import TaskComment from "@/components/task/task-comment";
 import TaskDescription from "@/components/task/task-description";
 import TaskInfo from "@/components/task/task-info";
+import TaskTimeTracking from "@/components/task/task-time-tracking";
 import TaskTitle from "@/components/task/task-title";
+import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
+import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useProjectStore from "@/store/project";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { LayoutGrid, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
   "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
@@ -19,9 +22,16 @@ export const Route = createFileRoute(
 
 function TaskEditPage() {
   const { taskId, workspaceId, projectId } = Route.useParams();
+  const { data: project } = useGetTasks(projectId);
   const { data: task, isLoading } = useGetTask(taskId);
-  const { project } = useProjectStore();
+  const { setProject } = useProjectStore();
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (project) {
+      setProject(project);
+    }
+  }, [project, setProject]);
 
   if (isLoading) {
     return (
@@ -77,6 +87,7 @@ function TaskEditPage() {
             <div className="px-6 py-6 space-y-6 flex-1">
               <div className="space-y-8">
                 <TaskDescription setIsSaving={setIsSaving} />
+                <TaskTimeTracking taskId={taskId} />
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
