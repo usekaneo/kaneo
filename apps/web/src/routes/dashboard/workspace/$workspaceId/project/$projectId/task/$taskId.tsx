@@ -3,6 +3,7 @@ import TaskActivities from "@/components/task/task-activities";
 import TaskComment from "@/components/task/task-comment";
 import TaskDescription from "@/components/task/task-description";
 import TaskInfo from "@/components/task/task-info";
+import TaskTimeTracking from "@/components/task/task-time-tracking";
 import TaskTitle from "@/components/task/task-title";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useProjectStore from "@/store/project";
@@ -77,6 +78,7 @@ function TaskEditPage() {
             <div className="px-6 py-6 space-y-6 flex-1">
               <div className="space-y-8">
                 <TaskDescription setIsSaving={setIsSaving} />
+                <TaskTimeTracking taskId={taskId} />
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
