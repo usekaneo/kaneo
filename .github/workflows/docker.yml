@@ -6,8 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'apps/api'
-      - 'apps/web'
+      - 'apps/**'
       - 'packages/**'
 
 env:
