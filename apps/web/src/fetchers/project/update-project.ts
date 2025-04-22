@@ -6,10 +6,16 @@ export type UpdateProjectRequest = InferRequestType<
 >["json"] &
   InferRequestType<(typeof client)["project"][":id"]["$put"]>["param"];
 
-async function updateProject({ id, name, icon, slug }: UpdateProjectRequest) {
+async function updateProject({
+  id,
+  name,
+  icon,
+  slug,
+  description,
+}: UpdateProjectRequest) {
   const response = await client.project[":id"].$put({
     param: { id },
-    json: { name, icon, slug },
+    json: { name, icon, slug, description },
   });
 
   const data = await response.json();

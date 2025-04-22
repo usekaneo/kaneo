@@ -1,5 +1,4 @@
 import PageTitle from "@/components/page-title";
-import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -37,7 +36,6 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { workspaceId } = Route.useParams();
   const [confirmWorkSpaceName, setConfirmWorkSpaceName] = useState("");
@@ -61,8 +59,7 @@ function RouteComponent() {
   const onSubmit = async (data: WorkspaceFormValues) => {
     try {
       await updateWorkspace({
-        workspaceId: workspaceId ?? "",
-        userEmail: workspace?.ownerEmail ?? "",
+        id: workspaceId ?? "",
         name: data.name,
         description: data.description ?? "",
       });

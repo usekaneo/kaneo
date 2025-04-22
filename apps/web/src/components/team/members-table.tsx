@@ -48,7 +48,7 @@ function MembersTable({ users }: { users: WorkspaceUser[] }) {
                 <div className="flex items-center">
                   <Avatar className="h-8 w-8 mr-3">
                     <AvatarFallback className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400">
-                      {member.userEmail.charAt(0)}
+                      {member.userEmail?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm text-zinc-900 dark:text-zinc-100">
@@ -125,7 +125,7 @@ function MembersTable({ users }: { users: WorkspaceUser[] }) {
 
       {selectedMember && (
         <DeleteTeamMemberModal
-          userEmail={selectedMember.userEmail}
+          userEmail={selectedMember.userEmail ?? ""}
           open={isRemoveMemberModalOpen}
           onClose={() => {
             setIsRemoveMemberModalOpen(false);

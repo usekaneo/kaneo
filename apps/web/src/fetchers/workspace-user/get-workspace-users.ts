@@ -5,9 +5,9 @@ export type GetWorkspaceUsersRequest = InferRequestType<
   (typeof client)["workspace-user"][":workspaceId"]["$get"]
 >;
 
-async function getWorkspaceUsers({ workspaceId }: GetWorkspaceUsersRequest) {
+async function getWorkspaceUsers({ param }: GetWorkspaceUsersRequest) {
   const response = await client["workspace-user"][":workspaceId"].$get({
-    param: { workspaceId },
+    param,
   });
 
   const data = await response.json();

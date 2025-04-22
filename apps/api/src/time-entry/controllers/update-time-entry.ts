@@ -7,7 +7,6 @@ async function updateTimeEntry(
   timeEntryId: string,
   endTime: Date,
   duration: number,
-  userEmail: string,
 ) {
   const [existingTimeEntry] = await db
     .select()
