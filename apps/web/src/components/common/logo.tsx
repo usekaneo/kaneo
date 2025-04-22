@@ -14,8 +14,8 @@ export function Logo({ className = "" }: LogoProps) {
   return (
     <Link
       onClick={() => {
-        setWorkspace(null);
-        setProject(null);
+        setWorkspace(undefined);
+        setProject(undefined);
       }}
       to="/dashboard"
       className={`flex items-center gap-2 ${className}`}

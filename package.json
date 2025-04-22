@@ -13,7 +13,7 @@
     "@commitlint/config-conventional": "^19.6.0",
     "husky": "^9.1.7",
     "turbo": "^2.4.2",
-    "typescript": "5.5.4"
+    "typescript": "5.7.2"
   },
   "engines": {
     "node": ">=18"

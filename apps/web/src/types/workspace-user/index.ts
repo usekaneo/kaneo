@@ -1,8 +1,9 @@
-import type { client } from "@kaneo/libs";
-import type { InferResponseType } from "hono/client";
-
-export type WorkspaceUser = NonNullable<
-  InferResponseType<(typeof client)["workspace-user"]["$get"]>
->[number];
+export type WorkspaceUser = {
+  userEmail: string | null;
+  userName: string | null;
+  joinedAt: string;
+  status: string;
+  role: string;
+};
 
 export default WorkspaceUser;

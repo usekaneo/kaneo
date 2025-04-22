@@ -5,6 +5,7 @@ import { subscribeToEvent } from "../events";
 import createRootWorkspaceUser from "./controllers/create-root-workspace-user";
 import deleteWorkspaceUser from "./controllers/delete-workspace-user";
 import getActiveWorkspaceUsers from "./controllers/get-active-workspace-users";
+import getWorkspaceUser from "./controllers/get-workspace-user";
 import getWorkspaceUsers from "./controllers/get-workspace-users";
 import inviteWorkspaceUser from "./controllers/invite-workspace-user";
 import updateWorkspaceUser from "./controllers/update-workspace-user";
@@ -14,6 +15,13 @@ const workspaceUser = new Hono<{
     userEmail: string;
   };
 }>()
+  .get("/:id", zValidator("param", z.object({ id: z.string() })), async (c) => {
+    const { id } = c.req.valid("param");
+
+    const workspaceUser = await getWorkspaceUser(id);
+
+    return c.json(workspaceUser);
+  })
   .post(
     "/root",
     zValidator(

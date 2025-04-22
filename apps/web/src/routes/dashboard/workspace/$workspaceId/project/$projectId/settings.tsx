@@ -64,6 +64,7 @@ function ProjectSettings() {
         name: data.name,
         icon: data.icon,
         slug: data.slug,
+        description: project?.description ?? "",
       });
 
       queryClient.invalidateQueries({
