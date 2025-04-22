@@ -1,4 +1,5 @@
 import PageTitle from "@/components/page-title";
+import { TasksImportExport } from "@/components/project/tasks-import-export";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -280,6 +281,22 @@ function ProjectSettings() {
                 )}
               </div>
             </div>
+
+            {project && (
+              <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="p-4 md:p-6">
+                  <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
+                    Tasks Export & Import
+                  </h2>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+                    Export tasks to a JSON file or import tasks from a JSON
+                    file.
+                  </p>
+
+                  <TasksImportExport project={project} />
+                </div>
+              </div>
+            )}
 
             {project && (
               <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">

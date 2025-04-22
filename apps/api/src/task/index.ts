@@ -2,8 +2,10 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import createTask from "./controllers/create-task";
+import exportTasks from "./controllers/export-tasks";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
+import importTasks from "./controllers/import-tasks";
 import updateTask from "./controllers/update-task";
 
 const task = new Hono<{
@@ -102,6 +104,44 @@ const task = new Hono<{
       );
 
       return c.json(task);
+    },
+  )
+  .get(
+    "/export/:projectId",
+    zValidator("param", z.object({ projectId: z.string() })),
+    async (c) => {
+      const { projectId } = c.req.valid("param");
+
+      const exportData = await exportTasks(projectId);
+
+      return c.json(exportData);
+    },
+  )
+  .post(
+    "/import/:projectId",
+    zValidator("param", z.object({ projectId: z.string() })),
+    zValidator(
+      "json",
+      z.object({
+        tasks: z.array(
+          z.object({
+            title: z.string(),
+            description: z.string().optional(),
+            status: z.string(),
+            priority: z.string().optional(),
+            dueDate: z.string().optional(),
+            userEmail: z.string().nullable().optional(),
+          }),
+        ),
+      }),
+    ),
+    async (c) => {
+      const { projectId } = c.req.valid("param");
+      const { tasks } = c.req.valid("json");
+
+      const result = await importTasks(projectId, tasks);
+
+      return c.json(result);
     },
   );
 

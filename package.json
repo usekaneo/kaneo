@@ -19,5 +19,9 @@
     "node": ">=18"
   },
   "packageManager": "pnpm@10.9.0",
-  "version": "0.3.0"
+  "version": "0.3.0",
+  "dependencies": {
+    "@types/file-saver": "^2.0.7",
+    "file-saver": "^2.0.5"
+  }
 }
