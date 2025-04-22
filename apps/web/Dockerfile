@@ -41,7 +41,7 @@ RUN addgroup -g 1001 appuser && \
     mkdir -p /var/run/nginx && \
     chown -R appuser:appuser /var/run/nginx && \
     chmod -R 755 /var/run/nginx && \
-    # Set permissions for nginx configuration
+    # Set permissions for nginx pid file
     touch /var/run/nginx.pid && \
     chown appuser:appuser /var/run/nginx.pid && \
     chmod 644 /var/run/nginx.pid && \
