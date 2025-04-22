@@ -36,7 +36,7 @@ Access Kaneo using port forwarding:
 
 ```bash
 # Port forward to access both services
-kubectl port-forward svc/kaneo-web 5173:80 -n kaneo &
+kubectl port-forward svc/kaneo-web 5173:5173 -n kaneo &
 kubectl port-forward svc/kaneo-api 1337:1337 -n kaneo &
 
 # Access the application at http://localhost:5173
