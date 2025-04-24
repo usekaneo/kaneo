@@ -12,28 +12,32 @@ type SelectSingleEventHandler = (date: Date | undefined) => void;
 function TaskCalendar({
   field,
   onChange,
+  hasDueDateLabel = true,
 }: {
   field: ControllerRenderProps<z.infer<typeof taskInfoSchema>, "dueDate">;
   onChange: SelectSingleEventHandler;
+  hasDueDateLabel: boolean;
 }) {
   const { value } = field;
 
   return (
     <div className="w-full">
-      <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2">
-        Due Date
-      </h3>
+      {hasDueDateLabel && (
+        <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2">
+          Due Date
+        </h3>
+      )}
       <Popover>
         <PopoverTrigger asChild>
           <button
             type="button"
             className={cn(
-              "w-full flex items-center justify-between rounded-md border px-3 py-2 text-sm",
+              `w-full flex items-center justify-between rounded-md border px-3 ${!hasDueDateLabel ? "py-1" : "py-2"} text-sm`,
               "bg-white dark:bg-zinc-800/50",
               "border-zinc-200 dark:border-zinc-700/50",
               "text-zinc-900 dark:text-zinc-100",
               "focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400",
-              "hover:border-zinc-300 dark:hover:border-zinc-600",
+              "hover:border-zinc-300 dark:hover:border-zinc-600"
             )}
           >
             <span>
