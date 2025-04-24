@@ -10,7 +10,6 @@ import { Calendar, Flag, UserIcon } from "lucide-react";
 import type { CSSProperties } from "react";
 import {
   ContextMenu,
-  ContextMenuContent,
   ContextMenuTrigger,
 } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
@@ -121,18 +120,17 @@ function TaskCard({ task }: TaskCardProps) {
             </div>
           </div>
         </ContextMenuTrigger>
-
-        <ContextMenuContent>
-          {project && workspace && (
-            <TaskCardContextMenuContent
-              task={task}
-              taskCardContext={{
-                projectId: project?.id,
-                worskpaceId: workspace.id,
-              }}
-            />
-          )}
-        </ContextMenuContent>
+       
+        {project && workspace && (
+          <TaskCardContextMenuContent
+            task={task}
+            taskCardContext={{
+              projectId: project?.id,
+              worskpaceId: workspace.id,
+            }}
+          />
+        )}
+       
       </ContextMenu>
     </div>
   );

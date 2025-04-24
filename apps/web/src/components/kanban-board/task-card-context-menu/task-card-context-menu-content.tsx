@@ -17,6 +17,7 @@ import type { taskInfoSchema } from "@/components/task/task-info";
 import { Calendar } from "@/components/ui/calendar";
 import {
   ContextMenuCheckboxItem,
+  ContextMenuContent,
   ContextMenuItem,
   ContextMenuSub,
   ContextMenuSubContent,
@@ -86,9 +87,7 @@ export default function TaskCardContextMenuContent({
     toast.success("Task link copied!");
   }
 
-  async function handleDuplicateTaskToAnotherProject(projectId: string) {
-    if (!task) return;
-
+  async function handleDuplicateTask(projectId: string) {
     const selectedProject = projectOptions?.find(
       (project) => project.value === projectId,
     );
@@ -118,7 +117,6 @@ export default function TaskCardContextMenuContent({
     field: keyof z.infer<typeof taskInfoSchema>,
     value: string | Date,
   ) => {
-    if (!task) return;
 
     try {
       await updateTask({
@@ -134,7 +132,7 @@ export default function TaskCardContextMenuContent({
   };
 
   return (
-    <>
+    <ContextMenuContent>
       <ContextMenuItem
         onClick={handleCopyTaskLink}
         className="flex items-center gap-2 cursor-pointer hover:bg-accent "
@@ -240,7 +238,7 @@ export default function TaskCardContextMenuContent({
               <ContextMenuItem
                 key={project.value}
                 onClick={() =>
-                  handleDuplicateTaskToAnotherProject(project.value)
+                  handleDuplicateTask(project.value)
                 }
                 className="flex items-center justify-between cursor-pointer hover:bg-accent"
               >
@@ -267,6 +265,6 @@ export default function TaskCardContextMenuContent({
           </ContextMenuSubContent>
         )}
       </ContextMenuSub>
-    </>
+    </ContextMenuContent>
   );
 }
