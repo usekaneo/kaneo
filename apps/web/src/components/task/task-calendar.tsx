@@ -16,7 +16,7 @@ function TaskCalendar({
 }: {
   field: ControllerRenderProps<z.infer<typeof taskInfoSchema>, "dueDate">;
   onChange: SelectSingleEventHandler;
-  hasDueDateLabel: boolean;
+  hasDueDateLabel?: boolean;
 }) {
   const { value } = field;
 
@@ -37,7 +37,7 @@ function TaskCalendar({
               "border-zinc-200 dark:border-zinc-700/50",
               "text-zinc-900 dark:text-zinc-100",
               "focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400",
-              "hover:border-zinc-300 dark:hover:border-zinc-600"
+              "hover:border-zinc-300 dark:hover:border-zinc-600",
             )}
           >
             <span>

@@ -8,12 +8,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Flag, GripVertical } from "lucide-react";
+import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuTrigger,
 } from "../ui/context-menu";
-import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
 
 interface TaskRowProps {
   task: Task;
@@ -63,7 +63,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
               "group px-4 py-2 rounded-lg flex items-center gap-4 bg-white dark:bg-zinc-900",
               "hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer",
               "border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800",
-              isDragging && "opacity-25"
+              isDragging && "opacity-25",
             )}
           >
             <button
@@ -112,7 +112,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                     "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
                     priorityColorsTaskCard[
                       task.priority as keyof typeof priorityColorsTaskCard
-                    ]
+                    ],
                   )}
                 >
                   <Flag className="w-3 h-3" />

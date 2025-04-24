@@ -8,15 +8,13 @@ import {
   User,
 } from "lucide-react";
 
+import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
-import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
 
-import { z } from "zod";
-import { toast } from "sonner";
-import { taskInfoSchema } from "@/components/task/task-info";
-import { Task } from "@/types/project";
+import type { taskInfoSchema } from "@/components/task/task-info";
+import { Calendar } from "@/components/ui/calendar";
 import {
   ContextMenuCheckboxItem,
   ContextMenuItem,
@@ -24,8 +22,10 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
-import { Calendar } from "@/components/ui/calendar";
 import { generateLink } from "@/lib/generate-link";
+import type { Task } from "@/types/project";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface TaskCardContext {
   worskpaceId: string;
@@ -90,7 +90,7 @@ export default function TaskCardContextMenuContent({
     if (!task) return;
 
     const selectedProject = projectOptions?.find(
-      (project) => project.value === projectId
+      (project) => project.value === projectId,
     );
 
     const newTask = {
@@ -109,14 +109,14 @@ export default function TaskCardContextMenuContent({
       toast.success(`Mirrored task successfully to: ${selectedProject?.label}`);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update task"
+        error instanceof Error ? error.message : "Failed to update task",
       );
     }
   }
 
   const handleChange = async (
     field: keyof z.infer<typeof taskInfoSchema>,
-    value: string | Date
+    value: string | Date,
   ) => {
     if (!task) return;
 
@@ -128,7 +128,7 @@ export default function TaskCardContextMenuContent({
       toast.success("Task updated successfully");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update task"
+        error instanceof Error ? error.message : "Failed to update task",
       );
     }
   };

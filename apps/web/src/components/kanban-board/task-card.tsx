@@ -7,7 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, Flag, UserIcon } from "lucide-react";
-import { type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -65,6 +65,9 @@ function TaskCard({ task }: TaskCardProps) {
           <div
             onClick={handleTaskCardClick}
             className="group bg-white dark:bg-zinc-800/50 backdrop-blur-sm rounded-lg border border-zinc-200 dark:border-zinc-700/50 p-3 cursor-move hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-sm"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleTaskCardClick();
+            }}
           >
             <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-2">
               {project?.slug}-{task.number}
