@@ -24,7 +24,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.15.1",
-    "esbuild": "^0.25.2",
+    "esbuild": "^0.25.3",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   }
