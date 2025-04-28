@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.1",
-    "@hono/zod-validator": "^0.4.3",
+    "@hono/zod-validator": "^0.5.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
