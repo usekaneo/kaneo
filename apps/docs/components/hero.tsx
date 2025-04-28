@@ -34,13 +34,11 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 text-center lg:pt-32">
         <div id="headline" className="mb-8">
           <a
-            href="https://peerlist.io/aacevski/project/kaneoapp"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/docs/roadmap"
             className="hover:bg-zinc-100 dark:hover:bg-zinc-800 bg-zinc-50 dark:bg-zinc-900 group mx-auto flex w-fit items-center gap-4 rounded-full border border-zinc-200 dark:border-zinc-800 p-1 pl-4 shadow-md shadow-zinc-950/5 transition-all duration-300 hover:scale-[1.02]"
           >
             <span className="text-zinc-900 dark:text-zinc-100 text-sm flex items-center gap-2">
-              Featured on Peerlist
+              View our Roadmap
             </span>
             <span className="block h-4 w-0.5 border-l border-zinc-300 dark:border-zinc-700" />
             <div className="bg-white dark:bg-zinc-800 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700 size-6 overflow-hidden rounded-full duration-500">
