@@ -37,6 +37,8 @@
 
 ## 🚀 Quick Start
 
+For a video walkthrough of getting started with Kaneo, check out our [Quick Start Guide on YouTube](https://www.youtube.com/watch?v=W2DwLtwH3k4).
+
 1. Create a `compose.yml` file with the following content:
 
 ```yaml
