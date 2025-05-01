@@ -220,12 +220,12 @@ function TaskLabels({
           <Popover.Portal>
             <Popover.Content
               align="start"
-              className="w-80 bg-zinc-900 border border-zinc-800 rounded-md shadow-lg overflow-hidden z-50"
+              className="w-80 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-lg overflow-hidden z-50"
               sideOffset={5}
             >
-              <div className="flex items-center p-2 border-b border-zinc-800">
+              <div className="flex items-center p-2 border-b border-zinc-200 dark:border-zinc-800">
                 <Search
-                  className="w-4 h-4 text-zinc-400 mr-2"
+                  className="w-4 h-4 text-zinc-500 dark:text-zinc-400 mr-2"
                   aria-hidden="true"
                 />
                 <input
@@ -235,7 +235,7 @@ function TaskLabels({
                   onChange={(e) => setSearchValue(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
                   placeholder="Change or add labels..."
-                  className="w-full bg-transparent border-none text-zinc-200 text-sm focus:outline-none placeholder:text-zinc-500"
+                  className="w-full bg-transparent border-none text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none placeholder:text-zinc-500"
                   aria-label="Search labels or create new label"
                 />
               </div>
@@ -250,14 +250,14 @@ function TaskLabels({
                       <button
                         key={label.id}
                         type="button"
-                        className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-200 hover:bg-zinc-800"
+                        className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                         onClick={() => toggleLabel(label.id)}
                         aria-selected={taskLabels.includes(label.id)}
                       >
                         <div className="flex-shrink-0 w-4 mr-2 text-center">
                           {taskLabels.includes(label.id) && (
                             <Check
-                              className="w-4 h-4 text-zinc-400"
+                              className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
                               aria-hidden="true"
                             />
                           )}
@@ -278,16 +278,16 @@ function TaskLabels({
                 ) : null}
 
                 {isCreatingNewLabel && (
-                  <div className="py-1 border-t border-zinc-800">
+                  <div className="py-1 border-t border-zinc-200 dark:border-zinc-800">
                     <button
                       type="button"
-                      className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-200 hover:bg-zinc-800"
+                      className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                       onClick={handleCreateLabel}
                       aria-label={`Create new label "${searchValue}"`}
                     >
                       <div className="flex-shrink-0 w-4 mr-2 text-center">
                         <PlusIcon
-                          className="w-4 h-4 text-zinc-400"
+                          className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
                           aria-hidden="true"
                         />
                       </div>
@@ -310,7 +310,7 @@ function TaskLabels({
                       <Popover.Trigger asChild>
                         <button
                           type="button"
-                          className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-400 hover:bg-zinc-800"
+                          className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                           aria-label="Choose a color for label"
                         >
                           <div className="flex-shrink-0 w-4 mr-2" />
@@ -320,7 +320,7 @@ function TaskLabels({
                       <Popover.Portal>
                         <Popover.Content
                           align="start"
-                          className="w-64 bg-zinc-900 border border-zinc-800 rounded-md shadow-lg p-2 z-50"
+                          className="w-64 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-lg p-2 z-50"
                           sideOffset={5}
                           aria-label="Label color options"
                         >
@@ -333,9 +333,9 @@ function TaskLabels({
                                 key={color.value}
                                 type="button"
                                 className={cn(
-                                  "flex items-center px-3 py-2 text-sm text-left text-zinc-200 rounded hover:bg-zinc-800",
+                                  "flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800",
                                   selectedColor === color.value &&
-                                    "bg-zinc-800",
+                                    "bg-zinc-100 dark:bg-zinc-800",
                                 )}
                                 onClick={() => {
                                   setSelectedColor(color.value as LabelColor);
@@ -352,7 +352,7 @@ function TaskLabels({
                                 <span>{color.label}</span>
                                 {selectedColor === color.value && (
                                   <Check
-                                    className="w-4 h-4 ml-auto text-zinc-400"
+                                    className="w-4 h-4 ml-auto text-zinc-500 dark:text-zinc-400"
                                     aria-hidden="true"
                                   />
                                 )}
