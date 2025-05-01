@@ -34,7 +34,7 @@
 		"@tiptap/extension-task-item": "^2.11.7",
 		"@tiptap/extension-task-list": "^2.11.9",
 		"@tiptap/pm": "^2.11.7",
-		"@tiptap/react": "^2.11.5",
+		"@tiptap/react": "^2.11.9",
 		"@tiptap/starter-kit": "^2.11.7",
 		"@types/file-saver": "^2.0.7",
 		"@vitejs/plugin-react": "^4.4.1",
