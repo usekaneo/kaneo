@@ -29,6 +29,13 @@
 			"when": 1745270042523,
 			"tag": "0003_daffy_amazoness",
 			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "6",
+			"when": 1746066911796,
+			"tag": "0004_small_dragon_lord",
+			"breakpoints": true
 		}
 	]
 }

@@ -8,6 +8,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, Flag, UserIcon } from "lucide-react";
 import type { CSSProperties } from "react";
+import TaskCardLabels from "./task-labels";
 
 interface TaskCardProps {
   task: Task;
@@ -59,10 +60,11 @@ function TaskCard({ task }: TaskCardProps) {
         {project?.slug}-{task.number}
       </div>
 
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex flex-col gap-2 mb-2">
         <h3 className="font-medium text-zinc-900 dark:text-zinc-100 max-w-4/5 truncate">
           {task.title}
         </h3>
+        <TaskCardLabels taskId={task.id} />
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mt-auto">

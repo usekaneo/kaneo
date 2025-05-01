@@ -151,3 +151,20 @@ export const activityTable = sqliteTable("activity", {
     }),
   content: text("content"),
 });
+
+export const labelTable = sqliteTable("label", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  name: text("name").notNull(),
+  color: text("color").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(new Date())
+    .notNull(),
+  taskId: text("task_id")
+    .notNull()
+    .references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+});

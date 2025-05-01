@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import TaskCalendar from "./task-calendar";
+import TaskLabels from "./task-labels";
 
 export const taskInfoSchema = z.object({
   status: z.string(),
@@ -178,6 +179,7 @@ function TaskInfo({
             />
           )}
         />
+        <TaskLabels taskId={task.id} setIsSaving={setIsSaving} />
       </Form>
     </div>
   );

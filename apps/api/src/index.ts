@@ -5,6 +5,7 @@ import { getCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import activity from "./activity";
 import db from "./database";
+import label from "./label";
 import { auth } from "./middlewares/auth";
 import project from "./project";
 import task from "./task";
@@ -75,6 +76,7 @@ const projectRoute = app.route("/project", project);
 const taskRoute = app.route("/task", task);
 const activityRoute = app.route("/activity", activity);
 const timeEntryRoute = app.route("/time-entry", timeEntry);
+const labelRoute = app.route("/label", label);
 
 try {
   console.log("Migrating database...");
@@ -103,4 +105,5 @@ export type AppType =
   | typeof taskRoute
   | typeof activityRoute
   | typeof meRoute
-  | typeof timeEntryRoute;
+  | typeof timeEntryRoute
+  | typeof labelRoute;
