@@ -38,7 +38,7 @@
 		"@tiptap/starter-kit": "^2.11.7",
 		"@types/file-saver": "^2.0.7",
 		"@vitejs/plugin-react": "^4.4.1",
-		"babel-plugin-react-compiler": "^19.0.0-beta-21e868a-20250216",
+		"babel-plugin-react-compiler": "^19.0.0-beta-714736e-20250131",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
