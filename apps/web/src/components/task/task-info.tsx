@@ -5,6 +5,7 @@ import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import { useQueryClient } from "@tanstack/react-query";
 import { Flag } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -27,6 +28,7 @@ function TaskInfo({
   task: Task;
   setIsSaving: (isSaving: boolean) => void;
 }) {
+  const queryClient = useQueryClient();
   const { project } = useProjectStore();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
     workspaceId: project?.workspaceId ?? "",
@@ -71,6 +73,9 @@ function TaskInfo({
 
     try {
       await deleteTask(task.id);
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", project?.id ?? ""],
+      });
       toast.success("Task deleted successfully");
     } catch (error) {
       toast.error(
