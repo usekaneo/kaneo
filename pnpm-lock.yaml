@@ -7,13 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@types/file-saver':
-        specifier: ^2.0.7
-        version: 2.0.7
-      file-saver:
-        specifier: ^2.0.5
-        version: 2.0.5
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
