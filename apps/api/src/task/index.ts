@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import createTask from "./controllers/create-task";
+import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -143,6 +144,16 @@ const task = new Hono<{
 
       return c.json(result);
     },
-  );
+  )
+  .delete(
+    "/:id",
+    zValidator("param", z.object({ id: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
 
+      const task = await deleteTask(id);
+
+      return c.json(task);
+    },
+  );
 export default task;

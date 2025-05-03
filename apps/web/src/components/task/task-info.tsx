@@ -1,9 +1,13 @@
+import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
+import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { Flag } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -26,11 +30,14 @@ function TaskInfo({
   task: Task;
   setIsSaving: (isSaving: boolean) => void;
 }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { project } = useProjectStore();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
     workspaceId: project?.workspaceId ?? "",
   });
   const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: deleteTask, isPending: isDeleting } = useDeleteTask();
 
   const form = useForm<z.infer<typeof taskInfoSchema>>({
     defaultValues: {
@@ -61,6 +68,29 @@ function TaskInfo({
       );
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteTask = async () => {
+    if (!task) return;
+
+    try {
+      await deleteTask(task.id);
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", project?.id ?? ""],
+      });
+      toast.success("Task deleted successfully");
+      navigate({
+        to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+        params: {
+          workspaceId: project?.workspaceId ?? "",
+          projectId: project?.id ?? "",
+        },
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete task",
+      );
     }
   };
 
@@ -181,6 +211,12 @@ function TaskInfo({
         />
         <TaskLabels taskId={task.id} setIsSaving={setIsSaving} />
       </Form>
+      <Button
+        onClick={handleDeleteTask}
+        className="bg-red-600 text-white hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400"
+      >
+        {isDeleting ? "Deleting..." : "Delete Task"}
+      </Button>
     </div>
   );
 }
