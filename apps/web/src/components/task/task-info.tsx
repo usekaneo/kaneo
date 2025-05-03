@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
 import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
@@ -6,6 +7,7 @@ import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-acti
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { Flag } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -28,6 +30,7 @@ function TaskInfo({
   task: Task;
   setIsSaving: (isSaving: boolean) => void;
 }) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { project } = useProjectStore();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
@@ -77,6 +80,13 @@ function TaskInfo({
         queryKey: ["tasks", project?.id ?? ""],
       });
       toast.success("Task deleted successfully");
+      navigate({
+        to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+        params: {
+          workspaceId: project?.workspaceId ?? "",
+          projectId: project?.id ?? "",
+        },
+      });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to delete task",
