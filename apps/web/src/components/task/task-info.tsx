@@ -66,6 +66,19 @@ function TaskInfo({
     }
   };
 
+  const handleDeleteTask = async () => {
+    if (!task) return;
+
+    try {
+      await deleteTask(task.id);
+      toast.success("Task deleted successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete task",
+      );
+    }
+  };
+
   useEffect(() => {
     return () => {
       form.reset();
@@ -184,6 +197,7 @@ function TaskInfo({
         <TaskLabels taskId={task.id} setIsSaving={setIsSaving} />
       </Form>
       <Button
+        onClick={handleDeleteTask}
         className="bg-red-600 text-white hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400"
       >
         {isDeleting ? "Deleting..." : "Delete Task"}
