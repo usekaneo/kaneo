@@ -1,5 +1,6 @@
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
+import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
@@ -31,6 +32,7 @@ function TaskInfo({
     workspaceId: project?.workspaceId ?? "",
   });
   const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: deleteTask, isPending: isDeleting } = useDeleteTask();
 
   const form = useForm<z.infer<typeof taskInfoSchema>>({
     defaultValues: {
@@ -181,6 +183,11 @@ function TaskInfo({
         />
         <TaskLabels taskId={task.id} setIsSaving={setIsSaving} />
       </Form>
+      <Button
+        className="bg-red-600 text-white hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400"
+      >
+        {isDeleting ? "Deleting..." : "Delete Task"}
+      </Button>
     </div>
   );
 }
