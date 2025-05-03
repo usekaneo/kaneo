@@ -28,6 +28,8 @@ function RouteComponent() {
     assignee: null,
     priority: null,
     dueDate: null,
+    sortBy: null,
+    sortOrder: null,
   });
 
   useEffect(() => {
@@ -37,7 +39,7 @@ function RouteComponent() {
   }, [data, setProject]);
 
   const filterTasks = (tasks: Task[]): Task[] => {
-    return tasks
+    let filteredTasks = tasks
       .filter((task) => {
         if (
           filters.search &&
@@ -95,6 +97,52 @@ function RouteComponent() {
         assigneeName: null,
         assigneeEmail: task.userEmail ?? null,
       }));
+
+    // Sort tasks if sort parameters are provided
+    if (filters.sortBy && filters.sortOrder) {
+      filteredTasks = filteredTasks.sort((a, b) => {
+        const sortOrder = filters.sortOrder === "asc" ? 1 : -1;
+
+        switch (filters.sortBy) {
+          case "title":
+            return sortOrder * a.title.localeCompare(b.title);
+
+          case "priority": {
+            // Custom priority order: urgent > high > medium > low
+            const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
+            const aPriority = a.priority
+              ? (priorityOrder[a.priority as keyof typeof priorityOrder] ?? 999)
+              : 999;
+            const bPriority = b.priority
+              ? (priorityOrder[b.priority as keyof typeof priorityOrder] ?? 999)
+              : 999;
+            return sortOrder * (aPriority - bPriority);
+          }
+
+          case "dueDate": {
+            // Handle cases where dueDate might be undefined
+            if (!a.dueDate && !b.dueDate) return 0;
+            if (!a.dueDate) return sortOrder;
+            if (!b.dueDate) return -sortOrder;
+
+            const aDate = new Date(a.dueDate).getTime();
+            const bDate = new Date(b.dueDate).getTime();
+            return sortOrder * (aDate - bDate);
+          }
+
+          case "createdAt": {
+            const aDate = new Date(a.createdAt).getTime();
+            const bDate = new Date(b.createdAt).getTime();
+            return sortOrder * (aDate - bDate);
+          }
+
+          default:
+            return 0;
+        }
+      });
+    }
+
+    return filteredTasks;
   };
 
   const filteredProject = project
