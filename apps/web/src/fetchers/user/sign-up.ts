@@ -10,6 +10,11 @@ const signUp = async ({ email, password, name }: SignUpFormValues) => {
     },
   });
 
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error);
+  }
+
   const user = await response.json();
 
   return user;

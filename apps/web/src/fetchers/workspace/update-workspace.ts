@@ -16,6 +16,11 @@ const updateWorkspace = async ({
     json: { name, description },
   });
 
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error);
+  }
+
   const workspace = await response.json();
 
   return workspace;

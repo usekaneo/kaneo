@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 
 function useSignOut() {
   return useMutation({
-    mutationFn: () => signOut(),
+    mutationFn: signOut,
   });
 }
 

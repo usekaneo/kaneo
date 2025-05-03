@@ -77,7 +77,7 @@ volumes:
 | `KANEO_API_URL` | The URL of the API |
 | `JWT_ACCESS` | Secret key for generating JWT tokens |
 | `DB_PATH` | The path to the database file |
-| `ALLOW_REGISTRATION` | Enable/disable new user registration (default: true) |
+| `DISABLE_REGISTRATION` | Enable/disable new user registration (default: true) |
 
 ## 🚢 Kubernetes Deployment
 

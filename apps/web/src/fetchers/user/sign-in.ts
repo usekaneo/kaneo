@@ -9,6 +9,11 @@ const signIn = async ({ email, password }: SignInFormValues) => {
     },
   });
 
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error);
+  }
+
   const user = await response.json();
 
   return user;

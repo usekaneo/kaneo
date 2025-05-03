@@ -10,6 +10,11 @@ async function getWorkspace({ id }: GetWorkspaceRequest) {
     param: { id },
   });
 
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error);
+  }
+
   const workspace = await response.json();
 
   return workspace;
