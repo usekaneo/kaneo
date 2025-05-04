@@ -62,6 +62,9 @@ export function Editor({
         class: "h-full flex-1",
       },
     },
+    parseOptions: {
+      preserveWhitespace: "full",
+    },
     extensions: [
       StarterKit.configure({
         heading: {
