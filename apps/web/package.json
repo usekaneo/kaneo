@@ -44,7 +44,7 @@
 		"cmdk": "^1.1.1",
 		"date-fns": "^4.1.0",
 		"file-saver": "^2.0.5",
-		"framer-motion": "^12.9.2",
+		"framer-motion": "^12.9.4",
 		"hono": "^4.7.7",
 		"immer": "^10.1.1",
 		"lucide-react": "^0.503.0",
