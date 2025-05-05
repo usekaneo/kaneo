@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
-import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
 import { cn } from "@/lib/cn";
