@@ -57,7 +57,7 @@
 		"tailwind-merge": "^3.0.1",
 		"tailwindcss-animate": "^1.0.7",
 		"zod": "3.24.4",
-		"zustand": "^5.0.3"
+		"zustand": "^5.0.4"
 	},
 	"devDependencies": {
 		"@kaneo/libs": "workspace:*",
