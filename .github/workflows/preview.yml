@@ -1,0 +1,163 @@
+name: PR Preview Environment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+
+jobs:
+  setup-preview:
+    runs-on: self-hosted
+    if: github.event.action != 'closed'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate preview ID
+        id: preview
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PREVIEW_ID="pr-${PR_NUMBER}"
+          PREVIEW_DOMAIN="${PREVIEW_ID}.preview.kaneo.app"
+          API_PREVIEW_DOMAIN="api-${PREVIEW_ID}.preview.kaneo.app"
+          echo "preview_id=${PREVIEW_ID}" >> $GITHUB_OUTPUT
+          echo "domain=${PREVIEW_DOMAIN}" >> $GITHUB_OUTPUT
+          echo "api_domain=${API_PREVIEW_DOMAIN}" >> $GITHUB_OUTPUT
+
+      - name: Build and tag API image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/api/Dockerfile
+          push: false
+          load: true
+          tags: kaneo-api-preview:${{ steps.preview.outputs.preview_id }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and tag Web image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/web/Dockerfile
+          push: false
+          load: true
+          tags: kaneo-web-preview:${{ steps.preview.outputs.preview_id }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create preview environment
+        run: |
+          # Create a directory for this preview
+          PREVIEW_DIR="/opt/preview-environments/${{ steps.preview.outputs.preview_id }}"
+          mkdir -p $PREVIEW_DIR
+
+          # Create docker-compose.yml for the preview
+          cat > $PREVIEW_DIR/docker-compose.yml << EOF
+          version: '3'
+          services:
+            traefik:
+              image: traefik:v3.3
+              command:
+                - "--providers.docker=true"
+                - "--entryPoints.web.address=:80"
+              ports:
+                - "80:80"
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock:ro
+              networks:
+                - preview-net
+
+            backend:
+              image: kaneo-api-preview:${{ steps.preview.outputs.preview_id }}
+              environment:
+                JWT_ACCESS: "preview_jwt_token"
+                DB_PATH: "/app/apps/api/data/kaneo.db"
+              volumes:
+                - sqlite_data:/app/apps/api/data
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.backend-${{ steps.preview.outputs.preview_id }}.rule=Host(\`${{ steps.preview.outputs.api_domain }}\`)"
+                - "traefik.http.routers.backend-${{ steps.preview.outputs.preview_id }}.entrypoints=web"
+                - "traefik.http.services.backend-${{ steps.preview.outputs.preview_id }}.loadbalancer.server.port=1337"
+              networks:
+                - preview-net
+              restart: unless-stopped
+
+            frontend:
+              image: kaneo-web-preview:${{ steps.preview.outputs.preview_id }}
+              environment:
+                KANEO_API_URL: "http://${{ steps.preview.outputs.api_domain }}"
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.frontend-${{ steps.preview.outputs.preview_id }}.rule=Host(\`${{ steps.preview.outputs.domain }}\`)"
+                - "traefik.http.routers.frontend-${{ steps.preview.outputs.preview_id }}.entrypoints=web"
+                - "traefik.http.services.frontend-${{ steps.preview.outputs.preview_id }}.loadbalancer.server.port=80"
+              networks:
+                - preview-net
+              restart: unless-stopped
+
+          networks:
+            preview-net:
+              driver: bridge
+
+          volumes:
+            sqlite_data:
+          EOF
+
+          # Start the preview environment
+          cd $PREVIEW_DIR
+          docker-compose up -d
+
+      - name: Comment on PR with preview URL
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const previewUrl = 'http://${{ steps.preview.outputs.domain }}';
+            const apiUrl = 'http://${{ steps.preview.outputs.api_domain }}';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Preview Environment Deployed!
+
+              Your changes can be previewed at:
+              - **Frontend**: [${previewUrl}](${previewUrl})
+              - **API**: [${apiUrl}](${apiUrl})
+
+              This preview environment will be automatically removed when the PR is closed.`
+            });
+
+  cleanup-preview:
+    runs-on: self-hosted
+    if: github.event.action == 'closed'
+
+    steps:
+      - name: Generate preview ID
+        id: preview
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PREVIEW_ID="pr-${PR_NUMBER}"
+          echo "preview_id=${PREVIEW_ID}" >> $GITHUB_OUTPUT
+
+      - name: Remove preview environment
+        run: |
+          PREVIEW_DIR="/opt/preview-environments/${{ steps.preview.outputs.preview_id }}"
+
+          if [ -d "$PREVIEW_DIR" ]; then
+            cd $PREVIEW_DIR
+            docker-compose down -v
+            cd /opt/preview-environments
+            rm -rf $PREVIEW_DIR
+          fi
+
+          # Clean up Docker images
+          docker rmi kaneo-api-preview:${{ steps.preview.outputs.preview_id }} || true
+          docker rmi kaneo-web-preview:${{ steps.preview.outputs.preview_id }} || true
