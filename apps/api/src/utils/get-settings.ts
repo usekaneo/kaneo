@@ -1,13 +1,11 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 function getSettings() {
   return {
-    allowRegistration:
-      typeof process.env.DISABLE_REGISTRATION === "string"
-        ? process.env.DISABLE_REGISTRATION === "true"
-        : false,
-    isDemoMode:
-      typeof process.env.DEMO_MODE === "string"
-        ? process.env.DEMO_MODE === "true"
-        : false,
+    disableRegistration: process.env.DISABLE_REGISTRATION === "true",
+    isDemoMode: process.env.DEMO_MODE === "true",
   };
 }
 

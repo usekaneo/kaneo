@@ -6,9 +6,9 @@ import { publishEvent } from "../../events";
 import getSettings from "../../utils/get-settings";
 
 async function signUp(email: string, password: string, name: string) {
-  const { allowRegistration, isDemoMode } = getSettings();
+  const { disableRegistration, isDemoMode } = getSettings();
 
-  if (!allowRegistration && !isDemoMode) {
+  if (disableRegistration && !isDemoMode) {
     throw new HTTPException(400, {
       message: "Registration is disabled on this instance",
     });
