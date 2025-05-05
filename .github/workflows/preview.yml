@@ -60,6 +60,12 @@ jobs:
           PREVIEW_DIR="/opt/preview-environments/${{ steps.preview.outputs.preview_id }}"
           mkdir -p $PREVIEW_DIR
 
+          # Clean up any existing containers for this preview
+          if [ -f "$PREVIEW_DIR/docker-compose.yml" ]; then
+            cd $PREVIEW_DIR
+            docker-compose down -v --remove-orphans
+          fi
+
           # Create docker-compose.yml for the preview
           cat > $PREVIEW_DIR/docker-compose.yml << EOF
           version: '3'
@@ -105,9 +111,9 @@ jobs:
             sqlite_data:
           EOF
 
-          # Start the preview environment
+          # Start the preview environment with a fresh setup
           cd $PREVIEW_DIR
-          docker-compose up -d
+          docker-compose up -d --force-recreate
 
       - name: Comment on PR with preview URL
         uses: actions/github-script@v7
