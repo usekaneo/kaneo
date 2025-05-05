@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
+import useGetProject from "@/hooks/queries/project/use-get-project";
+import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
@@ -20,7 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, Lock } from "lucide-react";
-import { createElement, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -40,6 +42,8 @@ export const Route = createFileRoute(
 });
 
 function ProjectSettings() {
+  const { projectId } = Route.useParams();
+  const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const { isOwner } = useWorkspacePermission();
   const [confirmProjectName, setConfirmProjectName] = useState("");
@@ -48,6 +52,12 @@ function ProjectSettings() {
     useDeleteProject();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (data) {
+      setProject(data);
+    }
+  }, [data, setProject]);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),

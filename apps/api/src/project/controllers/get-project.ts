@@ -12,6 +12,7 @@ async function getProject(id: string, workspaceId: string) {
       description: projectTable.description,
       workspaceId: projectTable.workspaceId,
       workspace: workspaceTable,
+      icon: projectTable.icon,
     })
     .from(projectTable)
     .leftJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
