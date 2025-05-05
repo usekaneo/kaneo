@@ -77,51 +77,71 @@ jobs:
                 DB_PATH: "/app/apps/api/data/kaneo.db"
               volumes:
                 - sqlite_data:/app/apps/api/data
-              labels:
-                - "traefik.enable=true"
-                - "traefik.http.routers.backend-${{ steps.preview.outputs.preview_id }}.rule=Host(\`${{ steps.preview.outputs.api_domain }}\`)"
-                - "traefik.http.routers.backend-${{ steps.preview.outputs.preview_id }}.entrypoints=websecure"
-                - "traefik.http.routers.backend-${{ steps.preview.outputs.preview_id }}.tls=true"
-                - "traefik.http.routers.backend-${{ steps.preview.outputs.preview_id }}.tls.certresolver=myresolver"
-                - "traefik.http.services.backend-${{ steps.preview.outputs.preview_id }}.loadbalancer.server.port=1337"
               networks:
-                - traefik-public
+                - preview-net
               restart: unless-stopped
 
             frontend:
               image: kaneo-web-preview:${{ steps.preview.outputs.preview_id }}
               environment:
-                KANEO_API_URL: "https://${{ steps.preview.outputs.api_domain }}"
-              labels:
-                - "traefik.enable=true"
-                - "traefik.http.routers.frontend-${{ steps.preview.outputs.preview_id }}.rule=Host(\`${{ steps.preview.outputs.domain }}\`)"
-                - "traefik.http.routers.frontend-${{ steps.preview.outputs.preview_id }}.entrypoints=websecure"
-                - "traefik.http.routers.frontend-${{ steps.preview.outputs.preview_id }}.tls=true"
-                - "traefik.http.routers.frontend-${{ steps.preview.outputs.preview_id }}.tls.certresolver=myresolver"
-                - "traefik.http.services.frontend-${{ steps.preview.outputs.preview_id }}.loadbalancer.server.port=80"
+                KANEO_API_URL: "http://${{ steps.preview.outputs.api_domain }}"
               networks:
-                - traefik-public
+                - preview-net
               restart: unless-stopped
 
           networks:
-            traefik-public:
-              external: true
+            preview-net:
+              name: ${{ steps.preview.outputs.preview_id }}_network
 
           volumes:
             sqlite_data:
           EOF
 
-          # Start the preview environment with a fresh setup
+          # Start the preview environment
           cd $PREVIEW_DIR
           docker-compose up -d --force-recreate
+
+          # Create Nginx configuration for this preview
+          cat > /opt/nginx-proxy/conf.d/${{ steps.preview.outputs.preview_id }}.conf << EOF
+          server {
+              listen 80;
+              server_name ${{ steps.preview.outputs.domain }};
+
+              location / {
+                  proxy_pass http://frontend-${{ steps.preview.outputs.preview_id }}:80;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              }
+          }
+
+          server {
+              listen 80;
+              server_name ${{ steps.preview.outputs.api_domain }};
+
+              location / {
+                  proxy_pass http://backend-${{ steps.preview.outputs.preview_id }}:1337;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              }
+          }
+          EOF
+
+          # Connect the containers to the Nginx network
+          docker network connect --alias frontend-${{ steps.preview.outputs.preview_id }} nginx-proxy ${{ steps.preview.outputs.preview_id }}_frontend_1
+          docker network connect --alias backend-${{ steps.preview.outputs.preview_id }} nginx-proxy ${{ steps.preview.outputs.preview_id }}_backend_1
+
+          # Reload Nginx to apply the new configuration
+          docker exec nginx-proxy nginx -s reload
 
       - name: Comment on PR with preview URL
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GH_PAT }}
           script: |
-            const previewUrl = 'https://${{ steps.preview.outputs.domain }}';
-            const apiUrl = 'https://${{ steps.preview.outputs.api_domain }}';
+            const previewUrl = 'http://${{ steps.preview.outputs.domain }}';
+            const apiUrl = 'http://${{ steps.preview.outputs.api_domain }}';
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -153,11 +173,24 @@ jobs:
           PREVIEW_DIR="/opt/preview-environments/${{ steps.preview.outputs.preview_id }}"
 
           if [ -d "$PREVIEW_DIR" ]; then
+            # Disconnect from Nginx network before removing
+            docker network disconnect nginx-proxy ${{ steps.preview.outputs.preview_id }}_frontend_1 || true
+            docker network disconnect nginx-proxy ${{ steps.preview.outputs.preview_id }}_backend_1 || true
+
+            # Remove the containers
             cd $PREVIEW_DIR
-            docker-compose down -v
+            docker-compose down -v --remove-orphans
+
+            # Remove the directory
             cd /opt/preview-environments
             rm -rf $PREVIEW_DIR
           fi
+
+          # Remove the Nginx configuration
+          rm -f /opt/nginx-proxy/conf.d/${{ steps.preview.outputs.preview_id }}.conf
+
+          # Reload Nginx to apply the changes
+          docker exec nginx-proxy nginx -s reload
 
           # Clean up Docker images
           docker rmi kaneo-api-preview:${{ steps.preview.outputs.preview_id }} || true
