@@ -287,10 +287,10 @@ export default function TaskCardContextMenuContent({
           </ContextMenuSubContent>
         )}
       </ContextMenuSub>
-      <hr />
+      <hr className="border-t border-gray-200 dark:border-gray-700" />
       <ContextMenuItem
         onClick={handleDeleteTask}
-        className="flex items-center transition-all duration-200 gap-2 mt-1 cursor-pointer text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500 dark:hover:bg-red-400"
+        className="flex items-center transition-all duration-200 gap-2 mt-1 cursor-pointer text-red-600 dark:text-red-400 dark:hover:text-white hover:bg-red-500 hover:text-white"
       >
         <Trash className="w-4 h-4 " />
         Delete Task
