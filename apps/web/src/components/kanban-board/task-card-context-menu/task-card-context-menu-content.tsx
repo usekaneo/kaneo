@@ -88,15 +88,15 @@ export default function TaskCardContextMenuContent({
     },
   ];
 
-  function handleCopyTaskLink() {
+  const handleCopyTaskLink = () => {
     const path = `/dashboard/workspace/${taskCardContext.worskpaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
     const taskLink = generateLink(path);
 
     navigator.clipboard.writeText(taskLink);
     toast.success("Task link copied!");
-  }
+  };
 
-  async function handleDuplicateTask(projectId: string) {
+  const handleDuplicateTask = async (projectId: string) => {
     const selectedProject = projectsOptions?.find(
       (project) => project.value === projectId,
     );
@@ -121,12 +121,12 @@ export default function TaskCardContextMenuContent({
     } finally {
       toast.success(`Mirrored task successfully to: ${selectedProject?.label}`);
     }
-  }
+  };
 
-  async function handleChange(
+  const handleChange = async (
     field: keyof z.infer<typeof taskInfoSchema>,
     value: string | Date,
-  ) {
+  ) => {
     try {
       await updateTask({
         ...task,
@@ -139,9 +139,9 @@ export default function TaskCardContextMenuContent({
     } finally {
       toast.success("Task updated successfully");
     }
-  }
+  };
 
-  async function handleDeleteTask() {
+  const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
     } catch (error) {
@@ -151,7 +151,7 @@ export default function TaskCardContextMenuContent({
     } finally {
       toast.success("Task deleted successfully");
     }
-  }
+  };
 
   return (
     <ContextMenuContent>
