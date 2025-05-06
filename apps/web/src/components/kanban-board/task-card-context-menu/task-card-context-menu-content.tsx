@@ -123,10 +123,10 @@ export default function TaskCardContextMenuContent({
     }
   }
 
-  const handleChange = async (
+  async function handleChange(
     field: keyof z.infer<typeof taskInfoSchema>,
     value: string | Date,
-  ) => {
+  ) {
     try {
       await updateTask({
         ...task,
@@ -139,7 +139,7 @@ export default function TaskCardContextMenuContent({
     } finally {
       toast.success("Task updated successfully");
     }
-  };
+  }
 
   async function handleDeleteTask() {
     try {
