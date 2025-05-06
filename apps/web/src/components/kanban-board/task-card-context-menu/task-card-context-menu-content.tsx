@@ -25,13 +25,12 @@ import {
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
 
-
-import Task from "@/types/task";
+import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
+import { generateLink } from "@/lib/generate-link";
+import type Task from "@/types/task";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { generateLink } from "@/lib/generate-link";
-import { useMemo } from "react";
-import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
 
 interface TaskCardContext {
   worskpaceId: string;
@@ -128,7 +127,6 @@ export default function TaskCardContextMenuContent({
     field: keyof z.infer<typeof taskInfoSchema>,
     value: string | Date,
   ) => {
-
     try {
       await updateTask({
         ...task,
@@ -143,7 +141,7 @@ export default function TaskCardContextMenuContent({
     }
   };
 
-  async function handleDeleteTask(){
+  async function handleDeleteTask() {
     try {
       await deleteTask(task.id);
     } catch (error) {
@@ -234,7 +232,9 @@ export default function TaskCardContextMenuContent({
               <ContextMenuCheckboxItem
                 key={user.value}
                 checked={task.userEmail === user.value}
-                onCheckedChange={() => handleChange("userEmail", user.value ?? "")}
+                onCheckedChange={() =>
+                  handleChange("userEmail", user.value ?? "")
+                }
                 className="flex items-center justify-between cursor-pointer"
               >
                 {user.label}
@@ -261,9 +261,7 @@ export default function TaskCardContextMenuContent({
             {projectsOptions.map((project) => (
               <ContextMenuItem
                 key={project.value}
-                onClick={() =>
-                  handleDuplicateTask(project.value)
-                }
+                onClick={() => handleDuplicateTask(project.value)}
                 className="flex items-center justify-between cursor-pointer hover:bg-accent"
               >
                 {project.label}

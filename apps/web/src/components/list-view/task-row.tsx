@@ -8,8 +8,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Flag, GripVertical } from "lucide-react";
-import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
+import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 
 interface TaskRowProps {
   task: Task;
@@ -48,7 +48,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     });
   };
 
-    return (
+  return (
     <div ref={setNodeRef} style={style}>
       <ContextMenu>
         <ContextMenuTrigger asChild>
@@ -125,17 +125,15 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
           </div>
         </ContextMenuTrigger>
 
-      
-          {project && (
-            <TaskCardContextMenuContent
-              task={task}
-              taskCardContext={{
-                projectId: project.id,
-                worskpaceId: project.workspaceId,
-              }}
-            />
-          )}
-       
+        {project && (
+          <TaskCardContextMenuContent
+            task={task}
+            taskCardContext={{
+              projectId: project.id,
+              worskpaceId: project.workspaceId,
+            }}
+          />
+        )}
       </ContextMenu>
     </div>
   );

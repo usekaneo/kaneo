@@ -8,9 +8,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, Flag, UserIcon } from "lucide-react";
 import type { CSSProperties } from "react";
-import TaskCardLabels from "./task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
+import TaskCardLabels from "./task-labels";
 
 interface TaskCardProps {
   task: Task;
@@ -50,12 +50,7 @@ function TaskCard({ task }: TaskCardProps) {
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div
@@ -65,60 +60,60 @@ function TaskCard({ task }: TaskCardProps) {
               if (e.key === "Enter") handleTaskCardClick();
             }}
           >
-      <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-2">
-        {project?.slug}-{task.number}
-      </div>
+            <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-2">
+              {project?.slug}-{task.number}
+            </div>
 
-      <div className="flex flex-col gap-2 mb-2">
-        <h3 className="font-medium text-zinc-900 dark:text-zinc-100 max-w-4/5 truncate">
-          {task.title}
-        </h3>
-        <TaskCardLabels taskId={task.id} />
-      </div>
+            <div className="flex flex-col gap-2 mb-2">
+              <h3 className="font-medium text-zinc-900 dark:text-zinc-100 max-w-4/5 truncate">
+                {task.title}
+              </h3>
+              <TaskCardLabels taskId={task.id} />
+            </div>
 
-      <div className="flex flex-wrap items-center gap-2 mt-auto">
-        {task.userEmail ? (
-          <div
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
-            title={task.userEmail}
-          >
-            <span className="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[100px]">
-              {task.userEmail}
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mt-auto">
+              {task.userEmail ? (
+                <div
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
+                  title={task.userEmail}
+                >
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[100px]">
+                    {task.userEmail}
+                  </span>
+                </div>
+              ) : (
+                <div
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
+                  title="Unassigned"
+                >
+                  <UserIcon className="h-3 w-3 text-zinc-400 dark:text-zinc-500" />
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Unassigned
+                  </span>
+                </div>
+              )}
+
+              {task.dueDate && (
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors">
+                  <Calendar className="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                    {format(new Date(task.dueDate), "MMM d, yyyy")}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex-shrink-0">
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${priorityColorsTaskCard[task.priority as keyof typeof priorityColorsTaskCard]}`}
+                >
+                  <Flag className="w-3 h-3 inline-block mr-1" />
+                  {task.priority}
+                </span>
+              </div>
+            </div>
           </div>
-        ) : (
-          <div
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
-            title="Unassigned"
-          >
-            <UserIcon className="h-3 w-3 text-zinc-400 dark:text-zinc-500" />
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
-              Unassigned
-            </span>
-          </div>
-        )}
+        </ContextMenuTrigger>
 
-        {task.dueDate && (
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors">
-            <Calendar className="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
-            <span className="text-xs text-zinc-600 dark:text-zinc-400">
-              {format(new Date(task.dueDate), "MMM d, yyyy")}
-            </span>
-          </div>
-        )}
-
-        <div className="flex-shrink-0">
-          <span
-            className={`text-xs px-2 py-1 rounded-full ${priorityColorsTaskCard[task.priority as keyof typeof priorityColorsTaskCard]}`}
-          >
-            <Flag className="w-3 h-3 inline-block mr-1" />
-            {task.priority}
-          </span>
-        </div>
-      </div>
-      </div>
-      </ContextMenuTrigger>
-       
         {project && workspace && (
           <TaskCardContextMenuContent
             task={task}
@@ -128,7 +123,6 @@ function TaskCard({ task }: TaskCardProps) {
             }}
           />
         )}
-       
       </ContextMenu>
     </div>
   );
