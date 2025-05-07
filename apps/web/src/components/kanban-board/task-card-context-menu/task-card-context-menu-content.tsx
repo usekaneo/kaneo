@@ -27,6 +27,7 @@ import {
 
 import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
 import { generateLink } from "@/lib/generate-link";
+import queryClient from "@/query-client";
 import type Task from "@/types/task";
 import { useMemo } from "react";
 import { toast } from "sonner";
@@ -144,6 +145,9 @@ export default function TaskCardContextMenuContent({
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", taskCardContext.projectId],
+      });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to delete task",
