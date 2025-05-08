@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import { cn } from "@/lib/cn";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
@@ -8,6 +9,7 @@ import { History, MessageSquare, Pencil, PlusCircle } from "lucide-react";
 function TaskActivities() {
   const { taskId } = Route.useParams();
   const { data: activities } = useGetActivitiesByTaskId(taskId);
+  const { mutateAsync: deleteComment } = useDeleteComment(taskId);
 
   return (
     <div className="flex flex-col gap-4">
@@ -55,12 +57,25 @@ function TaskActivities() {
                 {activity.type === "comment" && activity.content}
               </div>
               <div className="flex flex-row gap-3">
-                <span className="text-xs underline text-zinc-500 dark:text-zinc-400">
+                <button
+                  type="button"
+                  className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                >
                   Edit
-                </span>
-                <span className="text-xs underline text-zinc-500 dark:text-zinc-400">
+                </button>
+                <button
+                  className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                  tabIndex={0}
+                  type="button"
+                  onClick={() => deleteComment({ id: activity.id })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      deleteComment({ id: activity.id });
+                    }
+                  }}
+                >
                   Delete
-                </span>
+                </button>
               </div>
             </div>
           </div>
