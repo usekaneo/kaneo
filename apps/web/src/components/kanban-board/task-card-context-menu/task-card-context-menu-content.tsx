@@ -169,7 +169,7 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <Tags className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          <Tags className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
           Priority
         </ContextMenuSubTrigger>
         <ContextMenuSubContent>
@@ -210,7 +210,7 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <ListTodo className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          <ListTodo className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
           Status
         </ContextMenuSubTrigger>
         <ContextMenuSubContent>
@@ -229,7 +229,7 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <User className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          <User className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
           Assignee
         </ContextMenuSubTrigger>
 
@@ -260,7 +260,7 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <FlipHorizontal2 className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          <FlipHorizontal2 className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
           Mirror
         </ContextMenuSubTrigger>
 
@@ -280,8 +280,8 @@ export default function TaskCardContextMenuContent({
       </ContextMenuSub>
 
       <ContextMenuSub>
-        <ContextMenuSubTrigger className="flex items-center gap-2 mb-1">
-          <CalendarIcon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+        <ContextMenuSubTrigger className="flex items-center gap-2">
+          <CalendarIcon className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
           Due date
         </ContextMenuSubTrigger>
         {projectsOptions && (

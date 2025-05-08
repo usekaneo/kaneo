@@ -24,7 +24,7 @@ const ContextMenuSubTrigger = React.forwardRef<
   <ContextMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center px-2 py-1 text-sm outline-none text-zinc-600 dark:text-zinc-400 focus:bg-zinc-100 dark:focus:bg-zinc-800 data-[state=open]:bg-zinc-100 dark:data-[state=open]:bg-zinc-800",
+      "flex cursor-default select-none items-center px-2 py-1 text-sm outline-none text-zinc-600 rounded-sm dark:text-zinc-400 focus:bg-zinc-100 dark:focus:bg-zinc-800 data-[state=open]:bg-zinc-100 dark:data-[state=open]:bg-zinc-800",
       inset && "pl-8",
       className,
     )}
@@ -77,7 +77,7 @@ const ContextMenuItem = React.forwardRef<
   <ContextMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center focus:bg-accent px-2 py-1 text-sm outline-none text-zinc-600 dark:text-zinc-400 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center focus:bg-accent rounded-sm px-2 py-1 text-sm outline-none text-zinc-600 dark:text-zinc-400 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className,
     )}
@@ -93,7 +93,7 @@ const ContextMenuCheckboxItem = React.forwardRef<
   <ContextMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center  py-1 px-2 text-sm outline-none text-zinc-600 dark:text-zinc-400 hover:bg-indigo-50 focus:bg-zinc-100 dark:focus:bg-zinc-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[state=checked]:bg-indigo-50 data-[state=checked]:text-indigo-600 dark:data-[state=checked]:bg-indigo-500/10 dark:data-[state=checked]:text-indigo-400",
+      "relative flex cursor-default select-none items-center py-1 px-2 text-sm outline-none text-zinc-600 dark:text-zinc-400 hover:bg-indigo-50 focus:bg-zinc-100 dark:focus:bg-zinc-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[state=checked]:bg-indigo-50 data-[state=checked]:text-indigo-600 dark:data-[state=checked]:bg-indigo-500/10 dark:data-[state=checked]:text-indigo-400",
       className,
     )}
     checked={checked}
