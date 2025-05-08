@@ -161,7 +161,7 @@ export default function TaskCardContextMenuContent({
     <ContextMenuContent>
       <ContextMenuItem
         onClick={handleCopyTaskLink}
-        className="flex items-center gap-2 cursor-pointer hover:bg-accent "
+        className="flex items-center gap-2 cursor-pointer"
       >
         <Copy className="w-4 h-4 text-indigo-400 " />
         Copy Link
@@ -174,7 +174,7 @@ export default function TaskCardContextMenuContent({
         <ContextMenuSubContent>
           <ContextMenuCheckboxItem
             onClick={() => handleChange("priority", "low")}
-            className="flex items-center gap-2 cursor-pointer hover:bg-accent"
+            className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "low"}
           >
             <Flag className="w-4 h-4 text-blue-400" />
@@ -182,7 +182,7 @@ export default function TaskCardContextMenuContent({
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
             onClick={() => handleChange("priority", "medium")}
-            className="flex items-center gap-2 cursor-pointer hover:bg-accent"
+            className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "medium"}
           >
             <Flag className="w-4 h-4 text-yellow-400" />
@@ -190,7 +190,7 @@ export default function TaskCardContextMenuContent({
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
             onClick={() => handleChange("priority", "high")}
-            className="flex items-center gap-2 cursor-pointer hover:bg-accent"
+            className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "high"}
           >
             <Flag className="w-4 h-4 text-red-400" />
@@ -198,7 +198,7 @@ export default function TaskCardContextMenuContent({
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
             onClick={() => handleChange("priority", "urgent")}
-            className="flex items-center gap-2 cursor-pointer hover:bg-accent"
+            className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "urgent"}
           >
             <Flag className="w-4 h-4 text-red-400" />
@@ -227,7 +227,7 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <User className="h-4 w-4 text-indigo-400" /> Assign to
+          <User className="h-4 w-4 text-indigo-400" /> Assignee
         </ContextMenuSubTrigger>
 
         {usersOptions && (
@@ -257,7 +257,7 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <FlipHorizontal2 className="h-4 w-4 text-indigo-400" /> Mirror to
+          <FlipHorizontal2 className="h-4 w-4 text-indigo-400" /> Mirror
         </ContextMenuSubTrigger>
 
         {projectsOptions && (
@@ -266,7 +266,7 @@ export default function TaskCardContextMenuContent({
               <ContextMenuItem
                 key={project.value}
                 onClick={() => handleDuplicateTask(project.value)}
-                className="flex items-center justify-between cursor-pointer hover:bg-accent"
+                className="flex items-center justify-between cursor-pointer"
               >
                 {project.label}
               </ContextMenuItem>
@@ -291,12 +291,12 @@ export default function TaskCardContextMenuContent({
           </ContextMenuSubContent>
         )}
       </ContextMenuSub>
-      <hr className="border-t border-gray-200 dark:border-gray-700" />
+
       <ContextMenuItem
         onClick={handleDeleteTask}
-        className="flex items-center transition-all duration-200 gap-2 mt-1 cursor-pointer text-red-600 dark:text-red-400 dark:hover:text-white hover:bg-red-500 hover:text-white"
+        className="flex items-center transition-all duration-200 gap-2  cursor-pointer"
       >
-        <Trash className="w-4 h-4 " />
+        <Trash className="w-4 h-4 text-red-400" />
         Delete Task
       </ContextMenuItem>
     </ContextMenuContent>
