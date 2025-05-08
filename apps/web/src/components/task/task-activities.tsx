@@ -10,9 +10,9 @@ function TaskActivities() {
   const { data: activities } = useGetActivitiesByTaskId(taskId);
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-4">
       {activities?.map((activity) => (
-        <div key={activity.id} className="flex items-start gap-3">
+        <div key={activity.id} className="flex items-start gap-4">
           <div className="relative">
             <Avatar className="w-8 h-8">
               <AvatarFallback>{activity.userEmail.charAt(0)}</AvatarFallback>
@@ -38,21 +38,29 @@ function TaskActivities() {
               )}
             </div>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-400">
                 {activity.userEmail}
               </span>
               <span className="text-xs text-zinc-500 dark:text-zinc-400">
                 {formatDistanceToNow(activity.createdAt)} ago
               </span>
             </div>
-            <div className="mt-1.5">
-              <div className="text-sm text-zinc-600 dark:text-zinc-400">
+            <div className="flex flex-col gap-1">
+              <div className="text-sm text-zinc-600 dark:text-zinc-100">
                 {activity.type === "create" && activity.content}
                 {activity.type === "update" && activity.content}
                 {activity.type === "status" && activity.content}
                 {activity.type === "comment" && activity.content}
+              </div>
+              <div className="flex flex-row gap-3">
+                <span className="text-xs underline text-zinc-500 dark:text-zinc-400">
+                  Edit
+                </span>
+                <span className="text-xs underline text-zinc-500 dark:text-zinc-400">
+                  Delete
+                </span>
               </div>
             </div>
           </div>
