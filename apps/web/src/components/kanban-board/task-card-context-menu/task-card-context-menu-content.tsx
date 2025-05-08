@@ -163,13 +163,14 @@ export default function TaskCardContextMenuContent({
         onClick={handleCopyTaskLink}
         className="flex items-center gap-2 cursor-pointer"
       >
-        <Copy className="w-4 h-4 text-indigo-400 " />
+        <Copy className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 " />
         Copy Link
       </ContextMenuItem>
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <Tags className="h-4 w-4 text-indigo-400" /> Priority
+          <Tags className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          Priority
         </ContextMenuSubTrigger>
         <ContextMenuSubContent>
           <ContextMenuCheckboxItem
@@ -177,7 +178,7 @@ export default function TaskCardContextMenuContent({
             className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "low"}
           >
-            <Flag className="w-4 h-4 text-blue-400" />
+            <Flag className="w-3.5 h-3.5 text-blue-400" />
             Low
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
@@ -185,7 +186,7 @@ export default function TaskCardContextMenuContent({
             className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "medium"}
           >
-            <Flag className="w-4 h-4 text-yellow-400" />
+            <Flag className="w-3.5 h-3.5 text-yellow-400" />
             Medium
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
@@ -193,7 +194,7 @@ export default function TaskCardContextMenuContent({
             className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "high"}
           >
-            <Flag className="w-4 h-4 text-red-400" />
+            <Flag className="w-3.5 h-3.5 text-red-400" />
             High
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
@@ -201,7 +202,7 @@ export default function TaskCardContextMenuContent({
             className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "urgent"}
           >
-            <Flag className="w-4 h-4 text-red-400" />
+            <Flag className="w-3.5 h-3.5 text-red-400" />
             Urgent
           </ContextMenuCheckboxItem>
         </ContextMenuSubContent>
@@ -209,7 +210,8 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <ListTodo className="h-4 w-4 text-indigo-400" /> Status
+          <ListTodo className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          Status
         </ContextMenuSubTrigger>
         <ContextMenuSubContent>
           {statusOptions.map((status) => (
@@ -227,7 +229,8 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <User className="h-4 w-4 text-indigo-400" /> Assignee
+          <User className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          Assignee
         </ContextMenuSubTrigger>
 
         {usersOptions && (
@@ -257,7 +260,8 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2">
-          <FlipHorizontal2 className="h-4 w-4 text-indigo-400" /> Mirror
+          <FlipHorizontal2 className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          Mirror
         </ContextMenuSubTrigger>
 
         {projectsOptions && (
@@ -277,7 +281,8 @@ export default function TaskCardContextMenuContent({
 
       <ContextMenuSub>
         <ContextMenuSubTrigger className="flex items-center gap-2 mb-1">
-          <CalendarIcon className="h-4 w-4 text-indigo-400" /> Due date
+          <CalendarIcon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />{" "}
+          Due date
         </ContextMenuSubTrigger>
         {projectsOptions && (
           <ContextMenuSubContent>
@@ -296,7 +301,7 @@ export default function TaskCardContextMenuContent({
         onClick={handleDeleteTask}
         className="flex items-center transition-all duration-200 gap-2  cursor-pointer"
       >
-        <Trash className="w-4 h-4 text-red-400" />
+        <Trash className="w-3.5 h-3.5 text-red-400" />
         Delete Task
       </ContextMenuItem>
     </ContextMenuContent>
