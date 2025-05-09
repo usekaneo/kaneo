@@ -10,12 +10,14 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
 const commentSchema = z.object({
   comment: z.string().min(1),
 });
 
-function TaskComment() {
+function TaskComment({
+  initialComment = "",
+  commentId = null,
+}: { initialComment?: string; commentId?: string | null }) {
   const { taskId } = Route.useParams();
   const { user } = useAuth();
   const { mutateAsync: createComment } = useCreateActivity();
@@ -75,6 +77,7 @@ function TaskComment() {
                       <textarea
                         placeholder="Add a comment..."
                         {...field}
+                        value={initialComment}
                         className="w-full rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-white dark:bg-zinc-900 shadow-sm px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 min-h-[100px]"
                       />
                     </FormControl>
@@ -88,7 +91,7 @@ function TaskComment() {
                 className="bg-indigo-600/10 text-indigo-600 hover:bg-indigo-600/20 dark:bg-indigo-400/10 dark:text-indigo-400 dark:hover:bg-indigo-400/20"
               >
                 <MessageSquare className="w-4 h-4 mr-2" />
-                Comment
+                {commentId ? "Update" : "Comment"}
               </Button>
             </div>
           </form>

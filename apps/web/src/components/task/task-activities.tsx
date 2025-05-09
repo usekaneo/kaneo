@@ -5,11 +5,14 @@ import { cn } from "@/lib/cn";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
 import { formatDistanceToNow } from "date-fns";
 import { History, MessageSquare, Pencil, PlusCircle } from "lucide-react";
+import { useState } from "react";
+import TaskComment from "./task-comment";
 
 function TaskActivities() {
   const { taskId } = Route.useParams();
   const { data: activities } = useGetActivitiesByTaskId(taskId);
   const { mutateAsync: deleteComment } = useDeleteComment(taskId);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
 
   return (
     <div className="flex flex-col gap-4">
@@ -54,29 +57,52 @@ function TaskActivities() {
                 {activity.type === "create" && activity.content}
                 {activity.type === "update" && activity.content}
                 {activity.type === "status" && activity.content}
-                {activity.type === "comment" && activity.content}
+                {activity.type === "comment" &&
+                  (editingCommentId === activity.id ? (
+                    <TaskComment
+                      initialComment={activity.content || ""}
+                      commentId={activity.id || null}
+                    />
+                  ) : (
+                    <span className="text-zinc-600 dark:text-zinc-100">
+                      {activity.content}
+                    </span>
+                  ))}
               </div>
-              <div className="flex flex-row gap-3">
-                <button
-                  type="button"
-                  className="text-xs underline text-zinc-500 dark:text-zinc-400"
-                >
-                  Edit
-                </button>
-                <button
-                  className="text-xs underline text-zinc-500 dark:text-zinc-400"
-                  tabIndex={0}
-                  type="button"
-                  onClick={() => deleteComment({ id: activity.id })}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      deleteComment({ id: activity.id });
-                    }
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
+              {editingCommentId === null ? (
+                <div className="flex flex-row gap-3">
+                  <button
+                    type="button"
+                    className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                    onClick={() => setEditingCommentId(activity.id ?? null)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                    tabIndex={0}
+                    type="button"
+                    onClick={() => deleteComment({ id: activity.id })}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        deleteComment({ id: activity.id });
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-row gap-3">
+                  <button
+                    type="button"
+                    className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                    onClick={() => setEditingCommentId(null)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
