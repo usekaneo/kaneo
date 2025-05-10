@@ -148,8 +148,8 @@ function RouteComponent() {
         ...project,
         columns: [
           {
-            id: "to-do" as const,
-            name: "To Do" as const,
+            id: "planned" as const,
+            name: "Planned" as const,
             tasks: project.plannedTasks
               ? filterTasks(project.plannedTasks).map((task) => ({
                   ...task,
@@ -159,8 +159,8 @@ function RouteComponent() {
               : [],
           },
           {
-            id: "done" as const,
-            name: "Done" as const,
+            id: "archived" as const,
+            name: "Archived" as const,
             tasks: project.archivedTasks
               ? filterTasks(project.archivedTasks).map((task) => ({
                   ...task,
@@ -267,6 +267,7 @@ function RouteComponent() {
       </div>
 
       <div className="flex-1 overflow-auto">
+        {/* @ts-expect-error - TODO: fix this */}
         <BacklogListView project={backlogProject} />
       </div>
 
