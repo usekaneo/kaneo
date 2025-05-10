@@ -62,7 +62,7 @@ function UserInfo() {
             <p className="text-sm text-left font-medium text-zinc-900 dark:text-zinc-100 truncate">
               {user?.name}
             </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate max-w-[150px]">
               {user?.email}
             </p>
           </div>

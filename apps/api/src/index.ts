@@ -13,13 +13,13 @@ import task from "./task";
 import timeEntry from "./time-entry";
 import user from "./user";
 import { validateSessionToken } from "./user/utils/validate-session-token";
+import getSettings from "./utils/get-settings";
 import setDemoUser from "./utils/set-demo-user";
 import workspace from "./workspace";
 import workspaceUser from "./workspace-user";
 
 const app = new Hono<{ Variables: { userEmail: string } }>();
-
-const isDemoMode = process.env.DEMO_MODE === "true";
+const { isDemoMode } = getSettings();
 
 app.use(
   "*",
@@ -31,7 +31,9 @@ app.use(
 
 const userRoute = app.route("/user", user);
 
-app.use("*", auth);
+if (!isDemoMode) {
+  app.use("*", auth);
+}
 
 app.use("*", async (c, next) => {
   if (isDemoMode) {
