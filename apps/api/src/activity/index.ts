@@ -4,8 +4,8 @@ import { z } from "zod";
 import { subscribeToEvent } from "../events";
 import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
+import deleteComment from "./controllers/delete-comment";
 import getActivitiesFromTaskId from "./controllers/get-activities";
-
 const activity = new Hono()
   .get(
     "/:taskId",
@@ -53,6 +53,17 @@ const activity = new Hono()
       const activity = await createComment(taskId, userEmail, content);
 
       return c.json(activity);
+    },
+  )
+  .delete(
+    "/comment/:id",
+    zValidator("param", z.object({ id: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+
+      await deleteComment(id);
+
+      return c.json({ message: "Comment deleted" });
     },
   );
 

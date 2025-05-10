@@ -1,13 +1,6 @@
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import useCreateActivity from "@/hooks/mutations/activity/use-create-activity";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,12 +10,14 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
 const commentSchema = z.object({
   comment: z.string().min(1),
 });
 
-function TaskComment() {
+function TaskComment({
+  initialComment = "",
+  commentId = null,
+}: { initialComment?: string; commentId?: string | null }) {
   const { taskId } = Route.useParams();
   const { user } = useAuth();
   const { mutateAsync: createComment } = useCreateActivity();
@@ -69,9 +64,6 @@ function TaskComment() {
 
   return (
     <div className="flex items-start gap-3">
-      <Avatar className="w-8 h-8">
-        <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
-      </Avatar>
       <div className="flex-1">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -80,14 +72,16 @@ function TaskComment() {
               name="comment"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Comment</FormLabel>
-                  <FormControl>
-                    <textarea
-                      placeholder="Add a comment..."
-                      {...field}
-                      className="w-full rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-white dark:bg-zinc-900 shadow-sm px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 min-h-[100px]"
-                    />
-                  </FormControl>
+                  <div className="flex flex-col gap-4">
+                    <FormControl>
+                      <textarea
+                        placeholder="Add a comment..."
+                        {...field}
+                        value={initialComment}
+                        className="w-full rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-white dark:bg-zinc-900 shadow-sm px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 min-h-[100px]"
+                      />
+                    </FormControl>
+                  </div>
                 </FormItem>
               )}
             />
@@ -97,7 +91,7 @@ function TaskComment() {
                 className="bg-indigo-600/10 text-indigo-600 hover:bg-indigo-600/20 dark:bg-indigo-400/10 dark:text-indigo-400 dark:hover:bg-indigo-400/20"
               >
                 <MessageSquare className="w-4 h-4 mr-2" />
-                Comment
+                {commentId ? "Update" : "Comment"}
               </Button>
             </div>
           </form>
