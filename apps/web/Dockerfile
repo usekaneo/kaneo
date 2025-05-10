@@ -64,9 +64,5 @@ RUN chmod +x /docker-entrypoint.d/env.sh
 USER appuser
 EXPOSE 5173
 
-# Add health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:5173/ || exit 1
-
 # Use exec form of CMD for proper signal handling
 CMD ["nginx", "-g", "daemon off;"]
