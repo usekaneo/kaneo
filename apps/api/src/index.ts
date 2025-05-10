@@ -7,6 +7,7 @@ import activity from "./activity";
 import db from "./database";
 import label from "./label";
 import { auth } from "./middlewares/auth";
+import notification from "./notification";
 import project from "./project";
 import task from "./task";
 import timeEntry from "./time-entry";
@@ -77,6 +78,7 @@ const taskRoute = app.route("/task", task);
 const activityRoute = app.route("/activity", activity);
 const timeEntryRoute = app.route("/time-entry", timeEntry);
 const labelRoute = app.route("/label", label);
+const notificationRoute = app.route("/notification", notification);
 
 try {
   console.log("Migrating database...");
@@ -106,4 +108,5 @@ export type AppType =
   | typeof activityRoute
   | typeof meRoute
   | typeof timeEntryRoute
-  | typeof labelRoute;
+  | typeof labelRoute
+  | typeof notificationRoute;

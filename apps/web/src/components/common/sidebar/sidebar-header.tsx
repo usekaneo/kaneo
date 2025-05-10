@@ -6,7 +6,7 @@ export function SidebarHeader() {
   const { isSidebarOpened, setIsSidebarOpened } = useUserPreferencesStore();
 
   return (
-    <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+    <div className="p-4 flex items-center justify-between">
       {isSidebarOpened && <Logo />}
 
       <button
