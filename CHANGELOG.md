@@ -1,3 +1,61 @@
+# [0.4.0](https://github.com/usekaneo/kaneo/compare/v0.3.0...v0.4.0) (2025-05-10)
+
+
+### Bug Fixes
+
+* add out directory to ignored files in biome.json ([5607363](https://github.com/usekaneo/kaneo/commit/5607363dc2e015f2ca7ce248964102aa3191532a))
+* correct Open Graph image URL to use the proper domain path ([c2f928f](https://github.com/usekaneo/kaneo/commit/c2f928f308116211d06b332cae6cf944d7ac1e46))
+* edit project slug max length ([#137](https://github.com/usekaneo/kaneo/issues/137)) ([e8b1c3c](https://github.com/usekaneo/kaneo/commit/e8b1c3cd6071a76d30430564531a2d8461397c7e))
+* ensure tables are created only if they do not already exist ([36e6cde](https://github.com/usekaneo/kaneo/commit/36e6cde6128576c9b0caae4c23ab3cb2bcc8bcde))
+* fix workspace setting sidebar icon ([#157](https://github.com/usekaneo/kaneo/issues/157)) ([a64f7ba](https://github.com/usekaneo/kaneo/commit/a64f7bad43b208469c5043e9b078ce36667a19b4))
+* fixed the saving of the indent of the description of the task ([#219](https://github.com/usekaneo/kaneo/issues/219)) ([201d7ee](https://github.com/usekaneo/kaneo/commit/201d7eefac0203bb221794c481c8921a4ae85756))
+* project is highlighted when backlog is active ([#131](https://github.com/usekaneo/kaneo/issues/131)) ([b7daaa3](https://github.com/usekaneo/kaneo/commit/b7daaa37a07a1e88d1d744cd118bd1718db946a6))
+* remove title from SVG in Open Graph component and add lint ignore comment ([8db20af](https://github.com/usekaneo/kaneo/commit/8db20af507f909f81135eb964466de5b1d1d67eb))
+* remove unnecessary logging of slug in metadata generation ([ad5c814](https://github.com/usekaneo/kaneo/commit/ad5c8147e46a0db785a680dc56b97c2bda874fcc))
+* reorder import statements in layout file for consistency ([13c092f](https://github.com/usekaneo/kaneo/commit/13c092f9e9e50e56b0561c5c698afdf711ac6394))
+* streamline Open Graph image URL by consolidating domain path ([662ba97](https://github.com/usekaneo/kaneo/commit/662ba97530f9f5887db484331c8ecd694625b3c8))
+* update API URL handling in client initialization ([c01daad](https://github.com/usekaneo/kaneo/commit/c01daadfafcd488ed9e7eaf2ad8f52c3360277d2))
+* update base path and image URL for Open Graph metadata in documentation ([f4ae3c1](https://github.com/usekaneo/kaneo/commit/f4ae3c1616306ef1b253ee0fc7cdbb89bf1c4d39))
+* update environment variable handling and Dockerfile comments ([6222ad6](https://github.com/usekaneo/kaneo/commit/6222ad6080cf768364830814c522c69c207dc0c5))
+* update font file paths for Open Graph image generation ([08c13b8](https://github.com/usekaneo/kaneo/commit/08c13b8b383aa56a9adac5ad04dd21931d00ee14))
+* update Open Graph image generation and enhance metadata logging ([18c821d](https://github.com/usekaneo/kaneo/commit/18c821dceae414d13bb849578668fd6d9c30e624))
+* update Open Graph image URL to include full domain path ([e9498f1](https://github.com/usekaneo/kaneo/commit/e9498f12ea2379e4b51419e2375773e094300889))
+* update Open Graph image URL to use the correct GitHub Pages domain ([0645f15](https://github.com/usekaneo/kaneo/commit/0645f15b0aa5fb96412022b18050d0f71f6c9043))
+* update port forwarding configuration in documentation and deployment files ([4e01f98](https://github.com/usekaneo/kaneo/commit/4e01f98e1a102b07725f15a05f858270734430d0))
+* update registration environment variable and improve error handling ([e5c5b0f](https://github.com/usekaneo/kaneo/commit/e5c5b0f07c97a2e8b4864e3d03cacae163c2796a))
+* update site name in Open Graph metadata and enhance layout for image generation ([cdd243c](https://github.com/usekaneo/kaneo/commit/cdd243c58694e7f6f8e8e4bfcd2fcd81bf25dab1))
+* update site name in Open Graph metadata and enhance layout for image generation ([bfbad94](https://github.com/usekaneo/kaneo/commit/bfbad94613b74a933a5fce882e8ef3179b1fd4de))
+
+
+### Features
+
+* add "Edit on GitHub" link to documentation pages ([2acb149](https://github.com/usekaneo/kaneo/commit/2acb14937c617f2cc50f32c669fc11173591df9a))
+* add documentation site with Next.js and Fumadocs ([#163](https://github.com/usekaneo/kaneo/issues/163)) ([014c9cf](https://github.com/usekaneo/kaneo/commit/014c9cfa27e25047daa1a0f24fb391ce78dcd457))
+* add Icon component for Open Graph image generation and update metadata structure ([75ece2a](https://github.com/usekaneo/kaneo/commit/75ece2a037a472d15b4c9813bb1a0d6e5d6acab8))
+* add Inter font files and integrate them into Open Graph image generation ([469dba2](https://github.com/usekaneo/kaneo/commit/469dba2666d90b618d93c3fa975eb4c7580bffa2))
+* add issue and pull request templates for better contribution guidelines ([bb47fda](https://github.com/usekaneo/kaneo/commit/bb47fdaf1a6a1dc22f6407ff466020803e1681b4))
+* add label management functionality ([6ea9406](https://github.com/usekaneo/kaneo/commit/6ea9406f5577f5a68a90f7d23f22c4b02a8d1555))
+* add Plausible analytics script to layout components ([30a066c](https://github.com/usekaneo/kaneo/commit/30a066c90260b97deb0378d1fae81bc8f1b83a8b))
+* add registration control feature ([#134](https://github.com/usekaneo/kaneo/issues/134)) ([5b86636](https://github.com/usekaneo/kaneo/commit/5b866368581f6559a10ce951acaad5a7345f02ea))
+* add sitemap generation and Open Graph image support ([0ba4fb0](https://github.com/usekaneo/kaneo/commit/0ba4fb09eca1f852375d5882a645366ef69111c6))
+* add sorting functionality to task filters ([#217](https://github.com/usekaneo/kaneo/issues/217)) ([3d3d4a8](https://github.com/usekaneo/kaneo/commit/3d3d4a87853e566f2d3c4530e7c2264beb74d40f))
+* add task import/export functionality ([f8612a3](https://github.com/usekaneo/kaneo/commit/f8612a3261e2a7a3a6f2613ed5ef939569d8a035))
+* delete a task option [#122](https://github.com/usekaneo/kaneo/issues/122) ([#216](https://github.com/usekaneo/kaneo/issues/216)) ([86bacb6](https://github.com/usekaneo/kaneo/commit/86bacb69cffc669eae2b3816fdb809fcee5d4c74))
+* disable create project and workspace buttons ([#133](https://github.com/usekaneo/kaneo/issues/133)) ([89e2d66](https://github.com/usekaneo/kaneo/commit/89e2d66165c77fc39500ff8a533431c956cda469))
+* enhance CreateTaskModal with improved layout and scrolling ([#183](https://github.com/usekaneo/kaneo/issues/183)) ([452b80b](https://github.com/usekaneo/kaneo/commit/452b80b19c4002d91ebf3c19bec8103c2defc0d0))
+* enhance homepage metadata for SEO and social sharing ([622367e](https://github.com/usekaneo/kaneo/commit/622367ec2eb7c3aed6ddbee07be7be923f0b42c4))
+* enhance project settings with task data and project icon ([62084a8](https://github.com/usekaneo/kaneo/commit/62084a8d6950006e32178fb7175ae6c81634f2b0))
+* implement time tracking feature for tasks ([#172](https://github.com/usekaneo/kaneo/issues/172)) ([2c4e4ca](https://github.com/usekaneo/kaneo/commit/2c4e4ca921cc49f99ed691da98dca076ebc450f5))
+* integrate project data fetching in task edit page ([a5d64c2](https://github.com/usekaneo/kaneo/commit/a5d64c27a81b750f8134ad195a97a35ebaef9f58))
+* migrate to node.js ([#138](https://github.com/usekaneo/kaneo/issues/138)) ([d099533](https://github.com/usekaneo/kaneo/commit/d099533809a50c8611c5594952706541cf92091d))
+* **notification:** implement notification system ([#270](https://github.com/usekaneo/kaneo/issues/270)) ([3907fb2](https://github.com/usekaneo/kaneo/commit/3907fb23042e8654a6e799167098a81873f661ab))
+* right click card/row context menu ([#238](https://github.com/usekaneo/kaneo/issues/238)) ([0754ae1](https://github.com/usekaneo/kaneo/commit/0754ae1e77eb2ffab22dc5fd478c1b248090b671))
+* set base path for documentation site to "/kaneo" ([88661a0](https://github.com/usekaneo/kaneo/commit/88661a0bfae81b19fd157fc9d5b8871efd04b7de))
+* update Hero component link to roadmap and add roadmap documentation ([c62925f](https://github.com/usekaneo/kaneo/commit/c62925f28ae32b572ae2414dafbfcc6542dcaddb))
+* workspace details update and delete feature added ([#119](https://github.com/usekaneo/kaneo/issues/119)) ([44af5ff](https://github.com/usekaneo/kaneo/commit/44af5ff2be063700efbcfb758ba6ca01b2084a77))
+
+
+
 # [0.3.0](https://github.com/usekaneo/kaneo/compare/v0.2.0...v0.3.0) (2025-03-26)
 
 
