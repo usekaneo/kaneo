@@ -14,6 +14,9 @@ function useUpdateTask() {
       queryClient.refetchQueries({
         queryKey: ["tasks", variables.projectId],
       });
+      queryClient.refetchQueries({
+        queryKey: ["notifications"],
+      });
     },
   });
 }

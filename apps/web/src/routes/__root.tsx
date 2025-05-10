@@ -1,9 +1,7 @@
 import { CommandPalette } from "@/components/command-palette";
 import useTheme from "@/components/providers/theme-provider/hooks/use-theme";
-import TanStackRouterDevtools from "@/tanstack/router";
 import type { LoggedInUser } from "@/types/user";
 import type { QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   Outlet,
   createRootRouteWithContext,
@@ -67,8 +65,6 @@ function RootComponent() {
           duration: 2000,
         }}
       />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools position="bottom-right" />
     </>
   );
 }

@@ -168,3 +168,24 @@ export const labelTable = sqliteTable("label", {
       onUpdate: "cascade",
     }),
 });
+
+export const notificationTable = sqliteTable("notification", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  userEmail: text("user_email")
+    .notNull()
+    .references(() => userTable.email, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  title: text("title").notNull(),
+  content: text("content"),
+  type: text("type").notNull().default("info"),
+  isRead: integer("is_read", { mode: "boolean" }).default(false),
+  resourceId: text("resource_id"),
+  resourceType: text("resource_type"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(new Date())
+    .notNull(),
+});

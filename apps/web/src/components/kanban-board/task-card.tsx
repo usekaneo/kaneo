@@ -49,6 +49,8 @@ function TaskCard({ task }: TaskCardProps) {
     });
   }
 
+  console.log(task);
+
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <ContextMenu>
