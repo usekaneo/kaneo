@@ -2,6 +2,7 @@ import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import useCreateActivity from "@/hooks/mutations/activity/use-create-activity";
+import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,6 +22,7 @@ function TaskComment({
   const { taskId } = Route.useParams();
   const { user } = useAuth();
   const { mutateAsync: createComment } = useCreateActivity();
+  const { mutateAsync: updateComment } = useUpdateComment();
   const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof commentSchema>>({
@@ -37,17 +39,28 @@ function TaskComment({
     }
 
     try {
-      await createComment({
-        taskId: taskId,
-        content: data.comment,
-        userEmail: user?.email,
-      });
+      if (commentId) {
+        await updateComment({
+          id: commentId,
+          content: data.comment,
+        });
+      } else {
+        await createComment({
+          taskId: taskId,
+          content: data.comment,
+          userEmail: user?.email,
+        });
+      }
 
       await queryClient.invalidateQueries({
         queryKey: ["activities", taskId],
       });
 
-      toast.success("Comment added successfully");
+      toast.success(
+        commentId
+          ? "Comment updated successfully"
+          : "Comment added successfully",
+      );
       form.reset();
     } catch (error) {
       toast.error(
@@ -61,6 +74,10 @@ function TaskComment({
       form.reset();
     };
   }, [form]);
+
+  useEffect(() => {
+    form.setValue("comment", initialComment);
+  }, [initialComment, form]);
 
   return (
     <div className="flex items-start gap-3">
@@ -77,7 +94,7 @@ function TaskComment({
                       <textarea
                         placeholder="Add a comment..."
                         {...field}
-                        value={initialComment}
+                        value={field.value}
                         className="w-full rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-white dark:bg-zinc-900 shadow-sm px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 min-h-[100px]"
                       />
                     </FormControl>
