@@ -62,6 +62,7 @@ function TaskActivities() {
                     <TaskComment
                       initialComment={activity.content || ""}
                       commentId={activity.id || null}
+                      onSubmit={() => setEditingCommentId(null)}
                     />
                   ) : (
                     <span className="text-zinc-600 dark:text-zinc-100">

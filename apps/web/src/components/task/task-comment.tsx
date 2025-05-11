@@ -18,7 +18,12 @@ const commentSchema = z.object({
 function TaskComment({
   initialComment = "",
   commentId = null,
-}: { initialComment?: string; commentId?: string | null }) {
+  onSubmit,
+}: {
+  initialComment?: string;
+  commentId?: string | null;
+  onSubmit?: () => void;
+}) {
   const { taskId } = Route.useParams();
   const { user } = useAuth();
   const { mutateAsync: createComment } = useCreateActivity();
@@ -33,7 +38,7 @@ function TaskComment({
     shouldUnregister: true,
   });
 
-  async function onSubmit(data: z.infer<typeof commentSchema>) {
+  async function handleSubmit(data: z.infer<typeof commentSchema>) {
     if (!user?.email) {
       return;
     }
@@ -44,12 +49,14 @@ function TaskComment({
           id: commentId,
           content: data.comment,
         });
+        onSubmit?.();
       } else {
         await createComment({
           taskId: taskId,
           content: data.comment,
           userEmail: user?.email,
         });
+        onSubmit?.();
       }
 
       await queryClient.invalidateQueries({
@@ -83,7 +90,7 @@ function TaskComment({
     <div className="flex items-start gap-3">
       <div className="flex-1">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
             <FormField
               control={form.control}
               name="comment"
