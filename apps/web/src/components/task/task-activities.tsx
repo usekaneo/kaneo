@@ -81,7 +81,7 @@ function TaskActivities() {
                     </span>
                   ))}
               </div>
-              {editingCommentId === null ? (
+              {activity.type === "comment" && editingCommentId === null && (
                 <div className="flex flex-row gap-3">
                   <button
                     type="button"
@@ -104,17 +104,19 @@ function TaskActivities() {
                     Delete
                   </button>
                 </div>
-              ) : (
-                <div className="flex flex-row gap-3">
-                  <button
-                    type="button"
-                    className="text-xs underline text-zinc-500 dark:text-zinc-400"
-                    onClick={() => setEditingCommentId(null)}
-                  >
-                    Cancel
-                  </button>
-                </div>
               )}
+              {activity.type === "comment" &&
+                editingCommentId === activity.id && (
+                  <div className="flex flex-row gap-3">
+                    <button
+                      type="button"
+                      className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                      onClick={() => setEditingCommentId(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         </div>
