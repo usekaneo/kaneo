@@ -1,7 +1,7 @@
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import useCreateActivity from "@/hooks/mutations/activity/use-create-activity";
+import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +26,7 @@ function TaskComment({
 }) {
   const { taskId } = Route.useParams();
   const { user } = useAuth();
-  const { mutateAsync: createComment } = useCreateActivity();
+  const { mutateAsync: createComment } = useCreateComment();
   const { mutateAsync: updateComment } = useUpdateComment();
   const queryClient = useQueryClient();
 
