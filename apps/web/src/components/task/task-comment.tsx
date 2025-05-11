@@ -47,6 +47,7 @@ function TaskComment({
       if (commentId) {
         await updateComment({
           id: commentId,
+          userEmail: user.email,
           content: data.comment,
         });
         onSubmit?.();

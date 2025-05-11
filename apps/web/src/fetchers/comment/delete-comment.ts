@@ -2,12 +2,12 @@ import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono/client";
 
 export type DeleteCommentRequest = InferRequestType<
-  (typeof client)["activity"]["comment"][":id"]["$delete"]
->["param"];
+  (typeof client)["activity"]["comment"]["$delete"]
+>["json"];
 
-async function deleteComment({ id }: DeleteCommentRequest) {
-  const response = await client.activity.comment[":id"].$delete({
-    param: { id },
+async function deleteComment({ id, userEmail }: DeleteCommentRequest) {
+  const response = await client.activity.comment.$delete({
+    json: { id, userEmail },
   });
 
   if (!response.ok) {

@@ -6,13 +6,24 @@ import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projec
 import { formatDistanceToNow } from "date-fns";
 import { History, MessageSquare, Pencil, PlusCircle } from "lucide-react";
 import { useState } from "react";
+import useAuth from "../providers/auth-provider/hooks/use-auth";
 import TaskComment from "./task-comment";
 
 function TaskActivities() {
   const { taskId } = Route.useParams();
+  const { user } = useAuth();
   const { data: activities } = useGetActivitiesByTaskId(taskId);
   const { mutateAsync: deleteComment } = useDeleteComment(taskId);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+
+  const handleDeleteComment = (activityId: string) => {
+    if (user?.email) {
+      deleteComment({
+        id: activityId,
+        userEmail: user.email,
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -83,10 +94,10 @@ function TaskActivities() {
                     className="text-xs underline text-zinc-500 dark:text-zinc-400"
                     tabIndex={0}
                     type="button"
-                    onClick={() => deleteComment({ id: activity.id })}
+                    onClick={() => handleDeleteComment(activity.id)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                        deleteComment({ id: activity.id });
+                        handleDeleteComment(activity.id);
                       }
                     }}
                   >

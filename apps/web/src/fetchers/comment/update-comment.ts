@@ -5,11 +5,12 @@ export type UpdateCommentRequest = InferRequestType<
   (typeof client)["activity"]["comment"]["$put"]
 >["json"];
 
-async function updateComment({ id, content }: UpdateCommentRequest) {
+async function updateComment({ id, content, userEmail }: UpdateCommentRequest) {
   const response = await client.activity.comment.$put({
     json: {
       id,
       content,
+      userEmail,
     },
   });
 

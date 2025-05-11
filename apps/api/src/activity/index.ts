@@ -63,23 +63,30 @@ const activity = new Hono()
       z.object({
         id: z.string(),
         content: z.string(),
+        userEmail: z.string(),
       }),
     ),
     async (c) => {
-      const { id, content } = c.req.valid("json");
+      const { id, content, userEmail } = c.req.valid("json");
 
-      const activity = await updateComment(id, content);
+      const activity = await updateComment(userEmail, id, content);
 
       return c.json(activity);
     },
   )
   .delete(
-    "/comment/:id",
-    zValidator("param", z.object({ id: z.string() })),
+    "/comment",
+    zValidator(
+      "json",
+      z.object({
+        id: z.string(),
+        userEmail: z.string(),
+      }),
+    ),
     async (c) => {
-      const { id } = c.req.valid("param");
+      const { id, userEmail } = c.req.valid("json");
 
-      await deleteComment(id);
+      await deleteComment(userEmail, id);
 
       return c.json({ message: "Comment deleted" });
     },
