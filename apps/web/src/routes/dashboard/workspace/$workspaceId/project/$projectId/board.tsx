@@ -2,6 +2,7 @@ import type { BoardFilters as BoardFiltersType } from "@/components/filters";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import NotificationBell from "@/components/notification/notification-bell";
+import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
@@ -25,6 +26,7 @@ function RouteComponent() {
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const { viewMode } = useUserPreferencesStore();
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [filters, setFilters] = useState<BoardFiltersType>({
     search: "",
     assignee: null,
@@ -185,6 +187,9 @@ function RouteComponent() {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => {
+                  setIsTaskModalOpen(true);
+                }}
                 className="h-7 px-2 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
                 <Plus className="h-3.5 w-3.5 mr-1.5" />
@@ -290,6 +295,11 @@ function RouteComponent() {
           </div>
         )}
       </div>
+
+      <CreateTaskModal
+        open={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+      />
     </div>
   );
 }
