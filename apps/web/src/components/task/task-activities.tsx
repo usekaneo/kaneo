@@ -1,18 +1,34 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import { cn } from "@/lib/cn";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
 import { formatDistanceToNow } from "date-fns";
 import { History, MessageSquare, Pencil, PlusCircle } from "lucide-react";
+import { useState } from "react";
+import useAuth from "../providers/auth-provider/hooks/use-auth";
+import TaskComment from "./task-comment";
 
 function TaskActivities() {
   const { taskId } = Route.useParams();
+  const { user } = useAuth();
   const { data: activities } = useGetActivitiesByTaskId(taskId);
+  const { mutateAsync: deleteComment } = useDeleteComment(taskId);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+
+  const handleDeleteComment = (activityId: string) => {
+    if (user?.email) {
+      deleteComment({
+        id: activityId,
+        userEmail: user.email,
+      });
+    }
+  };
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-4">
       {activities?.map((activity) => (
-        <div key={activity.id} className="flex items-start gap-3">
+        <div key={activity.id} className="flex items-start gap-4">
           <div className="relative">
             <Avatar className="w-8 h-8">
               <AvatarFallback>{activity.userEmail.charAt(0)}</AvatarFallback>
@@ -38,22 +54,69 @@ function TaskActivities() {
               )}
             </div>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-400">
                 {activity.userEmail}
               </span>
               <span className="text-xs text-zinc-500 dark:text-zinc-400">
                 {formatDistanceToNow(activity.createdAt)} ago
               </span>
             </div>
-            <div className="mt-1.5">
-              <div className="text-sm text-zinc-600 dark:text-zinc-400">
+            <div className="flex flex-col gap-1">
+              <div className="text-sm text-zinc-600 dark:text-zinc-100">
                 {activity.type === "create" && activity.content}
                 {activity.type === "update" && activity.content}
                 {activity.type === "status" && activity.content}
-                {activity.type === "comment" && activity.content}
+                {activity.type === "comment" &&
+                  (editingCommentId === activity.id ? (
+                    <TaskComment
+                      initialComment={activity.content || ""}
+                      commentId={activity.id || null}
+                      onSubmit={() => setEditingCommentId(null)}
+                    />
+                  ) : (
+                    <span className="text-zinc-600 dark:text-zinc-100">
+                      {activity.content}
+                    </span>
+                  ))}
               </div>
+              {activity.type === "comment" && editingCommentId === null && (
+                <div className="flex flex-row gap-3">
+                  <button
+                    type="button"
+                    className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                    onClick={() => setEditingCommentId(activity.id ?? null)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                    tabIndex={0}
+                    type="button"
+                    onClick={() => handleDeleteComment(activity.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        handleDeleteComment(activity.id);
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+              {activity.type === "comment" &&
+                editingCommentId === activity.id && (
+                  <div className="flex flex-row gap-3">
+                    <button
+                      type="button"
+                      className="text-xs underline text-zinc-500 dark:text-zinc-400"
+                      onClick={() => setEditingCommentId(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         </div>

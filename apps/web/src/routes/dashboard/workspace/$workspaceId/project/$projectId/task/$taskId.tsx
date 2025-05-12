@@ -104,7 +104,7 @@ function TaskEditPage() {
                   </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-6 pb-8">
                   <TaskComment />
                   <TaskActivities />
                 </div>
