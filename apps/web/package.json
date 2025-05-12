@@ -55,7 +55,7 @@
 		"react-hook-form": "^7.56.2",
 		"react-use-websocket": "^4.11.1",
 		"sonner": "^2.0.3",
-		"tailwind-merge": "^3.0.1",
+		"tailwind-merge": "^3.3.0",
 		"tailwindcss-animate": "^1.0.7",
 		"zod": "3.24.4",
 		"zustand": "^5.0.4"
