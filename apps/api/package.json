@@ -7,7 +7,7 @@
     "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=cjs --external:better-sqlite3 --external:bcrypt --external:mock-aws-s3 --external:aws-sdk --external:nock"
   },
   "dependencies": {
-    "@hono/node-server": "^1.14.1",
+    "@hono/node-server": "^1.14.4",
     "@hono/zod-validator": "^0.5.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
