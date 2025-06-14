@@ -1,47 +1,12 @@
 {
 	"version": "7",
-	"dialect": "sqlite",
+	"dialect": "postgresql",
 	"entries": [
 		{
 			"idx": 0,
-			"version": "6",
-			"when": 1744923301762,
-			"tag": "0000_deep_spot",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "6",
-			"when": 1745161578587,
-			"tag": "0001_blue_unicorn",
-			"breakpoints": true
-		},
-		{
-			"idx": 2,
-			"version": "6",
-			"when": 1745162073413,
-			"tag": "0002_many_lake",
-			"breakpoints": true
-		},
-		{
-			"idx": 3,
-			"version": "6",
-			"when": 1745270042523,
-			"tag": "0003_daffy_amazoness",
-			"breakpoints": true
-		},
-		{
-			"idx": 4,
-			"version": "6",
-			"when": 1746066911796,
-			"tag": "0004_small_dragon_lord",
-			"breakpoints": true
-		},
-		{
-			"idx": 5,
-			"version": "6",
-			"when": 1746464905156,
-			"tag": "0005_faulty_xorn",
+			"version": "7",
+			"when": 1749922967091,
+			"tag": "0000_new_ted_forrester",
 			"breakpoints": true
 		}
 	]

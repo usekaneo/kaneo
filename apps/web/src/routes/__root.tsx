@@ -15,7 +15,9 @@ export const Route = createRootRouteWithContext<{
 }>()({
   component: RootComponent,
   async beforeLoad({ context: { user }, location }) {
-    const isRouteUnprotected = location.pathname.includes("auth");
+    const isRouteUnprotected =
+      location.pathname.includes("auth") ||
+      location.pathname.includes("public-project");
     const isOnDashboard = location.pathname.includes("dashboard");
 
     if (user === null && !isRouteUnprotected) {

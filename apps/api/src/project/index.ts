@@ -55,13 +55,21 @@ const project = new Hono()
         icon: z.string(),
         slug: z.string(),
         description: z.string(),
+        isPublic: z.boolean(),
       }),
     ),
     async (c) => {
       const { id } = c.req.valid("param");
-      const { name, icon, slug, description } = c.req.valid("json");
+      const { name, icon, slug, description, isPublic } = c.req.valid("json");
 
-      const project = await updateProject(id, name, icon, slug, description);
+      const project = await updateProject(
+        id,
+        name,
+        icon,
+        slug,
+        description,
+        isPublic,
+      );
 
       return c.json(project);
     },

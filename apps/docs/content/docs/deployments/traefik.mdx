@@ -32,18 +32,30 @@ services:
     networks:
       - traefik-net
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo
+      POSTGRES_USER: kaneo_user
+      POSTGRES_PASSWORD: kaneo_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - traefik-net
+    restart: unless-stopped
+
   backend:
     image: ghcr.io/usekaneo/api:latest
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
-      DB_PATH: "/app/apps/api/data/kaneo.db"
-    volumes:
-      - sqlite_data:/app/apps/api/data
+      DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.your-domain.com`)"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.services.backend.loadbalancer.server.port=1337"
+    depends_on:
+      - postgres
     networks:
       - traefik-net
     restart: unless-stopped
@@ -57,6 +69,8 @@ services:
       - "traefik.http.routers.frontend.rule=Host(`your-domain.com`)"
       - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    depends_on:
+      - backend
     networks:
       - traefik-net
     restart: unless-stopped
@@ -66,7 +80,7 @@ networks:
     driver: bridge
 
 volumes:
-  sqlite_data:
+  postgres_data:
 ```
 
 <Step>
@@ -110,13 +124,23 @@ services:
     networks:
       - traefik-net
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo
+      POSTGRES_USER: kaneo_user
+      POSTGRES_PASSWORD: kaneo_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - traefik-net
+    restart: unless-stopped
+
   backend:
     image: ghcr.io/usekaneo/api:latest
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
-      DB_PATH: "/app/apps/api/data/kaneo.db"
-    volumes:
-      - sqlite_data:/app/apps/api/data
+      DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`your-domain.com`) && PathPrefix(`/api`)"
@@ -124,6 +148,8 @@ services:
       - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=backend-stripprefix"
       - "traefik.http.services.backend.loadbalancer.server.port=1337"
+    depends_on:
+      - postgres
     networks:
       - traefik-net
     restart: unless-stopped
@@ -137,6 +163,8 @@ services:
       - "traefik.http.routers.frontend.rule=Host(`your-domain.com`)"
       - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    depends_on:
+      - backend
     networks:
       - traefik-net
     restart: unless-stopped
@@ -146,7 +174,7 @@ networks:
     driver: bridge
 
 volumes:
-  sqlite_data:
+  postgres_data:
 ```
 
 <Step>

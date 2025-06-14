@@ -43,8 +43,19 @@ spec:
               {{- else }}
               value: "{{ .Values.api.env.jwtAccess }}"
               {{- end }}
-            - name: DB_PATH
-              value: "{{ .Values.api.persistence.mountPath }}/{{ .Values.api.persistence.dbFilename }}"
+            - name: DATABASE_URL
+              {{- if .Values.api.env.database.external.enabled }}
+              {{- if .Values.api.env.database.external.existingSecret.enabled }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.api.env.database.external.existingSecret.name }}
+                  key: {{ .Values.api.env.database.external.existingSecret.passwordKey }}
+              {{- else }}
+              value: "postgresql://{{ .Values.api.env.database.external.username }}:{{ .Values.api.env.database.external.password }}@{{ .Values.api.env.database.external.host }}:{{ .Values.api.env.database.external.port }}/{{ .Values.api.env.database.external.database }}"
+              {{- end }}
+              {{- else }}
+              value: "postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "kaneo.fullname" . }}-postgresql:{{ .Values.postgresql.service.port }}/{{ .Values.postgresql.auth.database }}"
+              {{- end }}
             - name: DISABLE_REGISTRATION
               value: {{ .Values.api.env.disableRegistration | quote }}
           livenessProbe:
@@ -53,11 +64,6 @@ spec:
             {{- toYaml .Values.api.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
-          {{- if .Values.api.persistence.enabled }}
-          volumeMounts:
-            - name: sqlite-data
-              mountPath: {{ .Values.api.persistence.mountPath }}
-          {{- end }}
 
         - name: web
           securityContext:
@@ -93,13 +99,6 @@ spec:
             periodSeconds: 10
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
-
-      {{- if .Values.api.persistence.enabled }}
-      volumes:
-        - name: sqlite-data
-          persistentVolumeClaim:
-            claimName: {{ include "kaneo.fullname" . }}-sqlite-data
-      {{- end }}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { cors } from "hono/cors";
@@ -9,6 +9,7 @@ import label from "./label";
 import { auth } from "./middlewares/auth";
 import notification from "./notification";
 import project from "./project";
+import { getPublicProject } from "./project/controllers/get-public-project";
 import task from "./task";
 import timeEntry from "./time-entry";
 import user from "./user";
@@ -28,6 +29,13 @@ app.use(
     origin: (origin) => origin || "*",
   }),
 );
+
+const publicProjectRoute = app.get("/public-project/:id", async (c) => {
+  const { id } = c.req.param();
+  const project = await getPublicProject(id);
+
+  return c.json(project);
+});
 
 const userRoute = app.route("/user", user);
 
@@ -111,4 +119,5 @@ export type AppType =
   | typeof meRoute
   | typeof timeEntryRoute
   | typeof labelRoute
-  | typeof notificationRoute;
+  | typeof notificationRoute
+  | typeof publicProjectRoute;

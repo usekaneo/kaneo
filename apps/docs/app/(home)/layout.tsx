@@ -5,14 +5,43 @@ import Script from "next/script";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Kaneo",
+  title: "Kaneo - Open Source Project Management Platform",
   description:
-    "An open source project management platform focused on simplicity and efficiency.",
+    "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
   alternates: {
     canonical: "https://kaneo.app",
   },
   openGraph: {
-    images: ["/og.png"],
+    type: "website",
+    locale: "en_US",
+    url: "https://kaneo.app",
+    title: "Kaneo - Open Source Project Management Platform",
+    description:
+      "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
+    siteName: "Kaneo",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Kaneo - Open Source Project Management Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kaneo - Open Source Project Management Platform",
+    description:
+      "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
+    images: ["/og-image.png"],
+    creator: "@usekaneo",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      "max-image-preview": "none",
+    },
   },
   metadataBase: new URL("https://kaneo.app"),
 };

@@ -1,44 +1,56 @@
 ---
-title: Quick Start
-description: Get started with Kaneo in minutes
+title: Quick Start Guide
+description: Get started with Kaneo in minutes. Learn how to deploy the open source project management platform using Docker Compose, configure PostgreSQL, and set up your first project.
 icon: Rocket
 ---
 
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-Kaneo is an open source project management platform focused on simplicity and efficiency. This guide will help you get up and running quickly.
+# Quick Start Guide
 
-<iframe
-  width="100%"
-  height="400"
-  src="https://www.youtube.com/embed/W2DwLtwH3k4"
-  title="Kaneo Quick Start Guide"
-  frameBorder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowFullScreen
-></iframe>
+Kaneo is an open source project management platform focused on simplicity and efficiency. This comprehensive guide will help you get up and running quickly with a production-ready setup.
 
-### Docker Compose Installation
+## Why Choose Kaneo?
 
-The easiest way to get started with Kaneo is using Docker Compose:
+- **🚀 Fast Setup**: Get running in under 5 minutes with Docker Compose
+- **🔒 Self-Hosted**: Your data stays on your infrastructure
+- **🛠️ Customizable**: Open source and built for extensibility
+- **📊 PostgreSQL**: Reliable database with proper data integrity
+- **🔧 Production Ready**: Built with Docker, Kubernetes, and modern DevOps practices
+
+## Docker Compose Installation
+
+The easiest way to get started with Kaneo is using Docker Compose. This setup includes PostgreSQL for reliable data storage:
 
 <Steps>
 <Step>
+**Create your Docker Compose configuration**
+
 Create a `compose.yml` file with the following content:
 </Step>
 
 ```yaml
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo
+      POSTGRES_USER: kaneo_user
+      POSTGRES_PASSWORD: kaneo_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   backend:
     image: ghcr.io/usekaneo/api:latest
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
-      DB_PATH: "/app/apps/api/data/kaneo.db"
+      DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
     ports:
       - 1337:1337
+    depends_on:
+      - postgres
     restart: unless-stopped
-    volumes:
-      - sqlite_data:/app/apps/api/data
 
   frontend:
     image: ghcr.io/usekaneo/web:latest
@@ -46,38 +58,112 @@ services:
       KANEO_API_URL: "http://localhost:1337"
     ports:
       - 5173:5173
+    depends_on:
+      - backend
     restart: unless-stopped
 
 volumes:
-  sqlite_data:
+  postgres_data:
 ```
 
 <Step>
-Run `docker compose up -d` to start the services.
+**Start the services**
+
+Run the following command to start all services:
+
+```bash
+docker compose up -d
+```
+
+This will download the images and start the containers in the background.
 </Step>
 
 <Step>
+**Access your Kaneo instance**
+
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 </Step>
 
 <Step>
+**Create your first project**
+
 Create your first project and start managing your tasks! 🎉
+
+You'll be able to:
+- Create projects and organize tasks
+- Assign team members and set priorities
+- Track progress with kanban boards
+- Collaborate with your team in real-time
 </Step>
 
 </Steps>
 
-## Environment Variables
+## Environment Variables Reference
 
-| Variable | Description |
-| -------- | ----------- |
-| `KANEO_API_URL` | The URL of the API |
-| `JWT_ACCESS` | Secret key for generating JWT tokens |
-| `DB_PATH` | The path to the database file |
-| `DISABLE_REGISTRATION` | Enable/disable new user registration (default: false) |
+| Variable | Description | Required | Default |
+| -------- | ----------- | -------- | ------- |
+| `KANEO_API_URL` | The URL where the API is accessible | Yes | - |
+| `JWT_ACCESS` | Secret key for generating JWT tokens | Yes | - |
+| `DATABASE_URL` | PostgreSQL connection string | Yes | - |
+| `DISABLE_REGISTRATION` | Enable/disable new user registration | No | `false` |
+
+## Database Setup
+
+Kaneo uses PostgreSQL for reliable data storage with proper relational integrity. The Docker Compose setup above handles this automatically, but if you're running Kaneo outside of Docker, you'll need to:
+
+### Manual PostgreSQL Setup
+
+1. **Install PostgreSQL** (version 12 or higher)
+   ```bash
+   # Ubuntu/Debian
+   sudo apt install postgresql postgresql-contrib
+
+   # macOS with Homebrew
+   brew install postgresql
+   ```
+
+2. **Create a database and user:**
+   ```sql
+   CREATE DATABASE kaneo;
+   CREATE USER kaneo_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE kaneo TO kaneo_user;
+   ```
+
+3. **Set the DATABASE_URL environment variable:**
+   ```bash
+   export DATABASE_URL="postgresql://kaneo_user:your_password@localhost:5432/kaneo"
+   ```
+
+## Security Considerations
+
+For production deployments, make sure to:
+
+- **Change default passwords**: Use strong, unique passwords for JWT_ACCESS and database credentials
+- **Use HTTPS**: Deploy behind a reverse proxy with SSL/TLS certificates
+- **Regular backups**: Set up automated database backups
+- **Update regularly**: Keep your Kaneo installation up to date
+
+## Migration from SQLite
+
+If you're upgrading from a previous version that used SQLite, you'll need to migrate your data to PostgreSQL. We recommend:
+
+1. **Export your data** from the old SQLite database
+2. **Set up PostgreSQL** using the new Docker Compose configuration
+3. **Import your data** into the new PostgreSQL database
+
+Contact us on [Discord](https://discord.gg/rU4tSyhXXU) if you need help with the migration process.
 
 ## Next Steps
 
-- [Deploy with Nginx](/docs/deployments/nginx)
-- [Deploy with Traefik](/docs/deployments/traefik)
-- [Kubernetes Deployment](/docs/deployments/kubernetes)
-- [Core Concepts](/docs/concepts/overview)
+Now that you have Kaneo running, explore these deployment options for production:
+
+- **[Deploy with Nginx](/docs/deployments/nginx)** - Set up a reverse proxy with SSL
+- **[Deploy with Traefik](/docs/deployments/traefik)** - Modern reverse proxy with automatic HTTPS
+- **[Kubernetes Deployment](/docs/deployments/kubernetes)** - Scalable container orchestration
+- **[Core Concepts](/docs/concepts/overview)** - Learn about Kaneo's architecture and features
+
+## Getting Help
+
+- **[GitHub Issues](https://github.com/usekaneo/kaneo/issues)** - Report bugs or request features
+- **[Discord Community](https://discord.gg/rU4tSyhXXU)** - Get help from the community
+- **[Documentation](/docs)** - Browse the complete documentation

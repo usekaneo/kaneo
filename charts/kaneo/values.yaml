@@ -24,6 +24,48 @@ serviceAccount:
   annotations: {}
   name: ""
 
+# PostgreSQL database configuration
+postgresql:
+  # Set to true to deploy PostgreSQL as part of this chart
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+
+  # Database configuration
+  auth:
+    database: kaneo
+    username: kaneo_user
+    password: kaneo_password
+    # Use existing secret for database credentials (optional)
+    existingSecret: ""
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+
+  # Persistence for PostgreSQL data
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: ""
+    accessMode: ReadWriteOnce
+
+  # PostgreSQL service configuration
+  service:
+    type: ClusterIP
+    port: 5432
+
+  # Resources for PostgreSQL
+  resources: {}
+  # resources:
+  #   limits:
+  #     cpu: 500m
+  #     memory: 512Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+
 # API backend configuration
 api:
   image:
@@ -55,16 +97,23 @@ api:
       enabled: false
       name: ""
       key: "jwt-access"
-    allowRegistration: true
+    disableRegistration: false
 
-  # SQLite data persistence
-  persistence:
-    enabled: true
-    mountPath: "/app/apps/api/data"
-    dbFilename: "kaneo.db"
-    accessMode: ReadWriteOnce
-    size: 1Gi
-    storageClass: ""
+    # Database configuration
+    database:
+      # Use external PostgreSQL (set postgresql.enabled to false)
+      external:
+        enabled: false
+        host: ""
+        port: 5432
+        database: kaneo
+        username: kaneo_user
+        password: ""
+        # Use existing secret for external database credentials
+        existingSecret:
+          enabled: false
+          name: ""
+          passwordKey: "password"
 
   livenessProbe:
     httpGet:

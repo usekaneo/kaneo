@@ -1,4 +1,21 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo
+      POSTGRES_USER: kaneo_user
+      POSTGRES_PASSWORD: kaneo_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo_user -d kaneo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: .
@@ -6,10 +23,11 @@ services:
     ports:
       - "1337:1337"
     environment:
-      - JWT_ACCESS="change-me"
-      - DB_PATH=/app/apps/api/data/kaneo.db
-    volumes:
-      - sqlite_data:/app/apps/api/data
+      - JWT_ACCESS=change-me
+      - DATABASE_URL=postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   web:
@@ -25,5 +43,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  sqlite_data:
-    name: kaneo_sqlite_data
+  postgres_data:
+    name: kaneo_postgres_data

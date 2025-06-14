@@ -12,6 +12,7 @@ async function getProjects(workspaceId: string) {
       createdAt: projectTable.createdAt,
       icon: projectTable.icon,
       slug: projectTable.slug,
+      isPublic: projectTable.isPublic,
       workspace: {
         id: workspaceTable.id,
         name: workspaceTable.name,

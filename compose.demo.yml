@@ -24,6 +24,23 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo
+      POSTGRES_USER: kaneo_user
+      POSTGRES_PASSWORD: kaneo_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - traefik-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo_user -d kaneo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     image: ghcr.io/usekaneo/api:latest
     labels:
@@ -34,10 +51,11 @@ services:
       - "com.centurylinklabs.watchtower.enable-volume-preservation=true"
     environment:
       JWT_ACCESS: "change_me"
-      DB_PATH: "/app/apps/api/data/kaneo.db"
+      DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
       DEMO_MODE: "true"
-    volumes:
-      - sqlite_data:/app/apps/api/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - traefik-net
     restart: unless-stopped
@@ -60,5 +78,5 @@ networks:
     driver: bridge
 
 volumes:
-  sqlite_data:
-    name: kaneo_sqlite_data
+  postgres_data:
+    name: kaneo_postgres_data

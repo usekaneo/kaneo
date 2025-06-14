@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
@@ -20,7 +22,7 @@ import useProjectStore from "@/store/project";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, Lock } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, Copy, Lock } from "lucide-react";
 import { createElement, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -30,6 +32,7 @@ const projectFormSchema = z.object({
   name: z.string().min(1, "Project name is required"),
   slug: z.string().min(1, "Project slug is required"),
   icon: z.string().min(1, "Project icon is required"),
+  isPublic: z.boolean().optional(),
 });
 
 type ProjectFormValues = z.infer<typeof projectFormSchema>;
@@ -46,6 +49,7 @@ function ProjectSettings() {
   const { project, setProject } = useProjectStore();
   const { isOwner } = useWorkspacePermission();
   const [confirmProjectName, setConfirmProjectName] = useState("");
+  const [copied, setCopied] = useState(false);
   const { mutateAsync: updateProject, isPending } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
@@ -64,6 +68,7 @@ function ProjectSettings() {
       name: project?.name ?? "",
       slug: project?.slug ?? "",
       icon: project?.icon ?? "Layout",
+      isPublic: project?.isPublic ?? false,
     },
   });
 
@@ -75,6 +80,7 @@ function ProjectSettings() {
         icon: data.icon,
         slug: data.slug,
         description: project?.description ?? "",
+        isPublic: data.isPublic ?? false,
       });
 
       queryClient.invalidateQueries({
@@ -124,6 +130,20 @@ function ProjectSettings() {
       toast.error(
         error instanceof Error ? error.message : "Failed to delete project",
       );
+    }
+  };
+
+  const handleCopyUrl = async () => {
+    if (!project?.id) return;
+
+    const url = `${window.location.origin}/public-project/${project.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("URL copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast.error("Failed to copy URL");
     }
   };
 
@@ -228,6 +248,72 @@ function ProjectSettings() {
                                 />
                               </FormControl>
                               <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="isPublic"
+                          render={({ field }) => (
+                            <FormItem className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <div className="space-y-1">
+                                  <FormLabel className="text-base">
+                                    Public Project
+                                  </FormLabel>
+                                  <FormDescription>
+                                    Make the project visible to everyone on the
+                                    web.
+                                  </FormDescription>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    className="data-[state=checked]:bg-indigo-500 data-[state=unchecked]:bg-zinc-200 dark:data-[state=unchecked]:bg-zinc-700"
+                                  />
+                                </FormControl>
+                              </div>
+                              <FormMessage />
+                              {field.value && (
+                                <div className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-950/50 rounded-lg border border-indigo-200 dark:border-indigo-800/50">
+                                  <p className="text-sm font-medium text-indigo-900 dark:text-indigo-100 mb-2">
+                                    Public URL
+                                  </p>
+                                  <div className="flex gap-2">
+                                    <Input
+                                      value={`${window.location.origin}/public-project/${project?.id}`}
+                                      readOnly
+                                      className="bg-white dark:bg-zinc-800/50 font-mono text-sm flex-1"
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={handleCopyUrl}
+                                      className="px-3 min-w-[80px]"
+                                    >
+                                      {copied ? (
+                                        <>
+                                          <Check className="w-4 h-4 mr-1" />
+                                          Copied
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Copy className="w-4 h-4 mr-1" />
+                                          Copy
+                                        </>
+                                      )}
+                                    </Button>
+                                  </div>
+                                  <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-2">
+                                    Anyone with this link can view your
+                                    project's tasks.
+                                  </p>
+                                </div>
+                              )}
                             </FormItem>
                           )}
                         />

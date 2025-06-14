@@ -1,21 +1,28 @@
 ---
-title: Kubernetes
-description: Deploy Kaneo on Kubernetes
+title: Kubernetes Deployment Guide
+description: Deploy Kaneo on Kubernetes using Helm charts. Complete guide for production-ready deployment with PostgreSQL, ingress configuration, and scaling options.
 ---
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-This guide explains how to deploy Kaneo on Kubernetes using our Helm chart. This setup is ideal for production environments where you need scalability and high availability.
+# Kubernetes Deployment Guide
+
+This comprehensive guide explains how to deploy Kaneo on Kubernetes using our official Helm chart. This setup is ideal for production environments where you need scalability, high availability, and enterprise-grade infrastructure.
 
 ## Prerequisites
 
-- A Kubernetes cluster (v1.19+)
-- Helm 3 installed
-- `kubectl` configured to communicate with your cluster
-- Basic knowledge of Kubernetes and Helm
+Before you begin, ensure you have:
+
+- **Kubernetes cluster** (v1.19 or higher)
+- **Helm 3** installed and configured
+- **kubectl** configured to communicate with your cluster
+- **Basic knowledge** of Kubernetes and Helm concepts
+- **Ingress controller** (nginx, traefik, etc.) for production deployments
+
+## Quick Installation
 
 <Steps>
 <Step>
-Clone the Kaneo repository:
+**Clone the Kaneo repository**
 
 ```bash
 git clone https://github.com/usekaneo/kaneo.git
@@ -24,15 +31,19 @@ cd kaneo
 </Step>
 
 <Step>
-Install the Helm chart with default values:
+**Install with default configuration**
 
 ```bash
 helm install kaneo ./charts/kaneo --namespace kaneo --create-namespace
 ```
+
+This will deploy Kaneo with PostgreSQL and default settings.
 </Step>
 
 <Step>
-Access Kaneo using port forwarding:
+**Access your deployment**
+
+Use port forwarding to access the services locally:
 
 ```bash
 # Port forward to access both services
@@ -50,9 +61,27 @@ For production environments, you should expose Kaneo through an Ingress controll
 
 <Steps>
 <Step>
-Create a values file named `kaneo-values.yaml`:
+**Create a production values file**
+
+Create a file named `kaneo-values.yaml` with production-ready configuration:
 
 ```yaml
+# PostgreSQL configuration
+postgresql:
+  auth:
+    password: "your-secure-db-password"
+  persistence:
+    size: 20Gi
+    storageClass: "managed-premium"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# API configuration
 api:
   env:
     jwtAccess: "your-secure-jwt-token"
@@ -66,10 +95,7 @@ api:
       cpu: 100m
       memory: 256Mi
 
-  persistence:
-    enabled: true
-    size: 10Gi
-
+# Web configuration
 web:
   env:
     apiUrl: "https://your-domain.com"
@@ -108,7 +134,7 @@ ingress:
 </Step>
 
 <Step>
-Install the Helm chart with your custom values:
+**Deploy with custom configuration**
 
 ```bash
 helm install kaneo ./charts/kaneo \
@@ -119,33 +145,44 @@ helm install kaneo ./charts/kaneo \
 </Step>
 
 <Step>
+**Configure DNS**
+
 Configure your DNS settings to point `your-domain.com` to your Ingress controller's external IP or load balancer.
 </Step>
 
 <Step>
+**Verify deployment**
+
 You should now be able to access Kaneo at `https://your-domain.com` and the API will be accessible at `https://your-domain.com/api`. 🎉
 </Step>
 </Steps>
 
 ## Using Secrets for Sensitive Data
 
-For better security, you can store sensitive data like JWT tokens in Kubernetes Secrets:
+For better security, you can store sensitive data like JWT tokens and database credentials in Kubernetes Secrets:
 
 <Steps>
 <Step>
-Create a Secret for the JWT access token:
+**Create secrets**
 
 ```bash
 kubectl create secret generic kaneo-secrets \
   --namespace kaneo \
-  --from-literal=jwt-access="your-secure-jwt-token"
+  --from-literal=jwt-access="your-secure-jwt-token" \
+  --from-literal=postgres-password="your-secure-db-password"
 ```
 </Step>
 
 <Step>
-Update your values file to use the Secret:
+**Update values to use secrets**
 
 ```yaml
+postgresql:
+  auth:
+    existingSecret: "kaneo-secrets"
+    secretKeys:
+      userPasswordKey: "postgres-password"
+
 api:
   env:
     existingSecret:
@@ -156,11 +193,52 @@ api:
 </Step>
 
 <Step>
-Upgrade your Helm release:
+**Upgrade your deployment**
 
 ```bash
 helm upgrade kaneo ./charts/kaneo \
   --namespace kaneo \
+  -f kaneo-values.yaml
+```
+</Step>
+</Steps>
+
+## Using External PostgreSQL Database
+
+If you prefer to use an external PostgreSQL database instead of the bundled one:
+
+<Steps>
+<Step>
+**Configure external database**
+
+Update your values file to disable the bundled PostgreSQL and configure external database:
+
+```yaml
+# Disable bundled PostgreSQL
+postgresql:
+  enabled: false
+
+api:
+  env:
+    jwtAccess: "your-secure-jwt-token"
+    database:
+      external:
+        enabled: true
+        host: "your-postgres-host.com"
+        port: 5432
+        database: "kaneo"
+        username: "kaneo_user"
+        password: "your-db-password"
+```
+</Step>
+
+<Step>
+**Deploy or upgrade**
+
+```bash
+helm upgrade --install kaneo ./charts/kaneo \
+  --namespace kaneo \
+  --create-namespace \
   -f kaneo-values.yaml
 ```
 </Step>
@@ -172,10 +250,14 @@ As an alternative to Ingress, you can use the Kubernetes Gateway API for more ad
 
 <Steps>
 <Step>
+**Verify Gateway API installation**
+
 Make sure the Gateway API is installed in your cluster.
 </Step>
 
 <Step>
+**Create Gateway configuration**
+
 Create a file named `kaneo-gateway.yaml`:
 
 ```yaml
@@ -218,13 +300,33 @@ spec:
 </Step>
 
 <Step>
-Apply the Gateway configuration:
+**Apply the configuration**
 
 ```bash
 kubectl apply -f kaneo-gateway.yaml
 ```
 </Step>
 </Steps>
+
+## Database Management
+
+### Backup and Recovery
+
+For production deployments, consider implementing regular database backups:
+
+```bash
+# Example backup command
+kubectl exec -it deployment/kaneo-postgresql -- pg_dump -U kaneo_user kaneo > kaneo-backup.sql
+```
+
+### Migration from SQLite
+
+If you're migrating from a previous SQLite-based installation, you'll need to:
+1. Export your data from SQLite
+2. Deploy the new PostgreSQL-based chart
+3. Import your data into PostgreSQL
+
+Contact the Kaneo community on [Discord](https://discord.gg/rU4tSyhXXU) for migration assistance.
 
 ## Uninstalling
 
@@ -239,5 +341,5 @@ This will remove all the Kubernetes components associated with the chart and del
 ## Next Steps
 
 - Configure monitoring with Prometheus and Grafana
-- Set up automated backups for your SQLite database
+- Set up automated backups for your PostgreSQL database
 - Implement horizontal pod autoscaling for high availability
