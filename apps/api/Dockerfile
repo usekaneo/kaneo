@@ -2,7 +2,7 @@
 FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 
 # Install build dependencies in a single layer
-RUN apk add --no-cache python3 make g++ sqlite && \
+RUN apk add --no-cache python3 make g++ && \
     corepack enable && \
     corepack prepare pnpm@10.7.0 --activate
 
@@ -30,9 +30,8 @@ RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/
 # Production stage - use specific version tag without SHA256
 FROM node:20.12-alpine AS runtime
 
-# Install SQLite and set up user in a single layer
-RUN apk add --no-cache sqlite && \
-    addgroup -g 1001 appuser && \
+# Set up user in a single layer
+RUN addgroup -g 1001 appuser && \
     adduser -u 1001 -G appuser -D appuser && \
     mkdir -p /app/apps/api/data && \
     chown -R appuser:appuser /app
