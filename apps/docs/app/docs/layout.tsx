@@ -60,36 +60,8 @@ const docsOptions: DocsLayoutProps = {
   ...baseOptions,
   tree: source.pageTree,
   githubUrl: "https://github.com/usekaneo/kaneo",
-  sidebar: {
-    banner: (
-      <div className="flex items-center gap-2 rounded-md bg-gradient-to-r from-indigo-500 to-purple-600 p-2 text-white text-sm">
-        <span>📚</span>
-        <span>New to Kaneo? Start with our Quick Start guide!</span>
-      </div>
-    ),
-  },
   nav: {
     ...baseOptions.nav,
-    children: (
-      <div className="flex items-center gap-2">
-        <a
-          href="https://demo.kaneo.app"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
-        >
-          Try Demo
-        </a>
-        <a
-          href="https://github.com/usekaneo/kaneo"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-        >
-          GitHub
-        </a>
-      </div>
-    ),
   },
 };
 
