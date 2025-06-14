@@ -39,3 +39,6 @@ yarn-error.log*
 
 # DB
 *.db
+
+# Cursor
+.cursor
