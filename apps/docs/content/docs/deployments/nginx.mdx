@@ -19,16 +19,26 @@ Create a `compose.yml` file with the following content:
 
 ```yaml
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo
+      POSTGRES_USER: kaneo_user
+      POSTGRES_PASSWORD: kaneo_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   backend:
     image: ghcr.io/usekaneo/api:latest
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
-      DB_PATH: "/app/apps/api/data/kaneo.db"
+      DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
     ports:
       - "1337:1337"
+    depends_on:
+      - postgres
     restart: unless-stopped
-    volumes:
-      - sqlite_data:/app/apps/api/data
 
   frontend:
     image: ghcr.io/usekaneo/web:latest
@@ -36,10 +46,12 @@ services:
       KANEO_API_URL: "http://localhost:1337"
     ports:
       - "5173:5173"
+    depends_on:
+      - backend
     restart: unless-stopped
 
 volumes:
-  sqlite_data:
+  postgres_data:
 ```
 
 <Step>
@@ -124,16 +136,26 @@ Create a `compose.yml` file with the following content:
 
 ```yaml
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo
+      POSTGRES_USER: kaneo_user
+      POSTGRES_PASSWORD: kaneo_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   backend:
     image: ghcr.io/usekaneo/api:latest
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
-      DB_PATH: "/app/apps/api/data/kaneo.db"
+      DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
     ports:
       - "1337:1337"
+    depends_on:
+      - postgres
     restart: unless-stopped
-    volumes:
-      - sqlite_data:/app/apps/api/data
 
   frontend:
     image: ghcr.io/usekaneo/web:latest
@@ -141,10 +163,12 @@ services:
       KANEO_API_URL: "http://your-domain.com/api"
     ports:
       - "5173:5173"
+    depends_on:
+      - backend
     restart: unless-stopped
 
 volumes:
-  sqlite_data:
+  postgres_data:
 ```
 
 <Step>
@@ -209,6 +233,6 @@ Configure your DNS settings to point `your-domain.com` to your server's IP addre
 </Step>
 
 <Step>
-You should now be able to access Kaneo at `http://your-domain.com` and the API will be accessible at `http://your-domain.com/api`. 🎉
+You should now be able to access Kaneo at `http://your-domain.com` and the API will be accessible at `http://your-domain.com/api`. ��
 </Step>
 </Steps>

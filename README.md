@@ -40,20 +40,30 @@ We built Kaneo because existing project management tools either feel bloated wit
 
 ## Getting Started
 
-The fastest way to try Kaneo is with Docker Compose. This sets up both the API and web interface:
+The fastest way to try Kaneo is with Docker Compose. This sets up the API, web interface, and PostgreSQL database:
 
 ```yaml
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo
+      POSTGRES_USER: kaneo_user
+      POSTGRES_PASSWORD: kaneo_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   backend:
     image: ghcr.io/usekaneo/api:latest
     environment:
       JWT_ACCESS: "your-secret-key-here"
-      DB_PATH: "/app/apps/api/data/kaneo.db"
+      DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
     ports:
       - 1337:1337
+    depends_on:
+      - postgres
     restart: unless-stopped
-    volumes:
-      - sqlite_data:/app/apps/api/data
 
   frontend:
     image: ghcr.io/usekaneo/web:latest
@@ -61,10 +71,12 @@ services:
       KANEO_API_URL: "http://localhost:1337"
     ports:
       - 5173:5173
+    depends_on:
+      - backend
     restart: unless-stopped
 
 volumes:
-  sqlite_data:
+  postgres_data:
 ```
 
 Save this as `compose.yml`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
@@ -77,8 +89,24 @@ Save this as `compose.yml`, run `docker compose up -d`, and open [http://localho
 | -------- | ------------ | ------- |
 | `KANEO_API_URL` | Where the web app finds the API | Required |
 | `JWT_ACCESS` | Secret key for user authentication | Required |
-| `DB_PATH` | SQLite database location | `/app/apps/api/data/kaneo.db` |
+| `DATABASE_URL` | PostgreSQL connection string | Required |
 | `DISABLE_REGISTRATION` | Block new user signups | `true` |
+
+### Database Setup
+
+Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles this automatically, but if you're running Kaneo outside of Docker, you'll need to:
+
+1. **Install PostgreSQL** (version 12 or higher)
+2. **Create a database and user:**
+   ```sql
+   CREATE DATABASE kaneo;
+   CREATE USER kaneo_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE kaneo TO kaneo_user;
+   ```
+3. **Set the DATABASE_URL environment variable:**
+   ```bash
+   export DATABASE_URL="postgresql://kaneo_user:your_password@localhost:5432/kaneo"
+   ```
 
 ## Kubernetes Deployment
 
@@ -123,8 +151,17 @@ git clone https://github.com/usekaneo/kaneo.git
 cd kaneo
 pnpm install
 
-# Start the API
+# Start PostgreSQL (using Docker)
+docker run --name kaneo-postgres -e POSTGRES_DB=kaneo -e POSTGRES_USER=kaneo_user -e POSTGRES_PASSWORD=kaneo_password -p 5432:5432 -d postgres:16-alpine
+
+# Set up environment variables
 cd apps/api
+echo "DATABASE_URL=postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo" > .env
+
+# Run database migrations
+pnpm run db:migrate
+
+# Start the API
 pnpm run dev
 
 # In another terminal, start the web app
@@ -133,6 +170,16 @@ pnpm run dev
 ```
 
 The API runs on port 1337, web app on 5173. Both will reload when you make changes.
+
+## Migration from SQLite
+
+If you're upgrading from a previous version that used SQLite, you'll need to migrate your data to PostgreSQL. We recommend:
+
+1. **Export your data** from the old SQLite database
+2. **Set up PostgreSQL** using the new Docker Compose configuration
+3. **Import your data** into the new PostgreSQL database
+
+Contact us on [Discord](https://discord.gg/rU4tSyhXXU) if you need help with the migration process.
 
 ## Community
 

@@ -14,6 +14,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      actions: write
 
     steps:
       - name: Checkout
@@ -39,7 +40,7 @@ jobs:
         run: |
           BUMP=$(bunx conventional-recommended-bump -p angular)
           echo "bump=$BUMP" >> $GITHUB_OUTPUT
-          
+
       - name: Get current version
         id: current_version
         run: |
@@ -94,3 +95,20 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Docker Build
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'docker.yml',
+              ref: 'main',
+              inputs: {
+                version: '${{ steps.new_version.outputs.version }}',
+                latest: 'true'
+              }
+            });
+            console.log('Triggered Docker build for version ${{ steps.new_version.outputs.version }}');

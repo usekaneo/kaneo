@@ -1,14 +1,14 @@
-name: Build & publish images to GHCR
+name: Manual Docker Build
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to tag the images (e.g., 1.0.0)'
+        description: 'Version to tag the images (e.g., 1.0.0-beta.1, test-branch)'
         required: true
         type: string
       latest:
-        description: 'Also tag as latest'
+        description: 'Also tag as latest (use with caution)'
         required: false
         type: boolean
         default: false

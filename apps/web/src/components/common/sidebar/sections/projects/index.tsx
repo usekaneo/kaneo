@@ -107,6 +107,7 @@ function Projects({ workspaceId }: ProjectsProps) {
                           columns: project.columns,
                           archivedTasks: project.archivedTasks,
                           plannedTasks: project.plannedTasks,
+                          isPublic: project.isPublic,
                         })
                       }
                       className={cn(
@@ -140,6 +141,7 @@ function Projects({ workspaceId }: ProjectsProps) {
                           columns: project.columns,
                           archivedTasks: project.archivedTasks,
                           plannedTasks: project.plannedTasks,
+                          isPublic: project.isPublic,
                         })
                       }
                       className={cn(

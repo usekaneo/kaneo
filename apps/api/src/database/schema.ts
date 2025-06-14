@@ -1,19 +1,23 @@
 import { createId } from "@paralleldrive/cuid2";
-import { int, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  boolean,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
-export const userTable = sqliteTable("user", {
+export const userTable = pgTable("user", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
   name: text("name").notNull(),
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
-export const sessionTable = sqliteTable("session", {
+export const sessionTable = pgTable("session", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -21,12 +25,10 @@ export const sessionTable = sqliteTable("session", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  expiresAt: integer("expires_at", {
-    mode: "timestamp",
-  }).notNull(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
 });
 
-export const workspaceTable = sqliteTable("workspace", {
+export const workspaceTable = pgTable("workspace", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -38,12 +40,10 @@ export const workspaceTable = sqliteTable("workspace", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
-export const workspaceUserTable = sqliteTable("workspace_member", {
+export const workspaceUserTable = pgTable("workspace_member", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -53,15 +53,16 @@ export const workspaceUserTable = sqliteTable("workspace_member", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  userEmail: text("user_email"),
+  userEmail: text("user_email").references(() => userTable.email, {
+    onDelete: "cascade",
+    onUpdate: "cascade",
+  }),
   role: text("role").default("member").notNull(),
-  joinedAt: integer("joined_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  joinedAt: timestamp("joined_at", { mode: "date" }).defaultNow().notNull(),
   status: text("status").default("pending").notNull(),
 });
 
-export const projectTable = sqliteTable("project", {
+export const projectTable = pgTable("project", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -75,12 +76,11 @@ export const projectTable = sqliteTable("project", {
   icon: text("icon").default("Layout"),
   name: text("name").notNull(),
   description: text("description"),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  isPublic: boolean("is_public").default(false),
 });
 
-export const taskTable = sqliteTable("task", {
+export const taskTable = pgTable("task", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -90,8 +90,8 @@ export const taskTable = sqliteTable("task", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  position: int("position").default(0),
-  number: int("number").default(1),
+  position: integer("position").default(0),
+  number: integer("number").default(1),
   userEmail: text("assignee_email").references(() => userTable.email, {
     onDelete: "cascade",
     onUpdate: "cascade",
@@ -100,13 +100,11 @@ export const taskTable = sqliteTable("task", {
   description: text("description"),
   status: text("status").notNull().default("to-do"),
   priority: text("priority").default("low"),
-  dueDate: integer("due_date", { mode: "timestamp" }),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  dueDate: timestamp("due_date", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
-export const timeEntryTable = sqliteTable("time_entry", {
+export const timeEntryTable = pgTable("time_entry", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -121,15 +119,13 @@ export const timeEntryTable = sqliteTable("time_entry", {
     onUpdate: "cascade",
   }),
   description: text("description"),
-  startTime: integer("start_time", { mode: "timestamp" }).notNull(),
-  endTime: integer("end_time", { mode: "timestamp" }),
+  startTime: timestamp("start_time", { mode: "date" }).notNull(),
+  endTime: timestamp("end_time", { mode: "date" }),
   duration: integer("duration").default(0), // Duration in seconds
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
-export const activityTable = sqliteTable("activity", {
+export const activityTable = pgTable("activity", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -140,9 +136,7 @@ export const activityTable = sqliteTable("activity", {
       onUpdate: "cascade",
     }),
   type: text("type").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   userEmail: text("user_email")
     .notNull()
     .references(() => userTable.email, {
@@ -152,15 +146,13 @@ export const activityTable = sqliteTable("activity", {
   content: text("content"),
 });
 
-export const labelTable = sqliteTable("label", {
+export const labelTable = pgTable("label", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
   name: text("name").notNull(),
   color: text("color").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   taskId: text("task_id")
     .notNull()
     .references(() => taskTable.id, {
@@ -169,7 +161,7 @@ export const labelTable = sqliteTable("label", {
     }),
 });
 
-export const notificationTable = sqliteTable("notification", {
+export const notificationTable = pgTable("notification", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -182,10 +174,8 @@ export const notificationTable = sqliteTable("notification", {
   title: text("title").notNull(),
   content: text("content"),
   type: text("type").notNull().default("info"),
-  isRead: integer("is_read", { mode: "boolean" }).default(false),
+  isRead: boolean("is_read").default(false),
   resourceId: text("resource_id"),
   resourceType: text("resource_type"),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(new Date())
-    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });

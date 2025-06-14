@@ -1,14 +1,16 @@
-import { join } from "node:path";
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import dotenv from "dotenv";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import * as schema from "./schema";
 
-const dbPath = process.env.DB_PATH
-  ? process.env.DB_PATH
-  : join(process.cwd(), "kaneo.db");
+dotenv.config();
 
-const sqlite = new Database(dbPath);
+const pool = new Pool({
+  connectionString:
+    process.env.DATABASE_URL ||
+    "postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo",
+});
 
-const db = drizzle(sqlite, { schema });
+const db = drizzle(pool, { schema });
 
 export default db;

@@ -4,7 +4,7 @@ This Helm chart deploys [Kaneo](https://kaneo.app) - an open source project mana
 
 ## Introduction
 
-This chart bootstraps a Kaneo deployment on a Kubernetes cluster using the Helm package manager. It deploys both the API backend and Web frontend components, with optional ingress resources.
+This chart bootstraps a Kaneo deployment on a Kubernetes cluster using the Helm package manager. It deploys both the API backend and Web frontend components, along with a PostgreSQL database, with optional ingress resources.
 
 ## Prerequisites
 
@@ -49,12 +49,30 @@ helm uninstall my-kaneo
 | `autoscaling.maxReplicas`           | Maximum number of replicas                                                                                         | `10`        |
 | `autoscaling.targetCPUUtilizationPercentage` | Target CPU utilization percentage                                                                         | `80`        |
 
+### PostgreSQL Database parameters
+
+| Name                                | Description                                                                                                        | Value                           |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
+| `postgresql.enabled`                | Deploy PostgreSQL as part of this chart                                                                           | `true`                          |
+| `postgresql.image.repository`       | PostgreSQL image repository                                                                                        | `postgres`                      |
+| `postgresql.image.tag`              | PostgreSQL image tag                                                                                               | `16-alpine`                     |
+| `postgresql.image.pullPolicy`       | PostgreSQL image pull policy                                                                                      | `IfNotPresent`                  |
+| `postgresql.auth.database`          | PostgreSQL database name                                                                                           | `kaneo`                         |
+| `postgresql.auth.username`          | PostgreSQL username                                                                                                | `kaneo_user`                    |
+| `postgresql.auth.password`          | PostgreSQL password                                                                                                | `kaneo_password`                |
+| `postgresql.auth.existingSecret`    | Name of existing secret containing PostgreSQL credentials                                                          | `""`                            |
+| `postgresql.persistence.enabled`    | Enable persistence for PostgreSQL data                                                                             | `true`                          |
+| `postgresql.persistence.size`       | PostgreSQL PVC size                                                                                                | `8Gi`                           |
+| `postgresql.persistence.storageClass` | PostgreSQL PVC storage class                                                                                     | `""`                            |
+| `postgresql.persistence.accessMode` | PostgreSQL PVC access mode                                                                                         | `ReadWriteOnce`                 |
+| `postgresql.service.type`           | PostgreSQL service type                                                                                            | `ClusterIP`                     |
+| `postgresql.service.port`           | PostgreSQL service port                                                                                            | `5432`                          |
+| `postgresql.resources`              | Resource requests and limits for PostgreSQL container                                                              | `{}`                            |
+
 ### API Backend parameters
 
 | Name                                | Description                                                                                                        | Value                           |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
-| `api.enabled`                       | Enable API deployment                                                                                             | `true`                          |
-| `api.replicaCount`                  | Number of API replicas                                                                                            | `1`                             |
 | `api.image.repository`              | API image repository                                                                                              | `ghcr.io/usekaneo/api`          |
 | `api.image.tag`                     | API image tag                                                                                                     | `latest`                        |
 | `api.image.pullPolicy`              | API image pull policy                                                                                             | `IfNotPresent`                  |
@@ -66,24 +84,19 @@ helm uninstall my-kaneo
 | `api.env.existingSecret.enabled`    | Whether to use an existing secret for JWT access token                                                            | `false`                         |
 | `api.env.existingSecret.name`       | Name of the existing secret containing the JWT access token                                                       | `""`                            |
 | `api.env.existingSecret.key`        | Key in the existing secret that contains the JWT access token                                                     | `jwt-access`                    |
-| `api.persistence.enabled`           | Enable persistence for SQLite database                                                                            | `true`                          |
-| `api.persistence.mountPath`         | Path where the SQLite database will be stored                                                                     | `/app/apps/api/data`            |
-| `api.persistence.dbFilename`        | Name of the SQLite database file                                                                                 | `kaneo.db`                      |
-| `api.persistence.accessMode`        | PVC access mode                                                                                                   | `ReadWriteOnce`                 |
-| `api.persistence.size`              | PVC size                                                                                                          | `1Gi`                           |
-| `api.persistence.storageClass`      | PVC storage class                                                                                                 | `""`                            |
+| `api.env.disableRegistration`       | Disable new user registration                                                                                      | `false`                         |
+| `api.env.database.external.enabled` | Use external PostgreSQL database (set postgresql.enabled to false)                                               | `false`                         |
+| `api.env.database.external.host`    | External PostgreSQL host                                                                                          | `""`                            |
+| `api.env.database.external.port`    | External PostgreSQL port                                                                                          | `5432`                          |
+| `api.env.database.external.database` | External PostgreSQL database name                                                                                | `kaneo`                         |
+| `api.env.database.external.username` | External PostgreSQL username                                                                                     | `kaneo_user`                    |
+| `api.env.database.external.password` | External PostgreSQL password                                                                                     | `""`                            |
 | `api.resources`                     | Resource requests and limits for the API container (optional, disabled by default)                                | `{}`                            |
-| `api.autoscaling.enabled`           | Enable autoscaling for the API deployment                                                                         | `false`                         |
-| `api.autoscaling.minReplicas`       | Minimum number of replicas                                                                                        | `1`                             |
-| `api.autoscaling.maxReplicas`       | Maximum number of replicas                                                                                        | `10`                            |
-| `api.autoscaling.targetCPUUtilizationPercentage` | Target CPU utilization percentage                                                                    | `80`                            |
 
 ### Web Frontend parameters
 
 | Name                                | Description                                                                                                        | Value                           |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
-| `web.enabled`                       | Enable Web deployment                                                                                              | `true`                          |
-| `web.replicaCount`                  | Number of Web replicas                                                                                             | `1`                             |
 | `web.image.repository`              | Web image repository                                                                                               | `ghcr.io/usekaneo/web`          |
 | `web.image.tag`                     | Web image tag                                                                                                      | `latest`                        |
 | `web.image.pullPolicy`              | Web image pull policy                                                                                              | `IfNotPresent`                  |
@@ -92,10 +105,6 @@ helm uninstall my-kaneo
 | `web.service.targetPort`            | Web container port                                                                                                 | `80`                            |
 | `web.env`                           | Environment variables for the Web container                                                                        | See `values.yaml`               |
 | `web.resources`                     | Resource requests and limits for the Web container (optional, disabled by default)                                 | `{}`                            |
-| `web.autoscaling.enabled`           | Enable autoscaling for the Web deployment                                                                          | `false`                         |
-| `web.autoscaling.minReplicas`       | Minimum number of replicas                                                                                         | `1`                             |
-| `web.autoscaling.maxReplicas`       | Maximum number of replicas                                                                                         | `10`                            |
-| `web.autoscaling.targetCPUUtilizationPercentage` | Target CPU utilization percentage                                                                     | `80`                            |
 
 ### Ingress parameters
 
@@ -144,7 +153,23 @@ ingress:
 ```yaml
 # values.yaml
 replicaCount: 1
-# Enable and configure resources for production
+
+# PostgreSQL configuration
+postgresql:
+  auth:
+    password: "your-secure-db-password"
+  persistence:
+    size: 20Gi
+    storageClass: "managed-premium"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# API configuration
 api:
   resources:
     limits:
@@ -155,10 +180,8 @@ api:
       memory: 256Mi
   env:
     jwtAccess: "your-secure-jwt-secret"
-  persistence:
-    size: 10Gi
-    storageClass: "managed-premium"
 
+# Web configuration
 web:
   resources:
     limits:
@@ -194,52 +217,107 @@ ingress:
         - your-domain.com
 ```
 
-### Using an Existing Secret for Sensitive Data
+### Using External PostgreSQL Database
 
-For production environments, it's recommended to store sensitive data like the JWT access token in a Kubernetes Secret. You can create a secret and configure the chart to use it:
-
-```bash
-# Create a Secret for the JWT access token
-kubectl create secret generic kaneo-secrets \
-  --namespace kaneo \
-  --from-literal=jwt-access="your-secure-jwt-secret"
-```
-
-Then reference this secret in your values:
+If you prefer to use an external PostgreSQL database instead of the bundled one:
 
 ```yaml
 # values.yaml
+# Disable bundled PostgreSQL
+postgresql:
+  enabled: false
+
 api:
   env:
-    # The jwtAccess value will be ignored when existingSecret is enabled
+    jwtAccess: "your-secure-jwt-secret"
+    database:
+      external:
+        enabled: true
+        host: "your-postgres-host.com"
+        port: 5432
+        database: "kaneo"
+        username: "kaneo_user"
+        password: "your-db-password"
+```
+
+### Using an Existing Secret for Sensitive Data
+
+For production environments, it's recommended to store sensitive data like the JWT access token and database credentials in Kubernetes Secrets:
+
+```bash
+# Create a Secret for sensitive data
+kubectl create secret generic kaneo-secrets \
+  --namespace kaneo \
+  --from-literal=jwt-access="your-secure-jwt-secret" \
+  --from-literal=postgres-password="your-secure-db-password"
+```
+
+Then reference these secrets in your values:
+
+```yaml
+# values.yaml
+postgresql:
+  auth:
+    existingSecret: "kaneo-secrets"
+    secretKeys:
+      userPasswordKey: "postgres-password"
+
+api:
+  env:
     existingSecret:
       enabled: true
       name: "kaneo-secrets"
       key: "jwt-access"
 ```
 
-## Persistence
+## Database Management
 
-The chart mounts a Persistent Volume for the SQLite database used by the API component. The volume is mounted at `/app/apps/api/data` in the API container.
+### PostgreSQL Configuration
 
-## Single Pod Architecture
+The chart deploys PostgreSQL 16 (Alpine) by default with the following configuration:
+- Database name: `kaneo`
+- Username: `kaneo_user`
+- Default password: `kaneo_password` (change this in production!)
+- Persistent storage: 8Gi (configurable)
 
-This chart deploys both the API and Web containers in a single pod. This architecture provides several benefits:
+### Backup and Recovery
 
-1. **Simplified Connectivity**: The web frontend can connect directly to the API via localhost, eliminating cross-origin issues
-2. **Co-location**: Ensures the web and API components are always deployed together
-3. **Reduced Complexity**: Simplifies the deployment and configuration
+For production deployments, consider implementing regular database backups:
 
-With this approach, when `web.env.apiUrl` is not set, the web container automatically connects to the API at `http://localhost:1337` without requiring any port forwarding or special configuration.
+```bash
+# Example backup command
+kubectl exec -it deployment/my-kaneo-postgresql -- pg_dump -U kaneo_user kaneo > kaneo-backup.sql
+```
 
-### Production Environment
+### Migration from SQLite
+
+If you're migrating from a previous SQLite-based installation, you'll need to:
+1. Export your data from SQLite
+2. Deploy the new PostgreSQL-based chart
+3. Import your data into PostgreSQL
+
+Contact the Kaneo community on [Discord](https://discord.gg/rU4tSyhXXU) for migration assistance.
+
+## Architecture
+
+This chart deploys the following components:
+
+1. **API Backend**: Handles all business logic and database operations
+2. **Web Frontend**: Serves the user interface
+3. **PostgreSQL Database**: Stores all application data with proper relational integrity
+
+The API and Web components are deployed in the same pod for simplified connectivity, while PostgreSQL runs in a separate pod for better resource isolation and management.
+
+## Production Environment
 
 For production deployments, you should:
 
-1. Set `web.env.apiUrl` to your domain (e.g., "https://your-domain.com")
+1. Set secure passwords for JWT and PostgreSQL
 2. Use an Ingress controller to expose the application
 3. Configure TLS for secure access
 4. Set appropriate resource limits and requests
+5. Enable persistent storage with appropriate storage classes
+6. Consider using external PostgreSQL for better scalability
 
 ```yaml
 ingress:
@@ -252,7 +330,7 @@ ingress:
   hosts:
     - host: your-domain.com
       paths:
-        - path: /
+        - path: /?(.*)
           pathType: Prefix
           service: web
           port: 80
@@ -319,11 +397,12 @@ kubectl apply -f kaneo-gateway.yaml
 
 For production deployments, consider the following security recommendations:
 
-1. Use a secure JWT_ACCESS secret, preferably stored in a Kubernetes Secret
+1. Use secure JWT_ACCESS and PostgreSQL passwords, preferably stored in Kubernetes Secrets
 2. Enable TLS for ingress or Gateway API
 3. Enable and set resource limits to prevent resource exhaustion
-4. Use a dedicated storage class for the SQLite database
+4. Use a dedicated storage class for the PostgreSQL database
 5. Consider using a network policy to restrict traffic between components
+6. Regularly update PostgreSQL and application images
 
 ### Registration Control
 
@@ -332,9 +411,7 @@ By default, user registration is enabled. To disable new user registration:
 ```yaml
 api:
   env:
-    allowRegistration: false
+    disableRegistration: true
 ```
 
 This will prevent new users from registering while still allowing existing users to log in. The registration option will be hidden from the login page.
-
-Note: This setting is ignored in demo mode where registration remains enabled.

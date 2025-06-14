@@ -4,7 +4,7 @@
   "main": "./src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=cjs --external:better-sqlite3 --external:bcrypt --external:mock-aws-s3 --external:aws-sdk --external:nock"
+    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=cjs --external:pg --external:bcrypt --external:mock-aws-s3 --external:aws-sdk --external:nock"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.4",
@@ -13,17 +13,17 @@
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "bcrypt": "^6.0.0",
-    "better-sqlite3": "^11.10.0",
     "dotenv": "^16.5.0",
     "drizzle-kit": "^0.31.1",
     "drizzle-orm": "^0.43.0",
     "hono": "^4.7.11",
+    "pg": "^8.16.0",
     "zod": "^3.25.56"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.15.30",
+    "@types/pg": "^8.15.4",
     "esbuild": ">=0.25.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
