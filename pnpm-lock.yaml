@@ -79,7 +79,7 @@ importers:
         specifier: ^22.15.30
         version: 22.15.31
       esbuild:
-        specifier: ^0.25.5
+        specifier: '>=0.25.0'
         version: 0.25.5
       tsx:
         specifier: ^4.19.4
