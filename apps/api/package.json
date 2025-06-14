@@ -7,7 +7,7 @@
     "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=cjs --external:better-sqlite3 --external:bcrypt --external:mock-aws-s3 --external:aws-sdk --external:nock"
   },
   "dependencies": {
-    "@hono/node-server": "^1.14.1",
+    "@hono/node-server": "^1.14.4",
     "@hono/zod-validator": "^0.5.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
@@ -17,14 +17,14 @@
     "dotenv": "^16.5.0",
     "drizzle-kit": "^0.31.1",
     "drizzle-orm": "^0.43.0",
-    "hono": "^4.7.9",
-    "zod": "^3.24.4"
+    "hono": "^4.7.11",
+    "zod": "^3.25.56"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^22.15.17",
-    "esbuild": "^0.25.4",
+    "@types/node": "^22.15.30",
+    "esbuild": "^0.25.5",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
