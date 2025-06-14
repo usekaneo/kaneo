@@ -1,108 +1,155 @@
 # Contributing to Kaneo
 
-Thank you for your interest in contributing to Kaneo! All kinds of contributions are valuable to us. This guide will help you get started with the contribution process.
+Thanks for wanting to contribute to Kaneo! Whether you're fixing bugs, adding features, or improving docs, we appreciate your help.
 
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
-  - [Requirements](#requirements)
-  - [Local Development Setup](#local-development-setup)
-- [Making Contributions](#making-contributions)
-  - [Finding Issues to Work On](#finding-issues-to-work-on)
-  - [Creating Pull Requests](#creating-pull-requests)
+  - [What You'll Need](#what-youll-need)
+  - [Setting Up Your Dev Environment](#setting-up-your-dev-environment)
+- [Making Your First Contribution](#making-your-first-contribution)
+  - [Finding Something to Work On](#finding-something-to-work-on)
+  - [The Process](#the-process)
 - [Development Guidelines](#development-guidelines)
   - [Code Style](#code-style)
-  - [Conventional Commits](#conventional-commits)
+  - [Commit Messages](#commit-messages)
   - [Project Structure](#project-structure)
+  - [Testing](#testing)
 - [Need Help?](#need-help)
 
 ## Code of Conduct
 
-We are a community-driven project and we expect all contributors to follow our Code of Conduct. Please read it before participating. [Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/)
+We want everyone to feel welcome here. Please be respectful and follow our [Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).
 
 ## Getting Started
 
-### Requirements
+### What You'll Need
 
-- Docker
-- Docker Compose
-- Git
+- **Node.js** (18 or newer)
+- **pnpm** (we use this instead of npm/yarn)
+- **Git**
+- **Docker** (optional, for testing full deployments)
 
-### Local Development Setup
+### Setting Up Your Dev Environment
 
-1. Fork and clone the repository:
-
+1. **Fork and clone the repo**:
 ```bash
-git clone https://github.com/usekaneo/kaneo.git
+git clone https://github.com/yourusername/kaneo.git
+cd kaneo
 ```
 
-2. Install the dependencies:
-
+2. **Install dependencies**:
 ```bash
-bun install
+pnpm install
 ```
 
-3. Add JWT_ACCESS environment variable:
-
+3. **Set up environment variables**:
 ```bash
-echo "JWT_ACCESS=<token>" > apps/api/.env
+# Create a .env file in the API directory
+echo "JWT_ACCESS=your-development-secret-here" > apps/api/.env
 ```
 
-4. Start the development server:
-
+4. **Start everything up**:
 ```bash
-bun run dev
+pnpm run dev
 ```
 
-This will start the frontend and backend servers on [http://localhost:5173](http://localhost:5173) and [http://localhost:1337](http://localhost:1337) respectively.
+This starts both the API (port 1337) and web app (port 5173). Both will automatically reload when you make changes.
 
-## Making Contributions
+> **Tip**: The web app at http://localhost:5173 will automatically connect to the API at http://localhost:1337
 
-### Finding Issues to Work On
+## Making Your First Contribution
 
-- Check the [issues](https://github.com/usekaneo/kaneo/issues) page for open issues.
-- Check the [Discord server](https://discord.gg/rU4tSyhXXU) for help with issues.
+### Finding Something to Work On
 
-### Creating Pull Requests
+- **Browse [open issues](https://github.com/usekaneo/kaneo/issues)** - look for "good first issue" labels
+- **Check our [Discord](https://discord.gg/rU4tSyhXXU)** - we often discuss features and bugs there
+- **Found a bug?** Feel free to fix it and open a PR
 
-- Create a new branch for your changes.
-- Make your changes and commit them using conventional commits:
+### The Process
 
+1. **Create a branch** for your work:
 ```bash
-git commit -m "feat: add new feature"
+git checkout -b fix/whatever-youre-fixing
+# or
+git checkout -b feat/cool-new-feature
 ```
 
-- Push your changes to your fork.
+2. **Make your changes** and test them locally
 
+3. **Commit using conventional commits**:
 ```bash
-git push origin my-branch
+git commit -m "fix: resolve calendar date selection bug"
+git commit -m "feat: add bulk task operations"
+git commit -m "docs: update deployment guide"
 ```
 
-- Create a pull request.
+4. **Push and create a PR**:
+```bash
+git push origin your-branch-name
+```
+
+Then open a pull request on GitHub with a clear description of what you changed and why.
 
 ## Development Guidelines
 
 ### Code Style
 
-- Use `biome` for code style and linting.
-- The project is configured with Biome's recommended rules.
-- Run `bun x biome ci .` before committing to ensure your code follows the style guide.
+We use **Biome** for formatting and linting. Before you commit:
 
-### Conventional Commits
+```bash
+pnpm run lint
+pnpm run format
+```
 
-- Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
-- Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+Most editors can auto-format on save if you install the Biome extension.
+
+### Commit Messages
+
+We use [conventional commits](https://www.conventionalcommits.org/) to keep our history clean:
+
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `refactor:` - Code changes that don't add features or fix bugs
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks
 
 ### Project Structure
 
-- `apps/api/`: The backend API server.
-- `apps/web/`: The frontend web application.
-- `packages/`: Shared packages and configurations.
+```
+kaneo/
+├── apps/
+│   ├── api/          # Backend API (Node.js/Hono)
+│   └── web/          # Frontend app (React/Vite)
+├── packages/         # Shared code and configs
+└── charts/           # Kubernetes Helm charts
+```
+
+### Testing
+
+Run the test suite before submitting:
+
+```bash
+pnpm run test
+```
+
+If you're adding new features, please include tests.
 
 ## Need Help?
 
-- Check the [Discord server](https://discord.gg/rU4tSyhXXU) for help.
-- Open an [issue](https://github.com/usekaneo/kaneo/issues) if you need help.
+- **Discord**: Join our [Discord server](https://discord.gg/rU4tSyhXXU) for real-time help
+- **Issues**: Open a [GitHub issue](https://github.com/usekaneo/kaneo/issues) for bugs or feature requests
+- **Discussions**: Use GitHub Discussions for questions about contributing
 
-Thank you for your contribution to Kaneo! 🎉
+## Types of Contributions We Love
+
+- **Bug fixes** - Found something broken? Fix it!
+- **New features** - Have an idea? Let's discuss it first
+- **Documentation** - Help others understand how to use Kaneo
+- **Performance improvements** - Make things faster
+- **Accessibility** - Help make Kaneo usable for everyone
+- **Testing** - More tests = more confidence
+
+Thanks for contributing to Kaneo! 🚀

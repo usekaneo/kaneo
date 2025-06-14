@@ -14,8 +14,6 @@
 
 </div>
 
-<p align="center">An open source project management platform focused on simplicity and efficiency.</p>
-
 <div align="center">
   <h3>
     <a href="https://kaneo.app/quick-start">Quick Start</a>
@@ -28,25 +26,28 @@
   </h3>
 </div>
 
-## ✨ Features
+<p align="center">A modern, self-hosted project management platform that gets out of your way.</p>
 
-- 🚀 **Simple & Fast**: Minimalist interface with powerful features
-- 🔒 **Self-hosted**: Full control over your data
-- 🎨 **Customizable**: Make it yours with extensive customization options
-- 🤝 **Open Source**: MIT licensed, free forever
+## Why Kaneo?
 
-## 🚀 Quick Start
+We built Kaneo because existing project management tools either feel bloated with features you'll never use, or they're too simple to handle real work. Kaneo finds the sweet spot—powerful enough for complex projects, simple enough that you'll actually want to use it.
 
-For a video walkthrough of getting started with Kaneo, check out our [Quick Start Guide on YouTube](https://www.youtube.com/watch?v=W2DwLtwH3k4).
+**What makes it different:**
+- **Clean interface** that focuses on your work, not the tool
+- **Self-hosted** so your data stays yours
+- **Actually fast** because we care about performance
+- **Open source** and free forever
 
-1. Create a `compose.yml` file with the following content:
+## Getting Started
+
+The fastest way to try Kaneo is with Docker Compose. This sets up both the API and web interface:
 
 ```yaml
 services:
   backend:
     image: ghcr.io/usekaneo/api:latest
     environment:
-      JWT_ACCESS: "change_me"
+      JWT_ACCESS: "your-secret-key-here"
       DB_PATH: "/app/apps/api/data/kaneo.db"
     ports:
       - 1337:1337
@@ -66,82 +67,40 @@ volumes:
   sqlite_data:
 ```
 
-2. Run `docker compose up -d` to start the services.
+Save this as `compose.yml`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
-3. Open [http://localhost:5173](http://localhost:5173) in your browser.
+> **Quick tip:** Change `JWT_ACCESS` to something secure in production. This is used to sign authentication tokens.
 
-4. Create your first project and start managing your tasks!
+### Configuration Options
 
-| Variable | Description |
-| -------- | ----------- |
-| `KANEO_API_URL` | The URL of the API |
-| `JWT_ACCESS` | Secret key for generating JWT tokens |
-| `DB_PATH` | The path to the database file |
-| `DISABLE_REGISTRATION` | Enable/disable new user registration (default: true) |
+| Variable | What it does | Default |
+| -------- | ------------ | ------- |
+| `KANEO_API_URL` | Where the web app finds the API | Required |
+| `JWT_ACCESS` | Secret key for user authentication | Required |
+| `DB_PATH` | SQLite database location | `/app/apps/api/data/kaneo.db` |
+| `DISABLE_REGISTRATION` | Block new user signups | `true` |
 
-## 🚢 Kubernetes Deployment
+## Kubernetes Deployment
 
-Kaneo can also be deployed on Kubernetes using our Helm chart:
-
-1. Clone this repository:
+If you're running Kubernetes, we have a Helm chart that handles the complexity:
 
 ```bash
+# Clone the repo
 git clone https://github.com/usekaneo/kaneo.git
 cd kaneo
-```
 
-2. Install the Helm chart:
-
-```bash
+# Install with Helm
 helm install kaneo ./charts/kaneo --namespace kaneo --create-namespace
+
+# Access locally
+kubectl port-forward svc/kaneo-web 5173:5173 -n kaneo
 ```
 
-3. Access Kaneo:
+Open [http://localhost:5173](http://localhost:5173) and you're good to go.
 
-```bash
-# Port forward to access both services
-kubectl port-forward svc/kaneo-web 5173:5173 -n kaneo &
-kubectl port-forward svc/kaneo-api 1337:1337 -n kaneo &
+### Production Setup
 
-# Access the application at http://localhost:5173
-# The web frontend will communicate with the API at http://localhost:1337
-```
-
-### Production Deployments
-
-For production environments, we recommend using Ingress to expose Kaneo:
-
-```bash
-# Basic installation with ingress
-helm install kaneo ./charts/kaneo \
-  --namespace kaneo \
-  --create-namespace \
-  --set ingress.enabled=true \
-  --set ingress.className=nginx \
-  --set "ingress.hosts[0].host=kaneo.example.com"
-```
-
-For detailed production deployment examples, including:
-
-- TLS configuration
-- Cert-manager integration
-- Path rewriting with regex capture groups
-- Gateway API usage
-- Resource configuration
-
-Please refer to the [Helm chart documentation](./charts/kaneo/README.md).
-
-### Local Deployments with Minikube
-
-For local deployments with Minikube:
-
-1. Start Minikube:
-
-```bash
-minikube start
-```
-
-2. Install the Helm chart with Ingress enabled:
+For real deployments, you'll want proper ingress:
 
 ```bash
 helm install kaneo ./charts/kaneo \
@@ -149,76 +108,58 @@ helm install kaneo ./charts/kaneo \
   --create-namespace \
   --set ingress.enabled=true \
   --set ingress.className=nginx \
-  --set "ingress.hosts[0].host=kaneo.local"
+  --set "ingress.hosts[0].host=pm.yourcompany.com"
 ```
 
-3. Enable the Ingress addon if not already enabled:
+Check the [Helm chart docs](./charts/kaneo/README.md) for TLS setup, cert-manager integration, and other production considerations.
+
+## Development
+
+Want to hack on Kaneo? Here's how to get a development environment running:
 
 ```bash
-minikube addons enable ingress
+# Clone and install dependencies
+git clone https://github.com/usekaneo/kaneo.git
+cd kaneo
+pnpm install
+
+# Start the API
+cd apps/api
+pnpm run dev
+
+# In another terminal, start the web app
+cd apps/web
+pnpm run dev
 ```
 
-4. Access Kaneo based on your OS:
+The API runs on port 1337, web app on 5173. Both will reload when you make changes.
 
-#### macOS
+## Community
 
-For macOS, you need to use `minikube tunnel` to access the Ingress:
+- **[Discord](https://discord.gg/rU4tSyhXXU)** - Chat with users and contributors
+- **[GitHub Issues](https://github.com/usekaneo/kaneo/issues)** - Bug reports and feature requests
+- **[Documentation](https://kaneo.app/quick-start)** - Detailed guides and API docs
 
-```bash
-# Start minikube tunnel in a separate terminal
-minikube tunnel
-```
+## Contributing
 
-Update your /etc/hosts file:
+We're always looking for help, whether that's:
+- Reporting bugs or suggesting features
+- Improving documentation
+- Contributing code
+- Helping other users on Discord
 
-```bash
-# Add to /etc/hosts
-127.0.0.1 kaneo.local
-```
+Check out [CONTRIBUTING.md](CONTRIBUTING.md) for the details on how to get involved.
 
-Access Kaneo at http://kaneo.local
+## License
 
-#### Linux/Windows
+MIT License - see [LICENSE](LICENSE) for details.
 
-Get the Minikube IP:
+---
 
-```bash
-minikube ip
-```
-
-Update your hosts file with the Minikube IP:
-
-```bash
-# Add to /etc/hosts (Linux) or C:\Windows\System32\drivers\etc\hosts (Windows)
-192.168.49.2 kaneo.local  # Replace with the actual Minikube IP
-```
-
-Access Kaneo at http://kaneo.local
-
-## 📖 Documentation
-
-For detailed instructions and documentation, visit our [Documentation](https://kaneo.app/quick-start).
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-## 💬 Community
-
-- [Discord](https://discord.gg/rU4tSyhXXU) - Chat with the community
-- [GitHub Issues](https://github.com/usekaneo/kaneo/issues) - Report bugs or suggest features
-- [Website](https://kaneo.app) - Official website
-
-## ❤️ Sponsors
-
-<!-- sponsors --><!-- sponsors -->
-
-## 👥 Contributors
+<div align="center">
+  <img src="https://repobeats.axiom.co/api/embed/3e8367ec2b2350e4fc48662df33c81dac657b833.svg" alt="Repobeats analytics image" />
+</div>
 
 <p align="center">
-  <img src="CONTRIBUTORS.svg" alt="Contributors" />
+  Built with ❤️ by the Kaneo team and <a href="#contributors">contributors</a>
 </p>
-
-## 📝 License
-
-This project is licensed under the [MIT License](LICENSE).
