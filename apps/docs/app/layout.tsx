@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://kaneo.app"),
   title: {
     default: "Kaneo - Project management made simple",
-    template: "%s | Kaneo",
+    template: "%s",
   },
   description:
     "Kaneo is a modern, self-hosted project management platform focused on simplicity and efficiency. Open source, customizable, and built for teams that value productivity.",
