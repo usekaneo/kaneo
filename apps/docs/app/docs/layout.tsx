@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Kaneo",
+    template: "%s |",
     default: "Kaneo",
   },
   description:
