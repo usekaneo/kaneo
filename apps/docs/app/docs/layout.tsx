@@ -7,8 +7,8 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Kaneo Documentation",
-    default: "Documentation | Kaneo",
+    template: "%s | Kaneo",
+    default: "Kaneo",
   },
   description:
     "Complete documentation for Kaneo - the open source project management platform. Learn how to deploy, configure, and use Kaneo for your team.",
