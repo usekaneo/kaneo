@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://kaneo.app"),
   title: {
-    default: "Kaneo - Open Source Project Management Platform",
+    default: "Kaneo - Project management made simple",
     template: "%s | Kaneo",
   },
   description:
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://kaneo.app",
-    title: "Kaneo - Open Source Project Management Platform",
+    title: "Kaneo - Project management made simple",
     description:
       "Modern, self-hosted project management platform focused on simplicity and efficiency. Open source and built for teams.",
     siteName: "Kaneo",
@@ -52,13 +52,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Kaneo - Open Source Project Management Platform",
+        alt: "Kaneo - Project management made simple",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kaneo - Open Source Project Management Platform",
+    title: "Kaneo - Project management made simple",
     description:
       "Modern, self-hosted project management platform focused on simplicity and efficiency. Open source and built for teams.",
     images: ["/og-image.png"],

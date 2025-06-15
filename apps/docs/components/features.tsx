@@ -40,7 +40,7 @@ export default function Features() {
               key={feature.name}
               className={`feature-item relative animate-fade-in-up-${index}`}
             >
-              <div className="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-200">
+              <div className="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100">
                 <div className="inline-flex p-3 rounded-lg bg-indigo-50 dark:bg-indigo-500/10">
                   <feature.icon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                 </div>

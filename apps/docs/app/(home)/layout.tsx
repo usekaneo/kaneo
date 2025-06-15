@@ -5,7 +5,7 @@ import Script from "next/script";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Kaneo - Open Source Project Management Platform",
+  title: "Kaneo - Project management made simple",
   description:
     "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
   alternates: {
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://kaneo.app",
-    title: "Kaneo - Open Source Project Management Platform",
+    title: "Kaneo - Project management made simple",
     description:
       "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
     siteName: "Kaneo",
@@ -24,13 +24,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Kaneo - Open Source Project Management Platform",
+        alt: "Kaneo - Project management made simple",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kaneo - Open Source Project Management Platform",
+    title: "Kaneo - Project management made simple",
     description:
       "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
     images: ["/og-image.png"],

@@ -34,14 +34,14 @@ export default function LaptopAnimation() {
           alt="Kaneo board interface - Light mode"
           width={1920}
           height={1080}
-          className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-700 hover:scale-[1.02] hidden sm:block dark:hidden"
+          className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] hidden sm:block dark:hidden"
         />
         <Image
           src="https://assets.kaneo.app/board-dark.png"
           alt="Kaneo board interface - Dark mode"
           width={1920}
           height={1080}
-          className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-700 hover:scale-[1.02] hidden sm:dark:block"
+          className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] hidden sm:dark:block"
         />
 
         {/* Mobile Images */}
@@ -51,14 +51,14 @@ export default function LaptopAnimation() {
             alt="Kaneo board interface mobile - Light mode"
             width={750}
             height={1334}
-            className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-700 hover:scale-[1.02] block dark:hidden"
+            className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] block dark:hidden"
           />
           <Image
             src="https://assets.kaneo.app/board-dark-mobile.png"
             alt="Kaneo board interface mobile - Dark mode"
             width={750}
             height={1334}
-            className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-700 hover:scale-[1.02] hidden dark:block"
+            className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] hidden dark:block"
           />
         </div>
       </div>

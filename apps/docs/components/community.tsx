@@ -18,9 +18,9 @@ export default function Community() {
             href="https://github.com/orgs/usekaneo/discussions"
             target="_blank"
             rel="noopener noreferrer"
-            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors animate-fade-in-up-0"
+            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-0"
           >
-            <Github className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
+            <Github className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors duration-100" />
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
               GitHub Discussions
             </h3>
@@ -33,9 +33,9 @@ export default function Community() {
             href="https://discord.gg/rU4tSyhXXU"
             target="_blank"
             rel="noopener noreferrer"
-            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors animate-fade-in-up-1"
+            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-1"
           >
-            <MessageSquare className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
+            <MessageSquare className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors duration-100" />
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
               Discord Community
             </h3>
@@ -48,9 +48,9 @@ export default function Community() {
             href="https://x.com/usekaneo"
             target="_blank"
             rel="noopener noreferrer"
-            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors animate-fade-in-up-2"
+            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-2"
           >
-            <Twitter className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
+            <Twitter className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors duration-100" />
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
               Twitter Updates
             </h3>

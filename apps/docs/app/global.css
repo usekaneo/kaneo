@@ -39,32 +39,32 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 .animate-fade-in-delay {
-  animation: fadeInDelay 1.2s ease-out forwards;
+  animation: fadeInDelay 0.4s ease-out forwards;
 }
 
 .animate-fade-in-delay-2 {
-  animation: fadeInDelay2 1.5s ease-out forwards;
+  animation: fadeInDelay2 0.5s ease-out forwards;
 }
 
 .animate-fade-in-delay-3 {
-  animation: fadeInDelay3 1.8s ease-out forwards;
+  animation: fadeInDelay3 0.6s ease-out forwards;
 }
 
 .animate-fade-in-up-0 {
-  animation: fadeInUp 0.5s ease-out forwards;
-  animation-delay: 0.1s;
+  animation: fadeInUp 0.3s ease-out forwards;
+  animation-delay: 0.05s;
 }
 
 .animate-fade-in-up-1 {
-  animation: fadeInUp 0.5s ease-out forwards;
-  animation-delay: 0.2s;
+  animation: fadeInUp 0.3s ease-out forwards;
+  animation-delay: 0.1s;
 }
 
 .animate-fade-in-up-2 {
-  animation: fadeInUp 0.5s ease-out forwards;
-  animation-delay: 0.3s;
+  animation: fadeInUp 0.3s ease-out forwards;
+  animation-delay: 0.15s;
 }
