@@ -47,16 +47,11 @@ export const workspaceUserTable = pgTable("workspace_member", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
-  workspaceId: text("workspace_id")
-    .notNull()
-    .references(() => workspaceTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-  userEmail: text("user_email").references(() => userTable.email, {
+  workspaceId: text("workspace_id").references(() => workspaceTable.id, {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
+  userEmail: text("user_email").notNull(),
   role: text("role").default("member").notNull(),
   joinedAt: timestamp("joined_at", { mode: "date" }).defaultNow().notNull(),
   status: text("status").default("pending").notNull(),

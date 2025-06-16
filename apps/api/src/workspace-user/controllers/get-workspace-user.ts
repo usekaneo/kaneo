@@ -4,8 +4,8 @@ import db from "../../database";
 import { workspaceUserTable } from "../../database/schema";
 
 async function getWorkspaceUser(id: string) {
-  const workspaceUser = await db.query.workspaceUserTable.findFirst({
-    where: eq(workspaceUserTable.id, id),
+  const workspaceUser = await db.query.workspaceUserTable.findMany({
+    where: eq(workspaceUserTable.workspaceId, id),
   });
 
   if (!workspaceUser) {

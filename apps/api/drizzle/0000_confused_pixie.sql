@@ -88,8 +88,8 @@ CREATE TABLE "workspace" (
 --> statement-breakpoint
 CREATE TABLE "workspace_member" (
 	"id" text PRIMARY KEY NOT NULL,
-	"workspace_id" text NOT NULL,
-	"user_email" text,
+	"workspace_id" text,
+	"user_email" text NOT NULL,
 	"role" text DEFAULT 'member' NOT NULL,
 	"joined_at" timestamp DEFAULT now() NOT NULL,
 	"status" text DEFAULT 'pending' NOT NULL
@@ -106,5 +106,4 @@ ALTER TABLE "task" ADD CONSTRAINT "task_assignee_email_user_email_fk" FOREIGN KE
 ALTER TABLE "time_entry" ADD CONSTRAINT "time_entry_task_id_task_id_fk" FOREIGN KEY ("task_id") REFERENCES "public"."task"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "time_entry" ADD CONSTRAINT "time_entry_user_email_user_email_fk" FOREIGN KEY ("user_email") REFERENCES "public"."user"("email") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "workspace" ADD CONSTRAINT "workspace_owner_email_user_email_fk" FOREIGN KEY ("owner_email") REFERENCES "public"."user"("email") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "workspace_member" ADD CONSTRAINT "workspace_member_workspace_id_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspace"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "workspace_member" ADD CONSTRAINT "workspace_member_user_email_user_email_fk" FOREIGN KEY ("user_email") REFERENCES "public"."user"("email") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "workspace_member" ADD CONSTRAINT "workspace_member_workspace_id_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspace"("id") ON DELETE cascade ON UPDATE cascade;
