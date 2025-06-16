@@ -52,7 +52,7 @@
 		"react": "^19.0.0",
 		"react-day-picker": "9.7.0",
 		"react-dom": "^19.0.0",
-		"react-hook-form": "^7.56.2",
+		"react-hook-form": "^7.58.0",
 		"react-use-websocket": "^4.11.1",
 		"sonner": "^2.0.3",
 		"tailwind-merge": "^3.3.0",
