@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 
 async function signIn(email: string, password: string) {
@@ -7,13 +8,17 @@ async function signIn(email: string, password: string) {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new HTTPException(404, {
+      message: "User not found",
+    });
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    throw new Error("Invalid credentials");
+    throw new HTTPException(401, {
+      message: "Invalid credentials",
+    });
   }
 
   return {
