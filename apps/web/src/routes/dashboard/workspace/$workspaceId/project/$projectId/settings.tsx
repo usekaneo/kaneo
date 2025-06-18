@@ -22,8 +22,15 @@ import useProjectStore from "@/store/project";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, Check, Copy, Lock } from "lucide-react";
-import { createElement, useEffect, useState } from "react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowLeft,
+  Check,
+  Copy,
+  Lock,
+} from "lucide-react";
+import { createElement, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -56,21 +63,55 @@ function ProjectSettings() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  const form = useForm<ProjectFormValues>({
+    resolver: zodResolver(projectFormSchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+      icon: "Layout",
+      isPublic: false,
+    },
+  });
+
+  const { isDirty } = form.formState;
+
+  const resetFormWithProject = useCallback(
+    (projectData: typeof project) => {
+      if (projectData) {
+        form.reset({
+          name: projectData.name || "",
+          slug: projectData.slug || "",
+          icon: projectData.icon || "Layout",
+          isPublic: projectData.isPublic || false,
+        });
+      }
+    },
+    [form],
+  );
+
   useEffect(() => {
     if (data) {
       setProject(data);
     }
   }, [data, setProject]);
 
-  const form = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectFormSchema),
-    defaultValues: {
-      name: project?.name ?? "",
-      slug: project?.slug ?? "",
-      icon: project?.icon ?? "Layout",
-      isPublic: project?.isPublic ?? false,
-    },
-  });
+  useEffect(() => {
+    resetFormWithProject(project);
+  }, [project, resetFormWithProject]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
 
   const onSubmit = async (data: ProjectFormValues) => {
     try {
@@ -90,6 +131,7 @@ function ProjectSettings() {
         queryKey: ["projects", project?.workspaceId],
       });
 
+      form.reset(data);
       toast.success("Project updated successfully");
     } catch (error) {
       toast.error(
@@ -196,6 +238,12 @@ function ProjectSettings() {
             <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               Project Settings
             </h1>
+            {isDirty && (
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded text-xs font-medium">
+                <AlertCircle className="w-3 h-3" />
+                Unsaved changes
+              </div>
+            )}
           </div>
         </header>
 
@@ -367,6 +415,13 @@ function ProjectSettings() {
                       <Button type="submit" disabled={isPending}>
                         {isPending ? "Saving..." : "Save Changes"}
                       </Button>
+
+                      {isDirty && (
+                        <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>You have unsaved changes</span>
+                        </div>
+                      )}
                     </form>
                   </Form>
                 ) : (
