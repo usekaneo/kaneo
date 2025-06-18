@@ -31,7 +31,7 @@ import queryClient from "@/query-client";
 import type Task from "@/types/task";
 import { useMemo } from "react";
 import { toast } from "sonner";
-import type { z } from "zod";
+import type { z } from "zod/v4";
 
 interface TaskCardContext {
   worskpaceId: string;

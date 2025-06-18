@@ -14,13 +14,13 @@ import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import * as Dialog from "@radix-ui/react-dialog";
 import { produce } from "immer";
 import { Flag, UserIcon, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { Select } from "../../ui/select";
 
 interface CreateTaskModalProps {
@@ -47,7 +47,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   });
 
   const form = useForm<TaskFormValues>({
-    resolver: zodResolver(taskSchema),
+    resolver: standardSchemaResolver(taskSchema),
     defaultValues: {
       title: "",
       description: "",

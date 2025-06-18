@@ -4,7 +4,7 @@ import debounce from "@/lib/debounce";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { Form, FormField } from "../ui/form";
 
 const taskTitleSchema = z.object({
