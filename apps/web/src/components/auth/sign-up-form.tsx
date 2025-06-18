@@ -51,6 +51,7 @@ export function SignUpForm() {
         name: data.name,
         password: data.password,
       });
+
       setUser(user);
 
       setTimeout(() => {

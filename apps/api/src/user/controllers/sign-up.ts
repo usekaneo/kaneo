@@ -28,12 +28,10 @@ async function signUp(email: string, password: string, name: string) {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = (
-    await db
-      .insert(userTable)
-      .values({ email, name, password: hashedPassword })
-      .returning()
-  ).at(0);
+  const [user] = await db
+    .insert(userTable)
+    .values({ email, name, password: hashedPassword })
+    .returning();
 
   if (!user) {
     throw new HTTPException(500, {
