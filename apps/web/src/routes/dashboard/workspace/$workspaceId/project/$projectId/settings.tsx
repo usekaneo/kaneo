@@ -19,7 +19,7 @@ import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
@@ -33,7 +33,7 @@ import {
 import { createElement, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 const projectFormSchema = z.object({
   name: z.string().min(1, "Project name is required"),
@@ -64,7 +64,7 @@ function ProjectSettings() {
   const navigate = useNavigate();
 
   const form = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectFormSchema),
+    resolver: standardSchemaResolver(projectFormSchema),
     defaultValues: {
       name: "",
       slug: "",

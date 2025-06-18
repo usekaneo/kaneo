@@ -4,13 +4,14 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
+
 const commentSchema = z.object({
   comment: z.string().min(1),
 });
@@ -31,7 +32,7 @@ function TaskComment({
   const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof commentSchema>>({
-    resolver: zodResolver(commentSchema),
+    resolver: standardSchemaResolver(commentSchema),
     defaultValues: {
       comment: "",
     },

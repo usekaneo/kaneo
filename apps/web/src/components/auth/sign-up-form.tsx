@@ -9,13 +9,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import useSignUp from "@/hooks/mutations/use-sign-up";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { type ZodType, z } from "zod";
+import { z } from "zod/v4";
 import useAuth from "../providers/auth-provider/hooks/use-auth";
 
 export type SignUpFormValues = {
@@ -24,8 +24,8 @@ export type SignUpFormValues = {
   name: string;
 };
 
-const signUpSchema: ZodType<SignUpFormValues> = z.object({
-  email: z.string().email(),
+const signUpSchema = z.object({
+  email: z.email(),
   password: z.string().min(8, { message: "Password is too short" }),
   name: z.string(),
 });
@@ -35,7 +35,7 @@ export function SignUpForm() {
   const { setUser } = useAuth();
   const { history } = useRouter();
   const form = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpSchema),
+    resolver: standardSchemaResolver(signUpSchema),
     defaultValues: {
       email: "",
       password: "",

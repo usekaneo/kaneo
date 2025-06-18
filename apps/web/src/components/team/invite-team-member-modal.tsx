@@ -1,12 +1,12 @@
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
 import { Route } from "@/routes/dashboard/teams/$workspaceId/_layout";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { Button } from "../ui/button";
 import {
   Form,
@@ -24,7 +24,7 @@ type Props = {
 };
 
 const teamMemberSchema = z.object({
-  userEmail: z.string().email(),
+  userEmail: z.email(),
 });
 
 type TeamMemberFormValues = z.infer<typeof teamMemberSchema>;
@@ -35,7 +35,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const { workspaceId } = Route.useParams();
 
   const form = useForm<TeamMemberFormValues>({
-    resolver: zodResolver(teamMemberSchema),
+    resolver: standardSchemaResolver(teamMemberSchema),
     defaultValues: {
       userEmail: "",
     },

@@ -14,13 +14,13 @@ import useUpdateWorkspace from "@/hooks/mutations/workspace/use-update-workspace
 import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
 import queryClient from "@/query-client";
 import useWorkspaceStore from "@/store/workspace";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, Lock } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 const workspaceFormSchema = z.object({
   name: z.string().min(1, "Workspace name is required"),
@@ -48,7 +48,7 @@ function RouteComponent() {
     useDeleteWorkspace();
 
   const form = useForm<WorkspaceFormValues>({
-    resolver: zodResolver(workspaceFormSchema),
+    resolver: standardSchemaResolver(workspaceFormSchema),
 
     defaultValues: {
       name: workspace?.name ?? "",

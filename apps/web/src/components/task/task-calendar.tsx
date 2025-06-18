@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import type { ControllerRenderProps } from "react-hook-form";
-import type { z } from "zod";
+import type { z } from "zod/v4";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import type { taskInfoSchema } from "./task-info";
 
