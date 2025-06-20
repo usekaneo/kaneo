@@ -1,3 +1,27 @@
+# [1.0.0](https://github.com/usekaneo/kaneo/compare/v0.4.0...v1.0.0) (2025-06-20)
+
+
+### Bug Fixes
+
+* adjust metadata title template for Kaneo documentation ([4e696ab](https://github.com/usekaneo/kaneo/commit/4e696ab7ba233a5a1359de0ae7389a44d37b2c3d))
+* simplify metadata default title for Kaneo documentation ([3c24b09](https://github.com/usekaneo/kaneo/commit/3c24b09898e3cbd91198ce831d21baaaf1d32ad1))
+* update metadata template for Kaneo project ([020e383](https://github.com/usekaneo/kaneo/commit/020e383918c1881ddb9cb68dfbdcf51fe6621d12))
+* update metadata title template for Kaneo documentation ([2fe6196](https://github.com/usekaneo/kaneo/commit/2fe6196545b3c1ecec912e880e9367d95e868767))
+
+
+### Features
+
+* add manifest and icons for Kaneo project management platform ([fe2d19d](https://github.com/usekaneo/kaneo/commit/fe2d19d937bc4e96aa42b9badc0554e0b4918c59))
+* **board:** add CreateTaskModal for task creation functionality ([2bec2d0](https://github.com/usekaneo/kaneo/commit/2bec2d0e92d9f16408f551d08eb87582977ff213))
+* comments ui proposal ([#262](https://github.com/usekaneo/kaneo/issues/262)) ([741bbc4](https://github.com/usekaneo/kaneo/commit/741bbc41f617c2cb521e7937c66ab60202713793))
+* enhance project settings form with unsaved changes warning ([36854d9](https://github.com/usekaneo/kaneo/commit/36854d926069b48b62f896c48d0dbace849d830c))
+* **hero:** update hero component to promote Kaneo Cloud with new icon and link ([23935fb](https://github.com/usekaneo/kaneo/commit/23935fb45b53b03f9e02bb3753677ab1eb96ebed))
+* **index.html:** add Plausible Analytics script for cloud.kaneo.app domain ([4edabaf](https://github.com/usekaneo/kaneo/commit/4edabafad7387e8d7ec384548fe10c2af2303ca2))
+* migrate from SQLite to PostgreSQL ([#315](https://github.com/usekaneo/kaneo/issues/315)) ([ee540d4](https://github.com/usekaneo/kaneo/commit/ee540d407ce8708874dc6d5694c80eb5e40107b4))
+* update documentation with cloud version promotion ([add275c](https://github.com/usekaneo/kaneo/commit/add275cbbd85eeb57186d58f8f7ada2363ea1a61))
+
+
+
 # [0.4.0](https://github.com/usekaneo/kaneo/compare/v0.3.0...v0.4.0) (2025-05-10)
 
 
