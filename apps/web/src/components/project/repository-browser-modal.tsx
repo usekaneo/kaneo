@@ -162,20 +162,9 @@ export function RepositoryBrowserModal({
                       </h3>
                       <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-md mx-auto">
                         Install the GitHub App on your repositories to see them
-                        here.
+                        here. Contact your administrator for installation
+                        instructions.
                       </p>
-                      <Button
-                        onClick={() =>
-                          window.open(
-                            `https://github.com/apps/${process.env.GITHUB_APP_NAME || "your-app"}`,
-                            "_blank",
-                          )
-                        }
-                        className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-                      >
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Install GitHub App
-                      </Button>
                     </div>
                   )}
 
