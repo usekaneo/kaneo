@@ -71,9 +71,6 @@ importers:
       pg:
         specifier: ^8.16.0
         version: 8.16.1
-      webhooks:
-        specifier: link:@types/@octokit/webhooks
-        version: link:@types/@octokit/webhooks
       zod:
         specifier: ^3.25.56
         version: 3.25.67

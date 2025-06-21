@@ -20,7 +20,6 @@
     "hono": "^4.7.11",
     "octokit": "^5.0.3",
     "pg": "^8.16.0",
-    "webhooks": "link:@types/@octokit/webhooks",
     "zod": "^3.25.56"
   },
   "devDependencies": {
