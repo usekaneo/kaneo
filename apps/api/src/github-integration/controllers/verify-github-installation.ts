@@ -55,6 +55,9 @@ async function verifyGithubInstallation({
         missingPermissions,
         message: `GitHub App is installed but missing required permissions: ${missingPermissions.join(", ")}`,
         settingsUrl: `https://github.com/settings/installations/${installation.id}`,
+        installationUrl: process.env.GITHUB_APP_NAME
+          ? `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new/permissions?target_id=${repo.id}`
+          : undefined,
       };
     }
 
@@ -79,6 +82,8 @@ async function verifyGithubInstallation({
           repo: repositoryName,
         });
 
+        const repoId = await getRepositoryId(repositoryOwner, repositoryName);
+
         return {
           isInstalled: false,
           installationId: null,
@@ -87,6 +92,12 @@ async function verifyGithubInstallation({
           permissions: null,
           hasRequiredPermissions: false,
           message: "Repository exists but GitHub App is not installed",
+          installationUrl: process.env.GITHUB_APP_NAME
+            ? `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new/permissions?target_id=${repoId}`
+            : undefined,
+          settingsUrl: process.env.GITHUB_APP_NAME
+            ? `https://github.com/apps/${process.env.GITHUB_APP_NAME}`
+            : undefined,
         };
       } catch (repoError) {
         const repoGithubError = repoError as { status?: number };
@@ -134,6 +145,18 @@ function getMissingPermissions(
     const permissionLevel = permissions[perm];
     return permissionLevel !== "write" && permissionLevel !== "admin";
   });
+}
+
+async function getRepositoryId(owner: string, repo: string): Promise<number> {
+  try {
+    const { data } = await githubApp.octokit.rest.repos.get({
+      owner,
+      repo,
+    });
+    return data.id;
+  } catch {
+    return 0;
+  }
 }
 
 export default verifyGithubInstallation;

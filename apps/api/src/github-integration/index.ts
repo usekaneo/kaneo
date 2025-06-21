@@ -25,6 +25,11 @@ subscribeToEvent<{
 }>("task.created", handleTaskCreated);
 
 const githubIntegration = new Hono()
+  .get("/app-info", async (c) => {
+    return c.json({
+      appName: process.env.GITHUB_APP_NAME || null,
+    });
+  })
   .get("/repositories", async (c) => {
     const repositories = await listUserRepositories();
     return c.json(repositories);

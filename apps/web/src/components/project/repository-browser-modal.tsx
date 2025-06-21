@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import getGitHubAppInfo from "@/fetchers/github-integration/get-app-info";
 import listRepositories, {
   type ListRepositoriesResponse,
 } from "@/fetchers/github-integration/list-repositories";
@@ -39,6 +40,12 @@ export function RepositoryBrowserModal({
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["github-repositories"],
     queryFn: listRepositories,
+    enabled: open,
+  });
+
+  const { data: appInfo } = useQuery({
+    queryKey: ["github-app-info"],
+    queryFn: getGitHubAppInfo,
     enabled: open,
   });
 
@@ -162,9 +169,22 @@ export function RepositoryBrowserModal({
                       </h3>
                       <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-md mx-auto">
                         Install the GitHub App on your repositories to see them
-                        here. Contact your administrator for installation
-                        instructions.
+                        here.
                       </p>
+                      {appInfo?.appName && (
+                        <Button
+                          onClick={() =>
+                            window.open(
+                              `https://github.com/apps/${appInfo.appName}`,
+                              "_blank",
+                            )
+                          }
+                          className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Install GitHub App
+                        </Button>
+                      )}
                     </div>
                   )}
 
