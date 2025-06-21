@@ -13,7 +13,11 @@ async function listUserRepositories() {
             installation.id,
           );
           const { data: repos } =
-            await installationOctokit.rest.apps.listReposAccessibleToInstallation();
+            await installationOctokit.rest.apps.listReposAccessibleToInstallation(
+              {
+                per_page: 500,
+              },
+            );
 
           return {
             id: installation.id,
