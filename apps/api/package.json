@@ -4,7 +4,7 @@
   "main": "./src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=cjs --external:pg --external:bcrypt --external:mock-aws-s3 --external:aws-sdk --external:nock"
+    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=esm --external:pg --external:bcrypt --external:mock-aws-s3 --external:aws-sdk --external:nock"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.4",
