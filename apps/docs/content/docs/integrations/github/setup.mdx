@@ -7,17 +7,21 @@ icon: Settings
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-This guide walks you through creating and configuring a GitHub App to enable the Kaneo integration.
+This guide walks you through creating and configuring a GitHub App to enable the Kaneo integration. **Start here before deploying or configuring your Kaneo instance.**
 
 ## Overview
 
 A GitHub App provides secure, granular access to your repositories and allows Kaneo to:
 - Create issues automatically when tasks are created
 - Access repository metadata for verification
-- Receive webhook events (optional)
+- Receive webhook events for issue synchronization
 
 <Callout type="info">
 GitHub Apps are more secure than personal access tokens and provide better permission control.
+</Callout>
+
+<Callout type="error">
+**Important**: Complete this GitHub App setup **before** deploying Kaneo. You'll need the app credentials during deployment configuration.
 </Callout>
 
 ## Step 1: Create a GitHub App
@@ -36,12 +40,12 @@ Fill in the basic app information:
 
 - **GitHub App name**: `kaneo-[your-instance-name]` (must be unique across GitHub)
 - **Description**: `Kaneo project management integration`
-- **Homepage URL**: Your Kaneo instance URL (e.g., `https://kaneo.yourdomain.com`)
+- **Homepage URL**: Your planned Kaneo instance URL (e.g., `https://kaneo.yourdomain.com`)
 - **Webhook URL**: `https://your-kaneo-instance.com/github-integration/webhook`
 - **Webhook secret**: Generate a secure random string (save this for later)
 
 <Callout type="warning">
-Replace `your-kaneo-instance.com` with your actual Kaneo domain. The webhook URL must be publicly accessible.
+Replace `your-kaneo-instance.com` with your planned Kaneo domain. The webhook URL must be publicly accessible once deployed.
 </Callout>
 </Step>
 
@@ -62,15 +66,19 @@ Configure the following permissions:
 </Step>
 
 <Step>
-**Configure Events (Optional)**
+**Subscribe to Webhook Events**
 
-If you want to receive webhook events from GitHub, subscribe to:
+**This step is required for proper integration.** Subscribe to these events:
 
 - **Issues** - To track when issues are created, updated, or closed
 - **Issue Comments** - To track comments on issues
 
+<Callout type="error">
+**Required**: You must subscribe to **Issues** events for the integration to work properly. This enables bidirectional synchronization between Kaneo tasks and GitHub issues.
+</Callout>
+
 <Callout type="info">
-Webhook events are optional and currently used for logging. Future versions may use these for bidirectional sync.
+These webhook events enable real-time synchronization between your Kaneo tasks and GitHub issues.
 </Callout>
 </Step>
 
@@ -174,10 +182,15 @@ Double-check that you've granted:
 
 ## Next Steps
 
-Once your GitHub App is created and installed:
+Now that your GitHub App is created and configured:
 
-1. **[Configure Kaneo](/docs/integrations/github/configuration)** - Add the credentials to your Kaneo deployment
-2. **[Connect Repositories](/docs/integrations/github/configuration#connecting-repositories)** - Link your projects to GitHub repositories
+1. **[Deploy Kaneo](/docs/getting-started/deployment)** - Deploy your Kaneo instance with the GitHub App credentials
+2. **[Configure GitHub Integration](/docs/integrations/github/configuration)** - Complete the integration setup in your deployed Kaneo instance
+3. **[Connect Repositories](/docs/integrations/github/configuration#connecting-repositories)** - Link your projects to GitHub repositories
+
+<Callout type="info">
+**Important**: Have your GitHub App credentials ready before deployment. You'll need to set them as environment variables during the deployment process.
+</Callout>
 
 ---
 
