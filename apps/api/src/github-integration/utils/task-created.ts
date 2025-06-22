@@ -11,16 +11,8 @@ export async function handleTaskCreated(data: {
   number: number;
   projectId: string;
 }) {
-  const {
-    taskId,
-    userEmail,
-    title,
-    description,
-    priority,
-    status,
-    number,
-    projectId,
-  } = data;
+  const { taskId, userEmail, title, description, priority, status, projectId } =
+    data;
 
   try {
     const integration = await getGithubIntegration(projectId);
@@ -61,7 +53,6 @@ export async function handleTaskCreated(data: {
 - Task ID: ${taskId}
 - Status: ${status}
 - Priority: ${priority || "Not set"}
-- Task Number: #${number}
 - Assigned to: ${userEmail || "Unassigned"}
 
 ---
