@@ -1,4 +1,5 @@
 import PageTitle from "@/components/page-title";
+import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { TasksImportExport } from "@/components/project/tasks-import-export";
 import { Button } from "@/components/ui/button";
 import {
@@ -444,6 +445,21 @@ function ProjectSettings() {
                   </p>
 
                   <TasksImportExport project={project} />
+                </div>
+              </div>
+            )}
+
+            {project && (
+              <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="p-4 md:p-6">
+                  <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
+                    GitHub Integration
+                  </h2>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+                    Configure GitHub integration for your project.
+                  </p>
+
+                  <GitHubIntegrationSettings projectId={project.id} />
                 </div>
               </div>
             )}

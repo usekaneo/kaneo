@@ -50,6 +50,7 @@ async function createTask({
   }
 
   await publishEvent("task.created", {
+    ...createdTask,
     taskId: createdTask.id,
     userEmail: createdTask.userEmail ?? "",
     type: "create",

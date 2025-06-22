@@ -57,6 +57,7 @@
 		"sonner": "^2.0.3",
 		"tailwind-merge": "^3.3.0",
 		"tailwindcss-animate": "^1.0.7",
+		"tiptap-markdown": "^0.8.10",
 		"zod": "^3.25.67",
 		"zustand": "^5.0.4"
 	},

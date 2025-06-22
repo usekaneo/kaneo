@@ -174,3 +174,22 @@ export const notificationTable = pgTable("notification", {
   resourceType: text("resource_type"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
+
+export const githubIntegrationTable = pgTable("github_integration", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => projectTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    })
+    .unique(),
+  repositoryOwner: text("repository_owner").notNull(),
+  repositoryName: text("repository_name").notNull(),
+  installationId: integer("installation_id"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});

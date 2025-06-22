@@ -5,6 +5,7 @@ import { getCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import activity from "./activity";
 import db from "./database";
+import githubIntegration from "./github-integration";
 import label from "./label";
 import { auth } from "./middlewares/auth";
 import notification from "./notification";
@@ -28,6 +29,11 @@ app.use(
     credentials: true,
     origin: (origin) => origin || "*",
   }),
+);
+
+const githubIntegrationRoute = app.route(
+  "/github-integration",
+  githubIntegration,
 );
 
 const publicProjectRoute = app.get("/public-project/:id", async (c) => {
@@ -120,4 +126,5 @@ export type AppType =
   | typeof timeEntryRoute
   | typeof labelRoute
   | typeof notificationRoute
-  | typeof publicProjectRoute;
+  | typeof publicProjectRoute
+  | typeof githubIntegrationRoute;
