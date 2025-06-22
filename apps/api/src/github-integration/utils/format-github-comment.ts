@@ -1,18 +1,23 @@
 export function formatGitHubComment({
-  number,
+  id,
   priority,
   status,
+  title,
 }: {
-  number: number;
+  id: string;
   priority: string;
   status: string;
+  title: string;
 }) {
-  return `🎯 **Task created in Kaneo**
+  return `🎯 **Task created** - ${title}
+<details>
+<summary>Task Details</summary>
 
-A new task has been created from this issue:
-- **Task #${number}**
+- **Task ID:** ${id}
 - **Priority:** ${priority}
 - **Status:** ${status}
 
-*This issue will be automatically synchronized with your Kaneo project.*`;
+
+*This issue is automatically synchronized with your Kaneo project.*
+</details>`;
 }

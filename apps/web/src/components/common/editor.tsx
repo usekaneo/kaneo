@@ -1,5 +1,6 @@
 import { cn } from "@/lib/cn";
 import Highlight from "@tiptap/extension-highlight";
+import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
@@ -16,6 +17,7 @@ import {
   Code,
   HighlighterIcon,
   Italic,
+  Link2,
   List,
   ListOrdered,
   Quote,
@@ -23,6 +25,7 @@ import {
   Type,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Markdown } from "tiptap-markdown";
 
 interface EditorProps {
   value: string;
@@ -95,6 +98,15 @@ export function Editor({
           },
         },
       }),
+      Link.configure({
+        openOnClick: true,
+        autolink: true,
+        defaultProtocol: "https",
+        HTMLAttributes: {
+          class:
+            "text-indigo-600 dark:text-indigo-400 underline cursor-pointer hover:text-indigo-800 dark:hover:text-indigo-300",
+        },
+      }),
       Highlight.configure({
         HTMLAttributes: {
           class:
@@ -112,7 +124,14 @@ export function Editor({
           class: "flex gap-2 items-start",
         },
       }),
-
+      Markdown.configure({
+        html: true,
+        tightLists: true,
+        linkify: true,
+        breaks: true,
+        transformPastedText: true,
+        transformCopiedText: true,
+      }),
       Placeholder.configure({
         placeholder,
       }),
@@ -122,7 +141,8 @@ export function Editor({
     },
     content: value,
     onUpdate: ({ editor }: { editor: TiptapEditor }) => {
-      onChange(editor.getHTML());
+      const markdown = editor.storage.markdown.getMarkdown();
+      onChange(markdown);
     },
   });
 
@@ -136,6 +156,12 @@ export function Editor({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (editor && value !== editor.storage.markdown.getMarkdown()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   const getCurrentTextStyle = () => {
     if (!editor) return TEXT_OPTIONS[0];
@@ -295,6 +321,22 @@ export function Editor({
           )}
         >
           <Code className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+        </button>
+        <div className="w-px h-6 mx-1 bg-zinc-200 dark:bg-zinc-800" />
+        <button
+          type="button"
+          onClick={() => {
+            const url = window.prompt("Enter URL:");
+            if (url) {
+              editor.chain().focus().setLink({ href: url }).run();
+            }
+          }}
+          className={cn(
+            "p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800",
+            editor.isActive("link") && "bg-zinc-100 dark:bg-zinc-800",
+          )}
+        >
+          <Link2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
         </button>
       </div>
       <EditorContent

@@ -61,7 +61,8 @@ export const handleIssueOpened: HandlerFunction<
         repo: payload.repository.name,
         issue_number: payload.issue.number,
         body: formatGitHubComment({
-          number: task.number || 0,
+          id: task.id,
+          title: payload.issue.title,
           priority: task.priority || "medium",
           status: task.status || "to-do",
         }),
