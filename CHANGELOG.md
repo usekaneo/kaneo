@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/usekaneo/kaneo/compare/v1.0.0...v1.0.1) (2025-06-22)
+
+
+### Features
+
+* GitHub integration ([#323](https://github.com/usekaneo/kaneo/issues/323)) ([1457e37](https://github.com/usekaneo/kaneo/commit/1457e37b10cd2c5a3a8b6fda0782172b9e72c035))
+
+
+
 # [1.0.0](https://github.com/usekaneo/kaneo/compare/v0.4.0...v1.0.0) (2025-06-20)
 
 
