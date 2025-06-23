@@ -32,7 +32,7 @@
 		"@tiptap/extension-highlight": "^2.12.0",
 		"@tiptap/extension-link": "^2.14.0",
 		"@tiptap/extension-placeholder": "^2.11.7",
-		"@tiptap/extension-task-item": "^2.12.0",
+		"@tiptap/extension-task-item": "^2.22.3",
 		"@tiptap/extension-task-list": "^2.12.0",
 		"@tiptap/pm": "^2.12.0",
 		"@tiptap/react": "^2.12.0",
