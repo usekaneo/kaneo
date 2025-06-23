@@ -1,4 +1,5 @@
 import {
+  CheckCircle,
   ExternalLink,
   Github,
   Heart,
@@ -40,8 +41,19 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-4 text-zinc-600 dark:text-zinc-400 text-sm">
-              Built with <Heart className="inline-block h-3 w-3 text-red-500" />{" "}
-              in <span className="inline-flex items-center">🇲🇰</span>
+              <a
+                href="https://kaneo.openstatus.dev/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-2.5 py-1 bg-green-50/50 dark:bg-green-950/20 border border-green-200/50 dark:border-green-800/50 rounded-md text-green-700 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/30 transition-all duration-200"
+              >
+                <span className="relative flex items-center mr-2">
+                  <span className="inline-flex h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+                </span>
+                <span className="text-xs font-medium">
+                  All systems operational
+                </span>
+              </a>
             </p>
           </div>
 
