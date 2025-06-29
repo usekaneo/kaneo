@@ -5,7 +5,7 @@
 	"types": "./src/index.ts",
 	"license": "MIT",
 	"scripts": {
-		"lint": " *.ts*"
+		"lint": "biome check --write ."
 	},
 	"devDependencies": {
 		"@types/react": "^19.1.3",

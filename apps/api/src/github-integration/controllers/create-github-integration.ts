@@ -2,7 +2,9 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { githubIntegrationTable, projectTable } from "../../database/schema";
-import githubApp from "../utils/create-github-app";
+import createGithubApp from "../utils/create-github-app";
+
+const githubApp = createGithubApp();
 
 async function createGithubIntegration({
   projectId,
@@ -13,6 +15,12 @@ async function createGithubIntegration({
   repositoryOwner: string;
   repositoryName: string;
 }) {
+  if (!githubApp) {
+    throw new HTTPException(500, {
+      message: "GitHub app not found",
+    });
+  }
+
   const project = await db.query.projectTable.findFirst({
     where: eq(projectTable.id, projectId),
   });

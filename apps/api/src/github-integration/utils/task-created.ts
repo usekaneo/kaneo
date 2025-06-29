@@ -1,5 +1,7 @@
 import getGithubIntegration from "../controllers/get-github-integration";
-import githubApp from "./create-github-app";
+import createGithubApp from "./create-github-app";
+
+const githubApp = createGithubApp();
 
 export async function handleTaskCreated(data: {
   taskId: string;
@@ -11,6 +13,11 @@ export async function handleTaskCreated(data: {
   number: number;
   projectId: string;
 }) {
+  if (!githubApp) {
+    console.log("No GitHub app found");
+    return;
+  }
+
   const { taskId, userEmail, title, description, priority, status, projectId } =
     data;
 

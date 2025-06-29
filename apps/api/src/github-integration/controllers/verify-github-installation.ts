@@ -1,5 +1,7 @@
 import { HTTPException } from "hono/http-exception";
-import githubApp from "../utils/create-github-app";
+import createGithubApp from "../utils/create-github-app";
+
+const githubApp = createGithubApp();
 
 type VerificationResult = {
   isInstalled: boolean;
@@ -22,6 +24,12 @@ async function verifyGithubInstallation({
   repositoryName: string;
 }): Promise<VerificationResult> {
   try {
+    if (!githubApp) {
+      throw new HTTPException(500, {
+        message: "GitHub app not found",
+      });
+    }
+
     const { data: installation } =
       await githubApp.octokit.rest.apps.getRepoInstallation({
         owner: repositoryOwner,
@@ -77,6 +85,12 @@ async function verifyGithubInstallation({
 
     if (githubError.status === 404) {
       try {
+        if (!githubApp) {
+          throw new HTTPException(500, {
+            message: "GitHub app not found",
+          });
+        }
+
         await githubApp.octokit.rest.repos.get({
           owner: repositoryOwner,
           repo: repositoryName,
@@ -149,6 +163,12 @@ function getMissingPermissions(
 
 async function getRepositoryId(owner: string, repo: string): Promise<number> {
   try {
+    if (!githubApp) {
+      throw new HTTPException(500, {
+        message: "GitHub app not found",
+      });
+    }
+
     const { data } = await githubApp.octokit.rest.repos.get({
       owner,
       repo,

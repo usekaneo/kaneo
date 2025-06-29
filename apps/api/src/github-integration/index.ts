@@ -7,11 +7,15 @@ import deleteGithubIntegration from "./controllers/delete-github-integration";
 import getGithubIntegration from "./controllers/get-github-integration";
 import listUserRepositories from "./controllers/list-user-repositories";
 import verifyGithubInstallation from "./controllers/verify-github-installation";
-import githubApp from "./utils/create-github-app";
+import createGithubApp from "./utils/create-github-app";
 import { handleIssueOpened } from "./utils/issue-opened";
 import { handleTaskCreated } from "./utils/task-created";
 
-githubApp.webhooks.on("issues.opened", handleIssueOpened);
+const githubApp = createGithubApp();
+
+if (githubApp) {
+  githubApp.webhooks.on("issues.opened", handleIssueOpened);
+}
 
 subscribeToEvent<{
   taskId: string;
@@ -97,6 +101,10 @@ const githubIntegration = new Hono()
   )
   .post("/webhook", async (c) => {
     try {
+      if (!githubApp) {
+        return c.json({ error: "GitHub integration not configured" }, 400);
+      }
+
       const arrayBuffer = await c.req.arrayBuffer();
       const body = Buffer.from(arrayBuffer).toString("utf8");
 

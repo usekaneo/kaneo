@@ -1,7 +1,15 @@
 import { HTTPException } from "hono/http-exception";
-import githubApp from "../utils/create-github-app";
+import createGithubApp from "../utils/create-github-app";
+
+const githubApp = createGithubApp();
 
 async function listUserRepositories() {
+  if (!githubApp) {
+    throw new HTTPException(500, {
+      message: "GitHub app not found",
+    });
+  }
+
   try {
     const { data: installations } =
       await githubApp.octokit.rest.apps.listInstallations();
