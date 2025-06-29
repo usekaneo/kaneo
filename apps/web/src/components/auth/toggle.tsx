@@ -1,3 +1,4 @@
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { Link } from "@tanstack/react-router";
 
 interface AuthToggleProps {
@@ -7,6 +8,12 @@ interface AuthToggleProps {
 }
 
 export function AuthToggle({ message, linkText, linkTo }: AuthToggleProps) {
+  const { data: config } = useGetConfig();
+
+  if (config?.disableRegistration) {
+    return null;
+  }
+
   return (
     <div className="mt-6 text-center">
       <p className="text-sm text-zinc-600 dark:text-zinc-400">

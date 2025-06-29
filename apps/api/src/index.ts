@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import activity from "./activity";
+import config from "./config";
 import db from "./database";
 import githubIntegration from "./github-integration";
 import label from "./label";
@@ -30,6 +31,8 @@ app.use(
     origin: (origin) => origin || "*",
   }),
 );
+
+const configRoute = app.route("/config", config);
 
 const githubIntegrationRoute = app.route(
   "/github-integration",
@@ -127,4 +130,5 @@ export type AppType =
   | typeof labelRoute
   | typeof notificationRoute
   | typeof publicProjectRoute
-  | typeof githubIntegrationRoute;
+  | typeof githubIntegrationRoute
+  | typeof configRoute;
