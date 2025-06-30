@@ -14,7 +14,6 @@ export async function handleTaskCreated(data: {
   projectId: string;
 }) {
   if (!githubApp) {
-    console.log("No GitHub app found");
     return;
   }
 
