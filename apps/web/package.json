@@ -47,7 +47,7 @@
 		"date-fns": "^4.1.0",
 		"file-saver": "^2.0.5",
 		"framer-motion": "^12.16.0",
-		"hono": "^4.7.7",
+		"hono": "^4.8.3",
 		"immer": "^10.1.1",
 		"lucide-react": "^0.513.0",
 		"react": "^19.0.0",
