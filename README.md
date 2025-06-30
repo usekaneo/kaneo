@@ -16,7 +16,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://kaneo.app/quick-start">Quick Start</a>
+    <a href="https://kaneo.app/docs">Quick Start</a>
     <span> | </span>
     <a href="https://kaneo.app">Website</a>
     <span> | </span>
