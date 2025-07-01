@@ -339,15 +339,10 @@ export function Editor({
           <Link2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
         </button>
       </div>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: It adds two characters to the editor */}
       <div
         className="flex-1 overflow-y-auto cursor-text"
         onClick={() => editor.chain().focus().run()}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            editor.chain().focus().enter().run();
-          }
-        }}
       >
         <EditorContent
           editor={editor}
