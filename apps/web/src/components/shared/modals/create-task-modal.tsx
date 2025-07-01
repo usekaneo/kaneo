@@ -308,7 +308,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                 </div>
 
                 <div>
-                  <div className="border border-zinc-700/30 bg-zinc-800/30 min-h-[80px] rounded-lg py-0 px-3 shadow-sm backdrop-blur-sm">
+                  <div className="border border-zinc-700/30 bg-zinc-800/30 h-[240px] rounded-lg shadow-sm backdrop-blur-sm overflow-hidden">
                     <Editor
                       value={description}
                       onChange={setDescription}

@@ -53,20 +53,22 @@ function TaskDescription({ setIsSaving }: TaskDescriptionProps) {
   }, [form]);
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-zinc-200/50 dark:border-zinc-800/50 pb-1 px-1">
-      <Form {...form}>
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Editor
-              value={field.value || ""}
-              onChange={(value) => handleDescriptionChange(value)}
-              placeholder="Use the toolbar to format your description..."
-            />
-          )}
-        />
-      </Form>
+    <div className="space-y-2">
+      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm h-[300px]">
+        <Form {...form}>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <Editor
+                value={field.value || ""}
+                onChange={(value) => handleDescriptionChange(value)}
+                placeholder="Add a description to help your team understand this task..."
+              />
+            )}
+          />
+        </Form>
+      </div>
     </div>
   );
 }

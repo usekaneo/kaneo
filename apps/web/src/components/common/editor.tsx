@@ -175,8 +175,8 @@ export function Editor({
   }
 
   return (
-    <div className="prose prose-zinc dark:prose-invert max-w-none [&_.is-editor-empty]:text-zinc-500 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3">
-      <div className="flex flex-wrap gap-1 mb-4 p-2 -mx-1 border-b border-zinc-200 dark:border-zinc-800">
+    <div className="prose prose-zinc dark:prose-invert max-w-none [&_.is-editor-empty]:text-zinc-500 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3 flex flex-col h-full">
+      <div className="flex flex-wrap gap-1 p-3 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0 bg-zinc-800/30">
         <div className="relative" ref={menuRef}>
           <button
             type="button"
@@ -339,10 +339,21 @@ export function Editor({
           <Link2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
         </button>
       </div>
-      <EditorContent
-        editor={editor}
-        className="flex-1 flex flex-col min-h-[200px] h-full [&_*]:focus:outline-none px-2"
-      />
+      <div
+        className="flex-1 overflow-y-auto cursor-text"
+        onClick={() => editor.chain().focus().run()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            editor.chain().focus().enter().run();
+          }
+        }}
+      >
+        <EditorContent
+          editor={editor}
+          className="h-full [&_*]:focus:outline-none px-3 py-3 [&_.ProseMirror]:min-h-full [&_.ProseMirror]:cursor-text"
+        />
+      </div>
     </div>
   );
 }
