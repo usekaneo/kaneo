@@ -1,3 +1,5 @@
+/// <reference types="vite/types/importMeta.d.ts" />
+
 import type { AppType } from "@kaneo/api";
 import { hc } from "hono/client";
 
