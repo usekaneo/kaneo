@@ -32,5 +32,6 @@ export const baseOptions: BaseLayoutProps = {
         Kaneo
       </>
     ),
+    transparentMode: "top",
   },
 };

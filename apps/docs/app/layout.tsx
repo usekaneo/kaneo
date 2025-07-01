@@ -31,8 +31,8 @@ export const metadata: Metadata = {
     "react",
     "nextjs",
   ],
-  authors: [{ name: "Kaneo Team" }],
-  creator: "Kaneo Team",
+  authors: [{ name: "Andrej Acevski" }],
+  creator: "Andrej Acevski",
   publisher: "Kaneo",
   formatDetection: {
     email: false,
