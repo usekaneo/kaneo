@@ -27,7 +27,7 @@
 		"@radix-ui/react-tooltip": "^1.2.3",
 		"@tanstack/react-query": "^5.75.5",
 		"@tanstack/react-query-devtools": "^5.75.7",
-		"@tanstack/react-router": "^1.121.21",
+		"@tanstack/react-router": "^1.123.0",
 		"@tanstack/router-devtools": "^1.121.21",
 		"@tanstack/router-plugin": "^1.121.22",
 		"@tiptap/extension-highlight": "^2.12.0",
