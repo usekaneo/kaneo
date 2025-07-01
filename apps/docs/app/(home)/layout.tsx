@@ -1,5 +1,6 @@
 import { baseOptions } from "@/app/layout.config";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
+import { Book, Server } from "lucide-react";
 import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
@@ -51,6 +52,23 @@ export default function Layout({ children }: { children: ReactNode }) {
     <HomeLayout
       {...baseOptions}
       links={[
+        {
+          type: "menu",
+          on: "menu",
+          text: "Documentation",
+          items: [
+            {
+              text: "Getting Started",
+              url: "/docs",
+              icon: <Book />,
+            },
+            {
+              text: "Deployments",
+              url: "/docs/deployments/nginx",
+              icon: <Server />,
+            },
+          ],
+        },
         {
           type: "icon",
           url: "https://github.com/usekaneo/kaneo",
