@@ -273,22 +273,22 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={handleClose}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Overlay className="fixed inset-0 bg-black/60 z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-          <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 rounded-xl shadow-2xl border border-zinc-700/50 backdrop-blur-xl">
-            <div className="flex items-center justify-between p-6 border-b border-zinc-800/50">
+          <div className="bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700/50 backdrop-blur-xl">
+            <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800/50">
               <div className="flex items-center gap-3">
-                <div className="text-sm text-zinc-400 font-semibold tracking-wider">
+                <div className="text-sm text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider">
                   {project?.slug?.toUpperCase() || "TASK"}
                 </div>
                 <div className="w-1 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full" />
-                <div className="text-sm text-zinc-300 font-medium">
+                <div className="text-sm text-zinc-700 dark:text-zinc-300 font-medium">
                   New Task
                 </div>
               </div>
               <Dialog.Close
                 asChild
-                className="text-zinc-400 hover:text-zinc-100 cursor-pointer p-2 hover:bg-zinc-800/50 rounded-lg transition-all duration-200"
+                className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 rounded-lg transition-all duration-200"
               >
                 <X size={18} />
               </Dialog.Close>
@@ -302,13 +302,13 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     onChange={(e) => setTitle(e.target.value)}
                     autoFocus
                     placeholder="Task title"
-                    className="text-xl font-semibold border-0 px-0 shadow-none focus-visible:ring-0 bg-transparent text-white placeholder:text-zinc-400 tracking-tight"
+                    className="text-xl font-semibold border-0 px-0 shadow-none focus-visible:ring-0 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight"
                     required
                   />
                 </div>
 
                 <div>
-                  <div className="border border-zinc-700/30 bg-zinc-800/30 h-[240px] rounded-lg shadow-sm backdrop-blur-sm overflow-hidden">
+                  <div className="border border-zinc-300 dark:border-zinc-700/30 bg-zinc-50 dark:bg-zinc-800/30 h-[240px] rounded-lg shadow-sm backdrop-blur-sm overflow-hidden">
                     <Editor
                       value={description}
                       onChange={setDescription}
@@ -324,7 +324,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                         key={label.name}
                         badgeColor={label.color}
                         variant="outline"
-                        className="flex items-center gap-1 pl-3 cursor-pointer hover:bg-zinc-800/50 transition-colors"
+                        className="flex items-center gap-1 pl-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors"
                         onClick={() => removeLabel(label.name)}
                       >
                         <span
@@ -342,8 +342,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                 )}
 
                 <div className="flex flex-wrap items-center gap-2 py-2">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 rounded-md text-xs font-medium border border-amber-500/30">
-                    <div className="w-1.5 h-1.5 bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full shadow-sm" />
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-500/20 dark:to-yellow-500/20 text-amber-800 dark:text-amber-300 rounded-md text-xs font-medium border border-amber-300 dark:border-amber-500/30">
+                    <div className="w-1.5 h-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 dark:from-amber-400 dark:to-yellow-400 rounded-full shadow-sm" />
                     {status
                       ? status.charAt(0).toUpperCase() +
                         status.slice(1).replace("-", " ")
@@ -358,7 +358,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                           "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
                           selectedPriority && priority !== "low"
                             ? `${selectedPriority.color} ${selectedPriority.bg} ${selectedPriority.border}`
-                            : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 border-zinc-700/50",
+                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
                         )}
                       >
                         <Target className="w-3.5 h-3.5" />
@@ -408,12 +408,12 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                           "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
                           selectedUser
                             ? "text-indigo-300 bg-indigo-500/10 border-indigo-500/30"
-                            : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 border-zinc-700/50",
+                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
                         )}
                       >
                         {selectedUser ? (
                           <>
-                            <div className="w-4 h-4 bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
+                            <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
                               {selectedUser.userName?.charAt(0).toUpperCase() ||
                                 "?"}
                             </div>
@@ -435,22 +435,22 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                         <div className="space-y-1">
                           <button
                             type="button"
-                            className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-800/50 text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
                             onClick={() => setAssigneeEmail("")}
                           >
-                            <UserIcon className="w-4 h-4 text-zinc-500" />
+                            <UserIcon className="w-4 h-4 text-zinc-600 dark:text-zinc-500" />
                             Unassigned
                           </button>
                           {users?.map((user) => (
                             <button
                               key={user.userEmail}
                               type="button"
-                              className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-800/50 text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
+                              className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
                               onClick={() =>
                                 setAssigneeEmail(user.userEmail || "")
                               }
                             >
-                              <div className="w-4 h-4 bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
+                              <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
                                 {user.userName?.charAt(0).toUpperCase() || "?"}
                               </div>
                               {user.userName}
@@ -469,7 +469,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                           "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
                           dueDate
                             ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
-                            : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 border-zinc-700/50",
+                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
                         )}
                       >
                         <CalendarIcon className="w-3.5 h-3.5" />
@@ -492,14 +492,14 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                           className="rounded-md border-0"
                         />
                         {dueDate && (
-                          <div className="flex justify-between items-center pt-3 border-t border-zinc-800/50 mt-3">
-                            <span className="text-sm text-zinc-400">
+                          <div className="flex justify-between items-center pt-3 border-t border-zinc-200 dark:border-zinc-800/50 mt-3">
+                            <span className="text-sm text-zinc-600 dark:text-zinc-400">
                               {format(dueDate, "EEEE, MMMM d, yyyy")}
                             </span>
                             <button
                               type="button"
                               onClick={() => setDueDate(undefined)}
-                              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                              className="text-xs text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors"
                             >
                               Clear
                             </button>
@@ -517,7 +517,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                           "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
                           labels.length > 0
                             ? "text-violet-300 bg-violet-500/10 border-violet-500/30"
-                            : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 border-zinc-700/50",
+                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
                         )}
                       >
                         <Tag className="w-3.5 h-3.5" />
@@ -652,15 +652,15 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-6 border-t border-zinc-800/50 mt-6">
+              <div className="flex items-center justify-between pt-6 border-t border-zinc-200 dark:border-zinc-800/50 mt-6">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <label className="flex items-center gap-2 text-sm text-zinc-400 cursor-pointer hover:text-zinc-300 transition-colors">
+                    <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                       <input
                         type="checkbox"
                         checked={createMore}
                         onChange={(e) => setCreateMore(e.target.checked)}
-                        className="rounded border-zinc-600 bg-zinc-800 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0 focus:ring-2 transition-all"
+                        className="rounded border-zinc-400 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0 focus:ring-2 transition-all"
                       />
                       Create more
                     </label>
@@ -671,7 +671,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                   <Button
                     type="button"
                     onClick={handleClose}
-                    className="bg-transparent border border-zinc-700/50 text-zinc-300 hover:bg-zinc-800/50 hover:text-white hover:border-zinc-600 transition-all duration-200"
+                    className="bg-transparent border border-zinc-300 dark:border-zinc-700/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-all duration-200"
                   >
                     Cancel
                   </Button>

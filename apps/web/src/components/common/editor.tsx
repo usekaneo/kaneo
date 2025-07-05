@@ -79,7 +79,7 @@ export function Editor({
         codeBlock: {
           HTMLAttributes: {
             class:
-              "block rounded-md bg-zinc-950 dark:bg-zinc-900 p-4 font-mono text-sm text-zinc-100 dark:text-zinc-200 my-4",
+              "block rounded-md bg-zinc-100 dark:bg-zinc-900 p-4 font-mono text-sm text-zinc-900 dark:text-zinc-200 my-4",
           },
         },
         blockquote: {
@@ -176,7 +176,7 @@ export function Editor({
 
   return (
     <div className="prose prose-zinc dark:prose-invert max-w-none [&_.is-editor-empty]:text-zinc-500 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3 flex flex-col h-full">
-      <div className="flex flex-wrap gap-1 p-3 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0 bg-zinc-800/30">
+      <div className="flex flex-wrap gap-1 p-3 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800/30">
         <div className="relative" ref={menuRef}>
           <button
             type="button"

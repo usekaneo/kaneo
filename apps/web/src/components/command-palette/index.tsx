@@ -1,3 +1,4 @@
+import useTheme from "@/components/providers/theme-provider/hooks/use-theme";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import CreateWorkspaceModal from "@/components/shared/modals/create-workspace-modal";
@@ -12,9 +13,12 @@ import {
   CommandIcon,
   LayoutDashboard,
   ListTodo,
+  Monitor,
+  Moon,
   Plus,
   Search,
   Settings,
+  Sun,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import CommandGroup from "./command-group";
@@ -30,6 +34,7 @@ export function CommandPalette() {
   } | null>(null);
   const { workspace } = useWorkspaceStore();
   const { project } = useProjectStore();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
   const commandItemStyles = cn(
@@ -234,7 +239,7 @@ export function CommandPalette() {
                     )}
                   </CommandGroup>
 
-                  <CommandGroup heading="Workspace" className="mt-4 mb-2">
+                  <CommandGroup heading="Workspace" className="mt-4">
                     <Command.Item
                       onSelect={() => {
                         setOpen(false);
@@ -244,6 +249,54 @@ export function CommandPalette() {
                     >
                       <Plus className="w-4 h-4" />
                       Create new workspace
+                    </Command.Item>
+                  </CommandGroup>
+
+                  <CommandGroup heading="Appearance" className="mt-4 mb-2">
+                    <Command.Item
+                      onSelect={() => {
+                        setTheme("light");
+                        setOpen(false);
+                      }}
+                      className={commandItemStyles}
+                    >
+                      <Sun className="w-4 h-4" />
+                      Light mode
+                      {theme === "light" && (
+                        <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">
+                          ✓
+                        </span>
+                      )}
+                    </Command.Item>
+                    <Command.Item
+                      onSelect={() => {
+                        setTheme("dark");
+                        setOpen(false);
+                      }}
+                      className={commandItemStyles}
+                    >
+                      <Moon className="w-4 h-4" />
+                      Dark mode
+                      {theme === "dark" && (
+                        <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">
+                          ✓
+                        </span>
+                      )}
+                    </Command.Item>
+                    <Command.Item
+                      onSelect={() => {
+                        setTheme("system");
+                        setOpen(false);
+                      }}
+                      className={commandItemStyles}
+                    >
+                      <Monitor className="w-4 h-4" />
+                      System mode
+                      {theme === "system" && (
+                        <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">
+                          ✓
+                        </span>
+                      )}
                     </Command.Item>
                   </CommandGroup>
                 </Command.List>
