@@ -1,3 +1,21 @@
+## [1.0.9](https://github.com/usekaneo/kaneo/compare/v1.0.2...v1.0.9) (2025-07-05)
+
+
+### Bug Fixes
+
+* update Quick Start link in README to point to documentation ([cfed1cc](https://github.com/usekaneo/kaneo/commit/cfed1ccc312081dc6fc405479e091ae0c4ec8d21))
+
+
+### Features
+
+* add configuration endpoint and integrate config handling in sign-up flow ([700266d](https://github.com/usekaneo/kaneo/commit/700266d237c5787ee6991344380a5afbdd4dd9c7))
+* add documentation links to home layout with icons ([6c1a350](https://github.com/usekaneo/kaneo/commit/6c1a350fe3885ce4b1e37a4684f2f0b44cc69166))
+* add theme selection options to command palette ([1683937](https://github.com/usekaneo/kaneo/commit/1683937da3329d5cd97e0c6d64054dfde433a798))
+* update footer with operational status link and visual indicator ([4018f13](https://github.com/usekaneo/kaneo/commit/4018f13d884d4f4e9c7e5b03f4e552bc522ddad6))
+* update layout configuration and metadata ([8bd9407](https://github.com/usekaneo/kaneo/commit/8bd9407d18c5d57285e837636ad88a6ddb34f55f))
+
+
+
 ## [1.0.2](https://github.com/usekaneo/kaneo/compare/v1.0.1...v1.0.2) (2025-06-22)
 
 
