@@ -1,3 +1,17 @@
+# [1.1.0](https://github.com/usekaneo/kaneo/compare/v1.0.9...v1.1.0) (2025-07-06)
+
+
+### Bug Fixes
+
+* update task assignee handling and improve task display ([e23f230](https://github.com/usekaneo/kaneo/commit/e23f230891ee7e24fff1e16a67d36a7fda73a585))
+
+
+### Features
+
+* enhance task retrieval and display with assignee details ([18c5cb2](https://github.com/usekaneo/kaneo/commit/18c5cb28685cb930be93eccb9387208d7ef3969b))
+
+
+
 ## [1.0.9](https://github.com/usekaneo/kaneo/compare/v1.0.2...v1.0.9) (2025-07-05)
 
 
