@@ -8,7 +8,7 @@ import TaskTitle from "@/components/task/task-title";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useProjectStore from "@/store/project";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { LayoutGrid, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -20,10 +20,11 @@ export const Route = createFileRoute(
 });
 
 function TaskEditPage() {
-  const { taskId, workspaceId, projectId } = Route.useParams();
+  const { taskId, projectId } = Route.useParams();
   const { data: project } = useGetTasks(projectId);
   const { data: task, isLoading } = useGetTask(taskId);
   const { setProject } = useProjectStore();
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -55,16 +56,13 @@ function TaskEditPage() {
       >
         <header className="sticky top-0 z-10 flex items-center px-4 h-[65px] bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Link
-              to="/dashboard/workspace/$workspaceId/project/$projectId/board"
-              params={{
-                workspaceId,
-                projectId,
-              }}
+            <button
+              type="button"
+              onClick={() => router.history.back()}
               className="p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <X className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-            </Link>
+            </button>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-0.5">
                 {project?.slug}-{task?.number}

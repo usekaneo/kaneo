@@ -153,8 +153,8 @@ function RouteComponent() {
             tasks: project.plannedTasks
               ? filterTasks(project.plannedTasks).map((task) => ({
                   ...task,
-                  assigneeName: null,
-                  assigneeEmail: null,
+                  assigneeName: task.assigneeName ?? null,
+                  assigneeEmail: task.assigneeEmail ?? null,
                 }))
               : [],
           },
@@ -164,8 +164,8 @@ function RouteComponent() {
             tasks: project.archivedTasks
               ? filterTasks(project.archivedTasks).map((task) => ({
                   ...task,
-                  assigneeName: null,
-                  assigneeEmail: null,
+                  assigneeName: task.assigneeName ?? null,
+                  assigneeEmail: task.assigneeEmail ?? null,
                 }))
               : [],
           },
@@ -173,15 +173,15 @@ function RouteComponent() {
         plannedTasks: project.plannedTasks
           ? filterTasks(project.plannedTasks).map((task) => ({
               ...task,
-              assigneeName: null,
-              assigneeEmail: null,
+              assigneeName: task.assigneeName ?? null,
+              assigneeEmail: task.assigneeEmail ?? null,
             }))
           : [],
         archivedTasks: project.archivedTasks
           ? filterTasks(project.archivedTasks).map((task) => ({
               ...task,
-              assigneeName: null,
-              assigneeEmail: null,
+              assigneeName: task.assigneeName ?? null,
+              assigneeEmail: task.assigneeEmail ?? null,
             }))
           : [],
       }

@@ -149,8 +149,8 @@ function BacklogListView({ project }: BacklogListViewProps) {
             targetColumn.tasks.push({
               ...task,
               status: targetColumnId,
-              assigneeName: task.userEmail,
-              assigneeEmail: task.userEmail,
+              assigneeName: task.assigneeName,
+              assigneeEmail: task.assigneeEmail,
             });
           }
         }

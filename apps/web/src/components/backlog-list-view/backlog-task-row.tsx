@@ -155,10 +155,10 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
                 <span className="capitalize">{task.priority}</span>
               </div>
             )}
-            {task.userEmail && (
+            {task.assigneeName && (
               <div className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
                 <UserIcon className="w-3 h-3" />
-                <span>{task.userEmail}</span>
+                <span>{task.assigneeName}</span>
               </div>
             )}
             {task.dueDate && (
