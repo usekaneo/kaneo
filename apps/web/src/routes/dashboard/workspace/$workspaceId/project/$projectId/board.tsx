@@ -172,7 +172,7 @@ function RouteComponent() {
               description: task.description ?? null,
               assigneeEmail: task.userEmail ?? null,
               projectId: task.projectId,
-              assigneeName: task.userEmail ?? null,
+              assigneeName: task.assigneeName ?? null,
             })),
           })) ?? [],
       }

@@ -150,7 +150,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       });
 
       setProject(updatedProject);
-      updateTask({ ...newTask, position: 0 });
+      updateTask({ ...newTask, position: 0, assigneeEmail: assigneeEmail });
       toast.success("Task created successfully");
 
       if (createMore) {

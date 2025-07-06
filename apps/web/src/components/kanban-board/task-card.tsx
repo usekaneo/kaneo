@@ -75,10 +75,10 @@ function TaskCard({ task }: TaskCardProps) {
               {task.userEmail ? (
                 <div
                   className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
-                  title={task.userEmail}
+                  title={task.assigneeName ?? ""}
                 >
                   <span className="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[100px]">
-                    {task.userEmail}
+                    {task.assigneeName}
                   </span>
                 </div>
               ) : (
