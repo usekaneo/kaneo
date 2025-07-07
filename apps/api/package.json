@@ -15,7 +15,7 @@
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "bcrypt": "^6.0.0",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.0.1",
     "drizzle-kit": "^0.31.1",
     "drizzle-orm": "^0.43.0",
     "hono": "^4.8.3",
