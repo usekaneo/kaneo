@@ -120,7 +120,7 @@
 * **notification:** implement notification system ([#270](https://github.com/usekaneo/kaneo/issues/270)) ([3907fb2](https://github.com/usekaneo/kaneo/commit/3907fb23042e8654a6e799167098a81873f661ab))
 * right click card/row context menu ([#238](https://github.com/usekaneo/kaneo/issues/238)) ([0754ae1](https://github.com/usekaneo/kaneo/commit/0754ae1e77eb2ffab22dc5fd478c1b248090b671))
 * set base path for documentation site to "/kaneo" ([88661a0](https://github.com/usekaneo/kaneo/commit/88661a0bfae81b19fd157fc9d5b8871efd04b7de))
-* update Hero component link to roadmap and add roadmap documentation ([c62925f](https://github.com/usekaneo/kaneo/commit/c62925f28ae32b572ae2414dafbfcc6542dcaddb))
+* update Hero component link to roadmap and add live roadmap ([c62925f](https://github.com/usekaneo/kaneo/commit/c62925f28ae32b572ae2414dafbfcc6542dcaddb))
 * workspace details update and delete feature added ([#119](https://github.com/usekaneo/kaneo/issues/119)) ([44af5ff](https://github.com/usekaneo/kaneo/commit/44af5ff2be063700efbcfb758ba6ca01b2084a77))
 
 
@@ -284,4 +284,4 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). 
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

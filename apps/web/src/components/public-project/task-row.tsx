@@ -8,11 +8,21 @@ import { Flag } from "lucide-react";
 interface PublicTaskRowProps {
   task: Task;
   projectSlug: string;
+  onTaskClick: (task: Task) => void;
 }
 
-export function PublicTaskRow({ task, projectSlug }: PublicTaskRowProps) {
+export function PublicTaskRow({
+  task,
+  projectSlug,
+  onTaskClick,
+}: PublicTaskRowProps) {
   return (
-    <div className="group px-4 py-3 rounded-lg flex items-center gap-4 bg-white dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/50 shadow-sm hover:shadow-md transition-all hover:border-zinc-300 dark:hover:border-zinc-600">
+    <button
+      type="button"
+      className="group w-full text-left px-4 py-3 rounded-lg flex items-center gap-4 bg-white dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/50 shadow-sm hover:shadow-md transition-all hover:border-zinc-300 dark:hover:border-zinc-600 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+      onClick={() => onTaskClick(task)}
+      aria-label={`View details for task ${task.title}`}
+    >
       <div className="flex-1 min-w-0 flex items-center gap-3">
         <div className="text-xs font-mono text-zinc-500 dark:text-zinc-400 shrink-0 font-medium">
           {projectSlug}-{task.number}
@@ -51,6 +61,6 @@ export function PublicTaskRow({ task, projectSlug }: PublicTaskRowProps) {
           </div>
         )}
       </div>
-    </div>
+    </button>
   );
 }

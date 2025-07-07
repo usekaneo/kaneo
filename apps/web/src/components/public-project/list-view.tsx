@@ -13,9 +13,10 @@ interface Column {
 
 interface PublicListViewProps {
   project: ProjectWithTasks;
+  onTaskClick: (task: Task) => void;
 }
 
-export function PublicListView({ project }: PublicListViewProps) {
+export function PublicListView({ project, onTaskClick }: PublicListViewProps) {
   const columns: Column[] = DEFAULT_COLUMNS.map((column) => ({
     ...column,
     tasks: project.columns?.find((col) => col.id === column.id)?.tasks || [],
@@ -44,6 +45,7 @@ export function PublicListView({ project }: PublicListViewProps) {
                     key={task.id}
                     task={task}
                     projectSlug={project.slug}
+                    onTaskClick={onTaskClick}
                   />
                 ))}
 

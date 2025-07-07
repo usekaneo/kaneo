@@ -4,10 +4,12 @@ import { PublicKanbanView } from "@/components/public-project/kanban-view";
 import { KaneoBranding } from "@/components/public-project/kaneo-branding";
 import { PublicListView } from "@/components/public-project/list-view";
 import { LoadingSkeleton } from "@/components/public-project/loading-skeleton";
+import { PublicTaskDetailModal } from "@/components/public-project/task-detail-modal";
 import { ThemeToggle } from "@/components/public-project/theme-toggle";
 import { Button } from "@/components/ui/button";
 import icons from "@/constants/project-icons";
 import useGetPublicProject from "@/hooks/queries/project/use-get-public-project";
+import type Task from "@/types/task";
 import { createFileRoute } from "@tanstack/react-router";
 import { Grid3X3, Layout, List } from "lucide-react";
 import { createElement, useState } from "react";
@@ -22,6 +24,18 @@ function RouteComponent() {
   const { projectId } = Route.useParams();
   const { data: project, isLoading, error } = useGetPublicProject(projectId);
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setIsTaskModalOpen(true);
+  };
+
+  const handleTaskModalClose = () => {
+    setIsTaskModalOpen(false);
+    setSelectedTask(null);
+  };
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -91,16 +105,14 @@ function RouteComponent() {
         </div>
       </header>
 
-      {/* Content */}
       <main className="flex-1 min-h-0 flex flex-col">
         {viewMode === "kanban" ? (
-          <PublicKanbanView project={project} />
+          <PublicKanbanView project={project} onTaskClick={handleTaskClick} />
         ) : (
-          <PublicListView project={project} />
+          <PublicListView project={project} onTaskClick={handleTaskClick} />
         )}
       </main>
 
-      {/* Footer */}
       <footer className="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4">
         <div className="px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -111,6 +123,13 @@ function RouteComponent() {
           </div>
         </div>
       </footer>
+
+      <PublicTaskDetailModal
+        task={selectedTask}
+        projectSlug={project.slug}
+        open={isTaskModalOpen}
+        onOpenChange={handleTaskModalClose}
+      />
     </div>
   );
 }

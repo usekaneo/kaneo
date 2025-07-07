@@ -8,11 +8,21 @@ import { Flag } from "lucide-react";
 interface PublicTaskCardProps {
   task: Task;
   projectSlug: string;
+  onTaskClick: (task: Task) => void;
 }
 
-export function PublicTaskCard({ task, projectSlug }: PublicTaskCardProps) {
+export function PublicTaskCard({
+  task,
+  projectSlug,
+  onTaskClick,
+}: PublicTaskCardProps) {
   return (
-    <div className="p-4 bg-white dark:bg-zinc-800/80 rounded-lg border border-zinc-200 dark:border-zinc-700/50 shadow-sm hover:shadow-md transition-shadow">
+    <button
+      type="button"
+      className="w-full text-left p-4 bg-white dark:bg-zinc-800/80 rounded-lg border border-zinc-200 dark:border-zinc-700/50 shadow-sm hover:shadow-md transition-all cursor-pointer hover:border-zinc-300 dark:hover:border-zinc-600 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+      onClick={() => onTaskClick(task)}
+      aria-label={`View details for task ${task.title}`}
+    >
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="space-y-1 flex-1 min-w-0">
@@ -64,6 +74,6 @@ export function PublicTaskCard({ task, projectSlug }: PublicTaskCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }

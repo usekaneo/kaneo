@@ -13,9 +13,13 @@ interface Column {
 
 interface PublicKanbanViewProps {
   project: ProjectWithTasks;
+  onTaskClick: (task: Task) => void;
 }
 
-export function PublicKanbanView({ project }: PublicKanbanViewProps) {
+export function PublicKanbanView({
+  project,
+  onTaskClick,
+}: PublicKanbanViewProps) {
   const columns: Column[] = DEFAULT_COLUMNS.map((column) => ({
     ...column,
     tasks: project.columns?.find((col) => col.id === column.id)?.tasks || [],
@@ -50,6 +54,7 @@ export function PublicKanbanView({ project }: PublicKanbanViewProps) {
                       key={task.id}
                       task={task}
                       projectSlug={project.slug}
+                      onTaskClick={onTaskClick}
                     />
                   ))}
 

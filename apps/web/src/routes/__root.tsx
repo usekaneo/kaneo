@@ -6,6 +6,7 @@ import {
   Outlet,
   createRootRouteWithContext,
   redirect,
+  useLocation,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
@@ -26,7 +27,11 @@ export const Route = createRootRouteWithContext<{
       });
     }
 
-    if (user && !isOnDashboard) {
+    if (
+      user &&
+      !isOnDashboard &&
+      !location.pathname.includes("public-project")
+    ) {
       throw redirect({
         to: "/dashboard",
       });
@@ -36,12 +41,14 @@ export const Route = createRootRouteWithContext<{
 
 function RootComponent() {
   const { theme } = useTheme();
+  const location = useLocation();
+  const isPublicProject = location.pathname.includes("public-project");
 
   return (
     <>
       <div className="flex w-full h-svh overflow-x-hidden overflow-y-hidden flex-row bg-zinc-50 dark:bg-zinc-950 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
         <Outlet />
-        <CommandPalette />
+        {!isPublicProject && <CommandPalette />}
       </div>
       <Toaster
         position="bottom-right"
