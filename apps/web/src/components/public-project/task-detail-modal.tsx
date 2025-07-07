@@ -78,10 +78,11 @@ export function PublicTaskDetailModal({
                       <span>Assigned to</span>
                       <Avatar className="h-5 w-5">
                         <AvatarFallback className="text-xs font-medium">
-                          {task.userEmail.charAt(0).toUpperCase()}
+                          {task.assigneeName?.charAt(0).toUpperCase() ??
+                            task.userEmail?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium">{task.userEmail}</span>
+                      <span className="font-medium">{task.assigneeName}</span>
                     </div>
                   )}
 
