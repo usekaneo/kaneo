@@ -5,6 +5,7 @@ import { subscribeToEvent } from "../events";
 import createGithubIntegration from "./controllers/create-github-integration";
 import deleteGithubIntegration from "./controllers/delete-github-integration";
 import getGithubIntegration from "./controllers/get-github-integration";
+import { importIssues } from "./controllers/import-issues";
 import listUserRepositories from "./controllers/list-user-repositories";
 import verifyGithubInstallation from "./controllers/verify-github-installation";
 import createGithubApp from "./utils/create-github-app";
@@ -96,6 +97,15 @@ const githubIntegration = new Hono()
     async (c) => {
       const { projectId } = c.req.valid("param");
       const result = await deleteGithubIntegration(projectId);
+      return c.json(result);
+    },
+  )
+  .post(
+    "/import-issues",
+    zValidator("json", z.object({ projectId: z.string() })),
+    async (c) => {
+      const { projectId } = c.req.valid("json");
+      const result = await importIssues(projectId);
       return c.json(result);
     },
   )
