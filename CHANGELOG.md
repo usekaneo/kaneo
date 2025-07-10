@@ -1,3 +1,19 @@
+## [1.1.4](https://github.com/usekaneo/kaneo/compare/v1.1.0...v1.1.4) (2025-07-10)
+
+
+### Bug Fixes
+
+* update task detail modal to display assignee name ([2884c78](https://github.com/usekaneo/kaneo/commit/2884c78c77edfbef23ce01eef8fef8d153208bda))
+
+
+### Features
+
+* implement GitHub issues import functionality ([ef1bb63](https://github.com/usekaneo/kaneo/commit/ef1bb636dc1876d0d4d2108f732efc98d2568bec))
+* implement global search functionality ([f840ec7](https://github.com/usekaneo/kaneo/commit/f840ec79269dbdaed53d1be6755e011e485c040f))
+* implement task detail modal and enhance task interaction ([eb3abcc](https://github.com/usekaneo/kaneo/commit/eb3abccdb8a98afcc6be7063e85451e8364cdbf0))
+
+
+
 # [1.1.0](https://github.com/usekaneo/kaneo/compare/v1.0.9...v1.1.0) (2025-07-06)
 
 
