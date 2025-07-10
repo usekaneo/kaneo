@@ -12,6 +12,7 @@ import { auth } from "./middlewares/auth";
 import notification from "./notification";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
+import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
 import user from "./user";
@@ -98,6 +99,7 @@ const activityRoute = app.route("/activity", activity);
 const timeEntryRoute = app.route("/time-entry", timeEntry);
 const labelRoute = app.route("/label", label);
 const notificationRoute = app.route("/notification", notification);
+const searchRoute = app.route("/search", search);
 
 try {
   console.log("Migrating database...");
@@ -129,6 +131,7 @@ export type AppType =
   | typeof timeEntryRoute
   | typeof labelRoute
   | typeof notificationRoute
+  | typeof searchRoute
   | typeof publicProjectRoute
   | typeof githubIntegrationRoute
   | typeof configRoute;
