@@ -1,0 +1,71 @@
+name: Manual Docker Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to tag the images (e.g., 1.0.0-beta.1, test-branch)'
+        required: true
+        type: string
+      latest:
+        description: 'Also tag as latest (use with caution)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./apps/web/Dockerfile
+            image: ghcr.io/${{ github.repository_owner }}/web
+          - dockerfile: ./apps/api/Dockerfile
+            image: ghcr.io/${{ github.repository_owner }}/api
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGE_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ matrix.image }}
+          tags: |
+            type=raw,value=${{ inputs.version }}
+            type=raw,value=latest,enable=${{ inputs.latest }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
