@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface CreateWorkspaceModalProps {
@@ -20,9 +21,18 @@ interface CreateWorkspaceModalProps {
 
 function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
   const [name, setName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { mutateAsync } = useCreateWorkspace({ name });
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [open]);
 
   const handleClose = () => {
     setName("");
@@ -60,6 +70,9 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
           <DialogTitle className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             Create a new workspace
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new workspace by providing a name for your workspace.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -72,12 +85,12 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
             </label>
             <Input
               id="workspace-name"
+              ref={inputRef}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="My Workspace"
               className="bg-zinc-50 dark:bg-zinc-800/30 border-zinc-300 dark:border-zinc-700/30"
               required
-              autoFocus
             />
           </div>
 

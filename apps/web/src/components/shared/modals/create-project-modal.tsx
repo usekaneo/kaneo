@@ -5,7 +5,13 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -89,17 +95,23 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
         showCloseButton={false}
       >
         <DialogHeader className="border-b border-zinc-200 dark:border-zinc-800/50 pb-4 mb-2">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider text-sm">
-                {workspace?.name?.toUpperCase() || "WORKSPACE"}
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem className="text-zinc-700 dark:text-zinc-300 font-medium text-sm">
-                Create a new project
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <DialogTitle asChild>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider text-sm">
+                  {workspace?.name?.toUpperCase() || "WORKSPACE"}
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="text-zinc-700 dark:text-zinc-300 font-medium text-sm">
+                  Create a new project
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new project in your workspace by providing a name, key, and
+            selecting an icon.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
