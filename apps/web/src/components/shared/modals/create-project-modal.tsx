@@ -90,10 +90,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent
-        className="max-w-md bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 border border-zinc-200 dark:border-zinc-700/50 backdrop-blur-xl shadow-2xl"
-        showCloseButton={false}
-      >
+      <DialogContent className="max-w-md" showCloseButton={false}>
         <DialogHeader className="border-b border-zinc-200 dark:border-zinc-800/50 pb-4 mb-2">
           <DialogTitle asChild>
             <Breadcrumb>

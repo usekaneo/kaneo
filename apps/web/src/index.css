@@ -14,6 +14,7 @@
 		--foreground: oklch(0.1881 0.0060 285.8056);
 		--card: oklch(1.0000 0 0);
 		--card-foreground: oklch(0.1881 0.0060 285.8056);
+		--card-gradient: linear-gradient(to bottom right, oklch(1.0000 0 0), oklch(1.0000 0 0), oklch(0.9881 0 0));
 		--popover: oklch(0.9881 0 0);
 		--popover-foreground: oklch(0.1881 0.0060 285.8056);
 		--primary: oklch(0.5856 0.2332 272.6289);
@@ -64,6 +65,7 @@
 		--foreground: oklch(0.9674 0.0013 286.3752);
 		--card: oklch(0.1717 0.0018 286.2103);
 		--card-foreground: oklch(0.9674 0.0013 286.3752);
+		--card-gradient: linear-gradient(to bottom right, rgb(24 24 27), rgb(24 24 27), rgb(39 39 42));
 		--popover: oklch(0.2100 0.0025 286.1774);
 		--popover-foreground: oklch(0.9674 0.0013 286.3752);
 		--primary: oklch(0.5856 0.2332 272.6289);
@@ -136,6 +138,7 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-card-gradient: var(--card-gradient);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
@@ -211,5 +214,54 @@
 @layer base {
 	body {
 		@apply text-foreground bg-background
+	}
+}
+
+@layer utilities {
+	.bg-card-gradient {
+		background: var(--card-gradient);
+	}
+}
+
+/*
+  ---break---
+*/
+
+:root {
+	--sidebar: hsl(0 0% 98%);
+	--sidebar-foreground: hsl(240 5.3% 26.1%);
+	--sidebar-primary: hsl(240 5.9% 10%);
+	--sidebar-primary-foreground: hsl(0 0% 98%);
+	--sidebar-accent: hsl(240 4.8% 95.9%);
+	--sidebar-accent-foreground: hsl(240 5.9% 10%);
+	--sidebar-border: hsl(220 13% 91%);
+	--sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+/*
+  ---break---
+*/
+
+.dark {
+	--sidebar: hsl(240 5.9% 10%);
+	--sidebar-foreground: hsl(240 4.8% 95.9%);
+	--sidebar-primary: hsl(224.3 76.3% 48%);
+	--sidebar-primary-foreground: hsl(0 0% 100%);
+	--sidebar-accent: hsl(240 3.7% 15.9%);
+	--sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+	--sidebar-border: hsl(240 3.7% 15.9%);
+	--sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+/*
+  ---break---
+*/
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+	}
+  body {
+    @apply bg-background text-foreground;
 	}
 }
