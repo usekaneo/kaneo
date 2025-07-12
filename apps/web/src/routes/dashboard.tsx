@@ -1,6 +1,7 @@
-import { Sidebar } from "@/components/common/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 import { DemoAlert } from "@/components/demo-alert";
 import PageTitle from "@/components/page-title";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import EmptyWorkspaceState from "@/components/workspace/empty-state";
 import SelectWorkspaceState from "@/components/workspace/select-workspace-state";
 import { isDemoMode } from "@/constants/urls";
@@ -37,7 +38,9 @@ function DashboardIndexRouteComponent() {
   return (
     <>
       <PageTitle title="Dashboard" hideAppName={!workspace?.name} />
-      <Sidebar />
+      <SidebarProvider>
+        <AppSidebar />
+      </SidebarProvider>
       <main className="w-full overflow-auto scroll-smooth flex flex-col">
         {isDemoMode && <DemoAlert />}
         {isOnWorkspaceRoute && (
