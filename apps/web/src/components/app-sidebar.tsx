@@ -14,7 +14,7 @@ import { WorkspaceSwitcher } from "@/components/workspace-switcher";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" className="border-none" {...props}>
+    <Sidebar collapsible="offcanvas" className="border-none pt-3" {...props}>
       <SidebarHeader>
         <WorkspaceSwitcher />
       </SidebarHeader>
