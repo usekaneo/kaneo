@@ -1,0 +1,63 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { motion } from "framer-motion";
+import type { ReactNode } from "react";
+import type React from "react";
+
+interface LayoutProps {
+  children: ReactNode;
+}
+
+interface HeaderProps {
+  children: ReactNode;
+}
+
+interface ContentProps {
+  children: ReactNode;
+}
+
+function LayoutHeader({ children }: HeaderProps) {
+  return (
+    <motion.header
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b border-border bg-card px-4"
+    >
+      {children}
+    </motion.header>
+  );
+}
+
+function LayoutContent({ children }: ContentProps) {
+  return (
+    <div className="flex-1">
+      <div className="p-6">{children}</div>
+    </div>
+  );
+}
+
+function Layout({ children }: LayoutProps) {
+  return (
+    <div className="flex w-full bg-sidebar">
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar />
+        <SidebarInset className="flex-1 flex flex-col overflow-hidden bg-card border border-border rounded-md m-2">
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
+  );
+}
+
+Layout.Header = LayoutHeader;
+Layout.Content = LayoutContent;
+
+export default Layout;

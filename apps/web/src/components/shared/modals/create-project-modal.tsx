@@ -91,7 +91,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md" showCloseButton={false}>
-        <DialogHeader className="border-b border-zinc-200 dark:border-zinc-800/50 pb-4 mb-2">
+        <DialogHeader className="border-b border-border pb-4 mb-2">
           <DialogTitle asChild>
             <Breadcrumb>
               <BreadcrumbList>
@@ -121,7 +121,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex items-center justify-center p-2 rounded border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+                  className="flex items-center justify-center p-2 rounded border border-border hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
                 >
                   <IconComponent className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
                 </button>
@@ -183,7 +183,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
             </p>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-6 border-t border-zinc-200 dark:border-zinc-800/50">
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-border">
             <Button
               type="button"
               onClick={handleClose}

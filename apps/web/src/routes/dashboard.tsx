@@ -1,18 +1,9 @@
-import { AppSidebar } from "@/components/app-sidebar";
 import { DemoAlert } from "@/components/demo-alert";
 import PageTitle from "@/components/page-title";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import EmptyWorkspaceState from "@/components/workspace/empty-state";
-import SelectWorkspaceState from "@/components/workspace/select-workspace-state";
 import { isDemoMode } from "@/constants/urls";
-import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import useWorkspaceStore from "@/store/workspace";
-import {
-  Outlet,
-  createFileRoute,
-  redirect,
-  useRouterState,
-} from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardIndexRouteComponent,
@@ -27,32 +18,14 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardIndexRouteComponent() {
   const { workspace } = useWorkspaceStore();
-  const { data: workspaces } = useGetWorkspaces();
-  const location = useRouterState({ select: (s) => s.location.pathname });
-
-  const hasNoWorkspacesAndNoSelectedWorkspace =
-    workspaces?.length === 0 && !workspace;
-
-  const isOnWorkspaceRoute = location === "/dashboard";
 
   return (
     <>
-      <PageTitle title="Dashboard" hideAppName={!workspace?.name} />
       <SidebarProvider>
-        <AppSidebar />
-      </SidebarProvider>
-      <main className="w-full overflow-auto scroll-smooth flex flex-col">
+        <PageTitle title="Dashboard" hideAppName={!workspace?.name} />
         {isDemoMode && <DemoAlert />}
-        {isOnWorkspaceRoute && (
-          <>
-            {hasNoWorkspacesAndNoSelectedWorkspace && <EmptyWorkspaceState />}
-            {!workspace && workspaces && workspaces.length > 0 && (
-              <SelectWorkspaceState />
-            )}
-          </>
-        )}
         <Outlet />
-      </main>
+      </SidebarProvider>
     </>
   );
 }
