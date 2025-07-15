@@ -19,7 +19,9 @@ import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as DashboardWorkspaceWorkspaceIdRouteImport } from './routes/dashboard/workspace/$workspaceId'
 import { Route as DashboardSettingsAppearanceRouteImport } from './routes/dashboard/settings/appearance'
+import { Route as DashboardWorkspaceWorkspaceIdIndexRouteImport } from './routes/dashboard/workspace/$workspaceId/index'
 import { Route as DashboardWorkspaceSettingsWorkspaceIdIndexRouteImport } from './routes/dashboard/workspace-settings/$workspaceId/index'
+import { Route as DashboardWorkspaceWorkspaceIdSearchRouteImport } from './routes/dashboard/workspace/$workspaceId/search'
 import { Route as DashboardTeamsWorkspaceIdLayoutRouteImport } from './routes/dashboard/teams/$workspaceId/_layout'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdRouteImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId'
 import { Route as DashboardTeamsWorkspaceIdLayoutRolesRouteImport } from './routes/dashboard/teams/$workspaceId/_layout.roles'
@@ -81,11 +83,23 @@ const DashboardSettingsAppearanceRoute =
     path: '/appearance',
     getParentRoute: () => DashboardSettingsRoute,
   } as any)
+const DashboardWorkspaceWorkspaceIdIndexRoute =
+  DashboardWorkspaceWorkspaceIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DashboardWorkspaceWorkspaceIdRoute,
+  } as any)
 const DashboardWorkspaceSettingsWorkspaceIdIndexRoute =
   DashboardWorkspaceSettingsWorkspaceIdIndexRouteImport.update({
     id: '/workspace-settings/$workspaceId/',
     path: '/workspace-settings/$workspaceId/',
     getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardWorkspaceWorkspaceIdSearchRoute =
+  DashboardWorkspaceWorkspaceIdSearchRouteImport.update({
+    id: '/search',
+    path: '/search',
+    getParentRoute: () => DashboardWorkspaceWorkspaceIdRoute,
   } as any)
 const DashboardTeamsWorkspaceIdLayoutRoute =
   DashboardTeamsWorkspaceIdLayoutRouteImport.update({
@@ -145,7 +159,9 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
+  '/dashboard/workspace/$workspaceId/search': typeof DashboardWorkspaceWorkspaceIdSearchRoute
   '/dashboard/workspace-settings/$workspaceId': typeof DashboardWorkspaceSettingsWorkspaceIdIndexRoute
+  '/dashboard/workspace/$workspaceId/': typeof DashboardWorkspaceWorkspaceIdIndexRoute
   '/dashboard/teams/$workspaceId/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
@@ -162,9 +178,10 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
   '/public-project/$projectId': typeof PublicProjectProjectIdRoute
   '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
-  '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
+  '/dashboard/workspace/$workspaceId/search': typeof DashboardWorkspaceWorkspaceIdSearchRoute
   '/dashboard/workspace-settings/$workspaceId': typeof DashboardWorkspaceSettingsWorkspaceIdIndexRoute
+  '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdIndexRoute
   '/dashboard/teams/$workspaceId/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
@@ -185,7 +202,9 @@ export interface FileRoutesById {
   '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdRouteWithChildren
   '/dashboard/teams/$workspaceId/_layout': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
+  '/dashboard/workspace/$workspaceId/search': typeof DashboardWorkspaceWorkspaceIdSearchRoute
   '/dashboard/workspace-settings/$workspaceId/': typeof DashboardWorkspaceSettingsWorkspaceIdIndexRoute
+  '/dashboard/workspace/$workspaceId/': typeof DashboardWorkspaceWorkspaceIdIndexRoute
   '/dashboard/teams/$workspaceId/_layout/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
   '/dashboard/teams/$workspaceId/_layout/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
@@ -206,7 +225,9 @@ export interface FileRouteTypes {
     | '/dashboard/settings/appearance'
     | '/dashboard/workspace/$workspaceId'
     | '/dashboard/teams/$workspaceId'
+    | '/dashboard/workspace/$workspaceId/search'
     | '/dashboard/workspace-settings/$workspaceId'
+    | '/dashboard/workspace/$workspaceId/'
     | '/dashboard/teams/$workspaceId/members'
     | '/dashboard/teams/$workspaceId/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
@@ -223,9 +244,10 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/public-project/$projectId'
     | '/dashboard/settings/appearance'
-    | '/dashboard/workspace/$workspaceId'
     | '/dashboard/teams/$workspaceId'
+    | '/dashboard/workspace/$workspaceId/search'
     | '/dashboard/workspace-settings/$workspaceId'
+    | '/dashboard/workspace/$workspaceId'
     | '/dashboard/teams/$workspaceId/members'
     | '/dashboard/teams/$workspaceId/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
@@ -245,7 +267,9 @@ export interface FileRouteTypes {
     | '/dashboard/workspace/$workspaceId'
     | '/dashboard/teams/$workspaceId'
     | '/dashboard/teams/$workspaceId/_layout'
+    | '/dashboard/workspace/$workspaceId/search'
     | '/dashboard/workspace-settings/$workspaceId/'
+    | '/dashboard/workspace/$workspaceId/'
     | '/dashboard/teams/$workspaceId/_layout/members'
     | '/dashboard/teams/$workspaceId/_layout/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId'
@@ -328,12 +352,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsAppearanceRouteImport
       parentRoute: typeof DashboardSettingsRoute
     }
+    '/dashboard/workspace/$workspaceId/': {
+      id: '/dashboard/workspace/$workspaceId/'
+      path: '/'
+      fullPath: '/dashboard/workspace/$workspaceId/'
+      preLoaderRoute: typeof DashboardWorkspaceWorkspaceIdIndexRouteImport
+      parentRoute: typeof DashboardWorkspaceWorkspaceIdRoute
+    }
     '/dashboard/workspace-settings/$workspaceId/': {
       id: '/dashboard/workspace-settings/$workspaceId/'
       path: '/workspace-settings/$workspaceId'
       fullPath: '/dashboard/workspace-settings/$workspaceId'
       preLoaderRoute: typeof DashboardWorkspaceSettingsWorkspaceIdIndexRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/workspace/$workspaceId/search': {
+      id: '/dashboard/workspace/$workspaceId/search'
+      path: '/search'
+      fullPath: '/dashboard/workspace/$workspaceId/search'
+      preLoaderRoute: typeof DashboardWorkspaceWorkspaceIdSearchRouteImport
+      parentRoute: typeof DashboardWorkspaceWorkspaceIdRoute
     }
     '/dashboard/teams/$workspaceId/_layout': {
       id: '/dashboard/teams/$workspaceId/_layout'
@@ -430,11 +468,17 @@ const DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren =
   )
 
 interface DashboardWorkspaceWorkspaceIdRouteChildren {
+  DashboardWorkspaceWorkspaceIdSearchRoute: typeof DashboardWorkspaceWorkspaceIdSearchRoute
+  DashboardWorkspaceWorkspaceIdIndexRoute: typeof DashboardWorkspaceWorkspaceIdIndexRoute
   DashboardWorkspaceWorkspaceIdProjectProjectIdRoute: typeof DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren
 }
 
 const DashboardWorkspaceWorkspaceIdRouteChildren: DashboardWorkspaceWorkspaceIdRouteChildren =
   {
+    DashboardWorkspaceWorkspaceIdSearchRoute:
+      DashboardWorkspaceWorkspaceIdSearchRoute,
+    DashboardWorkspaceWorkspaceIdIndexRoute:
+      DashboardWorkspaceWorkspaceIdIndexRoute,
     DashboardWorkspaceWorkspaceIdProjectProjectIdRoute:
       DashboardWorkspaceWorkspaceIdProjectProjectIdRouteWithChildren,
   }

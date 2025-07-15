@@ -15,6 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/cn";
 import useWorkspaceStore from "@/store/workspace";
 import { Button } from "./ui/button";
 
@@ -29,42 +30,53 @@ export function NavMain() {
       title: "Dashboard",
       url: `/dashboard/workspace/${workspace.id}`,
       icon: LayoutDashboard,
-      isActive: false,
+      isActive:
+        window.location.pathname === `/dashboard/workspace/${workspace.id}`,
       isDisabled: false,
     },
     {
       title: "Search",
       url: `/dashboard/workspace/${workspace.id}/search`,
       icon: Search,
-      isActive: false,
+      isActive:
+        window.location.pathname ===
+        `/dashboard/workspace/${workspace.id}/search`,
       isDisabled: false,
     },
     {
       title: "Time Tracking",
       url: `/dashboard/workspace/${workspace.id}/time`,
       icon: Clock,
-      isActive: false,
+      isActive:
+        window.location.pathname ===
+        `/dashboard/workspace/${workspace.id}/time`,
       isDisabled: true,
     },
     {
       title: "Analytics",
       url: `/dashboard/workspace/${workspace.id}/analytics`,
       icon: BarChart3,
-      isActive: false,
+      isActive:
+        window.location.pathname ===
+        `/dashboard/workspace/${workspace.id}/analytics`,
       isDisabled: true,
     },
     {
       title: "Team",
       url: `/dashboard/workspace/${workspace.id}/team`,
       icon: Users,
-      isActive: false,
+      isActive:
+        window.location.pathname ===
+        `/dashboard/workspace/${workspace.id}/team`,
       isDisabled: false,
     },
     {
       title: "Settings",
       url: `/dashboard/workspace-settings/${workspace.id}`,
       icon: Settings,
-      isActive: false,
+      isActive:
+        window.location.pathname ===
+        `/dashboard/workspace-settings/${workspace.id}`,
       isDisabled: false,
     },
   ];
@@ -87,7 +99,10 @@ export function NavMain() {
               <Button
                 onClick={() => handleNavClick(item.url)}
                 variant="ghost"
-                className="w-full flex items-center gap-2 justify-start"
+                className={cn(
+                  "w-full flex items-center gap-2 justify-start",
+                  item.isActive && "bg-accent",
+                )}
               >
                 {item.icon && <item.icon className="w-4 h-4" />}
                 <span>{item.title}</span>

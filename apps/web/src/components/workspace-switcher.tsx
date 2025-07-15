@@ -16,9 +16,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { shortcuts } from "@/constants/shortcuts";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import useWorkspaceStore from "@/store/workspace";
 import type { Workspace } from "@/types/workspace";
+import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
 
 export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
@@ -26,6 +29,8 @@ export function WorkspaceSwitcher() {
   const { data: workspaces } = useGetWorkspaces();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isCreateWorkspaceModalOpen, setIsCreateWorkspaceModalOpen] =
+    React.useState(false);
 
   const handleWorkspaceChange = React.useCallback(
     (selectedWorkspace: Workspace) => {
@@ -61,6 +66,19 @@ export function WorkspaceSwitcher() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, workspaces, handleWorkspaceChange]);
+
+  useRegisterShortcuts({
+    sequentialShortcuts: {
+      [shortcuts.workspace.prefix]: {
+        [shortcuts.workspace.switch]: () => {
+          setIsOpen(true);
+        },
+        [shortcuts.workspace.create]: () => {
+          setIsCreateWorkspaceModalOpen(true);
+        },
+      },
+    },
+  });
 
   if (!workspace) {
     return null;
@@ -129,8 +147,7 @@ export function WorkspaceSwitcher() {
             <DropdownMenuItem
               className="gap-2 p-2"
               onClick={() => {
-                // TODO: Open create workspace modal
-                console.log("Create workspace");
+                setIsCreateWorkspaceModalOpen(true);
               }}
             >
               <div
@@ -145,6 +162,10 @@ export function WorkspaceSwitcher() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <CreateWorkspaceModal
+          open={isCreateWorkspaceModalOpen}
+          onClose={() => setIsCreateWorkspaceModalOpen(false)}
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   );
