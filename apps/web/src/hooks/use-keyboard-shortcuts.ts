@@ -7,8 +7,8 @@ import React, {
 } from "react";
 
 export function getModifierKeyText(): string {
-  if (typeof window === "undefined") return "Ctrl+";
-  return navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl+";
+  if (typeof window === "undefined") return "";
+  return navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl";
 }
 
 type ShortcutHandler = () => void;
@@ -23,8 +23,14 @@ interface KeyboardShortcutsContextType {
     key: SequentialKey,
     handler: ShortcutHandler,
   ) => void;
+  registerModifierShortcut: (
+    modifierKey: string,
+    key: string,
+    handler: ShortcutHandler,
+  ) => void;
   unregisterShortcut: (key: ShortcutKey) => void;
   unregisterSequentialShortcut: (prefix: PrefixKey, key: SequentialKey) => void;
+  unregisterModifierShortcut: (modifierKey: string, key: string) => void;
   activePrefix: string | null;
 }
 
@@ -49,6 +55,9 @@ export function KeyboardShortcutsProvider({
   );
   const [sequentialShortcuts, setSequentialShortcuts] = useState<
     Map<string, Map<string, ShortcutHandler>>
+  >(new Map());
+  const [modifierShortcuts, setModifierShortcuts] = useState<
+    Map<string, ShortcutHandler>
   >(new Map());
   const [activePrefix, setActivePrefix] = useState<string | null>(null);
   const [prefixTimeout, setPrefixTimeout] = useState<number | null>(null);
@@ -103,6 +112,14 @@ export function KeyboardShortcutsProvider({
     [],
   );
 
+  const registerModifierShortcut = useCallback(
+    (modifierKey: string, key: string, handler: ShortcutHandler) => {
+      const shortcutKey = `${modifierKey}+${key.toLowerCase()}`;
+      setModifierShortcuts((prev) => new Map(prev).set(shortcutKey, handler));
+    },
+    [],
+  );
+
   const unregisterShortcut = useCallback((key: string) => {
     setShortcuts((prev) => {
       const newMap = new Map(prev);
@@ -130,6 +147,18 @@ export function KeyboardShortcutsProvider({
     [],
   );
 
+  const unregisterModifierShortcut = useCallback(
+    (modifierKey: string, key: string) => {
+      const shortcutKey = `${modifierKey}+${key.toLowerCase()}`;
+      setModifierShortcuts((prev) => {
+        const newMap = new Map(prev);
+        newMap.delete(shortcutKey);
+        return newMap;
+      });
+    },
+    [],
+  );
+
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
@@ -141,12 +170,31 @@ export function KeyboardShortcutsProvider({
         return;
       }
 
+      const key = event.key.toLowerCase();
+
+      // Handle modifier shortcuts (like Cmd+B, Ctrl+B)
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+        const modifierKey = event.metaKey
+          ? "⌘"
+          : event.ctrlKey
+            ? "Ctrl"
+            : event.altKey
+              ? "Alt"
+              : "Shift";
+        const shortcutKey = `${modifierKey}+${key}`;
+
+        if (modifierShortcuts.has(shortcutKey)) {
+          event.preventDefault();
+          const handler = modifierShortcuts.get(shortcutKey);
+          if (handler) {
+            handler();
+          }
+          return;
+        }
         return;
       }
 
-      const key = event.key.toLowerCase();
-
+      // Handle sequential shortcuts (like vim-style shortcuts)
       if (activePrefix && sequentialShortcuts.has(activePrefix)) {
         const prefixMap = sequentialShortcuts.get(activePrefix);
         if (prefixMap?.has(key)) {
@@ -175,6 +223,7 @@ export function KeyboardShortcutsProvider({
       activePrefix,
       shortcuts,
       sequentialShortcuts,
+      modifierShortcuts,
       resetPrefix,
       setPrefixWithTimeout,
     ],
@@ -201,8 +250,10 @@ export function KeyboardShortcutsProvider({
   const value = {
     registerShortcut,
     registerSequentialShortcut,
+    registerModifierShortcut,
     unregisterShortcut,
     unregisterSequentialShortcut,
+    unregisterModifierShortcut,
     activePrefix,
   };
 
@@ -218,12 +269,17 @@ export function useRegisterShortcuts(shortcutsConfig: {
   sequentialShortcuts?: {
     [prefix: string]: { [key: string]: ShortcutHandler };
   };
+  modifierShortcuts?: {
+    [modifierKey: string]: { [key: string]: ShortcutHandler };
+  };
 }) {
   const {
     registerShortcut,
     registerSequentialShortcut,
+    registerModifierShortcut,
     unregisterShortcut,
     unregisterSequentialShortcut,
+    unregisterModifierShortcut,
   } = useKeyboardShortcuts();
 
   useEffect(() => {
@@ -239,6 +295,16 @@ export function useRegisterShortcuts(shortcutsConfig: {
       )) {
         for (const [key, handler] of Object.entries(prefixMap)) {
           registerSequentialShortcut(prefix, key, handler);
+        }
+      }
+    }
+
+    if (shortcutsConfig.modifierShortcuts) {
+      for (const [modifierKey, keyMap] of Object.entries(
+        shortcutsConfig.modifierShortcuts,
+      )) {
+        for (const [key, handler] of Object.entries(keyMap)) {
+          registerModifierShortcut(modifierKey, key, handler);
         }
       }
     }
@@ -259,12 +325,24 @@ export function useRegisterShortcuts(shortcutsConfig: {
           }
         }
       }
+
+      if (shortcutsConfig.modifierShortcuts) {
+        for (const [modifierKey, keyMap] of Object.entries(
+          shortcutsConfig.modifierShortcuts,
+        )) {
+          for (const key of Object.keys(keyMap)) {
+            unregisterModifierShortcut(modifierKey, key);
+          }
+        }
+      }
     };
   }, [
     registerShortcut,
     registerSequentialShortcut,
+    registerModifierShortcut,
     unregisterShortcut,
     unregisterSequentialShortcut,
+    unregisterModifierShortcut,
     shortcutsConfig,
   ]);
 }

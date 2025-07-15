@@ -1,7 +1,6 @@
 import Layout from "@/components/common/layout";
 import NotificationDropdown from "@/components/notification/notification-dropdown";
-import { Button } from "@/components/ui/button";
-import { Kbd } from "@/components/ui/kbd";
+import { KbdSequence } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
@@ -10,8 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useNavigate } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { shortcuts } from "@/constants/shortcuts";
 import type { ReactNode } from "react";
 
 interface WorkspaceLayoutProps {
@@ -26,20 +24,11 @@ export default function WorkspaceLayout({
   headerActions,
   children,
 }: WorkspaceLayoutProps) {
-  const navigate = useNavigate();
-
-  const handleSearchNavigation = () => {
-    navigate({
-      to: "/dashboard/workspace/$workspaceId/search",
-      params: { workspaceId: "current" },
-    });
-  };
-
   return (
     <Layout>
       <Layout.Header>
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -47,8 +36,13 @@ export default function WorkspaceLayout({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="flex items-center gap-2">
-                    Toggle Sidebar
-                    <Kbd>[</Kbd>
+                    Toggle sidebar
+                    <KbdSequence
+                      keys={[
+                        shortcuts.sidebar.prefix,
+                        shortcuts.sidebar.toggle,
+                      ]}
+                    />
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -63,24 +57,6 @@ export default function WorkspaceLayout({
           </div>
           <div className="flex items-center gap-3">
             <NotificationDropdown />
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSearchNavigation}
-                    className="h-9 w-9 p-0"
-                  >
-                    <Search className="h-4 w-4" />
-                    <span className="sr-only">Search</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Search</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
 
             {headerActions}
           </div>

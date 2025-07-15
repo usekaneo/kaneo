@@ -49,13 +49,15 @@ function RouteComponent() {
                   className="gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  New Project
+                  New project
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p className="flex items-center gap-2">
-                  Create Project
-                  <KbdSequence keys={["P", "C"]} />
+                  Create project
+                  <KbdSequence
+                    keys={[shortcuts.project.prefix, shortcuts.project.create]}
+                  />
                 </p>
               </TooltipContent>
             </Tooltip>

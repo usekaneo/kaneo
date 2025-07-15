@@ -23,6 +23,7 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
+import { KbdSequence } from "./kbd";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -295,9 +296,9 @@ function SidebarTrigger({
         >
           <div className="flex items-center gap-2 text-xs">
             <span>Toggle sidebar</span>
-            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-              {shortcuts.sidebar}
-            </kbd>
+            <KbdSequence
+              keys={[shortcuts.sidebar.prefix, shortcuts.sidebar.toggle]}
+            />
           </div>
         </TooltipContent>
       </Tooltip>

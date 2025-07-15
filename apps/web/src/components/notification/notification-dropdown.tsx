@@ -15,16 +15,18 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Kbd } from "@/components/ui/kbd";
+import { KbdSequence } from "@/components/ui/kbd";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { shortcuts } from "@/constants/shortcuts";
 import useClearNotifications from "@/hooks/mutations/notification/use-clear-notifications";
 import useMarkAllNotificationsAsRead from "@/hooks/mutations/notification/use-mark-all-notifications-as-read";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { formatDistanceToNow } from "date-fns";
 import { Bell } from "lucide-react";
@@ -65,6 +67,14 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
       return content;
     };
 
+    useRegisterShortcuts({
+      sequentialShortcuts: {
+        [shortcuts.notification.prefix]: {
+          [shortcuts.notification.open]: () => setIsOpen(!isOpen),
+        },
+      },
+    });
+
     return (
       <>
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -88,7 +98,12 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               <TooltipContent>
                 <p className="flex items-center gap-2">
                   Notifications
-                  <Kbd>N</Kbd>
+                  <KbdSequence
+                    keys={[
+                      shortcuts.notification.prefix,
+                      shortcuts.notification.open,
+                    ]}
+                  />
                 </p>
               </TooltipContent>
             </Tooltip>
