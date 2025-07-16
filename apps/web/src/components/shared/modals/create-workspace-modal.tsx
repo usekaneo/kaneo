@@ -1,3 +1,9 @@
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,10 +27,11 @@ interface CreateWorkspaceModalProps {
 
 function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { mutateAsync } = useCreateWorkspace({ name });
+  const { mutateAsync } = useCreateWorkspace();
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -36,6 +43,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
 
   const handleClose = () => {
     setName("");
+    setDescription("");
     onClose();
   };
 
@@ -44,7 +52,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
     if (!name.trim()) return;
 
     try {
-      const createdWorkspace = await mutateAsync();
+      const createdWorkspace = await mutateAsync({ name, description });
       toast.success("Workspace created successfully");
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
 
@@ -65,32 +73,42 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-md" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-            Create a new workspace
+          <DialogTitle asChild>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider text-sm">
+                  KANEO
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="text-zinc-700 dark:text-zinc-300 font-medium text-sm">
+                  Create a new workspace
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </DialogTitle>
           <DialogDescription className="sr-only">
             Create a new workspace by providing a name for your workspace.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="workspace-name"
-              className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2"
-            >
-              Workspace Name
-            </label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4 px-6">
             <Input
-              id="workspace-name"
               ref={inputRef}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="My Workspace"
-              className="bg-zinc-50 dark:bg-zinc-800/30 border-zinc-300 dark:border-zinc-700/30"
+              placeholder="Workspace name"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
               required
+            />
+
+            <Input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add description..."
+              className="!border-0 px-0 py-2 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-700 dark:text-zinc-300 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:!outline-none focus-visible:!outline-none"
             />
           </div>
 
@@ -98,14 +116,17 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
             <Button
               type="button"
               onClick={handleClose}
-              className="bg-transparent border border-zinc-300 dark:border-zinc-700/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-all duration-200"
+              variant="outline"
+              size="sm"
+              className="border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!name.trim()}
-              className="bg-indigo-600 text-white hover:bg-indigo-500 transition-all duration-200 disabled:opacity-50"
+              size="sm"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50"
             >
               Create Workspace
             </Button>

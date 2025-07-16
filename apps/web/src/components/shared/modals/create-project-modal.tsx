@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -91,7 +92,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md" showCloseButton={false}>
-        <DialogHeader className="border-b border-border pb-4 mb-2">
+        <DialogHeader className="pb-6">
           <DialogTitle asChild>
             <Breadcrumb>
               <BreadcrumbList>
@@ -112,7 +113,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-3">
+          <div className="space-y-4 px-6">
             <Popover
               open={iconPopoverOpen}
               onOpenChange={setIconPopoverOpen}
@@ -158,12 +159,12 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               onChange={handleNameChange}
               autoFocus
               placeholder="Project name"
-              className="!text-2xl font-semibold !border-0 px-0 py-2 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
               required
             />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 px-6">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-zinc-50 to-zinc-100/50 dark:from-zinc-900/50 dark:to-zinc-800/30 border border-zinc-200/50 dark:border-zinc-700/30">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
@@ -184,22 +185,25 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-6 border-t border-border">
+          <DialogFooter>
             <Button
               type="button"
               onClick={handleClose}
-              className="bg-transparent border border-zinc-300 dark:border-zinc-700/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-all duration-200"
+              variant="outline"
+              size="sm"
+              className="border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!name.trim() || !slug.trim()}
-              className="bg-indigo-600 text-white hover:bg-indigo-500 transition-all duration-200 disabled:opacity-50"
+              size="sm"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50"
             >
               Create Project
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

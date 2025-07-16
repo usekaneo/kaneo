@@ -58,7 +58,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-card border border-border backdrop-blur-xl shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-2 rounded-lg p-4 duration-200 sm:max-w-md",
+          "bg-card border border-border backdrop-blur-xl shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] rounded-lg duration-200 sm:max-w-md",
           className,
         )}
         {...props}
@@ -82,10 +82,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn(
-        "border-b border-zinc-200 dark:border-zinc-800/50 pb-4 mb-2",
-        className,
-      )}
+      className={cn("pb-6 px-6 pt-6", className)}
       {...props}
     />
   );
@@ -96,7 +93,7 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="dialog-footer"
       className={cn(
-        "flex items-center justify-end gap-3 pt-6 border-t border-zinc-200 dark:border-zinc-800/50",
+        "flex items-center justify-end gap-3 pt-4 px-4 pb-4 border-t border-border",
         className,
       )}
       {...props}
