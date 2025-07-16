@@ -163,24 +163,25 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="project-key"
-              className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2"
-            >
-              Project Key
-            </label>
-            <Input
-              id="project-key"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="PRO"
-              className="bg-zinc-50 dark:bg-zinc-800/30 border-zinc-300 dark:border-zinc-700/30"
-              required
-            />
-            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1 opacity-60">
-              This key will be used for ticket IDs (e.g., ABC-123)
-            </p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-zinc-50 to-zinc-100/50 dark:from-zinc-900/50 dark:to-zinc-800/30 border border-zinc-200/50 dark:border-zinc-700/30">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  Key:
+                </span>
+                <Input
+                  id="project-key"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="PRO"
+                  className="w-20 h-8 text-center font-semibold text-sm bg-white/80 dark:bg-zinc-900/80 border-zinc-300/50 dark:border-zinc-600/50 rounded-lg focus:bg-white dark:focus:bg-zinc-900 focus:border-indigo-400 dark:focus:border-indigo-500 transition-all duration-200"
+                  required
+                />
+              </div>
+              <div className="flex-1 text-xs text-zinc-500 dark:text-zinc-400 opacity-80">
+                Used for ticket IDs (e.g., {slug || "ABC"}-123)
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-6 border-t border-border">

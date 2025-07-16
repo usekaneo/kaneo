@@ -1,5 +1,4 @@
 import PageTitle from "@/components/page-title";
-import useTheme from "@/components/providers/theme-provider/hooks/use-theme";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/cn";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -12,7 +11,7 @@ export const Route = createFileRoute("/dashboard/settings/appearance")({
 });
 
 function AppearanceSettings() {
-  const { theme: selectedTheme, setTheme: setSelectedTheme } = useTheme();
+  const { theme: selectedTheme, setTheme } = useUserPreferencesStore();
   const { isSidebarOpened, setIsSidebarOpened } = useUserPreferencesStore();
 
   return (
@@ -66,7 +65,7 @@ function AppearanceSettings() {
                   <button
                     key={theme.id}
                     onClick={() => {
-                      setSelectedTheme(theme.id as "dark" | "light" | "system");
+                      setTheme(theme.id as "dark" | "light" | "system");
                     }}
                     type="button"
                     className={cn(

@@ -158,21 +158,10 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                               <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
                             )}
                           </div>
-                          {notification.content && (
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              {cleanNotificationContent(
-                                notification.title,
-                                notification.content,
-                              )}
-                            </p>
-                          )}
                           <p className="text-xs text-muted-foreground mt-2">
-                            {formatDistanceToNow(
-                              new Date(notification.createdAt),
-                              {
-                                addSuffix: true,
-                              },
-                            )}
+                            {formatDistanceToNow(notification.createdAt, {
+                              addSuffix: true,
+                            })}
                           </p>
                         </div>
                       </div>

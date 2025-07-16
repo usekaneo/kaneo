@@ -1,5 +1,12 @@
 import Layout from "@/components/common/layout";
 import NotificationDropdown from "@/components/notification/notification-dropdown";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { KbdSequence } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -10,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
+import useWorkspaceStore from "@/store/workspace";
 import type { ReactNode } from "react";
 
 interface WorkspaceLayoutProps {
@@ -24,11 +32,13 @@ export default function WorkspaceLayout({
   headerActions,
   children,
 }: WorkspaceLayoutProps) {
+  const { workspace } = useWorkspaceStore();
+
   return (
     <Layout>
       <Layout.Header>
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 w-full">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -51,9 +61,21 @@ export default function WorkspaceLayout({
               orientation="vertical"
               className="mx-2 data-[orientation=vertical]:h-4"
             />
-            <h1 className="text-lg font-semibold text-card-foreground">
-              {title}
-            </h1>
+            <Breadcrumb className="flex items-center gap-1 text-sm w-full">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">
+                    <h1 className="text-md text-card-foreground">
+                      {workspace?.name}
+                    </h1>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <h1 className="text-md text-card-foreground">{title}</h1>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
           <div className="flex items-center gap-3">
             <NotificationDropdown />

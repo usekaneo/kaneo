@@ -1,5 +1,5 @@
 import { CommandPalette } from "@/components/command-palette";
-import useTheme from "@/components/providers/theme-provider/hooks/use-theme";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { LoggedInUser } from "@/types/user";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -40,7 +40,7 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootComponent() {
-  const { theme } = useTheme();
+  const { theme } = useUserPreferencesStore();
   const location = useLocation();
   const isPublicProject = location.pathname.includes("public-project");
 
