@@ -57,16 +57,6 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
       setShowClearDialog(false);
     };
 
-    const cleanNotificationContent = (title: string, content: string) => {
-      if (
-        title.toLowerCase().includes("workspace") &&
-        title.toLowerCase().includes("created")
-      ) {
-        return content.replace(/workspace created/gi, "").trim();
-      }
-      return content;
-    };
-
     useRegisterShortcuts({
       sequentialShortcuts: {
         [shortcuts.notification.prefix]: {
