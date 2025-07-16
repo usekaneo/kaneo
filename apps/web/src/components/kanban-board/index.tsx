@@ -6,11 +6,13 @@ import {
   type DragEndEvent,
   DragOverlay,
   type DragStartEvent,
+  type DropAnimation,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
   closestCorners,
+  defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -29,10 +31,29 @@ function KanbanBoard({ project }: KanbanBoardProps) {
   const { mutate: updateTask } = useUpdateTask();
 
   const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
+      },
+    }),
     useSensor(KeyboardSensor),
   );
+
+  const dropAnimation: DropAnimation = {
+    sideEffects: defaultDropAnimationSideEffects({
+      styles: {
+        active: {
+          opacity: "0.8",
+        },
+      },
+    }),
+    duration: 300,
+    easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
@@ -40,6 +61,8 @@ function KanbanBoard({ project }: KanbanBoardProps) {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
+
     if (!over || !project?.columns) return;
 
     const activeId = active.id.toString();
@@ -157,17 +180,19 @@ function KanbanBoard({ project }: KanbanBoardProps) {
     >
       <div className="h-full flex flex-col overflow-hidden w-full">
         <div className="flex-1 h-full overflow-auto">
-          <div className="flex gap-6 p-6 min-h-full">
+          <div className="flex gap-3 p-3 min-h-full transition-all duration-200 ease-out">
             {project.columns?.map((column) => (
               <Column key={column.id} column={column} />
             ))}
           </div>
         </div>
       </div>
-      <DragOverlay>
+      <DragOverlay dropAnimation={dropAnimation}>
         {activeTask ? (
-          <div className="transform rotate-3">
-            <TaskCard task={activeTask} />
+          <div className="transform rotate-1 scale-[1.03] shadow-xl shadow-indigo-500/20 dark:shadow-indigo-400/10">
+            <div className="ring-2 ring-indigo-500/30 dark:ring-indigo-400/40 rounded-lg">
+              <TaskCard task={activeTask} />
+            </div>
           </div>
         ) : null}
       </DragOverlay>

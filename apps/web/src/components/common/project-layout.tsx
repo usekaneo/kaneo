@@ -17,22 +17,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
+import useGetProject from "@/hooks/queries/project/use-get-project";
 import useWorkspaceStore from "@/store/workspace";
 import type { ReactNode } from "react";
 
-interface WorkspaceLayoutProps {
+interface ProjectLayoutProps {
+  projectId: string;
+  workspaceId: string;
   title: string;
   headerActions?: ReactNode;
   children: ReactNode;
-  onCreateProject?: () => void;
 }
 
-export default function WorkspaceLayout({
+export default function ProjectLayout({
+  projectId,
+  workspaceId,
   title,
   headerActions,
   children,
-}: WorkspaceLayoutProps) {
+}: ProjectLayoutProps) {
   const { workspace } = useWorkspaceStore();
+  const { data: project } = useGetProject({ id: projectId, workspaceId });
 
   return (
     <Layout>
@@ -64,9 +69,19 @@ export default function WorkspaceLayout({
             <Breadcrumb className="flex items-center gap-1 text-xs w-full">
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/">
+                  <BreadcrumbLink href={`/dashboard/workspace/${workspaceId}`}>
                     <h1 className="text-xs text-card-foreground">
                       {workspace?.name}
+                    </h1>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink
+                    href={`/dashboard/workspace/${workspaceId}/project/${projectId}`}
+                  >
+                    <h1 className="text-xs text-card-foreground">
+                      {project?.name}
                     </h1>
                   </BreadcrumbLink>
                 </BreadcrumbItem>

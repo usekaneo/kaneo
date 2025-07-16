@@ -1,5 +1,9 @@
 import useMarkNotificationAsRead from "@/hooks/mutations/notification/use-mark-notification-as-read";
+import useGetProject from "@/hooks/queries/project/use-get-project";
+import useGetTask from "@/hooks/queries/task/use-get-task";
 import { cn } from "@/lib/cn";
+import useProjectStore from "@/store/project";
+import useWorkspaceStore from "@/store/workspace";
 import type { Notification } from "@/types/notification";
 import { useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
@@ -12,6 +16,7 @@ import {
   MessageSquare,
   Users,
 } from "lucide-react";
+import { useState } from "react";
 
 interface NotificationItemProps {
   notification: Notification;
@@ -24,15 +29,55 @@ export default function NotificationItem({
 }: NotificationItemProps) {
   const navigate = useNavigate();
   const { mutate: markAsRead } = useMarkNotificationAsRead();
+  const [isNavigating, setIsNavigating] = useState(false);
+  const { project: currentProject } = useProjectStore();
+  const { workspace: currentWorkspace } = useWorkspaceStore();
 
-  const handleClick = () => {
+  // Fetch task details if this is a task notification
+  const { data: task, isLoading: isTaskLoading } = useGetTask(
+    notification.resourceId || "",
+  );
+
+  // Fetch project details if the current project doesn't match the task's project
+  const needsProjectFetch = task && currentProject?.id !== task.projectId;
+  const { data: taskProject, isLoading: isProjectLoading } = useGetProject({
+    id: needsProjectFetch && task?.projectId ? task.projectId : "",
+    workspaceId: currentWorkspace?.id || "",
+  });
+
+  const handleClick = async () => {
     if (!notification.isRead) {
       markAsRead(notification.id);
     }
 
     if (notification.resourceId && notification.resourceType) {
       if (notification.resourceType === "task") {
-        onClose?.();
+        if (task && !isTaskLoading && !isProjectLoading) {
+          setIsNavigating(true);
+          try {
+            // Use the current project if it matches, otherwise use the fetched project
+            const projectToUse =
+              currentProject?.id === task.projectId
+                ? currentProject
+                : taskProject;
+
+            if (projectToUse) {
+              navigate({
+                to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+                params: {
+                  workspaceId: projectToUse.workspaceId,
+                  projectId: task.projectId,
+                  taskId: task.id,
+                },
+              });
+              onClose?.();
+            }
+          } catch (error) {
+            console.error("Failed to navigate to task:", error);
+          } finally {
+            setIsNavigating(false);
+          }
+        }
       } else if (notification.resourceType === "workspace") {
         navigate({
           to: "/dashboard/workspace/$workspaceId",
@@ -76,18 +121,33 @@ export default function NotificationItem({
     }
   };
 
+  const isTaskClickable =
+    notification.resourceType === "task" &&
+    task &&
+    !isTaskLoading &&
+    !isProjectLoading &&
+    (currentProject?.id === task.projectId ? true : !!taskProject);
+
+  const isClickable =
+    notification.resourceType === "workspace" || isTaskClickable;
+
   return (
     <div
       className={cn(
-        "flex cursor-pointer gap-3 p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50",
+        "flex gap-3 p-3",
+        isClickable &&
+          "cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50",
         !notification.isRead && "bg-blue-50/50 dark:bg-blue-900/10",
+        (isTaskLoading || isProjectLoading || isNavigating) &&
+          "opacity-50 cursor-wait",
       )}
-      onClick={handleClick}
+      onClick={isClickable ? handleClick : undefined}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (isClickable && (e.key === "Enter" || e.key === " ")) {
           handleClick();
         }
       }}
+      tabIndex={isClickable ? 0 : -1}
     >
       <div
         className={cn(

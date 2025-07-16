@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,8 @@ import {
 } from "@/components/ui/sidebar";
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
+import { cn } from "@/lib/cn";
+import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
 import type { ProjectWithTasks } from "@/types/project";
 import { useNavigate } from "@tanstack/react-router";
@@ -27,6 +30,7 @@ export function NavProjects() {
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
+  const { project: currentProject } = useProjectStore();
   const navigate = useNavigate();
 
   const handleProjectClick = (project: ProjectWithTasks) => {
@@ -51,14 +55,17 @@ export function NavProjects() {
           return (
             <SidebarMenuItem key={project.id}>
               <SidebarMenuButton asChild>
-                <button
-                  type="button"
+                <Button
                   onClick={() => handleProjectClick(project)}
-                  className="w-full flex items-center gap-2"
+                  variant="ghost"
+                  className={cn(
+                    "w-full flex items-center gap-2 justify-start",
+                    project.id === currentProject?.id && "bg-accent",
+                  )}
                 >
                   <IconComponent className="w-4 h-4" />
                   <span>{project.name}</span>
-                </button>
+                </Button>
               </SidebarMenuButton>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

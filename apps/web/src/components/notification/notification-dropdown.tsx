@@ -130,7 +130,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                 </div>
               ) : (
                 <>
-                  {notifications.slice(0, 10).map((notification) => (
+                  {notifications.map((notification) => (
                     <div
                       key={notification.id}
                       className={cn(
@@ -141,13 +141,18 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                       <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-sm font-medium text-foreground truncate">
+                            <h4 className="text-sm font-medium text-foreground">
                               {notification.title}
                             </h4>
                             {!notification.isRead && (
                               <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
                             )}
                           </div>
+                          {notification.content && (
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {notification.content}
+                            </p>
+                          )}
                           <p className="text-xs text-muted-foreground mt-2">
                             {formatDistanceToNow(notification.createdAt, {
                               addSuffix: true,
@@ -157,14 +162,6 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                       </div>
                     </div>
                   ))}
-
-                  {notifications.length > 10 && (
-                    <div className="px-3 py-2 text-center border-b border-border/50">
-                      <p className="text-xs text-muted-foreground">
-                        {notifications.length - 10} more notifications
-                      </p>
-                    </div>
-                  )}
 
                   {hasNotifications && (
                     <div className="p-2">

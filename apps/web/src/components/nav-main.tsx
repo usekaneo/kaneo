@@ -27,7 +27,7 @@ export function NavMain() {
 
   const navItems = [
     {
-      title: "Dashboard",
+      title: "Projects",
       url: `/dashboard/workspace/${workspace.id}`,
       icon: LayoutDashboard,
       isActive:

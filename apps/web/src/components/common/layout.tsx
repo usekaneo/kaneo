@@ -22,7 +22,7 @@ function LayoutHeader({ children }: HeaderProps) {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex h-16 shrink-0 gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b border-border bg-card p-4"
+      className="flex h-10 shrink-0 gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-8 border-b border-border bg-card p-2"
     >
       {children}
     </motion.header>
@@ -32,7 +32,7 @@ function LayoutHeader({ children }: HeaderProps) {
 function LayoutContent({ children }: ContentProps) {
   return (
     <div className="flex-1">
-      <div className="p-6">{children}</div>
+      <div className="h-full">{children}</div>
     </div>
   );
 }

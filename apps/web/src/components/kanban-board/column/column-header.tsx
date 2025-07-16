@@ -2,8 +2,38 @@ import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import { produce } from "immer";
-import { Archive } from "lucide-react";
+import { Archive, CheckCircle, Circle, Clock, Eye } from "lucide-react";
 import { toast } from "sonner";
+
+const getColumnIcon = (columnId: string) => {
+  switch (columnId) {
+    case "to-do":
+      return Circle;
+    case "in-progress":
+      return Clock;
+    case "in-review":
+      return Eye;
+    case "done":
+      return CheckCircle;
+    default:
+      return Circle;
+  }
+};
+
+const getColumnIconColor = (columnId: string) => {
+  switch (columnId) {
+    case "to-do":
+      return "text-zinc-400 dark:text-zinc-500";
+    case "in-progress":
+      return "text-orange-500 dark:text-orange-400";
+    case "in-review":
+      return "text-blue-500 dark:text-blue-400";
+    case "done":
+      return "text-green-500 dark:text-green-400";
+    default:
+      return "text-zinc-400 dark:text-zinc-500";
+  }
+};
 
 interface ColumnHeaderProps {
   column: ProjectWithTasks["columns"][number];
@@ -46,6 +76,14 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
+        {(() => {
+          const IconComponent = getColumnIcon(column.id);
+          return (
+            <IconComponent
+              className={`w-4 h-4 ${getColumnIconColor(column.id)}`}
+            />
+          );
+        })()}
         <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
           {column.name}
         </h3>

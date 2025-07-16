@@ -140,8 +140,7 @@ subscribeToEvent(
 
     await createNotification({
       userEmail,
-      title: "Task Status Updated",
-      content: `Task "${title}" moved from ${oldStatus.replace(/-/g, " ")} to ${newStatus.replace(/-/g, " ")}`,
+      title: `Task "${title}" moved from ${oldStatus.replace(/-/g, " ")} to ${newStatus.replace(/-/g, " ")}`,
       type: "task",
       resourceId: taskId,
       resourceType: "task",
