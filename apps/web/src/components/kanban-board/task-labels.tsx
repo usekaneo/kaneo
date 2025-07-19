@@ -38,7 +38,7 @@ function TaskCardLabels({ taskId }: { taskId: string }) {
   if (!labels.length) return null;
 
   return (
-    <div className="flex flex-wrap gap-1 mb-2">
+    <div className="flex flex-wrap gap-1">
       {labels.map((label: Label) => (
         <Badge
           key={label.id}

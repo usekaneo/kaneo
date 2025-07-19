@@ -53,7 +53,7 @@ async function createTask({
     ...createdTask,
     taskId: createdTask.id,
     userEmail: createdTask.userEmail ?? "",
-    type: "create",
+    type: "task",
     content: "created the task",
   });
 

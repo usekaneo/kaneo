@@ -3,12 +3,11 @@ import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
 import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+// import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Flag } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -33,9 +32,9 @@ function TaskInfo({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { project } = useProjectStore();
-  const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
-    workspaceId: project?.workspaceId ?? "",
-  });
+  // const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
+  //   workspaceId: project?.workspaceId ?? "",
+  // });
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: deleteTask, isPending: isDeleting } = useDeleteTask();
 
@@ -111,17 +110,16 @@ function TaskInfo({
               <FormLabel>Status</FormLabel>
               <Select
                 value={field.value}
-                placeholder="Select status"
-                onChange={(value) => {
+                onValueChange={(value) => {
                   field.onChange(value);
                   handleChange({ ...form.getValues(), status: value });
                 }}
-                options={
-                  project?.columns?.map((col) => ({
-                    value: col.id,
-                    label: col.name,
-                  })) || []
-                }
+                // options={
+                //   project?.columns?.map((col) => ({
+                //     value: col.id,
+                //     label: col.name,
+                //   })) || []
+                // }
               />
             </FormItem>
           )}
@@ -135,21 +133,20 @@ function TaskInfo({
               <FormLabel>Assign to</FormLabel>
               <Select
                 value={field.value}
-                placeholder="Assign to"
-                onChange={(value) => {
+                onValueChange={(value) => {
                   field.onChange(value);
                   handleChange({ ...form.getValues(), userEmail: value });
                 }}
-                options={[
-                  {
-                    value: "",
-                    label: "Unassigned",
-                  },
-                  ...(workspaceUsers?.map((user) => ({
-                    value: user.userEmail ?? "",
-                    label: user.userName ?? "",
-                  })) || []),
-                ]}
+                // options={[
+                //   {
+                //     value: "",
+                //     label: "Unassigned",
+                //   },
+                //   ...(workspaceUsers?.map((user) => ({
+                //     value: user.userEmail ?? "",
+                //     label: user.userName ?? "",
+                //   })) || []),
+                // ]}
               />
             </FormItem>
           )}
@@ -162,33 +159,32 @@ function TaskInfo({
               <FormLabel>Priority</FormLabel>
               <Select
                 value={field.value || ""}
-                placeholder="Select priority"
-                onChange={(value) => {
+                onValueChange={(value) => {
                   field.onChange(value);
                   handleChange({ ...form.getValues(), priority: value });
                 }}
-                options={[
-                  {
-                    value: "low",
-                    label: "Low",
-                    icon: <Flag className="w-4 h-4 text-blue-500" />,
-                  },
-                  {
-                    value: "medium",
-                    label: "Medium",
-                    icon: <Flag className="w-4 h-4 text-yellow-500" />,
-                  },
-                  {
-                    value: "high",
-                    label: "High",
-                    icon: <Flag className="w-4 h-4 text-red-500" />,
-                  },
-                  {
-                    value: "urgent",
-                    label: "Urgent",
-                    icon: <Flag className="w-4 h-4 text-red-500" />,
-                  },
-                ]}
+                // options={[
+                //   {
+                //     value: "low",
+                //     label: "Low",
+                //     icon: <Flag className="w-4 h-4 text-blue-500" />,
+                //   },
+                //   {
+                //     value: "medium",
+                //     label: "Medium",
+                //     icon: <Flag className="w-4 h-4 text-yellow-500" />,
+                //   },
+                //   {
+                //     value: "high",
+                //     label: "High",
+                //     icon: <Flag className="w-4 h-4 text-red-500" />,
+                //   },
+                //   {
+                //     value: "urgent",
+                //     label: "Urgent",
+                //     icon: <Flag className="w-4 h-4 text-red-500" />,
+                //   },
+                // ]}
               />
             </FormItem>
           )}

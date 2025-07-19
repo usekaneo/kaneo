@@ -1,6 +1,6 @@
-import EmptyProjectState from "@/components/project/empty-state";
-import useGetProjects from "@/hooks/queries/project/use-get-projects";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import ProjectLayout from "@/components/common/project-layout";
+import { useUserPreferencesStore } from "@/store/user-preferences";
+import { Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/dashboard/workspace/$workspaceId/project/$projectId",
@@ -9,12 +9,25 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  const { workspaceId } = Route.useParams();
-  const { data: projects } = useGetProjects({ workspaceId });
+  const { workspaceId, projectId } = Route.useParams();
+  const { viewMode } = useUserPreferencesStore();
 
-  if (projects && projects.length === 0) {
-    return <EmptyProjectState />;
-  }
+  const location = useLocation();
+  const isSettingsPage = location.pathname.includes("/settings");
 
-  return <Outlet />;
+  return (
+    <ProjectLayout
+      projectId={projectId}
+      workspaceId={workspaceId}
+      title={
+        isSettingsPage
+          ? "Project Settings"
+          : viewMode === "board"
+            ? "Board"
+            : "List"
+      }
+    >
+      <Outlet />
+    </ProjectLayout>
+  );
 }

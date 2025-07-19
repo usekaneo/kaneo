@@ -28,15 +28,19 @@ const workspace = new Hono<{
 
     return c.json(workspace);
   })
-  .post("/", zValidator("json", z.object({ name: z.string() })), async (c) => {
-    const { name } = c.req.valid("json");
+  .post(
+    "/",
+    zValidator("json", z.object({ name: z.string(), description: z.string() })),
+    async (c) => {
+      const { name } = c.req.valid("json");
 
-    const userEmail = c.get("userEmail");
+      const userEmail = c.get("userEmail");
 
-    const workspace = await createWorkspace(name, userEmail);
+      const workspace = await createWorkspace(name, userEmail);
 
-    return c.json(workspace);
-  })
+      return c.json(workspace);
+    },
+  )
   .put(
     "/:id",
     zValidator("json", z.object({ name: z.string(), description: z.string() })),

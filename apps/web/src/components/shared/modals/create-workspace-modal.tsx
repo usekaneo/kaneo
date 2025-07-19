@@ -1,38 +1,72 @@
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
-import * as Dialog from "@radix-ui/react-dialog";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface CreateWorkspaceModalProps {
   open: boolean;
   onClose: () => void;
 }
+
 function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { mutateAsync } = useCreateWorkspace({ name });
+  const { setActiveWorkspaceId } = useUserPreferencesStore();
+  const { mutateAsync } = useCreateWorkspace();
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [open]);
+
+  const handleClose = () => {
+    setName("");
+    setDescription("");
+    onClose();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
     try {
-      const createdWorkspace = await mutateAsync();
+      const createdWorkspace = await mutateAsync({ name, description });
       toast.success("Workspace created successfully");
-      resetAndCloseModal();
+      await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
 
+      setActiveWorkspaceId(createdWorkspace.id);
       navigate({
         to: "/dashboard/workspace/$workspaceId",
         params: {
           workspaceId: createdWorkspace.id,
         },
       });
+
+      handleClose();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to create workspace",
@@ -40,75 +74,69 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
     }
   };
 
-  const resetWorkspaceState = async () => {
-    await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-    setName("");
-  };
-
-  const resetAndCloseModal = () => {
-    resetWorkspaceState();
-    onClose();
-  };
-
   return (
-    <Dialog.Root open={open} onOpenChange={resetAndCloseModal}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40" />
-        <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl">
-            <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-              <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                New Workspace
-              </Dialog.Title>
-              <Dialog.Close
-                asChild
-                className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
-              >
-                <X size={20} />
-              </Dialog.Close>
-            </div>
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-md" showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle asChild>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider text-sm">
+                  KANEO
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="text-zinc-700 dark:text-zinc-300 font-medium text-sm">
+                  Create a new workspace
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new workspace by providing a name for your workspace.
+          </DialogDescription>
+        </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="p-4">
-              <div className="mb-4">
-                <label
-                  htmlFor="workspaceName"
-                  aria-label="Workspace name"
-                  className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1"
-                >
-                  Workspace Name
-                </label>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="My Workspace"
-                  className="bg-white dark:bg-zinc-800/50"
-                  required
-                  autoFocus
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4 px-6">
+            <Input
+              ref={inputRef}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Workspace name"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
+              required
+            />
 
-              <div className="flex justify-end gap-2">
-                <Dialog.Close asChild>
-                  <Button
-                    type="button"
-                    className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
-                  >
-                    Cancel
-                  </Button>
-                </Dialog.Close>
-                <Button
-                  type="submit"
-                  disabled={!name.trim()}
-                  className="bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-                >
-                  Create Workspace
-                </Button>
-              </div>
-            </form>
+            <Input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add description..."
+              className="!border-0 px-0 py-2 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-700 dark:text-zinc-300 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:!outline-none focus-visible:!outline-none"
+            />
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={handleClose}
+              variant="outline"
+              size="sm"
+              className="border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={!name.trim()}
+              size="sm"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50"
+            >
+              Create Workspace
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

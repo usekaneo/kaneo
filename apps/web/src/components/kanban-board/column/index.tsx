@@ -12,30 +12,37 @@ interface ColumnProps {
 
 function Column({ column }: ColumnProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isDropzoneOver, setIsDropzoneOver] = useState(false);
 
   return (
-    <div className="flex flex-col flex-1 min-w-80 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-xs rounded-lg border border-zinc-200 dark:border-zinc-800/50 shadow-xs relative group">
+    <div
+      className={`flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg relative group transition-all duration-300 ease-out ${
+        isDropzoneOver
+          ? "bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-200 dark:ring-indigo-800/50 shadow-md shadow-indigo-500/10"
+          : "bg-zinc-50/30 dark:bg-zinc-900/30 hover:bg-zinc-50/40 dark:hover:bg-zinc-900/40 hover:shadow-sm"
+      }`}
+    >
       <CreateTaskModal
         open={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
         status={toKebabCase(column.name)}
       />
 
-      <div className="p-3 border-b border-zinc-200 dark:border-zinc-800/50">
+      <div className="p-2 shrink-0">
         <ColumnHeader column={column} />
       </div>
 
-      <div className="p-3 overflow-y-auto overflow-x-hidden flex-1">
-        <ColumnDropzone column={column} />
+      <div className="p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0">
+        <ColumnDropzone column={column} onIsOverChange={setIsDropzoneOver} />
       </div>
 
-      <div className="p-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+      <div className="p-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
         <button
           type="button"
           onClick={() => setIsTaskModalOpen(true)}
-          className="w-full text-left px-2 py-1.5 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/50 rounded-md flex items-center gap-2 transition-all"
+          className="w-full text-left px-2 py-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 rounded-md flex items-center gap-2 transition-all"
         >
-          <Plus className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+          <Plus className="w-4 h-4" />
           <span>Add task</span>
         </button>
       </div>

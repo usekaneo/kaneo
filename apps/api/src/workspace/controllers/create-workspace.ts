@@ -19,6 +19,7 @@ async function createWorkspace(name: string, ownerEmail: string) {
 
   publishEvent("workspace.created", {
     workspaceId: workspace.id,
+    workspaceName: workspace.name,
     ownerEmail,
   });
 

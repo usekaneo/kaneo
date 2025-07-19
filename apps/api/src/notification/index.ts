@@ -103,15 +103,15 @@ subscribeToEvent(
   async ({
     workspaceId,
     ownerEmail,
-  }: { workspaceId: string; ownerEmail: string }) => {
+    workspaceName,
+  }: { workspaceId: string; ownerEmail: string; workspaceName: string }) => {
     if (!workspaceId || !ownerEmail) {
       return;
     }
 
     await createNotification({
       userEmail: ownerEmail,
-      title: "Workspace Created",
-      content: "Your new workspace is ready",
+      title: `Workspace "${workspaceName}" created`,
       type: "workspace",
       resourceId: workspaceId,
       resourceType: "workspace",
@@ -140,8 +140,7 @@ subscribeToEvent(
 
     await createNotification({
       userEmail,
-      title: "Task Status Updated",
-      content: `Task "${title}" moved from ${oldStatus.replace(/-/g, " ")} to ${newStatus.replace(/-/g, " ")}`,
+      title: `Task "${title}" moved from ${oldStatus.replace(/-/g, " ")} to ${newStatus.replace(/-/g, " ")}`,
       type: "task",
       resourceId: taskId,
       resourceType: "task",

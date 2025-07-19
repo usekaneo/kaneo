@@ -7,6 +7,7 @@ import "@/index.css";
 import AuthProvider from "./components/providers/auth-provider";
 import useAuth from "./components/providers/auth-provider/hooks/use-auth";
 import { ThemeProvider } from "./components/providers/theme-provider";
+import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
 import { routeTree } from "./routeTree.gen";
 
 const router = createRouter({
@@ -39,7 +40,9 @@ if (!rootElement.innerHTML) {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AuthProvider>
-            <App />
+            <KeyboardShortcutsProvider>
+              <App />
+            </KeyboardShortcutsProvider>
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>
