@@ -1,3 +1,4 @@
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { useDisplayPreferencesStore } from "@/store/display-preferences";
@@ -90,30 +91,27 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
               </div>
             )}
 
-            {/* Priority Indicator */}
             {showPriority && (
               <div className="flex-shrink-0">
                 <Flag
                   className={cn(
                     "w-3 h-3",
-                    task.priority === "high" && "text-red-500",
-                    task.priority === "medium" && "text-orange-500",
-                    task.priority === "low" && "text-green-500",
-                    (!task.priority || task.priority === "none") &&
-                      "text-zinc-300 dark:text-zinc-600",
+                    priorityColorsTaskCard[
+                      task.priority as keyof typeof priorityColorsTaskCard
+                    ],
                   )}
                 />
               </div>
             )}
 
             {/* Task Title and Labels */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
+            <div className="flex-1 min-w-0 flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-between w-full">
                 <span className="text-sm text-zinc-900 dark:text-zinc-100 truncate">
                   {task.title}
                 </span>
                 {showLabels && (
-                  <div className="flex-shrink-0">
+                  <div className="flex items-center gap-1">
                     <TaskCardLabels taskId={task.id} />
                   </div>
                 )}

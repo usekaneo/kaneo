@@ -25,7 +25,7 @@ const getColumnIconColor = (columnId: string) => {
     case "to-do":
       return "text-zinc-400 dark:text-zinc-500";
     case "in-progress":
-      return "text-orange-500 dark:text-orange-400";
+      return "text-yellow-500 dark:text-yellow-400";
     case "in-review":
       return "text-blue-500 dark:text-blue-400";
     case "done":
