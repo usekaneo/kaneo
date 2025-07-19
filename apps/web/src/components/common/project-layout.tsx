@@ -38,6 +38,7 @@ export default function ProjectLayout({
 }: ProjectLayoutProps) {
   const { workspace } = useWorkspaceStore();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
+  console.log(project);
 
   return (
     <Layout>

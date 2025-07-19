@@ -18,10 +18,9 @@ import {
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
-import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
 import type { ProjectWithTasks } from "@/types/project";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { Folder, Forward, MoreHorizontal, Trash2 } from "lucide-react";
 
 export function NavProjects() {
@@ -30,8 +29,17 @@ export function NavProjects() {
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
-  const { project: currentProject } = useProjectStore();
   const navigate = useNavigate();
+  const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
+    useParams({
+      strict: false,
+    });
+
+  const isCurrentProject = (projectId: string) => {
+    return (
+      currentProjectId === projectId && currentWorkspaceId === workspace?.id
+    );
+  };
 
   const handleProjectClick = (project: ProjectWithTasks) => {
     navigate({
@@ -60,7 +68,7 @@ export function NavProjects() {
                   variant="ghost"
                   className={cn(
                     "w-full flex items-center gap-2 justify-start",
-                    project.id === currentProject?.id && "bg-accent",
+                    isCurrentProject(project.id) && "bg-accent",
                   )}
                 >
                   <IconComponent className="w-4 h-4" />

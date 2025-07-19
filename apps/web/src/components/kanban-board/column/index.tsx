@@ -16,7 +16,7 @@ function Column({ column }: ColumnProps) {
 
   return (
     <div
-      className={`flex flex-col flex-1 min-w-80 backdrop-blur-xs rounded-lg relative group transition-all duration-300 ease-out ${
+      className={`flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg relative group transition-all duration-300 ease-out ${
         isDropzoneOver
           ? "bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-200 dark:ring-indigo-800/50 shadow-md shadow-indigo-500/10"
           : "bg-zinc-50/30 dark:bg-zinc-900/30 hover:bg-zinc-50/40 dark:hover:bg-zinc-900/40 hover:shadow-sm"
@@ -28,11 +28,11 @@ function Column({ column }: ColumnProps) {
         status={toKebabCase(column.name)}
       />
 
-      <div className="p-2">
+      <div className="p-2 shrink-0">
         <ColumnHeader column={column} />
       </div>
 
-      <div className="p-2 overflow-y-auto overflow-x-hidden flex-1">
+      <div className="p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0">
         <ColumnDropzone column={column} onIsOverChange={setIsDropzoneOver} />
       </div>
 

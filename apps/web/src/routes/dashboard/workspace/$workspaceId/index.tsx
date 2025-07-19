@@ -1,6 +1,8 @@
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -10,10 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
+import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import type { Project } from "@/types/project";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LayoutGrid, Plus } from "lucide-react";
 import { useState } from "react";
 
@@ -23,9 +26,11 @@ export const Route = createFileRoute("/dashboard/workspace/$workspaceId/")({
 
 function RouteComponent() {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
-
-  const isLoading = false;
-  const projects: Project[] = [];
+  const { workspaceId } = Route.useParams();
+  const navigate = useNavigate();
+  const { data: projects, isLoading } = useGetProjects({
+    workspaceId,
+  });
 
   const handleCreateProject = () => {
     setIsCreateProjectOpen(true);
@@ -38,6 +43,13 @@ function RouteComponent() {
       },
     },
   });
+
+  const handleProjectClick = (projectId: string) => {
+    navigate({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+      params: { workspaceId, projectId },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -144,7 +156,7 @@ function RouteComponent() {
 
   return (
     <>
-      {/* <WorkspaceLayout
+      <WorkspaceLayout
         title="Projects"
         headerActions={
           <Button
@@ -239,7 +251,7 @@ function RouteComponent() {
       <CreateProjectModal
         open={isCreateProjectOpen}
         onClose={() => setIsCreateProjectOpen(false)}
-      /> */}
+      />
     </>
   );
 }

@@ -16,6 +16,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
 import { useState } from "react";
 import Column from "./column";
@@ -26,6 +27,7 @@ type KanbanBoardProps = {
 };
 
 function KanbanBoard({ project }: KanbanBoardProps) {
+  const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { mutate: updateTask } = useUpdateTask();
@@ -97,6 +99,11 @@ function KanbanBoard({ project }: KanbanBoardProps) {
 
         destinationColumn.tasks.forEach((t, index) => {
           updateTask({ ...t, position: index + 1 });
+        });
+
+        // Invalidate projects cache to update completion status
+        queryClient.invalidateQueries({
+          queryKey: ["projects", project.workspaceId],
         });
       } else {
         const updatedTask = { ...task, status: destinationColumn.id };
@@ -178,11 +185,16 @@ function KanbanBoard({ project }: KanbanBoardProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="h-full flex flex-col overflow-hidden w-full">
-        <div className="flex-1 h-full overflow-auto">
-          <div className="flex gap-3 p-3 min-h-full transition-all duration-200 ease-out">
+      <div className="h-full flex flex-col w-full">
+        <div className="flex-1 min-h-0 overflow-x-auto">
+          <div className="flex gap-3 p-3 h-full min-w-max transition-all duration-200 ease-out">
             {project.columns?.map((column) => (
-              <Column key={column.id} column={column} />
+              <div
+                key={column.id}
+                className="h-full flex-1 min-w-80 flex-shrink-0"
+              >
+                <Column column={column} />
+              </div>
             ))}
           </div>
         </div>

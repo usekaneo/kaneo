@@ -31,7 +31,7 @@ function LayoutHeader({ children }: HeaderProps) {
 
 function LayoutContent({ children }: ContentProps) {
   return (
-    <div className="flex-1">
+    <div className="flex-1 min-h-0">
       <div className="h-full">{children}</div>
     </div>
   );
@@ -49,7 +49,7 @@ function Layout({ children }: LayoutProps) {
         }
       >
         <AppSidebar />
-        <SidebarInset className="flex-1 flex flex-col overflow-hidden bg-card border border-border rounded-md m-2">
+        <SidebarInset className="flex-1 flex flex-col overflow-auto bg-card border border-border rounded-md m-2">
           {children}
         </SidebarInset>
       </SidebarProvider>

@@ -70,7 +70,7 @@ function RouteComponent() {
   } = useTaskFilters(project);
 
   return (
-    <div className="flex flex-col flex-1 h-full">
+    <div className="flex flex-col h-full min-h-0">
       <div className="bg-card border-b border-border">
         <div className="h-10 flex items-center px-4">
           <div className="flex items-center justify-between w-full">
@@ -472,7 +472,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden bg-card">
+      <div className="flex-1 overflow-hidden bg-card h-full">
         {filteredProject ? (
           viewMode === "board" ? (
             <KanbanBoard project={filteredProject} />
