@@ -1,4 +1,5 @@
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
+import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { useDisplayPreferencesStore } from "@/store/display-preferences";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
@@ -7,7 +8,13 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Calendar, Flag, UserIcon } from "lucide-react";
+import {
+  Calendar,
+  CalendarClock,
+  CalendarX,
+  Flag,
+  UserIcon,
+} from "lucide-react";
 import type { CSSProperties } from "react";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
@@ -110,11 +117,24 @@ function TaskCard({ task }: TaskCardProps) {
                   </div>
                 ))}
 
-              {showDueDate && task.dueDate && (
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors">
-                  <Calendar className="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
-                  <span className="text-xs text-zinc-600 dark:text-zinc-400">
-                    {format(new Date(task.dueDate), "MMM d, yyyy")}
+              {showDueDate && (
+                <div
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${dueDateStatusColors[getDueDateStatus(task.dueDate)]} group-hover:opacity-80`}
+                >
+                  {getDueDateStatus(task.dueDate) === "overdue" && (
+                    <CalendarX className="w-3 h-3" />
+                  )}
+                  {getDueDateStatus(task.dueDate) === "due-soon" && (
+                    <CalendarClock className="w-3 h-3" />
+                  )}
+                  {(getDueDateStatus(task.dueDate) === "far-future" ||
+                    getDueDateStatus(task.dueDate) === "no-due-date") && (
+                    <Calendar className="w-3 h-3" />
+                  )}
+                  <span className="text-xs">
+                    {task.dueDate
+                      ? format(new Date(task.dueDate), "MMM d")
+                      : "No due date"}
                   </span>
                 </div>
               )}

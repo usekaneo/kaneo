@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { ChevronsUpDown, LogOut } from "lucide-react";
 
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
+import { SettingsMenu } from "@/components/settings-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -26,14 +20,41 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import useSignOut from "@/hooks/mutations/use-sign-out";
+import useProjectStore from "@/store/project";
+import useWorkspaceStore from "@/store/workspace";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const { mutateAsync: signOut, isPending } = useSignOut();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { setProject } = useProjectStore();
+  const { setWorkspace } = useWorkspaceStore();
 
   if (!user) {
     return null;
   }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      queryClient.clear();
+      setUser(null);
+      setProject(undefined);
+      setWorkspace(undefined);
+      toast.success("Signed out successfully");
+      navigate({ to: "/auth/sign-in" });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to sign out",
+      );
+    }
+  };
 
   const initials = user.name
     ? user.name
@@ -91,30 +112,16 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
+              <SettingsMenu variant="user-dropdown" />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              disabled={isPending}
+              className="cursor-pointer"
+            >
               <LogOut />
-              Log out
+              {isPending ? "Signing out..." : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

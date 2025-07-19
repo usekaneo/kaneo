@@ -1,5 +1,4 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { useUserPreferencesStore } from "./user-preferences";
 
 interface DisplayPreferences {
   showAssignee: boolean;
@@ -18,31 +17,42 @@ interface DisplayPreferencesStore extends DisplayPreferences {
   resetToDefaults: () => void;
 }
 
-const defaultPreferences: DisplayPreferences = {
-  showAssignee: true,
-  showPriority: true,
-  showDueDate: true,
-  showLabels: true,
-  showTaskNumbers: true,
-};
+// This is now a wrapper around the user preferences store
+export const useDisplayPreferencesStore = (): DisplayPreferencesStore => {
+  const {
+    showAssignees,
+    setShowAssignees,
+    showDueDates,
+    setShowDueDates,
+    showLabels,
+    setShowLabels,
+    showTaskNumbers,
+    setShowTaskNumbers,
+    showPriority,
+    setShowPriority,
+  } = useUserPreferencesStore();
 
-export const useDisplayPreferencesStore = create<DisplayPreferencesStore>()(
-  persist(
-    (set) => ({
-      ...defaultPreferences,
-      toggleAssignee: () =>
-        set((state) => ({ showAssignee: !state.showAssignee })),
-      togglePriority: () =>
-        set((state) => ({ showPriority: !state.showPriority })),
-      toggleDueDate: () =>
-        set((state) => ({ showDueDate: !state.showDueDate })),
-      toggleLabels: () => set((state) => ({ showLabels: !state.showLabels })),
-      toggleTaskNumbers: () =>
-        set((state) => ({ showTaskNumbers: !state.showTaskNumbers })),
-      resetToDefaults: () => set(defaultPreferences),
-    }),
-    {
-      name: "display-preferences",
+  return {
+    // Map the user preferences to the display preferences API
+    showAssignee: showAssignees,
+    showPriority: showPriority,
+    showDueDate: showDueDates,
+    showLabels: showLabels,
+    showTaskNumbers: showTaskNumbers,
+
+    // Toggle functions that update the user preferences
+    toggleAssignee: () => setShowAssignees(!showAssignees),
+    togglePriority: () => setShowPriority(!showPriority),
+    toggleDueDate: () => setShowDueDates(!showDueDates),
+    toggleLabels: () => setShowLabels(!showLabels),
+    toggleTaskNumbers: () => setShowTaskNumbers(!showTaskNumbers),
+
+    resetToDefaults: () => {
+      setShowAssignees(true);
+      setShowDueDates(true);
+      setShowLabels(true);
+      setShowTaskNumbers(true);
+      setShowPriority(true);
     },
-  ),
-);
+  };
+};

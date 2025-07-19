@@ -118,11 +118,11 @@ function RouteComponent() {
           headerActions={
             <Button
               variant="outline"
-              size="sm"
+              size="xs"
               onClick={handleCreateProject}
-              className="gap-2"
+              className="gap-1"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3 h-3" />
               Create project
             </Button>
           }

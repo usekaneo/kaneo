@@ -266,3 +266,49 @@
 		animation-duration: 0.1s !important;
 	}
 }
+
+/* User Preferences CSS */
+
+/* Compact Mode - Reduce padding and spacing throughout the app */
+.compact-mode {
+  --spacing-factor: 0.75;
+}
+
+.compact-mode [data-sidebar="sidebar"] {
+  --sidebar-width: calc(var(--spacing) * 52);
+}
+
+.compact-mode .p-1 { padding: calc(0.25rem * var(--spacing-factor, 1)); }
+.compact-mode .p-2 { padding: calc(0.5rem * var(--spacing-factor, 1)); }
+.compact-mode .p-3 { padding: calc(0.75rem * var(--spacing-factor, 1)); }
+.compact-mode .p-4 { padding: calc(1rem * var(--spacing-factor, 1)); }
+.compact-mode .p-6 { padding: calc(1.5rem * var(--spacing-factor, 1)); }
+
+.compact-mode .gap-1 { gap: calc(0.25rem * var(--spacing-factor, 1)); }
+.compact-mode .gap-2 { gap: calc(0.5rem * var(--spacing-factor, 1)); }
+.compact-mode .gap-3 { gap: calc(0.75rem * var(--spacing-factor, 1)); }
+.compact-mode .gap-4 { gap: calc(1rem * var(--spacing-factor, 1)); }
+
+.compact-mode .space-y-1 > * + * { margin-top: calc(0.25rem * var(--spacing-factor, 1)); }
+.compact-mode .space-y-2 > * + * { margin-top: calc(0.5rem * var(--spacing-factor, 1)); }
+.compact-mode .space-y-3 > * + * { margin-top: calc(0.75rem * var(--spacing-factor, 1)); }
+.compact-mode .space-y-4 > * + * { margin-top: calc(1rem * var(--spacing-factor, 1)); }
+
+/* Theme-specific overrides */
+.theme-light {
+  --primary-accent: oklch(0.5820 0.2289 272.7771);
+}
+
+.theme-dark {
+  --primary-accent: oklch(0.6820 0.1989 272.7771);
+}
+
+.theme-system {
+  --primary-accent: oklch(0.5820 0.2289 272.7771);
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-system {
+    --primary-accent: oklch(0.6820 0.1989 272.7771);
+  }
+}

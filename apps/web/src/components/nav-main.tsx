@@ -1,12 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  BarChart3,
-  Clock,
-  LayoutDashboard,
-  Search,
-  Settings,
-  Users,
-} from "lucide-react";
+import { BarChart3, Clock, LayoutDashboard, Search, Users } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -17,6 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/cn";
 import useWorkspaceStore from "@/store/workspace";
+import { SettingsMenu } from "./settings-menu";
 import { Button } from "./ui/button";
 
 export function NavMain() {
@@ -70,15 +64,6 @@ export function NavMain() {
         `/dashboard/workspace/${workspace.id}/team`,
       isDisabled: false,
     },
-    {
-      title: "Settings",
-      url: `/dashboard/workspace-settings/${workspace.id}`,
-      icon: Settings,
-      isActive:
-        window.location.pathname ===
-        `/dashboard/workspace-settings/${workspace.id}`,
-      isDisabled: false,
-    },
   ];
 
   const handleNavClick = (url: string) => {
@@ -110,6 +95,9 @@ export function NavMain() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
+        <SidebarMenuItem>
+          <SettingsMenu />
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   );

@@ -1,14 +1,15 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
+import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { useDisplayPreferencesStore } from "@/store/display-preferences";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Flag, GripVertical } from "lucide-react";
+import { Calendar, CalendarClock, CalendarX, Flag, User } from "lucide-react";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
+import TaskCardLabels from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 
 interface TaskRowProps {
@@ -28,15 +29,25 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   } = useSortable({ id: task.id });
 
   const { project } = useProjectStore();
+  const {
+    showAssignee,
+    showPriority,
+    showDueDate,
+    showLabels,
+    showTaskNumbers,
+  } = useDisplayPreferencesStore();
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition:
+      transition || "transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
     touchAction: "none",
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (!project || !task) return;
+    // Prevent click when dragging
+    if (e.defaultPrevented) return;
 
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
@@ -48,80 +59,100 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleClick(e as unknown as React.MouseEvent);
+    }
+  };
+
   return (
-    <div ref={setNodeRef} style={style}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "border-b border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-200",
+        isDragging && "opacity-50",
+      )}
+    >
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div
-            onClick={(e) => {
-              if (e.nativeEvent.which === 1) {
-                handleClick();
-              }
-            }}
-            onKeyDown={(e) => e.key === "Enter" && handleClick()}
-            className={cn(
-              "group px-4 py-2 rounded-lg flex items-center gap-4 bg-white dark:bg-zinc-900",
-              "hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer",
-              "border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800",
-              isDragging && "opacity-25",
-            )}
+            onClick={handleClick}
+            onKeyDown={handleKeyDown}
+            className="group relative flex items-center gap-3 px-4 py-1.5 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/20 transition-colors cursor-pointer"
+            {...attributes}
+            {...listeners}
           >
-            <button
-              type="button"
-              className="p-1 -ml-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-grab active:cursor-grabbing"
-              {...attributes}
-              {...listeners}
-            >
-              <GripVertical className="w-4 h-4 text-zinc-400" />
-            </button>
-
-            <div className="flex-1 min-w-0 flex items-center gap-3">
-              <div className="text-xs font-mono text-zinc-500 dark:text-zinc-400 shrink-0">
+            {/* Task ID */}
+            {showTaskNumbers && (
+              <div className="text-xs font-mono text-zinc-400 dark:text-zinc-500 w-16 flex-shrink-0">
                 {projectSlug}-{task.number}
               </div>
+            )}
 
-              <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
-                {task.title}
-              </h3>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {task.userEmail ? (
-                <Avatar className="h-6 w-6">
-                  <AvatarFallback className="text-xs">
-                    {task.userEmail.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-              ) : (
-                <Avatar className="h-6 w-6">
-                  <AvatarFallback className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
-                    ?
-                  </AvatarFallback>
-                </Avatar>
-              )}
-
-              {task.dueDate && (
-                <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {format(new Date(task.dueDate), "MMM d")}
-                </div>
-              )}
-
-              {task.priority && (
-                <div
+            {/* Priority Indicator */}
+            {showPriority && (
+              <div className="flex-shrink-0">
+                <Flag
                   className={cn(
-                    "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
-                    priorityColorsTaskCard[
-                      task.priority as keyof typeof priorityColorsTaskCard
-                    ],
+                    "w-3 h-3",
+                    task.priority === "high" && "text-red-500",
+                    task.priority === "medium" && "text-orange-500",
+                    task.priority === "low" && "text-green-500",
+                    (!task.priority || task.priority === "none") &&
+                      "text-zinc-300 dark:text-zinc-600",
                   )}
-                >
-                  <Flag className="w-3 h-3" />
-                  <span className="capitalize hidden group-hover:inline">
-                    {task.priority}
-                  </span>
-                </div>
-              )}
+                />
+              </div>
+            )}
+
+            {/* Task Title and Labels */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-zinc-900 dark:text-zinc-100 truncate">
+                  {task.title}
+                </span>
+                {showLabels && (
+                  <div className="flex-shrink-0">
+                    <TaskCardLabels taskId={task.id} />
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* Due Date */}
+            {showDueDate && task.dueDate && (
+              <div
+                className={cn(
+                  "flex items-center gap-1 text-xs px-1.5 py-0.5 rounded flex-shrink-0",
+                  dueDateStatusColors[getDueDateStatus(task.dueDate)],
+                )}
+              >
+                {getDueDateStatus(task.dueDate) === "overdue" && (
+                  <CalendarX className="w-3 h-3" />
+                )}
+                {getDueDateStatus(task.dueDate) === "due-soon" && (
+                  <CalendarClock className="w-3 h-3" />
+                )}
+                {(getDueDateStatus(task.dueDate) === "far-future" ||
+                  getDueDateStatus(task.dueDate) === "no-due-date") && (
+                  <Calendar className="w-3 h-3" />
+                )}
+                <span>{format(new Date(task.dueDate), "MMM d")}</span>
+              </div>
+            )}
+
+            {/* Assignee */}
+            {showAssignee && (
+              <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 flex-shrink-0">
+                <User className="w-3 h-3" />
+                <span className="truncate max-w-[100px]">
+                  {task.assigneeName ||
+                    task.userEmail?.split("@")[0] ||
+                    "Unassigned"}
+                </span>
+              </div>
+            )}
           </div>
         </ContextMenuTrigger>
 

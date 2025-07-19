@@ -19,6 +19,7 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import useWorkspaceStore from "@/store/workspace";
 import type { Workspace } from "@/types/workspace";
 import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
@@ -26,6 +27,7 @@ import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
 export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
   const { workspace, setWorkspace } = useWorkspaceStore();
+  const { setActiveWorkspaceId } = useUserPreferencesStore();
   const { data: workspaces } = useGetWorkspaces();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -35,12 +37,13 @@ export function WorkspaceSwitcher() {
   const handleWorkspaceChange = React.useCallback(
     (selectedWorkspace: Workspace) => {
       setWorkspace(selectedWorkspace);
+      setActiveWorkspaceId(selectedWorkspace.id);
       navigate({
         to: "/dashboard/workspace/$workspaceId",
         params: { workspaceId: selectedWorkspace.id },
       });
     },
-    [setWorkspace, navigate],
+    [setWorkspace, setActiveWorkspaceId, navigate],
   );
 
   React.useEffect(() => {
@@ -162,11 +165,12 @@ export function WorkspaceSwitcher() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <CreateWorkspaceModal
-          open={isCreateWorkspaceModalOpen}
-          onClose={() => setIsCreateWorkspaceModalOpen(false)}
-        />
       </SidebarMenuItem>
+
+      <CreateWorkspaceModal
+        open={isCreateWorkspaceModalOpen}
+        onClose={() => setIsCreateWorkspaceModalOpen(false)}
+      />
     </SidebarMenu>
   );
 }

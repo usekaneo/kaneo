@@ -1,5 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useUserPreferencesEffects } from "@/hooks/use-user-preferences-effects";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import type React from "react";
@@ -38,9 +40,14 @@ function LayoutContent({ children }: ContentProps) {
 }
 
 function Layout({ children }: LayoutProps) {
+  const { sidebarDefaultOpen } = useUserPreferencesStore();
+
+  useUserPreferencesEffects();
+
   return (
     <div className="flex w-full bg-sidebar">
       <SidebarProvider
+        defaultOpen={sidebarDefaultOpen}
         style={
           {
             "--sidebar-width": "calc(var(--spacing) * 60)",

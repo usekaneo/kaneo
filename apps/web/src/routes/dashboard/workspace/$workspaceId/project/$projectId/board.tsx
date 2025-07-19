@@ -145,7 +145,6 @@ function RouteComponent() {
                               <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded capitalize">
                                 {filters.status.replace("-", " ")}
                               </span>
-                              <Check className="h-3 w-3 text-green-500" />
                             </div>
                           )}
                         </button>
@@ -191,7 +190,6 @@ function RouteComponent() {
                               <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded capitalize">
                                 {filters.priority}
                               </span>
-                              <Check className="h-3 w-3 text-green-500" />
                             </div>
                           )}
                         </button>
@@ -248,7 +246,6 @@ function RouteComponent() {
                                   (u) => u.userEmail === filters.assignee,
                                 )?.userName || "Unknown"}
                               </span>
-                              <Check className="h-3 w-3 text-green-500" />
                             </div>
                           )}
                         </button>
@@ -299,7 +296,6 @@ function RouteComponent() {
                               <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
                                 {filters.dueDate}
                               </span>
-                              <Check className="h-3 w-3 text-green-500" />
                             </div>
                           )}
                         </button>
@@ -347,121 +343,106 @@ function RouteComponent() {
                     Display
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-72 p-0" align="start">
-                  <div className="p-3 border-b border-zinc-200 dark:border-zinc-800">
-                    <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      Display
-                    </h3>
-                  </div>
-
-                  <div className="p-1 space-y-1">
-                    <div className="px-2 py-1.5">
-                      <div className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
-                        Layout
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant={
-                            viewMode === "board" ? "secondary" : "outline"
-                          }
-                          size="sm"
-                          className="h-6 px-2 text-xs flex-1"
-                          onClick={() => {
-                            useUserPreferencesStore.setState({
-                              viewMode: "board",
-                            });
-                          }}
-                        >
-                          <LayoutGrid className="h-3 w-3 mr-1" />
-                          Board
-                        </Button>
-                        <Button
-                          variant={
-                            viewMode === "list" ? "secondary" : "outline"
-                          }
-                          size="sm"
-                          className="h-6 px-2 text-xs flex-1"
-                          onClick={() => {
-                            useUserPreferencesStore.setState({
-                              viewMode: "list",
-                            });
-                          }}
-                        >
-                          <List className="h-3 w-3 mr-1" />
-                          List
-                        </Button>
-                      </div>
+                <PopoverContent className="w-56 p-0" align="start">
+                  <div className="py-2">
+                    <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                      Layout
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        useUserPreferencesStore.setState({
+                          viewMode: "board",
+                        });
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors",
+                        viewMode === "board"
+                          ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
+                          : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
+                      )}
+                    >
+                      <LayoutGrid className="w-3.5 h-3.5" />
+                      <span>Board</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        useUserPreferencesStore.setState({
+                          viewMode: "list",
+                        });
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors",
+                        viewMode === "list"
+                          ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
+                          : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
+                      )}
+                    >
+                      <List className="w-3.5 h-3.5" />
+                      <span>List</span>
+                    </button>
 
+                    <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
+
+                    <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                      Show Elements
+                    </div>
                     <button
                       type="button"
                       onClick={toggleAssignee}
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     >
-                      <div className="flex items-center gap-2">
-                        <User className="w-3 h-3" />
-                        <span>Show assignee</span>
-                      </div>
+                      <User className="w-3.5 h-3.5" />
+                      <span>Show assignee</span>
                       {showAssignee && (
-                        <Check className="h-3 w-3 text-green-500" />
+                        <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
                       )}
                     </button>
-
                     <button
                       type="button"
                       onClick={togglePriority}
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     >
-                      <div className="flex items-center gap-2">
-                        <Flag className="w-3 h-3" />
-                        <span>Show priority</span>
-                      </div>
+                      <Flag className="w-3.5 h-3.5" />
+                      <span>Show priority</span>
                       {showPriority && (
-                        <Check className="h-3 w-3 text-green-500" />
+                        <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
                       )}
                     </button>
-
                     <button
                       type="button"
                       onClick={toggleDueDate}
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     >
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-3 h-3" />
-                        <span>Show due date</span>
-                      </div>
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>Show due date</span>
                       {showDueDate && (
-                        <Check className="h-3 w-3 text-green-500" />
+                        <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
                       )}
                     </button>
-
                     <button
                       type="button"
                       onClick={toggleLabels}
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 bg-zinc-300 dark:bg-zinc-600 rounded-sm" />
-                        <span>Show labels</span>
-                      </div>
+                      <span className="w-3.5 h-3.5 bg-zinc-300 dark:bg-zinc-600 rounded-sm" />
+                      <span>Show labels</span>
                       {showLabels && (
-                        <Check className="h-3 w-3 text-green-500" />
+                        <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
                       )}
                     </button>
-
                     <button
                       type="button"
                       onClick={toggleTaskNumbers}
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 text-xs font-mono text-zinc-500 dark:text-zinc-400">
-                          #
-                        </span>
-                        <span>Show task numbers</span>
-                      </div>
+                      <span className="w-3.5 h-3.5 text-xs font-mono text-zinc-500 dark:text-zinc-400 flex items-center justify-center">
+                        #
+                      </span>
+                      <span>Show task numbers</span>
                       {showTaskNumbers && (
-                        <Check className="h-3 w-3 text-green-500" />
+                        <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
                       )}
                     </button>
                   </div>
