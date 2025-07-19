@@ -1,5 +1,6 @@
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
+import { getColumnIcon, getColumnIconColor } from "@/lib/column";
 import toKebabCase from "@/lib/to-kebab-case";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -222,10 +223,22 @@ function ListView({ project }: ListViewProps) {
                 expandedSections[column.id] && "rotate-90",
               )}
             />
-            <span>{column.name}</span>
-            <span className="text-xs text-zinc-500 dark:text-zinc-500 ml-1 bg-zinc-200/50 dark:bg-zinc-700/50 px-1.5 py-0.5 rounded-full">
-              {column.tasks.length}
-            </span>
+            <div className="flex items-center gap-2 h-4">
+              {(() => {
+                const IconComponent = getColumnIcon(column.id);
+                return (
+                  <IconComponent
+                    className={`w-4 h-4  flex-shrink-0 ${getColumnIconColor(column.id)}`}
+                  />
+                );
+              })()}
+              <div className="flex items-center gap-1">
+                <span className="mt-1 mr-1">{column.name}</span>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                  {column.tasks.length}
+                </span>
+              </div>
+            </div>
           </button>
 
           <div className="flex items-center gap-1">
