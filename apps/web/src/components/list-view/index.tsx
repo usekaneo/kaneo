@@ -205,7 +205,7 @@ function ListView({ project }: ListViewProps) {
     return (
       <div
         className={cn(
-          "border-b border-zinc-200 dark:border-zinc-800/50 transition-all duration-200",
+          "border-b border-zinc-200 dark:border-zinc-800/50 transition-all duration-200 overflow-auto",
           showDropIndicator &&
             "border-l-4 border-l-indigo-500 dark:border-l-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/10",
         )}
@@ -314,7 +314,7 @@ function ListView({ project }: ListViewProps) {
       onDragEnd={handleDragEnd}
       modifiers={[snapCenterToCursor]}
     >
-      <div className="w-full h-full overflow-hidden bg-zinc-50/30 dark:bg-transparent">
+      <div className="w-full h-full overflow-auto bg-zinc-50/30 dark:bg-transparent">
         <div className="divide-y divide-zinc-200 dark:divide-zinc-800/50">
           {project.columns.map((column) => (
             <ColumnSection key={column.id} column={column} />
