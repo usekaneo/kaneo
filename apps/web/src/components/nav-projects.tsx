@@ -67,7 +67,7 @@ export function NavProjects() {
                   onClick={() => handleProjectClick(project)}
                   variant="ghost"
                   className={cn(
-                    "w-full flex items-center gap-2 justify-start",
+                    "w-full flex gap-2 justify-start items-start",
                     isCurrentProject(project.id) && "bg-accent",
                   )}
                 >

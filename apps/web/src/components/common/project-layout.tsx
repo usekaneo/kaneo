@@ -79,7 +79,7 @@ export default function ProjectLayout({
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink
-                    href={`/dashboard/workspace/${workspaceId}/project/${projectId}`}
+                    href={`/dashboard/workspace/${workspaceId}/project/${projectId}/board`}
                   >
                     <h1 className="text-xs text-card-foreground">
                       {project?.name}

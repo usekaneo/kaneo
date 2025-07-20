@@ -1,3 +1,4 @@
+import ProjectLayout from "@/components/common/project-layout";
 import PageTitle from "@/components/page-title";
 import TaskActivities from "@/components/task/task-activities";
 import TaskComment from "@/components/task/task-comment";
@@ -14,13 +15,13 @@ import { LayoutGrid, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+  "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_",
 )({
   component: TaskEditPage,
 });
 
 function TaskEditPage() {
-  const { taskId, projectId } = Route.useParams();
+  const { taskId, projectId, workspaceId } = Route.useParams();
   const { data: project } = useGetTasks(projectId);
   const { data: task, isLoading } = useGetTask(taskId);
   const { setProject } = useProjectStore();
@@ -44,7 +45,11 @@ function TaskEditPage() {
   }
 
   return (
-    <>
+    <ProjectLayout
+      title={`${project?.slug}-${task?.number}`}
+      projectId={projectId}
+      workspaceId={workspaceId}
+    >
       <PageTitle
         title={`${project?.slug}-${task?.number} · ${task?.title || "Task"}`}
         hideAppName
@@ -52,9 +57,9 @@ function TaskEditPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="h-full flex flex-col bg-white dark:bg-zinc-900 overflow-hidden"
+        className="h-full flex  flex-col bg-card overflow-hidden"
       >
-        <header className="sticky top-0 z-10 flex items-center px-4 h-[65px] bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+        <header className="sticky top-0 z-10 flex items-center px-4 h-[65px] border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <button
               type="button"
@@ -112,6 +117,6 @@ function TaskEditPage() {
           </div>
         </div>
       </motion.div>
-    </>
+    </ProjectLayout>
   );
 }

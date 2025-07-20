@@ -1,7 +1,7 @@
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import debounce from "@/lib/debounce";
-import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
+import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Editor } from "../common/editor";

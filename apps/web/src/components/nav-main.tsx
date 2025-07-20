@@ -80,14 +80,12 @@ export function NavMain() {
               asChild
               tooltip={item.title}
               disabled={item.isDisabled}
+              className="w-full flex gap-2 justify-start items-start"
             >
               <Button
                 onClick={() => handleNavClick(item.url)}
                 variant="ghost"
-                className={cn(
-                  "w-full flex items-center gap-2 justify-start",
-                  item.isActive && "bg-accent",
-                )}
+                className={cn("w-full", item.isActive && "bg-accent")}
               >
                 {item.icon && <item.icon className="w-4 h-4" />}
                 <span>{item.title}</span>

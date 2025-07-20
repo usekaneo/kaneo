@@ -1,3 +1,4 @@
+import ProjectLayout from "@/components/common/project-layout";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { TasksImportExport } from "@/components/project/tasks-import-export";
 import {
@@ -65,7 +66,7 @@ export const Route = createFileRoute(
 });
 
 function ProjectSettings() {
-  const { projectId } = Route.useParams();
+  const { projectId, workspaceId } = Route.useParams();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const { isOwner } = useWorkspacePermission();
@@ -229,7 +230,11 @@ function ProjectSettings() {
   }
 
   return (
-    <>
+    <ProjectLayout
+      title="Project Settings"
+      projectId={projectId}
+      workspaceId={workspaceId}
+    >
       <div className="max-w-4xl mx-auto space-y-8 py-6">
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">
@@ -529,7 +534,7 @@ function ProjectSettings() {
           </DangerZoneSection>
         )}
       </div>
-    </>
+    </ProjectLayout>
   );
 }
 
