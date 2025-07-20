@@ -8,8 +8,6 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -24,18 +22,12 @@ import { Route as DashboardSettingsAppearanceRouteImport } from './routes/dashbo
 import { Route as DashboardWorkspaceWorkspaceIdIndexRouteImport } from './routes/dashboard/workspace/$workspaceId/index'
 import { Route as DashboardWorkspaceWorkspaceIdSettingsRouteImport } from './routes/dashboard/workspace/$workspaceId/settings'
 import { Route as DashboardWorkspaceWorkspaceIdSearchRouteImport } from './routes/dashboard/workspace/$workspaceId/search'
-import { Route as DashboardTeamsWorkspaceIdLayoutRouteImport } from './routes/dashboard/teams/$workspaceId/_layout'
-import { Route as DashboardTeamsWorkspaceIdLayoutRolesRouteImport } from './routes/dashboard/teams/$workspaceId/_layout.roles'
-import { Route as DashboardTeamsWorkspaceIdLayoutMembersRouteImport } from './routes/dashboard/teams/$workspaceId/_layout.members'
+import { Route as DashboardWorkspaceWorkspaceIdMembersRouteImport } from './routes/dashboard/workspace/$workspaceId/members'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdIndexRouteImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/index'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRouteImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/settings'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRouteImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/board'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRouteImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/backlog'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRouteImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_'
-
-const DashboardTeamsWorkspaceIdRouteImport = createFileRoute(
-  '/dashboard/teams/$workspaceId',
-)()
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -72,12 +64,6 @@ const AuthSignInRoute = AuthSignInRouteImport.update({
   path: '/auth/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardTeamsWorkspaceIdRoute =
-  DashboardTeamsWorkspaceIdRouteImport.update({
-    id: '/teams/$workspaceId',
-    path: '/teams/$workspaceId',
-    getParentRoute: () => DashboardRoute,
-  } as any)
 const DashboardWorkspaceCreateRoute =
   DashboardWorkspaceCreateRouteImport.update({
     id: '/workspace/create',
@@ -114,22 +100,11 @@ const DashboardWorkspaceWorkspaceIdSearchRoute =
     path: '/search',
     getParentRoute: () => DashboardWorkspaceWorkspaceIdRoute,
   } as any)
-const DashboardTeamsWorkspaceIdLayoutRoute =
-  DashboardTeamsWorkspaceIdLayoutRouteImport.update({
-    id: '/_layout',
-    getParentRoute: () => DashboardTeamsWorkspaceIdRoute,
-  } as any)
-const DashboardTeamsWorkspaceIdLayoutRolesRoute =
-  DashboardTeamsWorkspaceIdLayoutRolesRouteImport.update({
-    id: '/roles',
-    path: '/roles',
-    getParentRoute: () => DashboardTeamsWorkspaceIdLayoutRoute,
-  } as any)
-const DashboardTeamsWorkspaceIdLayoutMembersRoute =
-  DashboardTeamsWorkspaceIdLayoutMembersRouteImport.update({
+const DashboardWorkspaceWorkspaceIdMembersRoute =
+  DashboardWorkspaceWorkspaceIdMembersRouteImport.update({
     id: '/members',
     path: '/members',
-    getParentRoute: () => DashboardTeamsWorkspaceIdLayoutRoute,
+    getParentRoute: () => DashboardWorkspaceWorkspaceIdRoute,
   } as any)
 const DashboardWorkspaceWorkspaceIdProjectProjectIdIndexRoute =
   DashboardWorkspaceWorkspaceIdProjectProjectIdIndexRouteImport.update({
@@ -173,12 +148,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/workspace/create': typeof DashboardWorkspaceCreateRoute
-  '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
+  '/dashboard/workspace/$workspaceId/members': typeof DashboardWorkspaceWorkspaceIdMembersRoute
   '/dashboard/workspace/$workspaceId/search': typeof DashboardWorkspaceWorkspaceIdSearchRoute
   '/dashboard/workspace/$workspaceId/settings': typeof DashboardWorkspaceWorkspaceIdSettingsRoute
   '/dashboard/workspace/$workspaceId/': typeof DashboardWorkspaceWorkspaceIdIndexRoute
-  '/dashboard/teams/$workspaceId/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
-  '/dashboard/teams/$workspaceId/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/backlog': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/board': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/settings': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute
@@ -195,12 +168,10 @@ export interface FileRoutesByTo {
   '/public-project/$projectId': typeof PublicProjectProjectIdRoute
   '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/workspace/create': typeof DashboardWorkspaceCreateRoute
-  '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
+  '/dashboard/workspace/$workspaceId/members': typeof DashboardWorkspaceWorkspaceIdMembersRoute
   '/dashboard/workspace/$workspaceId/search': typeof DashboardWorkspaceWorkspaceIdSearchRoute
   '/dashboard/workspace/$workspaceId/settings': typeof DashboardWorkspaceWorkspaceIdSettingsRoute
   '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdIndexRoute
-  '/dashboard/teams/$workspaceId/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
-  '/dashboard/teams/$workspaceId/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/backlog': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/board': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/settings': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute
@@ -219,13 +190,10 @@ export interface FileRoutesById {
   '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/workspace/$workspaceId': typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/workspace/create': typeof DashboardWorkspaceCreateRoute
-  '/dashboard/teams/$workspaceId': typeof DashboardTeamsWorkspaceIdRouteWithChildren
-  '/dashboard/teams/$workspaceId/_layout': typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
+  '/dashboard/workspace/$workspaceId/members': typeof DashboardWorkspaceWorkspaceIdMembersRoute
   '/dashboard/workspace/$workspaceId/search': typeof DashboardWorkspaceWorkspaceIdSearchRoute
   '/dashboard/workspace/$workspaceId/settings': typeof DashboardWorkspaceWorkspaceIdSettingsRoute
   '/dashboard/workspace/$workspaceId/': typeof DashboardWorkspaceWorkspaceIdIndexRoute
-  '/dashboard/teams/$workspaceId/_layout/members': typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
-  '/dashboard/teams/$workspaceId/_layout/roles': typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/backlog': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/board': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRoute
   '/dashboard/workspace/$workspaceId/project/$projectId/settings': typeof DashboardWorkspaceWorkspaceIdProjectProjectIdSettingsRoute
@@ -245,12 +213,10 @@ export interface FileRouteTypes {
     | '/dashboard/settings/appearance'
     | '/dashboard/workspace/$workspaceId'
     | '/dashboard/workspace/create'
-    | '/dashboard/teams/$workspaceId'
+    | '/dashboard/workspace/$workspaceId/members'
     | '/dashboard/workspace/$workspaceId/search'
     | '/dashboard/workspace/$workspaceId/settings'
     | '/dashboard/workspace/$workspaceId/'
-    | '/dashboard/teams/$workspaceId/members'
-    | '/dashboard/teams/$workspaceId/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId/backlog'
     | '/dashboard/workspace/$workspaceId/project/$projectId/board'
     | '/dashboard/workspace/$workspaceId/project/$projectId/settings'
@@ -267,12 +233,10 @@ export interface FileRouteTypes {
     | '/public-project/$projectId'
     | '/dashboard/settings/appearance'
     | '/dashboard/workspace/create'
-    | '/dashboard/teams/$workspaceId'
+    | '/dashboard/workspace/$workspaceId/members'
     | '/dashboard/workspace/$workspaceId/search'
     | '/dashboard/workspace/$workspaceId/settings'
     | '/dashboard/workspace/$workspaceId'
-    | '/dashboard/teams/$workspaceId/members'
-    | '/dashboard/teams/$workspaceId/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId/backlog'
     | '/dashboard/workspace/$workspaceId/project/$projectId/board'
     | '/dashboard/workspace/$workspaceId/project/$projectId/settings'
@@ -290,13 +254,10 @@ export interface FileRouteTypes {
     | '/dashboard/settings/appearance'
     | '/dashboard/workspace/$workspaceId'
     | '/dashboard/workspace/create'
-    | '/dashboard/teams/$workspaceId'
-    | '/dashboard/teams/$workspaceId/_layout'
+    | '/dashboard/workspace/$workspaceId/members'
     | '/dashboard/workspace/$workspaceId/search'
     | '/dashboard/workspace/$workspaceId/settings'
     | '/dashboard/workspace/$workspaceId/'
-    | '/dashboard/teams/$workspaceId/_layout/members'
-    | '/dashboard/teams/$workspaceId/_layout/roles'
     | '/dashboard/workspace/$workspaceId/project/$projectId/backlog'
     | '/dashboard/workspace/$workspaceId/project/$projectId/board'
     | '/dashboard/workspace/$workspaceId/project/$projectId/settings'
@@ -363,13 +324,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/teams/$workspaceId': {
-      id: '/dashboard/teams/$workspaceId'
-      path: '/teams/$workspaceId'
-      fullPath: '/dashboard/teams/$workspaceId'
-      preLoaderRoute: typeof DashboardTeamsWorkspaceIdRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/dashboard/workspace/create': {
       id: '/dashboard/workspace/create'
       path: '/workspace/create'
@@ -412,26 +366,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWorkspaceWorkspaceIdSearchRouteImport
       parentRoute: typeof DashboardWorkspaceWorkspaceIdRoute
     }
-    '/dashboard/teams/$workspaceId/_layout': {
-      id: '/dashboard/teams/$workspaceId/_layout'
-      path: '/teams/$workspaceId'
-      fullPath: '/dashboard/teams/$workspaceId'
-      preLoaderRoute: typeof DashboardTeamsWorkspaceIdLayoutRouteImport
-      parentRoute: typeof DashboardTeamsWorkspaceIdRoute
-    }
-    '/dashboard/teams/$workspaceId/_layout/roles': {
-      id: '/dashboard/teams/$workspaceId/_layout/roles'
-      path: '/roles'
-      fullPath: '/dashboard/teams/$workspaceId/roles'
-      preLoaderRoute: typeof DashboardTeamsWorkspaceIdLayoutRolesRouteImport
-      parentRoute: typeof DashboardTeamsWorkspaceIdLayoutRoute
-    }
-    '/dashboard/teams/$workspaceId/_layout/members': {
-      id: '/dashboard/teams/$workspaceId/_layout/members'
+    '/dashboard/workspace/$workspaceId/members': {
+      id: '/dashboard/workspace/$workspaceId/members'
       path: '/members'
-      fullPath: '/dashboard/teams/$workspaceId/members'
-      preLoaderRoute: typeof DashboardTeamsWorkspaceIdLayoutMembersRouteImport
-      parentRoute: typeof DashboardTeamsWorkspaceIdLayoutRoute
+      fullPath: '/dashboard/workspace/$workspaceId/members'
+      preLoaderRoute: typeof DashboardWorkspaceWorkspaceIdMembersRouteImport
+      parentRoute: typeof DashboardWorkspaceWorkspaceIdRoute
     }
     '/dashboard/workspace/$workspaceId/project/$projectId/': {
       id: '/dashboard/workspace/$workspaceId/project/$projectId/'
@@ -483,6 +423,7 @@ const DashboardSettingsRouteWithChildren =
   DashboardSettingsRoute._addFileChildren(DashboardSettingsRouteChildren)
 
 interface DashboardWorkspaceWorkspaceIdRouteChildren {
+  DashboardWorkspaceWorkspaceIdMembersRoute: typeof DashboardWorkspaceWorkspaceIdMembersRoute
   DashboardWorkspaceWorkspaceIdSearchRoute: typeof DashboardWorkspaceWorkspaceIdSearchRoute
   DashboardWorkspaceWorkspaceIdSettingsRoute: typeof DashboardWorkspaceWorkspaceIdSettingsRoute
   DashboardWorkspaceWorkspaceIdIndexRoute: typeof DashboardWorkspaceWorkspaceIdIndexRoute
@@ -495,6 +436,8 @@ interface DashboardWorkspaceWorkspaceIdRouteChildren {
 
 const DashboardWorkspaceWorkspaceIdRouteChildren: DashboardWorkspaceWorkspaceIdRouteChildren =
   {
+    DashboardWorkspaceWorkspaceIdMembersRoute:
+      DashboardWorkspaceWorkspaceIdMembersRoute,
     DashboardWorkspaceWorkspaceIdSearchRoute:
       DashboardWorkspaceWorkspaceIdSearchRoute,
     DashboardWorkspaceWorkspaceIdSettingsRoute:
@@ -518,45 +461,11 @@ const DashboardWorkspaceWorkspaceIdRouteWithChildren =
     DashboardWorkspaceWorkspaceIdRouteChildren,
   )
 
-interface DashboardTeamsWorkspaceIdLayoutRouteChildren {
-  DashboardTeamsWorkspaceIdLayoutMembersRoute: typeof DashboardTeamsWorkspaceIdLayoutMembersRoute
-  DashboardTeamsWorkspaceIdLayoutRolesRoute: typeof DashboardTeamsWorkspaceIdLayoutRolesRoute
-}
-
-const DashboardTeamsWorkspaceIdLayoutRouteChildren: DashboardTeamsWorkspaceIdLayoutRouteChildren =
-  {
-    DashboardTeamsWorkspaceIdLayoutMembersRoute:
-      DashboardTeamsWorkspaceIdLayoutMembersRoute,
-    DashboardTeamsWorkspaceIdLayoutRolesRoute:
-      DashboardTeamsWorkspaceIdLayoutRolesRoute,
-  }
-
-const DashboardTeamsWorkspaceIdLayoutRouteWithChildren =
-  DashboardTeamsWorkspaceIdLayoutRoute._addFileChildren(
-    DashboardTeamsWorkspaceIdLayoutRouteChildren,
-  )
-
-interface DashboardTeamsWorkspaceIdRouteChildren {
-  DashboardTeamsWorkspaceIdLayoutRoute: typeof DashboardTeamsWorkspaceIdLayoutRouteWithChildren
-}
-
-const DashboardTeamsWorkspaceIdRouteChildren: DashboardTeamsWorkspaceIdRouteChildren =
-  {
-    DashboardTeamsWorkspaceIdLayoutRoute:
-      DashboardTeamsWorkspaceIdLayoutRouteWithChildren,
-  }
-
-const DashboardTeamsWorkspaceIdRouteWithChildren =
-  DashboardTeamsWorkspaceIdRoute._addFileChildren(
-    DashboardTeamsWorkspaceIdRouteChildren,
-  )
-
 interface DashboardRouteChildren {
   DashboardSplatRoute: typeof DashboardSplatRoute
   DashboardSettingsRoute: typeof DashboardSettingsRouteWithChildren
   DashboardWorkspaceWorkspaceIdRoute: typeof DashboardWorkspaceWorkspaceIdRouteWithChildren
   DashboardWorkspaceCreateRoute: typeof DashboardWorkspaceCreateRoute
-  DashboardTeamsWorkspaceIdRoute: typeof DashboardTeamsWorkspaceIdRouteWithChildren
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -565,7 +474,6 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardWorkspaceWorkspaceIdRoute:
     DashboardWorkspaceWorkspaceIdRouteWithChildren,
   DashboardWorkspaceCreateRoute: DashboardWorkspaceCreateRoute,
-  DashboardTeamsWorkspaceIdRoute: DashboardTeamsWorkspaceIdRouteWithChildren,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(

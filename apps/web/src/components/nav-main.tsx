@@ -10,13 +10,15 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/cn";
 import useWorkspaceStore from "@/store/workspace";
+import { useState } from "react";
+import SearchCommandMenu from "./search-command-menu";
 import { SettingsMenu } from "./settings-menu";
 import { Button } from "./ui/button";
 
 export function NavMain() {
   const { workspace } = useWorkspaceStore();
   const navigate = useNavigate();
-
+  const [open, setOpen] = useState(false);
   if (!workspace) return null;
 
   const navItems = [
@@ -30,11 +32,11 @@ export function NavMain() {
     },
     {
       title: "Search",
-      url: `/dashboard/workspace/${workspace.id}/search`,
+      onClick: () => {
+        setOpen(true);
+      },
       icon: Search,
-      isActive:
-        window.location.pathname ===
-        `/dashboard/workspace/${workspace.id}/search`,
+      isActive: false,
       isDisabled: false,
     },
     {
@@ -56,12 +58,12 @@ export function NavMain() {
       isDisabled: true,
     },
     {
-      title: "Team",
-      url: `/dashboard/workspace/${workspace.id}/team`,
+      title: "Members",
+      url: `/dashboard/workspace/${workspace.id}/members`,
       icon: Users,
       isActive:
         window.location.pathname ===
-        `/dashboard/workspace/${workspace.id}/team`,
+        `/dashboard/workspace/${workspace.id}/members`,
       isDisabled: false,
     },
   ];
@@ -71,32 +73,41 @@ export function NavMain() {
   };
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Main</SidebarGroupLabel>
-      <SidebarMenu>
-        {navItems.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton
-              asChild
-              tooltip={item.title}
-              disabled={item.isDisabled}
-              className="w-full flex gap-2 justify-start items-start"
-            >
-              <Button
-                onClick={() => handleNavClick(item.url)}
-                variant="ghost"
-                className={cn("w-full", item.isActive && "bg-accent")}
+    <>
+      <SidebarGroup>
+        <SidebarGroupLabel>Main</SidebarGroupLabel>
+        <SidebarMenu>
+          {navItems.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                disabled={item.isDisabled}
+                className="w-full flex gap-2 justify-start items-start"
               >
-                {item.icon && <item.icon className="w-4 h-4" />}
-                <span>{item.title}</span>
-              </Button>
-            </SidebarMenuButton>
+                <Button
+                  onClick={() => {
+                    if (item.url) {
+                      handleNavClick(item.url);
+                    } else {
+                      item.onClick?.();
+                    }
+                  }}
+                  variant="ghost"
+                  className={cn("w-full", item.isActive && "bg-accent")}
+                >
+                  {item.icon && <item.icon className="w-4 h-4" />}
+                  <span>{item.title}</span>
+                </Button>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+          <SidebarMenuItem>
+            <SettingsMenu />
           </SidebarMenuItem>
-        ))}
-        <SidebarMenuItem>
-          <SettingsMenu />
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarGroup>
+        </SidebarMenu>
+      </SidebarGroup>
+      <SearchCommandMenu open={open} setOpen={setOpen} />
+    </>
   );
 }

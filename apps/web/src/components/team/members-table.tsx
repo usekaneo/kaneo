@@ -1,10 +1,23 @@
 import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
 import { getStatusIcon, getStatusText } from "@/lib/status";
 import type WorkspaceUser from "@/types/workspace-user";
-import * as Popover from "@radix-ui/react-popover";
 import { MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 import DeleteTeamMemberModal from "./delete-team-member-modal";
 
 function MembersTable({ users }: { users: WorkspaceUser[] }) {
@@ -14,114 +27,119 @@ function MembersTable({ users }: { users: WorkspaceUser[] }) {
     null,
   );
 
+  if (users?.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-6">
+          <div className="w-16 h-16 mx-auto rounded-xl bg-muted flex items-center justify-center">
+            <span className="text-2xl">👥</span>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold">No team members yet</h3>
+            <p className="text-muted-foreground">
+              Invite your first team member to get started.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <table className="w-full table-auto min-w-[800px]">
-        <thead>
-          <tr className="border-b border-zinc-200 dark:border-zinc-800">
-            <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              Email
-            </th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              Role
-            </th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-foreground font-medium">
+              Member
+            </TableHead>
+            <TableHead className="text-foreground font-medium">Role</TableHead>
+            <TableHead className="text-foreground font-medium">
               Status
-            </th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              Date
-            </th>
+            </TableHead>
+            <TableHead className="text-foreground font-medium">
+              Joined
+            </TableHead>
             {isOwner && (
-              <th className="text-left py-3 px-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              <TableHead className="text-foreground font-medium">
                 Actions
-              </th>
+              </TableHead>
             )}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {users?.map((member) => (
-            <tr
-              key={member.userEmail}
-              className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-            >
-              <td className="py-3 px-4">
-                <div className="flex items-center">
-                  <Avatar className="h-8 w-8 mr-3">
-                    <AvatarFallback className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400">
-                      {member.userEmail?.charAt(0)}
+            <TableRow key={member.userEmail} className="cursor-pointer">
+              <TableCell className="py-3">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-5 w-5">
+                    <AvatarFallback className="bg-muted text-muted-foreground font-medium text-xs">
+                      {member.userEmail?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm text-zinc-900 dark:text-zinc-100">
-                    {member.userEmail}
-                  </span>
+                  <span className="font-medium">{member.userEmail}</span>
                 </div>
-              </td>
-              <td className="py-3 px-4">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
+              </TableCell>
+              <TableCell className="py-3">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground">
                   {member.role.charAt(0).toUpperCase() +
                     member.role.slice(1).toLowerCase()}
                 </span>
-              </td>
-              <td className="py-3 px-4">
+              </TableCell>
+              <TableCell className="py-3">
                 <div className="flex items-center gap-2">
                   {getStatusIcon(member.status as "active" | "pending")}
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                  <span className="text-sm text-muted-foreground">
                     {getStatusText(member.status as "active" | "pending")}
                   </span>
                 </div>
-              </td>
-              <td className="py-3 px-4 text-sm text-zinc-500 dark:text-zinc-400">
-                {member.joinedAt &&
-                  new Date(member.joinedAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-              </td>
+              </TableCell>
+              <TableCell className="py-3">
+                <span className="text-sm text-muted-foreground">
+                  {member.joinedAt &&
+                    new Date(member.joinedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                </span>
+              </TableCell>
               {isOwner && (
-                <td className="py-3 px-4">
+                <TableCell className="py-3">
                   {member.role === "owner" ? (
-                    <span className="text-xs text-zinc-400 dark:text-zinc-500 italic">
+                    <span className="text-xs text-muted-foreground italic">
                       Workspace owner
                     </span>
                   ) : (
-                    <Popover.Root>
-                      <Popover.Trigger asChild>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
+                          className="p-1 hover:bg-accent rounded"
                         >
-                          <MoreHorizontal className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+                          <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                         </button>
-                      </Popover.Trigger>
-                      <Popover.Portal>
-                        <Popover.Content
-                          className="bg-white dark:bg-zinc-900 rounded-md shadow-md border border-zinc-200 dark:border-zinc-700 p-1 z-50"
-                          sideOffset={5}
-                          align="end"
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setIsRemoveMemberModalOpen(true);
+                            setSelectedMember(member);
+                          }}
+                          variant="destructive"
                         >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setIsRemoveMemberModalOpen(true);
-                              setSelectedMember(member);
-                            }}
-                            className="flex items-center gap-2 px-3 py-2 text-sm rounded text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-left"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Remove member</span>
-                          </button>
-                          <Popover.Arrow className="fill-white dark:fill-zinc-900" />
-                        </Popover.Content>
-                      </Popover.Portal>
-                    </Popover.Root>
+                          <Trash2 className="w-4 h-4" />
+                          Remove member
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
-                </td>
+                </TableCell>
               )}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
 
       {selectedMember && (
         <DeleteTeamMemberModal

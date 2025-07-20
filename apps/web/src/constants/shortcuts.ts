@@ -19,4 +19,11 @@ export const shortcuts = {
     prefix: getModifierKeyText(),
     toggle: "b",
   },
+  palette: {
+    prefix: getModifierKeyText(),
+    open: "k",
+  },
+  search: {
+    prefix: "/",
+  },
 } as const;

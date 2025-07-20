@@ -16,12 +16,17 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import icons from "@/constants/project-icons";
+import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
 import useWorkspaceStore from "@/store/workspace";
 import type { ProjectWithTasks } from "@/types/project";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Folder, Forward, MoreHorizontal, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import CreateProjectModal from "./shared/modals/create-project-modal";
 
 export function NavProjects() {
   const { isMobile } = useSidebar();
@@ -29,11 +34,16 @@ export function NavProjects() {
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
+  const queryClient = useQueryClient();
+  const { mutateAsync: deleteProject } = useDeleteProject();
   const navigate = useNavigate();
   const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
     useParams({
       strict: false,
     });
+
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
+    useState(false);
 
   const isCurrentProject = (projectId: string) => {
     return (
@@ -87,17 +97,45 @@ export function NavProjects() {
                   side={isMobile ? "bottom" : "right"}
                   align={isMobile ? "end" : "start"}
                 >
-                  <DropdownMenuItem onClick={() => handleProjectClick(project)}>
+                  <DropdownMenuItem
+                    className="items-start"
+                    onClick={() => handleProjectClick(project)}
+                  >
                     <Folder className="text-muted-foreground" />
                     <span>View Project</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="items-start"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/dashboard/workspace/${workspace?.id}/project/${project.id}`,
+                      );
+                      toast.success("Project link copied to clipboard");
+                    }}
+                  >
                     <Forward className="text-muted-foreground" />
                     <span>Share Project</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Trash2 className="text-muted-foreground" />
+                  <DropdownMenuItem
+                    className="items-start text-destructive"
+                    onClick={async () => {
+                      await deleteProject({
+                        id: project.id,
+                      });
+                      toast.success("Project deleted");
+                      queryClient.invalidateQueries({
+                        queryKey: ["projects"],
+                      });
+                      navigate({
+                        to: "/dashboard/workspace/$workspaceId",
+                        params: {
+                          workspaceId: workspace?.id || "",
+                        },
+                      });
+                    }}
+                  >
+                    <Trash2 className="text-destructive" />
                     <span>Delete Project</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -109,8 +147,7 @@ export function NavProjects() {
           <SidebarMenuButton
             className="text-sidebar-foreground/70"
             onClick={() => {
-              // TODO: Open create project modal
-              console.log("Create project");
+              setIsCreateProjectModalOpen(true);
             }}
           >
             <MoreHorizontal className="text-sidebar-foreground/70" />
@@ -118,6 +155,10 @@ export function NavProjects() {
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
+      <CreateProjectModal
+        open={isCreateProjectModalOpen}
+        onClose={() => setIsCreateProjectModalOpen(false)}
+      />
     </SidebarGroup>
   );
 }
