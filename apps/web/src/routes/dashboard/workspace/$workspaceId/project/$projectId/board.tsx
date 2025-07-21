@@ -12,7 +12,6 @@ import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import { useTaskFilters } from "@/hooks/use-task-filters";
 import { cn } from "@/lib/cn";
-import { useDisplayPreferencesStore } from "@/store/display-preferences";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import { createFileRoute } from "@tanstack/react-router";
@@ -44,17 +43,17 @@ function RouteComponent() {
 
   const { data: users } = useGetActiveWorkspaceUsers({ workspaceId });
   const {
-    showAssignee,
+    showAssignees,
     showPriority,
-    showDueDate,
+    showDueDates,
     showLabels,
     showTaskNumbers,
-    toggleAssignee,
+    toggleAssignees,
     togglePriority,
-    toggleDueDate,
+    toggleDueDates,
     toggleLabels,
     toggleTaskNumbers,
-  } = useDisplayPreferencesStore();
+  } = useUserPreferencesStore();
 
   useEffect(() => {
     if (data) {
@@ -402,12 +401,12 @@ function RouteComponent() {
                       </div>
                       <button
                         type="button"
-                        onClick={toggleAssignee}
+                        onClick={toggleAssignees}
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                       >
                         <User className="w-3.5 h-3.5" />
                         <span>Show assignee</span>
-                        {showAssignee && (
+                        {showAssignees && (
                           <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
                         )}
                       </button>
@@ -424,12 +423,12 @@ function RouteComponent() {
                       </button>
                       <button
                         type="button"
-                        onClick={toggleDueDate}
+                        onClick={toggleDueDates}
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                       >
                         <Calendar className="w-3.5 h-3.5" />
                         <span>Show due date</span>
-                        {showDueDate && (
+                        {showDueDates && (
                           <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
                         )}
                       </button>

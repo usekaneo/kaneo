@@ -1,7 +1,7 @@
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
-import { useDisplayPreferencesStore } from "@/store/display-preferences";
 import useProjectStore from "@/store/project";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import useWorkspaceStore from "@/store/workspace";
 import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
@@ -37,12 +37,12 @@ function TaskCard({ task }: TaskCardProps) {
   const { workspace } = useWorkspaceStore();
   const navigate = useNavigate();
   const {
-    showAssignee,
+    showAssignees,
     showPriority,
-    showDueDate,
+    showDueDates,
     showLabels,
     showTaskNumbers,
-  } = useDisplayPreferencesStore();
+  } = useUserPreferencesStore();
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -95,7 +95,7 @@ function TaskCard({ task }: TaskCardProps) {
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5 mt-auto">
-              {showAssignee &&
+              {showAssignees &&
                 (task.userEmail ? (
                   <div
                     className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
@@ -117,7 +117,7 @@ function TaskCard({ task }: TaskCardProps) {
                   </div>
                 ))}
 
-              {showDueDate && (
+              {showDueDates && (
                 <div
                   className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${dueDateStatusColors[getDueDateStatus(task.dueDate)]} group-hover:opacity-80`}
                 >

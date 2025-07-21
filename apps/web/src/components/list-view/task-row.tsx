@@ -1,8 +1,8 @@
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
-import { useDisplayPreferencesStore } from "@/store/display-preferences";
 import useProjectStore from "@/store/project";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -31,12 +31,12 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const { project } = useProjectStore();
   const {
-    showAssignee,
+    showAssignees,
     showPriority,
-    showDueDate,
+    showDueDates,
     showLabels,
     showTaskNumbers,
-  } = useDisplayPreferencesStore();
+  } = useUserPreferencesStore();
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -119,7 +119,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             </div>
 
             {/* Due Date */}
-            {showDueDate && task.dueDate && (
+            {showDueDates && task.dueDate && (
               <div
                 className={cn(
                   "flex items-center gap-1 text-xs px-1.5 py-0.5 rounded flex-shrink-0",
@@ -141,7 +141,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             )}
 
             {/* Assignee */}
-            {showAssignee && (
+            {showAssignees && (
               <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 flex-shrink-0">
                 <User className="w-3 h-3" />
                 <span className="truncate max-w-[100px]">

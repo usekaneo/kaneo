@@ -20,14 +20,20 @@ type UserPreferencesStore = {
   // Display preferences
   showTaskNumbers: boolean;
   setShowTaskNumbers: (show: boolean) => void;
+  toggleTaskNumbers: () => void;
   showAssignees: boolean;
   setShowAssignees: (show: boolean) => void;
+  toggleAssignees: () => void;
   showDueDates: boolean;
   setShowDueDates: (show: boolean) => void;
+  toggleDueDates: () => void;
   showLabels: boolean;
   setShowLabels: (show: boolean) => void;
+  toggleLabels: () => void;
   showPriority: boolean;
   setShowPriority: (show: boolean) => void;
+  togglePriority: () => void;
+  resetDisplayPreferences: () => void;
 
   // Sidebar preferences (for initial state)
   sidebarDefaultOpen: boolean;
@@ -85,14 +91,31 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       // Display preferences
       showTaskNumbers: true,
       setShowTaskNumbers: (show) => set({ showTaskNumbers: show }),
+      toggleTaskNumbers: () =>
+        set((state) => ({ showTaskNumbers: !state.showTaskNumbers })),
       showAssignees: true,
       setShowAssignees: (show) => set({ showAssignees: show }),
+      toggleAssignees: () =>
+        set((state) => ({ showAssignees: !state.showAssignees })),
       showDueDates: true,
       setShowDueDates: (show) => set({ showDueDates: show }),
+      toggleDueDates: () =>
+        set((state) => ({ showDueDates: !state.showDueDates })),
       showLabels: true,
       setShowLabels: (show) => set({ showLabels: show }),
+      toggleLabels: () => set((state) => ({ showLabels: !state.showLabels })),
       showPriority: true,
       setShowPriority: (show) => set({ showPriority: show }),
+      togglePriority: () =>
+        set((state) => ({ showPriority: !state.showPriority })),
+      resetDisplayPreferences: () =>
+        set({
+          showAssignees: true,
+          showDueDates: true,
+          showLabels: true,
+          showTaskNumbers: true,
+          showPriority: true,
+        }),
 
       // Sidebar preferences
       sidebarDefaultOpen: true,
