@@ -26,4 +26,8 @@ export const shortcuts = {
   search: {
     prefix: "/",
   },
+  task: {
+    prefix: "t",
+    create: "c",
+  },
 } as const;

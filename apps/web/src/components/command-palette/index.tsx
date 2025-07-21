@@ -1,4 +1,6 @@
 import SearchCommandMenu from "@/components/search-command-menu";
+import CreateTaskModal from "@/components/shared/modals/create-task-modal";
+import CreateWorkspaceModal from "@/components/shared/modals/create-workspace-modal";
 import {
   CommandDialog,
   CommandEmpty,
@@ -15,7 +17,6 @@ import useWorkspaceStore from "@/store/workspace";
 import { useNavigate } from "@tanstack/react-router";
 import {
   FolderKanban,
-  Hash,
   LayoutDashboard,
   Monitor,
   Moon,
@@ -26,6 +27,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import CreateProjectModal from "../shared/modals/create-project-modal";
 
 function CommandPalette() {
   const { theme, setTheme } = useUserPreferencesStore();
@@ -33,6 +35,9 @@ function CommandPalette() {
   const { workspace } = useWorkspaceStore();
   const [open, setOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
+  const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);
 
   useRegisterShortcuts({
     modifierShortcuts: {
@@ -46,6 +51,7 @@ function CommandPalette() {
 
   const runCommand = (command: () => unknown) => {
     command();
+    setOpen(false);
   };
 
   return (
@@ -57,24 +63,46 @@ function CommandPalette() {
 
           <CommandGroup heading="Create">
             <CommandItem
-              onSelect={() => runCommand(() => console.log("Create task"))}
+              onSelect={() => {
+                runCommand(() => {
+                  setIsCreateTaskOpen(true);
+                });
+              }}
             >
               <Plus className="mr-2 h-4 w-4" />
               <span>Create task</span>
-              <KbdSequence keys={["C"]} className="ml-auto" />
+              <KbdSequence
+                keys={[shortcuts.task.prefix, shortcuts.task.create]}
+                className="ml-auto"
+              />
             </CommandItem>
             <CommandItem
-              onSelect={() => runCommand(() => console.log("Create project"))}
+              onSelect={() => {
+                runCommand(() => {
+                  setIsCreateProjectOpen(true);
+                });
+              }}
             >
               <FolderKanban className="mr-2 h-4 w-4" />
               <span>Create project</span>
-              <KbdSequence keys={["P", "C"]} className="ml-auto" />
+              <KbdSequence
+                keys={[shortcuts.project.prefix, shortcuts.project.create]}
+                className="ml-auto"
+              />
             </CommandItem>
             <CommandItem
-              onSelect={() => runCommand(() => console.log("Create label"))}
+              onSelect={() => {
+                runCommand(() => {
+                  setIsCreateWorkspaceOpen(true);
+                });
+              }}
             >
-              <Hash className="mr-2 h-4 w-4" />
-              <span>Create label</span>
+              <Plus className="mr-2 h-4 w-4" />
+              <span>Create workspace</span>
+              <KbdSequence
+                keys={[shortcuts.workspace.prefix, shortcuts.workspace.create]}
+                className="ml-auto"
+              />
             </CommandItem>
           </CommandGroup>
 
@@ -95,14 +123,16 @@ function CommandPalette() {
             <CommandItem
               onSelect={() =>
                 runCommand(() => {
-                  setOpen(false);
                   setIsSearchOpen(true);
                 })
               }
             >
               <Search className="mr-2 h-4 w-4" />
               <span>Search</span>
-              <KbdSequence keys={["/"]} className="ml-auto" />
+              <KbdSequence
+                keys={[shortcuts.search.prefix]}
+                className="ml-auto"
+              />
             </CommandItem>
             <CommandItem
               onSelect={() =>
@@ -133,21 +163,39 @@ function CommandPalette() {
           </CommandGroup>
 
           <CommandGroup heading="Theme">
-            <CommandItem onSelect={() => runCommand(() => setTheme("light"))}>
+            <CommandItem
+              onSelect={() =>
+                runCommand(() => {
+                  setTheme("light");
+                })
+              }
+            >
               <Sun className="mr-2 h-4 w-4" />
               <span>Light theme</span>
               {theme === "light" && (
                 <div className="ml-auto h-2 w-2 rounded-full bg-primary" />
               )}
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => setTheme("dark"))}>
+            <CommandItem
+              onSelect={() =>
+                runCommand(() => {
+                  setTheme("dark");
+                })
+              }
+            >
               <Moon className="mr-2 h-4 w-4" />
               <span>Dark theme</span>
               {theme === "dark" && (
                 <div className="ml-auto h-2 w-2 rounded-full bg-primary" />
               )}
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => setTheme("system"))}>
+            <CommandItem
+              onSelect={() =>
+                runCommand(() => {
+                  setTheme("system");
+                })
+              }
+            >
               <Monitor className="mr-2 h-4 w-4" />
               <span>System theme</span>
               {theme === "system" && (
@@ -158,6 +206,18 @@ function CommandPalette() {
         </CommandList>
       </CommandDialog>
       <SearchCommandMenu open={isSearchOpen} setOpen={setIsSearchOpen} />
+      <CreateTaskModal
+        open={isCreateTaskOpen}
+        onClose={() => setIsCreateTaskOpen(false)}
+      />
+      <CreateWorkspaceModal
+        open={isCreateWorkspaceOpen}
+        onClose={() => setIsCreateWorkspaceOpen(false)}
+      />
+      <CreateProjectModal
+        open={isCreateProjectOpen}
+        onClose={() => setIsCreateProjectOpen(false)}
+      />
     </>
   );
 }
