@@ -18,7 +18,10 @@ import {
 } from "@/components/ui/sidebar";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import {
+  getModifierKeyText,
+  useRegisterShortcuts,
+} from "@/hooks/use-keyboard-shortcuts";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import useWorkspaceStore from "@/store/workspace";
 import type { Workspace } from "@/types/workspace";
@@ -142,7 +145,7 @@ export function WorkspaceSwitcher() {
                 </div>
                 {ws.name}
                 <span className="ml-auto text-xs text-muted-foreground">
-                  ⌘{index + 1}
+                  {getModifierKeyText()} {index > 8 ? "0" : index + 1}
                 </span>
               </DropdownMenuItem>
             ))}
