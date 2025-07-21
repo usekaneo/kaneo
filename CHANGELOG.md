@@ -1,3 +1,12 @@
+## [1.1.5](https://github.com/usekaneo/kaneo/compare/v1.1.4...v1.1.5) (2025-07-21)
+
+
+### Bug Fixes
+
+* port number in documentation ([#375](https://github.com/usekaneo/kaneo/issues/375)) ([b1e9814](https://github.com/usekaneo/kaneo/commit/b1e981468667e6ad03276c2172ea23393d40c2c5))
+
+
+
 ## [1.1.4](https://github.com/usekaneo/kaneo/compare/v1.1.0...v1.1.4) (2025-07-10)
 
 
