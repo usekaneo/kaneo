@@ -11,7 +11,6 @@ import {
   SettingsLayout,
   SettingsSection,
 } from "@/components/settings-layout";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Form,
