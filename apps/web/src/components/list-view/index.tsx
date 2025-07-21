@@ -1,3 +1,4 @@
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { getColumnIcon, getColumnIconColor } from "@/lib/column";
@@ -332,11 +333,9 @@ function ListView({ project }: ListViewProps) {
                 <Flag
                   className={cn(
                     "w-3 h-3",
-                    activeTask.priority === "high" && "text-red-500",
-                    activeTask.priority === "medium" && "text-orange-500",
-                    activeTask.priority === "low" && "text-green-500",
-                    (!activeTask.priority || activeTask.priority === "none") &&
-                      "text-zinc-300 dark:text-zinc-600",
+                    priorityColorsTaskCard[
+                      activeTask.priority as keyof typeof priorityColorsTaskCard
+                    ],
                   )}
                 />
               </div>

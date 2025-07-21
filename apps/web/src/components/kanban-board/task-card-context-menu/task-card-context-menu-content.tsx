@@ -24,7 +24,11 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
+import { cn } from "@/lib/cn";
+import { getColumnIcon, getColumnIconColor } from "@/lib/column";
 
+import { DEFAULT_COLUMNS } from "@/constants/columns";
 import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
 import { generateLink } from "@/lib/generate-link";
 import queryClient from "@/query-client";
@@ -74,18 +78,22 @@ export default function TaskCardContextMenuContent({
     {
       label: "To Do",
       value: "to-do",
+      icon: DEFAULT_COLUMNS[0],
     },
     {
       label: "In Progress",
       value: "in-progress",
+      icon: DEFAULT_COLUMNS[1],
     },
     {
       label: "In Review",
       value: "in-review",
+      icon: DEFAULT_COLUMNS[2],
     },
     {
       label: "Done",
       value: "done",
+      icon: DEFAULT_COLUMNS[3],
     },
   ];
 
@@ -178,7 +186,14 @@ export default function TaskCardContextMenuContent({
             className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "low"}
           >
-            <Flag className="w-3.5 h-3.5 text-blue-400" />
+            <Flag
+              className={cn(
+                "w-3.5 h-3.5",
+                priorityColorsTaskCard[
+                  "low" as keyof typeof priorityColorsTaskCard
+                ],
+              )}
+            />
             Low
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
@@ -186,7 +201,14 @@ export default function TaskCardContextMenuContent({
             className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "medium"}
           >
-            <Flag className="w-3.5 h-3.5 text-yellow-400" />
+            <Flag
+              className={cn(
+                "w-3.5 h-3.5",
+                priorityColorsTaskCard[
+                  "medium" as keyof typeof priorityColorsTaskCard
+                ],
+              )}
+            />
             Medium
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
@@ -194,7 +216,14 @@ export default function TaskCardContextMenuContent({
             className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "high"}
           >
-            <Flag className="w-3.5 h-3.5 text-red-400" />
+            <Flag
+              className={cn(
+                "w-3.5 h-3.5",
+                priorityColorsTaskCard[
+                  "high" as keyof typeof priorityColorsTaskCard
+                ],
+              )}
+            />
             High
           </ContextMenuCheckboxItem>
           <ContextMenuCheckboxItem
@@ -202,7 +231,14 @@ export default function TaskCardContextMenuContent({
             className="flex items-center gap-2 cursor-pointer"
             checked={task.priority === "urgent"}
           >
-            <Flag className="w-3.5 h-3.5 text-red-400" />
+            <Flag
+              className={cn(
+                "w-3.5 h-3.5",
+                priorityColorsTaskCard[
+                  "urgent" as keyof typeof priorityColorsTaskCard
+                ],
+              )}
+            />
             Urgent
           </ContextMenuCheckboxItem>
         </ContextMenuSubContent>
@@ -219,8 +255,16 @@ export default function TaskCardContextMenuContent({
               key={status.value}
               checked={task.status === status.value}
               onCheckedChange={() => handleChange("status", status.value)}
-              className="flex items-center justify-between cursor-pointer"
+              className="flex items-center gap-2 cursor-pointer"
             >
+              {(() => {
+                const IconComponent = getColumnIcon(status.value);
+                return (
+                  <IconComponent
+                    className={`w-3.5 h-3.5  flex-shrink-0 ${getColumnIconColor(status.value)}`}
+                  />
+                );
+              })()}
               {status.label}
             </ContextMenuCheckboxItem>
           ))}
