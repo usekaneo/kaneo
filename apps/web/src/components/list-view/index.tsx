@@ -299,7 +299,6 @@ function ListView({ project }: ListViewProps) {
     return null;
   }
 
-  // Get the active task being dragged
   const activeTask = activeId
     ? project.columns
         ?.flatMap((col) => col.tasks)

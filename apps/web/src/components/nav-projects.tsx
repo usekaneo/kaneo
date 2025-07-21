@@ -82,6 +82,7 @@ export function NavProjects() {
         {projects?.map((project) => {
           const IconComponent =
             icons[project.icon as keyof typeof icons] || icons.Layout;
+
           return (
             <SidebarMenuItem key={project.id}>
               <SidebarMenuButton asChild>
@@ -97,6 +98,7 @@ export function NavProjects() {
                   <span>{project.name}</span>
                 </Button>
               </SidebarMenuButton>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuAction showOnHover>

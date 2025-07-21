@@ -1,5 +1,14 @@
-import { useNavigate } from "@tanstack/react-router";
-import { BarChart3, Clock, LayoutDashboard, Search, Users } from "lucide-react";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import {
+  BarChart3,
+  Calendar,
+  ChevronDown,
+  Clock,
+  LayoutDashboard,
+  LayoutGrid,
+  Search,
+  Users,
+} from "lucide-react";
 
 import {
   SidebarGroup,
@@ -14,12 +23,28 @@ import { useState } from "react";
 import SearchCommandMenu from "./search-command-menu";
 import { SettingsMenu } from "./settings-menu";
 import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 export function NavMain() {
   const { workspace } = useWorkspaceStore();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
+    useParams({
+      strict: false,
+    });
+
   if (!workspace) return null;
+
+  const isInProject = currentProjectId && currentWorkspaceId === workspace.id;
+  const currentPath = window.location.pathname;
+  const isBoard = currentPath.includes("/board");
+  const isBacklog = currentPath.includes("/backlog");
 
   const navItems = [
     {
@@ -72,6 +97,17 @@ export function NavMain() {
     navigate({ to: url });
   };
 
+  const handleViewChange = (view: "board" | "backlog") => {
+    if (!currentProjectId) return;
+    navigate({
+      to: `/dashboard/workspace/$workspaceId/project/$projectId/${view}`,
+      params: {
+        workspaceId: workspace.id,
+        projectId: currentProjectId,
+      },
+    });
+  };
+
   return (
     <>
       <SidebarGroup>
@@ -102,6 +138,54 @@ export function NavMain() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+
+          {isInProject && (
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full flex items-center gap-2 justify-between",
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isBoard ? (
+                        <LayoutGrid className="w-4 h-4" />
+                      ) : (
+                        <Calendar className="w-4 h-4" />
+                      )}
+                      <span>View</span>
+                    </div>
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => handleViewChange("board")}
+                    className={cn("cursor-pointer", isBoard && "bg-accent")}
+                  >
+                    <LayoutGrid className="w-4 h-4 mr-2" />
+                    Active Board
+                    {isBoard && (
+                      <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleViewChange("backlog")}
+                    className={cn("cursor-pointer", isBacklog && "bg-accent")}
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Backlog
+                    {isBacklog && (
+                      <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
+                    )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          )}
+
           <SidebarMenuItem>
             <SettingsMenu />
           </SidebarMenuItem>
