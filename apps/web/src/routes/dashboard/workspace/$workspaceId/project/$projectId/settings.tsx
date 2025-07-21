@@ -418,6 +418,7 @@ function ProjectSettings() {
                                 type="button"
                                 variant="outline"
                                 size="sm"
+                                className="h-auto"
                                 onClick={handleCopyUrl}
                               >
                                 {copied ? (
