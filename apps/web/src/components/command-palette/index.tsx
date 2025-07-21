@@ -47,6 +47,19 @@ function CommandPalette() {
         },
       },
     },
+    sequentialShortcuts: {
+      [shortcuts.task.prefix]: {
+        [shortcuts.task.create]: () => setIsCreateTaskOpen(true),
+      },
+      [shortcuts.project.prefix]: {
+        [shortcuts.project.create]: () => setIsCreateProjectOpen(true),
+      },
+      [shortcuts.workspace.prefix]: {
+        [shortcuts.workspace.create]: () => {
+          setIsCreateWorkspaceOpen(true);
+        },
+      },
+    },
   });
 
   const runCommand = (command: () => unknown) => {

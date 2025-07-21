@@ -16,6 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import icons from "@/constants/project-icons";
+import { shortcuts } from "@/constants/shortcuts";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
@@ -37,6 +38,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
+import { KbdSequence } from "./ui/kbd";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 export function NavProjects() {
   const { isMobile } = useSidebar();
@@ -196,15 +204,25 @@ export function NavProjects() {
           );
         })}
         <SidebarMenuItem>
-          <SidebarMenuButton
-            className="text-sidebar-foreground/70"
-            onClick={() => {
-              setIsCreateProjectModalOpen(true);
-            }}
-          >
-            <MoreHorizontal className="text-sidebar-foreground/70" />
-            <span>Add project</span>
-          </SidebarMenuButton>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SidebarMenuButton
+                  className="text-sidebar-foreground/70"
+                  onClick={() => setIsCreateProjectModalOpen(true)}
+                >
+                  <MoreHorizontal className="text-sidebar-foreground/70" />
+                  <span>Add project</span>
+                </SidebarMenuButton>
+              </TooltipTrigger>
+              <TooltipContent>
+                <KbdSequence
+                  keys={[shortcuts.project.prefix, shortcuts.project.create]}
+                  className="ml-auto"
+                />
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </SidebarMenuItem>
       </SidebarMenu>
       <CreateProjectModal

@@ -3,11 +3,19 @@ import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { Button } from "@/components/ui/button";
+import { KbdSequence } from "@/components/ui/kbd";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { shortcuts } from "@/constants/shortcuts";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import { useTaskFilters } from "@/hooks/use-task-filters";
@@ -80,15 +88,27 @@ function RouteComponent() {
           <div className="h-10 flex items-center px-4">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => setIsTaskModalOpen(true)}
-                  className="h-6 px-2 text-xs text-zinc-600 dark:text-zinc-400"
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  New
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => setIsTaskModalOpen(true)}
+                        className="h-6 px-2 text-xs text-zinc-600 dark:text-zinc-400"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        New task
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <KbdSequence
+                        keys={[shortcuts.task.prefix, shortcuts.task.create]}
+                        className="ml-auto"
+                      />
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
 
                 <Popover>
                   <PopoverTrigger asChild>
