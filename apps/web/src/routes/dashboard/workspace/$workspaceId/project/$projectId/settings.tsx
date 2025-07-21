@@ -1,8 +1,8 @@
-import ProjectLayout from "@/components/common/project-layout";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { TasksImportExport } from "@/components/project/tasks-import-export";
 import {
   DangerZoneSection,
+  SettingsLayout,
   SettingsSection,
 } from "@/components/settings-layout";
 import { Button } from "@/components/ui/button";
@@ -66,7 +66,7 @@ export const Route = createFileRoute(
 });
 
 function ProjectSettings() {
-  const { projectId, workspaceId } = Route.useParams();
+  const { projectId } = Route.useParams();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const { isOwner } = useWorkspacePermission();
@@ -230,19 +230,12 @@ function ProjectSettings() {
   }
 
   return (
-    <ProjectLayout
-      title="Project Settings"
-      projectId={projectId}
-      workspaceId={workspaceId}
+    <SettingsLayout
+      title="Project"
+      description="Configure your project settings and details"
+      className="pt-4 px-6 overflow-auto"
     >
-      <div className="max-w-4xl mx-auto space-y-8 py-6">
-        <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">
-            {project?.name
-              ? `Configure ${project.name}`
-              : "Configure your project"}
-          </p>
-        </div>
+      <div className="max-w-4xl mx-auto space-y-8">
         {isDirty && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -272,16 +265,12 @@ function ProjectSettings() {
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col gap-2">
                       <FormLabel className="text-base font-medium">
                         Project Name
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Enter project name"
-                          className="text-lg border-0 bg-transparent px-0 py-4 text-foreground placeholder:text-muted-foreground focus-visible:ring-0 shadow-none"
-                        />
+                        <Input {...field} placeholder="Enter project name" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -293,7 +282,7 @@ function ProjectSettings() {
                     control={form.control}
                     name="icon"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel className="text-base font-medium">
                           Project Icon
                         </FormLabel>
@@ -357,7 +346,7 @@ function ProjectSettings() {
                     control={form.control}
                     name="slug"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel className="text-base font-medium">
                           Project Key
                         </FormLabel>
@@ -391,7 +380,7 @@ function ProjectSettings() {
                   control={form.control}
                   name="isPublic"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col gap-2">
                       <div className="rounded-lg border bg-card p-4">
                         <div className="flex items-center justify-between">
                           <div className="space-y-0.5">
@@ -534,7 +523,7 @@ function ProjectSettings() {
           </DangerZoneSection>
         )}
       </div>
-    </ProjectLayout>
+    </SettingsLayout>
   );
 }
 

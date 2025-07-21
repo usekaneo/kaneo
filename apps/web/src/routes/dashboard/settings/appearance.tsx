@@ -45,10 +45,10 @@ function UserSettings() {
 
   return (
     <SettingsLayout
-      title="User Settings"
+      title="User"
+      className="pt-4 px-6"
       description="Customize your personal preferences and appearance"
     >
-      {/* Theme Section */}
       <SettingsSection
         title="Theme"
         description="Choose your preferred color scheme"

@@ -27,6 +27,16 @@ import { Folder, Forward, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import CreateProjectModal from "./shared/modals/create-project-modal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 
 export function NavProjects() {
   const { isMobile } = useSidebar();
@@ -43,6 +53,8 @@ export function NavProjects() {
     });
 
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
+    useState(false);
+  const [isDeleteProjectModalOpen, setIsDeleteProjectModalOpen] =
     useState(false);
 
   const isCurrentProject = (projectId: string) => {
@@ -119,24 +131,62 @@ export function NavProjects() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="items-start text-destructive"
-                    onClick={async () => {
-                      await deleteProject({
-                        id: project.id,
-                      });
-                      toast.success("Project deleted");
-                      queryClient.invalidateQueries({
-                        queryKey: ["projects"],
-                      });
-                      navigate({
-                        to: "/dashboard/workspace/$workspaceId",
-                        params: {
-                          workspaceId: workspace?.id || "",
-                        },
-                      });
+                    onClick={() => {
+                      setIsDeleteProjectModalOpen(true);
+                      // await deleteProject({
+                      //   id: project.id,
+                      // });
+                      // toast.success("Project deleted");
+                      // queryClient.invalidateQueries({
+                      //   queryKey: ["projects"],
+                      // });
+                      // navigate({
+                      //   to: "/dashboard/workspace/$workspaceId",
+                      //   params: {
+                      //     workspaceId: workspace?.id || "",
+                      //   },
+                      // });
                     }}
                   >
                     <Trash2 className="text-destructive" />
                     <span>Delete Project</span>
+                    <AlertDialog
+                      open={isDeleteProjectModalOpen}
+                      onOpenChange={setIsDeleteProjectModalOpen}
+                    >
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Project?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently remove the project and all its
+                            data. You can't undo this action.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async () => {
+                              await deleteProject({
+                                id: project.id,
+                              });
+                              toast.success("Project deleted");
+                              queryClient.invalidateQueries({
+                                queryKey: ["projects"],
+                              });
+                              navigate({
+                                to: "/dashboard/workspace/$workspaceId",
+                                params: {
+                                  workspaceId: workspace?.id || "",
+                                },
+                              });
+                            }}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete Project
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

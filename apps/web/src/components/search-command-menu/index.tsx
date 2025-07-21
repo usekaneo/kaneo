@@ -207,7 +207,7 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
                       key={`${item.type}-${item.id}`}
                       onSelect={() => handleSelect(item)}
                       className="flex items-start gap-3 py-3"
-                      value={`${item.title} ${item.description || ""} ${item.type}`}
+                      value={`${item.title} ${item.description || ""} ${item.type} ${item.id}`}
                       aria-label={`${item.type}: ${item.title}`}
                     >
                       <Icon

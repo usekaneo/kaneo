@@ -119,7 +119,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               )}
             </div>
 
-            <div className="max-h-96 overflow-y-auto">
+            <div className="relative max-h-96 overflow-y-auto">
               {!hasNotifications ? (
                 <div className="p-6 text-center text-sm text-muted-foreground">
                   <Bell className="mx-auto h-12 w-12 opacity-50 mb-2" />
@@ -162,22 +162,21 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                       </div>
                     </div>
                   ))}
-
-                  {hasNotifications && (
-                    <div className="p-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowClearDialog(true)}
-                        className="w-full text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        Clear all notifications
-                      </Button>
-                    </div>
-                  )}
                 </>
               )}
             </div>
+            {hasNotifications && (
+              <div className="border-t border-border p-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowClearDialog(true)}
+                  className="w-full text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  Clear all notifications
+                </Button>
+              </div>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 

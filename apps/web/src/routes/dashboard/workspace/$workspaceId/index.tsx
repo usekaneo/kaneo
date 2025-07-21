@@ -180,7 +180,7 @@ function RouteComponent() {
                 Progress
               </TableHead>
               <TableHead className="text-foreground font-medium">
-                Target date
+                Due date
               </TableHead>
               <TableHead className="text-foreground font-medium">
                 Status
@@ -233,7 +233,15 @@ function RouteComponent() {
                   </TableCell>
                   <TableCell className="py-3">
                     <span className="text-sm text-muted-foreground">
-                      Jul 31, 2025
+                      {project.statistics.dueDate
+                        ? new Date(
+                            project.statistics.dueDate,
+                          ).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "No due date"}
                     </span>
                   </TableCell>
                   <TableCell className="py-3">

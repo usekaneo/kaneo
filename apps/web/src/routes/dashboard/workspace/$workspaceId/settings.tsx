@@ -1,18 +1,12 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Building2,
-  Lock,
-  Trash2,
-} from "lucide-react";
+import { AlertTriangle, Lock, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
 
-import WorkspaceLayout from "@/components/common/workspace-layout";
+import { SettingsLayout } from "@/components/settings-layout";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,7 +40,6 @@ export const Route = createFileRoute(
 function SettingsComponent() {
   const navigate = useNavigate();
   const { workspace, setWorkspace } = useWorkspaceStore();
-  const { workspaceId } = Route.useParams();
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
@@ -109,42 +102,13 @@ function SettingsComponent() {
   const isDeleteDisabled = deleteConfirmText !== workspace?.name || isDeleting;
 
   return (
-    <WorkspaceLayout
-      title="Settings"
-      headerActions={
-        <Button
-          variant="ghost"
-          size="xs"
-          onClick={() =>
-            navigate({
-              to: "/dashboard/workspace/$workspaceId",
-              params: { workspaceId },
-            })
-          }
-          className="gap-1.5"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          Back to workspace
-        </Button>
-      }
+    <SettingsLayout
+      title="Workspace"
+      className="pt-4 px-6"
+      description="Manage your workspace details and settings"
     >
-      <div className="max-w-2xl mx-auto space-y-8 py-6">
-        {/* General Settings Section */}
+      <div className="max-w-2xl mx-auto space-y-8">
         <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10">
-              <Building2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
-                General Settings
-              </h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Manage your workspace name and description
-              </p>
-            </div>
-          </div>
-
           <div className="p-6 bg-white dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-800">
             <Form {...form}>
               <form
@@ -319,6 +283,6 @@ function SettingsComponent() {
           </div>
         )}
       </div>
-    </WorkspaceLayout>
+    </SettingsLayout>
   );
 }

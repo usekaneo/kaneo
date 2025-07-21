@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
+import { cn } from "@/lib/cn";
 import useWorkspaceStore from "@/store/workspace";
 import type { ReactNode } from "react";
 
@@ -25,12 +26,14 @@ interface WorkspaceLayoutProps {
   headerActions?: ReactNode;
   children: ReactNode;
   onCreateProject?: () => void;
+  className?: string;
 }
 
 export default function WorkspaceLayout({
   title,
   headerActions,
   children,
+  className,
 }: WorkspaceLayoutProps) {
   const { workspace } = useWorkspaceStore();
 
@@ -77,7 +80,7 @@ export default function WorkspaceLayout({
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className={`${cn("flex items-center gap-1.5", className)}`}>
             <NotificationDropdown />
             {headerActions}
           </div>

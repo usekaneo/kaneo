@@ -18,11 +18,18 @@ async function getProjects(workspaceId: string) {
     const completionPercentage =
       totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+    const dueDate = project.tasks.reduce((earliest: Date | null, task) => {
+      if (!earliest || (task.dueDate && task.dueDate < earliest))
+        return task.dueDate;
+      return earliest;
+    }, null);
+
     return {
       ...project,
       statistics: {
         completionPercentage,
         totalTasks,
+        dueDate,
       },
       archivedTasks: [],
       plannedTasks: [],
