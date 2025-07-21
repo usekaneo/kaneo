@@ -47,7 +47,6 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const handleClick = (e: React.MouseEvent) => {
     if (!project || !task) return;
-    // Prevent click when dragging
     if (e.defaultPrevented) return;
 
     navigate({
@@ -84,7 +83,6 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             {...attributes}
             {...listeners}
           >
-            {/* Task ID */}
             {showTaskNumbers && (
               <div className="text-xs font-mono text-zinc-400 dark:text-zinc-500 w-16 flex-shrink-0">
                 {projectSlug}-{task.number}
@@ -104,7 +102,6 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
               </div>
             )}
 
-            {/* Task Title and Labels */}
             <div className="flex-1 min-w-0 flex items-center gap-2">
               <div className="flex items-center gap-2 justify-between w-full">
                 <span className="text-sm text-zinc-900 dark:text-zinc-100 truncate">
@@ -118,7 +115,6 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
               </div>
             </div>
 
-            {/* Due Date */}
             {showDueDates && task.dueDate && (
               <div
                 className={cn(
@@ -140,7 +136,6 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
               </div>
             )}
 
-            {/* Assignee */}
             {showAssignees && (
               <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 flex-shrink-0">
                 <User className="w-3 h-3" />

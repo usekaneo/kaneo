@@ -71,13 +71,11 @@ function BacklogListView({ project }: BacklogListViewProps) {
       return;
     }
 
-    // Check if we're over a backlog section directly
     if (over.id === "planned" || over.id === "archived") {
       setOverColumnId(over.id.toString());
       return;
     }
 
-    // Check if we're over a task - find which section it belongs to
     const taskId = over.id.toString();
     const plannedTasks = project?.plannedTasks || [];
     const archivedTasks = project?.archivedTasks || [];
@@ -101,7 +99,6 @@ function BacklogListView({ project }: BacklogListViewProps) {
     const activeTaskId = active.id.toString();
     const overId = over.id.toString();
 
-    // Find the active task
     const plannedTasks = project.plannedTasks || [];
     const archivedTasks = project.archivedTasks || [];
     const activeTask = [...plannedTasks, ...archivedTasks].find(
@@ -110,10 +107,8 @@ function BacklogListView({ project }: BacklogListViewProps) {
 
     if (!activeTask) return;
 
-    // Determine target section
     let targetSection = overId;
     if (overId !== "planned" && overId !== "archived") {
-      // If dropped on a task, find which section it belongs to
       if (plannedTasks.some((task) => task.id === overId)) {
         targetSection = "planned";
       } else if (archivedTasks.some((task) => task.id === overId)) {
@@ -123,10 +118,8 @@ function BacklogListView({ project }: BacklogListViewProps) {
       }
     }
 
-    // If task is already in the target section, don't do anything
     if (activeTask.status === targetSection) return;
 
-    // Update task status - this will trigger a refetch and update the project state
     updateTask({
       ...activeTask,
       status: targetSection,
@@ -276,12 +269,10 @@ function BacklogListView({ project }: BacklogListViewProps) {
         </div>
       </div>
 
-      {/* Minimal Drag Overlay */}
       <DragOverlay>
         {activeTask && (
           <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
             <div className="flex items-center gap-2">
-              {/* Priority Flag */}
               <div className="flex-shrink-0">
                 <Flag
                   className={cn(
@@ -293,7 +284,6 @@ function BacklogListView({ project }: BacklogListViewProps) {
                 />
               </div>
 
-              {/* Task Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">

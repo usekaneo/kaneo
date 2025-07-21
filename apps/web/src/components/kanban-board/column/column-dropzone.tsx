@@ -24,7 +24,6 @@ export function ColumnDropzone({
     },
   });
 
-  // Notify parent component when isOver state changes
   useEffect(() => {
     onIsOverChange?.(isOver);
   }, [isOver, onIsOverChange]);

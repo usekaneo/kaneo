@@ -46,7 +46,6 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
 
   const handleClick = (e: React.MouseEvent) => {
     if (!project || !task) return;
-    // Prevent click when dragging
     if (e.defaultPrevented) return;
 
     navigate({

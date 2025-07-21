@@ -143,19 +143,6 @@ export function NavProjects() {
                     className="items-start text-destructive"
                     onClick={() => {
                       setIsDeleteProjectModalOpen(true);
-                      // await deleteProject({
-                      //   id: project.id,
-                      // });
-                      // toast.success("Project deleted");
-                      // queryClient.invalidateQueries({
-                      //   queryKey: ["projects"],
-                      // });
-                      // navigate({
-                      //   to: "/dashboard/workspace/$workspaceId",
-                      //   params: {
-                      //     workspaceId: workspace?.id || "",
-                      //   },
-                      // });
                     }}
                   >
                     <Trash2 className="text-destructive" />

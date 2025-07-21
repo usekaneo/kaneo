@@ -39,7 +39,6 @@ function DashboardIndexRouteComponent() {
         activeWorkspaceId &&
         workspaces.some((ws) => ws.id === activeWorkspaceId)
       ) {
-        // Set the active workspace if it exists in the workspaces list
         const activeWorkspace = workspaces.find(
           (ws) => ws.id === activeWorkspaceId,
         );
@@ -47,7 +46,6 @@ function DashboardIndexRouteComponent() {
           setWorkspace(activeWorkspace);
         }
       } else {
-        // Set the first workspace as active if no active workspace is set
         const firstWorkspace = workspaces[0];
         setActiveWorkspaceId(firstWorkspace.id);
         setWorkspace(firstWorkspace);

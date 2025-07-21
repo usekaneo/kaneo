@@ -116,7 +116,7 @@ export const timeEntryTable = pgTable("time_entry", {
   description: text("description"),
   startTime: timestamp("start_time", { mode: "date" }).notNull(),
   endTime: timestamp("end_time", { mode: "date" }),
-  duration: integer("duration").default(0), // Duration in seconds
+  duration: integer("duration").default(0),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 

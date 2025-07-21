@@ -2,22 +2,18 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 type UserPreferencesStore = {
-  // Theme preferences
   theme: "light" | "dark" | "system";
   setTheme: (
     theme: "light" | "dark" | "system",
     coordinates?: { x: number; y: number },
   ) => void;
 
-  // View preferences
   viewMode: "board" | "list";
   setViewMode: (mode: "board" | "list") => void;
 
-  // Layout preferences
   compactMode: boolean;
   setCompactMode: (compact: boolean) => void;
 
-  // Display preferences
   showTaskNumbers: boolean;
   setShowTaskNumbers: (show: boolean) => void;
   toggleTaskNumbers: () => void;
@@ -35,23 +31,16 @@ type UserPreferencesStore = {
   togglePriority: () => void;
   resetDisplayPreferences: () => void;
 
-  // Sidebar preferences (for initial state)
   sidebarDefaultOpen: boolean;
   setSidebarDefaultOpen: (open: boolean) => void;
 
-  // Workspace tracking
   activeWorkspaceId: string | null;
   setActiveWorkspaceId: (workspaceId: string | null) => void;
-
-  // Legacy - keeping for backward compatibility
-  isSidebarOpened: boolean;
-  setIsSidebarOpened: () => void;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>()(
   persist(
-    (set, get) => ({
-      // Theme
+    (set) => ({
       theme: "dark",
       setTheme: (
         theme: "light" | "dark" | "system",
@@ -80,15 +69,12 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
         }
       },
 
-      // View preferences
       viewMode: "board",
       setViewMode: (mode) => set({ viewMode: mode }),
 
-      // Layout preferences
       compactMode: false,
       setCompactMode: (compact) => set({ compactMode: compact }),
 
-      // Display preferences
       showTaskNumbers: true,
       setShowTaskNumbers: (show) => set({ showTaskNumbers: show }),
       toggleTaskNumbers: () =>
@@ -117,19 +103,12 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
           showPriority: true,
         }),
 
-      // Sidebar preferences
       sidebarDefaultOpen: true,
       setSidebarDefaultOpen: (open) => set({ sidebarDefaultOpen: open }),
 
-      // Workspace tracking
       activeWorkspaceId: null,
       setActiveWorkspaceId: (workspaceId) =>
         set({ activeWorkspaceId: workspaceId }),
-
-      // Legacy - keeping for backward compatibility
-      isSidebarOpened: true,
-      setIsSidebarOpened: () =>
-        set({ isSidebarOpened: !get().isSidebarOpened }),
     }),
     {
       name: "user-preferences",

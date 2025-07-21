@@ -101,7 +101,6 @@ function KanbanBoard({ project }: KanbanBoardProps) {
           updateTask({ ...t, position: index + 1 });
         });
 
-        // Invalidate projects cache to update completion status
         queryClient.invalidateQueries({
           queryKey: ["projects", project.workspaceId],
         });

@@ -1,9 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-// import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,9 +38,9 @@ function TaskInfo({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { project } = useProjectStore();
-  // const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
-  //   workspaceId: project?.workspaceId ?? "",
-  // });
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
+    workspaceId: project?.workspaceId ?? "",
+  });
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: deleteTask, isPending: isDeleting } = useDeleteTask();
 
@@ -114,13 +120,18 @@ function TaskInfo({
                   field.onChange(value);
                   handleChange({ ...form.getValues(), status: value });
                 }}
-                // options={
-                //   project?.columns?.map((col) => ({
-                //     value: col.id,
-                //     label: col.name,
-                //   })) || []
-                // }
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {project?.columns?.map((column) => (
+                    <SelectItem key={column.id} value={column.id}>
+                      {column.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormItem>
           )}
         />
@@ -137,17 +148,21 @@ function TaskInfo({
                   field.onChange(value);
                   handleChange({ ...form.getValues(), userEmail: value });
                 }}
-                // options={[
-                //   {
-                //     value: "",
-                //     label: "Unassigned",
-                //   },
-                //   ...(workspaceUsers?.map((user) => ({
-                //     value: user.userEmail ?? "",
-                //     label: user.userName ?? "",
-                //   })) || []),
-                // ]}
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select assignee" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {workspaceUsers?.map((user) => {
+                    return (
+                      <SelectItem key={user.userEmail} value={user.userEmail}>
+                        {user.userName}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </FormItem>
           )}
         />
@@ -163,29 +178,17 @@ function TaskInfo({
                   field.onChange(value);
                   handleChange({ ...form.getValues(), priority: value });
                 }}
-                // options={[
-                //   {
-                //     value: "low",
-                //     label: "Low",
-                //     icon: <Flag className="w-4 h-4 text-blue-500" />,
-                //   },
-                //   {
-                //     value: "medium",
-                //     label: "Medium",
-                //     icon: <Flag className="w-4 h-4 text-yellow-500" />,
-                //   },
-                //   {
-                //     value: "high",
-                //     label: "High",
-                //     icon: <Flag className="w-4 h-4 text-red-500" />,
-                //   },
-                //   {
-                //     value: "urgent",
-                //     label: "Urgent",
-                //     icon: <Flag className="w-4 h-4 text-red-500" />,
-                //   },
-                // ]}
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
             </FormItem>
           )}
         />

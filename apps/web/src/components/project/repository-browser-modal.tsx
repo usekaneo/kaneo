@@ -188,7 +188,6 @@ export function RepositoryBrowserModal({
                     </div>
                   )}
 
-                  {/* Repository list */}
                   {filteredRepositories.length > 0 && (
                     <div className="p-4 space-y-2">
                       {filteredRepositories.map((repository) => (
@@ -276,7 +275,6 @@ export function RepositoryBrowserModal({
                     </div>
                   )}
 
-                  {/* No filtered results */}
                   {filteredRepositories.length === 0 &&
                     data.repositories.length > 0 && (
                       <div className="text-center py-12">
@@ -294,7 +292,6 @@ export function RepositoryBrowserModal({
               )}
             </div>
 
-            {/* Footer */}
             {data && data.installations.length > 0 && (
               <div className="flex-shrink-0 border-t border-zinc-200 dark:border-zinc-800 p-4">
                 <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">

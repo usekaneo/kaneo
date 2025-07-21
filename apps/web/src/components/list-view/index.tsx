@@ -76,13 +76,11 @@ function ListView({ project }: ListViewProps) {
       return;
     }
 
-    // Check if we're over a column directly
     if (project?.columns?.some((col) => col.id === over.id)) {
       setOverColumnId(over.id.toString());
       return;
     }
 
-    // Check if we're over a task - find which column it belongs to
     const taskId = over.id.toString();
     const columnWithTask = project?.columns?.find((col) =>
       col.tasks.some((task) => task.id === taskId),
@@ -211,7 +209,6 @@ function ListView({ project }: ListViewProps) {
             "border-l-4 border-l-indigo-500 dark:border-l-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/10",
         )}
       >
-        {/* Header */}
         <div className="flex items-center justify-between py-2 px-4 bg-zinc-100/60 dark:bg-zinc-800/20 border-b border-zinc-200/50 dark:border-zinc-800/30">
           <button
             type="button"
@@ -268,7 +265,6 @@ function ListView({ project }: ListViewProps) {
           </div>
         </div>
 
-        {/* Tasks */}
         {expandedSections[column.id] && (
           <div ref={setNodeRef} className="bg-white dark:bg-transparent">
             <SortableContext
@@ -322,12 +318,10 @@ function ListView({ project }: ListViewProps) {
         </div>
       </div>
 
-      {/* Minimal Drag Overlay */}
       <DragOverlay>
         {activeTask && (
           <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
             <div className="flex items-center gap-2">
-              {/* Priority Flag */}
               <div className="flex-shrink-0">
                 <Flag
                   className={cn(
@@ -339,7 +333,6 @@ function ListView({ project }: ListViewProps) {
                 />
               </div>
 
-              {/* Task Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">

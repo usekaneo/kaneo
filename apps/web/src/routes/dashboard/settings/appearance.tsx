@@ -24,13 +24,10 @@ export const Route = createFileRoute("/dashboard/settings/appearance")({
 
 function UserSettings() {
   const {
-    // Theme
     theme: selectedTheme,
     setTheme,
-    // Layout
     compactMode,
     setCompactMode,
-    // Display
     showTaskNumbers,
     setShowTaskNumbers,
     showAssignees,
@@ -131,14 +128,12 @@ function UserSettings() {
         </div>
       </SettingsSection>
 
-      {/* Layout & Interface */}
       <SettingsSection
         title="Layout & Interface"
         description="Customize how the interface looks and behaves"
         icon={<Layout className="w-4 h-4" />}
       >
         <div className="space-y-6">
-          {/* Compact Mode */}
           <div className="rounded-lg border bg-card p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -156,7 +151,6 @@ function UserSettings() {
         </div>
       </SettingsSection>
 
-      {/* Display Preferences */}
       <SettingsSection
         title="Display Preferences"
         description="Control what information is shown in your tasks"

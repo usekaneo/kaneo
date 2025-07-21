@@ -18,7 +18,6 @@ import timeEntry from "./time-entry";
 import user from "./user";
 import { validateSessionToken } from "./user/utils/validate-session-token";
 import getSettings from "./utils/get-settings";
-import setDemoUser from "./utils/set-demo-user";
 import workspace from "./workspace";
 import workspaceUser from "./workspace-user";
 
@@ -53,27 +52,28 @@ if (!isDemoMode) {
   app.use("*", auth);
 }
 
-app.use("*", async (c, next) => {
-  if (isDemoMode) {
-    const session = getCookie(c, "session");
+// TODO: Fix this
+// app.use("*", async (c, next) => {
+//   if (isDemoMode) {
+//     const session = getCookie(c, "session");
 
-    if (!session) {
-      await setDemoUser(c);
-    }
+//     if (!session) {
+//       await setDemoUser(c);
+//     }
 
-    const { user, session: validatedSession } = await validateSessionToken(
-      session ?? "",
-    );
+//     const { user, session: validatedSession } = await validateSessionToken(
+//       session ?? "",
+//     );
 
-    if (!user || !validatedSession) {
-      await setDemoUser(c);
-    }
+//     if (!user || !validatedSession) {
+//       await setDemoUser(c);
+//     }
 
-    c.set("userEmail", user?.email ?? "");
-  }
+//     c.set("userEmail", user?.email ?? "");
+//   }
 
-  await next();
-});
+//   await next();
+// });
 
 const meRoute = app.get("/me", async (c) => {
   const session = getCookie(c, "session");

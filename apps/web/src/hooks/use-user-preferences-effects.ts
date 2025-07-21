@@ -4,7 +4,6 @@ import { useEffect } from "react";
 export function useUserPreferencesEffects() {
   const { compactMode, theme } = useUserPreferencesStore();
 
-  // Apply compact mode styles to the document
   useEffect(() => {
     const root = document.documentElement;
 
@@ -19,14 +18,11 @@ export function useUserPreferencesEffects() {
     };
   }, [compactMode]);
 
-  // Apply theme class for better CSS targeting
   useEffect(() => {
     const root = document.documentElement;
 
-    // Remove any existing theme classes
     root.classList.remove("theme-light", "theme-dark", "theme-system");
 
-    // Add current theme class
     root.classList.add(`theme-${theme}`);
 
     return () => {

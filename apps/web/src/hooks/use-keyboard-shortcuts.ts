@@ -172,7 +172,6 @@ export function KeyboardShortcutsProvider({
 
       const key = event.key.toLowerCase();
 
-      // Handle modifier shortcuts (like Cmd+B, Ctrl+B)
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
         const modifierKey = event.metaKey
           ? "⌘"
@@ -194,7 +193,6 @@ export function KeyboardShortcutsProvider({
         return;
       }
 
-      // Handle sequential shortcuts (like vim-style shortcuts)
       if (activePrefix && sequentialShortcuts.has(activePrefix)) {
         const prefixMap = sequentialShortcuts.get(activePrefix);
         if (prefixMap?.has(key)) {
