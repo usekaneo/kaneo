@@ -1,9 +1,12 @@
-import createWorkspace from "@/fetchers/workspace/create-workspace";
+import createWorkspace, {
+  type CreateWorkspaceRequest,
+} from "@/fetchers/workspace/create-workspace";
 import { useMutation } from "@tanstack/react-query";
 
-function useCreateWorkspace({ name }: { name: string }) {
+function useCreateWorkspace() {
   return useMutation({
-    mutationFn: () => createWorkspace({ name }),
+    mutationFn: ({ name, description }: CreateWorkspaceRequest) =>
+      createWorkspace({ name, description }),
   });
 }
 

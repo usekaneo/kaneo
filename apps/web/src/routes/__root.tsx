@@ -1,5 +1,6 @@
-import { CommandPalette } from "@/components/command-palette";
-import useTheme from "@/components/providers/theme-provider/hooks/use-theme";
+import CommandPalette from "@/components/command-palette";
+import SearchCommandMenu from "@/components/search-command-menu";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { LoggedInUser } from "@/types/user";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -8,6 +9,7 @@ import {
   redirect,
   useLocation,
 } from "@tanstack/react-router";
+import { useState } from "react";
 import { Toaster } from "sonner";
 
 export const Route = createRootRouteWithContext<{
@@ -40,15 +42,21 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootComponent() {
-  const { theme } = useTheme();
+  const { theme } = useUserPreferencesStore();
   const location = useLocation();
   const isPublicProject = location.pathname.includes("public-project");
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <>
-      <div className="flex w-full h-svh overflow-x-hidden overflow-y-hidden flex-row bg-zinc-50 dark:bg-zinc-950 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
+      <div className="flex w-full h-svh overflow-x-hidden overflow-y-hidden flex-row scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 bg-sidebar">
         <Outlet />
-        {!isPublicProject && <CommandPalette />}
+        {!isPublicProject && (
+          <>
+            <CommandPalette />
+            <SearchCommandMenu open={searchOpen} setOpen={setSearchOpen} />
+          </>
+        )}
       </div>
       <Toaster
         position="bottom-right"

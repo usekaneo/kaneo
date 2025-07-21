@@ -1,6 +1,10 @@
-import PageTitle from "@/components/page-title";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { TasksImportExport } from "@/components/project/tasks-import-export";
+import {
+  DangerZoneSection,
+  SettingsLayout,
+  SettingsSection,
+} from "@/components/settings-layout";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -12,6 +16,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
@@ -23,13 +32,18 @@ import useProjectStore from "@/store/project";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import {
   AlertCircle,
   AlertTriangle,
-  ArrowLeft,
   Check,
   Copy,
+  Download,
+  Github,
+  Globe,
+  Key,
   Lock,
+  Trash2,
 } from "lucide-react";
 import { createElement, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -58,6 +72,7 @@ function ProjectSettings() {
   const { isOwner } = useWorkspacePermission();
   const [confirmProjectName, setConfirmProjectName] = useState("");
   const [copied, setCopied] = useState(false);
+  const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const { mutateAsync: updateProject, isPending } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
@@ -192,38 +207,22 @@ function ProjectSettings() {
 
   if (!isOwner) {
     return (
-      <div className="flex-1 p-6">
-        <PageTitle title="Project Settings" />
-        <div className="mt-6 max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-zinc-800/50 rounded-lg p-8 shadow-sm border border-zinc-200 dark:border-zinc-700/50 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <Lock className="w-8 h-8 text-amber-600 dark:text-amber-400" />
-              </div>
-            </div>
-            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-              Permission Required
-            </h2>
-            <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-md mx-auto">
+      <div className="max-w-4xl mx-auto space-y-8 py-6">
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground">
+            Manage your project configuration and settings
+          </p>
+        </div>
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-amber-50 dark:border-amber-800/50 dark:bg-amber-900/20">
+            <Lock className="h-8 w-8 text-amber-600 dark:text-amber-500" />
+          </div>
+          <div className="mt-6 text-center">
+            <h2 className="text-xl font-semibold">Permission Required</h2>
+            <p className="mt-2 text-sm text-muted-foreground max-w-md">
               Only workspace owners can modify project settings. Please contact
               the workspace owner if you need to make changes.
             </p>
-            <Button
-              variant="outline"
-              onClick={() =>
-                navigate({
-                  to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
-                  params: {
-                    workspaceId: project?.workspaceId ?? "",
-                    projectId: project?.id ?? "",
-                  },
-                })
-              }
-              className="gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Project
-            </Button>
           </div>
         </div>
       </div>
@@ -231,298 +230,300 @@ function ProjectSettings() {
   }
 
   return (
-    <>
-      <PageTitle title="Project Settings" />
-      <div className="h-full flex flex-col bg-white dark:bg-zinc-900 overflow-hidden">
-        <header className="sticky top-0 z-10 flex items-center px-4 h-[65px] bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              Project Settings
-            </h1>
-            {isDirty && (
-              <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded text-xs font-medium">
-                <AlertCircle className="w-3 h-3" />
-                Unsaved changes
-              </div>
-            )}
-          </div>
-        </header>
+    <SettingsLayout
+      title="Project"
+      description="Configure your project settings and details"
+      className="pt-4 px-6 overflow-auto"
+    >
+      <div className="max-w-4xl mx-auto space-y-8">
+        {isDirty && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20"
+          >
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-500" />
+              <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                You have unsaved changes
+              </span>
+            </div>
+          </motion.div>
+        )}
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
-            <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
-              <div className="p-4 md:p-6">
-                <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
-                  General Settings
-                </h2>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                  Basic project information and settings.
-                </p>
+        {project && (
+          <SettingsSection
+            title="General"
+            description="Basic project information and configuration"
+          >
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col gap-2">
+                      <FormLabel className="text-base font-medium">
+                        Project Name
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter project name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                {project ? (
-                  <Form {...form}>
-                    <form
-                      onSubmit={form.handleSubmit(onSubmit)}
-                      className="space-y-6"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Project Name</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  className="bg-white dark:bg-zinc-800/50"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="slug"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Project Slug</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  className="bg-white dark:bg-zinc-800/50 font-mono"
-                                  maxLength={5}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="isPublic"
-                          render={({ field }) => (
-                            <FormItem className="space-y-4">
-                              <div className="flex items-center justify-between">
-                                <div className="space-y-1">
-                                  <FormLabel className="text-base">
-                                    Public Project
-                                  </FormLabel>
-                                  <FormDescription>
-                                    Make the project visible to everyone on the
-                                    web.
-                                  </FormDescription>
+                <div className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="icon"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-2">
+                        <FormLabel className="text-base font-medium">
+                          Project Icon
+                        </FormLabel>
+                        <div className="flex items-center gap-4">
+                          <Popover
+                            open={iconPopoverOpen}
+                            onOpenChange={setIconPopoverOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-10 w-10 p-0"
+                              >
+                                {createElement(
+                                  icons[field.value as keyof typeof icons],
+                                  {
+                                    className: "h-4 w-4",
+                                  },
+                                )}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 p-2" align="start">
+                              <div className="max-h-[300px] overflow-y-auto">
+                                <div className="grid grid-cols-8 gap-2">
+                                  {Object.entries(icons).map(
+                                    ([iconName, Icon]) => (
+                                      <Button
+                                        key={iconName}
+                                        variant="ghost"
+                                        size="sm"
+                                        className={cn(
+                                          "h-10 w-10 p-0",
+                                          field.value === iconName &&
+                                            "bg-accent",
+                                        )}
+                                        onClick={() => {
+                                          field.onChange(iconName);
+                                          setIconPopoverOpen(false);
+                                        }}
+                                      >
+                                        <Icon className="h-4 w-4" />
+                                      </Button>
+                                    ),
+                                  )}
                                 </div>
-                                <FormControl>
-                                  <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    className="data-[state=checked]:bg-indigo-500 data-[state=unchecked]:bg-zinc-200 dark:data-[state=unchecked]:bg-zinc-700"
-                                  />
-                                </FormControl>
                               </div>
-                              <FormMessage />
-                              {field.value && (
-                                <div className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-950/50 rounded-lg border border-indigo-200 dark:border-indigo-800/50">
-                                  <p className="text-sm font-medium text-indigo-900 dark:text-indigo-100 mb-2">
-                                    Public URL
-                                  </p>
-                                  <div className="flex gap-2">
-                                    <Input
-                                      value={`${window.location.origin}/public-project/${project?.id}`}
-                                      readOnly
-                                      className="bg-white dark:bg-zinc-800/50 font-mono text-sm flex-1"
-                                    />
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={handleCopyUrl}
-                                      className="px-3 min-w-[80px]"
-                                    >
-                                      {copied ? (
-                                        <>
-                                          <Check className="w-4 h-4 mr-1" />
-                                          Copied
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Copy className="w-4 h-4 mr-1" />
-                                          Copy
-                                        </>
-                                      )}
-                                    </Button>
-                                  </div>
-                                  <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-2">
-                                    Anyone with this link can view your
-                                    project's tasks.
-                                  </p>
-                                </div>
-                              )}
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="icon"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Project Icon</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-[240px] overflow-y-auto p-2 rounded-lg border border-zinc-200 dark:border-zinc-700/50">
-                                  {Object.entries(icons).map(([name, Icon]) => (
-                                    <button
-                                      key={name}
-                                      type="button"
-                                      onClick={() => field.onChange(name)}
-                                      className={cn(
-                                        "p-3 sm:p-2 rounded-lg transition-colors flex items-center justify-center group",
-                                        field.value === name
-                                          ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                                          : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                                      )}
-                                      title={name}
-                                    >
-                                      <Icon className="w-6 h-6 sm:w-5 sm:h-5" />
-                                    </button>
-                                  ))}
-                                </div>
-                                <div className="absolute left-0 right-0 bottom-0 h-8 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none" />
-                              </div>
-                            </FormControl>
-                            <div className="flex items-center gap-2 mt-2 px-2">
-                              {createElement(
-                                icons[field.value as keyof typeof icons],
-                                {
-                                  className: "w-4 h-4 text-zinc-400",
-                                },
-                              )}
-                              <span className="text-sm text-zinc-500 dark:text-zinc-400">
-                                {field.value}
-                              </span>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <Button type="submit" disabled={isPending}>
-                        {isPending ? "Saving..." : "Save Changes"}
-                      </Button>
-
-                      {isDirty && (
-                        <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
-                          <AlertCircle className="w-4 h-4" />
-                          <span>You have unsaved changes</span>
+                            </PopoverContent>
+                          </Popover>
+                          <div className="flex-1 space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                              Choose an icon to represent your project
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </form>
-                  </Form>
-                ) : (
-                  <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                    Select a project to view its settings
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-2">
+                        <FormLabel className="text-base font-medium">
+                          Project Key
+                        </FormLabel>
+                        <div className="rounded-lg border bg-card p-4">
+                          <div className="flex items-center gap-3">
+                            <Key className="h-4 w-4 text-muted-foreground" />
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="PROJ"
+                                className="w-20 border-0 bg-transparent p-0 text-center font-mono text-sm font-semibold uppercase shadow-none focus-visible:ring-0"
+                                maxLength={5}
+                                onChange={(e) =>
+                                  field.onChange(e.target.value.toUpperCase())
+                                }
+                              />
+                            </FormControl>
+                            <div className="flex-1 text-xs text-muted-foreground">
+                              Used for task IDs (e.g., {field.value || "ABC"}
+                              -123)
+                            </div>
+                          </div>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="isPublic"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col gap-2">
+                      <div className="rounded-lg border bg-card p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <Globe className="h-4 w-4 text-muted-foreground" />
+                              <FormLabel className="text-base font-medium">
+                                Public Project
+                              </FormLabel>
+                            </div>
+                            <FormDescription>
+                              Make the project visible to everyone on the web
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </div>
+                        {field.value && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            className="mt-4 space-y-3 rounded-md border bg-muted/20 p-3"
+                          >
+                            <p className="text-sm font-medium">Public URL</p>
+                            <div className="flex gap-2">
+                              <Input
+                                value={`${window.location.origin}/public-project/${project?.id}`}
+                                readOnly
+                                className="flex-1 font-mono text-xs"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleCopyUrl}
+                              >
+                                {copied ? (
+                                  <>
+                                    <Check className="mr-1 h-3 w-3" />
+                                    Copied
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="mr-1 h-3 w-3" />
+                                    Copy
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={isPending || !isDirty}>
+                    {isPending ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </SettingsSection>
+        )}
+
+        {project && (
+          <SettingsSection
+            title="Export & Import"
+            description="Export tasks to a JSON file or import tasks from a JSON file"
+            icon={<Download className="w-4 h-4" />}
+          >
+            <TasksImportExport project={project} />
+          </SettingsSection>
+        )}
+
+        {project && (
+          <SettingsSection
+            title="GitHub Integration"
+            description="Configure GitHub integration for your project"
+            icon={<Github className="w-4 h-4" />}
+          >
+            <GitHubIntegrationSettings projectId={project.id} />
+          </SettingsSection>
+        )}
+
+        {project && (
+          <DangerZoneSection
+            title="Danger Zone"
+            description="Permanently delete your project. This action cannot be undone."
+          >
+            <div className="space-y-4">
+              <div className="rounded-md border border-destructive/20 bg-destructive/10 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 text-destructive" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">
+                      This action cannot be undone
+                    </p>
+                    <ul className="space-y-1 text-xs text-muted-foreground">
+                      <li>• All tasks will be permanently deleted</li>
+                      <li>• All task history will be removed</li>
+                      <li>• Project settings will be erased</li>
+                    </ul>
                   </div>
-                )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label
+                    htmlFor="confirm-deletion"
+                    className="text-sm font-medium"
+                  >
+                    Type "{project.name}" to confirm deletion
+                  </label>
+                  <Input
+                    id="confirm-deletion"
+                    value={confirmProjectName}
+                    onChange={(e) => setConfirmProjectName(e.target.value)}
+                    placeholder={project.name}
+                    className="mt-1"
+                  />
+                </div>
+                <Button
+                  onClick={handleDeleteProject}
+                  disabled={confirmProjectName !== project.name || isDeleting}
+                  variant="destructive"
+                  className="w-full gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {isDeleting ? "Deleting..." : "Delete Project"}
+                </Button>
               </div>
             </div>
-
-            {project && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                <div className="p-4 md:p-6">
-                  <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
-                    Tasks Export & Import
-                  </h2>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                    Export tasks to a JSON file or import tasks from a JSON
-                    file.
-                  </p>
-
-                  <TasksImportExport project={project} />
-                </div>
-              </div>
-            )}
-
-            {project && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                <div className="p-4 md:p-6">
-                  <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
-                    GitHub Integration
-                  </h2>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                    Configure GitHub integration for your project.
-                  </p>
-
-                  <GitHubIntegrationSettings projectId={project.id} />
-                </div>
-              </div>
-            )}
-
-            {project && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                <div className="p-4 md:p-6">
-                  <h2 className="text-base font-medium text-red-600 dark:text-red-400 mb-1">
-                    Danger Zone
-                  </h2>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-                    Permanently delete your project. This action cannot be
-                    undone.
-                  </p>
-
-                  <div className="space-y-4">
-                    <div className="p-4 bg-red-500/5 border border-red-200 dark:border-red-500/10 rounded-lg">
-                      <div className="flex items-center gap-3 text-red-600 dark:text-red-400 mb-3">
-                        <AlertTriangle className="w-5 h-5" />
-                        <p className="font-medium">
-                          Warning: This action cannot be undone
-                        </p>
-                      </div>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-red-600/90 dark:text-red-400/90">
-                        <li>All tasks will be permanently deleted</li>
-                        <li>All task history will be removed</li>
-                        <li>Project settings will be erased</li>
-                      </ul>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="confirm-project-name"
-                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1.5"
-                      >
-                        Type "{project.name}" to confirm deletion
-                      </label>
-                      <div className="flex gap-3">
-                        <Input
-                          value={confirmProjectName}
-                          onChange={(e) =>
-                            setConfirmProjectName(e.target.value)
-                          }
-                          placeholder={project.name}
-                          className="bg-white dark:bg-zinc-800/50"
-                        />
-                        <Button
-                          onClick={handleDeleteProject}
-                          disabled={confirmProjectName !== project.name}
-                          className="bg-red-600 text-white hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400 disabled:opacity-50"
-                        >
-                          {isDeleting ? "Deleting..." : "Delete Project"}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+          </DangerZoneSection>
+        )}
       </div>
-    </>
+    </SettingsLayout>
   );
 }
 

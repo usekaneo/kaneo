@@ -1,8 +1,27 @@
-import { Editor } from "@/components/common/editor";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
@@ -10,8 +29,6 @@ import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-acti
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
-import * as Dialog from "@radix-ui/react-dialog";
-import * as Popover from "@radix-ui/react-popover";
 import { format } from "date-fns";
 import { produce } from "immer";
 import {
@@ -23,7 +40,6 @@ import {
   Tag,
   Target,
   UserIcon,
-  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -271,424 +287,386 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleClose}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-          <div className="bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700/50 backdrop-blur-xl">
-            <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800/50">
-              <div className="flex items-center gap-3">
-                <div className="text-sm text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-2xl" showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle asChild>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider text-sm">
                   {project?.slug?.toUpperCase() || "TASK"}
-                </div>
-                <div className="w-1 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full" />
-                <div className="text-sm text-zinc-700 dark:text-zinc-300 font-medium">
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="text-zinc-700 dark:text-zinc-300 font-medium text-sm">
                   New Task
-                </div>
-              </div>
-              <Dialog.Close
-                asChild
-                className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 rounded-lg transition-all duration-200"
-              >
-                <X size={18} />
-              </Dialog.Close>
-            </div>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new task by providing a title, description, and other
+            details.
+          </DialogDescription>
+        </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="px-6 pb-6">
-              <div className="space-y-6">
-                <div className="pt-2">
-                  <Input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    autoFocus
-                    placeholder="Task title"
-                    className="text-xl font-semibold border-0 px-0 shadow-none focus-visible:ring-0 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight"
-                    required
-                  />
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6 px-6">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              autoFocus
+              placeholder="Task title"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
+              required
+            />
 
-                <div>
-                  <div className="border border-zinc-300 dark:border-zinc-700/30 bg-zinc-50 dark:bg-zinc-800/30 h-[240px] rounded-lg shadow-sm backdrop-blur-sm overflow-hidden">
-                    <Editor
-                      value={description}
-                      onChange={setDescription}
-                      placeholder="Add description..."
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add description..."
+              className="!border-0 px-0 py-2 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-700 dark:text-zinc-300 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 resize-none min-h-[120px] focus:!outline-none focus-visible:!outline-none"
+            />
+
+            {labels.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {labels.map((label) => (
+                  <Badge
+                    key={label.name}
+                    badgeColor={label.color}
+                    variant="outline"
+                    className="flex items-center gap-1 pl-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors"
+                    onClick={() => removeLabel(label.name)}
+                  >
+                    <span
+                      className="inline-block w-2 h-2 mr-1.5 rounded-full"
+                      style={{
+                        backgroundColor:
+                          labelColors.find((c) => c.value === label.color)
+                            ?.color || "#94a3b8",
+                      }}
                     />
-                  </div>
-                </div>
+                    {label.name}
+                  </Badge>
+                ))}
+              </div>
+            )}
 
-                {labels.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {labels.map((label) => (
-                      <Badge
-                        key={label.name}
-                        badgeColor={label.color}
-                        variant="outline"
-                        className="flex items-center gap-1 pl-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors"
-                        onClick={() => removeLabel(label.name)}
+            <div className="flex flex-wrap items-center gap-2 py-2">
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-500/20 dark:to-yellow-500/20 text-amber-800 dark:text-amber-300 rounded-md text-xs font-medium border border-amber-300 dark:border-amber-500/30">
+                <div className="w-1.5 h-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 dark:from-amber-400 dark:to-yellow-400 rounded-full shadow-sm" />
+                {status
+                  ? status.charAt(0).toUpperCase() +
+                    status.slice(1).replace("-", " ")
+                  : "In Progress"}
+              </div>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
+                      selectedPriority && priority !== "low"
+                        ? `${selectedPriority.color} ${selectedPriority.bg} ${selectedPriority.border}`
+                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
+                    )}
+                  >
+                    <Target className="w-3.5 h-3.5" />
+                    <span>
+                      {selectedPriority ? selectedPriority.label : "Priority"}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-2" align="start">
+                  <div className="space-y-1">
+                    {priorityOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={cn(
+                          "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all duration-200 hover:scale-[1.02]",
+                          option.color,
+                          option.bg,
+                          `hover:${option.bg}`,
+                        )}
+                        onClick={() => setPriority(option.value as Priority)}
                       >
-                        <span
-                          className="inline-block w-2 h-2 mr-1.5 rounded-full"
-                          style={{
-                            backgroundColor:
-                              labelColors.find((c) => c.value === label.color)
-                                ?.color || "#94a3b8",
-                          }}
-                        />
-                        {label.name}
-                      </Badge>
+                        <Flag className={cn("w-3.5 h-3.5", option.color)} />
+                        {option.label}
+                      </button>
                     ))}
                   </div>
-                )}
+                </PopoverContent>
+              </Popover>
 
-                <div className="flex flex-wrap items-center gap-2 py-2">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-500/20 dark:to-yellow-500/20 text-amber-800 dark:text-amber-300 rounded-md text-xs font-medium border border-amber-300 dark:border-amber-500/30">
-                    <div className="w-1.5 h-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 dark:from-amber-400 dark:to-yellow-400 rounded-full shadow-sm" />
-                    {status
-                      ? status.charAt(0).toUpperCase() +
-                        status.slice(1).replace("-", " ")
-                      : "In Progress"}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
+                      selectedUser
+                        ? "text-indigo-300 bg-indigo-500/10 border-indigo-500/30"
+                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
+                    )}
+                  >
+                    {selectedUser ? (
+                      <>
+                        <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
+                          {selectedUser.userName?.charAt(0).toUpperCase() ||
+                            "?"}
+                        </div>
+                        <span>{selectedUser.userName}</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserIcon className="w-3.5 h-3.5" />
+                        <span>Assign</span>
+                      </>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-2" align="start">
+                  <div className="space-y-1">
+                    <button
+                      type="button"
+                      className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
+                      onClick={() => setAssigneeEmail("")}
+                    >
+                      <UserIcon className="w-4 h-4 text-zinc-600 dark:text-zinc-500" />
+                      Unassigned
+                    </button>
+                    {users?.map((user) => (
+                      <button
+                        key={user.userEmail}
+                        type="button"
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
+                        onClick={() => setAssigneeEmail(user.userEmail || "")}
+                      >
+                        <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
+                          {user.userName?.charAt(0).toUpperCase() || "?"}
+                        </div>
+                        {user.userName}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
+                      dueDate
+                        ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
+                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
+                    )}
+                  >
+                    <CalendarIcon className="w-3.5 h-3.5" />
+                    <span>
+                      {dueDate ? format(dueDate, "MMM d, yyyy") : "Due date"}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    className="rounded-md border-0"
+                  />
+                  {dueDate && (
+                    <div className="flex justify-between items-center pt-3 border-t border-zinc-200 dark:border-zinc-800/50 mt-3">
+                      <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                        {format(dueDate, "EEEE, MMMM d, yyyy")}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setDueDate(undefined)}
+                        className="text-xs text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+
+              <Popover open={labelsOpen} onOpenChange={setLabelsOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
+                      labels.length > 0
+                        ? "text-violet-300 bg-violet-500/10 border-violet-500/30"
+                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
+                    )}
+                  >
+                    <Tag className="w-3.5 h-3.5" />
+                    <span>Labels</span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-80 p-0 overflow-hidden"
+                  align="start"
+                  sideOffset={5}
+                >
+                  <div className="flex items-center p-2 border-b border-zinc-200 dark:border-zinc-800">
+                    <Search className="w-4 h-4 text-zinc-500 dark:text-zinc-400 mr-2" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      onKeyDown={handleSearchKeyDown}
+                      placeholder="Change or add labels..."
+                      className="w-full bg-transparent border-none text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none placeholder:text-zinc-500"
+                    />
                   </div>
 
-                  <Popover.Root>
-                    <Popover.Trigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
-                          selectedPriority && priority !== "low"
-                            ? `${selectedPriority.color} ${selectedPriority.bg} ${selectedPriority.border}`
-                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
-                        )}
-                      >
-                        <Target className="w-3.5 h-3.5" />
-                        <span>
-                          {selectedPriority
-                            ? selectedPriority.label
-                            : "Priority"}
-                        </span>
-                      </button>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Content
-                        align="start"
-                        className="z-50 w-48 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
-                      >
-                        <div className="space-y-1">
-                          {priorityOptions.map((option) => (
-                            <button
-                              key={option.value}
-                              type="button"
-                              className={cn(
-                                "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all duration-200 hover:scale-[1.02]",
-                                option.color,
-                                option.bg,
-                                `hover:${option.bg}`,
-                              )}
-                              onClick={() =>
-                                setPriority(option.value as Priority)
-                              }
-                            >
-                              <Flag
-                                className={cn("w-3.5 h-3.5", option.color)}
-                              />
-                              {option.label}
-                            </button>
-                          ))}
-                        </div>
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root>
-
-                  <Popover.Root>
-                    <Popover.Trigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
-                          selectedUser
-                            ? "text-indigo-300 bg-indigo-500/10 border-indigo-500/30"
-                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
-                        )}
-                      >
-                        {selectedUser ? (
-                          <>
-                            <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
-                              {selectedUser.userName?.charAt(0).toUpperCase() ||
-                                "?"}
-                            </div>
-                            <span>{selectedUser.userName}</span>
-                          </>
-                        ) : (
-                          <>
-                            <UserIcon className="w-3.5 h-3.5" />
-                            <span>Assign</span>
-                          </>
-                        )}
-                      </button>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Content
-                        align="start"
-                        className="z-50 w-64 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
-                      >
-                        <div className="space-y-1">
+                  <div className="max-h-80 overflow-y-auto">
+                    {filteredLabels.length > 0 ? (
+                      <div className="py-1">
+                        {filteredLabels.map((label: Label) => (
                           <button
+                            key={label.name}
                             type="button"
-                            className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
-                            onClick={() => setAssigneeEmail("")}
+                            className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                            onClick={() => toggleLabel(label.name)}
                           >
-                            <UserIcon className="w-4 h-4 text-zinc-600 dark:text-zinc-500" />
-                            Unassigned
+                            <div className="flex-shrink-0 w-4 mr-2 text-center">
+                              <Check className="w-4 h-4 text-zinc-400" />
+                            </div>
+                            <span
+                              className="w-3 h-3 rounded-full mr-2"
+                              style={{
+                                backgroundColor:
+                                  labelColors.find(
+                                    (c) => c.value === label.color,
+                                  )?.color || "#94a3b8",
+                              }}
+                            />
+                            <span>{label.name}</span>
                           </button>
-                          {users?.map((user) => (
-                            <button
-                              key={user.userEmail}
-                              type="button"
-                              className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
-                              onClick={() =>
-                                setAssigneeEmail(user.userEmail || "")
-                              }
-                            >
-                              <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
-                                {user.userName?.charAt(0).toUpperCase() || "?"}
-                              </div>
-                              {user.userName}
-                            </button>
-                          ))}
-                        </div>
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root>
+                        ))}
+                      </div>
+                    ) : null}
 
-                  <Popover.Root>
-                    <Popover.Trigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
-                          dueDate
-                            ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
-                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
-                        )}
-                      >
-                        <CalendarIcon className="w-3.5 h-3.5" />
-                        <span>
-                          {dueDate
-                            ? format(dueDate, "MMM d, yyyy")
-                            : "Due date"}
-                        </span>
-                      </button>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Content
-                        align="start"
-                        className="z-50 w-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-3 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
-                      >
-                        <Calendar
-                          mode="single"
-                          selected={dueDate}
-                          onSelect={setDueDate}
-                          className="rounded-md border-0"
-                        />
-                        {dueDate && (
-                          <div className="flex justify-between items-center pt-3 border-t border-zinc-200 dark:border-zinc-800/50 mt-3">
-                            <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                              {format(dueDate, "EEEE, MMMM d, yyyy")}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => setDueDate(undefined)}
-                              className="text-xs text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors"
-                            >
-                              Clear
-                            </button>
+                    {isCreatingNewLabel && (
+                      <div className="py-1 border-t border-zinc-200 dark:border-zinc-800">
+                        <button
+                          type="button"
+                          className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                          onClick={handleCreateLabel}
+                        >
+                          <div className="flex-shrink-0 w-4 mr-2 text-center">
+                            <PlusIcon className="w-4 h-4 text-zinc-400" />
                           </div>
-                        )}
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root>
-
-                  <Popover.Root open={labelsOpen} onOpenChange={setLabelsOpen}>
-                    <Popover.Trigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
-                          labels.length > 0
-                            ? "text-violet-300 bg-violet-500/10 border-violet-500/30"
-                            : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
-                        )}
-                      >
-                        <Tag className="w-3.5 h-3.5" />
-                        <span>Labels</span>
-                      </button>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Content
-                        align="start"
-                        className="w-80 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg overflow-hidden z-50"
-                        sideOffset={5}
-                      >
-                        <div className="flex items-center p-2 border-b border-zinc-200 dark:border-zinc-800">
-                          <Search className="w-4 h-4 text-zinc-500 dark:text-zinc-400 mr-2" />
-                          <input
-                            ref={searchInputRef}
-                            type="text"
-                            value={searchValue}
-                            onChange={(e) => setSearchValue(e.target.value)}
-                            onKeyDown={handleSearchKeyDown}
-                            placeholder="Change or add labels..."
-                            className="w-full bg-transparent border-none text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none placeholder:text-zinc-500"
+                          <span
+                            className="w-3 h-3 rounded-full mr-2"
+                            style={{
+                              backgroundColor:
+                                labelColors.find(
+                                  (c) => c.value === selectedColor,
+                                )?.color || "#94a3b8",
+                            }}
                           />
-                        </div>
+                          <span>Create new label: "{searchValue}"</span>
+                        </button>
 
-                        <div className="max-h-80 overflow-y-auto">
-                          {filteredLabels.length > 0 ? (
-                            <div className="py-1">
-                              {filteredLabels.map((label: Label) => (
+                        <Popover
+                          open={colorPickerOpen}
+                          onOpenChange={setColorPickerOpen}
+                        >
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                            >
+                              <div className="flex-shrink-0 w-4 mr-2" />
+                              <span>Pick a color for label</span>
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-64 p-2"
+                            align="start"
+                            sideOffset={5}
+                          >
+                            <div className="grid grid-cols-1 gap-1">
+                              {labelColors.map((color) => (
                                 <button
-                                  key={label.name}
+                                  key={color.value}
                                   type="button"
-                                  className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                                  onClick={() => toggleLabel(label.name)}
+                                  className={cn(
+                                    "flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800",
+                                    selectedColor === color.value &&
+                                      "bg-zinc-100 dark:bg-zinc-800",
+                                  )}
+                                  onClick={() => {
+                                    setSelectedColor(color.value);
+                                    setColorPickerOpen(false);
+                                  }}
                                 >
-                                  <div className="flex-shrink-0 w-4 mr-2 text-center">
-                                    <Check className="w-4 h-4 text-zinc-400" />
-                                  </div>
                                   <span
-                                    className="w-3 h-3 rounded-full mr-2"
+                                    className="w-3 h-3 rounded-full mr-3"
                                     style={{
-                                      backgroundColor:
-                                        labelColors.find(
-                                          (c) => c.value === label.color,
-                                        )?.color || "#94a3b8",
+                                      backgroundColor: color.color,
                                     }}
                                   />
-                                  <span>{label.name}</span>
+                                  <span>{color.label}</span>
+                                  {selectedColor === color.value && (
+                                    <Check className="w-4 h-4 ml-auto text-zinc-400" />
+                                  )}
                                 </button>
                               ))}
                             </div>
-                          ) : null}
-
-                          {isCreatingNewLabel && (
-                            <div className="py-1 border-t border-zinc-200 dark:border-zinc-800">
-                              <button
-                                type="button"
-                                className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                                onClick={handleCreateLabel}
-                              >
-                                <div className="flex-shrink-0 w-4 mr-2 text-center">
-                                  <PlusIcon className="w-4 h-4 text-zinc-400" />
-                                </div>
-                                <span
-                                  className="w-3 h-3 rounded-full mr-2"
-                                  style={{
-                                    backgroundColor:
-                                      labelColors.find(
-                                        (c) => c.value === selectedColor,
-                                      )?.color || "#94a3b8",
-                                  }}
-                                />
-                                <span>Create new label: "{searchValue}"</span>
-                              </button>
-
-                              <Popover.Root
-                                open={colorPickerOpen}
-                                onOpenChange={setColorPickerOpen}
-                              >
-                                <Popover.Trigger asChild>
-                                  <button
-                                    type="button"
-                                    className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                                  >
-                                    <div className="flex-shrink-0 w-4 mr-2" />
-                                    <span>Pick a color for label</span>
-                                  </button>
-                                </Popover.Trigger>
-                                <Popover.Portal>
-                                  <Popover.Content
-                                    align="start"
-                                    className="w-64 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 z-50"
-                                    sideOffset={5}
-                                  >
-                                    <div className="grid grid-cols-1 gap-1">
-                                      {labelColors.map((color) => (
-                                        <button
-                                          key={color.value}
-                                          type="button"
-                                          className={cn(
-                                            "flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                                            selectedColor === color.value &&
-                                              "bg-zinc-100 dark:bg-zinc-800",
-                                          )}
-                                          onClick={() => {
-                                            setSelectedColor(color.value);
-                                            setColorPickerOpen(false);
-                                          }}
-                                        >
-                                          <span
-                                            className="w-3 h-3 rounded-full mr-3"
-                                            style={{
-                                              backgroundColor: color.color,
-                                            }}
-                                          />
-                                          <span>{color.label}</span>
-                                          {selectedColor === color.value && (
-                                            <Check className="w-4 h-4 ml-auto text-zinc-400" />
-                                          )}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </Popover.Content>
-                                </Popover.Portal>
-                              </Popover.Root>
-                            </div>
-                          )}
-                        </div>
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-6 border-t border-zinc-200 dark:border-zinc-800/50 mt-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={createMore}
-                        onChange={(e) => setCreateMore(e.target.checked)}
-                        className="rounded border-zinc-400 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0 focus:ring-2 transition-all"
-                      />
-                      Create more
-                    </label>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Button
-                    type="button"
-                    onClick={handleClose}
-                    className="bg-transparent border border-zinc-300 dark:border-zinc-700/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-all duration-200"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={!title.trim()}
-                    className="bg-indigo-600 text-white hover:bg-indigo-500 transition-all duration-200 disabled:opacity-50"
-                  >
-                    Create Task
-                  </Button>
-                </div>
-              </div>
-            </form>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+
+          <DialogFooter>
+            <div className="flex items-center gap-3 mr-auto">
+              <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={createMore}
+                  onChange={(e) => setCreateMore(e.target.checked)}
+                  className="rounded border-zinc-400 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0 focus:ring-2 transition-all"
+                />
+                Create more
+              </label>
+            </div>
+
+            <Button
+              type="button"
+              onClick={handleClose}
+              variant="outline"
+              size="sm"
+              className="border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={!title.trim()}
+              size="sm"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50"
+            >
+              Create Task
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

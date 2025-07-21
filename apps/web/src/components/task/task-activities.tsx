@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import { cn } from "@/lib/cn";
-import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
+import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_";
 import { formatDistanceToNow } from "date-fns";
 import { History, MessageSquare, Pencil, PlusCircle } from "lucide-react";
 import { useState } from "react";

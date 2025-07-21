@@ -12,7 +12,6 @@ export default function LaptopAnimation() {
     offset: ["start end", "end start"],
   });
 
-  // Transform values based on scroll position
   const rotateX = useTransform(scrollYProgress, [0, 0.5], [20, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1.05, 1]);
   const y = useTransform(scrollYProgress, [0, 0.5], [50, 0]);
@@ -28,7 +27,6 @@ export default function LaptopAnimation() {
       className="max-w-5xl mx-auto h-[450px] sm:h-[600px] w-full border-4 border-zinc-700 dark:border-zinc-600 p-2 sm:p-6 bg-zinc-800 dark:bg-zinc-900 rounded-[30px] shadow-2xl"
     >
       <div className="h-full w-full overflow-hidden rounded-2xl bg-white dark:bg-zinc-900">
-        {/* Desktop Images */}
         <Image
           src="https://assets.kaneo.app/board-light.png"
           alt="Kaneo board interface - Light mode"
@@ -44,7 +42,6 @@ export default function LaptopAnimation() {
           className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] hidden sm:dark:block"
         />
 
-        {/* Mobile Images */}
         <div className="relative h-full block sm:hidden">
           <Image
             src="https://assets.kaneo.app/board-light-mobile.png"

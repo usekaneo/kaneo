@@ -254,7 +254,6 @@ export function GitHubIntegrationSettings({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-start gap-4">
         <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
           <Github className="w-6 h-6" />
@@ -268,7 +267,6 @@ export function GitHubIntegrationSettings({
         </div>
       </div>
 
-      {/* Status Card */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -334,7 +332,6 @@ export function GitHubIntegrationSettings({
         </CardContent>
       </Card>
 
-      {/* Configuration Card */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
@@ -451,7 +448,6 @@ export function GitHubIntegrationSettings({
             </form>
           </Form>
 
-          {/* Verification Results */}
           {verificationResult && (
             <div className="mt-4">
               <div
@@ -538,7 +534,6 @@ export function GitHubIntegrationSettings({
         </CardContent>
       </Card>
 
-      {/* Actions Card */}
       {isConnected && (
         <Card>
           <CardHeader>
