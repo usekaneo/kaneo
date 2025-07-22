@@ -68,7 +68,7 @@ jobs:
 
       - name: Generate changelog
         run: |
-          pnpm exec conventional-changelog -p angular -i CHANGELOG.md -s --release-count 1
+          bunx conventional-changelog -p angular -i CHANGELOG.md -s --release-count 1
 
       - name: Create Release Commit
         run: |
