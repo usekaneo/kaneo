@@ -1,3 +1,12 @@
+## [1.1.7](https://github.com/usekaneo/kaneo/compare/v1.1.6...v1.1.7) (2025-07-22)
+
+
+### Features
+
+* enable demo mode in layout and dashboard components ([c6cd1fc](https://github.com/usekaneo/kaneo/commit/c6cd1fc3719276c66693cc0c8457816257299778))
+
+
+
 ## [1.1.6](https://github.com/usekaneo/kaneo/compare/v1.1.5...v1.1.6) (2025-07-22)
 
 
