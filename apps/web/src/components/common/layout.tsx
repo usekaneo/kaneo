@@ -1,5 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { DemoAlert } from "@/components/demo-alert";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { isDemoMode } from "@/constants/urls";
 import { useUserPreferencesEffects } from "@/hooks/use-user-preferences-effects";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import { motion } from "framer-motion";
@@ -57,6 +59,7 @@ function Layout({ children }: LayoutProps) {
       >
         <AppSidebar />
         <SidebarInset className="flex-1 flex flex-col overflow-auto bg-card border border-border rounded-md m-2">
+          {isDemoMode && <DemoAlert />}
           {children}
         </SidebarInset>
       </SidebarProvider>

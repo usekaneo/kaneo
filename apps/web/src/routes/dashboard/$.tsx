@@ -13,7 +13,9 @@ function CatchAllComponent() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (workspaces && workspaces.length > 0) {
+    if (!workspaces) return;
+
+    if (workspaces.length > 0) {
       if (
         activeWorkspaceId &&
         workspaces.some((ws) => ws.id === activeWorkspaceId)
@@ -34,6 +36,8 @@ function CatchAllComponent() {
           },
         });
       }
+    } else {
+      navigate({ to: "/dashboard/workspace/create" });
     }
   }, [workspaces, activeWorkspaceId, setActiveWorkspaceId, navigate]);
 

@@ -1,7 +1,5 @@
-import { DemoAlert } from "@/components/demo-alert";
 import PageTitle from "@/components/page-title";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { isDemoMode } from "@/constants/urls";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import useWorkspaceStore from "@/store/workspace";
@@ -54,7 +52,6 @@ function DashboardIndexRouteComponent() {
     <>
       <SidebarProvider>
         <PageTitle title="Dashboard" hideAppName={!workspace?.name} />
-        {isDemoMode && <DemoAlert />}
         <Outlet />
       </SidebarProvider>
     </>
