@@ -18,7 +18,7 @@
     "croner": "^9.1.0",
     "dotenv": "^16.5.0",
     "drizzle-kit": "^0.31.1",
-    "drizzle-orm": "^0.43.0",
+    "drizzle-orm": "^0.44.3",
     "hono": "^4.8.3",
     "octokit": "^5.0.3",
     "pg": "^8.16.3",
