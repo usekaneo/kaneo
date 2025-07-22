@@ -90,7 +90,7 @@ jobs:
         with:
           tag_name: v${{ steps.new_version.outputs.version }}
           name: Release v${{ steps.new_version.outputs.version }}
-          body_path: CHANGELOG.md
+          generate_release_notes: true
           draft: false
           prerelease: false
         env:
