@@ -1,3 +1,12 @@
+## [1.1.8](https://github.com/usekaneo/kaneo/compare/v1.1.7...v1.1.8) (2025-07-22)
+
+
+### Features
+
+* add croner for scheduled tasks and implement demo user setup ([cfcfd60](https://github.com/usekaneo/kaneo/commit/cfcfd6034589ee3caa57ea42234260f82d7afa34))
+
+
+
 ## [1.1.7](https://github.com/usekaneo/kaneo/compare/v1.1.6...v1.1.7) (2025-07-22)
 
 
