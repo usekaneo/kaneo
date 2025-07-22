@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import { Cron } from "croner";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
@@ -18,6 +19,8 @@ import timeEntry from "./time-entry";
 import user from "./user";
 import { validateSessionToken } from "./user/utils/validate-session-token";
 import getSettings from "./utils/get-settings";
+import purgeDemoData from "./utils/purge-demo-data";
+import setDemoUser from "./utils/set-demo-user";
 import workspace from "./workspace";
 import workspaceUser from "./workspace-user";
 
@@ -52,28 +55,33 @@ if (!isDemoMode) {
   app.use("*", auth);
 }
 
-// TODO: Fix this
-// app.use("*", async (c, next) => {
-//   if (isDemoMode) {
-//     const session = getCookie(c, "session");
+if (isDemoMode) {
+  new Cron("0 * * * *", async () => {
+    await purgeDemoData();
+  });
+}
 
-//     if (!session) {
-//       await setDemoUser(c);
-//     }
+app.use("*", async (c, next) => {
+  if (isDemoMode) {
+    const session = getCookie(c, "session");
 
-//     const { user, session: validatedSession } = await validateSessionToken(
-//       session ?? "",
-//     );
+    if (!session) {
+      await setDemoUser(c);
+    }
 
-//     if (!user || !validatedSession) {
-//       await setDemoUser(c);
-//     }
+    const { user, session: validatedSession } = await validateSessionToken(
+      session ?? "",
+    );
 
-//     c.set("userEmail", user?.email ?? "");
-//   }
+    if (!user || !validatedSession) {
+      await setDemoUser(c);
+    }
 
-//   await next();
-// });
+    c.set("userEmail", user?.email ?? "");
+  }
+
+  await next();
+});
 
 const meRoute = app.get("/me", async (c) => {
   const session = getCookie(c, "session");
