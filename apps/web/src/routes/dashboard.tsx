@@ -2,7 +2,6 @@ import { DemoAlert } from "@/components/demo-alert";
 import PageTitle from "@/components/page-title";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { isDemoMode } from "@/constants/urls";
-import getWorkspaces from "@/fetchers/workspace/get-workspaces";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import useWorkspaceStore from "@/store/workspace";
@@ -15,14 +14,6 @@ export const Route = createFileRoute("/dashboard")({
     if (user === null) {
       throw redirect({
         to: "/auth/sign-in",
-      });
-    }
-
-    const workspaces = await getWorkspaces();
-
-    if (workspaces.length === 0) {
-      throw redirect({
-        to: "/dashboard/workspace/create",
       });
     }
   },
