@@ -60,7 +60,7 @@
 		"react-dom": "^19.0.0",
 		"react-hook-form": "^7.58.0",
 		"react-use-websocket": "^4.11.1",
-		"sonner": "^2.0.3",
+		"sonner": "^2.0.6",
 		"tailwind-merge": "^3.3.0",
 		"tailwindcss-animate": "^1.0.7",
 		"tiptap-markdown": "^0.8.10",
