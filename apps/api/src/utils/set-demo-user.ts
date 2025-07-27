@@ -1,5 +1,3 @@
-// @ts-ignore - This is used by Elysia
-import type { ElysiaCookie } from "elysia/dist/cookies";
 import type { Context } from "hono";
 import { setCookie } from "hono/cookie";
 import isInSecureMode from "../user/utils/is-in-secure-mode";

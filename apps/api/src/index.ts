@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import { Cron } from "croner";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
@@ -18,6 +19,7 @@ import timeEntry from "./time-entry";
 import user from "./user";
 import { validateSessionToken } from "./user/utils/validate-session-token";
 import getSettings from "./utils/get-settings";
+import purgeDemoData from "./utils/purge-demo-data";
 import setDemoUser from "./utils/set-demo-user";
 import workspace from "./workspace";
 import workspaceUser from "./workspace-user";
@@ -51,6 +53,12 @@ const userRoute = app.route("/user", user);
 
 if (!isDemoMode) {
   app.use("*", auth);
+}
+
+if (isDemoMode) {
+  new Cron("0 * * * *", async () => {
+    await purgeDemoData();
+  });
 }
 
 app.use("*", async (c, next) => {

@@ -62,7 +62,6 @@ function generate(options: GenerateProps): ReactElement {
         overflow: "hidden",
       }}
     >
-      {/* Gradient Background */}
       <div
         style={{
           position: "absolute",
@@ -78,7 +77,6 @@ function generate(options: GenerateProps): ReactElement {
         }}
       />
 
-      {/* Content */}
       <div
         style={{
           zIndex: 10,
@@ -118,7 +116,6 @@ function generate(options: GenerateProps): ReactElement {
         )}
       </div>
 
-      {/* Logo */}
       <div
         style={{
           display: "flex",

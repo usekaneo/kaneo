@@ -1,31 +1,32 @@
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import toKebabCase from "@/lib/to-kebab-case";
-import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import {
   DndContext,
   type DragEndEvent,
+  type DragOverEvent,
   DragOverlay,
   type DragStartEvent,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
+  type UniqueIdentifier,
+  closestCorners,
   useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { snapCenterToCursor } from "@dnd-kit/modifiers";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { motion } from "framer-motion";
-import { produce } from "immer";
-import { ChevronDown, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Archive, ChevronRight, Clock, Flag, Plus } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
-import TaskRowOverlay from "../list-view/task-row-overlay";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import BacklogTaskRow from "./backlog-task-row";
 
@@ -34,218 +35,194 @@ interface BacklogListViewProps {
 }
 
 function BacklogListView({ project }: BacklogListViewProps) {
-  const { setProject } = useProjectStore();
   const { mutate: updateTask } = useUpdateTask();
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const [activeColumn, setActiveColumn] = useState<string | null>(null);
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
-  >({});
-
-  useEffect(() => {
-    if (project?.columns) {
-      const initialExpandedState: Record<string, boolean> = {};
-      for (const column of project.columns) {
-        initialExpandedState[column.id] = true;
-      }
-      setExpandedSections(initialExpandedState);
-    }
-  }, [project?.columns]);
+  >({
+    planned: true,
+    archived: true,
+  });
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [activeColumn, setActiveColumn] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
+      },
+    }),
     useSensor(KeyboardSensor),
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    if (event.active.data.current?.type === "task") {
-      setActiveTask(event.active.data.current.task);
+    setActiveId(event.active.id);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    if (!over || !activeId) {
+      setOverColumnId(null);
+      return;
+    }
+
+    if (over.id === "planned" || over.id === "archived") {
+      setOverColumnId(over.id.toString());
+      return;
+    }
+
+    const taskId = over.id.toString();
+    const plannedTasks = project?.plannedTasks || [];
+    const archivedTasks = project?.archivedTasks || [];
+
+    if (plannedTasks.some((task) => task.id === taskId)) {
+      setOverColumnId("planned");
+    } else if (archivedTasks.some((task) => task.id === taskId)) {
+      setOverColumnId("archived");
+    } else {
+      setOverColumnId(null);
     }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
+    setOverColumnId(null);
 
-    if (!over || !active.data.current || !project) return;
+    if (!over || !project) return;
 
-    if (
-      active.data.current.type === "task" &&
-      over.data.current?.type === "column"
-    ) {
-      const task = active.data.current.task as Task;
-      const targetColumnId = over.data.current.column.id;
+    const activeTaskId = active.id.toString();
+    const overId = over.id.toString();
 
-      if (task.status === targetColumnId) {
-        setActiveTask(null);
+    const plannedTasks = project.plannedTasks || [];
+    const archivedTasks = project.archivedTasks || [];
+    const activeTask = [...plannedTasks, ...archivedTasks].find(
+      (task) => task.id === activeTaskId,
+    );
+
+    if (!activeTask) return;
+
+    let targetSection = overId;
+    if (overId !== "planned" && overId !== "archived") {
+      if (plannedTasks.some((task) => task.id === overId)) {
+        targetSection = "planned";
+      } else if (archivedTasks.some((task) => task.id === overId)) {
+        targetSection = "archived";
+      } else {
         return;
       }
-
-      updateTask({
-        ...task,
-        status: targetColumnId,
-      });
-
-      const updatedProject = produce(project, (draft: ProjectWithTasks) => {
-        if (task.status === "planned" && targetColumnId === "archived") {
-          if (draft.plannedTasks) {
-            const index = draft.plannedTasks.findIndex(
-              (t: Task) => t.id === task.id,
-            );
-            if (index !== -1) {
-              const [removedTask] = draft.plannedTasks.splice(index, 1);
-              if (draft.archivedTasks) {
-                draft.archivedTasks.push({
-                  ...removedTask,
-                  status: "archived",
-                });
-              }
-            }
-          }
-        } else if (task.status === "archived" && targetColumnId === "planned") {
-          if (draft.archivedTasks) {
-            const index = draft.archivedTasks.findIndex(
-              (t: Task) => t.id === task.id,
-            );
-            if (index !== -1) {
-              const [removedTask] = draft.archivedTasks.splice(index, 1);
-              if (draft.plannedTasks) {
-                draft.plannedTasks.push({
-                  ...removedTask,
-                  status: "planned",
-                });
-              }
-            }
-          }
-        } else if (
-          (task.status === "planned" || task.status === "archived") &&
-          (targetColumnId === "to-do" ||
-            targetColumnId === "in-progress" ||
-            targetColumnId === "in-review" ||
-            targetColumnId === "done")
-        ) {
-          if (task.status === "planned" && draft.plannedTasks) {
-            const index = draft.plannedTasks.findIndex(
-              (t: Task) => t.id === task.id,
-            );
-            if (index !== -1) {
-              draft.plannedTasks.splice(index, 1);
-            }
-          } else if (task.status === "archived" && draft.archivedTasks) {
-            const index = draft.archivedTasks.findIndex(
-              (t: Task) => t.id === task.id,
-            );
-            if (index !== -1) {
-              draft.archivedTasks.splice(index, 1);
-            }
-          }
-
-          const targetColumn = draft.columns?.find(
-            (col: ProjectWithTasks["columns"][number]) =>
-              col.id === targetColumnId,
-          );
-          if (targetColumn) {
-            targetColumn.tasks.push({
-              ...task,
-              status: targetColumnId,
-              assigneeName: task.assigneeName,
-              assigneeEmail: task.assigneeEmail,
-            });
-          }
-        }
-      });
-
-      setProject(updatedProject);
-      toast.success(`Task moved to ${toKebabCase(targetColumnId)}`);
     }
 
-    setActiveTask(null);
+    if (activeTask.status === targetSection) return;
+
+    updateTask({
+      ...activeTask,
+      status: targetSection,
+    });
+
+    toast.success(`Task moved to ${targetSection}`);
   };
 
-  const toggleSection = (columnId: string) => {
+  const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) => ({
       ...prev,
-      [columnId]: !prev[columnId],
+      [sectionId]: !prev[sectionId],
     }));
   };
 
-  function ColumnSection({
-    column,
+  function BacklogSection({
+    sectionId,
+    title,
+    icon: IconComponent,
+    tasks,
+    showAddButton = false,
   }: {
-    column: ProjectWithTasks["columns"][number];
+    sectionId: string;
+    title: string;
+    icon: typeof Clock;
+    tasks: Task[];
+    showAddButton?: boolean;
   }) {
     const { setNodeRef } = useDroppable({
-      id: column.id,
+      id: sectionId,
       data: {
         type: "column",
-        column,
+        column: { id: sectionId, name: title },
       },
     });
 
+    const showDropIndicator = activeId && overColumnId === sectionId;
+
     return (
-      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <button
-          type="button"
-          onClick={() => toggleSection(column.id)}
-          className={cn(
-            "w-full flex items-center justify-between p-3 text-left bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800",
-            !expandedSections[column.id] && "border-b-0",
-          )}
-        >
-          <div className="flex items-center gap-2">
-            <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
-              {column.name}
-            </h3>
-            <span className="text-sm text-zinc-500 dark:text-zinc-500">
-              {column.tasks.length}
-            </span>
-          </div>
-          <ChevronDown
-            className={cn(
-              "w-4 h-4 text-zinc-500 dark:text-zinc-400 transition-transform",
-              expandedSections[column.id] ? "transform rotate-180" : "",
-            )}
-          />
-        </button>
+      <div
+        className={cn(
+          "border-b border-zinc-200 dark:border-zinc-800/50 transition-all duration-200 overflow-auto",
+          showDropIndicator &&
+            "border-l-4 border-l-indigo-500 dark:border-l-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/10",
+        )}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between py-2 px-4 bg-zinc-100/60 dark:bg-zinc-800/20 border-b border-zinc-200/50 dark:border-zinc-800/30">
+          <button
+            type="button"
+            onClick={() => toggleSection(sectionId)}
+            className="flex items-center gap-2 text-sm font-medium text-zinc-800 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+          >
+            <ChevronRight
+              className={cn(
+                "w-3 h-3 transition-transform",
+                expandedSections[sectionId] && "rotate-90",
+              )}
+            />
+            <div className="flex items-center gap-2 h-4">
+              <IconComponent className="w-4 h-4 flex-shrink-0 text-zinc-500 dark:text-zinc-400" />
+              <div className="flex items-center gap-1">
+                <span className="mt-1 mr-1">{title}</span>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                  {tasks.length}
+                </span>
+              </div>
+            </div>
+          </button>
 
-        {expandedSections[column.id] && (
-          <div ref={setNodeRef} className="min-h-[60px] rounded-lg">
-            <SortableContext
-              items={column.tasks}
-              strategy={verticalListSortingStrategy}
-            >
-              <motion.div
-                initial={false}
-                animate={{ opacity: 1 }}
-                className="space-y-1 p-2"
-              >
-                {column.tasks.length > 0 ? (
-                  column.tasks.map((task: Task) => (
-                    <BacklogTaskRow key={task.id} task={task} />
-                  ))
-                ) : (
-                  <div className="p-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                    {/* @ts-expect-error */}
-                    No {column.id === "planned" ? "planned" : "archived"} tasks
-                  </div>
-                )}
-              </motion.div>
-            </SortableContext>
-
-            {/* @ts-expect-error */}
-            {column.id === "planned" && (
+          <div className="flex items-center gap-1">
+            {showAddButton && (
               <button
                 type="button"
                 onClick={() => {
                   setIsTaskModalOpen(true);
                   setActiveColumn("planned");
                 }}
-                className="w-full mt-2 text-left px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/50 rounded-md flex items-center gap-2 transition-all"
+                className="p-1 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 rounded text-zinc-600 hover:text-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+                title="Add task"
               >
-                <Plus className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-                <span>Add planned task</span>
+                <Plus className="w-3 h-3" />
               </button>
+            )}
+          </div>
+        </div>
+
+        {/* Tasks */}
+        {expandedSections[sectionId] && (
+          <div ref={setNodeRef} className="bg-white dark:bg-transparent">
+            <SortableContext
+              items={tasks}
+              strategy={verticalListSortingStrategy}
+            >
+              {tasks.map((task) => (
+                <BacklogTaskRow key={task.id} task={task} />
+              ))}
+            </SortableContext>
+
+            {tasks.length === 0 && (
+              <div className="py-6 px-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+                No {title.toLowerCase()} tasks
+              </div>
             )}
           </div>
         )}
@@ -253,26 +230,75 @@ function BacklogListView({ project }: BacklogListViewProps) {
     );
   }
 
-  if (!project?.columns) {
+  if (!project) {
     return null;
   }
+
+  const plannedTasks = project.plannedTasks || [];
+  const archivedTasks = project.archivedTasks || [];
+
+  const activeTask =
+    project.plannedTasks.find((task) => task.id === activeId) ||
+    project.archivedTasks.find((task) => task.id === activeId);
 
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={closestCorners}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      modifiers={[snapCenterToCursor]}
     >
-      <div className="w-full h-full p-4 space-y-4">
-        {project.columns.map((column: ProjectWithTasks["columns"][number]) => (
-          <ColumnSection key={column.id} column={column} />
-        ))}
+      <div className="w-full h-full overflow-auto bg-zinc-50/30 dark:bg-transparent">
+        <div className="divide-y divide-zinc-200 dark:divide-zinc-800/50">
+          <BacklogSection
+            sectionId="planned"
+            title="Planned"
+            icon={Clock}
+            tasks={plannedTasks}
+            showAddButton={true}
+          />
+
+          <BacklogSection
+            sectionId="archived"
+            title="Archived"
+            icon={Archive}
+            tasks={archivedTasks}
+          />
+        </div>
       </div>
+
       <DragOverlay>
         {activeTask && (
-          <TaskRowOverlay task={activeTask} projectSlug={project?.slug ?? ""} />
+          <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
+            <div className="flex items-center gap-2">
+              <div className="flex-shrink-0">
+                <Flag
+                  className={cn(
+                    "w-3 h-3",
+                    priorityColorsTaskCard[
+                      activeTask.priority as keyof typeof priorityColorsTaskCard
+                    ],
+                  )}
+                />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+                    {project?.slug}-{activeTask.number}
+                  </span>
+                  <span className="text-xs text-zinc-900 dark:text-zinc-100 truncate">
+                    {activeTask.title}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </DragOverlay>
+
       <CreateTaskModal
         open={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}

@@ -1,8 +1,8 @@
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import { useEffect } from "react";
-import useTheme from "./hooks/use-theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { theme } = useTheme();
+  const { theme } = useUserPreferencesStore();
 
   useEffect(() => {
     const root = document.documentElement;

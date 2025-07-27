@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="1200"><svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M450 150H200C172.386 150 150 172.386 150 200V450C150 477.614 172.386 500 200 500H450C477.614 500 500 477.614 500 450V200C500 172.386 477.614 150 450 150Z" stroke="#7C86FF" stroke-width="100" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M1000 150H750C722.386 150 700 172.386 700 200V450C700 477.614 722.386 500 750 500H1000C1027.61 500 1050 477.614 1050 450V200C1050 172.386 1027.61 150 1000 150Z" stroke="#7C86FF" stroke-width="100" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M1000 700H750C722.386 700 700 722.386 700 750V1000C700 1027.61 722.386 1050 750 1050H1000C1027.61 1050 1050 1027.61 1050 1000V750C1050 722.386 1027.61 700 1000 700Z" stroke="#7C86FF" stroke-width="100" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M450 700H200C172.386 700 150 722.386 150 750V1000C150 1027.61 172.386 1050 200 1050H450C477.614 1050 500 1027.61 500 1000V750C500 722.386 477.614 700 450 700Z" stroke="#7C86FF" stroke-width="100" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: contrast(1) brightness(1); } }
+</style></svg>

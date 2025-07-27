@@ -1,5 +1,5 @@
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
-import { Route } from "@/routes/dashboard/teams/$workspaceId/_layout";
+import { Route } from "@/routes/dashboard/workspace/$workspaceId/members";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash2, X } from "lucide-react";

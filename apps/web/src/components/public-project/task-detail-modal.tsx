@@ -28,7 +28,6 @@ export function PublicTaskDetailModal({
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
         <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[90vh] overflow-hidden">
           <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700/50 flex flex-col h-full max-h-[90vh]">
-            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800/50 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="text-sm text-zinc-600 dark:text-zinc-400 font-mono font-medium">
@@ -44,17 +43,14 @@ export function PublicTaskDetailModal({
               </Dialog.Close>
             </div>
 
-            {/* Content */}
             <div className="flex-1 overflow-y-auto">
               <div className="p-6 space-y-6">
-                {/* Title */}
                 <div>
                   <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 leading-relaxed">
                     {task.title}
                   </h1>
                 </div>
 
-                {/* Meta information */}
                 <div className="flex flex-wrap items-center gap-4">
                   {task.priority && (
                     <div
@@ -96,7 +92,6 @@ export function PublicTaskDetailModal({
                   )}
                 </div>
 
-                {/* Description */}
                 {task.description && (
                   <div className="space-y-3">
                     <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
@@ -106,7 +101,6 @@ export function PublicTaskDetailModal({
                   </div>
                 )}
 
-                {/* Task Dates */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                   <div className="space-y-1">
                     <div className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">

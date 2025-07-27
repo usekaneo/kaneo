@@ -1,3 +1,34 @@
+## [1.1.8](https://github.com/usekaneo/kaneo/compare/v1.1.7...v1.1.8) (2025-07-22)
+
+
+### Features
+
+* add croner for scheduled tasks and implement demo user setup ([cfcfd60](https://github.com/usekaneo/kaneo/commit/cfcfd6034589ee3caa57ea42234260f82d7afa34))
+
+
+
+## [1.1.7](https://github.com/usekaneo/kaneo/compare/v1.1.6...v1.1.7) (2025-07-22)
+
+
+### Features
+
+* enable demo mode in layout and dashboard components ([c6cd1fc](https://github.com/usekaneo/kaneo/commit/c6cd1fc3719276c66693cc0c8457816257299778))
+
+
+
+## [1.1.6](https://github.com/usekaneo/kaneo/compare/v1.1.5...v1.1.6) (2025-07-22)
+
+
+
+## [1.1.5](https://github.com/usekaneo/kaneo/compare/v1.1.4...v1.1.5) (2025-07-21)
+
+
+### Bug Fixes
+
+* port number in documentation ([#375](https://github.com/usekaneo/kaneo/issues/375)) ([b1e9814](https://github.com/usekaneo/kaneo/commit/b1e981468667e6ad03276c2172ea23393d40c2c5))
+
+
+
 ## [1.1.4](https://github.com/usekaneo/kaneo/compare/v1.1.0...v1.1.4) (2025-07-10)
 
 

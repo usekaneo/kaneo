@@ -11,11 +11,14 @@ function useUpdateTask() {
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
       });
-      queryClient.refetchQueries({
+      queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
       });
-      queryClient.refetchQueries({
+      queryClient.invalidateQueries({
         queryKey: ["notifications"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["projects"],
       });
     },
   });

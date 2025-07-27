@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
-import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId";
+import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare } from "lucide-react";
