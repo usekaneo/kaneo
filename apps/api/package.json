@@ -16,7 +16,7 @@
     "@paralleldrive/cuid2": "^2.2.2",
     "bcrypt": "^6.0.0",
     "croner": "^9.1.0",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.2.1",
     "drizzle-kit": "^0.31.1",
     "drizzle-orm": "^0.44.3",
     "hono": "^4.8.9",
