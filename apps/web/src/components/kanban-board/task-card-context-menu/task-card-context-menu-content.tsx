@@ -9,8 +9,12 @@ import {
   User,
 } from "lucide-react";
 
+import useAssignLabelToTask from "@/hooks/mutations/label/use-assign-label-to-task";
+import useUnassignLabelFromTask from "@/hooks/mutations/label/use-unassign-label-from-task";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
+import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 
@@ -42,6 +46,14 @@ interface TaskCardContext {
   projectId: string;
 }
 
+type TaskLabel = {
+  id: string;
+  name: string;
+  color: string;
+  workspaceId: string;
+  createdAt: string;
+};
+
 interface TaskCardContextMenuContentProps {
   task: Task;
   taskCardContext: TaskCardContext;
@@ -60,6 +72,14 @@ export default function TaskCardContextMenuContent({
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { mutateAsync: assignLabel } = useAssignLabelToTask();
+  const { mutateAsync: unassignLabel } = useUnassignLabelFromTask();
+
+  // Get workspace labels and task-assigned labels
+  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
+    taskCardContext.worskpaceId,
+  );
+  const { data: taskLabels = [] } = useGetLabelsByTask(task.id);
 
   const projectsOptions = useMemo(() => {
     return projects?.map((project) => {
@@ -164,6 +184,116 @@ export default function TaskCardContextMenuContent({
       toast.success("Task deleted successfully");
     }
   };
+
+  const handleToggleLabel = async (label: TaskLabel) => {
+    try {
+      const assignedLabelIds = new Set(taskLabels.map((l: TaskLabel) => l.id));
+
+      if (assignedLabelIds.has(label.id)) {
+        await unassignLabel({ taskId: task.id, labelId: label.id });
+        toast.success("Label removed");
+      } else {
+        await assignLabel({ taskId: task.id, labelId: label.id });
+        toast.success("Label added");
+      }
+
+      // Invalidate all related queries with correct keys
+      await queryClient.invalidateQueries({ queryKey: ["labels", task.id] });
+      await queryClient.invalidateQueries({
+        queryKey: ["labels", "workspace", taskCardContext.worskpaceId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["task", task.id] });
+      await queryClient.invalidateQueries({
+        queryKey: ["tasks", taskCardContext.projectId],
+      });
+
+      // Refetch immediately
+      await queryClient.refetchQueries({ queryKey: ["labels", task.id] });
+      await queryClient.refetchQueries({
+        queryKey: ["labels", "workspace", taskCardContext.worskpaceId],
+      });
+      await queryClient.refetchQueries({ queryKey: ["task", task.id] });
+      await queryClient.refetchQueries({
+        queryKey: ["tasks", taskCardContext.projectId],
+      });
+    } catch (error) {
+      toast.error("Failed to update label");
+    }
+  };
+
+  const getColorConfig = (colorKey: string) => {
+    const labelColors = [
+      {
+        value: "gray",
+        label: "Gray",
+        color: "#6B7280",
+        bg: "#F3F4F6",
+        text: "#374151",
+      },
+      {
+        value: "blue",
+        label: "Blue",
+        color: "#3B82F6",
+        bg: "#EBF8FF",
+        text: "#1E40AF",
+      },
+      {
+        value: "purple",
+        label: "Purple",
+        color: "#8B5CF6",
+        bg: "#F3E8FF",
+        text: "#6B21A8",
+      },
+      {
+        value: "teal",
+        label: "Teal",
+        color: "#14B8A6",
+        bg: "#F0FDFA",
+        text: "#134E4A",
+      },
+      {
+        value: "green",
+        label: "Green",
+        color: "#10B981",
+        bg: "#ECFDF5",
+        text: "#065F46",
+      },
+      {
+        value: "yellow",
+        label: "Yellow",
+        color: "#F59E0B",
+        bg: "#FFFBEB",
+        text: "#92400E",
+      },
+      {
+        value: "orange",
+        label: "Orange",
+        color: "#F97316",
+        bg: "#FFF7ED",
+        text: "#9A3412",
+      },
+      {
+        value: "pink",
+        label: "Pink",
+        color: "#EC4899",
+        bg: "#FDF2F8",
+        text: "#BE185D",
+      },
+      {
+        value: "red",
+        label: "Red",
+        color: "#EF4444",
+        bg: "#FEF2F2",
+        text: "#DC2626",
+      },
+    ];
+    return labelColors.find((c) => c.value === colorKey) || labelColors[1]; // Default to blue
+  };
+
+  // Create set of assigned label IDs for quick lookup
+  const assignedLabelIds = new Set(
+    taskLabels.map((label: TaskLabel) => label.id),
+  );
 
   return (
     <ContextMenuContent>
@@ -321,6 +451,38 @@ export default function TaskCardContextMenuContent({
             ))}
           </ContextMenuSubContent>
         )}
+      </ContextMenuSub>
+
+      <ContextMenuSub>
+        <ContextMenuSubTrigger className="flex items-center gap-2">
+          <Tags className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
+          Labels
+        </ContextMenuSubTrigger>
+        <ContextMenuSubContent>
+          {workspaceLabels.length > 0 ? (
+            workspaceLabels.map((label: TaskLabel) => {
+              const colorConfig = getColorConfig(label.color);
+              return (
+                <ContextMenuCheckboxItem
+                  key={label.id}
+                  checked={assignedLabelIds.has(label.id)}
+                  onCheckedChange={() => handleToggleLabel(label)}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: colorConfig.color }}
+                  />
+                  <span className="text-sm truncate">{label.name}</span>
+                </ContextMenuCheckboxItem>
+              );
+            })
+          ) : (
+            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 text-center">
+              No labels available
+            </div>
+          )}
+        </ContextMenuSubContent>
       </ContextMenuSub>
 
       <ContextMenuSub>

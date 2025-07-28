@@ -1,19 +1,27 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import useAssignLabelToTask from "@/hooks/mutations/label/use-assign-label-to-task";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
-import useDeleteLabel from "@/hooks/mutations/label/use-delete-label";
+import useUnassignLabelFromTask from "@/hooks/mutations/label/use-unassign-label-from-task";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
-import { cn } from "@/lib/cn";
-import * as Popover from "@radix-ui/react-popover";
+import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import useProjectStore from "@/store/project";
+import useWorkspaceStore from "@/store/workspace";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, PlusIcon, Search, Tag } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Check, Plus, Search, X } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const labelColors = [
-  { value: "gray", label: "Grey", color: "#94a3b8" },
-  { value: "dark-gray", label: "Dark Grey", color: "#64748b" },
+  { value: "gray", label: "Gray", color: "#94a3b8" },
+  { value: "blue", label: "Blue", color: "#3b82f6" },
   { value: "purple", label: "Purple", color: "#a855f7" },
   { value: "teal", label: "Teal", color: "#14b8a6" },
   { value: "green", label: "Green", color: "#22c55e" },
@@ -25,7 +33,7 @@ const labelColors = [
 
 type LabelColor =
   | "gray"
-  | "dark-gray"
+  | "blue"
   | "purple"
   | "teal"
   | "green"
@@ -34,342 +42,320 @@ type LabelColor =
   | "pink"
   | "red";
 
-type Label = {
+type TaskLabel = {
   id: string;
   name: string;
   color: string;
-  taskId: string;
+  workspaceId: string;
   createdAt: string;
 };
 
-function TaskLabels({
-  taskId,
-  setIsSaving,
-}: {
+interface TaskLabelsProps {
   taskId: string;
   setIsSaving: (isSaving: boolean) => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
+}
+
+function TaskLabels({ taskId, setIsSaving }: TaskLabelsProps) {
+  const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedColor, setSelectedColor] = useState<LabelColor>("gray");
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
   const queryClient = useQueryClient();
+  const { workspace } = useWorkspaceStore();
+  const { project } = useProjectStore();
+
   const { mutateAsync: createLabel } = useCreateLabel();
-  const { mutateAsync: deleteLabel } = useDeleteLabel();
+  const { mutateAsync: assignLabel } = useAssignLabelToTask();
+  const { mutateAsync: unassignLabel } = useUnassignLabelFromTask();
 
-  const { data: labels = [] } = useGetLabelsByTask(taskId);
+  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
+    workspace?.id ?? "",
+  );
+  const { data: taskLabels = [] } = useGetLabelsByTask(taskId);
 
-  const [taskLabels, setTaskLabels] = useState<string[]>([]);
+  const assignedLabelIds = new Set(
+    taskLabels.map((label: TaskLabel) => label.id),
+  );
 
-  useEffect(() => {
-    if (labels?.length) {
-      setTaskLabels(labels.map((label: Label) => label.id));
-    } else {
-      setTaskLabels([]);
-    }
-  }, [labels]);
-
-  const filteredLabels = labels.filter((label: Label) =>
+  const filteredLabels = workspaceLabels.filter((label: TaskLabel) =>
     label.name.toLowerCase().includes(searchValue.toLowerCase()),
   );
 
   const isCreatingNewLabel =
-    searchValue &&
-    !labels.some(
-      (label: Label) => label.name.toLowerCase() === searchValue.toLowerCase(),
+    searchValue.trim() &&
+    !workspaceLabels.some(
+      (label: TaskLabel) =>
+        label.name.toLowerCase() === searchValue.trim().toLowerCase(),
     );
 
-  useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      setTimeout(() => searchInputRef.current?.focus(), 100);
-    }
-  }, [isOpen]);
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && isCreatingNewLabel) {
-      e.preventDefault();
-      handleCreateLabel();
-    } else if (e.key === "Escape") {
-      if (searchValue) {
-        setSearchValue("");
-      } else {
-        setIsOpen(false);
-      }
-    }
-  };
-
-  const toggleLabel = async (labelId: string) => {
+  const handleToggleLabel = async (label: TaskLabel) => {
     setIsSaving(true);
     try {
-      const label = labels.find((l: Label) => l.id === labelId);
-      if (!label) {
-        throw new Error("Label not found");
-      }
-
-      if (taskLabels.includes(labelId)) {
-        setTaskLabels(taskLabels.filter((id) => id !== labelId));
-
-        await deleteLabel({ id: labelId });
+      if (assignedLabelIds.has(label.id)) {
+        await unassignLabel({ taskId, labelId: label.id });
         toast.success("Label removed");
       } else {
-        setTaskLabels([...taskLabels, labelId]);
-
-        await createLabel({
-          name: label.name,
-          color: label.color as LabelColor,
-          taskId,
-        });
+        await assignLabel({ taskId, labelId: label.id });
         toast.success("Label added");
       }
 
       await queryClient.invalidateQueries({ queryKey: ["labels", taskId] });
-    } catch (error) {
-      toast.error("Failed to update labels");
-      console.error(error);
-
-      if (labels?.length) {
-        setTaskLabels(labels.map((label: Label) => label.id));
+      await queryClient.invalidateQueries({
+        queryKey: ["labels", "workspace", workspace?.id],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+      if (project?.id) {
+        await queryClient.invalidateQueries({
+          queryKey: ["tasks", project.id],
+        });
       }
+
+      await queryClient.refetchQueries({ queryKey: ["labels", taskId] });
+      await queryClient.refetchQueries({
+        queryKey: ["labels", "workspace", workspace?.id],
+      });
+      await queryClient.refetchQueries({ queryKey: ["task", taskId] });
+      if (project?.id) {
+        await queryClient.refetchQueries({ queryKey: ["tasks", project.id] });
+      }
+    } catch (error) {
+      toast.error("Failed to update label");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleCreateLabel = async () => {
-    if (!searchValue.trim()) return;
+  const handleCreateLabelWithColor = async (color: LabelColor) => {
+    if (!searchValue.trim() || !workspace?.id) return;
 
     setIsSaving(true);
     try {
       const newLabel = await createLabel({
         name: searchValue.trim(),
-        color: selectedColor,
-        taskId,
+        color: color,
+        workspaceId: workspace.id,
       });
 
-      setSearchValue("");
-      setSelectedColor("gray");
-
-      await queryClient.invalidateQueries({ queryKey: ["labels", taskId] });
-
       if (newLabel?.id) {
-        setTaskLabels((prev) => [...prev, newLabel.id]);
+        await assignLabel({ taskId, labelId: newLabel.id });
       }
 
-      toast.success("Label created successfully");
+      await queryClient.invalidateQueries({ queryKey: ["labels", taskId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["labels", "workspace", workspace.id],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+      if (project?.id) {
+        await queryClient.invalidateQueries({
+          queryKey: ["tasks", project.id],
+        });
+      }
 
-      searchInputRef.current?.focus();
+      await queryClient.refetchQueries({ queryKey: ["labels", taskId] });
+      await queryClient.refetchQueries({
+        queryKey: ["labels", "workspace", workspace.id],
+      });
+      await queryClient.refetchQueries({ queryKey: ["task", taskId] });
+      if (project?.id) {
+        await queryClient.refetchQueries({ queryKey: ["tasks", project.id] });
+      }
+
+      toast.success("Label created and assigned");
+      setSearchValue("");
+      setColorPickerOpen(false);
+      setOpen(false);
     } catch (error) {
-      console.error("Failed to create label:", error);
-      toast.error("Failed to create label");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create label";
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
   };
 
+  const handleRemoveLabel = async (labelId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsSaving(true);
+    try {
+      await unassignLabel({ taskId, labelId });
+
+      await queryClient.invalidateQueries({ queryKey: ["labels", taskId] });
+      await queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+      if (project?.id) {
+        await queryClient.invalidateQueries({
+          queryKey: ["tasks", project.id],
+        });
+      }
+
+      await queryClient.refetchQueries({ queryKey: ["labels", taskId] });
+      await queryClient.refetchQueries({ queryKey: ["task", taskId] });
+      if (project?.id) {
+        await queryClient.refetchQueries({ queryKey: ["tasks", project.id] });
+      }
+
+      toast.success("Label removed");
+    } catch (error) {
+      toast.error("Failed to remove label");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const getColorValue = (colorKey: string) => {
+    return labelColors.find((c) => c.value === colorKey)?.color || "#94a3b8";
+  };
+
   return (
-    <FormItem className="mt-2">
-      <FormLabel>Labels</FormLabel>
-      <div className="flex flex-wrap gap-2 mt-1">
-        {labels
-          .filter((label: Label) => taskLabels.includes(label.id))
-          .map((label: Label) => (
-            <Badge
-              key={label.id}
-              badgeColor={label.color as LabelColor}
-              variant="outline"
-              className="flex items-center gap-1 pl-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-              onClick={() => toggleLabel(label.id)}
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  toggleLabel(label.id);
-                }
-              }}
-              aria-label={`Remove label ${label.name}`}
-            >
-              <span
-                className="inline-block w-2 h-2 mr-1.5 rounded-full"
-                style={{
-                  backgroundColor:
-                    labelColors.find((c) => c.value === label.color)?.color ||
-                    "#94a3b8",
-                }}
-                aria-hidden="true"
-              />
-              {label.name}
-            </Badge>
-          ))}
+    <div className="space-y-2">
+      <Label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        Labels
+      </Label>
 
-        <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
-          <Popover.Trigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-6 px-2 rounded-full"
-              aria-label="Manage labels"
-            >
-              <Tag className="w-3 h-3 mr-1" aria-hidden="true" />
-              <span className="text-xs">Labels</span>
-            </Button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              align="start"
-              className="w-80 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-lg overflow-hidden z-50"
-              sideOffset={5}
-            >
-              <div className="flex items-center p-2 border-b border-zinc-200 dark:border-zinc-800">
-                <Search
-                  className="w-4 h-4 text-zinc-500 dark:text-zinc-400 mr-2"
-                  aria-hidden="true"
-                />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  onKeyDown={handleSearchKeyDown}
-                  placeholder="Change or add labels..."
-                  className="w-full bg-transparent border-none text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none placeholder:text-zinc-500"
-                  aria-label="Search labels or create new label"
-                />
-              </div>
-
-              <div
-                className="max-h-80 overflow-y-auto custom-scrollbar"
-                aria-label="Available labels"
+      <div className="space-y-2">
+        {taskLabels.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {taskLabels.map((label: TaskLabel) => (
+              <Badge
+                key={label.id}
+                variant="outline"
+                className="flex items-center gap-1.5 pl-2 pr-1 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
-                {filteredLabels.length > 0 ? (
-                  <div className="py-1">
-                    {filteredLabels.map((label: Label) => (
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: getColorValue(label.color) }}
+                />
+                <span className="text-sm">{label.name}</span>
+                <button
+                  type="button"
+                  onClick={(e) => handleRemoveLabel(label.id, e)}
+                  className="ml-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8">
+              <Plus className="w-4 h-4 mr-1" />
+              Add Label
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0" align="start">
+            <div className="flex items-center p-2 border-b border-zinc-200 dark:border-zinc-800">
+              <Search className="w-4 h-4 text-zinc-500 mr-2" />
+              <Input
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                placeholder="Search or create label..."
+                className="border-0 h-8 text-sm focus-visible:ring-0 shadow-none"
+              />
+            </div>
+
+            <div className="max-h-64 overflow-y-auto">
+              {filteredLabels.length > 0 && (
+                <div className="p-1">
+                  {filteredLabels.map((label: TaskLabel) => {
+                    const isAssigned = assignedLabelIds.has(label.id);
+                    return (
                       <button
                         key={label.id}
                         type="button"
-                        className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                        onClick={() => toggleLabel(label.id)}
-                        aria-selected={taskLabels.includes(label.id)}
+                        onClick={() => handleToggleLabel(label)}
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
                       >
-                        <div className="flex-shrink-0 w-4 mr-2 text-center">
-                          {taskLabels.includes(label.id) && (
-                            <Check
-                              className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
-                              aria-hidden="true"
-                            />
+                        <div className="w-4 text-center">
+                          {isAssigned && (
+                            <Check className="w-4 h-4 text-zinc-600" />
                           )}
                         </div>
                         <span
-                          className="w-3 h-3 rounded-full mr-2"
+                          className="w-3 h-3 rounded-full"
                           style={{
-                            backgroundColor:
-                              labelColors.find((c) => c.value === label.color)
-                                ?.color || "#94a3b8",
+                            backgroundColor: getColorValue(label.color),
                           }}
-                          aria-hidden="true"
                         />
-                        <span>{label.name}</span>
+                        <span className="text-zinc-900 dark:text-zinc-200">
+                          {label.name}
+                        </span>
                       </button>
-                    ))}
-                  </div>
-                ) : null}
+                    );
+                  })}
+                </div>
+              )}
 
-                {isCreatingNewLabel && (
-                  <div className="py-1 border-t border-zinc-200 dark:border-zinc-800">
-                    <button
-                      type="button"
-                      className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      onClick={handleCreateLabel}
-                      aria-label={`Create new label "${searchValue}"`}
+              {isCreatingNewLabel && (
+                <div className="border-t border-zinc-200 dark:border-zinc-800 p-1">
+                  <Popover
+                    open={colorPickerOpen}
+                    onOpenChange={setColorPickerOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
+                      >
+                        <div className="w-4 text-center">
+                          <Plus className="w-4 h-4 text-zinc-500" />
+                        </div>
+                        <span className="w-3 h-3 rounded-full bg-zinc-400" />
+                        <span className="text-zinc-900 dark:text-zinc-200">
+                          Create "{searchValue}"
+                        </span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-64 p-0"
+                      align="start"
+                      side="right"
                     >
-                      <div className="flex-shrink-0 w-4 mr-2 text-center">
-                        <PlusIcon
-                          className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
-                          aria-hidden="true"
-                        />
+                      <div className="p-3 border-b border-zinc-200 dark:border-zinc-800">
+                        <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
+                          Pick a color for label
+                        </h4>
                       </div>
-                      <span
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{
-                          backgroundColor:
-                            labelColors.find((c) => c.value === selectedColor)
-                              ?.color || "#94a3b8",
-                        }}
-                        aria-hidden="true"
-                      />
-                      <span>Create new label: "{searchValue}"</span>
-                    </button>
-
-                    <Popover.Root
-                      open={colorPickerOpen}
-                      onOpenChange={setColorPickerOpen}
-                    >
-                      <Popover.Trigger asChild>
-                        <button
-                          type="button"
-                          className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                          aria-label="Choose a color for label"
-                        >
-                          <div className="flex-shrink-0 w-4 mr-2" />
-                          <span>Pick a color for label</span>
-                        </button>
-                      </Popover.Trigger>
-                      <Popover.Portal>
-                        <Popover.Content
-                          align="start"
-                          className="w-64 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-lg p-2 z-50"
-                          sideOffset={5}
-                          aria-label="Label color options"
-                        >
-                          <div
-                            className="grid grid-cols-1 gap-1"
-                            role="radiogroup"
+                      <div className="p-1">
+                        {labelColors.map((color) => (
+                          <button
+                            key={color.value}
+                            type="button"
+                            onClick={() =>
+                              handleCreateLabelWithColor(
+                                color.value as LabelColor,
+                              )
+                            }
+                            className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
                           >
-                            {labelColors.map((color) => (
-                              <button
-                                key={color.value}
-                                type="button"
-                                className={cn(
-                                  "flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                                  selectedColor === color.value &&
-                                    "bg-zinc-100 dark:bg-zinc-800",
-                                )}
-                                onClick={() => {
-                                  setSelectedColor(color.value as LabelColor);
-                                  setColorPickerOpen(false);
-                                }}
-                                aria-checked={selectedColor === color.value}
-                                aria-label={`Choose color ${color.label}`}
-                              >
-                                <span
-                                  className="w-3 h-3 rounded-full mr-3"
-                                  style={{ backgroundColor: color.color }}
-                                  aria-hidden="true"
-                                />
-                                <span>{color.label}</span>
-                                {selectedColor === color.value && (
-                                  <Check
-                                    className="w-4 h-4 ml-auto text-zinc-500 dark:text-zinc-400"
-                                    aria-hidden="true"
-                                  />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </Popover.Content>
-                      </Popover.Portal>
-                    </Popover.Root>
+                            <span
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: color.color }}
+                            />
+                            <span className="text-zinc-900 dark:text-zinc-200">
+                              {color.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
+              {!isCreatingNewLabel &&
+                filteredLabels.length === 0 &&
+                searchValue && (
+                  <div className="p-6 text-center text-sm text-zinc-500">
+                    No labels found
                   </div>
                 )}
-              </div>
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
-    </FormItem>
+    </div>
   );
 }
 

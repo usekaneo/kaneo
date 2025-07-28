@@ -6,6 +6,7 @@ import {
   notificationTable,
   projectTable,
   sessionTable,
+  taskLabelTable,
   taskTable,
   timeEntryTable,
   userTable,
@@ -39,6 +40,7 @@ export const workspaceTableRelations = relations(
     }),
     members: many(workspaceUserTable),
     projects: many(projectTable),
+    labels: many(labelTable),
   }),
 );
 
@@ -75,7 +77,7 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
-  labels: many(labelTable),
+  taskLabels: many(taskLabelTable),
 }));
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({
@@ -100,10 +102,22 @@ export const activityTableRelations = relations(activityTable, ({ one }) => ({
   }),
 }));
 
-export const labelTableRelations = relations(labelTable, ({ one }) => ({
+export const labelTableRelations = relations(labelTable, ({ one, many }) => ({
+  workspace: one(workspaceTable, {
+    fields: [labelTable.workspaceId],
+    references: [workspaceTable.id],
+  }),
+  taskLabels: many(taskLabelTable),
+}));
+
+export const taskLabelTableRelations = relations(taskLabelTable, ({ one }) => ({
   task: one(taskTable, {
-    fields: [labelTable.taskId],
+    fields: [taskLabelTable.taskId],
     references: [taskTable.id],
+  }),
+  label: one(labelTable, {
+    fields: [taskLabelTable.labelId],
+    references: [labelTable.id],
   }),
 }));
 

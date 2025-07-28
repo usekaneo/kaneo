@@ -22,13 +22,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import useAssignLabelToTask from "@/hooks/mutations/label/use-assign-label-to-task";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
+import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { produce } from "immer";
 import {
@@ -68,6 +71,14 @@ type Label = {
   color: LabelColor;
 };
 
+type WorkspaceLabel = {
+  id: string;
+  name: string;
+  color: string;
+  workspaceId: string;
+  createdAt: string;
+};
+
 const labelColors = [
   { value: "gray" as LabelColor, label: "Grey", color: "#94a3b8" },
   { value: "dark-gray" as LabelColor, label: "Dark Grey", color: "#64748b" },
@@ -85,9 +96,14 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const { workspace } = useWorkspaceStore();
   const { mutate: updateTask } = useUpdateTask();
   const { mutateAsync: createLabel } = useCreateLabel();
+  const { mutateAsync: assignLabel } = useAssignLabelToTask();
   const { data: users } = useGetActiveWorkspaceUsers({
     workspaceId: workspace?.id ?? "",
   });
+  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
+    workspace?.id ?? "",
+  );
+  const queryClient = useQueryClient();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -137,17 +153,48 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         status: taskStatus,
       });
 
+      // Assign labels to the new task
       for (const label of labels) {
         try {
-          await createLabel({
-            name: label.name,
-            color: label.color,
-            taskId: newTask.id,
-          });
+          // Check if this is an existing workspace label
+          const existingLabel = workspaceLabels.find(
+            (wl: WorkspaceLabel) => wl.name === label.name,
+          );
+
+          if (existingLabel) {
+            // Assign existing label to task
+            await assignLabel({
+              taskId: newTask.id,
+              labelId: existingLabel.id,
+            });
+          } else {
+            // Create new label and assign it
+            const newLabel = await createLabel({
+              name: label.name,
+              color: label.color,
+              workspaceId: workspace.id,
+            });
+
+            if (newLabel?.id) {
+              await assignLabel({ taskId: newTask.id, labelId: newLabel.id });
+            }
+          }
         } catch (error) {
-          console.error("Failed to create label:", error);
+          console.error("Failed to assign label:", error);
         }
       }
+
+      await queryClient.invalidateQueries({ queryKey: ["tasks", project.id] });
+      await queryClient.invalidateQueries({ queryKey: ["task", newTask.id] });
+      await queryClient.invalidateQueries({
+        queryKey: ["labels", "workspace", workspace.id],
+      });
+
+      await queryClient.refetchQueries({ queryKey: ["tasks", project.id] });
+      await queryClient.refetchQueries({ queryKey: ["task", newTask.id] });
+      await queryClient.refetchQueries({
+        queryKey: ["labels", "workspace", workspace.id],
+      });
 
       const updatedProject = produce(project, (draft) => {
         if (newTask.status !== "planned" && newTask.status !== "archived") {
@@ -223,14 +270,15 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
   const selectedUser = users?.find((u) => u.userEmail === assigneeEmail);
 
-  const filteredLabels = labels.filter((label: Label) =>
+  const filteredLabels = workspaceLabels.filter((label: WorkspaceLabel) =>
     label.name.toLowerCase().includes(searchValue.toLowerCase()),
   );
 
   const isCreatingNewLabel =
     searchValue &&
-    !labels.some(
-      (label: Label) => label.name.toLowerCase() === searchValue.toLowerCase(),
+    !workspaceLabels.some(
+      (label: WorkspaceLabel) =>
+        label.name.toLowerCase() === searchValue.toLowerCase(),
     );
 
   useEffect(() => {
@@ -257,9 +305,14 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     if (existingLabel) {
       setLabels(labels.filter((l) => l.name !== labelName));
     } else {
-      const labelToAdd = labels.find((l) => l.name === labelName);
+      const labelToAdd = workspaceLabels.find(
+        (l: WorkspaceLabel) => l.name === labelName,
+      );
       if (labelToAdd) {
-        setLabels([...labels.filter((l) => l.name !== labelName), labelToAdd]);
+        setLabels([
+          ...labels.filter((l) => l.name !== labelName),
+          { name: labelToAdd.name, color: labelToAdd.color as LabelColor },
+        ]);
       }
     }
   };
@@ -279,11 +332,16 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     setLabels([...labels, { name: searchValue.trim(), color: selectedColor }]);
     setSearchValue("");
     setSelectedColor("gray");
+    setColorPickerOpen(false);
     searchInputRef.current?.focus();
   };
 
   const removeLabel = (labelName: string) => {
     setLabels(labels.filter((l) => l.name !== labelName));
+  };
+
+  const getColorValue = (colorKey: string) => {
+    return labelColors.find((c) => c.value === colorKey)?.color || "#94a3b8";
   };
 
   return (
@@ -530,53 +588,39 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                   <div className="max-h-80 overflow-y-auto">
                     {filteredLabels.length > 0 ? (
                       <div className="py-1">
-                        {filteredLabels.map((label: Label) => (
-                          <button
-                            key={label.name}
-                            type="button"
-                            className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                            onClick={() => toggleLabel(label.name)}
-                          >
-                            <div className="flex-shrink-0 w-4 mr-2 text-center">
-                              <Check className="w-4 h-4 text-zinc-400" />
-                            </div>
-                            <span
-                              className="w-3 h-3 rounded-full mr-2"
-                              style={{
-                                backgroundColor:
-                                  labelColors.find(
-                                    (c) => c.value === label.color,
-                                  )?.color || "#94a3b8",
-                              }}
-                            />
-                            <span>{label.name}</span>
-                          </button>
-                        ))}
+                        {filteredLabels.map((label: WorkspaceLabel) => {
+                          const isSelected = labels.some(
+                            (l) => l.name === label.name,
+                          );
+                          return (
+                            <button
+                              key={label.name}
+                              type="button"
+                              className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                              onClick={() => toggleLabel(label.name)}
+                            >
+                              <div className="flex-shrink-0 w-4 mr-2 text-center">
+                                {isSelected ? (
+                                  <Check className="w-4 h-4 text-zinc-600" />
+                                ) : (
+                                  <div className="w-4 h-4" />
+                                )}
+                              </div>
+                              <span
+                                className="w-3 h-3 rounded-full mr-2"
+                                style={{
+                                  backgroundColor: getColorValue(label.color),
+                                }}
+                              />
+                              <span>{label.name}</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     ) : null}
 
                     {isCreatingNewLabel && (
                       <div className="py-1 border-t border-zinc-200 dark:border-zinc-800">
-                        <button
-                          type="button"
-                          className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                          onClick={handleCreateLabel}
-                        >
-                          <div className="flex-shrink-0 w-4 mr-2 text-center">
-                            <PlusIcon className="w-4 h-4 text-zinc-400" />
-                          </div>
-                          <span
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{
-                              backgroundColor:
-                                labelColors.find(
-                                  (c) => c.value === selectedColor,
-                                )?.color || "#94a3b8",
-                            }}
-                          />
-                          <span>Create new label: "{searchValue}"</span>
-                        </button>
-
                         <Popover
                           open={colorPickerOpen}
                           onOpenChange={setColorPickerOpen}
@@ -584,42 +628,53 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                           <PopoverTrigger asChild>
                             <button
                               type="button"
-                              className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                              className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                             >
-                              <div className="flex-shrink-0 w-4 mr-2" />
-                              <span>Pick a color for label</span>
+                              <div className="flex-shrink-0 w-4 mr-2 text-center">
+                                <PlusIcon className="w-4 h-4 text-zinc-400" />
+                              </div>
+                              <span
+                                className="w-3 h-3 rounded-full mr-2"
+                                style={{
+                                  backgroundColor:
+                                    labelColors.find(
+                                      (c) => c.value === selectedColor,
+                                    )?.color || "#94a3b8",
+                                }}
+                              />
+                              <span>Create "{searchValue}"</span>
                             </button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-64 p-2"
+                            className="w-64 p-0"
                             align="start"
-                            sideOffset={5}
+                            side="right"
                           >
-                            <div className="grid grid-cols-1 gap-1">
+                            <div className="p-3 border-b border-zinc-200 dark:border-zinc-800">
+                              <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-200">
+                                Pick a color for label
+                              </h4>
+                            </div>
+                            <div className="p-1">
                               {labelColors.map((color) => (
                                 <button
                                   key={color.value}
                                   type="button"
-                                  className={cn(
-                                    "flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                                    selectedColor === color.value &&
-                                      "bg-zinc-100 dark:bg-zinc-800",
-                                  )}
                                   onClick={() => {
                                     setSelectedColor(color.value);
                                     setColorPickerOpen(false);
+                                    handleCreateLabel();
+                                    setLabelsOpen(false);
                                   }}
+                                  className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
                                 >
                                   <span
-                                    className="w-3 h-3 rounded-full mr-3"
-                                    style={{
-                                      backgroundColor: color.color,
-                                    }}
+                                    className="w-3 h-3 rounded-full"
+                                    style={{ backgroundColor: color.color }}
                                   />
-                                  <span>{color.label}</span>
-                                  {selectedColor === color.value && (
-                                    <Check className="w-4 h-4 ml-auto text-zinc-400" />
-                                  )}
+                                  <span className="text-zinc-900 dark:text-zinc-200">
+                                    {color.label}
+                                  </span>
                                 </button>
                               ))}
                             </div>

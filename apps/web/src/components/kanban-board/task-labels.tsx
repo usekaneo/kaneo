@@ -24,14 +24,6 @@ type LabelColor =
   | "pink"
   | "red";
 
-type Label = {
-  id: string;
-  name: string;
-  color: string;
-  taskId: string;
-  createdAt: string;
-};
-
 function TaskCardLabels({ taskId }: { taskId: string }) {
   const { data: labels = [] } = useGetLabelsByTask(taskId);
 
@@ -39,7 +31,7 @@ function TaskCardLabels({ taskId }: { taskId: string }) {
 
   return (
     <div className="flex flex-wrap gap-1">
-      {labels.map((label: Label) => (
+      {labels.map((label) => (
         <Badge
           key={label.id}
           badgeColor={label.color as LabelColor}
