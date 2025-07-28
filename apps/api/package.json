@@ -10,7 +10,7 @@
   "dependencies": {
     "@hono/node-server": "^1.14.4",
     "@hono/zod-validator": "^0.7.2",
-    "@octokit/webhooks": "^14.1.0",
+    "@octokit/webhooks": "^14.1.1",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
