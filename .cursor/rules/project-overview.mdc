@@ -1,0 +1,42 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Kaneo Project Overview
+
+Kaneo is a modern project management application built as a monorepo with multiple applications and shared packages.
+
+## Architecture
+
+This is a **monorepo** containing:
+
+### Applications (`apps/`)
+- **`api/`** - Backend API built with Hono framework and TypeScript
+- **`web/`** - Frontend React application with Vite and TanStack Router
+- **`docs/`** - Documentation website built with Next.js
+
+### Packages (`packages/`)
+- **`libs/`** - Shared TypeScript utilities and Hono extensions
+- **`typescript-config/`** - Shared TypeScript configurations
+
+## Key Technologies
+
+- **Backend**: Hono, TypeScript, Drizzle ORM, PostgreSQL
+- **Frontend**: React, Vite, TanStack Router, TanStack Query, Tailwind CSS
+- **Database**: PostgreSQL with Drizzle ORM migrations
+- **Deployment**: Docker, Kubernetes (Helm charts)
+- **Monorepo**: Turborepo for build orchestration
+
+## Entry Points
+
+- Backend API: [apps/api/src/index.ts](mdc:apps/api/src/index.ts)
+- Frontend Web App: [apps/web/src/main.tsx](mdc:apps/web/src/main.tsx)
+- Documentation: [apps/docs/app/layout.tsx](mdc:apps/docs/app/layout.tsx)
+
+## Configuration Files
+
+- Database config: [apps/api/drizzle.config.ts](mdc:apps/api/drizzle.config.ts)
+- Database schema: [apps/api/src/database/schema.ts](mdc:apps/api/src/database/schema.ts)
+- Backend package.json: [apps/api/package.json](mdc:apps/api/package.json)
+- Frontend package.json: [apps/web/package.json](mdc:apps/web/package.json)

@@ -1,0 +1,56 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Backend API Structure and Patterns
+
+The backend API is located in [apps/api/](mdc:apps/api) and follows a modular, domain-driven architecture.
+
+## Project Structure
+
+### Core Files
+- **Entry Point**: [apps/api/src/index.ts](mdc:apps/api/src/index.ts) - Main Hono application setup
+- **Database**: [apps/api/src/database/index.ts](mdc:apps/api/src/database/index.ts) - Database connection
+- **Schema**: [apps/api/src/database/schema.ts](mdc:apps/api/src/database/schema.ts) - Drizzle ORM schema definitions
+- **Config**: [apps/api/src/config/index.ts](mdc:apps/api/src/config/index.ts) - Environment configuration
+
+### Domain Modules
+
+Each domain follows the same structure pattern with `controllers/` and `index.ts`:
+
+- **Activity**: [apps/api/src/activity/](mdc:apps/api/src/activity) - Activity tracking and comments
+- **Task**: [apps/api/src/task/](mdc:apps/api/src/task) - Task management (CRUD, updates, exports)
+- **Project**: [apps/api/src/project/](mdc:apps/api/src/project) - Project management
+- **Workspace**: [apps/api/src/workspace/](mdc:apps/api/src/workspace) - Workspace management
+- **User**: [apps/api/src/user/](mdc:apps/api/src/user) - Authentication and user management
+- **GitHub Integration**: [apps/api/src/github-integration/](mdc:apps/api/src/github-integration) - GitHub app integration
+- **Time Entry**: [apps/api/src/time-entry/](mdc:apps/api/src/time-entry) - Time tracking
+- **Notification**: [apps/api/src/notification/](mdc:apps/api/src/notification) - User notifications
+- **Label**: [apps/api/src/label/](mdc:apps/api/src/label) - Task labeling system
+
+## Architecture Patterns
+
+### Controller Pattern
+Each domain has controllers in `controllers/` directory that handle HTTP requests:
+- Controllers use Hono framework
+- Follow naming convention: `{action}-{resource}.ts` (e.g., `create-task.ts`)
+- Each controller exports a Hono route handler
+
+### Module Exports
+Each domain has an [index.ts](mdc:apps/api/src/task/index.ts) that exports all controllers as Hono routes.
+
+### Authentication
+- Auth middleware: [apps/api/src/middlewares/auth.ts](mdc:apps/api/src/middlewares/auth.ts)
+- Session management in [apps/api/src/user/utils/](mdc:apps/api/src/user/utils)
+
+### Database Migrations
+- Located in [apps/api/drizzle/](mdc:apps/api/drizzle)
+- Managed by Drizzle ORM
+- Configuration: [apps/api/drizzle.config.ts](mdc:apps/api/drizzle.config.ts)
+
+## Key Utilities
+
+- **Demo Data**: [apps/api/src/utils/create-demo-user.ts](mdc:apps/api/src/utils/create-demo-user.ts)
+- **Settings**: [apps/api/src/utils/get-settings.ts](mdc:apps/api/src/utils/get-settings.ts)
+- **Events**: [apps/api/src/events/index.ts](mdc:apps/api/src/events/index.ts)

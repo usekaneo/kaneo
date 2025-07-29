@@ -1,0 +1,89 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Database Schema and Data Model
+
+The application uses **PostgreSQL** with **Drizzle ORM** for type-safe database operations and migrations.
+
+## Core Schema Files
+
+- **Schema Definition**: [apps/api/src/database/schema.ts](mdc:apps/api/src/database/schema.ts) - All table definitions
+- **Database Connection**: [apps/api/src/database/index.ts](mdc:apps/api/src/database/index.ts) - Database client setup
+- **Migration Config**: [apps/api/drizzle.config.ts](mdc:apps/api/drizzle.config.ts) - Drizzle configuration
+
+## Migration Management
+
+### Migration Files
+- **Directory**: [apps/api/drizzle/](mdc:apps/api/drizzle) - Contains all migration files
+- **Journal**: [apps/api/drizzle/meta/_journal.json](mdc:apps/api/drizzle/meta/_journal.json) - Migration tracking
+- **Snapshots**: [apps/api/drizzle/meta/](mdc:apps/api/drizzle/meta) - Schema snapshots for each migration
+
+### Migration Commands
+```bash
+# Generate migration
+npm run db:generate
+
+# Apply migrations
+npm run db:migrate
+
+# View database
+npm run db:studio
+```
+
+## Data Model Overview
+
+Based on the project structure, the main entities likely include:
+
+### Core Entities
+- **Users** - User accounts and authentication
+- **Workspaces** - Team/organization containers
+- **WorkspaceUsers** - User membership in workspaces
+- **Projects** - Project containers within workspaces
+- **Tasks** - Individual work items within projects
+- **Labels** - Task categorization and tagging
+- **TimeEntries** - Time tracking for tasks
+- **Activities** - Activity logs and comments
+- **Notifications** - User notification system
+
+### Integration Entities
+- **GitHubIntegrations** - GitHub app connections
+- **Settings** - Application and user settings
+
+## Schema Patterns
+
+### Primary Keys
+- Uses auto-incrementing integers or UUIDs
+- Consistent naming: `id` for primary keys
+
+### Foreign Keys
+- Clear naming convention for references
+- Proper cascading rules for data integrity
+
+### Timestamps
+- `createdAt` and `updatedAt` fields on most entities
+- Consistent timestamp handling
+
+### Soft Deletes
+- May use `deletedAt` for soft deletion patterns
+- Preserves data integrity and audit trails
+
+## Database Operations
+
+### Query Examples
+```typescript
+// Import from schema
+import { db } from './database'
+import { tasks, projects } from './database/schema'
+
+// Type-safe queries with Drizzle
+const userTasks = await db
+  .select()
+  .from(tasks)
+  .where(eq(tasks.userId, userId))
+```
+
+### Transaction Patterns
+- Use database transactions for multi-table operations
+- Ensure data consistency across related entities

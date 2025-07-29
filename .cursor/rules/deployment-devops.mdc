@@ -1,0 +1,116 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Deployment and DevOps
+
+This document covers the deployment infrastructure, containerization, and DevOps practices for the Kaneo project.
+
+## Containerization
+
+### Docker Configuration
+- **API Dockerfile**: [apps/api/Dockerfile](mdc:apps/api/Dockerfile) - Backend API container
+- **Web Dockerfile**: [apps/web/Dockerfile](mdc:apps/web/Dockerfile) - Frontend application container
+- **Environment Script**: [apps/web/env.sh](mdc:apps/web/env.sh) - Runtime environment configuration
+
+### Container Patterns
+- **Multi-stage builds** for optimized production images
+- **Node.js Alpine** base images for smaller footprint
+- **Environment variables** for runtime configuration
+- **Health checks** for container monitoring
+
+## Kubernetes Deployment
+
+### Helm Charts
+The project uses **Helm** for Kubernetes deployments:
+
+- **Chart Directory**: [charts/kaneo/](mdc:charts/kaneo) - Main Helm chart
+- **Chart.yaml**: [charts/kaneo/Chart.yaml](mdc:charts/kaneo/Chart.yaml) - Chart metadata
+- **Values**: [charts/kaneo/values.yaml](mdc:charts/kaneo/values.yaml) - Default configuration values
+
+### Kubernetes Resources
+
+Located in [charts/kaneo/templates/](mdc:charts/kaneo/templates):
+
+- **Deployment**: [charts/kaneo/templates/deployment.yaml](mdc:charts/kaneo/templates/deployment.yaml) - Application deployment
+- **Service**: Application service definitions
+- **Ingress**: External traffic routing
+- **ConfigMap**: Configuration management
+- **Secret**: Sensitive data management
+- **HPA**: [charts/kaneo/templates/hpa.yaml](mdc:charts/kaneo/templates/hpa.yaml) - Horizontal Pod Autoscaler
+
+### Deployment Features
+- **Horizontal Pod Autoscaling** for traffic-based scaling
+- **Rolling updates** for zero-downtime deployments
+- **Resource limits** and requests for efficient resource usage
+- **Liveness and readiness probes** for health monitoring
+
+## Environment Configuration
+
+### Development
+- **Local development** with Docker Compose (likely)
+- **Hot reloading** for faster iteration
+- **Development database** setup
+
+### Production
+- **Kubernetes cluster** deployment
+- **External database** (managed PostgreSQL)
+- **CDN integration** for static assets
+- **SSL/TLS termination** at ingress level
+
+## CI/CD Pipeline
+
+### Build Process
+- **Monorepo builds** with optimized caching
+- **Multi-stage Docker builds** for production efficiency
+- **TypeScript compilation** and type checking
+- **Linting and formatting** with Biome
+
+### Deployment Strategy
+- **GitOps approach** with Helm charts
+- **Environment promotion** (dev → staging → production)
+- **Automated testing** before deployment
+- **Rollback capabilities** for quick recovery
+
+## Monitoring and Observability
+
+### Application Monitoring
+- **Health check endpoints** in API
+- **Application metrics** collection
+- **Error tracking** and alerting
+- **Performance monitoring**
+
+### Infrastructure Monitoring
+- **Kubernetes cluster** health monitoring
+- **Resource utilization** tracking
+- **Pod status** and availability metrics
+- **Network traffic** monitoring
+
+## Configuration Management
+
+### Environment Variables
+- **Database connection** strings
+- **API keys** and secrets
+- **Feature flags** for environment-specific behavior
+- **Third-party service** configurations
+
+### Secrets Management
+- **Kubernetes Secrets** for sensitive data
+- **External secret management** (vault, cloud providers)
+- **Secure key rotation** practices
+- **Encryption at rest** and in transit
+
+## Scaling Strategies
+
+### Horizontal Scaling
+- **Pod replication** based on CPU/memory usage
+- **Load balancing** across multiple instances
+- **Database connection pooling**
+- **Stateless application design**
+
+### Performance Optimization
+- **CDN usage** for static assets
+- **Database query optimization**
+- **Caching strategies** (Redis, in-memory)
+- **Bundle optimization** for frontend assets

@@ -1,0 +1,147 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Development Conventions and Best Practices
+
+This document outlines the coding standards, patterns, and conventions used throughout the Kaneo project.
+
+## Code Quality Tools
+
+- **Biome**: [biome.json](mdc:biome.json) - Linting and formatting configuration
+- **Commitlint**: [commitlint.config.js](mdc:commitlint.config.js) - Commit message conventions
+- **TypeScript**: Strict type checking across all applications
+
+## File and Directory Naming
+
+### General Conventions
+- **kebab-case** for directory names: `github-integration/`, `time-entry/`
+- **kebab-case** for file names: `create-task.ts`, `sign-in-form.tsx`
+- **PascalCase** for React components: `TaskCard.tsx`, `SignInForm.tsx`
+
+### Backend API Conventions
+- **Controllers**: `{action}-{resource}.ts` pattern
+  - Examples: `create-task.ts`, `get-project.ts`, `delete-workspace.ts`
+- **Utils**: Descriptive names in `utils/` directories
+- **Domain Modules**: Each module has `controllers/` and `index.ts`
+
+### Frontend Conventions
+- **Components**: Organized by feature in `components/`
+- **Hooks**: Custom hooks in `hooks/mutations/` and `hooks/queries/`
+- **Fetchers**: API calls organized by domain in `fetchers/`
+- **Types**: TypeScript definitions in `types/` by domain
+
+## Code Organization Patterns
+
+### Backend Architecture
+```
+src/
+├── {domain}/
+│   ├── controllers/
+│   │   ├── create-{resource}.ts
+│   │   ├── get-{resource}.ts
+│   │   └── update-{resource}.ts
+│   ├── utils/ (optional)
+│   └── index.ts (exports routes)
+```
+
+### Frontend Architecture
+```
+src/
+├── components/
+│   ├── {feature}/
+│   │   ├── index.tsx
+│   │   └── {sub-components}.tsx
+├── fetchers/
+│   └── {domain}/
+├── hooks/
+│   ├── mutations/
+│   └── queries/
+└── types/
+    └── {domain}/
+```
+
+## TypeScript Conventions
+
+### Import Organization
+1. **External libraries** (React, Hono, etc.)
+2. **Internal shared packages** (@kaneo/libs)
+3. **Relative imports** (./components, ../utils)
+
+### Type Definitions
+- **Interfaces** for object shapes
+- **Types** for unions and computed types
+- **Enums** for constants with meaningful names
+- **Generics** for reusable type patterns
+
+## React Patterns
+
+### Component Structure
+```tsx
+// Props type
+type ComponentProps {
+  prop: string
+}
+
+// Component with TypeScript
+function Component({ prop }: ComponentProps) {
+  // Hooks first
+  const [state, setState] = useState()
+
+  // Event handlers
+  const handleClick = () => {}
+
+  // Render
+  return <div>{prop}</div>
+}
+
+export default Component;
+```
+
+### State Management
+- **TanStack Query** for server state
+- **Zustand** for client state: [apps/web/src/store/](mdc:apps/web/src/store)
+- **React Context** for theme and auth: [apps/web/src/components/providers/](mdc:apps/web/src/components/providers)
+
+## API Design Patterns
+
+### REST Conventions
+- **GET** `/api/{resource}` - List resources
+- **GET** `/api/{resource}/{id}` - Get single resource
+- **POST** `/api/{resource}` - Create resource
+- **PUT** `/api/{resource}/{id}` - Update resource
+- **DELETE** `/api/{resource}/{id}` - Delete resource
+
+### Response Format
+```typescript
+// Success response
+{
+  data: T,
+  success: true
+}
+
+// Error response
+{
+  error: string,
+  success: false
+}
+```
+
+## Git Conventions
+
+### Commit Messages
+Following [Conventional Commits](mdc:https:/www.conventionalcommits.org):
+- `feat:` new features
+- `fix:` bug fixes
+- `docs:` documentation changes
+- `style:` formatting changes
+- `refactor:` code refactoring
+- `test:` adding tests
+- `chore:` maintenance tasks
+
+### Branch Naming
+- `feature/description` for new features
+- `fix/description` for bug fixes
+- `docs/description` for documentation
+- `refactor/description` for refactoring

@@ -1,0 +1,67 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Frontend Web Application Structure
+
+The frontend web application is located in [apps/web/](mdc:apps/web) and is built with React, Vite, and TanStack Router.
+
+## Project Structure
+
+### Core Files
+- **Entry Point**: [apps/web/src/main.tsx](mdc:apps/web/src/main.tsx) - React application root
+- **Root Route**: [apps/web/src/routes/__root.tsx](mdc:apps/web/src/routes/__root.tsx) - Root layout and providers
+- **Router Config**: [apps/web/src/tanstack/router.tsx](mdc:apps/web/src/tanstack/router.tsx) - TanStack Router setup
+- **Route Tree**: [apps/web/src/routeTree.gen.ts](mdc:apps/web/src/routeTree.gen.ts) - Auto-generated route tree
+- **Global Styles**: [apps/web/src/index.css](mdc:apps/web/src/index.css) - Tailwind CSS imports
+
+### Routing Structure (`src/routes/`)
+- **Dashboard**: [apps/web/src/routes/dashboard.tsx](mdc:apps/web/src/routes/dashboard.tsx) - Main dashboard layout
+- **Auth Routes**: [apps/web/src/routes/auth/](mdc:apps/web/src/routes/auth) - Sign in/up pages
+- **Home**: [apps/web/src/routes/index.tsx](mdc:apps/web/src/routes/index.tsx) - Landing page
+
+### Components Architecture (`src/components/`)
+
+#### Feature Components
+- **Auth**: [apps/web/src/components/auth/](mdc:apps/web/src/components/auth) - Authentication forms and layouts
+- **Dashboard**: [apps/web/src/components/dashboard/](mdc:apps/web/src/components/dashboard) - Dashboard specific components
+- **Task Management**:
+  - [apps/web/src/components/kanban-board/](mdc:apps/web/src/components/kanban-board) - Kanban board view
+  - [apps/web/src/components/list-view/](mdc:apps/web/src/components/list-view) - List view for tasks
+  - [apps/web/src/components/backlog-list-view/](mdc:apps/web/src/components/backlog-list-view) - Backlog view
+  - [apps/web/src/components/task/](mdc:apps/web/src/components/task) - Task detail components
+- **Project**: [apps/web/src/components/project/](mdc:apps/web/src/components/project) - Project management components
+- **Team**: [apps/web/src/components/team/](mdc:apps/web/src/components/team) - Team management components
+
+#### Common Components
+- **UI Library**: [apps/web/src/components/ui/](mdc:apps/web/src/components/ui) - Shadcn/ui components
+- **Common**: [apps/web/src/components/common/](mdc:apps/web/src/components/common) - Shared components (Editor, Logo, Sidebar)
+- **Providers**: [apps/web/src/components/providers/](mdc:apps/web/src/components/providers) - React context providers
+
+## Data Management
+
+### API Integration (`src/fetchers/`)
+- **TanStack Query**: [apps/web/src/query-client/index.ts](mdc:apps/web/src/query-client/index.ts) - Query client setup
+- **Fetchers**: Domain-specific API calls organized by feature (task, project, user, etc.)
+- **Hooks**:
+  - **Mutations**: [apps/web/src/hooks/mutations/](mdc:apps/web/src/hooks/mutations) - Data mutation hooks
+  - **Queries**: [apps/web/src/hooks/queries/](mdc:apps/web/src/hooks/queries) - Data fetching hooks
+
+### State Management (`src/store/`)
+- **Zustand Stores**:
+  - [apps/web/src/store/project.ts](mdc:apps/web/src/store/project.ts) - Project state
+  - [apps/web/src/store/workspace.ts](mdc:apps/web/src/store/workspace.ts) - Workspace state
+  - [apps/web/src/store/user-preferences.ts](mdc:apps/web/src/store/user-preferences.ts) - User preferences
+
+## Type Definitions (`src/types/`)
+- **API Types**: [apps/web/src/types/api-response.ts](mdc:apps/web/src/types/api-response.ts)
+- **Domain Types**: Organized by feature (task, project, workspace, etc.)
+
+## Utilities and Constants
+- **Utilities**: [apps/web/src/lib/](mdc:apps/web/src/lib) - Helper functions and utilities
+- **Constants**: [apps/web/src/constants/](mdc:apps/web/src/constants) - App constants (columns, colors, icons)
+
+## Configuration
+- **Components**: [apps/web/components.json](mdc:apps/web/components.json) - Shadcn/ui configuration
+- **Package**: [apps/web/package.json](mdc:apps/web/package.json) - Dependencies and scripts
