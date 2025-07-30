@@ -25,7 +25,7 @@
     "zod": "^3.25.56"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^22.15.30",
     "@types/pg": "^8.15.4",
     "esbuild": ">=0.25.6",
