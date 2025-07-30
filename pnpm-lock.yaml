@@ -17,9 +17,15 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^19.6.0
         version: 19.8.1
+      esbuild:
+        specifier: '>=0.25.0'
+        version: 0.25.8
       husky:
         specifier: ^9.1.7
         version: 9.1.7
+      linkifyjs:
+        specifier: '>=4.3.2'
+        version: 4.3.2
       tar-fs:
         specifier: '>=2.1.3'
         version: 3.1.0
@@ -3695,6 +3701,9 @@ packages:
 
   linkifyjs@4.3.1:
     resolution: {integrity: sha512-DRSlB9DKVW04c4SUdGvKK5FR6be45lTU9M76JnngqPeeGDqPwYc0zdUErtsNVMtxPXgUWV4HbXbnC4sNyBxkYg==}
+
+  linkifyjs@4.3.2:
+    resolution: {integrity: sha512-NT1CJtq3hHIreOianA8aSXn6Cw0JzYOuDQbOrSPe7gqFnCpKP++MQe3ODgO3oh2GJFORkAAdqredOa60z63GbA==}
 
   locate-path@7.2.0:
     resolution: {integrity: sha512-gvVijfZvn7R+2qyPX8mAuKcFGDf6Nc61GdvGafQsHL0sBIxfKzA+usWn4GFC/bk+QdwPUD4kWFJLhElipq+0VA==}
@@ -8195,6 +8204,8 @@ snapshots:
       uc.micro: 2.1.0
 
   linkifyjs@4.3.1: {}
+
+  linkifyjs@4.3.2: {}
 
   locate-path@7.2.0:
     dependencies:
