@@ -148,12 +148,31 @@ export const labelTable = pgTable("label", {
   name: text("name").notNull(),
   color: text("color").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+});
+
+export const taskLabelTable = pgTable("task_label", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
   taskId: text("task_id")
     .notNull()
     .references(() => taskTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
+  labelId: text("label_id")
+    .notNull()
+    .references(() => labelTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const notificationTable = pgTable("notification", {
