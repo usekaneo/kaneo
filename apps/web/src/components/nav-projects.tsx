@@ -64,6 +64,9 @@ export function NavProjects() {
     useState(false);
   const [isDeleteProjectModalOpen, setIsDeleteProjectModalOpen] =
     useState(false);
+  const [projectToDeleteId, setProjectToDeleteID] = useState<string | null>(
+    null,
+  );
 
   const isCurrentProject = (projectId: string) => {
     return (
@@ -120,14 +123,14 @@ export function NavProjects() {
                   align={isMobile ? "end" : "start"}
                 >
                   <DropdownMenuItem
-                    className="items-start"
+                    className="items-start cursor-pointer"
                     onClick={() => handleProjectClick(project)}
                   >
                     <Folder className="text-muted-foreground" />
                     <span>View Project</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="items-start"
+                    className="items-start cursor-pointer"
                     onClick={() => {
                       navigator.clipboard.writeText(
                         `${window.location.origin}/dashboard/workspace/${workspace?.id}/project/${project.id}`,
@@ -140,50 +143,14 @@ export function NavProjects() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    className="items-start text-destructive"
+                    className="items-start text-destructive cursor-pointer"
                     onClick={() => {
+                      setProjectToDeleteID(project.id);
                       setIsDeleteProjectModalOpen(true);
                     }}
                   >
                     <Trash2 className="text-destructive" />
                     <span>Delete Project</span>
-                    <AlertDialog
-                      open={isDeleteProjectModalOpen}
-                      onOpenChange={setIsDeleteProjectModalOpen}
-                    >
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Project?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently remove the project and all its
-                            data. You can't undo this action.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={async () => {
-                              await deleteProject({
-                                id: project.id,
-                              });
-                              toast.success("Project deleted");
-                              queryClient.invalidateQueries({
-                                queryKey: ["projects"],
-                              });
-                              navigate({
-                                to: "/dashboard/workspace/$workspaceId",
-                                params: {
-                                  workspaceId: workspace?.id || "",
-                                },
-                              });
-                            }}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete Project
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -216,6 +183,44 @@ export function NavProjects() {
         open={isCreateProjectModalOpen}
         onClose={() => setIsCreateProjectModalOpen(false)}
       />
+
+      <AlertDialog
+        open={isDeleteProjectModalOpen}
+        onOpenChange={setIsDeleteProjectModalOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Project?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the project and all its data. You
+              can't undo this action.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                await deleteProject({
+                  id: projectToDeleteId || "",
+                });
+                toast.success("Project deleted");
+                queryClient.invalidateQueries({
+                  queryKey: ["projects"],
+                });
+                navigate({
+                  to: "/dashboard/workspace/$workspaceId",
+                  params: {
+                    workspaceId: workspace?.id || "",
+                  },
+                });
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Project
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SidebarGroup>
   );
 }
