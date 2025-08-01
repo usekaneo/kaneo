@@ -1,3 +1,12 @@
+# [1.2.0](https://github.com/usekaneo/kaneo/compare/v1.1.9...v1.2.0) (2025-08-01)
+
+
+### Bug Fixes
+
+* resolve delete project dialog bug ([#419](https://github.com/usekaneo/kaneo/issues/419)) ([9d11864](https://github.com/usekaneo/kaneo/commit/9d1186494d725cb585cd35d435800fcb2b628529))
+
+
+
 ## [1.1.9](https://github.com/usekaneo/kaneo/compare/v1.1.8...v1.1.9) (2025-07-30)
 
 
