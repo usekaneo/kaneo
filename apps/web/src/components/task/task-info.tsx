@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import {
@@ -14,7 +24,7 @@ import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
@@ -43,6 +53,7 @@ function TaskInfo({
   });
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: deleteTask, isPending: isDeleting } = useDeleteTask();
+  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
 
   const form = useForm<z.infer<typeof taskInfoSchema>>({
     defaultValues: {
@@ -106,117 +117,143 @@ function TaskInfo({
   }, [form]);
 
   return (
-    <div className="w-full md:w-96 flex-shrink-0 overflow-y-auto border-b border-zinc-200 dark:border-zinc-800 p-4 gap-4 border-l flex flex-col">
-      <Form {...form}>
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  handleChange({ ...form.getValues(), status: value });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {project?.columns?.map((column) => (
-                    <SelectItem key={column.id} value={column.id}>
-                      {column.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="userEmail"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Assign to</FormLabel>
-              <Select
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  handleChange({ ...form.getValues(), userEmail: value });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select assignee" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {workspaceUsers?.map((user) => {
-                    return (
-                      <SelectItem key={user.userEmail} value={user.userEmail}>
-                        {user.userName}
+    <>
+      <div className="w-full md:w-96 flex-shrink-0 overflow-y-auto border-b border-zinc-200 dark:border-zinc-800 p-4 gap-4 border-l flex flex-col">
+        <Form {...form}>
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    handleChange({ ...form.getValues(), status: value });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {project?.columns?.map((column) => (
+                      <SelectItem key={column.id} value={column.id}>
+                        {column.name}
                       </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="priority"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Priority</FormLabel>
-              <Select
-                value={field.value || ""}
-                onValueChange={(value) => {
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="userEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Assign to</FormLabel>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    handleChange({ ...form.getValues(), userEmail: value });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select assignee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    {workspaceUsers?.map((user) => {
+                      return (
+                        <SelectItem key={user.userEmail} value={user.userEmail}>
+                          {user.userName}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="priority"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Priority</FormLabel>
+                <Select
+                  value={field.value || ""}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    handleChange({ ...form.getValues(), priority: value });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="dueDate"
+            render={({ field }) => (
+              <TaskCalendar
+                field={field}
+                onChange={(value) => {
                   field.onChange(value);
-                  handleChange({ ...form.getValues(), priority: value });
+                  handleChange({
+                    ...form.getValues(),
+                    dueDate: value ?? new Date(),
+                  });
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="dueDate"
-          render={({ field }) => (
-            <TaskCalendar
-              field={field}
-              onChange={(value) => {
-                field.onChange(value);
-                handleChange({
-                  ...form.getValues(),
-                  dueDate: value ?? new Date(),
-                });
-              }}
-            />
-          )}
-        />
-        <TaskLabels taskId={task.id} setIsSaving={setIsSaving} />
-      </Form>
-      <Button
-        onClick={handleDeleteTask}
-        className="w-full mt-4 px-3 py-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 border border-red-200 dark:border-red-500/20 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              />
+            )}
+          />
+          <TaskLabels taskId={task.id} setIsSaving={setIsSaving} />
+        </Form>
+        <Button
+          onClick={() => setIsDeleteTaskModalOpen(true)}
+          className="w-full mt-4 px-3 py-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 border border-red-200 dark:border-red-500/20 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {isDeleting ? "Deleting..." : "Delete Task"}
+        </Button>
+      </div>
+
+      <AlertDialog
+        open={isDeleteTaskModalOpen}
+        onOpenChange={setIsDeleteTaskModalOpen}
       >
-        {isDeleting ? "Deleting..." : "Delete Task"}
-      </Button>
-    </div>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the task and all its data. You can't
+              undo this action.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteTask}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Task
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
