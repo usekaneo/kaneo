@@ -1,0 +1,9 @@
+{
+	"functions": {
+		"dist/index.js": {
+			"runtime": "nodejs18.x"
+		}
+	},
+	"buildCommand": "npm run build",
+	"outputDirectory": "dist"
+}
