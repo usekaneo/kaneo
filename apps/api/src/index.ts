@@ -143,3 +143,5 @@ export type AppType =
   | typeof publicProjectRoute
   | typeof githubIntegrationRoute
   | typeof configRoute;
+
+export default app;
