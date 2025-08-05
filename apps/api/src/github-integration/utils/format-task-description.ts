@@ -7,5 +7,11 @@ export function formatTaskDescription(payload: {
     full_name: string;
   };
 }): string {
-  return `${payload.body || "No description provided"}`;
+  const issueUrl = payload.html_url;
+  const body = payload.body || "No description provided";
+
+  return `${body}
+
+---
+*Created from GitHub issue: ${issueUrl}*`;
 }

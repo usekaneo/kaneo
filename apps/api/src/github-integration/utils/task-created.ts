@@ -20,6 +20,14 @@ export async function handleTaskCreated(data: {
   const { taskId, userEmail, title, description, priority, status, projectId } =
     data;
 
+  if (description?.includes("Created from GitHub issue:")) {
+    console.log(
+      "Skipping GitHub issue creation for task created from GitHub issue:",
+      taskId,
+    );
+    return;
+  }
+
   try {
     const integration = await getGithubIntegration(projectId);
 
