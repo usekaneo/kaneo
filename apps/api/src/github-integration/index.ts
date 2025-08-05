@@ -9,13 +9,17 @@ import { importIssues } from "./controllers/import-issues";
 import listUserRepositories from "./controllers/list-user-repositories";
 import verifyGithubInstallation from "./controllers/verify-github-installation";
 import createGithubApp from "./utils/create-github-app";
+import { handleIssueClosed } from "./utils/issue-closed";
 import { handleIssueOpened } from "./utils/issue-opened";
 import { handleTaskCreated } from "./utils/task-created";
+import { handleTaskPriorityChanged } from "./utils/task-priority-changed";
+import { handleTaskStatusChanged } from "./utils/task-status-changed";
 
 const githubApp = createGithubApp();
 
 if (githubApp) {
   githubApp.webhooks.on("issues.opened", handleIssueOpened);
+  githubApp.webhooks.on("issues.closed", handleIssueClosed);
 }
 
 subscribeToEvent<{
@@ -28,6 +32,22 @@ subscribeToEvent<{
   number: number;
   projectId: string;
 }>("task.created", handleTaskCreated);
+
+subscribeToEvent<{
+  taskId: string;
+  userEmail: string | null;
+  oldStatus: string;
+  newStatus: string;
+  title: string;
+}>("task.status_changed", handleTaskStatusChanged);
+
+subscribeToEvent<{
+  taskId: string;
+  userEmail: string | null;
+  oldPriority: string;
+  newPriority: string;
+  title: string;
+}>("task.priority_changed", handleTaskPriorityChanged);
 
 const githubIntegration = new Hono()
   .get("/app-info", async (c) => {

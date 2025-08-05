@@ -254,19 +254,6 @@ export function GitHubIntegrationSettings({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start gap-4">
-        <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-          <Github className="w-6 h-6" />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold">GitHub Integration</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Connect this project to a GitHub repository to sync issues and
-            tasks.
-          </p>
-        </div>
-      </div>
-
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">

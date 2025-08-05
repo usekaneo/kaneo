@@ -56,6 +56,16 @@ async function updateTask(
     });
   }
 
+  if (existingTask.priority !== priority) {
+    await publishEvent("task.priority_changed", {
+      taskId: updatedTask.id,
+      userEmail: updatedTask.userEmail,
+      oldPriority: existingTask.priority,
+      newPriority: priority,
+      title: updatedTask.title,
+    });
+  }
+
   if (existingTask.userEmail !== userEmail) {
     await publishEvent("task.assignee_changed", {
       taskId: updatedTask.id,

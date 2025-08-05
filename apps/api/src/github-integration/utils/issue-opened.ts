@@ -5,7 +5,11 @@ import type {
 import type { Octokit } from "octokit";
 import createTask from "../../task/controllers/create-task";
 import getGithubIntegrationByRepositoryId from "../controllers/get-github-integration-by-repository-id";
-import { extractIssuePriority } from "./extract-issue-priority";
+import { addLabelsToIssue } from "./create-github-labels";
+import {
+  extractIssuePriority,
+  extractIssueStatus,
+} from "./extract-issue-priority";
 import { formatGitHubComment } from "./format-github-comment";
 import { formatTaskDescription } from "./format-task-description";
 
@@ -38,6 +42,7 @@ export const handleIssueOpened: HandlerFunction<
     }
 
     const taskPriority = extractIssuePriority(payload.issue.labels);
+    const taskStatus = extractIssueStatus(payload.issue.labels);
 
     const task = await createTask({
       projectId: integration.projectId,
@@ -49,13 +54,34 @@ export const handleIssueOpened: HandlerFunction<
         user: payload.issue.user,
         repository: payload.repository,
       }),
-      status: "to-do",
+      status: taskStatus,
       priority: taskPriority,
       dueDate: new Date(),
       userEmail: undefined,
     });
 
+    const existingLabels =
+      payload.issue.labels
+        ?.map((label) => (typeof label === "string" ? label : label.name))
+        .filter(Boolean) || [];
+
+    const labelsToAdd = [
+      "kaneo",
+      `priority:${taskPriority}`,
+      `status:${taskStatus}`,
+    ].filter((label) => !existingLabels.includes(label));
+
     try {
+      if (labelsToAdd.length > 0) {
+        await addLabelsToIssue(
+          octokit,
+          payload.repository.owner.login,
+          payload.repository.name,
+          payload.issue.number,
+          labelsToAdd,
+        );
+      }
+
       await octokit.rest.issues.createComment({
         owner: payload.repository.owner.login,
         repo: payload.repository.name,
@@ -68,7 +94,10 @@ export const handleIssueOpened: HandlerFunction<
         }),
       });
     } catch (commentError) {
-      console.error("Failed to add comment to GitHub issue:", commentError);
+      console.error(
+        "Failed to add comment or labels to GitHub issue:",
+        commentError,
+      );
     }
   } catch (error) {
     console.error("Failed to create Kaneo task from GitHub issue:", error);

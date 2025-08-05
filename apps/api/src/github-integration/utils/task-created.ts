@@ -1,5 +1,9 @@
+import { eq } from "drizzle-orm";
+import db from "../../database";
+import { taskTable } from "../../database/schema";
 import getGithubIntegration from "../controllers/get-github-integration";
 import createGithubApp from "./create-github-app";
+import { addLabelsToIssue } from "./create-github-labels";
 
 const githubApp = createGithubApp();
 
@@ -55,7 +59,7 @@ export async function handleTaskCreated(data: {
 
     const octokit = await githubApp.getInstallationOctokit(installationId);
 
-    await octokit.rest.issues.create({
+    const createdIssue = await octokit.rest.issues.create({
       owner: repositoryOwner,
       repo: repositoryName,
       title: `[Kaneo] ${title}`,
@@ -71,8 +75,38 @@ export async function handleTaskCreated(data: {
 
 ---
 *This issue was automatically created from Kaneo task management system.*`,
-      labels: ["kaneo", `priority:${priority || "low"}`, `status:${status}`],
     });
+
+    const labelsToAdd = [
+      "kaneo",
+      `priority:${priority || "low"}`,
+      `status:${status}`,
+    ];
+    await addLabelsToIssue(
+      octokit,
+      repositoryOwner,
+      repositoryName,
+      createdIssue.data.number,
+      labelsToAdd,
+    );
+
+    try {
+      await db
+        .update(taskTable)
+        .set({
+          description: `${description || ""}
+
+---
+
+*Linked to GitHub issue: ${createdIssue.data.html_url}*`,
+        })
+        .where(eq(taskTable.id, taskId));
+    } catch (error) {
+      console.error(
+        "Failed to update task description with GitHub issue link:",
+        error,
+      );
+    }
   } catch (error) {
     console.error("Failed to create GitHub issue:", error);
   }
