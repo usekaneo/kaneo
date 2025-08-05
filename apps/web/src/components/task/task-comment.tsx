@@ -1,4 +1,5 @@
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
+import { Editor } from "@/components/common/editor";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
@@ -100,12 +101,13 @@ function TaskComment({
                 <FormItem>
                   <div className="flex flex-col gap-4">
                     <FormControl>
-                      <textarea
-                        placeholder="Add a comment..."
-                        {...field}
-                        value={field.value}
-                        className="w-full rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-white dark:bg-zinc-900 shadow-sm px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 min-h-[100px]"
-                      />
+                      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm overflow-hidden min-h-[100px]">
+                        <Editor
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          placeholder="Add a comment..."
+                        />
+                      </div>
                     </FormControl>
                   </div>
                 </FormItem>
