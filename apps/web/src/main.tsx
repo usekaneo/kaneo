@@ -12,6 +12,15 @@ import { ErrorFallback } from "./components/ui/error-fallback";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
 import { routeTree } from "./routeTree.gen";
 
+console.log(`
+██╗  ██╗ █████╗ ███╗   ██╗███████╗ ██████╗ 
+██║ ██╔╝██╔══██╗████╗  ██║██╔════╝██╔═══██╗
+█████╔╝ ███████║██╔██╗ ██║█████╗  ██║   ██║
+██╔═██╗ ██╔══██║██║╚██╗██║██╔══╝  ██║   ██║
+██║  ██╗██║  ██║██║ ╚████║███████╗╚██████╔╝
+╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝ ╚═════╝ 
+`);
+
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",

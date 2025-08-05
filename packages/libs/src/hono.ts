@@ -4,7 +4,7 @@ import type { AppType } from "@kaneo/api";
 import { hc } from "hono/client";
 
 export const client = hc<AppType>(
-  import.meta.env.VITE_API_URL || "http://andrej.cxom:1337",
+  import.meta.env.VITE_API_URL || "http://localhost:1337",
   {
     fetch: (input: RequestInfo | URL, init?: RequestInit) => {
       return fetch(input, {
