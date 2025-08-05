@@ -1,3 +1,13 @@
+## [1.2.1](https://github.com/usekaneo/kaneo/compare/v1.2.0...v1.2.1) (2025-08-05)
+
+
+### Features
+
+* add delete task confirmation dialog to task card and task info components ([0fa817f](https://github.com/usekaneo/kaneo/commit/0fa817f972407cb4e6669b964dec052950eebbf1))
+* enhance task description formatting and skip GitHub issue creation for related tasks ([63cca0a](https://github.com/usekaneo/kaneo/commit/63cca0ac5160724e09065fef95bdd6ad723cde3d))
+
+
+
 # [1.2.0](https://github.com/usekaneo/kaneo/compare/v1.1.9...v1.2.0) (2025-08-01)
 
 
