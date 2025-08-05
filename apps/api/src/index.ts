@@ -27,11 +27,25 @@ import workspaceUser from "./workspace-user";
 const app = new Hono<{ Variables: { userEmail: string } }>();
 const { isDemoMode } = getSettings();
 
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
+  : undefined;
+
 app.use(
   "*",
   cors({
     credentials: true,
-    origin: (origin) => origin || "*",
+    origin: (origin) => {
+      if (!corsOrigins) {
+        return origin || "*";
+      }
+
+      if (!origin) {
+        return null;
+      }
+
+      return corsOrigins.includes(origin) ? origin : null;
+    },
   }),
 );
 

@@ -10,6 +10,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { ErrorDisplay } from "../../ui/error-display";
 
 export const AuthContext = createContext<{
   user: LoggedInUser | null | undefined;
@@ -21,7 +22,7 @@ export const AuthContext = createContext<{
 
 function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<LoggedInUser | undefined | null>(undefined);
-  const { data, isFetching } = useGetMe();
+  const { data, isFetching, error } = useGetMe();
 
   useEffect(() => {
     if (data?.user === null) {
@@ -38,6 +39,16 @@ function AuthProvider({ children }: PropsWithChildren) {
     }),
     [user],
   );
+
+  if (error) {
+    return (
+      <ErrorDisplay
+        error={error}
+        title="Connection Error"
+        className="min-h-screen"
+      />
+    );
+  }
 
   if (isFetching || user === undefined) {
     return (

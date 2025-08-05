@@ -7,6 +7,8 @@ import "@/index.css";
 import AuthProvider from "./components/providers/auth-provider";
 import useAuth from "./components/providers/auth-provider/hooks/use-auth";
 import { ThemeProvider } from "./components/providers/theme-provider";
+import { ErrorBoundary } from "./components/ui/error-boundary";
+import { ErrorFallback } from "./components/ui/error-fallback";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
 import { routeTree } from "./routeTree.gen";
 
@@ -37,15 +39,17 @@ if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>
-            <KeyboardShortcutsProvider>
-              <App />
-            </KeyboardShortcutsProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
+      <ErrorBoundary fallback={ErrorFallback}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <AuthProvider>
+              <KeyboardShortcutsProvider>
+                <App />
+              </KeyboardShortcutsProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
     </StrictMode>,
   );
 }
