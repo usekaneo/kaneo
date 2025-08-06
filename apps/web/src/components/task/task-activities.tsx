@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MarkdownRenderer } from "@/components/common/markdown-renderer";
 import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import { cn } from "@/lib/cn";
@@ -76,9 +77,9 @@ function TaskActivities() {
                       onSubmit={() => setEditingCommentId(null)}
                     />
                   ) : (
-                    <span className="text-zinc-600 dark:text-zinc-100">
-                      {activity.content}
-                    </span>
+                    <div className="text-zinc-600 dark:text-zinc-100">
+                      <MarkdownRenderer content={activity.content || ""} />
+                    </div>
                   ))}
               </div>
               {activity.type === "comment" && editingCommentId === null && (
