@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestErrorRouteImport } from './routes/test-error'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PublicProjectProjectIdRouteImport } from './routes/public-project.$projectId'
@@ -29,6 +30,11 @@ import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdBoardRouteImport 
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdBacklogRouteImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/backlog'
 import { Route as DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRouteImport } from './routes/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_'
 
+const TestErrorRoute = TestErrorRouteImport.update({
+  id: '/test-error',
+  path: '/test-error',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -140,6 +146,7 @@ const DashboardWorkspaceWorkspaceIdProjectProjectIdTaskTaskIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/test-error': typeof TestErrorRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/dashboard/$': typeof DashboardSplatRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/test-error': typeof TestErrorRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/dashboard/$': typeof DashboardSplatRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/test-error': typeof TestErrorRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/dashboard/$': typeof DashboardSplatRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/test-error'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/dashboard/$'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/test-error'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/dashboard/$'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/test-error'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/dashboard/$'
@@ -268,6 +280,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  TestErrorRoute: typeof TestErrorRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
   PublicProjectProjectIdRoute: typeof PublicProjectProjectIdRoute
@@ -275,6 +288,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/test-error': {
+      id: '/test-error'
+      path: '/test-error'
+      fullPath: '/test-error'
+      preLoaderRoute: typeof TestErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -483,6 +503,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  TestErrorRoute: TestErrorRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
   PublicProjectProjectIdRoute: PublicProjectProjectIdRoute,

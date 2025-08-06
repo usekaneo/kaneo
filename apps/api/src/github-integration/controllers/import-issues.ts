@@ -40,9 +40,17 @@ export async function importIssues(projectId: string) {
       continue;
     }
 
+    const githubIssueUrl = `https://github.com/${githubIntegration.repositoryOwner}/${githubIntegration.repositoryName}/issues/${issue.number}`;
+    let description = issue.body || "";
+    if (description) {
+      description += `\n\nLinked to GitHub issue: ${githubIssueUrl}`;
+    } else {
+      description = `Linked to GitHub issue: ${githubIssueUrl}`;
+    }
+
     await db.insert(taskTable).values({
       title: issue.title,
-      description: issue.body,
+      description,
       projectId,
       number: issue.number,
       status: "to-do",

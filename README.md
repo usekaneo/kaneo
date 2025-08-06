@@ -40,6 +40,8 @@ We built Kaneo because existing project management tools either feel bloated wit
 
 ## Getting Started
 
+### Quick Start with Docker Compose
+
 The fastest way to try Kaneo is with Docker Compose. This sets up the API, web interface, and PostgreSQL database:
 
 ```yaml
@@ -82,6 +84,10 @@ volumes:
 Save this as `compose.yml`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
 > **Quick tip:** Change `JWT_ACCESS` to something secure in production. This is used to sign authentication tokens.
+
+### Development Setup
+
+For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions on configuring environment variables and troubleshooting common issues like CORS problems.
 
 ### Configuration Options
 
@@ -143,33 +149,25 @@ Check the [Helm chart docs](./charts/kaneo/README.md) for TLS setup, cert-manage
 
 ## Development
 
-Want to hack on Kaneo? Here's how to get a development environment running:
+Want to hack on Kaneo? See our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions on configuring environment variables and troubleshooting common issues like CORS problems.
 
+Quick start:
 ```bash
 # Clone and install dependencies
 git clone https://github.com/usekaneo/kaneo.git
 cd kaneo
 pnpm install
 
-# Start PostgreSQL (using Docker)
-docker run --name kaneo-postgres -e POSTGRES_DB=kaneo -e POSTGRES_USER=kaneo_user -e POSTGRES_PASSWORD=kaneo_password -p 5432:5432 -d postgres:16-alpine
+# Copy environment files
+cp apps/api/.env.sample apps/api/.env
+cp apps/web/.env.sample apps/web/.env
 
-# Set up environment variables
-cd apps/api
-echo "DATABASE_URL=postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo" > .env
+# Update environment variables as needed
+# See ENVIRONMENT_SETUP.md for detailed instructions
 
-# Run database migrations
-pnpm run db:migrate
-
-# Start the API
-pnpm run dev
-
-# In another terminal, start the web app
-cd apps/web
-pnpm run dev
+# Start development servers
+pnpm dev
 ```
-
-The API runs on port 1337, web app on 5173. Both will reload when you make changes.
 
 ## Migration from SQLite
 

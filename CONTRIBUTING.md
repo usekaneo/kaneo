@@ -46,8 +46,12 @@ pnpm install
 
 3. **Set up environment variables**:
 ```bash
-# Create a .env file in the API directory
-echo "JWT_ACCESS=your-development-secret-here" > apps/api/.env
+# Copy the sample environment files
+cp apps/api/.env.sample apps/api/.env
+cp apps/web/.env.sample apps/web/.env
+
+# Update the environment variables as needed
+# See ENVIRONMENT_SETUP.md for detailed instructions
 ```
 
 4. **Start everything up**:
@@ -58,6 +62,8 @@ pnpm run dev
 This starts both the API (port 1337) and web app (port 5173). Both will automatically reload when you make changes.
 
 > **Tip**: The web app at http://localhost:5173 will automatically connect to the API at http://localhost:1337
+
+> **Need help with setup?** See our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions and troubleshooting tips.
 
 ## Making Your First Contribution
 
