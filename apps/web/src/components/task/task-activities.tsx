@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MarkdownRenderer } from "@/components/common/markdown-renderer";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import { cn } from "@/lib/cn";
