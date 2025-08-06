@@ -13,7 +13,7 @@ async function getProjects(workspaceId: string) {
   const projectsWithStatistics = projects.map((project) => {
     const totalTasks = project.tasks.length;
     const completedTasks = project.tasks.filter(
-      (task) => task.status === "done",
+      (task) => task.status === "done" || task.status === "archived",
     ).length;
     const completionPercentage =
       totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
