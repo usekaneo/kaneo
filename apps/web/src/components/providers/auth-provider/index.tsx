@@ -1,6 +1,5 @@
 import useGetMe from "@/hooks/queries/use-get-me";
 import type { LoggedInUser } from "@/types/user";
-import { LayoutGrid } from "lucide-react";
 import {
   type Dispatch,
   type PropsWithChildren,
@@ -11,6 +10,7 @@ import {
   useState,
 } from "react";
 import { ErrorDisplay } from "../../ui/error-display";
+import { LoadingSkeleton } from "../../ui/loading-skeleton";
 
 export const AuthContext = createContext<{
   user: LoggedInUser | null | undefined;
@@ -51,13 +51,7 @@ function AuthProvider({ children }: PropsWithChildren) {
   }
 
   if (isFetching || user === undefined) {
-    return (
-      <div className="flex w-full items-center justify-center h-screen flex-col md:flex-row bg-zinc-50 dark:bg-zinc-950">
-        <div className="p-1.5 bg-linear-to-br from-indigo-500 to-purple-500 rounded-lg shadow-xs animate-spin">
-          <LayoutGrid className="w-5 h-5 text-white" />
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   return (

@@ -6,12 +6,13 @@ import TaskDescription from "@/components/task/task-description";
 import TaskInfo from "@/components/task/task-info";
 import TaskTimeTracking from "@/components/task/task-time-tracking";
 import TaskTitle from "@/components/task/task-title";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTasks from "@/hooks/queries/task/use-get-tasks";
 import useProjectStore from "@/store/project";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { LayoutGrid, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
@@ -35,13 +36,7 @@ function TaskEditPage() {
   }, [project, setProject]);
 
   if (isLoading) {
-    return (
-      <div className="flex w-full items-center justify-center h-screen flex-col md:flex-row bg-zinc-50 dark:bg-zinc-950">
-        <div className="p-1.5 bg-linear-to-br from-indigo-500 to-purple-500 rounded-lg shadow-xs animate-spin">
-          <LayoutGrid className="w-5 h-5 text-white" />
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   return (

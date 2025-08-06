@@ -516,7 +516,13 @@ function RouteComponent() {
             <BacklogListView project={filteredProject} />
           ) : (
             <div className="flex h-full items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600 dark:border-zinc-700 dark:border-t-zinc-300" />
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-zinc-200 dark:bg-zinc-800 rounded-lg animate-pulse mx-auto" />
+                <div className="space-y-2">
+                  <div className="w-48 h-4 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mx-auto" />
+                  <div className="w-64 h-3 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mx-auto" />
+                </div>
+              </div>
             </div>
           )}
         </div>
