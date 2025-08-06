@@ -1,5 +1,7 @@
 import {
+  Archive,
   Calendar as CalendarIcon,
+  Clock,
   Copy,
   Flag,
   FlipHorizontal2,
@@ -352,6 +354,20 @@ export default function TaskCardContextMenuContent({
             </ContextMenuSubContent>
           )}
         </ContextMenuSub>
+        <ContextMenuItem
+          onClick={() => handleChange("status", "archived")}
+          className="flex items-center transition-all duration-200 gap-2  cursor-pointer"
+        >
+          <Archive className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+          Archive Task
+        </ContextMenuItem>
+        <ContextMenuItem
+          onClick={() => handleChange("status", "planned")}
+          className="flex items-center transition-all duration-200 gap-2  cursor-pointer"
+        >
+          <Clock className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+          Set as planned
+        </ContextMenuItem>
 
         <ContextMenuItem
           onClick={() => setIsDeleteTaskModalOpen(true)}
