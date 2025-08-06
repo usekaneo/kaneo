@@ -1,3 +1,17 @@
+## [1.2.2](https://github.com/usekaneo/kaneo/compare/v1.2.1...v1.2.2) (2025-08-06)
+
+
+### Bug Fixes
+
+* update default API URL to localhost and add ASCII art logo in main entry file ([0b44b86](https://github.com/usekaneo/kaneo/commit/0b44b86ef067059eb8c73c362e7ee4d7fcbf12dc))
+
+
+### Features
+
+* implement GitHub issue handling for task status and priority changes ([6d7fe20](https://github.com/usekaneo/kaneo/commit/6d7fe200f3ae1fa73149d36e6a87f179f8e8796d))
+
+
+
 ## [1.2.1](https://github.com/usekaneo/kaneo/compare/v1.2.0...v1.2.1) (2025-08-05)
 
 
