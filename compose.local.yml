@@ -81,7 +81,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "3000:3000"
+      - "3001:3000"
       - "2222:22"  # SSH port
     depends_on:
       gitea-postgres:
