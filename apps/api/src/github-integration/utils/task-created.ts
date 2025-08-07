@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { createIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import getGithubIntegration from "../controllers/get-github-integration";
 import createGithubApp from "./create-github-app";
 import { addLabelsToIssue } from "./create-github-labels";
@@ -106,6 +107,19 @@ export async function handleTaskCreated(data: {
         "Failed to update task description with GitHub issue link:",
         error,
       );
+    }
+
+    // Also create external link for new approach (hybrid compatibility)
+    try {
+      await createIntegrationLinkHybrid({
+        taskId,
+        type: "github_integration",
+        title: `GitHub Issue #${createdIssue.data.number}`,
+        url: createdIssue.data.html_url,
+        externalId: createdIssue.data.number.toString(),
+      });
+    } catch (error) {
+      console.error("Failed to create external link for GitHub issue:", error);
     }
   } catch (error) {
     console.error("Failed to create GitHub issue:", error);

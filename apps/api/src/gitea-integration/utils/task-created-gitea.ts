@@ -1,6 +1,4 @@
-import { eq } from "drizzle-orm";
-import db from "../../database";
-import { taskTable } from "../../database/schema";
+import { createIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import { createGiteaClient, giteaApiCall } from "./create-gitea-client";
 
 export async function handleTaskCreated({
@@ -68,27 +66,17 @@ export async function handleTaskCreated({
       }),
     });
 
-    // Update task description with link to Gitea issue
-    try {
-      await db
-        .update(taskTable)
-        .set({
-          description: `${description || ""}
-
----
-
-*Linked to Gitea issue: ${createdIssue.html_url}*`,
-        })
-        .where(eq(taskTable.id, taskId));
-    } catch (error) {
-      console.error(
-        "Failed to update task description with Gitea issue link:",
-        error,
-      );
-    }
+    // Create external link to the Gitea issue instead of updating description
+    await createIntegrationLinkHybrid({
+      taskId,
+      type: "gitea_integration",
+      title: `Gitea Issue #${createdIssue.number}`,
+      url: createdIssue.html_url,
+      externalId: createdIssue.number.toString(),
+    });
 
     console.log(
-      `Created Gitea issue #${createdIssue.number} for task ${number} (${taskId})`,
+      `Created Gitea issue #${createdIssue.number} for task ${number} (${taskId}) and linked via external_links`,
     );
   } catch (error) {
     console.error("Failed to create Gitea issue:", error);

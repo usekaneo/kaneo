@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { getIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import getGiteaIntegration from "../controllers/get-gitea-integration";
 import { createGiteaClient, giteaApiCall } from "./create-gitea-client";
 
@@ -31,16 +32,14 @@ export async function handleTaskAssigneeChanged(data: {
       return;
     }
 
-    const hasKaneoLink = task.description?.includes("Linked to Gitea issue:");
-    const hasGiteaLink = task.description?.includes(
-      "Created from Gitea issue:",
-    );
+    // Get external link for this task's Gitea integration
+    const giteaLink = await getIntegrationLinkHybrid({
+      taskId,
+      type: "gitea_integration",
+    });
 
-    if (!hasKaneoLink && !hasGiteaLink) {
-      console.log(
-        "Skipping Gitea issue update - task has no Gitea issue link:",
-        taskId,
-      );
+    if (!giteaLink) {
+      // Silently skip tasks without Gitea issue links
       return;
     }
 
@@ -56,33 +55,13 @@ export async function handleTaskAssigneeChanged(data: {
       `${giteaClient.owner}/${giteaClient.repo}`,
     );
 
-    let giteaIssueUrlMatch = task.description?.match(
-      new RegExp(
-        `Linked to Gitea issue: (${giteaClient.url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/[^/]+/[^/]+/issues/\\d+)`,
-      ),
-    );
-
-    if (!giteaIssueUrlMatch) {
-      giteaIssueUrlMatch = task.description?.match(
-        new RegExp(
-          `Created from Gitea issue: (${giteaClient.url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/[^/]+/[^/]+/issues/\\d+)`,
-        ),
-      );
-    }
-
-    if (!giteaIssueUrlMatch) {
-      console.log("Gitea issue URL not found in task description:", taskId);
-      return;
-    }
-
-    const giteaIssueUrl = giteaIssueUrlMatch[1];
-    const issueNumber = Number.parseInt(
-      giteaIssueUrl?.split("/").pop() || "0",
-      10,
-    );
+    const issueNumber = Number.parseInt(giteaLink.issueNumber || "0", 10);
 
     if (!issueNumber) {
-      console.log("Could not extract issue number from URL:", giteaIssueUrl);
+      console.log(
+        "Invalid issue number in external link:",
+        giteaLink.issueNumber,
+      );
       return;
     }
 

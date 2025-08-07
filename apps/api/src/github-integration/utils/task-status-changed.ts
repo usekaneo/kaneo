@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { getIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import getGithubIntegration from "../controllers/get-github-integration";
 import createGithubApp from "./create-github-app";
 import { addLabelsToIssue } from "./create-github-labels";
@@ -44,7 +45,13 @@ export async function handleTaskStatusChanged(data: {
       "Created from GitHub issue:",
     );
 
-    if (!hasKaneoLink && !hasGitHubLink) {
+    // Use hybrid approach - check both external_links and description
+    const githubLink = await getIntegrationLinkHybrid({
+      taskId,
+      type: "github_integration",
+    });
+
+    if (!githubLink && !hasKaneoLink && !hasGitHubLink) {
       console.log(
         "Skipping GitHub issue update - task has no GitHub issue link:",
         taskId,
@@ -71,29 +78,36 @@ export async function handleTaskStatusChanged(data: {
 
     const octokit = await githubApp.getInstallationOctokit(installationId);
 
-    let githubIssueUrlMatch = task.description?.match(
-      /Linked to GitHub issue: (https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+)/,
-    );
+    let issueNumber: number | null = null;
 
-    if (!githubIssueUrlMatch) {
-      githubIssueUrlMatch = task.description?.match(
-        /Created from GitHub issue: (https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+)/,
+    // Try to get issue number from external_links first (preferred)
+    if (githubLink) {
+      issueNumber = Number.parseInt(githubLink.issueNumber || "0", 10);
+    }
+
+    // Fall back to description parsing for legacy compatibility
+    if (!issueNumber) {
+      let githubIssueUrlMatch = task.description?.match(
+        /Linked to GitHub issue: (https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+)/,
       );
-    }
 
-    if (!githubIssueUrlMatch) {
-      console.log("GitHub issue URL not found in task description:", taskId);
-      return;
-    }
+      if (!githubIssueUrlMatch) {
+        githubIssueUrlMatch = task.description?.match(
+          /Created from GitHub issue: (https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+)/,
+        );
+      }
 
-    const githubIssueUrl = githubIssueUrlMatch[1];
-    const issueNumber = Number.parseInt(
-      githubIssueUrl?.split("/").pop() || "0",
-      10,
-    );
+      if (githubIssueUrlMatch) {
+        const githubIssueUrl = githubIssueUrlMatch[1];
+        issueNumber = Number.parseInt(
+          githubIssueUrl?.split("/").pop() || "0",
+          10,
+        );
+      }
+    }
 
     if (!issueNumber) {
-      console.log("Could not extract issue number from URL:", githubIssueUrl);
+      console.log("Could not extract issue number for task:", taskId);
       return;
     }
 

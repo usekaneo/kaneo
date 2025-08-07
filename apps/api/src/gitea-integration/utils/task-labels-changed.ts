@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { getIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import getGiteaIntegration from "../controllers/get-gitea-integration";
 import { createGiteaClient, giteaApiCall } from "./create-gitea-client";
 
@@ -25,55 +26,50 @@ export async function handleTaskLabelsChanged(data: {
     });
 
     if (!task) {
+      console.log("Task not found for label change:", taskId);
       return;
     }
 
     const integration = await getGiteaIntegration(task.projectId);
 
     if (!integration || !integration.isActive) {
+      console.log(
+        "No active Gitea integration found for project:",
+        task.projectId,
+      );
       return;
     }
 
-    const hasKaneoLink = task.description?.includes("Linked to Gitea issue:");
-    const hasGiteaLink = task.description?.includes(
-      "Created from Gitea issue:",
-    );
+    // Get external link for this task's Gitea integration
+    const giteaLink = await getIntegrationLinkHybrid({
+      taskId,
+      type: "gitea_integration",
+    });
 
-    if (!hasKaneoLink && !hasGiteaLink) {
+    if (!giteaLink) {
+      // Silently skip tasks without Gitea issue links
       return;
     }
 
     const giteaClient = await createGiteaClient(task.projectId);
 
     if (!giteaClient) {
+      console.log("Failed to create Gitea client for project:", task.projectId);
       return;
     }
 
-    let giteaIssueUrlMatch = task.description?.match(
-      new RegExp(
-        `Linked to Gitea issue: (${giteaClient.url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/[^/]+/[^/]+/issues/\\d+)`,
-      ),
+    console.log(
+      "Updating Gitea issue labels for repository:",
+      `${giteaClient.owner}/${giteaClient.repo}`,
     );
 
-    if (!giteaIssueUrlMatch) {
-      giteaIssueUrlMatch = task.description?.match(
-        new RegExp(
-          `Created from Gitea issue: (${giteaClient.url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/[^/]+/[^/]+/issues/\\d+)`,
-        ),
-      );
-    }
-
-    if (!giteaIssueUrlMatch) {
-      return;
-    }
-
-    const giteaIssueUrl = giteaIssueUrlMatch[1];
-    const issueNumber = Number.parseInt(
-      giteaIssueUrl?.split("/").pop() || "0",
-      10,
-    );
+    const issueNumber = Number.parseInt(giteaLink.issueNumber || "0", 10);
 
     if (!issueNumber) {
+      console.log(
+        "Invalid issue number in external link:",
+        giteaLink.issueNumber,
+      );
       return;
     }
 
@@ -119,8 +115,10 @@ export async function handleTaskLabelsChanged(data: {
               }),
             },
           );
+          console.log(`Created Gitea label: ${label.name}`);
         } catch (error) {
           // Label might already exist, ignore error
+          console.log(`Label ${label.name} might already exist:`, error);
         }
       }
     }
@@ -137,9 +135,12 @@ export async function handleTaskLabelsChanged(data: {
           }),
         },
       );
+      console.log(`Updated Gitea issue ${issueNumber} labels`);
     } catch (error) {
       console.error("Failed to update Gitea issue labels:", error);
     }
+
+    console.log(`Updated Gitea issue ${issueNumber} labels for task ${taskId}`);
   } catch (error) {
     console.error("Failed to update Gitea issue labels:", error);
   }

@@ -199,15 +199,92 @@ CREATE TABLE "gitea_integration" (
 
 ---
 
-## 📋 Todo / Future Enhancements
+## � Current Issues
+
+### 1. Issue URL Storage Problem 🔴
+**Problem**: Issue URLs are stored in task description, causing sync failures when users edit descriptions.
+
+**Current Symptoms**:
+```
+Updating Gitea issue assignee for repository: kaneoOrg/orgRepo
+Gitea issue URL not found in task description: eco64ahs69lax1rev3nub5vo
+```
+
+**Root Cause**: Both GitHub and Gitea integrations store issue URLs in task descriptions using patterns like:
+- `*Linked to Gitea issue: <URL>*`
+- `*Linked to GitHub issue: <URL>*`
+
+When users edit task descriptions, these links get lost, breaking synchronization.
+
+**Proposed Solution**: Create a flexible `external_links` table for all types of external references:
+```sql
+CREATE TABLE "external_links" (
+  "id" text PRIMARY KEY NOT NULL,
+  "task_id" text NOT NULL REFERENCES "task"("id") ON DELETE cascade,
+  "type" text NOT NULL,              -- 'gitea_integration' | 'github_integration' | 'documentation' | 'reference' | 'custom'
+  "title" text NOT NULL,             -- User-friendly display name
+  "url" text NOT NULL,               -- Full URL to external resource
+  "external_id" text,                -- Issue number/ID (only for integrations)
+  "created_at" timestamp DEFAULT now() NOT NULL,
+  "created_by" text REFERENCES "user"("email") ON DELETE SET NULL
+);
+```
+
+**Use Cases**:
+- **Integration Links**: Gitea/GitHub issues with automatic sync
+- **Documentation Links**: API docs, specifications, requirements
+- **Reference Links**: Wikipedia, Google searches, related resources
+- **Custom Links**: Any external resource relevant to the task
+
+**UI Features**:
+- ✅ Add/Edit/Delete links with visual link type indicators
+- ✅ "Unlink Integration" button for Gitea/GitHub issues
+- ✅ Link previews and favicons
+- ✅ Quick actions (open in new tab, copy URL)
+- ✅ Link categories with different icons
+
+**Benefits**:
+- ✅ Preserve integration links even when descriptions are edited
+- ✅ Allow unlimited external links per task
+- ✅ Enable full CRUD operations on links
+- ✅ Support both automatic (integration) and manual (user) links
+- ✅ Provide reliable synchronization for integrations
+- ✅ Enhance task context with relevant external resources
+
+**Impact**: This would require database migration and updates to both GitHub and Gitea integrations.
+
+---
+
+## �📋 Todo / Future Enhancements
 
 ### High Priority 🔴
-1. **Webhook Event Handlers**
+1. **External Links System Implementation**
+   - Create database migration for flexible `external_links` table
+   - Build UI components for link management:
+     - Add Link modal with type selection
+     - Link list component with edit/delete actions
+     - Link type indicators (icons for different types)
+     - "Unlink Integration" functionality
+   - Update Gitea integration to use external links instead of description parsing
+   - Update GitHub integration to use external links instead of description parsing
+   - Create API endpoints for link CRUD operations
+   - Migrate existing linked tasks to new system
+   - Add link validation and URL previews
+
+2. **Link Types & Features**
+   - **Integration Links**: Automatic sync with Gitea/GitHub
+   - **Documentation Links**: With documentation icon
+   - **Reference Links**: Wikipedia, Google, etc. with appropriate icons
+   - **Custom Links**: User-defined with generic link icon
+   - Link favicons and previews
+   - Bulk link operations
+
+2. **Webhook Event Handlers**
    - Implement issue opened/closed handlers
    - Implement issue edited handlers
    - Add webhook signature verification
 
-2. **Enhanced Synchronization**
+3. **Enhanced Synchronization**
    - Bidirectional comment sync
    - Label synchronization
    - Assignee mapping
