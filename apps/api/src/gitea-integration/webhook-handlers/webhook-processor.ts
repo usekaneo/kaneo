@@ -35,7 +35,7 @@ function verifyWebhookSignature(
   }
 }
 
-type GiteaIssueWebhookPayload = {
+export type GiteaIssueWebhookPayload = {
   action: "opened" | "closed" | "reopened" | "edited" | "deleted";
   number: number;
   issue: {

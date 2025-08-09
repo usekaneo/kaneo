@@ -1,5 +1,5 @@
-import { GiteaIntegrationSettings } from "@/components/project/gitea-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
+import { LazyGiteaIntegrationSettings } from "@/components/project/lazy-gitea-integration-settings";
 import { TasksImportExport } from "@/components/project/tasks-import-export";
 import {
   DangerZoneSection,
@@ -480,7 +480,7 @@ function ProjectSettings() {
             description="Configure Gitea integration for your project"
             icon={<Server className="w-4 h-4" />}
           >
-            <GiteaIntegrationSettings projectId={project.id} />
+            <LazyGiteaIntegrationSettings projectId={project.id} />
           </SettingsSection>
         )}
 

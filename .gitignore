@@ -39,3 +39,4 @@ yarn-error.log*
 
 # DB
 *.db
+contribute/

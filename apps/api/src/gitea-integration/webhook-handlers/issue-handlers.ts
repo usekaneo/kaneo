@@ -1,13 +1,23 @@
 import { and, eq } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 import db from "../../database";
-import { externalLinksTable, taskTable } from "../../database/schema";
+import {
+  externalLinksTable,
+  type giteaIntegrationTable,
+  taskTable,
+} from "../../database/schema";
 import { createIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import createTask from "../../task/controllers/create-task";
 import deleteTask from "../../task/controllers/delete-task";
 import updateTask from "../../task/controllers/update-task";
 import { cleanKaneoMetadata, parseKaneoTaskId } from "../utils/issue-templates";
+import type { GiteaIssueWebhookPayload } from "./webhook-processor";
 
-// Type for task from database query
+type GiteaIntegration = InferSelectModel<typeof giteaIntegrationTable>;
+
+/**
+ * Task structure as returned from database queries
+ */
 interface TaskFromDB {
   id: string;
   projectId: string;
@@ -18,43 +28,6 @@ interface TaskFromDB {
   dueDate: Date | null;
   position: number | null;
   userEmail: string | null;
-}
-
-interface GiteaIssueWebhookPayload {
-  action: "opened" | "closed" | "reopened" | "edited" | "deleted";
-  number: number;
-  issue: {
-    id: number;
-    number: number;
-    title: string;
-    body: string;
-    state: "open" | "closed";
-    html_url: string;
-    user: {
-      login: string;
-      email?: string;
-    };
-    created_at: string;
-    updated_at: string;
-  };
-  repository: {
-    name: string;
-    full_name: string;
-    owner: {
-      login: string;
-    };
-  };
-}
-
-interface GiteaIntegration {
-  id: string;
-  projectId: string;
-  repositoryOwner: string;
-  repositoryName: string;
-  giteaUrl: string;
-  accessToken?: string | null;
-  webhookSecret?: string | null;
-  isActive: boolean | null;
 }
 
 /**

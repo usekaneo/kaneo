@@ -1,6 +1,9 @@
 import { createGiteaClient, giteaApiCall } from "./create-gitea-client";
 import { getLabelColor } from "./gitea-label-colors";
 
+/**
+ * Gitea label structure returned by the API
+ */
 interface GiteaLabel {
   id: number;
   name: string;
@@ -8,52 +11,109 @@ interface GiteaLabel {
   description: string;
 }
 
+/**
+ * Result object for label creation operations
+ */
+interface LabelCreationResult {
+  created: string[];
+  existing: string[];
+  failed: Array<{ label: string; error: string }>;
+}
+
+/**
+ * Create labels in a Gitea repository with comprehensive error handling
+ * Checks for existing labels to avoid conflicts and provides detailed feedback
+ *
+ * @param owner - Repository owner username
+ * @param repo - Repository name
+ * @param labels - Array of label names to create
+ * @param projectId - Project ID for Gitea client authentication
+ * @returns Promise resolving to creation results summary
+ * @throws Error if Gitea client cannot be created
+ */
 export async function createGiteaLabels(
   owner: string,
   repo: string,
   labels: string[],
   projectId: string,
-) {
+): Promise<LabelCreationResult> {
   const client = await createGiteaClient(projectId);
   if (!client) {
-    throw new Error("Failed to create Gitea client");
+    throw new Error(`Failed to create Gitea client for project ${projectId}`);
   }
 
-  for (const labelName of labels) {
-    try {
-      // Check if label already exists
-      try {
-        await giteaApiCall<GiteaLabel>(
-          client,
-          `repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`,
-          {
-            method: "GET",
-          },
-        );
-        console.log(`Label "${labelName}" already exists`);
-      } catch (error) {
-        // Label doesn't exist, create it
-        const color = getLabelColor(labelName);
-        await giteaApiCall<GiteaLabel>(
-          client,
-          `repos/${owner}/${repo}/labels`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              name: labelName,
-              color: color,
-              description: `Kaneo ${labelName.replace(":", " ")} label`,
-            }),
-          },
-        );
-        console.log(`Created label "${labelName}" with color ${color}`);
-      }
-    } catch (error) {
-      console.error(`Failed to create label "${labelName}":`, error);
-    }
+  const result: LabelCreationResult = {
+    created: [],
+    existing: [],
+    failed: [],
+  };
+
+  // Process labels concurrently for better performance (with concurrency limit)
+  const CONCURRENCY_LIMIT = 3;
+  const chunks = [];
+  for (let i = 0; i < labels.length; i += CONCURRENCY_LIMIT) {
+    chunks.push(labels.slice(i, i + CONCURRENCY_LIMIT));
   }
+
+  for (const chunk of chunks) {
+    await Promise.all(
+      chunk.map(async (labelName) => {
+        try {
+          // Check if label already exists
+          try {
+            await giteaApiCall<GiteaLabel>(
+              client,
+              `repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`,
+              {
+                method: "GET",
+              },
+            );
+            console.log(`Label "${labelName}" already exists`);
+            result.existing.push(labelName);
+          } catch (error) {
+            // Label doesn't exist, create it
+            const color = getLabelColor(labelName);
+            await giteaApiCall<GiteaLabel>(
+              client,
+              `repos/${owner}/${repo}/labels`,
+              {
+                method: "POST",
+                body: JSON.stringify({
+                  name: labelName,
+                  color: color,
+                  description: `Kaneo ${labelName.replace(":", " ")} label`,
+                }),
+              },
+            );
+            console.log(`Created label "${labelName}" with color ${color}`);
+            result.created.push(labelName);
+          }
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          console.error(
+            `Failed to process label "${labelName}":`,
+            errorMessage,
+          );
+          result.failed.push({ label: labelName, error: errorMessage });
+        }
+      }),
+    );
+  }
+
+  return result;
 }
 
+/**
+ * Add labels to a specific Gitea issue with duplicate prevention
+ * Only adds labels that don't already exist on the issue
+ *
+ * @param owner - Repository owner username
+ * @param repo - Repository name
+ * @param issueNumber - Issue number to add labels to
+ * @param labels - Array of label names to add
+ * @param projectId - Project ID for Gitea client authentication
+ */
 export async function addLabelsToIssue(
   owner: string,
   repo: string,
