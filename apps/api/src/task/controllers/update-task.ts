@@ -95,6 +95,7 @@ async function updateTask(
       oldDescription: existingTask.description,
       newDescription: description,
       title: updatedTask.title,
+      source, // Include source in the event
     });
   }
 

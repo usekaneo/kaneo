@@ -4,6 +4,7 @@ import { taskTable } from "../../database/schema";
 import { getIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import getGiteaIntegration from "../controllers/get-gitea-integration";
 import { createGiteaClient, giteaApiCall } from "./create-gitea-client";
+import { replaceLabelsWithPrefix } from "./create-gitea-labels";
 
 export async function handleTaskStatusChanged(data: {
   taskId: string;
@@ -62,75 +63,21 @@ export async function handleTaskStatusChanged(data: {
       `Updating Gitea issue ${issueNumber} status from "${oldStatus}" to "${newStatus}" for task ${taskId}`,
     );
 
-    // Determine Gitea issue state and update description with status
+    // Determine Gitea issue state (GitHub-style: only update state, not body)
     const shouldBeClosed = newStatus === "done" || newStatus === "archived";
 
     try {
-      // Get current issue to preserve existing body
-      const currentIssue: { body?: string } = await giteaApiCall(
-        giteaClient,
-        `repos/${giteaClient.owner}/${giteaClient.repo}/issues/${issueNumber}`,
-        {
-          method: "GET",
-        },
+      // Replace all status: labels with the new one (prevents duplicates)
+      await replaceLabelsWithPrefix(
+        giteaClient.owner,
+        giteaClient.repo,
+        issueNumber,
+        "status:",
+        `status:${newStatus}`,
+        task.projectId,
       );
 
-      let updatedBody = (currentIssue?.body as string) || "";
-
-      // Define status display names
-      const statusDisplayNames: Record<string, string> = {
-        "to-do": "To Do",
-        "in-progress": "In Progress",
-        "in-review": "In Review",
-        done: "Done",
-        archived: "Archived",
-        planned: "Planned",
-      };
-
-      const statusDisplay = statusDisplayNames[newStatus] || newStatus;
-
-      // Parse the current body using the new template structure
-      const templateRegex =
-        /^([\s\S]*?)---\s*Task id on kaneo: ([^\n]+)\s*Status: ([^\n]+)\s*Priority: ([^\n]+)\s*Assignee: ([^\n]+)\s*Updated at: ([^\n]+)\s*$/;
-      const match = updatedBody.match(templateRegex);
-
-      if (match) {
-        // Found existing template - preserve description, update metadata
-        const [, description] = match;
-
-        updatedBody = `${(description || "").trim()}
-
----
-Task id on kaneo: ${taskId}
-Status: ${statusDisplay}
-Priority: ${task.priority || "Not set"}
-Assignee: ${task.userEmail || "Unassigned"}
-Updated at: ${new Date().toISOString()}`;
-      } else {
-        // No template found - clean old formats and add new template
-        updatedBody = updatedBody
-          // Remove old format variations
-          .replace(/---\s*\*\*Task Status:\*\* [^\n]+/g, "")
-          .replace(/---\s*\*\*Kaneo Status:\*\* [^\n]+/g, "")
-          .replace(/\*\*Task Status:\*\* [^\n]+/g, "")
-          .replace(/\*\*Kaneo Status:\*\* [^\n]+/g, "")
-          .replace(
-            /\*\*Details:\*\*[\s\S]*?---\s*\*This issue was automatically updated from Kaneo task management system\.\*/g,
-            "",
-          )
-          .trim();
-
-        updatedBody = `${updatedBody || "No description provided"}
-
----
-Task id on kaneo: ${taskId}
-Status: ${statusDisplay}
-Priority: ${task.priority || "Not set"}
-Assignee: ${task.userEmail || "Unassigned"}
-Updated at: ${new Date().toISOString()}`;
-      }
-
-      // Update issue with new state and body
+      // Update issue state (GitHub-style: only update state, not body)
       await giteaApiCall(
         giteaClient,
         `repos/${giteaClient.owner}/${giteaClient.repo}/issues/${issueNumber}`,
@@ -138,15 +85,14 @@ Updated at: ${new Date().toISOString()}`;
           method: "PATCH",
           body: JSON.stringify({
             state: shouldBeClosed ? "closed" : "open",
-            body: updatedBody,
           }),
         },
       );
 
       console.log(
-        `Successfully updated Gitea issue ${issueNumber} - State: ${
+        `Successfully updated Gitea issue ${issueNumber} state to: ${
           shouldBeClosed ? "closed" : "open"
-        }, Status: ${statusDisplayNames[newStatus] || newStatus}`,
+        } (status: ${newStatus})`,
       );
     } catch (error) {
       console.error(

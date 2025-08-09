@@ -14,16 +14,13 @@ async function verifyGiteaRepository({
   giteaUrl: string;
   repositoryOwner: string;
   repositoryName: string;
-  accessToken?: string;
+  accessToken: string;
 }): Promise<VerifyGiteaRepositoryResponse> {
   try {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
+      Authorization: `token ${accessToken}`,
     };
-
-    if (accessToken) {
-      headers.Authorization = `token ${accessToken}`;
-    }
 
     const url = new URL(
       `/api/v1/repos/${repositoryOwner}/${repositoryName}`,

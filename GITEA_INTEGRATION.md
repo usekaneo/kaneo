@@ -3,12 +3,17 @@
 ## 📋 Overview
 Complete implementation of Gitea integration for the Kaneo project management system, following the same patterns as the existing GitHub integration but adapted for Gitea's API and authentication model.
 
-**Status: ✅ FULLY FUNCTIONAL**
+**Status: ✅ FULLY FUNCTIONAL WITH BIDIRECTIONAL SYNC**
 **Date: August 9, 2025**
 **Branch: feat/429-add-gitea-sync**
 
+### Setup Requirements
+- **Personal Access Token**: Required for all Gitea API operations
+- **Webhook Secret**: Mandatory for webhook security (minimum 32 characters)
+- **Repository Access**: Token must have `repo` scope for full functionality
+
 ### Recent Updates
-Enhanced Kaneo-to-Gitea synchronization with improved status mapping and external links system integration.
+Enhanced Kaneo-to-Gitea synchronization with improved status mapping, external links system integration, complete bidirectional webhook support, and enforced security requirements for access tokens and webhook secrets.
 
 ---
 
@@ -44,6 +49,65 @@ Priority: {priority or "Not set"}
 Assignee: {userEmail or "Unassigned"}
 Updated at: {ISO timestamp}
 ```
+
+---
+
+## 🔄 Bidirectional Webhook Integration
+
+### Webhook Events Supported
+
+| Gitea Event | Action | Kaneo Response |
+|-------------|--------|----------------|
+| **Issue Opened** | New issue created | Creates new task in project |
+| **Issue Closed** | Issue state → closed | Updates task status to "done" |
+| **Issue Reopened** | Issue state → open | Updates task status to "to-do" |
+| **Issue Edited** | Title/description changed | Updates task title/description |
+| **Issue Deleted** | Issue removed | Deletes corresponding task |
+
+### Webhook Setup
+
+1. **Project-Specific URL**: Each project gets a unique webhook URL for security
+   - URL Pattern: `{KANEO_BASE_URL}/api/gitea-integration/webhook/{PROJECT_ID}`
+   - Prevents cross-project webhook interference
+
+2. **Webhook Configuration**:
+   - Content Type: `application/json`
+   - Events: Issues (create, update, delete, close)
+   - Secret: Configure in Kaneo integration settings for HMAC-SHA256 verification
+
+3. **Enhanced Security**:
+   - Project-specific endpoints prevent unauthorized access
+   - Repository validation ensures webhooks match configured integration
+   - Optional HMAC-SHA256 signature verification with user-defined secrets
+
+4. **Debug Support**: Comprehensive logging for webhook debugging and troubleshooting
+
+### Webhook Security
+
+- **Mandatory Secrets**: Webhook secrets are required and must be at least 32 characters long
+- **Project-Specific Endpoints**: Each project has its own webhook URL preventing cross-project issues
+- **HMAC-SHA256 Signature Verification**: All webhooks must include valid signatures for processing
+- **Repository Validation**: Ensures webhooks only process events from the correct repository
+- **Event Filtering**: Only handles supported issue events
+- **Comprehensive Debug Logging**: Full request/response logging for troubleshooting
+
+### Gitea Server Configuration
+
+**Important**: Gitea blocks webhook calls to localhost by default for security. To enable webhooks in development:
+
+Add to your Gitea `app.ini` configuration file:
+```ini
+[webhook]
+ALLOWED_HOST_LIST = localhost,127.0.0.1,::1,*.local
+```
+
+**Production Setup**: Replace with your actual domain:
+```ini
+[webhook]
+ALLOWED_HOST_LIST = yourdomain.com,api.yourdomain.com
+```
+
+**Common Error**: If you see "webhook can only call allowed HTTP servers", this configuration is missing.
 
 ---
 
@@ -114,13 +178,15 @@ Updated at: {ISO timestamp}
 - ✅ **`task-updated.ts`** - Event handler for task title/description updates
 - ✅ **`task-labels-changed.ts`** - Event handler for label synchronization
 - ✅ **`task-assignee-changed.ts`** - Event handler for assignee changes
+- ✅ **`webhook-handlers/issue-handlers.ts`** - Complete bidirectional webhook handlers for issues
+- ✅ **`webhook-handlers/webhook-processor.ts`** - Main webhook processing and routing logic
 
 #### Main Router (`index.ts`)
 - ✅ Repository listing endpoint: `GET /repositories`
 - ✅ Repository verification: `POST /verify`
 - ✅ Integration management: `GET/POST/DELETE /project/:projectId`
 - ✅ Issue import: `POST /import-issues`
-- ✅ Webhook handler: `POST /webhook` (basic structure)
+- ✅ Webhook handler: `POST /webhook` (fully implemented with issue event processing)
 
 ### Frontend UI (`/apps/web/src/`)
 
@@ -131,6 +197,8 @@ Updated at: {ISO timestamp}
   - Verification with visual feedback
   - Issue import functionality
   - Integration deletion
+  - Webhook setup instructions and URL generation
+- ✅ **`gitea-webhook-info.tsx`** - Webhook configuration guide and setup instructions
 
 #### API Hooks
 - ✅ **`use-create-gitea-integration.ts`** - Mutation for creating integration
@@ -187,10 +255,12 @@ CREATE TABLE "gitea_integration" (
 - **Assignee changes** → Adds comment about assignee updates
 - **Real-time sync** via Kaneo's event system
 
-### 4. Webhook Support 🚧
-- **Basic structure** implemented for receiving Gitea webhooks
-- **Event type detection** (x-gitea-event header)
-- **TODO**: Implement specific event handlers (issue opened, closed, edited)
+### 4. Webhook Support ✅
+- **Event Detection**: Automatically handles Gitea webhook events (x-gitea-event header)
+- **Issue Events**: Processes opened, closed, reopened, edited, and deleted issue events
+- **Bidirectional Sync**: Full Gitea → Kaneo synchronization implemented
+- **Security**: Optional webhook signature verification support
+- **Auto-Discovery**: Automatically finds project integrations by repository information
 
 ---
 
@@ -412,12 +482,15 @@ CREATE TABLE "external_links" (
    - Link favicons and previews
    - Bulk link operations
 
-4. **Webhook Event Handlers**
-   - Implement issue opened/closed handlers
-   - Implement issue edited handlers
-   - Add webhook signature verification
+4. **Webhook Event Handlers** ✅
+   - ✅ Issue opened → Creates new task in Kaneo
+   - ✅ Issue updated → Updates task title/description in Kaneo
+   - ✅ Issue closed/reopened → Updates task status (done/to-do)
+   - ✅ Issue deleted → Deletes corresponding task in Kaneo
+   - ✅ Automatic webhook URL generation and setup instructions
+   - ✅ Webhook signature verification support
 
-5. **Enhanced Synchronization**
+5. **Enhanced Synchronization** ✅
    - Bidirectional comment sync
    - Label synchronization
    - Assignee mapping
@@ -487,6 +560,13 @@ CREATE TABLE "external_links" (
    - Label changes will synchronize to Gitea with "kaneo:" prefix
    - Assignee changes will add comments to Gitea issues
 
+4. **Bidirectional Sync (NEW)**:
+   - Issues created in Gitea will create corresponding tasks in Kaneo
+   - Issue updates in Gitea will update task content in Kaneo
+   - Issue state changes (closed/reopened) will update task status
+   - Issue deletion in Gitea will delete corresponding task in Kaneo
+   - Setup webhook URL provided in integration settings
+
 ---
 
 ## 🔗 Integration Architecture
@@ -536,4 +616,5 @@ CREATE TABLE "external_links" (
 **Ready for continued development and production deployment! 🎉**
 
 **Last Updated:** August 9, 2025
-**Consolidated documentation:** Merged status sync improvements and external links system updates
+**Full bidirectional synchronization implemented!** ✅ Kaneo ↔ Gitea
+**Consolidated documentation:** Merged status sync improvements, external links system updates, and complete webhook implementation

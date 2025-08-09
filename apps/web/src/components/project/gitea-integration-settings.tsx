@@ -1,3 +1,4 @@
+import { GiteaWebhookInfo } from "@/components/gitea-integration/gitea-webhook-info";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,10 +33,10 @@ import {
   CheckCircle,
   Download,
   ExternalLink,
+  GitGraph,
   Import,
   Link,
   RefreshCw,
-  Server,
   Settings,
   Unlink,
   XCircle,
@@ -58,8 +59,12 @@ const giteaIntegrationSchema = z.object({
     .string()
     .min(1, "Repository name is required")
     .regex(/^[a-zA-Z0-9._-]+$/, "Invalid repository name format"),
-  accessToken: z.string().optional(),
-  webhookSecret: z.string().optional(),
+  accessToken: z
+    .string()
+    .min(1, "Access token is required for Gitea API access"),
+  webhookSecret: z
+    .string()
+    .min(32, "Webhook secret must be at least 32 characters long"),
 });
 
 type GiteaIntegrationFormValues = z.infer<typeof giteaIntegrationSchema>;
@@ -84,8 +89,8 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       giteaUrl: integration?.giteaUrl || "",
       repositoryOwner: integration?.repositoryOwner || "",
       repositoryName: integration?.repositoryName || "",
-      accessToken: "",
-      webhookSecret: "",
+      accessToken: integration?.accessToken || "",
+      webhookSecret: integration?.webhookSecret || "",
     },
   });
 
@@ -104,6 +109,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const giteaUrl = form.watch("giteaUrl");
   const repositoryOwner = form.watch("repositoryOwner");
   const repositoryName = form.watch("repositoryName");
+  const accessToken = form.watch("accessToken");
 
   const handleVerifyRepository = React.useCallback(
     async (data: GiteaIntegrationFormValues, showToast = true) => {
@@ -112,13 +118,13 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
           giteaUrl: data.giteaUrl,
           repositoryOwner: data.repositoryOwner,
           repositoryName: data.repositoryName,
-          accessToken: data.accessToken || undefined,
+          accessToken: data.accessToken,
         });
         setVerificationResult(result);
 
         if (showToast) {
           if (result.repositoryExists && result.hasIssuesEnabled) {
-            toast.success("Repository is accessible and issues are enabled!");
+            toast.success("Gitea repository is accessible!");
           } else if (result.repositoryExists) {
             toast.warning("Repository found but issues are disabled");
           } else {
@@ -144,17 +150,28 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       giteaUrl &&
       repositoryOwner &&
       repositoryName &&
+      accessToken &&
       form.formState.isValid
     ) {
-      handleVerifyRepository(form.getValues(), false);
+      handleVerifyRepository(
+        {
+          giteaUrl,
+          repositoryOwner,
+          repositoryName,
+          accessToken,
+          webhookSecret: form.getValues("webhookSecret"),
+        },
+        false,
+      );
     }
   }, [
     giteaUrl,
     repositoryOwner,
     repositoryName,
+    accessToken,
     form.formState.isValid,
-    form.getValues,
     handleVerifyRepository,
+    form,
   ]);
 
   const onSubmit = async (data: GiteaIntegrationFormValues) => {
@@ -163,7 +180,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         giteaUrl: data.giteaUrl,
         repositoryOwner: data.repositoryOwner,
         repositoryName: data.repositoryName,
-        accessToken: data.accessToken || undefined,
+        accessToken: data.accessToken,
       });
 
       if (!verification.repositoryExists) {
@@ -184,8 +201,8 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
           giteaUrl: data.giteaUrl,
           repositoryOwner: data.repositoryOwner,
           repositoryName: data.repositoryName,
-          accessToken: data.accessToken || undefined,
-          webhookSecret: data.webhookSecret || undefined,
+          accessToken: data.accessToken,
+          webhookSecret: data.webhookSecret,
         },
       });
       toast.success("Gitea integration updated successfully");
@@ -202,11 +219,8 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     try {
       await deleteIntegration(projectId);
       form.reset({
-        giteaUrl: "",
         repositoryOwner: "",
         repositoryName: "",
-        accessToken: "",
-        webhookSecret: "",
       });
       setVerificationResult(null);
       toast.success("Gitea integration removed successfully");
@@ -237,7 +251,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <Server className="w-6 h-6" />
+                <GitGraph className="w-6 h-6" />
               </div>
               <div>
                 <div className="h-5 bg-gray-200 rounded animate-pulse w-40" />
@@ -281,7 +295,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
           {isConnected ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm">
-                <Server className="w-4 h-4" />
+                <GitGraph className="w-4 h-4" />
                 <span className="font-medium">
                   {integration.repositoryOwner}/{integration.repositoryName}
                 </span>
@@ -293,10 +307,6 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                 >
                   <ExternalLink className="w-3 h-3" />
                 </a>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span>Host: {integration.giteaUrl}</span>
               </div>
 
               {verificationResult && (
@@ -368,6 +378,29 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="accessToken"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Access Token</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Your Gitea access token"
+                        {...field}
+                        disabled={isCreating || isDeleting}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Personal access token with repository and issues
+                      permissions
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -412,43 +445,21 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
 
               <FormField
                 control={form.control}
-                name="accessToken"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Access Token (Optional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Access token for private repositories"
-                        {...field}
-                        disabled={isCreating || isDeleting}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Required for private repositories or to enable webhook
-                      features
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="webhookSecret"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Webhook Secret (Optional)</FormLabel>
+                    <FormLabel>Webhook Secret</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Secret for webhook verification"
+                        placeholder="At least 32 characters for webhook security"
                         {...field}
                         disabled={isCreating || isDeleting}
                       />
                     </FormControl>
                     <FormDescription>
-                      Used to verify webhook authenticity
+                      Secret key for webhook verification (minimum 32
+                      characters)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -585,6 +596,9 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
           </CardContent>
         </Card>
       )}
+
+      {/* Webhook Information */}
+      {isConnected && <GiteaWebhookInfo projectId={projectId} />}
     </div>
   );
 }

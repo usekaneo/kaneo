@@ -8,13 +8,12 @@ import getGiteaIntegration from "./controllers/get-gitea-integration";
 import { importIssues } from "./controllers/import-issues";
 import listGiteaRepositories from "./controllers/list-gitea-repositories";
 import verifyGiteaRepository from "./controllers/verify-gitea-repository";
-import { handleTaskAssigneeChanged } from "./utils/task-assignee-changed";
 import { handleTaskCreated } from "./utils/task-created-gitea";
-import { handleTaskLabelsChanged } from "./utils/task-labels-changed";
+import { handleTaskPriorityChanged } from "./utils/task-priority-changed";
 import { handleTaskStatusChanged } from "./utils/task-status-changed";
 import { handleTaskUpdated } from "./utils/task-updated";
 
-// Subscribe to task events for bi-directional sync
+// Subscribe to task events for bi-directional sync (GitHub-style: enhanced with labels)
 subscribeToEvent<{
   taskId: string;
   userEmail: string;
@@ -37,6 +36,14 @@ subscribeToEvent<{
 subscribeToEvent<{
   taskId: string;
   userEmail: string | null;
+  oldPriority: string;
+  newPriority: string;
+  title: string;
+}>("task.priority_changed", handleTaskPriorityChanged);
+
+subscribeToEvent<{
+  taskId: string;
+  userEmail: string | null;
   oldTitle?: string;
   newTitle?: string;
   oldDescription?: string;
@@ -44,18 +51,7 @@ subscribeToEvent<{
   title: string;
 }>("task.updated", handleTaskUpdated);
 
-subscribeToEvent<{
-  taskId: string;
-  userEmail: string | null;
-  labels: Array<{ name: string; color: string }>;
-  title: string;
-}>("task.labels_changed", handleTaskLabelsChanged);
-
-subscribeToEvent<{
-  taskId: string;
-  newAssignee: string | null;
-  title: string;
-}>("task.assignee_changed", handleTaskAssigneeChanged);
+// Note: Enhanced to match GitHub integration with labels and priority sync
 
 const giteaIntegration = new Hono()
   .get("/repositories", async (c) => {
@@ -77,7 +73,9 @@ const giteaIntegration = new Hono()
         giteaUrl: z.string().min(1),
         repositoryOwner: z.string().min(1),
         repositoryName: z.string().min(1),
-        accessToken: z.string().optional(),
+        accessToken: z
+          .string()
+          .min(1, "Access token is required for repository verification"),
       }),
     ),
     async (c) => {
@@ -112,8 +110,13 @@ const giteaIntegration = new Hono()
         giteaUrl: z.string().min(1),
         repositoryOwner: z.string().min(1),
         repositoryName: z.string().min(1),
-        accessToken: z.string().optional(),
-        webhookSecret: z.string().optional(),
+        accessToken: z
+          .string()
+          .min(1, "Access token is required for Gitea API access"),
+        webhookSecret: z
+          .string()
+          .min(32, "Webhook secret must be at least 32 characters long")
+          .optional(),
       }),
     ),
     async (c) => {
@@ -158,30 +161,44 @@ const giteaIntegration = new Hono()
   )
   .post("/webhook", async (c) => {
     try {
-      // Note: For future webhook signature verification
-      // const arrayBuffer = await c.req.arrayBuffer();
-
       const eventType = c.req.header("x-gitea-event");
+
       if (!eventType) {
         return c.json({ error: "Missing event type" }, 400);
       }
 
-      // TODO: Implement webhook signature verification using the webhook secret
-      // const signature = c.req.header("x-gitea-signature");
+      // Get webhook signature for verification
+      const signature = c.req.header("x-gitea-signature");
 
-      // Handle different Gitea webhook events
-      switch (eventType) {
-        case "issues":
-          // TODO: Handle issue events (opened, closed, edited)
-          break;
-        default:
-          console.log(`Unhandled Gitea webhook event: ${eventType}`);
-      }
+      // Get raw body for signature verification
+      const rawBody = await c.req.text();
 
-      return c.json({ status: "success" });
+      // Parse the webhook payload
+      const payload = JSON.parse(rawBody);
+
+      // Import webhook processor
+      const { processGiteaWebhook } = await import(
+        "./webhook-handlers/webhook-processor"
+      );
+
+      // Process the webhook with raw body for signature verification
+      const result = await processGiteaWebhook(
+        eventType,
+        payload,
+        signature,
+        rawBody,
+      );
+
+      return c.json(result);
     } catch (error) {
       console.error("Webhook processing error:", error);
-      return c.json({ error: "Webhook processing failed" }, 400);
+      return c.json(
+        {
+          error: "Webhook processing failed",
+          message: error instanceof Error ? error.message : "Unknown error",
+        },
+        400,
+      );
     }
   });
 export default giteaIntegration;

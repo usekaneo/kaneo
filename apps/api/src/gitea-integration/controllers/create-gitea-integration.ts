@@ -15,7 +15,7 @@ async function createGiteaIntegration({
   giteaUrl: string;
   repositoryOwner: string;
   repositoryName: string;
-  accessToken?: string;
+  accessToken: string;
   webhookSecret?: string;
 }) {
   const project = await db.query.projectTable.findFirst({
@@ -24,6 +24,14 @@ async function createGiteaIntegration({
 
   if (!project) {
     throw new HTTPException(404, { message: "Project not found" });
+  }
+
+  // Validate webhook secret if provided - must be at least 32 characters for security
+  if (webhookSecret && webhookSecret.length < 32) {
+    throw new HTTPException(400, {
+      message:
+        "Webhook secret must be at least 32 characters long for security",
+    });
   }
 
   const existingIntegration = await db.query.giteaIntegrationTable.findFirst({

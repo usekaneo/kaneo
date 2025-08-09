@@ -4,6 +4,7 @@ import { taskTable } from "../../database/schema";
 import { getIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import getGiteaIntegration from "../controllers/get-gitea-integration";
 import { createGiteaClient, giteaApiCall } from "./create-gitea-client";
+import { cleanKaneoMetadata, generateGiteaIssueBody } from "./issue-templates";
 
 export async function handleTaskUpdated(data: {
   taskId: string;
@@ -13,8 +14,18 @@ export async function handleTaskUpdated(data: {
   oldDescription?: string;
   newDescription?: string;
   title: string;
+  source?: string; // Add source tracking to prevent loops
 }) {
-  const { taskId, oldTitle, newTitle, oldDescription, newDescription } = data;
+  const { taskId, oldTitle, newTitle, oldDescription, newDescription, source } =
+    data;
+
+  // Skip if this update came from a Gitea webhook to prevent loops
+  if (source === "gitea_webhook") {
+    console.log(
+      `Skipping Gitea update for task ${taskId} - source is gitea_webhook`,
+    );
+    return;
+  }
 
   try {
     const task = await db.query.taskTable.findFirst({
@@ -74,67 +85,39 @@ export async function handleTaskUpdated(data: {
 
     // Update title if changed
     if (oldTitle !== newTitle && newTitle) {
-      updatePayload.title = `[Kaneo] ${newTitle}`;
+      // More robust [Kaneo] prefix handling
+      const kaneoPrefix = "[Kaneo] ";
+      let cleanTitle = newTitle;
+
+      // Remove any existing [Kaneo] prefix (case insensitive, flexible spacing)
+      cleanTitle = cleanTitle.replace(/^\[Kaneo\]\s*/i, "");
+
+      // Only add prefix if title doesn't already contain it
+      updatePayload.title = `${kaneoPrefix}${cleanTitle}`;
+
+      console.log(`Title update: "${oldTitle}" -> "${updatePayload.title}"`);
     }
 
     // Update description if changed
     if (oldDescription !== newDescription && newDescription !== undefined) {
       // Extract original description content (without any Kaneo metadata)
-      let cleanDescription = newDescription;
+      const cleanDescription = cleanKaneoMetadata(newDescription);
 
-      // Remove all old format variations - comprehensive cleaning
-      cleanDescription = cleanDescription
-        // Remove new structured template format
-        .replace(
-          /---\s*Task id on kaneo: [^\n]+\s*Status: [^\n]+\s*Priority: [^\n]+\s*Assignee: [^\n]+\s*Updated at: [^\n]+\s*$/g,
-          "",
-        )
-        // Remove legacy formats with Task Status
-        .replace(
-          /---\s*\*\*Task Status:\*\* [^\n]+\s*\*\*Details:\*\*[\s\S]*?---\s*\*This issue was automatically updated from Kaneo task management system\.\*\s*$/g,
-          "",
-        )
-        // Remove legacy formats with Kaneo Status
-        .replace(
-          /---\s*\*\*Kaneo Status:\*\* [^\n]+\s*\*\*Details:\*\*[\s\S]*?---\s*\*This issue was automatically updated from Kaneo task management system\.\*\s*$/g,
-          "",
-        )
-        // Remove very old legacy formats
-        .replace(
-          /\*\*Task (created|updated) in Kaneo\*\*[\s\S]*?---\s*\*This issue was automatically (created|updated) from Kaneo task management system\.\*\s*$/g,
-          "",
-        )
-        // Remove standalone status lines
-        .replace(/---\s*\*\*Task Status:\*\* [^\n]+/g, "")
-        .replace(/---\s*\*\*Kaneo Status:\*\* [^\n]+/g, "")
-        .replace(/\*\*Task Status:\*\* [^\n]+/g, "")
-        .replace(/\*\*Kaneo Status:\*\* [^\n]+/g, "")
-        // Clean up legacy link patterns (should not be in description anymore with external links)
-        .replace(/\*Linked to Gitea issue: [^\*]+\*/g, "")
-        .replace(/\*Created from Gitea issue: [^\*]+\*/g, "")
-        .trim();
-
-      // Build status display using the new template format
-      const statusDisplayNames: Record<string, string> = {
-        "to-do": "To Do",
-        "in-progress": "In Progress",
-        "in-review": "In Review",
-        done: "Done",
-        archived: "Archived",
-        planned: "Planned",
-      };
-
-      const statusDisplay = statusDisplayNames[task.status] || task.status;
-
-      // Use the new structured template format
-      updatePayload.body = `${cleanDescription || "No description provided"}
-
----
-Task id on kaneo: ${taskId}
-Status: ${statusDisplay}
-Priority: ${task.priority || "Not set"}
-Assignee: ${task.userEmail || "Unassigned"}
-Updated at: ${new Date().toISOString()}`;
+      // Generate updated issue body using centralized template
+      updatePayload.body = generateGiteaIssueBody(
+        {
+          taskId,
+          title: task.title,
+          description: cleanDescription,
+          status: task.status,
+          priority: task.priority,
+          userEmail: task.userEmail,
+          action: "updated",
+        },
+        {
+          useBidirectionalDescriptions: true, // Set to false for Option 2 (visible markdown)
+        },
+      );
     }
 
     // Only update if there are changes

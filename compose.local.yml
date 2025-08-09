@@ -75,6 +75,8 @@ services:
       - GITEA__database__PASSWD=gitea_password
       - GITEA__server__ROOT_URL=http://localhost:3000
       - GITEA__server__HTTP_PORT=3000
+      - GITEA__webhook__ALLOWED_HOST_LIST=localhost,host.docker.internal
+      - GITEA__webhook__SKIP_TLS_VERIFY=true
     restart: unless-stopped
     volumes:
       - gitea_data:/data
