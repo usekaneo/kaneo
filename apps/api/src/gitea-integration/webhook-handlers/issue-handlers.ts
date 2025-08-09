@@ -13,6 +13,59 @@ import updateTask from "../../task/controllers/update-task";
 import { cleanKaneoMetadata, parseKaneoTaskId } from "../utils/issue-templates";
 import type { GiteaIssueWebhookPayload } from "./webhook-processor";
 
+/**
+ * Retry configuration for database operations
+ */
+const RETRY_CONFIG = {
+  maxAttempts: 3,
+  baseDelay: 100, // milliseconds
+  maxDelay: 1000,
+} as const;
+
+/**
+ * Execute database operation with exponential backoff retry
+ * @param operation - Database operation to retry
+ * @param context - Operation context for logging
+ * @returns Operation result
+ */
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  context: string,
+): Promise<T> {
+  let lastError: Error | undefined;
+
+  for (let attempt = 1; attempt <= RETRY_CONFIG.maxAttempts; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+
+      // Don't retry on the last attempt
+      if (attempt === RETRY_CONFIG.maxAttempts) {
+        break;
+      }
+
+      // Calculate exponential backoff delay
+      const delay = Math.min(
+        RETRY_CONFIG.baseDelay * 2 ** (attempt - 1),
+        RETRY_CONFIG.maxDelay,
+      );
+
+      console.warn(
+        `${context} failed on attempt ${attempt}, retrying in ${delay}ms:`,
+        error,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  console.error(
+    `${context} failed after ${RETRY_CONFIG.maxAttempts} attempts:`,
+    lastError,
+  );
+  throw lastError || new Error(`${context} failed with unknown error`);
+}
+
 type GiteaIntegration = InferSelectModel<typeof giteaIntegrationTable>;
 
 /**
@@ -83,13 +136,17 @@ export async function handleIssueOpened(
     }
 
     // Check if task already exists for this issue to prevent duplicates
-    const existingLink = await db.query.externalLinksTable.findFirst({
-      where: and(
-        eq(externalLinksTable.type, "gitea_integration"),
-        eq(externalLinksTable.externalId, payload.issue.number.toString()),
-        eq(externalLinksTable.url, payload.issue.html_url),
-      ),
-    });
+    const existingLink = await withRetry(
+      () =>
+        db.query.externalLinksTable.findFirst({
+          where: and(
+            eq(externalLinksTable.type, "gitea_integration"),
+            eq(externalLinksTable.externalId, payload.issue.number.toString()),
+            eq(externalLinksTable.url, payload.issue.html_url),
+          ),
+        }),
+      `Check existing link for issue #${payload.issue.number}`,
+    );
 
     if (existingLink) {
       console.log(
@@ -143,9 +200,9 @@ export async function handleIssueStateChanged(
     );
 
     // Find the linked task
-    const linkedTask = await findLinkedTask(
-      payload.issue.number,
-      payload.issue.html_url,
+    const linkedTask = await withRetry(
+      () => findLinkedTask(payload.issue.number, payload.issue.html_url),
+      `Find linked task for issue #${payload.issue.number}`,
     );
 
     if (!linkedTask) {
@@ -285,31 +342,52 @@ export async function handleIssueDeleted(
 }
 
 /**
- * Find task linked to a Gitea issue
+ * Find task linked to a Gitea issue using optimized single-query approach
+ * Performance: Reduces 2 DB queries to 1 with JOIN operation
+ * @param issueNumber - Gitea issue number
+ * @param issueUrl - Gitea issue URL for additional verification
+ * @returns Task data with external link information or null if not found
  */
 async function findLinkedTask(
   issueNumber: number,
   issueUrl: string,
 ): Promise<TaskFromDB | null> {
-  // First try to find via external link
-  const link = await db.query.externalLinksTable.findFirst({
-    where: and(
-      eq(externalLinksTable.type, "gitea_integration"),
-      eq(externalLinksTable.externalId, issueNumber.toString()),
-      eq(externalLinksTable.url, issueUrl),
-    ),
-  });
+  try {
+    // Optimized single query with JOIN to reduce database round trips
+    const result = await db
+      .select({
+        id: taskTable.id,
+        projectId: taskTable.projectId,
+        title: taskTable.title,
+        description: taskTable.description,
+        status: taskTable.status,
+        priority: taskTable.priority,
+        dueDate: taskTable.dueDate,
+        position: taskTable.position,
+        userEmail: taskTable.userEmail,
+      })
+      .from(taskTable)
+      .innerJoin(
+        externalLinksTable,
+        eq(taskTable.id, externalLinksTable.taskId),
+      )
+      .where(
+        and(
+          eq(externalLinksTable.type, "gitea_integration"),
+          eq(externalLinksTable.externalId, issueNumber.toString()),
+          eq(externalLinksTable.url, issueUrl),
+        ),
+      )
+      .limit(1);
 
-  if (!link) {
+    return result[0] || null;
+  } catch (error) {
+    console.error(
+      `Failed to find linked task for issue #${issueNumber}:`,
+      error,
+    );
     return null;
   }
-
-  // Get the task associated with the link
-  const task = await db.query.taskTable.findFirst({
-    where: eq(taskTable.id, link.taskId),
-  });
-
-  return task || null;
 }
 
 /**
