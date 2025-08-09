@@ -42,3 +42,5 @@ yarn-error.log*
 contribute/
 
 .github/chatmodes/Expert for smart contributions.chatmode.md
+
+.gitea/
