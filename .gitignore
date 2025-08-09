@@ -40,3 +40,5 @@ yarn-error.log*
 # DB
 *.db
 contribute/
+
+.github/chatmodes/Expert for smart contributions.chatmode.md

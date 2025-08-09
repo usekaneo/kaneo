@@ -1,48 +1,163 @@
+/**
+ * @fileoverview Hybrid Integration Utilities
+ * Provides backward compatibility between legacy description-based links
+ * and the new external_links table system
+ *
+ * @description This module handles the transition from storing integration links
+ * in task descriptions to the dedicated external_links table, ensuring
+ * seamless operation during migration periods.
+ *
+ * @performance
+ * - Uses database JOINs to minimize round trips
+ * - Implements efficient lookup patterns for hybrid compatibility
+ * - Caches frequently accessed link data
+ */
+
 import { and, eq } from "drizzle-orm";
 import db from "../database";
 import { externalLinksTable, taskTable } from "../database/schema";
 
+/**
+ * Parameters for creating integration links
+ *
+ * @example Creating a Gitea integration link
+ * ```typescript
+ * const linkParams: IntegrationLinkParams = {
+ *   taskId: "task_abc123",
+ *   type: "gitea_integration",
+ *   title: "Gitea Issue #42",
+ *   url: "https://gitea.example.com/user/repo/issues/42",
+ *   externalId: "42"
+ * };
+ * ```
+ */
 interface IntegrationLinkParams {
+  /** Kaneo task ID to link */
   taskId: string;
+  /** Integration type identifier */
   type: "gitea_integration" | "github_integration";
+  /** Human-readable link title */
   title: string;
+  /** Full URL to the external resource */
   url: string;
+  /** External system identifier (issue number, etc.) */
   externalId: string;
 }
 
+/**
+ * Parameters for retrieving integration links
+ *
+ * @example Getting a link for a task
+ * ```typescript
+ * const linkParams: GetIntegrationLinkParams = {
+ *   taskId: "task_abc123",
+ *   type: "gitea_integration"
+ * };
+ * const link = await getIntegrationLinkHybrid(linkParams);
+ * ```
+ */
 interface GetIntegrationLinkParams {
+  /** Task ID to search for links */
   taskId: string;
+  /** Integration type to filter by */
   type: "gitea_integration" | "github_integration";
 }
 
 /**
+ * Cache entry structure for integration links
+ */
+interface CacheEntry {
+  data: {
+    id: string;
+    issueNumber: string | null;
+    issueUrl: string | null;
+    source: "external_links" | "description";
+  } | null;
+  timestamp: number;
+  ttl: number;
+}
+
+/**
+ * Cache for frequently accessed integration links to improve performance
+ * Key format: `${taskId}-${type}`
+ */
+const linkCache = new Map<string, CacheEntry>();
+
+const CACHE_TTL = 300000; // 5 minutes in milliseconds
+
+/**
  * Hybrid function that works with both new external_links table and legacy description-based links
- * For GitHub: Falls back to description parsing if no external link found
- * For Gitea: Only uses external_links (new system)
+ * Provides seamless backward compatibility during migration period
+ *
+ * @param params - Link retrieval parameters
+ * @returns Integration link data or null if not found
+ *
+ * @example Basic usage
+ * ```typescript
+ * const link = await getIntegrationLinkHybrid({
+ *   taskId: "task_123",
+ *   type: "gitea_integration"
+ * });
+ *
+ * if (link) {
+ *   console.log(`Found ${link.source} link: ${link.issueUrl}`);
+ * }
+ * ```
+ *
+ * @performance
+ * - Uses caching for frequently accessed links
+ * - Minimizes database queries through efficient lookups
+ * - Falls back gracefully to legacy parsing when needed
  */
 export async function getIntegrationLinkHybrid(
   params: GetIntegrationLinkParams,
 ) {
   try {
-    // First, try to get from external_links table
-    const [externalLink] = await db
-      .select()
+    // Check cache first for performance optimization
+    const cacheKey = `${params.taskId}-${params.type}`;
+    const cached = linkCache.get(cacheKey);
+
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data;
+    }
+
+    // Optimized query: try to get external link and task data in single query
+    const result = await db
+      .select({
+        linkId: externalLinksTable.id,
+        linkUrl: externalLinksTable.url,
+        linkExternalId: externalLinksTable.externalId,
+        taskDescription: taskTable.description,
+      })
       .from(externalLinksTable)
+      .rightJoin(taskTable, eq(externalLinksTable.taskId, taskTable.id))
       .where(
         and(
-          eq(externalLinksTable.taskId, params.taskId),
+          eq(taskTable.id, params.taskId),
           eq(externalLinksTable.type, params.type),
         ),
       )
       .limit(1);
 
-    if (externalLink) {
-      return {
-        id: externalLink.id,
-        issueNumber: externalLink.externalId,
-        issueUrl: externalLink.url,
+    const data = result[0];
+
+    // If external link exists, return it
+    if (data?.linkId) {
+      const linkData = {
+        id: data.linkId,
+        issueNumber: data.linkExternalId,
+        issueUrl: data.linkUrl,
         source: "external_links" as const,
       };
+
+      // Cache the result
+      linkCache.set(cacheKey, {
+        data: linkData,
+        timestamp: Date.now(),
+        ttl: CACHE_TTL,
+      });
+
+      return linkData;
     }
 
     // For GitHub only: Fall back to description parsing (legacy support)

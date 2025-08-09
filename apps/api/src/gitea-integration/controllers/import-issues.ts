@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Gitea Issues Import Controller
+ * Handles bulk import of issues from Gitea repositories into Kaneo tasks
+ * with duplicate prevention and bidirectional synchronization support
+ */
+
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
@@ -8,23 +14,87 @@ import {
 import { createIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import { createGiteaClient, giteaApiCall } from "../utils/create-gitea-client";
 
+/**
+ * Gitea issue structure from API response
+ * @interface GiteaIssue
+ *
+ * @example API Response
+ * ```json
+ * {
+ *   "id": 1,
+ *   "number": 42,
+ *   "title": "Fix authentication bug",
+ *   "body": "User login fails on mobile devices...",
+ *   "state": "open",
+ *   "html_url": "https://gitea.example.com/user/repo/issues/42",
+ *   "user": { "login": "developer" },
+ *   "labels": [{ "name": "bug", "color": "ff0000" }]
+ * }
+ * ```
+ */
 interface GiteaIssue {
+  /** Unique issue ID from Gitea */
   id: number;
+  /** Issue number (#42) */
   number: number;
+  /** Issue title */
   title: string;
+  /** Issue description/body content */
   body: string;
+  /** Issue state: open or closed */
   state: "open" | "closed";
+  /** ISO timestamp of issue creation */
   created_at: string;
+  /** ISO timestamp of last update */
   updated_at: string;
+  /** Full URL to the issue on Gitea */
   html_url: string;
+  /** Issue author information */
   user: {
+    /** Username of issue creator */
     login: string;
   };
+  /** Attached labels with names and colors */
   labels: Array<{
+    /** Label name (e.g., "bug", "enhancement") */
     name: string;
+    /** Hex color code without # */
     color: string;
   }>;
 }
+
+/**
+ * Import configuration for performance optimization
+ * @todo Implement batch processing for large imports
+ */
+// const IMPORT_CONFIG = {
+//   /** Maximum issues to fetch per API call */
+//   batchSize: 50,
+//   /** Timeout for individual API calls (ms) */
+//   apiTimeout: 10000,
+//   /** Maximum concurrent duplicate checks */
+//   maxConcurrentChecks: 10,
+// } as const;
+
+/**
+ * Import issues from Gitea repository with performance optimization
+ * and comprehensive duplicate prevention
+ *
+ * @param projectId - Kaneo project ID to import issues into
+ * @returns Import result with statistics and error handling
+ *
+ * @example Basic import
+ * ```typescript
+ * const result = await importIssues("project_123");
+ * if (result.error) {
+ *   console.error("Import failed:", result.error);
+ * } else {
+ *   console.log(`Imported ${result.imported} issues, skipped ${result.skipped} duplicates`);
+ * }
+ * ```
+ *
+ * @throws {Error} Database connection or API communication errors
+ */
 
 export async function importIssues(projectId: string) {
   console.log("Starting import for project:", projectId);
@@ -69,39 +139,49 @@ export async function importIssues(projectId: string) {
     let imported = 0;
     let skipped = 0;
 
+    // Batch fetch all existing external links for this project to optimize duplicate detection
+    const existingLinks = await db
+      .select({
+        externalId: externalLinksTable.externalId,
+        taskId: externalLinksTable.taskId,
+        taskTitle: taskTable.title,
+        taskNumber: taskTable.number,
+      })
+      .from(externalLinksTable)
+      .innerJoin(taskTable, eq(externalLinksTable.taskId, taskTable.id))
+      .where(
+        and(
+          eq(externalLinksTable.type, "gitea_integration"),
+          eq(taskTable.projectId, projectId),
+        ),
+      );
+
+    // Create lookup map for O(1) duplicate detection
+    const linkMap = new Map(
+      existingLinks.map((link) => [link.externalId, link]),
+    );
+
+    console.log(
+      `Pre-loaded ${existingLinks.length} existing links for duplicate detection`,
+    );
+
     for (const issue of issues || []) {
       console.log("Processing issue:", issue.number, issue.title);
 
-      // Check if task already exists via external link (new system)
-      const existingExternalLink = await db.query.externalLinksTable.findFirst({
-        where: and(
-          eq(externalLinksTable.type, "gitea_integration"),
-          eq(externalLinksTable.externalId, issue.number.toString()),
-        ),
-      });
-
-      if (existingExternalLink) {
-        // Verify the task belongs to this project
-        const linkedTask = await db.query.taskTable.findFirst({
-          where: and(
-            eq(taskTable.id, existingExternalLink.taskId),
-            eq(taskTable.projectId, projectId),
-          ),
+      // Optimized duplicate check using pre-loaded map
+      const existingLink = linkMap.get(issue.number.toString());
+      if (existingLink) {
+        console.log(
+          "Gitea issue already imported via external link, skipping:",
+          issue.number,
+        );
+        console.log("Existing task details:", {
+          id: existingLink.taskId,
+          title: existingLink.taskTitle,
+          number: existingLink.taskNumber,
         });
-
-        if (linkedTask) {
-          console.log(
-            "Gitea issue already imported via external link, skipping:",
-            issue.number,
-          );
-          console.log("Existing task details:", {
-            id: linkedTask.id,
-            title: linkedTask.title,
-            number: linkedTask.number,
-          });
-          skipped++;
-          continue;
-        }
+        skipped++;
+        continue;
       }
 
       // Also check for legacy description-based imports to avoid duplicates
