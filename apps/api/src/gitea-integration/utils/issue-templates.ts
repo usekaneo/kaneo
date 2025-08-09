@@ -1,30 +1,80 @@
 /**
  * Central template utilities for Gitea issue body generation
  * Handles both HTML comment metadata (invisible) and markdown formats
+ *
+ * @example Basic usage
+ * ```typescript
+ * const metadata = { taskId: "task_123", title: "Fix bug", action: "created" };
+ * const body = generateIssueBody(metadata);
+ * console.log(body); // "Fix bug\n\n<!-- Kaneo Task: task_123 -->"
+ * ```
+ *
+ * @example Advanced template with options
+ * ```typescript
+ * const options = { useBidirectionalDescriptions: true };
+ * const body = generateIssueBody(metadata, "Custom description", options);
+ * ```
  */
 
 /**
  * Metadata structure for Kaneo tasks used in Gitea issue templates
+ *
+ * @example Task metadata creation
+ * ```typescript
+ * const taskMetadata: TaskMetadata = {
+ *   taskId: "task_abc123",
+ *   title: "Implement user authentication",
+ *   description: "Add JWT-based authentication system",
+ *   status: "in-progress",
+ *   priority: "high",
+ *   userEmail: "developer@example.com",
+ *   action: "created"
+ * };
+ * ```
  */
 export interface TaskMetadata {
+  /** Unique identifier for the task */
   taskId: string;
+  /** Human-readable task title */
   title: string;
+  /** Optional detailed description of the task */
   description: string | null;
+  /** Current task status (to-do, in-progress, done, etc.) */
   status: string;
+  /** Priority level (low, medium, high, critical) */
   priority: string | null;
+  /** Email of assigned user, if any */
   userEmail: string | null;
+  /** Action being performed (created, updated) */
   action: "created" | "updated";
 }
 
 /**
  * Configuration options for template generation
+ * Controls behavior of issue body creation and parsing
+ *
+ * @example Enable bidirectional sync
+ * ```typescript
+ * const options: TemplateOptions = {
+ *   useBidirectionalDescriptions: true
+ * };
+ * const body = generateIssueBody(metadata, description, options);
+ * ```
  */
 export interface TemplateOptions {
+  /** Whether to allow description updates from Gitea back to Kaneo */
   useBidirectionalDescriptions?: boolean;
 }
 
 /**
  * Status mapping for human-readable display names
+ * Maps internal status codes to user-friendly display names
+ *
+ * @example Usage in UI components
+ * ```typescript
+ * const displayName = STATUS_DISPLAY_NAMES[task.status] || task.status;
+ * console.log(`Status: ${displayName}`); // "Status: In Progress"
+ * ```
  */
 export const STATUS_DISPLAY_NAMES: Record<string, string> = {
   "to-do": "To Do",
@@ -36,9 +86,18 @@ export const STATUS_DISPLAY_NAMES: Record<string, string> = {
 } as const;
 
 /**
- * Generate status display name for better readability
+ * Generate human-readable status display name with fallback
  * @param status - Raw status value from database
- * @returns Human-readable status display name
+ * @returns Human-readable status display name or original status if no mapping exists
+ *
+ * @example Status display
+ * ```typescript
+ * const display = getStatusDisplayName("in-progress");
+ * console.log(display); // "In Progress"
+ *
+ * const unknown = getStatusDisplayName("custom-status");
+ * console.log(unknown); // "custom-status" (fallback to original)
+ * ```
  */
 function getStatusDisplayName(status: string): string {
   return STATUS_DISPLAY_NAMES[status] || status;
