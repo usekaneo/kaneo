@@ -58,15 +58,29 @@ interface GiteaIntegration {
 }
 
 /**
- * Map Gitea issue state to Kaneo task status
+ * Map Gitea issue state to Kaneo task status with validation
+ * @param state - Gitea issue state ("open" | "closed")
+ * @returns Corresponding Kaneo task status
+ * @throws Error if state is invalid
  */
 function mapGiteaStateToKaneoStatus(state: "open" | "closed"): string {
-  return state === "closed" ? "done" : "to-do";
+  switch (state) {
+    case "closed":
+      return "done";
+    case "open":
+      return "to-do";
+    default:
+      throw new Error(
+        `Invalid Gitea issue state: ${state}. Expected "open" or "closed"`,
+      );
+  }
 }
 
 /**
- * Handle new Gitea issue creation
- * Creates a new task in Kaneo and links it to the Gitea issue
+ * Handle new Gitea issue creation - creates corresponding Kaneo task
+ * Implements comprehensive loop prevention and error handling
+ * @param payload - Gitea webhook payload for issue opened event
+ * @param integration - Gitea integration configuration
  */
 export async function handleIssueOpened(
   payload: GiteaIssueWebhookPayload,
@@ -77,7 +91,7 @@ export async function handleIssueOpened(
       `Processing Gitea issue opened: #${payload.issue.number} in ${payload.repository.full_name}`,
     );
 
-    // Check if this issue was created by Kaneo (has Kaneo metadata)
+    // Enhanced loop prevention: Check for Kaneo metadata or title prefix
     const kaneoTaskId = parseKaneoTaskId(payload.issue.body);
     const hasKaneoPrefix = payload.issue.title.includes("[Kaneo]");
 
@@ -88,7 +102,14 @@ export async function handleIssueOpened(
       return;
     }
 
-    // Check if task already exists for this issue
+    // Validate required payload data before processing
+    if (!payload.issue.title?.trim()) {
+      throw new Error(
+        `Issue #${payload.issue.number} has empty title - cannot create task`,
+      );
+    }
+
+    // Check if task already exists for this issue to prevent duplicates
     const existingLink = await db.query.externalLinksTable.findFirst({
       where: and(
         eq(externalLinksTable.type, "gitea_integration"),

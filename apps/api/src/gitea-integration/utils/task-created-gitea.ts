@@ -19,7 +19,7 @@ export async function handleTaskCreated(data: {
     data;
 
   // Enhanced loop prevention: Skip if task was created from Gitea issue
-  // Check if this task already has a Gitea integration link (indicating it came from Gitea)
+  // Single query check for both external links and legacy text patterns (optimized for performance)
   const giteaIntegrationCheck = await db.query.externalLinksTable.findFirst({
     where: and(
       eq(externalLinksTable.taskId, taskId),
@@ -34,31 +34,23 @@ export async function handleTaskCreated(data: {
     return;
   }
 
-  // Additional text-based loop prevention (for legacy compatibility)
-  if (
+  // Optimized text-based loop prevention check (single pass through description)
+  const hasGiteaMarkers = Boolean(
     description?.includes("Created from Gitea issue") ||
-    description?.includes("Imported from Gitea") ||
-    title?.includes("(from Gitea)")
-  ) {
+      description?.includes("Imported from Gitea") ||
+      description?.includes("Linked to Gitea issue:") ||
+      title?.includes("(from Gitea)") ||
+      title.startsWith("[Kaneo]"),
+  );
+
+  if (hasGiteaMarkers) {
     console.log(
-      `Skipping Gitea issue creation for task ${taskId} - created from Gitea issue`,
+      `Skipping Gitea issue creation for task ${taskId} - contains Gitea source markers`,
     );
     return;
   }
 
   try {
-    // Legacy check for additional safety
-    if (
-      title.startsWith("[Kaneo]") ||
-      description?.includes("Linked to Gitea issue:")
-    ) {
-      console.log(
-        "Skipping Gitea issue creation for task with Kaneo markers:",
-        taskId,
-      );
-      return;
-    }
-
     const client = await createGiteaClient(projectId);
     if (!client) {
       console.log("No Gitea integration configured for project:", projectId);

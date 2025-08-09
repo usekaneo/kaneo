@@ -3,6 +3,9 @@
  * Handles both HTML comment metadata (invisible) and markdown formats
  */
 
+/**
+ * Metadata structure for Kaneo tasks used in Gitea issue templates
+ */
 export interface TaskMetadata {
   taskId: string;
   title: string;
@@ -13,23 +16,32 @@ export interface TaskMetadata {
   action: "created" | "updated";
 }
 
+/**
+ * Configuration options for template generation
+ */
 export interface TemplateOptions {
   useBidirectionalDescriptions?: boolean;
 }
 
 /**
+ * Status mapping for human-readable display names
+ */
+export const STATUS_DISPLAY_NAMES: Record<string, string> = {
+  "to-do": "To Do",
+  "in-progress": "In Progress",
+  "in-review": "In Review",
+  done: "Done",
+  archived: "Archived",
+  planned: "Planned",
+} as const;
+
+/**
  * Generate status display name for better readability
+ * @param status - Raw status value from database
+ * @returns Human-readable status display name
  */
 function getStatusDisplayName(status: string): string {
-  const statusDisplayNames: Record<string, string> = {
-    "to-do": "To Do",
-    "in-progress": "In Progress",
-    "in-review": "In Review",
-    done: "Done",
-    archived: "Archived",
-    planned: "Planned",
-  };
-  return statusDisplayNames[status] || status;
+  return STATUS_DISPLAY_NAMES[status] || status;
 }
 
 /**

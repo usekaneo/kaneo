@@ -46,29 +46,60 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
 
+/**
+ * Enhanced validation schema with detailed error messages for better UX
+ * Validates Gitea integration configuration including API access and security requirements
+ */
 const giteaIntegrationSchema = z.object({
   giteaUrl: z
     .string()
-    .min(1, "Gitea URL is required")
-    .url("Please enter a valid URL"),
+    .min(1, "Gitea URL is required for API communication")
+    .url("Please enter a valid URL (e.g., https://git.example.com)")
+    .refine(
+      (url) => url.startsWith("https://") || url.startsWith("http://"),
+      "URL must include protocol (https:// or http://)",
+    ),
   repositoryOwner: z
     .string()
     .min(1, "Repository owner is required")
-    .regex(/^[a-zA-Z0-9-]+$/, "Invalid repository owner format"),
+    .max(50, "Repository owner must be less than 50 characters")
+    .regex(
+      /^[a-zA-Z0-9-]+$/,
+      "Repository owner can only contain letters, numbers, and hyphens",
+    ),
   repositoryName: z
     .string()
     .min(1, "Repository name is required")
-    .regex(/^[a-zA-Z0-9._-]+$/, "Invalid repository name format"),
+    .max(100, "Repository name must be less than 100 characters")
+    .regex(
+      /^[a-zA-Z0-9._-]+$/,
+      "Repository name can only contain letters, numbers, dots, underscores, and hyphens",
+    ),
   accessToken: z
     .string()
-    .min(1, "Access token is required for Gitea API access"),
+    .min(1, "Access token is required for Gitea API access")
+    .min(16, "Access token must be at least 16 characters long")
+    .refine(
+      (token) => !/\s/.test(token),
+      "Access token cannot contain whitespace characters",
+    ),
   webhookSecret: z
     .string()
-    .min(32, "Webhook secret must be at least 32 characters long"),
+    .min(32, "Webhook secret must be at least 32 characters for security")
+    .max(256, "Webhook secret must be less than 256 characters")
+    .refine(
+      (secret) => !/\s/.test(secret),
+      "Webhook secret cannot contain whitespace characters",
+    ),
 });
 
 type GiteaIntegrationFormValues = z.infer<typeof giteaIntegrationSchema>;
 
+/**
+ * Gitea Integration Settings Component
+ * Provides comprehensive configuration for Gitea repository integration
+ * Includes validation, verification, and import functionality
+ */
 export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const { data: integration, isLoading } = useGetGiteaIntegration(projectId);
   const { mutateAsync: createIntegration, isPending: isCreating } =
@@ -83,28 +114,29 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const [verificationResult, setVerificationResult] =
     React.useState<VerifyGiteaRepositoryResponse | null>(null);
 
-  const form = useForm<GiteaIntegrationFormValues>({
-    resolver: standardSchemaResolver(giteaIntegrationSchema),
-    defaultValues: {
+  // Memoized default values to prevent unnecessary re-renders
+  const defaultValues = React.useMemo(
+    () => ({
       giteaUrl: integration?.giteaUrl || "",
       repositoryOwner: integration?.repositoryOwner || "",
       repositoryName: integration?.repositoryName || "",
       accessToken: integration?.accessToken || "",
       webhookSecret: integration?.webhookSecret || "",
-    },
+    }),
+    [integration],
+  );
+
+  const form = useForm<GiteaIntegrationFormValues>({
+    resolver: standardSchemaResolver(giteaIntegrationSchema),
+    defaultValues,
   });
 
+  // Optimized useEffect with proper dependency array
   React.useEffect(() => {
     if (integration) {
-      form.reset({
-        giteaUrl: integration.giteaUrl,
-        repositoryOwner: integration.repositoryOwner,
-        repositoryName: integration.repositoryName,
-        accessToken: integration.accessToken || "",
-        webhookSecret: integration.webhookSecret || "",
-      });
+      form.reset(defaultValues);
     }
-  }, [integration, form]);
+  }, [form, defaultValues, integration]);
 
   const giteaUrl = form.watch("giteaUrl");
   const repositoryOwner = form.watch("repositoryOwner");
