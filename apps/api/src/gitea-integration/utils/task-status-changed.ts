@@ -41,9 +41,15 @@ export async function handleTaskStatusChanged(data: {
     });
 
     if (!giteaLink) {
-      console.log("No Gitea integration link found for task:", taskId);
+      console.log(
+        `No Gitea integration link found for task: ${taskId} (status change ${oldStatus} -> ${newStatus})`,
+      );
       return;
     }
+
+    console.log(
+      `Found Gitea link for task ${taskId}: issue #${giteaLink.issueNumber} (source: ${giteaLink.source})`,
+    );
 
     const giteaClient = await createGiteaClient(task.projectId);
 

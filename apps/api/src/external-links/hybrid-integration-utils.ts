@@ -129,14 +129,15 @@ export async function getIntegrationLinkHybrid(
         linkExternalId: externalLinksTable.externalId,
         taskDescription: taskTable.description,
       })
-      .from(externalLinksTable)
-      .rightJoin(taskTable, eq(externalLinksTable.taskId, taskTable.id))
-      .where(
+      .from(taskTable)
+      .leftJoin(
+        externalLinksTable,
         and(
-          eq(taskTable.id, params.taskId),
+          eq(externalLinksTable.taskId, taskTable.id),
           eq(externalLinksTable.type, params.type),
         ),
       )
+      .where(eq(taskTable.id, params.taskId))
       .limit(1);
 
     const data = result[0];
