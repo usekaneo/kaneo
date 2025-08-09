@@ -13,5 +13,5 @@ export function formatTaskDescription(payload: {
   return `${body}
 
 ---
-*Created from GitHub issue: ${issueUrl}*`;
+*Created from Gitea issue: ${issueUrl}*`;
 }

@@ -11,7 +11,6 @@ import verifyGiteaRepository from "./controllers/verify-gitea-repository";
 import { handleTaskAssigneeChanged } from "./utils/task-assignee-changed";
 import { handleTaskCreated } from "./utils/task-created-gitea";
 import { handleTaskLabelsChanged } from "./utils/task-labels-changed";
-import { handleTaskPriorityChanged } from "./utils/task-priority-changed";
 import { handleTaskStatusChanged } from "./utils/task-status-changed";
 import { handleTaskUpdated } from "./utils/task-updated";
 
@@ -34,14 +33,6 @@ subscribeToEvent<{
   newStatus: string;
   title: string;
 }>("task.status_changed", handleTaskStatusChanged);
-
-subscribeToEvent<{
-  taskId: string;
-  userEmail: string | null;
-  oldPriority: string;
-  newPriority: string;
-  title: string;
-}>("task.priority_changed", handleTaskPriorityChanged);
 
 subscribeToEvent<{
   taskId: string;

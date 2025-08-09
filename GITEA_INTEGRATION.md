@@ -1,11 +1,95 @@
-# Gitea Integration - Implementation Status
+# Gitea Integration - Complete Documentation
 
 ## 📋 Overview
 Complete implementation of Gitea integration for the Kaneo project management system, following the same patterns as the existing GitHub integration but adapted for Gitea's API and authentication model.
 
 **Status: ✅ FULLY FUNCTIONAL**
-**Date: August 6, 2025**
+**Date: August 9, 2025**
 **Branch: feat/429-add-gitea-sync**
+
+### Recent Updates
+Enhanced Kaneo-to-Gitea synchronization with improved status mapping and external links system integration.
+
+---
+
+## 🔄 Status Synchronization
+
+### Kaneo Status → Gitea Behavior
+
+| Kaneo Status | Gitea Issue State | Gitea Description Content |
+|--------------|-------------------|-------------------------|
+| `to-do` | `open` | Status: To Do |
+| `in-progress` | `open` | Status: In Progress |
+| `in-review` | `open` | Status: In Review |
+| `done` | `closed` | Status: Done |
+| `archived` | `closed` | Status: Archived |
+| `planned` | `open` | Status: Planned |
+
+### Key Features
+
+1. **Smart State Mapping**: Only `done` and `archived` tasks close Gitea issues
+2. **Status in Description**: All status changes are reflected in issue body with "Status: {status}" format in metadata section
+3. **Preserve Existing Content**: Status updates preserve original issue content while updating metadata section
+4. **Clean Status Management**: Previous status indicators are cleaned before adding new metadata template
+5. **Comprehensive Metadata**: Includes task ID, status, priority, assignee, and timestamp in consistent format
+
+### Issue Body Format
+```
+{Original issue content or "No description provided"}
+
+---
+Task id on kaneo: {taskId}
+Status: {Status Display Name}
+Priority: {priority or "Not set"}
+Assignee: {userEmail or "Unassigned"}
+Updated at: {ISO timestamp}
+```
+
+---
+
+## 🔗 External Links System Integration
+
+### Migration from Description-Based Links
+
+- **Before**: Links stored in task descriptions (`*Linked to Gitea issue: URL*`)
+- **After**: Links stored in `external_links` table with proper metadata
+- **Hybrid Support**: Automatic migration from old system to new system
+
+### Benefits
+
+✅ **Reliability**: Links preserved even when users edit task descriptions
+✅ **Metadata Rich**: Store issue number, URL, and title separately
+✅ **Performance**: Direct database queries instead of regex parsing
+✅ **Scalability**: Support unlimited external links per task
+
+---
+
+## 🚀 Updated Components & Recent Improvements
+
+### 1. Task Status Changes (`task-status-changed.ts`)
+- **NEW**: Uses external links system for issue lookup
+- **NEW**: Comprehensive status mapping with display names
+- **NEW**: Preserves existing issue content while updating status
+- **NEW**: Better error handling and logging
+
+### 2. Task Creation (`task-created-gitea.ts`)
+- **NEW**: Creates external link instead of description footer
+- **NEW**: Sets correct initial status in Gitea issue body
+- **NEW**: Handles closed issues for `done`/`archived` tasks
+
+### 3. Task Updates (`task-updated.ts`)
+- **NEW**: Clean description parsing that removes Kaneo metadata
+- **NEW**: Current status reflection in updated content
+- **NEW**: Improved content preservation
+
+### 4. Import Issues (`import-issues.ts`)
+- **NEW**: Uses external links for duplicate detection
+- **NEW**: Creates external links for imported issues
+- **NEW**: Maintains legacy compatibility
+
+### 5. Assignee Changes (`task-assignee-changed.ts`)
+- **UPDATED**: Uses external links system for issue lookup
+- **IMPROVED**: Better error handling and logging
 
 ---
 
@@ -26,7 +110,6 @@ Complete implementation of Gitea integration for the Kaneo project management sy
 - ✅ **`extract-issue-priority.ts`** - Priority extraction from issue labels
 - ✅ **`format-task-description.ts`** - Task description formatting
 - ✅ **`task-created-gitea.ts`** - Event handler for task creation
-- ✅ **`task-priority-changed.ts`** - Event handler for priority changes
 - ✅ **`task-status-changed.ts`** - Event handler for status changes
 - ✅ **`task-updated.ts`** - Event handler for task title/description updates
 - ✅ **`task-labels-changed.ts`** - Event handler for label synchronization
@@ -99,7 +182,6 @@ CREATE TABLE "gitea_integration" (
 ### 3. Event-Driven Synchronization ✅
 - **Task creation** → Creates corresponding Gitea issue
 - **Status changes** → Updates Gitea issue state (open/closed)
-- **Priority changes** → Adds comment to Gitea issue
 - **Title/Description updates** → Updates Gitea issue content
 - **Label changes** → Synchronizes labels to Gitea (prefixed with "kaneo:")
 - **Assignee changes** → Adds comment about assignee updates
@@ -152,6 +234,39 @@ CREATE TABLE "gitea_integration" (
 ### 5. Issue Import Blocking
 - **Problem**: Import failed due to overly broad duplicate detection
 - **Solution**: Modified logic to only block Gitea-specific duplicates (with "Linked to Gitea issue:" in description)
+
+---
+
+---
+
+## 🧪 Testing Scenarios
+
+### Status Change Flow
+1. **Create Task** → Gitea issue created with status in body
+2. **Change to In Progress** → Issue stays open, status updated in body
+3. **Change to Done** → Issue closed, status shows "Done"
+4. **Reopen Task** → Issue reopened, status updated
+
+### Import Flow
+1. **Import Issues** → External links created automatically
+2. **Legacy Compatibility** → Old description-based links still work
+3. **Duplicate Prevention** → Both systems checked for duplicates
+
+### Update Flow
+1. **Edit Description** → Status section preserved/updated
+2. **Change Assignee** → Comment added to issue
+
+---
+
+## ✅ Current Validation Status
+
+- [x] Build passes without errors
+- [x] All TypeScript issues resolved
+- [x] External links system integration complete
+- [x] Legacy compatibility maintained
+- [x] Comprehensive status mapping implemented
+- [x] Error handling and logging improved
+- [x] Priority change comments removed (as requested)
 
 ---
 
@@ -271,7 +386,25 @@ CREATE TABLE "external_links" (
    - Migrate existing linked tasks to new system
    - Add link validation and URL previews
 
-2. **Link Types & Features**
+2. **Label-Based Priority and Status Synchronization**
+   - **Priority Labels**: Implement `priority:low`, `priority:medium`, `priority:high`, `priority:urgent` labels
+   - **Status Labels**: Implement `status:to-do`, `status:in-progress`, `status:in-review`, `status:done`, etc.
+   - **Complex Implementation Requirements**:
+     - Check if labels exist in Gitea repository (`GET /repos/{owner}/{repo}/labels`)
+     - Create missing labels with consistent colors (`POST /repos/{owner}/{repo}/labels`)
+     - Extract label IDs from responses (Gitea requires numeric IDs, not names)
+     - Add labels to issues using IDs (`POST /repos/{owner}/{repo}/issues/{issue}/labels`)
+     - Remove old labels when priority/status changes
+     - Handle permission issues (repository admin rights needed for label creation)
+     - Manage label conflicts and manual deletions
+     - Define consistent color scheme for all label types
+   - **Considerations**:
+     - More complex than GitHub (which auto-creates labels by name)
+     - Requires multiple API calls per sync operation
+     - Needs fallback to description-based sync if label operations fail
+     - Should be optional feature due to complexity
+
+3. **Link Types & Features**
    - **Integration Links**: Automatic sync with Gitea/GitHub
    - **Documentation Links**: With documentation icon
    - **Reference Links**: Wikipedia, Google, etc. with appropriate icons
@@ -279,12 +412,12 @@ CREATE TABLE "external_links" (
    - Link favicons and previews
    - Bulk link operations
 
-2. **Webhook Event Handlers**
+4. **Webhook Event Handlers**
    - Implement issue opened/closed handlers
    - Implement issue edited handlers
    - Add webhook signature verification
 
-3. **Enhanced Synchronization**
+5. **Enhanced Synchronization**
    - Bidirectional comment sync
    - Label synchronization
    - Assignee mapping
@@ -350,7 +483,6 @@ CREATE TABLE "external_links" (
 3. **Synchronization**:
    - Tasks created in Kaneo will create corresponding Gitea issues
    - Status changes in Kaneo will update Gitea issue states (open/closed)
-   - Priority changes will add comments to Gitea issues
    - Title and description updates will be reflected in Gitea issues
    - Label changes will synchronize to Gitea with "kaneo:" prefix
    - Assignee changes will add comments to Gitea issues
@@ -402,3 +534,6 @@ CREATE TABLE "external_links" (
 5. **Environment**: Local Gitea running on Docker, accessible at localhost:3001
 
 **Ready for continued development and production deployment! 🎉**
+
+**Last Updated:** August 9, 2025
+**Consolidated documentation:** Merged status sync improvements and external links system updates

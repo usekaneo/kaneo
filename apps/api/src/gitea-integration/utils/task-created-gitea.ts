@@ -40,18 +40,26 @@ export async function handleTaskCreated({
     }
 
     // Create issue in Gitea
-    const issueBody = `**Task created in Kaneo**
+    const statusDisplayNames: Record<string, string> = {
+      "to-do": "To Do",
+      "in-progress": "In Progress",
+      "in-review": "In Review",
+      done: "Done",
+      archived: "Archived",
+      planned: "Planned",
+    };
 
-**Description:** ${description || "No description provided"}
+    const statusDisplay = statusDisplayNames[status] || status;
+    const shouldBeClosed = status === "done" || status === "archived";
 
-**Details:**
-- Task ID: ${taskId}
-- Status: ${status}
-- Priority: ${priority || "Not set"}
-- Assigned to: ${userEmail || "Unassigned"}
+    const issueBody = `${description || "No description provided"}
 
 ---
-*This issue was automatically created from Kaneo task management system.*`;
+Task id on kaneo: ${taskId}
+Status: ${statusDisplay}
+Priority: ${priority || "Not set"}
+Assignee: ${userEmail || "Unassigned"}
+Updated at: ${new Date().toISOString()}`;
 
     const createdIssue = await giteaApiCall<{
       id: number;
@@ -65,6 +73,30 @@ export async function handleTaskCreated({
         body: issueBody,
       }),
     });
+
+    // If the task status requires a closed issue, update it after creation
+    if (shouldBeClosed) {
+      try {
+        await giteaApiCall(
+          client,
+          `repos/${client.owner}/${client.repo}/issues/${createdIssue.number}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify({
+              state: "closed",
+            }),
+          },
+        );
+        console.log(
+          `Closed Gitea issue #${createdIssue.number} to match task status: ${statusDisplay}`,
+        );
+      } catch (error) {
+        console.error(
+          `Failed to close Gitea issue #${createdIssue.number}:`,
+          error,
+        );
+      }
+    }
 
     // Create external link to the Gitea issue instead of updating description
     await createIntegrationLinkHybrid({
