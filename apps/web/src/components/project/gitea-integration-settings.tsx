@@ -1,4 +1,4 @@
-import { GiteaWebhookInfo } from "@/components/gitea-integration/gitea-webhook-info";
+import { LazyGiteaWebhookInfo } from "@/components/gitea-integration/lazy-gitea-webhook-info";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -630,7 +630,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       )}
 
       {/* Webhook Information */}
-      {isConnected && <GiteaWebhookInfo projectId={projectId} />}
+      {isConnected && <LazyGiteaWebhookInfo projectId={projectId} />}
     </div>
   );
 }

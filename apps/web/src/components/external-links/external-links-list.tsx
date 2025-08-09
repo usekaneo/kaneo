@@ -13,12 +13,12 @@ import type {
 } from "../../types/external-links";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { ExternalLinkDialog } from "./external-link-dialog";
 import {
   ExternalLinkIcon,
   getExternalLinkTypeColor,
   getExternalLinkTypeLabel,
 } from "./external-link-icon";
+import { LazyExternalLinkDialog } from "./lazy-external-link-dialog";
 
 interface ExternalLinksListProps {
   taskId: string;
@@ -182,7 +182,7 @@ export function ExternalLinksList({ taskId }: ExternalLinksListProps) {
         )}
       </div>
 
-      <ExternalLinkDialog
+      <LazyExternalLinkDialog
         isOpen={isDialogOpen}
         onClose={handleDialogClose}
         taskId={taskId}
