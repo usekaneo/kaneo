@@ -1,64 +1,39 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "motion/react";
-import Image from "next/image";
+import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 
-export default function LaptopAnimation() {
+export default function DemoSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const rotateX = useTransform(scrollYProgress, [0, 0.5], [20, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1.05, 1]);
-  const y = useTransform(scrollYProgress, [0, 0.5], [50, 0]);
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
 
   return (
-    <motion.div
-      ref={containerRef}
-      style={{
-        rotateX,
-        scale,
-        y,
-      }}
-      className="max-w-5xl mx-auto h-[450px] sm:h-[600px] w-full border-4 border-zinc-700 dark:border-zinc-600 p-2 sm:p-6 bg-zinc-800 dark:bg-zinc-900 rounded-[30px] shadow-2xl"
-    >
-      <div className="h-full w-full overflow-hidden rounded-2xl bg-white dark:bg-zinc-900">
-        <Image
-          src="https://assets.kaneo.app/board-light.png"
-          alt="Kaneo board interface - Light mode"
-          width={1920}
-          height={1080}
-          className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] hidden sm:block dark:hidden"
-        />
-        <Image
-          src="https://assets.kaneo.app/board-dark.png"
-          alt="Kaneo board interface - Dark mode"
-          width={1920}
-          height={1080}
-          className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] hidden sm:dark:block"
-        />
-
-        <div className="relative h-full block sm:hidden">
-          <Image
-            src="https://assets.kaneo.app/board-light-mobile.png"
-            alt="Kaneo board interface mobile - Light mode"
-            width={750}
-            height={1334}
-            className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] block dark:hidden"
-          />
-          <Image
-            src="https://assets.kaneo.app/board-dark-mobile.png"
-            alt="Kaneo board interface mobile - Dark mode"
-            width={750}
-            height={1334}
-            className="object-cover h-full w-full object-left-top rounded-lg transition-transform duration-200 hover:scale-[1.02] hidden dark:block"
-          />
-        </div>
+    <div ref={containerRef} className="relative w-full">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={
+            isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }
+          }
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="relative"
+        >
+          {/* Video container with clean borders */}
+          <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 shadow-2xl border border-zinc-200 dark:border-zinc-700">
+            {/* biome-ignore lint/a11y/useMediaCaption: we don't need a caption */}
+            <video
+              src="https://assets.kaneo.app/demo.mp4"
+              controls
+              loop
+              playsInline
+              preload="metadata"
+              className="w-full h-full object-cover"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 }

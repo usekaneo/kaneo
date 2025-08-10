@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 export const metadata: Metadata = {
   title: "Kaneo - Project management made simple",
   description:
-    "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
+    "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com. Features kanban boards, time tracking, Gantt charts, and team collaboration. Docker deployment in 5 minutes.",
   alternates: {
     canonical: "https://kaneo.app",
   },
@@ -18,14 +18,14 @@ export const metadata: Metadata = {
     url: "https://kaneo.app",
     title: "Kaneo - Project management made simple",
     description:
-      "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
+      "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com with kanban boards, time tracking, and team collaboration.",
     siteName: "Kaneo",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Kaneo - Project management made simple",
+        alt: "Kaneo - Free Open Source Project Management Software",
       },
     ],
   },
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Kaneo - Project management made simple",
     description:
-      "An open source project management platform focused on simplicity and efficiency. Self-host it, customize it, make it yours.",
+      "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com with kanban boards, time tracking, and team collaboration.",
     images: ["/og-image.png"],
     creator: "@usekaneo",
   },

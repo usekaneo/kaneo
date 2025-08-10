@@ -1,34 +1,84 @@
-import { source } from "@/lib/source";
 import type { MetadataRoute } from "next";
 
-export const revalidate = false;
+export const dynamic = "force-static";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const url = (path: string): string =>
-    new URL(path, "https://kaneo.app").toString();
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = "https://kaneo.app";
 
-  return [
+  const staticPages = [
     {
-      url: url("/"),
-      changeFrequency: "daily",
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
       priority: 1,
     },
     {
-      url: url("/docs"),
-      changeFrequency: "daily",
+      url: `${baseUrl}/docs`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/docs/integrations/github`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
       priority: 0.8,
     },
-    ...(await Promise.all(
-      source.getPages().map((page) => {
-        const { lastModified } = page.data;
-
-        return {
-          url: url(page.url),
-          lastModified: lastModified ? new Date(lastModified) : undefined,
-          changeFrequency: "daily",
-          priority: 0.5,
-        } as MetadataRoute.Sitemap[number];
-      }),
-    )),
+    {
+      url: `${baseUrl}/docs/deployments/nginx`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/docs/deployments/traefik`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/docs/deployments/kubernetes`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/docs/terminology`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/docs/terminology/projects`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/docs/terminology/workspaces`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/docs/terminology/tasks`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/docs/roadmap`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/docs/alternatives`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.9,
+    },
   ];
+
+  return staticPages;
 }

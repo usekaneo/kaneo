@@ -1,6 +1,6 @@
 import { ArrowRight, ExternalLink, Sparkles, Terminal } from "lucide-react";
 import Link from "next/link";
-import LaptopContainer from "./laptop-container";
+import DemoSection from "./laptop-animation";
 
 export default function Hero() {
   return (
@@ -87,8 +87,8 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="mt-16 sm:mt-24 min-h-3/4 animate-fade-in-delay-3">
-          <LaptopContainer />
+        <div className="mt-16 sm:mt-24 animate-fade-in-delay-3">
+          <DemoSection />
         </div>
       </div>
     </div>
