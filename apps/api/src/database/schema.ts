@@ -195,3 +195,44 @@ export const githubIntegrationTable = pgTable("github_integration", {
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
+
+export const giteaIntegrationTable = pgTable("gitea_integration", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => projectTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  repositoryOwner: text("repository_owner").notNull(),
+  repositoryName: text("repository_name").notNull(),
+  giteaUrl: text("gitea_url").notNull(),
+  accessToken: text("access_token"),
+  webhookSecret: text("webhook_secret"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const externalLinksTable = pgTable("external_links", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  taskId: text("task_id")
+    .notNull()
+    .references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  type: text("type").notNull(), // 'gitea_integration' | 'github_integration' | 'documentation' | 'reference' | 'design' | 'ticket' | 'custom'
+  title: text("title").notNull(),
+  url: text("url").notNull(),
+  externalId: text("external_id"), // Issue number/ID for integrations
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  createdBy: text("created_by").references(() => userTable.email, {
+    onDelete: "set null",
+    onUpdate: "cascade",
+  }),
+});

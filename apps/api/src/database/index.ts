@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import {
   activityTableRelations,
+  giteaIntegrationTableRelations,
   githubIntegrationTableRelations,
   labelTableRelations,
   notificationTableRelations,
@@ -38,6 +39,7 @@ const db = drizzle(pool, {
     labelTableRelations,
     notificationTableRelations,
     githubIntegrationTableRelations,
+    giteaIntegrationTableRelations,
   },
 });
 
