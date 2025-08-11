@@ -15,7 +15,7 @@
     "lint": "biome check --write ."
   },
   "dependencies": {
-    "@hono/node-server": "^1.14.4",
+    "@hono/node-server": "^1.18.1",
     "@hono/zod-validator": "^0.7.2",
     "@octokit/webhooks": "^14.1.1",
     "@oslojs/crypto": "^1.0.1",
