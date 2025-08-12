@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useSignUp from "@/hooks/mutations/use-sign-up";
+import { authClient } from "@/lib/auth-client";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
@@ -16,7 +16,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
-import useAuth from "../providers/auth-provider/hooks/use-auth";
 
 export type SignUpFormValues = {
   email: string;
@@ -32,7 +31,7 @@ const signUpSchema = z.object({
 
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser } = useAuth();
+  const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
   const form = useForm<SignUpFormValues>({
     resolver: standardSchemaResolver(signUpSchema),
@@ -42,23 +41,29 @@ export function SignUpForm() {
       name: "",
     },
   });
-  const { mutateAsync } = useSignUp();
 
   const onSubmit = async (data: SignUpFormValues) => {
+    setIsPending(true);
     try {
-      const user = await mutateAsync({
+      const result = await authClient.signUp.email({
         email: data.email,
         name: data.name,
         password: data.password,
       });
 
-      setUser(user);
+      if (result.error) {
+        toast.error(result.error.message || "Failed to sign up");
+        return;
+      }
 
+      toast.success("Account created successfully");
       setTimeout(() => {
         history.push("/dashboard");
       }, 500);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to sign up");
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -139,9 +144,10 @@ export function SignUpForm() {
 
         <Button
           type="submit"
+          disabled={isPending}
           className="w-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 mt-6"
         >
-          Sign Up
+          {isPending ? "Creating Account..." : "Sign Up"}
         </Button>
       </form>
     </Form>

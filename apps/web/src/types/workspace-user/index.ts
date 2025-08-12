@@ -1,5 +1,5 @@
 export type WorkspaceUser = {
-  userEmail: string | null;
+  userId: string | null;
   userName: string | null;
   joinedAt: string;
   status: string;

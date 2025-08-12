@@ -7,7 +7,7 @@ import { Route } from "@/routes/dashboard/workspace/$workspaceId/project/$projec
 import { formatDistanceToNow } from "date-fns";
 import { History, MessageSquare, Pencil, PlusCircle } from "lucide-react";
 import { useState } from "react";
-import useAuth from "../providers/auth-provider/hooks/use-auth";
+import { useAuth } from "../providers/auth-provider/hooks/use-auth";
 import TaskComment from "./task-comment";
 
 function TaskActivities() {
@@ -18,10 +18,10 @@ function TaskActivities() {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
 
   const handleDeleteComment = (activityId: string) => {
-    if (user?.email) {
+    if (user?.id) {
       deleteComment({
         id: activityId,
-        userEmail: user.email,
+        userId: user.id,
       });
     }
   };
@@ -32,7 +32,9 @@ function TaskActivities() {
         <div key={activity.id} className="flex items-start gap-4">
           <div className="relative">
             <Avatar className="w-8 h-8">
-              <AvatarFallback>{activity.userEmail.charAt(0)}</AvatarFallback>
+              <AvatarFallback>
+                {activity.userId?.charAt(0) || "U"}
+              </AvatarFallback>
             </Avatar>
             <div
               className={cn(
@@ -58,7 +60,7 @@ function TaskActivities() {
           <div className="flex-1 flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-zinc-900 dark:text-zinc-400">
-                {activity.userEmail}
+                {activity.userId}
               </span>
               <span className="text-xs text-zinc-500 dark:text-zinc-400">
                 {formatDistanceToNow(activity.createdAt)} ago

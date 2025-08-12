@@ -2,12 +2,12 @@ import { eq, or } from "drizzle-orm";
 import db from "../../database";
 import { workspaceTable, workspaceUserTable } from "../../database/schema";
 
-async function getWorkspaces(userEmail: string) {
+async function getWorkspaces(userId: string) {
   const workspaces = await db
     .select({
       id: workspaceTable.id,
       name: workspaceTable.name,
-      ownerEmail: workspaceTable.ownerEmail,
+      ownerId: workspaceTable.ownerId,
       createdAt: workspaceTable.createdAt,
       description: workspaceTable.description,
     })
@@ -18,14 +18,14 @@ async function getWorkspaces(userEmail: string) {
     )
     .where(
       or(
-        eq(workspaceTable.ownerEmail, userEmail),
-        eq(workspaceUserTable.userEmail, userEmail),
+        eq(workspaceTable.ownerId, userId),
+        eq(workspaceUserTable.userId, userId),
       ),
     )
     .groupBy(
       workspaceTable.id,
       workspaceTable.name,
-      workspaceTable.ownerEmail,
+      workspaceTable.ownerId,
       workspaceTable.description,
     );
 

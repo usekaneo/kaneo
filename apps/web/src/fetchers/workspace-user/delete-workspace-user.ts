@@ -10,11 +10,11 @@ export type DeleteWorkspaceUserRequest = InferRequestType<
 
 async function deleteWorkspaceUser({
   workspaceId,
-  userEmail,
+  userId,
 }: DeleteWorkspaceUserRequest) {
   const response = await client["workspace-user"][":workspaceId"].$delete({
     param: { workspaceId },
-    query: { userEmail },
+    query: { userId },
   });
 
   if (!response.ok) {

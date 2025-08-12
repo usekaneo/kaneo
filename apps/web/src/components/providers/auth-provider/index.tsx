@@ -1,44 +1,44 @@
-import useGetMe from "@/hooks/queries/use-get-me";
-import type { LoggedInUser } from "@/types/user";
+import { authClient } from "@/lib/auth-client";
+import type { User } from "@/types/user";
 import {
-  type Dispatch,
   type PropsWithChildren,
-  type SetStateAction,
   createContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 import { ErrorDisplay } from "../../ui/error-display";
 import { LoadingSkeleton } from "../../ui/loading-skeleton";
 
 export const AuthContext = createContext<{
-  user: LoggedInUser | null | undefined;
-  setUser: Dispatch<SetStateAction<LoggedInUser | null | undefined>>;
+  user: User | null | undefined;
+  isLoading: boolean;
 }>({
   user: undefined,
-  setUser: () => undefined,
+  isLoading: true,
 });
 
 function AuthProvider({ children }: PropsWithChildren) {
-  const [user, setUser] = useState<LoggedInUser | undefined | null>(undefined);
-  const { data, isFetching, error } = useGetMe();
+  const [user, setUserState] = useState<User | null | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (data?.user === null) {
-      setUser(null);
-    } else if (data?.user) {
-      setUser({ ...data?.user });
-    }
-  }, [data]);
+    const getSession = async () => {
+      try {
+        const session = await authClient.getSession();
+        setUserState(session.data?.user || null);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err : new Error("Failed to get session"),
+        );
+        setUserState(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const memoizedValues = useMemo(
-    () => ({
-      user,
-      setUser,
-    }),
-    [user],
-  );
+    getSession();
+  }, []);
 
   if (error) {
     return (
@@ -50,12 +50,12 @@ function AuthProvider({ children }: PropsWithChildren) {
     );
   }
 
-  if (isFetching || user === undefined) {
+  if (isLoading) {
     return <LoadingSkeleton />;
   }
 
   return (
-    <AuthContext.Provider value={memoizedValues}>
+    <AuthContext.Provider value={{ user, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

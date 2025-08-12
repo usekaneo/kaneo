@@ -13,12 +13,12 @@ import markNotificationAsRead from "./controllers/mark-notification-as-read";
 
 const notification = new Hono<{
   Variables: {
-    userEmail: string;
+    userId: string;
   };
 }>()
   .get("/", async (c) => {
-    const userEmail = c.get("userEmail");
-    const notifications = await getNotifications(userEmail);
+    const userId = c.get("userId");
+    const notifications = await getNotifications(userId);
     return c.json(notifications);
   })
   .post(
@@ -26,7 +26,7 @@ const notification = new Hono<{
     zValidator(
       "json",
       z.object({
-        userEmail: z.string(),
+        userId: z.string(),
         title: z.string(),
         content: z.string().optional(),
         type: z.string().optional(),
@@ -35,11 +35,11 @@ const notification = new Hono<{
       }),
     ),
     async (c) => {
-      const { userEmail, title, content, type, resourceId, resourceType } =
+      const { userId, title, content, type, resourceId, resourceType } =
         c.req.valid("json");
 
       const notification = await createNotification({
-        userEmail,
+        userId,
         title,
         content,
         type,
@@ -60,13 +60,13 @@ const notification = new Hono<{
     },
   )
   .patch("/read-all", async (c) => {
-    const userEmail = c.get("userEmail");
-    const result = await markAllNotificationsAsRead(userEmail);
+    const userId = c.get("userId");
+    const result = await markAllNotificationsAsRead(userId);
     return c.json(result);
   })
   .delete("/clear-all", async (c) => {
-    const userEmail = c.get("userEmail");
-    const result = await clearNotifications(userEmail);
+    const userId = c.get("userId");
+    const result = await clearNotifications(userId);
     return c.json(result);
   });
 
@@ -74,21 +74,21 @@ subscribeToEvent(
   "task.created",
   async ({
     taskId,
-    userEmail,
+    userId,
     title,
   }: {
     taskId: string;
-    userEmail: string;
+    userId: string;
     title?: string;
     type: string;
     content: string;
   }) => {
-    if (!userEmail || !taskId) {
+    if (!userId || !taskId) {
       return;
     }
 
     await createNotification({
-      userEmail,
+      userId,
       title: "New Task Created",
       content: title ? `Task "${title}" was created` : "A new task was created",
       type: "task",
@@ -102,15 +102,15 @@ subscribeToEvent(
   "workspace.created",
   async ({
     workspaceId,
-    ownerEmail,
+    ownerId,
     workspaceName,
-  }: { workspaceId: string; ownerEmail: string; workspaceName: string }) => {
-    if (!workspaceId || !ownerEmail) {
+  }: { workspaceId: string; ownerId: string; workspaceName: string }) => {
+    if (!workspaceId || !ownerId) {
       return;
     }
 
     await createNotification({
-      userEmail: ownerEmail,
+      userId: ownerId,
       title: `Workspace "${workspaceName}" created`,
       type: "workspace",
       resourceId: workspaceId,
@@ -123,23 +123,23 @@ subscribeToEvent(
   "task.status_changed",
   async ({
     taskId,
-    userEmail,
+    userId,
     oldStatus,
     newStatus,
     title,
   }: {
     taskId: string;
-    userEmail: string | null;
+    userId: string | null;
     oldStatus: string;
     newStatus: string;
     title: string;
   }) => {
-    if (!taskId || !userEmail) {
+    if (!taskId || !userId) {
       return;
     }
 
     await createNotification({
-      userEmail,
+      userId,
       title: `Task "${title}" moved from ${oldStatus.replace(/-/g, " ")} to ${newStatus.replace(/-/g, " ")}`,
       type: "task",
       resourceId: taskId,
@@ -164,7 +164,7 @@ subscribeToEvent(
     }
 
     await createNotification({
-      userEmail: newAssignee,
+      userId: newAssignee,
       title: "Task Assigned to You",
       content: `You have been assigned to task "${title}"`,
       type: "task",
@@ -179,15 +179,15 @@ subscribeToEvent(
   async ({
     timeEntryId,
     taskId,
-    userEmail,
+    userId,
   }: {
     timeEntryId: string;
     taskId: string;
-    userEmail: string;
+    userId: string;
     type: string;
     content: string;
   }) => {
-    if (!timeEntryId || !taskId || !userEmail) {
+    if (!timeEntryId || !taskId || !userId) {
       return;
     }
 
@@ -197,7 +197,7 @@ subscribeToEvent(
 
     if (task) {
       await createNotification({
-        userEmail,
+        userId,
         title: "Time Tracking Started",
         content: `You started tracking time for task "${task.title}"`,
         type: "time-entry",

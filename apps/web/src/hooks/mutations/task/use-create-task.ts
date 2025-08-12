@@ -8,7 +8,7 @@ function useCreateTask() {
     mutationFn: ({
       title,
       description,
-      userEmail,
+      userId,
       projectId,
       status,
       dueDate,
@@ -18,7 +18,7 @@ function useCreateTask() {
         title,
         description,
         projectId,
-        userEmail ?? "",
+        userId ?? "",
         status,
         new Date(dueDate),
         priority,

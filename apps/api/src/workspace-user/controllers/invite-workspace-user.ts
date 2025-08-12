@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceTable, workspaceUserTable } from "../../database/schema";
 
-async function inviteWorkspaceUser(workspaceId: string, userEmail: string) {
+async function inviteWorkspaceUser(workspaceId: string, userId: string) {
   const [workspace] = await db
     .select()
     .from(workspaceTable)
@@ -21,7 +21,7 @@ async function inviteWorkspaceUser(workspaceId: string, userEmail: string) {
     .where(
       and(
         eq(workspaceUserTable.workspaceId, workspaceId),
-        eq(workspaceUserTable.userEmail, userEmail),
+        eq(workspaceUserTable.userId, userId),
       ),
     );
 
@@ -34,7 +34,7 @@ async function inviteWorkspaceUser(workspaceId: string, userEmail: string) {
   const [invitedUser] = await db
     .insert(workspaceUserTable)
     .values({
-      userEmail,
+      userId,
       workspaceId,
     })
     .returning();

@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useSignIn from "@/hooks/mutations/use-sign-in";
+import { authClient } from "@/lib/auth-client";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
@@ -16,7 +16,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
-import useAuth from "../providers/auth-provider/hooks/use-auth";
 
 export type SignInFormValues = {
   email: string;
@@ -30,8 +29,8 @@ const signInSchema = z.object({
 
 export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
-  const { setUser } = useAuth();
   const form = useForm<SignInFormValues>({
     resolver: standardSchemaResolver(signInSchema),
     defaultValues: {
@@ -39,22 +38,28 @@ export function SignInForm() {
       password: "",
     },
   });
-  const { mutateAsync, isPending } = useSignIn();
 
   const onSubmit = async (data: SignInFormValues) => {
+    setIsPending(true);
     try {
-      const user = await mutateAsync({
+      const result = await authClient.signIn.email({
         email: data.email,
         password: data.password,
       });
-      setUser(user);
-      toast.success("Signed in successfully");
 
+      if (result.error) {
+        toast.error(result.error.message || "Failed to sign in");
+        return;
+      }
+
+      toast.success("Signed in successfully");
       setTimeout(() => {
         history.push("/dashboard");
       }, 500);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to sign in");
+    } finally {
+      setIsPending(false);
     }
   };
 

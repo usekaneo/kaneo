@@ -9,7 +9,7 @@ const githubApp = createGithubApp();
 
 export async function handleTaskCreated(data: {
   taskId: string;
-  userEmail: string;
+  userId: string;
   title: string;
   description: string;
   priority: string;
@@ -21,7 +21,7 @@ export async function handleTaskCreated(data: {
     return;
   }
 
-  const { taskId, userEmail, title, description, priority, status, projectId } =
+  const { taskId, userId, title, description, priority, status, projectId } =
     data;
 
   if (description?.includes("Created from GitHub issue:")) {
@@ -71,7 +71,7 @@ export async function handleTaskCreated(data: {
 - Task ID: ${taskId}
 - Status: ${status}
 - Priority: ${priority || "Not set"}
-- Assigned to: ${userEmail || "Unassigned"}
+- Assigned to: ${userId || "Unassigned"}
 
 ---
 *This issue was automatically created from Kaneo task management system.*`,

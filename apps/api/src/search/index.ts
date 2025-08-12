@@ -5,7 +5,7 @@ import globalSearch from "./controllers/global-search";
 
 const search = new Hono<{
   Variables: {
-    userEmail: string;
+    userId: string;
   };
 }>().get(
   "/",
@@ -27,14 +27,17 @@ const search = new Hono<{
       workspaceId: z.string().optional(),
       projectId: z.string().optional(),
       limit: z.coerce.number().min(1).max(50).optional().default(20),
+      userEmail: z.email().optional(),
     }),
   ),
   async (c) => {
-    const { q, type, workspaceId, projectId, limit } = c.req.valid("query");
-    const userEmail = c.get("userEmail");
+    const { q, type, workspaceId, projectId, limit, userEmail } =
+      c.req.valid("query");
+    const userId = c.get("userId");
 
     const results = await globalSearch({
       query: q,
+      userId,
       userEmail,
       type,
       workspaceId,

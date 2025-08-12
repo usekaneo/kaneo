@@ -26,14 +26,14 @@ const activity = new Hono()
       z.object({
         taskId: z.string(),
         type: z.string(),
-        userEmail: z.string(),
+        userId: z.string(),
         content: z.string(),
       }),
     ),
     async (c) => {
-      const { taskId, type, userEmail, content } = c.req.valid("json");
+      const { taskId, type, userId, content } = c.req.valid("json");
 
-      const activity = await createActivity(taskId, type, userEmail, content);
+      const activity = await createActivity(taskId, type, userId, content);
 
       return c.json(activity);
     },
@@ -45,13 +45,13 @@ const activity = new Hono()
       z.object({
         taskId: z.string(),
         content: z.string(),
-        userEmail: z.string(),
+        userId: z.string(),
       }),
     ),
     async (c) => {
-      const { taskId, content, userEmail } = c.req.valid("json");
+      const { taskId, content, userId } = c.req.valid("json");
 
-      const activity = await createComment(taskId, userEmail, content);
+      const activity = await createComment(taskId, userId, content);
 
       return c.json(activity);
     },
@@ -63,13 +63,13 @@ const activity = new Hono()
       z.object({
         id: z.string(),
         content: z.string(),
-        userEmail: z.string(),
+        userId: z.string(),
       }),
     ),
     async (c) => {
-      const { id, content, userEmail } = c.req.valid("json");
+      const { id, content, userId } = c.req.valid("json");
 
-      const activity = await updateComment(userEmail, id, content);
+      const activity = await updateComment(userId, id, content);
 
       return c.json(activity);
     },
@@ -80,13 +80,13 @@ const activity = new Hono()
       "json",
       z.object({
         id: z.string(),
-        userEmail: z.string(),
+        userId: z.string(),
       }),
     ),
     async (c) => {
-      const { id, userEmail } = c.req.valid("json");
+      const { id, userId } = c.req.valid("json");
 
-      await deleteComment(userEmail, id);
+      await deleteComment(userId, id);
 
       return c.json({ message: "Comment deleted" });
     },
@@ -96,20 +96,20 @@ subscribeToEvent(
   "task.created",
   async ({
     taskId,
-    userEmail,
+    userId,
     type,
     content,
   }: {
     taskId: string;
-    userEmail: string;
+    userId: string;
     type: string;
     content: string;
   }) => {
-    if (!userEmail || !taskId || !type || !content) {
+    if (!userId || !taskId || !type || !content) {
       return;
     }
 
-    await createActivity(taskId, type, userEmail, content);
+    await createActivity(taskId, type, userId, content);
   },
 );
 

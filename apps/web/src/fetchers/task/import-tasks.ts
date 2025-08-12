@@ -6,7 +6,7 @@ export type TaskToImport = {
   status: string;
   priority?: string;
   dueDate?: string;
-  userEmail?: string | null;
+  userId?: string | null;
 };
 
 async function importTasks(projectId: string, tasks: TaskToImport[]) {

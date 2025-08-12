@@ -9,7 +9,7 @@ const githubApp = createGithubApp();
 
 export async function handleTaskStatusChanged(data: {
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldStatus: string;
   newStatus: string;
 }) {

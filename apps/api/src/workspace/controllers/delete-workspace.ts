@@ -3,17 +3,17 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceTable } from "../../database/schema";
 
-async function deleteWorkspace(userEmail: string, workspaceId: string) {
+async function deleteWorkspace(userId: string, workspaceId: string) {
   const [existingWorkspace] = await db
     .select({
       id: workspaceTable.id,
-      ownerEmail: workspaceTable.ownerEmail,
+      ownerId: workspaceTable.ownerId,
     })
     .from(workspaceTable)
     .where(
       and(
         eq(workspaceTable.id, workspaceId),
-        eq(workspaceTable.ownerEmail, userEmail),
+        eq(workspaceTable.ownerId, userId),
       ),
     )
     .limit(1);
@@ -32,7 +32,7 @@ async function deleteWorkspace(userEmail: string, workspaceId: string) {
     .returning({
       id: workspaceTable.id,
       name: workspaceTable.name,
-      ownerEmail: workspaceTable.ownerEmail,
+      ownerId: workspaceTable.ownerId,
       createdAt: workspaceTable.createdAt,
     });
 

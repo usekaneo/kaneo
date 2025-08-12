@@ -11,7 +11,7 @@ import updateTask from "./controllers/update-task";
 
 const task = new Hono<{
   Variables: {
-    userEmail: string;
+    userId: string;
   };
 }>()
   .get(
@@ -35,17 +35,17 @@ const task = new Hono<{
         dueDate: z.string(),
         priority: z.string(),
         status: z.string(),
-        userEmail: z.string().optional(),
+        userId: z.string().optional(),
       }),
     ),
     async (c) => {
       const { projectId } = c.req.param();
-      const { title, description, dueDate, priority, status, userEmail } =
+      const { title, description, dueDate, priority, status, userId } =
         c.req.valid("json");
 
       const task = await createTask({
         projectId,
-        userEmail,
+        userId,
         title,
         description,
         dueDate: new Date(dueDate),
@@ -76,7 +76,7 @@ const task = new Hono<{
         status: z.string(),
         projectId: z.string(),
         position: z.number(),
-        userEmail: z.string().optional(),
+        userId: z.string().optional(),
       }),
     ),
     async (c) => {
@@ -89,7 +89,7 @@ const task = new Hono<{
         status,
         projectId,
         position,
-        userEmail,
+        userId,
       } = c.req.valid("json");
 
       const task = await updateTask(
@@ -101,7 +101,7 @@ const task = new Hono<{
         description,
         priority,
         position,
-        userEmail,
+        userId,
       );
 
       return c.json(task);
@@ -131,7 +131,7 @@ const task = new Hono<{
             status: z.string(),
             priority: z.string().optional(),
             dueDate: z.string().optional(),
-            userEmail: z.string().nullable().optional(),
+            userId: z.string().nullable().optional(),
           }),
         ),
       }),

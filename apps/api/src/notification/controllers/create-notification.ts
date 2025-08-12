@@ -4,14 +4,14 @@ import { notificationTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 
 async function createNotification({
-  userEmail,
+  userId,
   title,
   content,
   type,
   resourceId,
   resourceType,
 }: {
-  userEmail: string;
+  userId: string;
   title: string;
   content?: string;
   type?: string;
@@ -22,7 +22,7 @@ async function createNotification({
     .insert(notificationTable)
     .values({
       id: createId(),
-      userEmail,
+      userId,
       title,
       content: content || "",
       type: type || "info",
@@ -34,7 +34,7 @@ async function createNotification({
   if (notification) {
     await publishEvent("notification.created", {
       notificationId: notification.id,
-      userEmail,
+      userId,
     });
   }
 

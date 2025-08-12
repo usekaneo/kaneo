@@ -1,9 +1,15 @@
-import signOut from "@/fetchers/user/sign-out";
+import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 
 function useSignOut() {
   return useMutation({
-    mutationFn: signOut,
+    mutationFn: async () => {
+      const result = await authClient.signOut();
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+      return result.data;
+    },
   });
 }
 

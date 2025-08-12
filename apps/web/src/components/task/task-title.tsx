@@ -31,7 +31,7 @@ function TaskTitle({
       await updateTask({
         ...task,
         title: value,
-        userEmail: task.userEmail || "",
+        userId: task.userId || "",
         status: task.status || "",
         dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
         priority: task.priority || "",

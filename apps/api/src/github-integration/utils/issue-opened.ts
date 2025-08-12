@@ -57,7 +57,7 @@ export const handleIssueOpened: HandlerFunction<
       status: taskStatus,
       priority: taskPriority,
       dueDate: new Date(),
-      userEmail: undefined,
+      userId: undefined,
     });
 
     const existingLabels =

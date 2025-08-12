@@ -6,7 +6,7 @@ async function getActiveWorkspaceUsers(workspaceId: string) {
   const activeWorkspaceUsers = await db
     .select({
       id: workspaceUserTable.id,
-      userEmail: workspaceUserTable.userEmail,
+      userId: workspaceUserTable.userId,
       userName: userTable.name,
       role: workspaceUserTable.role,
       status: workspaceUserTable.status,
@@ -18,7 +18,7 @@ async function getActiveWorkspaceUsers(workspaceId: string) {
         eq(workspaceUserTable.status, "active"),
       ),
     )
-    .innerJoin(userTable, eq(workspaceUserTable.userEmail, userTable.email));
+    .innerJoin(userTable, eq(workspaceUserTable.userId, userTable.id));
 
   return activeWorkspaceUsers;
 }

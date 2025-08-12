@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  accountTable,
   activityTable,
   githubIntegrationTable,
   labelTable,
@@ -9,12 +10,14 @@ import {
   taskTable,
   timeEntryTable,
   userTable,
+  verificationTable,
   workspaceTable,
   workspaceUserTable,
 } from "./schema";
 
 export const userTableRelations = relations(userTable, ({ many }) => ({
   sessions: many(sessionTable),
+  accounts: many(accountTable),
   workspaces: many(workspaceTable),
   workspaceMemberships: many(workspaceUserTable),
   assignedTasks: many(taskTable),
@@ -30,12 +33,24 @@ export const sessionTableRelations = relations(sessionTable, ({ one }) => ({
   }),
 }));
 
+export const accountTableRelations = relations(accountTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [accountTable.userId],
+    references: [userTable.id],
+  }),
+}));
+
+export const verificationTableRelations = relations(
+  verificationTable,
+  () => ({}),
+);
+
 export const workspaceTableRelations = relations(
   workspaceTable,
   ({ one, many }) => ({
     owner: one(userTable, {
-      fields: [workspaceTable.ownerEmail],
-      references: [userTable.email],
+      fields: [workspaceTable.ownerId],
+      references: [userTable.id],
     }),
     members: many(workspaceUserTable),
     projects: many(projectTable),
@@ -48,6 +63,10 @@ export const workspaceUserTableRelations = relations(
     workspace: one(workspaceTable, {
       fields: [workspaceUserTable.workspaceId],
       references: [workspaceTable.id],
+    }),
+    user: one(userTable, {
+      fields: [workspaceUserTable.userId],
+      references: [userTable.id],
     }),
   }),
 );
@@ -70,8 +89,8 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
     references: [projectTable.id],
   }),
   assignee: one(userTable, {
-    fields: [taskTable.userEmail],
-    references: [userTable.email],
+    fields: [taskTable.userId],
+    references: [userTable.id],
   }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
@@ -84,8 +103,8 @@ export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({
     references: [taskTable.id],
   }),
   user: one(userTable, {
-    fields: [timeEntryTable.userEmail],
-    references: [userTable.email],
+    fields: [timeEntryTable.userId],
+    references: [userTable.id],
   }),
 }));
 
@@ -95,8 +114,8 @@ export const activityTableRelations = relations(activityTable, ({ one }) => ({
     references: [taskTable.id],
   }),
   user: one(userTable, {
-    fields: [activityTable.userEmail],
-    references: [userTable.email],
+    fields: [activityTable.userId],
+    references: [userTable.id],
   }),
 }));
 
@@ -111,8 +130,8 @@ export const notificationTableRelations = relations(
   notificationTable,
   ({ one }) => ({
     user: one(userTable, {
-      fields: [notificationTable.userEmail],
-      references: [userTable.email],
+      fields: [notificationTable.userId],
+      references: [userTable.id],
     }),
   }),
 );

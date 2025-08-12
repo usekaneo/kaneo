@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import {
+  accountTableRelations,
   activityTableRelations,
   githubIntegrationTableRelations,
   labelTableRelations,
@@ -11,6 +12,7 @@ import {
   taskTableRelations,
   timeEntryTableRelations,
   userTableRelations,
+  verificationTableRelations,
   workspaceTableRelations,
   workspaceUserTableRelations,
 } from "./relations";
@@ -29,6 +31,8 @@ const db = drizzle(pool, {
     ...schema,
     userTableRelations,
     sessionTableRelations,
+    accountTableRelations,
+    verificationTableRelations,
     workspaceTableRelations,
     workspaceUserTableRelations,
     projectTableRelations,

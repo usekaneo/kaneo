@@ -7,7 +7,7 @@ async function getTimeEntriesByTaskId(taskId: string) {
     .select({
       id: timeEntryTable.id,
       taskId: timeEntryTable.taskId,
-      userEmail: timeEntryTable.userEmail,
+      userId: timeEntryTable.userId,
       userName: userTable.name,
       description: timeEntryTable.description,
       startTime: timeEntryTable.startTime,
@@ -16,7 +16,7 @@ async function getTimeEntriesByTaskId(taskId: string) {
       createdAt: timeEntryTable.createdAt,
     })
     .from(timeEntryTable)
-    .leftJoin(userTable, eq(timeEntryTable.userEmail, userTable.email))
+    .leftJoin(userTable, eq(timeEntryTable.userId, userTable.id))
     .where(eq(timeEntryTable.taskId, taskId))
     .orderBy(timeEntryTable.startTime);
 
