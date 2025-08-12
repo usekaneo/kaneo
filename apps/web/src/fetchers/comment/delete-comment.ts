@@ -5,9 +5,9 @@ export type DeleteCommentRequest = InferRequestType<
   (typeof client)["activity"]["comment"]["$delete"]
 >["json"];
 
-async function deleteComment({ id, userEmail }: DeleteCommentRequest) {
+async function deleteComment({ id, userId }: DeleteCommentRequest) {
   const response = await client.activity.comment.$delete({
-    json: { id, userEmail },
+    json: { id, userId },
   });
 
   if (!response.ok) {

@@ -9,22 +9,22 @@ import updateWorkspace from "./controllers/update-workspace";
 
 const workspace = new Hono<{
   Variables: {
-    userEmail: string;
+    userId: string;
   };
 }>()
   .get("/", async (c) => {
-    const userEmail = c.get("userEmail");
+    const userId = c.get("userId");
 
-    const workspaces = await getWorkspaces(userEmail);
+    const workspaces = await getWorkspaces(userId);
 
     return c.json(workspaces);
   })
   .get("/:id", zValidator("param", z.object({ id: z.string() })), async (c) => {
     const id = c.req.param("id");
 
-    const userEmail = c.get("userEmail");
+    const userId = c.get("userId");
 
-    const workspace = await getWorkspace(userEmail, id);
+    const workspace = await getWorkspace(userId, id);
 
     return c.json(workspace);
   })
@@ -34,9 +34,9 @@ const workspace = new Hono<{
     async (c) => {
       const { name } = c.req.valid("json");
 
-      const userEmail = c.get("userEmail");
+      const userId = c.get("userId");
 
-      const workspace = await createWorkspace(name, userEmail);
+      const workspace = await createWorkspace(name, userId);
 
       return c.json(workspace);
     },
@@ -48,9 +48,9 @@ const workspace = new Hono<{
       const id = c.req.param("id");
       const { name, description } = c.req.valid("json");
 
-      const userEmail = c.get("userEmail");
+      const userId = c.get("userId");
 
-      const workspace = await updateWorkspace(userEmail, id, name, description);
+      const workspace = await updateWorkspace(userId, id, name, description);
 
       return c.json(workspace);
     },
@@ -61,9 +61,9 @@ const workspace = new Hono<{
     async (c) => {
       const id = c.req.param("id");
 
-      const userEmail = c.get("userEmail");
+      const userId = c.get("userId");
 
-      const workspace = await deleteWorkspace(userEmail, id);
+      const workspace = await deleteWorkspace(userId, id);
 
       return c.json(workspace);
     },

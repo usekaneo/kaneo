@@ -2,12 +2,12 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-async function createWorkspace(name: string, ownerEmail: string) {
+async function createWorkspace(name: string, ownerId: string) {
   const [workspace] = await db
     .insert(workspaceTable)
     .values({
       name,
-      ownerEmail,
+      ownerId,
     })
     .returning();
 
@@ -20,7 +20,7 @@ async function createWorkspace(name: string, ownerEmail: string) {
   publishEvent("workspace.created", {
     workspaceId: workspace.id,
     workspaceName: workspace.name,
-    ownerEmail,
+    ownerId,
   });
 
   return workspace;

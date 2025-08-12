@@ -32,7 +32,7 @@ function TaskDescription({ setIsSaving }: TaskDescriptionProps) {
     await updateTask({
       ...task,
       description: value,
-      userEmail: task.userEmail || "",
+      userId: task.userId || "",
       title: task.title || "",
       status: task.status || "",
       dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,

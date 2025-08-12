@@ -82,8 +82,8 @@ export default function TaskCardContextMenuContent({
 
   const usersOptions = useMemo(() => {
     return workspaceUsers?.map((user) => ({
-      label: user.userName ?? user.userEmail,
-      value: user.userEmail,
+      label: user.userName ?? user.userId,
+      value: user.userId,
     }));
   }, [workspaceUsers]);
 
@@ -130,7 +130,7 @@ export default function TaskCardContextMenuContent({
       priority: task.priority as "low" | "medium" | "high" | "urgent",
       status: task.status,
       title: task.title,
-      userEmail: task.userEmail ?? "",
+      userId: task.userId ?? "",
       projectId,
     };
 
@@ -296,9 +296,9 @@ export default function TaskCardContextMenuContent({
               {usersOptions.map((user) => (
                 <ContextMenuCheckboxItem
                   key={user.value}
-                  checked={task.userEmail === user.value}
+                  checked={task.userId === user.value}
                   onCheckedChange={() =>
-                    handleChange("userEmail", user.value ?? "")
+                    handleChange("userId", user.value ?? "")
                   }
                   className="flex items-center justify-between cursor-pointer"
                 >
@@ -306,8 +306,8 @@ export default function TaskCardContextMenuContent({
                 </ContextMenuCheckboxItem>
               ))}
               <ContextMenuCheckboxItem
-                checked={!task.userEmail}
-                onCheckedChange={() => handleChange("userEmail", "")}
+                checked={!task.userId}
+                onCheckedChange={() => handleChange("userId", "")}
                 className="flex items-center justify-between cursor-pointer"
               >
                 Unassigned

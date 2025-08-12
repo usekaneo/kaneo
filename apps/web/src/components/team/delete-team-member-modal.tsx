@@ -6,11 +6,11 @@ import { Trash2, X } from "lucide-react";
 import { Button } from "../ui/button";
 
 function DeleteTeamMemberModal({
-  userEmail,
+  userId,
   open,
   onClose,
 }: {
-  userEmail: string;
+  userId: string;
   open: boolean;
   onClose: () => void;
 }) {
@@ -21,7 +21,7 @@ function DeleteTeamMemberModal({
   const onRemoveMember = async () => {
     await deleteWorkspaceUser({
       workspaceId,
-      userEmail,
+      userId,
     });
 
     queryClient.invalidateQueries({
@@ -50,7 +50,7 @@ function DeleteTeamMemberModal({
               <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
                 Are you sure you want to remove{" "}
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                  {userEmail}
+                  {userId}
                 </span>{" "}
                 from the team? This action cannot be undone.
               </p>

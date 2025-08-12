@@ -8,7 +8,7 @@ import updateTimeEntry from "./controllers/update-time-entry";
 
 const timeEntry = new Hono<{
   Variables: {
-    userEmail: string;
+    userId: string;
   };
 }>()
   .get(
@@ -37,11 +37,11 @@ const timeEntry = new Hono<{
     ),
     async (c) => {
       const { taskId, description, startTime } = c.req.valid("json");
-      const userEmail = c.get("userEmail");
+      const userId = c.get("userId");
 
       const timeEntry = await createTimeEntry({
         taskId,
-        userEmail,
+        userId,
         description,
         startTime: new Date(startTime),
       });

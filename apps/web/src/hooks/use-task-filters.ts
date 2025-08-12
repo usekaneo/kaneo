@@ -28,7 +28,7 @@ export function useTaskFilters(project: ProjectWithTasks | null | undefined) {
         return false;
       }
 
-      if (filters.assignee && task.userEmail !== filters.assignee) {
+      if (filters.assignee && task.userId !== filters.assignee) {
         return false;
       }
 

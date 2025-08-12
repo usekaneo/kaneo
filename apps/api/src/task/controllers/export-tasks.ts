@@ -25,12 +25,12 @@ async function exportTasks(projectId: string) {
       dueDate: taskTable.dueDate,
       position: taskTable.position,
       createdAt: taskTable.createdAt,
-      userEmail: taskTable.userEmail,
+      userId: taskTable.userId,
       assigneeName: userTable.name,
-      assigneeEmail: userTable.email,
+      assigneeId: userTable.id,
     })
     .from(taskTable)
-    .leftJoin(userTable, eq(taskTable.userEmail, userTable.email))
+    .leftJoin(userTable, eq(taskTable.userId, userTable.id))
     .where(eq(taskTable.projectId, projectId))
     .orderBy(taskTable.position);
 
@@ -47,7 +47,7 @@ async function exportTasks(projectId: string) {
       status: task.status,
       priority: task.priority || "low",
       dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
-      userEmail: task.userEmail || null,
+      userId: task.userId || null,
     })),
   };
 }

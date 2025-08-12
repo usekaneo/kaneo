@@ -1,5 +1,5 @@
 import { Editor } from "@/components/common/editor";
-import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
+import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
@@ -41,7 +41,7 @@ function TaskComment({
   });
 
   async function handleSubmit(data: z.infer<typeof commentSchema>) {
-    if (!user?.email) {
+    if (!user?.id) {
       return;
     }
 
@@ -49,7 +49,7 @@ function TaskComment({
       if (commentId) {
         await updateComment({
           id: commentId,
-          userEmail: user.email,
+          userId: user.id,
           content: data.comment,
         });
         onSubmit?.();
@@ -57,7 +57,7 @@ function TaskComment({
         await createComment({
           taskId: taskId,
           content: data.comment,
-          userEmail: user?.email,
+          userId: user?.id,
         });
         onSubmit?.();
       }

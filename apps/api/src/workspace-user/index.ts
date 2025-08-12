@@ -12,7 +12,7 @@ import updateWorkspaceUser from "./controllers/update-workspace-user";
 
 const workspaceUser = new Hono<{
   Variables: {
-    userEmail: string;
+    userId: string;
   };
 }>()
   .get("/:id", zValidator("param", z.object({ id: z.string() })), async (c) => {
@@ -28,16 +28,13 @@ const workspaceUser = new Hono<{
       "json",
       z.object({
         workspaceId: z.string(),
-        userEmail: z.string(),
+        userId: z.string(),
       }),
     ),
     async (c) => {
-      const { workspaceId, userEmail } = c.req.valid("json");
+      const { workspaceId, userId } = c.req.valid("json");
 
-      const workspaceUser = await createRootWorkspaceUser(
-        workspaceId,
-        userEmail,
-      );
+      const workspaceUser = await createRootWorkspaceUser(workspaceId, userId);
 
       return c.json(workspaceUser);
     },
@@ -56,28 +53,28 @@ const workspaceUser = new Hono<{
   .delete(
     "/:workspaceId",
     zValidator("param", z.object({ workspaceId: z.string() })),
-    zValidator("query", z.object({ userEmail: z.string() })),
+    zValidator("query", z.object({ userId: z.string() })),
     async (c) => {
       const { workspaceId } = c.req.valid("param");
-      const { userEmail } = c.req.valid("query");
+      const { userId } = c.req.valid("query");
 
       const deletedWorkspaceUser = await deleteWorkspaceUser(
         workspaceId,
-        userEmail,
+        userId,
       );
 
       return c.json(deletedWorkspaceUser);
     },
   )
   .put(
-    "/:userEmail",
-    zValidator("param", z.object({ userEmail: z.string() })),
+    "/:userId",
+    zValidator("param", z.object({ userId: z.string() })),
     zValidator("json", z.object({ status: z.string() })),
     async (c) => {
-      const { userEmail } = c.req.valid("param");
+      const { userId } = c.req.valid("param");
       const { status } = c.req.valid("json");
 
-      const updatedWorkspaceUser = await updateWorkspaceUser(userEmail, status);
+      const updatedWorkspaceUser = await updateWorkspaceUser(userId, status);
 
       return c.json(updatedWorkspaceUser);
     },
@@ -96,28 +93,28 @@ const workspaceUser = new Hono<{
   .post(
     "/:workspaceId/invite",
     zValidator("param", z.object({ workspaceId: z.string() })),
-    zValidator("json", z.object({ userEmail: z.string() })),
+    zValidator("json", z.object({ userId: z.string() })),
     async (c) => {
       const { workspaceId } = c.req.valid("param");
-      const { userEmail } = c.req.valid("json");
+      const { userId } = c.req.valid("json");
 
-      const workspaceUser = await inviteWorkspaceUser(workspaceId, userEmail);
+      const workspaceUser = await inviteWorkspaceUser(workspaceId, userId);
 
       return c.json(workspaceUser);
     },
   )
   .delete(
-    "/:workspaceId/invite/:userEmail",
+    "/:workspaceId/invite/:userId",
     zValidator(
       "param",
-      z.object({ workspaceId: z.string(), userEmail: z.string() }),
+      z.object({ workspaceId: z.string(), userId: z.string() }),
     ),
     async (c) => {
-      const { workspaceId, userEmail } = c.req.valid("param");
+      const { workspaceId, userId } = c.req.valid("param");
 
       const deletedWorkspaceUser = await deleteWorkspaceUser(
         workspaceId,
-        userEmail,
+        userId,
       );
 
       return c.json(deletedWorkspaceUser);
@@ -136,13 +133,13 @@ subscribeToEvent(
   "workspace.created",
   async ({
     workspaceId,
-    ownerEmail,
-  }: { workspaceId: string; ownerEmail: string }) => {
-    if (!workspaceId || !ownerEmail) {
+    ownerId,
+  }: { workspaceId: string; ownerId: string }) => {
+    if (!workspaceId || !ownerId) {
       return;
     }
 
-    await createRootWorkspaceUser(workspaceId, ownerEmail);
+    await createRootWorkspaceUser(workspaceId, ownerId);
   },
 );
 

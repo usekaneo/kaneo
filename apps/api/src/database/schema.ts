@@ -12,20 +12,60 @@ export const userTable = pgTable("user", {
     .$defaultFn(() => createId())
     .primaryKey(),
   name: text("name").notNull(),
-  password: text("password").notNull(),
   email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified")
+    .$defaultFn(() => false)
+    .notNull(),
+  image: text("image"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+  isAnonymous: boolean("is_anonymous"),
 });
 
 export const sessionTable = pgTable("session", {
   id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
   userId: text("user_id")
     .notNull()
-    .references(() => userTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+    .references(() => userTable.id, { onDelete: "cascade" }),
+});
+
+export const accountTable = pgTable("account", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at", { mode: "date" }),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at", {
+    mode: "date",
+  }),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const verificationTable = pgTable("verification", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
   expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const workspaceTable = pgTable("workspace", {
@@ -34,11 +74,10 @@ export const workspaceTable = pgTable("workspace", {
     .primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  ownerEmail: text("owner_email")
+  ownerId: text("owner_id")
     .notNull()
-    .references(() => userTable.email, {
+    .references(() => userTable.id, {
       onDelete: "cascade",
-      onUpdate: "cascade",
     }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
@@ -49,9 +88,12 @@ export const workspaceUserTable = pgTable("workspace_member", {
     .primaryKey(),
   workspaceId: text("workspace_id").references(() => workspaceTable.id, {
     onDelete: "cascade",
-    onUpdate: "cascade",
   }),
-  userEmail: text("user_email").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id, {
+      onDelete: "cascade",
+    }),
   role: text("role").default("member").notNull(),
   joinedAt: timestamp("joined_at", { mode: "date" }).defaultNow().notNull(),
   status: text("status").default("pending").notNull(),
@@ -87,7 +129,7 @@ export const taskTable = pgTable("task", {
     }),
   position: integer("position").default(0),
   number: integer("number").default(1),
-  userEmail: text("assignee_email").references(() => userTable.email, {
+  userId: text("assignee_id").references(() => userTable.id, {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
@@ -109,7 +151,7 @@ export const timeEntryTable = pgTable("time_entry", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  userEmail: text("user_email").references(() => userTable.email, {
+  userId: text("user_id").references(() => userTable.id, {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
@@ -132,9 +174,9 @@ export const activityTable = pgTable("activity", {
     }),
   type: text("type").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  userEmail: text("user_email")
+  userId: text("user_id")
     .notNull()
-    .references(() => userTable.email, {
+    .references(() => userTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
@@ -160,9 +202,9 @@ export const notificationTable = pgTable("notification", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
-  userEmail: text("user_email")
+  userId: text("user_id")
     .notNull()
-    .references(() => userTable.email, {
+    .references(() => userTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),

@@ -69,15 +69,15 @@ function MembersTable({ users }: { users: WorkspaceUser[] }) {
         </TableHeader>
         <TableBody>
           {users?.map((member) => (
-            <TableRow key={member.userEmail} className="cursor-pointer">
+            <TableRow key={member.userId} className="cursor-pointer">
               <TableCell className="py-3">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-5 w-5">
                     <AvatarFallback className="bg-muted text-muted-foreground font-medium text-xs">
-                      {member.userEmail?.charAt(0).toUpperCase()}
+                      {member.userId?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{member.userEmail}</span>
+                  <span className="font-medium">{member.userId}</span>
                 </div>
               </TableCell>
               <TableCell className="py-3">
@@ -143,7 +143,7 @@ function MembersTable({ users }: { users: WorkspaceUser[] }) {
 
       {selectedMember && (
         <DeleteTeamMemberModal
-          userEmail={selectedMember.userEmail ?? ""}
+          userId={selectedMember.userId ?? ""}
           open={isRemoveMemberModalOpen}
           onClose={() => {
             setIsRemoveMemberModalOpen(false);

@@ -33,7 +33,7 @@ import TaskLabels from "./task-labels";
 
 export const taskInfoSchema = z.object({
   status: z.string(),
-  userEmail: z.string(),
+  userId: z.string(),
   priority: z.string(),
   dueDate: z.date(),
 });
@@ -58,7 +58,7 @@ function TaskInfo({
   const form = useForm<z.infer<typeof taskInfoSchema>>({
     defaultValues: {
       status: task?.status || "",
-      userEmail: task?.userEmail || "",
+      userId: task?.userId || "",
       priority: task?.priority || "",
       dueDate: task?.dueDate ? new Date(task.dueDate) : new Date(),
     },
@@ -71,7 +71,7 @@ function TaskInfo({
     try {
       await updateTask({
         ...task,
-        userEmail: data.userEmail,
+        userId: data.userId,
         status: data.status || "",
         priority: data.priority || "",
         dueDate: data.dueDate.toISOString(),
@@ -150,7 +150,7 @@ function TaskInfo({
 
           <FormField
             control={form.control}
-            name="userEmail"
+            name="userId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Assign to</FormLabel>
@@ -158,7 +158,7 @@ function TaskInfo({
                   value={field.value}
                   onValueChange={(value) => {
                     field.onChange(value);
-                    handleChange({ ...form.getValues(), userEmail: value });
+                    handleChange({ ...form.getValues(), userId: value });
                   }}
                 >
                   <SelectTrigger>
@@ -168,7 +168,7 @@ function TaskInfo({
                     <SelectItem value="unassigned">Unassigned</SelectItem>
                     {workspaceUsers?.map((user) => {
                       return (
-                        <SelectItem key={user.userEmail} value={user.userEmail}>
+                        <SelectItem key={user.userId} value={user.userId}>
                           {user.userName}
                         </SelectItem>
                       );

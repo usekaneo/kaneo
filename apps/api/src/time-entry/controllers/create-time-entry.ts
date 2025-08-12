@@ -6,14 +6,14 @@ import { publishEvent } from "../../events";
 
 async function createTimeEntry({
   taskId,
-  userEmail,
+  userId,
   description,
   startTime,
   endTime,
   duration,
 }: {
   taskId: string;
-  userEmail: string;
+  userId: string;
   description?: string;
   startTime: Date;
   endTime?: Date;
@@ -24,7 +24,7 @@ async function createTimeEntry({
     .values({
       id: createId(),
       taskId,
-      userEmail,
+      userId,
       description: description || "",
       startTime,
       endTime: endTime || null,
@@ -41,7 +41,7 @@ async function createTimeEntry({
   await publishEvent("time-entry.created", {
     timeEntryId: createdTimeEntry.id,
     taskId: createdTimeEntry.taskId,
-    userEmail,
+    userId,
     type: "create",
     content: "started time tracking",
   });

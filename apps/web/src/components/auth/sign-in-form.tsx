@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useSignIn from "@/hooks/mutations/use-sign-in";
+import { authClient } from "@/lib/auth-client";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
@@ -16,7 +16,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
-import useAuth from "../providers/auth-provider/hooks/use-auth";
 
 export type SignInFormValues = {
   email: string;
@@ -30,8 +29,8 @@ const signInSchema = z.object({
 
 export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
-  const { setUser } = useAuth();
   const form = useForm<SignInFormValues>({
     resolver: standardSchemaResolver(signInSchema),
     defaultValues: {
@@ -39,22 +38,28 @@ export function SignInForm() {
       password: "",
     },
   });
-  const { mutateAsync, isPending } = useSignIn();
 
   const onSubmit = async (data: SignInFormValues) => {
+    setIsPending(true);
     try {
-      const user = await mutateAsync({
+      const result = await authClient.signIn.email({
         email: data.email,
         password: data.password,
       });
-      setUser(user);
-      toast.success("Signed in successfully");
 
+      if (result.error) {
+        toast.error(result.error.message || "Failed to sign in");
+        return;
+      }
+
+      toast.success("Signed in successfully");
       setTimeout(() => {
         history.push("/dashboard");
       }, 500);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to sign in");
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -75,6 +80,8 @@ export function SignInForm() {
                     <Input
                       className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
                       placeholder="you@example.com"
+                      type="email"
+                      autoComplete="email"
                       {...field}
                     />
                   </FormControl>
@@ -99,12 +106,17 @@ export function SignInForm() {
                         className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
                         placeholder="••••••••"
                         type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
                         {...field}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-300"
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                        aria-pressed={showPassword}
                       >
                         {showPassword ? (
                           <EyeOff size={16} />

@@ -1,8 +1,6 @@
-"use client";
-
 import { ChevronsUpDown, LogOut } from "lucide-react";
 
-import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
+import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { SettingsMenu } from "@/components/settings-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -29,7 +27,7 @@ import { toast } from "sonner";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const { mutateAsync: signOut, isPending } = useSignOut();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -44,7 +42,6 @@ export function NavUser() {
     try {
       await signOut();
       queryClient.clear();
-      setUser(null);
       setProject(undefined);
       setWorkspace(undefined);
       toast.success("Signed out successfully");
@@ -83,7 +80,9 @@ export function NavUser() {
                 <span className="truncate font-medium">
                   {user.name || "User"}
                 </span>
-                <span className="truncate text-xs">{user.email}</span>
+                {user.email && (
+                  <span className="truncate text-xs">{user.email}</span>
+                )}
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -106,7 +105,9 @@ export function NavUser() {
                   <span className="truncate font-medium">
                     {user.name || "User"}
                   </span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  {user.email && (
+                    <span className="truncate text-xs">{user.email}</span>
+                  )}
                 </div>
               </div>
             </DropdownMenuLabel>

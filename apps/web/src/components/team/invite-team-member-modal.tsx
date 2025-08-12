@@ -24,7 +24,7 @@ type Props = {
 };
 
 const teamMemberSchema = z.object({
-  userEmail: z.email(),
+  userId: z.string(),
 });
 
 type TeamMemberFormValues = z.infer<typeof teamMemberSchema>;
@@ -37,13 +37,13 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const form = useForm<TeamMemberFormValues>({
     resolver: standardSchemaResolver(teamMemberSchema),
     defaultValues: {
-      userEmail: "",
+      userId: "",
     },
   });
 
-  const onSubmit = async ({ userEmail }: TeamMemberFormValues) => {
+  const onSubmit = async ({ userId }: TeamMemberFormValues) => {
     try {
-      await mutateAsync({ userEmail, workspaceId });
+      await mutateAsync({ userId, workspaceId });
       await queryClient.refetchQueries({
         queryKey: ["workspace-users", workspaceId],
       });
@@ -95,7 +95,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                   <div>
                     <FormField
                       control={form.control}
-                      name="userEmail"
+                      name="userId"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-1">

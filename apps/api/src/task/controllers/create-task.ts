@@ -7,7 +7,7 @@ import getNextTaskNumber from "./get-next-task-number";
 
 async function createTask({
   projectId,
-  userEmail,
+  userId,
   title,
   status,
   dueDate,
@@ -15,7 +15,7 @@ async function createTask({
   priority,
 }: {
   projectId: string;
-  userEmail?: string;
+  userId?: string;
   title: string;
   status: string;
   dueDate?: Date;
@@ -25,7 +25,7 @@ async function createTask({
   const [assignee] = await db
     .select({ name: userTable.name })
     .from(userTable)
-    .where(eq(userTable.email, userEmail ?? ""));
+    .where(eq(userTable.id, userId ?? ""));
 
   const nextTaskNumber = await getNextTaskNumber(projectId);
 
@@ -33,7 +33,7 @@ async function createTask({
     .insert(taskTable)
     .values({
       projectId,
-      userEmail: userEmail || null,
+      userId: userId || null,
       title: title || "",
       status: status || "",
       dueDate: dueDate || new Date(),
@@ -52,7 +52,7 @@ async function createTask({
   await publishEvent("task.created", {
     ...createdTask,
     taskId: createdTask.id,
-    userEmail: createdTask.userEmail ?? "",
+    userId: createdTask.userId ?? "",
     type: "task",
     content: "created the task",
   });

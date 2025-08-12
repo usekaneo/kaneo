@@ -84,7 +84,7 @@ function RouteComponent() {
           return false;
         }
 
-        if (filters.assignee && task.userEmail !== filters.assignee) {
+        if (filters.assignee && task.userId !== filters.assignee) {
           return false;
         }
 
@@ -339,7 +339,7 @@ function RouteComponent() {
                               <div className="flex items-center gap-1">
                                 <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
                                   {users?.find(
-                                    (u) => u.userEmail === filters.assignee,
+                                    (u) => u.userId === filters.assignee,
                                   )?.userName || "Unknown"}
                                 </span>
                               </div>
@@ -353,14 +353,14 @@ function RouteComponent() {
                         >
                           {users?.map((user) => (
                             <button
-                              key={user.userEmail}
+                              key={user.userId}
                               type="button"
                               onClick={() =>
-                                updateFilter("assignee", user.userEmail)
+                                updateFilter("assignee", user.userId)
                               }
                               className={cn(
                                 "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-md transition-colors",
-                                filters.assignee === user.userEmail
+                                filters.assignee === user.userId
                                   ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
                                   : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
                               )}
@@ -369,7 +369,7 @@ function RouteComponent() {
                                 {user.userName?.charAt(0).toUpperCase()}
                               </div>
                               <span>{user.userName}</span>
-                              {filters.assignee === user.userEmail && (
+                              {filters.assignee === user.userId && (
                                 <Check className="h-3 w-3 ml-auto" />
                               )}
                             </button>

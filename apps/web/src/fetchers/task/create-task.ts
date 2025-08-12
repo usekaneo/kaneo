@@ -10,7 +10,7 @@ async function createTask(
   title: string,
   description: string,
   projectId: string,
-  userEmail: string,
+  userId: string,
   status: string,
   dueDate: Date,
   priority: string,
@@ -19,7 +19,7 @@ async function createTask(
     json: {
       title,
       description,
-      userEmail,
+      userId,
       status,
       dueDate: dueDate.toISOString(),
       priority,

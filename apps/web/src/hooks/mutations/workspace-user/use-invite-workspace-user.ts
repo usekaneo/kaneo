@@ -5,9 +5,9 @@ function useInviteWorkspaceUser() {
   return useMutation({
     mutationFn: ({
       workspaceId,
-      userEmail,
-    }: { workspaceId: string; userEmail: string }) =>
-      inviteWorkspaceMember({ workspaceId, userEmail }),
+      userId,
+    }: { workspaceId: string; userId: string }) =>
+      inviteWorkspaceMember({ workspaceId, userId }),
   });
 }
 

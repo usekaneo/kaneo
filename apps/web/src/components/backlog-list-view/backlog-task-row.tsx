@@ -144,7 +144,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
                 <User className="w-3 h-3" />
                 <span className="truncate max-w-[100px]">
                   {task.assigneeName ||
-                    task.userEmail?.split("@")[0] ||
+                    task.userId?.split("@")[0] ||
                     "Unassigned"}
                 </span>
               </div>
