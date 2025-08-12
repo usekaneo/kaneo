@@ -83,6 +83,8 @@ export function SignUpForm() {
                   <Input
                     className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
                     placeholder="Andrej Acevski"
+                    type="text"
+                    autoComplete="name"
                     {...field}
                   />
                 </FormControl>
@@ -103,6 +105,8 @@ export function SignUpForm() {
                   <Input
                     className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
                     placeholder="you@example.com"
+                    type="email"
+                    autoComplete="email"
                     {...field}
                   />
                 </FormControl>
@@ -125,12 +129,17 @@ export function SignUpForm() {
                       className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
                       placeholder="••••••••"
                       type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
                       {...field}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-300"
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      aria-pressed={showPassword}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>

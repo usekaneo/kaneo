@@ -16,7 +16,21 @@ import {
   workspaceTableRelations,
   workspaceUserTableRelations,
 } from "./relations";
-import * as schema from "./schema";
+import {
+  accountTable,
+  activityTable,
+  githubIntegrationTable,
+  labelTable,
+  notificationTable,
+  projectTable,
+  sessionTable,
+  taskTable,
+  timeEntryTable,
+  userTable,
+  verificationTable,
+  workspaceTable,
+  workspaceUserTable,
+} from "./schema";
 
 dotenv.config();
 
@@ -26,23 +40,37 @@ const pool = new Pool({
     "postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo",
 });
 
+export const schema = {
+  accountTable,
+  activityTable,
+  githubIntegrationTable,
+  labelTable,
+  notificationTable,
+  projectTable,
+  sessionTable,
+  taskTable,
+  timeEntryTable,
+  userTable,
+  verificationTable,
+  workspaceTable,
+  workspaceUserTable,
+  userTableRelations,
+  sessionTableRelations,
+  accountTableRelations,
+  verificationTableRelations,
+  workspaceTableRelations,
+  workspaceUserTableRelations,
+  projectTableRelations,
+  taskTableRelations,
+  timeEntryTableRelations,
+  activityTableRelations,
+  labelTableRelations,
+  notificationTableRelations,
+  githubIntegrationTableRelations,
+};
+
 const db = drizzle(pool, {
-  schema: {
-    ...schema,
-    userTableRelations,
-    sessionTableRelations,
-    accountTableRelations,
-    verificationTableRelations,
-    workspaceTableRelations,
-    workspaceUserTableRelations,
-    projectTableRelations,
-    taskTableRelations,
-    timeEntryTableRelations,
-    activityTableRelations,
-    labelTableRelations,
-    notificationTableRelations,
-    githubIntegrationTableRelations,
-  },
+  schema: schema,
 });
 
 export default db;

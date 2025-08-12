@@ -113,6 +113,26 @@ UPDATE "workspace_member" SET "user_id" = (
 ) WHERE "user_id" IS NULL;--> statement-breakpoint
 ALTER TABLE "workspace_member" ALTER COLUMN "user_id" SET NOT NULL;--> statement-breakpoint
 ALTER TABLE "workspace_member" DROP COLUMN "user_email";--> statement-breakpoint
+-- Migrate existing passwords to account table before dropping user.password
+INSERT INTO "account" (
+  "id", 
+  "account_id", 
+  "provider_id", 
+  "user_id", 
+  "password", 
+  "created_at", 
+  "updated_at"
+)
+SELECT 
+  'acc_' || substr(md5(random()::text || u.id), 1, 21) as id,
+  u.email as account_id,
+  'credential' as provider_id,
+  u.id as user_id,
+  u.password,
+  NOW() as created_at,
+  NOW() as updated_at
+FROM "user" u 
+WHERE u.password IS NOT NULL;--> statement-breakpoint
 -- Add all foreign key constraints
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "activity" ADD CONSTRAINT "activity_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
