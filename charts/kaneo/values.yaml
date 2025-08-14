@@ -2,7 +2,6 @@
 nameOverride: ""
 fullnameOverride: ""
 replicaCount: 1
-
 # Autoscaling configuration
 autoscaling:
   enabled: false
@@ -10,29 +9,25 @@ autoscaling:
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-
 # Pod configuration
 podAnnotations: {}
 podSecurityContext: {}
 nodeSelector: {}
 tolerations: []
 affinity: {}
-
 # Service account configuration
 serviceAccount:
   create: true
   annotations: {}
   name: ""
-
 # PostgreSQL database configuration
 postgresql:
   # Set to true to deploy PostgreSQL as part of this chart
   enabled: true
   image:
     repository: postgres
-    tag: "16-alpine"
+    tag: 16-alpine
     pullPolicy: IfNotPresent
-
   # Database configuration
   auth:
     database: kaneo
@@ -43,19 +38,16 @@ postgresql:
     secretKeys:
       adminPasswordKey: postgres-password
       userPasswordKey: password
-
   # Persistence for PostgreSQL data
   persistence:
     enabled: true
     size: 8Gi
     storageClass: ""
     accessMode: ReadWriteOnce
-
   # PostgreSQL service configuration
   service:
     type: ClusterIP
     port: 5432
-
   # Resources for PostgreSQL
   resources: {}
   # resources:
@@ -65,21 +57,17 @@ postgresql:
   #   requests:
   #     cpu: 100m
   #     memory: 128Mi
-
 # API backend configuration
 api:
   image:
     repository: ghcr.io/usekaneo/api
     tag: latest
     pullPolicy: IfNotPresent
-
   securityContext: {}
-
   service:
     type: ClusterIP
     port: 1337
     targetPort: 1337
-
   # Resources are optional and disabled by default
   resources: {}
   # resources:
@@ -92,16 +80,23 @@ api:
 
   # Environment variables for the API
   env:
-    jwtAccess: "change_me"
+    jwtAccess: change_me
     existingSecret:
       enabled: false
       name: ""
-      key: "jwt-access"
+      key: jwt-access
     disableRegistration: false
-
     # Database configuration
     database:
       # Use external PostgreSQL (set postgresql.enabled to false)
+      # Important: when using external postgres, make sure you have set up the db user correctly:
+      #   CREATE DATABASE kaneo;
+      #   CREATE USER kaneo_user WITH PASSWORD 'your_password';
+      #   GRANT ALL PRIVILEGES ON DATABASE kaneo TO kaneo_user;
+      #   \c kaneo;
+      #   GRANT USAGE ON SCHEMA public TO kaneo_user;
+      #   GRANT CREATE ON SCHEMA public TO kaneo_user;
+      #   ALTER SCHEMA public OWNER TO kaneo_user;
       external:
         enabled: false
         host: ""
@@ -109,47 +104,41 @@ api:
         database: kaneo
         username: kaneo_user
         password: ""
-        # Use existing secret for external database credentials
+        # Use existing secret for external database credentials in the form of a uri, e.g.: "postgresql://user:pass@host:port/db"
         existingSecret:
           enabled: false
           name: ""
-          passwordKey: "password"
-
+          passwordKey: postgres_uri
   livenessProbe:
     httpGet:
       path: /me
       port: api
     initialDelaySeconds: 30
     periodSeconds: 10
-
   readinessProbe:
     httpGet:
       path: /me
       port: api
     initialDelaySeconds: 5
     periodSeconds: 10
-
 # Web frontend configuration
 web:
   image:
     repository: ghcr.io/usekaneo/web
     tag: latest
     pullPolicy: IfNotPresent
-
   # Environment variables for the Web
   env:
     # Optional: Override the default API URL (http://localhost:1337)
     # The /api path will be automatically appended to the URL
+    # Make sure this url matches the ingress host
     # apiUrl: "https://kaneo.example.com"
     apiUrl: ""
-
   securityContext: {}
-
   service:
     type: ClusterIP
     port: 80
     targetPort: 80
-
   # Resources are optional and disabled by default
   resources: {}
   # resources:
@@ -166,20 +155,21 @@ web:
       port: web
     initialDelaySeconds: 30
     periodSeconds: 10
-
   readinessProbe:
     httpGet:
       path: /
       port: web
     initialDelaySeconds: 5
     periodSeconds: 10
-
 # Ingress configuration
 ingress:
   enabled: false
-  className: "nginx"
+  className: nginx
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    ## optional: use cert-manager to automatically provision a TLS certificate
+    # cert-manager.io/cluster-issuer: letsencrypt
     # When using nginx ingress controller, these annotations provide URL rewriting
     # similar to the URLRewrite filter in the Gateway API
     # Other ingress controllers may require different annotations, handle carefully
@@ -189,11 +179,11 @@ ingress:
     - host: kaneo.local
       paths:
         - path: /?(.*)
-          pathType: Prefix
+          pathType: ImplementationSpecific
           service: web
           port: 80
         - path: /api/?(.*)
-          pathType: Prefix
+          pathType: ImplementationSpecific
           service: api
           port: 1337
   tls: []
