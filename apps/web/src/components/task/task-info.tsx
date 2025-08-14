@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { z } from "zod/v4";
 import TaskCalendar from "./task-calendar";
 import TaskLabels from "./task-labels";
+import TaskLinkPanel from "./task-link-panel";
 
 export const taskInfoSchema = z.object({
   status: z.string(),
@@ -209,6 +210,7 @@ function TaskInfo({
           )}
         />
         <TaskLabels taskId={task.id} setIsSaving={setIsSaving} />
+        <TaskLinkPanel taskId={task.id} />
       </Form>
       <Button
         onClick={handleDeleteTask}

@@ -15,6 +15,7 @@ import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
 import task from "./task";
+import taskLink from "./task-link";
 import timeEntry from "./time-entry";
 import user from "./user";
 import { validateSessionToken } from "./user/utils/validate-session-token";
@@ -103,6 +104,7 @@ const workspaceRoute = app.route("/workspace", workspace);
 const workspaceUserRoute = app.route("/workspace-user", workspaceUser);
 const projectRoute = app.route("/project", project);
 const taskRoute = app.route("/task", task);
+const taskLinkRoute = app.route("/task-link", taskLink);
 const activityRoute = app.route("/activity", activity);
 const timeEntryRoute = app.route("/time-entry", timeEntry);
 const labelRoute = app.route("/label", label);
@@ -134,6 +136,7 @@ export type AppType =
   | typeof workspaceUserRoute
   | typeof projectRoute
   | typeof taskRoute
+  | typeof taskLinkRoute
   | typeof activityRoute
   | typeof meRoute
   | typeof timeEntryRoute
