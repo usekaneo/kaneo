@@ -100,7 +100,7 @@ For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for det
 
 ### Database Setup
 
-Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles this automatically, but if you're running Kaneo outside of Docker, you'll need to:
+Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles this automatically, but if you're running Kaneo outside of Docker, or if you are using an external postgres database, you'll need to:
 
 1. **Install PostgreSQL** (version 12 or higher)
 2. **Create a database and user:**
@@ -108,6 +108,11 @@ Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles t
    CREATE DATABASE kaneo;
    CREATE USER kaneo_user WITH PASSWORD 'your_password';
    GRANT ALL PRIVILEGES ON DATABASE kaneo TO kaneo_user;
+
+   \c kaneo;
+   GRANT USAGE ON SCHEMA public TO kaneo_user;
+   GRANT CREATE ON SCHEMA public TO kaneo_user;
+   ALTER SCHEMA public OWNER TO kaneo_user;
    ```
 3. **Set the DATABASE_URL environment variable:**
    ```bash
