@@ -1,6 +1,6 @@
 {
-  "id": "594c9f8c-e00f-4ab1-b4b0-725728bc40eb",
-  "prevId": "d516f340-217e-4840-8e91-65c778e344d1",
+  "id": "e1526881-6f36-4513-84c6-5a47e7035d71",
+  "prevId": "594c9f8c-e00f-4ab1-b4b0-725728bc40eb",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -182,8 +182,8 @@
           "notNull": true,
           "default": "now()"
         },
-        "task_id": {
-          "name": "task_id",
+        "workspace_id": {
+          "name": "workspace_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -191,11 +191,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "label_task_id_task_id_fk": {
-          "name": "label_task_id_task_id_fk",
+        "label_workspace_id_workspace_id_fk": {
+          "name": "label_workspace_id_workspace_id_fk",
           "tableFrom": "label",
-          "tableTo": "task",
-          "columnsFrom": ["task_id"],
+          "tableTo": "workspace",
+          "columnsFrom": ["workspace_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
@@ -391,6 +391,63 @@
           "tableFrom": "session",
           "tableTo": "user",
           "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.task_label": {
+      "name": "task_label",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label_id": {
+          "name": "label_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "task_label_task_id_task_id_fk": {
+          "name": "task_label_task_id_task_id_fk",
+          "tableFrom": "task_label",
+          "tableTo": "task",
+          "columnsFrom": ["task_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "task_label_label_id_label_id_fk": {
+          "name": "task_label_label_id_label_id_fk",
+          "tableFrom": "task_label",
+          "tableTo": "label",
+          "columnsFrom": ["label_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"

@@ -1,6 +1,6 @@
 {
-  "id": "594c9f8c-e00f-4ab1-b4b0-725728bc40eb",
-  "prevId": "d516f340-217e-4840-8e91-65c778e344d1",
+  "id": "6614855d-3a06-477b-a267-406e30a6598c",
+  "prevId": "e1526881-6f36-4513-84c6-5a47e7035d71",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -182,8 +182,8 @@
           "notNull": true,
           "default": "now()"
         },
-        "task_id": {
-          "name": "task_id",
+        "workspace_id": {
+          "name": "workspace_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -191,11 +191,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "label_task_id_task_id_fk": {
-          "name": "label_task_id_task_id_fk",
+        "label_workspace_id_workspace_id_fk": {
+          "name": "label_workspace_id_workspace_id_fk",
           "tableFrom": "label",
-          "tableTo": "task",
-          "columnsFrom": ["task_id"],
+          "tableTo": "workspace",
+          "columnsFrom": ["workspace_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
@@ -394,6 +394,170 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.task_label": {
+      "name": "task_label",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label_id": {
+          "name": "label_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "task_label_task_id_task_id_fk": {
+          "name": "task_label_task_id_task_id_fk",
+          "tableFrom": "task_label",
+          "tableTo": "task",
+          "columnsFrom": ["task_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "task_label_label_id_label_id_fk": {
+          "name": "task_label_label_id_label_id_fk",
+          "tableFrom": "task_label",
+          "tableTo": "label",
+          "columnsFrom": ["label_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.task_link": {
+      "name": "task_link",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "from_task_id": {
+          "name": "from_task_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "to_task_id": {
+          "name": "to_task_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "task_link_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "task_link_unique": {
+          "name": "task_link_unique",
+          "columns": [
+            {
+              "expression": "from_task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "to_task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "task_link_from_task_id_task_id_fk": {
+          "name": "task_link_from_task_id_task_id_fk",
+          "tableFrom": "task_link",
+          "tableTo": "task",
+          "columnsFrom": ["from_task_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "task_link_to_task_id_task_id_fk": {
+          "name": "task_link_to_task_id_task_id_fk",
+          "tableFrom": "task_link",
+          "tableTo": "task",
+          "columnsFrom": ["to_task_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "task_link_created_by_user_email_fk": {
+          "name": "task_link_created_by_user_email_fk",
+          "tableFrom": "task_link",
+          "tableTo": "user",
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["email"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -754,7 +918,20 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.task_link_type": {
+      "name": "task_link_type",
+      "schema": "public",
+      "values": [
+        "blocks",
+        "blocked_by",
+        "relates_to",
+        "duplicates",
+        "parent",
+        "child"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},
