@@ -28,8 +28,8 @@ type Label = {
   id: string;
   name: string;
   color: string;
-  taskId: string;
   createdAt: string;
+  workspaceId: string;
 };
 
 function TaskCardLabels({ taskId }: { taskId: string }) {
