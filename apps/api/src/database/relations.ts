@@ -6,11 +6,13 @@ import {
   notificationTable,
   projectTable,
   sessionTable,
+  taskLabelTable,
   taskTable,
   timeEntryTable,
   userTable,
   workspaceTable,
   workspaceUserTable,
+  taskLinkTable,
 } from "./schema";
 
 export const userTableRelations = relations(userTable, ({ many }) => ({
@@ -21,6 +23,22 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   notifications: many(notificationTable),
+}));
+
+/** Links table relations */
+export const taskLinkTableRelations = relations(taskLinkTable, ({ one }) => ({
+  fromTask: one(taskTable, {
+    fields: [taskLinkTable.fromTaskId],
+    references: [taskTable.id],
+  }),
+  toTask: one(taskTable, {
+    fields: [taskLinkTable.toTaskId],
+    references: [taskTable.id],
+  }),
+  createdBy: one(userTable, {
+    fields: [taskLinkTable.createdBy],
+    references: [userTable.email],
+  }),
 }));
 
 export const sessionTableRelations = relations(sessionTable, ({ one }) => ({
@@ -39,6 +57,7 @@ export const workspaceTableRelations = relations(
     }),
     members: many(workspaceUserTable),
     projects: many(projectTable),
+    labels: many(labelTable),
   }),
 );
 
@@ -75,7 +94,11 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
-  labels: many(labelTable),
+  taskLabels: many(taskLabelTable),
+
+  // NEW: task linking
+  linksFrom: many(taskLinkTable, { relationName: "linksFrom" }),
+  linksTo: many(taskLinkTable, { relationName: "linksTo" }),
 }));
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({
@@ -100,10 +123,22 @@ export const activityTableRelations = relations(activityTable, ({ one }) => ({
   }),
 }));
 
-export const labelTableRelations = relations(labelTable, ({ one }) => ({
+export const labelTableRelations = relations(labelTable, ({ one, many }) => ({
+  workspace: one(workspaceTable, {
+    fields: [labelTable.workspaceId],
+    references: [workspaceTable.id],
+  }),
+  taskLabels: many(taskLabelTable),
+}));
+
+export const taskLabelTableRelations = relations(taskLabelTable, ({ one }) => ({
   task: one(taskTable, {
-    fields: [labelTable.taskId],
+    fields: [taskLabelTable.taskId],
     references: [taskTable.id],
+  }),
+  label: one(labelTable, {
+    fields: [taskLabelTable.labelId],
+    references: [labelTable.id],
   }),
 }));
 

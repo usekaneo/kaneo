@@ -5,6 +5,8 @@ import {
   pgTable,
   text,
   timestamp,
+  pgEnum,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
@@ -148,12 +150,31 @@ export const labelTable = pgTable("label", {
   name: text("name").notNull(),
   color: text("color").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+});
+
+export const taskLabelTable = pgTable("task_label", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
   taskId: text("task_id")
     .notNull()
     .references(() => taskTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
+  labelId: text("label_id")
+    .notNull()
+    .references(() => labelTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const notificationTable = pgTable("notification", {
@@ -176,6 +197,46 @@ export const notificationTable = pgTable("notification", {
     .defaultNow()
     .notNull(),
 });
+
+// Add near other enums
+export const taskLinkType = pgEnum("task_link_type", [
+  "blocks",
+  "blocked_by",
+  "relates_to",
+  "duplicates",
+  "parent",
+  "child",
+]);
+
+export type TaskLinkType = (typeof taskLinkType.enumValues)[number];
+
+// Define the task_link table
+export const taskLinkTable = pgTable(
+  "task_link",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    fromTaskId: text("from_task_id")
+      .notNull()
+      .references(() => taskTable.id, { onDelete: "cascade" }),
+    toTaskId: text("to_task_id")
+      .notNull()
+      .references(() => taskTable.id, { onDelete: "cascade" }),
+    type: taskLinkType("type").notNull(),
+    createdBy: text("created_by").references(() => userTable.email),
+    createdAt: timestamp("created_at", { mode: "date" }) // keep style consistent
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => ({
+    linkUnique: uniqueIndex("task_link_unique").on(
+      t.fromTaskId,
+      t.toTaskId,
+      t.type,
+    ),
+  }),
+);
 
 export const githubIntegrationTable = pgTable("github_integration", {
   id: text("id")

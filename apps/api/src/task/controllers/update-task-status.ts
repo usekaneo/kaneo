@@ -6,7 +6,11 @@ async function updateTaskStatus({
   id,
   status,
   userEmail,
-}: { id: string; status: string; userEmail: string }) {
+}: {
+  id: string;
+  status: string;
+  userEmail: string;
+}) {
   await db
     .update(taskTable)
     .set({ status, userEmail })
