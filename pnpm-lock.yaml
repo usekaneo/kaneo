@@ -323,8 +323,8 @@ importers:
         specifier: ^0.8.10
         version: 0.8.10(@tiptap/core@2.26.1(@tiptap/pm@2.26.1))
       zod:
-        specifier: ^3.25.67
-        version: 3.25.76
+        specifier: ^4.0.17
+        version: 4.0.17
       zustand:
         specifier: ^5.0.4
         version: 5.0.6(@types/react@19.1.9)(immer@10.1.1)(react@19.1.1)(use-sync-external-store@1.5.0(react@19.1.1))
@@ -5186,6 +5186,9 @@ packages:
 
   zod@4.0.14:
     resolution: {integrity: sha512-nGFJTnJN6cM2v9kXL+SOBq3AtjQby3Mv5ySGFof5UGRHrRioSJ5iG680cYNjE/yWk671nROcpPj4hAS8nyLhSw==}
+
+  zod@4.0.17:
+    resolution: {integrity: sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==}
 
   zustand@5.0.6:
     resolution: {integrity: sha512-ihAqNeUVhe0MAD+X8M5UzqyZ9k3FFZLBTtqo6JLPwV53cbRB/mJwBI0PxcIgqhBBHlEs8G45OTDTMq3gNcLq3A==}
@@ -10225,6 +10228,8 @@ snapshots:
   zod@3.25.76: {}
 
   zod@4.0.14: {}
+
+  zod@4.0.17: {}
 
   zustand@5.0.6(@types/react@19.1.9)(immer@10.1.1)(react@19.1.1)(use-sync-external-store@1.5.0(react@19.1.1)):
     optionalDependencies:
