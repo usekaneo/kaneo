@@ -6,7 +6,8 @@ export type VerifyGithubInstallationRequest = InferRequestType<
 >["json"];
 
 export type VerifyGithubInstallationResponse = InferResponseType<
-  (typeof client)["github-integration"]["verify"]["$post"]
+  (typeof client)["github-integration"]["verify"]["$post"],
+  200
 >;
 
 async function verifyGithubInstallation(
@@ -17,11 +18,12 @@ async function verifyGithubInstallation(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    const error = await response.json();
+    throw new Error(error.message || "Request failed");
   }
 
   const result = await response.json();
+
   return result;
 }
 
