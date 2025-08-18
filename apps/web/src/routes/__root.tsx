@@ -1,7 +1,7 @@
 import CommandPalette from "@/components/command-palette";
 import SearchCommandMenu from "@/components/search-command-menu";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import type { LoggedInUser } from "@/types/user";
+import type { User } from "@/types/user";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   Outlet,
@@ -14,7 +14,7 @@ import { Toaster } from "sonner";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
-  user: LoggedInUser | null | undefined;
+  user: User | null | undefined;
 }>()({
   component: RootComponent,
   async beforeLoad({ context: { user }, location }) {
@@ -23,7 +23,7 @@ export const Route = createRootRouteWithContext<{
       location.pathname.includes("public-project");
     const isOnDashboard = location.pathname.includes("dashboard");
 
-    if (user === null && !isRouteUnprotected) {
+    if (user === undefined && !isRouteUnprotected) {
       throw redirect({
         to: "/auth/sign-in",
       });

@@ -8,13 +8,13 @@ export type CreateActivityRequest = InferRequestType<
 async function createActivity({
   taskId,
   content,
-  userEmail,
+  userId,
 }: CreateActivityRequest) {
   const response = await client.activity.comment.$post({
     json: {
       taskId,
       content,
-      userEmail,
+      userId,
     },
   });
 

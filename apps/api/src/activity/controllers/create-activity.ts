@@ -4,13 +4,13 @@ import { activityTable } from "../../database/schema";
 async function createActivity(
   taskId: string,
   type: string,
-  userEmail: string,
+  userId: string,
   content: string,
 ) {
   const activity = await db.insert(activityTable).values({
     taskId,
     type,
-    userEmail,
+    userId,
     content,
   });
   return activity;

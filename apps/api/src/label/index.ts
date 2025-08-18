@@ -9,7 +9,7 @@ import updateLabel from "./controllers/update-label";
 
 const label = new Hono<{
   Variables: {
-    userEmail: string;
+    userId: string;
   };
 }>()
   .get(

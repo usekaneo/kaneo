@@ -1,8 +1,6 @@
-"use client";
-
 import { ChevronsUpDown, LogOut } from "lucide-react";
 
-import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
+import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { SettingsMenu } from "@/components/settings-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -24,15 +22,13 @@ import useSignOut from "@/hooks/mutations/use-sign-out";
 import useProjectStore from "@/store/project";
 import useWorkspaceStore from "@/store/workspace";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const { mutateAsync: signOut, isPending } = useSignOut();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const { setProject } = useProjectStore();
   const { setWorkspace } = useWorkspaceStore();
 
@@ -44,11 +40,9 @@ export function NavUser() {
     try {
       await signOut();
       queryClient.clear();
-      setUser(null);
       setProject(undefined);
       setWorkspace(undefined);
       toast.success("Signed out successfully");
-      navigate({ to: "/auth/sign-in" });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to sign out",
@@ -74,7 +68,7 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={""} alt={user.name || ""} />
+                <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
                 <AvatarFallback className="rounded-lg">
                   {initials}
                 </AvatarFallback>
@@ -83,7 +77,9 @@ export function NavUser() {
                 <span className="truncate font-medium">
                   {user.name || "User"}
                 </span>
-                <span className="truncate text-xs">{user.email}</span>
+                {user.email && (
+                  <span className="truncate text-xs">{user.email}</span>
+                )}
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -97,7 +93,7 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={""} alt={user.name || ""} />
+                  <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
                   <AvatarFallback className="rounded-lg">
                     {initials}
                   </AvatarFallback>
@@ -106,7 +102,9 @@ export function NavUser() {
                   <span className="truncate font-medium">
                     {user.name || "User"}
                   </span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  {user.email && (
+                    <span className="truncate text-xs">{user.email}</span>
+                  )}
                 </div>
               </div>
             </DropdownMenuLabel>

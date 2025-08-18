@@ -1,12 +1,12 @@
 import db from "../../database";
 import { workspaceUserTable } from "../../database/schema";
 
-async function createRootWorkspaceUser(workspaceId: string, userEmail: string) {
+async function createRootWorkspaceUser(workspaceId: string, userId: string) {
   const [workspaceUser] = await db
     .insert(workspaceUserTable)
     .values({
       workspaceId,
-      userEmail,
+      userId,
       role: "owner",
       status: "active",
     })

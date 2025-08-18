@@ -12,7 +12,10 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=esm --packages=external --external:fs --external:path --external:crypto --external:os --external:util --external:stream --external:buffer --external:events --external:url --external:querystring --external:http --external:https --external:net --external:tls --external:zlib",
-    "lint": "biome check --write ."
+    "lint": "biome check --write .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hono/node-server": "^1.18.1",
@@ -22,6 +25,7 @@
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "bcrypt": "^6.0.0",
+    "better-auth": "^1.3.5",
     "croner": "^9.1.0",
     "dotenv": "^17.2.1",
     "drizzle-kit": "^0.31.1",

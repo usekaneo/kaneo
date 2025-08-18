@@ -1,30 +1,36 @@
 import { serve } from "@hono/node-server";
+import type { Session, User } from "better-auth/types";
 import { Cron } from "croner";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
-import { getCookie } from "hono/cookie";
 import { cors } from "hono/cors";
+import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
+import { auth } from "./auth";
 import config from "./config";
 import db from "./database";
 import githubIntegration from "./github-integration";
 import label from "./label";
-import { auth } from "./middlewares/auth";
+
 import notification from "./notification";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
-import user from "./user";
-import { validateSessionToken } from "./user/utils/validate-session-token";
 import getSettings from "./utils/get-settings";
 import purgeDemoData from "./utils/purge-demo-data";
-import setDemoUser from "./utils/set-demo-user";
 import workspace from "./workspace";
 import workspaceUser from "./workspace-user";
 
-const app = new Hono<{ Variables: { userEmail: string } }>();
+const app = new Hono<{
+  Variables: {
+    user: User | null;
+    session: Session | null;
+    userId: string;
+  };
+}>();
+
 const { isDemoMode } = getSettings();
 
 const corsOrigins = process.env.CORS_ORIGINS
@@ -63,55 +69,28 @@ const publicProjectRoute = app.get("/public-project/:id", async (c) => {
   return c.json(project);
 });
 
-const userRoute = app.route("/user", user);
+app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
+  auth.handler(c.req.raw),
+);
 
-if (!isDemoMode) {
-  app.use("*", auth);
-}
+app.use("*", async (c, next) => {
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  c.set("user", session?.user || null);
+  c.set("session", session?.session || null);
+  c.set("userId", session?.user?.id || "");
+
+  if (!session?.user) {
+    throw new HTTPException(401, { message: "Unauthorized" });
+  }
+
+  return next();
+});
 
 if (isDemoMode) {
   new Cron("0 * * * *", async () => {
     await purgeDemoData();
   });
 }
-
-app.use("*", async (c, next) => {
-  if (isDemoMode) {
-    const session = getCookie(c, "session");
-
-    if (!session) {
-      await setDemoUser(c);
-    }
-
-    const { user, session: validatedSession } = await validateSessionToken(
-      session ?? "",
-    );
-
-    if (!user || !validatedSession) {
-      await setDemoUser(c);
-    }
-
-    c.set("userEmail", user?.email ?? "");
-  }
-
-  await next();
-});
-
-const meRoute = app.get("/me", async (c) => {
-  const session = getCookie(c, "session");
-
-  if (!session) {
-    return c.json({ user: null });
-  }
-
-  const { user } = await validateSessionToken(session);
-
-  if (user === null) {
-    return c.json({ user: null });
-  }
-
-  return c.json({ user });
-});
 
 const workspaceRoute = app.route("/workspace", workspace);
 const workspaceUserRoute = app.route("/workspace-user", workspaceUser);
@@ -143,13 +122,11 @@ serve(
 );
 
 export type AppType =
-  | typeof userRoute
   | typeof workspaceRoute
   | typeof workspaceUserRoute
   | typeof projectRoute
   | typeof taskRoute
   | typeof activityRoute
-  | typeof meRoute
   | typeof timeEntryRoute
   | typeof labelRoute
   | typeof notificationRoute

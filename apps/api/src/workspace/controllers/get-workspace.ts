@@ -3,12 +3,12 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceTable, workspaceUserTable } from "../../database/schema";
 
-async function getWorkspace(userEmail: string, workspaceId: string) {
+async function getWorkspace(userId: string, workspaceId: string) {
   const [existingWorkspace] = await db
     .select({
       id: workspaceTable.id,
       name: workspaceTable.name,
-      ownerEmail: workspaceTable.ownerEmail,
+      ownerId: workspaceTable.ownerId,
       description: workspaceTable.description,
       createdAt: workspaceTable.createdAt,
     })
@@ -21,8 +21,8 @@ async function getWorkspace(userEmail: string, workspaceId: string) {
       and(
         eq(workspaceTable.id, workspaceId),
         or(
-          eq(workspaceTable.ownerEmail, userEmail),
-          eq(workspaceUserTable.userEmail, userEmail),
+          eq(workspaceTable.ownerId, userId),
+          eq(workspaceUserTable.userId, userId),
         ),
       ),
     )

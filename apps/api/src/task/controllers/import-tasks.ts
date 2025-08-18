@@ -11,7 +11,7 @@ type ImportTask = {
   status: string;
   priority?: string;
   dueDate?: string;
-  userEmail?: string | null;
+  userId?: string | null;
 };
 
 async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
@@ -36,7 +36,7 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
         .insert(taskTable)
         .values({
           projectId,
-          userEmail: taskData.userEmail || null,
+          userId: taskData.userId || null,
           title: taskData.title,
           status: taskData.status,
           dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
@@ -49,7 +49,7 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
       if (createdTask) {
         await publishEvent("task.created", {
           taskId: createdTask.id,
-          userEmail: createdTask.userEmail ?? "",
+          userId: createdTask.userId ?? "",
           type: "create",
           content: "imported the task",
         });

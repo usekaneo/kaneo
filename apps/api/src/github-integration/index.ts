@@ -24,7 +24,7 @@ if (githubApp) {
 
 subscribeToEvent<{
   taskId: string;
-  userEmail: string;
+  userId: string;
   title: string;
   description: string;
   priority: string;
@@ -35,7 +35,7 @@ subscribeToEvent<{
 
 subscribeToEvent<{
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldStatus: string;
   newStatus: string;
   title: string;
@@ -43,7 +43,7 @@ subscribeToEvent<{
 
 subscribeToEvent<{
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldPriority: string;
   newPriority: string;
   title: string;

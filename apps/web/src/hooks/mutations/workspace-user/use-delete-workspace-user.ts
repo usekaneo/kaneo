@@ -6,8 +6,8 @@ import deleteWorkspaceUser, {
 
 function useDeleteWorkspaceUser() {
   return useMutation({
-    mutationFn: ({ workspaceId, userEmail }: DeleteWorkspaceUserRequest) =>
-      deleteWorkspaceUser({ workspaceId, userEmail }),
+    mutationFn: ({ workspaceId, userId }: DeleteWorkspaceUserRequest) =>
+      deleteWorkspaceUser({ workspaceId, userId }),
   });
 }
 

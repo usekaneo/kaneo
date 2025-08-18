@@ -3,7 +3,7 @@ export type TimeEntry = {
   id: string;
   createdAt: string;
   description: string | null;
-  userEmail: string | null;
+  userId: string | null;
   taskId: string;
   startTime: string;
   endTime: string | null;

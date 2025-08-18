@@ -5,7 +5,7 @@ async function updateTask(taskId: string, task: Task) {
   const response = await client.task[":id"].$put({
     param: { id: taskId },
     json: {
-      userEmail: task.userEmail || "",
+      userId: task.userId || "",
       title: task.title,
       description: task.description || "",
       status: task.status,

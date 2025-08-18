@@ -1,3 +1,4 @@
+import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -8,12 +9,17 @@ export const Route = createFileRoute("/dashboard/$")({
 });
 
 function CatchAllComponent() {
-  const { data: workspaces } = useGetWorkspaces();
+  const { data: workspaces, isLoading } = useGetWorkspaces();
+  const { user } = useAuth();
   const { activeWorkspaceId, setActiveWorkspaceId } = useUserPreferencesStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!workspaces) return;
+    if (!user) {
+      navigate({ to: "/auth/sign-in" });
+    }
+
+    if (!workspaces || isLoading) return;
 
     if (workspaces.length > 0) {
       if (
@@ -39,7 +45,14 @@ function CatchAllComponent() {
     } else {
       navigate({ to: "/dashboard/workspace/create" });
     }
-  }, [workspaces, activeWorkspaceId, setActiveWorkspaceId, navigate]);
+  }, [
+    workspaces,
+    activeWorkspaceId,
+    setActiveWorkspaceId,
+    navigate,
+    user,
+    isLoading,
+  ]);
 
   return null;
 }

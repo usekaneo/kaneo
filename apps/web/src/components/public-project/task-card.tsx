@@ -59,10 +59,10 @@ export function PublicTaskCard({
           </div>
 
           <div className="flex items-center gap-2">
-            {task.userEmail && (
+            {task.userId && (
               <Avatar className="h-6 w-6 ring-2 ring-zinc-100 dark:ring-zinc-700">
                 <AvatarFallback className="text-xs font-medium">
-                  {task.userEmail.charAt(0).toUpperCase()}
+                  {task.userId.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             )}

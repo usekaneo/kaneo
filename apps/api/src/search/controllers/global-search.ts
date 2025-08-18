@@ -11,7 +11,8 @@ import {
 
 type SearchParams = {
   query: string;
-  userEmail: string;
+  userEmail?: string;
+  userId?: string;
   type?:
     | "all"
     | "tasks"
@@ -34,7 +35,7 @@ type SearchResult = {
   projectName?: string;
   workspaceId?: string;
   workspaceName?: string;
-  userEmail?: string;
+  userId?: string;
   userName?: string;
   createdAt: Date;
   relevanceScore: number;
@@ -51,6 +52,7 @@ async function globalSearch(params: SearchParams): Promise<{
 }> {
   const {
     query,
+    userId,
     userEmail,
     type = "all",
     workspaceId,
@@ -58,10 +60,27 @@ async function globalSearch(params: SearchParams): Promise<{
     limit = 20,
   } = params;
 
+  let resolvedUserId = userId;
+  if (!resolvedUserId && userEmail) {
+    const user = await db
+      .select({ id: userTable.id })
+      .from(userTable)
+      .where(eq(userTable.email, userEmail))
+      .limit(1);
+
+    if (user.length > 0 && user[0]) {
+      resolvedUserId = user[0].id;
+    }
+  }
+
+  if (!resolvedUserId) {
+    return { results: [], totalCount: 0, searchQuery: query };
+  }
+
   const userWorkspaces = await db
     .select({ workspaceId: workspaceUserTable.workspaceId })
     .from(workspaceUserTable)
-    .where(eq(workspaceUserTable.userEmail, userEmail));
+    .where(eq(workspaceUserTable.userId, resolvedUserId));
 
   const accessibleWorkspaceIds = userWorkspaces
     .map((w) => w.workspaceId)
@@ -97,7 +116,7 @@ async function globalSearch(params: SearchParams): Promise<{
         projectSlug: projectTable.slug,
         workspaceId: projectTable.workspaceId,
         workspaceName: workspaceTable.name,
-        userEmail: taskTable.userEmail,
+        userId: taskTable.userId,
         userName: userTable.name,
         createdAt: taskTable.createdAt,
         taskNumber: taskTable.number,
@@ -108,7 +127,7 @@ async function globalSearch(params: SearchParams): Promise<{
       .from(taskTable)
       .leftJoin(projectTable, eq(taskTable.projectId, projectTable.id))
       .leftJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
-      .leftJoin(userTable, eq(taskTable.userEmail, userTable.email))
+      .leftJoin(userTable, eq(taskTable.userId, userTable.id))
       .where(
         and(
           workspaceFilter,
@@ -135,7 +154,7 @@ async function globalSearch(params: SearchParams): Promise<{
         projectSlug: task.projectSlug || undefined,
         workspaceId: task.workspaceId || undefined,
         workspaceName: task.workspaceName || undefined,
-        userEmail: task.userEmail || undefined,
+        userId: task.userId || undefined,
         userName: task.userName || undefined,
         createdAt: task.createdAt,
         relevanceScore: task.relevanceScore,
@@ -212,7 +231,7 @@ async function globalSearch(params: SearchParams): Promise<{
         id: workspaceTable.id,
         name: workspaceTable.name,
         description: workspaceTable.description,
-        ownerEmail: workspaceTable.ownerEmail,
+        ownerId: workspaceTable.ownerId,
         createdAt: workspaceTable.createdAt,
         relevanceScore: workspaceRelevanceScore.as("relevanceScore"),
       })
@@ -243,7 +262,7 @@ async function globalSearch(params: SearchParams): Promise<{
         description: workspace.description || undefined,
         workspaceId: workspace.id,
         workspaceName: workspace.name,
-        userEmail: workspace.ownerEmail,
+        userId: workspace.ownerId,
         createdAt: workspace.createdAt,
         relevanceScore: workspace.relevanceScore,
       });
@@ -272,7 +291,7 @@ async function globalSearch(params: SearchParams): Promise<{
         projectSlug: projectTable.slug,
         workspaceId: projectTable.workspaceId,
         workspaceName: workspaceTable.name,
-        userEmail: activityTable.userEmail,
+        userId: activityTable.userId,
         userName: userTable.name,
         createdAt: activityTable.createdAt,
         relevanceScore: activityRelevanceScore.as("relevanceScore"),
@@ -281,7 +300,7 @@ async function globalSearch(params: SearchParams): Promise<{
       .leftJoin(taskTable, eq(activityTable.taskId, taskTable.id))
       .leftJoin(projectTable, eq(taskTable.projectId, projectTable.id))
       .leftJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
-      .leftJoin(userTable, eq(activityTable.userEmail, userTable.email))
+      .leftJoin(userTable, eq(activityTable.userId, userTable.id))
       .where(
         and(
           workspaceFilter,
@@ -312,7 +331,7 @@ async function globalSearch(params: SearchParams): Promise<{
         projectSlug: activity.projectSlug || undefined,
         workspaceId: activity.workspaceId || undefined,
         workspaceName: activity.workspaceName || undefined,
-        userEmail: activity.userEmail || undefined,
+        userId: activity.userId || undefined,
         userName: activity.userName || undefined,
         createdAt: activity.createdAt,
         relevanceScore: activity.relevanceScore,

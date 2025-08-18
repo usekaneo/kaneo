@@ -13,7 +13,7 @@ async function updateTask(
   description: string,
   priority: string,
   position: number,
-  userEmail?: string,
+  userId?: string,
 ) {
   const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
@@ -35,7 +35,7 @@ async function updateTask(
       description,
       priority,
       position,
-      userEmail: userEmail || null,
+      userId: userId || null,
     })
     .where(eq(taskTable.id, id))
     .returning();
@@ -49,7 +49,7 @@ async function updateTask(
   if (existingTask.status !== status) {
     await publishEvent("task.status_changed", {
       taskId: updatedTask.id,
-      userEmail: updatedTask.userEmail,
+      userId: updatedTask.userId,
       oldStatus: existingTask.status,
       newStatus: status,
       title: updatedTask.title,
@@ -59,17 +59,17 @@ async function updateTask(
   if (existingTask.priority !== priority) {
     await publishEvent("task.priority_changed", {
       taskId: updatedTask.id,
-      userEmail: updatedTask.userEmail,
+      userId: updatedTask.userId,
       oldPriority: existingTask.priority,
       newPriority: priority,
       title: updatedTask.title,
     });
   }
 
-  if (existingTask.userEmail !== userEmail) {
+  if (existingTask.userId !== userId) {
     await publishEvent("task.assignee_changed", {
       taskId: updatedTask.id,
-      newAssignee: userEmail,
+      newAssignee: userId,
       title: updatedTask.title,
     });
   }

@@ -13,17 +13,18 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="w-full max-w-sm"
       >
-        <div className="mb-8 text-center">
-          <Logo className="mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
-            {title}
-          </h1>
-          <p className="text-zinc-600 dark:text-zinc-400">{subtitle}</p>
-        </div>
+        <Logo className="mx-auto mb-6 w-full flex items-end justify-center" />
 
         <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 p-6 shadow-xl shadow-zinc-200/20 dark:shadow-zinc-950/20">
+          <h1 className="text-xl text-center font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+            {title}
+          </h1>
+          <p className="text-center text-zinc-600 dark:text-zinc-400 text-sm">
+            {subtitle}
+          </p>
+
           {children}
         </div>
       </motion.div>

@@ -92,7 +92,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("low");
-  const [assigneeEmail, setAssigneeEmail] = useState("");
+  const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
@@ -110,7 +110,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     setTitle("");
     setDescription("");
     setPriority("low");
-    setAssigneeEmail("");
+    setAssigneeId("");
     setDueDate(undefined);
     setCreateMore(false);
     setLabels([]);
@@ -130,7 +130,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       const newTask = await mutateAsync({
         title: title.trim(),
         description: description.trim() || "",
-        userEmail: assigneeEmail,
+        userId: assigneeId,
         priority,
         projectId: project?.id,
         dueDate: dueDate ? dueDate.toISOString() : new Date().toISOString(),
@@ -157,8 +157,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
           if (targetColumn) {
             targetColumn.tasks.push({
               ...newTask,
-              assigneeEmail: assigneeEmail,
-              assigneeName: assigneeEmail,
+              assigneeId: assigneeId,
+              assigneeName: assigneeId,
               position: 0,
             });
           }
@@ -166,14 +166,14 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       });
 
       setProject(updatedProject);
-      updateTask({ ...newTask, position: 0, assigneeEmail: assigneeEmail });
+      updateTask({ ...newTask, position: 0, assigneeId: assigneeId });
       toast.success("Task created successfully");
 
       if (createMore) {
         setTitle("");
         setDescription("");
         setPriority("low");
-        setAssigneeEmail("");
+        setAssigneeId("");
         setDueDate(undefined);
         setLabels([]);
         setSearchValue("");
@@ -221,7 +221,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   ];
 
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
-  const selectedUser = users?.find((u) => u.userEmail === assigneeEmail);
+  const selectedUser = users?.find((u) => u.userId === assigneeId);
 
   const filteredLabels = labels.filter((label: Label) =>
     label.name.toLowerCase().includes(searchValue.toLowerCase()),
@@ -431,17 +431,17 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     <button
                       type="button"
                       className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
-                      onClick={() => setAssigneeEmail("")}
+                      onClick={() => setAssigneeId("")}
                     >
                       <UserIcon className="w-4 h-4 text-zinc-600 dark:text-zinc-500" />
                       Unassigned
                     </button>
                     {users?.map((user) => (
                       <button
-                        key={user.userEmail}
+                        key={user.userId}
                         type="button"
                         className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
-                        onClick={() => setAssigneeEmail(user.userEmail || "")}
+                        onClick={() => setAssigneeId(user.userId || "")}
                       >
                         <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
                           {user.userName?.charAt(0).toUpperCase() || "?"}

@@ -68,14 +68,14 @@ export function PublicTaskDetailModal({
                     </div>
                   )}
 
-                  {task.userEmail && (
+                  {task.userId && (
                     <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/50 px-3 py-1.5 rounded-full">
                       <User className="w-4 h-4" />
                       <span>Assigned to</span>
                       <Avatar className="h-5 w-5">
                         <AvatarFallback className="text-xs font-medium">
                           {task.assigneeName?.charAt(0).toUpperCase() ??
-                            task.userEmail?.charAt(0).toUpperCase()}
+                            task.userId?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <span className="font-medium">{task.assigneeName}</span>

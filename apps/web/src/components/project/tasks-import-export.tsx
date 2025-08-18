@@ -189,7 +189,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
       "status": "to-do",
       "priority": "low",
       "dueDate": "2025-04-20T00:00:00.000Z",
-      "userEmail": "user@example.com"
+      "userId": "user@example.com"
     }
   ]
 }`}

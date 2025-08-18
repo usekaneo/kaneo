@@ -9,7 +9,7 @@ import { useEffect } from "react";
 export const Route = createFileRoute("/dashboard")({
   component: DashboardIndexRouteComponent,
   async beforeLoad({ context: { user } }) {
-    if (user === null) {
+    if (user === undefined) {
       throw redirect({
         to: "/auth/sign-in",
       });
