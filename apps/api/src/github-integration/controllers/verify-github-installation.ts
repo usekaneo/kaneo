@@ -3,26 +3,13 @@ import createGithubApp from "../utils/create-github-app";
 
 const githubApp = createGithubApp();
 
-type VerificationResult = {
-  isInstalled: boolean;
-  installationId: number | null;
-  repositoryExists: boolean;
-  repositoryPrivate: boolean | null;
-  permissions: Record<string, string> | null;
-  message: string;
-  installationUrl?: string;
-  settingsUrl?: string;
-  hasRequiredPermissions?: boolean;
-  missingPermissions?: string[];
-};
-
 async function verifyGithubInstallation({
   repositoryOwner,
   repositoryName,
 }: {
   repositoryOwner: string;
   repositoryName: string;
-}): Promise<VerificationResult> {
+}) {
   try {
     if (!githubApp) {
       throw new HTTPException(500, {
@@ -76,6 +63,8 @@ async function verifyGithubInstallation({
       repositoryPrivate: repo.private,
       permissions: installation.permissions,
       hasRequiredPermissions: true,
+      missingPermissions: [],
+      installationUrl: `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new/permissions?target_id=${repo.id}`,
       message:
         "GitHub App is properly installed and has all required permissions",
       settingsUrl: `https://github.com/settings/installations/${installation.id}`,
@@ -105,6 +94,7 @@ async function verifyGithubInstallation({
           repositoryPrivate: null,
           permissions: null,
           hasRequiredPermissions: false,
+          missingPermissions: [],
           message: "Repository exists but GitHub App is not installed",
           installationUrl: process.env.GITHUB_APP_NAME
             ? `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new/permissions?target_id=${repoId}`
@@ -114,7 +104,10 @@ async function verifyGithubInstallation({
             : undefined,
         };
       } catch (repoError) {
-        const repoGithubError = repoError as { status?: number };
+        const repoGithubError = repoError as {
+          status?: number;
+          message?: string;
+        };
 
         if (repoGithubError.status === 404) {
           return {
@@ -124,10 +117,15 @@ async function verifyGithubInstallation({
             repositoryPrivate: null,
             permissions: null,
             hasRequiredPermissions: false,
+            missingPermissions: [],
+            settingsUrl: undefined,
+            installationUrl: undefined,
             message: "Repository does not exist or is not accessible",
           };
         }
-        throw repoError;
+        throw new HTTPException(500, {
+          message: `Failed to verify GitHub installation: ${repoGithubError.status || repoGithubError.message || "Unknown error"}`,
+        });
       }
     }
 

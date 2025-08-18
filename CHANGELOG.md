@@ -1,3 +1,21 @@
+## [1.2.4](https://github.com/usekaneo/kaneo/compare/v1.2.3...v1.2.4) (2025-08-17)
+
+
+### Bug Fixes
+
+* **#389:** added archived to the calculation of "solved" tickets ([#437](https://github.com/usekaneo/kaneo/issues/437)) ([4e21e6a](https://github.com/usekaneo/kaneo/commit/4e21e6a6740a32044b85c8e7a720d9240d048ee7)), closes [#389](https://github.com/usekaneo/kaneo/issues/389)
+* reorder imports in task-activities and task-comment components for consistency ([3267efe](https://github.com/usekaneo/kaneo/commit/3267efe56178413a53497c2f47be745839e4ef62))
+
+
+### Features
+
+* **#383:** add rich text editor for comments ([#435](https://github.com/usekaneo/kaneo/issues/435)) ([9787e0b](https://github.com/usekaneo/kaneo/commit/9787e0b075f68286fa2e2d81d516f84ee877d084)), closes [#383](https://github.com/usekaneo/kaneo/issues/383)
+* **391:** add "archive" and "planned" to the context menu of cards ([#436](https://github.com/usekaneo/kaneo/issues/436)) ([48f4a03](https://github.com/usekaneo/kaneo/commit/48f4a03a3a4b13fa069890100ba3af82958bc92a))
+* enhance metadata and sitemap for improved SEO and user experience ([472ff23](https://github.com/usekaneo/kaneo/commit/472ff231656025c0b7bb939c8c01bff0bd2b63be))
+* replace loading indicators with a new LoadingSkeleton component for improved UI consistency ([d4c7069](https://github.com/usekaneo/kaneo/commit/d4c7069da5eff244c46fb8fc7b81c144fb0e80ba))
+
+
+
 ## [1.2.3](https://github.com/usekaneo/kaneo/compare/v1.2.2...v1.2.3) (2025-08-06)
 
 
