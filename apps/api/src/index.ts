@@ -4,12 +4,14 @@ import { Cron } from "croner";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
 import { auth } from "./auth";
 import config from "./config";
 import db from "./database";
 import githubIntegration from "./github-integration";
 import label from "./label";
+
 import notification from "./notification";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
@@ -53,15 +55,6 @@ app.use(
   }),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
-
-app.use("*", async (c, next) => {
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  c.set("user", session?.user || null);
-  c.set("session", session?.session || null);
-  return next();
-});
-
 const configRoute = app.route("/config", config);
 
 const githubIntegrationRoute = app.route(
@@ -74,6 +67,23 @@ const publicProjectRoute = app.get("/public-project/:id", async (c) => {
   const project = await getPublicProject(id);
 
   return c.json(project);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
+  auth.handler(c.req.raw),
+);
+
+app.use("*", async (c, next) => {
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  c.set("user", session?.user || null);
+  c.set("session", session?.session || null);
+  c.set("userId", session?.user?.id || "");
+
+  if (!session?.user) {
+    throw new HTTPException(401, { message: "Unauthorized" });
+  }
+
+  return next();
 });
 
 if (isDemoMode) {

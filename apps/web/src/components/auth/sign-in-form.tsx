@@ -65,87 +65,61 @@ export function SignInForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-4">
-          <div>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                    Email
-                  </FormLabel>
-                  <FormControl>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+        <div className="space-y-3">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="m@example.com"
+                    type="email"
+                    autoComplete="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
                     <Input
-                      className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                      placeholder="you@example.com"
-                      type="email"
-                      autoComplete="email"
+                      placeholder="••••••••"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div>
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                    Password
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                        placeholder="••••••••"
-                        type={showPassword ? "text" : "password"}
-                        autoComplete="current-password"
-                        {...field}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-300"
-                        aria-label={
-                          showPassword ? "Hide password" : "Show password"
-                        }
-                        aria-pressed={showPassword}
-                      >
-                        {showPassword ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end mt-1">
-              <button
-                type="button"
-                className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-              >
-                Forgot password?
-              </button>
-            </div>
-          </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="w-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 mt-6"
-        >
+        <Button type="submit" disabled={isPending} className="w-full mt-4">
           {isPending ? "Signing In..." : "Sign In"}
         </Button>
       </form>

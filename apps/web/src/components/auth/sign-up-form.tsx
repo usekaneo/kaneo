@@ -69,20 +69,17 @@ export function SignUpForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+        <div className="space-y-3">
           <FormField
             control={form.control}
             name="name"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Full Name
-                </FormLabel>
+                <FormLabel className="text-sm font-medium">Full Name</FormLabel>
                 <FormControl>
                   <Input
-                    className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                    placeholder="Andrej Acevski"
+                    placeholder="John Doe"
                     type="text"
                     autoComplete="name"
                     {...field}
@@ -98,13 +95,10 @@ export function SignUpForm() {
             name="email"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Email
-                </FormLabel>
+                <FormLabel className="text-sm font-medium">Email</FormLabel>
                 <FormControl>
                   <Input
-                    className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
-                    placeholder="you@example.com"
+                    placeholder="m@example.com"
                     type="email"
                     autoComplete="email"
                     {...field}
@@ -120,13 +114,10 @@ export function SignUpForm() {
             name="password"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-zinc-300 mb-1.5 block">
-                  Password
-                </FormLabel>
+                <FormLabel className="text-sm font-medium">Password</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
-                      className="bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100"
                       placeholder="••••••••"
                       type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
@@ -135,7 +126,7 @@ export function SignUpForm() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-300"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       aria-label={
                         showPassword ? "Hide password" : "Show password"
                       }
@@ -151,12 +142,8 @@ export function SignUpForm() {
           />
         </div>
 
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="w-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 mt-6"
-        >
-          {isPending ? "Creating Account..." : "Sign Up"}
+        <Button type="submit" disabled={isPending} className="w-full mt-4">
+          {isPending ? "Creating Account..." : "Create Account"}
         </Button>
       </form>
     </Form>

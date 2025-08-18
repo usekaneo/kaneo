@@ -23,7 +23,7 @@ export const Route = createRootRouteWithContext<{
       location.pathname.includes("public-project");
     const isOnDashboard = location.pathname.includes("dashboard");
 
-    if (user === null && !isRouteUnprotected) {
+    if (user === undefined && !isRouteUnprotected) {
       throw redirect({
         to: "/auth/sign-in",
       });

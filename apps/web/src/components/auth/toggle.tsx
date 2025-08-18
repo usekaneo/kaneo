@@ -15,16 +15,14 @@ export function AuthToggle({ message, linkText, linkTo }: AuthToggleProps) {
   }
 
   return (
-    <div className="mt-6 text-center">
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        {message}{" "}
-        <Link
-          to={linkTo}
-          className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
-        >
-          {linkText}
-        </Link>
-      </p>
+    <div className="text-center text-sm">
+      {message}{" "}
+      <Link
+        to={linkTo}
+        className="underline underline-offset-4 hover:text-primary"
+      >
+        {linkText}
+      </Link>
     </div>
   );
 }

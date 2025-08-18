@@ -3,6 +3,7 @@ import { SignUpForm } from "@/components/auth/sign-up-form";
 import { AuthToggle } from "@/components/auth/toggle";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
+
 import { getConfig } from "@/fetchers/config/get-config";
 import { authClient } from "@/lib/auth-client";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
@@ -48,28 +49,31 @@ function SignUp() {
       <PageTitle title="Create Account" />
       <AuthLayout
         title="Create account"
-        subtitle="Get started with your free workspace"
+        subtitle="Get started with your workspace"
       >
-        <SignUpForm />
-        <div className="flex items-center gap-4 my-4">
-          <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
-          <span className="text-sm text-zinc-500 dark:text-zinc-400">or</span>
-          <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+        <div className="space-y-4 mt-6">
+          <Button
+            variant="outline"
+            onClick={handleGuestAccess}
+            disabled={isGuestLoading}
+            className="w-full"
+            size="sm"
+          >
+            <UserCheck className="w-4 h-4 mr-2" />
+            {isGuestLoading ? "Signing in..." : "Continue as guest"}
+          </Button>
+          <div className="flex items-center gap-4 my-4">
+            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+            <span className="text-sm text-zinc-500 dark:text-zinc-400">or</span>
+            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+          <SignUpForm />
+          <AuthToggle
+            message="Already have an account?"
+            linkText="Sign in"
+            linkTo="/auth/sign-in"
+          />
         </div>
-        <Button
-          variant="outline"
-          onClick={handleGuestAccess}
-          disabled={isGuestLoading}
-          className="w-full"
-        >
-          <UserCheck className="w-4 h-4 mr-2" />
-          {isGuestLoading ? "Signing in..." : "Continue as guest"}
-        </Button>
-        <AuthToggle
-          message="Already have an account?"
-          linkText="Sign in"
-          linkTo="/auth/sign-in"
-        />
       </AuthLayout>
     </>
   );
