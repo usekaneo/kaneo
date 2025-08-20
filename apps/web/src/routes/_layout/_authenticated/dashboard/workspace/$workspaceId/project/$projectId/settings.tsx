@@ -60,7 +60,7 @@ const projectFormSchema = z.object({
 type ProjectFormValues = z.infer<typeof projectFormSchema>;
 
 export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/project/$projectId/settings",
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/settings",
 )({
   component: ProjectSettings,
 });

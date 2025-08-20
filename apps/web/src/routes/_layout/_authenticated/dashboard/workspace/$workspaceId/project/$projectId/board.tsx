@@ -37,7 +37,7 @@ import {
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/project/$projectId/board",
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",
 )({
   component: RouteComponent,
 });

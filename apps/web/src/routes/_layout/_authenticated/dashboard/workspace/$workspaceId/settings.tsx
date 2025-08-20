@@ -35,7 +35,7 @@ const workspaceFormSchema = z.object({
 type WorkspaceFormValues = z.infer<typeof workspaceFormSchema>;
 
 export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/settings",
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/settings",
 )({
   component: SettingsComponent,
 });

@@ -20,7 +20,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LayoutGrid, Plus } from "lucide-react";
 import { useState } from "react";
 
-export const Route = createFileRoute("/dashboard/workspace/$workspaceId/")({
+export const Route = createFileRoute(
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/",
+)({
   component: RouteComponent,
 });
 

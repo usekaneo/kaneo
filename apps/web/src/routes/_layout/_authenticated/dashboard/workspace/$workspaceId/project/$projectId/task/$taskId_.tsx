@@ -16,7 +16,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_",
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_",
 )({
   component: TaskEditPage,
 });

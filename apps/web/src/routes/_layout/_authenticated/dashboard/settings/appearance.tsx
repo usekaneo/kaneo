@@ -18,7 +18,9 @@ import {
   Users,
 } from "lucide-react";
 
-export const Route = createFileRoute("/dashboard/settings/appearance")({
+export const Route = createFileRoute(
+  "/_layout/_authenticated/dashboard/settings/appearance",
+)({
   component: UserSettings,
 });
 
