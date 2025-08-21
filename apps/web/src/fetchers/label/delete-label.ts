@@ -1,23 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type DeleteLabelRequest = InferRequestType<
-  (typeof client)["label"][":id"]["$delete"]
->["param"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type DeleteLabelRequest = RouterInput["label"]["delete"];
 
-async function deleteLabel({ id }: DeleteLabelRequest) {
-  const response = await client.label[":id"].$delete({
-    param: { id },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+async function deleteLabel(input: DeleteLabelRequest) {
+  return await trpcClient.label.delete.mutate(input);
 }
 
 export default deleteLabel;

@@ -1,30 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type CreateTimeEntryRequest = InferRequestType<
-  (typeof client)["time-entry"]["$post"]
->["json"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type CreateTimeEntryRequest = RouterInput["timeEntry"]["create"];
 
-async function createTimeEntry({
-  taskId,
-  description,
-  startTime,
-}: CreateTimeEntryRequest) {
-  const response = await client["time-entry"].$post({
-    json: {
-      taskId,
-      description,
-      startTime,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-  return data;
+async function createTimeEntry(input: CreateTimeEntryRequest) {
+  return await trpcClient.timeEntry.create.mutate(input);
 }
 
 export default createTimeEntry;

@@ -65,7 +65,12 @@ function RouteComponent() {
 
   useEffect(() => {
     if (data) {
-      setProject(data);
+      // Transform the API response to match the expected project structure
+      const transformedProject = {
+        ...data,
+        tasks: [], // Add empty tasks array since components expect it
+      };
+      setProject(transformedProject);
     }
   }, [data, setProject]);
 

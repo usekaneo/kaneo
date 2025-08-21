@@ -1,26 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type CreateLabelRequest = InferRequestType<
-  (typeof client)["label"]["$post"]
->["json"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type CreateLabelRequest = RouterInput["label"]["create"];
 
-async function createLabel({ name, color, taskId }: CreateLabelRequest) {
-  const response = await client.label.$post({
-    json: {
-      name,
-      color,
-      taskId,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-  return data;
+async function createLabel(input: CreateLabelRequest) {
+  return await trpcClient.label.create.mutate(input);
 }
 
 export default createLabel;

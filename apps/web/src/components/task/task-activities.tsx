@@ -21,7 +21,6 @@ function TaskActivities() {
     if (user?.id) {
       deleteComment({
         id: activityId,
-        userId: user.id,
       });
     }
   };

@@ -2,8 +2,7 @@ import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import toKebabCase from "@/lib/to-kebab-case";
-import type { ProjectWithTasks } from "@/types/project";
-import type Task from "@/types/task";
+import type { Project, Task } from "@/types";
 import {
   DndContext,
   type DragEndEvent,
@@ -31,7 +30,7 @@ import CreateTaskModal from "../shared/modals/create-task-modal";
 import BacklogTaskRow from "./backlog-task-row";
 
 interface BacklogListViewProps {
-  project?: ProjectWithTasks;
+  project?: Project;
 }
 
 function BacklogListView({ project }: BacklogListViewProps) {

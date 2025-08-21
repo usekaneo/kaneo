@@ -1,23 +1,13 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type GetActivitesByTaskIdRequest = InferRequestType<
-  (typeof client)["activity"][":taskId"]["$get"]
->["param"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type GetActivitesByTaskIdRequest =
+  RouterInput["activity"]["getByTaskId"];
 
-async function getActivitesByTaskId({ taskId }: GetActivitesByTaskIdRequest) {
-  const response = await client.activity[":taskId"].$get({
-    param: { taskId },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+async function getActivitesByTaskId(input: GetActivitesByTaskIdRequest) {
+  return await trpcClient.activity.getByTaskId.query(input);
 }
 
 export default getActivitesByTaskId;

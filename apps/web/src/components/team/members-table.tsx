@@ -1,6 +1,6 @@
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getStatusIcon, getStatusText } from "@/lib/status";
-import type WorkspaceUser from "@/types/workspace-user";
+import type { WorkspaceUser } from "@/types";
 import { MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";

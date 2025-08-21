@@ -1,16 +1,16 @@
+import "@/index.css";
 import queryClient from "@/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "@/index.css";
-import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import AuthProvider from "./components/providers/auth-provider";
 import { ThemeProvider } from "./components/providers/theme-provider";
 import { ErrorBoundary } from "./components/ui/error-boundary";
 import { ErrorFallback } from "./components/ui/error-fallback";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
 import { routeTree } from "./routeTree.gen";
+import { trpc } from "./utils/trpc";
 
 console.log(`
 ██╗  ██╗ █████╗ ███╗   ██╗███████╗ ██████╗ 
@@ -23,12 +23,24 @@ console.log(`
 
 const router = createRouter({
   routeTree,
-  defaultPreload: "intent",
+  scrollRestoration: true,
   defaultPreloadStaleTime: 0,
-  context: {
-    user: null,
-    queryClient,
-  },
+  defaultPreload: "intent",
+  context: { trpc, queryClient },
+  defaultPendingComponent: () => <div>Loading...</div>,
+  defaultNotFoundComponent: () => <div>Not Found</div>,
+  Wrap: ({ children }) => (
+    <ErrorBoundary fallback={ErrorFallback}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <KeyboardShortcutsProvider>{children}</KeyboardShortcutsProvider>
+          </AuthProvider>
+        </ThemeProvider>
+        {children}
+      </QueryClientProvider>
+    </ErrorBoundary>
+  ),
 });
 
 declare module "@tanstack/react-router" {
@@ -37,28 +49,12 @@ declare module "@tanstack/react-router" {
   }
 }
 
-function App() {
-  const { user } = useAuth();
-
-  return <RouterProvider router={router} context={{ user }} />;
-}
-
 const rootElement = document.getElementById("root") as HTMLElement;
 if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
-      <ErrorBoundary fallback={ErrorFallback}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <AuthProvider>
-              <KeyboardShortcutsProvider>
-                <App />
-              </KeyboardShortcutsProvider>
-            </AuthProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
+      <RouterProvider router={router} />
     </StrictMode>,
   );
 }

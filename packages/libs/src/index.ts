@@ -1,1 +1,2 @@
-export { client } from "./hono";
+// nothin anymore
+// but somethin later

@@ -1,4 +1,4 @@
-import { client } from "@kaneo/libs";
+import { trpcClient } from "@/utils/trpc";
 
 export type TaskToImport = {
   title: string;
@@ -10,18 +10,7 @@ export type TaskToImport = {
 };
 
 async function importTasks(projectId: string, tasks: TaskToImport[]) {
-  const response = await client.task.import[":projectId"].$post({
-    param: { projectId },
-    json: { tasks },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-  return data;
+  return await trpcClient.task.import.mutate({ projectId, tasks });
 }
 
 export default importTasks;

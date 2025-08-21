@@ -181,7 +181,10 @@ export function GitHubIntegrationSettings({
 
       await createIntegration({
         projectId,
-        data,
+        data: {
+          projectId,
+          ...data,
+        },
       });
       toast.success("GitHub integration updated successfully");
     } catch (error) {

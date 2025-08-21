@@ -49,7 +49,6 @@ function TaskComment({
       if (commentId) {
         await updateComment({
           id: commentId,
-          userId: user.id,
           content: data.comment,
         });
         onSubmit?.();
@@ -57,7 +56,6 @@ function TaskComment({
         await createComment({
           taskId: taskId,
           content: data.comment,
-          userId: user?.id,
         });
         onSubmit?.();
       }

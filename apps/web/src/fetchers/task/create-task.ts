@@ -1,10 +1,9 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type CreateTaskRequest = InferRequestType<
-  (typeof client)["task"][":projectId"]["$post"]
->["json"] &
-  InferRequestType<(typeof client)["task"][":projectId"]["$post"]>["param"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type CreateTaskRequest = RouterInput["task"]["create"];
 
 async function createTask(
   title: string,
@@ -12,29 +11,20 @@ async function createTask(
   projectId: string,
   userId: string,
   status: string,
-  dueDate: Date,
+  dueDate: Date | undefined,
   priority: string,
 ) {
-  const response = await client.task[":projectId"].$post({
-    json: {
-      title,
-      description,
-      userId,
-      status,
-      dueDate: dueDate.toISOString(),
-      priority,
-    },
-    param: { projectId },
-  });
+  const input: CreateTaskRequest = {
+    title,
+    description,
+    projectId,
+    userId,
+    status,
+    dueDate,
+    priority,
+  };
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+  return await trpcClient.task.create.mutate(input);
 }
 
 export default createTask;

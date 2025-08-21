@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/components/public-project/theme-toggle";
 import { Button } from "@/components/ui/button";
 import icons from "@/constants/project-icons";
 import useGetPublicProject from "@/hooks/queries/project/use-get-public-project";
-import type Task from "@/types/task";
+import type { Task } from "@/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { Grid3X3, Layout, List } from "lucide-react";
 import { createElement, useState } from "react";

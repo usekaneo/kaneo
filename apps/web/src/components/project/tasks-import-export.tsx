@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import useExportTasks from "@/hooks/mutations/task/use-export-tasks";
 import useImportTasks from "@/hooks/mutations/task/use-import-tasks";
 import { cn } from "@/lib/cn";
-import type { ProjectWithTasks } from "@/types/project";
+import type { Project } from "@/types";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
@@ -11,7 +11,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface TasksImportExportProps {
-  project: ProjectWithTasks;
+  project: Project;
 }
 
 export function TasksImportExport({ project }: TasksImportExportProps) {

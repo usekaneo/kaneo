@@ -1,19 +1,7 @@
-import { client } from "@kaneo/libs";
+import { trpcClient } from "@/utils/trpc";
 
 async function getGithubIntegration(projectId: string) {
-  const response = await client["github-integration"].project[
-    ":projectId"
-  ].$get({
-    param: { projectId },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-  return data;
+  return await trpcClient.githubIntegration.get.query({ projectId });
 }
 
 export default getGithubIntegration;

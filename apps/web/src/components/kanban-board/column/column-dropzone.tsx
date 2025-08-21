@@ -1,4 +1,4 @@
-import type { ProjectWithTasks } from "@/types/project";
+import type { ProjectColumn } from "@/types";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import TaskCard from "../task-card";
 
 interface ColumnDropzoneProps {
-  column: ProjectWithTasks["columns"][number];
+  column: ProjectColumn;
   onIsOverChange?: (isOver: boolean) => void;
 }
 

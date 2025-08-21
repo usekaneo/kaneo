@@ -3,7 +3,7 @@ import useCreateTimeEntry from "@/hooks/mutations/time-entry/use-create-time-ent
 import useUpdateTimeEntry from "@/hooks/mutations/time-entry/use-update-time-entry";
 import useGetTimeEntriesByTaskId from "@/hooks/queries/time-entry/use-get-time-entries";
 import { formatDuration } from "@/lib/format-duration";
-import type { TimeEntry } from "@/types/time-entry";
+import type { TimeEntry } from "@/types";
 import { format } from "date-fns";
 import { Clock, Pause, Play } from "lucide-react";
 import { useEffect, useState } from "react";

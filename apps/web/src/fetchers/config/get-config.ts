@@ -1,18 +1,10 @@
-import { client } from "@kaneo/libs";
-import type { InferResponseType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type GetConfigResponse = InferResponseType<
-  (typeof client)["config"]["$get"]
->;
+type RouterOutput = inferRouterOutputs<AppRouter>;
+export type GetConfigResponse = RouterOutput["config"];
 
 export async function getConfig() {
-  const response = await client.config.$get();
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-  return data;
+  return await trpcClient.config.query();
 }

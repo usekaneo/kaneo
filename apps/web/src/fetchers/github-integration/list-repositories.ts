@@ -1,20 +1,13 @@
-import { client } from "@kaneo/libs";
-import type { InferResponseType } from "hono";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type ListRepositoriesResponse = InferResponseType<
-  (typeof client)["github-integration"]["repositories"]["$get"]
->;
+type RouterOutput = inferRouterOutputs<AppRouter>;
+export type ListRepositoriesResponse =
+  RouterOutput["githubIntegration"]["listRepositories"];
 
 async function listRepositories(): Promise<ListRepositoriesResponse> {
-  const response = await client["github-integration"].repositories.$get();
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const result = await response.json();
-  return result;
+  return await trpcClient.githubIntegration.listRepositories.query();
 }
 
 export default listRepositories;

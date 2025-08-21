@@ -1,13 +1,13 @@
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import toKebabCase from "@/lib/to-kebab-case";
-import type { ProjectWithTasks } from "@/types/project";
+import type { ProjectColumn } from "@/types";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
 
 interface ColumnProps {
-  column: ProjectWithTasks["columns"][number];
+  column: ProjectColumn;
 }
 
 function Column({ column }: ColumnProps) {

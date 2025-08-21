@@ -1,21 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type DeleteProjectRequest = InferRequestType<
-  (typeof client)["project"][":id"]["$delete"]
->["param"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type DeleteProjectRequest = RouterInput["project"]["delete"];
 
-async function deleteProject({ id }: DeleteProjectRequest) {
-  const response = await client.project[":id"].$delete({ param: { id } });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+async function deleteProject(input: DeleteProjectRequest) {
+  return await trpcClient.project.delete.mutate(input);
 }
 
 export default deleteProject;

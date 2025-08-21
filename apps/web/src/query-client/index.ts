@@ -1,5 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 
+// TODO: what to keep?
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

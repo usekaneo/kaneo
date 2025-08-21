@@ -1,30 +1,19 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType, InferResponseType } from "hono";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type VerifyGithubInstallationRequest = InferRequestType<
-  (typeof client)["github-integration"]["verify"]["$post"]
->["json"];
+type RouterInput = inferRouterInputs<AppRouter>;
+type RouterOutput = inferRouterOutputs<AppRouter>;
 
-export type VerifyGithubInstallationResponse = InferResponseType<
-  (typeof client)["github-integration"]["verify"]["$post"],
-  200
->;
+export type VerifyGithubInstallationRequest =
+  RouterInput["githubIntegration"]["verifyInstallation"];
+export type VerifyGithubInstallationResponse =
+  RouterOutput["githubIntegration"]["verifyInstallation"];
 
 async function verifyGithubInstallation(
   data: VerifyGithubInstallationRequest,
 ): Promise<VerifyGithubInstallationResponse> {
-  const response = await client["github-integration"].verify.$post({
-    json: data,
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Request failed");
-  }
-
-  const result = await response.json();
-
-  return result;
+  return await trpcClient.githubIntegration.verifyInstallation.query(data);
 }
 
 export default verifyGithubInstallation;

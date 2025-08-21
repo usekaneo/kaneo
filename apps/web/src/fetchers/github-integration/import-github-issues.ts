@@ -1,22 +1,13 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type ImportGithubIssuesRequest = InferRequestType<
-  (typeof client)["github-integration"]["import-issues"]["$post"]
->["json"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type ImportGithubIssuesRequest =
+  RouterInput["githubIntegration"]["importIssues"];
 
 async function importGithubIssues(data: ImportGithubIssuesRequest) {
-  const response = await client["github-integration"]["import-issues"].$post({
-    json: data,
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const result = await response.json();
-  return result;
+  return await trpcClient.githubIntegration.importIssues.mutate(data);
 }
 
 export default importGithubIssues;

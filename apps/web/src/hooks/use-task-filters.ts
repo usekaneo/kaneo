@@ -1,5 +1,5 @@
-import type { ProjectWithTasks } from "@/types/project";
-import type Task from "@/types/task";
+import type { Task } from "@/types";
+import type { Project } from "@/types";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useState } from "react";
 
@@ -10,7 +10,7 @@ export interface BoardFilters {
   dueDate: string | null;
 }
 
-export function useTaskFilters(project: ProjectWithTasks | null | undefined) {
+export function useTaskFilters(project: Project | null | undefined) {
   const [filters, setFilters] = useState<BoardFilters>({
     status: null,
     priority: null,

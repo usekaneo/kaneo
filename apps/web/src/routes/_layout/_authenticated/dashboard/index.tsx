@@ -1,6 +1,6 @@
 import getWorkspaces from "@/fetchers/workspace/get-workspaces";
 import { authClient } from "@/lib/auth-client";
-import type Workspace from "@/types/workspace";
+import type { Workspace } from "@/types";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({

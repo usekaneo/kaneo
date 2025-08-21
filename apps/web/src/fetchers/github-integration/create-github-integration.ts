@@ -1,28 +1,21 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type CreateGithubIntegrationRequest = InferRequestType<
-  (typeof client)["github-integration"]["project"][":projectId"]["$post"]
->["json"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type CreateGithubIntegrationRequest =
+  RouterInput["githubIntegration"]["create"];
 
 async function createGithubIntegration(
   projectId: string,
-  data: CreateGithubIntegrationRequest,
+  data: Omit<CreateGithubIntegrationRequest, "projectId">,
 ) {
-  const response = await client["github-integration"].project[
-    ":projectId"
-  ].$post({
-    param: { projectId },
-    json: data,
-  });
+  const input: CreateGithubIntegrationRequest = {
+    projectId,
+    ...data,
+  };
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const result = await response.json();
-  return result;
+  return await trpcClient.githubIntegration.create.mutate(input);
 }
 
 export default createGithubIntegration;

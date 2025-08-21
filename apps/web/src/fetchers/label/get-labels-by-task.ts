@@ -1,24 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type GetLabelsByTaskRequest = InferRequestType<
-  (typeof client)["label"][":taskId"]["$get"]
->["param"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type GetLabelsByTaskRequest = RouterInput["label"]["getByTaskId"];
 
-async function getLabelsByTask({ taskId }: GetLabelsByTaskRequest) {
-  const response = await client.label[":taskId"].$get({
-    param: {
-      taskId,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-  return data;
+async function getLabelsByTask(input: GetLabelsByTaskRequest) {
+  return await trpcClient.label.getByTaskId.query(input);
 }
 
 export default getLabelsByTask;

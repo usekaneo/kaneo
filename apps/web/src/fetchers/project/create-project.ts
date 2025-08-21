@@ -1,23 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type CreateProjectRequest = InferRequestType<
-  (typeof client)["project"]["$post"]
->["json"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type CreateProjectRequest = RouterInput["project"]["create"];
 
-async function createProject({ name, slug, icon }: CreateProjectRequest) {
-  const response = await client.project.$post({
-    json: { name, slug, icon },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+async function createProject(input: CreateProjectRequest) {
+  return await trpcClient.project.create.mutate(input);
 }
 
 export default createProject;

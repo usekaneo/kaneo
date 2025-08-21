@@ -3,7 +3,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import type Task from "@/types/task";
+import type { Task } from "@/types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
@@ -158,7 +158,7 @@ function TaskCard({ task }: TaskCardProps) {
             task={task}
             taskCardContext={{
               projectId: project.id,
-              worskpaceId: workspace.id,
+              workspaceId: workspace.id,
             }}
           />
         )}

@@ -1,9 +1,9 @@
-import type { ProjectWithTasks } from "@/types/project";
+import type { Project } from "@/types";
 import { create } from "zustand";
 
 const useProjectStore = create<{
-  project: ProjectWithTasks | undefined;
-  setProject: (updatedProject: ProjectWithTasks | undefined) => void;
+  project: Project | undefined;
+  setProject: (updatedProject: Project | undefined) => void;
 }>((set) => ({
   project: undefined,
   setProject: (updatedProject) => set(() => ({ project: updatedProject })),

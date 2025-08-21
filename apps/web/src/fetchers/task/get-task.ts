@@ -1,21 +1,7 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
-
-export type GetTaskRequest = InferRequestType<
-  (typeof client)["task"][":id"]["$get"]
->["param"];
+import { trpcClient } from "@/utils/trpc";
 
 async function getTask(taskId: string) {
-  const response = await client.task[":id"].$get({ param: { id: taskId } });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+  return await trpcClient.task.get.query({ id: taskId });
 }
 
 export default getTask;

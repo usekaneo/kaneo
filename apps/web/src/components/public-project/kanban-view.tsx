@@ -1,6 +1,5 @@
 import { DEFAULT_COLUMNS } from "@/constants/columns";
-import type { ProjectWithTasks } from "@/types/project";
-import type Task from "@/types/task";
+import type { Project, Task } from "@/types";
 import type { LucideIcon } from "lucide-react";
 import { PublicTaskCard } from "./task-card";
 
@@ -12,7 +11,7 @@ interface Column {
 }
 
 interface PublicKanbanViewProps {
-  project: ProjectWithTasks;
+  project: Project;
   onTaskClick: (task: Task) => void;
 }
 

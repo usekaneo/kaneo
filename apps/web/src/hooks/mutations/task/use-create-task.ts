@@ -16,12 +16,12 @@ function useCreateTask() {
     }: CreateTaskRequest) =>
       createTask(
         title,
-        description,
+        description || "",
         projectId,
         userId ?? "",
         status,
-        new Date(dueDate),
-        priority,
+        dueDate ? new Date(dueDate) : undefined,
+        priority || "",
       ),
   });
 }

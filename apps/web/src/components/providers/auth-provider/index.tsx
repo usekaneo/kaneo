@@ -1,5 +1,5 @@
 import { authClient } from "@/lib/auth-client";
-import type { User } from "@/types/user";
+import type { User } from "better-auth";
 import { type PropsWithChildren, createContext } from "react";
 import { ErrorDisplay } from "../../ui/error-display";
 import { LoadingSkeleton } from "../../ui/loading-skeleton";

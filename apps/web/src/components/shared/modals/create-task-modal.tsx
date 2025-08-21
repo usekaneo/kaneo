@@ -129,7 +129,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         userId: assigneeId,
         priority,
         projectId: project?.id,
-        dueDate: dueDate ? dueDate.toISOString() : new Date().toISOString(),
+        dueDate: dueDate,
         status: taskStatus,
       });
 

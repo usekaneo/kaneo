@@ -24,7 +24,7 @@ import {
   useRegisterShortcuts,
 } from "@/hooks/use-keyboard-shortcuts";
 import { authClient } from "@/lib/auth-client";
-import type { Workspace } from "@/types/workspace";
+import type { Workspace } from "@/types";
 import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
 
 export function WorkspaceSwitcher() {

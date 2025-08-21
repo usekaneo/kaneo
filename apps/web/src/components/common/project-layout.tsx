@@ -37,7 +37,7 @@ export default function ProjectLayout({
   children,
 }: ProjectLayoutProps) {
   const { data: workspace } = useActiveWorkspace();
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
+  const { data: project } = useGetProject({ id: projectId });
 
   return (
     <Layout>

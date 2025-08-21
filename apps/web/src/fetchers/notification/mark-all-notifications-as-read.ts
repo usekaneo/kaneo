@@ -1,15 +1,7 @@
-import { client } from "@kaneo/libs";
+import { trpcClient } from "@/utils/trpc";
 
 async function markAllNotificationsAsRead() {
-  const response = await client.notification["read-all"].$patch();
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-  return data;
+  return await trpcClient.notification.markAllAsRead.mutate();
 }
 
 export default markAllNotificationsAsRead;

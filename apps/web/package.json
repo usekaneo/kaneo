@@ -43,6 +43,9 @@
 		"@tiptap/pm": "^2.12.0",
 		"@tiptap/react": "^2.12.0",
 		"@tiptap/starter-kit": "^2.12.0",
+		"@trpc/client": "^11.5.0",
+		"@trpc/react-query": "^11.5.0",
+		"@trpc/tanstack-react-query": "^11.5.0",
 		"@types/file-saver": "^2.0.7",
 		"@vitejs/plugin-react": "^4.7.0",
 		"babel-plugin-react-compiler": "^19.0.0-beta-714736e-20250131",
@@ -60,7 +63,6 @@
 		"react-day-picker": "9.8.1",
 		"react-dom": "^19.0.0",
 		"react-hook-form": "^7.58.0",
-		"react-use-websocket": "^4.11.1",
 		"sonner": "^2.0.6",
 		"tailwind-merge": "^3.3.0",
 		"tailwindcss-animate": "^1.0.7",
@@ -69,7 +71,6 @@
 		"zustand": "^5.0.4"
 	},
 	"devDependencies": {
-		"@kaneo/libs": "workspace:*",
 		"@tailwindcss/postcss": "^4.1.8",
 		"@types/node": "^24.1.0",
 		"@types/react": "^19.1.3",

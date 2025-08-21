@@ -30,9 +30,7 @@ function RouteComponent() {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const { workspaceId } = Route.useParams();
   const navigate = useNavigate();
-  const { data: projects, isLoading } = useGetProjects({
-    workspaceId,
-  });
+  const { data: projects, isLoading } = useGetProjects();
 
   const handleCreateProject = () => {
     setIsCreateProjectOpen(true);

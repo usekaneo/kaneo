@@ -1,23 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type GetPublicProjectRequest = InferRequestType<
-  (typeof client)["public-project"][":id"]["$get"]
->["param"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type GetPublicProjectRequest = RouterInput["project"]["getPublic"];
 
-async function getPublicProject({ id }: GetPublicProjectRequest) {
-  const response = await client["public-project"][":id"].$get({
-    param: { id },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+async function getPublicProject(input: GetPublicProjectRequest) {
+  return await trpcClient.project.getPublic.query(input);
 }
 
 export default getPublicProject;

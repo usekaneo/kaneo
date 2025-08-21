@@ -44,13 +44,13 @@ import { DEFAULT_COLUMNS } from "@/constants/columns";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { generateLink } from "@/lib/generate-link";
 import queryClient from "@/query-client";
-import type Task from "@/types/task";
+import type { Task } from "@/types";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { z } from "zod/v4";
 
 interface TaskCardContext {
-  worskpaceId: string;
+  workspaceId: string;
   projectId: string;
 }
 
@@ -63,11 +63,9 @@ export default function TaskCardContextMenuContent({
   task,
   taskCardContext,
 }: TaskCardContextMenuContentProps) {
-  const { data: projects } = useGetProjects({
-    workspaceId: taskCardContext.worskpaceId,
-  });
+  const { data: projects } = useGetProjects();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
-    taskCardContext.worskpaceId,
+    taskCardContext.workspaceId,
   );
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: createTask } = useCreateTask();
@@ -111,7 +109,7 @@ export default function TaskCardContextMenuContent({
   ];
 
   const handleCopyTaskLink = () => {
-    const path = `/dashboard/workspace/${taskCardContext.worskpaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
+    const path = `/dashboard/workspace/${taskCardContext.workspaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
     const taskLink = generateLink(path);
 
     navigator.clipboard.writeText(taskLink);
@@ -125,12 +123,12 @@ export default function TaskCardContextMenuContent({
 
     const newTask = {
       description: task.description ?? "",
-      dueDate: task.dueDate ?? "",
+      dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
       position: 0,
       priority: task.priority as "low" | "medium" | "high" | "urgent",
       status: task.status,
       title: task.title,
-      userId: task.userId ?? "",
+      userId: task.userId ?? undefined,
       projectId,
     };
 

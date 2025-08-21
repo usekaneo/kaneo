@@ -1,13 +1,13 @@
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { getColumnIcon, getColumnIconColor } from "@/lib/column";
 import useProjectStore from "@/store/project";
-import type { ProjectWithTasks } from "@/types/project";
+import type { Project, ProjectColumn } from "@/types";
 import { produce } from "immer";
 import { Archive } from "lucide-react";
 import { toast } from "sonner";
 
 interface ColumnHeaderProps {
-  column: ProjectWithTasks["columns"][number];
+  column: ProjectColumn;
 }
 
 export function ColumnHeader({ column }: ColumnHeaderProps) {

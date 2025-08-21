@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 import { getColumnIcon, getColumnIconColor } from "@/lib/column";
 import toKebabCase from "@/lib/to-kebab-case";
 import useProjectStore from "@/store/project";
-import type { ProjectWithTasks } from "@/types/project";
+import type { Project, ProjectColumn } from "@/types";
 import {
   DndContext,
   type DragEndEvent,
@@ -33,7 +33,7 @@ import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 
 type ListViewProps = {
-  project: ProjectWithTasks;
+  project: Project;
 };
 
 function ListView({ project }: ListViewProps) {
@@ -163,7 +163,7 @@ function ListView({ project }: ListViewProps) {
     }));
   };
 
-  const handleArchiveTasks = (column: ProjectWithTasks["columns"][number]) => {
+  const handleArchiveTasks = (column: ProjectColumn) => {
     if (column.id !== "done" || column.tasks.length === 0) return;
 
     if (!confirm(`Archive all ${column.tasks.length} completed tasks?`)) {
@@ -188,9 +188,7 @@ function ListView({ project }: ListViewProps) {
     toast.success(`Archived ${column.tasks.length} tasks`);
   };
 
-  function ColumnSection({
-    column,
-  }: { column: ProjectWithTasks["columns"][number] }) {
+  function ColumnSection({ column }: { column: ProjectColumn }) {
     const { setNodeRef } = useDroppable({
       id: column.id,
       data: {

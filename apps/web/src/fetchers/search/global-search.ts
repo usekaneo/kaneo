@@ -1,4 +1,8 @@
-import { client } from "@kaneo/libs";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
+
+type RouterInput = inferRouterInputs<AppRouter>;
 
 type SearchParams = {
   q: string;
@@ -15,23 +19,11 @@ type SearchParams = {
 };
 
 async function globalSearch(params: SearchParams) {
-  const queryParams = {
-    ...params,
-    limit: params.limit?.toString(),
-  };
+  // Map the q parameter to query for tRPC
+  const { q, ...rest } = params;
+  const input: RouterInput["search"]["global"] = { query: q, ...rest };
 
-  const response = await client.search.$get({
-    query: queryParams,
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+  return await trpcClient.search.global.query(input);
 }
 
 export default globalSearch;

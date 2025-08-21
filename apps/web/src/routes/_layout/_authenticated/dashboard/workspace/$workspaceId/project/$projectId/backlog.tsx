@@ -14,7 +14,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import type Task from "@/types/task";
+import type { Task } from "@/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { produce } from "immer";
@@ -71,7 +71,12 @@ function RouteComponent() {
 
   useEffect(() => {
     if (data) {
-      setProject(data);
+      // Transform the API response to match the expected project structure
+      const transformedProject = {
+        ...data,
+        tasks: [], // Add empty tasks array since components expect it
+      };
+      setProject(transformedProject);
     }
   }, [data, setProject]);
 

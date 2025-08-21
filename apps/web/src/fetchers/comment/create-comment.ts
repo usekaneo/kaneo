@@ -1,31 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type CreateCommentRequest = InferRequestType<
-  (typeof client)["activity"]["comment"]["$post"]
->["json"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type CreateCommentRequest = RouterInput["activity"]["createComment"];
 
-async function createComment({
-  taskId,
-  content,
-  userId,
-}: CreateCommentRequest) {
-  const response = await client.activity.comment.$post({
-    json: {
-      taskId,
-      content,
-      userId,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+async function createComment(input: CreateCommentRequest) {
+  return await trpcClient.activity.createComment.mutate(input);
 }
 
 export default createComment;

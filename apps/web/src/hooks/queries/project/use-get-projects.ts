@@ -1,11 +1,10 @@
-import getProjects from "@/fetchers/project/get-projects";
+import { getProjects } from "@/fetchers/project/get-projects";
 import { useQuery } from "@tanstack/react-query";
 
-function useGetProjects({ workspaceId }: { workspaceId: string }) {
+function useGetProjects() {
   return useQuery({
-    queryFn: () => getProjects({ workspaceId }),
-    queryKey: ["projects", workspaceId],
-    enabled: !!workspaceId,
+    queryFn: () => getProjects(),
+    queryKey: ["projects"],
   });
 }
 

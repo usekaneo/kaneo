@@ -1,23 +1,12 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { trpcClient } from "@/utils/trpc";
+import type { inferRouterInputs } from "@trpc/server";
+import type { AppRouter } from "../../../../api/src/routers";
 
-export type DeleteCommentRequest = InferRequestType<
-  (typeof client)["activity"]["comment"]["$delete"]
->["json"];
+type RouterInput = inferRouterInputs<AppRouter>;
+export type DeleteCommentRequest = RouterInput["activity"]["deleteComment"];
 
-async function deleteComment({ id, userId }: DeleteCommentRequest) {
-  const response = await client.activity.comment.$delete({
-    json: { id, userId },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+async function deleteComment(input: DeleteCommentRequest) {
+  return await trpcClient.activity.deleteComment.mutate(input);
 }
 
 export default deleteComment;

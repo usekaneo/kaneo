@@ -31,7 +31,12 @@ function TaskEditPage() {
 
   useEffect(() => {
     if (project) {
-      setProject(project);
+      // Transform the API response to match the expected project structure
+      const transformedProject = {
+        ...project,
+        tasks: [], // Add empty tasks array since components expect it
+      };
+      setProject(transformedProject);
     }
   }, [project, setProject]);
 

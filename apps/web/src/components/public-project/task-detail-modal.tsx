@@ -2,7 +2,7 @@ import { MarkdownRenderer } from "@/components/common/markdown-renderer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
-import type Task from "@/types/task";
+import type { Task } from "@/types";
 import * as Dialog from "@radix-ui/react-dialog";
 import { format } from "date-fns";
 import { Calendar, Flag, User, X } from "lucide-react";

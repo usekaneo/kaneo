@@ -1,6 +1,6 @@
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useProjectStore from "@/store/project";
-import type { ProjectWithTasks } from "@/types/project";
+import type { Project } from "@/types";
 import {
   DndContext,
   type DragEndEvent,
@@ -23,7 +23,7 @@ import Column from "./column";
 import TaskCard from "./task-card";
 
 type KanbanBoardProps = {
-  project: ProjectWithTasks;
+  project: Project;
 };
 
 function KanbanBoard({ project }: KanbanBoardProps) {

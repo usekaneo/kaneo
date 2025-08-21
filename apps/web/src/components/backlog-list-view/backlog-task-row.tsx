@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import type Task from "@/types/task";
+import type { Task } from "@/types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
@@ -157,7 +157,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
             task={task}
             taskCardContext={{
               projectId: project.id,
-              worskpaceId: project.workspaceId,
+              workspaceId: project.workspaceId,
             }}
           />
         )}

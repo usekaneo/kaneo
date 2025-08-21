@@ -1,18 +1,7 @@
-import { client } from "@kaneo/libs";
+import { trpcClient } from "@/utils/trpc";
 
 async function getTasks(projectId: string) {
-  const response = await client.task.tasks[":projectId"].$get({
-    param: { projectId },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
-  }
-
-  const data = await response.json();
-
-  return data;
+  return await trpcClient.task.list.query({ projectId });
 }
 
 export default getTasks;

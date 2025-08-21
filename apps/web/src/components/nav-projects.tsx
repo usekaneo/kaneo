@@ -21,7 +21,7 @@ import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
-import type { ProjectWithTasks } from "@/types/project";
+import type { Project } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Folder, Forward, MoreHorizontal, Trash2 } from "lucide-react";
@@ -49,9 +49,7 @@ import {
 export function NavProjects() {
   const { isMobile } = useSidebar();
   const { data: workspace } = useActiveWorkspace();
-  const { data: projects } = useGetProjects({
-    workspaceId: workspace?.id || "",
-  });
+  const { data: projects } = useGetProjects();
   const queryClient = useQueryClient();
   const { mutateAsync: deleteProject } = useDeleteProject();
   const navigate = useNavigate();
@@ -74,7 +72,7 @@ export function NavProjects() {
     );
   };
 
-  const handleProjectClick = (project: ProjectWithTasks) => {
+  const handleProjectClick = (project: Project) => {
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
       params: {

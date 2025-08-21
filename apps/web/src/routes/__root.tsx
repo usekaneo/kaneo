@@ -1,13 +1,15 @@
+import type queryClient from "@/query-client";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import type { User } from "@/types/user";
-import type { QueryClient } from "@tanstack/react-query";
+import type { trpc } from "@/utils/trpc";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
-export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient;
-  user: User | null | undefined;
-}>()({
+export interface RouterAppContext {
+  trpc: typeof trpc;
+  queryClient: typeof queryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
 });
 
