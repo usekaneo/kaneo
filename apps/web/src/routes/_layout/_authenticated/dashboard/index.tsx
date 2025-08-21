@@ -1,37 +1,38 @@
 import getWorkspaces from "@/fetchers/workspace/get-workspaces";
-import { useUserPreferencesStore } from "@/store/user-preferences";
+import { authClient } from "@/lib/auth-client";
 import type Workspace from "@/types/workspace";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({
   beforeLoad: async () => {
+    // Get current session to check for active workspace
+    const session = await authClient.getSession();
+    const activeWorkspaceId = session.data?.session?.activeOrganizationId;
+
+    // Get user's workspaces
     const workspaces: Workspace[] = await getWorkspaces();
 
-    const { activeWorkspaceId } = useUserPreferencesStore.getState();
+    // If user has no workspaces, redirect to create page
+    if (!workspaces || workspaces.length === 0) {
+      throw redirect({ to: "/dashboard/workspace/create" });
+    }
 
-    if (workspaces && workspaces.length > 0) {
-      if (
-        activeWorkspaceId &&
-        workspaces.some((ws) => ws.id === activeWorkspaceId)
-      ) {
-        throw redirect({
-          to: "/dashboard/workspace/$workspaceId",
-          params: { workspaceId: activeWorkspaceId },
-        });
-      }
-
-      const firstWorkspace = workspaces[0];
-
-      useUserPreferencesStore.setState({
-        activeWorkspaceId: firstWorkspace.id,
-      });
-
+    // If user has an active workspace and it exists in their workspace list, go there
+    if (
+      activeWorkspaceId &&
+      workspaces.some((ws) => ws.id === activeWorkspaceId)
+    ) {
       throw redirect({
         to: "/dashboard/workspace/$workspaceId",
-        params: { workspaceId: firstWorkspace.id },
+        params: { workspaceId: activeWorkspaceId },
       });
     }
 
-    throw redirect({ to: "/dashboard/workspace/create" });
+    // Default to first workspace if no active workspace is set
+    const firstWorkspace = workspaces[0];
+    throw redirect({
+      to: "/dashboard/workspace/$workspaceId",
+      params: { workspaceId: firstWorkspace.id },
+    });
   },
 });

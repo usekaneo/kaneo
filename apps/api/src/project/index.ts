@@ -1,13 +1,20 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
+import type { auth } from "../auth";
 import createProject from "./controllers/create-project";
 import deleteProject from "./controllers/delete-project";
 import getProject from "./controllers/get-project";
 import getProjects from "./controllers/get-projects";
 import updateProject from "./controllers/update-project";
 
-const project = new Hono()
+const project = new Hono<{
+  Variables: {
+    user: typeof auth.$Infer.Session.user | null;
+    session: typeof auth.$Infer.Session.session | null;
+    userId: string | null;
+  };
+}>()
   .get(
     "/",
     zValidator("query", z.object({ workspaceId: z.string() })),
@@ -23,14 +30,31 @@ const project = new Hono()
       "json",
       z.object({
         name: z.string(),
-        workspaceId: z.string(),
         icon: z.string(),
         slug: z.string(),
       }),
     ),
     async (c) => {
-      const { name, workspaceId, icon, slug } = c.req.valid("json");
-      const project = await createProject(workspaceId, name, icon, slug);
+      const session = c.get("session");
+      const { name, icon, slug } = c.req.valid("json");
+
+      // @ts-expect-error activeWorkspaceId is present on session, https://github.com/better-auth/better-auth/issues/3490
+      if (!session?.activeOrganizationId) {
+        return c.json(
+          {
+            error: "No active workspace found. Please select a workspace.",
+          },
+          400,
+        );
+      }
+
+      const project = await createProject(
+        // @ts-expect-error activeWorkspaceId is present on session, https://github.com/better-auth/better-auth/issues/3490
+        session.activeOrganizationId,
+        name,
+        icon,
+        slug,
+      );
       return c.json(project);
     },
   )

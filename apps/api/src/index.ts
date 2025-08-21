@@ -1,5 +1,4 @@
 import { serve } from "@hono/node-server";
-import type { Session, User } from "better-auth/types";
 import { Cron } from "croner";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
@@ -23,9 +22,9 @@ import purgeDemoData from "./utils/purge-demo-data";
 
 const app = new Hono<{
   Variables: {
-    user: User | null;
-    session: Session | null;
-    userId: string;
+    user: typeof auth.$Infer.Session.user | null;
+    session: typeof auth.$Infer.Session.session | null;
+    userId: string | null;
   };
 }>();
 
@@ -73,14 +72,18 @@ app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
 
 app.use("*", async (c, next) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  c.set("user", session?.user || null);
-  c.set("session", session?.session || null);
-  c.set("userId", session?.user?.id || "");
 
-  if (!session?.user) {
+  if (!session) {
+    c.set("user", null);
+    c.set("session", null);
+    c.set("userId", null);
+    // TODO this could be role based auth middleware
     throw new HTTPException(401, { message: "Unauthorized" });
   }
 
+  c.set("user", session.user);
+  c.set("session", session.session);
+  c.set("userId", session.user.id);
   return next();
 });
 

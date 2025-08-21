@@ -1,15 +1,12 @@
 import createProject from "@/fetchers/project/create-project";
 import { useMutation } from "@tanstack/react-query";
 
-function useCreateProject({
+export function useCreateProject({
   name,
   slug,
-  workspaceId,
   icon,
-}: { name: string; slug: string; workspaceId: string; icon: string }) {
+}: { name: string; slug: string; icon: string }) {
   return useMutation({
-    mutationFn: () => createProject({ name, slug, workspaceId, icon }),
+    mutationFn: () => createProject({ name, slug, icon }),
   });
 }
-
-export default useCreateProject;

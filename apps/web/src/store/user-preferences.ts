@@ -33,9 +33,6 @@ type UserPreferencesStore = {
 
   sidebarDefaultOpen: boolean;
   setSidebarDefaultOpen: (open: boolean) => void;
-
-  activeWorkspaceId: string | null;
-  setActiveWorkspaceId: (workspaceId: string | null) => void;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>()(
@@ -105,10 +102,6 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
 
       sidebarDefaultOpen: true,
       setSidebarDefaultOpen: (open) => set({ sidebarDefaultOpen: open }),
-
-      activeWorkspaceId: null,
-      setActiveWorkspaceId: (workspaceId) =>
-        set({ activeWorkspaceId: workspaceId }),
     }),
     {
       name: "user-preferences",

@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
-import { useUserPreferencesStore } from "@/store/user-preferences";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
@@ -32,7 +31,6 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { setActiveWorkspaceId } = useUserPreferencesStore();
   const { mutateAsync } = useCreateWorkspace();
 
   useEffect(() => {
@@ -58,7 +56,6 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
       toast.success("Workspace created successfully");
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
 
-      setActiveWorkspaceId(createdWorkspace.id);
       navigate({
         to: "/dashboard/workspace/$workspaceId",
         params: {

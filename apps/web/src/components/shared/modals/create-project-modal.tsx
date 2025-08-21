@@ -20,7 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import icons from "@/constants/project-icons";
-import useCreateProject from "@/hooks/mutations/project/use-create-project";
+import { useCreateProject } from "@/hooks/mutations/project/use-create-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import generateProjectSlug from "@/lib/generate-project-id";
@@ -44,7 +44,6 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   const { mutateAsync } = useCreateProject({
     name,
     slug,
-    workspaceId: workspace?.id ?? "",
     icon: selectedIcon,
   });
   const IconComponent = icons[selectedIcon as keyof typeof icons];
