@@ -17,8 +17,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
-import useWorkspaceStore from "@/store/workspace";
 import type { ReactNode } from "react";
 
 interface WorkspaceLayoutProps {
@@ -35,7 +35,7 @@ export default function WorkspaceLayout({
   children,
   className,
 }: WorkspaceLayoutProps) {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
 
   return (
     <Layout>

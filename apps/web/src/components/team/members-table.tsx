@@ -1,4 +1,4 @@
-import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getStatusIcon, getStatusText } from "@/lib/status";
 import type WorkspaceUser from "@/types/workspace-user";
 import { MoreHorizontal, Trash2 } from "lucide-react";

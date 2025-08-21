@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/sidebar";
 import useSignOut from "@/hooks/mutations/use-sign-out";
 import useProjectStore from "@/store/project";
-import useWorkspaceStore from "@/store/workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -30,7 +29,6 @@ export function NavUser() {
   const { mutateAsync: signOut, isPending } = useSignOut();
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
-  const { setWorkspace } = useWorkspaceStore();
 
   if (!user) {
     return null;
@@ -41,7 +39,6 @@ export function NavUser() {
       await signOut();
       queryClient.clear();
       setProject(undefined);
-      setWorkspace(undefined);
       toast.success("Signed out successfully");
     } catch (error) {
       toast.error(

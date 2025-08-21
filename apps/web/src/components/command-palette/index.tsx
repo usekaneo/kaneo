@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/command";
 import { KbdSequence } from "@/components/ui/kbd";
 import { shortcuts } from "@/constants/shortcuts";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import useWorkspaceStore from "@/store/workspace";
 import { useNavigate } from "@tanstack/react-router";
 import {
   FolderKanban,
@@ -32,7 +32,7 @@ import CreateProjectModal from "../shared/modals/create-project-modal";
 function CommandPalette() {
   const { theme, setTheme } = useUserPreferencesStore();
   const navigate = useNavigate();
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const [open, setOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);

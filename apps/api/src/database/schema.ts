@@ -33,6 +33,7 @@ export const sessionTable = pgTable("session", {
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
+  activeWorkspaceId: text("active_workspace_id"),
 });
 
 export const accountTable = pgTable("account", {
@@ -73,12 +74,10 @@ export const workspaceTable = pgTable("workspace", {
     .$defaultFn(() => createId())
     .primaryKey(),
   name: text("name").notNull(),
+  slug: text("slug").unique(),
+  logo: text("logo"),
+  metadata: text("metadata"),
   description: text("description"),
-  ownerId: text("owner_id")
-    .notNull()
-    .references(() => userTable.id, {
-      onDelete: "cascade",
-    }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
@@ -96,7 +95,22 @@ export const workspaceUserTable = pgTable("workspace_member", {
     }),
   role: text("role").default("member").notNull(),
   joinedAt: timestamp("joined_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const invitation = pgTable("invitation", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => workspaceTable.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  role: text("role"),
   status: text("status").default("pending").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  inviterId: text("inviter_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
 });
 
 export const projectTable = pgTable("project", {

@@ -47,11 +47,7 @@ export const verificationTableRelations = relations(
 
 export const workspaceTableRelations = relations(
   workspaceTable,
-  ({ one, many }) => ({
-    owner: one(userTable, {
-      fields: [workspaceTable.ownerId],
-      references: [userTable.id],
-    }),
+  ({ many }) => ({
     members: many(workspaceUserTable),
     projects: many(projectTable),
   }),

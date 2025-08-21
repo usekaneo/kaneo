@@ -1,5 +1,4 @@
 import useProjectStore from "@/store/project";
-import useWorkspaceStore from "@/store/workspace";
 import { Link } from "@tanstack/react-router";
 import { LayoutGrid } from "lucide-react";
 
@@ -8,13 +7,11 @@ interface LogoProps {
 }
 
 export function Logo({ className = "" }: LogoProps) {
-  const { setWorkspace } = useWorkspaceStore();
   const { setProject } = useProjectStore();
 
   return (
     <Link
       onClick={() => {
-        setWorkspace(undefined);
         setProject(undefined);
       }}
       to="/dashboard"

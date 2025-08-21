@@ -1,10 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { anonymous } from "better-auth/plugins";
+import { anonymous, organization } from "better-auth/plugins";
 import db, { schema } from "./database";
 import { generateDemoName } from "./utils/generate-demo-name";
 
 import dotenv from "dotenv";
+import { publishEvent } from "./events";
 
 dotenv.config();
 
@@ -36,6 +37,59 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   plugins: [
     anonymous({
       generateName: async () => generateDemoName(),
+    }),
+    organization({
+      // creatorRole: "admin", // maybe will want this "The role of the user who creates the organization."
+      // invitationLimit and other fields like this may be beneficial as well
+      teams: {
+        enabled: true,
+        maximumTeams: 10,
+        allowRemovingAllTeams: false,
+      },
+      schema: {
+        organization: {
+          modelName: "workspace",
+          additionalFields: {
+            description: {
+              type: "string",
+              input: true,
+              required: false,
+            },
+            // platformAccounts: {
+            //   type: "string", // JSON string
+            //   input: true,
+            //   required: false,
+            // },
+          },
+        },
+        member: {
+          modelName: "workspace_member",
+          fields: {
+            organizationId: "workspace_id",
+            createdAt: "joined_at",
+          },
+        },
+        invitation: {
+          fields: {
+            organizationId: "workspace_id",
+          },
+        },
+        session: {
+          fields: {
+            activeOrganizationId: "active_workspace_id",
+          },
+        },
+      },
+      organizationCreation: {
+        disabled: false,
+        afterCreate: async ({ organization, user }) => {
+          publishEvent("workspace.created", {
+            workspaceId: organization.id,
+            workspaceName: organization.name,
+            ownerEmail: user.name,
+          });
+        },
+      },
     }),
   ],
 });

@@ -17,9 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import { useQueryClient } from "@tanstack/react-query";
@@ -48,9 +48,10 @@ function TaskInfo({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { project } = useProjectStore();
-  const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
-    workspaceId: project?.workspaceId ?? "",
-  });
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    // biome-ignore lint/style/noNonNullAssertion: if we're on a task, then project will not be null -- needs upstream fix
+    project?.workspaceId!,
+  );
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: deleteTask, isPending: isDeleting } = useDeleteTask();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
@@ -166,10 +167,10 @@ function TaskInfo({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="unassigned">Unassigned</SelectItem>
-                    {workspaceUsers?.map((user) => {
+                    {workspaceUsers?.members?.map((member) => {
                       return (
-                        <SelectItem key={user.userId} value={user.userId}>
-                          {user.userName}
+                        <SelectItem key={member.userId} value={member.userId}>
+                          {member.user?.name}
                         </SelectItem>
                       );
                     })}

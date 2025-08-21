@@ -231,7 +231,6 @@ async function globalSearch(params: SearchParams): Promise<{
         id: workspaceTable.id,
         name: workspaceTable.name,
         description: workspaceTable.description,
-        ownerId: workspaceTable.ownerId,
         createdAt: workspaceTable.createdAt,
         relevanceScore: workspaceRelevanceScore.as("relevanceScore"),
       })
@@ -262,7 +261,6 @@ async function globalSearch(params: SearchParams): Promise<{
         description: workspace.description || undefined,
         workspaceId: workspace.id,
         workspaceName: workspace.name,
-        userId: workspace.ownerId,
         createdAt: workspace.createdAt,
         relevanceScore: workspace.relevanceScore,
       });

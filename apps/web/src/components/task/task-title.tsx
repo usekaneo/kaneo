@@ -1,4 +1,4 @@
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import debounce from "@/lib/debounce";
 import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_";
