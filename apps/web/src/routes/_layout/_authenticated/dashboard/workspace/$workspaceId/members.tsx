@@ -8,7 +8,7 @@ import { UserPlus } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/members",
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/members",
 )({
   component: RouteComponent,
 });

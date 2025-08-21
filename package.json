@@ -21,6 +21,6 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@10.15.0",
   "version": "1.2.4"
 }

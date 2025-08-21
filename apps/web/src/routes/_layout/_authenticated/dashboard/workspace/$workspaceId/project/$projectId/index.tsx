@@ -2,7 +2,7 @@ import ProjectLayout from "@/components/common/project-layout";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/project/$projectId/",
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/",
 )({
   component: RouteComponent,
 });

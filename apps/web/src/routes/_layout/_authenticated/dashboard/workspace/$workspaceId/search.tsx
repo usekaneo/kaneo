@@ -6,7 +6,7 @@ import { ArrowLeft, Search } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute(
-  "/dashboard/workspace/$workspaceId/search",
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/search",
 )({
   component: SearchComponent,
 });

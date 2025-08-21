@@ -1,15 +1,7 @@
-import CommandPalette from "@/components/command-palette";
-import SearchCommandMenu from "@/components/search-command-menu";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { User } from "@/types/user";
 import type { QueryClient } from "@tanstack/react-query";
-import {
-  Outlet,
-  createRootRouteWithContext,
-  redirect,
-  useLocation,
-} from "@tanstack/react-router";
-import { useState } from "react";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
 export const Route = createRootRouteWithContext<{
@@ -17,46 +9,15 @@ export const Route = createRootRouteWithContext<{
   user: User | null | undefined;
 }>()({
   component: RootComponent,
-  async beforeLoad({ context: { user }, location }) {
-    const isRouteUnprotected =
-      location.pathname.includes("auth") ||
-      location.pathname.includes("public-project");
-    const isOnDashboard = location.pathname.includes("dashboard");
-
-    if (user === undefined && !isRouteUnprotected) {
-      throw redirect({
-        to: "/auth/sign-in",
-      });
-    }
-
-    if (
-      user &&
-      !isOnDashboard &&
-      !location.pathname.includes("public-project")
-    ) {
-      throw redirect({
-        to: "/dashboard",
-      });
-    }
-  },
 });
 
 function RootComponent() {
   const { theme } = useUserPreferencesStore();
-  const location = useLocation();
-  const isPublicProject = location.pathname.includes("public-project");
-  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <>
       <div className="flex w-full h-svh overflow-x-hidden overflow-y-hidden flex-row scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 bg-sidebar">
         <Outlet />
-        {!isPublicProject && (
-          <>
-            <CommandPalette />
-            <SearchCommandMenu open={searchOpen} setOpen={setSearchOpen} />
-          </>
-        )}
       </div>
       <Toaster
         position="bottom-right"

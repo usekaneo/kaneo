@@ -1,5 +1,5 @@
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
-import { Route } from "@/routes/dashboard/workspace/$workspaceId/members";
+import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/members";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
