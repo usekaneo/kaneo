@@ -40,7 +40,7 @@ app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
 );
 
 app.use(
-  "/*",
+  "/trpc/*",
   trpcServer({
     router: appRouter,
     createContext: (_opts, context) => {

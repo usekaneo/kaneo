@@ -26,6 +26,10 @@ const createWorkspace = async ({
     throw new Error(error.message || "Failed to create workspace");
   }
 
+  await authClient.organization.setActive({
+    organizationId: data.id,
+  });
+
   return data;
 };
 

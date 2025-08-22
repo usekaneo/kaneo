@@ -12,7 +12,7 @@ export async function createContext({ context }: CreateContextOptions) {
 
   // Extract active workspace ID from session
   // @ts-expect-error activeOrganizationId is present on session, https://github.com/better-auth/better-auth/issues/3490
-  const activeWorkspaceId = session?.activeOrganizationId || null;
+  const activeWorkspaceId = session?.session?.activeOrganizationId || null;
 
   return {
     session,

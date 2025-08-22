@@ -3,7 +3,6 @@ import CreateProjectModal from "@/components/shared/modals/create-project-modal"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -14,8 +13,9 @@ import {
 } from "@/components/ui/table";
 import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
-import useGetProjects from "@/hooks/queries/project/use-get-projects";
+import { createProjectQueryOptions } from "@/hooks/queries/project/use-get-projects";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LayoutGrid, Plus } from "lucide-react";
 import { useState } from "react";
@@ -24,13 +24,28 @@ export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/",
 )({
   component: RouteComponent,
+  loader: async ({ context, params }) => {
+    const queryOptions = createProjectQueryOptions();
+
+    const projects = await context.queryClient.ensureQueryData(queryOptions);
+
+    return { projects };
+  },
 });
 
 function RouteComponent() {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const { workspaceId } = Route.useParams();
   const navigate = useNavigate();
-  const { data: projects, isLoading } = useGetProjects();
+  const { projects: initialProjects } = Route.useLoaderData();
+
+  const queryOptions = createProjectQueryOptions();
+
+  // TODO: handle error
+  const { data: projects, error } = useQuery({
+    ...queryOptions,
+    initialData: initialProjects,
+  });
 
   const handleCreateProject = () => {
     setIsCreateProjectOpen(true);
@@ -50,65 +65,6 @@ function RouteComponent() {
       params: { workspaceId, projectId },
     });
   };
-
-  if (isLoading) {
-    return (
-      <WorkspaceLayout
-        title="Projects"
-        headerActions={
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={handleCreateProject}
-            className="gap-1"
-          >
-            <Plus className="w-3 h-3" />
-            Create project
-          </Button>
-        }
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-foreground font-medium">
-                Title
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                Progress
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                Target date
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                Status
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[1, 2, 3].map((i) => (
-              <TableRow key={i}>
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-5 w-5" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </TableCell>
-                <TableCell className="py-3">
-                  <Skeleton className="h-2 w-20" />
-                </TableCell>
-                <TableCell className="py-3">
-                  <Skeleton className="h-4 w-20" />
-                </TableCell>
-                <TableCell className="py-3">
-                  <Skeleton className="h-5 w-16" />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </WorkspaceLayout>
-    );
-  }
 
   if (!projects || projects.length === 0) {
     return (

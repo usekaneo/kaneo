@@ -1,11 +1,12 @@
-import { getProjects } from "@/fetchers/project/get-projects";
+import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 
+export const createProjectQueryOptions = () => {
+  return trpc.project.list.queryOptions();
+};
+
 function useGetProjects() {
-  return useQuery({
-    queryFn: () => getProjects(),
-    queryKey: ["projects"],
-  });
+  return useQuery(createProjectQueryOptions());
 }
 
 export default useGetProjects;

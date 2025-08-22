@@ -1,5 +1,4 @@
 import "@/index.css";
-import queryClient from "@/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
@@ -10,7 +9,7 @@ import { ErrorBoundary } from "./components/ui/error-boundary";
 import { ErrorFallback } from "./components/ui/error-fallback";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
 import { routeTree } from "./routeTree.gen";
-import { trpc } from "./utils/trpc";
+import { queryClient, trpc } from "./utils/trpc";
 
 console.log(`
 ██╗  ██╗ █████╗ ███╗   ██╗███████╗ ██████╗ 
@@ -27,7 +26,7 @@ const router = createRouter({
   defaultPreloadStaleTime: 0,
   defaultPreload: "intent",
   context: { trpc, queryClient },
-  defaultPendingComponent: () => <div>Loading...</div>,
+  // defaultPendingComponent: () => <div>Loading...</div>,
   defaultNotFoundComponent: () => <div>Not Found</div>,
   Wrap: ({ children }) => (
     <ErrorBoundary fallback={ErrorFallback}>
@@ -37,7 +36,6 @@ const router = createRouter({
             <KeyboardShortcutsProvider>{children}</KeyboardShortcutsProvider>
           </AuthProvider>
         </ThemeProvider>
-        {children}
       </QueryClientProvider>
     </ErrorBoundary>
   ),
