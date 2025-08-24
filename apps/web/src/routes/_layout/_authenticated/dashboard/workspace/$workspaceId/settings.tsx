@@ -23,9 +23,9 @@ import {
 import { Input } from "@/components/ui/input";
 import useDeleteWorkspace from "@/hooks/mutations/workspace/use-delete-workspace";
 import useUpdateWorkspace from "@/hooks/mutations/workspace/use-update-workspace";
-import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import queryClient from "@/query-client";
-import useWorkspaceStore from "@/store/workspace";
 
 const workspaceFormSchema = z.object({
   name: z.string().min(1, "Workspace name is required"),
@@ -42,7 +42,7 @@ export const Route = createFileRoute(
 
 function SettingsComponent() {
   const navigate = useNavigate();
-  const { workspace, setWorkspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const { mutateAsync: updateWorkspace, isPending: isUpdating } =
     useUpdateWorkspace();
@@ -54,7 +54,7 @@ function SettingsComponent() {
     resolver: standardSchemaResolver(workspaceFormSchema),
     defaultValues: {
       name: workspace?.name || "",
-      description: workspace?.description || "",
+      description: workspace?.metadata?.description || "",
     },
   });
 
@@ -63,12 +63,13 @@ function SettingsComponent() {
   const onSubmit = async (values: WorkspaceFormValues) => {
     if (!workspace?.id) return;
     try {
-      const updatedWorkspace = await updateWorkspace({
-        id: workspace.id,
+      await updateWorkspace({
+        workspaceId: workspace.id,
         name: values.name,
-        description: values.description,
+        metadata: {
+          description: values.description,
+        },
       });
-      setWorkspace(updatedWorkspace);
       toast.success("Workspace updated successfully");
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
       form.reset(values);
@@ -82,7 +83,7 @@ function SettingsComponent() {
   const handleDeleteWorkspace = async () => {
     if (!workspace?.id || deleteConfirmText !== workspace.name) return;
     try {
-      await deleteWorkspace({ id: workspace.id });
+      await deleteWorkspace({ workspaceId: workspace.id });
       toast.success("Workspace deleted successfully");
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
       navigate({ to: "/dashboard" });

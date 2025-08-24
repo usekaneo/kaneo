@@ -1,8 +1,8 @@
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import useWorkspaceStore from "@/store/workspace";
 import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -34,7 +34,7 @@ function TaskCard({ task }: TaskCardProps) {
     isDragging,
   } = useSortable({ id: task.id });
   const { project } = useProjectStore();
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
   const {
     showAssignees,

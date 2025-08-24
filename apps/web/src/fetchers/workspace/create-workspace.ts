@@ -1,26 +1,32 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { authClient } from "@/lib/auth-client";
 
-export type CreateWorkspaceRequest = InferRequestType<
-  typeof client.workspace.$post
->["json"];
+export type CreateWorkspaceRequest = {
+  name: string;
+  description?: string;
+  slug?: string;
+  logo?: string;
+};
 
 const createWorkspace = async ({
   name,
   description,
+  slug,
+  logo,
 }: CreateWorkspaceRequest) => {
-  const response = await client.workspace.$post({
-    json: { name, description },
+  const metadata = description ? { description } : undefined;
+
+  const { data, error } = await authClient.organization.create({
+    name,
+    slug: slug || name.toLowerCase().replace(/\s+/g, "-"), // TODO
+    logo,
+    metadata,
   });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+  if (error) {
+    throw new Error(error.message || "Failed to create workspace");
   }
 
-  const workspace = await response.json();
-
-  return workspace;
+  return data;
 };
 
 export default createWorkspace;

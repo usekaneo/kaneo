@@ -8,7 +8,7 @@ import TaskTimeTracking from "@/components/task/task-time-tracking";
 import TaskTitle from "@/components/task/task-title";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import useGetTasks from "@/hooks/queries/task/use-get-tasks";
+import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useProjectStore from "@/store/project";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";

@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
-import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 
 import type { taskInfoSchema } from "@/components/task/task-info";
 import {
@@ -41,7 +41,7 @@ import { cn } from "@/lib/cn";
 import { getColumnIcon, getColumnIconColor } from "@/lib/column";
 
 import { DEFAULT_COLUMNS } from "@/constants/columns";
-import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
+import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { generateLink } from "@/lib/generate-link";
 import queryClient from "@/query-client";
 import type Task from "@/types/task";
@@ -66,9 +66,9 @@ export default function TaskCardContextMenuContent({
   const { data: projects } = useGetProjects({
     workspaceId: taskCardContext.worskpaceId,
   });
-  const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
-    workspaceId: taskCardContext.worskpaceId,
-  });
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    taskCardContext.worskpaceId,
+  );
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: deleteTask } = useDeleteTask();
@@ -81,9 +81,9 @@ export default function TaskCardContextMenuContent({
   }, [projects]);
 
   const usersOptions = useMemo(() => {
-    return workspaceUsers?.map((user) => ({
-      label: user.userName ?? user.userId,
-      value: user.userId,
+    return workspaceUsers?.members?.map((member) => ({
+      label: member?.user?.name ?? member.userId,
+      value: member.userId,
     }));
   }, [workspaceUsers]);
 

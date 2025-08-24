@@ -17,8 +17,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
-import useWorkspaceStore from "@/store/workspace";
 import { useState } from "react";
 import SearchCommandMenu from "./search-command-menu";
 import { SettingsMenu } from "./settings-menu";
@@ -31,7 +31,7 @@ import {
 } from "./ui/dropdown-menu";
 
 export function NavMain() {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =

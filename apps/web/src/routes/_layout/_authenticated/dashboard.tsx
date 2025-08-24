@@ -1,6 +1,6 @@
 import PageTitle from "@/components/page-title";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import useWorkspaceStore from "@/store/workspace";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_layout/_authenticated/dashboard")({
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_layout/_authenticated/dashboard")({
 });
 
 function DashboardLayoutComponent() {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
 
   return (
     <>

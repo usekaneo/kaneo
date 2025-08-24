@@ -2,7 +2,7 @@ import updateTask from "@/fetchers/task/update-task";
 import type Task from "@/types/task";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-function useUpdateTask() {
+export function useUpdateTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -23,5 +23,3 @@ function useUpdateTask() {
     },
   });
 }
-
-export default useUpdateTask;

@@ -24,11 +24,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
-import useWorkspaceStore from "@/store/workspace";
 import { format } from "date-fns";
 import { produce } from "immer";
 import {
@@ -82,12 +81,9 @@ const labelColors = [
 
 function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const { project, setProject } = useProjectStore();
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const { mutate: updateTask } = useUpdateTask();
   const { mutateAsync: createLabel } = useCreateLabel();
-  const { data: users } = useGetActiveWorkspaceUsers({
-    workspaceId: workspace?.id ?? "",
-  });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -221,7 +217,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   ];
 
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
-  const selectedUser = users?.find((u) => u.userId === assigneeId);
+  const selectedUser = workspace?.members?.find((u) => u.userId === assigneeId);
 
   const filteredLabels = labels.filter((label: Label) =>
     label.name.toLowerCase().includes(searchValue.toLowerCase()),
@@ -413,10 +409,10 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     {selectedUser ? (
                       <>
                         <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
-                          {selectedUser.userName?.charAt(0).toUpperCase() ||
+                          {selectedUser?.user?.name?.charAt(0).toUpperCase() ||
                             "?"}
                         </div>
-                        <span>{selectedUser.userName}</span>
+                        <span>{selectedUser.user?.name}</span>
                       </>
                     ) : (
                       <>
@@ -436,17 +432,17 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                       <UserIcon className="w-4 h-4 text-zinc-600 dark:text-zinc-500" />
                       Unassigned
                     </button>
-                    {users?.map((user) => (
+                    {workspace?.members?.map((member) => (
                       <button
-                        key={user.userId}
+                        key={member.userId}
                         type="button"
                         className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
-                        onClick={() => setAssigneeId(user.userId || "")}
+                        onClick={() => setAssigneeId(member.userId || "")}
                       >
                         <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
-                          {user.userName?.charAt(0).toUpperCase() || "?"}
+                          {member?.user?.name?.charAt(0).toUpperCase() || "?"}
                         </div>
-                        {user.userName}
+                        {member?.user?.name}
                       </button>
                     ))}
                   </div>

@@ -1,4 +1,4 @@
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { getColumnIcon, getColumnIconColor } from "@/lib/column";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
