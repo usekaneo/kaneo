@@ -31,7 +31,6 @@ export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({
         params: { workspaceId: firstWorkspace.id },
       });
     }
-
-    throw redirect({ to: "/dashboard/workspace/create" });
+    throw redirect({ to: "/onboarding" });
   },
 });

@@ -10,6 +10,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { workspaceId } = Route.useParams();
+
   const { data: activeWorkspace } = useActiveWorkspace();
   const navigate = useNavigate();
 
