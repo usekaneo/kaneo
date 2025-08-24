@@ -3,6 +3,7 @@ import {
   accountTable,
   activityTable,
   githubIntegrationTable,
+  invitationTable,
   labelTable,
   notificationTable,
   projectTable,
@@ -24,6 +25,7 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   notifications: many(notificationTable),
+  sentInvitations: many(invitationTable),
 }));
 
 export const sessionTableRelations = relations(sessionTable, ({ one }) => ({
@@ -50,6 +52,7 @@ export const workspaceTableRelations = relations(
   ({ many }) => ({
     members: many(workspaceUserTable),
     projects: many(projectTable),
+    invitations: many(invitationTable),
   }),
 );
 
@@ -138,6 +141,20 @@ export const githubIntegrationTableRelations = relations(
     project: one(projectTable, {
       fields: [githubIntegrationTable.projectId],
       references: [projectTable.id],
+    }),
+  }),
+);
+
+export const invitationTableRelations = relations(
+  invitationTable,
+  ({ one }) => ({
+    workspace: one(workspaceTable, {
+      fields: [invitationTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
+    inviter: one(userTable, {
+      fields: [invitationTable.inviterId],
+      references: [userTable.id],
     }),
   }),
 );
