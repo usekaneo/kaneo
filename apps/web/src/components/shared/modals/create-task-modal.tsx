@@ -1,3 +1,4 @@
+import { Editor } from "@/components/common/editor";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -21,7 +22,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useUpdateTask from "@/hooks/mutations/task/use-update-task";
@@ -288,8 +288,11 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl" showCloseButton={false}>
-        <DialogHeader>
+      <DialogContent
+        className="max-w-2xl max-h-[90vh] flex flex-col"
+        showCloseButton={false}
+      >
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle asChild>
             <Breadcrumb>
               <BreadcrumbList>
@@ -309,7 +312,10 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col flex-1 min-h-0 space-y-6"
+        >
           <div className="space-y-6 px-6">
             <Input
               value={title}
@@ -320,12 +326,9 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               required
             />
 
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add description..."
-              className="!border-0 px-0 py-2 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-700 dark:text-zinc-300 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 resize-none min-h-[120px] focus:!outline-none focus-visible:!outline-none"
-            />
+            <div className="h-[300px] border bg-white dark:bg-zinc-900 border-zinc-200/50 dark:border-zinc-800/50 rounded-lg overflow-hidden">
+              <Editor value={description} onChange={setDescription} />
+            </div>
 
             {labels.length > 0 && (
               <div className="flex flex-wrap gap-2">
