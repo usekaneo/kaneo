@@ -36,6 +36,10 @@ export default function Hero() {
           <a
             href="https://cloud.kaneo.app"
             className="hover:bg-zinc-100 dark:hover:bg-zinc-800 bg-zinc-50 dark:bg-zinc-900 group mx-auto flex w-fit items-center gap-4 rounded-full border border-zinc-200 dark:border-zinc-800 p-1 pl-4 shadow-md shadow-zinc-950/5 transition-all duration-150 hover:scale-[1.02]"
+            aria-label="Try Kaneo Cloud - 100% Free Forever"
+            tabIndex={0}
+            role="button"
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = 'https://cloud.kaneo.app'; } }}
           >
             <span className="text-zinc-900 dark:text-zinc-100 text-sm flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-amber-400" />
@@ -73,6 +77,10 @@ export default function Hero() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-lg shadow-indigo-500/20 py-2 bg-indigo-600 text-white hover:bg-indigo-500 hover:scale-[1.02] dark:bg-indigo-500 dark:hover:bg-indigo-400 h-12 px-8"
+              aria-label="Try Demo"
+              tabIndex={0}
+              role="button"
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.open('https://demo.kaneo.app', '_blank'); } }}
             >
               <ExternalLink className="mr-2 h-4 w-4" />
               Try Demo
@@ -80,6 +88,10 @@ export default function Hero() {
             <Link
               href="/docs"
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-lg py-2 bg-white text-zinc-900 hover:bg-zinc-50 hover:scale-[1.02] dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700 h-12 px-8 border border-zinc-200 dark:border-zinc-700"
+              aria-label="Documentation"
+              tabIndex={0}
+              role="button"
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/docs'; } }}
             >
               <Terminal className="mr-2 h-4 w-4" />
               Documentation
