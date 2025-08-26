@@ -22,5 +22,11 @@
     "node": ">=18"
   },
   "packageManager": "pnpm@10.15.0",
-  "version": "1.2.4"
+  "version": "1.2.4",
+  "dependencies": {
+    "@types/react": "^19.1.11",
+    "@types/react-dom": "^19.1.7",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
 }
