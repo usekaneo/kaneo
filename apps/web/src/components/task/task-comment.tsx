@@ -42,6 +42,7 @@ function TaskComment({
 
   async function handleSubmit(data: z.infer<typeof commentSchema>) {
     if (!user?.id) {
+      toast.error("You must be logged in to add or update a comment.");
       return;
     }
 
@@ -52,6 +53,7 @@ function TaskComment({
           userId: user.id,
           content: data.comment,
         });
+        toast.success("Comment updated successfully.");
         onSubmit?.();
       } else {
         await createComment({
@@ -59,6 +61,7 @@ function TaskComment({
           content: data.comment,
           userId: user?.id,
         });
+        toast.success("Comment added successfully.");
         onSubmit?.();
       }
 
@@ -66,16 +69,17 @@ function TaskComment({
         queryKey: ["activities", taskId],
       });
 
-      toast.success(
-        commentId
-          ? "Comment updated successfully"
-          : "Comment added successfully",
-      );
       form.reset();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to add comment",
-      );
+      // Log error for debugging
+      console.error("TaskComment error:", error);
+      let message = "Unable to submit your comment. Please try again or contact support.";
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === "string") {
+        message = error;
+      }
+      toast.error(message);
     }
   }
 
