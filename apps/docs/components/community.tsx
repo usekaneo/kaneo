@@ -1,3 +1,5 @@
+"use client";
+
 import { Github, MessageSquare, Twitter } from "lucide-react";
 
 export default function Community() {
@@ -19,17 +21,28 @@ export default function Community() {
             target="_blank"
             rel="noopener noreferrer"
             className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-0"
-          <a
-            href="https://github.com/orgs/usekaneo/discussions"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-0"
             aria-label="GitHub Discussions"
             tabIndex={0}
+            // biome-ignore lint/a11y/useSemanticElements: <explanation>
             role="button"
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.open('https://github.com/orgs/usekaneo/discussions', '_blank'); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                window.open(
+                  "https://github.com/orgs/usekaneo/discussions",
+                  "_blank",
+                );
+              }
+            }}
+          >
+            <Github className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors duration-100" />
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
+              GitHub Discussions
+            </h3>
+            <p className="text-zinc-600 dark:text-zinc-400">
               Share ideas and connect with developers
             </p>
+          </a>
+
           <a
             href="https://discord.gg/rU4tSyhXXU"
             target="_blank"
@@ -37,18 +50,19 @@ export default function Community() {
             className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-1"
             aria-label="Discord Community"
             tabIndex={0}
+            // biome-ignore lint/a11y/useSemanticElements: <explanation>
             role="button"
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.open('https://discord.gg/rU4tSyhXXU', '_blank'); } }}
-            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-1"
-          <a
-            href="https://x.com/usekaneo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-2"
-            aria-label="Twitter Updates"
-            tabIndex={0}
-            role="button"
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.open('https://x.com/usekaneo', '_blank'); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                window.open("https://discord.gg/rU4tSyhXXU", "_blank");
+              }
+            }}
+          >
+            <MessageSquare className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors duration-100" />
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
+              Discord Community
+            </h3>
+            <p className="text-zinc-600 dark:text-zinc-400">
               Get real-time help and chat with us
             </p>
           </a>
@@ -58,6 +72,15 @@ export default function Community() {
             target="_blank"
             rel="noopener noreferrer"
             className="community-item group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-100 animate-fade-in-up-2"
+            aria-label="Twitter Updates"
+            tabIndex={0}
+            // biome-ignore lint/a11y/useSemanticElements: <explanation>
+            role="button"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                window.open("https://x.com/usekaneo", "_blank");
+              }
+            }}
           >
             <Twitter className="h-6 w-6 text-zinc-600 dark:text-zinc-400 mb-3 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors duration-100" />
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
@@ -75,15 +98,21 @@ export default function Community() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-          <a
-            href="https://github.com/usekaneo/kaneo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
             aria-label="View on GitHub"
             tabIndex={0}
+            // biome-ignore lint/a11y/useSemanticElements: <explanation>
             role="button"
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.open('https://github.com/usekaneo/kaneo', '_blank'); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                window.open("https://github.com/usekaneo/kaneo", "_blank");
+              }
+            }}
+          >
+            <Github className="h-4 w-4" />
+            View on GitHub
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
