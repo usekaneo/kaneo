@@ -1,5 +1,5 @@
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { getColumnIcon, getColumnIconColor } from "@/lib/column";
 import toKebabCase from "@/lib/to-kebab-case";

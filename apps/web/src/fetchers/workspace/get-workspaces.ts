@@ -1,16 +1,13 @@
-import { client } from "@kaneo/libs";
+import { authClient } from "@/lib/auth-client";
 
 const getWorkspaces = async () => {
-  const response = await client.workspace.$get();
+  const { data, error } = await authClient.organization.list();
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+  if (error) {
+    throw new Error(error.message || "Failed to fetch workspaces");
   }
 
-  const workspaces = await response.json();
-
-  return workspaces;
+  return data || [];
 };
 
 export default getWorkspaces;

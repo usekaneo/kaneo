@@ -1,15 +1,18 @@
-import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
-import getWorkspaces from "@/fetchers/workspace/get-workspaces";
-import { useQuery } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
 
 function useGetWorkspaces() {
-  const { user } = useAuth();
+  const {
+    data: organizations,
+    error,
+    isPending,
+  } = authClient.useListOrganizations();
 
-  return useQuery({
-    queryFn: () => getWorkspaces(),
-    queryKey: ["workspaces", user?.id],
-    enabled: !!user?.id,
-  });
+  return {
+    data: organizations,
+    error,
+    isLoading: isPending,
+    isError: !!error,
+  };
 }
 
 export default useGetWorkspaces;

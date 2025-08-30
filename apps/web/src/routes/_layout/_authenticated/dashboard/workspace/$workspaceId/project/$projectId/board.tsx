@@ -16,8 +16,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
-import useGetTasks from "@/hooks/queries/task/use-get-tasks";
-import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
+import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useTaskFilters } from "@/hooks/use-task-filters";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
@@ -49,7 +49,7 @@ function RouteComponent() {
   const { viewMode } = useUserPreferencesStore();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  const { data: users } = useGetActiveWorkspaceUsers({ workspaceId });
+  const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const {
     showAssignees,
     showPriority,
@@ -270,9 +270,9 @@ function RouteComponent() {
                             {filters.assignee && (
                               <div className="flex items-center gap-1">
                                 <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
-                                  {users?.find(
+                                  {users?.members?.find(
                                     (u) => u.userId === filters.assignee,
-                                  )?.userName || "Unknown"}
+                                  )?.user?.name || "Unknown"}
                                 </span>
                               </div>
                             )}
@@ -283,25 +283,25 @@ function RouteComponent() {
                           align="start"
                           side="right"
                         >
-                          {users?.map((user) => (
+                          {users?.members?.map((member) => (
                             <button
-                              key={user.userId}
+                              key={member.userId}
                               type="button"
                               onClick={() =>
-                                updateFilter("assignee", user.userId)
+                                updateFilter("assignee", member.userId)
                               }
                               className={cn(
                                 "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-md transition-colors",
-                                filters.assignee === user.userId
+                                filters.assignee === member.userId
                                   ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
                                   : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
                               )}
                             >
                               <div className="w-5 h-5 bg-zinc-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                {user.userName?.charAt(0).toUpperCase()}
+                                {member.user?.name?.charAt(0).toUpperCase()}
                               </div>
-                              <span>{user.userName}</span>
-                              {filters.assignee === user.userId && (
+                              <span>{member.user?.name}</span>
+                              {filters.assignee === member.userId && (
                                 <Check className="h-3 w-3 ml-auto" />
                               )}
                             </button>

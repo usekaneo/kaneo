@@ -20,8 +20,6 @@ import task from "./task";
 import timeEntry from "./time-entry";
 import getSettings from "./utils/get-settings";
 import purgeDemoData from "./utils/purge-demo-data";
-import workspace from "./workspace";
-import workspaceUser from "./workspace-user";
 
 const app = new Hono<{
   Variables: {
@@ -92,8 +90,6 @@ if (isDemoMode) {
   });
 }
 
-const workspaceRoute = app.route("/workspace", workspace);
-const workspaceUserRoute = app.route("/workspace-user", workspaceUser);
 const projectRoute = app.route("/project", project);
 const taskRoute = app.route("/task", task);
 const activityRoute = app.route("/activity", activity);
@@ -122,8 +118,6 @@ serve(
 );
 
 export type AppType =
-  | typeof workspaceRoute
-  | typeof workspaceUserRoute
   | typeof projectRoute
   | typeof taskRoute
   | typeof activityRoute

@@ -7,9 +7,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
-import useWorkspaceStore from "@/store/workspace";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Building2,
@@ -28,7 +28,7 @@ export function SettingsMenu({
   variant = "nav",
   className,
 }: SettingsMenuProps) {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const { project } = useProjectStore();
   const navigate = useNavigate();
 
