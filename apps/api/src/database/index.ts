@@ -20,6 +20,8 @@ import {
 import {
   accountTable,
   activityTable,
+  externalLinksTable,
+  giteaIntegrationTable,
   githubIntegrationTable,
   labelTable,
   notificationTable,
@@ -69,6 +71,8 @@ export const schema = {
   notificationTableRelations,
   githubIntegrationTableRelations,
   giteaIntegrationTableRelations,
+  giteaIntegrationTable,
+  externalLinksTable,
 };
 
 const db = drizzle(pool, {

@@ -44,7 +44,7 @@ export interface TaskMetadata {
   /** Priority level (low, medium, high, critical) */
   priority: string | null;
   /** Email of assigned user, if any */
-  userEmail: string | null;
+  userId: string | null;
   /** Action being performed (created, updated) */
   action: "created" | "updated";
 }
@@ -126,7 +126,7 @@ export function generateGiteaIssueBody(
 Task ID: ${metadata.taskId}
 Status: ${statusDisplay}
 Priority: ${metadata.priority || "Not set"}
-Assigned to: ${metadata.userEmail || "Unassigned"}
+Assigned to: ${metadata.userId || "Unassigned"}
 ${actionText} at: ${timestamp}
 KANEO_METADATA -->`;
   }
@@ -141,7 +141,7 @@ ${metadata.description || "No description provided"}
 - Task ID: ${metadata.taskId}
 - Status: ${statusDisplay}
 - Priority: ${metadata.priority || "Not set"}
-- Assigned to: ${metadata.userEmail || "Unassigned"}
+- Assigned to: ${metadata.userId || "Unassigned"}
 
 ---
 *This issue was automatically ${metadata.action} from Kaneo task management system.*`;

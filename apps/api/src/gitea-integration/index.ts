@@ -16,7 +16,7 @@ import { handleTaskUpdated } from "./utils/task-updated";
 // Subscribe to task events for bi-directional sync (GitHub-style: enhanced with labels)
 subscribeToEvent<{
   taskId: string;
-  userEmail: string;
+  userId: string;
   title: string;
   description: string;
   priority: string;
@@ -27,7 +27,7 @@ subscribeToEvent<{
 
 subscribeToEvent<{
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldStatus: string;
   newStatus: string;
   title: string;
@@ -35,7 +35,7 @@ subscribeToEvent<{
 
 subscribeToEvent<{
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldPriority: string;
   newPriority: string;
   title: string;
@@ -43,7 +43,7 @@ subscribeToEvent<{
 
 subscribeToEvent<{
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldTitle?: string;
   newTitle?: string;
   oldDescription?: string;

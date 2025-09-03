@@ -80,7 +80,7 @@ interface TaskFromDB {
   priority: string | null;
   dueDate: Date | null;
   position: number | null;
-  userEmail: string | null;
+  userId: string | null;
 }
 
 /**
@@ -138,13 +138,21 @@ export async function handleIssueOpened(
     // Check if task already exists for this issue to prevent duplicates
     const existingLink = await withRetry(
       () =>
-        db.query.externalLinksTable.findFirst({
-          where: and(
-            eq(externalLinksTable.type, "gitea_integration"),
-            eq(externalLinksTable.externalId, payload.issue.number.toString()),
-            eq(externalLinksTable.url, payload.issue.html_url),
-          ),
-        }),
+        db
+          .select()
+          .from(externalLinksTable)
+          .where(
+            and(
+              eq(externalLinksTable.type, "gitea_integration"),
+              eq(
+                externalLinksTable.externalId,
+                payload.issue.number.toString(),
+              ),
+              eq(externalLinksTable.url, payload.issue.html_url),
+            ),
+          )
+          .limit(1)
+          .then((results) => results[0] || null),
       `Check existing link for issue #${payload.issue.number}`,
     );
 
@@ -165,7 +173,7 @@ export async function handleIssueOpened(
       description: cleanDescription || "No description provided", // Don't use "Created from Gitea issue"
       status,
       priority: "medium", // Default priority
-      userEmail: undefined, // No assignee initially
+      userId: undefined, // No assignee initially
     });
 
     // Create external link
@@ -232,7 +240,7 @@ export async function handleIssueStateChanged(
       linkedTask.description || "",
       linkedTask.priority || "medium",
       linkedTask.position || 0,
-      linkedTask.userEmail || undefined,
+      linkedTask.userId || undefined,
     );
 
     console.log(
@@ -292,8 +300,7 @@ export async function handleIssueEdited(
       cleanDescription,
       linkedTask.priority || "medium",
       linkedTask.position || 0,
-      linkedTask.userEmail || undefined,
-      "gitea_webhook", // Add source to prevent loops
+      linkedTask.userId || undefined,
     );
 
     console.log(
@@ -364,7 +371,7 @@ async function findLinkedTask(
         priority: taskTable.priority,
         dueDate: taskTable.dueDate,
         position: taskTable.position,
-        userEmail: taskTable.userEmail,
+        userId: taskTable.userId,
       })
       .from(taskTable)
       .innerJoin(

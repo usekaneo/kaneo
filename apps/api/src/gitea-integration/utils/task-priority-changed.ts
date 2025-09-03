@@ -7,7 +7,7 @@ import { replaceLabelsWithPrefix } from "./create-gitea-labels";
 
 export async function handleTaskPriorityChanged(data: {
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldPriority: string;
   newPriority: string;
 }) {

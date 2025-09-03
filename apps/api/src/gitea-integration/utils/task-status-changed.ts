@@ -8,7 +8,7 @@ import { replaceLabelsWithPrefix } from "./create-gitea-labels";
 
 export async function handleTaskStatusChanged(data: {
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldStatus: string;
   newStatus: string;
 }) {

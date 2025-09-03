@@ -8,7 +8,7 @@ import { cleanKaneoMetadata, generateGiteaIssueBody } from "./issue-templates";
 
 export async function handleTaskUpdated(data: {
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   oldTitle?: string;
   newTitle?: string;
   oldDescription?: string;
@@ -111,7 +111,7 @@ export async function handleTaskUpdated(data: {
           description: cleanDescription,
           status: task.status,
           priority: task.priority,
-          userEmail: task.userEmail,
+          userId: task.userId,
           action: "updated",
         },
         {

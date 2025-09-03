@@ -89,13 +89,12 @@ async function updateTask(
   ) {
     await publishEvent("task.updated", {
       taskId: updatedTask.id,
-      userEmail: updatedTask.userEmail,
+      userId: updatedTask.userId,
       oldTitle: existingTask.title,
       newTitle: title,
       oldDescription: existingTask.description,
       newDescription: description,
       title: updatedTask.title,
-      source, // Include source in the event
     });
   }
 

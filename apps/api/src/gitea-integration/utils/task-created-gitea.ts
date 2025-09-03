@@ -8,14 +8,14 @@ import { generateGiteaIssueBody } from "./issue-templates";
 
 export async function handleTaskCreated(data: {
   taskId: string;
-  userEmail: string | null;
+  userId: string | null;
   title: string;
   description: string | null;
   priority: string | null;
   status: string;
   projectId: string;
 }) {
-  const { taskId, userEmail, title, description, priority, status, projectId } =
+  const { taskId, userId, title, description, priority, status, projectId } =
     data;
 
   // Enhanced loop prevention: Skip if task was created from Gitea issue
@@ -78,7 +78,7 @@ export async function handleTaskCreated(data: {
         description,
         status,
         priority,
-        userEmail,
+        userId,
         action: "created",
       },
       {
