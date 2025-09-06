@@ -75,7 +75,7 @@ export function SignInForm() {
                 <FormLabel className="text-sm font-medium">Email</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="m@example.com"
+                    placeholder="me@example.com"
                     type="email"
                     autoComplete="email"
                     {...field}
