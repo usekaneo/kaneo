@@ -3,13 +3,11 @@ import { ChevronDown, Plus } from "lucide-react";
 import * as React from "react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -94,8 +92,8 @@ export function WorkspaceSwitcher() {
       <div className="flex items-center justify-between w-full gap-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-              <DropdownMenuTrigger asChild>
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
+              <PopoverTrigger asChild>
                 <SidebarMenuButton
                   size="sm"
                   className="h-8 py-0 w-auto w-full group"
@@ -115,54 +113,68 @@ export function WorkspaceSwitcher() {
                     data-state={isOpen ? "open" : "closed"}
                   />
                 </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-48 rounded-md border-border/20"
+              </PopoverTrigger>
+              <PopoverContent
+                className="min-w-48 p-0 rounded-lg"
                 align="start"
                 side="bottom"
                 sideOffset={4}
               >
-                <DropdownMenuLabel className="text-muted-foreground/60 text-xs px-3 py-2">
-                  Workspaces
-                </DropdownMenuLabel>
-                {workspaces?.map((ws: Workspace, index: number) => (
-                  <DropdownMenuItem
-                    key={ws.id}
+                <div className="p-3">
+                  <div className="text-muted-foreground/60 text-xs">
+                    Workspaces
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="p-1">
+                  {workspaces?.map((ws: Workspace, index: number) => (
+                    <button
+                      type="button"
+                      key={ws.id}
+                      onClick={() => {
+                        handleWorkspaceChange(ws);
+                        setIsOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80 rounded-sm transition-colors text-sm font-normal"
+                    >
+                      <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {ws.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <span className="text-foreground/90 flex-1 text-left">
+                        {ws.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground/50">
+                        {getModifierKeyText()} {index > 8 ? "0" : index + 1}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <Separator />
+
+                <div className="p-1">
+                  <button
+                    type="button"
+                    className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80 rounded-sm transition-colors text-sm font-normal"
                     onClick={() => {
-                      handleWorkspaceChange(ws);
+                      setIsCreateWorkspaceModalOpen(true);
                       setIsOpen(false);
                     }}
-                    className="gap-2 px-3 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80"
                   >
                     <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {ws.name.charAt(0).toUpperCase()}
-                      </span>
+                      <Plus className="size-3 text-muted-foreground" />
                     </div>
-                    <span className="text-sm text-foreground/90">
-                      {ws.name}
+                    <span className="text-muted-foreground flex-1 text-left">
+                      Add workspace
                     </span>
-                    <span className="ml-auto text-xs text-muted-foreground/50">
-                      {getModifierKeyText()} {index > 8 ? "0" : index + 1}
-                    </span>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator className="border-border/20" />
-                <DropdownMenuItem
-                  className="gap-2 px-3 py-1.5 hover:bg-card/30 focus:bg-card/30"
-                  onClick={() => {
-                    setIsCreateWorkspaceModalOpen(true);
-                  }}
-                >
-                  <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
-                    <Plus className="size-3 text-muted-foreground" />
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    Add workspace
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </SidebarMenuItem>
         </SidebarMenu>
 

@@ -177,7 +177,9 @@ export function NavProjects() {
                   onClick={() => setIsCreateProjectModalOpen(true)}
                 >
                   <Plus className="w-3.5 h-3.5 text-sidebar-foreground/70" />
-                  <span>Add project</span>
+                  <span className="text-sm text-sidebar-foreground/70">
+                    Add project
+                  </span>
                 </SidebarMenuButton>
               </TooltipTrigger>
               <TooltipContent>

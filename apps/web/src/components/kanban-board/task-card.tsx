@@ -76,12 +76,11 @@ function TaskCard({ task }: TaskCardProps) {
           >
             {/* Task Number */}
             {showTaskNumbers && (
-              <div className="text-xs font-mono text-muted-foreground mb-2">
+              <div className="text-[10px] font-mono text-muted-foreground mb-2">
                 {project?.slug}-{task.number}
               </div>
             )}
 
-            {/* Assignee avatar or unassigned icon - positioned absolutely in top right */}
             {showAssignees && (
               <div className="absolute top-3 right-3">
                 {task.userId ? (
@@ -89,7 +88,7 @@ function TaskCard({ task }: TaskCardProps) {
                     className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
                     title={task.assigneeName ?? ""}
                   >
-                    <span className="text-xs font-medium text-muted-foreground">
+                    <span className="text-[10px] font-medium text-muted-foreground">
                       {task.assigneeName?.charAt(0)?.toUpperCase() || "U"}
                     </span>
                   </div>
@@ -98,7 +97,7 @@ function TaskCard({ task }: TaskCardProps) {
                     className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
                     title="Unassigned"
                   >
-                    <span className="text-xs font-medium text-muted-foreground">
+                    <span className="text-[10px] font-medium text-muted-foreground">
                       ?
                     </span>
                   </div>
@@ -109,7 +108,7 @@ function TaskCard({ task }: TaskCardProps) {
             {/* Title */}
             <div className="mb-3 pr-7">
               <h3
-                className="font-medium text-foreground text-sm leading-relaxed overflow-hidden break-words"
+                className="font-medium text-foreground text-xs leading-relaxed overflow-hidden break-words"
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 3,
@@ -133,7 +132,7 @@ function TaskCard({ task }: TaskCardProps) {
             <div className="flex items-center justify-between gap-2">
               {showPriority && (
                 <div className="flex-shrink-0">
-                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-background text-xs font-medium text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-background text-[10px] font-medium text-muted-foreground">
                     <div
                       className={`w-2 h-2 rounded-full ${
                         task.priority === "high"
@@ -152,7 +151,7 @@ function TaskCard({ task }: TaskCardProps) {
 
               {showDueDates && task.dueDate && (
                 <div
-                  className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
                 >
                   {getDueDateStatus(task.dueDate) === "overdue" && (
                     <CalendarX className="w-3 h-3" />
