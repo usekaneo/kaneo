@@ -56,7 +56,7 @@ function SignUp() {
             variant="outline"
             onClick={handleGuestAccess}
             disabled={isGuestLoading}
-            className="w-full"
+            className="w-full mb-0"
             size="sm"
           >
             <UserCheck className="w-4 h-4 mr-2" />
