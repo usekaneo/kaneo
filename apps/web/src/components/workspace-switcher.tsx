@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import * as React from "react";
 
 import {
@@ -14,8 +14,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
+import { UserAvatar } from "@/components/user-avatar";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import {
@@ -28,7 +28,6 @@ import type { Workspace } from "@/types/workspace";
 import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
 
 export function WorkspaceSwitcher() {
-  const { isMobile } = useSidebar();
   const { workspace, setWorkspace } = useWorkspaceStore();
   const { setActiveWorkspaceId } = useUserPreferencesStore();
   const { data: workspaces } = useGetWorkspaces();
@@ -91,89 +90,89 @@ export function WorkspaceSwitcher() {
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div
-                className="bg-indigo-600 text-white flex aspect-square size-8 items-center justify-center rounded-lg"
-                style={{ backgroundColor: "#5463ff" }}
-              >
-                <span className="text-sm font-semibold">
-                  {workspace.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{workspace.name}</span>
-                <span className="truncate text-xs text-sidebar-foreground/70">
-                  {workspaces?.length || 0} workspace
-                  {workspaces?.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-              <ChevronsUpDown className="ml-auto" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Workspaces
-            </DropdownMenuLabel>
-            {workspaces?.map((ws: Workspace, index: number) => (
-              <DropdownMenuItem
-                key={ws.id}
-                onClick={() => {
-                  handleWorkspaceChange(ws);
-                  setIsOpen(false);
-                }}
-                className="gap-2 p-2"
-              >
-                <div
-                  className="flex size-6 items-center justify-center rounded-md bg-indigo-600 dark:bg-indigo-400"
-                  style={{ backgroundColor: "#5463ff" }}
+    <>
+      <div className="flex items-center justify-between w-full gap-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="sm"
+                  className="h-8 py-0 w-auto w-full group"
                 >
-                  <span className="text-xs font-medium text-white">
-                    {ws.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                {ws.name}
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {getModifierKeyText()} {index > 8 ? "0" : index + 1}
-                </span>
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="gap-2 p-2"
-              onClick={() => {
-                setIsCreateWorkspaceModalOpen(true);
-              }}
-            >
-              <div
-                className="flex size-6 items-center justify-center rounded-md bg-indigo-600 dark:bg-indigo-400"
-                style={{ backgroundColor: "#5463ff" }}
+                  <div className="flex items-end gap-2 min-w-0 w-full">
+                    <div className="bg-primary flex aspect-square size-5 items-end justify-center rounded-sm">
+                      <span className="text-xs font-medium text-white">
+                        {workspace.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="truncate text-sm text-foreground/90 font-medium">
+                      {workspace.name}
+                    </span>
+                  </div>
+                  <ChevronDown
+                    className="ml-1 size-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-500 ease-out"
+                    data-state={isOpen ? "open" : "closed"}
+                  />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="min-w-48 rounded-md border-border/20"
+                align="start"
+                side="bottom"
+                sideOffset={4}
               >
-                <Plus className="size-4 text-white" />
-              </div>
-              <div className="text-muted-foreground font-medium">
-                Add workspace
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
+                <DropdownMenuLabel className="text-muted-foreground/60 text-xs px-3 py-2">
+                  Workspaces
+                </DropdownMenuLabel>
+                {workspaces?.map((ws: Workspace, index: number) => (
+                  <DropdownMenuItem
+                    key={ws.id}
+                    onClick={() => {
+                      handleWorkspaceChange(ws);
+                      setIsOpen(false);
+                    }}
+                    className="gap-2 px-3 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80"
+                  >
+                    <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {ws.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-sm text-foreground/90">
+                      {ws.name}
+                    </span>
+                    <span className="ml-auto text-xs text-muted-foreground/50">
+                      {getModifierKeyText()} {index > 8 ? "0" : index + 1}
+                    </span>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator className="border-border/20" />
+                <DropdownMenuItem
+                  className="gap-2 px-3 py-1.5 hover:bg-card/30 focus:bg-card/30"
+                  onClick={() => {
+                    setIsCreateWorkspaceModalOpen(true);
+                  }}
+                >
+                  <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
+                    <Plus className="size-3 text-muted-foreground" />
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    Add workspace
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
+        <UserAvatar />
+      </div>
 
       <CreateWorkspaceModal
         open={isCreateWorkspaceModalOpen}
         onClose={() => setIsCreateWorkspaceModalOpen(false)}
       />
-    </SidebarMenu>
+    </>
   );
 }

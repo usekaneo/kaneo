@@ -25,7 +25,7 @@ function Search() {
           name="search"
           type="text"
           placeholder="Search"
-          className="peer block w-full rounded-sm border py-1 pl-8 pr-10 text-sm h-8 cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:border-ring-0 focus-visible:outline-none"
+          className="peer shadow-none block w-full rounded-sm py-1 pl-8 pr-10 text-sm h-8 cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:border-ring-0 focus-visible:outline-none"
           onClick={() => setOpen(true)}
           readOnly
           tabIndex={-1}

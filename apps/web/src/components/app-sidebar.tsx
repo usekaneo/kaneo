@@ -2,13 +2,10 @@ import type * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
-import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
-  SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { WorkspaceSwitcher } from "@/components/workspace-switcher";
@@ -35,12 +32,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="overflow-hidden">
         <Search />
         <NavMain />
-        <SidebarSeparator />
         <NavProjects />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
     </Sidebar>
   );
 }

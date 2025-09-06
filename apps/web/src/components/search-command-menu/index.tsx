@@ -6,7 +6,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { KbdSequence } from "@/components/ui/kbd";
 import { shortcuts } from "@/constants/shortcuts";
 import useGlobalSearch from "@/hooks/queries/search/use-global-search";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -187,15 +186,6 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
               <p className="text-sm text-muted-foreground">
                 Type at least 3 characters to search
               </p>
-              <div className="mt-2 text-xs text-muted-foreground">
-                Press{" "}
-                <KbdSequence
-                  keys={["/"]}
-                  className="inline-flex"
-                  description="focus search"
-                />{" "}
-                to focus
-              </div>
             </div>
           </CommandEmpty>
         )}

@@ -88,8 +88,8 @@ export function NavProjects() {
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden py-2">
-      <SidebarGroupLabel className="px-2 text-xs text-muted-foreground font-medium mb-1">
-        My projects
+      <SidebarGroupLabel className="px-2 text-xs text-muted-foreground/70 font-medium">
+        Projects
       </SidebarGroupLabel>
       <SidebarMenu>
         {projects?.map((project) => {
@@ -102,13 +102,13 @@ export function NavProjects() {
                 asChild
                 isActive={isCurrentProject(project.id)}
                 size="sm"
-                className="h-7 px-2 text-xs rounded-sm"
+                className="h-7 px-2 text-xs rounded-sm group text-foreground/60"
               >
                 <Button
                   onClick={() => handleProjectClick(project)}
                   variant="ghost"
                   className={cn(
-                    "w-full h-7 justify-start items-center gap-2 px-2 text-xs font-normal transition-all duration-200 relative",
+                    "w-full h-7 justify-start items-center gap-2 px-2 text-sm transition-all duration-200 relative",
                     isCurrentProject(project.id) &&
                       "!bg-neutral-200 dark:!bg-neutral-800",
                   )}

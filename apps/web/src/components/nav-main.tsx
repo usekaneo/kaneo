@@ -3,6 +3,7 @@ import { FolderKanban, Users } from "lucide-react";
 
 import {
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -44,6 +45,9 @@ export function NavMain() {
   return (
     <>
       <SidebarGroup className="py-2">
+        <SidebarGroupLabel className="px-2 text-xs text-muted-foreground/70 font-medium">
+          Workspace
+        </SidebarGroupLabel>
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.title}>
@@ -53,7 +57,7 @@ export function NavMain() {
                 disabled={item.isDisabled}
                 isActive={item.isActive}
                 size="sm"
-                className="h-7 px-2 text-xs rounded-sm"
+                className="h-7 px-2 text-xs rounded-sm group text-foreground/60"
               >
                 <Button
                   onClick={() => {
@@ -63,7 +67,7 @@ export function NavMain() {
                   }}
                   variant="ghost"
                   className={cn(
-                    "w-full h-7 justify-start items-center gap-2 px-2 text-xs font-normal transition-all duration-200 relative",
+                    "w-full h-7 justify-start items-center gap-2 px-2 text-sm transition-all duration-200 relative",
                     item.isActive && "!bg-neutral-200 dark:!bg-neutral-800",
                   )}
                 >
