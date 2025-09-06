@@ -64,8 +64,7 @@ export function NavMain() {
                   variant="ghost"
                   className={cn(
                     "w-full h-7 justify-start items-center gap-2 px-2 text-xs font-normal transition-all duration-200 relative",
-                    item.isActive &&
-                      "before:absolute before:inset-0 before:bg-gradient-to-r before:from-accent before:to-accent/0 before:rounded-l-sm before:pointer-events-none border-r-2 border-primary after:absolute after:top-0 after:right-0 after:bottom-0 after:w-2 after:bg-gradient-to-l after:from-primary/20 after:to-transparent after:pointer-events-none",
+                    item.isActive && "!bg-neutral-200 dark:!bg-neutral-800",
                   )}
                 >
                   {item.icon && (

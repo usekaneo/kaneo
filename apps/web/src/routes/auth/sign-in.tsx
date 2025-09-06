@@ -43,7 +43,7 @@ function SignIn() {
     try {
       const result = await authClient.signIn.social({
         provider: "github",
-        callbackURL: `${window.location.origin}/api/auth/callback/github`,
+        callbackURL: `${window.location.origin}/dashboard`,
         errorCallbackURL: `${window.location.origin}/auth/sign-in`,
       });
       if (result.error) {
