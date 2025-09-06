@@ -103,13 +103,14 @@ const notificationRoute = app.route("/notification", notification);
 const searchRoute = app.route("/search", search);
 
 try {
-  console.log("Migrating database...");
+  console.log("🔄 Migrating database...");
   migrate(db, {
     migrationsFolder: `${process.cwd()}/drizzle`,
   });
-  console.log("Database migrated successfully!");
+  console.log("✅ Database migrated successfully!");
 } catch (error) {
-  console.error(error);
+  console.error("❌ Database migration failed!", error);
+  process.exit(1);
 }
 
 serve(
@@ -118,7 +119,7 @@ serve(
     port: 1337,
   },
   (info) => {
-    console.log(`🏃 Hono API is running at http://localhost:${info.port}`);
+    console.log(`⚡ API is running at http://localhost:${info.port}`);
   },
 );
 
