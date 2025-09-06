@@ -1,10 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
 @import 'tailwindcss';
+
 
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
 	:root {
 		color-scheme: light;
+		--font-geist: 'Geist', sans-serif;
 		--background: oklch(0.9881 0 0);
 		--foreground: oklch(0.1881 0.0060 285.8056);
 		--card: oklch(1.0000 0 0);
@@ -56,6 +59,7 @@
 
 	.dark {
 		color-scheme: dark;
+		--font-geist: 'Geist', sans-serif;
 		--background: oklch(0.1252 0.0018 286.1313);
 		--foreground: oklch(0.9674 0.0013 286.3752);
 		--card: oklch(0.1717 0.0018 286.2103);
@@ -145,6 +149,7 @@
 }
 
 @theme inline {
+	--font-geist: var(--font-geist);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -306,4 +311,8 @@
   .theme-system {
     --primary-accent: oklch(0.6820 0.1989 272.7771);
   }
+}
+
+* {
+  font-family: var(--font-geist);
 }

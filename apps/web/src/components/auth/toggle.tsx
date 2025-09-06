@@ -15,7 +15,7 @@ export function AuthToggle({ message, linkText, linkTo }: AuthToggleProps) {
   }
 
   return (
-    <div className="text-center text-sm">
+    <div className="text-center text-sm text-muted-foreground">
       {message}{" "}
       <Link
         to={linkTo}

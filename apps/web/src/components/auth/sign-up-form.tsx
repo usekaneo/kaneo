@@ -142,7 +142,11 @@ export function SignUpForm() {
           />
         </div>
 
-        <Button type="submit" disabled={isPending} className="w-full mt-4">
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="w-full mt-4 text-white"
+        >
           {isPending ? "Creating Account..." : "Create Account"}
         </Button>
       </form>
