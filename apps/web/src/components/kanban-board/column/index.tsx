@@ -19,7 +19,7 @@ function Column({ column }: ColumnProps) {
       className={`flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg relative group transition-all duration-300 ease-out ${
         isDropzoneOver
           ? "bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-200 dark:ring-indigo-800/50 shadow-md shadow-indigo-500/10"
-          : "bg-zinc-50/30 dark:bg-zinc-900/30 hover:bg-zinc-50/40 dark:hover:bg-zinc-900/40 hover:shadow-sm"
+          : "bg-sidebar border border-border/50 dark:bg-zinc-900/30 hover:bg-zinc-50/40 dark:hover:bg-zinc-900/40 hover:shadow-sm"
       }`}
     >
       <CreateTaskModal
