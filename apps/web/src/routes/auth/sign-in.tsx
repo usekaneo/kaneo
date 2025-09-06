@@ -86,12 +86,12 @@ function SignIn() {
               >
                 <Github className="w-4 h-4 mr-2" />
                 {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
+                {lastLoginMethod === "github" && (
+                  <span className="absolute rounded-md -top-3 right-1 px-1.5 text-xs text-primary font-medium bg-sidebar border border-primary/50">
+                    Last used
+                  </span>
+                )}
               </Button>
-              {lastLoginMethod === "github" && (
-                <span className="absolute rounded-md -top-2 right-2 px-1.5 text-xs text-primary font-medium bg-sidebar border border-primary/50">
-                  Last used
-                </span>
-              )}
             </div>
             <Button
               variant="outline"

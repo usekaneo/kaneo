@@ -107,6 +107,7 @@ try {
   migrate(db, {
     migrationsFolder: `${process.cwd()}/drizzle`,
   });
+  console.log("Database migrated successfully!");
 } catch (error) {
   console.error(error);
 }
