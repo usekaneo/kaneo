@@ -190,7 +190,7 @@ function KanbanBoard({ project }: KanbanBoardProps) {
             {project.columns?.map((column) => (
               <div
                 key={column.id}
-                className="h-full flex-1 min-w-80 flex-shrink-0"
+                className="h-full flex-1 min-w-80 max-w-96 flex-shrink-0"
               >
                 <Column column={column} />
               </div>
