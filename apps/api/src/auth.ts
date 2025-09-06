@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { anonymous } from "better-auth/plugins";
+import { anonymous, lastLoginMethod } from "better-auth/plugins";
 import db, { schema } from "./database";
 import { generateDemoName } from "./utils/generate-demo-name";
 
@@ -37,5 +37,6 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
     anonymous({
       generateName: async () => generateDemoName(),
     }),
+    lastLoginMethod(),
   ],
 });

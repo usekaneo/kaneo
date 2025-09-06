@@ -1,6 +1,7 @@
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/cn";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Github, UserCheck } from "lucide-react";
 import { useState } from "react";
@@ -17,6 +18,9 @@ function SignIn() {
   const navigate = useNavigate();
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
+  const lastLoginMethod = authClient.getLastUsedLoginMethod();
+
+  console.log(lastLoginMethod === "github");
 
   const handleGuestAccess = async () => {
     setIsGuestLoading(true);
@@ -70,15 +74,25 @@ function SignIn() {
       >
         <div className="space-y-4 mt-6">
           <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              onClick={handleSignInGithub}
-              disabled={isGithubLoading}
-              className="w-full"
-            >
-              <Github className="w-4 h-4 mr-2" />
-              {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
-            </Button>
+            <div className="relative">
+              <Button
+                variant="outline"
+                onClick={handleSignInGithub}
+                disabled={isGithubLoading}
+                className={cn(
+                  "w-full",
+                  lastLoginMethod === "github" && "!border-primary/50",
+                )}
+              >
+                <Github className="w-4 h-4 mr-2" />
+                {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
+              </Button>
+              {lastLoginMethod === "github" && (
+                <span className="absolute rounded-md -top-2 right-2 px-1.5 text-xs text-primary font-medium bg-sidebar border border-primary/50">
+                  Last used
+                </span>
+              )}
+            </div>
             <Button
               variant="outline"
               onClick={handleGuestAccess}
@@ -91,9 +105,9 @@ function SignIn() {
             </Button>
           </div>
           <div className="flex items-center gap-4 my-4">
-            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
-            <span className="text-sm text-zinc-500 dark:text-zinc-400">or</span>
-            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-sm text-muted-foreground">or</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
           <SignInForm />
           <AuthToggle

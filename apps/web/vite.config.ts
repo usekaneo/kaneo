@@ -19,6 +19,9 @@ export default defineConfig({
     hmr: true,
     port: 5173,
   },
+  optimizeDeps: {
+    exclude: ["better-auth"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
