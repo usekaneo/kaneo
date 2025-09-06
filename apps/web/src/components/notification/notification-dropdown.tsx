@@ -87,12 +87,12 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               </TooltipTrigger>
               <TooltipContent>
                 <p className="flex items-center gap-2">
-                  Notifications
                   <KbdSequence
                     keys={[
                       shortcuts.notification.prefix,
                       shortcuts.notification.open,
                     ]}
+                    description="Open notifications"
                   />
                 </p>
               </TooltipContent>

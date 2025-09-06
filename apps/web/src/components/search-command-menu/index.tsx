@@ -188,8 +188,13 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
                 Type at least 3 characters to search
               </p>
               <div className="mt-2 text-xs text-muted-foreground">
-                Press <KbdSequence keys={["/"]} className="inline-flex" /> to
-                focus
+                Press{" "}
+                <KbdSequence
+                  keys={["/"]}
+                  className="inline-flex"
+                  description="focus search"
+                />{" "}
+                to focus
               </div>
             </div>
           </CommandEmpty>

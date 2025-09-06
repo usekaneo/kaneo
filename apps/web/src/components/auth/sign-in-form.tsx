@@ -122,6 +122,7 @@ export function SignInForm() {
         <Button
           type="submit"
           disabled={isPending}
+          size="sm"
           className="w-full mt-4 text-white"
         >
           {isPending ? "Signing In..." : "Sign In"}

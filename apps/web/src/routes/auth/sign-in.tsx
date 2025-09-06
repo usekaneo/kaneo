@@ -20,8 +20,6 @@ function SignIn() {
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
 
-  console.log(lastLoginMethod === "github");
-
   const handleGuestAccess = async () => {
     setIsGuestLoading(true);
     try {

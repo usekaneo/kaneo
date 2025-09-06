@@ -24,7 +24,7 @@ import useWorkspaceStore from "@/store/workspace";
 import type { ProjectWithTasks } from "@/types/project";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { Folder, Forward, MoreHorizontal, Trash2 } from "lucide-react";
+import { Folder, Forward, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import CreateProjectModal from "./shared/modals/create-project-modal";
@@ -87,8 +87,10 @@ export function NavProjects() {
   if (!workspace) return null;
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projects</SidebarGroupLabel>
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden py-2">
+      <SidebarGroupLabel className="px-2 text-xs text-muted-foreground font-medium mb-1">
+        My projects
+      </SidebarGroupLabel>
       <SidebarMenu>
         {projects?.map((project) => {
           const IconComponent =
@@ -96,17 +98,25 @@ export function NavProjects() {
 
           return (
             <SidebarMenuItem key={project.id}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton
+                asChild
+                isActive={isCurrentProject(project.id)}
+                size="sm"
+                className="h-7 px-2 text-xs rounded-sm"
+              >
                 <Button
                   onClick={() => handleProjectClick(project)}
                   variant="ghost"
                   className={cn(
-                    "w-full flex gap-2 justify-start items-start",
-                    isCurrentProject(project.id) && "bg-accent",
+                    "w-full h-7 justify-start items-center gap-2 px-2 text-xs font-normal transition-all duration-200 relative",
+                    isCurrentProject(project.id) &&
+                      "before:absolute before:inset-0 before:bg-gradient-to-r before:from-accent before:to-accent/0 before:rounded-l-sm before:pointer-events-none border-r-2 border-primary after:absolute after:top-0 after:right-0 after:bottom-0 after:w-2 after:bg-gradient-to-l after:from-primary/20 after:to-transparent after:pointer-events-none",
                   )}
                 >
-                  <IconComponent className="w-4 h-4" />
-                  <span>{project.name}</span>
+                  <IconComponent className="w-3.5 h-3.5 transition-colors duration-200 relative z-10" />
+                  <span className="transition-colors duration-200 relative z-10">
+                    {project.name}
+                  </span>
                 </Button>
               </SidebarMenuButton>
 
@@ -162,10 +172,11 @@ export function NavProjects() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <SidebarMenuButton
-                  className="text-sidebar-foreground/70"
+                  size="sm"
+                  className="h-7 px-2 text-xs text-sidebar-foreground/70"
                   onClick={() => setIsCreateProjectModalOpen(true)}
                 >
-                  <MoreHorizontal className="text-sidebar-foreground/70" />
+                  <Plus className="w-3.5 h-3.5 text-sidebar-foreground/70" />
                   <span>Add project</span>
                 </SidebarMenuButton>
               </TooltipTrigger>
@@ -173,6 +184,7 @@ export function NavProjects() {
                 <KbdSequence
                   keys={[shortcuts.project.prefix, shortcuts.project.create]}
                   className="ml-auto"
+                  description="Add project"
                 />
               </TooltipContent>
             </Tooltip>

@@ -87,6 +87,7 @@ function CommandPalette() {
               <KbdSequence
                 keys={[shortcuts.task.prefix, shortcuts.task.create]}
                 className="ml-auto"
+                description="Create task"
               />
             </CommandItem>
             <CommandItem
@@ -101,6 +102,7 @@ function CommandPalette() {
               <KbdSequence
                 keys={[shortcuts.project.prefix, shortcuts.project.create]}
                 className="ml-auto"
+                description="Create project"
               />
             </CommandItem>
             <CommandItem
@@ -115,6 +117,7 @@ function CommandPalette() {
               <KbdSequence
                 keys={[shortcuts.workspace.prefix, shortcuts.workspace.create]}
                 className="ml-auto"
+                description="Create workspace"
               />
             </CommandItem>
           </CommandGroup>
@@ -145,6 +148,7 @@ function CommandPalette() {
               <KbdSequence
                 keys={[shortcuts.search.prefix]}
                 className="ml-auto"
+                description="Search"
               />
             </CommandItem>
             <CommandItem

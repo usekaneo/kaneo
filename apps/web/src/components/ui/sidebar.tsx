@@ -294,10 +294,10 @@ function SidebarTrigger({
           side="bottom"
           className="bg-popover text-popover-foreground border"
         >
-          <div className="flex items-center gap-2 text-xs">
-            <span>Toggle sidebar</span>
+          <div className="flex items-center gap-2 text-[10px]">
             <KbdSequence
               keys={[shortcuts.sidebar.prefix, shortcuts.sidebar.toggle]}
+              description="Toggle sidebar"
             />
           </div>
         </TooltipContent>

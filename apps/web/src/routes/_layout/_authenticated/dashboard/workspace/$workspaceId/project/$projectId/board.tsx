@@ -105,6 +105,7 @@ function RouteComponent() {
                       <KbdSequence
                         keys={[shortcuts.task.prefix, shortcuts.task.create]}
                         className="ml-auto"
+                        description="Create new task"
                       />
                     </TooltipContent>
                   </Tooltip>
