@@ -1,10 +1,8 @@
 <p align="center">
   <a href="https://kaneo.app">
-    <img src="https://assets.kaneo.app/logo-mono-rounded.png" alt="Kaneo's logo" width="200" />
+    <img src="https://assets.kaneo.app/logo-text.png" alt="Kaneo's logo" width="200" />
   </a>
 </p>
-
-<h1 align="center">Kaneo</h1>
 
 <div align="center">
 
@@ -26,7 +24,7 @@
   </h3>
 </div>
 
-<p align="center">A modern, self-hosted project management platform that gets out of your way.</p>
+<p align="center">All you need. Nothing you don't.</p>
 
 ## Why Kaneo?
 
