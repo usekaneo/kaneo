@@ -68,7 +68,7 @@ export function UserAvatar() {
         >
           <Avatar className="h-6 w-6">
             <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
-            <AvatarFallback className="text-xs font-medium">
+            <AvatarFallback className="text-xs font-medium border border-border/30">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -84,7 +84,9 @@ export function UserAvatar() {
           <div className="flex items-center gap-2 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg rounded-full">
               <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
-              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+              <AvatarFallback className="rounded-full border border-border/30">
+                {initials}
+              </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">
@@ -105,9 +107,9 @@ export function UserAvatar() {
           <Button
             variant="ghost"
             onClick={handleSettings}
-            className="w-full justify-start gap-2 px-2 py-1.5 text-sm font-normal hover:bg-secondary/80"
+            className="w-full justify-start gap-2 px-2 py-1.5 text-sm font-normal text-muted-foreground hover:bg-secondary/80"
           >
-            <Settings className="h-4 w-4" />
+            <Settings className="size-3" />
             Settings
           </Button>
         </div>
@@ -119,9 +121,9 @@ export function UserAvatar() {
             variant="ghost"
             onClick={handleSignOut}
             disabled={isPending}
-            className="w-full justify-start gap-2 px-2 py-1.5 text-sm font-normal hover:bg-secondary/80"
+            className="w-full justify-start gap-2 px-2 py-1.5 text-sm font-normal text-muted-foreground hover:bg-secondary/80"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="size-3" />
             {isPending ? "Signing out..." : "Log out"}
           </Button>
         </div>
