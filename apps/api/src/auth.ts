@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous, lastLoginMethod } from "better-auth/plugins";
@@ -25,6 +26,14 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    password: {
+      hash: async (password) => {
+        return await bcrypt.hash(password, 10);
+      },
+      verify: async ({ hash, password }) => {
+        return await bcrypt.compare(password, hash);
+      },
+    },
   },
   socialProviders: {
     github: {
