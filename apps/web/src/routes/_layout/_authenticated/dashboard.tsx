@@ -13,7 +13,7 @@ function DashboardLayoutComponent() {
   return (
     <>
       <SidebarProvider>
-        <PageTitle title="Dashboard" hideAppName={!workspace?.name} />
+        <PageTitle title="Projects" hideAppName={!workspace?.name} />
         <Outlet />
       </SidebarProvider>
     </>

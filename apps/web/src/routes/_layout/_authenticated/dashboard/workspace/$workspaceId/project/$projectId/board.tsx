@@ -1,6 +1,7 @@
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
+import PageTitle from "@/components/page-title";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
@@ -83,6 +84,10 @@ function RouteComponent() {
       projectId={projectId}
       workspaceId={workspaceId}
     >
+      <PageTitle
+        title={`${project?.name} · ${viewMode === "board" ? "Board" : "List"}`}
+        hideAppName
+      />
       <div className="flex flex-col h-full min-h-0">
         <div className="bg-card border-b border-border">
           <div className="h-10 flex items-center px-4">
