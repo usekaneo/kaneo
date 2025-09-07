@@ -108,7 +108,7 @@ function TaskCard({ task }: TaskCardProps) {
             {/* Title */}
             <div className="mb-3 pr-7">
               <h3
-                className="font-medium text-foreground text-xs leading-relaxed overflow-hidden break-words"
+                className="font-medium text-foreground text-sm leading-relaxed overflow-hidden break-words"
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 3,
@@ -129,7 +129,7 @@ function TaskCard({ task }: TaskCardProps) {
             )}
 
             {/* Footer with priority and due date */}
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
               {showPriority && (
                 <div className="flex-shrink-0">
                   <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-background text-[10px] font-medium text-muted-foreground">
