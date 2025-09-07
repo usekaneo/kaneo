@@ -115,7 +115,7 @@ export function WorkspaceSwitcher() {
                 </SidebarMenuButton>
               </PopoverTrigger>
               <PopoverContent
-                className="min-w-48 p-0 rounded-lg"
+                className="w-fit min-w-48 p-0 rounded-lg"
                 align="start"
                 side="bottom"
                 sideOffset={4}
