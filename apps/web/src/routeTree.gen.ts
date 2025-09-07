@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PublicProjectProjectIdRouteImport } from './routes/public-project.$projectId'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
+import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as LayoutAuthenticatedRouteImport } from './routes/_layout/_authenticated'
 import { Route as LayoutAuthenticatedOnboardingRouteImport } from './routes/_layout/_authenticated/onboarding'
 import { Route as LayoutAuthenticatedDashboardRouteImport } from './routes/_layout/_authenticated/dashboard'
@@ -65,6 +66,11 @@ const AuthSignUpRoute = AuthSignUpRouteImport.update({
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCheckEmailRoute = AuthCheckEmailRouteImport.update({
+  id: '/check-email',
+  path: '/check-email',
   getParentRoute: () => AuthRoute,
 } as any)
 const LayoutAuthenticatedRoute = LayoutAuthenticatedRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/test-error': typeof TestErrorRoute
+  '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/public-project/$projectId': typeof PublicProjectProjectIdRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/test-error': typeof TestErrorRoute
+  '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/public-project/$projectId': typeof PublicProjectProjectIdRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/test-error': typeof TestErrorRoute
   '/_layout/_authenticated': typeof LayoutAuthenticatedRouteWithChildren
+  '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/public-project/$projectId': typeof PublicProjectProjectIdRoute
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/test-error'
+    | '/auth/check-email'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/public-project/$projectId'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/test-error'
+    | '/auth/check-email'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/public-project/$projectId'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/test-error'
     | '/_layout/_authenticated'
+    | '/auth/check-email'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/public-project/$projectId'
@@ -376,6 +388,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/auth/sign-in'
       preLoaderRoute: typeof AuthSignInRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/check-email': {
+      id: '/auth/check-email'
+      path: '/check-email'
+      fullPath: '/auth/check-email'
+      preLoaderRoute: typeof AuthCheckEmailRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_layout/_authenticated': {
@@ -594,11 +613,13 @@ const LayoutRouteWithChildren =
   LayoutRoute._addFileChildren(LayoutRouteChildren)
 
 interface AuthRouteChildren {
+  AuthCheckEmailRoute: typeof AuthCheckEmailRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthCheckEmailRoute: AuthCheckEmailRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
 }

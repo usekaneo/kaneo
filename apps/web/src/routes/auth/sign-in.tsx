@@ -1,5 +1,6 @@
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -7,7 +8,9 @@ import { Github, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AuthLayout } from "../../components/auth/layout";
+import { MagicLinkSignInForm } from "../../components/auth/magic-link-sign-in-form";
 import { SignInForm } from "../../components/auth/sign-in-form";
+import { SignInFormSkeleton } from "../../components/auth/sign-in-form-skeleton";
 import { AuthToggle } from "../../components/auth/toggle";
 
 export const Route = createFileRoute("/auth/sign-in")({
@@ -19,6 +22,7 @@ function SignIn() {
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
+  const { data: config, isLoading: isConfigLoading } = useGetConfig();
 
   const handleGuestAccess = async () => {
     setIsGuestLoading(true);
@@ -62,6 +66,20 @@ function SignIn() {
       setIsGithubLoading(false);
     }
   };
+
+  if (isConfigLoading) {
+    return (
+      <>
+        <PageTitle title="Sign In" />
+        <AuthLayout
+          title="Welcome back"
+          subtitle="Enter your credentials to access your workspace"
+        >
+          <SignInFormSkeleton />
+        </AuthLayout>
+      </>
+    );
+  }
 
   return (
     <>
@@ -107,7 +125,7 @@ function SignIn() {
             <span className="text-sm text-muted-foreground">or</span>
             <div className="flex-1 h-px bg-border" />
           </div>
-          <SignInForm />
+          {config?.hasSmtp ? <MagicLinkSignInForm /> : <SignInForm />}
           <AuthToggle
             message="Don't have an account?"
             linkText="Create account"

@@ -1,7 +1,8 @@
+import { sendMagicLinkEmail } from "@kaneo/email";
 import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { anonymous, lastLoginMethod } from "better-auth/plugins";
+import { anonymous, lastLoginMethod, magicLink } from "better-auth/plugins";
 import db, { schema } from "./database";
 import { generateDemoName } from "./utils/generate-demo-name";
 
@@ -47,5 +48,14 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
       generateName: async () => generateDemoName(),
     }),
     lastLoginMethod(),
+    magicLink({
+      sendMagicLink: async ({ email, url }) => {
+        try {
+          await sendMagicLinkEmail(email, "Magic Link", { magicLink: url });
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    }),
   ],
 });
