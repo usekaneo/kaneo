@@ -23,6 +23,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["better-auth"],
   },
+  ssr: {
+    noExternal: ["better-auth"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -34,5 +37,10 @@ export default defineConfig({
         manualChunks: undefined,
       },
     },
+    commonjsOptions: {
+      include: [/better-auth/, /node_modules/],
+      transformMixedEsModules: true,
+    },
+    target: "esnext",
   },
 });

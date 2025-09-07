@@ -43,8 +43,8 @@ function SignIn() {
     try {
       const result = await authClient.signIn.social({
         provider: "github",
-        callbackURL: `${window.location.origin}/dashboard`,
-        errorCallbackURL: `${window.location.origin}/auth/sign-in`,
+        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/dashboard`,
+        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
