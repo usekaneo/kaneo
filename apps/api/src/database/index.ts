@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import { config } from "dotenv-mono";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import {
@@ -32,7 +32,7 @@ import {
   workspaceUserTable,
 } from "./schema";
 
-dotenv.config();
+config();
 
 const pool = new Pool({
   connectionString:

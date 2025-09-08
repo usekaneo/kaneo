@@ -21,6 +21,9 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@10.15.0",
-  "version": "1.2.4"
+  "packageManager": "pnpm@10.15.1",
+  "version": "1.2.4",
+  "dependencies": {
+    "dotenv-mono": "^1.5.1"
+  }
 }

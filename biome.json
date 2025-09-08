@@ -17,7 +17,8 @@
 			".turbo",
 			".source",
 			".next",
-			"out"
+			"out",
+			".cache"
 		]
 	},
 	"formatter": {

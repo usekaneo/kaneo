@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
+import { config } from "dotenv-mono";
 import { type Config, defineConfig } from "drizzle-kit";
 
-dotenv.config();
+config();
 
 export default defineConfig({
   out: "./drizzle",

@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
+import { config } from "dotenv-mono";
 import { App } from "octokit";
 
-dotenv.config();
+config();
 
 function createGithubApp(): App | null {
   if (

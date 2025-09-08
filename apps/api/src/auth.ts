@@ -3,12 +3,11 @@ import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous, lastLoginMethod, magicLink } from "better-auth/plugins";
+import { config } from "dotenv-mono";
 import db, { schema } from "./database";
 import { generateDemoName } from "./utils/generate-demo-name";
 
-import dotenv from "dotenv";
-
-dotenv.config();
+config();
 
 export const auth: ReturnType<typeof betterAuth> = betterAuth({
   baseURL: process.env.KANEO_API_URL || "http://localhost:1337",
@@ -51,7 +50,9 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
     magicLink({
       sendMagicLink: async ({ email, url }) => {
         try {
-          await sendMagicLinkEmail(email, "Magic Link", { magicLink: url });
+          await sendMagicLinkEmail(email, "Login for Kaneo", {
+            magicLink: url,
+          });
         } catch (error) {
           console.error(error);
         }

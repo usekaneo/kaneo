@@ -118,8 +118,10 @@ serve(
     fetch: app.fetch,
     port: 1337,
   },
-  (info) => {
-    console.log(`⚡ API is running at http://localhost:${info.port}`);
+  () => {
+    console.log(
+      `⚡ API is running at ${process.env.KANEO_API_URL || "http://localhost:1337"}`,
+    );
   },
 );
 

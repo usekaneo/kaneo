@@ -1,6 +1,6 @@
-import dotenv from "dotenv";
+import { config } from "dotenv-mono";
 
-dotenv.config();
+config();
 
 function getSettings() {
   return {

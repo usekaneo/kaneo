@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      dotenv-mono:
+        specifier: ^1.5.1
+        version: 1.5.1
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
@@ -68,9 +72,6 @@ importers:
       croner:
         specifier: ^9.1.0
         version: 9.1.0
-      dotenv:
-        specifier: ^17.2.1
-        version: 17.2.1
       drizzle-kit:
         specifier: ^0.31.1
         version: 0.31.4
@@ -4766,6 +4767,18 @@ packages:
   dot-prop@5.3.0:
     resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==}
     engines: {node: '>=8'}
+
+  dotenv-expand@12.0.3:
+    resolution: {integrity: sha512-uc47g4b+4k/M/SeaW1y4OApx+mtLWl92l5LMPP0GNXctZqELk+YGgOPIIC5elYmUH4OuoK3JLhuRUYegeySiFA==}
+    engines: {node: '>=12'}
+
+  dotenv-mono@1.5.1:
+    resolution: {integrity: sha512-dt7bK/WKQvL0gcdTxjI7wD4MhVR5F4bCk70XMAgnrbWN3fdhpyhWCypYbZalr/vjLURLA7Ib9/VCzazRLJnp1Q==}
+    hasBin: true
+
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
 
   dotenv@17.2.1:
     resolution: {integrity: sha512-kQhDYKZecqnM0fCnzI5eIv5L4cAe/iRI+HqMbO/hbRdTAeXDG+M9FjipUxNfbARuEg4iHIbhnhs78BCHNbSxEQ==}
@@ -12249,6 +12262,19 @@ snapshots:
     dependencies:
       is-obj: 2.0.0
 
+  dotenv-expand@12.0.3:
+    dependencies:
+      dotenv: 16.6.1
+
+  dotenv-mono@1.5.1:
+    dependencies:
+      cross-spawn: 7.0.6
+      dotenv: 17.2.1
+      dotenv-expand: 12.0.3
+      minimist: 1.2.8
+
+  dotenv@16.6.1: {}
+
   dotenv@17.2.1: {}
 
   drizzle-kit@0.31.4:
@@ -14960,7 +14986,7 @@ snapshots:
       mkdirp: 3.0.1
       yallist: 5.0.0
 
-  terser-webpack-plugin@5.3.14(esbuild@0.25.8)(webpack@5.101.3(esbuild@0.25.0)):
+  terser-webpack-plugin@5.3.14(esbuild@0.25.8)(webpack@5.101.3(esbuild@0.25.8)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.29
       jest-worker: 27.5.1
@@ -15297,7 +15323,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.2
       tapable: 2.2.2
-      terser-webpack-plugin: 5.3.14(esbuild@0.25.8)(webpack@5.101.3(esbuild@0.25.0))
+      terser-webpack-plugin: 5.3.14(esbuild@0.25.8)(webpack@5.101.3(esbuild@0.25.8))
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     transitivePeerDependencies:
