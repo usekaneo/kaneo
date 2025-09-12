@@ -1,4 +1,4 @@
-import { MarkdownRenderer } from "@/components/common/markdown-renderer";
+// import { MarkdownRenderer } from "@/components/common/markdown-renderer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
@@ -97,7 +97,7 @@ export function PublicTaskDetailModal({
                     <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
                       Description
                     </h3>
-                    <MarkdownRenderer content={task.description} />
+                    {/* <MarkdownRenderer content={task.description} /> */}
                   </div>
                 )}
 

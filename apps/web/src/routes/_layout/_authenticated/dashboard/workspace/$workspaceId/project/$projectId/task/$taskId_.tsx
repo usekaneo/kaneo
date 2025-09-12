@@ -1,117 +1,278 @@
-import ProjectLayout from "@/components/common/project-layout";
-import PageTitle from "@/components/page-title";
-import TaskActivities from "@/components/task/task-activities";
-import TaskComment from "@/components/task/task-comment";
-import TaskDescription from "@/components/task/task-description";
-import TaskInfo from "@/components/task/task-info";
-import TaskTimeTracking from "@/components/task/task-time-tracking";
-import TaskTitle from "@/components/task/task-title";
-import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
+import TaskLayout from "@/components/common/task-layout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { KbdSequence } from "@/components/ui/kbd";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import useGetTasks from "@/hooks/queries/task/use-get-tasks";
-import useProjectStore from "@/store/project";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
+import { cn } from "@/lib/cn";
+import { useUserPreferencesStore } from "@/store/user-preferences";
+import {
+  BlockTypeSelect,
+  type BlockTypeSelectItem,
+  CreateLinkButton,
+  FormattingToolbarController,
+  useCreateBlockNote,
+} from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/shadcn";
+import "@blocknote/shadcn/style.css";
+import { createFileRoute } from "@tanstack/react-router";
+import {
+  Bold,
+  Code,
+  Heading1,
+  Heading2,
+  Heading3,
+  Italic,
+  List,
+  ListOrdered,
+  Strikethrough,
+  Type,
+  Underline,
+} from "lucide-react";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_",
 )({
-  component: TaskEditPage,
+  component: RouteComponent,
 });
 
-function TaskEditPage() {
-  const { taskId, projectId, workspaceId } = Route.useParams();
-  const { data: project } = useGetTasks(projectId);
-  const { data: task, isLoading } = useGetTask(taskId);
-  const { setProject } = useProjectStore();
-  const router = useRouter();
-  const [isSaving, setIsSaving] = useState(false);
+function RouteComponent() {
+  const { projectId, workspaceId, taskId } = Route.useParams();
+  const { data: task } = useGetTask(taskId);
+  const { data: project } = useGetProject({ id: projectId, workspaceId });
+  const editor = useCreateBlockNote({
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "",
+      },
+    ],
+  });
 
-  useEffect(() => {
-    if (project) {
-      setProject(project);
-    }
-  }, [project, setProject]);
-
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
+  const { theme } = useUserPreferencesStore();
 
   return (
-    <ProjectLayout
-      title={`${project?.slug}-${task?.number}`}
+    <TaskLayout
+      taskId={taskId}
       projectId={projectId}
       workspaceId={workspaceId}
-    >
-      <PageTitle
-        title={`${project?.slug}-${task?.number} · ${task?.title || "Task"}`}
-        hideAppName
-      />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="h-full flex  flex-col bg-card overflow-hidden"
-      >
-        <header className="sticky top-0 z-10 flex items-center px-4 h-[65px] border-b border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <button
-              type="button"
-              onClick={() => router.history.back()}
-              className="p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <X className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-            </button>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-0.5">
-                {project?.slug}-{task?.number}
-              </div>
-              <TaskTitle setIsSaving={setIsSaving} />
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 ml-4">
-            {isSaving && (
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                Saving...
-              </span>
-            )}
-          </div>
-        </header>
-
-        <div className="flex-1 min-h-0 md:flex-row overflow-auto">
-          <div className="flex-1 min-w-0 overflow-y-auto border-r border-zinc-200 dark:border-zinc-800 flex flex-col-reverse md:flex-row h-full">
-            <div className="px-6 py-6 space-y-6 flex-1">
-              <div className="space-y-8">
-                <TaskDescription setIsSaving={setIsSaving} />
-                <TaskTimeTracking taskId={taskId} />
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-base font-medium text-zinc-900 dark:text-zinc-100">
-                      Comments & Activity
-                    </h2>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-                      >
-                        Show all
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-6 pb-8">
-                  <TaskComment />
-                  <TaskActivities />
-                </div>
-              </div>
-            </div>
-            {task && <TaskInfo task={task} setIsSaving={setIsSaving} />}
-          </div>
+      rightSidebar={
+        <div className="w-72 bg-sidebar border-l border-border flex flex-col gap-2">
+          Hi
         </div>
-      </motion.div>
-    </ProjectLayout>
+      }
+    >
+      <div className="flex flex-col h-full min-h-0 max-w-3xl mx-auto px-4 py-8 gap-2">
+        <p className="text-xs font-semibold text-muted-foreground">
+          {project?.slug}-{task?.number}
+        </p>
+        <Input
+          placeholder="Click to add a title"
+          value={task?.title || ""}
+          className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
+        />
+        <div className="blocknote-transparent">
+          <BlockNoteView
+            editor={editor}
+            className="min-h-[200px] [&>div:first-of-type]:!pl-0 [&>div:first-of-type]:!bg-transparent"
+            data-placeholder="Add a description..."
+            formattingToolbar={false}
+            linkToolbar={false}
+            filePanel={false}
+            sideMenu={false}
+            tableHandles={false}
+            theme={theme as "dark" | "light"}
+          >
+            <FormattingToolbarController
+              formattingToolbar={() => (
+                <TooltipProvider>
+                  <div className="bg-sidebar flex items-center [&>div]:!p-4">
+                    <BlockTypeSelect
+                      items={[
+                        {
+                          name: "Paragraph",
+                          type: "paragraph",
+                          icon: Type,
+                          props: {},
+                          isSelected: (block) => block.type === "paragraph",
+                        } satisfies BlockTypeSelectItem,
+                        {
+                          name: "Heading 1",
+                          type: "heading",
+                          icon: Heading1,
+                          props: {
+                            level: 1,
+                          },
+                          isSelected: (block) =>
+                            block.type === "heading" && block.props.level === 1,
+                        } satisfies BlockTypeSelectItem,
+                        {
+                          name: "Heading 2",
+                          type: "heading",
+                          icon: Heading2,
+                          props: {
+                            level: 2,
+                          },
+                          isSelected: (block) =>
+                            block.type === "heading" && block.props.level === 2,
+                        } satisfies BlockTypeSelectItem,
+                        {
+                          name: "Heading 3",
+                          type: "heading",
+                          icon: Heading3,
+                          props: {
+                            level: 3,
+                          },
+                          isSelected: (block) =>
+                            block.type === "heading" && block.props.level === 3,
+                        } satisfies BlockTypeSelectItem,
+                        {
+                          name: "Bullet List",
+                          type: "bulletListItem",
+                          icon: List,
+                          props: {},
+                          isSelected: (block) =>
+                            block.type === "bulletListItem",
+                        } satisfies BlockTypeSelectItem,
+                        {
+                          name: "Numbered List",
+                          type: "numberedListItem",
+                          icon: ListOrdered,
+                          props: {},
+                          isSelected: (block) =>
+                            block.type === "numberedListItem",
+                        } satisfies BlockTypeSelectItem,
+                      ]}
+                      key={"blockTypeSelect"}
+                    />
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          size="xs"
+                          onClick={() => editor.toggleStyles({ bold: true })}
+                          className={cn(
+                            "bg-transparent shadow-none text-muted-foreground",
+                            editor.getActiveStyles().bold &&
+                              "font-bold text-foreground bg-accent",
+                          )}
+                        >
+                          <Bold className="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <KbdSequence
+                          keys={[getModifierKeyText(), "B"]}
+                          description="Bold"
+                        />
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          size="xs"
+                          onClick={() => editor.toggleStyles({ italic: true })}
+                          className={cn(
+                            "bg-transparent shadow-none text-muted-foreground",
+                            editor.getActiveStyles().italic &&
+                              "font-bold text-foreground bg-accent",
+                          )}
+                        >
+                          <Italic className="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <KbdSequence
+                          keys={[getModifierKeyText(), "I"]}
+                          description="Italic"
+                        />
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          size="xs"
+                          onClick={() =>
+                            editor.toggleStyles({ underline: true })
+                          }
+                          className={cn(
+                            "bg-transparent shadow-none text-muted-foreground",
+                            editor.getActiveStyles().underline &&
+                              "font-bold text-foreground bg-accent",
+                          )}
+                        >
+                          <Underline className="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <KbdSequence
+                          keys={[getModifierKeyText(), "U"]}
+                          description="Underline"
+                        />
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          size="xs"
+                          onClick={() => editor.toggleStyles({ code: true })}
+                          className={cn(
+                            "bg-transparent shadow-none text-muted-foreground",
+                            editor.getActiveStyles().code &&
+                              "font-bold text-foreground bg-accent",
+                          )}
+                        >
+                          <Code className="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <KbdSequence
+                          keys={[getModifierKeyText(), "E"]}
+                          description="Code"
+                        />
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          size="xs"
+                          onClick={() => editor.toggleStyles({ strike: true })}
+                          className={cn(
+                            "bg-transparent shadow-none text-muted-foreground",
+                            editor.getActiveStyles().strike &&
+                              "font-bold text-foreground bg-accent",
+                          )}
+                        >
+                          <Strikethrough className="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <KbdSequence
+                          keys={[getModifierKeyText(), "Shift", "X"]}
+                          description="Strikethrough"
+                        />
+                      </TooltipContent>
+                    </Tooltip>
+                    <CreateLinkButton key={"createLinkButton"} />
+                  </div>
+                </TooltipProvider>
+              )}
+            />
+          </BlockNoteView>
+        </div>
+      </div>
+    </TaskLayout>
   );
 }

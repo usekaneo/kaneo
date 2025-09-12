@@ -1,4 +1,4 @@
-import { Editor } from "@/components/common/editor";
+// import { Editor } from "@/components/common/editor";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -97,16 +97,12 @@ function TaskComment({
             <FormField
               control={form.control}
               name="comment"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <div className="flex flex-col gap-4">
                     <FormControl>
                       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm overflow-hidden min-h-[100px]">
-                        <Editor
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          placeholder="Add a comment..."
-                        />
+                        Replace me
                       </div>
                     </FormControl>
                   </div>

@@ -47,7 +47,7 @@ export default function ProjectLayout({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <SidebarTrigger className="-ml-1 h-6 w-6" />
+                  <SidebarTrigger className="-ml-1 h-6 w-6 cursor-pointer text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="flex items-center gap-2 text-[10px]">
@@ -66,11 +66,11 @@ export default function ProjectLayout({
               orientation="vertical"
               className="mx-1.5 data-[orientation=vertical]:h-2.5"
             />
-            <Breadcrumb className="flex items-center gap-1 text-xs w-full">
-              <BreadcrumbList>
+            <Breadcrumb className="flex items-center text-xs w-full">
+              <BreadcrumbList className="!gap-1">
                 <BreadcrumbItem>
                   <BreadcrumbLink href={`/dashboard/workspace/${workspaceId}`}>
-                    <h1 className="text-xs text-card-foreground">
+                    <h1 className="text-xs text-muted-foreground">
                       {workspace?.name}
                     </h1>
                   </BreadcrumbLink>
@@ -80,14 +80,14 @@ export default function ProjectLayout({
                   <BreadcrumbLink
                     href={`/dashboard/workspace/${workspaceId}/project/${projectId}/board`}
                   >
-                    <h1 className="text-xs text-card-foreground">
+                    <h1 className="text-xs text-muted-foreground">
                       {project?.name}
                     </h1>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <h1 className="text-xs text-card-foreground">{title}</h1>
+                  <h1 className="text-xs text-muted-foreground">{title}</h1>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>

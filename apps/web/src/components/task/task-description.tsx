@@ -1,20 +1,19 @@
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+// import useUpdateTask from "@/hooks/mutations/task/use-update-task";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import debounce from "@/lib/debounce";
+// import debounce from "@/lib/debounce";
 import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Editor } from "../common/editor";
 import { Form, FormField } from "../ui/form";
 
 interface TaskDescriptionProps {
   setIsSaving: (isSaving: boolean) => void;
 }
-
+// @ts-ignore
 function TaskDescription({ setIsSaving }: TaskDescriptionProps) {
   const { taskId } = Route.useParams();
   const { data: task } = useGetTask(taskId);
-  const { mutateAsync: updateTask } = useUpdateTask();
+  // const { mutateAsync: updateTask } = useUpdateTask();
 
   const form = useForm<{
     description: string;
@@ -25,26 +24,26 @@ function TaskDescription({ setIsSaving }: TaskDescriptionProps) {
     },
   });
 
-  const debouncedUpdate = debounce(async (value: string) => {
-    if (!task) return;
+  // const debouncedUpdate = debounce(async (value: string) => {
+  //   if (!task) return;
 
-    setIsSaving(true);
-    await updateTask({
-      ...task,
-      description: value,
-      userId: task.userId || "",
-      title: task.title || "",
-      status: task.status || "",
-      dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
-      priority: task.priority || "",
-      position: task.position || 0,
-    });
-    setIsSaving(false);
-  }, 1000);
+  //   setIsSaving(true);
+  //   await updateTask({
+  //     ...task,
+  //     description: value,
+  //     userId: task.userId || "",
+  //     title: task.title || "",
+  //     status: task.status || "",
+  //     dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
+  //     priority: task.priority || "",
+  //     position: task.position || 0,
+  //   });
+  //   setIsSaving(false);
+  // }, 1000);
 
-  async function handleDescriptionChange(value: string) {
-    debouncedUpdate(value);
-  }
+  // async function handleDescriptionChange(value: string) {
+  //   debouncedUpdate(value);
+  // }
 
   useEffect(() => {
     return () => {
@@ -59,13 +58,7 @@ function TaskDescription({ setIsSaving }: TaskDescriptionProps) {
           <FormField
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <Editor
-                value={field.value || ""}
-                onChange={(value) => handleDescriptionChange(value)}
-                placeholder="Add a description to help your team understand this task..."
-              />
-            )}
+            render={() => <div>Replace me</div>}
           />
         </Form>
       </div>

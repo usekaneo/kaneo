@@ -1,4 +1,4 @@
-import { Editor } from "@/components/common/editor";
+// import { Editor } from "@/components/common/editor";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -327,7 +327,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
             />
 
             <div className="h-[300px] border bg-white dark:bg-zinc-900 border-zinc-200/50 dark:border-zinc-800/50 rounded-lg overflow-hidden">
-              <Editor value={description} onChange={setDescription} />
+              {/* <Editor value={description} onChange={setDescription} /> */}
             </div>
 
             {labels.length > 0 && (

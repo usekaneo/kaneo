@@ -1,4 +1,4 @@
-import { MarkdownRenderer } from "@/components/common/markdown-renderer";
+// import { MarkdownRenderer } from "@/components/common/markdown-renderer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
@@ -80,7 +80,7 @@ function TaskActivities() {
                     />
                   ) : (
                     <div className="text-zinc-600 dark:text-zinc-100">
-                      <MarkdownRenderer content={activity.content || ""} />
+                      {/* <MarkdownRenderer content={activity.content || ""} /> */}
                     </div>
                   ))}
               </div>
