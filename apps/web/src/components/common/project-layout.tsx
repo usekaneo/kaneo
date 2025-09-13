@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
-import useWorkspaceStore from "@/store/workspace";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import type { ReactNode } from "react";
 
 interface ProjectLayoutProps {
@@ -36,7 +36,7 @@ export default function ProjectLayout({
   headerActions,
   children,
 }: ProjectLayoutProps) {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
 
   return (

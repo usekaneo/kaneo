@@ -15,19 +15,18 @@ import {
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/user-avatar";
 import { shortcuts } from "@/constants/shortcuts";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import {
   getModifierKeyText,
   useRegisterShortcuts,
 } from "@/hooks/use-keyboard-shortcuts";
-import { useUserPreferencesStore } from "@/store/user-preferences";
-import useWorkspaceStore from "@/store/workspace";
+import { authClient } from "@/lib/auth-client";
 import type { Workspace } from "@/types/workspace";
 import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
 
 export function WorkspaceSwitcher() {
-  const { workspace, setWorkspace } = useWorkspaceStore();
-  const { setActiveWorkspaceId } = useUserPreferencesStore();
+  const { data: workspace } = useActiveWorkspace();
   const { data: workspaces } = useGetWorkspaces();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -35,15 +34,21 @@ export function WorkspaceSwitcher() {
     React.useState(false);
 
   const handleWorkspaceChange = React.useCallback(
-    (selectedWorkspace: Workspace) => {
-      setWorkspace(selectedWorkspace);
-      setActiveWorkspaceId(selectedWorkspace.id);
-      navigate({
-        to: "/dashboard/workspace/$workspaceId",
-        params: { workspaceId: selectedWorkspace.id },
-      });
+    async (selectedWorkspace: Workspace) => {
+      try {
+        await authClient.organization.setActive({
+          organizationId: selectedWorkspace.id,
+        });
+
+        navigate({
+          to: "/dashboard/workspace/$workspaceId",
+          params: { workspaceId: selectedWorkspace.id },
+        });
+      } catch (error) {
+        console.error("Failed to switch workspace:", error);
+      }
     },
-    [setWorkspace, setActiveWorkspaceId, navigate],
+    [navigate],
   );
 
   React.useEffect(() => {

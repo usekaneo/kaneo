@@ -18,7 +18,7 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import useWorkspaceStore from "@/store/workspace";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import type { ReactNode } from "react";
 
 interface TaskLayoutProps {
@@ -38,7 +38,7 @@ export default function TaskLayout({
   children,
   rightSidebar,
 }: TaskLayoutProps) {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: task } = useGetTask(taskId);
 

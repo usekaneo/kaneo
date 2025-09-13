@@ -1,25 +1,23 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { authClient } from "@/lib/auth-client";
 
-export type GetActiveWorkspaceUsersRequest = InferRequestType<
-  (typeof client)["workspace-user"][":workspaceId"]["active"]["$get"]
->["param"];
+export type GetActiveWorkspaceUsersRequest = {
+  workspaceId: string;
+};
 
 async function getActiveWorkspaceUsers({
   workspaceId,
 }: GetActiveWorkspaceUsersRequest) {
-  const response = await client["workspace-user"][":workspaceId"].active.$get({
-    param: { workspaceId },
+  const { data, error } = await authClient.organization.listMembers({
+    query: {
+      organizationId: workspaceId,
+    },
   });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+  if (error) {
+    throw new Error(error.message || "Failed to fetch workspace users");
   }
 
-  const data = await response.json();
-
-  return data;
+  return data || [];
 }
 
 export default getActiveWorkspaceUsers;

@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/command";
 import { shortcuts } from "@/constants/shortcuts";
 import useGlobalSearch from "@/hooks/queries/search/use-global-search";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import useWorkspaceStore from "@/store/workspace";
 import { useNavigate } from "@tanstack/react-router";
 import {
   FileText,
@@ -43,7 +43,7 @@ type SearchCommandMenuProps = {
 
 function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
   const [query, setQuery] = useState("");
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
 
   const { data: searchResults } = useGlobalSearch({

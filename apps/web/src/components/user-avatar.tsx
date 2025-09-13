@@ -12,7 +12,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import useSignOut from "@/hooks/mutations/use-sign-out";
 import useProjectStore from "@/store/project";
-import useWorkspaceStore from "@/store/workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -22,7 +21,6 @@ export function UserAvatar() {
   const { mutateAsync: signOut, isPending } = useSignOut();
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
-  const { setWorkspace } = useWorkspaceStore();
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
 
@@ -35,7 +33,6 @@ export function UserAvatar() {
       await signOut();
       queryClient.clear();
       setProject(undefined);
-      setWorkspace(undefined);
       setOpen(false);
       toast.success("Signed out successfully");
     } catch (error) {

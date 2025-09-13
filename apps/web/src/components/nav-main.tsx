@@ -13,12 +13,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
-import useWorkspaceStore from "@/store/workspace";
 import { Button } from "./ui/button";
 
 export function NavMain() {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
 
   if (!workspace) return null;

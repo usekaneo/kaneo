@@ -24,8 +24,8 @@ import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
-import useWorkspaceStore from "@/store/workspace";
 import type { ProjectWithTasks } from "@/types/project";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
@@ -60,7 +60,7 @@ import {
 
 export function NavProjects() {
   const { isMobile } = useSidebar();
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });

@@ -39,7 +39,7 @@ export function MagicLinkSignInForm() {
     try {
       const result = await authClient.signIn.magicLink({
         email: data.email,
-        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/dashboard`,
+        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/profile-setup`,
       });
 
       if (result.error) {
