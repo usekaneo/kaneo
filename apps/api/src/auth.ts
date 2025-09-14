@@ -124,12 +124,17 @@ export const auth = betterAuth({
       },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.KANEO_CLIENT_URL}/auth/accept-invitation/${data.id}`;
-        sendWorkspaceInvitationEmail(data.email, data.organization.name, {
-          inviterEmail: data.inviter.user.email,
-          inviterName: data.inviter.user.name,
-          workspaceName: data.organization.name,
-          invitationLink: inviteLink,
-        });
+
+        await sendWorkspaceInvitationEmail(
+          data.email,
+          `${data.inviter.user.name} invited you to join ${data.organization.name} on Kaneo`,
+          {
+            inviterEmail: data.inviter.user.email,
+            inviterName: data.inviter.user.name,
+            workspaceName: data.organization.name,
+            invitationLink: inviteLink,
+          },
+        );
       },
     }),
   ],

@@ -19,19 +19,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// TODO: Fix me
 export const sendMagicLinkEmail = async (
   to: string,
   subject: string,
   data: MagicLinkEmailProps,
 ) => {
   const emailTemplate = await render(MagicLinkEmail(data));
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM,
-    to: "delivered@resend.dev",
-    subject,
-    html: emailTemplate,
-  });
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+  } catch (error) {
+    console.error("Error sending magic link email", error);
+  }
 };
 
 // TODO: Fix me
@@ -40,11 +43,12 @@ export const sendWorkspaceInvitationEmail = async (
   subject: string,
   data: WorkspaceInvitationEmailProps,
 ) => {
+  console.log("Sending workspace invitation email to", to, subject, data);
   const emailTemplate = await render(WorkspaceInvitationEmail(data));
   await transporter.sendMail({
-    from: "onboarding@resend.dev",
+    from: process.env.SMTP_FROM,
     to: "delivered@resend.dev",
-    subject: "Hello World",
+    subject,
     html: emailTemplate,
   });
 };

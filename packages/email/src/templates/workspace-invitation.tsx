@@ -48,13 +48,7 @@ const WorkspaceInvitationEmail = ({
             </Link>
           </Text>
           <Text style={paragraph}>
-            This invitation will expire in 7 days. If you don't have a Kaneo
-            account yet, you'll be able to create one when you accept the
-            invitation.
-          </Text>
-          <Text style={paragraph}>
-            If you didn't expect this invitation, you can safely ignore this
-            email.
+            If you didn't request this, please ignore this email.
           </Text>
           <Hr />
           <Text style={footerParagraph}>Kaneo</Text>

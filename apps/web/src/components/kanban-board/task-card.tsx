@@ -1,5 +1,8 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
@@ -8,7 +11,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
-import type { CSSProperties } from "react";
+import { type CSSProperties, useMemo } from "react";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
 import TaskCardLabels from "./task-labels";
@@ -46,6 +49,16 @@ function TaskCard({ task }: TaskCardProps) {
     zIndex: isDragging ? 999 : "auto",
   };
 
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    workspace?.id ?? "",
+  );
+
+  const assignee = useMemo(() => {
+    return workspaceUsers?.members?.find(
+      (member) => member.userId === task.userId,
+    );
+  }, [workspaceUsers, task.userId]);
+
   function handleTaskCardClick() {
     if (!project || !task || !workspace) return;
 
@@ -74,7 +87,6 @@ function TaskCard({ task }: TaskCardProps) {
               if (e.key === "Enter") handleTaskCardClick();
             }}
           >
-            {/* Task Number */}
             {showTaskNumbers && (
               <div className="text-[10px] font-mono text-muted-foreground mb-2">
                 {project?.slug}-{task.number}
@@ -84,14 +96,15 @@ function TaskCard({ task }: TaskCardProps) {
             {showAssignees && (
               <div className="absolute top-3 right-3">
                 {task.userId ? (
-                  <div
-                    className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
-                    title={task.assigneeName ?? ""}
-                  >
-                    <span className="text-[10px] font-medium text-muted-foreground">
-                      {task.assigneeName?.charAt(0)?.toUpperCase() || "U"}
-                    </span>
-                  </div>
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage
+                      src={assignee?.user?.image ?? ""}
+                      alt={assignee?.user?.name || ""}
+                    />
+                    <AvatarFallback className="text-xs font-medium border border-border/30">
+                      {assignee?.user?.name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                 ) : (
                   <div
                     className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
@@ -105,7 +118,6 @@ function TaskCard({ task }: TaskCardProps) {
               </div>
             )}
 
-            {/* Title */}
             <div className="mb-3 pr-7">
               <h3
                 className="font-medium text-foreground text-sm leading-relaxed overflow-hidden break-words"
@@ -121,32 +133,17 @@ function TaskCard({ task }: TaskCardProps) {
               </h3>
             </div>
 
-            {/* Labels */}
             {showLabels && (
               <div className="mb-3">
                 <TaskCardLabels taskId={task.id} />
               </div>
             )}
 
-            {/* Footer with priority and due date */}
             <div className="flex items-center gap-2">
               {showPriority && (
-                <div className="flex-shrink-0">
-                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-background text-[10px] font-medium text-muted-foreground">
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        task.priority === "high"
-                          ? "bg-red-500"
-                          : task.priority === "medium"
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                      }`}
-                    />
-                    {task?.priority && (
-                      <span className="capitalize">{task.priority}</span>
-                    )}
-                  </span>
-                </div>
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground">
+                  {getPriorityIcon(task.priority ?? "")}
+                </span>
               )}
 
               {showDueDates && task.dueDate && (

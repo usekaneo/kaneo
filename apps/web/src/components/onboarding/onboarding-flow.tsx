@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
+import { authClient } from "@/lib/auth-client";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type OnboardingStep = "workspace" | "success";
@@ -68,13 +69,15 @@ export function OnboardingFlow() {
       });
 
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-      setActiveWorkspaceId(workspace.id);
+      await authClient.organization.setActive({
+        organizationId: workspace.id,
+      });
       setCreatedWorkspaceName(data.name);
+      setActiveWorkspaceId(workspace.id);
       toast.success("Workspace created successfully");
 
       setStep("success");
 
-      // Navigate to workspace after showing success
       setTimeout(() => {
         navigate({
           to: "/dashboard/workspace/$workspaceId",
