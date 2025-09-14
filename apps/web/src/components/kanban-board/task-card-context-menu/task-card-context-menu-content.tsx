@@ -24,6 +24,7 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
 import { getPriorityIcon } from "@/lib/priority";
 import queryClient from "@/query-client";
@@ -126,6 +127,25 @@ export default function TaskCardContextMenuContent({
               >
                 {getPriorityIcon(priority)}
                 <span className="capitalize">{priority}</span>
+              </ContextMenuCheckboxItem>
+            ))}
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>
+            <span>Status</span>
+          </ContextMenuSubTrigger>
+          <ContextMenuSubContent className="w-48">
+            {["to-do", "in-progress", "in-review", "done"].map((status) => (
+              <ContextMenuCheckboxItem
+                key={status}
+                checked={task.status === status}
+                onCheckedChange={() => handleChange("status", status)}
+                className="[&_svg]:text-muted-foreground"
+              >
+                {getColumnIcon(status)}
+                <span className="capitalize">{status}</span>
               </ContextMenuCheckboxItem>
             ))}
           </ContextMenuSubContent>

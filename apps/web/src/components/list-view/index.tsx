@@ -1,7 +1,7 @@
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
-import { getColumnIcon, getColumnIconColor } from "@/lib/column";
+import { getColumnIcon } from "@/lib/column";
 import toKebabCase from "@/lib/to-kebab-case";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -222,14 +222,7 @@ function ListView({ project }: ListViewProps) {
               )}
             />
             <div className="flex items-center gap-2 h-4">
-              {(() => {
-                const IconComponent = getColumnIcon(column.id);
-                return (
-                  <IconComponent
-                    className={`w-4 h-4  flex-shrink-0 ${getColumnIconColor(column.id)}`}
-                  />
-                );
-              })()}
+              {getColumnIcon(column.id)}
               <div className="flex items-center gap-1">
                 <span className="mt-1 mr-1">{column.name}</span>
                 <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
