@@ -13,6 +13,8 @@ import {
 } from "@react-email/components";
 import React from "react";
 
+void React;
+
 export interface WorkspaceInvitationEmailProps {
   workspaceName: string;
   inviterName: string;
