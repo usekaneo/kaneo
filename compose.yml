@@ -9,15 +9,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kaneo_user -d kaneo"]
+      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+    image: ghcr.io/usekaneo/api:2.0.0-beta.3
     ports:
       - "1337:1337"
     env_file:
@@ -28,9 +26,7 @@ services:
     restart: unless-stopped
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
+    image: ghcr.io/usekaneo/web:2.0.0-beta.3
     ports:
       - "5173:5173"
     env_file:
