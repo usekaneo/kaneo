@@ -4,12 +4,18 @@ import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { Button } from "@/components/ui/button";
-import { KbdSequence } from "@/components/ui/kbd";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { KbdSequence } from "@/components/ui/kbd";
 import {
   Tooltip,
   TooltipContent,
@@ -21,12 +27,12 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useTaskFilters } from "@/hooks/use-task-filters";
 import { cn } from "@/lib/cn";
+import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Calendar,
-  Check,
   Filter,
   Flag,
   LayoutGrid,
@@ -116,22 +122,22 @@ function RouteComponent() {
                   </Tooltip>
                 </TooltipProvider>
 
-                <Popover>
-                  <PopoverTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="sm"
                       className={cn(
                         "h-6 px-2 text-xs",
                         hasActiveFilters
-                          ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10"
-                          : "text-zinc-600 dark:text-zinc-400",
+                          ? "text-foreground bg-accent"
+                          : "text-muted-foreground",
                       )}
                     >
                       <Filter className="h-3 w-3 mr-1" />
                       Filter
                       {hasActiveFilters && (
-                        <span className="ml-1 bg-indigo-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                        <span className="ml-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
                           {
                             Object.values(filters).filter((f) => f !== null)
                               .length
@@ -139,351 +145,160 @@ function RouteComponent() {
                         </span>
                       )}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 p-0" align="start">
-                    <div className="p-3 border-b border-zinc-200 dark:border-zinc-800">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                          Filters
-                        </h3>
-                        {hasActiveFilters && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={clearFilters}
-                            className="h-6 px-2 text-xs text-zinc-500 hover:text-zinc-700"
-                          >
-                            Clear all
-                          </Button>
-                        )}
-                      </div>
-                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-46" align="start">
+                    {hasActiveFilters && (
+                      <>
+                        <DropdownMenuItem onClick={clearFilters}>
+                          <span>Clear all filters</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
 
-                    <div className="p-1 space-y-1">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button
-                            type="button"
-                            className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="gap-2">
+                        <div className="w-2 h-2 border border-muted-foreground rounded-full" />
+                        <span>Status</span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-48">
+                        {project?.columns?.map((column) => (
+                          <DropdownMenuCheckboxItem
+                            key={column.id}
+                            checked={filters.status === column.id}
+                            onCheckedChange={() =>
+                              updateFilter("status", column.id)
+                            }
                           >
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 border border-zinc-400 rounded-full" />
-                              <span>Status</span>
+                            <span>{column.name}</span>
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="gap-2">
+                        <Flag className="w-4 h-4" />
+                        <span>Priority</span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-48">
+                        {["urgent", "high", "medium", "low"].map((priority) => (
+                          <DropdownMenuCheckboxItem
+                            key={priority}
+                            checked={filters.priority === priority}
+                            onCheckedChange={() =>
+                              updateFilter("priority", priority)
+                            }
+                            className="[&_svg]:text-muted-foreground"
+                          >
+                            {getPriorityIcon(priority)}
+                            <span className="capitalize">{priority}</span>
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="gap-2">
+                        <User className="w-4 h-4" />
+                        <span>Assignee</span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-48">
+                        {users?.members?.map((member) => (
+                          <DropdownMenuCheckboxItem
+                            key={member.userId}
+                            checked={filters.assignee === member.userId}
+                            onCheckedChange={() =>
+                              updateFilter("assignee", member.userId)
+                            }
+                          >
+                            <div className="w-5 h-5 bg-muted-foreground rounded-full flex items-center justify-center text-background text-xs font-medium">
+                              {member.user?.name?.charAt(0).toUpperCase()}
                             </div>
-                            {filters.status && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded capitalize">
-                                  {filters.status.replace("-", " ")}
-                                </span>
-                              </div>
-                            )}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="w-48 p-1"
-                          align="start"
-                          side="right"
-                        >
-                          {project?.columns?.map((column) => (
-                            <button
-                              key={column.id}
-                              type="button"
-                              onClick={() => updateFilter("status", column.id)}
-                              className={cn(
-                                "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-md transition-colors",
-                                filters.status === column.id
-                                  ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                              )}
-                            >
-                              <span>{column.name}</span>
-                              {filters.status === column.id && (
-                                <Check className="h-3 w-3 ml-auto" />
-                              )}
-                            </button>
-                          ))}
-                        </PopoverContent>
-                      </Popover>
+                            <span>{member.user?.name}</span>
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button
-                            type="button"
-                            className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Flag className="w-3 h-3" />
-                              <span>Priority</span>
-                            </div>
-                            {filters.priority && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded capitalize">
-                                  {filters.priority}
-                                </span>
-                              </div>
-                            )}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="w-48 p-1"
-                          align="start"
-                          side="right"
-                        >
-                          {["urgent", "high", "medium", "low"].map(
-                            (priority) => (
-                              <button
-                                key={priority}
-                                type="button"
-                                onClick={() =>
-                                  updateFilter("priority", priority)
-                                }
-                                className={cn(
-                                  "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-md transition-colors",
-                                  filters.priority === priority
-                                    ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                                )}
-                              >
-                                <Flag
-                                  className={cn(
-                                    "w-3 h-3",
-                                    priority === "urgent" && "text-red-500",
-                                    priority === "high" && "text-orange-500",
-                                    priority === "medium" && "text-yellow-500",
-                                    priority === "low" && "text-green-500",
-                                  )}
-                                />
-                                <span className="capitalize">{priority}</span>
-                                {filters.priority === priority && (
-                                  <Check className="h-3 w-3 ml-auto" />
-                                )}
-                              </button>
-                            ),
-                          )}
-                        </PopoverContent>
-                      </Popover>
-
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button
-                            type="button"
-                            className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
-                              <User className="w-3 h-3" />
-                              <span>Assignee</span>
-                            </div>
-                            {filters.assignee && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
-                                  {users?.members?.find(
-                                    (u) => u.userId === filters.assignee,
-                                  )?.user?.name || "Unknown"}
-                                </span>
-                              </div>
-                            )}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="w-48 p-1"
-                          align="start"
-                          side="right"
-                        >
-                          {users?.members?.map((member) => (
-                            <button
-                              key={member.userId}
-                              type="button"
-                              onClick={() =>
-                                updateFilter("assignee", member.userId)
-                              }
-                              className={cn(
-                                "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-md transition-colors",
-                                filters.assignee === member.userId
-                                  ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                              )}
-                            >
-                              <div className="w-5 h-5 bg-zinc-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                {member.user?.name?.charAt(0).toUpperCase()}
-                              </div>
-                              <span>{member.user?.name}</span>
-                              {filters.assignee === member.userId && (
-                                <Check className="h-3 w-3 ml-auto" />
-                              )}
-                            </button>
-                          ))}
-                        </PopoverContent>
-                      </Popover>
-
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button
-                            type="button"
-                            className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-3 h-3" />
-                              <span>Due date</span>
-                            </div>
-                            {filters.dueDate && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
-                                  {filters.dueDate}
-                                </span>
-                              </div>
-                            )}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="w-48 p-1"
-                          align="start"
-                          side="right"
-                        >
-                          {[
-                            "Due this week",
-                            "Due next week",
-                            "No due date",
-                          ].map((option) => (
-                            <button
-                              key={option}
-                              type="button"
-                              onClick={() => updateFilter("dueDate", option)}
-                              className={cn(
-                                "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-md transition-colors",
-                                filters.dueDate === option
-                                  ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                              )}
-                            >
-                              <Calendar className="w-3 h-3" />
-                              <span>{option}</span>
-                              {filters.dueDate === option && (
-                                <Check className="h-3 w-3 ml-auto" />
-                              )}
-                            </button>
-                          ))}
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                <Popover>
-                  <PopoverTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 px-2 text-xs text-zinc-600 dark:text-zinc-400"
+                      className="h-6 px-2 text-xs text-muted-foreground"
                     >
                       <Settings className="h-3 w-3 mr-1" />
                       Display
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-56 p-0" align="start">
-                    <div className="py-2">
-                      <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                        Layout
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          useUserPreferencesStore.setState({
-                            viewMode: "board",
-                          });
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors",
-                          viewMode === "board"
-                            ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                            : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                        )}
-                      >
-                        <LayoutGrid className="w-3.5 h-3.5" />
-                        <span>Board</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          useUserPreferencesStore.setState({
-                            viewMode: "list",
-                          });
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors",
-                          viewMode === "list"
-                            ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                            : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                        )}
-                      >
-                        <List className="w-3.5 h-3.5" />
-                        <span>List</span>
-                      </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-46" align="start">
+                    <DropdownMenuCheckboxItem
+                      checked={viewMode === "board"}
+                      onCheckedChange={() => {
+                        useUserPreferencesStore.setState({
+                          viewMode: "board",
+                        });
+                      }}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                      <span>Board view</span>
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={viewMode === "list"}
+                      onCheckedChange={() => {
+                        useUserPreferencesStore.setState({
+                          viewMode: "list",
+                        });
+                      }}
+                    >
+                      <List className="w-4 h-4" />
+                      <span>List view</span>
+                    </DropdownMenuCheckboxItem>
 
-                      <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
+                    <DropdownMenuSeparator />
 
-                      <div className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                        Show Elements
-                      </div>
-                      <button
-                        type="button"
-                        onClick={toggleAssignees}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      >
-                        <User className="w-3.5 h-3.5" />
-                        <span>Show assignee</span>
-                        {showAssignees && (
-                          <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={togglePriority}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      >
-                        <Flag className="w-3.5 h-3.5" />
-                        <span>Show priority</span>
-                        {showPriority && (
-                          <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={toggleDueDates}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      >
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>Show due date</span>
-                        {showDueDates && (
-                          <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={toggleLabels}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      >
-                        <span className="w-3.5 h-3.5 bg-zinc-300 dark:bg-zinc-600 rounded-sm" />
-                        <span>Show labels</span>
-                        {showLabels && (
-                          <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={toggleTaskNumbers}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      >
-                        <span className="w-3.5 h-3.5 text-xs font-mono text-zinc-500 dark:text-zinc-400 flex items-center justify-center">
-                          #
-                        </span>
-                        <span>Show task numbers</span>
-                        {showTaskNumbers && (
-                          <div className="ml-auto w-2 h-2 bg-indigo-500 rounded-full" />
-                        )}
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                    <DropdownMenuCheckboxItem
+                      checked={showAssignees}
+                      onCheckedChange={toggleAssignees}
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Show assignee</span>
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={showPriority}
+                      onCheckedChange={togglePriority}
+                    >
+                      <Flag className="w-4 h-4" />
+                      <span>Show priority</span>
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={showDueDates}
+                      onCheckedChange={toggleDueDates}
+                    >
+                      <Calendar className="w-4 h-4" />
+                      <span>Show due date</span>
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={showLabels}
+                      onCheckedChange={toggleLabels}
+                    >
+                      <span className="w-4 h-4 bg-muted-foreground rounded-sm" />
+                      <span>Show labels</span>
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={showTaskNumbers}
+                      onCheckedChange={toggleTaskNumbers}
+                    >
+                      <span className="w-4 h-4 text-sm font-mono text-muted-foreground flex items-center justify-center">
+                        #
+                      </span>
+                      <span>Show task numbers</span>
+                    </DropdownMenuCheckboxItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
