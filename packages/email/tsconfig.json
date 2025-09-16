@@ -6,7 +6,7 @@
     "emitDeclarationOnly": false,
     "noEmit": false,
     "outDir": "${configDir}/dist",
-    "jsx": "react-jsx",
+    "jsx": "react",
     "moduleResolution": "bundler",
     "module": "ESNext",
     "esModuleInterop": true,
