@@ -3,12 +3,11 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
     "noEmit": false,
     "outDir": "${configDir}/dist",
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "module": "ESNext",
     "esModuleInterop": true,
     "skipLibCheck": true,
