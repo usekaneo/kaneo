@@ -3,14 +3,15 @@ FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
-    corepack enable && \
-    corepack prepare pnpm@10.7.0 --activate
+  corepack enable && \
+  corepack prepare pnpm@10.7.0 --activate
 
 WORKDIR /app
 
 # Copy only package files first for better caching
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
 COPY apps/api/package.json ./apps/api/
 
@@ -19,22 +20,23 @@ RUN pnpm install --frozen-lockfile
 
 # Copy source files
 COPY packages/typescript-config ./packages/typescript-config
+COPY packages/email ./packages/email
 COPY packages/libs ./packages/libs
 COPY apps/api ./apps/api
 
 # Fix TypeScript config and build in one layer
 WORKDIR /app/apps/api
 RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/..\/packages\/typescript-config\/base.json"/g' /app/apps/api/tsconfig.json && \
-    pnpm run build
+  pnpm run build
 
 # Production stage - use specific version tag without SHA256
 FROM node:20.12-alpine AS runtime
 
 # Set up user in a single layer
 RUN addgroup -g 1001 appuser && \
-    adduser -u 1001 -G appuser -D appuser && \
-    mkdir -p /app/apps/api/data && \
-    chown -R appuser:appuser /app
+  adduser -u 1001 -G appuser -D appuser && \
+  mkdir -p /app/apps/api/data && \
+  chown -R appuser:appuser /app
 
 WORKDIR /app
 
@@ -46,9 +48,9 @@ COPY --from=builder /app/packages/libs/package.json ./packages/libs/
 
 # Install production dependencies only
 RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
-    corepack enable && \
-    corepack prepare pnpm@10.7.0 --activate && \
-    HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
+  corepack enable && \
+  corepack prepare pnpm@10.7.0 --activate && \
+  HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
 
 # Copy built files
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
