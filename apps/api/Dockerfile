@@ -60,8 +60,7 @@ RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
 # Copy built files
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/drizzle ./apps/api/drizzle
-COPY --from=builder /app/packages/email/dist ./packages/email/dist
-COPY --from=builder /app/packages/email/src ./packages/email/src
+COPY --from=builder /app/packages/email ./packages/email
 
 # Set environment variables
 ENV NODE_ENV=production

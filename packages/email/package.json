@@ -2,7 +2,6 @@
   "name": "@kaneo/email",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

@@ -12,11 +12,6 @@ on:
         required: false
         type: boolean
         default: false
-      no_cache:
-        description: 'Force rebuild without using cache'
-        required: false
-        type: boolean
-        default: false
 
 env:
   REGISTRY: ghcr.io
@@ -47,16 +42,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Clean up old cache entries
-        if: ${{ !inputs.no_cache }}
-        run: |
-          # Clean up GitHub Actions cache entries older than 7 days
-          gh api repos/${{ github.repository }}/actions/caches --paginate \
-            --jq '.actions_caches[] | select(.created_at < (now - (7 * 24 * 3600)) | strftime("%Y-%m-%dT%H:%M:%SZ")) | .id' \
-            | xargs -I {} gh api --method DELETE repos/${{ github.repository }}/actions/caches/{} || true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -82,10 +67,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          no-cache: ${{ inputs.no_cache }}
-          cache-from: |
-            type=gha,scope=${{ matrix.dockerfile }}
-            type=registry,ref=${{ matrix.image }}:buildcache
-          cache-to: |
-            type=gha,mode=max,scope=${{ matrix.dockerfile }}
-            type=registry,ref=${{ matrix.image }}:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
