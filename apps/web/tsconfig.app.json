@@ -26,5 +26,6 @@
 		}
 	},
 	"include": ["src"],
+	"exclude": ["../api/**/*", "../docs/**/*", "../../packages/**/*"],
 	"baseUrl": "."
 }
