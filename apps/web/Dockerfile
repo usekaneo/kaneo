@@ -26,6 +26,10 @@ COPY packages/libs ./packages/libs
 COPY apps/api ./apps/api
 COPY apps/web ./apps/web
 
+# Build email package first
+WORKDIR /app/packages/email
+RUN pnpm run build
+
 # Build the application
 WORKDIR /app/apps/web
 RUN pnpm run build
