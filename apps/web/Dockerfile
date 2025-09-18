@@ -12,18 +12,14 @@ WORKDIR /app
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
-COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
-COPY apps/api/package.json ./apps/api/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
 # Copy only necessary source code
 COPY packages/typescript-config ./packages/typescript-config
-COPY packages/email ./packages/email
 COPY packages/libs ./packages/libs
-COPY apps/api ./apps/api
 COPY apps/web ./apps/web
 
 # Build the application
