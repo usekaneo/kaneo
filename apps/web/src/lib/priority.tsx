@@ -1,4 +1,10 @@
-import { ChevronDown, ChevronUp, ChevronsUp, CircleAlert } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  ChevronsUp,
+  CircleAlert,
+  Minus,
+} from "lucide-react";
 
 export function getPriorityIcon(priority: string) {
   switch (priority) {
@@ -12,5 +18,9 @@ export function getPriorityIcon(priority: string) {
       return (
         <ChevronDown className="h-[12px] w-[12px] text-muted-foreground" />
       );
+    case "no-priority":
+      return <Minus className="h-[12px] w-[12px] text-muted-foreground" />;
+    default:
+      return <Minus className="h-[12px] w-[12px] text-muted-foreground" />;
   }
 }

@@ -118,6 +118,15 @@ export default function TaskCardContextMenuContent({
             <span>Priority</span>
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
+            <ContextMenuCheckboxItem
+              key="no-priority"
+              checked={task.priority === "no-priority"}
+              onCheckedChange={() => handleChange("priority", "no-priority")}
+              className="[&_svg]:text-muted-foreground"
+            >
+              {getPriorityIcon("no-priority")}
+              <span>No Priority</span>
+            </ContextMenuCheckboxItem>
             {["low", "medium", "high", "urgent"].map((priority) => (
               <ContextMenuCheckboxItem
                 key={priority}
