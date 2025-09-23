@@ -1,9 +1,12 @@
 import TaskLayout from "@/components/common/task-layout";
+import PageTitle from "@/components/page-title";
 import TaskAssigneePopover from "@/components/task/task-assignee-popover";
 import TaskDueDatePopover from "@/components/task/task-due-date-popover";
+import TaskLabelsPopover from "@/components/task/task-labels-popover";
 import TaskPriorityPopover from "@/components/task/task-priority-popover";
 import TaskStatusPopover from "@/components/task/task-status-popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { KbdSequence } from "@/components/ui/kbd";
@@ -13,6 +16,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import labelColors from "@/constants/label-colors";
+import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -48,6 +53,7 @@ import {
   Italic,
   List,
   ListOrdered,
+  Plus,
   Strikethrough,
   Type,
   Underline,
@@ -79,6 +85,7 @@ function RouteComponent() {
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
+  const { data: taskLabels = [] } = useGetLabelsByTask(taskId);
   const workspaceName = workspace?.name;
   const projectSlug = project?.slug;
   const taskNumber = task?.number;
@@ -172,11 +179,11 @@ function RouteComponent() {
               <TaskStatusPopover task={task}>
                 <Button
                   variant="ghost"
-                  size="default"
+                  size="sm"
                   className="w-2/4 justify-start"
                 >
                   {getColumnIcon(task.status ?? "")}
-                  <span className="text-sm font-semibold text-muted-foreground">
+                  <span className="text-xs font-semibold">
                     {toNormalCase(task.status)}
                   </span>
                 </Button>
@@ -186,11 +193,11 @@ function RouteComponent() {
               <TaskPriorityPopover task={task}>
                 <Button
                   variant="ghost"
-                  size="default"
+                  size="sm"
                   className="w-2/4 justify-start"
                 >
                   {getPriorityIcon(task.priority ?? "")}
-                  <span className="text-sm font-semibold text-muted-foreground">
+                  <span className="text-xs font-semibold">
                     {toNormalCase(task.priority ?? "")}
                   </span>
                 </Button>
@@ -200,7 +207,7 @@ function RouteComponent() {
               <TaskAssigneePopover task={task} workspaceId={workspaceId}>
                 <Button
                   variant="ghost"
-                  size="default"
+                  size="sm"
                   className="w-2/4 justify-start pl-3"
                 >
                   {task.userId ? (
@@ -218,20 +225,18 @@ function RouteComponent() {
                       className="w-[20px] h-[20px] rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0"
                       title="Unassigned"
                     >
-                      <span className="text-[10px] font-medium text-muted-foreground">
-                        ?
-                      </span>
+                      <span className="text-[10px] font-medium">?</span>
                     </div>
                   )}
-                  <span className="text-sm font-semibold text-muted-foreground flex-shrink-0">
+                  <span className="text-xs font-semibold flex-shrink-0">
                     {assignee?.user?.name || task.assigneeName || "Unassigned"}
                   </span>
                 </Button>
               </TaskAssigneePopover>
             )}
-            <div className="w-full h-[1px] bg-border my-2" />
           </div>
-          <div className="px-4 pb-4">
+          <div className="w-full h-[1px] bg-border my-2" />
+          <div className="px-4 pb-4 flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground pl-2">
@@ -242,44 +247,94 @@ function RouteComponent() {
                 <TaskDueDatePopover task={task}>
                   <Button
                     variant="ghost"
-                    size="default"
+                    size="sm"
                     className="w-2/4 justify-start"
                   >
                     {task.dueDate ? (
                       <>
                         {getDueDateStatus(task.dueDate) === "overdue" && (
                           <CalendarX
-                            className={`w-3 h-3 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                            className={`w-2 h-2 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
                           />
                         )}
                         {getDueDateStatus(task.dueDate) === "due-soon" && (
                           <CalendarClock
-                            className={`w-3 h-3 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                            className={`w-2 h-2 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
                           />
                         )}
                         {(getDueDateStatus(task.dueDate) === "far-future" ||
                           getDueDateStatus(task.dueDate) === "no-due-date") && (
                           <Calendar
-                            className={`w-3 h-3 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                            className={`w-2 h-2 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
                           />
                         )}
-                        <span className="text-sm font-semibold text-muted-foreground flex-shrink-0">
+                        <span className="text-xs font-semibold flex-shrink-0">
                           {format(new Date(task.dueDate), "MMM d, yyyy")}
                         </span>
                       </>
                     ) : (
-                      <span className="text-sm font-semibold text-muted-foreground">
-                        No due date
-                      </span>
+                      <span className="text-sm font-semibold">No due date</span>
                     )}
                   </Button>
                 </TaskDueDatePopover>
               )}
             </div>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground pl-2">
+                  Labels
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 px-2">
+                {task &&
+                  taskLabels.length > 0 &&
+                  taskLabels.map(
+                    (label: { id: string; name: string; color: string }) => (
+                      <TaskLabelsPopover
+                        key={`edit-${label.id}`}
+                        task={task}
+                        workspaceId={workspaceId}
+                      >
+                        <Badge
+                          key={label.id}
+                          variant="outline"
+                          className="flex items-center gap-1.5 px-2 py-1 cursor-pointer hover:bg-accent/50 transition-colors"
+                        >
+                          <span
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{
+                              backgroundColor:
+                                labelColors.find((c) => c.value === label.color)
+                                  ?.color || "#94a3b8",
+                            }}
+                          />
+                          <span className="text-xs">{label.name}</span>
+                        </Badge>
+                      </TaskLabelsPopover>
+                    ),
+                  )}
+
+                {task && (
+                  <TaskLabelsPopover task={task} workspaceId={workspaceId}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 rounded-full border-border hover:border-solid"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </TaskLabelsPopover>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       }
     >
+      <PageTitle
+        title={`${project?.slug}-${task?.number} · ${task?.title}`}
+        hideAppName
+      />
       <div className="flex flex-col h-full min-h-0 max-w-3xl mx-auto px-4 py-8 gap-2">
         <p className="text-xs font-semibold text-muted-foreground">
           {project?.slug}-{task?.number}

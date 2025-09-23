@@ -2,13 +2,13 @@ import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono/client";
 
 export type GetLabelsByTaskRequest = InferRequestType<
-  (typeof client)["label"]["task"][":taskId"]["$get"]
+  (typeof client)["label"]["workspace"][":workspaceId"]["$get"]
 >["param"];
 
-async function getLabelsByTask({ taskId }: GetLabelsByTaskRequest) {
-  const response = await client.label.task[":taskId"].$get({
+async function getLabelsByTask({ workspaceId }: GetLabelsByTaskRequest) {
+  const response = await client.label.workspace[":workspaceId"].$get({
     param: {
-      taskId,
+      workspaceId,
     },
   });
 

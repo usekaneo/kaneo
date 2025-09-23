@@ -2,35 +2,16 @@ import { Badge } from "@/components/ui/badge";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 
 const labelColors = [
-  { value: "gray", label: "Grey", color: "#94a3b8" },
-  { value: "dark-gray", label: "Dark Grey", color: "#64748b" },
-  { value: "purple", label: "Purple", color: "#a855f7" },
-  { value: "teal", label: "Teal", color: "#14b8a6" },
-  { value: "green", label: "Green", color: "#22c55e" },
-  { value: "yellow", label: "Yellow", color: "#eab308" },
-  { value: "orange", label: "Orange", color: "#f97316" },
-  { value: "pink", label: "Pink", color: "#ec4899" },
-  { value: "red", label: "Red", color: "#ef4444" },
+  { value: "gray", label: "Stone", color: "#78716c" },
+  { value: "dark-gray", label: "Slate", color: "#64748b" },
+  { value: "purple", label: "Lavender", color: "#8b5cf6" },
+  { value: "teal", label: "Sage", color: "#059669" },
+  { value: "green", label: "Forest", color: "#16a34a" },
+  { value: "yellow", label: "Amber", color: "#d97706" },
+  { value: "orange", label: "Terracotta", color: "#ea580c" },
+  { value: "pink", label: "Rose", color: "#e11d48" },
+  { value: "red", label: "Crimson", color: "#dc2626" },
 ];
-
-type LabelColor =
-  | "gray"
-  | "dark-gray"
-  | "purple"
-  | "teal"
-  | "green"
-  | "yellow"
-  | "orange"
-  | "pink"
-  | "red";
-
-type Label = {
-  id: string;
-  name: string;
-  color: string;
-  taskId: string;
-  createdAt: string;
-};
 
 function TaskCardLabels({ taskId }: { taskId: string }) {
   const { data: labels = [] } = useGetLabelsByTask(taskId);
@@ -39,10 +20,10 @@ function TaskCardLabels({ taskId }: { taskId: string }) {
 
   return (
     <div className="flex flex-wrap gap-1">
-      {labels.map((label: Label) => (
+      {labels.map((label: { id: string; name: string; color: string }) => (
         <Badge
           key={label.id}
-          badgeColor={label.color as LabelColor}
+          color={label.color}
           variant="outline"
           className="px-2 py-0.5 text-[10px] flex items-center"
         >

@@ -236,9 +236,13 @@ export const labelTable = pgTable("label", {
   name: text("name").notNull(),
   color: text("color").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  taskId: text("task_id")
+  taskId: text("task_id").references(() => taskTable.id, {
+    onDelete: "cascade",
+    onUpdate: "cascade",
+  }),
+  workspaceId: text("workspace_id")
     .notNull()
-    .references(() => taskTable.id, {
+    .references(() => workspaceTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),

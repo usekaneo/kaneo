@@ -68,15 +68,15 @@ type Label = {
 };
 
 const labelColors = [
-  { value: "gray" as LabelColor, label: "Grey", color: "#94a3b8" },
-  { value: "dark-gray" as LabelColor, label: "Dark Grey", color: "#64748b" },
-  { value: "purple" as LabelColor, label: "Purple", color: "#a855f7" },
-  { value: "teal" as LabelColor, label: "Teal", color: "#14b8a6" },
-  { value: "green" as LabelColor, label: "Green", color: "#22c55e" },
-  { value: "yellow" as LabelColor, label: "Yellow", color: "#eab308" },
-  { value: "orange" as LabelColor, label: "Orange", color: "#f97316" },
-  { value: "pink" as LabelColor, label: "Pink", color: "#ec4899" },
-  { value: "red" as LabelColor, label: "Red", color: "#ef4444" },
+  { value: "gray" as LabelColor, label: "Stone", color: "#78716c" },
+  { value: "dark-gray" as LabelColor, label: "Slate", color: "#64748b" },
+  { value: "purple" as LabelColor, label: "Lavender", color: "#8b5cf6" },
+  { value: "teal" as LabelColor, label: "Sage", color: "#059669" },
+  { value: "green" as LabelColor, label: "Forest", color: "#16a34a" },
+  { value: "yellow" as LabelColor, label: "Amber", color: "#d97706" },
+  { value: "orange" as LabelColor, label: "Terracotta", color: "#ea580c" },
+  { value: "pink" as LabelColor, label: "Rose", color: "#e11d48" },
+  { value: "red" as LabelColor, label: "Crimson", color: "#dc2626" },
 ];
 
 function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
@@ -139,6 +139,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
             name: label.name,
             color: label.color,
             taskId: newTask.id,
+            workspaceId: workspace?.id,
           });
         } catch (error) {
           console.error("Failed to create label:", error);
@@ -331,7 +332,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                 {labels.map((label) => (
                   <Badge
                     key={label.name}
-                    badgeColor={label.color}
+                    color={label.color}
                     variant="outline"
                     className="flex items-center gap-1 pl-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors"
                     onClick={() => removeLabel(label.name)}
