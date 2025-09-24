@@ -53,6 +53,10 @@ app.use(
   }),
 );
 
+app.get("/health", (c) => {
+  return c.json({ status: "ok" });
+});
+
 const configRoute = app.route("/config", config);
 
 const githubIntegrationRoute = app.route(
