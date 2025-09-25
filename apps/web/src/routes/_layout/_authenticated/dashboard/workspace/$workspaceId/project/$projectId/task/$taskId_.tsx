@@ -1,3 +1,4 @@
+import Activity from "@/components/activity";
 import TaskLayout from "@/components/common/task-layout";
 import PageTitle from "@/components/page-title";
 import TaskAssigneePopover from "@/components/task/task-assignee-popover";
@@ -17,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import labelColors from "@/constants/label-colors";
+import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
@@ -82,10 +84,12 @@ function toNormalCase(str: string | undefined) {
 function RouteComponent() {
   const { projectId, workspaceId, taskId } = Route.useParams();
   const { data: task } = useGetTask(taskId);
+  console.log({ task });
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId);
+  const { data: activities = [] } = useGetActivitiesByTaskId(taskId);
   const workspaceName = workspace?.name;
   const projectSlug = project?.slug;
   const taskNumber = task?.number;
@@ -125,7 +129,7 @@ function RouteComponent() {
       projectId={projectId}
       workspaceId={workspaceId}
       rightSidebar={
-        <div className="w-72 bg-sidebar border-l border-border flex flex-col gap-2">
+        <div className="w-72 bg-sidebar border-l border-border flex flex-col gap-2 sticky top-0 right-0">
           <div className="flex gap-2 p-4 px-6">
             <p className="text-sm font-medium text-muted-foreground flex-1">
               Properties
@@ -537,6 +541,19 @@ function RouteComponent() {
               )}
             />
           </BlockNoteView>
+        </div>
+        <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full" />
+        <div className="flex flex-col gap-4 pt-8">
+          <h1 className="text-md font-semibold">Activity</h1>
+          <div className="flex flex-col">
+            {activities.map((activity, index) => (
+              <Activity
+                key={activity.id}
+                activity={activity}
+                isLast={index === activities.length - 1}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </TaskLayout>

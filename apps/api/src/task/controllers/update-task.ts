@@ -2,7 +2,6 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
-import { publishEvent } from "../../events";
 
 async function updateTask(
   id: string,
@@ -44,42 +43,6 @@ async function updateTask(
     throw new HTTPException(500, {
       message: "Failed to update task",
     });
-  }
-
-  const eventPromises = [];
-  if (existingTask.status !== status) {
-    eventPromises.push(
-      publishEvent("task.status_changed", {
-        taskId: updatedTask.id,
-        userId: updatedTask.userId,
-        oldStatus: existingTask.status,
-        newStatus: status,
-        title: updatedTask.title,
-      }),
-    );
-  }
-  if (existingTask.priority !== priority) {
-    eventPromises.push(
-      publishEvent("task.priority_changed", {
-        taskId: updatedTask.id,
-        userId: updatedTask.userId,
-        oldPriority: existingTask.priority,
-        newPriority: priority,
-        title: updatedTask.title,
-      }),
-    );
-  }
-  if (existingTask.userId !== userId) {
-    eventPromises.push(
-      publishEvent("task.assignee_changed", {
-        taskId: updatedTask.id,
-        newAssignee: userId,
-        title: updatedTask.title,
-      }),
-    );
-  }
-  if (eventPromises.length > 0) {
-    await Promise.all(eventPromises);
   }
 
   return updatedTask;

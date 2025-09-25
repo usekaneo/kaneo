@@ -4,7 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { getColumnIcon } from "@/lib/column";
 import type Task from "@/types/task";
 import { Check } from "lucide-react";
@@ -28,11 +28,11 @@ export default function TaskStatusPopover({
   children,
 }: TaskStatusPopoverProps) {
   const [open, setOpen] = useState(false);
-  const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
 
   const handleStatusChange = async (newStatus: string) => {
     try {
-      await updateTask({
+      await updateTaskStatus({
         ...task,
         status: newStatus,
       });

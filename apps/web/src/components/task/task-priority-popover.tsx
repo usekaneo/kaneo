@@ -4,7 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { getPriorityIcon } from "@/lib/priority";
 import type Task from "@/types/task";
 import { Check } from "lucide-react";
@@ -29,11 +29,11 @@ export default function TaskPriorityPopover({
   children,
 }: TaskPriorityPopoverProps) {
   const [open, setOpen] = useState(false);
-  const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
 
   const handlePriorityChange = async (newPriority: string) => {
     try {
-      await updateTask({
+      await updateTaskPriority({
         ...task,
         priority: newPriority,
       });

@@ -45,7 +45,7 @@ export default function TaskLayout({
   return (
     <Layout className="flex flex-row">
       <div className="flex-1">
-        <Layout.Header>
+        <Layout.Header className="sticky top-0 z-10">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-1 w-full">
               <TooltipProvider>

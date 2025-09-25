@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import type Task from "@/types/task";
 import { Check } from "lucide-react";
@@ -24,7 +24,7 @@ export default function TaskAssigneePopover({
   children,
 }: TaskAssigneePopoverProps) {
   const [open, setOpen] = useState(false);
-  const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
 
   const usersOptions = useMemo(() => {
@@ -38,7 +38,7 @@ export default function TaskAssigneePopover({
 
   const handleAssigneeChange = async (newUserId: string) => {
     try {
-      await updateTask({
+      await updateTaskAssignee({
         ...task,
         userId: newUserId,
       });
