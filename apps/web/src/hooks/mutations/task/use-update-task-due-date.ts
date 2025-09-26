@@ -1,12 +1,12 @@
-import updateTask from "@/fetchers/task/update-task";
+import updateTaskDueDate from "@/fetchers/task/update-task-due-date";
 import type Task from "@/types/task";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function useUpdateTask() {
+export function useUpdateTaskDueDate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (task: Task) => updateTask(task.id, task),
+    mutationFn: (task: Task) => updateTaskDueDate(task.id, task),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],

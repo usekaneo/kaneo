@@ -4,7 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
 import type Task from "@/types/task";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -19,11 +19,11 @@ export default function TaskDueDatePopover({
   children,
 }: TaskDueDatePopoverProps) {
   const [open, setOpen] = useState(false);
-  const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
 
   const handleDateChange = async (date: Date | undefined) => {
     try {
-      await updateTask({
+      await updateTaskDueDate({
         ...task,
         dueDate: date?.toISOString() || null,
       });

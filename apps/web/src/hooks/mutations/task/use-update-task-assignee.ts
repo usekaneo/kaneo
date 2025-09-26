@@ -20,6 +20,9 @@ export function useUpdateTaskAssignee() {
       queryClient.invalidateQueries({
         queryKey: ["projects"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["activities", variables.id],
+      });
     },
   });
 }

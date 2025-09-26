@@ -211,7 +211,6 @@ subscribeToEvent(
     type: string;
     newDueDate: string;
   }) => {
-    console.log({ taskId, userId, type, newDueDate });
     await createActivity(
       taskId,
       type,

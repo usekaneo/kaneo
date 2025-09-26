@@ -546,6 +546,11 @@ function RouteComponent() {
         <div className="flex flex-col gap-4 pt-8">
           <h1 className="text-md font-semibold">Activity</h1>
           <div className="flex flex-col">
+            {activities.length === 0 && (
+              <p className="text-sm font-medium text-muted-foreground">
+                No activity found
+              </p>
+            )}
             {activities.map((activity, index) => (
               <Activity
                 key={activity.id}

@@ -11,6 +11,7 @@ import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
+import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
 
@@ -243,6 +244,30 @@ const task = new Hono<{
         newAssignee: newAssigneeName,
         title: task.title,
         type: "assignee_changed",
+      });
+
+      return c.json(task);
+    },
+  )
+  //  due date
+  .put(
+    "/due-date/:id",
+    zValidator("param", z.object({ id: z.string() })),
+    zValidator("json", z.object({ dueDate: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { dueDate } = c.req.valid("json");
+      const user = c.get("userId");
+
+      const task = await updateTaskDueDate({ id, dueDate: new Date(dueDate) });
+
+      await publishEvent("task.due_date_changed", {
+        taskId: task.id,
+        userId: user,
+        oldDueDate: task.dueDate,
+        newDueDate: dueDate,
+        title: task.title,
+        type: "due_date_changed",
       });
 
       return c.json(task);
