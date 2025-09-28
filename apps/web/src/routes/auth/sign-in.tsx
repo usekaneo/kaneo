@@ -95,23 +95,25 @@ function SignIn() {
         <div className="space-y-4 mt-6">
           <div className="flex flex-col gap-2">
             <div className="relative">
-              <Button
-                variant="outline"
-                onClick={handleSignInGithub}
-                disabled={isGithubLoading}
-                className={cn(
-                  "w-full",
-                  lastLoginMethod === "github" && "!border-primary/50",
-                )}
-              >
-                <Github className="w-4 h-4 mr-2" />
-                {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
-                {lastLoginMethod === "github" && (
-                  <span className="absolute rounded-md -top-3 right-1 px-1.5 text-xs text-primary font-medium bg-sidebar border border-primary/50">
-                    Last used
-                  </span>
-                )}
-              </Button>
+              {config?.hasGithubSignIn && (
+                <Button
+                  variant="outline"
+                  onClick={handleSignInGithub}
+                  disabled={isGithubLoading}
+                  className={cn(
+                    "w-full",
+                    lastLoginMethod === "github" && "!border-primary/50",
+                  )}
+                >
+                  <Github className="w-4 h-4 mr-2" />
+                  {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
+                  {lastLoginMethod === "github" && (
+                    <span className="absolute rounded-md -top-3 right-1 px-1.5 text-xs text-primary font-medium bg-sidebar border border-primary/50">
+                      Last used
+                    </span>
+                  )}
+                </Button>
+              )}
             </div>
             <Button
               variant="outline"

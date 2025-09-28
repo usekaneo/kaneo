@@ -12,6 +12,9 @@ function getSettings() {
       Boolean(process.env.SMTP_SECURE) &&
       Boolean(process.env.SMTP_USER) &&
       Boolean(process.env.SMTP_PASSWORD),
+    hasGithubSignIn:
+      Boolean(process.env.GITHUB_CLIENT_ID) &&
+      Boolean(process.env.GITHUB_CLIENT_SECRET),
   };
 }
 
