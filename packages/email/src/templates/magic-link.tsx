@@ -18,17 +18,12 @@ export interface MagicLinkEmailProps {
   magicLink: string;
 }
 
-const logoUrl = "https://assets.kaneo.app/logo-main.png";
-
 const MagicLinkEmail = ({ magicLink }: MagicLinkEmailProps) => (
   <Html>
     <Head />
     <Body style={main}>
       <Preview>Log in with this magic link.</Preview>
       <Container style={container}>
-        <Container style={header}>
-          <Img src={logoUrl} height={48} alt="Kaneo" />
-        </Container>
         <Heading style={heading}>🪄 Your magic link for Kaneo</Heading>
         <Section style={body}>
           <Text style={paragraph}>

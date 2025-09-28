@@ -19,24 +19,21 @@ export interface WorkspaceInvitationEmailProps {
   inviterName: string;
   inviterEmail: string;
   invitationLink: string;
+  to: string;
 }
-
-const logoUrl = "https://assets.kaneo.app/logo-main.png";
 
 const WorkspaceInvitationEmail = ({
   workspaceName,
   inviterName,
   inviterEmail,
   invitationLink,
+  to,
 }: WorkspaceInvitationEmailProps) => (
   <Html>
     <Head />
     <Body style={main}>
       <Preview>You've been invited to join {workspaceName} on Kaneo.</Preview>
       <Container style={container}>
-        <Container style={header}>
-          <Img src={logoUrl} height={48} alt="Kaneo" />
-        </Container>
         <Heading style={heading}>🎉 You're invited to {workspaceName}</Heading>
         <Section style={body}>
           <Text style={paragraph}>
@@ -44,7 +41,7 @@ const WorkspaceInvitationEmail = ({
             join the <strong>{workspaceName}</strong> workspace on Kaneo.
           </Text>
           <Text style={paragraph}>
-            <Link style={link} href={invitationLink}>
+            <Link style={link} href={`${invitationLink}?email=${to}`}>
               👉 Accept invitation 👈
             </Link>
           </Text>

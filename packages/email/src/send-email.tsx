@@ -37,17 +37,15 @@ export const sendMagicLinkEmail = async (
   }
 };
 
-// TODO: Fix me
 export const sendWorkspaceInvitationEmail = async (
   to: string,
   subject: string,
   data: WorkspaceInvitationEmailProps,
 ) => {
-  console.log("Sending workspace invitation email to", to, subject, data);
-  const emailTemplate = await render(WorkspaceInvitationEmail(data));
+  const emailTemplate = await render(WorkspaceInvitationEmail({ ...data, to }));
   await transporter.sendMail({
     from: process.env.SMTP_FROM,
-    to: "delivered@resend.dev",
+    to,
     subject,
     html: emailTemplate,
   });

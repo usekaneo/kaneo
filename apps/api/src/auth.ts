@@ -133,6 +133,7 @@ export const auth = betterAuth({
             inviterName: data.inviter.user.name,
             workspaceName: data.organization.name,
             invitationLink: inviteLink,
+            to: data.email,
           },
         );
       },
