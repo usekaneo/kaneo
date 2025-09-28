@@ -8,6 +8,7 @@ export interface BoardFilters {
   priority: string | null;
   assignee: string | null;
   dueDate: string | null;
+  labels: string[] | null;
 }
 
 export function useTaskFilters(project: ProjectWithTasks | null | undefined) {
@@ -16,6 +17,7 @@ export function useTaskFilters(project: ProjectWithTasks | null | undefined) {
     priority: null,
     assignee: null,
     dueDate: null,
+    labels: null,
   });
 
   const filterTasks = (tasks: Task[]): Task[] => {
@@ -95,17 +97,39 @@ export function useTaskFilters(project: ProjectWithTasks | null | undefined) {
       priority: null,
       assignee: null,
       dueDate: null,
+      labels: null,
     });
   };
 
-  const updateFilter = (key: keyof BoardFilters, value: string | null) => {
+  const updateFilter = (
+    key: keyof BoardFilters,
+    value: string | string[] | null,
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const updateLabelFilter = (labelId: string) => {
+    setFilters((prev) => {
+      const currentLabels = prev.labels || [];
+      const isSelected = currentLabels.includes(labelId);
+
+      let newLabels: string[] | null;
+      if (isSelected) {
+        newLabels = currentLabels.filter((id) => id !== labelId);
+        if (newLabels.length === 0) newLabels = null;
+      } else {
+        newLabels = [...currentLabels, labelId];
+      }
+
+      return { ...prev, labels: newLabels };
+    });
   };
 
   return {
     filters,
     setFilters,
     updateFilter,
+    updateLabelFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,

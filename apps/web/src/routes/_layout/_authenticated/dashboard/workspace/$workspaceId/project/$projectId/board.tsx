@@ -3,6 +3,7 @@ import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,32 +16,17 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { KbdSequence } from "@/components/ui/kbd";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { shortcuts } from "@/constants/shortcuts";
+import labelColors from "@/constants/label-colors";
+import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
-import { useTaskFilters } from "@/hooks/use-task-filters";
-import { cn } from "@/lib/cn";
+import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import { getColumnIcon } from "@/lib/column";
 import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Calendar,
-  Filter,
-  Flag,
-  LayoutGrid,
-  List,
-  Plus,
-  Settings,
-  User,
-} from "lucide-react";
+import { Calendar, Filter, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
@@ -57,18 +43,7 @@ function RouteComponent() {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
-  const {
-    showAssignees,
-    showPriority,
-    showDueDates,
-    showLabels,
-    showTaskNumbers,
-    toggleAssignees,
-    togglePriority,
-    toggleDueDates,
-    toggleLabels,
-    toggleTaskNumbers,
-  } = useUserPreferencesStore();
+  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
 
   useEffect(() => {
     if (data) {
@@ -79,10 +54,26 @@ function RouteComponent() {
   const {
     filters,
     updateFilter,
+    updateLabelFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,
-  } = useTaskFilters(project);
+  } = useTaskFiltersWithLabelsSupport(project);
+
+  // Helper functions to get display names for filters
+  const getStatusDisplayName = (statusId: string) => {
+    const column = project?.columns?.find((col) => col.id === statusId);
+    return column?.name || statusId;
+  };
+
+  const getPriorityDisplayName = (priority: string) => {
+    return priority.charAt(0).toUpperCase() + priority.slice(1);
+  };
+
+  const getAssigneeDisplayName = (userId: string) => {
+    const member = users?.members?.find((m) => m.userId === userId);
+    return member?.user?.name || "Unknown";
+  };
 
   return (
     <ProjectLayout
@@ -99,51 +90,150 @@ function RouteComponent() {
           <div className="h-10 flex items-center px-4">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
+                {/* Individual Filter Chips */}
+                {filters.status && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-6 px-2 text-xs gap-1.5"
+                  >
+                    {getColumnIcon(filters.status)}
+                    <span>
+                      Status is {getStatusDisplayName(filters.status)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateFilter("status", null);
+                      }}
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </Button>
+                  </Button>
+                )}
+
+                {filters.priority && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-6 px-2 text-xs gap-1.5"
+                  >
+                    {getPriorityIcon(filters.priority)}
+                    <span>
+                      Priority is {getPriorityDisplayName(filters.priority)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateFilter("priority", null);
+                      }}
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </Button>
+                  </Button>
+                )}
+
+                {filters.assignee && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-6 px-2 text-xs gap-1.5"
+                  >
+                    <User className="h-3 w-3" />
+                    <span>
+                      Assignee is {getAssigneeDisplayName(filters.assignee)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateFilter("assignee", null);
+                      }}
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </Button>
+                  </Button>
+                )}
+
+                {filters.dueDate && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-6 px-2 text-xs gap-1.5"
+                  >
+                    <Calendar className="h-3 w-3" />
+                    <span>Due date is {filters.dueDate}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateFilter("dueDate", null);
+                      }}
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </Button>
+                  </Button>
+                )}
+
+                {filters.labels &&
+                  filters.labels.length > 0 &&
+                  filters.labels.map((labelId) => {
+                    const label = workspaceLabels.find(
+                      (l: { id: string; name: string; color: string }) =>
+                        l.id === labelId,
+                    );
+                    if (!label) return null;
+
+                    return (
                       <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={() => setIsTaskModalOpen(true)}
-                        className="h-6 px-2 text-xs text-zinc-600 dark:text-zinc-400"
+                        key={labelId}
+                        variant="secondary"
+                        size="sm"
+                        className="h-6 px-2 text-xs gap-1.5"
                       >
-                        <Plus className="h-3 w-3 mr-1" />
-                        New task
+                        <span
+                          className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                          style={{
+                            backgroundColor:
+                              labelColors.find((c) => c.value === label.color)
+                                ?.color || "#94a3b8",
+                          }}
+                        />
+                        <span>Label is {label.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateLabelFilter(labelId);
+                          }}
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </Button>
                       </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <KbdSequence
-                        keys={[shortcuts.task.prefix, shortcuts.task.create]}
-                        className="ml-auto"
-                        description="Create new task"
-                      />
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                    );
+                  })}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={cn(
-                        "h-6 px-2 text-xs",
-                        hasActiveFilters
-                          ? "text-foreground bg-accent"
-                          : "text-muted-foreground",
-                      )}
+                      className="h-6 px-2 text-xs text-muted-foreground"
                     >
                       <Filter className="h-3 w-3 mr-1" />
                       Filter
-                      {hasActiveFilters && (
-                        <span className="ml-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                          {
-                            Object.values(filters).filter((f) => f !== null)
-                              .length
-                          }
-                        </span>
-                      )}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-46" align="start">
@@ -158,7 +248,6 @@ function RouteComponent() {
 
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger className="gap-2">
-                        <div className="w-2 h-2 border border-muted-foreground rounded-full" />
                         <span>Status</span>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent className="w-48">
@@ -170,6 +259,7 @@ function RouteComponent() {
                               updateFilter("status", column.id)
                             }
                           >
+                            {getColumnIcon(column.id)}
                             <span>{column.name}</span>
                           </DropdownMenuCheckboxItem>
                         ))}
@@ -178,7 +268,6 @@ function RouteComponent() {
 
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger className="gap-2">
-                        <Flag className="w-4 h-4" />
                         <span>Priority</span>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent className="w-48">
@@ -200,7 +289,6 @@ function RouteComponent() {
 
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger className="gap-2">
-                        <User className="w-4 h-4" />
                         <span>Assignee</span>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent className="w-48">
@@ -212,91 +300,77 @@ function RouteComponent() {
                               updateFilter("assignee", member.userId)
                             }
                           >
-                            <div className="w-5 h-5 bg-muted-foreground rounded-full flex items-center justify-center text-background text-xs font-medium">
-                              {member.user?.name?.charAt(0).toUpperCase()}
-                            </div>
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage
+                                src={member.user?.image ?? ""}
+                                alt={member.user?.name || ""}
+                              />
+                              <AvatarFallback className="text-xs font-medium border border-border/30">
+                                {member.user?.name?.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
                             <span>{member.user?.name}</span>
                           </DropdownMenuCheckboxItem>
                         ))}
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
-                  </DropdownMenuContent>
-                </DropdownMenu>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-xs text-muted-foreground"
-                    >
-                      <Settings className="h-3 w-3 mr-1" />
-                      Display
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-46" align="start">
-                    <DropdownMenuCheckboxItem
-                      checked={viewMode === "board"}
-                      onCheckedChange={() => {
-                        useUserPreferencesStore.setState({
-                          viewMode: "board",
-                        });
-                      }}
-                    >
-                      <LayoutGrid className="w-4 h-4" />
-                      <span>Board view</span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={viewMode === "list"}
-                      onCheckedChange={() => {
-                        useUserPreferencesStore.setState({
-                          viewMode: "list",
-                        });
-                      }}
-                    >
-                      <List className="w-4 h-4" />
-                      <span>List view</span>
-                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="gap-2">
+                        <span>Due Date</span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-48">
+                        {["Due this week", "Due next week", "No due date"].map(
+                          (dueDate) => (
+                            <DropdownMenuCheckboxItem
+                              key={dueDate}
+                              checked={filters.dueDate === dueDate}
+                              onCheckedChange={() =>
+                                updateFilter("dueDate", dueDate)
+                              }
+                            >
+                              <span>{dueDate}</span>
+                            </DropdownMenuCheckboxItem>
+                          ),
+                        )}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
 
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuCheckboxItem
-                      checked={showAssignees}
-                      onCheckedChange={toggleAssignees}
-                    >
-                      <User className="w-4 h-4" />
-                      <span>Show assignee</span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={showPriority}
-                      onCheckedChange={togglePriority}
-                    >
-                      <Flag className="w-4 h-4" />
-                      <span>Show priority</span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={showDueDates}
-                      onCheckedChange={toggleDueDates}
-                    >
-                      <Calendar className="w-4 h-4" />
-                      <span>Show due date</span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={showLabels}
-                      onCheckedChange={toggleLabels}
-                    >
-                      <span className="w-4 h-4 bg-muted-foreground rounded-sm" />
-                      <span>Show labels</span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={showTaskNumbers}
-                      onCheckedChange={toggleTaskNumbers}
-                    >
-                      <span className="w-4 h-4 text-sm font-mono text-muted-foreground flex items-center justify-center">
-                        #
-                      </span>
-                      <span>Show task numbers</span>
-                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="gap-2">
+                        <span>Labels</span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-48">
+                        {workspaceLabels.map(
+                          (label: {
+                            id: string;
+                            name: string;
+                            color: string;
+                          }) => (
+                            <DropdownMenuCheckboxItem
+                              key={label.id}
+                              checked={
+                                filters.labels?.includes(label.id) ?? false
+                              }
+                              onCheckedChange={() =>
+                                updateLabelFilter(label.id)
+                              }
+                            >
+                              <span
+                                className="w-3 h-3 rounded-full flex-shrink-0"
+                                style={{
+                                  backgroundColor:
+                                    labelColors.find(
+                                      (c) => c.value === label.color,
+                                    )?.color || "#94a3b8",
+                                }}
+                              />
+                              <span>{label.name}</span>
+                            </DropdownMenuCheckboxItem>
+                          ),
+                        )}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
