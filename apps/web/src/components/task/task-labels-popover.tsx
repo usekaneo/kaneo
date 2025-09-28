@@ -217,6 +217,11 @@ export default function TaskLabelsPopover({
       </div>
 
       <div className="py-1">
+        {filteredLabels.length === 0 && searchValue.length === 0 && (
+          <span className="text-xs text-muted-foreground px-2">
+            No labels found
+          </span>
+        )}
         {filteredLabels
           .filter((label: Label) => label.taskId === null)
           .map((label: Label) => (

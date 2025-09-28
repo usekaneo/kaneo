@@ -75,6 +75,57 @@ function RouteComponent() {
     return member?.user?.name || "Unknown";
   };
 
+  // Deduplicate workspace labels by name and color combination
+  const uniqueLabels = workspaceLabels.reduce(
+    (
+      acc: { id: string; name: string; color: string }[],
+      label: { id: string; name: string; color: string },
+    ) => {
+      const existing = acc.find(
+        (l) => l.name === label.name && l.color === label.color,
+      );
+      if (!existing) {
+        acc.push(label);
+      }
+      return acc;
+    },
+    [],
+  );
+
+  const isLabelGroupSelected = (label: { name: string; color: string }) => {
+    return workspaceLabels
+      .filter(
+        (l: { name: string; color: string }) =>
+          l.name === label.name && l.color === label.color,
+      )
+      .some((l: { id: string }) => filters.labels?.includes(l.id));
+  };
+
+  const toggleLabelGroup = (label: { name: string; color: string }) => {
+    const matchingLabels = workspaceLabels.filter(
+      (l: { name: string; color: string }) =>
+        l.name === label.name && l.color === label.color,
+    );
+
+    const isAnySelected = matchingLabels.some((l: { id: string }) =>
+      filters.labels?.includes(l.id),
+    );
+
+    if (isAnySelected) {
+      for (const l of matchingLabels) {
+        if (filters.labels?.includes(l.id)) {
+          updateLabelFilter(l.id);
+        }
+      }
+    } else {
+      for (const l of matchingLabels) {
+        if (!filters.labels?.includes(l.id)) {
+          updateLabelFilter(l.id);
+        }
+      }
+    }
+  };
+
   return (
     <ProjectLayout
       title={viewMode === "board" ? "Board" : "List"}
@@ -187,16 +238,22 @@ function RouteComponent() {
 
                 {filters.labels &&
                   filters.labels.length > 0 &&
-                  filters.labels.map((labelId) => {
-                    const label = workspaceLabels.find(
-                      (l: { id: string; name: string; color: string }) =>
-                        l.id === labelId,
-                    );
-                    if (!label) return null;
-
-                    return (
+                  // Group selected labels by name/color and show only unique chips
+                  uniqueLabels
+                    .filter((uniqueLabel) =>
+                      workspaceLabels
+                        .filter(
+                          (l: { name: string; color: string }) =>
+                            l.name === uniqueLabel.name &&
+                            l.color === uniqueLabel.color,
+                        )
+                        .some((l: { id: string }) =>
+                          filters.labels?.includes(l.id),
+                        ),
+                    )
+                    .map((label) => (
                       <Button
-                        key={labelId}
+                        key={`${label.name}-${label.color}`}
                         variant="secondary"
                         size="sm"
                         className="h-6 px-2 text-xs gap-1.5"
@@ -216,14 +273,13 @@ function RouteComponent() {
                           className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
                           onClick={(e) => {
                             e.stopPropagation();
-                            updateLabelFilter(labelId);
+                            toggleLabelGroup(label);
                           }}
                         >
                           <X className="h-2.5 w-2.5" />
                         </Button>
                       </Button>
-                    );
-                  })}
+                    ))}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -341,7 +397,7 @@ function RouteComponent() {
                         <span>Labels</span>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent className="w-48">
-                        {workspaceLabels.map(
+                        {uniqueLabels.map(
                           (label: {
                             id: string;
                             name: string;
@@ -349,12 +405,8 @@ function RouteComponent() {
                           }) => (
                             <DropdownMenuCheckboxItem
                               key={label.id}
-                              checked={
-                                filters.labels?.includes(label.id) ?? false
-                              }
-                              onCheckedChange={() =>
-                                updateLabelFilter(label.id)
-                              }
+                              checked={isLabelGroupSelected(label)}
+                              onCheckedChange={() => toggleLabelGroup(label)}
                             >
                               <span
                                 className="w-3 h-3 rounded-full flex-shrink-0"
