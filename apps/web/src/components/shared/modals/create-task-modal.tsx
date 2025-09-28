@@ -1,4 +1,5 @@
-// import { Editor } from "@/components/common/editor";
+import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -25,20 +26,21 @@ import {
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
+import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
 import { format } from "date-fns";
 import { produce } from "immer";
 import {
   CalendarIcon,
   Check,
-  Flag,
-  PlusIcon,
+  Plus,
   Search,
   Tag,
-  Target,
   UserIcon,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -49,7 +51,7 @@ interface CreateTaskModalProps {
   status?: string;
 }
 
-type Priority = "low" | "medium" | "high" | "urgent";
+type Priority = "no-priority" | "low" | "medium" | "high" | "urgent";
 
 type LabelColor =
   | "gray"
@@ -63,9 +65,15 @@ type LabelColor =
   | "red";
 
 type Label = {
+  id: string;
   name: string;
-  color: LabelColor;
+  color: string;
+  taskId: string | null;
+  workspaceId: string;
+  createdAt: string;
 };
+
+type PopoverStep = "select" | "color";
 
 const labelColors = [
   { value: "gray" as LabelColor, label: "Stone", color: "#78716c" },
@@ -84,35 +92,50 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const { data: workspace } = useActiveWorkspace();
   const { mutate: updateTask } = useUpdateTask();
   const { mutateAsync: createLabel } = useCreateLabel();
+  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
+    workspace?.id || "",
+  );
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<Priority>("low");
+  const [priority, setPriority] = useState<Priority>("no-priority");
   const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
+  const [labelsStep, setLabelsStep] = useState<PopoverStep>("select");
   const [searchValue, setSearchValue] = useState("");
   const [selectedColor, setSelectedColor] = useState<LabelColor>("gray");
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [newLabelName, setNewLabelName] = useState("");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const { mutateAsync } = useCreateTask();
 
+  const filteredLabels = workspaceLabels.filter((label: Label) =>
+    label.name.toLowerCase().includes(searchValue.toLowerCase()),
+  );
+
+  const isCreatingNewLabel =
+    searchValue &&
+    !workspaceLabels.some(
+      (label: Label) => label.name.toLowerCase() === searchValue.toLowerCase(),
+    );
+
   const handleClose = () => {
     setTitle("");
     setDescription("");
-    setPriority("low");
+    setPriority("no-priority");
     setAssigneeId("");
     setDueDate(undefined);
     setCreateMore(false);
     setLabels([]);
+    setLabelsStep("select");
     setSearchValue("");
     setSelectedColor("gray");
-    setColorPickerOpen(false);
+    setNewLabelName("");
     onClose();
   };
 
@@ -169,13 +192,14 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       if (createMore) {
         setTitle("");
         setDescription("");
-        setPriority("low");
+        setPriority("no-priority");
         setAssigneeId("");
         setDueDate(undefined);
         setLabels([]);
+        setLabelsStep("select");
         setSearchValue("");
         setSelectedColor("gray");
-        setColorPickerOpen(false);
+        setNewLabelName("");
       } else {
         handleClose();
       }
@@ -187,66 +211,32 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   };
 
   const priorityOptions = [
-    {
-      value: "low",
-      label: "Low",
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/20",
-    },
-    {
-      value: "medium",
-      label: "Medium",
-      color: "text-amber-400",
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/20",
-    },
-    {
-      value: "high",
-      label: "High",
-      color: "text-orange-400",
-      bg: "bg-orange-500/10",
-      border: "border-orange-500/20",
-    },
-    {
-      value: "urgent",
-      label: "Urgent",
-      color: "text-red-400",
-      bg: "bg-red-500/10",
-      border: "border-red-500/20",
-    },
+    { value: "no-priority", label: "No Priority" },
+    { value: "low", label: "Low" },
+    { value: "medium", label: "Medium" },
+    { value: "high", label: "High" },
+    { value: "urgent", label: "Urgent" },
   ];
 
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
   const selectedUser = workspace?.members?.find((u) => u.userId === assigneeId);
 
-  const filteredLabels = labels.filter((label: Label) =>
-    label.name.toLowerCase().includes(searchValue.toLowerCase()),
-  );
-
-  const isCreatingNewLabel =
-    searchValue &&
-    !labels.some(
-      (label: Label) => label.name.toLowerCase() === searchValue.toLowerCase(),
-    );
-
   useEffect(() => {
-    if (labelsOpen && searchInputRef.current) {
+    if (labelsOpen && labelsStep === "select" && searchInputRef.current) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
     }
-  }, [labelsOpen]);
+  }, [labelsOpen, labelsStep]);
 
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && isCreatingNewLabel) {
-      e.preventDefault();
-      handleCreateLabel();
-    } else if (e.key === "Escape") {
-      if (searchValue) {
-        setSearchValue("");
-      } else {
-        setLabelsOpen(false);
-      }
-    }
+  const resetLabelsPopover = () => {
+    setLabelsStep("select");
+    setSearchValue("");
+    setNewLabelName("");
+    setSelectedColor("gray");
+  };
+
+  const handleLabelsClose = () => {
+    setLabelsOpen(false);
+    setTimeout(resetLabelsPopover, 200);
   };
 
   const toggleLabel = (labelName: string) => {
@@ -254,29 +244,48 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     if (existingLabel) {
       setLabels(labels.filter((l) => l.name !== labelName));
     } else {
-      const labelToAdd = labels.find((l) => l.name === labelName);
-      if (labelToAdd) {
-        setLabels([...labels.filter((l) => l.name !== labelName), labelToAdd]);
+      // Add new label with temporary data for display
+      const workspaceLabel = workspaceLabels.find(
+        (l: Label) => l.name === labelName,
+      );
+      if (workspaceLabel) {
+        setLabels([
+          ...labels,
+          {
+            id: workspaceLabel.id,
+            name: workspaceLabel.name,
+            color: workspaceLabel.color,
+            taskId: null,
+            workspaceId: workspaceLabel.workspaceId,
+            createdAt: workspaceLabel.createdAt,
+          },
+        ]);
       }
     }
   };
 
-  const handleCreateLabel = () => {
-    if (!searchValue.trim()) return;
+  const handleCreateNewClick = () => {
+    setNewLabelName(searchValue);
+    setLabelsStep("color");
+  };
 
-    const labelExists = labels.some(
-      (label) => label.name.toLowerCase() === searchValue.trim().toLowerCase(),
-    );
+  const handleColorSelect = (color: LabelColor) => {
+    setSelectedColor(color);
 
-    if (labelExists) {
-      toast.error("Label already exists");
-      return;
-    }
+    // Add the label to the local state for display
+    if (!newLabelName.trim()) return;
 
-    setLabels([...labels, { name: searchValue.trim(), color: selectedColor }]);
-    setSearchValue("");
-    setSelectedColor("gray");
-    searchInputRef.current?.focus();
+    const newLabel: Label = {
+      id: `temp-${Date.now()}`, // Temporary ID
+      name: newLabelName.trim(),
+      color: color,
+      taskId: null,
+      workspaceId: workspace?.id || "",
+      createdAt: new Date().toISOString(),
+    };
+
+    setLabels([...labels, newLabel]);
+    handleLabelsClose();
   };
 
   const removeLabel = (labelName: string) => {
@@ -323,12 +332,16 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               required
             />
 
-            <div className="h-[300px] border bg-white dark:bg-zinc-900 border-zinc-200/50 dark:border-zinc-800/50 rounded-lg overflow-hidden">
-              {/* <Editor value={description} onChange={setDescription} /> */}
+            <div className="h-[120px] rounded-lg overflow-hidden">
+              <TaskDescriptionEditor
+                value={description}
+                onChange={setDescription}
+                placeholder="Add a description for your task..."
+              />
             </div>
 
             {labels.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap mb-2">
                 {labels.map((label) => (
                   <Badge
                     key={label.name}
@@ -352,8 +365,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
             )}
 
             <div className="flex flex-wrap items-center gap-2 py-2">
-              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-500/20 dark:to-yellow-500/20 text-amber-800 dark:text-amber-300 rounded-md text-xs font-medium border border-amber-300 dark:border-amber-500/30">
-                <div className="w-1.5 h-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 dark:from-amber-400 dark:to-yellow-400 rounded-full shadow-sm" />
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-accent/50 text-foreground rounded-md text-xs font-medium border border-border">
+                <div className="w-1.5 h-1.5 bg-foreground rounded-full" />
                 {status
                   ? status.charAt(0).toUpperCase() +
                     status.slice(1).replace("-", " ")
@@ -365,34 +378,32 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                   <button
                     type="button"
                     className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
-                      selectedPriority && priority !== "low"
-                        ? `${selectedPriority.color} ${selectedPriority.bg} ${selectedPriority.border}`
-                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                      priority !== "no-priority"
+                        ? "bg-accent/30 text-foreground"
+                        : "text-muted-foreground",
                     )}
                   >
-                    <Target className="w-3.5 h-3.5" />
+                    {getPriorityIcon(priority)}
                     <span>
                       {selectedPriority ? selectedPriority.label : "Priority"}
                     </span>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-48 p-2" align="start">
+                <PopoverContent className="w-48 p-1" align="start">
                   <div className="space-y-1">
                     {priorityOptions.map((option) => (
                       <button
                         key={option.value}
                         type="button"
-                        className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all duration-200 hover:scale-[1.02]",
-                          option.color,
-                          option.bg,
-                          `hover:${option.bg}`,
-                        )}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
                         onClick={() => setPriority(option.value as Priority)}
                       >
-                        <Flag className={cn("w-3.5 h-3.5", option.color)} />
-                        {option.label}
+                        {getPriorityIcon(option.value)}
+                        <span className="text-sm">{option.label}</span>
+                        {priority === option.value && (
+                          <Check className="ml-auto h-4 w-4" />
+                        )}
                       </button>
                     ))}
                   </div>
@@ -404,18 +415,25 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                   <button
                     type="button"
                     className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
                       selectedUser
-                        ? "text-indigo-300 bg-indigo-500/10 border-indigo-500/30"
-                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
+                        ? "bg-accent/30 text-foreground"
+                        : "text-muted-foreground",
                     )}
                   >
                     {selectedUser ? (
                       <>
-                        <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
-                          {selectedUser?.user?.name?.charAt(0).toUpperCase() ||
-                            "?"}
-                        </div>
+                        <Avatar className="h-4 w-4">
+                          <AvatarImage
+                            src={selectedUser?.user?.image ?? ""}
+                            alt={selectedUser?.user?.name || ""}
+                          />
+                          <AvatarFallback className="text-[10px] font-medium border border-border/30">
+                            {selectedUser?.user?.name
+                              ?.charAt(0)
+                              .toUpperCase() || "?"}
+                          </AvatarFallback>
+                        </Avatar>
                         <span>{selectedUser.user?.name}</span>
                       </>
                     ) : (
@@ -426,27 +444,44 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     )}
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64 p-2" align="start">
+                <PopoverContent className="w-48 p-1" align="start">
                   <div className="space-y-1">
                     <button
                       type="button"
-                      className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
                       onClick={() => setAssigneeId("")}
                     >
-                      <UserIcon className="w-4 h-4 text-zinc-600 dark:text-zinc-500" />
-                      Unassigned
+                      <div
+                        className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
+                        title="Unassigned"
+                      >
+                        <span className="text-[10px] font-medium text-muted-foreground">
+                          ?
+                        </span>
+                      </div>
+                      <span className="text-sm">Unassigned</span>
+                      {!assigneeId && <Check className="ml-auto h-4 w-4" />}
                     </button>
                     {workspace?.members?.map((member) => (
                       <button
                         key={member.userId}
                         type="button"
-                        className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-900 dark:text-zinc-300 transition-all duration-200 hover:scale-[1.02]"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
                         onClick={() => setAssigneeId(member.userId || "")}
                       >
-                        <div className="w-4 h-4 bg-zinc-400 dark:bg-zinc-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold">
-                          {member?.user?.name?.charAt(0).toUpperCase() || "?"}
-                        </div>
-                        {member?.user?.name}
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={member?.user?.image ?? ""}
+                            alt={member?.user?.name || ""}
+                          />
+                          <AvatarFallback className="text-xs font-medium border border-border/30">
+                            {member?.user?.name?.charAt(0).toUpperCase() || "?"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm">{member?.user?.name}</span>
+                        {assigneeId === member.userId && (
+                          <Check className="ml-auto h-4 w-4" />
+                        )}
                       </button>
                     ))}
                   </div>
@@ -458,10 +493,10 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                   <button
                     type="button"
                     className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
                       dueDate
-                        ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
-                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
+                        ? "bg-accent/30 text-foreground"
+                        : "text-muted-foreground",
                     )}
                   >
                     <CalendarIcon className="w-3.5 h-3.5" />
@@ -470,27 +505,13 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     </span>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-3" align="start">
+                <PopoverContent className="p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={dueDate}
                     onSelect={setDueDate}
-                    className="rounded-md border-0"
+                    className="w-full bg-popover"
                   />
-                  {dueDate && (
-                    <div className="flex justify-between items-center pt-3 border-t border-zinc-200 dark:border-zinc-800/50 mt-3">
-                      <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                        {format(dueDate, "EEEE, MMMM d, yyyy")}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setDueDate(undefined)}
-                        className="text-xs text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  )}
                 </PopoverContent>
               </Popover>
 
@@ -499,135 +520,137 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                   <button
                     type="button"
                     className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 hover:scale-105 border",
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
                       labels.length > 0
-                        ? "text-violet-300 bg-violet-500/10 border-violet-500/30"
-                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border-zinc-300 dark:border-zinc-700/50",
+                        ? "bg-accent/30 text-foreground"
+                        : "text-muted-foreground",
                     )}
                   >
                     <Tag className="w-3.5 h-3.5" />
                     <span>Labels</span>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent
-                  className="w-80 p-0 overflow-hidden"
-                  align="start"
-                  sideOffset={5}
-                >
-                  <div className="flex items-center p-2 border-b border-zinc-200 dark:border-zinc-800">
-                    <Search className="w-4 h-4 text-zinc-500 dark:text-zinc-400 mr-2" />
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={searchValue}
-                      onChange={(e) => setSearchValue(e.target.value)}
-                      onKeyDown={handleSearchKeyDown}
-                      placeholder="Change or add labels..."
-                      className="w-full bg-transparent border-none text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none placeholder:text-zinc-500"
-                    />
-                  </div>
+                <PopoverContent className="p-0" align="start">
+                  {labelsStep === "select" && (
+                    <div className="w-auto">
+                      <div className="flex items-center gap-2 p-2 border-b border-border">
+                        <Search className="w-3 h-3 text-muted-foreground" />
+                        <input
+                          ref={searchInputRef}
+                          value={searchValue}
+                          onChange={(e) => setSearchValue(e.target.value)}
+                          placeholder="Search labels..."
+                          className="w-full bg-transparent border-none text-foreground text-xs focus:outline-none placeholder:text-muted-foreground"
+                        />
+                      </div>
 
-                  <div className="max-h-80 overflow-y-auto">
-                    {filteredLabels.length > 0 ? (
                       <div className="py-1">
-                        {filteredLabels.map((label: Label) => (
+                        {filteredLabels.length === 0 &&
+                          searchValue.length === 0 && (
+                            <span className="text-xs text-muted-foreground px-2">
+                              No labels found
+                            </span>
+                          )}
+                        {filteredLabels
+                          .filter((label: Label) => label.taskId === null)
+                          .map((label: Label) => (
+                            <button
+                              key={label.id}
+                              type="button"
+                              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
+                              onClick={() => toggleLabel(label.name)}
+                            >
+                              <div className="flex-shrink-0 w-3 flex justify-center">
+                                {labels.some((l) => l.name === label.name) && (
+                                  <Check className="w-3 h-3" />
+                                )}
+                              </div>
+                              <span
+                                className="w-2 h-2 rounded-full flex-shrink-0"
+                                style={{
+                                  backgroundColor:
+                                    labelColors.find(
+                                      (c) => c.value === label.color,
+                                    )?.color || "#94a3b8",
+                                }}
+                              />
+                              <span className="truncate">{label.name}</span>
+                            </button>
+                          ))}
+
+                        {isCreatingNewLabel &&
+                          filteredLabels.filter(
+                            (label: Label) => label.taskId === null,
+                          ).length > 0 && (
+                            <div className="border-t border-border my-1" />
+                          )}
+                        {isCreatingNewLabel && (
                           <button
-                            key={label.name}
                             type="button"
-                            className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                            onClick={() => toggleLabel(label.name)}
+                            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
+                            onClick={handleCreateNewClick}
                           >
-                            <div className="flex-shrink-0 w-4 mr-2 text-center">
-                              <Check className="w-4 h-4 text-zinc-400" />
+                            <div className="flex-shrink-0 w-3 flex justify-center">
+                              <Plus className="w-3 h-3" />
                             </div>
                             <span
-                              className="w-3 h-3 rounded-full mr-2"
+                              className="w-2 h-2 rounded-full flex-shrink-0"
                               style={{
                                 backgroundColor:
                                   labelColors.find(
-                                    (c) => c.value === label.color,
+                                    (c) => c.value === selectedColor,
                                   )?.color || "#94a3b8",
                               }}
                             />
-                            <span>{label.name}</span>
+                            <span className="truncate">
+                              Create "{searchValue}"
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {labelsStep === "color" && (
+                    <div className="w-auto">
+                      <div className="flex items-center justify-between p-2 border-b border-border">
+                        <span className="text-xs font-medium">
+                          Choose color
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setLabelsStep("select")}
+                          className="w-4 h-4 flex items-center justify-center hover:bg-accent/50 rounded"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+
+                      <div className="py-1">
+                        {labelColors.map((color) => (
+                          <button
+                            key={color.value}
+                            type="button"
+                            className={cn(
+                              "w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left",
+                              selectedColor === color.value && "bg-accent/30",
+                            )}
+                            onClick={() =>
+                              handleColorSelect(color.value as LabelColor)
+                            }
+                          >
+                            <span
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: color.color }}
+                            />
+                            <span className="truncate">{color.label}</span>
+                            {selectedColor === color.value && (
+                              <Check className="w-3 h-3 ml-auto" />
+                            )}
                           </button>
                         ))}
                       </div>
-                    ) : null}
-
-                    {isCreatingNewLabel && (
-                      <div className="py-1 border-t border-zinc-200 dark:border-zinc-800">
-                        <button
-                          type="button"
-                          className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                          onClick={handleCreateLabel}
-                        >
-                          <div className="flex-shrink-0 w-4 mr-2 text-center">
-                            <PlusIcon className="w-4 h-4 text-zinc-400" />
-                          </div>
-                          <span
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{
-                              backgroundColor:
-                                labelColors.find(
-                                  (c) => c.value === selectedColor,
-                                )?.color || "#94a3b8",
-                            }}
-                          />
-                          <span>Create new label: "{searchValue}"</span>
-                        </button>
-
-                        <Popover
-                          open={colorPickerOpen}
-                          onOpenChange={setColorPickerOpen}
-                        >
-                          <PopoverTrigger asChild>
-                            <button
-                              type="button"
-                              className="w-full flex items-center px-3 py-2 text-sm text-left text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                            >
-                              <div className="flex-shrink-0 w-4 mr-2" />
-                              <span>Pick a color for label</span>
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent
-                            className="w-64 p-2"
-                            align="start"
-                            sideOffset={5}
-                          >
-                            <div className="grid grid-cols-1 gap-1">
-                              {labelColors.map((color) => (
-                                <button
-                                  key={color.value}
-                                  type="button"
-                                  className={cn(
-                                    "flex items-center px-3 py-2 text-sm text-left text-zinc-900 dark:text-zinc-200 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                                    selectedColor === color.value &&
-                                      "bg-zinc-100 dark:bg-zinc-800",
-                                  )}
-                                  onClick={() => {
-                                    setSelectedColor(color.value);
-                                    setColorPickerOpen(false);
-                                  }}
-                                >
-                                  <span
-                                    className="w-3 h-3 rounded-full mr-3"
-                                    style={{
-                                      backgroundColor: color.color,
-                                    }}
-                                  />
-                                  <span>{color.label}</span>
-                                  {selectedColor === color.value && (
-                                    <Check className="w-4 h-4 ml-auto text-zinc-400" />
-                                  )}
-                                </button>
-                              ))}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </PopoverContent>
               </Popover>
             </div>
