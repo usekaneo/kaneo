@@ -1,12 +1,20 @@
 import { baseOptions } from "@/app/layout.config";
+import { Badge } from "@/components/ui/badge";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
-import { Book, Server } from "lucide-react";
+import {
+  NavbarMenu,
+  NavbarMenuContent,
+  NavbarMenuLink,
+  NavbarMenuTrigger,
+} from "fumadocs-ui/layouts/home/navbar";
+import { Book, Cloud, Server } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import Script from "next/script";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Kaneo - Project management made simple",
+  title: "Kaneo - All you need. Nothing you don't.",
   description:
     "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com. Features kanban boards, time tracking, Gantt charts, and team collaboration. Docker deployment in 5 minutes.",
   alternates: {
@@ -16,7 +24,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://kaneo.app",
-    title: "Kaneo - Project management made simple",
+    title: "Kaneo - All you need. Nothing you don't.",
     description:
       "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com with kanban boards, time tracking, and team collaboration.",
     siteName: "Kaneo",
@@ -25,7 +33,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Kaneo - Free Open Source Project Management Software",
+        alt: "Kaneo - All you need. Nothing you don't.",
       },
     ],
   },
@@ -53,6 +61,27 @@ export default function Layout({ children }: { children: ReactNode }) {
       className="bg-sidebar"
       {...baseOptions}
       links={[
+        {
+          type: "custom",
+          on: "nav",
+          children: (
+            <Link
+              href="https://cloud.kaneo.app"
+              className="flex items-center gap-2"
+            >
+              Cloud
+            </Link>
+          ),
+        },
+        {
+          type: "custom",
+          on: "nav",
+          children: (
+            <Link href="/docs" className="flex items-center gap-2">
+              Documentation
+            </Link>
+          ),
+        },
         {
           type: "menu",
           on: "menu",

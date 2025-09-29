@@ -67,7 +67,11 @@ const docsOptions: DocsLayoutProps = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <DocsLayout {...docsOptions}>
+    <DocsLayout
+      {...docsOptions}
+      containerProps={{ className: "bg-background" }}
+      sidebar={{ className: "bg-sidebar" }}
+    >
       <Script
         defer
         data-domain="kaneo.app"

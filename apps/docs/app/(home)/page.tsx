@@ -1,3 +1,4 @@
+import Features from "@/components/features";
 import Hero from "@/components/hero";
 import StructuredData from "@/components/structured-data";
 
@@ -8,6 +9,7 @@ export default function HomePage() {
       <StructuredData type="software" />
       <StructuredData type="faq" />
       <Hero />
+      <Features />
     </main>
   );
 }

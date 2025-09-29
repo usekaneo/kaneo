@@ -9,13 +9,13 @@
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
-    "@fumadocs/mdx-remote": "^1.3.0",
+    "@fumadocs/mdx-remote": "^1.4.0",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "fumadocs-core": "15.2.8",
-    "fumadocs-mdx": "11.6.0",
-    "fumadocs-ui": "15.2.8",
+    "fumadocs-core": "15.8.1",
+    "fumadocs-mdx": "12.0.1",
+    "fumadocs-ui": "15.8.1",
     "lucide-react": "^0.488.0",
     "motion": "^12.7.4",
     "next": "15.3.3",

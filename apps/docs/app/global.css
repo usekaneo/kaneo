@@ -113,6 +113,9 @@
 
 	* {
 		scrollbar-width: thin;
+		#nd-nav > div > nav {
+			@apply max-w-6xl mx-auto px-4 md:!px-0;
+		}
 	}
 
 	*::-webkit-scrollbar {
