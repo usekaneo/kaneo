@@ -11,6 +11,7 @@
     "@biomejs/biome": "1.9.4",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
+    "@types/mjml": "^4.7.4",
     "esbuild": ">=0.25.0",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.2",
@@ -22,5 +23,9 @@
     "node": ">=18"
   },
   "packageManager": "pnpm@10.15.0",
-  "version": "1.2.4"
+  "version": "1.2.4",
+  "dependencies": {
+    "mjml": "^4.16.1",
+    "mjml-core": "^4.16.1"
+  }
 }

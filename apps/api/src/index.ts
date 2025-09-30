@@ -12,6 +12,7 @@ import db from "./database";
 import githubIntegration from "./github-integration";
 import label from "./label";
 
+import "./email/notifications";
 import notification from "./notification";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
@@ -52,14 +53,14 @@ app.use(
 
       return corsOrigins.includes(origin) ? origin : null;
     },
-  }),
+  })
 );
 
 const configRoute = app.route("/config", config);
 
 const githubIntegrationRoute = app.route(
   "/github-integration",
-  githubIntegration,
+  githubIntegration
 );
 
 const publicProjectRoute = app.get("/public-project/:id", async (c) => {
@@ -70,7 +71,7 @@ const publicProjectRoute = app.get("/public-project/:id", async (c) => {
 });
 
 app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
-  auth.handler(c.req.raw),
+  auth.handler(c.req.raw)
 );
 
 app.use("*", async (c, next) => {
@@ -118,7 +119,7 @@ serve(
   },
   (info) => {
     console.log(`🏃 Hono API is running at http://localhost:${info.port}`);
-  },
+  }
 );
 
 export type AppType =
