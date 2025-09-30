@@ -11,7 +11,7 @@ import config from "./config";
 import db from "./database";
 import githubIntegration from "./github-integration";
 import label from "./label";
-
+import mcp from "./mcp";
 import notification from "./notification";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
@@ -75,6 +75,8 @@ app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
   auth.handler(c.req.raw),
 );
 
+const mcpRoute = app.route("/mcp", mcp);
+
 app.use("*", async (c, next) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   c.set("user", session?.user || null);
@@ -137,6 +139,7 @@ export type AppType =
   | typeof searchRoute
   | typeof publicProjectRoute
   | typeof githubIntegrationRoute
-  | typeof configRoute;
+  | typeof configRoute
+  | typeof mcpRoute;
 
 export default app;
