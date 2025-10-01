@@ -54,6 +54,11 @@ app.use(
   }),
 );
 
+app.use("*", async (c, next) => {
+  console.log("ALL REQUESTS - Path:", c.req.path, "Method:", c.req.method);
+  return next();
+});
+
 app.get("/health", (c) => {
   return c.json({ status: "ok" });
 });
@@ -72,11 +77,14 @@ const publicProjectRoute = app.get("/public-project/:id", async (c) => {
   return c.json(project);
 });
 
-app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
-  auth.handler(c.req.raw),
-);
+app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) => {
+  console.log("AUTH HANDLER - Path:", c.req.path, "Method:", c.req.method);
+  return auth.handler(c.req.raw);
+});
 
 app.use("*", async (c, next) => {
+  console.log("MIDDLEWARE - Path:", c.req.path, "Method:", c.req.method);
+
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   c.set("user", session?.user || null);
   c.set("session", session?.session || null);
