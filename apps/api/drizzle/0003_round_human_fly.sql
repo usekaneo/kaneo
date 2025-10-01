@@ -84,11 +84,16 @@ BEGIN
         ALTER TABLE "activity" ADD COLUMN "user_id" text;
     END IF;
 END $$;--> statement-breakpoint
-UPDATE "activity" SET "user_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "activity"."user_email"
-) WHERE "user_id" IS NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity' AND column_name = 'user_email');--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity' AND column_name = 'user_email') THEN
+        UPDATE "activity" SET "user_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "activity"."user_email"
+        ) WHERE "user_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
 DELETE FROM "activity" WHERE "user_id" IS NULL;--> statement-breakpoint
 DO $$
 BEGIN
@@ -109,11 +114,16 @@ BEGIN
         ALTER TABLE "notification" ADD COLUMN "user_id" text;
     END IF;
 END $$;--> statement-breakpoint
-UPDATE "notification" SET "user_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "notification"."user_email"
-) WHERE "user_id" IS NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notification' AND column_name = 'user_email');--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notification' AND column_name = 'user_email') THEN
+        UPDATE "notification" SET "user_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "notification"."user_email"
+        ) WHERE "user_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
 DELETE FROM "notification" WHERE "user_id" IS NULL;--> statement-breakpoint
 DO $$
 BEGIN
@@ -134,11 +144,16 @@ BEGIN
         ALTER TABLE "task" ADD COLUMN "assignee_id" text;
     END IF;
 END $$;--> statement-breakpoint
-UPDATE "task" SET "assignee_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "task"."assignee_email"
-) WHERE "assignee_email" IS NOT NULL AND "assignee_id" IS NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'task' AND column_name = 'assignee_email');--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'task' AND column_name = 'assignee_email') THEN
+        UPDATE "task" SET "assignee_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "task"."assignee_email"
+        ) WHERE "assignee_email" IS NOT NULL AND "assignee_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'task' AND column_name = 'assignee_email') THEN
@@ -152,11 +167,16 @@ BEGIN
         ALTER TABLE "time_entry" ADD COLUMN "user_id" text;
     END IF;
 END $$;--> statement-breakpoint
-UPDATE "time_entry" SET "user_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "time_entry"."user_email"
-) WHERE "user_email" IS NOT NULL AND "user_id" IS NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'time_entry' AND column_name = 'user_email');--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'time_entry' AND column_name = 'user_email') THEN
+        UPDATE "time_entry" SET "user_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "time_entry"."user_email"
+        ) WHERE "user_email" IS NOT NULL AND "user_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'time_entry' AND column_name = 'user_email') THEN
@@ -170,11 +190,16 @@ BEGIN
         ALTER TABLE "workspace" ADD COLUMN "owner_id" text;
     END IF;
 END $$;--> statement-breakpoint
-UPDATE "workspace" SET "owner_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "workspace"."owner_email"
-) WHERE "owner_id" IS NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace' AND column_name = 'owner_email');--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace' AND column_name = 'owner_email') THEN
+        UPDATE "workspace" SET "owner_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "workspace"."owner_email"
+        ) WHERE "owner_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
 DELETE FROM "workspace" WHERE "owner_id" IS NULL;--> statement-breakpoint
 DO $$
 BEGIN
@@ -195,11 +220,16 @@ BEGIN
         ALTER TABLE "workspace_member" ADD COLUMN "user_id" text;
     END IF;
 END $$;--> statement-breakpoint
-UPDATE "workspace_member" SET "user_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "workspace_member"."user_email"
-) WHERE "user_id" IS NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace_member' AND column_name = 'user_email');--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace_member' AND column_name = 'user_email') THEN
+        UPDATE "workspace_member" SET "user_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "workspace_member"."user_email"
+        ) WHERE "user_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
 -- Clean up any remaining NULL values before setting NOT NULL
 DELETE FROM "workspace_member" WHERE "user_id" IS NULL;--> statement-breakpoint
 DO $$
