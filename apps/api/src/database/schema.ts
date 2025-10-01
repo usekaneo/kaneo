@@ -240,12 +240,10 @@ export const labelTable = pgTable("label", {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
-  workspaceId: text("workspace_id")
-    .notNull()
-    .references(() => workspaceTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+  workspaceId: text("workspace_id").references(() => workspaceTable.id, {
+    onDelete: "cascade",
+    onUpdate: "cascade",
+  }),
 });
 
 export const notificationTable = pgTable("notification", {

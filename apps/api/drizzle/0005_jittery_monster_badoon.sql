@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS "team" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
+
 -- Make task_id nullable in label table
 DO $$
 BEGIN
