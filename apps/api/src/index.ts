@@ -78,7 +78,62 @@ const publicProjectRoute = app.get("/public-project/:id", async (c) => {
 });
 
 app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) => {
-  console.log("AUTH HANDLER - Path:", c.req.path, "Method:", c.req.method);
+  console.log(
+    "AUTH HANDLER (with /api) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
+  console.log(
+    "AUTH HANDLER (without /api) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/get-session", (c) => {
+  console.log(
+    "AUTH HANDLER (get-session) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/sign-in", (c) => {
+  console.log(
+    "AUTH HANDLER (sign-in) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/sign-up", (c) => {
+  console.log(
+    "AUTH HANDLER (sign-up) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/sign-out", (c) => {
+  console.log(
+    "AUTH HANDLER (sign-out) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
   return auth.handler(c.req.raw);
 });
 
