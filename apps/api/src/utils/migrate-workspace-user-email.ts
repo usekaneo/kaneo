@@ -1,10 +1,10 @@
-import { eq, isNull, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import db from "../database";
-import { userTable, workspaceUserTable } from "../database/schema";
 
 /**
  * Migration script to handle conversion from user_email to user_id in workspace_member table.
- * This runs before Drizzle migrations to ensure no NULL user_id values exist.
+ * This runs before Drizzle migrations to ensure no NULL user_id values exist and prevents
+ * column collision errors during migration.
  */
 export async function migrateWorkspaceUserEmail() {
   console.log(
@@ -20,22 +20,24 @@ export async function migrateWorkspaceUserEmail() {
       AND column_name = 'user_email'
     `);
 
+    // Check if user_id column already exists
+    const hasUserIdColumn = await db.execute(sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'workspace_member' 
+      AND column_name = 'user_id'
+    `);
+
     if (hasUserEmailColumn.rows.length > 0) {
       console.log("📧 Found user_email column, migrating to user_id...");
 
-      // First, add user_id column if it doesn't exist
-      await db.execute(sql`
-        DO $$
-        BEGIN
-          IF NOT EXISTS (
-            SELECT 1 FROM information_schema.columns 
-            WHERE table_name = 'workspace_member' 
-            AND column_name = 'user_id'
-          ) THEN
-            ALTER TABLE "workspace_member" ADD COLUMN "user_id" text;
-          END IF;
-        END $$;
-      `);
+      // Add user_id column if it doesn't exist
+      if (hasUserIdColumn.rows.length === 0) {
+        await db.execute(sql`
+          ALTER TABLE "workspace_member" ADD COLUMN "user_id" text;
+        `);
+        console.log("➕ Added user_id column");
+      }
 
       // Update user_id based on user_email
       await db.execute(sql`
@@ -87,7 +89,20 @@ export async function migrateWorkspaceUserEmail() {
         `);
       }
 
-      console.log("✅ Successfully migrated user_email to user_id");
+      // Drop the user_email column (completing the migration)
+      await db.execute(sql`
+        ALTER TABLE "workspace_member" DROP COLUMN "user_email";
+      `);
+
+      console.log(
+        "✅ Successfully migrated user_email to user_id and dropped user_email column",
+      );
+    } else if (hasUserIdColumn.rows.length === 0) {
+      // Neither column exists, add user_id column
+      console.log("➕ Adding user_id column to workspace_member table...");
+      await db.execute(sql`
+        ALTER TABLE "workspace_member" ADD COLUMN "user_id" text;
+      `);
     }
 
     // Check if there are any remaining NULL user_id values
