@@ -16,6 +16,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
+import { OidcSignInButton } from "./oidc-sign-in-button";
 
 export type SignInFormValues = {
   email: string;
@@ -123,6 +124,19 @@ export function SignInForm() {
           {isPending ? "Signing In..." : "Sign In"}
         </Button>
       </form>
+
+      <div className="relative my-4">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+      </div>
+
+      <OidcSignInButton />
     </Form>
   );
 }

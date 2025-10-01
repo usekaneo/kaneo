@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { anonymous } from "better-auth/plugins";
+import { anonymous, genericOAuth } from "better-auth/plugins";
 import db, { schema } from "./database";
 import { generateDemoName } from "./utils/generate-demo-name";
 
@@ -36,6 +36,19 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   plugins: [
     anonymous({
       generateName: async () => generateDemoName(),
+    }),
+    genericOAuth({
+      config: [
+        {
+          providerId: "oidc",
+          clientId: process.env.OIDC_CLIENT_ID || "",
+          clientSecret: process.env.OIDC_CLIENT_SECRET || "",
+          discoveryUrl: process.env.OIDC_DISCOVERY_URL || "",
+          scopes: (process.env.OIDC_SCOPES || "openid profile email").split(
+            " ",
+          ),
+        },
+      ],
     }),
   ],
 });
