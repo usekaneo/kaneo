@@ -18,13 +18,7 @@ function AuthProvider({ children }: PropsWithChildren) {
   const { data, error, isPending } = useSession();
 
   if (error) {
-    return (
-      <ErrorDisplay
-        error={error}
-        title="Connection Error"
-        className="min-h-screen"
-      />
-    );
+    // TODO: For now ignore.
   }
 
   if (isPending) {
