@@ -49,7 +49,28 @@ BEGIN
         WHERE table_name = 'label' 
         AND column_name = 'workspace_id'
     ) THEN
-        ALTER TABLE "label" ADD COLUMN "workspace_id" text NOT NULL;
+        -- Add column as nullable first
+        ALTER TABLE "label" ADD COLUMN "workspace_id" text;
+        
+        -- Update existing labels with workspace_id from their associated tasks
+        UPDATE "label" SET "workspace_id" = (
+            SELECT p.workspace_id 
+            FROM "task" t 
+            JOIN "project" p ON t.project_id = p.id 
+            WHERE t.id = "label"."task_id"
+        ) WHERE "task_id" IS NOT NULL AND "workspace_id" IS NULL;
+        
+        -- For labels without task_id, we need to assign them to a default workspace
+        -- or remove them. Let's assign them to the first available workspace
+        UPDATE "label" SET "workspace_id" = (
+            SELECT id FROM "workspace" LIMIT 1
+        ) WHERE "workspace_id" IS NULL;
+        
+        -- Remove any labels that still don't have a workspace_id
+        DELETE FROM "label" WHERE "workspace_id" IS NULL;
+        
+        -- Now make the column NOT NULL
+        ALTER TABLE "label" ALTER COLUMN "workspace_id" SET NOT NULL;
     END IF;
 END $$;
 --> statement-breakpoint
