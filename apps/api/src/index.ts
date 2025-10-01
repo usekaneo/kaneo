@@ -19,6 +19,7 @@ import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
 import getSettings from "./utils/get-settings";
+import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import purgeDemoData from "./utils/purge-demo-data";
 
 const app = new Hono<{
@@ -102,18 +103,20 @@ const labelRoute = app.route("/label", label);
 const notificationRoute = app.route("/notification", notification);
 const searchRoute = app.route("/search", search);
 
-try {
-  console.log("🔄 Migrating database...");
-  migrate(db, {
-    migrationsFolder: `${process.cwd()}/drizzle`,
-  });
-  console.log("✅ Database migrated successfully!");
-  // TODO: Fix me
-  // migrateOrganizations();
-} catch (error) {
-  console.error("❌ Database migration failed!", error);
-  process.exit(1);
-}
+(async () => {
+  try {
+    await migrateWorkspaceUserEmail();
+
+    console.log("🔄 Migrating database...");
+    await migrate(db, {
+      migrationsFolder: `${process.cwd()}/drizzle`,
+    });
+    console.log("✅ Database migrated successfully!");
+  } catch (error) {
+    console.error("❌ Database migration failed!", error);
+    process.exit(1);
+  }
+})();
 
 serve(
   {
