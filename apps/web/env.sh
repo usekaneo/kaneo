@@ -3,6 +3,14 @@ set -e
 
 echo "Starting environment variable replacement..."
 
+# Set KANEO_ENABLED_AUTH to "standalone" if not already set
+if [ -z "$KANEO_ENABLED_AUTH" ]; then
+  export KANEO_ENABLED_AUTH="standalone"
+  echo "KANEO_ENABLED_AUTH not set, defaulting to: standalone"
+else
+  echo "Found KANEO_ENABLED_AUTH: $KANEO_ENABLED_AUTH"
+fi
+
 # Look specifically for the KANEO_API_URL environment variable
 if [ ! -z "$KANEO_API_URL" ]; then
   echo "Found KANEO_API_URL: $KANEO_API_URL"

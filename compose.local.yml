@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: kaneo_user
       POSTGRES_PASSWORD: kaneo_password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -24,7 +24,12 @@ services:
       - "1337:1337"
     environment:
       - JWT_ACCESS=change-me
+      - BETTER_AUTH_SECRET=${JWT_ACCESS}
       - DATABASE_URL=postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo
+      - OIDC_CLIENT_ID=oidc-client-id
+      - OIDC_CLIENT_SECRET=oidc-client-secret
+      - OIDC_DISCOVERY_URL=https://oidc-discovery.url
+      - OIDC_SCOPES=openid profile email
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,6 +43,7 @@ services:
       - "5173:5173"
     environment:
       - KANEO_API_URL=http://localhost:1337
+      - KANEO_ENABLED_AUTH=oidc,github,standalone,guest
     depends_on:
       - api
     restart: unless-stopped
