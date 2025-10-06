@@ -8,7 +8,25 @@ export default function Hero() {
         <div className="md:w-1/2">
           <div>
             <h1 className="max-w-md text-balance text-5xl font-medium md:text-6xl">
-              All you need. Nothing you don't.
+              All you{" "}
+              <span className="relative text-primary">
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 w-full h-4"
+                  viewBox="0 0 100 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2 8C20 3, 40 2, 60 3C75 4, 85 6, 98 8"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    className="text-primary/40"
+                  />
+                </svg>
+                <span className="relative">need</span>
+              </span>
+              . Nothing you don't.
             </h1>
             <p className="text-muted-foreground mb-8 mt-4 max-w-2xl text-balance text-xl">
               The project management tool that gets out of your way. Focus on
