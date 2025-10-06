@@ -1,3 +1,45 @@
+## [2.0.1-beta.2](https://github.com/usekaneo/kaneo/compare/v1.2.4...v2.0.1-beta.2) (2025-10-01)
+
+
+### Bug Fixes
+
+* adjust button margin in sign-up form for improved layout ([dc8db99](https://github.com/usekaneo/kaneo/commit/dc8db99dd1485bf84c426bfd04f18b3f96eb6e7e))
+* merge conflicts, route gen ([4838df3](https://github.com/usekaneo/kaneo/commit/4838df30f5d51e7c9374f277bce9dd1b39f3b1c4))
+* preserve formatting when copy/pasting in new task modal ([#432](https://github.com/usekaneo/kaneo/issues/432)) ([#481](https://github.com/usekaneo/kaneo/issues/481)) ([b105d43](https://github.com/usekaneo/kaneo/commit/b105d43d0d90f434c573999c9961fd5ac9b8e8e9))
+* update active item styles in navigation components and adjust sign-in callback URL ([c73e8e4](https://github.com/usekaneo/kaneo/commit/c73e8e44c3793727abc4e17128b11166b038af61))
+* update email placeholder in sign-in and sign-up forms for consistency ([564f6a6](https://github.com/usekaneo/kaneo/commit/564f6a6bf0a5d5ace9ce8537ae5343e8ce36bac9))
+
+
+### Features
+
+* add animation classes and keyframes for enhanced UI transitions in CSS ([220cce7](https://github.com/usekaneo/kaneo/commit/220cce723f4c5ec043cd04093b60ec7f8e074dc5))
+* add environment configuration and update service definitions for local development ([273a7ce](https://github.com/usekaneo/kaneo/commit/273a7ce02757cc7dd817a5e8e66a17db4deab33e))
+* add GitHub sign-in support with environment variable configuration ([0fc8528](https://github.com/usekaneo/kaneo/commit/0fc8528cb762b442042f909733a3e61a68df0718))
+* add health check endpoint and update Dockerfile health check command ([aedc019](https://github.com/usekaneo/kaneo/commit/aedc0193ae76d66e6207f421ed19d2a6c40f1dfd))
+* add label filtering support to task management, enhancing task visibility and organization ([880572f](https://github.com/usekaneo/kaneo/commit/880572fd1e62366ac01d4fad8e1b2d5b7ad13a21))
+* add task management popovers for assignee, due date, priority, and status ([87ae386](https://github.com/usekaneo/kaneo/commit/87ae3866d36be88a4668f81c78af7b2bfdea969e))
+* add team and team_member tables, enhance invitation and label tables with new columns, and implement foreign key constraints ([3e174e6](https://github.com/usekaneo/kaneo/commit/3e174e63ba8a6cb2ed31de89fe1f96d8b6e54006))
+* add user avatar component and enhance sidebar navigation with workspace switcher ([3b3b9a3](https://github.com/usekaneo/kaneo/commit/3b3b9a3524019a201428d030d6a051a5cbd6932c))
+* better auth integration ([#466](https://github.com/usekaneo/kaneo/issues/466)) ([91bb9c2](https://github.com/usekaneo/kaneo/commit/91bb9c2a86c25fddb34fff7b589f9684d945b184))
+* enhance email invitation functionality ([cd84548](https://github.com/usekaneo/kaneo/commit/cd84548de2fc68d66eb1356ef331affe762abfb9))
+* enhance sidebar navigation with search functionality and UI improvements ([9dacada](https://github.com/usekaneo/kaneo/commit/9dacada90616ce2527011cf984918b0e9cc57bff))
+* enhance task labels functionality with deduplication and improved filtering in the board view ([ea8cca3](https://github.com/usekaneo/kaneo/commit/ea8cca302e91fe7153367ff48adb3235cb682b6e))
+* enhance task management with activity tracking and updates for assignee, priority, and status ([f37b975](https://github.com/usekaneo/kaneo/commit/f37b975bf2219a22d2199f1d7d59a791590f75e3))
+* implement due date update functionality in task management with associated activity tracking ([e177a46](https://github.com/usekaneo/kaneo/commit/e177a4650440ccaa1d7b18697e17027714780849))
+* implement magic link authentication and email sending functionality ([90139d7](https://github.com/usekaneo/kaneo/commit/90139d7ce4f88e3113dacea4735d7062b7114fb6))
+* implement onboarding flow and update routing ([#469](https://github.com/usekaneo/kaneo/issues/469)) ([6f7057b](https://github.com/usekaneo/kaneo/commit/6f7057b13fa8817f1a00b3a05cd008de913ff6b7))
+* implement password hashing and verification using bcrypt in authentication ([17cce57](https://github.com/usekaneo/kaneo/commit/17cce57dbcba0465f447b5b8c927b892c084c36e))
+* implement team and label management features in the database schema and API ([6864ec9](https://github.com/usekaneo/kaneo/commit/6864ec9e3e06dedf69e9585d0089975fe228538a))
+* initial docs refactor ([cfd92f4](https://github.com/usekaneo/kaneo/commit/cfd92f401b35ed0414242fdf9ba2a9439916af60))
+* initial task details page ([43fe59a](https://github.com/usekaneo/kaneo/commit/43fe59ad88bfba18912e0d3979cded8f5b2cb74f))
+* integrate rich text editing for task description and title with improved state management ([27d0413](https://github.com/usekaneo/kaneo/commit/27d041337e753c191da10f77080b08ee245e15de))
+* migrates web to use auth client organization methods ([5ec4d28](https://github.com/usekaneo/kaneo/commit/5ec4d283b52d1fd8a1eb2645b768898158aee0f6))
+* refactor create task modal with new task description editor and enhanced label management ([7649ac0](https://github.com/usekaneo/kaneo/commit/7649ac06e87835e2bbbe84031c0ca274bee96558))
+* update dependencies and enhance documentation layout with new features section ([bd6d9b9](https://github.com/usekaneo/kaneo/commit/bd6d9b9b8dffbb7a22079f6530d062fb91445ae3))
+* update environment configuration and integrate dotenv-mono for improved variable management ([ffcb482](https://github.com/usekaneo/kaneo/commit/ffcb4821256cef46e34c39ab94c678700175bd1d))
+
+
+
 ## [1.2.4](https://github.com/usekaneo/kaneo/compare/v1.2.3...v1.2.4) (2025-08-17)
 
 

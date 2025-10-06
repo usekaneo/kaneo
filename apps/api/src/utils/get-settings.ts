@@ -15,6 +15,9 @@ function getSettings() {
     hasGithubSignIn:
       Boolean(process.env.GITHUB_CLIENT_ID) &&
       Boolean(process.env.GITHUB_CLIENT_SECRET),
+    hasGoogleSignIn:
+      Boolean(process.env.GOOGLE_CLIENT_ID) &&
+      Boolean(process.env.GOOGLE_CLIENT_SECRET),
   };
 }
 

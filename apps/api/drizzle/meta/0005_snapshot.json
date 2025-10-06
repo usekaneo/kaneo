@@ -1,5 +1,5 @@
 {
-	"id": "6a604968-eb85-4078-8e99-9b542d18eb9c",
+	"id": "2e7cc59a-5fd1-4185-b702-c0a61ac2bc4c",
 	"prevId": "5a87247b-1f15-4cbd-b349-877df219ba71",
 	"version": "7",
 	"dialect": "postgresql",
@@ -376,7 +376,7 @@
 					"name": "workspace_id",
 					"type": "text",
 					"primaryKey": false,
-					"notNull": true
+					"notNull": false
 				}
 			},
 			"indexes": {},

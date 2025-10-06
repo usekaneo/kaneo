@@ -19,6 +19,7 @@ import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
 import getSettings from "./utils/get-settings";
+import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import purgeDemoData from "./utils/purge-demo-data";
 
 const app = new Hono<{
@@ -53,6 +54,11 @@ app.use(
   }),
 );
 
+app.use("*", async (c, next) => {
+  console.log("ALL REQUESTS - Path:", c.req.path, "Method:", c.req.method);
+  return next();
+});
+
 app.get("/health", (c) => {
   return c.json({ status: "ok" });
 });
@@ -71,13 +77,71 @@ const publicProjectRoute = app.get("/public-project/:id", async (c) => {
   return c.json(project);
 });
 
-app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
-  auth.handler(c.req.raw),
-);
+app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) => {
+  console.log(
+    "AUTH HANDLER (with /api) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
+  console.log(
+    "AUTH HANDLER (without /api) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/get-session", (c) => {
+  console.log(
+    "AUTH HANDLER (get-session) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/sign-in", (c) => {
+  console.log(
+    "AUTH HANDLER (sign-in) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/sign-up", (c) => {
+  console.log(
+    "AUTH HANDLER (sign-up) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
+
+app.on(["POST", "GET", "PUT", "DELETE"], "/sign-out", (c) => {
+  console.log(
+    "AUTH HANDLER (sign-out) - Path:",
+    c.req.path,
+    "Method:",
+    c.req.method,
+  );
+  return auth.handler(c.req.raw);
+});
 
 const mcpRoute = app.route("/mcp", mcp);
 
 app.use("*", async (c, next) => {
+  console.log("MIDDLEWARE - Path:", c.req.path, "Method:", c.req.method);
+
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   c.set("user", session?.user || null);
   c.set("session", session?.session || null);
@@ -104,18 +168,20 @@ const labelRoute = app.route("/label", label);
 const notificationRoute = app.route("/notification", notification);
 const searchRoute = app.route("/search", search);
 
-try {
-  console.log("🔄 Migrating database...");
-  migrate(db, {
-    migrationsFolder: `${process.cwd()}/drizzle`,
-  });
-  console.log("✅ Database migrated successfully!");
-  // TODO: Fix me
-  // migrateOrganizations();
-} catch (error) {
-  console.error("❌ Database migration failed!", error);
-  process.exit(1);
-}
+(async () => {
+  try {
+    await migrateWorkspaceUserEmail();
+
+    console.log("🔄 Migrating database...");
+    await migrate(db, {
+      migrationsFolder: `${process.cwd()}/drizzle`,
+    });
+    console.log("✅ Database migrated successfully!");
+  } catch (error) {
+    console.error("❌ Database migration failed!", error);
+    process.exit(1);
+  }
+})();
 
 serve(
   {

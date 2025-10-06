@@ -22,4 +22,7 @@ export const authClient = createAuthClient({
       },
     }),
   ],
+  fetchOptions: {
+    credentials: "include",
+  },
 });
