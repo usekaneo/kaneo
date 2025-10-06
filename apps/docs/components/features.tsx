@@ -9,6 +9,7 @@ import {
   ShieldIcon,
   Wand,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function Features() {
   return (
@@ -127,9 +128,11 @@ export default function Features() {
                                 merge.
                               </p>
                             </div>
-                            <div className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-transparent bg-background ring-1 ring-foreground/10 hover:bg-muted/50 h-9 w-9">
-                              <PlusIcon className="size-4" />
-                            </div>
+                            <Link href="/docs/integrations/github/setup">
+                              <div className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-transparent bg-background ring-1 ring-foreground/10 hover:bg-muted/50 h-9 w-9">
+                                <PlusIcon className="size-4" />
+                              </div>
+                            </Link>
                           </div>
                         </div>
                       </div>
