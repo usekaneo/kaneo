@@ -16,7 +16,7 @@ export const baseOptions: BaseLayoutProps = {
         height="104"
         viewBox="0 0 450 104"
         fill="none"
-        className="h-5 w-auto text-[#1E1E1E] dark:text-white"
+        className="h-6 w-auto text-[#1E1E1E] dark:text-white"
       >
         <title>Kaneo Logo</title>
         <path

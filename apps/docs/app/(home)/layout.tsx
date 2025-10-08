@@ -67,7 +67,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           children: (
             <Link
               href="https://cloud.kaneo.app"
-              className="flex items-center gap-2"
+              className="inline-flex items-center gap-1 p-2 text-fd-muted-foreground transition-colors hover:text-fd-accent-foreground data-[active=true]:text-fd-primary [&_svg]:size-4 text-base"
             >
               Cloud
             </Link>
@@ -77,7 +77,10 @@ export default function Layout({ children }: { children: ReactNode }) {
           type: "custom",
           on: "nav",
           children: (
-            <Link href="/docs" className="flex items-center gap-2">
+            <Link
+              href="/docs"
+              className="inline-flex items-center gap-1 p-2 text-fd-muted-foreground transition-colors hover:text-fd-accent-foreground data-[active=true]:text-fd-primary [&_svg]:size-4 text-base"
+            >
               Documentation
             </Link>
           ),
