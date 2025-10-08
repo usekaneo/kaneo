@@ -1,6 +1,7 @@
 import { baseOptions } from "@/app/layout.config";
 import { source } from "@/lib/source";
 import { DocsLayout, type DocsLayoutProps } from "fumadocs-ui/layouts/docs";
+
 import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";

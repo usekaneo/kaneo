@@ -10,6 +10,7 @@ const config = {
     unoptimized: true,
     domains: ["assets.kaneo.app"],
   },
+  serverExternalPackages: ["typescript", "twoslash"],
 };
 
 export default withMDX(config);

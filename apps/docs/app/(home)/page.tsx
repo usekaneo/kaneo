@@ -13,16 +13,16 @@ export default function HomePage() {
         <StructuredData type="software" />
         <StructuredData type="faq" />
 
-        <div className="relative h-screen">
+        <div className="relative">
           <Hero />
         </div>
 
         <SectionSeparator>
-          <PersonalStatement />
+          <Features />
         </SectionSeparator>
 
         <SectionSeparator>
-          <Features />
+          <PersonalStatement />
         </SectionSeparator>
       </main>
 

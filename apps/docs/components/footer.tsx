@@ -2,10 +2,9 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="py-12 sm:py-16 lg:py-20 bg-card border-t border-border/30">
+    <footer className="py-12 sm:py-16 lg:py-20 bg-sidebar border-t border-border/30">
       <div className="mx-auto max-w-6xl space-y-12 px-6 lg:px-12">
         <div className="grid gap-12 md:grid-cols-5">
-          {/* Logo and description */}
           <div className="space-y-6 md:col-span-2">
             <Link aria-label="go home" className="block size-fit" href="/">
               <svg
@@ -56,9 +55,7 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Links grid */}
           <div className="col-span-3 grid gap-6 sm:grid-cols-3">
-            {/* Product */}
             <div className="space-y-4 text-sm">
               <span className="block font-medium">Product</span>
               <div className="flex flex-wrap gap-4 sm:flex-col">
@@ -83,7 +80,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Resources */}
             <div className="space-y-4 text-sm">
               <span className="block font-medium">Resources</span>
               <div className="flex flex-wrap gap-4 sm:flex-col">
@@ -114,7 +110,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Community */}
             <div className="space-y-4 text-sm">
               <span className="block font-medium">Community</span>
               <div className="flex flex-wrap gap-4 sm:flex-col">
@@ -139,16 +134,15 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Separator */}
         <div
           aria-hidden="true"
-          className="h-px bg-[length:6px_1px] bg-repeat-x opacity-25 [background-image:linear-gradient(90deg,var(--color-foreground)_1px,transparent_1px)]"
+          className="border-t border-foreground/10 border-dashed"
         />
 
-        {/* Bottom row */}
         <div className="flex flex-wrap justify-between gap-4 items-center">
+          <span className="text-muted-foreground text-xs">Kaneo</span>
           <span className="text-muted-foreground text-xs">
-            © {new Date().getFullYear()} Kaneo. Open source under MIT.
+            Built by the community for the community.
           </span>
         </div>
       </div>

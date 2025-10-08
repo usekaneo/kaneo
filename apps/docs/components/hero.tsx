@@ -3,7 +3,7 @@ import { ChevronRight, Github, Users } from "lucide-react";
 
 export default function Hero() {
   return (
-    <div className="relative pb-12 pt-24 md:pt-36 lg:pt-44 overflow-hidden p-4">
+    <div className="relative pb-12 pt-24 pb-24 md:pt-36 lg:pt-44 overflow-hidden p-4">
       <div className="relative z-10 mx-auto w-full max-w-6xl">
         <div className="md:w-1/2">
           <div>

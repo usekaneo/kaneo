@@ -1,6 +1,0 @@
-{
-	"title": "Deployments",
-	"icon": "Server",
-	"pages": ["nginx", "traefik", "kubernetes"],
-	"defaultOpen": true
-}
