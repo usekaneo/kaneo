@@ -164,7 +164,7 @@ function CommandPalette() {
               <Users className="mr-2 h-4 w-4" />
               <span>Members</span>
             </CommandItem>
-            <CommandItem
+            {/* <CommandItem
               onSelect={() =>
                 runCommand(() =>
                   navigate({
@@ -176,7 +176,7 @@ function CommandPalette() {
             >
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
-            </CommandItem>
+            </CommandItem> */}
           </CommandGroup>
 
           <CommandGroup heading="Theme">

@@ -140,7 +140,10 @@ function RouteComponent() {
                   Get started by creating your first project.
                 </p>
               </div>
-              <Button onClick={handleCreateProject} className="gap-2">
+              <Button
+                onClick={handleCreateProject}
+                className="gap-2 text-white"
+              >
                 <Plus className="w-4 h-4" />
                 Create project
               </Button>

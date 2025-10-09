@@ -199,7 +199,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               type="submit"
               disabled={!name.trim() || !slug.trim()}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50"
+              className="bg-primary hover:bg-primary/90 text-white disabled:opacity-50"
             >
               Create Project
             </Button>
