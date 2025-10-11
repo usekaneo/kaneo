@@ -1,10 +1,10 @@
-import type { ProjectWithTasks } from "@/types/project";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useEffect } from "react";
+import type { ProjectWithTasks } from "@/types/project";
 import TaskCard from "../task-card";
 
 interface ColumnDropzoneProps {

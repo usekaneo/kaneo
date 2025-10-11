@@ -1,6 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/account",

@@ -1,5 +1,5 @@
-import deleteProject from "@/fetchers/project/delete-project";
 import { useMutation } from "@tanstack/react-query";
+import deleteProject from "@/fetchers/project/delete-project";
 
 function useDeleteProject() {
   return useMutation({

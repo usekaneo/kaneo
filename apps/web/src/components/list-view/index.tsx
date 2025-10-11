@@ -1,11 +1,5 @@
-import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
-import { cn } from "@/lib/cn";
-import { getColumnIcon } from "@/lib/column";
-import toKebabCase from "@/lib/to-kebab-case";
-import useProjectStore from "@/store/project";
-import type { ProjectWithTasks } from "@/types/project";
 import {
+  closestCorners,
   DndContext,
   type DragEndEvent,
   type DragOverEvent,
@@ -15,7 +9,6 @@ import {
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  closestCorners,
   useDroppable,
   useSensor,
   useSensors,
@@ -29,6 +22,13 @@ import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { cn } from "@/lib/cn";
+import { getColumnIcon } from "@/lib/column";
+import toKebabCase from "@/lib/to-kebab-case";
+import useProjectStore from "@/store/project";
+import type { ProjectWithTasks } from "@/types/project";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 
@@ -190,7 +190,9 @@ function ListView({ project }: ListViewProps) {
 
   function ColumnSection({
     column,
-  }: { column: ProjectWithTasks["columns"][number] }) {
+  }: {
+    column: ProjectWithTasks["columns"][number];
+  }) {
     const { setNodeRef } = useDroppable({
       id: column.id,
       data: {

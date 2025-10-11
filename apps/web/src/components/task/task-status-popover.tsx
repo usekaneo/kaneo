@@ -1,3 +1,6 @@
+import { Check } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -7,9 +10,6 @@ import {
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { getColumnIcon } from "@/lib/column";
 import type Task from "@/types/task";
-import { Check } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 interface TaskStatusPopoverProps {
   task: Task;

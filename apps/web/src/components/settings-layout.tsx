@@ -1,3 +1,6 @@
+import { useNavigate } from "@tanstack/react-router";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
+import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
 import {
   Breadcrumb,
@@ -18,9 +21,6 @@ import {
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
 import { cn } from "@/lib/cn";
-import { useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft } from "lucide-react";
-import type { ReactNode } from "react";
 
 interface SettingsLayoutProps {
   title: string;

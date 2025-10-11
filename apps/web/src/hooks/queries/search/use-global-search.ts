@@ -1,5 +1,5 @@
-import globalSearch from "@/fetchers/search/global-search";
 import { useQuery } from "@tanstack/react-query";
+import globalSearch from "@/fetchers/search/global-search";
 
 type SearchParams = {
   q: string;

@@ -1,6 +1,8 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
 import * as React from "react";
-
+import { toast } from "sonner";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -12,9 +14,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import useSignOut from "@/hooks/mutations/use-sign-out";
 import useProjectStore from "@/store/project";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
 
 export function UserAvatar() {
   const { user } = useAuth();
@@ -43,7 +42,7 @@ export function UserAvatar() {
   };
 
   const handleSettings = () => {
-    navigate({ to: "/dashboard/settings/appearance" });
+    navigate({ to: "/dashboard/settings/account" });
     setOpen(false);
   };
 

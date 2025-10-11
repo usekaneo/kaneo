@@ -1,6 +1,6 @@
+import { useMutation } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { createSlug } from "@/lib/utils/create-slug";
-import { useMutation } from "@tanstack/react-query";
 
 type CreateWorkspaceRequest = {
   name: string;

@@ -1,3 +1,9 @@
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod/v4";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -9,12 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod/v4";
 
 export type MagicLinkSignInFormValues = {
   email: string;

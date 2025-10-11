@@ -1,7 +1,7 @@
+import type { LucideIcon } from "lucide-react";
 import { DEFAULT_COLUMNS } from "@/constants/columns";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
-import type { LucideIcon } from "lucide-react";
 import { PublicTaskRow } from "./task-row";
 
 interface Column {

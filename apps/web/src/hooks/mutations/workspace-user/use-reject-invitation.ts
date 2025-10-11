@@ -1,5 +1,5 @@
-import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
 
 type RejectInvitationRequest = {
   invitationId: string;

@@ -1,6 +1,6 @@
+import { useMutation } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import queryClient from "@/query-client";
-import { useMutation } from "@tanstack/react-query";
 
 type DeleteWorkspaceUserRequest = {
   workspaceId: string;

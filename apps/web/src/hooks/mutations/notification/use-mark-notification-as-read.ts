@@ -1,5 +1,5 @@
-import markNotificationAsRead from "@/fetchers/notification/mark-notification-as-read";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import markNotificationAsRead from "@/fetchers/notification/mark-notification-as-read";
 
 function useMarkNotificationAsRead() {
   const queryClient = useQueryClient();

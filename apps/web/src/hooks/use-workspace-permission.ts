@@ -1,7 +1,7 @@
-import { useGetActiveWorkspaceUser } from "@/hooks/queries/workspace-users/use-active-workspace-user";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { authClient } from "@/lib/auth-client";
 import { useMemo } from "react";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useGetActiveWorkspaceUser } from "@/hooks/queries/workspace-users/use-active-workspace-user";
+import { authClient } from "@/lib/auth-client";
 
 export type PermissionLevel = "owner" | "admin" | "member";
 

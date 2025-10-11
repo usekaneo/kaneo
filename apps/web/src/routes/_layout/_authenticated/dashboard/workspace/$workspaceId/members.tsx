@@ -1,11 +1,11 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { UserPlus } from "lucide-react";
+import { useState } from "react";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import InviteTeamMemberModal from "@/components/team/invite-team-member-modal";
 import MembersTable from "@/components/team/members-table";
 import { Button } from "@/components/ui/button";
 import useGetFullWorkspace from "@/hooks/queries/workspace/use-get-full-workspace";
-import { createFileRoute } from "@tanstack/react-router";
-import { UserPlus } from "lucide-react";
-import { useState } from "react";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/members",

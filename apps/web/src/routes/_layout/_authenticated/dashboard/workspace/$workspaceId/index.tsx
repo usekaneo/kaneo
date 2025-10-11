@@ -1,3 +1,6 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LayoutGrid, Plus } from "lucide-react";
+import { useState } from "react";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import { Badge } from "@/components/ui/badge";
@@ -16,9 +19,6 @@ import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LayoutGrid, Plus } from "lucide-react";
-import { useState } from "react";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/",

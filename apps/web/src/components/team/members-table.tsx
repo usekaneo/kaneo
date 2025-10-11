@@ -15,7 +15,10 @@ import {
 function MembersTable({
   invitations,
   users,
-}: { invitations: WorkspaceUserInvitation[]; users: WorkspaceUser[] }) {
+}: {
+  invitations: WorkspaceUserInvitation[];
+  users: WorkspaceUser[];
+}) {
   if (users?.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -35,92 +38,88 @@ function MembersTable({
   }
 
   return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-muted-foreground text-xs w-2/3 pl-6">
-              Name
-            </TableHead>
-            <TableHead className="text-muted-foreground text-xs">
-              Role
-            </TableHead>
-            <TableHead className="text-muted-foreground text-xs pr-10">
-              Joined
-            </TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="text-muted-foreground text-xs w-2/3 pl-6">
+            Name
+          </TableHead>
+          <TableHead className="text-muted-foreground text-xs">Role</TableHead>
+          <TableHead className="text-muted-foreground text-xs pr-10">
+            Joined
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {invitations?.map((invitation) => (
+          <TableRow key={invitation.email} className="cursor-pointer">
+            <TableCell className="py-3 pl-6">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-5 w-5">
+                  <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                    {invitation?.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span>{invitation.email}</span>
+              </div>
+            </TableCell>
+            <TableCell className="py-3">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
+                {invitation.role.charAt(0).toUpperCase() +
+                  invitation.role.slice(1).toLowerCase()}{" "}
+                (Pending)
+              </span>
+            </TableCell>
+            <TableCell className="py-3">
+              <span className="text-sm text-muted-foreground">
+                {invitation.expiresAt &&
+                  new Date(invitation.expiresAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+              </span>
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {invitations?.map((invitation) => (
-            <TableRow key={invitation.email} className="cursor-pointer">
-              <TableCell className="py-3 pl-6">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-5 w-5">
-                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                      {invitation?.email?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{invitation.email}</span>
-                </div>
-              </TableCell>
-              <TableCell className="py-3">
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
-                  {invitation.role.charAt(0).toUpperCase() +
-                    invitation.role.slice(1).toLowerCase()}{" "}
-                  (Pending)
-                </span>
-              </TableCell>
-              <TableCell className="py-3">
-                <span className="text-sm text-muted-foreground">
-                  {invitation.expiresAt &&
-                    new Date(invitation.expiresAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                </span>
-              </TableCell>
-            </TableRow>
-          ))}
+        ))}
 
-          {users?.map((member) => (
-            <TableRow key={member.user.email} className="cursor-pointer">
-              <TableCell className="py-3 pl-6">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-5 w-5">
-                    <AvatarImage
-                      src={member.user.image ?? ""}
-                      alt={member.user.name || ""}
-                    />
-                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                      {member?.user?.name?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{member.user.name}</span>
-                </div>
-              </TableCell>
-              <TableCell className="py-3">
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
-                  {member.role.charAt(0).toUpperCase() +
-                    member.role.slice(1).toLowerCase()}
-                </span>
-              </TableCell>
+        {users?.map((member) => (
+          <TableRow key={member.user.email} className="cursor-pointer">
+            <TableCell className="py-3 pl-6">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-5 w-5">
+                  <AvatarImage
+                    src={member.user.image ?? ""}
+                    alt={member.user.name || ""}
+                  />
+                  <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                    {member?.user?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span>{member.user.name}</span>
+              </div>
+            </TableCell>
+            <TableCell className="py-3">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
+                {member.role.charAt(0).toUpperCase() +
+                  member.role.slice(1).toLowerCase()}
+              </span>
+            </TableCell>
 
-              <TableCell className="py-3 pr-6">
-                <span className="text-sm text-muted-foreground">
-                  {member.createdAt &&
-                    new Date(member.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                </span>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </>
+            <TableCell className="py-3 pr-6">
+              <span className="text-sm text-muted-foreground">
+                {member.createdAt &&
+                  new Date(member.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+              </span>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 

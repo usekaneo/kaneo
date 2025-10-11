@@ -5,13 +5,13 @@ import {
   Heading,
   Hr,
   Html,
-  Img,
   Link,
   Preview,
   Section,
   Text,
 } from "@react-email/components";
 import React from "react";
+
 void React;
 
 export interface WorkspaceInvitationEmailProps {
@@ -75,7 +75,7 @@ const container = {
   padding: "20px 25px 0px",
 };
 
-const header = {
+const _header = {
   display: "inline-block",
 };
 

@@ -72,12 +72,12 @@ export async function handleTaskPriorityChanged(data: {
     const octokit = await githubApp.getInstallationOctokit(installationId);
 
     let githubIssueUrlMatch = task.description?.match(
-      /Linked to GitHub issue: (https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+)/,
+      /Linked to GitHub issue: (https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/\d+)/,
     );
 
     if (!githubIssueUrlMatch) {
       githubIssueUrlMatch = task.description?.match(
-        /Created from GitHub issue: (https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+)/,
+        /Created from GitHub issue: (https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/\d+)/,
       );
     }
 

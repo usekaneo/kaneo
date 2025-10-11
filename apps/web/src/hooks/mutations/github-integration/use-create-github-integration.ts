@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createGithubIntegration, {
   type CreateGithubIntegrationRequest,
 } from "@/fetchers/github-integration/create-github-integration";
@@ -5,7 +6,6 @@ import deleteGithubIntegration from "@/fetchers/github-integration/delete-github
 import verifyGithubInstallation, {
   type VerifyGithubInstallationRequest,
 } from "@/fetchers/github-integration/verify-github-installation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useCreateGithubIntegration() {
   const queryClient = useQueryClient();

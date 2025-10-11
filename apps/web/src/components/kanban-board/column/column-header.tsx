@@ -1,10 +1,10 @@
+import { produce } from "immer";
+import { Archive } from "lucide-react";
+import { toast } from "sonner";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { getColumnIcon } from "@/lib/column";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
-import { produce } from "immer";
-import { Archive } from "lucide-react";
-import { toast } from "sonner";
 
 interface ColumnHeaderProps {
   column: ProjectWithTasks["columns"][number];

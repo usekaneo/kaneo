@@ -1,17 +1,10 @@
-import { baseOptions } from "@/app/layout.config";
-import { Badge } from "@/components/ui/badge";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
-import {
-  NavbarMenu,
-  NavbarMenuContent,
-  NavbarMenuLink,
-  NavbarMenuTrigger,
-} from "fumadocs-ui/layouts/home/navbar";
-import { Book, Cloud, Server } from "lucide-react";
+import { Book, Server } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 import type { ReactNode } from "react";
+import { baseOptions } from "@/app/layout.config";
 
 export const metadata: Metadata = {
   title: "Kaneo - All you need. Nothing you don't.",

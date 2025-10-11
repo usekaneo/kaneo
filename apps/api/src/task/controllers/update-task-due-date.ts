@@ -6,7 +6,10 @@ import { taskTable } from "../../database/schema";
 async function updateTaskDueDate({
   id,
   dueDate,
-}: { id: string; dueDate: Date }) {
+}: {
+  id: string;
+  dueDate: Date;
+}) {
   const updatedTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
   });

@@ -1,6 +1,6 @@
+import { createContext, type PropsWithChildren } from "react";
 import { authClient } from "@/lib/auth-client";
 import type { User } from "@/types/user";
-import { type PropsWithChildren, createContext } from "react";
 import { LoadingSkeleton } from "../../ui/loading-skeleton";
 
 const { useSession } = authClient;

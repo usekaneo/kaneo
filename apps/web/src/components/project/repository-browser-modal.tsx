@@ -1,12 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import getGitHubAppInfo from "@/fetchers/github-integration/get-app-info";
-import listRepositories, {
-  type ListRepositoriesResponse,
-} from "@/fetchers/github-integration/list-repositories";
-import { cn } from "@/lib/cn";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -21,6 +12,15 @@ import {
   X,
 } from "lucide-react";
 import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import getGitHubAppInfo from "@/fetchers/github-integration/get-app-info";
+import listRepositories, {
+  type ListRepositoriesResponse,
+} from "@/fetchers/github-integration/list-repositories";
+import { cn } from "@/lib/cn";
 
 type RepositoryBrowserModalProps = {
   open: boolean;

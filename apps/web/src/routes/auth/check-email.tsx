@@ -1,6 +1,6 @@
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
-import { Link, createFileRoute, useSearch } from "@tanstack/react-router";
 import { AuthLayout } from "../../components/auth/layout";
 
 export const Route = createFileRoute("/auth/check-email")({

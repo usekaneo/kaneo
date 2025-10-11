@@ -1,7 +1,7 @@
-import type { ProjectWithTasks } from "@/types/project";
-import type Task from "@/types/task";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useState } from "react";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 
 export interface BoardFilters {
   status: string | null;

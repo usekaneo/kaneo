@@ -143,7 +143,11 @@ subscribeToEvent(
     taskId,
     userId,
     type,
-  }: { taskId: string; userId: string; type: string }) => {
+  }: {
+    taskId: string;
+    userId: string;
+    type: string;
+  }) => {
     await createActivity(taskId, type, userId, "unassigned the task");
   },
 );
@@ -156,14 +160,12 @@ subscribeToEvent(
     type,
     oldStatus,
     newStatus,
-    title,
   }: {
     taskId: string;
     userId: string;
     type: string;
     oldStatus: string;
     newStatus: string;
-    title: string;
   }) => {
     await createActivity(
       taskId,

@@ -1,5 +1,5 @@
-import { useUserPreferencesStore } from "@/store/user-preferences";
 import { useEffect } from "react";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 
 export function useUserPreferencesEffects() {
   const { compactMode, theme } = useUserPreferencesStore();

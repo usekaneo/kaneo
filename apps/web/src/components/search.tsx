@@ -1,7 +1,7 @@
-import { shortcuts } from "@/constants/shortcuts";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
+import { shortcuts } from "@/constants/shortcuts";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import SearchCommandMenu from "./search-command-menu";
 import { Input } from "./ui/input";
 import { Kbd } from "./ui/kbd";

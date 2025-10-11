@@ -1,8 +1,8 @@
 import { render } from "@react-email/components";
 import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
-import MagicLinkEmail from "./templates/magic-link";
 import type { MagicLinkEmailProps } from "./templates/magic-link";
+import MagicLinkEmail from "./templates/magic-link";
 import WorkspaceInvitationEmail, {
   type WorkspaceInvitationEmailProps,
 } from "./templates/workspace-invitation";

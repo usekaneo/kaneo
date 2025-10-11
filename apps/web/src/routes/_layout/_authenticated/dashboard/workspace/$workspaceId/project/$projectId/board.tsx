@@ -1,3 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Calendar, Filter, User, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
@@ -25,9 +28,6 @@ import { getColumnIcon } from "@/lib/column";
 import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import { createFileRoute } from "@tanstack/react-router";
-import { Calendar, Filter, User, X } from "lucide-react";
-import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",

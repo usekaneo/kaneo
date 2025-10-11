@@ -1,3 +1,16 @@
+import { format } from "date-fns";
+import { produce } from "immer";
+import {
+  CalendarIcon,
+  Check,
+  Plus,
+  Search,
+  Tag,
+  UserIcon,
+  X,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -31,19 +44,6 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
-import { format } from "date-fns";
-import { produce } from "immer";
-import {
-  CalendarIcon,
-  Check,
-  Plus,
-  Search,
-  Tag,
-  UserIcon,
-  X,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -114,14 +114,14 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
 
   const { mutateAsync } = useCreateTask();
 
-  const filteredLabels = workspaceLabels.filter((label: Label) =>
+  const filteredLabels = workspaceLabels.filter((label) =>
     label.name.toLowerCase().includes(searchValue.toLowerCase()),
   );
 
   const isCreatingNewLabel =
     searchValue &&
     !workspaceLabels.some(
-      (label: Label) => label.name.toLowerCase() === searchValue.toLowerCase(),
+      (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
     );
 
   const handleClose = () => {
@@ -245,9 +245,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       setLabels(labels.filter((l) => l.name !== labelName));
     } else {
       // Add new label with temporary data for display
-      const workspaceLabel = workspaceLabels.find(
-        (l: Label) => l.name === labelName,
-      );
+      const workspaceLabel = workspaceLabels.find((l) => l.name === labelName);
       if (workspaceLabel) {
         setLabels([
           ...labels,
@@ -256,7 +254,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
             name: workspaceLabel.name,
             color: workspaceLabel.color,
             taskId: null,
-            workspaceId: workspaceLabel.workspaceId,
+            workspaceId: workspaceLabel.workspaceId || "",
             createdAt: workspaceLabel.createdAt,
           },
         ]);
@@ -552,8 +550,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                             </span>
                           )}
                         {filteredLabels
-                          .filter((label: Label) => label.taskId === null)
-                          .map((label: Label) => (
+                          .filter((label) => label.taskId === null)
+                          .map((label) => (
                             <button
                               key={label.id}
                               type="button"
@@ -580,7 +578,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
 
                         {isCreatingNewLabel &&
                           filteredLabels.filter(
-                            (label: Label) => label.taskId === null,
+                            (label) => label.taskId === null,
                           ).length > 0 && (
                             <div className="border-t border-border my-1" />
                           )}

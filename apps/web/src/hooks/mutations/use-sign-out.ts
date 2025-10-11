@@ -1,6 +1,6 @@
-import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
 
 function useSignOut() {
   const navigate = useNavigate();

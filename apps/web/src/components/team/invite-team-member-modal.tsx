@@ -1,5 +1,3 @@
-import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
-import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/members";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
@@ -7,6 +5,8 @@ import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
+import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
+import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/members";
 import { Button } from "../ui/button";
 import {
   Form,

@@ -1,10 +1,5 @@
-import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
-import { cn } from "@/lib/cn";
-import toKebabCase from "@/lib/to-kebab-case";
-import type { ProjectWithTasks } from "@/types/project";
-import type Task from "@/types/task";
 import {
+  closestCorners,
   DndContext,
   type DragEndEvent,
   type DragOverEvent,
@@ -14,7 +9,6 @@ import {
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  closestCorners,
   useDroppable,
   useSensor,
   useSensors,
@@ -27,6 +21,12 @@ import {
 import { Archive, ChevronRight, Clock, Flag, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { cn } from "@/lib/cn";
+import toKebabCase from "@/lib/to-kebab-case";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import BacklogTaskRow from "./backlog-task-row";
 

@@ -12,19 +12,37 @@ export async function migrateWorkspaceUserEmail() {
   );
 
   try {
+    const tableExists = await db.execute(sql`
+         SELECT EXISTS (
+           SELECT 1
+           FROM information_schema.tables
+           WHERE table_name = 'workspace_member'
+         ) AS exists;
+       `);
+
+    const exists =
+      tableExists.rows[0]?.exists === true ||
+      tableExists.rows[0]?.exists === "t";
+    if (!exists) {
+      console.log(
+        "🛈 workspace_member table does not exist — skipping migration.",
+      );
+      return;
+    }
+
     // Check if user_email column still exists
     const hasUserEmailColumn = await db.execute(sql`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'workspace_member' 
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'workspace_member'
       AND column_name = 'user_email'
     `);
 
     // Check if user_id column already exists
     const hasUserIdColumn = await db.execute(sql`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'workspace_member' 
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'workspace_member'
       AND column_name = 'user_id'
     `);
 
@@ -41,19 +59,19 @@ export async function migrateWorkspaceUserEmail() {
 
       // Update user_id based on user_email
       await db.execute(sql`
-        UPDATE "workspace_member" 
+        UPDATE "workspace_member"
         SET "user_id" = (
-          SELECT u.id 
-          FROM "user" u 
+          SELECT u.id
+          FROM "user" u
           WHERE u.email = "workspace_member"."user_email"
-        ) 
+        )
         WHERE "user_id" IS NULL AND "user_email" IS NOT NULL;
       `);
 
       // Remove records where user_email doesn't match any existing user
       const orphanedRecords = await db.execute(sql`
         SELECT COUNT(*) as count
-        FROM "workspace_member" 
+        FROM "workspace_member"
         WHERE "user_id" IS NULL AND "user_email" IS NOT NULL;
       `);
 
@@ -66,7 +84,7 @@ export async function migrateWorkspaceUserEmail() {
         );
 
         await db.execute(sql`
-          DELETE FROM "workspace_member" 
+          DELETE FROM "workspace_member"
           WHERE "user_id" IS NULL AND "user_email" IS NOT NULL;
         `);
       }
@@ -74,7 +92,7 @@ export async function migrateWorkspaceUserEmail() {
       // Remove records where both user_email and user_id are NULL
       const nullRecords = await db.execute(sql`
         SELECT COUNT(*) as count
-        FROM "workspace_member" 
+        FROM "workspace_member"
         WHERE "user_id" IS NULL AND ("user_email" IS NULL OR "user_email" = '');
       `);
 
@@ -84,7 +102,7 @@ export async function migrateWorkspaceUserEmail() {
         );
 
         await db.execute(sql`
-          DELETE FROM "workspace_member" 
+          DELETE FROM "workspace_member"
           WHERE "user_id" IS NULL AND ("user_email" IS NULL OR "user_email" = '');
         `);
       }
@@ -108,7 +126,7 @@ export async function migrateWorkspaceUserEmail() {
     // Check if there are any remaining NULL user_id values
     const nullUserIds = await db.execute(sql`
       SELECT COUNT(*) as count
-      FROM "workspace_member" 
+      FROM "workspace_member"
       WHERE "user_id" IS NULL;
     `);
 
@@ -118,7 +136,7 @@ export async function migrateWorkspaceUserEmail() {
       );
 
       await db.execute(sql`
-        DELETE FROM "workspace_member" 
+        DELETE FROM "workspace_member"
         WHERE "user_id" IS NULL;
       `);
 

@@ -1,3 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { Check, Plus, Search, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -10,10 +14,6 @@ import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { cn } from "@/lib/cn";
 import type Task from "@/types/task";
-import { useQueryClient } from "@tanstack/react-query";
-import { Check, Plus, Search, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 
 const labelColors = [
   { value: "gray", label: "Stone", color: "#78716c" },
@@ -76,13 +76,13 @@ export default function TaskLabelsPopover({
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
 
   const taskLabelNames = useMemo(
-    () => taskLabels.map((label: Label) => label.name),
+    () => taskLabels.map((label) => label.name),
     [taskLabels],
   );
 
   const filteredLabels = useMemo(
     () =>
-      workspaceLabels.filter((label: Label) =>
+      workspaceLabels.filter((label) =>
         label.name.toLowerCase().includes(searchValue.toLowerCase()),
       ),
     [workspaceLabels, searchValue],
@@ -92,8 +92,7 @@ export default function TaskLabelsPopover({
     () =>
       searchValue &&
       !workspaceLabels.some(
-        (label: Label) =>
-          label.name.toLowerCase() === searchValue.toLowerCase(),
+        (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
       ),
     [workspaceLabels, searchValue],
   );
@@ -118,9 +117,7 @@ export default function TaskLabelsPopover({
 
   const handleToggleLabel = async (labelId: string) => {
     try {
-      const workspaceLabel = workspaceLabels.find(
-        (l: Label) => l.id === labelId,
-      );
+      const workspaceLabel = workspaceLabels.find((l) => l.id === labelId);
       if (!workspaceLabel) return;
 
       const isCurrentlyAssigned = taskLabelNames.includes(workspaceLabel.name);
@@ -128,7 +125,7 @@ export default function TaskLabelsPopover({
       if (isCurrentlyAssigned) {
         // Remove label from task - find by name since IDs are different
         const taskLabel = taskLabels.find(
-          (l: Label) => l.name === workspaceLabel.name,
+          (l) => l.name === workspaceLabel.name,
         );
         if (taskLabel?.id) {
           await deleteLabel({ id: taskLabel.id });
@@ -223,8 +220,8 @@ export default function TaskLabelsPopover({
           </span>
         )}
         {filteredLabels
-          .filter((label: Label) => label.taskId === null)
-          .map((label: Label) => (
+          .filter((label) => label.taskId === null)
+          .map((label) => (
             <button
               key={label.id}
               type="button"
@@ -249,8 +246,8 @@ export default function TaskLabelsPopover({
           ))}
 
         {isCreatingNewLabel &&
-          filteredLabels.filter((label: Label) => label.taskId === null)
-            .length > 0 && <div className="border-t border-border my-1" />}
+          filteredLabels.filter((label) => label.taskId === null).length >
+            0 && <div className="border-t border-border my-1" />}
         {isCreatingNewLabel && (
           <button
             type="button"

@@ -1,5 +1,5 @@
-import { getConfig } from "@/fetchers/config/get-config";
 import { useQuery } from "@tanstack/react-query";
+import { getConfig } from "@/fetchers/config/get-config";
 
 function useGetConfig() {
   return useQuery({

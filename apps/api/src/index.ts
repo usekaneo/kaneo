@@ -1,6 +1,5 @@
 import { serve } from "@hono/node-server";
 import type { Session, User } from "better-auth/types";
-import { Cron } from "croner";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -18,9 +17,7 @@ import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
-import getSettings from "./utils/get-settings";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
-import purgeDemoData from "./utils/purge-demo-data";
 
 const app = new Hono<{
   Variables: {
@@ -29,8 +26,6 @@ const app = new Hono<{
     userId: string;
   };
 }>();
-
-const { isDemoMode } = getSettings();
 
 const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
@@ -88,12 +83,6 @@ app.use("*", async (c, next) => {
 
   return next();
 });
-
-if (isDemoMode) {
-  new Cron("0 * * * *", async () => {
-    await purgeDemoData();
-  });
-}
 
 const projectRoute = app.route("/project", project);
 const taskRoute = app.route("/task", task);

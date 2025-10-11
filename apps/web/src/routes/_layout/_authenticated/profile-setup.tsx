@@ -1,5 +1,5 @@
-import { ProfileSetupFlow } from "@/components/profile-setup/profile-setup-flow";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { ProfileSetupFlow } from "@/components/profile-setup/profile-setup-flow";
 
 export const Route = createFileRoute("/_layout/_authenticated/profile-setup")({
   component: ProfileSetupFlow,

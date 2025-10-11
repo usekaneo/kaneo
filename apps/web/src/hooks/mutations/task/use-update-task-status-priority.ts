@@ -1,6 +1,6 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import updateTaskPriority from "@/fetchers/task/update-task-priority";
 import type Task from "@/types/task";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useUpdateTaskPriority() {
   const queryClient = useQueryClient();

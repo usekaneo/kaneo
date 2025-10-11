@@ -1,7 +1,7 @@
 import {
   ChevronDown,
-  ChevronUp,
   ChevronsUp,
+  ChevronUp,
   CircleAlert,
   Minus,
 } from "lucide-react";

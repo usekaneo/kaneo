@@ -1,7 +1,5 @@
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
-import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
-
-import type { taskInfoSchema } from "@/components/task/task-info";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ContextMenuCheckboxItem,
   ContextMenuContent,
@@ -21,17 +21,14 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
 import { getPriorityIcon } from "@/lib/priority";
 import queryClient from "@/query-client";
 import type Task from "@/types/task";
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import type { z } from "zod/v4";
 
 interface TaskCardContext {
   worskpaceId: string;
@@ -71,10 +68,7 @@ export default function TaskCardContextMenuContent({
     toast.success("Task link copied!");
   };
 
-  const handleChange = async (
-    field: keyof z.infer<typeof taskInfoSchema>,
-    value: string | Date,
-  ) => {
+  const handleChange = async (field: keyof Task, value: string | Date) => {
     try {
       await updateTask({
         ...task,

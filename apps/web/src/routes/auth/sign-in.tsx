@@ -1,16 +1,12 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Github, UserCheck } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
-import {
-  createFileRoute,
-  useNavigate,
-  useSearch,
-} from "@tanstack/react-router";
-import { Github, UserCheck } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { AuthLayout } from "../../components/auth/layout";
 import { MagicLinkSignInForm } from "../../components/auth/magic-link-sign-in-form";
 import { SignInForm } from "../../components/auth/sign-in-form";

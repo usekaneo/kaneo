@@ -1,5 +1,5 @@
-import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { Link } from "@tanstack/react-router";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 
 interface AuthToggleProps {
   message: string;

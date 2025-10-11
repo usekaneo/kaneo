@@ -6,7 +6,10 @@ import { taskTable } from "../../database/schema";
 async function updateTaskStatus({
   id,
   status,
-}: { id: string; status: string }) {
+}: {
+  id: string;
+  status: string;
+}) {
   const updatedTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
   });

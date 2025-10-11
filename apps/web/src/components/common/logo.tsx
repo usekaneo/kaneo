@@ -1,5 +1,5 @@
-import useProjectStore from "@/store/project";
 import { Link } from "@tanstack/react-router";
+import useProjectStore from "@/store/project";
 
 interface LogoProps {
   className?: string;

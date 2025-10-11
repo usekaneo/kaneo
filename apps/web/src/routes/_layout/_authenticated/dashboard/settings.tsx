@@ -1,8 +1,8 @@
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ChevronLeft } from "lucide-react";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings",

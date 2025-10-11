@@ -1,9 +1,9 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, Search } from "lucide-react";
+import { useState } from "react";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Search } from "lucide-react";
-import { useState } from "react";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/search",

@@ -1,8 +1,8 @@
-import PageTitle from "@/components/page-title";
-import { Button } from "@/components/ui/button";
-import { Link, createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { Mail, Users } from "lucide-react";
 import { useEffect } from "react";
+import PageTitle from "@/components/page-title";
+import { Button } from "@/components/ui/button";
 import { AuthLayout } from "../../../components/auth/layout";
 
 export const Route = createFileRoute("/auth/accept-invitation/$inviteId")({
@@ -13,6 +13,7 @@ function AcceptInvitation() {
   const { inviteId } = useParams({ from: "/auth/accept-invitation/$inviteId" });
 
   useEffect(() => {
+    // biome-ignore lint/suspicious/noDocumentCookie: we need to set the cookie to the invite id
     document.cookie = `pending_invitation=${inviteId}; path=/; max-age=3600`;
   }, [inviteId]);
 

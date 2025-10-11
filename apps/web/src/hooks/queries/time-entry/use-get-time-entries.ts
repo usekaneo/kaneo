@@ -1,5 +1,5 @@
-import getTimeEntriesByTaskId from "@/fetchers/time-entry/get-time-entries";
 import { useQuery } from "@tanstack/react-query";
+import getTimeEntriesByTaskId from "@/fetchers/time-entry/get-time-entries";
 
 function useGetTimeEntriesByTaskId(taskId: string) {
   return useQuery({

@@ -1,3 +1,18 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
+import { produce } from "immer";
+import {
+  ArrowRight,
+  Calendar,
+  Check,
+  Filter,
+  Flag,
+  Plus,
+  Settings,
+  User,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import BacklogListView from "@/components/backlog-list-view";
 import ProjectLayout from "@/components/common/project-layout";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
@@ -15,21 +30,6 @@ import { cn } from "@/lib/cn";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
-import { createFileRoute } from "@tanstack/react-router";
-import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
-import { produce } from "immer";
-import {
-  ArrowRight,
-  Calendar,
-  Check,
-  Filter,
-  Flag,
-  Plus,
-  Settings,
-  User,
-} from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/backlog",

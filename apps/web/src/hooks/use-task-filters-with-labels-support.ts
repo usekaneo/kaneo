@@ -1,8 +1,8 @@
-import type { ProjectWithTasks } from "@/types/project";
-import type Task from "@/types/task";
 import { useQueryClient } from "@tanstack/react-query";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 import type { BoardFilters } from "./use-task-filters";
 
 export function useTaskFiltersWithLabelsSupport(

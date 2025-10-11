@@ -1,3 +1,15 @@
+import { useNavigate } from "@tanstack/react-router";
+import {
+  FolderKanban,
+  LayoutDashboard,
+  Monitor,
+  Moon,
+  Plus,
+  Search,
+  Sun,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
 import SearchCommandMenu from "@/components/search-command-menu";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import CreateWorkspaceModal from "@/components/shared/modals/create-workspace-modal";
@@ -14,19 +26,6 @@ import { shortcuts } from "@/constants/shortcuts";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import { useNavigate } from "@tanstack/react-router";
-import {
-  FolderKanban,
-  LayoutDashboard,
-  Monitor,
-  Moon,
-  Plus,
-  Search,
-  Settings,
-  Sun,
-  Users,
-} from "lucide-react";
-import { useState } from "react";
 import CreateProjectModal from "../shared/modals/create-project-modal";
 
 function CommandPalette() {

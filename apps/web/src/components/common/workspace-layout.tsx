@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
 import NotificationDropdown from "@/components/notification/notification-dropdown";
 import {
@@ -19,7 +20,6 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
-import type { ReactNode } from "react";
 
 interface WorkspaceLayoutProps {
   title: string;

@@ -1,3 +1,22 @@
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Download,
+  ExternalLink,
+  GitBranch,
+  Github,
+  Import,
+  Link,
+  RefreshCw,
+  Settings,
+  Unlink,
+  XCircle,
+} from "lucide-react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod/v4";
 import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,25 +46,6 @@ import {
 import useImportGithubIssues from "@/hooks/mutations/github-integration/use-import-github-issues";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import { cn } from "@/lib/cn";
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import {
-  AlertTriangle,
-  CheckCircle,
-  Download,
-  ExternalLink,
-  GitBranch,
-  Github,
-  Import,
-  Link,
-  RefreshCw,
-  Settings,
-  Unlink,
-  XCircle,
-} from "lucide-react";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod/v4";
 
 const githubIntegrationSchema = z.object({
   repositoryOwner: z
@@ -62,7 +62,9 @@ type GithubIntegrationFormValues = z.infer<typeof githubIntegrationSchema>;
 
 export function GitHubIntegrationSettings({
   projectId,
-}: { projectId: string }) {
+}: {
+  projectId: string;
+}) {
   const { data: integration, isLoading } = useGetGithubIntegration(projectId);
   const { mutateAsync: createIntegration, isPending: isCreating } =
     useCreateGithubIntegration();

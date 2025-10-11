@@ -1,4 +1,10 @@
 import path from "node:path";
+import Link from "fumadocs-core/link";
+import { Banner } from "fumadocs-ui/components/banner";
+import { Callout } from "fumadocs-ui/components/callout";
+import { DocsPage } from "fumadocs-ui/page";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
 import {
   HoverCard,
@@ -7,12 +13,6 @@ import {
 } from "@/components/ui/hover-card";
 import { source } from "@/lib/source";
 import { getMDXComponents } from "@/mdx-components";
-import Link from "fumadocs-core/link";
-import { Banner } from "fumadocs-ui/components/banner";
-import { Callout } from "fumadocs-ui/components/callout";
-import { DocsPage } from "fumadocs-ui/page";
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;

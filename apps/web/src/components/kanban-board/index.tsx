@@ -1,24 +1,24 @@
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
-import useProjectStore from "@/store/project";
-import type { ProjectWithTasks } from "@/types/project";
 import {
+  closestCorners,
   DndContext,
   type DragEndEvent,
   DragOverlay,
   type DragStartEvent,
   type DropAnimation,
+  defaultDropAnimationSideEffects,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  closestCorners,
-  defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
 import { useState } from "react";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useProjectStore from "@/store/project";
+import type { ProjectWithTasks } from "@/types/project";
 import Column from "./column";
 import TaskCard from "./task-card";
 

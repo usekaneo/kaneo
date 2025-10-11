@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
 import {
   Breadcrumb,
@@ -19,7 +20,6 @@ import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import type { ReactNode } from "react";
 
 interface TaskLayoutProps {
   taskId: string;

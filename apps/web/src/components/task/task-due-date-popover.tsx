@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -6,8 +8,6 @@ import {
 } from "@/components/ui/popover";
 import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
 import type Task from "@/types/task";
-import { useState } from "react";
-import { toast } from "sonner";
 
 interface TaskDueDatePopoverProps {
   task: Task;

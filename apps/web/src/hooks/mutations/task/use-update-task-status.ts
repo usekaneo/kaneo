@@ -1,6 +1,6 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import updateTaskStatus from "@/fetchers/task/update-task-status";
 import type Task from "@/types/task";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useUpdateTaskStatus() {
   const queryClient = useQueryClient();

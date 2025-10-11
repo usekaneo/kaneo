@@ -1,3 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Grid3X3, Layout, List } from "lucide-react";
+import { createElement, useState } from "react";
 import { CopyUrlButton } from "@/components/public-project/copy-url-button";
 import { ErrorView } from "@/components/public-project/error-view";
 import { PublicKanbanView } from "@/components/public-project/kanban-view";
@@ -10,9 +13,6 @@ import { Button } from "@/components/ui/button";
 import icons from "@/constants/project-icons";
 import useGetPublicProject from "@/hooks/queries/project/use-get-public-project";
 import type Task from "@/types/task";
-import { createFileRoute } from "@tanstack/react-router";
-import { Grid3X3, Layout, List } from "lucide-react";
-import { createElement, useState } from "react";
 
 export const Route = createFileRoute("/public-project/$projectId")({
   component: RouteComponent,

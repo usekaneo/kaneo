@@ -1,8 +1,8 @@
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import getWorkspaces from "@/fetchers/workspace/get-workspaces";
 import { authClient } from "@/lib/auth-client";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Workspace from "@/types/workspace";
-import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({
   beforeLoad: async () => {
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({
         organizationId: data?.invitation.organizationId,
       });
 
+      // biome-ignore lint/suspicious/noDocumentCookie: we need to set the cookie to the invite id
       document.cookie =
         "pending_invitation=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 

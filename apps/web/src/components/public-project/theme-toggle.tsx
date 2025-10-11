@@ -1,8 +1,8 @@
+import { Moon, Sun } from "lucide-react";
+import type { MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { getClickCoordinates } from "@/lib/get-click-coordinates";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import { Moon, Sun } from "lucide-react";
-import type { MouseEvent } from "react";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useUserPreferencesStore();

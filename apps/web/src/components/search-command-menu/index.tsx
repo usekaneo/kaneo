@@ -1,3 +1,14 @@
+import { useNavigate } from "@tanstack/react-router";
+import {
+  FileText,
+  FolderKanban,
+  Hash,
+  MessageSquare,
+  Search,
+  Users,
+  Zap,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -10,17 +21,6 @@ import { shortcuts } from "@/constants/shortcuts";
 import useGlobalSearch from "@/hooks/queries/search/use-global-search";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { useNavigate } from "@tanstack/react-router";
-import {
-  FileText,
-  FolderKanban,
-  Hash,
-  MessageSquare,
-  Search,
-  Users,
-  Zap,
-} from "lucide-react";
-import { useEffect, useState } from "react";
 
 type SearchResultItem = {
   id: string;

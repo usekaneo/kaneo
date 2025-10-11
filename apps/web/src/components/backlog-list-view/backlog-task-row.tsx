@@ -1,14 +1,14 @@
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useNavigate } from "@tanstack/react-router";
+import { format } from "date-fns";
+import { Calendar, CalendarClock, CalendarX, Flag, User } from "lucide-react";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { useNavigate } from "@tanstack/react-router";
-import { format } from "date-fns";
-import { Calendar, CalendarClock, CalendarX, Flag, User } from "lucide-react";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
 import TaskCardLabels from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
@@ -75,6 +75,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
     >
       <ContextMenu>
         <ContextMenuTrigger asChild>
+          {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
             onKeyDown={handleKeyDown}

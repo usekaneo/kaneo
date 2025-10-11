@@ -104,7 +104,11 @@ subscribeToEvent(
     workspaceId,
     ownerId,
     workspaceName,
-  }: { workspaceId: string; ownerId: string; workspaceName: string }) => {
+  }: {
+    workspaceId: string;
+    ownerId: string;
+    workspaceName: string;
+  }) => {
     if (!workspaceId || !ownerId) {
       return;
     }

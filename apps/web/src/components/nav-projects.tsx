@@ -1,3 +1,15 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import {
+  ChevronRight,
+  Folder,
+  Forward,
+  MoreHorizontal,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -27,18 +39,6 @@ import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import type { ProjectWithTasks } from "@/types/project";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
-import {
-  ChevronRight,
-  Folder,
-  Forward,
-  MoreHorizontal,
-  Plus,
-  Trash2,
-} from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import CreateProjectModal from "./shared/modals/create-project-modal";
 import {
   AlertDialog,

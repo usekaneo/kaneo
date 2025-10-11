@@ -1,5 +1,5 @@
-import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 import { useQuery } from "@tanstack/react-query";
+import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 
 function useGetLabelsByTask(taskId: string) {
   return useQuery({

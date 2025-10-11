@@ -41,7 +41,7 @@ interface TaskDescriptionEditorProps {
 }
 
 export default function TaskDescriptionEditor({
-  value,
+  value: _value,
   onChange,
   placeholder = "Add a description...",
 }: TaskDescriptionEditorProps) {

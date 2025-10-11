@@ -1,6 +1,3 @@
-import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { cn } from "@/lib/cn";
 import { formatDistanceToNow } from "date-fns";
 import {
   Calendar,
@@ -9,6 +6,9 @@ import {
   MessageSquare,
   Trash2,
 } from "lucide-react";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
+import { cn } from "@/lib/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   HoverCard,

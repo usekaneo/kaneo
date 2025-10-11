@@ -1,7 +1,7 @@
 import React, {
   createContext,
-  useContext,
   useCallback,
+  useContext,
   useEffect,
   useState,
 } from "react";
@@ -49,7 +49,9 @@ export function useKeyboardShortcuts() {
 
 export function KeyboardShortcutsProvider({
   children,
-}: { children: React.ReactNode }) {
+}: {
+  children: React.ReactNode;
+}) {
   const [shortcuts, setShortcuts] = useState<Map<string, ShortcutHandler>>(
     new Map(),
   );

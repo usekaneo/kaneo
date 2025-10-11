@@ -1,6 +1,6 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import updateTaskDueDate from "@/fetchers/task/update-task-due-date";
 import type Task from "@/types/task";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useUpdateTaskDueDate() {
   const queryClient = useQueryClient();

@@ -1,9 +1,9 @@
+import { ChevronRight, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Github, Users } from "lucide-react";
 
 export default function Hero() {
   return (
-    <div className="relative pb-12 pt-24 pb-24 md:pt-36 lg:pt-44 overflow-hidden p-4">
+    <div className="relative pt-24 pb-24 md:pt-36 lg:pt-44 overflow-hidden p-4">
       <div className="relative z-10 mx-auto w-full max-w-6xl">
         <div className="md:w-1/2">
           <div>
@@ -53,11 +53,13 @@ export default function Hero() {
       <div className="perspective-near mt-24 translate-x-0 md:absolute md:-right-6 md:bottom-16 md:left-1/2 md:top-40 md:mt-0 md:-translate-x-16">
         <div className="before:border-foreground/5 before:bg-foreground/5 relative h-full max-w-2xl before:absolute before:-inset-x-4 before:bottom-7 before:top-0 before:skew-x-6 before:rounded-[calc(var(--radius)+1rem)] before:border">
           <div className="bg-background rounded-(--radius) shadow-foreground/10 ring-foreground/5 relative h-full -translate-y-12 skew-x-6 overflow-hidden border border-transparent shadow-md ring-1">
+            {/** biome-ignore lint/performance/noImgElement: we need to use the img element */}
             <img
               src="/cover.png"
               alt="Kaneo Dashboard"
               className="w-full h-full object-cover object-left p-2 bg-sidebar hidden dark:block"
             />
+            {/** biome-ignore lint/performance/noImgElement: we need to use the img element */}
             <img
               alt="Kaneo Dashboard"
               className="w-full h-full object-cover object-left p-2 block dark:hidden"

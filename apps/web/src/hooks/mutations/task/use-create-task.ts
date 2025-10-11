@@ -1,7 +1,7 @@
+import { useMutation } from "@tanstack/react-query";
 import createTask, {
   type CreateTaskRequest,
 } from "@/fetchers/task/create-task";
-import { useMutation } from "@tanstack/react-query";
 
 function useCreateTask() {
   return useMutation({

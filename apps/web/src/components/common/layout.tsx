@@ -1,3 +1,6 @@
+import { motion } from "framer-motion";
+import type React from "react";
+import type { ReactNode } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DemoAlert } from "@/components/demo-alert";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -5,9 +8,6 @@ import { isDemoMode } from "@/constants/urls";
 import { useUserPreferencesEffects } from "@/hooks/use-user-preferences-effects";
 import { cn } from "@/lib/cn";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import { motion } from "framer-motion";
-import type { ReactNode } from "react";
-import type React from "react";
 
 interface LayoutProps {
   children: ReactNode;
