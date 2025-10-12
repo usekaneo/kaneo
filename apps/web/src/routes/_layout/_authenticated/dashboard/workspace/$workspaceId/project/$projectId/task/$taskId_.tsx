@@ -1,4 +1,5 @@
 import ProjectLayout from "@/components/common/project-layout";
+import { ExternalLinksList } from "@/components/external-links";
 import PageTitle from "@/components/page-title";
 import TaskActivities from "@/components/task/task-activities";
 import TaskComment from "@/components/task/task-comment";
@@ -84,6 +85,9 @@ function TaskEditPage() {
             <div className="px-6 py-6 space-y-6 flex-1">
               <div className="space-y-8">
                 <TaskDescription setIsSaving={setIsSaving} />
+
+                {task && <ExternalLinksList taskId={task.id} />}
+
                 <TaskTimeTracking taskId={taskId} />
 
                 <div className="space-y-4">

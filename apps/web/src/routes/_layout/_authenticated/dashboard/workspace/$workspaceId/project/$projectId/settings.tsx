@@ -1,4 +1,5 @@
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
+import { LazyGiteaIntegrationSettings } from "@/components/project/lazy-gitea-integration-settings";
 import { TasksImportExport } from "@/components/project/tasks-import-export";
 import {
   DangerZoneSection,
@@ -43,6 +44,7 @@ import {
   Globe,
   Key,
   Lock,
+  Server,
   Trash2,
 } from "lucide-react";
 import { createElement, useCallback, useEffect, useState } from "react";
@@ -469,6 +471,16 @@ function ProjectSettings() {
             icon={<Github className="w-4 h-4" />}
           >
             <GitHubIntegrationSettings projectId={project.id} />
+          </SettingsSection>
+        )}
+
+        {project && (
+          <SettingsSection
+            title="Gitea Integration"
+            description="Configure Gitea integration for your project"
+            icon={<Server className="w-4 h-4" />}
+          >
+            <LazyGiteaIntegrationSettings projectId={project.id} />
           </SettingsSection>
         )}
 

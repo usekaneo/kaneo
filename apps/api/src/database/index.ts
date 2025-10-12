@@ -4,6 +4,7 @@ import { Pool } from "pg";
 import {
   accountTableRelations,
   activityTableRelations,
+  giteaIntegrationTableRelations,
   githubIntegrationTableRelations,
   labelTableRelations,
   notificationTableRelations,
@@ -19,6 +20,8 @@ import {
 import {
   accountTable,
   activityTable,
+  externalLinksTable,
+  giteaIntegrationTable,
   githubIntegrationTable,
   labelTable,
   notificationTable,
@@ -67,6 +70,9 @@ export const schema = {
   labelTableRelations,
   notificationTableRelations,
   githubIntegrationTableRelations,
+  giteaIntegrationTableRelations,
+  giteaIntegrationTable,
+  externalLinksTable,
 };
 
 const db = drizzle(pool, {

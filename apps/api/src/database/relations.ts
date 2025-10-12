@@ -2,6 +2,8 @@ import { relations } from "drizzle-orm";
 import {
   accountTable,
   activityTable,
+  externalLinksTable,
+  giteaIntegrationTable,
   githubIntegrationTable,
   labelTable,
   notificationTable,
@@ -80,6 +82,7 @@ export const projectTableRelations = relations(
     }),
     tasks: many(taskTable),
     githubIntegration: many(githubIntegrationTable),
+    giteaIntegration: many(giteaIntegrationTable),
   }),
 );
 
@@ -95,6 +98,7 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   labels: many(labelTable),
+  externalLinks: many(externalLinksTable),
 }));
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({
@@ -142,6 +146,30 @@ export const githubIntegrationTableRelations = relations(
     project: one(projectTable, {
       fields: [githubIntegrationTable.projectId],
       references: [projectTable.id],
+    }),
+  }),
+);
+
+export const giteaIntegrationTableRelations = relations(
+  giteaIntegrationTable,
+  ({ one }) => ({
+    project: one(projectTable, {
+      fields: [giteaIntegrationTable.projectId],
+      references: [projectTable.id],
+    }),
+  }),
+);
+
+export const externalLinksTableRelations = relations(
+  externalLinksTable,
+  ({ one }) => ({
+    task: one(taskTable, {
+      fields: [externalLinksTable.taskId],
+      references: [taskTable.id],
+    }),
+    createdByUser: one(userTable, {
+      fields: [externalLinksTable.createdBy],
+      references: [userTable.email],
     }),
   }),
 );

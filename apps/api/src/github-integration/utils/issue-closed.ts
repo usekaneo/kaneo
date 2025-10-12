@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import type { Octokit } from "octokit";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { getIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import getGithubIntegrationByRepositoryId from "../controllers/get-github-integration-by-repository-id";
 
 export type HandlerFunction<
@@ -40,11 +41,33 @@ export const handleIssueClosed: HandlerFunction<
       where: eq(taskTable.projectId, integration.projectId),
     });
 
-    const kaneoTask = tasks.find((task) =>
-      task.description?.includes(
-        `Created from GitHub issue: ${payload.issue.html_url}`,
-      ),
-    );
+    // Try hybrid approach: first check external_links, then fall back to description
+    let kaneoTask: (typeof tasks)[0] | undefined;
+
+    // Check if any task has an external link to this GitHub issue
+    for (const task of tasks) {
+      const githubLink = await getIntegrationLinkHybrid({
+        taskId: task.id,
+        type: "github_integration",
+      });
+
+      if (
+        githubLink &&
+        githubLink.issueNumber === payload.issue.number.toString()
+      ) {
+        kaneoTask = task;
+        break;
+      }
+    }
+
+    // Fall back to description parsing for legacy compatibility
+    if (!kaneoTask) {
+      kaneoTask = tasks.find((task) =>
+        task.description?.includes(
+          `Created from GitHub issue: ${payload.issue.html_url}`,
+        ),
+      );
+    }
 
     if (!kaneoTask) {
       console.log(

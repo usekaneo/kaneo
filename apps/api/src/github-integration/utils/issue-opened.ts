@@ -3,6 +3,7 @@ import type {
   EmitterWebhookEventName,
 } from "@octokit/webhooks";
 import type { Octokit } from "octokit";
+import { createIntegrationLinkHybrid } from "../../external-links/hybrid-integration-utils";
 import createTask from "../../task/controllers/create-task";
 import getGithubIntegrationByRepositoryId from "../controllers/get-github-integration-by-repository-id";
 import { addLabelsToIssue } from "./create-github-labels";
@@ -97,6 +98,22 @@ export const handleIssueOpened: HandlerFunction<
       console.error(
         "Failed to add comment or labels to GitHub issue:",
         commentError,
+      );
+    }
+
+    // Create external link for the GitHub issue
+    try {
+      await createIntegrationLinkHybrid({
+        taskId: task.id,
+        type: "github_integration",
+        title: `GitHub Issue #${payload.issue.number}`,
+        url: payload.issue.html_url,
+        externalId: payload.issue.number.toString(),
+      });
+    } catch (linkError) {
+      console.error(
+        "Failed to create external link for GitHub issue:",
+        linkError,
       );
     }
   } catch (error) {
