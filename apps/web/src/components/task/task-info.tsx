@@ -65,7 +65,10 @@ function TaskInfo({
   });
 
   const handleChange = async (data: z.infer<typeof taskInfoSchema>) => {
-    if (!task) return;
+    if (!task) {
+      toast.error("No task found. Unable to update.");
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -79,16 +82,24 @@ function TaskInfo({
       });
       toast.success("Task updated successfully");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update task",
-      );
+      console.error("Error updating task:", error);
+      let message = "An unexpected error occurred while updating the task.";
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === "string") {
+        message = error;
+      }
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDeleteTask = async () => {
-    if (!task) return;
+    if (!task) {
+      toast.error("No task found. Unable to delete.");
+      return;
+    }
 
     try {
       await deleteTask(task.id);
@@ -104,9 +115,14 @@ function TaskInfo({
         },
       });
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to delete task",
-      );
+      console.error("Error deleting task:", error);
+      let message = "An unexpected error occurred while deleting the task.";
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === "string") {
+        message = error;
+      }
+      toast.error(message);
     }
   };
 
