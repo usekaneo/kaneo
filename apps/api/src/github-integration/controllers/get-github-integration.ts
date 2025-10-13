@@ -9,9 +9,7 @@ async function getGithubIntegration(projectId: string) {
   });
 
   if (!integration) {
-    throw new HTTPException(404, {
-      message: "GitHub integration not found",
-    });
+    return null;
   }
 
   return integration;

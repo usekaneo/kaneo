@@ -33,6 +33,10 @@ import { Route as LayoutAuthenticatedDashboardWorkspaceWorkspaceIdIndexRouteImpo
 import { Route as LayoutAuthenticatedDashboardWorkspaceWorkspaceIdSearchRouteImport } from './routes/_layout/_authenticated/dashboard/workspace/$workspaceId/search'
 import { Route as LayoutAuthenticatedDashboardWorkspaceWorkspaceIdMembersRouteImport } from './routes/_layout/_authenticated/dashboard/workspace/$workspaceId/members'
 import { Route as LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRouteImport } from './routes/_layout/_authenticated/dashboard/settings/workspace/general'
+import { Route as LayoutAuthenticatedDashboardSettingsProjectsVisibilityRouteImport } from './routes/_layout/_authenticated/dashboard/settings/projects/visibility'
+import { Route as LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRouteImport } from './routes/_layout/_authenticated/dashboard/settings/projects/integrations'
+import { Route as LayoutAuthenticatedDashboardSettingsProjectsGeneralRouteImport } from './routes/_layout/_authenticated/dashboard/settings/projects/general'
+import { Route as LayoutAuthenticatedDashboardSettingsProjectsExportImportRouteImport } from './routes/_layout/_authenticated/dashboard/settings/projects/export-import'
 import { Route as LayoutAuthenticatedDashboardSettingsAccountPreferencesRouteImport } from './routes/_layout/_authenticated/dashboard/settings/account/preferences'
 import { Route as LayoutAuthenticatedDashboardSettingsAccountInformationRouteImport } from './routes/_layout/_authenticated/dashboard/settings/account/information'
 import { Route as LayoutAuthenticatedDashboardWorkspaceWorkspaceIdProjectProjectIdIndexRouteImport } from './routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/index'
@@ -173,6 +177,30 @@ const LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute =
     path: '/general',
     getParentRoute: () => LayoutAuthenticatedDashboardSettingsWorkspaceRoute,
   } as any)
+const LayoutAuthenticatedDashboardSettingsProjectsVisibilityRoute =
+  LayoutAuthenticatedDashboardSettingsProjectsVisibilityRouteImport.update({
+    id: '/visibility',
+    path: '/visibility',
+    getParentRoute: () => LayoutAuthenticatedDashboardSettingsProjectsRoute,
+  } as any)
+const LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRoute =
+  LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => LayoutAuthenticatedDashboardSettingsProjectsRoute,
+  } as any)
+const LayoutAuthenticatedDashboardSettingsProjectsGeneralRoute =
+  LayoutAuthenticatedDashboardSettingsProjectsGeneralRouteImport.update({
+    id: '/general',
+    path: '/general',
+    getParentRoute: () => LayoutAuthenticatedDashboardSettingsProjectsRoute,
+  } as any)
+const LayoutAuthenticatedDashboardSettingsProjectsExportImportRoute =
+  LayoutAuthenticatedDashboardSettingsProjectsExportImportRouteImport.update({
+    id: '/export-import',
+    path: '/export-import',
+    getParentRoute: () => LayoutAuthenticatedDashboardSettingsProjectsRoute,
+  } as any)
 const LayoutAuthenticatedDashboardSettingsAccountPreferencesRoute =
   LayoutAuthenticatedDashboardSettingsAccountPreferencesRouteImport.update({
     id: '/preferences',
@@ -237,12 +265,16 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard/': typeof LayoutAuthenticatedDashboardIndexRoute
   '/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
-  '/dashboard/settings/projects': typeof LayoutAuthenticatedDashboardSettingsProjectsRoute
+  '/dashboard/settings/projects': typeof LayoutAuthenticatedDashboardSettingsProjectsRouteWithChildren
   '/dashboard/settings/workspace': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren
   '/dashboard/workspace/$workspaceId': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/workspace/create': typeof LayoutAuthenticatedDashboardWorkspaceCreateRoute
   '/dashboard/settings/account/information': typeof LayoutAuthenticatedDashboardSettingsAccountInformationRoute
   '/dashboard/settings/account/preferences': typeof LayoutAuthenticatedDashboardSettingsAccountPreferencesRoute
+  '/dashboard/settings/projects/export-import': typeof LayoutAuthenticatedDashboardSettingsProjectsExportImportRoute
+  '/dashboard/settings/projects/general': typeof LayoutAuthenticatedDashboardSettingsProjectsGeneralRoute
+  '/dashboard/settings/projects/integrations': typeof LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRoute
+  '/dashboard/settings/projects/visibility': typeof LayoutAuthenticatedDashboardSettingsProjectsVisibilityRoute
   '/dashboard/settings/workspace/general': typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute
   '/dashboard/workspace/$workspaceId/members': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdMembersRoute
   '/dashboard/workspace/$workspaceId/search': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdSearchRoute
@@ -266,11 +298,15 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard': typeof LayoutAuthenticatedDashboardIndexRoute
   '/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
-  '/dashboard/settings/projects': typeof LayoutAuthenticatedDashboardSettingsProjectsRoute
+  '/dashboard/settings/projects': typeof LayoutAuthenticatedDashboardSettingsProjectsRouteWithChildren
   '/dashboard/settings/workspace': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren
   '/dashboard/workspace/create': typeof LayoutAuthenticatedDashboardWorkspaceCreateRoute
   '/dashboard/settings/account/information': typeof LayoutAuthenticatedDashboardSettingsAccountInformationRoute
   '/dashboard/settings/account/preferences': typeof LayoutAuthenticatedDashboardSettingsAccountPreferencesRoute
+  '/dashboard/settings/projects/export-import': typeof LayoutAuthenticatedDashboardSettingsProjectsExportImportRoute
+  '/dashboard/settings/projects/general': typeof LayoutAuthenticatedDashboardSettingsProjectsGeneralRoute
+  '/dashboard/settings/projects/integrations': typeof LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRoute
+  '/dashboard/settings/projects/visibility': typeof LayoutAuthenticatedDashboardSettingsProjectsVisibilityRoute
   '/dashboard/settings/workspace/general': typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute
   '/dashboard/workspace/$workspaceId/members': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdMembersRoute
   '/dashboard/workspace/$workspaceId/search': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdSearchRoute
@@ -298,12 +334,16 @@ export interface FileRoutesById {
   '/_layout/_authenticated/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
   '/_layout/_authenticated/dashboard/': typeof LayoutAuthenticatedDashboardIndexRoute
   '/_layout/_authenticated/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
-  '/_layout/_authenticated/dashboard/settings/projects': typeof LayoutAuthenticatedDashboardSettingsProjectsRoute
+  '/_layout/_authenticated/dashboard/settings/projects': typeof LayoutAuthenticatedDashboardSettingsProjectsRouteWithChildren
   '/_layout/_authenticated/dashboard/settings/workspace': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren
   '/_layout/_authenticated/dashboard/workspace/$workspaceId': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdRouteWithChildren
   '/_layout/_authenticated/dashboard/workspace/create': typeof LayoutAuthenticatedDashboardWorkspaceCreateRoute
   '/_layout/_authenticated/dashboard/settings/account/information': typeof LayoutAuthenticatedDashboardSettingsAccountInformationRoute
   '/_layout/_authenticated/dashboard/settings/account/preferences': typeof LayoutAuthenticatedDashboardSettingsAccountPreferencesRoute
+  '/_layout/_authenticated/dashboard/settings/projects/export-import': typeof LayoutAuthenticatedDashboardSettingsProjectsExportImportRoute
+  '/_layout/_authenticated/dashboard/settings/projects/general': typeof LayoutAuthenticatedDashboardSettingsProjectsGeneralRoute
+  '/_layout/_authenticated/dashboard/settings/projects/integrations': typeof LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRoute
+  '/_layout/_authenticated/dashboard/settings/projects/visibility': typeof LayoutAuthenticatedDashboardSettingsProjectsVisibilityRoute
   '/_layout/_authenticated/dashboard/settings/workspace/general': typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute
   '/_layout/_authenticated/dashboard/workspace/$workspaceId/members': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdMembersRoute
   '/_layout/_authenticated/dashboard/workspace/$workspaceId/search': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdSearchRoute
@@ -336,6 +376,10 @@ export interface FileRouteTypes {
     | '/dashboard/workspace/create'
     | '/dashboard/settings/account/information'
     | '/dashboard/settings/account/preferences'
+    | '/dashboard/settings/projects/export-import'
+    | '/dashboard/settings/projects/general'
+    | '/dashboard/settings/projects/integrations'
+    | '/dashboard/settings/projects/visibility'
     | '/dashboard/settings/workspace/general'
     | '/dashboard/workspace/$workspaceId/members'
     | '/dashboard/workspace/$workspaceId/search'
@@ -364,6 +408,10 @@ export interface FileRouteTypes {
     | '/dashboard/workspace/create'
     | '/dashboard/settings/account/information'
     | '/dashboard/settings/account/preferences'
+    | '/dashboard/settings/projects/export-import'
+    | '/dashboard/settings/projects/general'
+    | '/dashboard/settings/projects/integrations'
+    | '/dashboard/settings/projects/visibility'
     | '/dashboard/settings/workspace/general'
     | '/dashboard/workspace/$workspaceId/members'
     | '/dashboard/workspace/$workspaceId/search'
@@ -396,6 +444,10 @@ export interface FileRouteTypes {
     | '/_layout/_authenticated/dashboard/workspace/create'
     | '/_layout/_authenticated/dashboard/settings/account/information'
     | '/_layout/_authenticated/dashboard/settings/account/preferences'
+    | '/_layout/_authenticated/dashboard/settings/projects/export-import'
+    | '/_layout/_authenticated/dashboard/settings/projects/general'
+    | '/_layout/_authenticated/dashboard/settings/projects/integrations'
+    | '/_layout/_authenticated/dashboard/settings/projects/visibility'
     | '/_layout/_authenticated/dashboard/settings/workspace/general'
     | '/_layout/_authenticated/dashboard/workspace/$workspaceId/members'
     | '/_layout/_authenticated/dashboard/workspace/$workspaceId/search'
@@ -584,6 +636,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRouteImport
       parentRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceRoute
     }
+    '/_layout/_authenticated/dashboard/settings/projects/visibility': {
+      id: '/_layout/_authenticated/dashboard/settings/projects/visibility'
+      path: '/visibility'
+      fullPath: '/dashboard/settings/projects/visibility'
+      preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsVisibilityRouteImport
+      parentRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsRoute
+    }
+    '/_layout/_authenticated/dashboard/settings/projects/integrations': {
+      id: '/_layout/_authenticated/dashboard/settings/projects/integrations'
+      path: '/integrations'
+      fullPath: '/dashboard/settings/projects/integrations'
+      preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRouteImport
+      parentRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsRoute
+    }
+    '/_layout/_authenticated/dashboard/settings/projects/general': {
+      id: '/_layout/_authenticated/dashboard/settings/projects/general'
+      path: '/general'
+      fullPath: '/dashboard/settings/projects/general'
+      preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsGeneralRouteImport
+      parentRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsRoute
+    }
+    '/_layout/_authenticated/dashboard/settings/projects/export-import': {
+      id: '/_layout/_authenticated/dashboard/settings/projects/export-import'
+      path: '/export-import'
+      fullPath: '/dashboard/settings/projects/export-import'
+      preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsExportImportRouteImport
+      parentRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsRoute
+    }
     '/_layout/_authenticated/dashboard/settings/account/preferences': {
       id: '/_layout/_authenticated/dashboard/settings/account/preferences'
       path: '/preferences'
@@ -647,6 +727,30 @@ const LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren =
     LayoutAuthenticatedDashboardSettingsAccountRouteChildren,
   )
 
+interface LayoutAuthenticatedDashboardSettingsProjectsRouteChildren {
+  LayoutAuthenticatedDashboardSettingsProjectsExportImportRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsExportImportRoute
+  LayoutAuthenticatedDashboardSettingsProjectsGeneralRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsGeneralRoute
+  LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRoute
+  LayoutAuthenticatedDashboardSettingsProjectsVisibilityRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsVisibilityRoute
+}
+
+const LayoutAuthenticatedDashboardSettingsProjectsRouteChildren: LayoutAuthenticatedDashboardSettingsProjectsRouteChildren =
+  {
+    LayoutAuthenticatedDashboardSettingsProjectsExportImportRoute:
+      LayoutAuthenticatedDashboardSettingsProjectsExportImportRoute,
+    LayoutAuthenticatedDashboardSettingsProjectsGeneralRoute:
+      LayoutAuthenticatedDashboardSettingsProjectsGeneralRoute,
+    LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRoute:
+      LayoutAuthenticatedDashboardSettingsProjectsIntegrationsRoute,
+    LayoutAuthenticatedDashboardSettingsProjectsVisibilityRoute:
+      LayoutAuthenticatedDashboardSettingsProjectsVisibilityRoute,
+  }
+
+const LayoutAuthenticatedDashboardSettingsProjectsRouteWithChildren =
+  LayoutAuthenticatedDashboardSettingsProjectsRoute._addFileChildren(
+    LayoutAuthenticatedDashboardSettingsProjectsRouteChildren,
+  )
+
 interface LayoutAuthenticatedDashboardSettingsWorkspaceRouteChildren {
   LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute
 }
@@ -664,7 +768,7 @@ const LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren =
 
 interface LayoutAuthenticatedDashboardSettingsRouteChildren {
   LayoutAuthenticatedDashboardSettingsAccountRoute: typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
-  LayoutAuthenticatedDashboardSettingsProjectsRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsRoute
+  LayoutAuthenticatedDashboardSettingsProjectsRoute: typeof LayoutAuthenticatedDashboardSettingsProjectsRouteWithChildren
   LayoutAuthenticatedDashboardSettingsWorkspaceRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren
 }
 
@@ -673,7 +777,7 @@ const LayoutAuthenticatedDashboardSettingsRouteChildren: LayoutAuthenticatedDash
     LayoutAuthenticatedDashboardSettingsAccountRoute:
       LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren,
     LayoutAuthenticatedDashboardSettingsProjectsRoute:
-      LayoutAuthenticatedDashboardSettingsProjectsRoute,
+      LayoutAuthenticatedDashboardSettingsProjectsRouteWithChildren,
     LayoutAuthenticatedDashboardSettingsWorkspaceRoute:
       LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren,
   }

@@ -1,4 +1,9 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
@@ -13,7 +18,25 @@ export const Route = createFileRoute(
 
 function SettingsLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
+
+  // Determine the active tab based on the current pathname
+  const getActiveTab = () => {
+    const pathname = location.pathname;
+    if (pathname.includes("/dashboard/settings/account")) {
+      return "account";
+    }
+    if (pathname.includes("/dashboard/settings/workspace")) {
+      return "workspace";
+    }
+    if (pathname.includes("/dashboard/settings/projects")) {
+      return "project";
+    }
+    return "account"; // default fallback
+  };
+
+  const activeTab = getActiveTab();
 
   return (
     <>
@@ -37,7 +60,7 @@ function SettingsLayout() {
 
             <h1 className="text-2xl font-bold pl-2 mt-2">Settings</h1>
 
-            <Tabs defaultValue="account" className="w-[400px] pt-2">
+            <Tabs value={activeTab} className="w-[400px] pt-2">
               <TabsList className="bg-sidebar gap-2">
                 <TabsTrigger
                   className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"
