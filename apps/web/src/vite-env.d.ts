@@ -3,6 +3,7 @@
 
 interface ImportMetaEnv {
   readonly KANEO_API_URL: string;
+  readonly KANEO_ENABLED_AUTH: string;
 }
 
 interface ImportMeta {

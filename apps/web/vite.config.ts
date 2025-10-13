@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 // https://vite.dev/config/
 export default defineConfig({
   base: "/",
+  envPrefix: ["VITE_", "KANEO_"],
   plugins: [
     tanstackRouter({ autoCodeSplitting: true }),
     react({

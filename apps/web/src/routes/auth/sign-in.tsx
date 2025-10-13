@@ -17,6 +17,7 @@ function SignIn() {
   const navigate = useNavigate();
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
+  const [isOIDCLoading, setIsOIDCLoading] = useState(false);
 
   const handleGuestAccess = async () => {
     setIsGuestLoading(true);
@@ -61,6 +62,31 @@ function SignIn() {
     }
   };
 
+  const handleSignInOIDC = async () => {
+    setIsOIDCLoading(true);
+    try {
+      const result = await authClient.signIn.oauth2({
+        providerId: "oidc",
+        callbackURL: `${window.location.origin}/dashboard`,
+      });
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+      toast.success("Signed in with OIDC");
+      navigate({ to: "/dashboard" });
+      setIsOIDCLoading(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to sign in with OIDC",
+      );
+    } finally {
+      setIsOIDCLoading(false);
+    }
+  };
+
+  let enabledAuth =
+    import.meta.env.KANEO_ENABLED_AUTH || "KANEO_ENABLED_AUTH";
+  console.log("enabledAuth: " + enabledAuth);
   return (
     <>
       <PageTitle title="Sign In" />
@@ -70,37 +96,61 @@ function SignIn() {
       >
         <div className="space-y-4 mt-6">
           <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              onClick={handleSignInGithub}
-              disabled={isGithubLoading}
-              className="w-full"
-            >
-              <Github className="w-4 h-4 mr-2" />
-              {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleGuestAccess}
-              disabled={isGuestLoading}
-              className="w-full"
-              size="sm"
-            >
-              <UserCheck className="w-4 h-4 mr-2" />
-              {isGuestLoading ? "Signing in..." : "Continue as guest"}
-            </Button>
+            {enabledAuth.includes("github") && (
+              <Button
+                variant="outline"
+                onClick={handleSignInGithub}
+                disabled={isGithubLoading}
+                className="w-full"
+              >
+                <Github className="w-4 h-4 mr-2" />
+                {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
+              </Button>
+            )}
+            {enabledAuth.includes("oidc") && (
+              <Button
+                variant="outline"
+                onClick={handleSignInOIDC}
+                disabled={isOIDCLoading}
+                className="w-full"
+                size="sm"
+              >
+                <UserCheck className="w-4 h-4 mr-2" />
+                {isOIDCLoading ? "Signing in..." : "Continue with OIDC"}
+              </Button>
+            )}
+            {enabledAuth.includes("guest") && (
+              <Button
+                variant="outline"
+                onClick={handleGuestAccess}
+                disabled={isGuestLoading}
+                className="w-full"
+                size="sm"
+              >
+                <UserCheck className="w-4 h-4 mr-2" />
+                {isGuestLoading ? "Signing in..." : "Continue as guest"}
+              </Button>
+            )}
           </div>
-          <div className="flex items-center gap-4 my-4">
-            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
-            <span className="text-sm text-zinc-500 dark:text-zinc-400">or</span>
-            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
-          </div>
-          <SignInForm />
-          <AuthToggle
-            message="Don't have an account?"
-            linkText="Create account"
-            linkTo="/auth/sign-up"
-          />
+          {enabledAuth.includes("standalone") && enabledAuth.length > 10 && (
+            <div className="flex items-center gap-4 my-4">
+              <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+              <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                or
+              </span>
+              <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+            </div>
+          )}
+          {enabledAuth.includes("standalone") && (
+            <div>
+              <SignInForm />
+              <AuthToggle
+                message="Don't have an account?"
+                linkText="Create account"
+                linkTo="/auth/sign-up"
+              />
+            </div>
+          )}
         </div>
       </AuthLayout>
     </>
