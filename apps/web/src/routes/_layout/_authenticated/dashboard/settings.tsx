@@ -16,9 +16,8 @@ function SettingsLayout() {
 
   return (
     <div className="flex flex-col gap-4 p-4 bg-sidebar w-full h-full">
-      <div className="flex flex-col gap-4 bg-card h-full border border-border rounded-md p-4">
-        {/* back to workspace */}
-        <div className="">
+      <div className="flex flex-col gap-4 bg-card h-full border border-border rounded-md p-4 relative overflow-hidden">
+        <div>
           <Button
             variant="ghost"
             size="sm"
@@ -40,7 +39,9 @@ function SettingsLayout() {
               <TabsTrigger
                 className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"
                 value="account"
-                onClick={() => navigate({ to: "/dashboard/settings/account" })}
+                onClick={() =>
+                  navigate({ to: "/dashboard/settings/account/information" })
+                }
               >
                 Account
               </TabsTrigger>
@@ -64,7 +65,9 @@ function SettingsLayout() {
           </Tabs>
         </div>
 
-        <Outlet />
+        <div className="flex-1 overflow-y-auto">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

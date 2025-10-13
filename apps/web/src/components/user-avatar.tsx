@@ -42,7 +42,7 @@ export function UserAvatar() {
   };
 
   const handleSettings = () => {
-    navigate({ to: "/dashboard/settings/account" });
+    navigate({ to: "/dashboard/settings/account/information" });
     setOpen(false);
   };
 

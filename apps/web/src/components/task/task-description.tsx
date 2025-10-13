@@ -89,7 +89,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
             isInitializedRef.current = true;
             isLoadingInitialContent.current = false;
           }, 100);
-        } catch (error) {
+        } catch {
           const blocks = await editor.tryParseMarkdownToBlocks("");
           editor.replaceBlocks(editor.document, blocks);
           setTimeout(() => {
