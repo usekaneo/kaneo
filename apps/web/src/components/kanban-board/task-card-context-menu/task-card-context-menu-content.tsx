@@ -23,6 +23,11 @@ import {
 } from "@/components/ui/context-menu";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
+import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
+import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
+import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
+import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
@@ -48,6 +53,11 @@ export default function TaskCardContextMenuContent({
     taskCardContext.worskpaceId,
   );
   const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
+  const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
+  const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
+  const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { mutateAsync: deleteTask } = useDeleteTask();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
 
@@ -70,10 +80,31 @@ export default function TaskCardContextMenuContent({
 
   const handleChange = async (field: keyof Task, value: string | Date) => {
     try {
-      await updateTask({
-        ...task,
-        [field]: value,
-      });
+      switch (field) {
+        case "priority":
+          await updateTaskPriority({ ...task, priority: value as string });
+          break;
+        case "status":
+          await updateTaskStatus({ ...task, status: value as string });
+          break;
+        case "userId":
+          await updateTaskAssignee({ ...task, userId: value as string });
+          break;
+        case "title":
+          await updateTaskTitle({ ...task, title: value as string });
+          break;
+        case "description":
+          await updateTaskDescription({
+            ...task,
+            description: value as string,
+          });
+          break;
+        default:
+          await updateTask({
+            ...task,
+            [field]: value,
+          });
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to update task",

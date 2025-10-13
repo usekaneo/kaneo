@@ -62,7 +62,6 @@ function toNormalCase(str: string | undefined) {
 function RouteComponent() {
   const { projectId, workspaceId, taskId } = Route.useParams();
   const { data: task } = useGetTask(taskId);
-  console.log({ task });
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);

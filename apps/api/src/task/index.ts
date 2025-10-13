@@ -11,9 +11,11 @@ import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
+import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
+import updateTaskTitle from "./controllers/update-task-title";
 
 const task = new Hono<{
   Variables: {
@@ -38,7 +40,7 @@ const task = new Hono<{
       z.object({
         title: z.string(),
         description: z.string(),
-        dueDate: z.string(),
+        dueDate: z.string().optional(),
         priority: z.string(),
         status: z.string(),
         userId: z.string().optional(),
@@ -54,7 +56,7 @@ const task = new Hono<{
         userId,
         title,
         description,
-        dueDate: new Date(dueDate),
+        dueDate: dueDate ? new Date(dueDate) : undefined,
         priority,
         status,
       });
@@ -77,7 +79,7 @@ const task = new Hono<{
       z.object({
         title: z.string(),
         description: z.string(),
-        dueDate: z.string(),
+        dueDate: z.string().optional(),
         priority: z.string(),
         status: z.string(),
         projectId: z.string(),
@@ -102,7 +104,7 @@ const task = new Hono<{
         id,
         title,
         status,
-        new Date(dueDate),
+        dueDate ? new Date(dueDate) : undefined,
         projectId,
         description,
         priority,
@@ -249,7 +251,6 @@ const task = new Hono<{
       return c.json(task);
     },
   )
-  //  due date
   .put(
     "/due-date/:id",
     zValidator("param", z.object({ id: z.string() })),
@@ -268,6 +269,52 @@ const task = new Hono<{
         newDueDate: dueDate,
         title: task.title,
         type: "due_date_changed",
+      });
+
+      return c.json(task);
+    },
+  )
+
+  .put(
+    "/title/:id",
+    zValidator("param", z.object({ id: z.string() })),
+    zValidator("json", z.object({ title: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { title } = c.req.valid("json");
+      const user = c.get("userId");
+
+      const task = await updateTaskTitle({ id, title });
+
+      await publishEvent("task.title_changed", {
+        taskId: task.id,
+        userId: user,
+        oldTitle: task.title,
+        newTitle: title,
+        title: task.title,
+        type: "title_changed",
+      });
+
+      return c.json(task);
+    },
+  )
+
+  .put(
+    "/description/:id",
+    zValidator("param", z.object({ id: z.string() })),
+    zValidator("json", z.object({ description: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { description } = c.req.valid("json");
+      const user = c.get("userId");
+
+      const task = await updateTaskDescription({ id, description });
+
+      await publishEvent("task.description_changed", {
+        taskId: task.id,
+        userId: user,
+        title: task.title,
+        type: "description_changed",
       });
 
       return c.json(task);

@@ -12,7 +12,7 @@ async function createTask(
   projectId: string,
   userId: string,
   status: string,
-  dueDate: Date,
+  dueDate: Date | undefined,
   priority: string,
 ) {
   const response = await client.task[":projectId"].$post({
@@ -21,7 +21,7 @@ async function createTask(
       description,
       userId,
       status,
-      dueDate: dueDate.toISOString(),
+      dueDate: dueDate?.toISOString() || undefined,
       priority,
     },
     param: { projectId },

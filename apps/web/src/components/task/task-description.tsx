@@ -32,7 +32,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
@@ -45,18 +45,17 @@ interface TaskDescriptionProps {
 
 export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const { data: task } = useGetTask(taskId);
-  const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { theme } = useUserPreferencesStore();
   const isInitializedRef = useRef(false);
   const isLoadingInitialContent = useRef(false);
   const taskRef = useRef(task);
-  const updateTaskRef = useRef(updateTask);
+  const updateTaskRef = useRef(updateTaskDescription);
 
-  // Keep refs updated with latest values
   useEffect(() => {
     taskRef.current = task;
-    updateTaskRef.current = updateTask;
-  }, [task, updateTask]);
+    updateTaskRef.current = updateTaskDescription;
+  }, [task, updateTaskDescription]);
 
   const form = useForm<{
     description: string;
@@ -75,7 +74,6 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     ],
   });
 
-  // Load markdown content when task description changes
   useEffect(() => {
     if (task?.description?.trim() && !isInitializedRef.current) {
       const loadMarkdown = async () => {
@@ -100,7 +98,6 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       };
       loadMarkdown();
     } else if (!task?.description?.trim() && !isInitializedRef.current) {
-      // Clear editor if no description
       const clearEditor = async () => {
         isLoadingInitialContent.current = true;
         const blocks = await editor.tryParseMarkdownToBlocks("");
@@ -118,7 +115,6 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     debounce(async (markdown: string) => {
       if (!isInitializedRef.current) return;
 
-      // Get the current task data from ref
       const currentTask = taskRef.current;
       const updateTaskFn = updateTaskRef.current;
 
@@ -128,14 +124,6 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         await updateTaskFn({
           ...currentTask,
           description: markdown,
-          userId: currentTask.userId || "",
-          title: currentTask.title || "",
-          status: currentTask.status || "",
-          dueDate: currentTask.dueDate
-            ? new Date(currentTask.dueDate).toISOString()
-            : "",
-          priority: currentTask.priority || "",
-          position: currentTask.position || 0,
         });
       } catch (error) {
         console.error("Failed to update description:", error);

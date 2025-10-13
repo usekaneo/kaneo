@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 
 import { Form, FormControl, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import debounce from "@/lib/debounce";
 
@@ -13,16 +13,15 @@ interface TaskTitleProps {
 
 export default function TaskTitle({ taskId }: TaskTitleProps) {
   const { data: task } = useGetTask(taskId);
-  const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const isInitializedRef = useRef(false);
   const taskRef = useRef(task);
-  const updateTaskRef = useRef(updateTask);
+  const updateTaskRef = useRef(updateTaskTitle);
 
-  // Keep refs updated with latest values
   useEffect(() => {
     taskRef.current = task;
-    updateTaskRef.current = updateTask;
-  }, [task, updateTask]);
+    updateTaskRef.current = updateTaskTitle;
+  }, [task, updateTaskTitle]);
 
   const form = useForm<{
     title: string;
@@ -32,7 +31,6 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
     },
   });
 
-  // Mark as initialized once we have the task data
   useEffect(() => {
     if (task?.title !== undefined && !isInitializedRef.current) {
       setTimeout(() => {
@@ -45,7 +43,6 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
     debounce(async (title: string) => {
       if (!isInitializedRef.current) return;
 
-      // Get the current task data from ref
       const currentTask = taskRef.current;
       const updateTaskFn = updateTaskRef.current;
 
@@ -55,14 +52,6 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
         await updateTaskFn({
           ...currentTask,
           title: title,
-          userId: currentTask.userId || "",
-          description: currentTask.description || "",
-          status: currentTask.status || "",
-          dueDate: currentTask.dueDate
-            ? new Date(currentTask.dueDate).toISOString()
-            : "",
-          priority: currentTask.priority || "",
-          position: currentTask.position || 0,
         });
         console.log("Title updated successfully");
       } catch (error) {

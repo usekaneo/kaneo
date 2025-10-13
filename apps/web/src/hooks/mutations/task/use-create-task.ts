@@ -20,7 +20,7 @@ function useCreateTask() {
         projectId,
         userId ?? "",
         status,
-        new Date(dueDate),
+        dueDate ? new Date(dueDate) : undefined,
         priority,
       ),
   });

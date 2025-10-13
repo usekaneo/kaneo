@@ -38,7 +38,6 @@ import {
 } from "@/components/ui/popover";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
@@ -90,7 +89,6 @@ const labelColors = [
 function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const { project, setProject } = useProjectStore();
   const { data: workspace } = useActiveWorkspace();
-  const { mutate: updateTask } = useUpdateTask();
   const { mutateAsync: createLabel } = useCreateLabel();
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id || "",
@@ -152,7 +150,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         userId: assigneeId,
         priority,
         projectId: project?.id,
-        dueDate: dueDate ? dueDate.toISOString() : new Date().toISOString(),
+        dueDate: dueDate ? dueDate.toISOString() : undefined,
         status: taskStatus,
       });
 
@@ -186,7 +184,6 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       });
 
       setProject(updatedProject);
-      updateTask({ ...newTask, position: 0, assigneeId: assigneeId });
       toast.success("Task created successfully");
 
       if (createMore) {
@@ -244,7 +241,6 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     if (existingLabel) {
       setLabels(labels.filter((l) => l.name !== labelName));
     } else {
-      // Add new label with temporary data for display
       const workspaceLabel = workspaceLabels.find((l) => l.name === labelName);
       if (workspaceLabel) {
         setLabels([
@@ -270,11 +266,10 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const handleColorSelect = (color: LabelColor) => {
     setSelectedColor(color);
 
-    // Add the label to the local state for display
     if (!newLabelName.trim()) return;
 
     const newLabel: Label = {
-      id: `temp-${Date.now()}`, // Temporary ID
+      id: `temp-${Date.now()}`,
       name: newLabelName.trim(),
       color: color,
       taskId: null,
@@ -510,6 +505,19 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     onSelect={setDueDate}
                     className="w-full bg-popover"
                   />
+                  {dueDate && (
+                    <div className="p-2 border-t border-border">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs"
+                        onClick={() => setDueDate(undefined)}
+                      >
+                        Clear due date
+                      </Button>
+                    </div>
+                  )}
                 </PopoverContent>
               </Popover>
 
