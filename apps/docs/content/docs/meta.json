@@ -1,0 +1,12 @@
+{
+	"title": "Docs",
+	"pages": [
+		"index.mdx",
+		"installation",
+		"reverse-proxy",
+		"social-providers",
+		"integrations",
+		"guide"
+	],
+	"defaultOpen": true
+}

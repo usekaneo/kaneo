@@ -1,0 +1,228 @@
+---
+title: Configuration & Setup
+description: Configure Kaneo with your GitHub App credentials and connect projects to repositories. Includes Docker Compose and Kubernetes examples.
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+This guide covers configuring Kaneo with your GitHub App credentials and connecting projects to repositories.
+
+<Callout type="info">
+Make sure you've completed the [GitHub App setup](/docs/integrations/github/setup) before proceeding.
+</Callout>
+
+## Environment Variables
+
+Add the following environment variables to your Kaneo deployment:
+
+```bash
+# GitHub App Configuration
+GITHUB_APP_ID=123456
+GITHUB_CLIENT_ID=Iv1.abc123def456
+GITHUB_CLIENT_SECRET=abc123def456ghi789jkl012mno345pqr678stu
+GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA...
+[Full contents of your private key]
+...
+-----END RSA PRIVATE KEY-----"
+GITHUB_WEBHOOK_SECRET=your-webhook-secret-here
+
+# Optional: GitHub App Name for installation URLs
+GITHUB_APP_NAME=kaneo-your-instance-name
+```
+
+### Variable Reference
+
+| Variable | Description | Required | Example |
+|----------|-------------|----------|---------|
+| `GITHUB_APP_ID` | Your GitHub App's ID | ✅ | `123456` |
+| `GITHUB_CLIENT_ID` | OAuth client ID from your app | ✅ | `Iv1.abc123def456` |
+| `GITHUB_CLIENT_SECRET` | OAuth client secret | ✅ | `abc123def456ghi789jkl012mno345pqr678stu` |
+| `GITHUB_PRIVATE_KEY` | Full private key content (with newlines) | ✅ | `-----BEGIN RSA...` |
+| `GITHUB_WEBHOOK_SECRET` | Secret for webhook verification | ✅ | `your-secret` |
+| `GITHUB_APP_NAME` | App name for installation URLs | ⚠️ | `kaneo-mycompany` |
+
+<Callout type="warning">
+`GITHUB_APP_NAME` is optional but recommended. It's used to generate direct installation links in the UI.
+</Callout>
+
+## Deployment Examples
+
+### Docker Compose
+
+Update your `compose.yml` file:
+
+```yaml
+services:
+  backend:
+    image: ghcr.io/usekaneo/api:latest
+    environment:
+      # ... other environment variables
+      GITHUB_APP_ID: "123456"
+      GITHUB_CLIENT_ID: "Iv1.abc123def456"
+      GITHUB_CLIENT_SECRET: "abc123def456ghi789jkl012mno345pqr678stu"
+      GITHUB_PRIVATE_KEY: |
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEpAIBAAKCAQEA...
+        [Full contents of your private key]
+        ...
+        -----END RSA PRIVATE KEY-----
+      GITHUB_WEBHOOK_SECRET: "your-webhook-secret-here"
+      GITHUB_APP_NAME: "kaneo-mycompany"
+    # ... rest of configuration
+```
+
+<Callout type="tip">
+Use the `|` YAML syntax for multi-line environment variables like the private key.
+</Callout>
+
+### Kubernetes
+
+Create a secret for your GitHub credentials:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-integration
+  namespace: kaneo
+type: Opaque
+stringData:
+  GITHUB_APP_ID: "123456"
+  GITHUB_CLIENT_ID: "Iv1.abc123def456"
+  GITHUB_CLIENT_SECRET: "abc123def456ghi789jkl012mno345pqr678stu"
+  GITHUB_PRIVATE_KEY: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEpAIBAAKCAQEA...
+    [Full contents of your private key]
+    ...
+    -----END RSA PRIVATE KEY-----
+  GITHUB_WEBHOOK_SECRET: "your-webhook-secret-here"
+  GITHUB_APP_NAME: "kaneo-mycompany"
+```
+
+Then reference it in your deployment:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kaneo-backend
+spec:
+  template:
+    spec:
+      containers:
+      - name: backend
+        image: ghcr.io/usekaneo/api:latest
+        envFrom:
+        - secretRef:
+            name: github-integration
+```
+
+### Environment File
+
+For development or simple deployments, create a `.env` file:
+
+```bash
+# .env file
+GITHUB_APP_ID=123456
+GITHUB_CLIENT_ID=Iv1.abc123def456
+GITHUB_CLIENT_SECRET=abc123def456ghi789jkl012mno345pqr678stu
+GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA...
+[Full contents of your private key]
+...
+-----END RSA PRIVATE KEY-----"
+GITHUB_WEBHOOK_SECRET=your-webhook-secret-here
+GITHUB_APP_NAME=kaneo-mycompany
+```
+
+## Connecting Repositories
+
+Once your environment variables are configured and your backend is restarted, you can connect projects to GitHub repositories.
+
+<Steps>
+<Step>
+**Navigate to Project Settings**
+
+1. Open your Kaneo project
+2. Go to **Project Settings**
+3. Find the **GitHub Integration** section
+</Step>
+
+<Step>
+**Connect Repository**
+
+You have two options to connect a repository:
+
+**Option A: Browse Repositories**
+1. Click "Browse Repositories"
+2. Select from repositories where your GitHub App is installed
+3. Click on the desired repository
+
+**Option B: Manual Entry**
+1. Enter the **Repository Owner** (username or organization)
+2. Enter the **Repository Name**
+3. Click "Verify Installation"
+</Step>
+
+<Step>
+**Verify and Connect**
+
+1. Kaneo will verify that your GitHub App has access
+2. If successful, click "Connect Repository"
+3. You should see a green "Connected" status
+
+<Callout type="success">
+Once connected, new tasks created in this project will automatically generate GitHub issues!
+</Callout>
+</Step>
+</Steps>
+
+## Testing the Integration
+
+After connecting a repository, test the integration:
+
+<Steps>
+<Step>
+**Create a Test Task**
+
+Create a new task in your connected Kaneo project with:
+- A clear title
+- A description
+- Set priority and status
+</Step>
+
+<Step>
+**Check GitHub**
+
+Navigate to your connected GitHub repository and check if:
+- A new issue was created
+- The issue title starts with `[Kaneo]`
+- The issue has appropriate labels (`kaneo`, `priority:*`, `status:*`)
+- The issue body contains task details
+</Step>
+
+</Steps>
+
+## Advanced Configuration
+
+### Multiple Organizations
+If you need to connect repositories from multiple GitHub organizations:
+
+1. Install your GitHub App on each organization
+2. Grant appropriate permissions for each organization
+3. Each Kaneo project can connect to any repository where your app is installed
+
+### Custom Labels
+Currently, Kaneo uses these default labels:
+- `kaneo` - All issues created by Kaneo
+- `priority:high|medium|low` - Based on task priority
+- `status:todo|in-progress|done` - Based on task status
+
+Future versions will support custom label configurations.
+
+---
+
+**Having issues?** Check our [troubleshooting guide](/docs/integrations/github/troubleshooting) for common problems and solutions.

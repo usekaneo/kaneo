@@ -38,15 +38,6 @@ type LabelColor =
   | "pink"
   | "red";
 
-type Label = {
-  id: string;
-  name: string;
-  color: string;
-  taskId: string | null;
-  workspaceId: string;
-  createdAt: string;
-};
-
 interface TaskLabelsPopoverProps {
   task: Task;
   workspaceId: string;

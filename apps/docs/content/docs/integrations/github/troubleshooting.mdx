@@ -1,0 +1,295 @@
+---
+title: Troubleshooting
+description: Common issues and solutions for GitHub integration. Debug connection problems, permission errors, and webhook issues.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+This guide helps you diagnose and fix common issues with the GitHub integration.
+
+## Common Issues
+
+### "GitHub App not installed" Error
+
+**Problem**: Verification shows the app isn't installed on the repository.
+
+**Symptoms**:
+- Red error message in Kaneo UI
+- "Connect Repository" button remains disabled
+- Repository doesn't appear in the browser modal
+
+**Solutions**:
+1. **Check Installation Scope**
+   - Go to [GitHub App installations](https://github.com/settings/installations)
+   - Verify your app is installed on the correct account/organization
+   - Check if the target repository is included in the installation scope
+
+2. **Reinstall with Broader Access**
+   - Edit your app installation
+   - Change from "Selected repositories" to "All repositories"
+   - Or add the specific repository to the selected list
+
+3. **Verify Repository Ownership**
+   - Ensure you're entering the correct repository owner (username/organization)
+   - Check that the repository name is spelled correctly
+   - Verify the repository exists and you have access to it
+
+<Callout type="tip">
+Use the "Browse Repositories" feature in Kaneo to see which repositories your app can access.
+</Callout>
+
+### "Missing Permissions" Error
+
+**Problem**: App is installed but lacks required permissions.
+
+**Symptoms**:
+- Orange warning in verification
+- App appears in installations but can't create issues
+- Missing permissions listed in the error message
+
+**Solutions**:
+1. **Update App Permissions**
+   - Go to your [GitHub App settings](https://github.com/settings/developers)
+   - Edit your app and check permissions:
+     - **Issues**: Must have **Write** access (not just Read)
+     - **Metadata**: Must have **Read** access
+     - **Contents**: Must have **Read** access
+
+2. **Update Installation**
+   - After changing app permissions, you may need to update the installation
+   - Go to [GitHub App installations](https://github.com/settings/installations)
+   - Click "Configure" next to your app
+   - Review and accept any permission changes
+
+3. **Check Organization Permissions**
+   - For organization repositories, ensure the organization allows the app
+   - Organization owners may need to approve third-party apps
+
+### "Repository not found" Error
+
+**Problem**: Repository exists but isn't accessible to the app.
+
+**Symptoms**:
+- Repository not found in verification
+- 404-style errors in logs
+- Repository doesn't appear in browse modal
+
+**Solutions**:
+1. **Verify Repository Details**
+   - Double-check the repository owner and name
+   - Ensure there are no typos or extra spaces
+   - Check that the repository is public or your app has access to private repos
+
+2. **Check Private Repository Access**
+   - Private repositories require explicit app installation
+   - Ensure your GitHub App is installed on the repository owner's account
+   - Verify the app has permission to access private repositories
+
+3. **Organization Repository Issues**
+   - Check if the organization has third-party app restrictions
+   - Ensure the app is approved by organization owners
+   - Verify the app is installed at the organization level, not just personal account
+
+### Environment Variable Issues
+
+**Problem**: Integration doesn't work after configuration.
+
+**Symptoms**:
+- No GitHub issues created when tasks are made
+- Authentication errors in logs
+- Integration appears configured but doesn't function
+
+**Solutions**:
+1. **Verify All Variables Are Set**
+   ```bash
+   # Check if environment variables are loaded
+   echo $GITHUB_APP_ID
+   echo $GITHUB_CLIENT_ID
+   # etc.
+   ```
+
+2. **Check Private Key Format**
+   - Ensure `GITHUB_PRIVATE_KEY` includes the full content with proper line breaks
+   - The key should start with `-----BEGIN RSA PRIVATE KEY-----`
+   - The key should end with `-----END RSA PRIVATE KEY-----`
+   - Include all newlines and formatting from the `.pem` file
+
+3. **Restart Backend Service**
+   - Environment variable changes require a service restart
+   - For Docker Compose: `docker compose restart backend`
+   - For Kubernetes: `kubectl rollout restart deployment/kaneo-backend`
+
+4. **Check Log Output**
+   - Look for authentication errors on startup
+   - Verify the GitHub App ID is recognized
+   - Check for private key parsing errors
+
+<Callout type="warning">
+Make sure your private key doesn't have any extra characters or missing newlines.
+</Callout>
+
+## Webhook Issues
+
+### Webhook Not Receiving Events
+
+**Problem**: GitHub events aren't reaching Kaneo.
+
+**Symptoms**:
+- Webhook events listed in GitHub but no logs in Kaneo
+- Webhook delivery failures in GitHub App settings
+
+**Solutions**:
+1. **Verify Webhook URL**
+   - Ensure the URL is publicly accessible: `https://your-domain.com/github-integration/webhook`
+   - Test accessibility from external tools like curl or online checkers
+   - Verify your domain has proper DNS resolution
+
+2. **Check HTTPS Configuration**
+   - GitHub requires HTTPS for webhook endpoints
+   - Ensure your SSL certificate is valid and not self-signed
+   - Test your webhook endpoint with online SSL checkers
+
+3. **Firewall and Network Issues**
+   - Ensure GitHub's IP ranges can reach your server
+   - Check if your hosting provider blocks incoming webhooks
+   - Verify no authentication middleware is blocking the webhook endpoint
+
+### Webhook Signature Verification Fails
+
+**Problem**: Webhooks reach Kaneo but signature verification fails.
+
+**Symptoms**:
+- "Invalid signature" errors in logs
+- Webhook events rejected with 400 status
+
+**Solutions**:
+1. **Verify Webhook Secret**
+   - Ensure `GITHUB_WEBHOOK_SECRET` matches exactly what you set in the GitHub App
+   - Check for extra spaces or characters
+   - The secret is case-sensitive
+
+2. **Check Secret Configuration**
+   - In GitHub App settings, verify the webhook secret is set
+   - If you changed the secret, update the environment variable and restart
+   - Generate a new secret if there are persistent issues
+
+## Testing and Debugging
+
+### Testing the Integration
+
+Follow these steps to systematically test your integration:
+
+1. **Verify Environment Variables**
+   ```bash
+   # Check that all required variables are set (don't print private key!)
+   echo "App ID: $GITHUB_APP_ID"
+   echo "Client ID: $GITHUB_CLIENT_ID"
+   echo "Webhook Secret: [REDACTED]"
+   echo "App Name: $GITHUB_APP_NAME"
+   ```
+
+2. **Test Repository Access**
+   - Use the "Browse Repositories" feature in Kaneo
+   - Verify your target repository appears in the list
+   - Try connecting a test repository first
+
+3. **Create a Test Task**
+   - Create a simple task in your connected project
+   - Check GitHub immediately for the new issue
+   - Verify the issue format and labels are correct
+
+4. **Check Backend Logs**
+   Look for these log messages:
+   ```
+   ✅ GitHub issue created: { issueNumber: 42, issueUrl: "...", taskId: "...", repository: "..." }
+   ❌ Failed to create GitHub issue: [error details]
+   ✅ Task created: { taskId: "...", title: "...", projectId: "..." }
+   ```
+
+### Log Analysis
+
+**Successful Integration Logs**:
+```
+Task created: { taskId: "task_123", title: "Fix bug", projectId: "proj_456" }
+Creating GitHub issue for repository: owner/repo
+GitHub issue created: { issueNumber: 42, issueUrl: "https://github.com/owner/repo/issues/42" }
+```
+
+**Common Error Patterns**:
+```
+❌ No active GitHub integration found for project: proj_456
+❌ Failed to create GitHub issue: HttpError: Bad credentials
+❌ Repository not found: owner/nonexistent-repo
+❌ App installation not found for repository: owner/repo
+```
+
+### GitHub App Diagnostics
+
+Use GitHub's built-in tools to diagnose issues:
+
+1. **App Installation Page**
+   - Visit [GitHub App installations](https://github.com/settings/installations)
+   - Check which repositories your app can access
+   - Review granted permissions
+
+2. **Webhook Delivery Logs**
+   - In your GitHub App settings, check the "Advanced" tab
+   - Review recent webhook deliveries and their status codes
+   - Look for failed deliveries or error responses
+
+3. **Repository Integration Status**
+   - Go to your repository's Settings → Integrations & services
+   - Verify your app appears in the list
+   - Check the app's permissions and access
+
+## Getting Help
+
+If you're still experiencing issues:
+
+### Before Asking for Help
+
+1. **Check Your Setup**
+   - Verify all environment variables are correct
+   - Ensure your GitHub App has the right permissions
+   - Test with a simple repository first
+
+2. **Gather Information**
+   - Note the exact error messages
+   - Check both Kaneo logs and GitHub webhook delivery logs
+   - Document your environment (Docker, Kubernetes, etc.)
+
+3. **Test Basic Functionality**
+   - Try creating a task without GitHub integration
+   - Verify your Kaneo instance is working normally
+   - Test with different repositories if possible
+
+### Support Channels
+
+- **[Discord Community](https://discord.gg/rU4tSyhXXU)** - Real-time help from the community
+- **[GitHub Issues](https://github.com/usekaneo/kaneo/issues)** - Report bugs or request features
+- **[Documentation](/docs)** - Review setup guides and troubleshooting
+
+### What to Include in Support Requests
+
+1. **Environment Details**
+   - Kaneo version
+   - Deployment method (Docker, Kubernetes, etc.)
+   - Operating system
+
+2. **Error Information**
+   - Exact error messages
+   - Screenshots of the issue
+   - Relevant log entries
+
+3. **Configuration Details**
+   - Which environment variables you've set (don't share secret values!)
+   - GitHub App permissions you've granted
+   - Repository details (without sharing sensitive info)
+
+<Callout type="info">
+When sharing logs or error messages, always redact sensitive information like private keys, secrets, or access tokens.
+</Callout>
+
+---
+
+**Still stuck?** The Kaneo community is here to help! Join our [Discord](https://discord.gg/rU4tSyhXXU) for real-time support.
