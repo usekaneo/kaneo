@@ -1,3 +1,5 @@
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { CheckSquare, Clock } from "lucide-react";
 import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
 import NotificationDropdown from "@/components/notification/notification-dropdown";
@@ -8,6 +10,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -36,8 +39,27 @@ export default function ProjectLayout({
   headerActions,
   children,
 }: ProjectLayoutProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
+
+  const isBacklogRoute = location.pathname.includes("/backlog");
+  const isBoardRoute = location.pathname.includes("/board");
+
+  const handleNavigateToBacklog = () => {
+    navigate({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
+      params: { workspaceId, projectId },
+    });
+  };
+
+  const handleNavigateToBoard = () => {
+    navigate({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+      params: { workspaceId, projectId },
+    });
+  };
 
   return (
     <Layout>
@@ -66,7 +88,7 @@ export default function ProjectLayout({
               orientation="vertical"
               className="mx-1.5 data-[orientation=vertical]:h-2.5"
             />
-            <Breadcrumb className="flex items-center text-xs w-full">
+            <Breadcrumb className="flex items-center text-xs">
               <BreadcrumbList className="!gap-1">
                 <BreadcrumbItem>
                   <BreadcrumbLink href={`/dashboard/workspace/${workspaceId}`}>
@@ -91,6 +113,36 @@ export default function ProjectLayout({
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+
+            <Separator
+              orientation="vertical"
+              className="mx-3 data-[orientation=vertical]:h-4"
+            />
+
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={handleNavigateToBacklog}
+                className={`gap-1.5 h-6 px-2 text-xs text-muted-foreground ${isBacklogRoute ? "text-white" : ""}`}
+              >
+                <Clock className="w-3 h-3" />
+                Backlog
+              </Button>
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={handleNavigateToBoard}
+                className="gap-1.5 h-6 px-2 text-xs text-muted-foreground"
+              >
+                <CheckSquare className="w-3 h-3" />
+                <span
+                  className={`text-xs text-muted-foreground ${isBoardRoute ? "text-white" : ""}`}
+                >
+                  Tasks
+                </span>
+              </Button>
+            </div>
           </div>
           <div className="flex items-center gap-1.5">
             <NotificationDropdown />

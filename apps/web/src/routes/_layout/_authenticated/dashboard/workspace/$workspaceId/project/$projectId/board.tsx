@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Calendar, Filter, User, X } from "lucide-react";
+import {
+  Calendar,
+  Filter,
+  Layout,
+  List,
+  Monitor,
+  Settings2,
+  User,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
@@ -39,7 +48,7 @@ function RouteComponent() {
   const { projectId, workspaceId } = Route.useParams();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
-  const { viewMode } = useUserPreferencesStore();
+  const { viewMode, setViewMode } = useUserPreferencesStore();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
@@ -423,6 +432,41 @@ function RouteComponent() {
                         )}
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs text-muted-foreground"
+                    >
+                      <Settings2 className="h-3 w-3 mr-1" />
+                      Display
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-40" align="start">
+                    <DropdownMenuItem
+                      onClick={() => setViewMode("board")}
+                      className={`gap-2 ${viewMode === "board" ? "bg-accent" : ""}`}
+                    >
+                      <Layout className="h-3 w-3" />
+                      <span>Board</span>
+                      {viewMode === "board" && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setViewMode("list")}
+                      className={`gap-2 ${viewMode === "list" ? "bg-accent" : ""}`}
+                    >
+                      <List className="h-3 w-3" />
+                      <span>List</span>
+                      {viewMode === "list" && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                      )}
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
