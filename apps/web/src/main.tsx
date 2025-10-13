@@ -28,7 +28,7 @@ console.log(`
   ///////                      
                    
   
-  All you need. Nothing you don't. Kaneo.
+  All you need. Nothing you don't.
 `);
 
 const router = createRouter({

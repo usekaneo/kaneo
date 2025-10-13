@@ -99,17 +99,14 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             {...attributes}
             {...listeners}
           >
-            {showTaskNumbers && (
-              <div className="text-xs font-mono text-zinc-400 dark:text-zinc-500 w-16 flex-shrink-0">
-                {projectSlug}-{task.number}
+            {showPriority && (
+              <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
+                {getPriorityIcon(task.priority ?? "")}
               </div>
             )}
-
-            {showPriority && (
-              <div className="flex-shrink-0">
-                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground">
-                  {getPriorityIcon(task.priority ?? "")}
-                </span>
+            {showTaskNumbers && (
+              <div className="text-xs font-mono text-zinc-400 dark:text-zinc-500 flex-shrink-0">
+                {projectSlug}-{task.number}
               </div>
             )}
 

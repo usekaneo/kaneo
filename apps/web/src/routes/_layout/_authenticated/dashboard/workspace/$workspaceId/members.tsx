@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
 import WorkspaceLayout from "@/components/common/workspace-layout";
+import PageTitle from "@/components/page-title";
 import InviteTeamMemberModal from "@/components/team/invite-team-member-modal";
 import MembersTable from "@/components/team/members-table";
 import { Button } from "@/components/ui/button";
@@ -24,26 +25,29 @@ function RouteComponent() {
   const userInvitations = workspace?.invitations;
 
   return (
-    <WorkspaceLayout
-      title="Members"
-      headerActions={
-        <Button
-          onClick={() => setIsInviteTeamMemberModalOpen(true)}
-          variant="outline"
-          size="xs"
-          className="gap-1 w-full md:w-auto"
-        >
-          <UserPlus className="w-3 h-3" />
-          Invite member
-        </Button>
-      }
-    >
-      <MembersTable users={users ?? []} invitations={userInvitations ?? []} />
+    <>
+      <PageTitle title="Members" />
+      <WorkspaceLayout
+        title="Members"
+        headerActions={
+          <Button
+            onClick={() => setIsInviteTeamMemberModalOpen(true)}
+            variant="outline"
+            size="xs"
+            className="gap-1 w-full md:w-auto"
+          >
+            <UserPlus className="w-3 h-3" />
+            Invite member
+          </Button>
+        }
+      >
+        <MembersTable users={users ?? []} invitations={userInvitations ?? []} />
 
-      <InviteTeamMemberModal
-        open={isInviteTeamMemberModalOpen}
-        onClose={() => setIsInviteTeamMemberModalOpen(false)}
-      />
-    </WorkspaceLayout>
+        <InviteTeamMemberModal
+          open={isInviteTeamMemberModalOpen}
+          onClose={() => setIsInviteTeamMemberModalOpen(false)}
+        />
+      </WorkspaceLayout>
+    </>
   );
 }

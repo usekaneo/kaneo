@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -111,94 +112,97 @@ function RouteComponent() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold">Personal Information</h1>
-        <p className="text-muted-foreground">
-          Manage your personal details and account information.
-        </p>
-      </div>
-
-      <div className="space-y-6">
-        <div className="space-y-1">
-          <h2 className="text-md font-medium">Account Information</h2>
-          <p className="text-xs text-muted-foreground">
-            Manage your profile and account details.
+    <>
+      <PageTitle title="Personal Information" />
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold">Personal Information</h1>
+          <p className="text-muted-foreground">
+            Manage your personal details and account information.
           </p>
         </div>
 
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium">Profile picture</p>
-            </div>
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
-              <AvatarFallback className="text-xs font-medium border border-border/30">
-                {user?.name?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-md font-medium">Account Information</h2>
+            <p className="text-xs text-muted-foreground">
+              Manage your profile and account details.
+            </p>
           </div>
 
-          <Separator />
+          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">Profile picture</p>
+              </div>
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
+                <AvatarFallback className="text-xs font-medium border border-border/30">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
 
-          <Form {...profileForm}>
-            <form className="space-y-4">
-              <FormField
-                control={profileForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm font-medium">
-                          Full name
-                        </FormLabel>
+            <Separator />
+
+            <Form {...profileForm}>
+              <form className="space-y-4">
+                <FormField
+                  control={profileForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium">
+                            Full name
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <Input
+                            className="w-48"
+                            placeholder="Enter your name"
+                            {...field}
+                          />
+                        </FormControl>
                       </div>
-                      <FormControl>
-                        <Input
-                          className="w-48"
-                          placeholder="Enter your name"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <Separator />
+                <Separator />
 
-              <FormField
-                control={profileForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm font-medium">
-                          Email
-                        </FormLabel>
+                <FormField
+                  control={profileForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium">
+                            Email
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <Input
+                            className="w-48"
+                            placeholder="Enter your email"
+                            {...field}
+                            disabled
+                            value={user?.email || ""}
+                          />
+                        </FormControl>
                       </div>
-                      <FormControl>
-                        <Input
-                          className="w-48"
-                          placeholder="Enter your email"
-                          {...field}
-                          disabled
-                          value={user?.email || ""}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

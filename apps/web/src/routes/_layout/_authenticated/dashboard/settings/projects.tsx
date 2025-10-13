@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import PageTitle from "@/components/page-title";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects",
@@ -8,6 +9,9 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   return (
-    <div>Hello "/_layout/_authenticated/dashboard/settings/projects"!</div>
+    <>
+      <PageTitle title="Project Settings" />
+      <div>Hello "/_layout/_authenticated/dashboard/settings/projects"!</div>
+    </>
   );
 }

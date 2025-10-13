@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import PageTitle from "@/components/page-title";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -156,135 +157,141 @@ function RouteComponent() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold">General Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your workspace name and description.
-        </p>
-      </div>
-
-      <div className="space-y-6">
-        <div className="space-y-1">
-          <h2 className="text-md font-medium">Workspace Information</h2>
-          <p className="text-xs text-muted-foreground">
-            Configure your workspace details and preferences.
+    <>
+      <PageTitle title="General Settings" />
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold">General Settings</h1>
+          <p className="text-muted-foreground">
+            Manage your workspace name and description.
           </p>
         </div>
 
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
-          <Form {...workspaceForm}>
-            <form className="space-y-4">
-              <FormField
-                control={workspaceForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm font-medium">
-                          Workspace name
-                        </FormLabel>
-                        <p className="text-xs text-muted-foreground">
-                          The name of your workspace
-                        </p>
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-md font-medium">Workspace Information</h2>
+            <p className="text-xs text-muted-foreground">
+              Configure your workspace details and preferences.
+            </p>
+          </div>
+
+          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <Form {...workspaceForm}>
+              <form className="space-y-4">
+                <FormField
+                  control={workspaceForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium">
+                            Workspace name
+                          </FormLabel>
+                          <p className="text-xs text-muted-foreground">
+                            The name of your workspace
+                          </p>
+                        </div>
+                        <FormControl>
+                          <Input
+                            className="w-64"
+                            placeholder="Enter workspace name"
+                            {...field}
+                          />
+                        </FormControl>
                       </div>
-                      <FormControl>
-                        <Input
-                          className="w-64"
-                          placeholder="Enter workspace name"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <Separator />
+                <Separator />
 
-              <FormField
-                control={workspaceForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm font-medium">
-                          Description
-                        </FormLabel>
-                        <p className="text-xs text-muted-foreground">
-                          A brief description of your workspace
-                        </p>
+                <FormField
+                  control={workspaceForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium">
+                            Description
+                          </FormLabel>
+                          <p className="text-xs text-muted-foreground">
+                            A brief description of your workspace
+                          </p>
+                        </div>
+                        <FormControl>
+                          <Input
+                            className="w-64"
+                            placeholder="Enter workspace description"
+                            {...field}
+                          />
+                        </FormControl>
                       </div>
-                      <FormControl>
-                        <Input
-                          className="w-64"
-                          placeholder="Enter workspace description"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        <div className="space-y-1">
-          <h2 className="text-md font-medium">Danger zone</h2>
-          <p className="text-xs text-muted-foreground">
-            Irreversible and destructive actions.
-          </p>
-        </div>
-
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium">Delete workspace</p>
-              <p className="text-xs text-muted-foreground">
-                Schedule workspace to be permanently deleted
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-destructive hover:text-destructive transition-colors"
-              type="button"
-              onClick={() => setIsDeleteModalOpen(true)}
-            >
-              Delete workspace
-            </Button>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
           </div>
         </div>
-      </div>
 
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Workspace?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the workspace "{workspace?.name}" and
-              all its data. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteWorkspace}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? "Deleting..." : "Delete Workspace"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-md font-medium">Danger zone</h2>
+            <p className="text-xs text-muted-foreground">
+              Irreversible and destructive actions.
+            </p>
+          </div>
+
+          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">Delete workspace</p>
+                <p className="text-xs text-muted-foreground">
+                  Schedule workspace to be permanently deleted
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-destructive hover:text-destructive transition-colors"
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+              >
+                Delete workspace
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <AlertDialog
+          open={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Workspace?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete the workspace "{workspace?.name}"
+                and all its data. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteWorkspace}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? "Deleting..." : "Delete Workspace"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </>
   );
 }

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import BacklogListView from "@/components/backlog-list-view";
 import ProjectLayout from "@/components/common/project-layout";
+import PageTitle from "@/components/page-title";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -278,6 +279,7 @@ function RouteComponent() {
       projectId={projectId}
       workspaceId={workspaceId}
     >
+      <PageTitle title={`${project?.name}'s backlog`} />
       <div className="flex flex-col h-full min-h-0">
         <div className="bg-card border-b border-border">
           <div className="h-10 flex items-center px-4">
