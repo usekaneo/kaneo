@@ -133,18 +133,6 @@ export default function Footer() {
             </div>
           </div>
         </div>
-
-        <div
-          aria-hidden="true"
-          className="border-t border-foreground/10 border-dashed"
-        />
-
-        <div className="flex flex-wrap justify-between gap-4 items-center">
-          <span className="text-muted-foreground text-xs">Kaneo</span>
-          <span className="text-muted-foreground text-xs">
-            Built by the community for the community.
-          </span>
-        </div>
       </div>
     </footer>
   );

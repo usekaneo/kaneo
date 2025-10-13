@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { baseOptions } from "@/app/layout.config";
 
 export const metadata: Metadata = {
-  title: "Kaneo - All you need. Nothing you don't.",
+  title: "Kaneo ⎯ All you need. Nothing you don't.",
   description:
     "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com. Features kanban boards, time tracking, Gantt charts, and team collaboration. Docker deployment in 5 minutes.",
   alternates: {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://kaneo.app",
-    title: "Kaneo - All you need. Nothing you don't.",
+    title: "Kaneo ⎯ All you need. Nothing you don't.",
     description:
       "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com with kanban boards, time tracking, and team collaboration.",
     siteName: "Kaneo",
@@ -26,13 +26,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Kaneo - All you need. Nothing you don't.",
+        alt: "Kaneo ⎯ All you need. Nothing you don't.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kaneo - Project management made simple",
+    title: "Kaneo ⎯ Project management made simple",
     description:
       "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com with kanban boards, time tracking, and team collaboration.",
     images: ["/og-image.png"],
