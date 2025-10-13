@@ -28,7 +28,6 @@ function useUpdateWorkspace() {
 
       if (name !== undefined) {
         updateData.name = name;
-        // Auto-generate slug from name if slug is not provided
         if (slug === undefined) {
           updateData.slug = createSlug(name);
         }

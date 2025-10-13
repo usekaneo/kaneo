@@ -49,7 +49,7 @@ function SettingsLayout() {
                 value="workspace"
                 className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"
                 onClick={() =>
-                  navigate({ to: "/dashboard/settings/workspace" })
+                  navigate({ to: "/dashboard/settings/workspace/general" })
                 }
               >
                 Workspace
