@@ -4,7 +4,6 @@ import {
   Filter,
   Layout,
   List,
-  Monitor,
   Settings2,
   User,
   X,
