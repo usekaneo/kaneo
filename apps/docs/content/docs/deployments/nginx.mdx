@@ -2,7 +2,8 @@
 title: Nginx
 description: Deploy Kaneo with Nginx as a reverse proxy
 ---
-import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
 
 This guide explains how to deploy Kaneo using Nginx as a reverse proxy. This setup is ideal for production environments where you want to expose Kaneo through a domain name with HTTPS.
 
@@ -34,6 +35,13 @@ services:
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
       DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
+      # Email notifications (optional)
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "your-email@gmail.com"
+      SMTP_PASS: "your-app-password"
+      FROM_EMAIL: "noreply@yourdomain.com"
+      FROM_NAME: "Kaneo Notifications"
     ports:
       - "1337:1337"
     depends_on:
@@ -55,7 +63,8 @@ volumes:
 ```
 
 <Step>
-Create a `nginx.conf` file with the following content in `/etc/nginx/sites-available/kaneo.conf`:
+  Create a `nginx.conf` file with the following content in
+  `/etc/nginx/sites-available/kaneo.conf`:
 </Step>
 
 ```nginx
@@ -90,6 +99,7 @@ Start the containers:
 ```bash
 docker compose up -d
 ```
+
 </Step>
 
 <Step>
@@ -98,6 +108,7 @@ Enable the configuration:
 ```bash
 sudo ln -s /etc/nginx/sites-available/kaneo.conf /etc/nginx/sites-enabled/
 ```
+
 </Step>
 
 <Step>
@@ -106,6 +117,7 @@ Test the configuration:
 ```bash
 sudo nginx -t
 ```
+
 </Step>
 
 <Step>
@@ -114,10 +126,12 @@ Restart Nginx:
 ```bash
 sudo systemctl restart nginx
 ```
+
 </Step>
 
 <Step>
-Configure your DNS settings to point both `your-domain.com` and `api.your-domain.com` to your server's IP address.
+  Configure your DNS settings to point both `your-domain.com` and
+  `api.your-domain.com` to your server's IP address.
 </Step>
 
 <Step>
@@ -151,6 +165,13 @@ services:
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
       DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
+      # Email notifications (optional)
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "your-email@gmail.com"
+      SMTP_PASS: "your-app-password"
+      FROM_EMAIL: "noreply@yourdomain.com"
+      FROM_NAME: "Kaneo Notifications"
     ports:
       - "1337:1337"
     depends_on:
@@ -172,7 +193,8 @@ volumes:
 ```
 
 <Step>
-Create a `nginx.conf` file with the following content in `/etc/nginx/sites-available/kaneo.conf`:
+  Create a `nginx.conf` file with the following content in
+  `/etc/nginx/sites-available/kaneo.conf`:
 </Step>
 
 ```nginx
@@ -202,6 +224,7 @@ Start the containers:
 ```bash
 docker compose up -d
 ```
+
 </Step>
 
 <Step>
@@ -210,6 +233,7 @@ Enable the configuration:
 ```bash
 sudo ln -s /etc/nginx/sites-available/kaneo.conf /etc/nginx/sites-enabled/
 ```
+
 </Step>
 
 <Step>
@@ -218,6 +242,7 @@ Test the configuration:
 ```bash
 sudo nginx -t
 ```
+
 </Step>
 
 <Step>
@@ -226,10 +251,12 @@ Restart Nginx:
 ```bash
 sudo systemctl restart nginx
 ```
+
 </Step>
 
 <Step>
-Configure your DNS settings to point `your-domain.com` to your server's IP address.
+  Configure your DNS settings to point `your-domain.com` to your server's IP
+  address.
 </Step>
 
 <Step>

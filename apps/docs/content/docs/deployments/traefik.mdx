@@ -2,7 +2,8 @@
 title: Traefik
 description: Deploy Kaneo with Traefik
 ---
-import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
 
 This guide explains how to deploy Kaneo using Traefik as a reverse proxy. This setup is ideal for production environments where you want to expose Kaneo through a domain name with HTTPS.
 
@@ -49,6 +50,13 @@ services:
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
       DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
+      # Email notifications (optional)
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "your-email@gmail.com"
+      SMTP_PASS: "your-app-password"
+      FROM_EMAIL: "noreply@yourdomain.com"
+      FROM_NAME: "Kaneo Notifications"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.your-domain.com`)"
@@ -89,10 +97,12 @@ Start the containers:
 ```bash
 docker compose up -d
 ```
+
 </Step>
 
 <Step>
-Configure your DNS settings to point both `your-domain.com` and `api.your-domain.com` to your server's IP address.
+  Configure your DNS settings to point both `your-domain.com` and
+  `api.your-domain.com` to your server's IP address.
 </Step>
 
 <Step>
@@ -141,6 +151,13 @@ services:
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
       DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
+      # Email notifications (optional)
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "your-email@gmail.com"
+      SMTP_PASS: "your-app-password"
+      FROM_EMAIL: "noreply@yourdomain.com"
+      FROM_NAME: "Kaneo Notifications"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`your-domain.com`) && PathPrefix(`/api`)"
@@ -183,10 +200,12 @@ Start the containers:
 ```bash
 docker compose up -d
 ```
+
 </Step>
 
 <Step>
-Configure your DNS settings to point `your-domain.com` to your server's IP address.
+  Configure your DNS settings to point `your-domain.com` to your server's IP
+  address.
 </Step>
 
 <Step>

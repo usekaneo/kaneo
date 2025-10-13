@@ -4,7 +4,7 @@ description: Get started with Kaneo in minutes. Learn how to deploy the open sou
 icon: Rocket
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Step, Steps } from "fumadocs-ui/components/steps";
 
 Kaneo is an open source project management platform focused on simplicity and efficiency. This comprehensive guide will help you get up and running quickly with a production-ready setup.
 
@@ -27,6 +27,7 @@ The easiest way to get started with Kaneo is using Docker Compose. This setup in
 **Create your Docker Compose configuration**
 
 Create a `compose.yml` file with the following content:
+
 </Step>
 
 ```yaml
@@ -46,6 +47,13 @@ services:
     environment:
       JWT_ACCESS: "your_secure_jwt_token"
       DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
+      # Optional: Email notifications
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "your-email@gmail.com"
+      SMTP_PASS: "your-app-password"
+      FROM_EMAIL: "noreply@yourdomain.com"
+      FROM_NAME: "Kaneo Notifications"
     ports:
       - 1337:1337
     depends_on:
@@ -76,12 +84,14 @@ docker compose up -d
 ```
 
 This will download the images and start the containers in the background.
+
 </Step>
 
 <Step>
 **Access your Kaneo instance**
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+
 </Step>
 
 <Step>
@@ -90,22 +100,29 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 Create your first project and start managing your tasks! 🎉
 
 You'll be able to:
+
 - Create projects and organize tasks
 - Assign team members and set priorities
 - Track progress with kanban boards
 - Collaborate with your team in real-time
-</Step>
+  </Step>
 
 </Steps>
 
 ## Environment Variables Reference
 
-| Variable | Description | Required | Default |
-| -------- | ----------- | -------- | ------- |
-| `KANEO_API_URL` | The URL where the API is accessible | Yes | - |
-| `JWT_ACCESS` | Secret key for generating JWT tokens | Yes | - |
-| `DATABASE_URL` | PostgreSQL connection string | Yes | - |
-| `DISABLE_REGISTRATION` | Enable/disable new user registration | No | `false` |
+| Variable               | Description                                  | Required | Default |
+| ---------------------- | -------------------------------------------- | -------- | ------- |
+| `KANEO_API_URL`        | The URL where the API is accessible          | Yes      | -       |
+| `JWT_ACCESS`           | Secret key for generating JWT tokens         | Yes      | -       |
+| `DATABASE_URL`         | PostgreSQL connection string                 | Yes      | -       |
+| `DISABLE_REGISTRATION` | Enable/disable new user registration         | No       | `false` |
+| `SMTP_HOST`            | Email server hostname for notifications      | No       | -       |
+| `SMTP_PORT`            | Email server port (587 for TLS, 465 for SSL) | No       | `587`   |
+| `SMTP_USER`            | Email server username                        | No       | -       |
+| `SMTP_PASS`            | Email server password or app password        | No       | -       |
+| `FROM_EMAIL`           | Sender email address for notifications       | No       | -       |
+| `FROM_NAME`            | Sender name for email notifications          | No       | `Kaneo` |
 
 ## Database Setup
 
@@ -114,6 +131,7 @@ Kaneo uses PostgreSQL for reliable data storage with proper relational integrity
 ### Manual PostgreSQL Setup
 
 1. **Install PostgreSQL** (version 12 or higher)
+
    ```bash
    # Ubuntu/Debian
    sudo apt install postgresql postgresql-contrib
@@ -123,6 +141,7 @@ Kaneo uses PostgreSQL for reliable data storage with proper relational integrity
    ```
 
 2. **Create a database and user:**
+
    ```sql
    CREATE DATABASE kaneo;
    CREATE USER kaneo_user WITH PASSWORD 'your_password';

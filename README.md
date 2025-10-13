@@ -33,10 +33,42 @@
 We built Kaneo because existing project management tools either feel bloated with features you'll never use, or they're too simple to handle real work. Kaneo finds the sweet spot—powerful enough for complex projects, simple enough that you'll actually want to use it.
 
 **What makes it different:**
+
 - **Clean interface** that focuses on your work, not the tool
 - **Self-hosted** so your data stays yours
 - **Actually fast** because we care about performance
 - **Open source** and free forever
+
+## Features
+
+### Core Project Management
+
+- **Kanban boards** with drag-and-drop task management
+- **Task tracking** with priorities, due dates, and labels
+- **Time tracking** to monitor work progress
+- **Project organization** with workspace management
+- **Team collaboration** with comments and mentions
+
+### Communication & Notifications
+
+- **Email notifications** with modern, responsive templates
+- **Real-time updates** for task changes and comments
+- **Team mentions** and notification preferences
+- **Activity feeds** to track project progress
+
+### Integrations & Extensibility
+
+- **GitHub integration** for issue synchronization
+- **REST API** for custom integrations
+- **Webhook support** for external automation
+- **Docker deployment** for easy scaling
+
+### Technical Features
+
+- **Self-hosted** with full data ownership
+- **PostgreSQL database** for reliable data storage
+- **Modern tech stack** (React, TypeScript, Node.js)
+- **Responsive design** that works on all devices
 
 ## Getting Started
 
@@ -61,6 +93,12 @@ services:
     environment:
       JWT_ACCESS: "your-secret-key-here"
       DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
+      # Optional: Email notifications
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "your-email@gmail.com"
+      SMTP_PASS: "your-app-password"
+      FROM_EMAIL: "noreply@yourdomain.com"
     ports:
       - 1337:1337
     depends_on:
@@ -91,12 +129,17 @@ For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for det
 
 ### Configuration Options
 
-| Variable | What it does | Default |
-| -------- | ------------ | ------- |
-| `KANEO_API_URL` | Where the web app finds the API | Required |
-| `JWT_ACCESS` | Secret key for user authentication | Required |
-| `DATABASE_URL` | PostgreSQL connection string | Required |
-| `DISABLE_REGISTRATION` | Block new user signups | `true` |
+| Variable               | What it does                                 | Default  |
+| ---------------------- | -------------------------------------------- | -------- |
+| `KANEO_API_URL`        | Where the web app finds the API              | Required |
+| `JWT_ACCESS`           | Secret key for user authentication           | Required |
+| `DATABASE_URL`         | PostgreSQL connection string                 | Required |
+| `DISABLE_REGISTRATION` | Block new user signups                       | `true`   |
+| `SMTP_HOST`            | Email server hostname for notifications      | Optional |
+| `SMTP_PORT`            | Email server port (587 for TLS, 465 for SSL) | `587`    |
+| `SMTP_USER`            | Email server username                        | Optional |
+| `SMTP_PASS`            | Email server password                        | Optional |
+| `FROM_EMAIL`           | Sender email address for notifications       | Optional |
 
 ### Database Setup
 
@@ -104,6 +147,7 @@ Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles t
 
 1. **Install PostgreSQL** (version 12 or higher)
 2. **Create a database and user:**
+
    ```sql
    CREATE DATABASE kaneo;
    CREATE USER kaneo_user WITH PASSWORD 'your_password';
@@ -114,6 +158,7 @@ Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles t
    GRANT CREATE ON SCHEMA public TO kaneo_user;
    ALTER SCHEMA public OWNER TO kaneo_user;
    ```
+
 3. **Set the DATABASE_URL environment variable:**
    ```bash
    export DATABASE_URL="postgresql://kaneo_user:your_password@localhost:5432/kaneo"
@@ -157,6 +202,7 @@ Check the [Helm chart docs](./charts/kaneo/README.md) for TLS setup, cert-manage
 Want to hack on Kaneo? See our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions on configuring environment variables and troubleshooting common issues like CORS problems.
 
 Quick start:
+
 ```bash
 # Clone and install dependencies
 git clone https://github.com/usekaneo/kaneo.git
@@ -193,6 +239,7 @@ Contact us on [Discord](https://discord.gg/rU4tSyhXXU) if you need help with the
 ## Contributing
 
 We're always looking for help, whether that's:
+
 - Reporting bugs or suggesting features
 - Improving documentation
 - Contributing code

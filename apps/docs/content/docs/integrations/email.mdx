@@ -1,0 +1,274 @@
+---
+title: Email Notifications
+description: Configure and customize email notifications in Kaneo for task assignments, status changes, comments, and team collaboration.
+icon: Mail
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Kaneo features a comprehensive email notification system that keeps your team informed about project updates, task assignments, status changes, and comments. All email templates use modern, responsive design with consistent branding.
+
+## Overview
+
+The email notification system sends beautifully designed emails for key project events:
+
+- **Task Assignments** - When team members are assigned to new tasks
+- **Status Changes** - When task status is updated (todo → in progress → done)
+- **Comments Added** - When someone comments on a task
+- **Priority Changes** - When task priority is modified
+- **Time Tracking** - When someone starts tracking time on a task
+- **Workspace Invitations** - When users are invited to join workspaces
+
+## Email Design Features
+
+### Modern Template Design
+
+All email templates feature a modern, card-based design with:
+
+- **Consistent branding** with Kaneo's indigo color scheme (#6366F1)
+- **Inter font family** matching the web application
+- **Responsive design** that works on all devices
+- **Clean visual hierarchy** with proper spacing and typography
+
+### Template Components
+
+- **Hero sections** with gradient backgrounds
+- **Detail tables** showing relevant task information
+- **Callout boxes** for comments and important information
+- **Status badges** with color-coded priorities and statuses
+- **Clear call-to-action buttons** linking back to Kaneo
+
+### MJML Framework
+
+Email templates are built using [MJML](https://mjml.io/), ensuring:
+
+- **Cross-client compatibility** (Gmail, Outlook, Apple Mail, etc.)
+- **Responsive design** that adapts to different screen sizes
+- **Consistent rendering** across email providers
+
+## Email Types
+
+### Task Assignment Emails
+
+Sent when a team member is assigned to a new task.
+
+**Includes:**
+
+- Task title and description
+- Project name
+- Assignee information
+- Priority level (if set)
+- Due date (if set)
+- Direct link to the task
+
+### Status Change Notifications
+
+Triggered when a task status is updated.
+
+**Includes:**
+
+- Task title
+- Previous and new status with visual indicators
+- Project context
+- Link to review the updated task
+
+### Comment Notifications
+
+Sent when someone adds a comment to a task.
+
+**Includes:**
+
+- Commenter name and profile
+- Full comment content in a highlighted callout
+- Task and project context
+- Quick link to reply
+
+### Priority Change Alerts
+
+Notifies when task priority is modified.
+
+**Includes:**
+
+- Previous and new priority levels
+- Visual priority badges
+- Project and assignee information
+- Link to review changes
+
+### Time Tracking Notifications
+
+Sent when team members start tracking time.
+
+**Includes:**
+
+- Person who started tracking
+- Start time information
+- Task description (if provided)
+- Link to view time tracking details
+
+### Workspace Invitations
+
+Welcome emails for new team members.
+
+**Includes:**
+
+- Workspace name and inviter information
+- User's assigned role
+- Welcome message and getting started guidance
+- Direct access link to the workspace
+
+## Configuration
+
+<Callout type="info">
+  Email notifications are automatically enabled when you configure SMTP settings
+  in your Kaneo deployment.
+</Callout>
+
+### SMTP Setup
+
+Configure email delivery by setting these environment variables:
+
+```bash
+# SMTP Server Configuration
+SMTP_HOST=smtp.yourprovider.com
+SMTP_PORT=587
+SMTP_USER=your-email@domain.com
+SMTP_PASS=your-password
+SMTP_SECURE=false  # Set to true for port 465
+
+# Email Settings
+FROM_EMAIL=noreply@yourdomain.com
+FROM_NAME="Kaneo Notifications"
+```
+
+### Docker Compose Example
+
+```yaml
+services:
+  backend:
+    image: ghcr.io/usekaneo/api:latest
+    environment:
+      # ... other environment variables
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: your-email@gmail.com
+      SMTP_PASS: your-app-password
+      FROM_EMAIL: noreply@yourdomain.com
+      FROM_NAME: "Your Company Kaneo"
+```
+
+## Customization
+
+### Email Branding
+
+The email templates include customizable elements:
+
+- **Logo**: Update the `LOGO_URL` constant in the email generator
+- **Colors**: Modify the color scheme while maintaining accessibility
+- **Footer**: Customize company information and links
+- **Domain**: Use your own domain for email links
+
+### Template Modification
+
+Email templates are located in:
+
+```
+apps/api/src/email/mjml/mjml-generator.ts
+```
+
+The template system uses a modular approach with:
+
+- **Shared layout functions** for consistency
+- **Reusable components** for details tables and callouts
+- **Type-safe interfaces** for each email type
+
+## Best Practices
+
+### Email Deliverability
+
+1. **Configure SPF/DKIM** records for your domain
+2. **Use a dedicated sending domain** for better reputation
+3. **Monitor bounce rates** and maintain clean recipient lists
+4. **Test with major email providers** before deployment
+
+### User Experience
+
+1. **Keep subject lines clear** and actionable
+2. **Include context** so users understand the notification
+3. **Provide direct links** to relevant tasks or pages
+4. **Respect user preferences** for notification frequency
+
+### Performance
+
+1. **Use efficient SMTP providers** for reliable delivery
+2. **Implement retry logic** for failed sends
+3. **Monitor email queue** for bottlenecks
+4. **Consider async processing** for high-volume notifications
+
+## Troubleshooting
+
+### Common Issues
+
+**Emails not sending:**
+
+- Verify SMTP credentials and settings
+- Check firewall rules for SMTP ports
+- Ensure FROM_EMAIL domain matches SMTP provider
+
+**Formatting issues:**
+
+- Test with MJML validator
+- Check email client compatibility
+- Verify CSS support in target clients
+
+**Delivery problems:**
+
+- Check spam filters and email reputation
+- Verify DNS records (SPF, DKIM, DMARC)
+- Monitor bounce and complaint rates
+
+### Testing Email Templates
+
+You can test email generation locally:
+
+```bash
+# In the API directory
+cd apps/api
+
+# Build the project
+pnpm build
+
+# Test email generation (if test script is available)
+node test-emails.js
+```
+
+## Technical Details
+
+### Email Service Architecture
+
+The email system consists of:
+
+1. **Event Publishers** - Trigger email notifications from various actions
+2. **Email Service** - Handles SMTP configuration and sending
+3. **Template Generator** - Creates HTML and text versions using MJML
+4. **Notification Service** - Manages task-specific email logic
+
+### File Structure
+
+```
+apps/api/src/email/
+├── email-service.ts           # SMTP configuration and sending
+├── index.ts                   # Public API exports
+├── mjml/
+│   └── mjml-generator.ts      # MJML template generation
+└── notifications/
+    ├── index.ts               # Notification exports
+    └── task-notifications.ts  # Task-specific email logic
+```
+
+### Dependencies
+
+- **mjml** - Email template framework
+- **mjml-core** - Core MJML functionality
+- **nodemailer** - SMTP email sending
+
+The email system is designed to be reliable, maintainable, and easily customizable for your organization's needs.
