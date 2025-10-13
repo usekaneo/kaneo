@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import type React from "react";
 import type { ReactNode } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -26,17 +25,14 @@ interface ContentProps {
 
 function LayoutHeader({ children, className }: HeaderProps) {
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+    <header
       className={cn(
         "flex h-10 shrink-0 gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-8 border-b border-border bg-card p-2",
         className,
       )}
     >
       {children}
-    </motion.header>
+    </header>
   );
 }
 
