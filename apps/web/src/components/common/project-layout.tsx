@@ -27,7 +27,6 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 interface ProjectLayoutProps {
   projectId: string;
   workspaceId: string;
-  title: string;
   headerActions?: ReactNode;
   children: ReactNode;
 }
@@ -35,7 +34,6 @@ interface ProjectLayoutProps {
 export default function ProjectLayout({
   projectId,
   workspaceId,
-  title,
   headerActions,
   children,
 }: ProjectLayoutProps) {

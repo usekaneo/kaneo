@@ -135,11 +135,7 @@ function RouteComponent() {
   };
 
   return (
-    <ProjectLayout
-      title={viewMode === "board" ? "Board" : "List"}
-      projectId={projectId}
-      workspaceId={workspaceId}
-    >
+    <ProjectLayout projectId={projectId} workspaceId={workspaceId}>
       <PageTitle
         title={`${project?.name} · ${viewMode === "board" ? "Board" : "List"}`}
         hideAppName

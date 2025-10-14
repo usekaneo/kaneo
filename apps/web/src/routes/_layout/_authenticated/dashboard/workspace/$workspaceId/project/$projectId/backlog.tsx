@@ -274,11 +274,7 @@ function RouteComponent() {
   };
 
   return (
-    <ProjectLayout
-      title="Backlog"
-      projectId={projectId}
-      workspaceId={workspaceId}
-    >
+    <ProjectLayout projectId={projectId} workspaceId={workspaceId}>
       <PageTitle title={`${project?.name}'s backlog`} />
       <div className="flex flex-col h-full min-h-0">
         <div className="bg-card border-b border-border">

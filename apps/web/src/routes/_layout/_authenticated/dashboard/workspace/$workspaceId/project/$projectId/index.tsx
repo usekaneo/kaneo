@@ -11,11 +11,7 @@ function RouteComponent() {
   const { workspaceId, projectId } = Route.useParams();
 
   return (
-    <ProjectLayout
-      title="Project"
-      projectId={projectId}
-      workspaceId={workspaceId}
-    >
+    <ProjectLayout projectId={projectId} workspaceId={workspaceId}>
       <Outlet />
     </ProjectLayout>
   );
