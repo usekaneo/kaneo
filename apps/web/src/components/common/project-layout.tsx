@@ -23,6 +23,7 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { cn } from "@/lib/cn";
 
 interface ProjectLayoutProps {
   projectId: string;
@@ -44,6 +45,8 @@ export default function ProjectLayout({
 
   const isBacklogRoute = location.pathname.includes("/backlog");
   const isBoardRoute = location.pathname.includes("/board");
+
+  console.log(isBoardRoute);
 
   const handleNavigateToBacklog = () => {
     navigate({
@@ -117,7 +120,10 @@ export default function ProjectLayout({
                 variant="outline"
                 size="xs"
                 onClick={handleNavigateToBacklog}
-                className={`gap-1.5 h-6 px-2 text-xs text-muted-foreground ${isBacklogRoute ? "text-black dark:text-white" : ""}`}
+                className={cn(
+                  "gap-1.5 h-6 px-2 text-xs text-muted-foreground",
+                  isBacklogRoute && "text-black dark:text-white",
+                )}
               >
                 <SquircleDashed className="w-3 h-3" />
                 Backlog
@@ -130,7 +136,10 @@ export default function ProjectLayout({
               >
                 <SquareKanban className="w-3 h-3" />
                 <span
-                  className={`text-xs text-muted-foreground ${isBoardRoute ? "text-black dark:text-white" : ""}`}
+                  className={cn(
+                    "text-xs text-muted-foreground",
+                    isBoardRoute && "text-black dark:text-white",
+                  )}
                 >
                   Tasks
                 </span>
