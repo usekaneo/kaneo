@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { CheckSquare, Clock } from "lucide-react";
+import { SquareKanban, SquircleDashed } from "lucide-react";
 import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
 import NotificationDropdown from "@/components/notification/notification-dropdown";
@@ -65,68 +65,63 @@ export default function ProjectLayout({
     <Layout>
       <Layout.Header>
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-1 w-full">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <SidebarTrigger className="-ml-1 h-6 w-6 cursor-pointer text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="flex items-center gap-2 text-[10px]">
-                    Toggle sidebar
-                    <KbdSequence
-                      keys={[
-                        shortcuts.sidebar.prefix,
-                        shortcuts.sidebar.toggle,
-                      ]}
-                    />
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <Separator
-              orientation="vertical"
-              className="mx-1.5 data-[orientation=vertical]:h-2.5"
-            />
-            <Breadcrumb className="flex items-center text-xs">
-              <BreadcrumbList className="!gap-1">
-                <BreadcrumbItem>
-                  <BreadcrumbLink href={`/dashboard/workspace/${workspaceId}`}>
-                    <h1 className="text-xs text-muted-foreground">
-                      {workspace?.name}
-                    </h1>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink
-                    href={`/dashboard/workspace/${workspaceId}/project/${projectId}/board`}
-                  >
-                    <h1 className="text-xs text-muted-foreground">
-                      {project?.name}
-                    </h1>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <h1 className="text-xs text-muted-foreground">{title}</h1>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-
-            <Separator
-              orientation="vertical"
-              className="mx-3 data-[orientation=vertical]:h-4"
-            />
-
+          <div className="flex items-center gap-5 w-full">
             <div className="flex items-center gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarTrigger className="-ml-1 h-6 w-6 cursor-pointer text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="flex items-center gap-2 text-[10px]">
+                      Toggle sidebar
+                      <KbdSequence
+                        keys={[
+                          shortcuts.sidebar.prefix,
+                          shortcuts.sidebar.toggle,
+                        ]}
+                      />
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Separator
+                orientation="vertical"
+                className="mx-1.5 data-[orientation=vertical]:h-2.5"
+              />
+              <Breadcrumb className="flex items-center text-xs">
+                <BreadcrumbList className="!gap-1">
+                  <BreadcrumbItem>
+                    <BreadcrumbLink
+                      href={`/dashboard/workspace/${workspaceId}`}
+                    >
+                      <h1 className="text-xs text-muted-foreground">
+                        {workspace?.name}
+                      </h1>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink
+                      href={`/dashboard/workspace/${workspaceId}/project/${projectId}/board`}
+                    >
+                      <h1 className="text-xs text-muted-foreground">
+                        {project?.name}
+                      </h1>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="xs"
                 onClick={handleNavigateToBacklog}
-                className={`gap-1.5 h-6 px-2 text-xs text-muted-foreground ${isBacklogRoute ? "text-white" : ""}`}
+                className={`gap-1.5 h-6 px-2 text-xs text-muted-foreground ${isBacklogRoute ? "text-black dark:text-white" : ""}`}
               >
-                <Clock className="w-3 h-3" />
+                <SquircleDashed className="w-3 h-3" />
                 Backlog
               </Button>
               <Button
@@ -135,9 +130,9 @@ export default function ProjectLayout({
                 onClick={handleNavigateToBoard}
                 className="gap-1.5 h-6 px-2 text-xs text-muted-foreground"
               >
-                <CheckSquare className="w-3 h-3" />
+                <SquareKanban className="w-3 h-3" />
                 <span
-                  className={`text-xs text-muted-foreground ${isBoardRoute ? "text-white" : ""}`}
+                  className={`text-xs text-muted-foreground ${isBoardRoute ? "text-black dark:text-white" : ""}`}
                 >
                   Tasks
                 </span>

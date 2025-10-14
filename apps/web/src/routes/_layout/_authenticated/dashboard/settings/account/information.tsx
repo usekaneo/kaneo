@@ -44,6 +44,7 @@ function RouteComponent() {
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfile();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const debouncedSaveRef = useRef<(data: ProfileFormValues) => void>(() => {});
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: standardSchemaResolver(profileSchema),
@@ -54,7 +55,7 @@ function RouteComponent() {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user && !profileForm.formState.isDirty) {
       profileForm.reset({
         name: user.name || "",
         email: user.email || "",
@@ -69,6 +70,8 @@ function RouteComponent() {
           name: data.name.trim(),
         });
 
+        profileForm.reset(data, { keepDirty: false });
+
         await queryClient.invalidateQueries({ queryKey: ["session"] });
         toast.success("Profile updated successfully");
       } catch (error) {
@@ -77,7 +80,7 @@ function RouteComponent() {
         );
       }
     },
-    [updateProfile, queryClient],
+    [updateProfile, queryClient, profileForm],
   );
 
   const debouncedSave = useCallback(
@@ -93,15 +96,17 @@ function RouteComponent() {
     [saveProfile],
   );
 
+  debouncedSaveRef.current = debouncedSave;
+
   useEffect(() => {
     const subscription = profileForm.watch((data) => {
       if (profileForm.formState.isDirty && profileForm.formState.isValid) {
-        debouncedSave(data as ProfileFormValues);
+        debouncedSaveRef.current?.(data as ProfileFormValues);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [profileForm, debouncedSave]);
+  }, [profileForm]);
 
   useEffect(() => {
     return () => {
