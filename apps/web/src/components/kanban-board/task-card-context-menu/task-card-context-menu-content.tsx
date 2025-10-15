@@ -210,7 +210,7 @@ export default function TaskCardContextMenuContent({
                   );
                 }
               }}
-              className="w-full bg-popover"
+              className="w-full !bg-popover"
             />
           </ContextMenuSubContent>
         </ContextMenuSub>
