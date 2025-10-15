@@ -51,37 +51,39 @@ function MembersTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invitations?.map((invitation) => (
-          <TableRow key={invitation.email} className="cursor-pointer">
-            <TableCell className="py-3 pl-6">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-5 w-5">
-                  <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                    {invitation?.email?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span>{invitation.email}</span>
-              </div>
-            </TableCell>
-            <TableCell className="py-3">
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
-                {invitation.role.charAt(0).toUpperCase() +
-                  invitation.role.slice(1).toLowerCase()}{" "}
-                (Pending)
-              </span>
-            </TableCell>
-            <TableCell className="py-3">
-              <span className="text-sm text-muted-foreground">
-                {invitation.expiresAt &&
-                  new Date(invitation.expiresAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-              </span>
-            </TableCell>
-          </TableRow>
-        ))}
+        {invitations
+          .filter((invitation) => invitation.status !== "accepted")
+          ?.map((invitation) => (
+            <TableRow key={invitation.email} className="cursor-pointer">
+              <TableCell className="py-3 pl-6">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-5 w-5">
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                      {invitation?.email?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span>{invitation.email}</span>
+                </div>
+              </TableCell>
+              <TableCell className="py-3">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
+                  {invitation.role.charAt(0).toUpperCase() +
+                    invitation.role.slice(1).toLowerCase()}{" "}
+                  (Pending)
+                </span>
+              </TableCell>
+              <TableCell className="py-3">
+                <span className="text-sm text-muted-foreground">
+                  {invitation.expiresAt &&
+                    new Date(invitation.expiresAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                </span>
+              </TableCell>
+            </TableRow>
+          ))}
 
         {users?.map((member) => (
           <TableRow key={member.user.email} className="cursor-pointer">
