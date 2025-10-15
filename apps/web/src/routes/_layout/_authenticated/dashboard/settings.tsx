@@ -8,6 +8,7 @@ import { ChevronLeft } from "lucide-react";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
 export const Route = createFileRoute(
@@ -20,8 +21,10 @@ function SettingsLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
+  const { data: projects } = useGetProjects({
+    workspaceId: workspace?.id ?? "",
+  });
 
-  // Determine the active tab based on the current pathname
   const getActiveTab = () => {
     const pathname = location.pathname;
     if (pathname.includes("/dashboard/settings/account")) {
@@ -33,7 +36,7 @@ function SettingsLayout() {
     if (pathname.includes("/dashboard/settings/projects")) {
       return "project";
     }
-    return "account"; // default fallback
+    return "account";
   };
 
   const activeTab = getActiveTab();
@@ -81,6 +84,7 @@ function SettingsLayout() {
                   Workspace
                 </TabsTrigger>
                 <TabsTrigger
+                  disabled={projects?.length === 0}
                   value="project"
                   className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"
                   onClick={() =>
