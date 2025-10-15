@@ -10,8 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar } from "@/components/ui/calendar";
 import {
   ContextMenuCheckboxItem,
   ContextMenuContent,
@@ -25,6 +25,7 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
+import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
@@ -59,6 +60,7 @@ export default function TaskCardContextMenuContent({
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
 
   const usersOptions = useMemo(() => {
@@ -182,6 +184,34 @@ export default function TaskCardContextMenuContent({
                 <span className="capitalize">{status}</span>
               </ContextMenuCheckboxItem>
             ))}
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>
+            <span>Due date</span>
+          </ContextMenuSubTrigger>
+          <ContextMenuSubContent className="w-64 p-2">
+            <Calendar
+              mode="single"
+              selected={task.dueDate ? new Date(task.dueDate) : undefined}
+              onSelect={async (date) => {
+                try {
+                  await updateTaskDueDate({
+                    ...task,
+                    dueDate: date?.toISOString() || null,
+                  });
+                  toast.success("Task due date updated successfully");
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error
+                      ? error.message
+                      : "Failed to update task due date",
+                  );
+                }
+              }}
+              className="w-full bg-popover"
+            />
           </ContextMenuSubContent>
         </ContextMenuSub>
 
