@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Activity from "@/components/activity";
+import CommentInput from "@/components/activity/comment-input";
 import TaskLayout from "@/components/common/task-layout";
 import PageTitle from "@/components/page-title";
+import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import TaskAssigneePopover from "@/components/task/task-assignee-popover";
 import TaskDescription from "@/components/task/task-description";
 import TaskDueDatePopover from "@/components/task/task-due-date-popover";
@@ -67,6 +69,7 @@ function RouteComponent() {
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId);
   const { data: activities = [] } = useGetActivitiesByTaskId(taskId);
+  const { user } = useAuth();
   const workspaceName = workspace?.name;
   const projectSlug = project?.slug;
   const taskNumber = task?.number;
@@ -314,6 +317,7 @@ function RouteComponent() {
         <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full" />
         <div className="flex flex-col gap-4 pt-8">
           <h1 className="text-md font-semibold">Activity</h1>
+          {user?.id && <CommentInput taskId={taskId} userId={user.id} />}
           <div className="flex flex-col">
             {activities.length === 0 && (
               <p className="text-sm font-medium text-muted-foreground">
