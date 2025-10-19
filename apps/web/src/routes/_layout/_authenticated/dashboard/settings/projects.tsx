@@ -4,7 +4,7 @@ import {
   Outlet,
   useLocation,
 } from "@tanstack/react-router";
-import { ChevronRight, Download, Eye, Plug, Settings } from "lucide-react";
+import { ChevronRight, Eye, Plug, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Collapsible,
@@ -25,22 +25,14 @@ export const Route = createFileRoute(
 const menuItems = [
   {
     title: "General",
-    url: "/dashboard/settings/projects/:projectId/general",
     icon: Settings,
   },
   {
     title: "Visibility",
-    url: "/dashboard/settings/projects/:projectId/visibility",
     icon: Eye,
   },
   {
-    title: "Export / Import",
-    url: "/dashboard/settings/projects/export-import",
-    icon: Download,
-  },
-  {
     title: "Integrations",
-    url: "/dashboard/settings/projects/integrations",
     icon: Plug,
   },
 ];
@@ -99,12 +91,15 @@ function RouteComponent() {
                         <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 duration-200">
                           <div className="flex flex-col gap-1 ml-6 mt-1">
                             {menuItems.map((item) => {
+                              const urlMap = {
+                                General: `/dashboard/settings/projects/${project.id}/general`,
+                                Visibility: `/dashboard/settings/projects/${project.id}/visibility`,
+                                Integrations: `/dashboard/settings/projects/${project.id}/integrations`,
+                              };
+
                               const toUrl =
-                                item.title === "General"
-                                  ? `/dashboard/settings/projects/${project.id}/general`
-                                  : item.title === "Visibility"
-                                    ? `/dashboard/settings/projects/${project.id}/visibility`
-                                    : item.url;
+                                urlMap[item.title as keyof typeof urlMap];
+
                               const isActive = location.pathname === toUrl;
 
                               return (
