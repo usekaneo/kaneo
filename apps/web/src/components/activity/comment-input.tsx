@@ -319,9 +319,9 @@ export default function CommentInput({ taskId, userId }: CommentInputProps) {
                   size="xs"
                   onClick={handleSubmit}
                   disabled={isPending || !content.trim()}
-                  className="h-5 w-5 p-4 text-white"
+                  className="h-6 w-6 p-4 text-white"
                 >
-                  <SendHorizontal className="size-3" />
+                  <SendHorizontal className="size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
