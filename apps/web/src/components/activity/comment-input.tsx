@@ -112,7 +112,7 @@ export default function CommentInput({ taskId, userId }: CommentInputProps) {
 
   return (
     <div className="w-full">
-      <div className="blocknote-transparent border border-border/50 rounded-lg bg-background/30 hover:border-border transition-colors focus-within:border-border relative">
+      <div className="blocknote-transparent border border-border/50 rounded-lg bg-background/30 hover:border-border transition-colors focus-within:border-border relative pb-8">
         <BlockNoteView
           editor={editor}
           className="min-h-[42px] max-h-[300px] overflow-y-auto [&>div:first-of-type]:!pl-3 [&>div:first-of-type]:!pr-20 [&>div:first-of-type]:!py-2.5 [&>div:first-of-type]:!bg-transparent [&>div:first-of-type]:!min-h-[42px]"
@@ -311,18 +311,17 @@ export default function CommentInput({ taskId, userId }: CommentInputProps) {
             )}
           />
         </BlockNoteView>
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+        <div className="absolute right-2 bottom-0 -translate-y-1/2 flex items-center gap-1">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  size="xs"
                   onClick={handleSubmit}
                   disabled={isPending || !content.trim()}
-                  className="h-7 w-7 p-0 hover:bg-accent"
+                  className="h-5 w-5 p-4 text-white"
                 >
-                  <SendHorizontal className="size-4" />
+                  <SendHorizontal className="size-3" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
