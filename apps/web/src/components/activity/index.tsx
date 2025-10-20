@@ -77,8 +77,15 @@ function Activity({
 
         <div className="flex-1 min-w-0 pt-0.5">
           <CommentCard
+            commentId={activity.id}
+            taskId={activity.taskId}
             content={activity.content}
-            user={user?.user ?? null}
+            user={{
+              id: user?.user?.id,
+              name: user?.user?.name,
+              email: user?.user?.email,
+              image: user?.user?.image,
+            }}
             createdAt={activity.createdAt}
           />
         </div>
