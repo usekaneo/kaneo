@@ -135,7 +135,11 @@ export function NavProjects() {
                       )}
                     >
                       <IconComponent className="w-3.5 h-3.5 transition-colors duration-200 relative z-10" />
-                      <span className="transition-colors duration-200 relative z-10">
+                      <span
+                        className={cn(
+                          `transition-colors duration-200 relative z-10 font-normal ${isCurrentProject(project.id) ? "font-medium" : ""}`,
+                        )}
+                      >
                         {project.name}
                       </span>
                     </Button>
