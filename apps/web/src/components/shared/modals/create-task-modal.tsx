@@ -112,9 +112,21 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
 
   const { mutateAsync } = useCreateTask();
 
-  const filteredLabels = workspaceLabels.filter((label) =>
-    label.name.toLowerCase().includes(searchValue.toLowerCase()),
-  );
+  const filteredLabels = (() => {
+    const searchFiltered = workspaceLabels.filter((label) =>
+      label.name.toLowerCase().includes(searchValue.toLowerCase()),
+    );
+
+    const labelMap = new Map<string, (typeof workspaceLabels)[0]>();
+    for (const label of searchFiltered) {
+      const existing = labelMap.get(label.name);
+      if (!existing || (label.taskId === null && existing.taskId !== null)) {
+        labelMap.set(label.name, label);
+      }
+    }
+
+    return Array.from(labelMap.values());
+  })();
 
   const isCreatingNewLabel =
     searchValue &&
@@ -263,22 +275,35 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     setLabelsStep("color");
   };
 
-  const handleColorSelect = (color: LabelColor) => {
+  const handleColorSelect = async (color: LabelColor) => {
     setSelectedColor(color);
 
-    if (!newLabelName.trim()) return;
+    if (!newLabelName.trim() || !workspace?.id) return;
 
-    const newLabel: Label = {
-      id: `temp-${Date.now()}`,
-      name: newLabelName.trim(),
-      color: color,
-      taskId: null,
-      workspaceId: workspace?.id || "",
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const createdLabel = await createLabel({
+        name: newLabelName.trim(),
+        color: color,
+        workspaceId: workspace.id,
+      });
 
-    setLabels([...labels, newLabel]);
-    handleLabelsClose();
+      const newLabel: Label = {
+        id: createdLabel.id,
+        name: createdLabel.name,
+        color: createdLabel.color,
+        taskId: createdLabel.taskId ?? null,
+        workspaceId: createdLabel.workspaceId ?? workspace.id,
+        createdAt: createdLabel.createdAt,
+      };
+
+      setLabels([...labels, newLabel]);
+      toast.success("Label created");
+      handleLabelsClose();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create label",
+      );
+    }
   };
 
   const removeLabel = (labelName: string) => {
@@ -557,39 +582,34 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                               No labels found
                             </span>
                           )}
-                        {filteredLabels
-                          .filter((label) => label.taskId === null)
-                          .map((label) => (
-                            <button
-                              key={label.id}
-                              type="button"
-                              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
-                              onClick={() => toggleLabel(label.name)}
-                            >
-                              <div className="flex-shrink-0 w-3 flex justify-center">
-                                {labels.some((l) => l.name === label.name) && (
-                                  <Check className="w-3 h-3" />
-                                )}
-                              </div>
-                              <span
-                                className="w-2 h-2 rounded-full flex-shrink-0"
-                                style={{
-                                  backgroundColor:
-                                    labelColors.find(
-                                      (c) => c.value === label.color,
-                                    )?.color || "#94a3b8",
-                                }}
-                              />
-                              <span className="truncate">{label.name}</span>
-                            </button>
-                          ))}
+                        {filteredLabels.map((label) => (
+                          <button
+                            key={label.id}
+                            type="button"
+                            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
+                            onClick={() => toggleLabel(label.name)}
+                          >
+                            <div className="flex-shrink-0 w-3 flex justify-center">
+                              {labels.some((l) => l.name === label.name) && (
+                                <Check className="w-3 h-3" />
+                              )}
+                            </div>
+                            <span
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{
+                                backgroundColor:
+                                  labelColors.find(
+                                    (c) => c.value === label.color,
+                                  )?.color || "#94a3b8",
+                              }}
+                            />
+                            <span className="truncate">{label.name}</span>
+                          </button>
+                        ))}
 
-                        {isCreatingNewLabel &&
-                          filteredLabels.filter(
-                            (label) => label.taskId === null,
-                          ).length > 0 && (
-                            <div className="border-t border-border my-1" />
-                          )}
+                        {isCreatingNewLabel && filteredLabels.length > 0 && (
+                          <div className="border-t border-border my-1" />
+                        )}
                         {isCreatingNewLabel && (
                           <button
                             type="button"

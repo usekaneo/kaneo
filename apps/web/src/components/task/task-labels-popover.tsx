@@ -71,13 +71,21 @@ export default function TaskLabelsPopover({
     [taskLabels],
   );
 
-  const filteredLabels = useMemo(
-    () =>
-      workspaceLabels.filter((label) =>
-        label.name.toLowerCase().includes(searchValue.toLowerCase()),
-      ),
-    [workspaceLabels, searchValue],
-  );
+  const filteredLabels = useMemo(() => {
+    const searchFiltered = workspaceLabels.filter((label) =>
+      label.name.toLowerCase().includes(searchValue.toLowerCase()),
+    );
+
+    const labelMap = new Map<string, (typeof workspaceLabels)[0]>();
+    for (const label of searchFiltered) {
+      const existing = labelMap.get(label.name);
+      if (!existing || (label.taskId === null && existing.taskId !== null)) {
+        labelMap.set(label.name, label);
+      }
+    }
+
+    return Array.from(labelMap.values());
+  }, [workspaceLabels, searchValue]);
 
   const isCreatingNewLabel = useMemo(
     () =>
@@ -210,35 +218,33 @@ export default function TaskLabelsPopover({
             No labels found
           </span>
         )}
-        {filteredLabels
-          .filter((label) => label.taskId === null)
-          .map((label) => (
-            <button
-              key={label.id}
-              type="button"
-              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
-              onClick={() => handleToggleLabel(label.id)}
-            >
-              <div className="flex-shrink-0 w-3 flex justify-center">
-                {taskLabelNames.includes(label.name) && (
-                  <Check className="w-3 h-3" />
-                )}
-              </div>
-              <span
-                className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{
-                  backgroundColor:
-                    labelColors.find((c) => c.value === label.color)?.color ||
-                    "#94a3b8",
-                }}
-              />
-              <span className="truncate">{label.name}</span>
-            </button>
-          ))}
+        {filteredLabels.map((label) => (
+          <button
+            key={label.id}
+            type="button"
+            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
+            onClick={() => handleToggleLabel(label.id)}
+          >
+            <div className="flex-shrink-0 w-3 flex justify-center">
+              {taskLabelNames.includes(label.name) && (
+                <Check className="w-3 h-3" />
+              )}
+            </div>
+            <span
+              className="w-2 h-2 rounded-full flex-shrink-0"
+              style={{
+                backgroundColor:
+                  labelColors.find((c) => c.value === label.color)?.color ||
+                  "#94a3b8",
+              }}
+            />
+            <span className="truncate">{label.name}</span>
+          </button>
+        ))}
 
-        {isCreatingNewLabel &&
-          filteredLabels.filter((label) => label.taskId === null).length >
-            0 && <div className="border-t border-border my-1" />}
+        {isCreatingNewLabel && filteredLabels.length > 0 && (
+          <div className="border-t border-border my-1" />
+        )}
         {isCreatingNewLabel && (
           <button
             type="button"

@@ -46,8 +46,6 @@ export default function ProjectLayout({
   const isBacklogRoute = location.pathname.includes("/backlog");
   const isBoardRoute = location.pathname.includes("/board");
 
-  console.log(isBoardRoute);
-
   const handleNavigateToBacklog = () => {
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
