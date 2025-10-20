@@ -43,7 +43,9 @@ export default function CommentCard({
     if (content?.trim() && !isInitializedRef.current) {
       const loadMarkdown = async () => {
         try {
-          const blocks = await editor.tryParseMarkdownToBlocks(content || "");
+          const blocks = await editor.tryParseMarkdownToBlocks(
+            content.trim() || "",
+          );
           editor.replaceBlocks(editor.document, blocks);
           setTimeout(() => {
             editor.isEditable = false;

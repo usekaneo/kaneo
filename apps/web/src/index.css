@@ -301,3 +301,15 @@
 * {
   font-family: var(--font-geist);
 }
+
+/* BlockNote - Hide empty trailing paragraph blocks (only when there are multiple blocks) */
+.bn-block-group:has(.bn-block-outer:nth-child(2)) > .bn-block-outer:last-child .bn-block-content[data-content-type="paragraph"] {
+  &:has(.bn-inline-content:only-child > .ProseMirror-trailingBreak:only-child) {
+    display: none;
+  }
+}
+
+/* Also hide the block outer container if it contains only an empty paragraph (only when there are multiple blocks) */
+.bn-block-group:has(.bn-block-outer:nth-child(2)) > .bn-block-outer:last-child:has(.bn-block-content[data-content-type="paragraph"] .bn-inline-content:only-child > .ProseMirror-trailingBreak:only-child) {
+  display: none;
+}

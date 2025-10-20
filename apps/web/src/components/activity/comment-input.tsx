@@ -60,7 +60,7 @@ export default function CommentInput({ taskId, userId }: CommentInputProps) {
   const handleEditorChange = useCallback(async () => {
     try {
       const markdown = await editor.blocksToMarkdownLossy(editor.document);
-      setContent(markdown);
+      setContent(markdown.trim());
     } catch (error) {
       console.error("Failed to convert blocks to markdown:", error);
     }
