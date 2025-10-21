@@ -55,7 +55,7 @@ export default function Hero() {
           <div className="bg-background rounded-(--radius) shadow-foreground/10 ring-foreground/5 relative h-full -translate-y-12 skew-x-6 overflow-hidden border border-transparent shadow-md ring-1">
             {/** biome-ignore lint/performance/noImgElement: we need to use the img element */}
             <img
-              src="/cover.png"
+              src="/cover-dark.png"
               alt="Kaneo Dashboard"
               className="w-full h-full object-cover object-left p-2 bg-sidebar hidden dark:block"
             />
