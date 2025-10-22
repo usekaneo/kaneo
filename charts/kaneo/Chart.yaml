@@ -1,6 +1,6 @@
 apiVersion: v2
 name: kaneo
-description: A Helm chart for Kaneo - an open source project management platform focused on simplicity and efficiency
+description: Kaneo - All you need. Nothing you don't. Open source project management that works for you.
 type: application
 version: 0.1.0
 appVersion: "1.0.0"

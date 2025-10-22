@@ -33,7 +33,7 @@ export default function StructuredData({
           url: "https://kaneo.app",
           logo: "https://kaneo.app/logo.png",
           description:
-            "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com.",
+            "All you need. Nothing you don't. Open source project management that works for you, not against you.",
           foundingDate: "2024",
           contactPoint: {
             "@type": "ContactPoint",
@@ -53,7 +53,7 @@ export default function StructuredData({
           "@type": "SoftwareApplication",
           name: "Kaneo",
           description:
-            "Free open source project management software for teams. Self-hosted alternative to Jira, Asana & Monday.com with kanban boards, time tracking, and team collaboration.",
+            "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
           url: "https://kaneo.app",
           downloadUrl: "https://github.com/usekaneo/kaneo",
           screenshot: "https://kaneo.app/screenshot.png",
@@ -70,8 +70,7 @@ export default function StructuredData({
             "@type": "Offer",
             price: "0",
             priceCurrency: "USD",
-            description:
-              "Free forever - open source project management software",
+            description: "Free forever. All you need. Nothing you don't.",
           },
           features: [
             "Kanban boards",
@@ -89,11 +88,10 @@ export default function StructuredData({
         return {
           ...baseData,
           "@type": "Article",
-          headline:
-            data?.title || "Free Open Source Project Management Software",
+          headline: data?.title || "Kaneo ⎯ All you need. Nothing you don't.",
           description:
             data?.description ||
-            "Complete guide to Kaneo - the free, open source project management software",
+            "Open source project management that works for you, not against you.",
           author: {
             "@type": "Organization",
             name: "Kaneo",
@@ -129,7 +127,7 @@ export default function StructuredData({
               name: "How does Kaneo compare to Jira?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "Kaneo is a free, open source alternative to Jira with similar features like issue tracking, project management, and team collaboration, but without licensing costs.",
+                text: "Kaneo is an open source alternative to Jira with powerful features like issue tracking, kanban boards, and team collaboration, without the complexity or licensing costs.",
               },
             },
             {

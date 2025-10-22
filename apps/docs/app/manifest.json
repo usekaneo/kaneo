@@ -1,7 +1,7 @@
 {
 	"name": "Kaneo",
 	"short_name": "Kaneo",
-	"description": "Kaneo is a modern, self-hosted project management platform focused on simplicity and efficiency. Open source, customizable, and built for teams that value productivity.",
+	"description": "All you need. Nothing you don't. Open source project management that works for you, not against you.",
 	"start_url": "/",
 	"display": "standalone",
 	"background_color": "#ffffff",

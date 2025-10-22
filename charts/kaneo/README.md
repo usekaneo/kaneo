@@ -1,6 +1,6 @@
 # Kaneo Helm Chart
 
-This Helm chart deploys [Kaneo](https://kaneo.app) - an open source project management platform focused on simplicity and efficiency.
+This Helm chart deploys [Kaneo](https://kaneo.app) - open source project management that works for you, not against you.
 
 ## Introduction
 
