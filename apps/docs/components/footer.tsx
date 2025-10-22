@@ -123,7 +123,7 @@ export default function Footer() {
                 </a>
                 <a
                   className="text-muted-foreground hover:text-primary block duration-150"
-                  href="https://discord.gg/kaneo"
+                  href="https://discord.com/invite/rU4tSyhXXU"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
