@@ -33,17 +33,17 @@ Alternatively, you can expose the services using an Ingress by setting .Values.i
 
 NOTES:
 1. Kaneo is configured with SQLite database for persistence.
-   {{- if .Values.api.persistence.enabled }}
+   {{- if .Values.postgresql.persistence.enabled }}
    A PersistentVolumeClaim is used to store the SQLite database file.
    {{- else }}
    WARNING: Persistence is disabled. Your data will be lost when the pod is terminated.
-   To enable persistence, set .Values.api.persistence.enabled=true
+   To enable persistence, set .Values.postgresql.persistence.enabled=true
    {{- end }}
 
 2. Important environment variables:
    - API:
      - JWT_ACCESS: Secret key for generating JWT tokens (currently set to: {{ .Values.api.env.jwtAccess }})
-     - DB_PATH: Path to the SQLite database file (set to: "{{ .Values.api.persistence.mountPath }}/{{ .Values.api.persistence.dbFilename }}")
+     - DB_PATH: Path to the SQLite database file (set to: "{{ .Values.postgresql.persistence.mountPath }}/{{ .Values.postgresql.persistence.dbFilename }}")
 
    - Web:
      - KANEO_API_URL: URL of the API service (set to: "{{- if .Values.web.env.apiUrl -}}
