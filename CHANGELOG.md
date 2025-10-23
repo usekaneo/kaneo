@@ -1,3 +1,18 @@
+# [2.0.0](https://github.com/usekaneo/kaneo/compare/v1.2.4...v2.0.0) (2025-10-23)
+
+
+### Bug Fixes
+
+* preserve formatting when copy/pasting in new task modal ([#432](https://github.com/usekaneo/kaneo/issues/432)) ([#481](https://github.com/usekaneo/kaneo/issues/481)) ([b105d43](https://github.com/usekaneo/kaneo/commit/b105d43d0d90f434c573999c9961fd5ac9b8e8e9))
+
+
+### Features
+
+* better auth integration ([#466](https://github.com/usekaneo/kaneo/issues/466)) ([91bb9c2](https://github.com/usekaneo/kaneo/commit/91bb9c2a86c25fddb34fff7b589f9684d945b184))
+* implement onboarding flow and update routing ([#469](https://github.com/usekaneo/kaneo/issues/469)) ([6f7057b](https://github.com/usekaneo/kaneo/commit/6f7057b13fa8817f1a00b3a05cd008de913ff6b7))
+
+
+
 ## [2.0.1-beta.2](https://github.com/usekaneo/kaneo/compare/v1.2.4...v2.0.1-beta.2) (2025-10-01)
 
 
