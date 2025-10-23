@@ -1,3 +1,4 @@
+import { filterSuggestionItems } from "@blocknote/core";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import { useCallback, useEffect, useRef } from "react";
@@ -8,6 +9,8 @@ import {
   type BlockTypeSelectItem,
   CreateLinkButton,
   FormattingToolbarController,
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
 } from "@blocknote/react";
 import {
   Bold,
@@ -162,6 +165,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                 linkToolbar={false}
                 filePanel={false}
                 sideMenu={false}
+                slashMenu={false}
                 tableHandles={false}
                 theme={theme as "dark" | "light"}
                 onChange={handleEditorChange}
@@ -364,6 +368,17 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                       </div>
                     </TooltipProvider>
                   )}
+                />
+                <SuggestionMenuController
+                  triggerCharacter={"/"}
+                  getItems={async (query) =>
+                    filterSuggestionItems(
+                      getDefaultReactSlashMenuItems(editor).filter(
+                        (item) => item.group !== "Media",
+                      ),
+                      query,
+                    )
+                  }
                 />
               </BlockNoteView>
             </div>

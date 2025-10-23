@@ -1,3 +1,4 @@
+import { filterSuggestionItems } from "@blocknote/core";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -7,6 +8,8 @@ import {
   type BlockTypeSelectItem,
   CreateLinkButton,
   FormattingToolbarController,
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
 } from "@blocknote/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
@@ -290,6 +293,7 @@ export default function CommentCard({
             linkToolbar={!isEditing ? false : undefined}
             filePanel={false}
             sideMenu={false}
+            slashMenu={false}
             tableHandles={false}
             theme={theme as "dark" | "light"}
             onChange={isEditing ? handleEditorChange : undefined}
@@ -491,6 +495,17 @@ export default function CommentCard({
                 )}
               />
             )}
+            <SuggestionMenuController
+              triggerCharacter={"/"}
+              getItems={async (query) =>
+                filterSuggestionItems(
+                  getDefaultReactSlashMenuItems(editor).filter(
+                    (item) => item.group !== "Media",
+                  ),
+                  query,
+                )
+              }
+            />
           </BlockNoteView>
         </div>
         {isEditing && (
