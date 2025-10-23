@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
   api:
-    image: ghcr.io/usekaneo/api:2.0.0-beta.3
+    image: ghcr.io/usekaneo/api:latest
     ports:
       - "1337:1337"
     env_file:
@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ghcr.io/usekaneo/web:2.0.0-beta.3
+    image: ghcr.io/usekaneo/web:latest
     ports:
       - "5173:5173"
     env_file:
