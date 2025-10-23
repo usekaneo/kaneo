@@ -69,27 +69,14 @@ const docsOptions: DocsLayoutProps = {
 
 export default function Layout({ children }: { children: ReactNode }) {
 	return (
-		<>
-			<Banner className="w-full">
-				You are viewing an older version of the documentation.
-				<Link
-					className="text-fd-primary hover:underline ml-2"
-					href="https://kaneo.app/docs"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					View the latest version
-				</Link>
-			</Banner>
-			<DocsLayout {...docsOptions}>
-				<Script
-					defer
-					data-domain="kaneo.app"
-					src="https://plausible.kaneo.app/js/script.js"
-				/>
+		<DocsLayout {...docsOptions}>
+			<Script
+				defer
+				data-domain="kaneo.app"
+				src="https://plausible.kaneo.app/js/script.js"
+			/>
 
-				{children}
-			</DocsLayout>
-		</>
+			{children}
+		</DocsLayout>
 	);
 }
