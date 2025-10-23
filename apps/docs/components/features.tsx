@@ -66,7 +66,7 @@ export default function Features() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground">
-                                  <ChevronsUp className="size-3" />
+                                  <ChevronsUp className="size-3 text-orange-400/70" />
                                 </span>
                                 <div className="flex items-center gap-1 text-[10px] px-2 py-1 rounded text-muted-foreground bg-muted/50">
                                   <Calendar className="size-3" />
@@ -123,9 +123,9 @@ export default function Features() {
                               <h3 className="text-sm font-medium">
                                 GitHub Pull Requests
                               </h3>
-                              <p className="text-muted-foreground line-clamp-1 text-xs">
-                                Link issues to tasks and auto-close issues on
-                                merge.
+                              <p className="text-muted-foreground  text-xs">
+                                Import issues from GitHub and sync them to
+                                Kaneo.
                               </p>
                             </div>
                             <Link href="/docs/integrations/github/setup">
