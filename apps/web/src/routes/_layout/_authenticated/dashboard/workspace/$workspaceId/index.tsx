@@ -1,4 +1,8 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LayoutGrid, Plus } from "lucide-react";
+import { useState } from "react";
 import WorkspaceLayout from "@/components/common/workspace-layout";
+import PageTitle from "@/components/page-title";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,9 +20,6 @@ import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LayoutGrid, Plus } from "lucide-react";
-import { useState } from "react";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/",
@@ -55,66 +56,70 @@ function RouteComponent() {
 
   if (isLoading) {
     return (
-      <WorkspaceLayout
-        title="Projects"
-        headerActions={
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={handleCreateProject}
-            className="gap-1"
-          >
-            <Plus className="w-3 h-3" />
-            Create project
-          </Button>
-        }
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-foreground font-medium">
-                Title
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                Progress
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                Target date
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                Status
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[1, 2, 3].map((i) => (
-              <TableRow key={i}>
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-5 w-5" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </TableCell>
-                <TableCell className="py-3">
-                  <Skeleton className="h-2 w-20" />
-                </TableCell>
-                <TableCell className="py-3">
-                  <Skeleton className="h-4 w-20" />
-                </TableCell>
-                <TableCell className="py-3">
-                  <Skeleton className="h-5 w-16" />
-                </TableCell>
+      <>
+        <PageTitle title="Projects" />
+        <WorkspaceLayout
+          title="Projects"
+          headerActions={
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={handleCreateProject}
+              className="gap-1"
+            >
+              <Plus className="w-3 h-3" />
+              Create project
+            </Button>
+          }
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-foreground font-medium">
+                  Title
+                </TableHead>
+                <TableHead className="text-foreground font-medium">
+                  Progress
+                </TableHead>
+                <TableHead className="text-foreground font-medium">
+                  Target date
+                </TableHead>
+                <TableHead className="text-foreground font-medium">
+                  Status
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </WorkspaceLayout>
+            </TableHeader>
+            <TableBody>
+              {[1, 2, 3].map((i) => (
+                <TableRow key={i}>
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-5 w-5" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-3">
+                    <Skeleton className="h-2 w-20" />
+                  </TableCell>
+                  <TableCell className="py-3">
+                    <Skeleton className="h-4 w-20" />
+                  </TableCell>
+                  <TableCell className="py-3">
+                    <Skeleton className="h-5 w-16" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </WorkspaceLayout>
+      </>
     );
   }
 
   if (!projects || projects.length === 0) {
     return (
       <>
+        <PageTitle title="Projects" />
         <WorkspaceLayout
           title="Projects"
           headerActions={
@@ -140,7 +145,10 @@ function RouteComponent() {
                   Get started by creating your first project.
                 </p>
               </div>
-              <Button onClick={handleCreateProject} className="gap-2">
+              <Button
+                onClick={handleCreateProject}
+                className="gap-2 text-white"
+              >
                 <Plus className="w-4 h-4" />
                 Create project
               </Button>
@@ -158,6 +166,7 @@ function RouteComponent() {
 
   return (
     <>
+      <PageTitle title="Projects" />
       <WorkspaceLayout
         title="Projects"
         headerActions={

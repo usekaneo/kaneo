@@ -1,7 +1,7 @@
-import getTasks from "@/fetchers/task/get-tasks";
 import { useQuery } from "@tanstack/react-query";
+import getTasks from "@/fetchers/task/get-tasks";
 
-function useGetTasks(projectId: string) {
+export function useGetTasks(projectId: string) {
   return useQuery({
     queryKey: ["tasks", projectId],
     queryFn: () => getTasks(projectId),
@@ -9,5 +9,3 @@ function useGetTasks(projectId: string) {
     enabled: !!projectId,
   });
 }
-
-export default useGetTasks;

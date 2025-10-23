@@ -12,9 +12,10 @@
       "DOM"
     ],
     "sourceMap": true,
-    "declaration": true,
     "skipLibCheck": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "declaration": false,
+    "declarationMap": false
   },
   "include": [
     "src/**/*"

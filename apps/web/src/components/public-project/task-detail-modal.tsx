@@ -1,11 +1,10 @@
-import { MarkdownRenderer } from "@/components/common/markdown-renderer";
+import * as Dialog from "@radix-ui/react-dialog";
+import { format } from "date-fns";
+import { Calendar, Flag, User, X } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
 import type Task from "@/types/task";
-import * as Dialog from "@radix-ui/react-dialog";
-import { format } from "date-fns";
-import { Calendar, Flag, User, X } from "lucide-react";
 
 interface PublicTaskDetailModalProps {
   task: Task | null;
@@ -97,7 +96,7 @@ export function PublicTaskDetailModal({
                     <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
                       Description
                     </h3>
-                    <MarkdownRenderer content={task.description} />
+                    {/* <MarkdownRenderer content={task.description} /> */}
                   </div>
                 )}
 

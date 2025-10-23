@@ -1,0 +1,6 @@
+{
+	"title": "Guide",
+	"icon": "Book",
+	"pages": ["index", "migrating-from-v1"],
+	"defaultOpen": true
+}

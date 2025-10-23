@@ -1,7 +1,7 @@
+import { useMutation } from "@tanstack/react-query";
 import createTask, {
   type CreateTaskRequest,
 } from "@/fetchers/task/create-task";
-import { useMutation } from "@tanstack/react-query";
 
 function useCreateTask() {
   return useMutation({
@@ -20,7 +20,7 @@ function useCreateTask() {
         projectId,
         userId ?? "",
         status,
-        new Date(dueDate),
+        dueDate ? new Date(dueDate) : undefined,
         priority,
       ),
   });

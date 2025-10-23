@@ -1,5 +1,5 @@
 import { Slot } from "@radix-ui/react-slot";
-import { type VariantProps, cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
@@ -82,6 +82,7 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
+      // biome-ignore lint/suspicious/noDocumentCookie: we need to set the cookie to the sidebar state
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open],
@@ -294,10 +295,10 @@ function SidebarTrigger({
           side="bottom"
           className="bg-popover text-popover-foreground border"
         >
-          <div className="flex items-center gap-2 text-xs">
-            <span>Toggle sidebar</span>
+          <div className="flex items-center gap-2 text-[10px]">
             <KbdSequence
               keys={[shortcuts.sidebar.prefix, shortcuts.sidebar.toggle]}
+              description="Toggle sidebar"
             />
           </div>
         </TooltipContent>
@@ -401,7 +402,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-1 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         className,
       )}
       {...props}

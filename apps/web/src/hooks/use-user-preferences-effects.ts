@@ -1,8 +1,8 @@
-import { useUserPreferencesStore } from "@/store/user-preferences";
 import { useEffect } from "react";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 
 export function useUserPreferencesEffects() {
-  const { compactMode, theme } = useUserPreferencesStore();
+  const { compactMode } = useUserPreferencesStore();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -18,20 +18,7 @@ export function useUserPreferencesEffects() {
     };
   }, [compactMode]);
 
-  useEffect(() => {
-    const root = document.documentElement;
-
-    root.classList.remove("theme-light", "theme-dark", "theme-system");
-
-    root.classList.add(`theme-${theme}`);
-
-    return () => {
-      root.classList.remove("theme-light", "theme-dark", "theme-system");
-    };
-  }, [theme]);
-
   return {
     compactMode,
-    theme,
   };
 }

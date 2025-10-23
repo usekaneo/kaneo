@@ -1,3 +1,6 @@
+import { useNavigate } from "@tanstack/react-router";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
+import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
 import {
   Breadcrumb,
@@ -18,9 +21,6 @@ import {
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
 import { cn } from "@/lib/cn";
-import { useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft } from "lucide-react";
-import type { ReactNode } from "react";
 
 interface SettingsLayoutProps {
   title: string;
@@ -61,7 +61,7 @@ export function SettingsLayout({
                   <SidebarTrigger className="-ml-1 h-6 w-6" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="flex items-center gap-2 text-xs">
+                  <p className="flex items-center gap-2 text-[10px]">
                     Toggle sidebar
                     <KbdSequence
                       keys={[

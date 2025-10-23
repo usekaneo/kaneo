@@ -1,0 +1,34 @@
+{
+  "name": "@kaneo/email",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "email dev --port 3001 --dir src/templates",
+    "export": "email export",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@react-email/components": "0.5.2",
+    "@types/node": "^24.3.1",
+    "@types/nodemailer": "^7.0.1",
+    "nodemailer": "^7.0.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@react-email/preview-server": "4.2.8",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "react-email": "4.2.8"
+  }
+}

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
 import NotificationDropdown from "@/components/notification/notification-dropdown";
 import {
@@ -17,9 +18,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
-import useWorkspaceStore from "@/store/workspace";
-import type { ReactNode } from "react";
 
 interface WorkspaceLayoutProps {
   title: string;
@@ -35,7 +35,7 @@ export default function WorkspaceLayout({
   children,
   className,
 }: WorkspaceLayoutProps) {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
 
   return (
     <Layout>
@@ -48,7 +48,7 @@ export default function WorkspaceLayout({
                   <SidebarTrigger className="-ml-1 h-6 w-6" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="flex items-center gap-2 text-xs">
+                  <p className="flex items-center gap-2 text-[10px]">
                     Toggle sidebar
                     <KbdSequence
                       keys={[

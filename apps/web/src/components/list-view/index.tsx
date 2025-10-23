@@ -1,11 +1,5 @@
-import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import { cn } from "@/lib/cn";
-import { getColumnIcon, getColumnIconColor } from "@/lib/column";
-import toKebabCase from "@/lib/to-kebab-case";
-import useProjectStore from "@/store/project";
-import type { ProjectWithTasks } from "@/types/project";
 import {
+  closestCorners,
   DndContext,
   type DragEndEvent,
   type DragOverEvent,
@@ -15,7 +9,6 @@ import {
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  closestCorners,
   useDroppable,
   useSensor,
   useSensors,
@@ -29,6 +22,13 @@ import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { cn } from "@/lib/cn";
+import { getColumnIcon } from "@/lib/column";
+import toKebabCase from "@/lib/to-kebab-case";
+import useProjectStore from "@/store/project";
+import type { ProjectWithTasks } from "@/types/project";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 
@@ -190,7 +190,9 @@ function ListView({ project }: ListViewProps) {
 
   function ColumnSection({
     column,
-  }: { column: ProjectWithTasks["columns"][number] }) {
+  }: {
+    column: ProjectWithTasks["columns"][number];
+  }) {
     const { setNodeRef } = useDroppable({
       id: column.id,
       data: {
@@ -222,14 +224,7 @@ function ListView({ project }: ListViewProps) {
               )}
             />
             <div className="flex items-center gap-2 h-4">
-              {(() => {
-                const IconComponent = getColumnIcon(column.id);
-                return (
-                  <IconComponent
-                    className={`w-4 h-4  flex-shrink-0 ${getColumnIconColor(column.id)}`}
-                  />
-                );
-              })()}
+              {getColumnIcon(column.id)}
               <div className="flex items-center gap-1">
                 <span className="mt-1 mr-1">{column.name}</span>
                 <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">

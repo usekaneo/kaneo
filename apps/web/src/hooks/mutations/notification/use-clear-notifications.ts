@@ -1,5 +1,5 @@
-import clearNotifications from "@/fetchers/notification/clear-notifications";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import clearNotifications from "@/fetchers/notification/clear-notifications";
 
 function useClearNotifications() {
   const queryClient = useQueryClient();

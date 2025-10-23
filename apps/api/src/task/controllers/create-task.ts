@@ -36,7 +36,7 @@ async function createTask({
       userId: userId || null,
       title: title || "",
       status: status || "",
-      dueDate: dueDate || new Date(),
+      dueDate: dueDate || null,
       description: description || "",
       priority: priority || "",
       number: nextTaskNumber + 1,

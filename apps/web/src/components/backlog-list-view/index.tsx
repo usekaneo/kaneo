@@ -1,10 +1,5 @@
-import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import { cn } from "@/lib/cn";
-import toKebabCase from "@/lib/to-kebab-case";
-import type { ProjectWithTasks } from "@/types/project";
-import type Task from "@/types/task";
 import {
+  closestCorners,
   DndContext,
   type DragEndEvent,
   type DragOverEvent,
@@ -14,7 +9,6 @@ import {
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  closestCorners,
   useDroppable,
   useSensor,
   useSensors,
@@ -24,9 +18,16 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { produce } from "immer";
 import { Archive, ChevronRight, Clock, Flag, Plus } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { priorityColorsTaskCard } from "@/constants/priority-colors";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { cn } from "@/lib/cn";
+import toKebabCase from "@/lib/to-kebab-case";
+import useProjectStore from "@/store/project";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import BacklogTaskRow from "./backlog-task-row";
 
@@ -36,6 +37,7 @@ interface BacklogListViewProps {
 
 function BacklogListView({ project }: BacklogListViewProps) {
   const { mutate: updateTask } = useUpdateTask();
+  const { setProject } = useProjectStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<
@@ -118,14 +120,83 @@ function BacklogListView({ project }: BacklogListViewProps) {
       }
     }
 
-    if (activeTask.status === targetSection) return;
+    const updatedProject = produce(project, (draft) => {
+      const sourceSection =
+        activeTask.status === "planned"
+          ? draft.plannedTasks || []
+          : draft.archivedTasks || [];
 
-    updateTask({
-      ...activeTask,
-      status: targetSection,
+      const sourceTaskIndex = sourceSection.findIndex(
+        (task) => task.id === activeTaskId,
+      );
+      const task = sourceSection[sourceTaskIndex];
+
+      if (!task) return;
+
+      if (activeTask.status === "planned") {
+        draft.plannedTasks =
+          draft.plannedTasks?.filter((t) => t.id !== activeTaskId) || [];
+      } else {
+        draft.archivedTasks =
+          draft.archivedTasks?.filter((t) => t.id !== activeTaskId) || [];
+      }
+
+      if (activeTask.status === targetSection) {
+        const targetSectionTasks =
+          activeTask.status === "planned"
+            ? draft.plannedTasks || []
+            : draft.archivedTasks || [];
+
+        let destinationIndex = targetSectionTasks.findIndex(
+          (t) => t.id === overId,
+        );
+
+        if (sourceTaskIndex <= destinationIndex) {
+          destinationIndex += 1;
+        }
+
+        if (activeTask.status === "planned") {
+          draft.plannedTasks?.splice(destinationIndex, 0, task);
+        } else {
+          draft.archivedTasks?.splice(destinationIndex, 0, task);
+        }
+
+        const finalTasks =
+          activeTask.status === "planned"
+            ? draft.plannedTasks || []
+            : draft.archivedTasks || [];
+
+        finalTasks.forEach((t, index) => {
+          updateTask({
+            ...t,
+            position: index + 1,
+          });
+        });
+      } else {
+        task.status = targetSection;
+
+        if (targetSection === "planned") {
+          draft.plannedTasks = [...(draft.plannedTasks || []), task];
+        } else {
+          draft.archivedTasks = [...(draft.archivedTasks || []), task];
+        }
+
+        const updatedTasks =
+          targetSection === "planned"
+            ? draft.plannedTasks || []
+            : draft.archivedTasks || [];
+
+        updatedTasks.forEach((t, index) => {
+          updateTask({
+            ...t,
+            status: targetSection,
+            position: index + 1,
+          });
+        });
+      }
     });
 
-    toast.success(`Task moved to ${targetSection}`);
+    setProject(updatedProject);
   };
 
   const toggleSection = (sectionId: string) => {
@@ -166,7 +237,6 @@ function BacklogListView({ project }: BacklogListViewProps) {
             "border-l-4 border-l-indigo-500 dark:border-l-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/10",
         )}
       >
-        {/* Header */}
         <div className="flex items-center justify-between py-2 px-4 bg-zinc-100/60 dark:bg-zinc-800/20 border-b border-zinc-200/50 dark:border-zinc-800/30">
           <button
             type="button"
@@ -207,7 +277,6 @@ function BacklogListView({ project }: BacklogListViewProps) {
           </div>
         </div>
 
-        {/* Tasks */}
         {expandedSections[sectionId] && (
           <div ref={setNodeRef} className="bg-white dark:bg-transparent">
             <SortableContext

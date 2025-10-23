@@ -1,28 +1,22 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { authClient } from "@/lib/auth-client";
 
-export type DeleteWorkspaceUserRequest = InferRequestType<
-  (typeof client)["workspace-user"][":workspaceId"]["$delete"]
->["param"] &
-  InferRequestType<
-    (typeof client)["workspace-user"][":workspaceId"]["$delete"]
-  >["query"];
+export type DeleteWorkspaceUserRequest = {
+  workspaceId: string;
+  userId: string;
+};
 
 async function deleteWorkspaceUser({
   workspaceId,
   userId,
 }: DeleteWorkspaceUserRequest) {
-  const response = await client["workspace-user"][":workspaceId"].$delete({
-    param: { workspaceId },
-    query: { userId },
+  const { data, error } = await authClient.organization.removeMember({
+    organizationId: workspaceId,
+    memberIdOrEmail: userId,
   });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+  if (error) {
+    throw new Error(error.message || "Failed to remove workspace member");
   }
-
-  const data = await response.json();
 
   return data;
 }

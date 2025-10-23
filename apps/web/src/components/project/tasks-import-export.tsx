@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button";
-import useExportTasks from "@/hooks/mutations/task/use-export-tasks";
-import useImportTasks from "@/hooks/mutations/task/use-import-tasks";
-import { cn } from "@/lib/cn";
-import type { ProjectWithTasks } from "@/types/project";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
 import { Download, Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import useExportTasks from "@/hooks/mutations/task/use-export-tasks";
+import useImportTasks from "@/hooks/mutations/task/use-import-tasks";
+import { cn } from "@/lib/cn";
+import type { ProjectWithTasks } from "@/types/project";
 
 interface TasksImportExportProps {
   project: ProjectWithTasks;
@@ -196,6 +196,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
                   </pre>
                 </div>
 
+                {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onDrop and onDragOver */}
                 <div
                   className={cn(
                     "border-2 border-dashed rounded-lg p-8 text-center mb-4",

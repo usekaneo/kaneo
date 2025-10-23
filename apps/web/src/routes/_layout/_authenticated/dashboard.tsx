@@ -1,21 +1,19 @@
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import PageTitle from "@/components/page-title";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import useWorkspaceStore from "@/store/workspace";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
 export const Route = createFileRoute("/_layout/_authenticated/dashboard")({
   component: DashboardLayoutComponent,
 });
 
 function DashboardLayoutComponent() {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
 
   return (
-    <>
-      <SidebarProvider>
-        <PageTitle title="Dashboard" hideAppName={!workspace?.name} />
-        <Outlet />
-      </SidebarProvider>
-    </>
+    <SidebarProvider>
+      <PageTitle title="Projects" hideAppName={!workspace?.name} />
+      <Outlet />
+    </SidebarProvider>
   );
 }

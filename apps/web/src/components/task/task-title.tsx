@@ -1,77 +1,98 @@
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
+import { useCallback, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+
+import { Form, FormControl, FormField } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import debounce from "@/lib/debounce";
-import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod/v4";
-import { Form, FormField } from "../ui/form";
 
-const taskTitleSchema = z.object({
-  title: z.string().min(1),
-});
+interface TaskTitleProps {
+  taskId: string;
+}
 
-function TaskTitle({
-  setIsSaving,
-}: { setIsSaving: (isSaving: boolean) => void }) {
-  const { taskId } = Route.useParams();
+export default function TaskTitle({ taskId }: TaskTitleProps) {
   const { data: task } = useGetTask(taskId);
-  const { mutateAsync: updateTask } = useUpdateTask();
-  const form = useForm<z.infer<typeof taskTitleSchema>>({
+  const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
+  const isInitializedRef = useRef(false);
+  const taskRef = useRef(task);
+  const updateTaskRef = useRef(updateTaskTitle);
+
+  useEffect(() => {
+    taskRef.current = task;
+    updateTaskRef.current = updateTaskTitle;
+  }, [task, updateTaskTitle]);
+
+  const form = useForm<{
+    title: string;
+  }>({
     values: {
       title: task?.title || "",
     },
   });
 
-  const debouncedUpdate = debounce(async (value: string) => {
-    if (!task) return;
-
-    setIsSaving(true);
-    try {
-      await updateTask({
-        ...task,
-        title: value,
-        userId: task.userId || "",
-        status: task.status || "",
-        dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
-        priority: task.priority || "",
-        position: task.position || 0,
-      });
-      toast.success("Task title updated", { duration: 2000 });
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update task title",
-      );
-    } finally {
-      setIsSaving(false);
+  useEffect(() => {
+    if (task?.title !== undefined && !isInitializedRef.current) {
+      setTimeout(() => {
+        isInitializedRef.current = true;
+      }, 100);
     }
-  }, 1000);
+  }, [task?.title]);
 
-  async function handleTitleChange(value: string) {
-    debouncedUpdate(value);
-  }
+  const debouncedUpdate = useCallback(
+    debounce(async (title: string) => {
+      if (!isInitializedRef.current) return;
+
+      const currentTask = taskRef.current;
+      const updateTaskFn = updateTaskRef.current;
+
+      if (!currentTask || !updateTaskFn) return;
+
+      try {
+        await updateTaskFn({
+          ...currentTask,
+          title: title,
+        });
+        console.log("Title updated successfully");
+      } catch (error) {
+        console.error("Failed to update title:", error);
+      }
+    }, 800),
+    [],
+  );
+
+  const handleTitleChange = useCallback(
+    (value: string) => {
+      if (!isInitializedRef.current) {
+        console.log("Title change ignored - not initialized yet");
+        return;
+      }
+
+      console.log("Title changed:", value);
+      debouncedUpdate(value);
+    },
+    [debouncedUpdate],
+  );
 
   return (
-    <div className="flex items-center gap-2">
-      <Form {...form}>
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <input
-              type="text"
-              className="w-full text-sm font-medium bg-transparent border-none focus:outline-none focus:ring-0 text-zinc-900 dark:text-zinc-100 p-0"
+    <Form {...form}>
+      <FormField
+        control={form.control}
+        name="title"
+        render={({ field }) => (
+          <FormControl>
+            <Input
               {...field}
+              placeholder="Click to add a title"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
               onChange={(e) => {
                 field.onChange(e);
                 handleTitleChange(e.target.value);
               }}
             />
-          )}
-        />
-      </Form>
-    </div>
+          </FormControl>
+        )}
+      />
+    </Form>
   );
 }
-
-export default TaskTitle;

@@ -1,3 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -21,13 +25,9 @@ import {
 } from "@/components/ui/popover";
 import icons from "@/constants/project-icons";
 import useCreateProject from "@/hooks/mutations/project/use-create-project";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import generateProjectSlug from "@/lib/generate-project-id";
-import useWorkspaceStore from "@/store/workspace";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
 
 type CreateProjectModalProps = {
   open: boolean;
@@ -40,7 +40,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   const [selectedIcon, setSelectedIcon] = useState("Layout");
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const { mutateAsync } = useCreateProject({
     name,
     slug,
@@ -199,7 +199,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               type="submit"
               disabled={!name.trim() || !slug.trim()}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50"
+              className="bg-primary hover:bg-primary/90 text-white disabled:opacity-50"
             >
               Create Project
             </Button>

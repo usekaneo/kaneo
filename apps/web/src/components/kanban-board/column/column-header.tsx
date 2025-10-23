@@ -1,10 +1,10 @@
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import { getColumnIcon, getColumnIconColor } from "@/lib/column";
-import useProjectStore from "@/store/project";
-import type { ProjectWithTasks } from "@/types/project";
 import { produce } from "immer";
 import { Archive } from "lucide-react";
 import { toast } from "sonner";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { getColumnIcon } from "@/lib/column";
+import useProjectStore from "@/store/project";
+import type { ProjectWithTasks } from "@/types/project";
 
 interface ColumnHeaderProps {
   column: ProjectWithTasks["columns"][number];
@@ -47,14 +47,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        {(() => {
-          const IconComponent = getColumnIcon(column.id);
-          return (
-            <IconComponent
-              className={`w-4 h-4 ${getColumnIconColor(column.id)}`}
-            />
-          );
-        })()}
+        {getColumnIcon(column.id)}
         <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
           {column.name}
         </h3>

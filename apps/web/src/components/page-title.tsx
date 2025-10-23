@@ -15,7 +15,7 @@ export default function PageTitle({
     const formattedTitle = hideAppName
       ? title
       : suffix
-        ? `${title} · ${suffix}`
+        ? `${title} ⎯ ${suffix}`
         : title;
     document.title = formattedTitle;
   }, [title, suffix, hideAppName]);

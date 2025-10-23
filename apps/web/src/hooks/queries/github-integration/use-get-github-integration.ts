@@ -1,5 +1,5 @@
-import getGithubIntegration from "@/fetchers/github-integration/get-github-integration";
 import { useQuery } from "@tanstack/react-query";
+import getGithubIntegration from "@/fetchers/github-integration/get-github-integration";
 
 function useGetGithubIntegration(projectId: string) {
   return useQuery({

@@ -1,23 +1,33 @@
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import {
+  AlertTriangle,
+  CheckCircle,
+  ExternalLink,
+  GitBranch,
+  Github,
+  Import,
+  Link,
+  RefreshCw,
+  Unlink,
+  XCircle,
+} from "lucide-react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod/v4";
 import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import type { VerifyGithubInstallationResponse } from "@/fetchers/github-integration/verify-github-installation";
 import {
   useCreateGithubIntegration,
@@ -27,25 +37,6 @@ import {
 import useImportGithubIssues from "@/hooks/mutations/github-integration/use-import-github-issues";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import { cn } from "@/lib/cn";
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import {
-  AlertTriangle,
-  CheckCircle,
-  Download,
-  ExternalLink,
-  GitBranch,
-  Github,
-  Import,
-  Link,
-  RefreshCw,
-  Settings,
-  Unlink,
-  XCircle,
-} from "lucide-react";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod/v4";
 
 const githubIntegrationSchema = z.object({
   repositoryOwner: z
@@ -62,7 +53,9 @@ type GithubIntegrationFormValues = z.infer<typeof githubIntegrationSchema>;
 
 export function GitHubIntegrationSettings({
   projectId,
-}: { projectId: string }) {
+}: {
+  projectId: string;
+}) {
   const { data: integration, isLoading } = useGetGithubIntegration(projectId);
   const { mutateAsync: createIntegration, isPending: isCreating } =
     useCreateGithubIntegration();
@@ -221,27 +214,21 @@ export function GitHubIntegrationSettings({
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <Github className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="h-5 bg-gray-200 rounded animate-pulse w-40" />
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-64 mt-2" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded animate-pulse" />
-              <div className="h-10 bg-gray-200 rounded animate-pulse" />
-              <div className="h-10 bg-gray-200 rounded animate-pulse" />
-            </div>
-          </CardContent>
-        </Card>
+      <div className="space-y-4">
+        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+          <div className="space-y-4">
+            <div className="h-4 bg-muted rounded animate-pulse w-40" />
+            <div className="h-4 bg-muted rounded animate-pulse w-full" />
+            <div className="h-10 bg-muted rounded animate-pulse w-full" />
+          </div>
+        </div>
+        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+          <div className="space-y-4">
+            <div className="h-4 bg-muted rounded animate-pulse w-40" />
+            <div className="h-10 bg-muted rounded animate-pulse w-full" />
+            <div className="h-10 bg-muted rounded animate-pulse w-full" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -253,22 +240,48 @@ export function GitHubIntegrationSettings({
     verificationResult?.hasRequiredPermissions;
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Connection Status</CardTitle>
-            {isConnected && (
-              <Badge variant="secondary" className="gap-1">
-                <CheckCircle className="w-3 h-3" />
-                Connected
+    <div className="space-y-4">
+      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <p className="text-sm font-medium">Connection Status</p>
+            {isConnected ? (
+              <p className="text-xs text-muted-foreground">
+                Repository connected and active
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No repository connected
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {isConnected ? (
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  Connected
+                </Badge>
+              </div>
+            ) : (
+              <Badge variant="outline" className="gap-1">
+                <XCircle className="w-3 h-3" />
+                Not Connected
               </Badge>
             )}
           </div>
-        </CardHeader>
-        <CardContent>
-          {isConnected ? (
-            <div className="space-y-3">
+        </div>
+
+        {isConnected && (
+          <>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">Repository</p>
+                <p className="text-xs text-muted-foreground">
+                  Connected GitHub repository
+                </p>
+              </div>
               <div className="flex items-center gap-2 text-sm">
                 <Github className="w-4 h-4" />
                 <span className="font-medium">
@@ -278,102 +291,124 @@ export function GitHubIntegrationSettings({
                   href={`https://github.com/${integration.repositoryOwner}/${integration.repositoryName}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-primary hover:text-primary/80 transition-colors"
                 >
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
-
-              {verificationResult && (
-                <div className="flex items-center gap-2 text-sm">
-                  {verificationResult.isInstalled &&
-                  verificationResult.hasRequiredPermissions ? (
-                    <>
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-green-700">
-                        App properly configured
-                      </span>
-                    </>
-                  ) : verificationResult.isInstalled ? (
-                    <>
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      <span className="text-amber-700">
-                        Missing permissions
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <XCircle className="w-4 h-4 text-red-600" />
-                      <span className="text-red-700">App not installed</span>
-                    </>
-                  )}
-                </div>
-              )}
             </div>
-          ) : (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              No repository connected. Configure a repository below to get
-              started.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          </>
+        )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Settings className="w-4 h-4" />
-            Repository Configuration
-          </CardTitle>
-          <CardDescription>
-            Connect to a GitHub repository to enable issue synchronization
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="repositoryOwner"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Repository Owner</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., octocat"
-                          {...field}
-                          disabled={isCreating || isDeleting}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        GitHub username or organization
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="repositoryName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Repository Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., my-project"
-                          {...field}
-                          disabled={isCreating || isDeleting}
-                        />
-                      </FormControl>
-                      <FormDescription>The repository name</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        {isConnected && verificationResult && (
+          <>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">GitHub App Status</p>
+                <p className="text-xs text-muted-foreground">
+                  Installation and permissions status
+                </p>
               </div>
+              <div className="flex items-center gap-2 text-sm">
+                {verificationResult.isInstalled &&
+                verificationResult.hasRequiredPermissions ? (
+                  <>
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-green-600 font-medium">
+                      Properly configured
+                    </span>
+                  </>
+                ) : verificationResult.isInstalled ? (
+                  <>
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <span className="text-amber-600 font-medium">
+                      Missing permissions
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-4 h-4 text-red-600" />
+                    <span className="text-red-600 font-medium">
+                      Not installed
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="repositoryOwner"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm font-medium">
+                        Repository Owner
+                      </FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        GitHub username or organization
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Input
+                        className="w-64"
+                        placeholder="e.g., octocat"
+                        {...field}
+                        disabled={isCreating || isDeleting}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <Separator />
+
+            <FormField
+              control={form.control}
+              name="repositoryName"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm font-medium">
+                        Repository Name
+                      </FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        The repository name
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Input
+                        className="w-64"
+                        placeholder="e.g., my-project"
+                        {...field}
+                        disabled={isCreating || isDeleting}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">Actions</p>
+                <p className="text-xs text-muted-foreground">
+                  Manage your repository connection
+                </p>
+              </div>
               <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
@@ -382,7 +417,7 @@ export function GitHubIntegrationSettings({
                   onClick={() => setShowRepositoryBrowser(true)}
                   className="gap-2"
                 >
-                  <GitBranch className="w-4 h-4" />
+                  <GitBranch className="size-3" />
                   Browse
                 </Button>
 
@@ -395,7 +430,7 @@ export function GitHubIntegrationSettings({
                   className="gap-2"
                 >
                   <RefreshCw
-                    className={cn("w-4 h-4", isVerifying && "animate-spin")}
+                    className={cn("size-3", isVerifying && "animate-spin")}
                   />
                   Verify
                 </Button>
@@ -414,7 +449,7 @@ export function GitHubIntegrationSettings({
                   }
                   className="gap-2"
                 >
-                  <Link className="w-4 h-4" />
+                  <Link className="size-3" />
                   {isConnected ? "Update" : "Connect"}
                 </Button>
 
@@ -427,19 +462,22 @@ export function GitHubIntegrationSettings({
                     disabled={isCreating || isDeleting}
                     className="gap-2"
                   >
-                    <Unlink className="w-4 h-4" />
+                    <Unlink className="size-3" />
                     Disconnect
                   </Button>
                 )}
               </div>
-            </form>
-          </Form>
+            </div>
+          </form>
+        </Form>
 
-          {verificationResult && (
-            <div className="mt-4">
+        {verificationResult && (
+          <>
+            <Separator />
+            <div className="space-y-2">
               <div
                 className={cn(
-                  "flex items-start gap-3 p-3 border rounded-lg text-sm",
+                  "flex items-start gap-3 p-3 border rounded-md text-sm",
                   verificationResult.isInstalled &&
                     verificationResult.hasRequiredPermissions
                     ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
@@ -517,59 +555,45 @@ export function GitHubIntegrationSettings({
                 </div>
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </>
+        )}
+      </div>
 
       {isConnected && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              Actions
-            </CardTitle>
-            <CardDescription>
-              Import existing issues from GitHub or manage your integration
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start gap-4 p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-800/20 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                <div className="p-2 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg">
-                  <Import className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-medium mb-1 text-zinc-900 dark:text-zinc-100">
-                    Import GitHub Issues
-                  </h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3">
-                    Import existing issues from your GitHub repository as tasks
-                    in this project.
-                  </p>
-                  <Button
-                    onClick={handleImportIssues}
-                    disabled={isImporting || !canImport}
-                    className="gap-2"
-                    size="sm"
-                  >
-                    {isImporting ? (
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Import className="w-4 h-4" />
-                    )}
-                    {isImporting ? "Importing..." : "Import Issues"}
-                  </Button>
-                  {!canImport && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2">
-                      Complete the repository configuration above to enable
-                      importing
-                    </p>
-                  )}
-                </div>
-              </div>
+        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium">Import GitHub Issues</p>
+              <p className="text-xs text-muted-foreground">
+                Import existing issues from your GitHub repository as tasks
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleImportIssues}
+                disabled={isImporting || !canImport}
+                className="gap-2"
+                size="sm"
+                variant="outline"
+              >
+                {isImporting ? (
+                  <RefreshCw className="size-3 animate-spin" />
+                ) : (
+                  <Import className="size-3" />
+                )}
+                {isImporting ? "Importing..." : "Import Issues"}
+              </Button>
+            </div>
+          </div>
+          {!canImport && (
+            <>
+              <Separator />
+              <p className="text-xs text-muted-foreground">
+                Complete the repository configuration above to enable importing
+              </p>
+            </>
+          )}
+        </div>
       )}
 
       <RepositoryBrowserModal

@@ -1,22 +1,5 @@
-import {
-  Archive,
-  Calendar as CalendarIcon,
-  Clock,
-  Copy,
-  Flag,
-  FlipHorizontal2,
-  ListTodo,
-  Tags,
-  Trash,
-  User,
-} from "lucide-react";
-
-import useCreateTask from "@/hooks/mutations/task/use-create-task";
-import useUpdateTask from "@/hooks/mutations/task/use-update-task";
-import useGetProjects from "@/hooks/queries/project/use-get-projects";
-import useGetActiveWorkspaceUsers from "@/hooks/queries/workspace-users/use-active-workspace-users";
-
-import type { taskInfoSchema } from "@/components/task/task-info";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,27 +10,31 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import {
   ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
-import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import { cn } from "@/lib/cn";
-import { getColumnIcon, getColumnIconColor } from "@/lib/column";
-
-import { DEFAULT_COLUMNS } from "@/constants/columns";
-import useDeleteTask from "@/hooks/mutations/task/use-delete-task";
+import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
+import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
+import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
+import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
+import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
+import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
+import { getPriorityIcon } from "@/lib/priority";
 import queryClient from "@/query-client";
 import type Task from "@/types/task";
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import type { z } from "zod/v4";
 
 interface TaskCardContext {
   worskpaceId: string;
@@ -63,52 +50,27 @@ export default function TaskCardContextMenuContent({
   task,
   taskCardContext,
 }: TaskCardContextMenuContentProps) {
-  const { data: projects } = useGetProjects({
-    workspaceId: taskCardContext.worskpaceId,
-  });
-  const { data: workspaceUsers } = useGetActiveWorkspaceUsers({
-    workspaceId: taskCardContext.worskpaceId,
-  });
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    taskCardContext.worskpaceId,
+  );
   const { mutateAsync: updateTask } = useUpdateTask();
-  const { mutateAsync: createTask } = useCreateTask();
+  const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
+  const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
+  const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
+  const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
 
-  const projectsOptions = useMemo(() => {
-    return projects?.map((project) => {
-      return { label: project.name, value: project.id };
-    });
-  }, [projects]);
-
   const usersOptions = useMemo(() => {
-    return workspaceUsers?.map((user) => ({
-      label: user.userName ?? user.userId,
-      value: user.userId,
+    return workspaceUsers?.members?.map((member) => ({
+      label: member?.user?.name ?? member.userId,
+      value: member.userId,
+      image: member?.user?.image ?? "",
+      name: member?.user?.name ?? "",
     }));
   }, [workspaceUsers]);
-
-  const statusOptions = [
-    {
-      label: "To Do",
-      value: "to-do",
-      icon: DEFAULT_COLUMNS[0],
-    },
-    {
-      label: "In Progress",
-      value: "in-progress",
-      icon: DEFAULT_COLUMNS[1],
-    },
-    {
-      label: "In Review",
-      value: "in-review",
-      icon: DEFAULT_COLUMNS[2],
-    },
-    {
-      label: "Done",
-      value: "done",
-      icon: DEFAULT_COLUMNS[3],
-    },
-  ];
 
   const handleCopyTaskLink = () => {
     const path = `/dashboard/workspace/${taskCardContext.worskpaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
@@ -118,42 +80,33 @@ export default function TaskCardContextMenuContent({
     toast.success("Task link copied!");
   };
 
-  const handleDuplicateTask = async (projectId: string) => {
-    const selectedProject = projectsOptions?.find(
-      (project) => project.value === projectId,
-    );
-
-    const newTask = {
-      description: task.description ?? "",
-      dueDate: task.dueDate ?? "",
-      position: 0,
-      priority: task.priority as "low" | "medium" | "high" | "urgent",
-      status: task.status,
-      title: task.title,
-      userId: task.userId ?? "",
-      projectId,
-    };
-
+  const handleChange = async (field: keyof Task, value: string | Date) => {
     try {
-      await createTask(newTask);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update task",
-      );
-    } finally {
-      toast.success(`Mirrored task successfully to: ${selectedProject?.label}`);
-    }
-  };
-
-  const handleChange = async (
-    field: keyof z.infer<typeof taskInfoSchema>,
-    value: string | Date,
-  ) => {
-    try {
-      await updateTask({
-        ...task,
-        [field]: value,
-      });
+      switch (field) {
+        case "priority":
+          await updateTaskPriority({ ...task, priority: value as string });
+          break;
+        case "status":
+          await updateTaskStatus({ ...task, status: value as string });
+          break;
+        case "userId":
+          await updateTaskAssignee({ ...task, userId: value as string });
+          break;
+        case "title":
+          await updateTaskTitle({ ...task, title: value as string });
+          break;
+        case "description":
+          await updateTaskDescription({
+            ...task,
+            description: value as string,
+          });
+          break;
+        default:
+          await updateTask({
+            ...task,
+            [field]: value,
+          });
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to update task",
@@ -180,119 +133,108 @@ export default function TaskCardContextMenuContent({
 
   return (
     <>
-      <ContextMenuContent>
-        <ContextMenuItem
-          onClick={handleCopyTaskLink}
-          className="flex items-center gap-2 cursor-pointer"
-        >
-          <Copy className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 " />
-          Copy Link
+      <ContextMenuContent className="w-46">
+        <ContextMenuItem onClick={handleCopyTaskLink}>
+          <span>Copy link</span>
         </ContextMenuItem>
 
-        <ContextMenuSub>
-          <ContextMenuSubTrigger className="flex items-center gap-2">
-            <Tags className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
-            Priority
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent>
-            <ContextMenuCheckboxItem
-              onClick={() => handleChange("priority", "low")}
-              className="flex items-center gap-2 cursor-pointer"
-              checked={task.priority === "low"}
-            >
-              <Flag
-                className={cn(
-                  "w-3.5 h-3.5",
-                  priorityColorsTaskCard[
-                    "low" as keyof typeof priorityColorsTaskCard
-                  ],
-                )}
-              />
-              Low
-            </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem
-              onClick={() => handleChange("priority", "medium")}
-              className="flex items-center gap-2 cursor-pointer"
-              checked={task.priority === "medium"}
-            >
-              <Flag
-                className={cn(
-                  "w-3.5 h-3.5",
-                  priorityColorsTaskCard[
-                    "medium" as keyof typeof priorityColorsTaskCard
-                  ],
-                )}
-              />
-              Medium
-            </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem
-              onClick={() => handleChange("priority", "high")}
-              className="flex items-center gap-2 cursor-pointer"
-              checked={task.priority === "high"}
-            >
-              <Flag
-                className={cn(
-                  "w-3.5 h-3.5",
-                  priorityColorsTaskCard[
-                    "high" as keyof typeof priorityColorsTaskCard
-                  ],
-                )}
-              />
-              High
-            </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem
-              onClick={() => handleChange("priority", "urgent")}
-              className="flex items-center gap-2 cursor-pointer"
-              checked={task.priority === "urgent"}
-            >
-              <Flag
-                className={cn(
-                  "w-3.5 h-3.5",
-                  priorityColorsTaskCard[
-                    "urgent" as keyof typeof priorityColorsTaskCard
-                  ],
-                )}
-              />
-              Urgent
-            </ContextMenuCheckboxItem>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
+        <ContextMenuSeparator />
 
         <ContextMenuSub>
-          <ContextMenuSubTrigger className="flex items-center gap-2">
-            <ListTodo className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
-            Status
+          <ContextMenuSubTrigger className="gap-2">
+            <span>Priority</span>
           </ContextMenuSubTrigger>
-          <ContextMenuSubContent>
-            {statusOptions.map((status) => (
+          <ContextMenuSubContent className="w-48">
+            <ContextMenuCheckboxItem
+              key="no-priority"
+              checked={task.priority === "no-priority"}
+              onCheckedChange={() => handleChange("priority", "no-priority")}
+              className="[&_svg]:text-muted-foreground"
+            >
+              {getPriorityIcon("no-priority")}
+              <span>No Priority</span>
+            </ContextMenuCheckboxItem>
+            {["low", "medium", "high", "urgent"].map((priority) => (
               <ContextMenuCheckboxItem
-                key={status.value}
-                checked={task.status === status.value}
-                onCheckedChange={() => handleChange("status", status.value)}
-                className="flex items-center gap-2 cursor-pointer"
+                key={priority}
+                checked={task.priority === priority}
+                onCheckedChange={() => handleChange("priority", priority)}
+                className="[&_svg]:text-muted-foreground"
               >
-                {(() => {
-                  const IconComponent = getColumnIcon(status.value);
-                  return (
-                    <IconComponent
-                      className={`w-3.5 h-3.5  flex-shrink-0 ${getColumnIconColor(status.value)}`}
-                    />
-                  );
-                })()}
-                {status.label}
+                {getPriorityIcon(priority)}
+                <span className="capitalize">{priority}</span>
               </ContextMenuCheckboxItem>
             ))}
           </ContextMenuSubContent>
         </ContextMenuSub>
 
         <ContextMenuSub>
-          <ContextMenuSubTrigger className="flex items-center gap-2">
-            <User className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
-            Assignee
+          <ContextMenuSubTrigger>
+            <span>Status</span>
           </ContextMenuSubTrigger>
+          <ContextMenuSubContent className="w-48">
+            {["to-do", "in-progress", "in-review", "done"].map((status) => (
+              <ContextMenuCheckboxItem
+                key={status}
+                checked={task.status === status}
+                onCheckedChange={() => handleChange("status", status)}
+                className="[&_svg]:text-muted-foreground"
+              >
+                {getColumnIcon(status)}
+                <span className="capitalize">{status}</span>
+              </ContextMenuCheckboxItem>
+            ))}
+          </ContextMenuSubContent>
+        </ContextMenuSub>
 
-          {usersOptions && (
-            <ContextMenuSubContent>
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>
+            <span>Due date</span>
+          </ContextMenuSubTrigger>
+          <ContextMenuSubContent className="w-64 p-2">
+            <Calendar
+              mode="single"
+              selected={task.dueDate ? new Date(task.dueDate) : undefined}
+              onSelect={async (date) => {
+                try {
+                  await updateTaskDueDate({
+                    ...task,
+                    dueDate: date?.toISOString() || null,
+                  });
+                  toast.success("Task due date updated successfully");
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error
+                      ? error.message
+                      : "Failed to update task due date",
+                  );
+                }
+              }}
+              className="w-full !bg-popover"
+            />
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+
+        {usersOptions && (
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <span>Assignee</span>
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48">
+              <ContextMenuCheckboxItem
+                checked={!task.userId}
+                onCheckedChange={() => handleChange("userId", "")}
+              >
+                <div
+                  className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
+                  title="Unassigned"
+                >
+                  <span className="text-[10px] font-medium text-muted-foreground">
+                    ?
+                  </span>{" "}
+                </div>
+                Unassigned
+              </ContextMenuCheckboxItem>
               {usersOptions.map((user) => (
                 <ContextMenuCheckboxItem
                   key={user.value}
@@ -300,81 +242,38 @@ export default function TaskCardContextMenuContent({
                   onCheckedChange={() =>
                     handleChange("userId", user.value ?? "")
                   }
-                  className="flex items-center justify-between cursor-pointer"
                 >
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
+                    <AvatarFallback className="text-xs font-medium border border-border/30">
+                      {user.name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+
                   {user.label}
                 </ContextMenuCheckboxItem>
               ))}
-              <ContextMenuCheckboxItem
-                checked={!task.userId}
-                onCheckedChange={() => handleChange("userId", "")}
-                className="flex items-center justify-between cursor-pointer"
-              >
-                Unassigned
-              </ContextMenuCheckboxItem>
             </ContextMenuSubContent>
-          )}
-        </ContextMenuSub>
+          </ContextMenuSub>
+        )}
 
-        <ContextMenuSub>
-          <ContextMenuSubTrigger className="flex items-center gap-2">
-            <FlipHorizontal2 className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
-            Mirror
-          </ContextMenuSubTrigger>
+        <ContextMenuSeparator />
 
-          {projectsOptions && (
-            <ContextMenuSubContent>
-              {projectsOptions.map((project) => (
-                <ContextMenuItem
-                  key={project.value}
-                  onClick={() => handleDuplicateTask(project.value)}
-                  className="flex items-center justify-between cursor-pointer"
-                >
-                  {project.label}
-                </ContextMenuItem>
-              ))}
-            </ContextMenuSubContent>
-          )}
-        </ContextMenuSub>
-
-        <ContextMenuSub>
-          <ContextMenuSubTrigger className="flex items-center gap-2">
-            <CalendarIcon className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />{" "}
-            Due date
-          </ContextMenuSubTrigger>
-          {projectsOptions && (
-            <ContextMenuSubContent>
-              <Calendar
-                mode="single"
-                selected={task.dueDate ? new Date(task.dueDate) : undefined}
-                onSelect={(value) => handleChange("dueDate", String(value))}
-                className="w-auto border-none"
-                initialFocus
-              />
-            </ContextMenuSubContent>
-          )}
-        </ContextMenuSub>
-        <ContextMenuItem
-          onClick={() => handleChange("status", "archived")}
-          className="flex items-center transition-all duration-200 gap-2  cursor-pointer"
-        >
-          <Archive className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-          Archive Task
-        </ContextMenuItem>
-        <ContextMenuItem
-          onClick={() => handleChange("status", "planned")}
-          className="flex items-center transition-all duration-200 gap-2  cursor-pointer"
-        >
-          <Clock className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-          Set as planned
+        <ContextMenuItem onClick={() => handleChange("status", "archived")}>
+          <span>Archive</span>
         </ContextMenuItem>
 
+        <ContextMenuItem onClick={() => handleChange("status", "planned")}>
+          <span>Mark as planned</span>
+        </ContextMenuItem>
+
+        <ContextMenuSeparator />
+
         <ContextMenuItem
+          className="text-destructive"
           onClick={() => setIsDeleteTaskModalOpen(true)}
-          className="flex items-center transition-all duration-200 gap-2  cursor-pointer"
         >
-          <Trash className="w-3.5 h-3.5 text-red-400" />
-          Delete Task
+          <span>Delete...</span>
         </ContextMenuItem>
       </ContextMenuContent>
 

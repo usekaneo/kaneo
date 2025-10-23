@@ -1,6 +1,6 @@
 # Kaneo Helm Chart
 
-This Helm chart deploys [Kaneo](https://kaneo.app) - an open source project management platform focused on simplicity and efficiency.
+This Helm chart deploys [Kaneo](https://kaneo.app) - open source project management that works for you, not against you.
 
 ## Introduction
 
@@ -11,6 +11,39 @@ This chart bootstraps a Kaneo deployment on a Kubernetes cluster using the Helm 
 - Kubernetes 1.19+
 - Helm 3.2.0+
 - PV provisioner support in the underlying infrastructure (if persistence is enabled)
+
+## Quick Start
+
+### Basic Installation
+
+Clone the repository and install with Helm:
+
+```bash
+# Clone the repo
+git clone https://github.com/usekaneo/kaneo.git
+cd kaneo
+
+# Install with Helm
+helm install kaneo ./charts/kaneo --namespace kaneo --create-namespace
+
+# Access locally
+kubectl port-forward svc/kaneo-web 5173:5173 -n kaneo
+```
+
+Open [http://localhost:5173](http://localhost:5173) and you're ready to go.
+
+### Production Setup with Ingress
+
+For real deployments, you'll want proper ingress:
+
+```bash
+helm install kaneo ./charts/kaneo \
+  --namespace kaneo \
+  --create-namespace \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set "ingress.hosts[0].host=pm.yourcompany.com"
+```
 
 ## Installing the Chart
 

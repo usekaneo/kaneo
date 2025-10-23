@@ -1,3 +1,10 @@
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { useRouter } from "@tanstack/react-router";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod/v4";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -9,13 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { useRouter } from "@tanstack/react-router";
-import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod/v4";
 
 export type SignInFormValues = {
   email: string;
@@ -75,7 +75,7 @@ export function SignInForm() {
                 <FormLabel className="text-sm font-medium">Email</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="m@example.com"
+                    placeholder="me@example.com"
                     type="email"
                     autoComplete="email"
                     {...field}
@@ -119,7 +119,12 @@ export function SignInForm() {
           />
         </div>
 
-        <Button type="submit" disabled={isPending} className="w-full mt-4">
+        <Button
+          type="submit"
+          disabled={isPending}
+          size="sm"
+          className="w-full mt-4 text-white"
+        >
           {isPending ? "Signing In..." : "Sign In"}
         </Button>
       </form>

@@ -1,6 +1,6 @@
+import { useMutation } from "@tanstack/react-query";
 import importGithubIssues from "@/fetchers/github-integration/import-github-issues";
 import queryClient from "@/query-client";
-import { useMutation } from "@tanstack/react-query";
 
 function useImportGithubIssues() {
   return useMutation({

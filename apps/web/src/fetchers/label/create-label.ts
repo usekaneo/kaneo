@@ -5,12 +5,18 @@ export type CreateLabelRequest = InferRequestType<
   (typeof client)["label"]["$post"]
 >["json"];
 
-async function createLabel({ name, color, taskId }: CreateLabelRequest) {
+async function createLabel({
+  name,
+  color,
+  taskId,
+  workspaceId,
+}: CreateLabelRequest) {
   const response = await client.label.$post({
     json: {
       name,
       color,
       taskId,
+      workspaceId,
     },
   });
 

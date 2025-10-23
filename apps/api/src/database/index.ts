@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import { config } from "dotenv-mono";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import {
@@ -20,11 +20,14 @@ import {
   accountTable,
   activityTable,
   githubIntegrationTable,
+  invitationTable,
   labelTable,
   notificationTable,
   projectTable,
   sessionTable,
   taskTable,
+  teamMemberTable,
+  teamTable,
   timeEntryTable,
   userTable,
   verificationTable,
@@ -32,7 +35,7 @@ import {
   workspaceUserTable,
 } from "./schema";
 
-dotenv.config();
+config();
 
 const pool = new Pool({
   connectionString:
@@ -54,6 +57,9 @@ export const schema = {
   verificationTable,
   workspaceTable,
   workspaceUserTable,
+  invitationTable,
+  teamTable,
+  teamMemberTable,
   userTableRelations,
   sessionTableRelations,
   accountTableRelations,

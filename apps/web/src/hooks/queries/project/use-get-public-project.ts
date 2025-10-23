@@ -1,5 +1,5 @@
-import getPublicProject from "@/fetchers/project/get-public-project";
 import { useQuery } from "@tanstack/react-query";
+import getPublicProject from "@/fetchers/project/get-public-project";
 
 function useGetPublicProject(id: string) {
   return useQuery({

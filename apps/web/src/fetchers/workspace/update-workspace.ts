@@ -1,29 +1,37 @@
-import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import { authClient } from "@/lib/auth-client";
 
-type UpdateWorkspaceRequest = InferRequestType<
-  (typeof client.workspace)[":id"]["$put"]
->["param"] &
-  InferRequestType<(typeof client.workspace)[":id"]["$put"]>["json"];
+type UpdateWorkspaceRequest = {
+  id: string;
+  name: string;
+  description?: string;
+  logo?: string;
+  slug?: string;
+};
 
 const updateWorkspace = async ({
   id,
   name,
   description,
+  logo,
+  slug,
 }: UpdateWorkspaceRequest) => {
-  const response = await client.workspace[":id"].$put({
-    param: { id },
-    json: { name, description },
+  const metadata = description ? { description } : undefined;
+
+  const { data, error } = await authClient.organization.update({
+    organizationId: id,
+    data: {
+      name,
+      slug,
+      logo,
+      metadata,
+    },
   });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+  if (error) {
+    throw new Error(error.message || "Failed to update workspace");
   }
 
-  const workspace = await response.json();
-
-  return workspace;
+  return data;
 };
 
 export default updateWorkspace;

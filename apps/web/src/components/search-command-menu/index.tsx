@@ -1,16 +1,3 @@
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { KbdSequence } from "@/components/ui/kbd";
-import { shortcuts } from "@/constants/shortcuts";
-import useGlobalSearch from "@/hooks/queries/search/use-global-search";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import useWorkspaceStore from "@/store/workspace";
 import { useNavigate } from "@tanstack/react-router";
 import {
   FileText,
@@ -22,6 +9,18 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { shortcuts } from "@/constants/shortcuts";
+import useGlobalSearch from "@/hooks/queries/search/use-global-search";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 type SearchResultItem = {
   id: string;
@@ -44,7 +43,7 @@ type SearchCommandMenuProps = {
 
 function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
   const [query, setQuery] = useState("");
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
 
   const { data: searchResults } = useGlobalSearch({
@@ -187,10 +186,6 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
               <p className="text-sm text-muted-foreground">
                 Type at least 3 characters to search
               </p>
-              <div className="mt-2 text-xs text-muted-foreground">
-                Press <KbdSequence keys={["/"]} className="inline-flex" /> to
-                focus
-              </div>
             </div>
           </CommandEmpty>
         )}

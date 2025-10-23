@@ -1,13 +1,14 @@
 import path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// https://vite.dev/config/
 export default defineConfig({
   base: "/",
   plugins: [
     tanstackRouter({ autoCodeSplitting: true }),
+    tailwindcss(),
     react({
       babel: {
         plugins: [["babel-plugin-react-compiler"]],
@@ -18,6 +19,12 @@ export default defineConfig({
     host: true,
     hmr: true,
     port: 5173,
+  },
+  optimizeDeps: {
+    exclude: ["better-auth"],
+  },
+  ssr: {
+    noExternal: ["better-auth"],
   },
   resolve: {
     alias: {
@@ -30,5 +37,10 @@ export default defineConfig({
         manualChunks: undefined,
       },
     },
+    commonjsOptions: {
+      include: [/better-auth/, /node_modules/],
+      transformMixedEsModules: true,
+    },
+    target: "esnext",
   },
 });

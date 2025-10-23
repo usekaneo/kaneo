@@ -1,7 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import updateTimeEntry, {
   type UpdateTimeEntryRequest,
 } from "@/fetchers/time-entry/update-time-entry";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 function useUpdateTimeEntry(taskId: string) {
   const queryClient = useQueryClient();

@@ -1,6 +1,6 @@
 import {
-  BookOpen,
   Bookmark,
+  BookOpen,
   Box,
   Boxes,
   Briefcase,

@@ -1,2 +1,2 @@
-pnpm dlx @biomejs/biome@1.9.4 ci .
+pnpm dlx @biomejs/biome@2.0.6 ci .
 pnpm run build

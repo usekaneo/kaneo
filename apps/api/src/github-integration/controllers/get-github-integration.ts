@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { githubIntegrationTable } from "../../database/schema";
 
@@ -9,9 +8,7 @@ async function getGithubIntegration(projectId: string) {
   });
 
   if (!integration) {
-    throw new HTTPException(404, {
-      message: "GitHub integration not found",
-    });
+    return null;
   }
 
   return integration;

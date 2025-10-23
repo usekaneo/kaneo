@@ -1,3 +1,6 @@
+import { formatDistanceToNow } from "date-fns";
+import { Bell } from "lucide-react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,9 +31,6 @@ import useMarkAllNotificationsAsRead from "@/hooks/mutations/notification/use-ma
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
-import { formatDistanceToNow } from "date-fns";
-import { Bell } from "lucide-react";
-import { forwardRef, useImperativeHandle, useState } from "react";
 
 export interface NotificationDropdownRef {
   toggle: () => void;
@@ -87,12 +87,12 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               </TooltipTrigger>
               <TooltipContent>
                 <p className="flex items-center gap-2">
-                  Notifications
                   <KbdSequence
                     keys={[
                       shortcuts.notification.prefix,
                       shortcuts.notification.open,
                     ]}
+                    description="Open notifications"
                   />
                 </p>
               </TooltipContent>
@@ -129,40 +129,38 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                   </p>
                 </div>
               ) : (
-                <>
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={cn(
-                        "px-3 py-3 border-b border-border/50 hover:bg-accent/50 transition-colors",
-                        !notification.isRead && "bg-accent/20",
-                      )}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-sm font-medium text-foreground">
-                              {notification.title}
-                            </h4>
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-                            )}
-                          </div>
-                          {notification.content && (
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {notification.content}
-                            </p>
+                notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={cn(
+                      "px-3 py-3 border-b border-border/50 hover:bg-accent/50 transition-colors",
+                      !notification.isRead && "bg-accent/20",
+                    )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-sm font-medium text-foreground">
+                            {notification.title}
+                          </h4>
+                          {!notification.isRead && (
+                            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
                           )}
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {formatDistanceToNow(notification.createdAt, {
-                              addSuffix: true,
-                            })}
-                          </p>
                         </div>
+                        {notification.content && (
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {notification.content}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {formatDistanceToNow(notification.createdAt, {
+                            addSuffix: true,
+                          })}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </>
+                  </div>
+                ))
               )}
             </div>
             {hasNotifications && (

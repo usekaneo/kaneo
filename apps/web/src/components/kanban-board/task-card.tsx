@@ -1,21 +1,17 @@
-import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
-import useProjectStore from "@/store/project";
-import { useUserPreferencesStore } from "@/store/user-preferences";
-import useWorkspaceStore from "@/store/workspace";
-import type Task from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import {
-  Calendar,
-  CalendarClock,
-  CalendarX,
-  Flag,
-  UserIcon,
-} from "lucide-react";
-import type { CSSProperties } from "react";
+import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import { type CSSProperties, useMemo } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { getPriorityIcon } from "@/lib/priority";
+import useProjectStore from "@/store/project";
+import { useUserPreferencesStore } from "@/store/user-preferences";
+import type Task from "@/types/task";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
 import TaskCardLabels from "./task-labels";
@@ -34,7 +30,7 @@ function TaskCard({ task }: TaskCardProps) {
     isDragging,
   } = useSortable({ id: task.id });
   const { project } = useProjectStore();
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
   const {
     showAssignees,
@@ -53,6 +49,16 @@ function TaskCard({ task }: TaskCardProps) {
     zIndex: isDragging ? 999 : "auto",
   };
 
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    workspace?.id ?? "",
+  );
+
+  const assignee = useMemo(() => {
+    return workspaceUsers?.members?.find(
+      (member) => member.userId === task.userId,
+    );
+  }, [workspaceUsers, task.userId]);
+
   function handleTaskCardClick() {
     if (!project || !task || !workspace) return;
 
@@ -70,56 +76,80 @@ function TaskCard({ task }: TaskCardProps) {
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <ContextMenu>
         <ContextMenuTrigger asChild>
+          {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
           <div
             onClick={handleTaskCardClick}
-            className={`group bg-white dark:bg-zinc-800/50 backdrop-blur-sm rounded-lg border p-2.5 cursor-move shadow-sm transition-all duration-200 ease-out ${
+            className={`group bg-card border border-border rounded-lg p-3 cursor-move transition-all duration-200 ease-out relative ${
               isDragging
-                ? "border-indigo-300 dark:border-indigo-600/70 shadow-lg shadow-indigo-500/10 dark:shadow-indigo-400/5 bg-white dark:bg-zinc-800/80"
-                : "border-zinc-200 dark:border-zinc-700/50 hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-md"
+                ? "border-primary/30 shadow-lg shadow-primary/10 bg-card/90"
+                : "hover:border-border/70 hover:shadow-sm"
             }`}
             onKeyDown={(e) => {
               if (e.key === "Enter") handleTaskCardClick();
             }}
           >
             {showTaskNumbers && (
-              <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-1.5">
+              <div className="text-[10px] font-mono text-muted-foreground mb-2">
                 {project?.slug}-{task.number}
               </div>
             )}
 
-            <div className="flex flex-col gap-1.5 mb-1.5">
-              <h3 className="font-medium text-zinc-900 dark:text-zinc-100 max-w-4/5 truncate">
-                {task.title}
-              </h3>
-              {showLabels && <TaskCardLabels taskId={task.id} />}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1.5 mt-auto">
-              {showAssignees &&
-                (task.userId ? (
-                  <div
-                    className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
-                    title={task.assigneeName ?? ""}
-                  >
-                    <span className="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[100px]">
-                      {task.assigneeName}
-                    </span>
-                  </div>
+            {showAssignees && (
+              <div className="absolute top-3 right-3">
+                {task.userId ? (
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage
+                      src={assignee?.user?.image ?? ""}
+                      alt={assignee?.user?.name || ""}
+                    />
+                    <AvatarFallback className="text-xs font-medium border border-border/30">
+                      {assignee?.user?.name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                 ) : (
                   <div
-                    className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 dark:bg-zinc-800/50 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/80 transition-colors"
+                    className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
                     title="Unassigned"
                   >
-                    <UserIcon className="h-3 w-3 text-zinc-400 dark:text-zinc-500" />
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Unassigned
+                    <span className="text-[10px] font-medium text-muted-foreground">
+                      ?
                     </span>
                   </div>
-                ))}
+                )}
+              </div>
+            )}
 
-              {showDueDates && (
+            <div className="mb-3 pr-7">
+              <h3
+                className="font-medium text-foreground text-sm leading-relaxed overflow-hidden break-words"
+                style={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  wordBreak: "break-word",
+                  hyphens: "auto",
+                }}
+              >
+                {task.title}
+              </h3>
+            </div>
+
+            {showLabels && (
+              <div className="mb-3">
+                <TaskCardLabels taskId={task.id} />
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              {showPriority && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground">
+                  {getPriorityIcon(task.priority ?? "")}
+                </span>
+              )}
+
+              {showDueDates && task.dueDate && (
                 <div
-                  className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${dueDateStatusColors[getDueDateStatus(task.dueDate)]} group-hover:opacity-80`}
+                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
                 >
                   {getDueDateStatus(task.dueDate) === "overdue" && (
                     <CalendarX className="w-3 h-3" />
@@ -131,22 +161,7 @@ function TaskCard({ task }: TaskCardProps) {
                     getDueDateStatus(task.dueDate) === "no-due-date") && (
                     <Calendar className="w-3 h-3" />
                   )}
-                  <span className="text-xs">
-                    {task.dueDate
-                      ? format(new Date(task.dueDate), "MMM d")
-                      : "No due date"}
-                  </span>
-                </div>
-              )}
-
-              {showPriority && (
-                <div className="flex-shrink-0">
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${priorityColorsTaskCard[task.priority as keyof typeof priorityColorsTaskCard]}`}
-                  >
-                    <Flag className="w-3 h-3 inline-block mr-1" />
-                    {task.priority}
-                  </span>
+                  <span>{format(new Date(task.dueDate), "MMM d")}</span>
                 </div>
               )}
             </div>

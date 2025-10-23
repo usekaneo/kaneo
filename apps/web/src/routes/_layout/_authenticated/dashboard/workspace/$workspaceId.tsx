@@ -1,7 +1,6 @@
-import useGetWorkspace from "@/hooks/queries/workspace/use-get-workspace";
-import useWorkspaceStore from "@/store/workspace";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId",
@@ -11,14 +10,25 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { workspaceId } = Route.useParams();
-  const { data: workspace } = useGetWorkspace({ id: workspaceId });
-  const { setWorkspace } = useWorkspaceStore();
+
+  const { data: activeWorkspace } = useActiveWorkspace();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (workspace) {
-      setWorkspace(workspace);
+    // If we have an active workspace and it doesn't match the URL, redirect to the correct workspace
+    if (activeWorkspace && activeWorkspace.id !== workspaceId) {
+      navigate({
+        to: "/dashboard/workspace/$workspaceId",
+        params: { workspaceId: activeWorkspace.id },
+        replace: true, // Replace current history entry to avoid back button issues
+      });
     }
-  }, [workspace, setWorkspace]);
+  }, [activeWorkspace, workspaceId, navigate]);
+
+  // Don't render anything if we're redirecting
+  if (activeWorkspace && activeWorkspace.id !== workspaceId) {
+    return null;
+  }
 
   return <Outlet />;
 }

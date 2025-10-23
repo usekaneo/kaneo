@@ -2,11 +2,13 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { subscribeToEvent } from "../events";
+import toNormalCase from "../utils/to-normal-case";
 import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
 import getActivitiesFromTaskId from "./controllers/get-activities";
 import updateComment from "./controllers/update-comment";
+
 const activity = new Hono()
   .get(
     "/:taskId",
@@ -110,6 +112,113 @@ subscribeToEvent(
     }
 
     await createActivity(taskId, type, userId, content);
+  },
+);
+
+subscribeToEvent(
+  "task.assignee_changed",
+  async ({
+    taskId,
+    userId,
+    type,
+    newAssignee,
+  }: {
+    taskId: string;
+    userId: string;
+    type: string;
+    newAssignee: string;
+  }) => {
+    await createActivity(
+      taskId,
+      type,
+      userId,
+      `assigned the task to ${newAssignee}`,
+    );
+  },
+);
+
+subscribeToEvent(
+  "task.unassigned",
+  async ({
+    taskId,
+    userId,
+    type,
+  }: {
+    taskId: string;
+    userId: string;
+    type: string;
+  }) => {
+    await createActivity(taskId, type, userId, "unassigned the task");
+  },
+);
+
+subscribeToEvent(
+  "task.status_changed",
+  async ({
+    taskId,
+    userId,
+    type,
+    oldStatus,
+    newStatus,
+  }: {
+    taskId: string;
+    userId: string;
+    type: string;
+    oldStatus: string;
+    newStatus: string;
+  }) => {
+    await createActivity(
+      taskId,
+      type,
+      userId,
+      `changed the status from ${toNormalCase(oldStatus)} to ${toNormalCase(newStatus)}`,
+    );
+  },
+);
+
+subscribeToEvent(
+  "task.priority_changed",
+  async ({
+    taskId,
+    userId,
+    type,
+    oldPriority,
+    newPriority,
+  }: {
+    taskId: string;
+    userId: string;
+    type: string;
+    oldPriority: string;
+    newPriority: string;
+  }) => {
+    await createActivity(
+      taskId,
+      type,
+      userId,
+      `changed the priority from ${oldPriority} to ${newPriority}`,
+    );
+  },
+);
+
+subscribeToEvent(
+  "task.due_date_changed",
+  async ({
+    taskId,
+    userId,
+    type,
+    newDueDate,
+  }: {
+    taskId: string;
+    userId: string;
+    type: string;
+    newDueDate: string;
+  }) => {
+    await createActivity(
+      taskId,
+      type,
+      userId,
+      `changed the due date to ${new Date(newDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+    );
   },
 );
 

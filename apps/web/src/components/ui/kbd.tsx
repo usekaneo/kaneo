@@ -3,18 +3,30 @@ import { cn } from "@/lib/cn";
 interface KbdProps {
   children: React.ReactNode;
   className?: string;
+  description?: string;
+  hideDescription?: boolean;
 }
 
-export function Kbd({ children, className }: KbdProps) {
+export function Kbd({
+  children,
+  className,
+  description,
+  hideDescription = false,
+}: KbdProps) {
   return (
-    <kbd
-      className={cn(
-        "pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100",
-        className,
+    <span className="flex items-center gap-1">
+      {description && !hideDescription && (
+        <span className="text-[10px] text-white">{description}</span>
       )}
-    >
-      {children}
-    </kbd>
+      <kbd
+        className={cn(
+          "pointer-events-none inline-flex h-4 select-none items-center gap-0.5 rounded border bg-muted px-1 font-mono text-[9px] font-medium text-muted-foreground opacity-100",
+          className,
+        )}
+      >
+        {children}
+      </kbd>
+    </span>
   );
 }
 
@@ -22,12 +34,14 @@ interface KbdSequenceProps {
   keys: string[];
   separator?: string;
   className?: string;
+  description?: string;
 }
 
 export function KbdSequence({
   keys,
   separator = "then",
   className,
+  description,
 }: KbdSequenceProps) {
   const keyElements = keys.map((key, index) => ({
     key: key,
@@ -37,12 +51,23 @@ export function KbdSequence({
 
   return (
     <span className={cn("flex items-center gap-1", className)}>
-      {keyElements.map((item) => (
-        <span key={item.id} className="flex items-center gap-1">
-          {item.position > 0 && <span className="text-xs">{separator}</span>}
-          <Kbd>{item.key}</Kbd>
+      {description && (
+        <span className="text-[10px] text-popover-foreground">
+          {description}
         </span>
-      ))}
+      )}
+      <span className="flex items-center gap-0.5">
+        {keyElements.map((item) => (
+          <span key={item.id} className="flex items-center gap-0.5">
+            {item.position > 0 && (
+              <span className="text-[9px] text-muted-foreground/60">
+                {separator}
+              </span>
+            )}
+            <Kbd hideDescription>{item.key}</Kbd>
+          </span>
+        ))}
+      </span>
     </span>
   );
 }

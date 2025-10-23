@@ -1,5 +1,5 @@
-import getTask from "@/fetchers/task/get-task";
 import { useQuery } from "@tanstack/react-query";
+import getTask from "@/fetchers/task/get-task";
 
 function useGetTask(taskId: string) {
   return useQuery({

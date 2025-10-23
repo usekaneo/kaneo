@@ -1,15 +1,14 @@
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { UserCheck } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { AuthLayout } from "@/components/auth/layout";
 import { SignUpForm } from "@/components/auth/sign-up-form";
 import { AuthToggle } from "@/components/auth/toggle";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
-
 import { getConfig } from "@/fetchers/config/get-config";
 import { authClient } from "@/lib/auth-client";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { UserCheck } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth/sign-up")({
   component: SignUp,
@@ -56,7 +55,7 @@ function SignUp() {
             variant="outline"
             onClick={handleGuestAccess}
             disabled={isGuestLoading}
-            className="w-full"
+            className="w-full mb-0"
             size="sm"
           >
             <UserCheck className="w-4 h-4 mr-2" />

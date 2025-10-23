@@ -1,5 +1,5 @@
-import type Task from "@/types/task";
 import { client } from "@kaneo/libs";
+import type Task from "@/types/task";
 
 async function updateTask(taskId: string, task: Task) {
   const response = await client.task[":id"].$put({
@@ -10,8 +10,8 @@ async function updateTask(taskId: string, task: Task) {
       description: task.description || "",
       status: task.status,
       priority: task.priority || "",
-      dueDate: task.dueDate?.toString() || new Date().toString(),
-      position: task.position || 0,
+      dueDate: task.dueDate?.toString(),
+      position: task.position ?? 0,
       projectId: task.projectId,
     },
   });

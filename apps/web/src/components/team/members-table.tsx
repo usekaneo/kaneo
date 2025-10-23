@@ -1,15 +1,8 @@
-import { useWorkspacePermission } from "@/hooks/useWorkspacePermission";
-import { getStatusIcon, getStatusText } from "@/lib/status";
-import type WorkspaceUser from "@/types/workspace-user";
-import { MoreHorizontal, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { Avatar, AvatarFallback } from "../ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import type {
+  WorkspaceUser,
+  WorkspaceUserInvitation,
+} from "@/types/workspace-user";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   Table,
   TableBody,
@@ -18,15 +11,14 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import DeleteTeamMemberModal from "./delete-team-member-modal";
 
-function MembersTable({ users }: { users: WorkspaceUser[] }) {
-  const { isOwner } = useWorkspacePermission();
-  const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<WorkspaceUser | null>(
-    null,
-  );
-
+function MembersTable({
+  invitations,
+  users,
+}: {
+  invitations: WorkspaceUserInvitation[];
+  users: WorkspaceUser[];
+}) {
   if (users?.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -46,112 +38,90 @@ function MembersTable({ users }: { users: WorkspaceUser[] }) {
   }
 
   return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-foreground font-medium">
-              Member
-            </TableHead>
-            <TableHead className="text-foreground font-medium">Role</TableHead>
-            <TableHead className="text-foreground font-medium">
-              Status
-            </TableHead>
-            <TableHead className="text-foreground font-medium">
-              Joined
-            </TableHead>
-            {isOwner && (
-              <TableHead className="text-foreground font-medium">
-                Actions
-              </TableHead>
-            )}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users?.map((member) => (
-            <TableRow key={member.userId} className="cursor-pointer">
-              <TableCell className="py-3">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="text-muted-foreground text-xs w-2/3 pl-6">
+            Name
+          </TableHead>
+          <TableHead className="text-muted-foreground text-xs">Role</TableHead>
+          <TableHead className="text-muted-foreground text-xs pr-10">
+            Joined
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {invitations
+          .filter((invitation) => invitation.status !== "accepted")
+          ?.map((invitation) => (
+            <TableRow key={invitation.email} className="cursor-pointer">
+              <TableCell className="py-3 pl-6">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-5 w-5">
-                    <AvatarFallback className="bg-muted text-muted-foreground font-medium text-xs">
-                      {member.userId?.charAt(0).toUpperCase()}
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                      {invitation?.email?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{member.userId}</span>
+                  <span>{invitation.email}</span>
                 </div>
               </TableCell>
               <TableCell className="py-3">
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground">
-                  {member.role.charAt(0).toUpperCase() +
-                    member.role.slice(1).toLowerCase()}
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
+                  {invitation.role.charAt(0).toUpperCase() +
+                    invitation.role.slice(1).toLowerCase()}{" "}
+                  (Pending)
                 </span>
               </TableCell>
               <TableCell className="py-3">
-                <div className="flex items-center gap-2">
-                  {getStatusIcon(member.status as "active" | "pending")}
-                  <span className="text-sm text-muted-foreground">
-                    {getStatusText(member.status as "active" | "pending")}
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell className="py-3">
                 <span className="text-sm text-muted-foreground">
-                  {member.joinedAt &&
-                    new Date(member.joinedAt).toLocaleDateString("en-US", {
+                  {invitation.expiresAt &&
+                    new Date(invitation.expiresAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
                     })}
                 </span>
               </TableCell>
-              {isOwner && (
-                <TableCell className="py-3">
-                  {member.role === "owner" ? (
-                    <span className="text-xs text-muted-foreground italic">
-                      Workspace owner
-                    </span>
-                  ) : (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className="p-1 hover:bg-accent rounded"
-                        >
-                          <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setIsRemoveMemberModalOpen(true);
-                            setSelectedMember(member);
-                          }}
-                          variant="destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Remove member
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </TableCell>
-              )}
             </TableRow>
           ))}
-        </TableBody>
-      </Table>
 
-      {selectedMember && (
-        <DeleteTeamMemberModal
-          userId={selectedMember.userId ?? ""}
-          open={isRemoveMemberModalOpen}
-          onClose={() => {
-            setIsRemoveMemberModalOpen(false);
-            setSelectedMember(null);
-          }}
-        />
-      )}
-    </>
+        {users?.map((member) => (
+          <TableRow key={member.user.email} className="cursor-pointer">
+            <TableCell className="py-3 pl-6">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-5 w-5">
+                  <AvatarImage
+                    src={member.user.image ?? ""}
+                    alt={member.user.name || ""}
+                  />
+                  <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                    {member?.user?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span>{member.user.name}</span>
+              </div>
+            </TableCell>
+            <TableCell className="py-3">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
+                {member.role.charAt(0).toUpperCase() +
+                  member.role.slice(1).toLowerCase()}
+              </span>
+            </TableCell>
+
+            <TableCell className="py-3 pr-6">
+              <span className="text-sm text-muted-foreground">
+                {member.createdAt &&
+                  new Date(member.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+              </span>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 

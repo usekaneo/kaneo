@@ -1,3 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,10 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 interface CreateWorkspaceModalProps {
   open: boolean;

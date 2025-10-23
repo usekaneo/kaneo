@@ -1,6 +1,5 @@
 import { serve } from "@hono/node-server";
 import type { Session, User } from "better-auth/types";
-import { Cron } from "croner";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -18,10 +17,7 @@ import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
-import getSettings from "./utils/get-settings";
-import purgeDemoData from "./utils/purge-demo-data";
-import workspace from "./workspace";
-import workspaceUser from "./workspace-user";
+import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 
 const app = new Hono<{
   Variables: {
@@ -30,8 +26,6 @@ const app = new Hono<{
     userId: string;
   };
 }>();
-
-const { isDemoMode } = getSettings();
 
 const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
@@ -54,6 +48,10 @@ app.use(
     },
   }),
 );
+
+app.get("/health", (c) => {
+  return c.json({ status: "ok" });
+});
 
 const configRoute = app.route("/config", config);
 
@@ -86,14 +84,6 @@ app.use("*", async (c, next) => {
   return next();
 });
 
-if (isDemoMode) {
-  new Cron("0 * * * *", async () => {
-    await purgeDemoData();
-  });
-}
-
-const workspaceRoute = app.route("/workspace", workspace);
-const workspaceUserRoute = app.route("/workspace-user", workspaceUser);
 const projectRoute = app.route("/project", project);
 const taskRoute = app.route("/task", task);
 const activityRoute = app.route("/activity", activity);
@@ -102,28 +92,34 @@ const labelRoute = app.route("/label", label);
 const notificationRoute = app.route("/notification", notification);
 const searchRoute = app.route("/search", search);
 
-try {
-  console.log("Migrating database...");
-  migrate(db, {
-    migrationsFolder: `${process.cwd()}/drizzle`,
-  });
-} catch (error) {
-  console.error(error);
-}
+(async () => {
+  try {
+    await migrateWorkspaceUserEmail();
+
+    console.log("🔄 Migrating database...");
+    await migrate(db, {
+      migrationsFolder: `${process.cwd()}/drizzle`,
+    });
+    console.log("✅ Database migrated successfully!");
+  } catch (error) {
+    console.error("❌ Database migration failed!", error);
+    process.exit(1);
+  }
+})();
 
 serve(
   {
     fetch: app.fetch,
     port: 1337,
   },
-  (info) => {
-    console.log(`🏃 Hono API is running at http://localhost:${info.port}`);
+  () => {
+    console.log(
+      `⚡ API is running at ${process.env.KANEO_API_URL || "http://localhost:1337"}`,
+    );
   },
 );
 
 export type AppType =
-  | typeof workspaceRoute
-  | typeof workspaceUserRoute
   | typeof projectRoute
   | typeof taskRoute
   | typeof activityRoute

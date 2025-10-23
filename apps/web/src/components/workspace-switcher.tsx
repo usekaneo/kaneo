@@ -1,36 +1,32 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import * as React from "react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
+import { UserAvatar } from "@/components/user-avatar";
 import { shortcuts } from "@/constants/shortcuts";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import {
   getModifierKeyText,
   useRegisterShortcuts,
 } from "@/hooks/use-keyboard-shortcuts";
-import { useUserPreferencesStore } from "@/store/user-preferences";
-import useWorkspaceStore from "@/store/workspace";
+import { authClient } from "@/lib/auth-client";
 import type { Workspace } from "@/types/workspace";
 import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
 
 export function WorkspaceSwitcher() {
-  const { isMobile } = useSidebar();
-  const { workspace, setWorkspace } = useWorkspaceStore();
-  const { setActiveWorkspaceId } = useUserPreferencesStore();
+  const { data: workspace } = useActiveWorkspace();
   const { data: workspaces } = useGetWorkspaces();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -38,15 +34,21 @@ export function WorkspaceSwitcher() {
     React.useState(false);
 
   const handleWorkspaceChange = React.useCallback(
-    (selectedWorkspace: Workspace) => {
-      setWorkspace(selectedWorkspace);
-      setActiveWorkspaceId(selectedWorkspace.id);
-      navigate({
-        to: "/dashboard/workspace/$workspaceId",
-        params: { workspaceId: selectedWorkspace.id },
-      });
+    async (selectedWorkspace: Workspace) => {
+      try {
+        await authClient.organization.setActive({
+          organizationId: selectedWorkspace.id,
+        });
+
+        navigate({
+          to: "/dashboard/workspace/$workspaceId",
+          params: { workspaceId: selectedWorkspace.id },
+        });
+      } catch (error) {
+        console.error("Failed to switch workspace:", error);
+      }
     },
-    [setWorkspace, setActiveWorkspaceId, navigate],
+    [navigate],
   );
 
   React.useEffect(() => {
@@ -91,89 +93,103 @@ export function WorkspaceSwitcher() {
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div
-                className="bg-indigo-600 text-white flex aspect-square size-8 items-center justify-center rounded-lg"
-                style={{ backgroundColor: "#5463ff" }}
-              >
-                <span className="text-sm font-semibold">
-                  {workspace.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{workspace.name}</span>
-                <span className="truncate text-xs text-sidebar-foreground/70">
-                  {workspaces?.length || 0} workspace
-                  {workspaces?.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-              <ChevronsUpDown className="ml-auto" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Workspaces
-            </DropdownMenuLabel>
-            {workspaces?.map((ws: Workspace, index: number) => (
-              <DropdownMenuItem
-                key={ws.id}
-                onClick={() => {
-                  handleWorkspaceChange(ws);
-                  setIsOpen(false);
-                }}
-                className="gap-2 p-2"
-              >
-                <div
-                  className="flex size-6 items-center justify-center rounded-md bg-indigo-600 dark:bg-indigo-400"
-                  style={{ backgroundColor: "#5463ff" }}
+    <>
+      <div className="flex items-center justify-between w-full gap-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
+              <PopoverTrigger asChild>
+                <SidebarMenuButton
+                  size="sm"
+                  className="h-8 py-0 w-auto w-full group"
                 >
-                  <span className="text-xs font-medium text-white">
-                    {ws.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                {ws.name}
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {getModifierKeyText()} {index > 8 ? "0" : index + 1}
-                </span>
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="gap-2 p-2"
-              onClick={() => {
-                setIsCreateWorkspaceModalOpen(true);
-              }}
-            >
-              <div
-                className="flex size-6 items-center justify-center rounded-md bg-indigo-600 dark:bg-indigo-400"
-                style={{ backgroundColor: "#5463ff" }}
+                  <div className="flex items-end gap-2 min-w-0 w-full">
+                    <div className="bg-primary flex aspect-square size-5 items-end justify-center rounded-sm">
+                      <span className="text-xs font-medium text-white">
+                        {workspace.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="truncate text-sm text-foreground/90 font-medium">
+                      {workspace.name}
+                    </span>
+                  </div>
+                  <ChevronDown
+                    className="ml-1 size-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-500 ease-out"
+                    data-state={isOpen ? "open" : "closed"}
+                  />
+                </SidebarMenuButton>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-fit min-w-48 p-0 rounded-lg"
+                align="start"
+                side="bottom"
+                sideOffset={4}
               >
-                <Plus className="size-4 text-white" />
-              </div>
-              <div className="text-muted-foreground font-medium">
-                Add workspace
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
+                <div className="p-3">
+                  <div className="text-muted-foreground/60 text-xs">
+                    Workspaces
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="p-1">
+                  {workspaces?.map((ws: Workspace, index: number) => (
+                    <button
+                      type="button"
+                      key={ws.id}
+                      onClick={() => {
+                        handleWorkspaceChange(ws);
+                        setIsOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80 rounded-sm transition-colors text-sm font-normal"
+                    >
+                      <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {ws.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <span className="text-foreground/90 flex-1 text-left">
+                        {ws.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground/50">
+                        {getModifierKeyText()} {index > 8 ? "0" : index + 1}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <Separator />
+
+                <div className="p-1">
+                  <button
+                    type="button"
+                    className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80 rounded-sm transition-colors text-sm font-normal"
+                    onClick={() => {
+                      setIsCreateWorkspaceModalOpen(true);
+                      setIsOpen(false);
+                    }}
+                  >
+                    <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
+                      <Plus className="size-3 text-muted-foreground" />
+                    </div>
+                    <span className="text-muted-foreground flex-1 text-left">
+                      Add workspace
+                    </span>
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
+        <UserAvatar />
+      </div>
 
       <CreateWorkspaceModal
         open={isCreateWorkspaceModalOpen}
         onClose={() => setIsCreateWorkspaceModalOpen(false)}
       />
-    </SidebarMenu>
+    </>
   );
 }

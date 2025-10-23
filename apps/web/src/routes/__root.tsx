@@ -1,8 +1,8 @@
+import type { QueryClient } from "@tanstack/react-query";
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import { Toaster } from "sonner";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { User } from "@/types/user";
-import type { QueryClient } from "@tanstack/react-query";
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import { Toaster } from "sonner";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;

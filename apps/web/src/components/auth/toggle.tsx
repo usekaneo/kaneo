@@ -1,5 +1,5 @@
-import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { Link } from "@tanstack/react-router";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 
 interface AuthToggleProps {
   message: string;
@@ -15,7 +15,7 @@ export function AuthToggle({ message, linkText, linkTo }: AuthToggleProps) {
   }
 
   return (
-    <div className="text-center text-sm">
+    <div className="text-center text-sm text-muted-foreground">
       {message}{" "}
       <Link
         to={linkTo}

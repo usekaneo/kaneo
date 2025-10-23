@@ -1,5 +1,5 @@
-import updateLabel from "@/fetchers/label/update-label";
 import { useMutation } from "@tanstack/react-query";
+import updateLabel from "@/fetchers/label/update-label";
 
 function useUpdateLabel() {
   return useMutation({

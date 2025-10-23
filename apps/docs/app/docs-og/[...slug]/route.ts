@@ -1,6 +1,6 @@
+import { notFound } from "next/navigation";
 import { generateOgImage } from "@/lib/og";
 import { source } from "@/lib/source";
-import { notFound } from "next/navigation";
 
 export async function GET(
   _req: Request,

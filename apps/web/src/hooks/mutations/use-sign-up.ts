@@ -1,5 +1,5 @@
-import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
 
 function useSignUp() {
   return useMutation({
@@ -7,7 +7,11 @@ function useSignUp() {
       email,
       password,
       name,
-    }: { email: string; password: string; name: string }) => {
+    }: {
+      email: string;
+      password: string;
+      name: string;
+    }) => {
       const result = await authClient.signUp.email({ email, password, name });
       if (result.error) {
         throw new Error(result.error.message);

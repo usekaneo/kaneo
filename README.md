@@ -1,10 +1,8 @@
 <p align="center">
   <a href="https://kaneo.app">
-    <img src="https://assets.kaneo.app/logo-mono-rounded.png" alt="Kaneo's logo" width="200" />
+    <img src="https://assets.kaneo.app/logo-text.png" alt="Kaneo's logo" width="300" />
   </a>
 </p>
-
-<h1 align="center">Kaneo</h1>
 
 <div align="center">
 
@@ -20,23 +18,31 @@
     <span> | </span>
     <a href="https://kaneo.app">Website</a>
     <span> | </span>
-    <a href="https://demo.kaneo.app">Demo</a>
+    <a href="https://cloud.kaneo.app">Cloud (free)</a>
     <span> | </span>
     <a href="https://discord.gg/rU4tSyhXXU">Discord</a>
   </h3>
 </div>
 
-<p align="center">A modern, self-hosted project management platform that gets out of your way.</p>
+<h1 align="center">All you need. Nothing you don't.</h1>
+
+<p align="center">Project management that gets out of your way so you can focus on building great products.</p>
 
 ## Why Kaneo?
 
-We built Kaneo because existing project management tools either feel bloated with features you'll never use, or they're too simple to handle real work. Kaneo finds the sweet spot—powerful enough for complex projects, simple enough that you'll actually want to use it.
+After years of using bloated, overcomplicated project management platforms that distracted from actual work, we built Kaneo to be different.
+
+The problem with most tools isn't that they lack features—it's that they have **too many**. Every notification, every unnecessary button, every complex workflow pulls your team away from what matters: **building great products**.
+
+We believe the best tools are **invisible**. They should amplify your team's natural workflow, not force you to adapt to theirs. Kaneo is built on the principle that **less is more**—every feature exists because it solves a real problem, not because it looks impressive in a demo.
 
 **What makes it different:**
 - **Clean interface** that focuses on your work, not the tool
 - **Self-hosted** so your data stays yours
 - **Actually fast** because we care about performance
 - **Open source** and free forever
+
+Learn more about Kaneo's features and capabilities in our [documentation](https://kaneo.app/docs).
 
 ## Getting Started
 
@@ -48,42 +54,48 @@ The fastest way to try Kaneo is with Docker Compose. This sets up the API, web i
 services:
   postgres:
     image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: kaneo
-      POSTGRES_USER: kaneo_user
-      POSTGRES_PASSWORD: kaneo_password
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  backend:
+  api:
     image: ghcr.io/usekaneo/api:latest
-    environment:
-      JWT_ACCESS: "your-secret-key-here"
-      DATABASE_URL: "postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo"
     ports:
-      - 1337:1337
+      - "1337:1337"
+    env_file:
+      - .env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
-  frontend:
+  web:
     image: ghcr.io/usekaneo/web:latest
-    environment:
-      KANEO_API_URL: "http://localhost:1337"
     ports:
-      - 5173:5173
+      - "5173:5173"
+    env_file:
+      - .env
     depends_on:
-      - backend
+      - api
     restart: unless-stopped
 
 volumes:
   postgres_data:
+    name: kaneo_postgres_data
 ```
 
-Save this as `compose.yml`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
+Save this as `compose.yml`, create a `.env` file with your configuration (see [Configuration Options](#configuration-options) below), run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
-> **Quick tip:** Change `JWT_ACCESS` to something secure in production. This is used to sign authentication tokens.
+> **Important:** See our [full documentation](https://kaneo.app/docs) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
 
 ### Development Setup
 
@@ -91,12 +103,19 @@ For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for det
 
 ### Configuration Options
 
+Here are the essential environment variables you'll need in your `.env` file:
+
 | Variable | What it does | Default |
 | -------- | ------------ | ------- |
 | `KANEO_API_URL` | Where the web app finds the API | Required |
 | `JWT_ACCESS` | Secret key for user authentication | Required |
 | `DATABASE_URL` | PostgreSQL connection string | Required |
+| `POSTGRES_DB` | PostgreSQL database name | `kaneo` |
+| `POSTGRES_USER` | PostgreSQL username | Required |
+| `POSTGRES_PASSWORD` | PostgreSQL password | Required |
 | `DISABLE_REGISTRATION` | Block new user signups | `true` |
+
+For a complete list of configuration options and advanced settings, see the [full documentation](https://kaneo.app/docs).
 
 ### Database Setup
 
@@ -119,38 +138,11 @@ Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles t
    export DATABASE_URL="postgresql://kaneo_user:your_password@localhost:5432/kaneo"
    ```
 
+For more database configuration options and troubleshooting, visit the [documentation](https://kaneo.app/docs).
+
 ## Kubernetes Deployment
 
-If you're running Kubernetes, we have a Helm chart that handles the complexity:
-
-```bash
-# Clone the repo
-git clone https://github.com/usekaneo/kaneo.git
-cd kaneo
-
-# Install with Helm
-helm install kaneo ./charts/kaneo --namespace kaneo --create-namespace
-
-# Access locally
-kubectl port-forward svc/kaneo-web 5173:5173 -n kaneo
-```
-
-Open [http://localhost:5173](http://localhost:5173) and you're good to go.
-
-### Production Setup
-
-For real deployments, you'll want proper ingress:
-
-```bash
-helm install kaneo ./charts/kaneo \
-  --namespace kaneo \
-  --create-namespace \
-  --set ingress.enabled=true \
-  --set ingress.className=nginx \
-  --set "ingress.hosts[0].host=pm.yourcompany.com"
-```
-
-Check the [Helm chart docs](./charts/kaneo/README.md) for TLS setup, cert-manager integration, and other production considerations.
+If you're running Kubernetes, we provide a comprehensive Helm chart. Check out the [Helm chart documentation](./charts/kaneo/README.md) for detailed installation instructions, production configuration examples, TLS setup, and more.
 
 ## Development
 
@@ -174,21 +166,13 @@ cp apps/web/.env.sample apps/web/.env
 pnpm dev
 ```
 
-## Migration from SQLite
-
-If you're upgrading from a previous version that used SQLite, you'll need to migrate your data to PostgreSQL. We recommend:
-
-1. **Export your data** from the old SQLite database
-2. **Set up PostgreSQL** using the new Docker Compose configuration
-3. **Import your data** into the new PostgreSQL database
-
-Contact us on [Discord](https://discord.gg/rU4tSyhXXU) if you need help with the migration process.
+For contributing guidelines, code structure, and development best practices, check out our [contributing guide](CONTRIBUTING.md) and [documentation](https://kaneo.app/docs).
 
 ## Community
 
 - **[Discord](https://discord.gg/rU4tSyhXXU)** - Chat with users and contributors
 - **[GitHub Issues](https://github.com/usekaneo/kaneo/issues)** - Bug reports and feature requests
-- **[Documentation](https://kaneo.app/quick-start)** - Detailed guides and API docs
+- **[Documentation](https://kaneo.app/docs)** - Detailed guides, API docs, and tutorials
 
 ## Contributing
 

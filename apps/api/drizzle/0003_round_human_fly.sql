@@ -41,78 +41,209 @@ ALTER TABLE "workspace" DROP CONSTRAINT "workspace_owner_email_user_email_fk";
 --> statement-breakpoint
 ALTER TABLE "workspace_member" DROP CONSTRAINT "workspace_member_workspace_id_workspace_id_fk";
 --> statement-breakpoint
--- Add session columns for better-auth
-ALTER TABLE "session" ADD COLUMN "token" text NOT NULL;--> statement-breakpoint
-ALTER TABLE "session" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
-ALTER TABLE "session" ADD COLUMN "updated_at" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
-ALTER TABLE "session" ADD COLUMN "ip_address" text;--> statement-breakpoint
-ALTER TABLE "session" ADD COLUMN "user_agent" text;--> statement-breakpoint
--- Add user columns for better-auth (nullable first)
-ALTER TABLE "user" ADD COLUMN "email_verified" boolean;--> statement-breakpoint
--- Update existing users with default value
-UPDATE "user" SET "email_verified" = false WHERE "email_verified" IS NULL;--> statement-breakpoint
--- Make email_verified NOT NULL
-ALTER TABLE "user" ALTER COLUMN "email_verified" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "user" ADD COLUMN "image" text;--> statement-breakpoint
--- Add user updated_at column as nullable first
-ALTER TABLE "user" ADD COLUMN "updated_at" timestamp;--> statement-breakpoint
--- Update existing users with default value
-UPDATE "user" SET "updated_at" = NOW() WHERE "updated_at" IS NULL;--> statement-breakpoint
--- Make updated_at NOT NULL
-ALTER TABLE "user" ALTER COLUMN "updated_at" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "user" ADD COLUMN "is_anonymous" boolean;--> statement-breakpoint
--- Convert activity.user_email to activity.user_id
-ALTER TABLE "activity" ADD COLUMN "user_id" text;--> statement-breakpoint
-UPDATE "activity" SET "user_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "activity"."user_email"
-) WHERE "user_id" IS NULL;--> statement-breakpoint
-ALTER TABLE "activity" ALTER COLUMN "user_id" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "activity" DROP COLUMN "user_email";--> statement-breakpoint
--- Convert notification.user_email to notification.user_id
-ALTER TABLE "notification" ADD COLUMN "user_id" text;--> statement-breakpoint
-UPDATE "notification" SET "user_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "notification"."user_email"
-) WHERE "user_id" IS NULL;--> statement-breakpoint
-ALTER TABLE "notification" ALTER COLUMN "user_id" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "notification" DROP COLUMN "user_email";--> statement-breakpoint
--- Convert task.assignee_email to task.assignee_id
-ALTER TABLE "task" ADD COLUMN "assignee_id" text;--> statement-breakpoint
-UPDATE "task" SET "assignee_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "task"."assignee_email"
-) WHERE "assignee_email" IS NOT NULL AND "assignee_id" IS NULL;--> statement-breakpoint
-ALTER TABLE "task" DROP COLUMN "assignee_email";--> statement-breakpoint
--- Convert time_entry.user_email to time_entry.user_id
-ALTER TABLE "time_entry" ADD COLUMN "user_id" text;--> statement-breakpoint
-UPDATE "time_entry" SET "user_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "time_entry"."user_email"
-) WHERE "user_email" IS NOT NULL AND "user_id" IS NULL;--> statement-breakpoint
-ALTER TABLE "time_entry" DROP COLUMN "user_email";--> statement-breakpoint
--- Convert workspace.owner_email to workspace.owner_id
-ALTER TABLE "workspace" ADD COLUMN "owner_id" text;--> statement-breakpoint
-UPDATE "workspace" SET "owner_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "workspace"."owner_email"
-) WHERE "owner_id" IS NULL;--> statement-breakpoint
-ALTER TABLE "workspace" ALTER COLUMN "owner_id" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "workspace" DROP COLUMN "owner_email";--> statement-breakpoint
--- Convert workspace_member.user_email to workspace_member.user_id
-ALTER TABLE "workspace_member" ADD COLUMN "user_id" text;--> statement-breakpoint
-UPDATE "workspace_member" SET "user_id" = (
-  SELECT u.id 
-  FROM "user" u 
-  WHERE u.email = "workspace_member"."user_email"
-) WHERE "user_id" IS NULL;--> statement-breakpoint
-ALTER TABLE "workspace_member" ALTER COLUMN "user_id" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "workspace_member" DROP COLUMN "user_email";--> statement-breakpoint
+-- Add session columns for better-auth (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'session' AND column_name = 'token') THEN
+        ALTER TABLE "session" ADD COLUMN "token" text NOT NULL DEFAULT '';
+        ALTER TABLE "session" ALTER COLUMN "token" DROP DEFAULT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'session' AND column_name = 'created_at') THEN
+        ALTER TABLE "session" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'session' AND column_name = 'updated_at') THEN
+        ALTER TABLE "session" ADD COLUMN "updated_at" timestamp DEFAULT now() NOT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'session' AND column_name = 'ip_address') THEN
+        ALTER TABLE "session" ADD COLUMN "ip_address" text;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'session' AND column_name = 'user_agent') THEN
+        ALTER TABLE "session" ADD COLUMN "user_agent" text;
+    END IF;
+END $$;--> statement-breakpoint
+-- Add user columns for better-auth (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'email_verified') THEN
+        ALTER TABLE "user" ADD COLUMN "email_verified" boolean DEFAULT false NOT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'image') THEN
+        ALTER TABLE "user" ADD COLUMN "image" text;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'updated_at') THEN
+        ALTER TABLE "user" ADD COLUMN "updated_at" timestamp DEFAULT now() NOT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'is_anonymous') THEN
+        ALTER TABLE "user" ADD COLUMN "is_anonymous" boolean;
+    END IF;
+END $$;--> statement-breakpoint
+-- Convert activity.user_email to activity.user_id (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity' AND column_name = 'user_id') THEN
+        ALTER TABLE "activity" ADD COLUMN "user_id" text;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity' AND column_name = 'user_email') THEN
+        UPDATE "activity" SET "user_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "activity"."user_email"
+        ) WHERE "user_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DELETE FROM "activity" WHERE "user_id" IS NULL;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity' AND column_name = 'user_id' AND is_nullable = 'YES') THEN
+        ALTER TABLE "activity" ALTER COLUMN "user_id" SET NOT NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity' AND column_name = 'user_email') THEN
+        ALTER TABLE "activity" DROP COLUMN "user_email";
+    END IF;
+END $$;--> statement-breakpoint
+-- Convert notification.user_email to notification.user_id (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notification' AND column_name = 'user_id') THEN
+        ALTER TABLE "notification" ADD COLUMN "user_id" text;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notification' AND column_name = 'user_email') THEN
+        UPDATE "notification" SET "user_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "notification"."user_email"
+        ) WHERE "user_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DELETE FROM "notification" WHERE "user_id" IS NULL;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notification' AND column_name = 'user_id' AND is_nullable = 'YES') THEN
+        ALTER TABLE "notification" ALTER COLUMN "user_id" SET NOT NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notification' AND column_name = 'user_email') THEN
+        ALTER TABLE "notification" DROP COLUMN "user_email";
+    END IF;
+END $$;--> statement-breakpoint
+-- Convert task.assignee_email to task.assignee_id (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'task' AND column_name = 'assignee_id') THEN
+        ALTER TABLE "task" ADD COLUMN "assignee_id" text;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'task' AND column_name = 'assignee_email') THEN
+        UPDATE "task" SET "assignee_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "task"."assignee_email"
+        ) WHERE "assignee_email" IS NOT NULL AND "assignee_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'task' AND column_name = 'assignee_email') THEN
+        ALTER TABLE "task" DROP COLUMN "assignee_email";
+    END IF;
+END $$;--> statement-breakpoint
+-- Convert time_entry.user_email to time_entry.user_id (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'time_entry' AND column_name = 'user_id') THEN
+        ALTER TABLE "time_entry" ADD COLUMN "user_id" text;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'time_entry' AND column_name = 'user_email') THEN
+        UPDATE "time_entry" SET "user_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "time_entry"."user_email"
+        ) WHERE "user_email" IS NOT NULL AND "user_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'time_entry' AND column_name = 'user_email') THEN
+        ALTER TABLE "time_entry" DROP COLUMN "user_email";
+    END IF;
+END $$;--> statement-breakpoint
+-- Convert workspace.owner_email to workspace.owner_id (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace' AND column_name = 'owner_id') THEN
+        ALTER TABLE "workspace" ADD COLUMN "owner_id" text;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace' AND column_name = 'owner_email') THEN
+        UPDATE "workspace" SET "owner_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "workspace"."owner_email"
+        ) WHERE "owner_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DELETE FROM "workspace" WHERE "owner_id" IS NULL;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace' AND column_name = 'owner_id' AND is_nullable = 'YES') THEN
+        ALTER TABLE "workspace" ALTER COLUMN "owner_id" SET NOT NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace' AND column_name = 'owner_email') THEN
+        ALTER TABLE "workspace" DROP COLUMN "owner_email";
+    END IF;
+END $$;--> statement-breakpoint
+-- Convert workspace_member.user_email to workspace_member.user_id (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace_member' AND column_name = 'user_id') THEN
+        ALTER TABLE "workspace_member" ADD COLUMN "user_id" text;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace_member' AND column_name = 'user_email') THEN
+        UPDATE "workspace_member" SET "user_id" = (
+          SELECT u.id 
+          FROM "user" u 
+          WHERE u.email = "workspace_member"."user_email"
+        ) WHERE "user_id" IS NULL;
+    END IF;
+END $$;--> statement-breakpoint
+-- Clean up any remaining NULL values before setting NOT NULL
+DELETE FROM "workspace_member" WHERE "user_id" IS NULL;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace_member' AND column_name = 'user_id' AND is_nullable = 'YES') THEN
+        ALTER TABLE "workspace_member" ALTER COLUMN "user_id" SET NOT NULL;
+    END IF;
+END $$;--> statement-breakpoint
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspace_member' AND column_name = 'user_email') THEN
+        ALTER TABLE "workspace_member" DROP COLUMN "user_email";
+    END IF;
+END $$;--> statement-breakpoint
 -- Migrate existing passwords to account table before dropping user.password
 INSERT INTO "account" (
   "id", 

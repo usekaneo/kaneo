@@ -1,15 +1,11 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
-import {
-  BarChart3,
-  Calendar,
-  ChevronDown,
-  Clock,
-  LayoutDashboard,
-  LayoutGrid,
-  Search,
-  Users,
-} from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { ChevronRight, FolderKanban, Users } from "lucide-react";
 
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -17,70 +13,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
-import useWorkspaceStore from "@/store/workspace";
-import { useState } from "react";
-import SearchCommandMenu from "./search-command-menu";
-import { SettingsMenu } from "./settings-menu";
 import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 
 export function NavMain() {
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
-    useParams({
-      strict: false,
-    });
 
   if (!workspace) return null;
-
-  const isInProject = currentProjectId && currentWorkspaceId === workspace.id;
-  const currentPath = window.location.pathname;
-  const isBoard = currentPath.includes("/board");
-  const isBacklog = currentPath.includes("/backlog");
 
   const navItems = [
     {
       title: "Projects",
       url: `/dashboard/workspace/${workspace.id}`,
-      icon: LayoutDashboard,
+      icon: FolderKanban,
       isActive:
         window.location.pathname === `/dashboard/workspace/${workspace.id}`,
       isDisabled: false,
-    },
-    {
-      title: "Search",
-      onClick: () => {
-        setOpen(true);
-      },
-      icon: Search,
-      isActive: false,
-      isDisabled: false,
-    },
-    {
-      title: "Time Tracking",
-      url: `/dashboard/workspace/${workspace.id}/time`,
-      icon: Clock,
-      isActive:
-        window.location.pathname ===
-        `/dashboard/workspace/${workspace.id}/time`,
-      isDisabled: true,
-    },
-    {
-      title: "Analytics",
-      url: `/dashboard/workspace/${workspace.id}/analytics`,
-      icon: BarChart3,
-      isActive:
-        window.location.pathname ===
-        `/dashboard/workspace/${workspace.id}/analytics`,
-      isDisabled: true,
     },
     {
       title: "Members",
@@ -97,101 +47,56 @@ export function NavMain() {
     navigate({ to: url });
   };
 
-  const handleViewChange = (view: "board" | "backlog") => {
-    if (!currentProjectId) return;
-    navigate({
-      to: `/dashboard/workspace/$workspaceId/project/$projectId/${view}`,
-      params: {
-        workspaceId: workspace.id,
-        projectId: currentProjectId,
-      },
-    });
-  };
-
   return (
-    <>
-      <SidebarGroup>
-        <SidebarGroupLabel>Main</SidebarGroupLabel>
-        <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                tooltip={item.title}
-                disabled={item.isDisabled}
-                className="w-full flex gap-2 justify-start items-start"
+    <Collapsible defaultOpen={true} className="group/collapsible">
+      <SidebarGroup className="pt-2 pb-0">
+        <CollapsibleTrigger asChild>
+          <SidebarGroupLabel className="px-2 text-xs text-muted-foreground/70 font-medium cursor-pointer hover:text-muted-foreground transition-colors duration-200 flex items-center justify-between">
+            Workspace
+            <ChevronRight className="ml-auto h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarGroupLabel>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 duration-200">
+          <SidebarMenu className="space-y-0.5">
+            {navItems.map((item, index) => (
+              <SidebarMenuItem
+                key={item.title}
+                className="data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 duration-200"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <Button
-                  onClick={() => {
-                    if (item.url) {
-                      handleNavClick(item.url);
-                    } else {
-                      item.onClick?.();
-                    }
-                  }}
-                  variant="ghost"
-                  className={cn("w-full", item.isActive && "bg-accent")}
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  disabled={item.isDisabled}
+                  isActive={item.isActive}
+                  size="sm"
+                  className="h-7 px-2 text-xs rounded-sm group text-foreground/60"
                 >
-                  {item.icon && <item.icon className="w-4 h-4" />}
-                  <span>{item.title}</span>
-                </Button>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-
-          {isInProject && (
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
                   <Button
+                    onClick={() => {
+                      if (item.url) {
+                        handleNavClick(item.url);
+                      }
+                    }}
                     variant="ghost"
                     className={cn(
-                      "w-full flex items-center gap-2 justify-between",
+                      "w-full h-7 justify-start items-center gap-2 px-2 text-sm transition-all duration-200 relative",
+                      item.isActive && "!bg-neutral-200 dark:!bg-neutral-800",
                     )}
                   >
-                    <div className="flex items-center gap-2">
-                      {isBoard ? (
-                        <LayoutGrid className="w-4 h-4" />
-                      ) : (
-                        <Calendar className="w-4 h-4" />
-                      )}
-                      <span>View</span>
-                    </div>
-                    <ChevronDown className="w-3 h-3 opacity-50" />
+                    {item.icon && (
+                      <item.icon className="w-3.5 h-3.5 transition-colors duration-200 relative z-10" />
+                    )}
+                    <span className="transition-colors duration-200 relative z-10">
+                      {item.title}
+                    </span>
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuItem
-                    onClick={() => handleViewChange("board")}
-                    className={cn("cursor-pointer", isBoard && "bg-accent")}
-                  >
-                    <LayoutGrid className="w-4 h-4 mr-2" />
-                    Active Board
-                    {isBoard && (
-                      <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
-                    )}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleViewChange("backlog")}
-                    className={cn("cursor-pointer", isBacklog && "bg-accent")}
-                  >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Backlog
-                    {isBacklog && (
-                      <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
-                    )}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          )}
-
-          <SidebarMenuItem>
-            <SettingsMenu />
-          </SidebarMenuItem>
-        </SidebarMenu>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </CollapsibleContent>
       </SidebarGroup>
-      <SearchCommandMenu open={open} setOpen={setOpen} />
-    </>
+    </Collapsible>
   );
 }

@@ -16,7 +16,7 @@ export async function createGitHubLabels(
           name: labelName,
         });
         console.log(`Label "${labelName}" already exists`);
-      } catch (error) {
+      } catch (_error) {
         const color = getLabelColor(labelName);
         await octokit.rest.issues.createLabel({
           owner,

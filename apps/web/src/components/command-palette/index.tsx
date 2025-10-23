@@ -1,3 +1,15 @@
+import { useNavigate } from "@tanstack/react-router";
+import {
+  FolderKanban,
+  LayoutDashboard,
+  Monitor,
+  Moon,
+  Plus,
+  Search,
+  Sun,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
 import SearchCommandMenu from "@/components/search-command-menu";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import CreateWorkspaceModal from "@/components/shared/modals/create-workspace-modal";
@@ -11,28 +23,15 @@ import {
 } from "@/components/ui/command";
 import { KbdSequence } from "@/components/ui/kbd";
 import { shortcuts } from "@/constants/shortcuts";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import useWorkspaceStore from "@/store/workspace";
-import { useNavigate } from "@tanstack/react-router";
-import {
-  FolderKanban,
-  LayoutDashboard,
-  Monitor,
-  Moon,
-  Plus,
-  Search,
-  Settings,
-  Sun,
-  Users,
-} from "lucide-react";
-import { useState } from "react";
 import CreateProjectModal from "../shared/modals/create-project-modal";
 
 function CommandPalette() {
   const { theme, setTheme } = useUserPreferencesStore();
   const navigate = useNavigate();
-  const { workspace } = useWorkspaceStore();
+  const { data: workspace } = useActiveWorkspace();
   const [open, setOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
@@ -87,6 +86,7 @@ function CommandPalette() {
               <KbdSequence
                 keys={[shortcuts.task.prefix, shortcuts.task.create]}
                 className="ml-auto"
+                description="Create task"
               />
             </CommandItem>
             <CommandItem
@@ -101,6 +101,7 @@ function CommandPalette() {
               <KbdSequence
                 keys={[shortcuts.project.prefix, shortcuts.project.create]}
                 className="ml-auto"
+                description="Create project"
               />
             </CommandItem>
             <CommandItem
@@ -115,6 +116,7 @@ function CommandPalette() {
               <KbdSequence
                 keys={[shortcuts.workspace.prefix, shortcuts.workspace.create]}
                 className="ml-auto"
+                description="Create workspace"
               />
             </CommandItem>
           </CommandGroup>
@@ -145,6 +147,7 @@ function CommandPalette() {
               <KbdSequence
                 keys={[shortcuts.search.prefix]}
                 className="ml-auto"
+                description="Search"
               />
             </CommandItem>
             <CommandItem
@@ -160,7 +163,7 @@ function CommandPalette() {
               <Users className="mr-2 h-4 w-4" />
               <span>Members</span>
             </CommandItem>
-            <CommandItem
+            {/* <CommandItem
               onSelect={() =>
                 runCommand(() =>
                   navigate({
@@ -172,7 +175,7 @@ function CommandPalette() {
             >
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
-            </CommandItem>
+            </CommandItem> */}
           </CommandGroup>
 
           <CommandGroup heading="Theme">

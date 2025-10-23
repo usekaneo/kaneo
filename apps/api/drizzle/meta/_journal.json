@@ -29,6 +29,20 @@
 			"when": 1755016234993,
 			"tag": "0003_round_human_fly",
 			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1755720143109,
+			"tag": "0004_curved_stingray",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "7",
+			"when": 1759234332200,
+			"tag": "0005_jittery_monster_badoon",
+			"breakpoints": true
 		}
 	]
 }
