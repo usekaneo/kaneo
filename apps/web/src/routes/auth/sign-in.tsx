@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Github, UserCheck } from "lucide-react";
+import { Chrome } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AuthLayout } from "../../components/auth/layout";
@@ -17,6 +18,7 @@ function SignIn() {
   const navigate = useNavigate();
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleGuestAccess = async () => {
     setIsGuestLoading(true);
@@ -61,6 +63,31 @@ function SignIn() {
     }
   };
 
+  const handleSignInGoogle = async () => {
+    setIsGoogleLoading(true);
+    try {
+      const result = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: `${window.location.origin}/api/auth/callback/google`,
+        errorCallbackURL: `${window.location.origin}/auth/sign-in`,
+      });
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+      toast.success("Signed in with Google");
+      navigate({ to: "/dashboard" });
+      setIsGoogleLoading(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to sign in with Google",
+      );
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
   return (
     <>
       <PageTitle title="Sign In" />
@@ -70,6 +97,15 @@ function SignIn() {
       >
         <div className="space-y-4 mt-6">
           <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              onClick={handleSignInGoogle}
+              disabled={isGoogleLoading}
+              className="w-full"
+            >
+              <Chrome className="w-4 h-4 mr-2" />
+              {isGoogleLoading ? "Signing in..." : "Continue with Google"}
+            </Button>
             <Button
               variant="outline"
               onClick={handleSignInGithub}

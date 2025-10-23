@@ -32,6 +32,11 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
       scopes: ["user:email"],
     },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      scopes: ["email", "profile"],
+    },
   },
   plugins: [
     anonymous({
