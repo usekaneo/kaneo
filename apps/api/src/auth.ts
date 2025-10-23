@@ -150,6 +150,18 @@ export const auth = betterAuth({
     },
   },
   hooks: {
+    before: createUser(async (user) => {
+      const allowedDomain = process.env.ALOWED_DOMAIN_NAME;
+
+      if (!user.email) {
+        throw new Error("Email is required for signup.");
+      }
+
+      const domain = user.email.split("@")[1];
+      if (domain !== allowedDomain) {
+        throw new Error(`Only ${allowedDomain} emails are allowed to sign up.`);
+      }
+    ),
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/sign-in")) {
         const newSession = ctx.context.newSession;
