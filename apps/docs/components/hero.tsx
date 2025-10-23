@@ -7,6 +7,16 @@ export default function Hero() {
       <div className="relative z-10 mx-auto w-full max-w-6xl">
         <div className="md:w-1/2">
           <div>
+            <a
+              href="https://github.com/usekaneo/kaneo/releases/tag/v2.0.0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-card/30 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-card/50 hover:text-foreground mb-6"
+            >
+              <span className="text-base">🎉</span>
+              <span>Version 2 is now available</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </a>
             <h1 className="max-w-md text-balance text-5xl font-medium md:text-6xl">
               All you{" "}
               <span className="relative text-primary">

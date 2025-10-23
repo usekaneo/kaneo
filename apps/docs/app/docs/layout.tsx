@@ -1,5 +1,4 @@
 import { DocsLayout, type DocsLayoutProps } from "fumadocs-ui/layouts/docs";
-import { Info } from "lucide-react";
 import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
@@ -76,18 +75,18 @@ export default function Layout({ children }: { children: ReactNode }) {
         className="border-b border-border/40 bg-muted/50 backdrop-blur-sm"
       >
         <div className="flex items-center justify-center gap-2">
-          <Info className="h-4 w-4 text-muted-foreground" />
+          🎉
           <p className="text-muted-foreground">
-            You're viewing the documentation for{" "}
-            <span className="font-semibold text-foreground">Kaneo v2</span>.{" "}
+            Version 2 of Kaneo is now available! Check out the{" "}
             <a
-              href="https://v1.kaneo.app"
+              href="https://github.com/usekaneo/kaneo/releases/tag/v2.0.0"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
-              View v1 docs
+              changelog
             </a>
+            .
           </p>
         </div>
       </Banner>
