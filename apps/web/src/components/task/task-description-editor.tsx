@@ -66,7 +66,7 @@ export default function TaskDescriptionEditor({
   }, [editor, onChange]);
 
   return (
-    <div className="blocknote-transparent h-full">
+    <div className="blocknote-transparent h-full overflow-auto">
       <BlockNoteView
         editor={editor}
         className="h-full [&>div:first-of-type]:!pl-0 [&>div:first-of-type]:!bg-transparent [&>div:first-of-type]:!h-full"

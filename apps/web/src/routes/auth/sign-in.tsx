@@ -49,7 +49,7 @@ function SignIn() {
       const result = await authClient.signIn.social({
         provider: "google",
         callbackURL: `${import.meta.env.VITE_CLIENT_URL}/dashboard`,
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-n`,
+        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
