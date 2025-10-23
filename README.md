@@ -90,7 +90,6 @@ services:
 
 volumes:
   postgres_data:
-    name: kaneo_postgres_data
 ```
 
 Save this as `compose.yml`, create a `.env` file with your configuration (see [Configuration Options](#configuration-options) below), run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
