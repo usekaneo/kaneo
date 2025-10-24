@@ -1,5 +1,4 @@
 import { HomeLayout } from "fumadocs-ui/layouts/home";
-import { Book, Server } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
@@ -84,17 +83,16 @@ export default function Layout({ children }: { children: ReactNode }) {
         {
           type: "menu",
           on: "menu",
-          text: "Documentation",
+          text: "Links",
           items: [
             {
-              text: "Getting Started",
-              url: "/docs",
-              icon: <Book />,
+              text: "Cloud (Always Free)",
+              url: "https://cloud.kaneo.app",
+              external: true,
             },
             {
-              text: "Deployments",
-              url: "/docs/deployments/nginx",
-              icon: <Server />,
+              text: "Documentation",
+              url: "/docs",
             },
           ],
         },
