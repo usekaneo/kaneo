@@ -45,14 +45,14 @@
 		"@types/file-saver": "^2.0.7",
 		"@vitejs/plugin-react": "^4.7.0",
 		"babel-plugin-react-compiler": "^19.0.0-beta-714736e-20250131",
-		"better-auth": "^1.3.8",
+		"better-auth": "^1.3.26",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
 		"date-fns": "^4.1.0",
 		"file-saver": "^2.0.5",
 		"framer-motion": "^12.23.6",
-		"hono": "^4.9.5",
+		"hono": "^4.10.2",
 		"immer": "^10.1.1",
 		"lucide-react": "^0.545.0",
 		"react": "^19.0.0",
@@ -78,6 +78,6 @@
 		"tailwindcss": "^4.1.11",
 		"tw-animate-css": "^1.3.8",
 		"typescript": "~5.8.3",
-		"vite": "^6.3.5"
+		"vite": "^6.4.1"
 	}
 }

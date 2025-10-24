@@ -11,10 +11,10 @@
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
 		"@kaneo/api": "workspace:*",
-		"hono": "^4.9.5",
+		"hono": "^4.10.2",
 		"react": "^19.0.0",
 		"@kaneo/typescript-config": "workspace:*",
 		"typescript": "^5.9.2",
-		"vite": "^7.1.3"
+		"vite": "^6.4.1"
 	}
 }
