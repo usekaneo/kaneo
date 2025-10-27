@@ -39,7 +39,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^24.3.0",
     "@types/pg": "^8.15.4",
-    "esbuild": ">=0.25.9",
+    "esbuild": ">=0.25.11",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }
