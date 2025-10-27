@@ -19,7 +19,7 @@
     "fumadocs-twoslash": "^3.1.8",
     "fumadocs-ui": "15.8.4",
     "lucide-react": "^0.488.0",
-    "motion": "^12.7.4",
+    "motion": "^12.23.24",
     "next": "15.3.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.0",
