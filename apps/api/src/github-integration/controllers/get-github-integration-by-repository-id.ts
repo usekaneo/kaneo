@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, ilike } from "drizzle-orm";
 import db from "../../database";
 import { githubIntegrationTable } from "../../database/schema";
 
@@ -8,8 +8,8 @@ async function getGithubIntegrationByRepositoryId(
 ) {
   const integration = await db.query.githubIntegrationTable.findFirst({
     where: and(
-      eq(githubIntegrationTable.repositoryOwner, repositoryOwner),
-      eq(githubIntegrationTable.repositoryName, repositoryName),
+      ilike(githubIntegrationTable.repositoryOwner, repositoryOwner),
+      ilike(githubIntegrationTable.repositoryName, repositoryName),
     ),
   });
 
