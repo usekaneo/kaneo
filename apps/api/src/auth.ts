@@ -17,10 +17,28 @@ import { generateDemoName } from "./utils/generate-demo-name";
 
 config();
 
+const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
+const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
+const isHttps = apiUrl.startsWith("https://");
+const isCrossSubdomain = (() => {
+  try {
+    const apiHost = new URL(apiUrl).hostname;
+    const clientHost = new URL(clientUrl).hostname;
+    return (
+      apiHost !== clientHost &&
+      apiHost !== "localhost" &&
+      clientHost !== "localhost"
+    );
+  } catch {
+    return false;
+  }
+})();
+
 export const auth = betterAuth({
-  baseURL: process.env.KANEO_API_URL || "http://localhost:1337",
-  trustedOrigins: [process.env.KANEO_CLIENT_URL || "http://localhost:5173"],
+  baseURL: apiUrl,
+  trustedOrigins: [clientUrl],
   secret: process.env.AUTH_SECRET || "",
+  basePath: "/api/auth",
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
@@ -174,9 +192,12 @@ export const auth = betterAuth({
   },
   advanced: {
     defaultCookieAttributes: {
-      sameSite: "none", // need this to allow many clients
-      secure: true,
-      partitioned: true,
+      // For cross-subdomain auth with HTTPS, use sameSite: "none" with secure: true
+      // For same-domain or HTTP deployments, use sameSite: "lax" with secure: false
+      sameSite: isCrossSubdomain && isHttps ? "none" : "lax",
+      secure: isCrossSubdomain && isHttps, // must be true when sameSite is "none"
+      partitioned: isCrossSubdomain && isHttps,
+      domain: process.env.COOKIE_DOMAIN || undefined, // Optional: e.g., ".andrej.com" for explicit cross-subdomain cookies
     },
   },
 });
