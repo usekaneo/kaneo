@@ -21,7 +21,7 @@
     "@react-email/components": "0.5.2",
     "@types/node": "^24.3.1",
     "@types/nodemailer": "^7.0.1",
-    "nodemailer": "^7.0.6",
+    "nodemailer": "^7.0.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
