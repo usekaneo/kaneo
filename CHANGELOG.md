@@ -1,3 +1,17 @@
+## [2.0.2](https://github.com/usekaneo/kaneo/compare/v2.0.1...v2.0.2) (2025-11-02)
+
+
+### Bug Fixes
+
+* update footer link to point directly to the documentation root ([8e9674f](https://github.com/usekaneo/kaneo/commit/8e9674f1a79f5e36a66cfed4724e1a321e564acf))
+
+
+### Features
+
+* add version display to app sidebar and expose app version globally ([87778ae](https://github.com/usekaneo/kaneo/commit/87778aed616190d2136fcc09cb939995c7cd61e7))
+
+
+
 ## [2.0.1](https://github.com/usekaneo/kaneo/compare/v2.0.0...v2.0.1) (2025-11-02)
 
 
