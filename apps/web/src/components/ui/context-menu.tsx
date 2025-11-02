@@ -5,9 +5,24 @@ import type * as React from "react";
 import { cn } from "@/lib/cn";
 
 function ContextMenu({
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Root>) {
-  return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />;
+  return (
+    <ContextMenuPrimitive.Root
+      data-slot="context-menu"
+      onOpenChange={(open) => {
+        // Ensure proper cleanup when context menu closes
+        if (!open) {
+          setTimeout(() => {
+            document.body.style.pointerEvents = "";
+          }, 100);
+        }
+        onOpenChange?.(open);
+      }}
+      {...props}
+    />
+  );
 }
 
 function ContextMenuTrigger({

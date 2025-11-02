@@ -3,12 +3,25 @@ import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
-import { type CSSProperties, useMemo } from "react";
+import { type CSSProperties, useMemo, useState } from "react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
+import queryClient from "@/query-client";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
@@ -39,6 +52,8 @@ function TaskCard({ task }: TaskCardProps) {
     showLabels,
     showTaskNumbers,
   } = useUserPreferencesStore();
+  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
+  const { mutateAsync: deleteTask } = useDeleteTask();
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -71,6 +86,21 @@ function TaskCard({ task }: TaskCardProps) {
       },
     });
   }
+
+  const handleDeleteTask = async () => {
+    try {
+      await deleteTask(task.id);
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", project?.id],
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete task",
+      );
+    } finally {
+      toast.success("Task deleted successfully");
+    }
+  };
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
@@ -175,9 +205,34 @@ function TaskCard({ task }: TaskCardProps) {
               projectId: project.id,
               worskpaceId: workspace.id,
             }}
+            onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
           />
         )}
       </ContextMenu>
+
+      <AlertDialog
+        open={isDeleteTaskModalOpen}
+        onOpenChange={setIsDeleteTaskModalOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the task and all its data. You can't
+              undo this action.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteTask}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Task
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
