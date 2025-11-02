@@ -67,7 +67,7 @@ export default function Footer() {
                 </Link>
                 <Link
                   className="text-muted-foreground hover:text-primary block duration-150"
-                  href="/docs/getting-started"
+                  href="/docs"
                 >
                   <span>Getting Started</span>
                 </Link>
