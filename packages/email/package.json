@@ -29,6 +29,6 @@
     "@react-email/preview-server": "4.3.2",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
-    "react-email": "4.2.8"
+    "react-email": "4.3.2"
   }
 }
