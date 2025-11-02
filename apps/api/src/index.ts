@@ -49,29 +49,40 @@ app.use(
   }),
 );
 
-app.get("/health", (c) => {
+// Separate Hono instance for API routes (will be mounted at /api)
+// This allows us to define routes without the /api prefix here,
+// while the client in hono.ts knows to connect to /api
+const api = new Hono<{
+  Variables: {
+    user: User | null;
+    session: Session | null;
+    userId: string;
+  };
+}>();
+
+api.get("/health", (c) => {
   return c.json({ status: "ok" });
 });
 
-const configRoute = app.route("/config", config);
+const configRoute = api.route("/config", config);
 
-const githubIntegrationRoute = app.route(
+const githubIntegrationRoute = api.route(
   "/github-integration",
   githubIntegration,
 );
 
-const publicProjectRoute = app.get("/public-project/:id", async (c) => {
+const publicProjectRoute = api.get("/public-project/:id", async (c) => {
   const { id } = c.req.param();
   const project = await getPublicProject(id);
 
   return c.json(project);
 });
 
-app.on(["POST", "GET", "PUT", "DELETE"], "/api/auth/*", (c) =>
+api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) =>
   auth.handler(c.req.raw),
 );
 
-app.use("*", async (c, next) => {
+api.use("*", async (c, next) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   c.set("user", session?.user || null);
   c.set("session", session?.session || null);
@@ -84,13 +95,16 @@ app.use("*", async (c, next) => {
   return next();
 });
 
-const projectRoute = app.route("/project", project);
-const taskRoute = app.route("/task", task);
-const activityRoute = app.route("/activity", activity);
-const timeEntryRoute = app.route("/time-entry", timeEntry);
-const labelRoute = app.route("/label", label);
-const notificationRoute = app.route("/notification", notification);
-const searchRoute = app.route("/search", search);
+const projectRoute = api.route("/project", project);
+const taskRoute = api.route("/task", task);
+const activityRoute = api.route("/activity", activity);
+const timeEntryRoute = api.route("/time-entry", timeEntry);
+const labelRoute = api.route("/label", label);
+const notificationRoute = api.route("/notification", notification);
+const searchRoute = api.route("/search", search);
+
+// Mount API routes under /api
+app.route("/api", api);
 
 (async () => {
   try {
