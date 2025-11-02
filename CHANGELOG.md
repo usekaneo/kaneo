@@ -1,3 +1,19 @@
+## [2.0.1](https://github.com/usekaneo/kaneo/compare/v2.0.0...v2.0.1) (2025-11-02)
+
+
+### Bug Fixes
+
+* ensure API URL structure is consistent by handling trailing '/api' in base URL ([6a03fa4](https://github.com/usekaneo/kaneo/commit/6a03fa4d78e931a7ef2327348aa238f594a8deec))
+
+
+### Features
+
+* adds removing of a team member ([ca96157](https://github.com/usekaneo/kaneo/commit/ca9615710dd0de7203fd7112d4502527ce67501a))
+* enhance authentication configuration for cross-subdomain support and update API client paths ([343f374](https://github.com/usekaneo/kaneo/commit/343f37462cb078844c55a761cca55092a3a0708b))
+* refactor API routing to use separate Hono instance and update client API URL structure ([20bbf00](https://github.com/usekaneo/kaneo/commit/20bbf003036fcd3aa0d8c5521f9e6cf9fbdcc54a))
+
+
+
 # [2.0.0](https://github.com/usekaneo/kaneo/compare/v1.2.4...v2.0.0) (2025-10-23)
 
 
