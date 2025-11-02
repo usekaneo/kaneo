@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { type HTMLAttributes, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type BannerVariant = "rainbow" | "normal";
@@ -18,7 +18,7 @@ export function Banner({
     "rgba(131,255,166,0.66)",
   ],
   ...props
-}: HTMLAttributes<HTMLDivElement> & {
+}: React.ComponentProps<"div"> & {
   /**
    * @defaultValue 3rem
    */
