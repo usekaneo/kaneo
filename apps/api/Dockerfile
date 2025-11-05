@@ -72,6 +72,6 @@ EXPOSE 1337
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:1337/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:1337/api/health || exit 1
 
 CMD ["node", "--enable-source-maps", "dist/index.js"]
