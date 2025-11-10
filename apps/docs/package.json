@@ -27,7 +27,7 @@
     "twoslash": "^0.3.4"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.4",
+    "@tailwindcss/postcss": "^4.1.16",
     "@types/mdx": "^2.0.13",
     "@types/node": "22.14.1",
     "@types/react": "^19.2.2",
