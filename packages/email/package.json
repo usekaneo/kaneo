@@ -18,7 +18,7 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@react-email/components": "0.5.2",
+    "@react-email/components": "1.0.0",
     "@types/node": "^24.9.1",
     "@types/nodemailer": "^7.0.3",
     "nodemailer": "^7.0.10",
