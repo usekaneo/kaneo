@@ -112,6 +112,19 @@ const task = new Hono<{
         userId,
       );
 
+      if(status !== task.status) {
+        const user = c.get("userId");
+        await publishEvent("task.status_changed", {
+          taskId: task.id,
+          userId: user,
+          oldStatus: task.status,
+          newStatus: status,
+          title: task.title,
+          type: "status_changed",
+        });
+      }
+      
+
       return c.json(task);
     },
   )
