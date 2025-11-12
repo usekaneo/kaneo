@@ -23,6 +23,23 @@ export const handleIssueClosed: HandlerFunction<
       return;
     }
 
+    const taskIdMatch = payload.issue.body?.match(/Task ID:\s*([a-zA-Z0-9]+)/);
+    const linkedTaskId = taskIdMatch?.[1];
+
+    if (linkedTaskId) {
+      const existingTask = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, linkedTaskId),
+      });
+
+      if (existingTask) {
+        console.log(
+          "Skipping Kaneo-created issue to avoid loop for existing task linked issue:",
+          linkedTaskId,
+        );
+        return;
+      }
+    }
+
     const integration = await getGithubIntegrationByRepositoryId(
       payload.repository.owner.login,
       payload.repository.name,

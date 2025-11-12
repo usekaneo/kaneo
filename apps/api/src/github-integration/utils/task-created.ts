@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import getSettings from "../../utils/get-settings";
 import getGithubIntegration from "../controllers/get-github-integration";
 import createGithubApp from "./create-github-app";
 import { addLabelsToIssue } from "./create-github-labels";
@@ -59,22 +60,30 @@ export async function handleTaskCreated(data: {
 
     const octokit = await githubApp.getInstallationOctokit(installationId);
 
-    const createdIssue = await octokit.rest.issues.create({
-      owner: repositoryOwner,
-      repo: repositoryName,
-      title: `[Kaneo] ${title}`,
-      body: `**Task created in Kaneo**
-
-**Description:** ${description || "No description provided"}
+    const disableBranding = getSettings().disableBranding;
+    const issueTitle = disableBranding ? title : `[Kaneo] ${title}`;
+    let issueBody = `**Description:** ${description || "No description provided"}
 
 **Details:**
 - Task ID: ${taskId}
 - Status: ${status}
 - Priority: ${priority || "Not set"}
-- Assigned to: ${userId || "Unassigned"}
+- Assigned to: ${userId || "Unassigned"}`;
+
+    if (!disableBranding) {
+      issueBody = `**Task created in Kaneo**
+
+${issueBody}
 
 ---
-*This issue was automatically created from Kaneo task management system.*`,
+*This issue was automatically created from Kaneo task management system.*`;
+    }
+
+    const createdIssue = await octokit.rest.issues.create({
+      owner: repositoryOwner,
+      repo: repositoryName,
+      title: issueTitle,
+      body: issueBody,
     });
 
     const labelsToAdd = [
@@ -82,6 +91,11 @@ export async function handleTaskCreated(data: {
       `priority:${priority || "low"}`,
       `status:${status}`,
     ];
+
+    if (disableBranding) {
+      labelsToAdd.splice(labelsToAdd.indexOf("kaneo"), 1);
+    }
+
     await addLabelsToIssue(
       octokit,
       repositoryOwner,

@@ -18,6 +18,7 @@ function getSettings() {
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&
       Boolean(process.env.GOOGLE_CLIENT_SECRET),
+    disableBranding: process.env.KANEO_DISABLE_BRANDING === "true",
   };
 }
 
