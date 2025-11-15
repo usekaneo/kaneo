@@ -50,6 +50,13 @@
       "when": 1763230763781,
       "tag": "0006_spooky_beyonder",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1763234037921,
+      "tag": "0007_curly_post",
+      "breakpoints": true
     }
   ]
 }

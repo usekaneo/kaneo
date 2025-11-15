@@ -181,6 +181,7 @@ export const taskTable = pgTable("task", {
   }),
   title: text("title").notNull(),
   description: text("description"),
+  linkedIssueId: text("linked_issue_id"),
   status: text("status").notNull().default("to-do"),
   priority: text("priority").default("low"),
   dueDate: timestamp("due_date", { mode: "date" }),

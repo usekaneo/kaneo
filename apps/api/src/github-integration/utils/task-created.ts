@@ -60,24 +60,28 @@ export async function handleTaskCreated(data: {
 
     const octokit = await githubApp.getInstallationOctokit(installationId);
 
-    const disableBranding = getSettings().disableBranding;
-    const issueTitle = disableBranding ? title : `[Kaneo] ${title}`;
-    let issueBody = `**Description:** ${description || "No description provided"}
+    let issueTitle = integration.titleTemplate ? integration.titleTemplate : `[Kaneo] {title}`;
+    issueTitle = issueTitle.replace("{title}", title);
+
+    let issueBody = integration.descriptionTemplate ? integration.descriptionTemplate : 
+    `**Task created in Kaneo**
+    
+**Description:** {description}
 
 **Details:**
-- Task ID: ${taskId}
-- Status: ${status}
-- Priority: ${priority || "Not set"}
-- Assigned to: ${userId || "Unassigned"}`;
-
-    if (!disableBranding) {
-      issueBody = `**Task created in Kaneo**
-
-${issueBody}
+- Task ID: {taskId}
+- Status: {status}
+- Priority: {priority}
+- Assigned to: {assignedUserId}
 
 ---
 *This issue was automatically created from Kaneo task management system.*`;
-    }
+
+    issueBody = issueBody.replace("{description}", description || "No description provided")
+      .replace("{taskId}", taskId)
+      .replace("{status}", status)
+      .replace("{priority}", priority || "Not set")
+      .replace("{assignedUserId}", userId || "Unassigned");
 
     const createdIssue = await octokit.rest.issues.create({
       owner: repositoryOwner,
@@ -87,14 +91,9 @@ ${issueBody}
     });
 
     const labelsToAdd = [
-      "kaneo",
       `priority:${priority || "low"}`,
       `status:${status}`,
     ];
-
-    if (disableBranding) {
-      labelsToAdd.splice(labelsToAdd.indexOf("kaneo"), 1);
-    }
 
     await addLabelsToIssue(
       octokit,
@@ -108,11 +107,13 @@ ${issueBody}
       await db
         .update(taskTable)
         .set({
+          linkedIssueId: createdIssue.data.id.toString(),
           description: `${description || ""}
 
 ---
 
 *Linked to GitHub issue: ${createdIssue.data.html_url}*`,
+          
         })
         .where(eq(taskTable.id, taskId));
     } catch (error) {
