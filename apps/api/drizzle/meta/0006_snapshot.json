@@ -1,5 +1,5 @@
 {
-  "id": "97439f89-2bf4-4e27-98ca-04e8308dbb66",
+  "id": "f4e2f1af-74b6-4cbf-9fc8-43eacda3a28b",
   "prevId": "2e7cc59a-5fd1-4185-b702-c0a61ac2bc4c",
   "version": "7",
   "dialect": "postgresql",
@@ -232,7 +232,8 @@
           "name": "comment_template",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "'🎯 **Task created** - {title}\n<details>\n<summary>Task Details</summary>\n\n- **Task ID:** {taskId}\n- **Priority:** {priority}\n- **Status:** {status}\n\n\n*This issue is automatically synchronized with your Kaneo project.*\n</details>'"
         },
         "installation_id": {
           "name": "installation_id",

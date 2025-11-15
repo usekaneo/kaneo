@@ -268,6 +268,18 @@ export const notificationTable = pgTable("notification", {
     .notNull(),
 });
 
+const defaultGithubCommentTemplate = `🎯 **Task created** - {title}
+<details>
+<summary>Task Details</summary>
+
+- **Task ID:** {taskId}
+- **Priority:** {priority}
+- **Status:** {status}
+
+
+*This issue is automatically synchronized with your Kaneo project.*
+</details>`;
+
 export const githubIntegrationTable = pgTable("github_integration", {
   id: text("id")
     .$defaultFn(() => createId())
@@ -283,7 +295,7 @@ export const githubIntegrationTable = pgTable("github_integration", {
   repositoryName: text("repository_name").notNull(),
   titleTemplate: text("title_template"),
   descriptionTemplate: text("description_template"),
-  commentTemplate: text("comment_template"),
+  commentTemplate: text("comment_template").default(defaultGithubCommentTemplate),
   installationId: integer("installation_id"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
