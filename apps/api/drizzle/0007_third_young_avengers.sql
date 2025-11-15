@@ -1,0 +1,1 @@
+ALTER TABLE "github_integration" ALTER COLUMN "comment_template" DROP DEFAULT;
