@@ -16,8 +16,8 @@ async function createGithubIntegration({
   projectId: string;
   repositoryOwner: string;
   repositoryName: string;
-  titleTemplate?: string;
-  descriptionTemplate?: string;
+  titleTemplate: string | null;
+  descriptionTemplate: string | null;
 }) {
   if (!githubApp) {
     throw new HTTPException(500, {
