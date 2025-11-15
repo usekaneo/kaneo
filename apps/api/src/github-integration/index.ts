@@ -103,7 +103,7 @@ const githubIntegration = new Hono()
     ),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { repositoryOwner, repositoryName, titleTemplate, descriptionTemplate } = c.req.valid("json");
+      const { repositoryOwner, repositoryName, titleTemplate, descriptionTemplate, commentTemplate } = c.req.valid("json");
 
       const integration = await createGithubIntegration({
         projectId,
@@ -111,6 +111,7 @@ const githubIntegration = new Hono()
         repositoryName,
         titleTemplate,
         descriptionTemplate,
+        commentTemplate,
       });
 
       return c.json(integration);

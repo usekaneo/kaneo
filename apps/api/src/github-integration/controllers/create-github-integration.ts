@@ -12,12 +12,14 @@ async function createGithubIntegration({
   repositoryName,
   titleTemplate,
   descriptionTemplate,
+  commentTemplate,
 }: {
   projectId: string;
   repositoryOwner: string;
   repositoryName: string;
   titleTemplate: string | null;
   descriptionTemplate: string | null;
+  commentTemplate: string | null;
 }) {
   if (!githubApp) {
     throw new HTTPException(500, {
@@ -57,6 +59,7 @@ async function createGithubIntegration({
         repositoryName,
         titleTemplate,
         descriptionTemplate,
+        commentTemplate,
         installationId,
         isActive: true,
         updatedAt: new Date(),
@@ -75,6 +78,7 @@ async function createGithubIntegration({
       repositoryName,
       titleTemplate,
       descriptionTemplate,
+      commentTemplate,
       installationId,
       isActive: true,
     })
