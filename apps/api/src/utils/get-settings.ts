@@ -17,8 +17,7 @@ function getSettings() {
       Boolean(process.env.GITHUB_CLIENT_SECRET),
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&
-      Boolean(process.env.GOOGLE_CLIENT_SECRET),
-    disableBranding: process.env.KANEO_DISABLE_BRANDING === "true",
+      Boolean(process.env.GOOGLE_CLIENT_SECRET)
   };
 }
 

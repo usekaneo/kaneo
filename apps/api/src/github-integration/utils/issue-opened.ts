@@ -2,12 +2,11 @@ import type {
   EmitterWebhookEvent,
   EmitterWebhookEventName,
 } from "@octokit/webhooks";
-import { eq } from "drizzle-orm";
+import { and, eq, like, or } from "drizzle-orm";
 import type { Octokit } from "octokit";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
 import createTask from "../../task/controllers/create-task";
-import getSettings from "../../utils/get-settings";
 import getGithubIntegrationByRepositoryId from "../controllers/get-github-integration-by-repository-id";
 import { addLabelsToIssue } from "./create-github-labels";
 import {
@@ -27,26 +26,21 @@ export const handleIssueOpened: HandlerFunction<
   { octokit: Octokit }
 > = async ({ payload, octokit }): Promise<void> => {
   try {
-    if (payload.issue.title.startsWith("[Kaneo]")) {
-      console.log("Skipping Kaneo-created issue to avoid loop");
+    const existingTask = await db.query.taskTable.findFirst({
+      where: or(eq(taskTable.linkedIssueId, payload.issue.id.toString()),
+        and(
+          eq(taskTable.title, payload.issue.title),
+          like(taskTable.description, `${payload.issue.body}%`)
+        )
+      ),
+    });
+
+    if (existingTask) {
+      console.log(
+        "Skipping Kaneo-created issue to avoid loop for existing task linked issue:",
+        existingTask.id,
+      );
       return;
-    }
-
-    const taskIdMatch = payload.issue.body?.match(/Task ID:\s*([a-zA-Z0-9]+)/);
-    const linkedTaskId = taskIdMatch?.[1];
-
-    if (linkedTaskId) {
-      const existingTask = await db.query.taskTable.findFirst({
-        where: eq(taskTable.id, linkedTaskId),
-      });
-
-      if (existingTask) {
-        console.log(
-          "Skipping Kaneo-created issue to avoid loop for existing task linked issue:",
-          linkedTaskId,
-        );
-        return;
-      }
     }
 
     const integration = await getGithubIntegrationByRepositoryId(
@@ -87,14 +81,9 @@ export const handleIssueOpened: HandlerFunction<
         .filter(Boolean) || [];
 
     const labelsToAdd = [
-      "kaneo",
       `priority:${taskPriority}`,
       `status:${taskStatus}`,
     ].filter((label) => !existingLabels.includes(label));
-
-    if (getSettings().disableBranding) {
-      labelsToAdd.splice(labelsToAdd.indexOf("kaneo"), 1);
-    }
 
     try {
       if (labelsToAdd.length > 0) {

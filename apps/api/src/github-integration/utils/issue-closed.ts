@@ -2,7 +2,7 @@ import type {
   EmitterWebhookEvent,
   EmitterWebhookEventName,
 } from "@octokit/webhooks";
-import { eq } from "drizzle-orm";
+import { and, eq, like, or } from "drizzle-orm";
 import type { Octokit } from "octokit";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
@@ -18,26 +18,21 @@ export const handleIssueClosed: HandlerFunction<
   { octokit: Octokit }
 > = async ({ payload }): Promise<void> => {
   try {
-    if (payload.issue.title.startsWith("[Kaneo]")) {
-      console.log("Skipping Kaneo-created issue to avoid loop");
+    const existingTask = await db.query.taskTable.findFirst({
+      where: or(eq(taskTable.linkedIssueId, payload.issue.id.toString()),
+        and(
+          eq(taskTable.title, payload.issue.title),
+          like(taskTable.description, `${payload.issue.body}%`)
+        )
+      ),
+    });
+
+    if (existingTask) {
+      console.log(
+        "Skipping Kaneo-created issue to avoid loop for existing task linked issue:",
+        existingTask.id,
+      );
       return;
-    }
-
-    const taskIdMatch = payload.issue.body?.match(/Task ID:\s*([a-zA-Z0-9]+)/);
-    const linkedTaskId = taskIdMatch?.[1];
-
-    if (linkedTaskId) {
-      const existingTask = await db.query.taskTable.findFirst({
-        where: eq(taskTable.id, linkedTaskId),
-      });
-
-      if (existingTask) {
-        console.log(
-          "Skipping Kaneo-created issue to avoid loop for existing task linked issue:",
-          linkedTaskId,
-        );
-        return;
-      }
     }
 
     const integration = await getGithubIntegrationByRepositoryId(

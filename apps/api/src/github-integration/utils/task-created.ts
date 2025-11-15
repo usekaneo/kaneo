@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
-import getSettings from "../../utils/get-settings";
 import getGithubIntegration from "../controllers/get-github-integration";
 import createGithubApp from "./create-github-app";
 import { addLabelsToIssue } from "./create-github-labels";
@@ -63,8 +62,8 @@ export async function handleTaskCreated(data: {
     let issueTitle = integration.titleTemplate ? integration.titleTemplate : `[Kaneo] {title}`;
     issueTitle = issueTitle.replace("{title}", title);
 
-    let issueBody = integration.descriptionTemplate ? integration.descriptionTemplate : 
-    `**Task created in Kaneo**
+    let issueBody = integration.descriptionTemplate ? integration.descriptionTemplate :
+      `**Task created in Kaneo**
     
 **Description:** {description}
 
@@ -113,7 +112,7 @@ export async function handleTaskCreated(data: {
 ---
 
 *Linked to GitHub issue: ${createdIssue.data.html_url}*`,
-          
+
         })
         .where(eq(taskTable.id, taskId));
     } catch (error) {
