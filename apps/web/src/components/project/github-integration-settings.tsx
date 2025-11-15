@@ -27,8 +27,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import type { VerifyGithubInstallationResponse } from "@/fetchers/github-integration/verify-github-installation";
 import {
   useCreateGithubIntegration,
@@ -48,9 +48,18 @@ const githubIntegrationSchema = z.object({
     .string()
     .min(1, "Repository name is required")
     .regex(/^[a-zA-Z0-9._-]+$/, "Invalid repository name format"),
-  titleTemplate: z.string().nullable().transform((val) => (val === "" || val == null ? null : val)),
-  descriptionTemplate: z.string().nullable().transform((val) => (val === "" || val == null ? null : val)),
-  commentTemplate: z.string().nullable().transform((val) => (val === "" || val == null ? null : val)),
+  titleTemplate: z
+    .string()
+    .nullable()
+    .transform((val) => (val === "" || val == null ? null : val)),
+  descriptionTemplate: z
+    .string()
+    .nullable()
+    .transform((val) => (val === "" || val == null ? null : val)),
+  commentTemplate: z
+    .string()
+    .nullable()
+    .transform((val) => (val === "" || val == null ? null : val)),
 });
 
 type GithubIntegrationFormValues = z.infer<typeof githubIntegrationSchema>;
@@ -74,6 +83,29 @@ export function GitHubIntegrationSettings({
     React.useState<VerifyGithubInstallationResponse | null>(null);
   const [showRepositoryBrowser, setShowRepositoryBrowser] =
     React.useState(false);
+
+  const descriptionPlaceholder = `**Description:** {description}
+  
+**Details:**
+- Task ID: {taskId}
+- Status: {status}
+- Priority: {priority}
+- Assigned to: {assignedUserId}
+
+---
+*This issue was automatically created from Kaneo task management system.*`;
+
+  const commentTemplatePlaceholder = `🎯 **Task created** - {title}
+<details>
+<summary>Task Details</summary>
+
+- **Task ID:** {taskId}
+- **Priority:** {priority}
+- **Status:** {status}
+
+
+*This issue is automatically synchronized with your Kaneo project.*
+</details>`;
 
   const form = useForm<GithubIntegrationFormValues>({
     resolver: standardSchemaResolver(githubIntegrationSchema),
@@ -154,6 +186,7 @@ export function GitHubIntegrationSettings({
     repositoryName,
     form.formState.isValid,
     handleVerifyInstallation,
+    form.getValues,
   ]);
 
   const handleRepositorySelect = (repository: {
@@ -251,29 +284,6 @@ export function GitHubIntegrationSettings({
       </div>
     );
   }
-
-  const descriptionPlaceholder = `**Description:** {description}
-  
-**Details:**
-- Task ID: {taskId}
-- Status: {status}
-- Priority: {priority}
-- Assigned to: {assignedUserId}
-
----
-*This issue was automatically created from Kaneo task management system.*`;
-
-  const commentTemplatePlaceholder = `🎯 **Task created** - {title}
-<details>
-<summary>Task Details</summary>
-
-- **Task ID:** {taskId}
-- **Priority:** {priority}
-- **Status:** {status}
-
-
-*This issue is automatically synchronized with your Kaneo project.*
-</details>`;
 
   const isConnected = !!integration && integration.isActive;
   const canImport =
@@ -451,15 +461,22 @@ export function GitHubIntegrationSettings({
                 <FormItem>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-sm font-medium">Issues Title Template</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        Issues Title Template
+                      </FormLabel>
                       <p className="text-xs text-muted-foreground">
                         Optional custom title for issues created from Kaneo.
-                        <br/>
-                        Available placeholder: <code>{'{title}'}</code>
+                        <br />
+                        Available placeholder: <code>{"{title}"}</code>
                       </p>
                     </div>
                     <FormControl>
-                      <Input className="w-64" placeholder="[Kaneo] {title}" {...field} value={field.value ?? ""}/>
+                      <Input
+                        className="w-64"
+                        placeholder="[Kaneo] {title}"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                   </div>
                   <FormMessage />
@@ -476,15 +493,24 @@ export function GitHubIntegrationSettings({
                 <FormItem>
                   <div className="flex flex-col gap-3">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-sm font-medium">Issue Description Template</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        Issue Description Template
+                      </FormLabel>
                       <p className="text-xs text-muted-foreground">
                         Optional description to include when importing issues
-                        <br/>
-                        Available placeholders: <code>{'{taskId}'}</code>, <code>{'{status}'}</code>, <code>{'{priority}'}</code>, <code>{'{assignedUserId}'}</code>
+                        <br />
+                        Available placeholders: <code>{"{taskId}"}</code>,{" "}
+                        <code>{"{status}"}</code>, <code>{"{priority}"}</code>,{" "}
+                        <code>{"{assignedUserId}"}</code>
                       </p>
                     </div>
                     <FormControl>
-                      <Textarea className="w-full min-h-56" placeholder={descriptionPlaceholder} {...field} value={field.value ?? ""}/>
+                      <Textarea
+                        className="w-full min-h-56"
+                        placeholder={descriptionPlaceholder}
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                   </div>
                   <FormMessage />
@@ -501,15 +527,29 @@ export function GitHubIntegrationSettings({
                 <FormItem>
                   <div className="flex flex-col gap-3">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-sm font-medium">Comment Template</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        Comment Template
+                      </FormLabel>
                       <p className="text-xs text-muted-foreground">
-                        Optional comment template to post on GitHub issues upon successful import. Leave empty to disable
-                        <br/>
-                        Available placeholders: <code>{'{title}'}</code>, <code>{'{taskId}'}</code>, <code>{'{status}'}</code>, <code>{'{priority}'}</code>
+                        Optional comment template to post on GitHub issues upon
+                        successful import. Leave empty to disable
+                        <br />
+                        Available placeholders: <code>{"{title}"}</code>,{" "}
+                        <code>{"{taskId}"}</code>, <code>{"{status}"}</code>,{" "}
+                        <code>{"{priority}"}</code>
                       </p>
                     </div>
                     <FormControl>
-                      <Textarea className="w-full min-h-56" placeholder={commentTemplatePlaceholder} {...field} value={integration ? field.value ?? "" : commentTemplatePlaceholder}/>
+                      <Textarea
+                        className="w-full min-h-56"
+                        placeholder={commentTemplatePlaceholder}
+                        {...field}
+                        value={
+                          integration
+                            ? (field.value ?? "")
+                            : commentTemplatePlaceholder
+                        }
+                      />
                     </FormControl>
                   </div>
                   <FormMessage />
