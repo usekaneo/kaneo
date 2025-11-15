@@ -96,16 +96,20 @@ const githubIntegration = new Hono()
       z.object({
         repositoryOwner: z.string().min(1),
         repositoryName: z.string().min(1),
+        titleTemplate: z.string().nullable(),
+        descriptionTemplate: z.string().nullable(),
       }),
     ),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { repositoryOwner, repositoryName } = c.req.valid("json");
+      const { repositoryOwner, repositoryName, titleTemplate, descriptionTemplate } = c.req.valid("json");
 
       const integration = await createGithubIntegration({
         projectId,
         repositoryOwner,
         repositoryName,
+        titleTemplate,
+        descriptionTemplate,
       });
 
       return c.json(integration);

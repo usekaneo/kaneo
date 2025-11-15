@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import type { VerifyGithubInstallationResponse } from "@/fetchers/github-integration/verify-github-installation";
 import {
@@ -47,6 +48,8 @@ const githubIntegrationSchema = z.object({
     .string()
     .min(1, "Repository name is required")
     .regex(/^[a-zA-Z0-9._-]+$/, "Invalid repository name format"),
+  titleTemplate: z.string().nullable().transform((val) => (val === "" || val == null ? null : val)),
+  descriptionTemplate: z.string().nullable().transform((val) => (val === "" || val == null ? null : val)),
 });
 
 type GithubIntegrationFormValues = z.infer<typeof githubIntegrationSchema>;
@@ -76,6 +79,8 @@ export function GitHubIntegrationSettings({
     defaultValues: {
       repositoryOwner: integration?.repositoryOwner || "",
       repositoryName: integration?.repositoryName || "",
+      titleTemplate: integration?.titleTemplate,
+      descriptionTemplate: integration?.descriptionTemplate,
     },
   });
 
@@ -84,6 +89,8 @@ export function GitHubIntegrationSettings({
       form.reset({
         repositoryOwner: integration.repositoryOwner,
         repositoryName: integration.repositoryName,
+        titleTemplate: integration.titleTemplate,
+        descriptionTemplate: integration.descriptionTemplate,
       });
     }
   }, [integration, form]);
@@ -128,7 +135,7 @@ export function GitHubIntegrationSettings({
 
   React.useEffect(() => {
     if (repositoryOwner && repositoryName && form.formState.isValid) {
-      handleVerifyInstallation({ repositoryOwner, repositoryName }, false);
+      handleVerifyInstallation(form.getValues(), false);
     }
   }, [
     repositoryOwner,
@@ -232,6 +239,17 @@ export function GitHubIntegrationSettings({
       </div>
     );
   }
+
+  const descriptionPlaceholder = `**Description:** {description}
+  
+**Details:**
+- Task ID: {taskId}
+- Status: {status}
+- Priority: {priority}
+- Assigned to: {assignedUserId}
+
+---
+*This issue was automatically created from Kaneo task management system.*`;
 
   const isConnected = !!integration && integration.isActive;
   const canImport =
@@ -393,6 +411,56 @@ export function GitHubIntegrationSettings({
                         {...field}
                         disabled={isCreating || isDeleting}
                       />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
+            <FormField
+              control={form.control}
+              name="titleTemplate"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm font-medium">Issues Title Template</FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Optional custom title for issues created from Kaneo.
+                        <br/>
+                        Available placeholder: <code>{'{title}'}</code>
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Input className="w-64" placeholder="[Kaneo] {title}" {...field} value={field.value ?? ""}/>
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
+            <FormField
+              control={form.control}
+              name="descriptionTemplate"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex flex-col gap-3">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm font-medium">Description</FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Optional description to include when importing issues
+                        <br/>
+                        Available placeholders: <code>{'{task_title}'}</code>, <code>{'{taskId}'}</code>, <code>{'{status}'}</code>, <code>{'{priority}'}</code>, <code>{'{assignedUserId}'}</code>
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Textarea className="w-full min-h-56" placeholder={descriptionPlaceholder} {...field} value={field.value ?? ""}/>
                     </FormControl>
                   </div>
                   <FormMessage />
