@@ -95,7 +95,16 @@ export function GitHubIntegrationSettings({
         descriptionTemplate: integration.descriptionTemplate,
         commentTemplate: integration.commentTemplate,
       });
+      return;
     }
+
+    form.reset({
+      repositoryOwner: "",
+      repositoryName: "",
+      titleTemplate: null,
+      descriptionTemplate: null,
+      commentTemplate: commentTemplatePlaceholder,
+    });
   }, [integration, form]);
 
   const repositoryOwner = form.watch("repositoryOwner");
