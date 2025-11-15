@@ -1,23 +1,19 @@
 export function formatGitHubComment({
+  template,
   id,
   priority,
   status,
   title,
 }: {
+  template: string;
   id: string;
   priority: string;
   status: string;
   title: string;
 }) {
-  return `🎯 **Task created** - ${title}
-<details>
-<summary>Task Details</summary>
-
-- **Task ID:** ${id}
-- **Priority:** ${priority}
-- **Status:** ${status}
-
-
-*This issue is automatically synchronized with your Kaneo project.*
-</details>`;
+  return template
+    .replace("{taskId}", id)
+    .replace("{priority}", priority)
+    .replace("{status}", status)
+    .replace("{title}", title);
 }

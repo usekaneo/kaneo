@@ -283,6 +283,7 @@ export const githubIntegrationTable = pgTable("github_integration", {
   repositoryName: text("repository_name").notNull(),
   titleTemplate: text("title_template"),
   descriptionTemplate: text("description_template"),
+  commentTemplate: text("comment_template"),
   installationId: integer("installation_id"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),

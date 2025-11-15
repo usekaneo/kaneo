@@ -50,6 +50,7 @@ const githubIntegrationSchema = z.object({
     .regex(/^[a-zA-Z0-9._-]+$/, "Invalid repository name format"),
   titleTemplate: z.string().nullable().transform((val) => (val === "" || val == null ? null : val)),
   descriptionTemplate: z.string().nullable().transform((val) => (val === "" || val == null ? null : val)),
+  commentTemplate: z.string().nullable().transform((val) => (val === "" || val == null ? null : val)),
 });
 
 type GithubIntegrationFormValues = z.infer<typeof githubIntegrationSchema>;
@@ -81,6 +82,7 @@ export function GitHubIntegrationSettings({
       repositoryName: integration?.repositoryName || "",
       titleTemplate: integration?.titleTemplate,
       descriptionTemplate: integration?.descriptionTemplate,
+      commentTemplate: integration?.commentTemplate,
     },
   });
 
@@ -91,6 +93,7 @@ export function GitHubIntegrationSettings({
         repositoryName: integration.repositoryName,
         titleTemplate: integration.titleTemplate,
         descriptionTemplate: integration.descriptionTemplate,
+        commentTemplate: integration.commentTemplate,
       });
     }
   }, [integration, form]);
@@ -250,6 +253,18 @@ export function GitHubIntegrationSettings({
 
 ---
 *This issue was automatically created from Kaneo task management system.*`;
+
+  const commentTemplatePlaceholder = `🎯 **Task created** - {title}
+<details>
+<summary>Task Details</summary>
+
+- **Task ID:** {taskId}
+- **Priority:** {priority}
+- **Status:** {status}
+
+
+*This issue is automatically synchronized with your Kaneo project.*
+</details>`;
 
   const isConnected = !!integration && integration.isActive;
   const canImport =
@@ -452,15 +467,40 @@ export function GitHubIntegrationSettings({
                 <FormItem>
                   <div className="flex flex-col gap-3">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-sm font-medium">Description</FormLabel>
+                      <FormLabel className="text-sm font-medium">Issue Description Template</FormLabel>
                       <p className="text-xs text-muted-foreground">
                         Optional description to include when importing issues
                         <br/>
-                        Available placeholders: <code>{'{task_title}'}</code>, <code>{'{taskId}'}</code>, <code>{'{status}'}</code>, <code>{'{priority}'}</code>, <code>{'{assignedUserId}'}</code>
+                        Available placeholders: <code>{'{taskId}'}</code>, <code>{'{status}'}</code>, <code>{'{priority}'}</code>, <code>{'{assignedUserId}'}</code>
                       </p>
                     </div>
                     <FormControl>
                       <Textarea className="w-full min-h-56" placeholder={descriptionPlaceholder} {...field} value={field.value ?? ""}/>
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
+            <FormField
+              control={form.control}
+              name="commentTemplate"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex flex-col gap-3">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm font-medium">Comment Template</FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Optional comment template to post on GitHub issues upon successful import. Leave empty to disable
+                        <br/>
+                        Available placeholders: <code>{'{title}'}</code>, <code>{'{taskId}'}</code>, <code>{'{status}'}</code>, <code>{'{priority}'}</code>
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Textarea className="w-full min-h-56" placeholder={commentTemplatePlaceholder} {...field} value={integration ? field.value ?? "" : commentTemplatePlaceholder}/>
                     </FormControl>
                   </div>
                   <FormMessage />

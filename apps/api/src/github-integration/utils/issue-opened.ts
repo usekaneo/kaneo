@@ -96,17 +96,20 @@ export const handleIssueOpened: HandlerFunction<
         );
       }
 
-      await octokit.rest.issues.createComment({
-        owner: payload.repository.owner.login,
-        repo: payload.repository.name,
-        issue_number: payload.issue.number,
-        body: formatGitHubComment({
-          id: task.id,
-          title: payload.issue.title,
-          priority: task.priority || "medium",
-          status: task.status || "to-do",
-        }),
-      });
+      if (integration.commentTemplate !== null) {
+        await octokit.rest.issues.createComment({
+          owner: payload.repository.owner.login,
+          repo: payload.repository.name,
+          issue_number: payload.issue.number,
+          body: formatGitHubComment({
+            template: integration.commentTemplate,
+            id: task.id,
+            title: payload.issue.title,
+            priority: task.priority || "medium",
+            status: task.status || "to-do",
+          }),
+        });
+      }
     } catch (commentError) {
       console.error(
         "Failed to add comment or labels to GitHub issue:",

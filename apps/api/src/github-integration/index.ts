@@ -98,6 +98,7 @@ const githubIntegration = new Hono()
         repositoryName: z.string().min(1),
         titleTemplate: z.string().nullable(),
         descriptionTemplate: z.string().nullable(),
+        commentTemplate: z.string().nullable(),
       }),
     ),
     async (c) => {
