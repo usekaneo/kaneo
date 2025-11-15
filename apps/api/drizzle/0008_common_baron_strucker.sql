@@ -1,1 +1,0 @@
-ALTER TABLE "github_integration" ADD COLUMN "comment_template" text;

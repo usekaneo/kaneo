@@ -1,1 +1,0 @@
-ALTER TABLE "task" ADD COLUMN "linked_issue_id" text;

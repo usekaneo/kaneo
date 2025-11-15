@@ -1,5 +1,5 @@
 {
-  "id": "0b13efe4-715e-4964-bb25-fcb1d7e439fc",
+  "id": "97439f89-2bf4-4e27-98ca-04e8308dbb66",
   "prevId": "2e7cc59a-5fd1-4185-b702-c0a61ac2bc4c",
   "version": "7",
   "dialect": "postgresql",
@@ -224,6 +224,12 @@
         },
         "description_template": {
           "name": "description_template",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_template": {
+          "name": "comment_template",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -755,6 +761,12 @@
         },
         "description": {
           "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linked_issue_id": {
+          "name": "linked_issue_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false
