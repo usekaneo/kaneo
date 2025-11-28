@@ -2,6 +2,7 @@ import type * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
+import { ThemeToggleDropdown } from "@/components/theme-toggle-dropdown";
 import {
   Sidebar,
   SidebarContent,
@@ -37,7 +38,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects />
       </SidebarContent>
       <SidebarFooter>
-        <VersionDisplay />
+        <div className="flex items-center justify-between">
+          <VersionDisplay />
+          <ThemeToggleDropdown />
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
