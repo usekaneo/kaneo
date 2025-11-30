@@ -137,7 +137,7 @@ function RouteComponent() {
   return (
     <ProjectLayout projectId={projectId} workspaceId={workspaceId}>
       <PageTitle
-        title={`${project?.name} ⎯ ${viewMode === "board" ? "Board" : "List"}`}
+        title={`${project?.name} — ${viewMode === "board" ? "Board" : "List"}`}
         hideAppName
       />
       <div className="flex flex-col h-full min-h-0">

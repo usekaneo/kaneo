@@ -88,7 +88,7 @@ export default function StructuredData({
         return {
           ...baseData,
           "@type": "Article",
-          headline: data?.title || "Kaneo ⎯ All you need. Nothing you don't.",
+          headline: data?.title || "Kaneo — All you need. Nothing you don't.",
           description:
             data?.description ||
             "Open source project management that works for you, not against you.",

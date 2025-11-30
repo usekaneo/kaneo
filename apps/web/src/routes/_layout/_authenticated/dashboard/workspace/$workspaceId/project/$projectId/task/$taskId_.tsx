@@ -305,7 +305,7 @@ function RouteComponent() {
       }
     >
       <PageTitle
-        title={`${project?.slug}-${task?.number} ⎯ ${task?.title}`}
+        title={`${project?.slug}-${task?.number} — ${task?.title}`}
         hideAppName
       />
       <div className="flex flex-col h-full min-h-0 max-w-3xl mx-auto px-4 py-8 gap-2">
