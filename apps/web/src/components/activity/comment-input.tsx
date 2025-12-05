@@ -62,10 +62,10 @@ export default function CommentInput({ taskId, userId }: CommentInputProps) {
 
   const handleEditorChange = useCallback(async () => {
     try {
-      const markdown = await editor.blocksToMarkdownLossy(editor.document);
-      setContent(markdown.trim());
+      const jsonDocument = JSON.stringify(editor.document);
+      setContent(jsonDocument.trim());
     } catch (error) {
-      console.error("Failed to convert blocks to markdown:", error);
+      console.error("Failed to convert blocks to json:", error);
     }
   }, [editor]);
 
@@ -83,8 +83,7 @@ export default function CommentInput({ taskId, userId }: CommentInputProps) {
       });
 
       // Clear editor
-      const blocks = await editor.tryParseMarkdownToBlocks("");
-      editor.replaceBlocks(editor.document, blocks);
+      editor.removeBlocks(editor.document);
       setContent("");
 
       // Invalidate activities query to refresh the list
