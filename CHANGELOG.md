@@ -1,3 +1,19 @@
+## [2.0.4](https://github.com/usekaneo/kaneo/compare/v2.0.3...v2.0.4) (2025-12-05)
+
+
+### Bug Fixes
+
+* Fix Status not updating when moved in the grid ([#638](https://github.com/usekaneo/kaneo/issues/638)) ([b51af1a](https://github.com/usekaneo/kaneo/commit/b51af1a5f4c8e2acff08c8e8bf371d7b4e4d9b75))
+* standardize title separator from ⎯ to — across metadata and layout files ([c9979ad](https://github.com/usekaneo/kaneo/commit/c9979adb09453f24f7b1f0a6f5b60e4c56733c69))
+
+
+### Features
+
+* add ThemeToggleDropdown component and integrate into AppSidebar ([#652](https://github.com/usekaneo/kaneo/issues/652)) ([9200a75](https://github.com/usekaneo/kaneo/commit/9200a759a7a920126cddc3f43aa845d5fdc54658))
+* **email:** Add option to enable RequireTLS ([#630](https://github.com/usekaneo/kaneo/issues/630)) ([c99f6bc](https://github.com/usekaneo/kaneo/commit/c99f6bc5bc678fb48d5368f526d17270d2258b0d))
+
+
+
 ## [2.0.3](https://github.com/usekaneo/kaneo/compare/v2.0.2...v2.0.3) (2025-11-05)
 
 
