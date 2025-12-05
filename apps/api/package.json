@@ -29,7 +29,7 @@
     "better-auth": "^1.4.2",
     "croner": "^9.1.0",
     "drizzle-kit": "^0.31.6",
-    "drizzle-orm": "^0.44.3",
+    "drizzle-orm": "^0.45.0",
     "hono": "^4.10.4",
     "octokit": "^5.0.5",
     "pg": "^8.16.3",
