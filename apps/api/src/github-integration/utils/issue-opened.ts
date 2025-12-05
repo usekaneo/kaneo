@@ -2,7 +2,10 @@ import type {
   EmitterWebhookEvent,
   EmitterWebhookEventName,
 } from "@octokit/webhooks";
+import { and, eq, like, or } from "drizzle-orm";
 import type { Octokit } from "octokit";
+import db from "../../database";
+import { taskTable } from "../../database/schema";
 import createTask from "../../task/controllers/create-task";
 import getGithubIntegrationByRepositoryId from "../controllers/get-github-integration-by-repository-id";
 import { addLabelsToIssue } from "./create-github-labels";
@@ -23,8 +26,20 @@ export const handleIssueOpened: HandlerFunction<
   { octokit: Octokit }
 > = async ({ payload, octokit }): Promise<void> => {
   try {
-    if (payload.issue.title.startsWith("[Kaneo]")) {
-      console.log("Skipping Kaneo-created issue to avoid loop");
+    const existingTask = await db.query.taskTable.findFirst({
+      where: or(eq(taskTable.linkedIssueId, payload.issue.id.toString()),
+        and(
+          eq(taskTable.title, payload.issue.title),
+          like(taskTable.description, `${payload.issue.body}%`)
+        )
+      ),
+    });
+
+    if (existingTask) {
+      console.log(
+        "Skipping Kaneo-created issue to avoid loop for existing task linked issue:",
+        existingTask.id,
+      );
       return;
     }
 
@@ -66,7 +81,6 @@ export const handleIssueOpened: HandlerFunction<
         .filter(Boolean) || [];
 
     const labelsToAdd = [
-      "kaneo",
       `priority:${taskPriority}`,
       `status:${taskStatus}`,
     ].filter((label) => !existingLabels.includes(label));
@@ -82,17 +96,20 @@ export const handleIssueOpened: HandlerFunction<
         );
       }
 
-      await octokit.rest.issues.createComment({
-        owner: payload.repository.owner.login,
-        repo: payload.repository.name,
-        issue_number: payload.issue.number,
-        body: formatGitHubComment({
-          id: task.id,
-          title: payload.issue.title,
-          priority: task.priority || "medium",
-          status: task.status || "to-do",
-        }),
-      });
+      if (integration.commentTemplate !== null) {
+        await octokit.rest.issues.createComment({
+          owner: payload.repository.owner.login,
+          repo: payload.repository.name,
+          issue_number: payload.issue.number,
+          body: formatGitHubComment({
+            template: integration.commentTemplate,
+            id: task.id,
+            title: payload.issue.title,
+            priority: task.priority || "medium",
+            status: task.status || "to-do",
+          }),
+        });
+      }
     } catch (commentError) {
       console.error(
         "Failed to add comment or labels to GitHub issue:",

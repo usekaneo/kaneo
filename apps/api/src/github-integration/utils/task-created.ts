@@ -59,29 +59,41 @@ export async function handleTaskCreated(data: {
 
     const octokit = await githubApp.getInstallationOctokit(installationId);
 
+    let issueTitle = integration.titleTemplate ? integration.titleTemplate : `[Kaneo] {title}`;
+    issueTitle = issueTitle.replace("{title}", title);
+
+    let issueBody = integration.descriptionTemplate ? integration.descriptionTemplate :
+      `**Task created in Kaneo**
+    
+**Description:** {description}
+
+**Details:**
+- Task ID: {taskId}
+- Status: {status}
+- Priority: {priority}
+- Assigned to: {assignedUserId}
+
+---
+*This issue was automatically created from Kaneo task management system.*`;
+
+    issueBody = issueBody.replace("{description}", description || "No description provided")
+      .replace("{taskId}", taskId)
+      .replace("{status}", status)
+      .replace("{priority}", priority || "Not set")
+      .replace("{assignedUserId}", userId || "Unassigned");
+
     const createdIssue = await octokit.rest.issues.create({
       owner: repositoryOwner,
       repo: repositoryName,
-      title: `[Kaneo] ${title}`,
-      body: `**Task created in Kaneo**
-
-**Description:** ${description || "No description provided"}
-
-**Details:**
-- Task ID: ${taskId}
-- Status: ${status}
-- Priority: ${priority || "Not set"}
-- Assigned to: ${userId || "Unassigned"}
-
----
-*This issue was automatically created from Kaneo task management system.*`,
+      title: issueTitle,
+      body: issueBody,
     });
 
     const labelsToAdd = [
-      "kaneo",
       `priority:${priority || "low"}`,
       `status:${status}`,
     ];
+
     await addLabelsToIssue(
       octokit,
       repositoryOwner,
@@ -94,11 +106,13 @@ export async function handleTaskCreated(data: {
       await db
         .update(taskTable)
         .set({
+          linkedIssueId: createdIssue.data.id.toString(),
           description: `${description || ""}
 
 ---
 
 *Linked to GitHub issue: ${createdIssue.data.html_url}*`,
+
         })
         .where(eq(taskTable.id, taskId));
     } catch (error) {
