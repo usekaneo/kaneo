@@ -20,7 +20,7 @@
     "fumadocs-ui": "15.8.4",
     "lucide-react": "^0.548.0",
     "motion": "^12.23.24",
-    "next": "15.4.7",
+    "next": "15.4.8",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.3.1",
