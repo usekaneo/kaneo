@@ -9,7 +9,7 @@
 	},
 	"devDependencies": {
 		"@types/react": "^19.2.6",
-		"@types/react-dom": "^19.2.2",
+		"@types/react-dom": "^19.2.3",
 		"@kaneo/api": "workspace:*",
 		"hono": "^4.10.6",
 		"react": "^19.2.0",
