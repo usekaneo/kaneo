@@ -45,7 +45,7 @@ async function updateTask(
     });
   }
 
-  return updatedTask;
+  return existingTask;
 }
 
 export default updateTask;
