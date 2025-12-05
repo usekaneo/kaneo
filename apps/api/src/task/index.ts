@@ -112,7 +112,7 @@ const task = new Hono<{
         userId,
       );
 
-      if(status !== task.status) {
+      if (status !== task.status) {
         const user = c.get("userId");
         await publishEvent("task.status_changed", {
           taskId: task.id,
@@ -123,7 +123,6 @@ const task = new Hono<{
           type: "status_changed",
         });
       }
-      
 
       return c.json(task);
     },
