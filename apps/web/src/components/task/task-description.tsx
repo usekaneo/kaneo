@@ -78,44 +78,31 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   });
 
   useEffect(() => {
-    if (task?.description?.trim() && !isInitializedRef.current) {
+    const description = task?.description;
+
+    if (description?.trim() && !isInitializedRef.current) {
       const loadMarkdown = async () => {
         isLoadingInitialContent.current = true;
         try {
-          const blocks = await editor.tryParseMarkdownToBlocks(
-            task.description || "",
-          );
+          const blocks = JSON.parse(description);
           editor.replaceBlocks(editor.document, blocks);
           setTimeout(() => {
             isInitializedRef.current = true;
             isLoadingInitialContent.current = false;
           }, 100);
         } catch {
-          const blocks = await editor.tryParseMarkdownToBlocks("");
-          editor.replaceBlocks(editor.document, blocks);
-          setTimeout(() => {
-            isInitializedRef.current = true;
-            isLoadingInitialContent.current = false;
-          }, 100);
+          editor.removeBlocks(editor.document);
         }
       };
       loadMarkdown();
-    } else if (!task?.description?.trim() && !isInitializedRef.current) {
-      const clearEditor = async () => {
-        isLoadingInitialContent.current = true;
-        const blocks = await editor.tryParseMarkdownToBlocks("");
-        editor.replaceBlocks(editor.document, blocks);
-        setTimeout(() => {
-          isInitializedRef.current = true;
-          isLoadingInitialContent.current = false;
-        }, 100);
-      };
-      clearEditor();
+    } else if (!description?.trim() && !isInitializedRef.current) {
+      isLoadingInitialContent.current = true;
+      editor.removeBlocks(editor.document);
     }
   }, [task?.description, editor]);
 
   const debouncedUpdate = useCallback(
-    debounce(async (markdown: string) => {
+    debounce(async (jsonDescription: string) => {
       if (!isInitializedRef.current) return;
 
       const currentTask = taskRef.current;
@@ -126,7 +113,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       try {
         await updateTaskFn({
           ...currentTask,
-          description: markdown,
+          description: jsonDescription,
         });
       } catch (error) {
         console.error("Failed to update description:", error);
@@ -141,11 +128,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     }
 
     try {
-      const markdown = await editor.blocksToMarkdownLossy(editor.document);
-      form.setValue("description", markdown);
-      debouncedUpdate(markdown);
+      const jsonDescription = JSON.stringify(editor.document);
+      form.setValue("description", jsonDescription);
+      debouncedUpdate(jsonDescription);
     } catch (error) {
-      console.error("Failed to convert blocks to markdown:", error);
+      console.error("Failed to convert blocks to json:", error);
     }
   }, [editor, form, debouncedUpdate]);
 
