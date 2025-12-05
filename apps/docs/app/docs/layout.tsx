@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/app/layout.config";
-import { Banner } from "@/components/banner";
 import { source } from "@/lib/source";
 
 export const metadata: Metadata = {
@@ -68,40 +67,17 @@ const docsOptions: DocsLayoutProps = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <>
-      <Banner
-        id="version-banner"
-        variant="normal"
-        className="border-b border-border/40 bg-muted/50 backdrop-blur-sm"
-      >
-        <div className="flex items-center justify-center gap-2">
-          🎉
-          <p className="text-muted-foreground">
-            Version 2 of Kaneo is now available! Check out the{" "}
-            <a
-              href="https://github.com/usekaneo/kaneo/releases/tag/v2.0.0"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              changelog
-            </a>
-            .
-          </p>
-        </div>
-      </Banner>
-      <DocsLayout
-        {...docsOptions}
-        containerProps={{ className: "bg-background" }}
-        sidebar={{ className: "bg-sidebar" }}
-      >
-        <Script
-          defer
-          data-domain="kaneo.app"
-          src="https://plausible.kaneo.app/js/script.js"
-        />
-        {children}
-      </DocsLayout>
-    </>
+    <DocsLayout
+      {...docsOptions}
+      containerProps={{ className: "bg-background" }}
+      sidebar={{ className: "bg-sidebar" }}
+    >
+      <Script
+        defer
+        data-domain="kaneo.app"
+        src="https://plausible.kaneo.app/js/script.js"
+      />
+      {children}
+    </DocsLayout>
   );
 }

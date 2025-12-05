@@ -7,8 +7,12 @@ const config = {
   reactStrictMode: true,
   output: "export",
   images: {
-    unoptimized: true,
-    domains: ["assets.kaneo.app"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "assets.kaneo.app",
+      },
+    ],
   },
   serverExternalPackages: ["typescript", "twoslash"],
 };

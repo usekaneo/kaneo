@@ -167,7 +167,6 @@
 	}
 }
 
-/* Fumadocs fd color tokens */
 @layer base {
 	:root {
 		--color-fd-background: hsl(0, 0%, 96%);
@@ -179,8 +178,8 @@
 		--color-fd-card: hsl(0, 0%, 94.7%);
 		--color-fd-card-foreground: hsl(0, 0%, 3.9%);
 		--color-fd-border: hsla(0, 0%, 80%, 50%);
-    --color-fd-primary: var(--primary);
-    --color-fd-primary-foreground: var(--primary-foreground);
+		--color-fd-primary: oklch(0.5820 0.2289 272.7771) !important;
+		--color-fd-primary-foreground: oklch(0.9851 0 0) !important;
 		--color-fd-secondary: hsl(0, 0%, 93.1%);
 		--color-fd-secondary-foreground: hsl(0, 0%, 9%);
 		--color-fd-accent: hsla(0, 0%, 82%, 50%);
@@ -198,8 +197,8 @@
 		--color-fd-card: hsl(0, 0%, 9.8%);
 		--color-fd-card-foreground: hsl(0, 0%, 98%);
 		--color-fd-border: hsla(0, 0%, 40%, 20%);
-    --color-fd-primary: var(--primary);
-    --color-fd-primary-foreground: var(--primary-foreground);
+		--color-fd-primary: oklch(0.5820 0.2289 272.7771) !important;
+		--color-fd-primary-foreground: oklch(0.9851 0 0) !important;
 		--color-fd-secondary: hsl(0, 0%, 12.9%);
 		--color-fd-secondary-foreground: hsl(0, 0%, 92%);
 		--color-fd-accent: hsla(0, 0%, 40.9%, 30%);
@@ -224,8 +223,8 @@
 	--color-card-gradient: var(--card-gradient);
 	--color-popover: var(--popover);
 	--color-popover-foreground: var(--popover-foreground);
-	--color-primary: var(--primary);
-	--color-primary-foreground: var(--primary-foreground);
+	--color-primary: oklch(0.5820 0.2289 272.7771);
+	--color-primary-foreground: oklch(0.9851 0 0);
 	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
 	--color-muted: var(--muted);
@@ -447,7 +446,7 @@
 	html,
 	body,
 	#nd-root {
-		--text-fd-primary: var(--primary) !important;
+		--text-fd-primary: oklch(0.5820 0.2289 272.7771) !important;
 	}
 
 	html.dark,

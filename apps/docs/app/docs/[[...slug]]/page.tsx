@@ -21,12 +21,11 @@ export default async function Page(props: {
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
-  const { body: Mdx, toc, lastModified } = page.data;
+  const { body: Mdx, toc } = page.data;
 
   return (
     <DocsPage
       toc={toc}
-      lastUpdate={lastModified ? new Date(lastModified) : undefined}
       tableOfContent={{
         style: "clerk",
       }}
@@ -96,7 +95,7 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug?: string[] }>;
-}) {
+}): Promise<Metadata> {
   const { slug = [] } = await params;
   const page = source.getPage(slug);
   if (!page) notFound();
@@ -123,7 +122,7 @@ export async function generateMetadata({
       images: image,
       title: `${page.data.title} | Kaneo`,
       description: page.data.description,
-      creator: "@aacevski",
+      creator: "@andrejsshell",
       site: "https://kaneo.app",
     },
   } satisfies Metadata;
