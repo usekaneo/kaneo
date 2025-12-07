@@ -1,3 +1,12 @@
+## [2.0.5](https://github.com/usekaneo/kaneo/compare/v2.0.4...v2.0.5) (2025-12-07)
+
+
+### Features
+
+* **migration:** rename active_workspace_id to active_organization_id ([b89ae83](https://github.com/usekaneo/kaneo/commit/b89ae8325ffe353bd4ff8d5b938244c7ba651726))
+
+
+
 ## [2.0.4](https://github.com/usekaneo/kaneo/compare/v2.0.3...v2.0.4) (2025-12-05)
 
 
