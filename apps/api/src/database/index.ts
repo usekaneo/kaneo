@@ -5,11 +5,14 @@ import {
   accountTableRelations,
   activityTableRelations,
   githubIntegrationTableRelations,
+  invitationTableRelations,
   labelTableRelations,
   notificationTableRelations,
   projectTableRelations,
   sessionTableRelations,
   taskTableRelations,
+  teamMemberTableRelations,
+  teamTableRelations,
   timeEntryTableRelations,
   userTableRelations,
   verificationTableRelations,
@@ -66,6 +69,8 @@ export const schema = {
   verificationTableRelations,
   workspaceTableRelations,
   workspaceUserTableRelations,
+  teamTableRelations,
+  teamMemberTableRelations,
   projectTableRelations,
   taskTableRelations,
   timeEntryTableRelations,
@@ -73,6 +78,7 @@ export const schema = {
   labelTableRelations,
   notificationTableRelations,
   githubIntegrationTableRelations,
+  invitationTableRelations,
 };
 
 const db = drizzle(pool, {

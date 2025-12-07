@@ -43,6 +43,13 @@
 			"when": 1759234332200,
 			"tag": "0005_jittery_monster_badoon",
 			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "7",
+			"when": 1733703124000,
+			"tag": "0006_rename_active_workspace_to_organization",
+			"breakpoints": true
 		}
 	]
 }

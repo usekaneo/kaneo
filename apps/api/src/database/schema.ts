@@ -1,11 +1,11 @@
 import { createId } from "@paralleldrive/cuid2";
 import {
   boolean,
+  index,
   integer,
   pgTable,
   text,
   timestamp,
-  unique,
 } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
@@ -19,70 +19,92 @@ export const userTable = pgTable("user", {
     .notNull(),
   image: text("image"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
-  isAnonymous: boolean("is_anonymous"),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  isAnonymous: boolean("is_anonymous").default(false),
 });
 
-export const sessionTable = pgTable("session", {
-  id: text("id").primaryKey(),
-  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
-  token: text("token").notNull().unique(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  userId: text("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-  activeOrganizationId: text("active_workspace_id"),
-  activeTeamId: text("active_team_id"),
-});
+export const sessionTable = pgTable(
+  "session",
+  {
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+    token: text("token").notNull().unique(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    activeOrganizationId: text("active_organization_id"),
+    activeTeamId: text("active_team_id"),
+  },
+  (table) => [index("session_userId_idx").on(table.userId)],
+);
 
-export const accountTable = pgTable("account", {
-  id: text("id")
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-  accessToken: text("access_token"),
-  refreshToken: text("refresh_token"),
-  idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at", {
-    mode: "date",
-  }),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at", {
-    mode: "date",
-  }),
-  scope: text("scope"),
-  password: text("password"),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
-});
+export const accountTable = pgTable(
+  "account",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", {
+      mode: "date",
+    }),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", {
+      mode: "date",
+    }),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [index("account_userId_idx").on(table.userId)],
+);
 
-export const verificationTable = pgTable("verification", {
-  id: text("id")
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
-});
+export const verificationTable = pgTable(
+  "verification",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [index("verification_identifier_idx").on(table.identifier)],
+);
 
 export const workspaceTable = pgTable("workspace", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
   name: text("name").notNull(),
-  slug: text("slug").unique(),
+  slug: text("slug").notNull().unique(),
   logo: text("logo"),
   metadata: text("metadata"),
   description: text("description"),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
 });
 
 export const workspaceUserTable = pgTable(
@@ -91,59 +113,83 @@ export const workspaceUserTable = pgTable(
     id: text("id")
       .$defaultFn(() => createId())
       .primaryKey(),
-    workspaceId: text("workspace_id").references(() => workspaceTable.id, {
-      onDelete: "cascade",
-    }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+      }),
     userId: text("user_id")
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
       }),
     role: text("role").default("member").notNull(),
-    joinedAt: timestamp("joined_at", { mode: "date" }).defaultNow().notNull(),
+    joinedAt: timestamp("joined_at", { mode: "date" }).notNull(),
   },
-  (table) => ({
-    workspaceUserUnique: unique().on(table.workspaceId, table.userId),
-  }),
+  (table) => [
+    index("workspace_member_workspaceId_idx").on(table.workspaceId),
+    index("workspace_member_userId_idx").on(table.userId),
+  ],
 );
 
-export const teamTable = pgTable("team", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  workspaceId: text("workspace_id")
-    .notNull()
-    .references(() => workspaceTable.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at"),
-});
+export const teamTable = pgTable(
+  "team",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(
+      () => /* @__PURE__ */ new Date(),
+    ),
+  },
+  (table) => [index("team_workspaceId_idx").on(table.workspaceId)],
+);
 
-export const teamMemberTable = pgTable("team_member", {
-  id: text("id").primaryKey(),
-  teamId: text("team_id")
-    .notNull()
-    .references(() => teamTable.id, { onDelete: "cascade" }),
-  userId: text("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at"),
-});
+export const teamMemberTable = pgTable(
+  "team_member",
+  {
+    id: text("id").primaryKey(),
+    teamId: text("team_id")
+      .notNull()
+      .references(() => teamTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at"),
+  },
+  (table) => [
+    index("teamMember_teamId_idx").on(table.teamId),
+    index("teamMember_userId_idx").on(table.userId),
+  ],
+);
 
-export const invitationTable = pgTable("invitation", {
-  id: text("id")
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  workspaceId: text("workspace_id")
-    .notNull()
-    .references(() => workspaceTable.id, { onDelete: "cascade" }),
-  email: text("email").notNull(),
-  role: text("role"),
-  teamId: text("team_id"),
-  status: text("status").default("pending").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  inviterId: text("inviter_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-});
+export const invitationTable = pgTable(
+  "invitation",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role"),
+    teamId: text("team_id"),
+    status: text("status").default("pending").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    inviterId: text("inviter_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    index("invitation_workspaceId_idx").on(table.workspaceId),
+    index("invitation_email_idx").on(table.email),
+  ],
+);
 
 export const projectTable = pgTable("project", {
   id: text("id")

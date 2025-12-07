@@ -17,6 +17,7 @@ import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
+import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 
 const app = new Hono<{
@@ -109,6 +110,7 @@ app.route("/api", api);
 (async () => {
   try {
     await migrateWorkspaceUserEmail();
+    await migrateSessionColumn();
 
     console.log("🔄 Migrating database...");
     await migrate(db, {
