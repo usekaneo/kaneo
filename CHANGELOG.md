@@ -1,3 +1,12 @@
+## [2.0.7](https://github.com/usekaneo/kaneo/compare/v2.0.6...v2.0.7) (2025-12-08)
+
+
+### Features
+
+* **migration:** update invitation table to add created_at column with default value handling ([527ae8a](https://github.com/usekaneo/kaneo/commit/527ae8a21f6800ce094f1de799ab0868ce4a746a))
+
+
+
 ## [2.0.6](https://github.com/usekaneo/kaneo/compare/v2.0.5...v2.0.6) (2025-12-08)
 
 
