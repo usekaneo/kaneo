@@ -33,7 +33,7 @@
     "hono": "^4.10.4",
     "octokit": "^5.0.5",
     "pg": "^8.16.3",
-    "zod": "^4.1.1"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
