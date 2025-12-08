@@ -93,9 +93,24 @@ export async function migrateSessionColumn() {
 
       if (hasCreatedAt.rows.length === 0) {
         console.log("📝 Adding created_at column to invitation table...");
+        // Add column as nullable first
         await db.execute(sql`
           ALTER TABLE "invitation" 
-          ADD COLUMN "created_at" timestamp DEFAULT NOW() NOT NULL;
+          ADD COLUMN "created_at" timestamp;
+        `);
+
+        // Set default value for existing rows (use expires_at - 1 month as a reasonable default)
+        await db.execute(sql`
+          UPDATE "invitation" 
+          SET "created_at" = COALESCE("expires_at" - INTERVAL '1 month', NOW())
+          WHERE "created_at" IS NULL;
+        `);
+
+        // Now make it NOT NULL with default
+        await db.execute(sql`
+          ALTER TABLE "invitation" 
+          ALTER COLUMN "created_at" SET DEFAULT NOW(),
+          ALTER COLUMN "created_at" SET NOT NULL;
         `);
         console.log(
           "✅ Successfully added created_at column to invitation table",
