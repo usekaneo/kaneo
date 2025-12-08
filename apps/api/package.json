@@ -18,7 +18,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.0",
+    "@hono/node-server": "^1.19.6",
     "@hono/zod-validator": "^0.7.2",
     "@kaneo/email": "workspace:*",
     "@octokit/webhooks": "^14.1.3",
