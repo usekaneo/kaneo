@@ -1,3 +1,12 @@
+## [2.0.6](https://github.com/usekaneo/kaneo/compare/v2.0.5...v2.0.6) (2025-12-08)
+
+
+### Features
+
+* **auth:** enhance base URL handling and trusted origins ([07fa1b6](https://github.com/usekaneo/kaneo/commit/07fa1b69b20db59a425d357537effca6e75e1b6c))
+
+
+
 ## [2.0.5](https://github.com/usekaneo/kaneo/compare/v2.0.4...v2.0.5) (2025-12-07)
 
 
