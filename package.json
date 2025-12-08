@@ -12,7 +12,7 @@
     "@biomejs/biome": "2.0.6",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
-    "esbuild": ">=0.25.10",
+    "esbuild": "0.27.1",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.2",
     "tar-fs": ">=3.1.1",
