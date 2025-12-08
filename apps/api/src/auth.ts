@@ -34,9 +34,27 @@ const isCrossSubdomain = (() => {
   }
 })();
 
+const trustedOrigins = [clientUrl];
+try {
+  const apiOrigin = new URL(apiUrl);
+  const apiOriginString = `${apiOrigin.protocol}//${apiOrigin.host}`;
+  if (!trustedOrigins.includes(apiOriginString)) {
+    trustedOrigins.push(apiOriginString);
+  }
+} catch {}
+
+const baseURLWithoutPath = (() => {
+  try {
+    const url = new URL(apiUrl);
+    return `${url.protocol}//${url.host}`;
+  } catch {
+    return apiUrl.split("/").slice(0, 3).join("/"); // Get protocol://host
+  }
+})();
+
 export const auth = betterAuth({
-  baseURL: apiUrl,
-  trustedOrigins: [clientUrl],
+  baseURL: baseURLWithoutPath,
+  trustedOrigins,
   secret: process.env.AUTH_SECRET || "",
   basePath: "/api/auth",
   database: drizzleAdapter(db, {
