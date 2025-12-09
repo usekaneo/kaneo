@@ -7,6 +7,13 @@ async function getActivitiesFromTaskId(taskId: string) {
     where: eq(activityTable.taskId, taskId),
     orderBy: [desc(activityTable.createdAt)],
   });
+
+  activities.forEach((x) => {
+    if (x.content) {
+      x.content = x.content.replace(/\n+/g, "\n");
+    }
+  });
+
   return activities;
 }
 
