@@ -13,6 +13,8 @@ The variables are split up into the following sections:
 - [Database](#database)
 - [Authentication](#authentication)
 - [GitHub SSO & Integration](#github-sso-&-integration)
+- [Google SSO](#google-sso)
+- [Custom OAuth/OIDC](#custom-oauth-oidc)
 - [SMTP Configuration](#smtp-configuration)
 
 ## Required variables
@@ -58,12 +60,26 @@ Name | Description |
 | `GITHUB_WEBHOOK_SECRET` | The GitHub webhook secret.
 | `GITHUB_PRIVATE_KEY` | The GitHub private key.
 
-### Google SSO & Integration
+### Google SSO
 
 Name | Description |
 --- | --- |
 | `GOOGLE_CLIENT_ID` | The Google client ID.
 | `GOOGLE_CLIENT_SECRET` | The Google client secret.
+
+### Custom OAuth/OIDC
+
+Name | Description |
+--- | --- |
+| `CUSTOM_OAUTH_CLIENT_ID` | OAuth client ID from your provider.
+| `CUSTOM_OAUTH_CLIENT_SECRET` | OAuth client secret from your provider.
+| `CUSTOM_OAUTH_AUTHORIZATION_URL` | Authorization endpoint URL.
+| `CUSTOM_OAUTH_TOKEN_URL` | Token exchange endpoint URL.
+| `CUSTOM_OAUTH_USER_INFO_URL` | User info endpoint URL.
+| `CUSTOM_OAUTH_DISCOVERY_URL` | (Optional) OpenID Connect discovery document URL.
+| `CUSTOM_OAUTH_SCOPES` | (Optional) Comma-separated list of OAuth scopes. Default: `profile,email`.
+| `CUSTOM_OAUTH_RESPONSE_TYPE` | (Optional) OAuth response type. Default: `code`.
+| `CUSTOM_AUTH_PKCE` | (Optional) Enable/disable PKCE. Default: `true`.
 
 ### SMTP Configuration
 
@@ -79,6 +95,7 @@ Name | Description |
 
 ## Key points
 
-- If you enable GitHub SSO, you need to set up the GitHub app which is used to authenticate users in the [GitHub Developer Settings](https://github.com/settings/developers).
-- If you enable Google SSO, you need to set up the Google app which is used to authenticate users in the [Google Cloud Console](https://console.cloud.google.com/).
+- If you enable GitHub SSO, you need to set up the GitHub app which is used to authenticate users in the [GitHub Developer Settings](https://github.com/settings/developers). See the [GitHub SSO guide](/docs/social-providers/github).
+- If you enable Google SSO, you need to set up the Google app which is used to authenticate users in the [Google Cloud Console](https://console.cloud.google.com/). See the [Google SSO guide](/docs/social-providers/google).
+- If you enable Custom OAuth/OIDC, you need to configure your identity provider with the appropriate redirect URI. See the [Custom OAuth/OIDC guide](/docs/social-providers/custom-oauth).
 - If you have enabled SMTP, your sign in will be done via email using a magic link.

@@ -5,6 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   anonymous,
   createAuthMiddleware,
+  genericOAuth,
   lastLoginMethod,
   magicLink,
   organization,
@@ -177,6 +178,22 @@ export const auth = betterAuth({
           },
         );
       },
+    }),
+    genericOAuth({
+      config: [
+        {
+          providerId: "custom",
+          clientId: process.env.CUSTOM_OAUTH_CLIENT_ID || "",
+          clientSecret: process.env.CUSTOM_OAUTH_CLIENT_SECRET,
+          authorizationUrl: process.env.CUSTOM_OAUTH_AUTHORIZATION_URL || "",
+          tokenUrl: process.env.CUSTOM_OAUTH_TOKEN_URL || "",
+          userInfoUrl: process.env.CUSTOM_OAUTH_USER_INFO_URL || "",
+          scopes: process.env.CUSTOM_OAUTH_SCOPES?.split(",") || [],
+          responseType: process.env.CUSTOM_OAUTH_RESPONSE_TYPE || "code",
+          discoveryUrl: process.env.CUSTOM_OAUTH_DISCOVERY_URL || "",
+          pkce: process.env.CUSTOM_AUTH_PKCE !== "false",
+        },
+      ],
     }),
   ],
   session: {
