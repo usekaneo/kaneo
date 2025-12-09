@@ -17,6 +17,12 @@ async function getActivitesByTaskId({ taskId }: GetActivitesByTaskIdRequest) {
 
   const data = await response.json();
 
+  data.forEach((x) => {
+    if (x?.content) {
+      x.content = x.content.replace(/\n+/g, "\n");
+    }
+  });
+
   return data;
 }
 
