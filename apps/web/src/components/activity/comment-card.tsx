@@ -93,12 +93,18 @@ export default function CommentCard({
     if (content?.trim() && !isInitializedRef.current) {
       const loadMarkdown = async () => {
         try {
-          const blocks = JSON.parse(content.trim());
+          const blocks = await editor.tryParseMarkdownToBlocks(
+            content.trim() || "",
+          );
           editor.replaceBlocks(editor.document, blocks);
+          setTimeout(() => {
+            editor.isEditable = isEditing;
+            isInitializedRef.current = true;
+          }, 50);
         } catch (error) {
-          console.error("Failed to parse json:", error);
-          editor.removeBlocks(editor.document);
-        } finally {
+          console.error("Failed to parse markdown:", error);
+          const blocks = await editor.tryParseMarkdownToBlocks("");
+          editor.replaceBlocks(editor.document, blocks);
           setTimeout(() => {
             editor.isEditable = isEditing;
             isInitializedRef.current = true;
@@ -108,6 +114,7 @@ export default function CommentCard({
       loadMarkdown();
     } else if (!content?.trim() && !isInitializedRef.current) {
       editor.isEditable = isEditing;
+      isInitializedRef.current = true;
     }
   }, [content, editor, isEditing]);
 
@@ -122,10 +129,10 @@ export default function CommentCard({
 
   const handleEditorChange = useCallback(async () => {
     try {
-      const jsonDocument = JSON.stringify(editor.document);
-      setEditedContent(jsonDocument.trim());
+      const markdown = await editor.blocksToMarkdownLossy(editor.document);
+      setEditedContent(markdown.trim());
     } catch (error) {
-      console.error("Failed to convert blocks to json:", error);
+      console.error("Failed to convert blocks to markdown:", error);
     }
   }, [editor]);
 
@@ -138,7 +145,9 @@ export default function CommentCard({
     setIsEditing(false);
     // Restore original content
     try {
-      const blocks = JSON.parse(content.trim());
+      const blocks = await editor.tryParseMarkdownToBlocks(
+        content.trim() || "",
+      );
       editor.replaceBlocks(editor.document, blocks);
       setEditedContent("");
     } catch (error) {

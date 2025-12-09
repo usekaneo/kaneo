@@ -61,12 +61,12 @@ export default function TaskDescriptionEditor({
 
   const handleEditorChange = useCallback(async () => {
     try {
-      const jsonDocument = JSON.stringify(editor.document);
-      onChange(jsonDocument);
+      const markdown = await editor.blocksToMarkdownLossy(editor.document);
+      onChange(markdown);
     } catch (error) {
-      console.error("Failed to convert blocks to json:", error);
+      console.error("Failed to convert blocks to markdown:", error);
     }
-  }, [editor.document, onChange]);
+  }, [editor, onChange]);
 
   return (
     <div className="blocknote-transparent h-full overflow-auto">
