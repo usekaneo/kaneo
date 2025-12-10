@@ -68,7 +68,9 @@ function SignUp() {
           {config?.hasGuestAccess && (
             <div className="flex items-center gap-4 my-4">
               <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
-              <span className="text-sm text-zinc-500 dark:text-zinc-400">or</span>
+              <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                or
+              </span>
               <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
             </div>
           )}
