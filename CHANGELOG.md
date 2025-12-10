@@ -1,3 +1,18 @@
+## [2.0.9](https://github.com/usekaneo/kaneo/compare/v2.0.8...v2.0.9) (2025-12-10)
+
+
+### Bug Fixes
+
+* prevent create task modal from closing on outside click ([436fb7b](https://github.com/usekaneo/kaneo/commit/436fb7bbe760a0b9083d90c9246e1a8c5aa885f5))
+
+
+### Features
+
+* add DISABLE_GUEST_ACCESS environment variable ([9641324](https://github.com/usekaneo/kaneo/commit/9641324edd11a799fca03d366fe8c3a8b0de920b))
+* **database:** update session and workspace schemas ([ef98dd3](https://github.com/usekaneo/kaneo/commit/ef98dd3455a0578b61f2ae00d5c5f38b73919949))
+
+
+
 ## [2.0.8](https://github.com/usekaneo/kaneo/compare/v2.0.7...v2.0.8) (2025-12-09)
 
 
