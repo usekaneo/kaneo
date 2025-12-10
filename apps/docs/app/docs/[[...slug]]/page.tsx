@@ -6,6 +6,7 @@ import { DocsPage } from "fumadocs-ui/page";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
+import { APIPage } from "@/components/api-page";
 import {
   HoverCard,
   HoverCardContent,
@@ -51,6 +52,7 @@ export default async function Page(props: {
         <Mdx
           components={getMDXComponents({
             Banner,
+            APIPage,
             a: ({ href, ...props }) => {
               const found = source.getPageByHref(href ?? "", {
                 dir: path.dirname(page.path),
