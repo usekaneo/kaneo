@@ -1,0 +1,24 @@
+---
+title: Discord
+description: Discord is a social provider for Kaneo.
+---
+
+## Overview
+
+Discord is a social provider for Kaneo. It allows users to sign in to Kaneo using their Discord account.
+
+## Configuration
+
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+2. Create a new application.
+3. Navigate to the "OAuth2" section in the left sidebar.
+4. Add a redirect URI: `KANEO_API_URL/api/auth/callback/discord`.
+5. Copy the client ID and client secret from the OAuth2 page.
+6. Set the `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET` environment variables.
+
+For more information on what your `KANEO_API_URL` is, see the [Environment variables](/docs/installation/environment-variables#discord-sso) page.
+
+## Usage
+
+Once you have configured the social provider, you can sign in to Kaneo using your Discord account.
+
