@@ -1,6 +1,9 @@
-import { zValidator } from "@hono/zod-validator";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { z } from "zod";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
+import db from "../database";
+import { githubIntegrationTable } from "../database/schema";
 import { subscribeToEvent } from "../events";
 import createGithubIntegration from "./controllers/create-github-integration";
 import deleteGithubIntegration from "./controllers/delete-github-integration";
@@ -50,22 +53,67 @@ subscribeToEvent<{
 }>("task.priority_changed", handleTaskPriorityChanged);
 
 const githubIntegration = new Hono()
-  .get("/app-info", async (c) => {
-    return c.json({
-      appName: process.env.GITHUB_APP_NAME || null,
-    });
-  })
-  .get("/repositories", async (c) => {
-    const repositories = await listUserRepositories();
-    return c.json(repositories);
-  })
+  .get(
+    "/app-info",
+    describeRoute({
+      operationId: "getGitHubAppInfo",
+      tags: ["GitHub"],
+      description: "Get GitHub app configuration information",
+      responses: {
+        200: {
+          description: "GitHub app information",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      return c.json({
+        appName: process.env.GITHUB_APP_NAME || null,
+      });
+    },
+  )
+  .get(
+    "/repositories",
+    describeRoute({
+      operationId: "listGitHubRepositories",
+      tags: ["GitHub"],
+      description: "List all accessible GitHub repositories",
+      responses: {
+        200: {
+          description: "List of repositories",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const repositories = await listUserRepositories();
+      return c.json(repositories);
+    },
+  )
   .post(
     "/verify",
-    zValidator(
+    describeRoute({
+      operationId: "verifyGitHubInstallation",
+      tags: ["GitHub"],
+      description: "Verify GitHub app installation for a repository",
+      responses: {
+        200: {
+          description: "Verification result",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        repositoryOwner: z.string().min(1),
-        repositoryName: z.string().min(1),
+      v.object({
+        repositoryOwner: v.string([v.minLength(1)]),
+        repositoryName: v.string([v.minLength(1)]),
       }),
     ),
     async (c) => {
@@ -81,7 +129,20 @@ const githubIntegration = new Hono()
   )
   .get(
     "/project/:projectId",
-    zValidator("param", z.object({ projectId: z.string() })),
+    describeRoute({
+      operationId: "getGitHubIntegration",
+      tags: ["GitHub"],
+      description: "Get GitHub integration for a project",
+      responses: {
+        200: {
+          description: "GitHub integration details",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ projectId: v.string() })),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const integration = await getGithubIntegration(projectId);
@@ -90,12 +151,25 @@ const githubIntegration = new Hono()
   )
   .post(
     "/project/:projectId",
-    zValidator("param", z.object({ projectId: z.string() })),
-    zValidator(
+    describeRoute({
+      operationId: "createGitHubIntegration",
+      tags: ["GitHub"],
+      description: "Create a new GitHub integration for a project",
+      responses: {
+        200: {
+          description: "Integration created successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ projectId: v.string() })),
+    validator(
       "json",
-      z.object({
-        repositoryOwner: z.string().min(1),
-        repositoryName: z.string().min(1),
+      v.object({
+        repositoryOwner: v.string([v.minLength(1)]),
+        repositoryName: v.string([v.minLength(1)]),
       }),
     ),
     async (c) => {
@@ -111,9 +185,73 @@ const githubIntegration = new Hono()
       return c.json(integration);
     },
   )
+  .patch(
+    "/project/:projectId",
+    describeRoute({
+      operationId: "updateGitHubIntegration",
+      tags: ["GitHub"],
+      description: "Update GitHub integration settings",
+      responses: {
+        200: {
+          description: "Integration updated successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+        404: {
+          description: "Integration not found",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ projectId: v.string() })),
+    validator(
+      "json",
+      v.object({
+        isActive: v.optional(v.boolean()),
+      }),
+    ),
+    async (c) => {
+      const { projectId } = c.req.valid("param");
+      const { isActive } = c.req.valid("json");
+
+      const existingIntegration = await getGithubIntegration(projectId);
+
+      if (!existingIntegration) {
+        return c.json({ error: "Integration not found" }, 404);
+      }
+
+      const [updatedIntegration] = await db
+        .update(githubIntegrationTable)
+        .set({
+          isActive:
+            isActive !== undefined ? isActive : existingIntegration.isActive,
+          updatedAt: new Date(),
+        })
+        .where(eq(githubIntegrationTable.projectId, projectId))
+        .returning();
+
+      return c.json(updatedIntegration, 200);
+    },
+  )
   .delete(
     "/project/:projectId",
-    zValidator("param", z.object({ projectId: z.string() })),
+    describeRoute({
+      operationId: "deleteGitHubIntegration",
+      tags: ["GitHub"],
+      description: "Delete GitHub integration for a project",
+      responses: {
+        200: {
+          description: "Integration deleted successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ projectId: v.string() })),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const result = await deleteGithubIntegration(projectId);
@@ -122,7 +260,25 @@ const githubIntegration = new Hono()
   )
   .post(
     "/import-issues",
-    zValidator("json", z.object({ projectId: z.string() })),
+    describeRoute({
+      operationId: "importGitHubIssues",
+      tags: ["GitHub"],
+      description: "Import GitHub issues as tasks",
+      responses: {
+        200: {
+          description: "Issues imported successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator(
+      "json",
+      v.object({
+        projectId: v.string(),
+      }),
+    ),
     async (c) => {
       const { projectId } = c.req.valid("json");
       const result = await importIssues(projectId);
