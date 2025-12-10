@@ -25,6 +25,11 @@ END $$;
 ALTER TABLE "account" ALTER COLUMN "updated_at" DROP DEFAULT;--> statement-breakpoint
 ALTER TABLE "session" ALTER COLUMN "updated_at" DROP DEFAULT;--> statement-breakpoint
 ALTER TABLE "user" ALTER COLUMN "is_anonymous" SET DEFAULT false;--> statement-breakpoint
+-- Update NULL slug values before setting NOT NULL constraint
+UPDATE "workspace" 
+SET "slug" = LOWER(REGEXP_REPLACE(name, '[^a-zA-Z0-9]+', '-', 'g')) || '-' || SUBSTRING(id FROM 1 FOR 8)
+WHERE "slug" IS NULL;
+--> statement-breakpoint
 ALTER TABLE "workspace" ALTER COLUMN "slug" SET NOT NULL;--> statement-breakpoint
 ALTER TABLE "workspace" ALTER COLUMN "created_at" DROP DEFAULT;--> statement-breakpoint
 ALTER TABLE "workspace_member" ALTER COLUMN "workspace_id" SET NOT NULL;--> statement-breakpoint
