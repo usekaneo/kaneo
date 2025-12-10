@@ -1,215 +1,147 @@
-import { zValidator } from "@hono/zod-validator";
-import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { z } from "zod";
-import db from "../database";
-import { taskTable } from "../database/schema";
-import { subscribeToEvent } from "../events";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
 import clearNotifications from "./controllers/clear-notifications";
 import createNotification from "./controllers/create-notification";
 import getNotifications from "./controllers/get-notifications";
 import markAllNotificationsAsRead from "./controllers/mark-all-notifications-as-read";
-import markNotificationAsRead from "./controllers/mark-notification-as-read";
+import markAsRead from "./controllers/mark-notification-as-read";
 
 const notification = new Hono<{
   Variables: {
     userId: string;
   };
 }>()
-  .get("/", async (c) => {
-    const userId = c.get("userId");
-    const notifications = await getNotifications(userId);
-    return c.json(notifications);
-  })
+  .get(
+    "/",
+    describeRoute({
+      operationId: "listNotifications",
+      tags: ["Notifications"],
+      description: "Get all notifications for the current user",
+      responses: {
+        200: {
+          description: "List of notifications",
+          content: {
+            "application/json": { schema: resolver(v.array(v.any())) },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const userId = c.get("userId");
+      const notifications = await getNotifications(userId);
+      return c.json(notifications);
+    },
+  )
   .post(
     "/",
-    zValidator(
+    describeRoute({
+      operationId: "createNotification",
+      tags: ["Notifications"],
+      description: "Create a new notification for a user",
+      responses: {
+        200: {
+          description: "Notification created successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        userId: z.string(),
-        title: z.string(),
-        content: z.string().optional(),
-        type: z.string().optional(),
-        resourceId: z.string().optional(),
-        resourceType: z.string().optional(),
+      v.object({
+        userId: v.string(),
+        title: v.string(),
+        message: v.string(),
+        type: v.string(),
+        relatedEntityId: v.optional(v.string()),
+        relatedEntityType: v.optional(v.string()),
       }),
     ),
     async (c) => {
-      const { userId, title, content, type, resourceId, resourceType } =
-        c.req.valid("json");
-
+      const {
+        userId,
+        title,
+        message,
+        type,
+        relatedEntityId,
+        relatedEntityType,
+      } = c.req.valid("json");
       const notification = await createNotification({
         userId,
         title,
-        content,
+        content: message,
         type,
-        resourceId,
-        resourceType,
+        resourceId: relatedEntityId,
+        resourceType: relatedEntityType,
       });
-
       return c.json(notification);
     },
   )
   .patch(
     "/:id/read",
-    zValidator("param", z.object({ id: z.string() })),
+    describeRoute({
+      operationId: "markNotificationAsRead",
+      tags: ["Notifications"],
+      description: "Mark a specific notification as read",
+      responses: {
+        200: {
+          description: "Notification marked as read",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
-      const notification = await markNotificationAsRead(id);
+      const notification = await markAsRead(id);
       return c.json(notification);
     },
   )
-  .patch("/read-all", async (c) => {
-    const userId = c.get("userId");
-    const result = await markAllNotificationsAsRead(userId);
-    return c.json(result);
-  })
-  .delete("/clear-all", async (c) => {
-    const userId = c.get("userId");
-    const result = await clearNotifications(userId);
-    return c.json(result);
-  });
-
-subscribeToEvent(
-  "task.created",
-  async ({
-    taskId,
-    userId,
-    title,
-  }: {
-    taskId: string;
-    userId: string;
-    title?: string;
-    type: string;
-    content: string;
-  }) => {
-    if (!userId || !taskId) {
-      return;
-    }
-
-    await createNotification({
-      userId,
-      title: "New Task Created",
-      content: title ? `Task "${title}" was created` : "A new task was created",
-      type: "task",
-      resourceId: taskId,
-      resourceType: "task",
-    });
-  },
-);
-
-subscribeToEvent(
-  "workspace.created",
-  async ({
-    workspaceId,
-    ownerId,
-    workspaceName,
-  }: {
-    workspaceId: string;
-    ownerId: string;
-    workspaceName: string;
-  }) => {
-    if (!workspaceId || !ownerId) {
-      return;
-    }
-
-    await createNotification({
-      userId: ownerId,
-      title: `Workspace "${workspaceName}" created`,
-      type: "workspace",
-      resourceId: workspaceId,
-      resourceType: "workspace",
-    });
-  },
-);
-
-subscribeToEvent(
-  "task.status_changed",
-  async ({
-    taskId,
-    userId,
-    oldStatus,
-    newStatus,
-    title,
-  }: {
-    taskId: string;
-    userId: string | null;
-    oldStatus: string;
-    newStatus: string;
-    title: string;
-  }) => {
-    if (!taskId || !userId) {
-      return;
-    }
-
-    await createNotification({
-      userId,
-      title: `Task "${title}" moved from ${oldStatus.replace(/-/g, " ")} to ${newStatus.replace(/-/g, " ")}`,
-      type: "task",
-      resourceId: taskId,
-      resourceType: "task",
-    });
-  },
-);
-
-subscribeToEvent(
-  "task.assignee_changed",
-  async ({
-    taskId,
-    newAssignee,
-    title,
-  }: {
-    taskId: string;
-    newAssignee: string | null;
-    title: string;
-  }) => {
-    if (!taskId || !newAssignee) {
-      return;
-    }
-
-    await createNotification({
-      userId: newAssignee,
-      title: "Task Assigned to You",
-      content: `You have been assigned to task "${title}"`,
-      type: "task",
-      resourceId: taskId,
-      resourceType: "task",
-    });
-  },
-);
-
-subscribeToEvent(
-  "time-entry.created",
-  async ({
-    timeEntryId,
-    taskId,
-    userId,
-  }: {
-    timeEntryId: string;
-    taskId: string;
-    userId: string;
-    type: string;
-    content: string;
-  }) => {
-    if (!timeEntryId || !taskId || !userId) {
-      return;
-    }
-
-    const task = await db.query.taskTable.findFirst({
-      where: eq(taskTable.id, taskId),
-    });
-
-    if (task) {
-      await createNotification({
-        userId,
-        title: "Time Tracking Started",
-        content: `You started tracking time for task "${task.title}"`,
-        type: "time-entry",
-        resourceId: taskId,
-        resourceType: "task",
-      });
-    }
-  },
-);
+  .patch(
+    "/read-all",
+    describeRoute({
+      operationId: "markAllNotificationsAsRead",
+      tags: ["Notifications"],
+      description: "Mark all notifications as read for the current user",
+      responses: {
+        200: {
+          description: "All notifications marked as read",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const userId = c.get("userId");
+      const result = await markAllNotificationsAsRead(userId);
+      return c.json(result);
+    },
+  )
+  .delete(
+    "/clear-all",
+    describeRoute({
+      operationId: "clearAllNotifications",
+      tags: ["Notifications"],
+      description: "Clear all notifications for the current user",
+      responses: {
+        200: {
+          description: "All notifications cleared",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const userId = c.get("userId");
+      const result = await clearNotifications(userId);
+      return c.json(result);
+    },
+  );
 
 export default notification;
