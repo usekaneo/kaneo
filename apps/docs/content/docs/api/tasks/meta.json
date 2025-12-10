@@ -1,0 +1,21 @@
+{
+	"title": "Tasks",
+	"pages": [
+		"createTask",
+		"getTask",
+		"listTasks",
+		"updateTask",
+		"deleteTask",
+		"updateTaskTitle",
+		"updateTaskDescription",
+		"updateTaskStatus",
+		"updateTaskPriority",
+		"updateTaskDueDate",
+		"updateTaskAssignee",
+		"getTaskLabels",
+		"getTaskTimeEntries",
+		"exportTasks",
+		"importTasks"
+	],
+	"defaultOpen": true
+}
