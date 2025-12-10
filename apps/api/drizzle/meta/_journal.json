@@ -50,6 +50,13 @@
 			"when": 1733703124000,
 			"tag": "0006_rename_active_workspace_to_organization",
 			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "7",
+			"when": 1765390825431,
+			"tag": "0007_careful_moira_mactaggert",
+			"breakpoints": true
 		}
 	]
 }

@@ -1,3 +1,12 @@
+## [2.0.8](https://github.com/usekaneo/kaneo/compare/v2.0.7...v2.0.8) (2025-12-09)
+
+
+### Features
+
+* **auth:** add support for custom OAuth/OIDC provider integration ([f67a6f6](https://github.com/usekaneo/kaneo/commit/f67a6f66b61612e13e065e2798a899a9dae44ecc))
+
+
+
 ## [2.0.7](https://github.com/usekaneo/kaneo/compare/v2.0.6...v2.0.7) (2025-12-08)
 
 

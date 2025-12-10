@@ -31,6 +31,10 @@ async function getTask(taskId: string) {
     });
   }
 
+  if (task[0].description) {
+    task[0].description = task[0].description.replace(/\n+/g, "\n");
+  }
+
   return task[0];
 }
 

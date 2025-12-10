@@ -1,6 +1,6 @@
 {
 	"title": "Social Providers",
 	"icon": "Users",
-	"pages": ["github", "google"],
+	"pages": ["github", "google", "custom-oauth"],
 	"defaultOpen": true
 }

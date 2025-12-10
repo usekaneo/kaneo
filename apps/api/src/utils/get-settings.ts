@@ -18,6 +18,9 @@ function getSettings() {
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&
       Boolean(process.env.GOOGLE_CLIENT_SECRET),
+    hasCustomOAuth:
+      Boolean(process.env.CUSTOM_OAUTH_CLIENT_ID) &&
+      Boolean(process.env.CUSTOM_OAUTH_CLIENT_SECRET),
   };
 }
 
