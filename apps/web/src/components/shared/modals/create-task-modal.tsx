@@ -315,6 +315,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       <DialogContent
         className="max-w-2xl max-h-[90vh] flex flex-col"
         showCloseButton={false}
+        onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader className="flex-shrink-0">
           <DialogTitle asChild>
