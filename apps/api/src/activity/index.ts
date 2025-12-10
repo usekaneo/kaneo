@@ -1,225 +1,152 @@
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { z } from "zod";
-import { subscribeToEvent } from "../events";
-import toNormalCase from "../utils/to-normal-case";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
 import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
-import getActivitiesFromTaskId from "./controllers/get-activities";
+import getActivities from "./controllers/get-activities";
 import updateComment from "./controllers/update-comment";
 
-const activity = new Hono()
+const activity = new Hono<{
+  Variables: {
+    userId: string;
+  };
+}>()
   .get(
     "/:taskId",
-    zValidator("param", z.object({ taskId: z.string() })),
+    describeRoute({
+      operationId: "getActivities",
+      tags: ["Activity"],
+      description: "Get all activities for a specific task",
+      responses: {
+        200: {
+          description: "List of activities for the task",
+          content: {
+            "application/json": { schema: resolver(v.array(v.any())) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ taskId: v.string() })),
     async (c) => {
       const { taskId } = c.req.valid("param");
-
-      const activities = await getActivitiesFromTaskId(taskId);
-
+      const activities = await getActivities(taskId);
       return c.json(activities);
     },
   )
   .post(
     "/create",
-    zValidator(
+    describeRoute({
+      operationId: "createActivity",
+      tags: ["Activity"],
+      description: "Create a new activity (system-generated event)",
+      responses: {
+        200: {
+          description: "Activity created successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        taskId: z.string(),
-        type: z.string(),
-        userId: z.string(),
-        content: z.string(),
+      v.object({
+        taskId: v.string(),
+        userId: v.string(),
+        message: v.string(),
+        type: v.string(),
       }),
     ),
     async (c) => {
-      const { taskId, type, userId, content } = c.req.valid("json");
-
-      const activity = await createActivity(taskId, type, userId, content);
-
+      const { taskId, userId, message, type } = c.req.valid("json");
+      const activity = await createActivity(taskId, userId, message, type);
       return c.json(activity);
     },
   )
   .post(
     "/comment",
-    zValidator(
+    describeRoute({
+      operationId: "createComment",
+      tags: ["Activity"],
+      description: "Create a new comment on a task",
+      responses: {
+        200: {
+          description: "Comment created successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        taskId: z.string(),
-        content: z.string(),
-        userId: z.string(),
+      v.object({
+        taskId: v.string(),
+        comment: v.string(),
       }),
     ),
     async (c) => {
-      const { taskId, content, userId } = c.req.valid("json");
-
-      const activity = await createComment(taskId, userId, content);
-
-      return c.json(activity);
+      const { taskId, comment } = c.req.valid("json");
+      const userId = c.get("userId");
+      const newComment = await createComment(taskId, userId, comment);
+      return c.json(newComment);
     },
   )
   .put(
     "/comment",
-    zValidator(
+    describeRoute({
+      operationId: "updateComment",
+      tags: ["Activity"],
+      description: "Update an existing comment",
+      responses: {
+        200: {
+          description: "Comment updated successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        id: z.string(),
-        content: z.string(),
-        userId: z.string(),
+      v.object({
+        activityId: v.string(),
+        comment: v.string(),
       }),
     ),
     async (c) => {
-      const { id, content, userId } = c.req.valid("json");
-
-      const activity = await updateComment(userId, id, content);
-
-      return c.json(activity);
+      const { activityId, comment } = c.req.valid("json");
+      const updatedComment = await updateComment(activityId, comment);
+      return c.json(updatedComment);
     },
   )
   .delete(
     "/comment",
-    zValidator(
+    describeRoute({
+      operationId: "deleteComment",
+      tags: ["Activity"],
+      description: "Delete a comment",
+      responses: {
+        200: {
+          description: "Comment deleted successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        id: z.string(),
-        userId: z.string(),
+      v.object({
+        activityId: v.string(),
       }),
     ),
     async (c) => {
-      const { id, userId } = c.req.valid("json");
-
-      await deleteComment(userId, id);
-
-      return c.json({ message: "Comment deleted" });
+      const { activityId } = c.req.valid("json");
+      const deletedComment = await deleteComment(activityId);
+      return c.json(deletedComment);
     },
   );
-
-subscribeToEvent(
-  "task.created",
-  async ({
-    taskId,
-    userId,
-    type,
-    content,
-  }: {
-    taskId: string;
-    userId: string;
-    type: string;
-    content: string;
-  }) => {
-    if (!userId || !taskId || !type || !content) {
-      return;
-    }
-
-    await createActivity(taskId, type, userId, content);
-  },
-);
-
-subscribeToEvent(
-  "task.assignee_changed",
-  async ({
-    taskId,
-    userId,
-    type,
-    newAssignee,
-  }: {
-    taskId: string;
-    userId: string;
-    type: string;
-    newAssignee: string;
-  }) => {
-    await createActivity(
-      taskId,
-      type,
-      userId,
-      `assigned the task to ${newAssignee}`,
-    );
-  },
-);
-
-subscribeToEvent(
-  "task.unassigned",
-  async ({
-    taskId,
-    userId,
-    type,
-  }: {
-    taskId: string;
-    userId: string;
-    type: string;
-  }) => {
-    await createActivity(taskId, type, userId, "unassigned the task");
-  },
-);
-
-subscribeToEvent(
-  "task.status_changed",
-  async ({
-    taskId,
-    userId,
-    type,
-    oldStatus,
-    newStatus,
-  }: {
-    taskId: string;
-    userId: string;
-    type: string;
-    oldStatus: string;
-    newStatus: string;
-  }) => {
-    await createActivity(
-      taskId,
-      type,
-      userId,
-      `changed the status from ${toNormalCase(oldStatus)} to ${toNormalCase(newStatus)}`,
-    );
-  },
-);
-
-subscribeToEvent(
-  "task.priority_changed",
-  async ({
-    taskId,
-    userId,
-    type,
-    oldPriority,
-    newPriority,
-  }: {
-    taskId: string;
-    userId: string;
-    type: string;
-    oldPriority: string;
-    newPriority: string;
-  }) => {
-    await createActivity(
-      taskId,
-      type,
-      userId,
-      `changed the priority from ${oldPriority} to ${newPriority}`,
-    );
-  },
-);
-
-subscribeToEvent(
-  "task.due_date_changed",
-  async ({
-    taskId,
-    userId,
-    type,
-    newDueDate,
-  }: {
-    taskId: string;
-    userId: string;
-    type: string;
-    newDueDate: string;
-  }) => {
-    await createActivity(
-      taskId,
-      type,
-      userId,
-      `changed the due date to ${new Date(newDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
-    );
-  },
-);
 
 export default activity;
