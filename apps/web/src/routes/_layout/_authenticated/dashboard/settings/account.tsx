@@ -4,7 +4,7 @@ import {
   Outlet,
   useLocation,
 } from "@tanstack/react-router";
-import { Settings, User } from "lucide-react";
+import { Code, Settings, User } from "lucide-react";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/cn";
@@ -71,6 +71,27 @@ function RouteComponent() {
                     <span>{item.title}</span>
                   </Link>
                 ))}
+              </nav>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                Developer
+              </h3>
+              <nav className="space-y-0.5">
+                <Link
+                  to="/dashboard/settings/account/developer"
+                  className={cn(
+                    "flex items-center gap-2 px-2 py-1.5 text-xs rounded-sm transition-colors",
+                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    location.pathname === "/dashboard/settings/account/developer"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  <Code className="h-3.5 w-3.5" />
+                  <span>API Keys</span>
+                </Link>
               </nav>
             </div>
           </div>
