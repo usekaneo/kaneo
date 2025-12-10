@@ -1,0 +1,54 @@
+---
+title: The compose.yml file
+description: The Docker Compose file is used to start the required services.
+---
+
+## The initial compose file
+
+The first step is to create a Docker Compose file. We will call it `compose.yml`.
+
+```yml
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  api:
+    image: ghcr.io/usekaneo/api:latest
+    ports:
+      - "1337:1337"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/usekaneo/web:latest
+    ports:
+      - "5173:5173"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+```
+
+## The services and volumes
+
+Kaneo utilities the following services:
+
+- `postgres`: The PostgreSQL database.
+- `api`: The API server.
+- `web`: The web application.
+
+Additionally, the following volumes are used:
+
+- `postgres_data`: The PostgreSQL data.
+
+After creating the compose file, the next step is to set up the environment variables.

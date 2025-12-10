@@ -1,0 +1,6 @@
+{
+	"title": "Reverse Proxy",
+	"icon": "Server",
+	"pages": ["index", "nginx", "traefik"],
+	"defaultOpen": true
+}
