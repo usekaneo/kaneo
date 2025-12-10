@@ -7,6 +7,7 @@ import {
   multiple,
 } from "fumadocs-core/source";
 import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
+import { openapiPlugin } from "fumadocs-openapi/server";
 
 export const source = loader(
   multiple({
@@ -14,7 +15,7 @@ export const source = loader(
   }),
   {
     baseUrl: "/docs",
-    plugins: [pageTreeCodeTitles(), lucideIconsPlugin()],
+    plugins: [pageTreeCodeTitles(), lucideIconsPlugin(), openapiPlugin()],
   },
 );
 
