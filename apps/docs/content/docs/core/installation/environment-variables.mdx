@@ -12,8 +12,10 @@ The variables are split up into the following sections:
 - [General URLs](#general-urls)
 - [Database](#database)
 - [Authentication](#authentication)
+- [Access Control](#access-control)
 - [GitHub SSO & Integration](#github-sso-&-integration)
 - [Google SSO](#google-sso)
+- [Discord SSO](#discord-sso)
 - [Custom OAuth/OIDC](#custom-oauth-oidc)
 - [SMTP Configuration](#smtp-configuration)
 
@@ -50,6 +52,12 @@ Name | Description |
 
 ## Optional variables
 
+### Access Control
+
+Name | Description | Default |
+--- | --- | --- |
+| `DISABLE_GUEST_ACCESS` | Disable anonymous/guest sign-in. When set to `true`, the guest access button will not be shown on sign-in and sign-up pages. | `false` |
+
 ### GitHub SSO & Integration
 
 Name | Description |
@@ -66,6 +74,13 @@ Name | Description |
 --- | --- |
 | `GOOGLE_CLIENT_ID` | The Google client ID.
 | `GOOGLE_CLIENT_SECRET` | The Google client secret.
+
+### Discord SSO
+
+Name | Description |
+--- | --- |
+| `DISCORD_CLIENT_ID` | The Discord client ID.
+| `DISCORD_CLIENT_SECRET` | The Discord client secret.
 
 ### Custom OAuth/OIDC
 
@@ -97,5 +112,6 @@ Name | Description |
 
 - If you enable GitHub SSO, you need to set up the GitHub app which is used to authenticate users in the [GitHub Developer Settings](https://github.com/settings/developers). See the [GitHub SSO guide](/docs/social-providers/github).
 - If you enable Google SSO, you need to set up the Google app which is used to authenticate users in the [Google Cloud Console](https://console.cloud.google.com/). See the [Google SSO guide](/docs/social-providers/google).
+- If you enable Discord SSO, you need to set up the Discord application which is used to authenticate users in the [Discord Developer Portal](https://discord.com/developers/applications). See the [Discord SSO guide](/docs/social-providers/discord).
 - If you enable Custom OAuth/OIDC, you need to configure your identity provider with the appropriate redirect URI. See the [Custom OAuth/OIDC guide](/docs/social-providers/custom-oauth).
 - If you have enabled SMTP, your sign in will be done via email using a magic link.
