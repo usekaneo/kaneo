@@ -1,0 +1,1735 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "Kaneo API",
+		"description": "Kaneo Project Management API - Manage projects, tasks, labels, and more",
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "http://localhost:1337/api",
+			"description": "Kaneo API Server"
+		}
+	],
+	"components": {
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"description": "API Key authentication"
+			}
+		}
+	},
+	"security": [
+		{
+			"bearerAuth": []
+		}
+	],
+	"paths": {
+		"/github-integration/app-info": {
+			"get": {
+				"operationId": "getGitHubAppInfo",
+				"tags": ["GitHub"],
+				"description": "Get GitHub app configuration information",
+				"responses": {
+					"200": {
+						"description": "GitHub app information",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/github-integration/repositories": {
+			"get": {
+				"operationId": "listGitHubRepositories",
+				"tags": ["GitHub"],
+				"description": "List all accessible GitHub repositories",
+				"responses": {
+					"200": {
+						"description": "List of repositories",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/github-integration/verify": {
+			"post": {
+				"operationId": "verifyGitHubInstallation",
+				"tags": ["GitHub"],
+				"description": "Verify GitHub app installation for a repository",
+				"responses": {
+					"200": {
+						"description": "Verification result",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"repositoryOwner": {
+										"type": "string"
+									},
+									"repositoryName": {
+										"type": "string"
+									}
+								},
+								"required": ["repositoryOwner", "repositoryName"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/github-integration/project/{projectId}": {
+			"get": {
+				"operationId": "getGitHubIntegration",
+				"tags": ["GitHub"],
+				"description": "Get GitHub integration for a project",
+				"responses": {
+					"200": {
+						"description": "GitHub integration details",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			},
+			"post": {
+				"operationId": "createGitHubIntegration",
+				"tags": ["GitHub"],
+				"description": "Create a new GitHub integration for a project",
+				"responses": {
+					"200": {
+						"description": "Integration created successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"repositoryOwner": {
+										"type": "string"
+									},
+									"repositoryName": {
+										"type": "string"
+									}
+								},
+								"required": ["repositoryOwner", "repositoryName"]
+							}
+						}
+					}
+				}
+			},
+			"patch": {
+				"operationId": "updateGitHubIntegration",
+				"tags": ["GitHub"],
+				"description": "Update GitHub integration settings",
+				"responses": {
+					"200": {
+						"description": "Integration updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"404": {
+						"description": "Integration not found",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"isActive": {
+										"type": "boolean"
+									}
+								},
+								"required": []
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "deleteGitHubIntegration",
+				"tags": ["GitHub"],
+				"description": "Delete GitHub integration for a project",
+				"responses": {
+					"200": {
+						"description": "Integration deleted successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/github-integration/import-issues": {
+			"post": {
+				"operationId": "importGitHubIssues",
+				"tags": ["GitHub"],
+				"description": "Import GitHub issues as tasks",
+				"responses": {
+					"200": {
+						"description": "Issues imported successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"projectId": {
+										"type": "string"
+									}
+								},
+								"required": ["projectId"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/config": {
+			"get": {
+				"operationId": "getConfig",
+				"tags": ["Config"],
+				"description": "Get application settings and configuration",
+				"responses": {
+					"200": {
+						"description": "Application settings",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/project": {
+			"get": {
+				"operationId": "listProjects",
+				"tags": ["Projects"],
+				"description": "Get all projects in a workspace",
+				"responses": {
+					"200": {
+						"description": "List of projects with statistics",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {}
+								}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "query",
+						"name": "workspaceId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			},
+			"post": {
+				"operationId": "createProject",
+				"tags": ["Projects"],
+				"description": "Create a new project in a workspace",
+				"responses": {
+					"200": {
+						"description": "Project created successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"workspaceId": {
+										"type": "string"
+									},
+									"icon": {
+										"type": "string"
+									},
+									"slug": {
+										"type": "string"
+									}
+								},
+								"required": ["name", "workspaceId", "icon", "slug"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/project/{id}": {
+			"get": {
+				"operationId": "getProject",
+				"tags": ["Projects"],
+				"description": "Get a specific project by ID",
+				"responses": {
+					"200": {
+						"description": "Project details",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					},
+					{
+						"in": "query",
+						"name": "workspaceId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			},
+			"put": {
+				"operationId": "updateProject",
+				"tags": ["Projects"],
+				"description": "Update an existing project",
+				"responses": {
+					"200": {
+						"description": "Project updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"icon": {
+										"type": "string"
+									},
+									"slug": {
+										"type": "string"
+									},
+									"description": {
+										"type": "string"
+									},
+									"isPublic": {
+										"type": "boolean"
+									}
+								},
+								"required": ["name", "icon", "slug", "description", "isPublic"]
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "deleteProject",
+				"tags": ["Projects"],
+				"description": "Delete a project by ID",
+				"responses": {
+					"200": {
+						"description": "Project deleted successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/task/tasks/{projectId}": {
+			"get": {
+				"operationId": "listTasks",
+				"tags": ["Tasks"],
+				"description": "Get all tasks for a specific project",
+				"responses": {
+					"200": {
+						"description": "Project with tasks organized by columns",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/task/{projectId}": {
+			"post": {
+				"operationId": "createTask",
+				"tags": ["Tasks"],
+				"description": "Create a new task in a project",
+				"responses": {
+					"200": {
+						"description": "Task created successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"title": {
+										"type": "string"
+									},
+									"description": {
+										"type": "string"
+									},
+									"dueDate": {
+										"type": "string"
+									},
+									"priority": {
+										"type": "string"
+									},
+									"status": {
+										"type": "string"
+									},
+									"userId": {
+										"type": "string"
+									}
+								},
+								"required": ["title", "description", "priority", "status"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/task/{id}": {
+			"get": {
+				"operationId": "getTask",
+				"tags": ["Tasks"],
+				"description": "Get a specific task by ID",
+				"responses": {
+					"200": {
+						"description": "Task details",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			},
+			"put": {
+				"operationId": "updateTask",
+				"tags": ["Tasks"],
+				"description": "Update all fields of a task",
+				"responses": {
+					"200": {
+						"description": "Task updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"title": {
+										"type": "string"
+									},
+									"description": {
+										"type": "string"
+									},
+									"dueDate": {
+										"type": "string"
+									},
+									"priority": {
+										"type": "string"
+									},
+									"status": {
+										"type": "string"
+									},
+									"projectId": {
+										"type": "string"
+									},
+									"position": {
+										"type": "number"
+									},
+									"userId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"title",
+									"description",
+									"priority",
+									"status",
+									"projectId",
+									"position"
+								]
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "deleteTask",
+				"tags": ["Tasks"],
+				"description": "Delete a task by ID",
+				"responses": {
+					"200": {
+						"description": "Task deleted successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/task/export/{projectId}": {
+			"get": {
+				"operationId": "exportTasks",
+				"tags": ["Tasks"],
+				"description": "Export all tasks from a project",
+				"responses": {
+					"200": {
+						"description": "Exported tasks data",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/task/import/{projectId}": {
+			"post": {
+				"operationId": "importTasks",
+				"tags": ["Tasks"],
+				"description": "Import multiple tasks into a project",
+				"responses": {
+					"200": {
+						"description": "Tasks imported successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"tasks": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"title": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												},
+												"status": {
+													"type": "string"
+												},
+												"priority": {
+													"type": "string"
+												},
+												"dueDate": {
+													"type": "string"
+												},
+												"userId": {
+													"anyOf": [
+														{
+															"type": "string"
+														},
+														{
+															"type": "null"
+														}
+													]
+												}
+											},
+											"required": ["title", "status", "userId"]
+										}
+									}
+								},
+								"required": ["tasks"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/task/status/{id}": {
+			"put": {
+				"operationId": "updateTaskStatus",
+				"tags": ["Tasks"],
+				"description": "Update only the status of a task",
+				"responses": {
+					"200": {
+						"description": "Task status updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"status": {
+										"type": "string"
+									}
+								},
+								"required": ["status"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/task/priority/{id}": {
+			"put": {
+				"operationId": "updateTaskPriority",
+				"tags": ["Tasks"],
+				"description": "Update only the priority of a task",
+				"responses": {
+					"200": {
+						"description": "Task priority updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"priority": {
+										"type": "string"
+									}
+								},
+								"required": ["priority"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/task/assignee/{id}": {
+			"put": {
+				"operationId": "updateTaskAssignee",
+				"tags": ["Tasks"],
+				"description": "Assign or unassign a task to a user",
+				"responses": {
+					"200": {
+						"description": "Task assignee updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"userId": {
+										"type": "string"
+									}
+								},
+								"required": ["userId"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/task/due-date/{id}": {
+			"put": {
+				"operationId": "updateTaskDueDate",
+				"tags": ["Tasks"],
+				"description": "Update only the due date of a task",
+				"responses": {
+					"200": {
+						"description": "Task due date updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"dueDate": {
+										"type": "string"
+									}
+								},
+								"required": ["dueDate"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/task/title/{id}": {
+			"put": {
+				"operationId": "updateTaskTitle",
+				"tags": ["Tasks"],
+				"description": "Update only the title of a task",
+				"responses": {
+					"200": {
+						"description": "Task title updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"title": {
+										"type": "string"
+									}
+								},
+								"required": ["title"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/task/description/{id}": {
+			"put": {
+				"operationId": "updateTaskDescription",
+				"tags": ["Tasks"],
+				"description": "Update only the description of a task",
+				"responses": {
+					"200": {
+						"description": "Task description updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"description": {
+										"type": "string"
+									}
+								},
+								"required": ["description"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/activity/{taskId}": {
+			"get": {
+				"operationId": "getActivities",
+				"tags": ["Activity"],
+				"description": "Get all activities for a specific task",
+				"responses": {
+					"200": {
+						"description": "List of activities for the task",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {}
+								}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "taskId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/activity/create": {
+			"post": {
+				"operationId": "createActivity",
+				"tags": ["Activity"],
+				"description": "Create a new activity (system-generated event)",
+				"responses": {
+					"200": {
+						"description": "Activity created successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"taskId": {
+										"type": "string"
+									},
+									"userId": {
+										"type": "string"
+									},
+									"message": {
+										"type": "string"
+									},
+									"type": {
+										"type": "string"
+									}
+								},
+								"required": ["taskId", "userId", "message", "type"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/activity/comment": {
+			"post": {
+				"operationId": "createComment",
+				"tags": ["Activity"],
+				"description": "Create a new comment on a task",
+				"responses": {
+					"200": {
+						"description": "Comment created successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"taskId": {
+										"type": "string"
+									},
+									"comment": {
+										"type": "string"
+									}
+								},
+								"required": ["taskId", "comment"]
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"operationId": "updateComment",
+				"tags": ["Activity"],
+				"description": "Update an existing comment",
+				"responses": {
+					"200": {
+						"description": "Comment updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"activityId": {
+										"type": "string"
+									},
+									"comment": {
+										"type": "string"
+									}
+								},
+								"required": ["activityId", "comment"]
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "deleteComment",
+				"tags": ["Activity"],
+				"description": "Delete a comment",
+				"responses": {
+					"200": {
+						"description": "Comment deleted successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"activityId": {
+										"type": "string"
+									}
+								},
+								"required": ["activityId"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/time-entry/task/{taskId}": {
+			"get": {
+				"operationId": "getTaskTimeEntries",
+				"tags": ["Time Entries"],
+				"description": "Get all time entries for a specific task",
+				"responses": {
+					"200": {
+						"description": "List of time entries for the task",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {}
+								}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "taskId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/time-entry/{id}": {
+			"get": {
+				"operationId": "getTimeEntry",
+				"tags": ["Time Entries"],
+				"description": "Get a specific time entry by ID",
+				"responses": {
+					"200": {
+						"description": "Time entry details",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			},
+			"put": {
+				"operationId": "updateTimeEntry",
+				"tags": ["Time Entries"],
+				"description": "Update an existing time entry",
+				"responses": {
+					"200": {
+						"description": "Time entry updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"startTime": {
+										"type": "string"
+									},
+									"endTime": {
+										"type": "string"
+									}
+								},
+								"required": ["startTime"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/time-entry": {
+			"post": {
+				"operationId": "createTimeEntry",
+				"tags": ["Time Entries"],
+				"description": "Create a new time entry for a task",
+				"responses": {
+					"200": {
+						"description": "Time entry created successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"taskId": {
+										"type": "string"
+									},
+									"startTime": {
+										"type": "string"
+									},
+									"endTime": {
+										"type": "string"
+									},
+									"description": {
+										"type": "string"
+									}
+								},
+								"required": ["taskId", "startTime"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/label/task/{taskId}": {
+			"get": {
+				"operationId": "getTaskLabels",
+				"tags": ["Labels"],
+				"description": "Get all labels assigned to a specific task",
+				"responses": {
+					"200": {
+						"description": "List of labels for the task",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {}
+								}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "taskId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/label/workspace/{workspaceId}": {
+			"get": {
+				"operationId": "getWorkspaceLabels",
+				"tags": ["Labels"],
+				"description": "Get all labels for a specific workspace",
+				"responses": {
+					"200": {
+						"description": "List of labels in the workspace",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {}
+								}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "workspaceId",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/label": {
+			"post": {
+				"operationId": "createLabel",
+				"tags": ["Labels"],
+				"description": "Create a new label in a workspace",
+				"responses": {
+					"200": {
+						"description": "Label created successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"color": {
+										"type": "string"
+									},
+									"workspaceId": {
+										"type": "string"
+									},
+									"description": {
+										"type": "string"
+									}
+								},
+								"required": ["name", "color", "workspaceId"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/label/{id}": {
+			"get": {
+				"operationId": "getLabel",
+				"tags": ["Labels"],
+				"description": "Get a specific label by ID",
+				"responses": {
+					"200": {
+						"description": "Label details",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			},
+			"put": {
+				"operationId": "updateLabel",
+				"tags": ["Labels"],
+				"description": "Update an existing label",
+				"responses": {
+					"200": {
+						"description": "Label updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"color": {
+										"type": "string"
+									},
+									"description": {
+										"type": "string"
+									}
+								},
+								"required": ["name", "color"]
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "deleteLabel",
+				"tags": ["Labels"],
+				"description": "Delete a label by ID",
+				"responses": {
+					"200": {
+						"description": "Label deleted successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/notification": {
+			"get": {
+				"operationId": "listNotifications",
+				"tags": ["Notifications"],
+				"description": "Get all notifications for the current user",
+				"responses": {
+					"200": {
+						"description": "List of notifications",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {}
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "createNotification",
+				"tags": ["Notifications"],
+				"description": "Create a new notification for a user",
+				"responses": {
+					"200": {
+						"description": "Notification created successfully",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"userId": {
+										"type": "string"
+									},
+									"title": {
+										"type": "string"
+									},
+									"message": {
+										"type": "string"
+									},
+									"type": {
+										"type": "string"
+									},
+									"relatedEntityId": {
+										"type": "string"
+									},
+									"relatedEntityType": {
+										"type": "string"
+									}
+								},
+								"required": ["userId", "title", "message", "type"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/notification/{id}/read": {
+			"patch": {
+				"operationId": "markNotificationAsRead",
+				"tags": ["Notifications"],
+				"description": "Mark a specific notification as read",
+				"responses": {
+					"200": {
+						"description": "Notification marked as read",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					}
+				]
+			}
+		},
+		"/notification/read-all": {
+			"patch": {
+				"operationId": "markAllNotificationsAsRead",
+				"tags": ["Notifications"],
+				"description": "Mark all notifications as read for the current user",
+				"responses": {
+					"200": {
+						"description": "All notifications marked as read",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/notification/clear-all": {
+			"delete": {
+				"operationId": "clearAllNotifications",
+				"tags": ["Notifications"],
+				"description": "Clear all notifications for the current user",
+				"responses": {
+					"200": {
+						"description": "All notifications cleared",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/search": {
+			"get": {
+				"operationId": "globalSearch",
+				"tags": ["Search"],
+				"description": "Search across tasks, projects, workspaces, comments, and activities",
+				"responses": {
+					"200": {
+						"description": "Search results",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"parameters": [
+					{
+						"in": "query",
+						"name": "q",
+						"schema": {
+							"type": "string"
+						},
+						"required": true
+					},
+					{
+						"in": "query",
+						"name": "type",
+						"schema": {
+							"enum": [
+								"all",
+								"tasks",
+								"projects",
+								"workspaces",
+								"comments",
+								"activities"
+							],
+							"default": "all"
+						}
+					},
+					{
+						"in": "query",
+						"name": "workspaceId",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "projectId",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"type": "number",
+							"default": "20"
+						}
+					},
+					{
+						"in": "query",
+						"name": "userEmail",
+						"schema": {
+							"type": "string",
+							"format": "email"
+						}
+					}
+				]
+			}
+		}
+	}
+}
