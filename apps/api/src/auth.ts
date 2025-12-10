@@ -97,12 +97,20 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     },
+    discord: {
+      clientId: process.env.DISCORD_CLIENT_ID || "",
+      clientSecret: process.env.DISCORD_CLIENT_SECRET || "",
+    },
   },
   plugins: [
-    anonymous({
-      generateName: async () => generateDemoName(),
-      emailDomainName: "kaneo.com",
-    }),
+    ...(process.env.DISABLE_GUEST_ACCESS !== "true"
+      ? [
+          anonymous({
+            generateName: async () => generateDemoName(),
+            emailDomainName: "kaneo.com",
+          }),
+        ]
+      : []),
     lastLoginMethod(),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
