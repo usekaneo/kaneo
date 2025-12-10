@@ -1,6 +1,0 @@
-{
-	"title": "Integrations",
-	"icon": "Plug",
-	"pages": ["github"],
-	"defaultOpen": false
-}
