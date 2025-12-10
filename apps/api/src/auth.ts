@@ -4,6 +4,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   anonymous,
+  apiKey,
   createAuthMiddleware,
   genericOAuth,
   lastLoginMethod,
@@ -71,6 +72,7 @@ export const auth = betterAuth({
       invitation: schema.invitationTable,
       team: schema.teamTable,
       teamMember: schema.teamMemberTable,
+      apikey: schema.apikeyTable,
     },
   }),
   emailAndPassword: {
@@ -195,6 +197,7 @@ export const auth = betterAuth({
         },
       ],
     }),
+    apiKey(),
   ],
   session: {
     cookieCache: {
