@@ -1,0 +1,17 @@
+{
+	"title": "API",
+	"description": "The API for Kaneo",
+	"root": true,
+	"pages": [
+		"getConfig",
+		"globalSearch",
+		"tasks",
+		"projects",
+		"labels",
+		"activities",
+		"comments",
+		"time-entries",
+		"notifications",
+		"github-integration"
+	]
+}
