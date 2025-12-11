@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { describeRoute, resolver } from "hono-openapi";
-import * as v from "valibot";
+import { configSchema } from "../schemas";
 import getSettings from "../utils/get-settings";
 
 const config = new Hono().get(
@@ -13,7 +13,7 @@ const config = new Hono().get(
       200: {
         description: "Application settings",
         content: {
-          "application/json": { schema: resolver(v.any()) },
+          "application/json": { schema: resolver(configSchema) },
         },
       },
     },
