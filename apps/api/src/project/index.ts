@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { projectSchema } from "../schemas";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
@@ -23,7 +24,7 @@ const project = new Hono<{
         200: {
           description: "List of projects with statistics",
           content: {
-            "application/json": { schema: resolver(v.array(v.any())) },
+            "application/json": { schema: resolver(v.array(projectSchema)) },
           },
         },
       },
@@ -47,7 +48,7 @@ const project = new Hono<{
         200: {
           description: "Project created successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(projectSchema) },
           },
         },
       },
@@ -79,7 +80,7 @@ const project = new Hono<{
         200: {
           description: "Project details",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(projectSchema) },
           },
         },
       },
@@ -103,7 +104,7 @@ const project = new Hono<{
         200: {
           description: "Project updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(projectSchema) },
           },
         },
       },
@@ -143,7 +144,7 @@ const project = new Hono<{
         200: {
           description: "Project deleted successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(projectSchema) },
           },
         },
       },

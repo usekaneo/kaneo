@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { activitySchema } from "../schemas";
 import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
@@ -22,7 +23,7 @@ const activity = new Hono<{
         200: {
           description: "List of activities for the task",
           content: {
-            "application/json": { schema: resolver(v.array(v.any())) },
+            "application/json": { schema: resolver(v.array(activitySchema)) },
           },
         },
       },
@@ -44,7 +45,7 @@ const activity = new Hono<{
         200: {
           description: "Activity created successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(activitySchema) },
           },
         },
       },
@@ -74,7 +75,7 @@ const activity = new Hono<{
         200: {
           description: "Comment created successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(activitySchema) },
           },
         },
       },
@@ -103,7 +104,7 @@ const activity = new Hono<{
         200: {
           description: "Comment updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(activitySchema) },
           },
         },
       },
@@ -131,7 +132,7 @@ const activity = new Hono<{
         200: {
           description: "Comment deleted successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(activitySchema) },
           },
         },
       },

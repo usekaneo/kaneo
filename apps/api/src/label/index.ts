@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { labelSchema } from "../schemas";
 import createLabel from "./controllers/create-label";
 import deleteLabel from "./controllers/delete-label";
 import getLabel from "./controllers/get-label";
@@ -19,7 +20,7 @@ const label = new Hono()
         200: {
           description: "List of labels for the task",
           content: {
-            "application/json": { schema: resolver(v.array(v.any())) },
+            "application/json": { schema: resolver(v.array(labelSchema)) },
           },
         },
       },
@@ -41,7 +42,7 @@ const label = new Hono()
         200: {
           description: "List of labels in the workspace",
           content: {
-            "application/json": { schema: resolver(v.array(v.any())) },
+            "application/json": { schema: resolver(v.array(labelSchema)) },
           },
         },
       },
@@ -63,7 +64,7 @@ const label = new Hono()
         200: {
           description: "Label created successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(labelSchema) },
           },
         },
       },
@@ -98,7 +99,7 @@ const label = new Hono()
         200: {
           description: "Label details",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(labelSchema) },
           },
         },
       },
@@ -120,7 +121,7 @@ const label = new Hono()
         200: {
           description: "Label updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(labelSchema) },
           },
         },
       },
@@ -151,7 +152,7 @@ const label = new Hono()
         200: {
           description: "Label deleted successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(labelSchema) },
           },
         },
       },

@@ -3,6 +3,7 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { auth } from "../auth";
 import { publishEvent } from "../events";
+import { taskSchema } from "../schemas";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
@@ -40,7 +41,9 @@ const task = new Hono<{
     validator("param", v.object({ projectId: v.string() })),
     async (c) => {
       const { projectId } = c.req.valid("param");
+
       const tasks = await getTasks(projectId);
+
       return c.json(tasks);
     },
   )
@@ -54,12 +57,11 @@ const task = new Hono<{
         200: {
           description: "Task created successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
     }),
-    validator("param", v.object({ projectId: v.string() })),
     validator(
       "json",
       v.object({
@@ -72,7 +74,7 @@ const task = new Hono<{
       }),
     ),
     async (c) => {
-      const { projectId } = c.req.valid("param");
+      const { projectId } = c.req.param();
       const { title, description, dueDate, priority, status, userId } =
         c.req.valid("json");
 
@@ -99,7 +101,7 @@ const task = new Hono<{
         200: {
           description: "Task details",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
@@ -107,7 +109,9 @@ const task = new Hono<{
     validator("param", v.object({ id: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
+
       const task = await getTask(id);
+
       return c.json(task);
     },
   )
@@ -121,7 +125,7 @@ const task = new Hono<{
         200: {
           description: "Task updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
@@ -198,7 +202,9 @@ const task = new Hono<{
     validator("param", v.object({ projectId: v.string() })),
     async (c) => {
       const { projectId } = c.req.valid("param");
+
       const exportData = await exportTasks(projectId);
+
       return c.json(exportData);
     },
   )
@@ -228,7 +234,7 @@ const task = new Hono<{
             status: v.string(),
             priority: v.optional(v.string()),
             dueDate: v.optional(v.string()),
-            userId: v.nullable(v.optional(v.string())),
+            userId: v.optional(v.nullable(v.string())),
           }),
         ),
       }),
@@ -236,7 +242,9 @@ const task = new Hono<{
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { tasks } = c.req.valid("json");
+
       const result = await importTasks(projectId, tasks);
+
       return c.json(result);
     },
   )
@@ -250,7 +258,7 @@ const task = new Hono<{
         200: {
           description: "Task deleted successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
@@ -258,7 +266,9 @@ const task = new Hono<{
     validator("param", v.object({ id: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
+
       const task = await deleteTask(id);
+
       return c.json(task);
     },
   )
@@ -272,7 +282,7 @@ const task = new Hono<{
         200: {
           description: "Task status updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
@@ -308,7 +318,7 @@ const task = new Hono<{
         200: {
           description: "Task priority updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
@@ -344,7 +354,7 @@ const task = new Hono<{
         200: {
           description: "Task assignee updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
@@ -398,7 +408,7 @@ const task = new Hono<{
         200: {
           description: "Task due date updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
@@ -424,6 +434,7 @@ const task = new Hono<{
       return c.json(task);
     },
   )
+
   .put(
     "/title/:id",
     describeRoute({
@@ -434,7 +445,7 @@ const task = new Hono<{
         200: {
           description: "Task title updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },
@@ -460,6 +471,7 @@ const task = new Hono<{
       return c.json(task);
     },
   )
+
   .put(
     "/description/:id",
     describeRoute({
@@ -470,7 +482,7 @@ const task = new Hono<{
         200: {
           description: "Task description updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(taskSchema) },
           },
         },
       },

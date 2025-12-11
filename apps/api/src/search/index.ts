@@ -2,6 +2,25 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import globalSearch from "./controllers/global-search";
+import { taskSchema, projectSchema, activitySchema } from "../schemas";
+
+const workspaceSchema = v.object({
+  id: v.string(),
+  name: v.string(),
+  slug: v.string(),
+  logo: v.nullable(v.string()),
+  metadata: v.nullable(v.string()),
+  description: v.nullable(v.string()),
+  createdAt: v.date(),
+});
+
+const searchResultSchema = v.object({
+  tasks: v.optional(v.array(taskSchema)),
+  projects: v.optional(v.array(projectSchema)),
+  workspaces: v.optional(v.array(workspaceSchema)),
+  comments: v.optional(v.array(activitySchema)),
+  activities: v.optional(v.array(activitySchema)),
+});
 
 const search = new Hono<{
   Variables: {
@@ -18,7 +37,7 @@ const search = new Hono<{
       200: {
         description: "Search results",
         content: {
-          "application/json": { schema: resolver(v.any()) },
+          "application/json": { schema: resolver(searchResultSchema) },
         },
       },
     },

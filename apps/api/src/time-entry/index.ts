@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { timeEntrySchema } from "../schemas";
 import createTimeEntry from "./controllers/create-time-entry";
 import getTimeEntriesByTaskId from "./controllers/get-time-entries";
 import getTimeEntry from "./controllers/get-time-entry";
@@ -21,7 +22,7 @@ const timeEntry = new Hono<{
         200: {
           description: "List of time entries for the task",
           content: {
-            "application/json": { schema: resolver(v.array(v.any())) },
+            "application/json": { schema: resolver(v.array(timeEntrySchema)) },
           },
         },
       },
@@ -43,7 +44,7 @@ const timeEntry = new Hono<{
         200: {
           description: "Time entry details",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(timeEntrySchema) },
           },
         },
       },
@@ -65,7 +66,7 @@ const timeEntry = new Hono<{
         200: {
           description: "Time entry created successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(timeEntrySchema) },
           },
         },
       },
@@ -102,7 +103,7 @@ const timeEntry = new Hono<{
         200: {
           description: "Time entry updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(timeEntrySchema) },
           },
         },
       },

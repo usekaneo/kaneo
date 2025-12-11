@@ -5,6 +5,7 @@ import * as v from "valibot";
 import db from "../database";
 import { githubIntegrationTable } from "../database/schema";
 import { subscribeToEvent } from "../events";
+import { githubIntegrationSchema } from "../schemas";
 import createGithubIntegration from "./controllers/create-github-integration";
 import deleteGithubIntegration from "./controllers/delete-github-integration";
 import getGithubIntegration from "./controllers/get-github-integration";
@@ -17,6 +18,32 @@ import { handleIssueOpened } from "./utils/issue-opened";
 import { handleTaskCreated } from "./utils/task-created";
 import { handleTaskPriorityChanged } from "./utils/task-priority-changed";
 import { handleTaskStatusChanged } from "./utils/task-status-changed";
+
+const githubAppInfoSchema = v.object({
+  appName: v.nullable(v.string()),
+});
+
+const githubRepositorySchema = v.object({
+  id: v.number(),
+  name: v.string(),
+  full_name: v.string(),
+  owner: v.object({
+    login: v.string(),
+  }),
+  private: v.boolean(),
+  html_url: v.string(),
+});
+
+const verificationResultSchema = v.object({
+  installed: v.boolean(),
+  message: v.optional(v.string()),
+});
+
+const importResultSchema = v.object({
+  imported: v.number(),
+  skipped: v.number(),
+  errors: v.optional(v.array(v.string())),
+});
 
 const githubApp = createGithubApp();
 
@@ -63,7 +90,7 @@ const githubIntegration = new Hono()
         200: {
           description: "GitHub app information",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(githubAppInfoSchema) },
           },
         },
       },
@@ -84,7 +111,9 @@ const githubIntegration = new Hono()
         200: {
           description: "List of repositories",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": {
+              schema: resolver(v.array(githubRepositorySchema)),
+            },
           },
         },
       },
@@ -104,7 +133,7 @@ const githubIntegration = new Hono()
         200: {
           description: "Verification result",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(verificationResultSchema) },
           },
         },
       },
@@ -112,8 +141,8 @@ const githubIntegration = new Hono()
     validator(
       "json",
       v.object({
-        repositoryOwner: v.string([v.minLength(1)]),
-        repositoryName: v.string([v.minLength(1)]),
+        repositoryOwner: v.pipe(v.string(), v.minLength(1)),
+        repositoryName: v.pipe(v.string(), v.minLength(1)),
       }),
     ),
     async (c) => {
@@ -137,7 +166,7 @@ const githubIntegration = new Hono()
         200: {
           description: "GitHub integration details",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(githubIntegrationSchema) },
           },
         },
       },
@@ -159,7 +188,7 @@ const githubIntegration = new Hono()
         200: {
           description: "Integration created successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(githubIntegrationSchema) },
           },
         },
       },
@@ -168,8 +197,8 @@ const githubIntegration = new Hono()
     validator(
       "json",
       v.object({
-        repositoryOwner: v.string([v.minLength(1)]),
-        repositoryName: v.string([v.minLength(1)]),
+        repositoryOwner: v.pipe(v.string(), v.minLength(1)),
+        repositoryName: v.pipe(v.string(), v.minLength(1)),
       }),
     ),
     async (c) => {
@@ -195,13 +224,15 @@ const githubIntegration = new Hono()
         200: {
           description: "Integration updated successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(githubIntegrationSchema) },
           },
         },
         404: {
           description: "Integration not found",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": {
+              schema: resolver(v.object({ error: v.string() })),
+            },
           },
         },
       },
@@ -246,7 +277,7 @@ const githubIntegration = new Hono()
         200: {
           description: "Integration deleted successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(githubIntegrationSchema) },
           },
         },
       },
@@ -268,7 +299,7 @@ const githubIntegration = new Hono()
         200: {
           description: "Issues imported successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(importResultSchema) },
           },
         },
       },

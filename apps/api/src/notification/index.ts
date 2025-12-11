@@ -1,11 +1,17 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { notificationSchema } from "../schemas";
 import clearNotifications from "./controllers/clear-notifications";
 import createNotification from "./controllers/create-notification";
 import getNotifications from "./controllers/get-notifications";
 import markAllNotificationsAsRead from "./controllers/mark-all-notifications-as-read";
 import markAsRead from "./controllers/mark-notification-as-read";
+
+const bulkResultSchema = v.object({
+  success: v.boolean(),
+  count: v.optional(v.number()),
+});
 
 const notification = new Hono<{
   Variables: {
@@ -22,7 +28,9 @@ const notification = new Hono<{
         200: {
           description: "List of notifications",
           content: {
-            "application/json": { schema: resolver(v.array(v.any())) },
+            "application/json": {
+              schema: resolver(v.array(notificationSchema)),
+            },
           },
         },
       },
@@ -43,7 +51,7 @@ const notification = new Hono<{
         200: {
           description: "Notification created successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(notificationSchema) },
           },
         },
       },
@@ -89,7 +97,7 @@ const notification = new Hono<{
         200: {
           description: "Notification marked as read",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(notificationSchema) },
           },
         },
       },
@@ -111,7 +119,7 @@ const notification = new Hono<{
         200: {
           description: "All notifications marked as read",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(bulkResultSchema) },
           },
         },
       },
@@ -132,7 +140,7 @@ const notification = new Hono<{
         200: {
           description: "All notifications cleared",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": { schema: resolver(bulkResultSchema) },
           },
         },
       },
