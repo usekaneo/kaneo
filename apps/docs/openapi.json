@@ -6,10 +6,7 @@
 		"version": "1.0.0"
 	},
 	"servers": [
-		{
-			"url": "http://localhost:1337/api",
-			"description": "Kaneo API Server"
-		}
+		{ "url": "http://cloud.kaneo.app/api", "description": "Kaneo API Server" }
 	],
 	"components": {
 		"securitySchemes": {
@@ -20,11 +17,7 @@
 			}
 		}
 	},
-	"security": [
-		{
-			"bearerAuth": []
-		}
-	],
+	"security": [{ "bearerAuth": [] }],
 	"paths": {
 		"/github-integration/app-info": {
 			"get": {
@@ -36,7 +29,15 @@
 						"description": "GitHub app information",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"appName": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": ["appName"]
+								}
 							}
 						}
 					}
@@ -53,7 +54,32 @@
 						"description": "List of repositories",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": { "type": "number" },
+											"name": { "type": "string" },
+											"full_name": { "type": "string" },
+											"owner": {
+												"type": "object",
+												"properties": { "login": { "type": "string" } },
+												"required": ["login"]
+											},
+											"private": { "type": "boolean" },
+											"html_url": { "type": "string" }
+										},
+										"required": [
+											"id",
+											"name",
+											"full_name",
+											"owner",
+											"private",
+											"html_url"
+										]
+									}
+								}
 							}
 						}
 					}
@@ -70,7 +96,14 @@
 						"description": "Verification result",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"installed": { "type": "boolean" },
+										"message": { "type": "string" }
+									},
+									"required": ["installed"]
+								}
 							}
 						}
 					}
@@ -81,12 +114,8 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"repositoryOwner": {
-										"type": "string"
-									},
-									"repositoryName": {
-										"type": "string"
-									}
+									"repositoryOwner": { "type": "string", "minLength": 1 },
+									"repositoryName": { "type": "string", "minLength": 1 }
 								},
 								"required": ["repositoryOwner", "repositoryName"]
 							}
@@ -105,7 +134,31 @@
 						"description": "GitHub integration details",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"repositoryOwner": { "type": "string" },
+										"repositoryName": { "type": "string" },
+										"installationId": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"isActive": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"repositoryOwner",
+										"repositoryName",
+										"installationId",
+										"isActive",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -114,9 +167,7 @@
 					{
 						"in": "path",
 						"name": "projectId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -130,7 +181,31 @@
 						"description": "Integration created successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"repositoryOwner": { "type": "string" },
+										"repositoryName": { "type": "string" },
+										"installationId": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"isActive": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"repositoryOwner",
+										"repositoryName",
+										"installationId",
+										"isActive",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -139,9 +214,7 @@
 					{
 						"in": "path",
 						"name": "projectId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -151,12 +224,8 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"repositoryOwner": {
-										"type": "string"
-									},
-									"repositoryName": {
-										"type": "string"
-									}
+									"repositoryOwner": { "type": "string", "minLength": 1 },
+									"repositoryName": { "type": "string", "minLength": 1 }
 								},
 								"required": ["repositoryOwner", "repositoryName"]
 							}
@@ -173,7 +242,31 @@
 						"description": "Integration updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"repositoryOwner": { "type": "string" },
+										"repositoryName": { "type": "string" },
+										"installationId": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"isActive": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"repositoryOwner",
+										"repositoryName",
+										"installationId",
+										"isActive",
+										"createdAt"
+									]
+								}
 							}
 						}
 					},
@@ -181,7 +274,11 @@
 						"description": "Integration not found",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": { "error": { "type": "string" } },
+									"required": ["error"]
+								}
 							}
 						}
 					}
@@ -190,9 +287,7 @@
 					{
 						"in": "path",
 						"name": "projectId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -201,11 +296,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"isActive": {
-										"type": "boolean"
-									}
-								},
+								"properties": { "isActive": { "type": "boolean" } },
 								"required": []
 							}
 						}
@@ -221,7 +312,31 @@
 						"description": "Integration deleted successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"repositoryOwner": { "type": "string" },
+										"repositoryName": { "type": "string" },
+										"installationId": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"isActive": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"repositoryOwner",
+										"repositoryName",
+										"installationId",
+										"isActive",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -230,9 +345,7 @@
 					{
 						"in": "path",
 						"name": "projectId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -248,7 +361,15 @@
 						"description": "Issues imported successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"imported": { "type": "number" },
+										"skipped": { "type": "number" },
+										"errors": { "type": "array", "items": { "type": "string" } }
+									},
+									"required": ["imported", "skipped"]
+								}
 							}
 						}
 					}
@@ -258,11 +379,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"projectId": {
-										"type": "string"
-									}
-								},
+								"properties": { "projectId": { "type": "string" } },
 								"required": ["projectId"]
 							}
 						}
@@ -280,7 +397,33 @@
 						"description": "Application settings",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"disableRegistration": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"isDemoMode": { "type": "boolean" },
+										"hasSmtp": { "type": "boolean" },
+										"hasGithubSignIn": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"hasGoogleSignIn": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"hasCustomOAuth": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"disableRegistration",
+										"isDemoMode",
+										"hasSmtp",
+										"hasGithubSignIn",
+										"hasGoogleSignIn",
+										"hasCustomOAuth"
+									]
+								}
 							}
 						}
 					}
@@ -299,7 +442,35 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {}
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": { "type": "string" },
+											"workspaceId": { "type": "string" },
+											"slug": { "type": "string" },
+											"icon": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"name": { "type": "string" },
+											"description": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"createdAt": {},
+											"isPublic": {
+												"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+											}
+										},
+										"required": [
+											"id",
+											"workspaceId",
+											"slug",
+											"icon",
+											"name",
+											"description",
+											"createdAt",
+											"isPublic"
+										]
+									}
 								}
 							}
 						}
@@ -309,9 +480,7 @@
 					{
 						"in": "query",
 						"name": "workspaceId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -325,7 +494,35 @@
 						"description": "Project created successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"workspaceId": { "type": "string" },
+										"slug": { "type": "string" },
+										"icon": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"name": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"createdAt": {},
+										"isPublic": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"workspaceId",
+										"slug",
+										"icon",
+										"name",
+										"description",
+										"createdAt",
+										"isPublic"
+									]
+								}
 							}
 						}
 					}
@@ -336,18 +533,10 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"name": {
-										"type": "string"
-									},
-									"workspaceId": {
-										"type": "string"
-									},
-									"icon": {
-										"type": "string"
-									},
-									"slug": {
-										"type": "string"
-									}
+									"name": { "type": "string" },
+									"workspaceId": { "type": "string" },
+									"icon": { "type": "string" },
+									"slug": { "type": "string" }
 								},
 								"required": ["name", "workspaceId", "icon", "slug"]
 							}
@@ -366,7 +555,35 @@
 						"description": "Project details",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"workspaceId": { "type": "string" },
+										"slug": { "type": "string" },
+										"icon": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"name": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"createdAt": {},
+										"isPublic": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"workspaceId",
+										"slug",
+										"icon",
+										"name",
+										"description",
+										"createdAt",
+										"isPublic"
+									]
+								}
 							}
 						}
 					}
@@ -375,17 +592,13 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					},
 					{
 						"in": "query",
 						"name": "workspaceId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -399,7 +612,35 @@
 						"description": "Project updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"workspaceId": { "type": "string" },
+										"slug": { "type": "string" },
+										"icon": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"name": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"createdAt": {},
+										"isPublic": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"workspaceId",
+										"slug",
+										"icon",
+										"name",
+										"description",
+										"createdAt",
+										"isPublic"
+									]
+								}
 							}
 						}
 					}
@@ -408,9 +649,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -420,21 +659,11 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"name": {
-										"type": "string"
-									},
-									"icon": {
-										"type": "string"
-									},
-									"slug": {
-										"type": "string"
-									},
-									"description": {
-										"type": "string"
-									},
-									"isPublic": {
-										"type": "boolean"
-									}
+									"name": { "type": "string" },
+									"icon": { "type": "string" },
+									"slug": { "type": "string" },
+									"description": { "type": "string" },
+									"isPublic": { "type": "boolean" }
 								},
 								"required": ["name", "icon", "slug", "description", "isPublic"]
 							}
@@ -451,7 +680,35 @@
 						"description": "Project deleted successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"workspaceId": { "type": "string" },
+										"slug": { "type": "string" },
+										"icon": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"name": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"createdAt": {},
+										"isPublic": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"workspaceId",
+										"slug",
+										"icon",
+										"name",
+										"description",
+										"createdAt",
+										"isPublic"
+									]
+								}
 							}
 						}
 					}
@@ -460,9 +717,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -476,20 +731,14 @@
 				"responses": {
 					"200": {
 						"description": "Project with tasks organized by columns",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
+						"content": { "application/json": { "schema": {} } }
 					}
 				},
 				"parameters": [
 					{
 						"in": "path",
 						"name": "projectId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -505,51 +754,75 @@
 						"description": "Task created successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
 				},
-				"parameters": [
-					{
-						"in": "path",
-						"name": "projectId",
-						"schema": {
-							"type": "string"
-						},
-						"required": true
-					}
-				],
 				"requestBody": {
 					"content": {
 						"application/json": {
 							"schema": {
 								"type": "object",
 								"properties": {
-									"title": {
-										"type": "string"
-									},
-									"description": {
-										"type": "string"
-									},
-									"dueDate": {
-										"type": "string"
-									},
-									"priority": {
-										"type": "string"
-									},
-									"status": {
-										"type": "string"
-									},
-									"userId": {
-										"type": "string"
-									}
+									"title": { "type": "string" },
+									"description": { "type": "string" },
+									"dueDate": { "type": "string" },
+									"priority": { "type": "string" },
+									"status": { "type": "string" },
+									"userId": { "type": "string" }
 								},
 								"required": ["title", "description", "priority", "status"]
 							}
 						}
 					}
-				}
+				},
+				"parameters": [
+					{
+						"schema": { "type": "string" },
+						"in": "path",
+						"name": "projectId",
+						"required": true
+					}
+				]
 			}
 		},
 		"/task/{id}": {
@@ -562,7 +835,45 @@
 						"description": "Task details",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -571,9 +882,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -587,7 +896,45 @@
 						"description": "Task updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -596,9 +943,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -608,30 +953,14 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"title": {
-										"type": "string"
-									},
-									"description": {
-										"type": "string"
-									},
-									"dueDate": {
-										"type": "string"
-									},
-									"priority": {
-										"type": "string"
-									},
-									"status": {
-										"type": "string"
-									},
-									"projectId": {
-										"type": "string"
-									},
-									"position": {
-										"type": "number"
-									},
-									"userId": {
-										"type": "string"
-									}
+									"title": { "type": "string" },
+									"description": { "type": "string" },
+									"dueDate": { "type": "string" },
+									"priority": { "type": "string" },
+									"status": { "type": "string" },
+									"projectId": { "type": "string" },
+									"position": { "type": "number" },
+									"userId": { "type": "string" }
 								},
 								"required": [
 									"title",
@@ -655,7 +984,45 @@
 						"description": "Task deleted successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -664,9 +1031,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -680,20 +1045,14 @@
 				"responses": {
 					"200": {
 						"description": "Exported tasks data",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
+						"content": { "application/json": { "schema": {} } }
 					}
 				},
 				"parameters": [
 					{
 						"in": "path",
 						"name": "projectId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -707,20 +1066,14 @@
 				"responses": {
 					"200": {
 						"description": "Tasks imported successfully",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
+						"content": { "application/json": { "schema": {} } }
 					}
 				},
 				"parameters": [
 					{
 						"in": "path",
 						"name": "projectId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -735,33 +1088,16 @@
 										"items": {
 											"type": "object",
 											"properties": {
-												"title": {
-													"type": "string"
-												},
-												"description": {
-													"type": "string"
-												},
-												"status": {
-													"type": "string"
-												},
-												"priority": {
-													"type": "string"
-												},
-												"dueDate": {
-													"type": "string"
-												},
+												"title": { "type": "string" },
+												"description": { "type": "string" },
+												"status": { "type": "string" },
+												"priority": { "type": "string" },
+												"dueDate": { "type": "string" },
 												"userId": {
-													"anyOf": [
-														{
-															"type": "string"
-														},
-														{
-															"type": "null"
-														}
-													]
+													"anyOf": [{ "type": "string" }, { "type": "null" }]
 												}
 											},
-											"required": ["title", "status", "userId"]
+											"required": ["title", "status"]
 										}
 									}
 								},
@@ -782,7 +1118,45 @@
 						"description": "Task status updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -791,9 +1165,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -802,11 +1174,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"status": {
-										"type": "string"
-									}
-								},
+								"properties": { "status": { "type": "string" } },
 								"required": ["status"]
 							}
 						}
@@ -824,7 +1192,45 @@
 						"description": "Task priority updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -833,9 +1239,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -844,11 +1248,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"priority": {
-										"type": "string"
-									}
-								},
+								"properties": { "priority": { "type": "string" } },
 								"required": ["priority"]
 							}
 						}
@@ -866,7 +1266,45 @@
 						"description": "Task assignee updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -875,9 +1313,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -886,11 +1322,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"userId": {
-										"type": "string"
-									}
-								},
+								"properties": { "userId": { "type": "string" } },
 								"required": ["userId"]
 							}
 						}
@@ -908,7 +1340,45 @@
 						"description": "Task due date updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -917,9 +1387,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -928,11 +1396,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"dueDate": {
-										"type": "string"
-									}
-								},
+								"properties": { "dueDate": { "type": "string" } },
 								"required": ["dueDate"]
 							}
 						}
@@ -950,7 +1414,45 @@
 						"description": "Task title updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -959,9 +1461,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -970,11 +1470,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"title": {
-										"type": "string"
-									}
-								},
+								"properties": { "title": { "type": "string" } },
 								"required": ["title"]
 							}
 						}
@@ -992,7 +1488,45 @@
 						"description": "Task description updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"projectId": { "type": "string" },
+										"position": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"number": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"title": { "type": "string" },
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": { "type": "string" },
+										"priority": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"dueDate": { "anyOf": [{}, { "type": "null" }] },
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"projectId",
+										"position",
+										"number",
+										"userId",
+										"title",
+										"description",
+										"status",
+										"priority",
+										"dueDate",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -1001,9 +1535,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -1012,11 +1544,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"description": {
-										"type": "string"
-									}
-								},
+								"properties": { "description": { "type": "string" } },
 								"required": ["description"]
 							}
 						}
@@ -1036,7 +1564,27 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {}
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": { "type": "string" },
+											"taskId": { "type": "string" },
+											"type": { "type": "string" },
+											"createdAt": {},
+											"userId": { "type": "string" },
+											"content": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											}
+										},
+										"required": [
+											"id",
+											"taskId",
+											"type",
+											"createdAt",
+											"userId",
+											"content"
+										]
+									}
 								}
 							}
 						}
@@ -1046,9 +1594,7 @@
 					{
 						"in": "path",
 						"name": "taskId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -1064,7 +1610,27 @@
 						"description": "Activity created successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"taskId": { "type": "string" },
+										"type": { "type": "string" },
+										"createdAt": {},
+										"userId": { "type": "string" },
+										"content": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"taskId",
+										"type",
+										"createdAt",
+										"userId",
+										"content"
+									]
+								}
 							}
 						}
 					}
@@ -1075,18 +1641,10 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"taskId": {
-										"type": "string"
-									},
-									"userId": {
-										"type": "string"
-									},
-									"message": {
-										"type": "string"
-									},
-									"type": {
-										"type": "string"
-									}
+									"taskId": { "type": "string" },
+									"userId": { "type": "string" },
+									"message": { "type": "string" },
+									"type": { "type": "string" }
 								},
 								"required": ["taskId", "userId", "message", "type"]
 							}
@@ -1105,7 +1663,27 @@
 						"description": "Comment created successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"taskId": { "type": "string" },
+										"type": { "type": "string" },
+										"createdAt": {},
+										"userId": { "type": "string" },
+										"content": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"taskId",
+										"type",
+										"createdAt",
+										"userId",
+										"content"
+									]
+								}
 							}
 						}
 					}
@@ -1116,12 +1694,8 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"taskId": {
-										"type": "string"
-									},
-									"comment": {
-										"type": "string"
-									}
+									"taskId": { "type": "string" },
+									"comment": { "type": "string" }
 								},
 								"required": ["taskId", "comment"]
 							}
@@ -1138,7 +1712,27 @@
 						"description": "Comment updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"taskId": { "type": "string" },
+										"type": { "type": "string" },
+										"createdAt": {},
+										"userId": { "type": "string" },
+										"content": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"taskId",
+										"type",
+										"createdAt",
+										"userId",
+										"content"
+									]
+								}
 							}
 						}
 					}
@@ -1149,12 +1743,8 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"activityId": {
-										"type": "string"
-									},
-									"comment": {
-										"type": "string"
-									}
+									"activityId": { "type": "string" },
+									"comment": { "type": "string" }
 								},
 								"required": ["activityId", "comment"]
 							}
@@ -1171,7 +1761,27 @@
 						"description": "Comment deleted successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"taskId": { "type": "string" },
+										"type": { "type": "string" },
+										"createdAt": {},
+										"userId": { "type": "string" },
+										"content": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"taskId",
+										"type",
+										"createdAt",
+										"userId",
+										"content"
+									]
+								}
 							}
 						}
 					}
@@ -1181,11 +1791,7 @@
 						"application/json": {
 							"schema": {
 								"type": "object",
-								"properties": {
-									"activityId": {
-										"type": "string"
-									}
-								},
+								"properties": { "activityId": { "type": "string" } },
 								"required": ["activityId"]
 							}
 						}
@@ -1205,7 +1811,35 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {}
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": { "type": "string" },
+											"taskId": { "type": "string" },
+											"userId": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"description": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"startTime": {},
+											"endTime": { "anyOf": [{}, { "type": "null" }] },
+											"duration": {
+												"anyOf": [{ "type": "number" }, { "type": "null" }]
+											},
+											"createdAt": {}
+										},
+										"required": [
+											"id",
+											"taskId",
+											"userId",
+											"description",
+											"startTime",
+											"endTime",
+											"duration",
+											"createdAt"
+										]
+									}
 								}
 							}
 						}
@@ -1215,9 +1849,7 @@
 					{
 						"in": "path",
 						"name": "taskId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -1233,7 +1865,35 @@
 						"description": "Time entry details",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"taskId": { "type": "string" },
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"startTime": {},
+										"endTime": { "anyOf": [{}, { "type": "null" }] },
+										"duration": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"taskId",
+										"userId",
+										"description",
+										"startTime",
+										"endTime",
+										"duration",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -1242,9 +1902,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -1258,7 +1916,35 @@
 						"description": "Time entry updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"taskId": { "type": "string" },
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"startTime": {},
+										"endTime": { "anyOf": [{}, { "type": "null" }] },
+										"duration": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"taskId",
+										"userId",
+										"description",
+										"startTime",
+										"endTime",
+										"duration",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -1267,9 +1953,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -1279,12 +1963,8 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"startTime": {
-										"type": "string"
-									},
-									"endTime": {
-										"type": "string"
-									}
+									"startTime": { "type": "string" },
+									"endTime": { "type": "string" }
 								},
 								"required": ["startTime"]
 							}
@@ -1303,7 +1983,35 @@
 						"description": "Time entry created successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"taskId": { "type": "string" },
+										"userId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"description": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"startTime": {},
+										"endTime": { "anyOf": [{}, { "type": "null" }] },
+										"duration": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"taskId",
+										"userId",
+										"description",
+										"startTime",
+										"endTime",
+										"duration",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -1314,18 +2022,10 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"taskId": {
-										"type": "string"
-									},
-									"startTime": {
-										"type": "string"
-									},
-									"endTime": {
-										"type": "string"
-									},
-									"description": {
-										"type": "string"
-									}
+									"taskId": { "type": "string" },
+									"startTime": { "type": "string" },
+									"endTime": { "type": "string" },
+									"description": { "type": "string" }
 								},
 								"required": ["taskId", "startTime"]
 							}
@@ -1346,7 +2046,29 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {}
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": { "type": "string" },
+											"name": { "type": "string" },
+											"color": { "type": "string" },
+											"createdAt": {},
+											"taskId": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"workspaceId": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											}
+										},
+										"required": [
+											"id",
+											"name",
+											"color",
+											"createdAt",
+											"taskId",
+											"workspaceId"
+										]
+									}
 								}
 							}
 						}
@@ -1356,9 +2078,7 @@
 					{
 						"in": "path",
 						"name": "taskId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -1376,7 +2096,29 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {}
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": { "type": "string" },
+											"name": { "type": "string" },
+											"color": { "type": "string" },
+											"createdAt": {},
+											"taskId": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"workspaceId": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											}
+										},
+										"required": [
+											"id",
+											"name",
+											"color",
+											"createdAt",
+											"taskId",
+											"workspaceId"
+										]
+									}
 								}
 							}
 						}
@@ -1386,9 +2128,7 @@
 					{
 						"in": "path",
 						"name": "workspaceId",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -1404,7 +2144,29 @@
 						"description": "Label created successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"name": { "type": "string" },
+										"color": { "type": "string" },
+										"createdAt": {},
+										"taskId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"workspaceId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"name",
+										"color",
+										"createdAt",
+										"taskId",
+										"workspaceId"
+									]
+								}
 							}
 						}
 					}
@@ -1415,18 +2177,10 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"name": {
-										"type": "string"
-									},
-									"color": {
-										"type": "string"
-									},
-									"workspaceId": {
-										"type": "string"
-									},
-									"description": {
-										"type": "string"
-									}
+									"name": { "type": "string" },
+									"color": { "type": "string" },
+									"workspaceId": { "type": "string" },
+									"description": { "type": "string" }
 								},
 								"required": ["name", "color", "workspaceId"]
 							}
@@ -1445,7 +2199,29 @@
 						"description": "Label details",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"name": { "type": "string" },
+										"color": { "type": "string" },
+										"createdAt": {},
+										"taskId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"workspaceId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"name",
+										"color",
+										"createdAt",
+										"taskId",
+										"workspaceId"
+									]
+								}
 							}
 						}
 					}
@@ -1454,9 +2230,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -1470,7 +2244,29 @@
 						"description": "Label updated successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"name": { "type": "string" },
+										"color": { "type": "string" },
+										"createdAt": {},
+										"taskId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"workspaceId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"name",
+										"color",
+										"createdAt",
+										"taskId",
+										"workspaceId"
+									]
+								}
 							}
 						}
 					}
@@ -1479,9 +2275,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				],
@@ -1491,15 +2285,9 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"name": {
-										"type": "string"
-									},
-									"color": {
-										"type": "string"
-									},
-									"description": {
-										"type": "string"
-									}
+									"name": { "type": "string" },
+									"color": { "type": "string" },
+									"description": { "type": "string" }
 								},
 								"required": ["name", "color"]
 							}
@@ -1516,7 +2304,29 @@
 						"description": "Label deleted successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"name": { "type": "string" },
+										"color": { "type": "string" },
+										"createdAt": {},
+										"taskId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"workspaceId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										}
+									},
+									"required": [
+										"id",
+										"name",
+										"color",
+										"createdAt",
+										"taskId",
+										"workspaceId"
+									]
+								}
 							}
 						}
 					}
@@ -1525,9 +2335,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -1545,7 +2353,39 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {}
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": { "type": "string" },
+											"userId": { "type": "string" },
+											"title": { "type": "string" },
+											"content": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"type": { "type": "string" },
+											"isRead": {
+												"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+											},
+											"resourceId": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"resourceType": {
+												"anyOf": [{ "type": "string" }, { "type": "null" }]
+											},
+											"createdAt": {}
+										},
+										"required": [
+											"id",
+											"userId",
+											"title",
+											"content",
+											"type",
+											"isRead",
+											"resourceId",
+											"resourceType",
+											"createdAt"
+										]
+									}
 								}
 							}
 						}
@@ -1561,7 +2401,39 @@
 						"description": "Notification created successfully",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"userId": { "type": "string" },
+										"title": { "type": "string" },
+										"content": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"type": { "type": "string" },
+										"isRead": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"resourceId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"resourceType": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"userId",
+										"title",
+										"content",
+										"type",
+										"isRead",
+										"resourceId",
+										"resourceType",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -1572,24 +2444,12 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"userId": {
-										"type": "string"
-									},
-									"title": {
-										"type": "string"
-									},
-									"message": {
-										"type": "string"
-									},
-									"type": {
-										"type": "string"
-									},
-									"relatedEntityId": {
-										"type": "string"
-									},
-									"relatedEntityType": {
-										"type": "string"
-									}
+									"userId": { "type": "string" },
+									"title": { "type": "string" },
+									"message": { "type": "string" },
+									"type": { "type": "string" },
+									"relatedEntityId": { "type": "string" },
+									"relatedEntityType": { "type": "string" }
 								},
 								"required": ["userId", "title", "message", "type"]
 							}
@@ -1608,7 +2468,39 @@
 						"description": "Notification marked as read",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"id": { "type": "string" },
+										"userId": { "type": "string" },
+										"title": { "type": "string" },
+										"content": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"type": { "type": "string" },
+										"isRead": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"resourceId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"resourceType": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"createdAt": {}
+									},
+									"required": [
+										"id",
+										"userId",
+										"title",
+										"content",
+										"type",
+										"isRead",
+										"resourceId",
+										"resourceType",
+										"createdAt"
+									]
+								}
 							}
 						}
 					}
@@ -1617,9 +2509,7 @@
 					{
 						"in": "path",
 						"name": "id",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					}
 				]
@@ -1635,7 +2525,14 @@
 						"description": "All notifications marked as read",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": { "type": "boolean" },
+										"count": { "type": "number" }
+									},
+									"required": ["success"]
+								}
 							}
 						}
 					}
@@ -1652,7 +2549,14 @@
 						"description": "All notifications cleared",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": { "type": "boolean" },
+										"count": { "type": "number" }
+									},
+									"required": ["success"]
+								}
 							}
 						}
 					}
@@ -1669,7 +2573,164 @@
 						"description": "Search results",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "object",
+									"properties": {
+										"tasks": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": { "type": "string" },
+													"projectId": { "type": "string" },
+													"position": {
+														"anyOf": [{ "type": "number" }, { "type": "null" }]
+													},
+													"number": {
+														"anyOf": [{ "type": "number" }, { "type": "null" }]
+													},
+													"userId": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"title": { "type": "string" },
+													"description": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"status": { "type": "string" },
+													"priority": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"dueDate": { "anyOf": [{}, { "type": "null" }] },
+													"createdAt": {}
+												},
+												"required": [
+													"id",
+													"projectId",
+													"position",
+													"number",
+													"userId",
+													"title",
+													"description",
+													"status",
+													"priority",
+													"dueDate",
+													"createdAt"
+												]
+											}
+										},
+										"projects": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": { "type": "string" },
+													"workspaceId": { "type": "string" },
+													"slug": { "type": "string" },
+													"icon": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"name": { "type": "string" },
+													"description": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"createdAt": {},
+													"isPublic": {
+														"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+													}
+												},
+												"required": [
+													"id",
+													"workspaceId",
+													"slug",
+													"icon",
+													"name",
+													"description",
+													"createdAt",
+													"isPublic"
+												]
+											}
+										},
+										"workspaces": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": { "type": "string" },
+													"name": { "type": "string" },
+													"slug": { "type": "string" },
+													"logo": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"metadata": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"description": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"createdAt": {}
+												},
+												"required": [
+													"id",
+													"name",
+													"slug",
+													"logo",
+													"metadata",
+													"description",
+													"createdAt"
+												]
+											}
+										},
+										"comments": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": { "type": "string" },
+													"taskId": { "type": "string" },
+													"type": { "type": "string" },
+													"createdAt": {},
+													"userId": { "type": "string" },
+													"content": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													}
+												},
+												"required": [
+													"id",
+													"taskId",
+													"type",
+													"createdAt",
+													"userId",
+													"content"
+												]
+											}
+										},
+										"activities": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": { "type": "string" },
+													"taskId": { "type": "string" },
+													"type": { "type": "string" },
+													"createdAt": {},
+													"userId": { "type": "string" },
+													"content": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													}
+												},
+												"required": [
+													"id",
+													"taskId",
+													"type",
+													"createdAt",
+													"userId",
+													"content"
+												]
+											}
+										}
+									},
+									"required": []
+								}
 							}
 						}
 					}
@@ -1678,9 +2739,7 @@
 					{
 						"in": "query",
 						"name": "q",
-						"schema": {
-							"type": "string"
-						},
+						"schema": { "type": "string" },
 						"required": true
 					},
 					{
@@ -1701,32 +2760,22 @@
 					{
 						"in": "query",
 						"name": "workspaceId",
-						"schema": {
-							"type": "string"
-						}
+						"schema": { "type": "string" }
 					},
 					{
 						"in": "query",
 						"name": "projectId",
-						"schema": {
-							"type": "string"
-						}
+						"schema": { "type": "string" }
 					},
 					{
 						"in": "query",
 						"name": "limit",
-						"schema": {
-							"type": "number",
-							"default": "20"
-						}
+						"schema": { "type": "number", "default": "20" }
 					},
 					{
 						"in": "query",
 						"name": "userEmail",
-						"schema": {
-							"type": "string",
-							"format": "email"
-						}
+						"schema": { "type": "string", "format": "email" }
 					}
 				]
 			}
