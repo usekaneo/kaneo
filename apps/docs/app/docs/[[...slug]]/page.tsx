@@ -4,7 +4,7 @@ import { Banner } from "fumadocs-ui/components/banner";
 import { Callout } from "fumadocs-ui/components/callout";
 import { DocsPage } from "fumadocs-ui/page";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
 import { APIPage } from "@/components/api-page";
 import {
@@ -19,7 +19,30 @@ export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
 }) {
   const params = await props.params;
+
+  // Redirect /docs to /docs/core
+  if (!params.slug || params.slug.length === 0) {
+    redirect("/docs/core");
+  }
+
   const page = source.getPage(params.slug);
+
+  // Handle redirects from old docs structure to new structure
+  if (!page && params.slug && params.slug.length > 0) {
+    // Check if this is an old path that should redirect to /docs/core
+    const firstSegment = params.slug[0];
+
+    // If the path doesn't start with 'core' or 'api', try redirecting to core
+    if (firstSegment !== "core" && firstSegment !== "api") {
+      const coreSlug = ["core", ...params.slug];
+      const corePage = source.getPage(coreSlug);
+
+      if (corePage) {
+        redirect(`/docs/${coreSlug.join("/")}`);
+      }
+    }
+  }
+
   if (!page) notFound();
 
   const { body: Mdx, toc } = page.data;
@@ -48,7 +71,7 @@ export default async function Page(props: {
           githubUrl={`https://github.com/usekaneo/kaneo/blob/main/apps/docs/content/docs/${page.path}`}
         />
       </div>
-      <div className="prose flex-1 text-fd-foreground/90">
+      <div className="prose flex-1 text-fd-foreground/90 [&>p:has(+*)]:mb-0">
         <Mdx
           components={getMDXComponents({
             Banner,
@@ -99,7 +122,17 @@ export async function generateMetadata({
   params: Promise<{ slug?: string[] }>;
 }): Promise<Metadata> {
   const { slug = [] } = await params;
-  const page = source.getPage(slug);
+  let page = source.getPage(slug);
+
+  // Handle redirects for metadata generation
+  if (!page && slug.length > 0) {
+    const firstSegment = slug[0];
+    if (firstSegment !== "core" && firstSegment !== "api") {
+      const coreSlug = ["core", ...slug];
+      page = source.getPage(coreSlug);
+    }
+  }
+
   if (!page) notFound();
 
   const image = ["https://kaneo.app/docs-og", ...slug, "image.png"].join("/");
