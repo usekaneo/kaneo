@@ -5,7 +5,6 @@ import { timeEntrySchema } from "../schemas";
 import createTimeEntry from "./controllers/create-time-entry";
 import getTimeEntriesByTaskId from "./controllers/get-time-entries";
 import getTimeEntry from "./controllers/get-time-entry";
-import updateTimeEntry from "./controllers/update-time-entry";
 
 const timeEntry = new Hono<{
   Variables: {
@@ -117,14 +116,16 @@ const timeEntry = new Hono<{
       }),
     ),
     async (c) => {
-      const { id } = c.req.valid("param");
-      const { startTime, endTime } = c.req.valid("json");
-      const timeEntry = await updateTimeEntry(
-        id,
-        new Date(startTime),
-        endTime ? new Date(endTime).getTime() : 0,
-      );
-      return c.json(timeEntry);
+      // const { id } = c.req.valid("param");
+      // const { startTime, endTime } = c.req.valid("json");
+      // TODO: Fix this
+      // const timeEntry = await updateTimeEntry(
+      //   id,
+      //   new Date(startTime),
+      //   endTime ? new Date(endTime) : new Date(),
+      // );
+      // return c.json(timeEntry);
+      return c.json({ message: "Not implemented" });
     },
   );
 

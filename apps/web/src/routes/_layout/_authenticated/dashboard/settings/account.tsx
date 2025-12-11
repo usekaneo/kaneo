@@ -84,7 +84,8 @@ function RouteComponent() {
                   className={cn(
                     "flex items-center gap-2 px-2 py-1.5 text-xs rounded-sm transition-colors",
                     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    location.pathname === "/dashboard/settings/account/developer"
+                    location.pathname ===
+                      "/dashboard/settings/account/developer"
                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       : "text-muted-foreground",
                   )}

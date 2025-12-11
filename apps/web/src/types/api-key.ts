@@ -18,17 +18,16 @@ export type ApiKey = {
   remaining: number | null;
   lastRequest: Date | null;
   updatedAt: Date;
-  metadata: any;
+  metadata: Record<string, unknown> | null;
 };
 
 export type CreateApiKeyRequest = {
   name?: string;
   expiresIn?: number;
   prefix?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 };
 
 export type CreateApiKeyResponse = ApiKey & {
   key: string; // Full key, only shown once
 };
-

@@ -61,7 +61,7 @@ const activity = new Hono<{
     ),
     async (c) => {
       const { taskId, userId, message, type } = c.req.valid("json");
-      const activity = await createActivity(taskId, userId, message, type);
+      const activity = await createActivity(taskId, type, userId, message);
       return c.json(activity);
     },
   )
@@ -118,7 +118,8 @@ const activity = new Hono<{
     ),
     async (c) => {
       const { activityId, comment } = c.req.valid("json");
-      const updatedComment = await updateComment(activityId, comment);
+      const userId = c.get("userId");
+      const updatedComment = await updateComment(userId, activityId, comment);
       return c.json(updatedComment);
     },
   )
@@ -145,7 +146,8 @@ const activity = new Hono<{
     ),
     async (c) => {
       const { activityId } = c.req.valid("json");
-      const deletedComment = await deleteComment(activityId);
+      const userId = c.get("userId");
+      const deletedComment = await deleteComment(userId, activityId);
       return c.json(deletedComment);
     },
   );

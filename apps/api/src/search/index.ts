@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { activitySchema, projectSchema, taskSchema } from "../schemas";
 import globalSearch from "./controllers/global-search";
-import { taskSchema, projectSchema, activitySchema } from "../schemas";
 
 const workspaceSchema = v.object({
   id: v.string(),
