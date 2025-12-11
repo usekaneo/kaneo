@@ -20,9 +20,9 @@
     "fumadocs-ui": "16.2.3",
     "lucide-react": "^0.556.0",
     "motion": "^12.23.25",
-    "next": "16.0.8",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
+    "next": "16.0.9",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
     "tailwind-merge": "^3.4.0",
     "twoslash": "^0.3.4"
   },
