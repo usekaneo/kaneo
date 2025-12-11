@@ -1,0 +1,81 @@
+---
+title: API Reference
+description: Complete API reference for Kaneo
+icon: Terminal
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+## Overview
+
+Welcome to the Kaneo API documentation. Explore all available endpoints organized by resource type.
+
+## Endpoints
+
+<Cards>
+  <Card
+    href="/docs/api/tasks/createTask"
+    title="Tasks"
+    description="Create, read, update, and delete tasks. Manage task properties like status, priority, assignees, and more."
+  />
+  <Card
+    href="/docs/api/projects/createProject"
+    title="Projects"
+    description="Manage projects and organize your work. Create, update, and delete projects."
+  />
+  <Card
+    href="/docs/api/labels/createLabel"
+    title="Labels"
+    description="Create and manage labels to categorize and organize your tasks."
+  />
+  <Card
+    href="/docs/api/activities/createActivity"
+    title="Activities"
+    description="Track activity history and create activity logs for your workspace."
+  />
+  <Card
+    href="/docs/api/comments/createComment"
+    title="Comments"
+    description="Add, update, and delete comments on tasks and other resources."
+  />
+  <Card
+    href="/docs/api/time-entries/createTimeEntry"
+    title="Time Entries"
+    description="Track time spent on tasks with time entry management."
+  />
+  <Card
+    href="/docs/api/notifications/createNotification"
+    title="Notifications"
+    description="Manage user notifications, mark as read, and clear notifications."
+  />
+  <Card
+    href="/docs/api/github-integration/createGitHubIntegration"
+    title="GitHub Integration"
+    description="Connect with GitHub repositories, import issues, and sync data."
+  />
+  <Card
+    href="/docs/api/getConfig"
+    title="Get Config"
+    description="Retrieve the current configuration and settings for your Kaneo instance."
+  />
+  <Card
+    href="/docs/api/globalSearch"
+    title="Global Search"
+    description="Search across all resources in your workspace."
+  />
+</Cards>
+
+## Authentication
+
+All API endpoints require authentication. Refer to the [authentication documentation](/docs/core) for details on how to authenticate your requests.
+
+## Base URL
+
+The base URL for all API endpoints is:
+
+```
+https://your-kaneo-instance.com/api
+```
+
+Replace `your-kaneo-instance.com` with your actual Kaneo instance domain.
+

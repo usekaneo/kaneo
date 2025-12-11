@@ -1,7 +1,6 @@
 {
 	"title": "API",
 	"description": "The API for Kaneo",
-	"root": true,
 	"pages": [
 		"getConfig",
 		"globalSearch",
