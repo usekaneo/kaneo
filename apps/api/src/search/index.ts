@@ -45,7 +45,10 @@ const search = new Hono<{
   validator(
     "query",
     v.object({
-      q: v.string([v.minLength(1)]),
+      q: v.pipe(
+        v.string(),
+        v.minLength(1, "Query must be at least 1 character"),
+      ),
       type: v.optional(
         v.picklist([
           "all",
@@ -63,7 +66,7 @@ const search = new Hono<{
         v.pipe(
           v.string(),
           v.transform(Number),
-          v.number([v.minValue(1), v.maxValue(50)]),
+          v.minValue(1, "Limit must be at least 1"),
         ),
         "20",
       ),

@@ -90,8 +90,7 @@ api.get(
       },
       servers: [
         {
-          url:
-            `${process.env.KANEO_API_URL}/api` || "http://localhost:1337/api",
+          url: process.env.KANEO_API_URL || "http://localhost:1337",
           description: "Kaneo API Server",
         },
       ],
