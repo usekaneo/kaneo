@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { subscribeToEvent } from "../events";
 import { notificationSchema } from "../schemas";
 import clearNotifications from "./controllers/clear-notifications";
 import createNotification from "./controllers/create-notification";
@@ -151,5 +152,100 @@ const notification = new Hono<{
       return c.json(result);
     },
   );
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  title: string;
+  projectId: string;
+}>("task.created", async (data) => {
+  if (data.userId) {
+    await createNotification({
+      userId: data.userId,
+      title: "New task assigned",
+      content: `You have been assigned to task: ${data.title}`,
+      type: "task_created",
+      resourceId: data.taskId,
+      resourceType: "task",
+    });
+  }
+});
+
+subscribeToEvent<{
+  workspaceId: string;
+  workspaceName: string;
+  ownerEmail: string;
+  ownerId?: string;
+}>("workspace.created", async (data) => {
+  if (data.ownerId) {
+    await createNotification({
+      userId: data.ownerId,
+      title: "Workspace created",
+      content: `Your workspace "${data.workspaceName}" has been created successfully`,
+      type: "workspace_created",
+      resourceId: data.workspaceId,
+      resourceType: "workspace",
+    });
+  }
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  oldStatus: string;
+  newStatus: string;
+  title: string;
+  assigneeId?: string;
+}>("task.status_changed", async (data) => {
+  if (data.assigneeId && data.assigneeId !== data.userId) {
+    await createNotification({
+      userId: data.assigneeId,
+      title: "Task status changed",
+      content: `Task "${data.title}" status changed from "${data.oldStatus}" to "${data.newStatus}"`,
+      type: "task_status_changed",
+      resourceId: data.taskId,
+      resourceType: "task",
+    });
+  }
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  oldAssignee: string | null;
+  newAssignee: string;
+  newAssigneeId: string;
+  title: string;
+}>("task.assignee_changed", async (data) => {
+  if (data.newAssigneeId) {
+    await createNotification({
+      userId: data.newAssigneeId,
+      title: "Task assigned to you",
+      content: `You have been assigned to task: ${data.title}`,
+      type: "task_assignee_changed",
+      resourceId: data.taskId,
+      resourceType: "task",
+    });
+  }
+});
+
+subscribeToEvent<{
+  timeEntryId: string;
+  taskId: string;
+  userId: string;
+  taskOwnerId?: string;
+  taskTitle?: string;
+}>("time-entry.created", async (data) => {
+  if (data.taskOwnerId && data.taskOwnerId !== data.userId) {
+    await createNotification({
+      userId: data.taskOwnerId,
+      title: "Time tracking started",
+      content: `Time tracking started on task${data.taskTitle ? `: ${data.taskTitle}` : ""}`,
+      type: "time_entry_created",
+      resourceId: data.taskId,
+      resourceType: "task",
+    });
+  }
+});
 
 export default notification;

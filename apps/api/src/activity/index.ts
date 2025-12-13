@@ -168,6 +168,7 @@ subscribeToEvent<{
   oldStatus: string;
   newStatus: string;
   title: string;
+  assigneeId?: string;
   type: string;
 }>("task.status_changed", async (data) => {
   await createActivity(
@@ -213,6 +214,7 @@ subscribeToEvent<{
   userId: string;
   oldAssignee: string | null;
   newAssignee: string;
+  newAssigneeId: string;
   title: string;
   type: string;
 }>("task.assignee_changed", async (data) => {

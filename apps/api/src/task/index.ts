@@ -177,6 +177,7 @@ const task = new Hono<{
           oldStatus: task.status,
           newStatus: status,
           title: task.title,
+          assigneeId: task.userId,
           type: "status_changed",
         });
       }
@@ -302,6 +303,7 @@ const task = new Hono<{
         oldStatus: task.status,
         newStatus: status,
         title: task.title,
+        assigneeId: task.userId,
         type: "status_changed",
       });
 
@@ -391,6 +393,7 @@ const task = new Hono<{
         userId: user,
         oldAssignee: task.userId,
         newAssignee: newAssigneeName,
+        newAssigneeId: userId,
         title: task.title,
         type: "assignee_changed",
       });

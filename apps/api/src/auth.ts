@@ -170,6 +170,7 @@ export const auth = betterAuth({
             workspaceId: organization.id,
             workspaceName: organization.name,
             ownerEmail: user.name,
+            ownerId: user.id,
           });
         },
       },
