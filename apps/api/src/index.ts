@@ -21,11 +21,18 @@ import timeEntry from "./time-entry";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 
+type ApiKey = {
+  id: string;
+  userId: string;
+  enabled: boolean;
+};
+
 const app = new Hono<{
   Variables: {
     user: User | null;
     session: Session | null;
     userId: string;
+    apiKey?: ApiKey;
   };
 }>();
 
@@ -56,6 +63,7 @@ const api = new Hono<{
     user: User | null;
     session: Session | null;
     userId: string;
+    apiKey?: ApiKey;
   };
 }>();
 
@@ -126,6 +134,7 @@ api.use("*", async (c, next) => {
         c.set("userId", result.key.userId);
         c.set("user", null);
         c.set("session", null);
+        c.set("apiKey", result.key);
         return next();
       }
 

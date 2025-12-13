@@ -56,7 +56,11 @@ export function workspaceAccessMiddleware(
       });
     }
 
-    await validateWorkspaceAccess(userId, workspaceId);
+    // Get API key ID if present (for API key authentication)
+    const apiKey = c.get("apiKey");
+    const apiKeyId = apiKey?.id;
+
+    await validateWorkspaceAccess(userId, workspaceId, apiKeyId);
 
     c.set("workspaceId", workspaceId);
 
