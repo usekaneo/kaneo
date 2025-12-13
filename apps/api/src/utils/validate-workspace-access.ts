@@ -7,23 +7,6 @@ export async function validateWorkspaceAccess(
   workspaceId: string,
   apiKeyId?: string,
 ): Promise<void> {
-  const membership = await db
-    .select()
-    .from(schema.workspaceUserTable)
-    .where(
-      and(
-        eq(schema.workspaceUserTable.userId, userId),
-        eq(schema.workspaceUserTable.workspaceId, workspaceId),
-      ),
-    )
-    .limit(1);
-
-  if (membership.length === 0) {
-    throw new HTTPException(403, {
-      message: "You don't have access to this workspace",
-    });
-  }
-
   if (apiKeyId) {
     const apiKey = await db
       .select()
@@ -42,5 +25,22 @@ export async function validateWorkspaceAccess(
         message: "Invalid API key for this workspace",
       });
     }
+  }
+
+  const membership = await db
+    .select()
+    .from(schema.workspaceUserTable)
+    .where(
+      and(
+        eq(schema.workspaceUserTable.userId, userId),
+        eq(schema.workspaceUserTable.workspaceId, workspaceId),
+      ),
+    )
+    .limit(1);
+
+  if (membership.length === 0) {
+    throw new HTTPException(403, {
+      message: "You don't have access to this workspace",
+    });
   }
 }
