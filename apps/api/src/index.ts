@@ -4,6 +4,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
+import { openAPIRouteHandler } from "hono-openapi";
 import activity from "./activity";
 import { auth } from "./auth";
 import config from "./config";
@@ -50,9 +51,6 @@ app.use(
   }),
 );
 
-// Separate Hono instance for API routes (will be mounted at /api)
-// This allows us to define routes without the /api prefix here,
-// while the client in hono.ts knows to connect to /api
 const api = new Hono<{
   Variables: {
     user: User | null;
@@ -65,25 +63,82 @@ api.get("/health", (c) => {
   return c.json({ status: "ok" });
 });
 
-const configRoute = api.route("/config", config);
-
-const githubIntegrationRoute = api.route(
+const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
 
-const publicProjectRoute = api.get("/public-project/:id", async (c) => {
+api.get("/public-project/:id", async (c) => {
   const { id } = c.req.param();
   const project = await getPublicProject(id);
 
   return c.json(project);
 });
 
+const configApi = api.route("/config", config);
+
+api.get(
+  "/openapi",
+  openAPIRouteHandler(api, {
+    documentation: {
+      openapi: "3.0.0",
+      info: {
+        title: "Kaneo API",
+        version: "1.0.0",
+        description:
+          "Kaneo Project Management API - Manage projects, tasks, labels, and more",
+      },
+      servers: [
+        {
+          url: process.env.KANEO_API_URL || "http://localhost:1337",
+          description: "Kaneo API Server",
+        },
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            description: "API Key authentication",
+          },
+        },
+      },
+      security: [{ bearerAuth: [] }],
+    },
+  }),
+);
+
 api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) =>
   auth.handler(c.req.raw),
 );
 
 api.use("*", async (c, next) => {
+  const authHeader = c.req.header("Authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const apiKey = authHeader.substring(7);
+
+    try {
+      const result = await auth.api.verifyApiKey({
+        body: { key: apiKey },
+      });
+
+      if (result.valid && result.key) {
+        c.set("userId", result.key.userId);
+        c.set("user", null);
+        c.set("session", null);
+        return next();
+      }
+
+      throw new HTTPException(401, { message: "Invalid API key" });
+    } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      console.error("API key verification failed:", error);
+      throw new HTTPException(401, { message: "API key verification failed" });
+    }
+  }
+
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   c.set("user", session?.user || null);
   c.set("session", session?.session || null);
@@ -96,15 +151,14 @@ api.use("*", async (c, next) => {
   return next();
 });
 
-const projectRoute = api.route("/project", project);
-const taskRoute = api.route("/task", task);
-const activityRoute = api.route("/activity", activity);
-const timeEntryRoute = api.route("/time-entry", timeEntry);
-const labelRoute = api.route("/label", label);
-const notificationRoute = api.route("/notification", notification);
-const searchRoute = api.route("/search", search);
+const projectApi = api.route("/project", project);
+const taskApi = api.route("/task", task);
+const activityApi = api.route("/activity", activity);
+const timeEntryApi = api.route("/time-entry", timeEntry);
+const labelApi = api.route("/label", label);
+const notificationApi = api.route("/notification", notification);
+const searchApi = api.route("/search", search);
 
-// Mount API routes under /api
 app.route("/api", api);
 
 (async () => {
@@ -136,15 +190,14 @@ serve(
 );
 
 export type AppType =
-  | typeof projectRoute
-  | typeof taskRoute
-  | typeof activityRoute
-  | typeof timeEntryRoute
-  | typeof labelRoute
-  | typeof notificationRoute
-  | typeof searchRoute
-  | typeof publicProjectRoute
-  | typeof githubIntegrationRoute
-  | typeof configRoute;
+  | typeof configApi
+  | typeof projectApi
+  | typeof taskApi
+  | typeof activityApi
+  | typeof timeEntryApi
+  | typeof labelApi
+  | typeof notificationApi
+  | typeof searchApi
+  | typeof githubIntegrationApi;
 
 export default app;

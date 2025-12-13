@@ -1,5 +1,6 @@
 import {
   anonymousClient,
+  apiKeyClient,
   genericOAuthClient,
   lastLoginMethodClient,
   magicLinkClient,
@@ -34,5 +35,6 @@ export const authClient = createAuthClient({
       },
     }),
     genericOAuthClient(),
+    apiKeyClient(),
   ],
 });

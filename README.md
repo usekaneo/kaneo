@@ -92,7 +92,7 @@ volumes:
   postgres_data:
 ```
 
-Save this as `compose.yml`, create a `.env` file with your configuration (see [Configuration Options](#configuration-options) below), run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
+Save this as `compose.yml`, create a `.env` file with your configuration (see the [documentation](https://kaneo.app/docs) for all required environment variables), run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
 > **Important:** See our [full documentation](https://kaneo.app/docs) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
 
@@ -100,44 +100,11 @@ Save this as `compose.yml`, create a `.env` file with your configuration (see [C
 
 For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions on configuring environment variables and troubleshooting common issues like CORS problems.
 
-### Configuration Options
+### Configuration
 
-Here are the essential environment variables you'll need in your `.env` file:
+Kaneo requires several environment variables to be configured. The Docker Compose setup above handles the database automatically, but you'll need to configure environment variables for the API and web services.
 
-| Variable | What it does | Default |
-| -------- | ------------ | ------- |
-| `KANEO_API_URL` | Where the web app finds the API | Required |
-| `JWT_ACCESS` | Secret key for user authentication | Required |
-| `DATABASE_URL` | PostgreSQL connection string | Required |
-| `POSTGRES_DB` | PostgreSQL database name | `kaneo` |
-| `POSTGRES_USER` | PostgreSQL username | Required |
-| `POSTGRES_PASSWORD` | PostgreSQL password | Required |
-| `DISABLE_REGISTRATION` | Block new user signups | `true` |
-
-For a complete list of configuration options and advanced settings, see the [full documentation](https://kaneo.app/docs).
-
-### Database Setup
-
-Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles this automatically, but if you're running Kaneo outside of Docker, or if you are using an external postgres database, you'll need to:
-
-1. **Install PostgreSQL** (version 12 or higher)
-2. **Create a database and user:**
-   ```sql
-   CREATE DATABASE kaneo;
-   CREATE USER kaneo_user WITH PASSWORD 'your_password';
-   GRANT ALL PRIVILEGES ON DATABASE kaneo TO kaneo_user;
-
-   \c kaneo;
-   GRANT USAGE ON SCHEMA public TO kaneo_user;
-   GRANT CREATE ON SCHEMA public TO kaneo_user;
-   ALTER SCHEMA public OWNER TO kaneo_user;
-   ```
-3. **Set the DATABASE_URL environment variable:**
-   ```bash
-   export DATABASE_URL="postgresql://kaneo_user:your_password@localhost:5432/kaneo"
-   ```
-
-For more database configuration options and troubleshooting, visit the [documentation](https://kaneo.app/docs).
+For complete configuration instructions, including all required environment variables, database setup for non-Docker deployments, and advanced settings, see the [documentation](https://kaneo.app/docs).
 
 ## Kubernetes Deployment
 
@@ -154,11 +121,7 @@ git clone https://github.com/usekaneo/kaneo.git
 cd kaneo
 pnpm install
 
-# Copy environment files
-cp apps/api/.env.sample apps/api/.env
-cp apps/web/.env.sample apps/web/.env
-
-# Update environment variables as needed
+# Create a .env file in the root with required environment variables
 # See ENVIRONMENT_SETUP.md for detailed instructions
 
 # Start development servers

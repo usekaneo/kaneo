@@ -4,69 +4,48 @@ This guide will help you set up the Kaneo development environment and troublesho
 
 ## Quick Start
 
-1. Copy the sample environment files:
-   ```bash
-   cp apps/api/.env.sample apps/api/.env
-   cp apps/web/.env.sample apps/web/.env
-   ```
+1. **Create a `.env` file** in the root of the project with the required environment variables (see the [documentation](https://kaneo.app/docs/core/installation/environment-variables) for the complete list).
 
-2. Update the environment variables in both files (see sections below)
-
-3. Start the development servers:
+2. **Start the development servers**:
    ```bash
    pnpm dev
    ```
 
-## API Environment Variables
+This starts both the API (port 1337) and web app (port 5173). Both will automatically reload when you make changes.
 
-Create `apps/api/.env` with the following variables:
+> **Tip**: The web app at http://localhost:5173 will automatically connect to the API at http://localhost:1337
 
-### Required Variables
+## Environment Variables
 
-- `DATABASE_URL`: PostgreSQL connection string
-  ```
-  DATABASE_URL=postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo
-  ```
-
-- `JWT_ACCESS`: Secret key for JWT token generation
-  ```
-  JWT_ACCESS=your-development-secret-here
-  ```
-
-### Optional Variables
-
-- `DISABLE_REGISTRATION`: Set to "true" to disable new user registration
-- `DEMO_MODE`: Set to "true" to enable demo mode for testing
-- `CORS_ORIGINS`: Comma-separated list of allowed origins
-  ```
-  CORS_ORIGINS=http://localhost:3000,https://yourdomain.com
-  ```
-- `PORT`: API server port (default: 1337)
-
-### GitHub Integration (Optional)
-
-- `GITHUB_APP_ID`: GitHub App ID for repository integration
-- `GITHUB_PRIVATE_KEY`: GitHub App Private Key (PEM format)
-- `GITHUB_WEBHOOK_SECRET`: GitHub App Webhook Secret
-- `GITHUB_APP_NAME`: GitHub App Name
-
-## Frontend Environment Variables
-
-Create `apps/web/.env` with the following variables:
+Kaneo uses a **single `.env` file** in the root of the project for all environment variables. This file is shared by both the API and web services.
 
 ### Required Variables
 
-- `VITE_API_URL`: URL of the API server
-  ```
-  VITE_API_URL=http://localhost:1337
-  ```
+For development, you'll need at minimum:
+
+- `KANEO_CLIENT_URL` - The URL of the web application (e.g., `http://localhost:5173`)
+- `KANEO_API_URL` - The URL of the API (e.g., `http://localhost:1337`)
+- `AUTH_SECRET` - Secret key for JWT token generation
+- `DATABASE_URL` - PostgreSQL connection string
+- `POSTGRES_DB` - PostgreSQL database name
+- `POSTGRES_USER` - PostgreSQL username
+- `POSTGRES_PASSWORD` - PostgreSQL password
+
+### Development-Specific Variables
+
+For local development, the web app also supports:
+- `VITE_API_URL` - API URL for development (defaults to `http://localhost:1337` if not set)
+- `VITE_APP_URL` - App URL for generating links (optional)
 
 ### Optional Variables
 
-- `VITE_APP_URL`: App URL for generating links
-  ```
-  VITE_APP_URL=http://localhost:3000
-  ```
+Kaneo supports many optional configuration options including:
+- SSO providers (GitHub, Google, Discord, Custom OAuth/OIDC)
+- SMTP configuration for email
+- Access control settings
+- CORS configuration
+
+For a complete list of all environment variables, their descriptions, and configuration options, see the [official documentation](https://kaneo.app/docs/core/installation/environment-variables).
 
 ## Common Issues & Troubleshooting
 
@@ -79,16 +58,18 @@ Create `apps/web/.env` with the following variables:
 
 **Solutions:**
 
-1. **Check API URL Configuration:**
-   - Ensure `VITE_API_URL` in frontend `.env` matches your API server URL
-   - Verify the API server is running on the correct port
+1. **Check URL Configuration:**
+   - Ensure `KANEO_API_URL` matches your API server URL
+   - Ensure `KANEO_CLIENT_URL` matches your web app URL
+   - For development, you can also set `VITE_API_URL` in your `.env` file
 
 2. **Configure CORS Origins:**
-   - Add your frontend URL to `CORS_ORIGINS` in API `.env`:
+   - Add your frontend URL to `CORS_ORIGINS` in your `.env`:
      ```
-     CORS_ORIGINS=http://localhost:3000,https://yourdomain.com
+     CORS_ORIGINS=http://localhost:5173,https://yourdomain.com
      ```
    - For development, you can leave `CORS_ORIGINS` empty to allow all origins
+   - **Note:** `CORS_ORIGINS` should match `KANEO_CLIENT_URL` for proper authentication
 
 3. **Check Protocol Consistency:**
    - Ensure both frontend and API use the same protocol (http/https)
@@ -109,7 +90,7 @@ Create `apps/web/.env` with the following variables:
 1. **Check PostgreSQL:**
    - Ensure PostgreSQL is running
    - Verify database exists and credentials are correct
-   - Test connection: `psql postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo`
+   - Test connection: `psql $DATABASE_URL`
 
 2. **Update DATABASE_URL:**
    - Ensure the connection string format is correct
@@ -123,9 +104,10 @@ Create `apps/web/.env` with the following variables:
 
 **Solutions:**
 
-1. **Check JWT Configuration:**
-   - Ensure `JWT_ACCESS` is set in API `.env`
+1. **Check Authentication Configuration:**
+   - Ensure `AUTH_SECRET` is set in your `.env` file
    - Use a strong secret in production
+   - Verify `KANEO_CLIENT_URL` and `KANEO_API_URL` are correctly configured
 
 2. **Clear Browser Data:**
    - Clear cookies and local storage
@@ -155,14 +137,16 @@ Create `apps/web/.env` with the following variables:
 
 ### Development
 - Use `http://localhost` for both frontend and API
-- Leave `CORS_ORIGINS` empty to allow all origins
-- Use simple JWT secrets (not for production)
+- Leave `CORS_ORIGINS` empty to allow all origins (or set it to match your local URLs)
+- Use simple secrets for `AUTH_SECRET` (not for production)
+- The web app will use `VITE_API_URL` if set, otherwise defaults to `http://localhost:1337`
 
 ### Production
 - Use HTTPS for both frontend and API
-- Set specific `CORS_ORIGINS` for security
-- Use strong, unique JWT secrets
+- Set specific `CORS_ORIGINS` for security (should match `KANEO_CLIENT_URL`)
+- Use strong, unique secrets for `AUTH_SECRET`
 - Configure proper database credentials
+- Ensure `KANEO_CLIENT_URL` and `KANEO_API_URL` are set to your production URLs
 
 ## Getting Help
 
@@ -172,9 +156,6 @@ If you're still experiencing issues:
 2. Review the API server logs
 3. Verify all environment variables are set correctly
 4. Ensure all services (PostgreSQL, API, Frontend) are running
+5. Consult the [official documentation](https://kaneo.app/docs) for detailed guides and troubleshooting
 
-The application now includes enhanced error handling that will provide specific troubleshooting steps for common issues like CORS problems.
-
-## Testing Error Handling
-
-You can test the error handling by visiting `/test-error` in your browser. This will show you how the error display component looks and what troubleshooting steps are provided for different types of errors. 
+For the most up-to-date information on environment variables and configuration, always refer to the [official documentation](https://kaneo.app/docs/core/installation/environment-variables).

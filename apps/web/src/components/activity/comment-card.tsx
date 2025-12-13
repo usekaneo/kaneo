@@ -168,9 +168,8 @@ export default function CommentCard({
 
     try {
       await updateComment({
-        id: commentId,
-        userId: currentUser.id,
-        content: editedContent,
+        activityId: commentId,
+        comment: editedContent,
       });
 
       setIsEditing(false);
@@ -188,9 +187,9 @@ export default function CommentCard({
     editedContent,
     updateComment,
     commentId,
-    currentUser?.id,
     queryClient,
     taskId,
+    currentUser?.id,
   ]);
 
   useEffect(() => {

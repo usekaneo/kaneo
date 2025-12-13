@@ -3,9 +3,12 @@ import db from "../../database";
 import { activityTable } from "../../database/schema";
 
 async function deleteComment(userId: string, id: string) {
-  await db
+  const [deletedComment] = await db
     .delete(activityTable)
-    .where(and(eq(activityTable.id, id), eq(activityTable.userId, userId)));
+    .where(and(eq(activityTable.id, id), eq(activityTable.userId, userId)))
+    .returning();
+
+  return deletedComment;
 }
 
 export default deleteComment;

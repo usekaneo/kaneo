@@ -5,16 +5,11 @@ export type CreateCommentRequest = InferRequestType<
   (typeof client)["activity"]["comment"]["$post"]
 >["json"];
 
-async function createComment({
-  taskId,
-  content,
-  userId,
-}: CreateCommentRequest) {
+async function createComment({ taskId, comment }: CreateCommentRequest) {
   const response = await client.activity.comment.$post({
     json: {
       taskId,
-      content,
-      userId,
+      comment,
     },
   });
 

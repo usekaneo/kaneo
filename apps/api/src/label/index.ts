@@ -1,6 +1,7 @@
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { z } from "zod";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
+import { labelSchema } from "../schemas";
 import createLabel from "./controllers/create-label";
 import deleteLabel from "./controllers/delete-label";
 import getLabel from "./controllers/get-label";
@@ -8,14 +9,23 @@ import getLabelsByTaskId from "./controllers/get-labels-by-task-id";
 import getLabelsByWorkspaceId from "./controllers/get-labels-by-workspace-id";
 import updateLabel from "./controllers/update-label";
 
-const label = new Hono<{
-  Variables: {
-    userId: string;
-  };
-}>()
+const label = new Hono()
   .get(
     "/task/:taskId",
-    zValidator("param", z.object({ taskId: z.string() })),
+    describeRoute({
+      operationId: "getTaskLabels",
+      tags: ["Labels"],
+      description: "Get all labels assigned to a specific task",
+      responses: {
+        200: {
+          description: "List of labels for the task",
+          content: {
+            "application/json": { schema: resolver(v.array(labelSchema)) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ taskId: v.string() })),
     async (c) => {
       const { taskId } = c.req.valid("param");
       const labels = await getLabelsByTaskId(taskId);
@@ -24,7 +34,20 @@ const label = new Hono<{
   )
   .get(
     "/workspace/:workspaceId",
-    zValidator("param", z.object({ workspaceId: z.string() })),
+    describeRoute({
+      operationId: "getWorkspaceLabels",
+      tags: ["Labels"],
+      description: "Get all labels for a specific workspace",
+      responses: {
+        200: {
+          description: "List of labels in the workspace",
+          content: {
+            "application/json": { schema: resolver(v.array(labelSchema)) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ workspaceId: v.string() })),
     async (c) => {
       const { workspaceId } = c.req.valid("param");
       const labels = await getLabelsByWorkspaceId(workspaceId);
@@ -33,39 +56,105 @@ const label = new Hono<{
   )
   .post(
     "/",
-    zValidator(
+    describeRoute({
+      operationId: "createLabel",
+      tags: ["Labels"],
+      description: "Create a new label in a workspace",
+      responses: {
+        200: {
+          description: "Label created successfully",
+          content: {
+            "application/json": { schema: resolver(labelSchema) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        name: z.string(),
-        color: z.string(),
-        taskId: z.string().optional(),
-        workspaceId: z.string(),
+      v.object({
+        name: v.string(),
+        color: v.string(),
+        workspaceId: v.string(),
+        taskId: v.optional(v.string()),
       }),
     ),
     async (c) => {
-      const { name, color, taskId, workspaceId } = c.req.valid("json");
+      const { name, color, workspaceId, taskId } = c.req.valid("json");
       const label = await createLabel(name, color, taskId, workspaceId);
       return c.json(label);
     },
   )
-  .delete("/:id", async (c) => {
-    const { id } = c.req.param();
-    const label = await deleteLabel(id);
-    return c.json(label);
-  })
-  .get("/:id", zValidator("param", z.object({ id: z.string() })), async (c) => {
-    const { id } = c.req.valid("param");
-    const label = await getLabel(id);
-    return c.json(label);
-  })
+  .get(
+    "/:id",
+    describeRoute({
+      operationId: "getLabel",
+      tags: ["Labels"],
+      description: "Get a specific label by ID",
+      responses: {
+        200: {
+          description: "Label details",
+          content: {
+            "application/json": { schema: resolver(labelSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const label = await getLabel(id);
+      return c.json(label);
+    },
+  )
   .put(
     "/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator("json", z.object({ name: z.string(), color: z.string() })),
+    describeRoute({
+      operationId: "updateLabel",
+      tags: ["Labels"],
+      description: "Update an existing label",
+      responses: {
+        200: {
+          description: "Label updated successfully",
+          content: {
+            "application/json": { schema: resolver(labelSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator(
+      "json",
+      v.object({
+        name: v.string(),
+        color: v.string(),
+      }),
+    ),
     async (c) => {
       const { id } = c.req.valid("param");
       const { name, color } = c.req.valid("json");
       const label = await updateLabel(id, name, color);
+      return c.json(label);
+    },
+  )
+  .delete(
+    "/:id",
+    describeRoute({
+      operationId: "deleteLabel",
+      tags: ["Labels"],
+      description: "Delete a label by ID",
+      responses: {
+        200: {
+          description: "Label deleted successfully",
+          content: {
+            "application/json": { schema: resolver(labelSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const label = await deleteLabel(id);
       return c.json(label);
     },
   );

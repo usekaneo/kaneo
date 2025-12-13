@@ -128,7 +128,7 @@ export default function Features() {
                                 Kaneo.
                               </p>
                             </div>
-                            <Link href="/docs/integrations/github/setup">
+                            <Link href="/docs/core/integrations/github/setup">
                               <div className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-transparent bg-background ring-1 ring-foreground/10 hover:bg-muted/50 h-9 w-9">
                                 <PlusIcon className="size-4" />
                               </div>

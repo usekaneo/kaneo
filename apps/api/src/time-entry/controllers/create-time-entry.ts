@@ -1,7 +1,8 @@
 import { createId } from "@paralleldrive/cuid2";
+import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { timeEntryTable } from "../../database/schema";
+import { taskTable, timeEntryTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 
 async function createTimeEntry({
@@ -38,12 +39,19 @@ async function createTimeEntry({
     });
   }
 
+  const [task] = await db
+    .select({ userId: taskTable.userId, title: taskTable.title })
+    .from(taskTable)
+    .where(eq(taskTable.id, taskId));
+
   await publishEvent("time-entry.created", {
     timeEntryId: createdTimeEntry.id,
     taskId: createdTimeEntry.taskId,
     userId,
     type: "create",
     content: "started time tracking",
+    taskOwnerId: task?.userId,
+    taskTitle: task?.title,
   });
 
   return createdTimeEntry;

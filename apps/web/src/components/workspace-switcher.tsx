@@ -63,7 +63,7 @@ export function WorkspaceSwitcher() {
         event.key <= "9"
       ) {
         event.preventDefault();
-        const index = Number.parseInt(event.key) - 1;
+        const index = Number.parseInt(event.key, 10) - 1;
         if (index < workspaces.length) {
           handleWorkspaceChange(workspaces[index]);
           setIsOpen(false);

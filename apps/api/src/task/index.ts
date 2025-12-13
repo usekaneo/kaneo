@@ -1,8 +1,9 @@
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { z } from "zod";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
 import { auth } from "../auth";
 import { publishEvent } from "../events";
+import { taskSchema } from "../schemas";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
@@ -24,7 +25,20 @@ const task = new Hono<{
 }>()
   .get(
     "/tasks/:projectId",
-    zValidator("param", z.object({ projectId: z.string() })),
+    describeRoute({
+      operationId: "listTasks",
+      tags: ["Tasks"],
+      description: "Get all tasks for a specific project",
+      responses: {
+        200: {
+          description: "Project with tasks organized by columns",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ projectId: v.string() })),
     async (c) => {
       const { projectId } = c.req.valid("param");
 
@@ -35,15 +49,28 @@ const task = new Hono<{
   )
   .post(
     "/:projectId",
-    zValidator(
+    describeRoute({
+      operationId: "createTask",
+      tags: ["Tasks"],
+      description: "Create a new task in a project",
+      responses: {
+        200: {
+          description: "Task created successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        title: z.string(),
-        description: z.string(),
-        dueDate: z.string().optional(),
-        priority: z.string(),
-        status: z.string(),
-        userId: z.string().optional(),
+      v.object({
+        title: v.string(),
+        description: v.string(),
+        dueDate: v.optional(v.string()),
+        priority: v.string(),
+        status: v.string(),
+        userId: v.optional(v.string()),
       }),
     ),
     async (c) => {
@@ -64,27 +91,57 @@ const task = new Hono<{
       return c.json(task);
     },
   )
-  .get("/:id", zValidator("param", z.object({ id: z.string() })), async (c) => {
-    const { id } = c.req.valid("param");
+  .get(
+    "/:id",
+    describeRoute({
+      operationId: "getTask",
+      tags: ["Tasks"],
+      description: "Get a specific task by ID",
+      responses: {
+        200: {
+          description: "Task details",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
 
-    const task = await getTask(id);
+      const task = await getTask(id);
 
-    return c.json(task);
-  })
+      return c.json(task);
+    },
+  )
   .put(
     "/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator(
+    describeRoute({
+      operationId: "updateTask",
+      tags: ["Tasks"],
+      description: "Update all fields of a task",
+      responses: {
+        200: {
+          description: "Task updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator(
       "json",
-      z.object({
-        title: z.string(),
-        description: z.string(),
-        dueDate: z.string().optional(),
-        priority: z.string(),
-        status: z.string(),
-        projectId: z.string(),
-        position: z.number(),
-        userId: z.string().optional(),
+      v.object({
+        title: v.string(),
+        description: v.string(),
+        dueDate: v.optional(v.string()),
+        priority: v.string(),
+        status: v.string(),
+        projectId: v.string(),
+        position: v.number(),
+        userId: v.optional(v.string()),
       }),
     ),
     async (c) => {
@@ -120,6 +177,7 @@ const task = new Hono<{
           oldStatus: task.status,
           newStatus: status,
           title: task.title,
+          assigneeId: task.userId,
           type: "status_changed",
         });
       }
@@ -129,7 +187,20 @@ const task = new Hono<{
   )
   .get(
     "/export/:projectId",
-    zValidator("param", z.object({ projectId: z.string() })),
+    describeRoute({
+      operationId: "exportTasks",
+      tags: ["Tasks"],
+      description: "Export all tasks from a project",
+      responses: {
+        200: {
+          description: "Exported tasks data",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ projectId: v.string() })),
     async (c) => {
       const { projectId } = c.req.valid("param");
 
@@ -140,18 +211,31 @@ const task = new Hono<{
   )
   .post(
     "/import/:projectId",
-    zValidator("param", z.object({ projectId: z.string() })),
-    zValidator(
+    describeRoute({
+      operationId: "importTasks",
+      tags: ["Tasks"],
+      description: "Import multiple tasks into a project",
+      responses: {
+        200: {
+          description: "Tasks imported successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ projectId: v.string() })),
+    validator(
       "json",
-      z.object({
-        tasks: z.array(
-          z.object({
-            title: z.string(),
-            description: z.string().optional(),
-            status: z.string(),
-            priority: z.string().optional(),
-            dueDate: z.string().optional(),
-            userId: z.string().nullable().optional(),
+      v.object({
+        tasks: v.array(
+          v.object({
+            title: v.string(),
+            description: v.optional(v.string()),
+            status: v.string(),
+            priority: v.optional(v.string()),
+            dueDate: v.optional(v.string()),
+            userId: v.optional(v.nullable(v.string())),
           }),
         ),
       }),
@@ -167,7 +251,20 @@ const task = new Hono<{
   )
   .delete(
     "/:id",
-    zValidator("param", z.object({ id: z.string() })),
+    describeRoute({
+      operationId: "deleteTask",
+      tags: ["Tasks"],
+      description: "Delete a task by ID",
+      responses: {
+        200: {
+          description: "Task deleted successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
 
@@ -178,8 +275,21 @@ const task = new Hono<{
   )
   .put(
     "/status/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator("json", z.object({ status: z.string() })),
+    describeRoute({
+      operationId: "updateTaskStatus",
+      tags: ["Tasks"],
+      description: "Update only the status of a task",
+      responses: {
+        200: {
+          description: "Task status updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ status: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
       const { status } = c.req.valid("json");
@@ -193,6 +303,7 @@ const task = new Hono<{
         oldStatus: task.status,
         newStatus: status,
         title: task.title,
+        assigneeId: task.userId,
         type: "status_changed",
       });
 
@@ -201,8 +312,21 @@ const task = new Hono<{
   )
   .put(
     "/priority/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator("json", z.object({ priority: z.string() })),
+    describeRoute({
+      operationId: "updateTaskPriority",
+      tags: ["Tasks"],
+      description: "Update only the priority of a task",
+      responses: {
+        200: {
+          description: "Task priority updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ priority: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
       const { priority } = c.req.valid("json");
@@ -224,8 +348,21 @@ const task = new Hono<{
   )
   .put(
     "/assignee/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator("json", z.object({ userId: z.string() })),
+    describeRoute({
+      operationId: "updateTaskAssignee",
+      tags: ["Tasks"],
+      description: "Assign or unassign a task to a user",
+      responses: {
+        200: {
+          description: "Task assignee updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ userId: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
       const { userId } = c.req.valid("json");
@@ -256,6 +393,7 @@ const task = new Hono<{
         userId: user,
         oldAssignee: task.userId,
         newAssignee: newAssigneeName,
+        newAssigneeId: userId,
         title: task.title,
         type: "assignee_changed",
       });
@@ -265,8 +403,21 @@ const task = new Hono<{
   )
   .put(
     "/due-date/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator("json", z.object({ dueDate: z.string() })),
+    describeRoute({
+      operationId: "updateTaskDueDate",
+      tags: ["Tasks"],
+      description: "Update only the due date of a task",
+      responses: {
+        200: {
+          description: "Task due date updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ dueDate: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
       const { dueDate } = c.req.valid("json");
@@ -289,8 +440,21 @@ const task = new Hono<{
 
   .put(
     "/title/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator("json", z.object({ title: z.string() })),
+    describeRoute({
+      operationId: "updateTaskTitle",
+      tags: ["Tasks"],
+      description: "Update only the title of a task",
+      responses: {
+        200: {
+          description: "Task title updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ title: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
       const { title } = c.req.valid("json");
@@ -313,8 +477,21 @@ const task = new Hono<{
 
   .put(
     "/description/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator("json", z.object({ description: z.string() })),
+    describeRoute({
+      operationId: "updateTaskDescription",
+      tags: ["Tasks"],
+      description: "Update only the description of a task",
+      responses: {
+        200: {
+          description: "Task description updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ description: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
       const { description } = c.req.valid("json");

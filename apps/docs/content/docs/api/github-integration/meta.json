@@ -1,0 +1,14 @@
+{
+	"title": "GitHub Integration",
+	"pages": [
+		"createGitHubIntegration",
+		"getGitHubIntegration",
+		"updateGitHubIntegration",
+		"deleteGitHubIntegration",
+		"getGitHubAppInfo",
+		"listGitHubRepositories",
+		"importGitHubIssues",
+		"verifyGitHubInstallation"
+	],
+	"defaultOpen": true
+}

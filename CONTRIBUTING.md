@@ -15,7 +15,6 @@ Thanks for wanting to contribute to Kaneo! Whether you're fixing bugs, adding fe
   - [Code Style](#code-style)
   - [Commit Messages](#commit-messages)
   - [Project Structure](#project-structure)
-  - [Testing](#testing)
 - [Need Help?](#need-help)
 
 ## Code of Conduct
@@ -45,14 +44,7 @@ pnpm install
 ```
 
 3. **Set up environment variables**:
-```bash
-# Copy the sample environment files
-cp apps/api/.env.sample apps/api/.env
-cp apps/web/.env.sample apps/web/.env
-
-# Update the environment variables as needed
-# See ENVIRONMENT_SETUP.md for detailed instructions
-```
+   Create `.env` files for both the API and web apps. See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for detailed instructions on all required environment variables.
 
 4. **Start everything up**:
 ```bash
@@ -106,10 +98,9 @@ We use **Biome** for formatting and linting. Before you commit:
 
 ```bash
 pnpm run lint
-pnpm run format
 ```
 
-Most editors can auto-format on save if you install the Biome extension.
+This will check and automatically fix formatting issues. Most editors can auto-format on save if you install the Biome extension.
 
 ### Commit Messages
 
@@ -128,20 +119,11 @@ We use [conventional commits](https://www.conventionalcommits.org/) to keep our 
 kaneo/
 ├── apps/
 │   ├── api/          # Backend API (Node.js/Hono)
+│   ├── docs/         # Documentation site (Next.js)
 │   └── web/          # Frontend app (React/Vite)
 ├── packages/         # Shared code and configs
 └── charts/           # Kubernetes Helm charts
 ```
-
-### Testing
-
-Run the test suite before submitting:
-
-```bash
-pnpm run test
-```
-
-If you're adding new features, please include tests.
 
 ## Need Help?
 
@@ -156,6 +138,5 @@ If you're adding new features, please include tests.
 - **Documentation** - Help others understand how to use Kaneo
 - **Performance improvements** - Make things faster
 - **Accessibility** - Help make Kaneo usable for everyone
-- **Testing** - More tests = more confidence
 
 Thanks for contributing to Kaneo! 🚀

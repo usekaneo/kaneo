@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   accountTable,
   activityTable,
+  apikeyTable,
   githubIntegrationTable,
   invitationTable,
   labelTable,
@@ -29,6 +30,7 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
   activities: many(activityTable),
   notifications: many(notificationTable),
   sentInvitations: many(invitationTable),
+  apikeys: many(apikeyTable),
 }));
 
 export const sessionTableRelations = relations(sessionTable, ({ one }) => ({
@@ -184,3 +186,10 @@ export const invitationTableRelations = relations(
     }),
   }),
 );
+
+export const apikeyTableRelations = relations(apikeyTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [apikeyTable.userId],
+    references: [userTable.id],
+  }),
+}));

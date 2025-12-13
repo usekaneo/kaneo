@@ -1,90 +1,166 @@
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { z } from "zod";
-import createProject from "./controllers/create-project";
-import deleteProject from "./controllers/delete-project";
-import getProject from "./controllers/get-project";
-import getProjects from "./controllers/get-projects";
-import updateProject from "./controllers/update-project";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
+import { projectSchema } from "../schemas";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
+import createProjectCtrl from "./controllers/create-project";
+import deleteProjectCtrl from "./controllers/delete-project";
+import getProjectCtrl from "./controllers/get-project";
+import getProjectsCtrl from "./controllers/get-projects";
+import updateProjectCtrl from "./controllers/update-project";
 
-const project = new Hono()
+const project = new Hono<{
+  Variables: {
+    userId: string;
+    workspaceId: string;
+  };
+}>()
   .get(
     "/",
-    zValidator("query", z.object({ workspaceId: z.string() })),
+    describeRoute({
+      operationId: "listProjects",
+      tags: ["Projects"],
+      description: "Get all projects in a workspace",
+      responses: {
+        200: {
+          description: "List of projects with statistics",
+          content: {
+            "application/json": { schema: resolver(v.array(projectSchema)) },
+          },
+        },
+      },
+    }),
+    validator("query", v.object({ workspaceId: v.string() })),
+    workspaceAccess.fromQuery(),
     async (c) => {
-      const { workspaceId } = c.req.valid("query");
-      const projects = await getProjects(workspaceId);
+      const workspaceId = c.get("workspaceId");
+      const projects = await getProjectsCtrl(workspaceId);
       return c.json(projects);
     },
   )
   .post(
     "/",
-    zValidator(
+    describeRoute({
+      operationId: "createProject",
+      tags: ["Projects"],
+      description: "Create a new project in a workspace",
+      responses: {
+        200: {
+          description: "Project created successfully",
+          content: {
+            "application/json": { schema: resolver(projectSchema) },
+          },
+        },
+      },
+    }),
+    validator(
       "json",
-      z.object({
-        name: z.string(),
-        workspaceId: z.string(),
-        icon: z.string(),
-        slug: z.string(),
+      v.object({
+        name: v.string(),
+        workspaceId: v.string(),
+        icon: v.string(),
+        slug: v.string(),
       }),
     ),
+    workspaceAccess.fromBody(),
     async (c) => {
-      const { name, workspaceId, icon, slug } = c.req.valid("json");
-      const project = await createProject(workspaceId, name, icon, slug);
-      return c.json(project);
+      const { name, icon, slug } = c.req.valid("json");
+      const workspaceId = c.get("workspaceId");
+      const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
+      return c.json(newProject);
     },
   )
-  .delete(
+  .get(
     "/:id",
-    zValidator("param", z.object({ id: z.string() })),
+    describeRoute({
+      operationId: "getProject",
+      tags: ["Projects"],
+      description: "Get a specific project by ID",
+      responses: {
+        200: {
+          description: "Project details",
+          content: {
+            "application/json": { schema: resolver(projectSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("query", v.optional(v.object({ workspaceId: v.string() }))),
+    workspaceAccess.fromProject(),
     async (c) => {
       const { id } = c.req.valid("param");
-
-      const project = await deleteProject(id);
-
-      return c.json(project);
+      const workspaceId = c.get("workspaceId");
+      const projectData = await getProjectCtrl(id, workspaceId);
+      return c.json(projectData);
     },
   )
   .put(
     "/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator(
+    describeRoute({
+      operationId: "updateProject",
+      tags: ["Projects"],
+      description: "Update an existing project",
+      responses: {
+        200: {
+          description: "Project updated successfully",
+          content: {
+            "application/json": { schema: resolver(projectSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator(
       "json",
-      z.object({
-        name: z.string(),
-        icon: z.string(),
-        slug: z.string(),
-        description: z.string(),
-        isPublic: z.boolean(),
+      v.object({
+        name: v.string(),
+        icon: v.string(),
+        slug: v.string(),
+        description: v.string(),
+        isPublic: v.boolean(),
       }),
     ),
+    workspaceAccess.fromProject(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { name, icon, slug, description, isPublic } = c.req.valid("json");
-
-      const project = await updateProject(
+      const workspaceId = c.get("workspaceId");
+      const updatedProject = await updateProjectCtrl(
         id,
         name,
         icon,
         slug,
         description,
         isPublic,
+        workspaceId,
       );
-
-      return c.json(project);
+      return c.json(updatedProject);
     },
   )
-  .get(
+  .delete(
     "/:id",
-    zValidator("param", z.object({ id: z.string() })),
-    zValidator("query", z.object({ workspaceId: z.string() })),
+    describeRoute({
+      operationId: "deleteProject",
+      tags: ["Projects"],
+      description: "Delete a project by ID",
+      responses: {
+        200: {
+          description: "Project deleted successfully",
+          content: {
+            "application/json": { schema: resolver(projectSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("query", v.optional(v.object({ workspaceId: v.string() }))),
+    workspaceAccess.fromProject(),
     async (c) => {
       const { id } = c.req.valid("param");
-      const { workspaceId } = c.req.valid("query");
-
-      const project = await getProject(id, workspaceId);
-
-      return c.json(project);
+      const workspaceId = c.get("workspaceId");
+      const deletedProject = await deleteProjectCtrl(id, workspaceId);
+      return c.json(deletedProject);
     },
   );
 

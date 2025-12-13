@@ -1,0 +1,11 @@
+{
+	"title": "Projects",
+	"pages": [
+		"createProject",
+		"getProject",
+		"listProjects",
+		"updateProject",
+		"deleteProject"
+	],
+	"defaultOpen": true
+}

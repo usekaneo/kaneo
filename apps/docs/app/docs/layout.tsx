@@ -1,4 +1,5 @@
 import { DocsLayout, type DocsLayoutProps } from "fumadocs-ui/layouts/docs";
+import { Book, Terminal } from "lucide-react";
 import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
@@ -70,7 +71,23 @@ export default function Layout({ children }: { children: ReactNode }) {
     <DocsLayout
       {...docsOptions}
       containerProps={{ className: "bg-background" }}
-      sidebar={{ className: "bg-sidebar" }}
+      sidebar={{
+        className: "bg-sidebar",
+        tabs: [
+          {
+            title: "Core",
+            url: "/docs/core",
+            description: "The core for Kaneo",
+            icon: <Book className="size-full" />,
+          },
+          {
+            title: "API",
+            url: "/docs/api",
+            description: "The API for Kaneo",
+            icon: <Terminal className="size-full" />,
+          },
+        ],
+      }}
     >
       <Script
         defer

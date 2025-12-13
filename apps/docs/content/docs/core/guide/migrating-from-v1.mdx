@@ -1,0 +1,59 @@
+---
+title: Migrating from v1
+description: This guide will help you migrate your Kaneo instance from v1 to v2.
+---
+
+## Overview
+
+Migrating from v1 to v2 is a straightforward process. We have updated the environment variables and the compose file to use the new variables.
+
+> **Note:** Please backup your database before migrating.
+
+## Environment variables
+
+The environment variables are used to configure the application. 
+
+The big change is that we are using a `.env` file to store the variables.
+
+1. Create a `.env` file in the root of the project.
+2. JWT_ACCESS has been changed to AUTH_SECRET.
+
+Other than that, there's newly introduced environment variables that you need to set.
+
+
+- `KANEO_CLIENT_URL` (required)
+- `AUTH_SECRET` (required)
+- `DATABASE_URL` (required)
+- `POSTGRES_DB` (required)
+- `POSTGRES_USER` (required)
+- `POSTGRES_PASSWORD` (required)
+- `CORS_ORIGINS` (optional)
+- `SMTP_HOST` (optional)
+- `SMTP_PORT` (optional)
+- `SMTP_SECURE` (optional)
+- `SMTP_USER` (optional)
+- `SMTP_PASSWORD` (optional)
+- `SMTP_FROM` (optional)
+
+For more information, see the [Environment variables](/docs/core/installation/environment-variables) page.
+
+## Compose file
+
+The compose file has been updated to use the new environment variables.
+
+```yml
+services:
+  api:
+    image: ghcr.io/usekaneo/api:latest
+    env_file:
+      - .env
+      ...
+
+  web:
+    image: ghcr.io/usekaneo/web:latest
+    env_file:
+      - .env
+      ...
+```
+
+For the complete compose file, see the [Docker Compose](/docs/core/installation/docker-compose) page.

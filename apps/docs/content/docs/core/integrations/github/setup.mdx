@@ -1,0 +1,196 @@
+---
+title: App Setup
+description: Learn how to create and configure a GitHub App for Kaneo integration. Step-by-step guide to register your Kaneo instance with GitHub.
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+This guide walks you through creating and configuring a GitHub App to enable the Kaneo integration. **Start here before deploying or configuring your Kaneo instance.**
+
+## Overview
+
+A GitHub App provides secure, granular access to your repositories and allows Kaneo to:
+- Create issues automatically when tasks are created
+- Access repository metadata for verification
+- Receive webhook events for issue synchronization
+
+<Callout type="info">
+GitHub Apps are more secure than personal access tokens and provide better permission control.
+</Callout>
+
+<Callout type="error">
+**Important**: Complete this GitHub App setup **before** deploying Kaneo. You'll need the app credentials during deployment configuration.
+</Callout>
+
+## Step 1: Create a GitHub App
+
+<Steps>
+<Step>
+**Navigate to GitHub App Settings**
+
+Go to [GitHub Developer Settings](https://github.com/settings/developers) and click "New GitHub App".
+</Step>
+
+<Step>
+**Configure Basic Information**
+
+Fill in the basic app information:
+
+- **GitHub App name**: `kaneo-[your-instance-name]` (must be unique across GitHub)
+- **Description**: `Kaneo project management integration`
+- **Homepage URL**: Your planned Kaneo instance URL (e.g., `https://kaneo.yourdomain.com`)
+- **Webhook URL**: `https://your-kaneo-instance.com/github-integration/webhook`
+- **Webhook secret**: Generate a secure random string (save this for later)
+
+<Callout type="warning">
+Replace `your-kaneo-instance.com` with your planned Kaneo domain. The webhook URL must be publicly accessible once deployed.
+</Callout>
+</Step>
+
+<Step>
+**Set Repository Permissions**
+
+Configure the following permissions:
+
+| Permission | Access | Purpose |
+|------------|---------|---------|
+| **Issues** | Read & Write | Create and update issues |
+| **Metadata** | Read | Access repository information |
+| **Contents** | Read | Access repository metadata |
+
+<Callout type="error">
+**Critical**: Make sure to grant **Write** access to Issues - this is required for creating issues automatically.
+</Callout>
+</Step>
+
+<Step>
+**Subscribe to Webhook Events**
+
+**This step is required for proper integration.** Subscribe to these events:
+
+- **Issues** - To track when issues are created, updated, or closed
+- **Issue Comments** - To track comments on issues
+
+<Callout type="error">
+**Required**: You must subscribe to **Issues** events for the integration to work properly. This enables bidirectional synchronization between Kaneo tasks and GitHub issues.
+</Callout>
+
+<Callout type="info">
+These webhook events enable real-time synchronization between your Kaneo tasks and GitHub issues.
+</Callout>
+</Step>
+
+<Step>
+**Create the App**
+
+Click "Create GitHub App" to create your app. You'll be redirected to the app settings page.
+</Step>
+</Steps>
+
+## Step 2: Generate Credentials
+
+<Steps>
+<Step>
+**Generate and Download Private Key**
+
+1. Scroll down to the "Private keys" section
+2. Click "Generate a private key"
+3. Download the `.pem` file - you'll need its contents for configuration
+
+<Callout type="warn">
+Keep this private key secure! It's used to authenticate your Kaneo instance with GitHub.
+</Callout>
+</Step>
+
+<Step>
+**Note Your App Information**
+
+From the app settings page, note down these important values:
+
+- **App ID** (shown at the top of the page)
+- **Client ID** (in the "Basic information" section)
+- **Client Secret** (click "Generate a new client secret")
+- **Webhook Secret** (the one you created earlier)
+- **Private Key** (contents of the downloaded `.pem` file)
+
+<Callout type="info">
+You'll need all of these values for the [configuration step](/docs/integrations/github/configuration).
+</Callout>
+</Step>
+</Steps>
+
+## Step 3: Install the App
+
+<Steps>
+<Step>
+**Install on Your Account/Organization**
+
+1. Go to your GitHub App settings page
+2. Click "Install App" in the left sidebar
+3. Choose your account or organization
+4. Select repositories:
+   - **All repositories** (if you want integration available for all repos)
+   - **Selected repositories** (choose specific repos)
+
+<Callout type="tip">
+You can modify repository access later by going to your [GitHub App installations](https://github.com/settings/installations).
+</Callout>
+</Step>
+
+<Step>
+**Verify Installation**
+
+After installation, you should see your app listed in:
+- [Your GitHub App installations](https://github.com/settings/installations)
+- The repository's Settings → Integrations & services (for organization repos)
+</Step>
+</Steps>
+
+## Security Best Practices
+
+### App Configuration
+- **Use descriptive names**: Make it clear the app is for Kaneo integration
+- **Limit permissions**: Only grant the minimum required permissions
+- **Repository scope**: Install only on repositories that need integration
+
+### Credential Management
+- **Secure storage**: Store credentials in environment variables or secret management systems
+- **Regular rotation**: Generate new private keys periodically
+- **Access control**: Limit who has access to the GitHub App settings
+
+## Common Issues
+
+### App Name Already Taken
+If your desired app name is taken, try:
+- Adding your organization name: `kaneo-mycompany`
+- Adding a timestamp: `kaneo-mycompany-2024`
+- Using a different naming convention: `mycompany-kaneo`
+
+### Webhook URL Not Accessible
+Ensure your Kaneo instance is:
+- Publicly accessible on the internet
+- Using HTTPS (GitHub requires this for webhooks)
+- Not behind authentication that would block GitHub's webhook calls
+
+### Permission Issues
+Double-check that you've granted:
+- **Write** access to Issues (not just Read)
+- **Read** access to Metadata and Contents
+- Selected the correct repositories during installation
+
+## Next Steps
+
+Now that your GitHub App is created and configured:
+
+1. **[Deploy Kaneo](/docs/core)** - Deploy your Kaneo instance with the GitHub App credentials
+2. **[Configure GitHub Integration](/docs/core/integrations/github/configuration)** - Complete the integration setup in your deployed Kaneo instance
+3. **[Connect Repositories](/docs/core/integrations/github/configuration#connecting-repositories)** - Link your projects to GitHub repositories
+
+<Callout type="info">
+**Important**: Have your GitHub App credentials ready before deployment. You'll need to set them as environment variables during the deployment process.
+</Callout>
+
+---
+
+**Need help?** Check our [troubleshooting guide](/docs/integrations/github/troubleshooting) or ask for help on [Discord](https://discord.gg/rU4tSyhXXU).

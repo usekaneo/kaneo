@@ -57,6 +57,13 @@
 			"when": 1765390825431,
 			"tag": "0007_careful_moira_mactaggert",
 			"breakpoints": true
+		},
+		{
+			"idx": 8,
+			"version": "7",
+			"when": 1765392072530,
+			"tag": "0008_square_silvermane",
+			"breakpoints": true
 		}
 	]
 }
