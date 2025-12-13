@@ -9,14 +9,16 @@ export type UpdateTimeEntryRequest = InferRequestType<
 
 async function updateTimeEntry({
   id,
+  startTime,
   endTime,
-  duration,
+  description,
 }: UpdateTimeEntryRequest) {
   const response = await client["time-entry"][":id"].$put({
     param: { id },
     json: {
+      startTime,
       endTime,
-      duration,
+      description,
     },
   });
 

@@ -1,0 +1,95 @@
+---
+title: Authentication
+description: Learn how to authenticate API requests using API keys
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+All API endpoints require authentication using an API key. This guide explains how to create an API key and use it to authenticate your requests.
+
+## Creating an API Key
+
+<Steps>
+<Step>
+**Sign in to Kaneo**
+
+Sign in to your Kaneo instance using your account credentials.
+</Step>
+
+<Step>
+**Navigate to Settings**
+
+Go to your account settings by clicking on your profile or navigating to the Settings page.
+</Step>
+
+<Step>
+**Open the Account Tab**
+
+In the Settings page, click on the **Account** tab to view your account settings.
+</Step>
+
+<Step>
+**Access API Keys Section**
+
+Scroll down to the **API Keys** section in the Account tab. This section is located under the Developer Settings.
+</Step>
+
+<Step>
+**Create a New API Key**
+
+Click the **Create API Key** button to generate a new API key. You'll be prompted to provide a name for your API key to help you identify it later.
+</Step>
+
+<Step>
+**Save Your API Key**
+
+After creating the API key, you'll be shown the full API key value. **Copy and save this key immediately** - it will not be shown again for security reasons.
+
+<Callout type="error">
+**Important**: Store your API key securely. If you lose it, you'll need to create a new one. The API key cannot be retrieved after creation.
+</Callout>
+</Step>
+</Steps>
+
+## Using Your API Key
+
+Once you have your API key, include it in the `Authorization` header of all API requests using the Bearer token format:
+
+```bash
+Authorization: Bearer your-api-key-here
+```
+
+### Example Request
+
+Here's an example of making an authenticated API request using curl:
+
+```bash
+curl -X GET https://your-kaneo-instance.com/api/task?workspaceId=your-workspace-id \
+  -H "Authorization: Bearer your-api-key-here" \
+  -H "Content-Type: application/json"
+```
+
+### Example with JavaScript
+
+```javascript
+const response = await fetch('https://your-kaneo-instance.com/api/task?workspaceId=your-workspace-id', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer your-api-key-here',
+    'Content-Type': 'application/json'
+  }
+});
+```
+
+## Security Best Practices
+
+- **Keep your API keys secret**: Never commit API keys to version control or share them publicly
+- **Use descriptive names**: Name your API keys clearly so you can identify their purpose (e.g., "Production Script", "Development Testing")
+- **Rotate keys regularly**: Periodically create new API keys and revoke old ones
+- **Limit key scope**: Only grant API keys to trusted applications and services
+- **Monitor usage**: Regularly review your API keys and remove any that are no longer needed
+
+<Callout type="warning">
+If you suspect your API key has been compromised, immediately revoke it in the API Keys section and create a new one.
+</Callout>

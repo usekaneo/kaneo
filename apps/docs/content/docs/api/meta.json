@@ -2,6 +2,7 @@
 	"title": "API",
 	"description": "The API for Kaneo",
 	"pages": [
+		"authentication",
 		"getConfig",
 		"globalSearch",
 		"tasks",

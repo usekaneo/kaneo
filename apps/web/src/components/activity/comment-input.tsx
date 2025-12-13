@@ -42,10 +42,9 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 
 interface CommentInputProps {
   taskId: string;
-  userId: string;
 }
 
-export default function CommentInput({ taskId, userId }: CommentInputProps) {
+export default function CommentInput({ taskId }: CommentInputProps) {
   const { theme } = useUserPreferencesStore();
   const [content, setContent] = useState("");
   const { mutateAsync: createComment, isPending } = useCreateComment();
@@ -78,8 +77,7 @@ export default function CommentInput({ taskId, userId }: CommentInputProps) {
     try {
       await createComment({
         taskId,
-        userId,
-        content,
+        comment: content,
       });
 
       // Clear editor
@@ -95,7 +93,7 @@ export default function CommentInput({ taskId, userId }: CommentInputProps) {
       console.error("Failed to create comment:", error);
       toast.error("Failed to add comment");
     }
-  }, [content, createComment, taskId, userId, editor, queryClient]);
+  }, [content, createComment, taskId, editor, queryClient]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
