@@ -127,7 +127,6 @@ const label = new Hono()
       v.object({
         name: v.string(),
         color: v.string(),
-        description: v.optional(v.string()),
       }),
     ),
     async (c) => {
