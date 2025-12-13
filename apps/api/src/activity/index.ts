@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { subscribeToEvent } from "../events";
 import { activitySchema } from "../schemas";
 import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
@@ -151,5 +152,126 @@ const activity = new Hono<{
       return c.json(deletedComment);
     },
   );
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  type: string;
+  content: string;
+}>("task.created", async (data) => {
+  await createActivity(data.taskId, data.type, data.userId, data.content);
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  oldStatus: string;
+  newStatus: string;
+  title: string;
+  type: string;
+}>("task.status_changed", async (data) => {
+  await createActivity(
+    data.taskId,
+    data.type,
+    data.userId,
+    `changed status from "${data.oldStatus}" to "${data.newStatus}"`,
+  );
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  oldPriority: string;
+  newPriority: string;
+  title: string;
+  type: string;
+}>("task.priority_changed", async (data) => {
+  await createActivity(
+    data.taskId,
+    data.type,
+    data.userId,
+    `changed priority from "${data.oldPriority}" to "${data.newPriority}"`,
+  );
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  title: string;
+  type: string;
+}>("task.unassigned", async (data) => {
+  await createActivity(
+    data.taskId,
+    data.type,
+    data.userId,
+    "unassigned the task",
+  );
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  oldAssignee: string | null;
+  newAssignee: string;
+  title: string;
+  type: string;
+}>("task.assignee_changed", async (data) => {
+  await createActivity(
+    data.taskId,
+    data.type,
+    data.userId,
+    `assigned the task to ${data.newAssignee}`,
+  );
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  oldDueDate: Date | null;
+  newDueDate: Date;
+  title: string;
+  type: string;
+}>("task.due_date_changed", async (data) => {
+  const oldDate = data.oldDueDate
+    ? new Date(data.oldDueDate).toLocaleDateString()
+    : "none";
+  const newDate = new Date(data.newDueDate).toLocaleDateString();
+  await createActivity(
+    data.taskId,
+    data.type,
+    data.userId,
+    `changed due date from ${oldDate} to ${newDate}`,
+  );
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  oldTitle: string;
+  newTitle: string;
+  title: string;
+  type: string;
+}>("task.title_changed", async (data) => {
+  await createActivity(
+    data.taskId,
+    data.type,
+    data.userId,
+    `changed title from "${data.oldTitle}" to "${data.newTitle}"`,
+  );
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  title: string;
+  type: string;
+}>("task.description_changed", async (data) => {
+  await createActivity(
+    data.taskId,
+    data.type,
+    data.userId,
+    "updated the description",
+  );
+});
 
 export default activity;
