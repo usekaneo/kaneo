@@ -67,6 +67,7 @@ const search = new Hono<{
           v.string(),
           v.transform(Number),
           v.minValue(1, "Limit must be at least 1"),
+          v.maxValue(50, "Limit must not exceed 50"),
         ),
         "20",
       ),

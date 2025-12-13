@@ -128,8 +128,14 @@ api.use("*", async (c, next) => {
         c.set("session", null);
         return next();
       }
+
+      throw new HTTPException(401, { message: "Invalid API key" });
     } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
       console.error("API key verification failed:", error);
+      throw new HTTPException(401, { message: "API key verification failed" });
     }
   }
 
