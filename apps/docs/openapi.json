@@ -6,7 +6,7 @@
 		"version": "1.0.0"
 	},
 	"servers": [
-		{ "url": "http://cloud.kaneo.app/api", "description": "Kaneo API Server" }
+		{ "url": "https://cloud.kaneo.app/api", "description": "Kaneo API Server" }
 	],
 	"components": {
 		"securitySchemes": {
@@ -147,7 +147,8 @@
 										"isActive": {
 											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 										},
-										"createdAt": {}
+										"createdAt": {},
+										"updatedAt": {}
 									},
 									"required": [
 										"id",
@@ -156,7 +157,8 @@
 										"repositoryName",
 										"installationId",
 										"isActive",
-										"createdAt"
+										"createdAt",
+										"updatedAt"
 									]
 								}
 							}
@@ -194,7 +196,8 @@
 										"isActive": {
 											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 										},
-										"createdAt": {}
+										"createdAt": {},
+										"updatedAt": {}
 									},
 									"required": [
 										"id",
@@ -203,7 +206,8 @@
 										"repositoryName",
 										"installationId",
 										"isActive",
-										"createdAt"
+										"createdAt",
+										"updatedAt"
 									]
 								}
 							}
@@ -255,7 +259,8 @@
 										"isActive": {
 											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 										},
-										"createdAt": {}
+										"createdAt": {},
+										"updatedAt": {}
 									},
 									"required": [
 										"id",
@@ -264,7 +269,8 @@
 										"repositoryName",
 										"installationId",
 										"isActive",
-										"createdAt"
+										"createdAt",
+										"updatedAt"
 									]
 								}
 							}
@@ -325,7 +331,8 @@
 										"isActive": {
 											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 										},
-										"createdAt": {}
+										"createdAt": {},
+										"updatedAt": {}
 									},
 									"required": [
 										"id",
@@ -334,7 +341,8 @@
 										"repositoryName",
 										"installationId",
 										"isActive",
-										"createdAt"
+										"createdAt",
+										"updatedAt"
 									]
 								}
 							}
@@ -411,7 +419,13 @@
 										"hasGoogleSignIn": {
 											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 										},
+										"hasDiscordSignIn": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
 										"hasCustomOAuth": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"hasGuestAccess": {
 											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 										}
 									},
@@ -421,7 +435,9 @@
 										"hasSmtp",
 										"hasGithubSignIn",
 										"hasGoogleSignIn",
-										"hasCustomOAuth"
+										"hasDiscordSignIn",
+										"hasCustomOAuth",
+										"hasGuestAccess"
 									]
 								}
 							}
@@ -717,6 +733,12 @@
 					{
 						"in": "path",
 						"name": "id",
+						"schema": { "type": "string" },
+						"required": true
+					},
+					{
+						"in": "query",
+						"name": "workspaceId",
 						"schema": { "type": "string" },
 						"required": true
 					}
@@ -1964,7 +1986,8 @@
 								"type": "object",
 								"properties": {
 									"startTime": { "type": "string" },
-									"endTime": { "type": "string" }
+									"endTime": { "type": "string" },
+									"description": { "type": "string" }
 								},
 								"required": ["startTime"]
 							}
@@ -2180,7 +2203,7 @@
 									"name": { "type": "string" },
 									"color": { "type": "string" },
 									"workspaceId": { "type": "string" },
-									"description": { "type": "string" }
+									"taskId": { "type": "string" }
 								},
 								"required": ["name", "color", "workspaceId"]
 							}
@@ -2286,8 +2309,7 @@
 								"type": "object",
 								"properties": {
 									"name": { "type": "string" },
-									"color": { "type": "string" },
-									"description": { "type": "string" }
+									"color": { "type": "string" }
 								},
 								"required": ["name", "color"]
 							}
@@ -2739,7 +2761,7 @@
 					{
 						"in": "query",
 						"name": "q",
-						"schema": { "type": "string" },
+						"schema": { "type": "string", "minLength": 1 },
 						"required": true
 					},
 					{
@@ -2770,7 +2792,12 @@
 					{
 						"in": "query",
 						"name": "limit",
-						"schema": { "type": "number", "default": "20" }
+						"schema": {
+							"type": "string",
+							"minimum": 1,
+							"maximum": 50,
+							"default": "20"
+						}
 					},
 					{
 						"in": "query",
