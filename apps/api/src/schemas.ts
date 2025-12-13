@@ -74,6 +74,7 @@ export const githubIntegrationSchema = v.object({
   installationId: v.nullable(v.number()),
   isActive: v.nullable(v.boolean()),
   createdAt: v.date(),
+  updatedAt: v.date(),
 });
 
 export const configSchema = v.object({
