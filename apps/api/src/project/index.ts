@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { projectSchema } from "../schemas";
-import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
 import getProjectCtrl from "./controllers/get-project";
@@ -12,6 +12,7 @@ import updateProjectCtrl from "./controllers/update-project";
 const project = new Hono<{
   Variables: {
     userId: string;
+    workspaceId: string;
   };
 }>()
   .get(
@@ -30,10 +31,9 @@ const project = new Hono<{
       },
     }),
     validator("query", v.object({ workspaceId: v.string() })),
+    workspaceAccess.fromQuery(),
     async (c) => {
-      const { workspaceId } = c.req.valid("query");
-      const userId = c.get("userId");
-      await validateWorkspaceAccess(userId, workspaceId);
+      const workspaceId = c.get("workspaceId");
       const projects = await getProjectsCtrl(workspaceId);
       return c.json(projects);
     },
@@ -62,10 +62,10 @@ const project = new Hono<{
         slug: v.string(),
       }),
     ),
+    workspaceAccess.fromBody(),
     async (c) => {
-      const { name, workspaceId, icon, slug } = c.req.valid("json");
-      const userId = c.get("userId");
-      await validateWorkspaceAccess(userId, workspaceId);
+      const { name, icon, slug } = c.req.valid("json");
+      const workspaceId = c.get("workspaceId");
       const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
       return c.json(newProject);
     },
@@ -86,10 +86,11 @@ const project = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
-    validator("query", v.object({ workspaceId: v.string() })),
+    validator("query", v.optional(v.object({ workspaceId: v.string() }))),
+    workspaceAccess.fromProject(),
     async (c) => {
       const { id } = c.req.valid("param");
-      const { workspaceId } = c.req.valid("query");
+      const workspaceId = c.get("workspaceId");
       const projectData = await getProjectCtrl(id, workspaceId);
       return c.json(projectData);
     },
@@ -120,9 +121,11 @@ const project = new Hono<{
         isPublic: v.boolean(),
       }),
     ),
+    workspaceAccess.fromProject(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { name, icon, slug, description, isPublic } = c.req.valid("json");
+      const workspaceId = c.get("workspaceId");
       const updatedProject = await updateProjectCtrl(
         id,
         name,
@@ -130,6 +133,7 @@ const project = new Hono<{
         slug,
         description,
         isPublic,
+        workspaceId,
       );
       return c.json(updatedProject);
     },
@@ -150,9 +154,12 @@ const project = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
+    validator("query", v.optional(v.object({ workspaceId: v.string() }))),
+    workspaceAccess.fromProject(),
     async (c) => {
       const { id } = c.req.valid("param");
-      const deletedProject = await deleteProjectCtrl(id);
+      const workspaceId = c.get("workspaceId");
+      const deletedProject = await deleteProjectCtrl(id, workspaceId);
       return c.json(deletedProject);
     },
   );
