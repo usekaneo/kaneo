@@ -1,3 +1,67 @@
+## [2.1.1](https://github.com/usekaneo/kaneo/compare/v2.0.9...v2.1.1) (2025-12-13)
+
+
+### Bug Fixes
+
+* **api:** improve query validation and update API URL structure ([fe306d8](https://github.com/usekaneo/kaneo/commit/fe306d831ed67b2c1f5106410a3c5b4325adb62b))
+* prevent create task modal from closing on outside click ([2d76d12](https://github.com/usekaneo/kaneo/commit/2d76d12c5234eddd873f50457048faa72bf8a4d2))
+* resolve linter issues ([62592fe](https://github.com/usekaneo/kaneo/commit/62592fe8f349394570289fb180e5b7bc04ce6ac6))
+
+
+### Features
+
+* add DISABLE_GUEST_ACCESS environment variable ([c7b14a2](https://github.com/usekaneo/kaneo/commit/c7b14a2748a4d11a10051a1b42db5534d5ff85c1))
+* **api:** add Discord and guest access sign-in options to config schema ([00194a8](https://github.com/usekaneo/kaneo/commit/00194a88e4e9d0a2563400cc778ece000a50004e))
+* **api:** add event subscriptions for task activity tracking ([f921402](https://github.com/usekaneo/kaneo/commit/f921402f21e4349228d8152092b1d149f9b34dcd))
+* **api:** add OpenAPI endpoint and documentation handler ([7123a45](https://github.com/usekaneo/kaneo/commit/7123a45da0143db905cfcd434cb2c41c2e0cb408))
+* **api:** add shared response schemas for OpenAPI documentation ([4b949b0](https://github.com/usekaneo/kaneo/commit/4b949b06cbdc37d0e82b1d3fdb57423880260415))
+* **api:** add updatedAt field to githubIntegrationSchema ([2b4054c](https://github.com/usekaneo/kaneo/commit/2b4054c15ecb8e8bdaeba9edd16c942cfc0a23a1))
+* **api:** add workspace access validation utility ([aeabf4c](https://github.com/usekaneo/kaneo/commit/aeabf4cd5f5fb021e0ffe4179e953e78590086a0))
+* **api:** enhance deleteComment function to return deleted comment ([84ed5fc](https://github.com/usekaneo/kaneo/commit/84ed5fc832924468443fead790ee0bda09c59f18))
+* **api:** enhance event subscriptions for task and workspace notifications ([04429bb](https://github.com/usekaneo/kaneo/commit/04429bbeb812a2bbe7758b824bfae3c391e48d0e))
+* **api:** implement updateTimeEntry functionality in time-entry API ([4b92c46](https://github.com/usekaneo/kaneo/commit/4b92c46e399fdf2943ad67614e9d6a24bc758860))
+* **api:** implement workspace access middleware for project routes ([81c3c85](https://github.com/usekaneo/kaneo/commit/81c3c859e8ff25635e30d9eed3447243448ddcca))
+* **api:** improve API key verification and error handling ([88bf481](https://github.com/usekaneo/kaneo/commit/88bf481e7e606746982f58879ebb74b6258766d9))
+* **api:** remove optional description field from label schema ([0d4d2da](https://github.com/usekaneo/kaneo/commit/0d4d2da319992bee453b6e3901bd24df314a2f28))
+* **api:** replace v.any() with proper type schemas in all routes ([1618e6f](https://github.com/usekaneo/kaneo/commit/1618e6f8b326fb29cf047441c4b64e30d9da7d73))
+* **api:** update OpenAPI schema and dependencies ([303db4b](https://github.com/usekaneo/kaneo/commit/303db4b07da76cb12e6f382d0ce4b725059012d2))
+* **api:** validate task creation data and update notification content ([c31d94f](https://github.com/usekaneo/kaneo/commit/c31d94f9cfaac4942d582fbf34c9abf2a1846c8c))
+* **auth:** add api key authentication middleware ([9cccb87](https://github.com/usekaneo/kaneo/commit/9cccb87d3406af68c9336b5f57e656bdbb86bb01))
+* **auth:** add custom OAuth provider support ([a566702](https://github.com/usekaneo/kaneo/commit/a566702f6e89023332a59164c4914a7a66536c84))
+* **auth:** add support for custom OAuth/OIDC provider integration ([2eb0cdc](https://github.com/usekaneo/kaneo/commit/2eb0cdc8922ab2b5eaff4114d347220332de62d2))
+* **auth:** add support for custom OAuth/OIDC provider integration ([3f043b5](https://github.com/usekaneo/kaneo/commit/3f043b56c5ed26c032b432960161c17bb6d2e678))
+* **database:** update workspace slug handling ([8ac2e0a](https://github.com/usekaneo/kaneo/commit/8ac2e0a8b6d53781ade95b26e0a40710baaba7a1))
+* **database:** update workspace slug handling ([1aab22f](https://github.com/usekaneo/kaneo/commit/1aab22fa564ddd96b80af5d479f1f935baa3cba2))
+* **db:** add api key migration ([496ced2](https://github.com/usekaneo/kaneo/commit/496ced27734dd661cd51d51204a334df2cbf2079))
+* **db:** add api key relations ([5c54bb5](https://github.com/usekaneo/kaneo/commit/5c54bb5438f127aa986a31c6fb7b1033514077d7))
+* **db:** add api key table schema ([3e4e7bf](https://github.com/usekaneo/kaneo/commit/3e4e7bf44d8299f9415e544f8e797fb3ec9d3810))
+* **db:** export api key table from database ([75594bf](https://github.com/usekaneo/kaneo/commit/75594bfb8e65f92ce11571a679f66485a7290af6))
+* **docs:** add API overview page with endpoint cards ([3763f7e](https://github.com/usekaneo/kaneo/commit/3763f7e0b1afa9ba0f661ccae03c0250d0afb817))
+* **docs:** add API page client component ([ab6b5e0](https://github.com/usekaneo/kaneo/commit/ab6b5e097f8bf2c02d00d06cecbaaf8ad1e3a1b3))
+* **docs:** add API page server component ([9d9ff47](https://github.com/usekaneo/kaneo/commit/9d9ff47e036dbfd7688057f2a32af5d5b2777fcb))
+* **docs:** add authentication guide and update API documentation ([8a0cf44](https://github.com/usekaneo/kaneo/commit/8a0cf446ccaed57f32b5f87c301b346a2fa5c352))
+* **docs:** add documentation generation script ([2cc6fcf](https://github.com/usekaneo/kaneo/commit/2cc6fcf53c311e007ca63b007d2d070823020df3))
+* **docs:** add OpenAPI API route ([3fa272d](https://github.com/usekaneo/kaneo/commit/3fa272d0b4a073043c392123974cbb409f410b49))
+* **docs:** add OpenAPI parsing utilities ([3ab6cd7](https://github.com/usekaneo/kaneo/commit/3ab6cd7954578ad930136e23285b7c5a1644e430))
+* **docs:** add OpenAPI specification file ([e6acefe](https://github.com/usekaneo/kaneo/commit/e6acefe12275f684123ed4dc870951cf758b16e6))
+* **docs:** add redirects from old documentation paths ([753452f](https://github.com/usekaneo/kaneo/commit/753452f68f95a4dfd373dfc865bf7be18c77aec8))
+* **docs:** configure docs generator to group endpoints by domain ([5efa841](https://github.com/usekaneo/kaneo/commit/5efa8418a5c08d66fe4e22f1ff80171e5f2216a3))
+* **docs:** update docs layout navigation ([fad9207](https://github.com/usekaneo/kaneo/commit/fad9207a0808e6f7ec3bdf37c45eed082b52eef8))
+* **docs:** update docs page for API routes ([78cdfb3](https://github.com/usekaneo/kaneo/commit/78cdfb34caba5ffc2b6a36546a1f7e1e59b5a555))
+* **docs:** update internal links to new documentation structure ([6a532b7](https://github.com/usekaneo/kaneo/commit/6a532b7c627fb0be132938e0ada4d1976fdc942c))
+* **docs:** update source configuration for new structure ([09e65d9](https://github.com/usekaneo/kaneo/commit/09e65d90355e13a15d8f91b7fd235d0a20bb7b2b))
+* **web:** add api key created modal component ([b803bc9](https://github.com/usekaneo/kaneo/commit/b803bc90fd2825529f3a89f91eea671d6ae8de69))
+* **web:** add api key query hook ([fbc0785](https://github.com/usekaneo/kaneo/commit/fbc07853c9a44cf792e7e435c52d7b8d965280a5))
+* **web:** add api key table component ([4cd2f90](https://github.com/usekaneo/kaneo/commit/4cd2f903753135f2dc6530d9fc00087ad6ec3167))
+* **web:** add api key types ([3bd855f](https://github.com/usekaneo/kaneo/commit/3bd855f9700704c0be70b080358cc1ee8af9661a))
+* **web:** add create api key dialog component ([2a1ea9b](https://github.com/usekaneo/kaneo/commit/2a1ea9b38253c7123e939f216086265149925f9d))
+* **web:** add create api key mutation hook ([b1ba33d](https://github.com/usekaneo/kaneo/commit/b1ba33df43daed8ce8598e4b6a5bb25a8714ecfd))
+* **web:** add delete api key mutation hook ([af4f4a5](https://github.com/usekaneo/kaneo/commit/af4f4a5dc29cd4cf1f496d7916c5dc1a8f948569))
+* **web:** add developer settings page ([94316fa](https://github.com/usekaneo/kaneo/commit/94316fa1f8677f528f7d1772f0da1055f6c76394))
+* **web:** add developer tab to account settings ([2190eab](https://github.com/usekaneo/kaneo/commit/2190eabb51a0a4e17e22352b9e3bc43d56916aab))
+
+
+
 ## [2.0.9](https://github.com/usekaneo/kaneo/compare/v2.0.8...v2.0.9) (2025-12-10)
 
 
