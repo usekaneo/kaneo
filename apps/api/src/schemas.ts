@@ -82,5 +82,7 @@ export const configSchema = v.object({
   hasSmtp: v.boolean(),
   hasGithubSignIn: v.nullable(v.boolean()),
   hasGoogleSignIn: v.nullable(v.boolean()),
+  hasDiscordSignIn: v.nullable(v.boolean()),
   hasCustomOAuth: v.nullable(v.boolean()),
+  hasGuestAccess: v.nullable(v.boolean()),
 });
