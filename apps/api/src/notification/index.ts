@@ -162,8 +162,8 @@ subscribeToEvent<{
   if (data.userId) {
     await createNotification({
       userId: data.userId,
-      title: "New task assigned",
-      content: `You have been assigned to task: ${data.title}`,
+      title: "New Task Created",
+      content: `Task "${data.title}" was created`,
       type: "task_created",
       resourceId: data.taskId,
       resourceType: "task",

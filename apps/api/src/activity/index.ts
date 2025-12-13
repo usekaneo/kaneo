@@ -159,6 +159,9 @@ subscribeToEvent<{
   type: string;
   content: string;
 }>("task.created", async (data) => {
+  if (!data.userId || !data.taskId || !data.type || !data.content) {
+    return;
+  }
   await createActivity(data.taskId, data.type, data.userId, data.content);
 });
 
