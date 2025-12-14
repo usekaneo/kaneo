@@ -38,8 +38,8 @@ First, create an OAuth 2.0 or OIDC application in your identity provider:
 
 1. Log in to your identity provider's admin console
 2. Create a new OAuth 2.0 or OIDC application
-3. Set the redirect URI to: `{KANEO_API_URL}/api/auth/callback/custom`
-   - Example: `https://api.kaneo.example.com/api/auth/callback/custom`
+3. Set the redirect URI to: `{KANEO_API_URL}/api/auth/oauth2/callback/custom`
+   - Example: `https://api.kaneo.example.com/api/auth/oauth2/callback/custom`
 4. Copy the client ID and client secret
 5. Note the authorization, token, and userinfo endpoint URLs
 
@@ -142,13 +142,13 @@ CUSTOM_OAUTH_SCOPES=openid,profile,email
 Verify that your redirect URI in the OAuth provider matches exactly:
 
 ```
-{KANEO_API_URL}/api/auth/callback/custom
+{KANEO_API_URL}/api/auth/oauth2/callback/custom
 ```
 
 For example, if `KANEO_API_URL=https://api.kaneo.example.com`, the redirect URI should be:
 
 ```
-https://api.kaneo.example.com/api/auth/callback/custom
+https://api.kaneo.example.com/api/auth/oauth2/callback/custom
 ```
 
 ## Discovery URL

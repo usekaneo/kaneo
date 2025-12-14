@@ -199,7 +199,9 @@ export const auth = betterAuth({
           authorizationUrl: process.env.CUSTOM_OAUTH_AUTHORIZATION_URL || "",
           tokenUrl: process.env.CUSTOM_OAUTH_TOKEN_URL || "",
           userInfoUrl: process.env.CUSTOM_OAUTH_USER_INFO_URL || "",
-          scopes: process.env.CUSTOM_OAUTH_SCOPES?.split(",") || [],
+          scopes: process.env.CUSTOM_OAUTH_SCOPES?.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean) || ["profile", "email"],
           responseType: process.env.CUSTOM_OAUTH_RESPONSE_TYPE || "code",
           discoveryUrl: process.env.CUSTOM_OAUTH_DISCOVERY_URL || "",
           pkce: process.env.CUSTOM_AUTH_PKCE !== "false",
