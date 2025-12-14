@@ -81,6 +81,18 @@ export default function Layout({ children }: { children: ReactNode }) {
           ),
         },
         {
+          type: "custom",
+          on: "nav",
+          children: (
+            <Link
+              href="https://github.com/sponsors/andrejsshell"
+              className="inline-flex items-center gap-1 p-2 text-fd-muted-foreground transition-colors hover:text-fd-accent-foreground data-[active=true]:text-fd-primary [&_svg]:size-4 text-base"
+            >
+              Sponsor
+            </Link>
+          ),
+        },
+        {
           type: "menu",
           on: "menu",
           text: "Links",
@@ -93,6 +105,11 @@ export default function Layout({ children }: { children: ReactNode }) {
             {
               text: "Documentation",
               url: "/docs",
+            },
+            {
+              text: "Sponsor",
+              url: "https://github.com/sponsors/andrejsshell",
+              external: true,
             },
           ],
         },

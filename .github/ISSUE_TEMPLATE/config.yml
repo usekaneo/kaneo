@@ -9,3 +9,6 @@ contact_links:
   - name: GitHub Discussions
     url: https://github.com/orgs/usekaneo/discussions
     about: For general questions and discussions about Kaneo
+  - name: Support Kaneo
+    url: https://github.com/sponsors/andrejsshell
+    about: Help keep Kaneo maintained and evolving

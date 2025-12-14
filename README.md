@@ -44,6 +44,10 @@ We believe the best tools are **invisible**. They should amplify your team's nat
 
 Learn more about Kaneo's features and capabilities in our [documentation](https://kaneo.app/docs).
 
+## Sponsors
+
+Kaneo is open source and free forever. If you find it useful, consider [sponsoring the project](https://github.com/sponsors/andrejsshell) to help support ongoing development.
+
 ## Getting Started
 
 ### Quick Start with Docker Compose
