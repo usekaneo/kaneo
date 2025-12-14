@@ -794,9 +794,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -875,9 +884,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -936,9 +954,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -1024,9 +1051,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -1158,9 +1194,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -1232,9 +1277,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -1306,9 +1360,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -1380,9 +1443,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -1454,9 +1526,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -1528,9 +1609,18 @@
 										"description": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"status": { "type": "string" },
+										"status": {
+											"enum": [
+												"to-do",
+												"in-progress",
+												"in-review",
+												"done",
+												"archived",
+												"planned"
+											]
+										},
 										"priority": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"enum": ["no-priority", "low", "medium", "high", "urgent"]
 										},
 										"dueDate": { "anyOf": [{}, { "type": "null" }] },
 										"createdAt": {}
@@ -1591,7 +1681,20 @@
 										"properties": {
 											"id": { "type": "string" },
 											"taskId": { "type": "string" },
-											"type": { "type": "string" },
+											"type": {
+												"enum": [
+													"comment",
+													"task",
+													"status_changed",
+													"priority_changed",
+													"unassigned",
+													"assignee_changed",
+													"due_date_changed",
+													"title_changed",
+													"description_changed",
+													"create"
+												]
+											},
 											"createdAt": {},
 											"userId": { "type": "string" },
 											"content": {
@@ -1637,7 +1740,20 @@
 									"properties": {
 										"id": { "type": "string" },
 										"taskId": { "type": "string" },
-										"type": { "type": "string" },
+										"type": {
+											"enum": [
+												"comment",
+												"task",
+												"status_changed",
+												"priority_changed",
+												"unassigned",
+												"assignee_changed",
+												"due_date_changed",
+												"title_changed",
+												"description_changed",
+												"create"
+											]
+										},
 										"createdAt": {},
 										"userId": { "type": "string" },
 										"content": {
@@ -1690,7 +1806,20 @@
 									"properties": {
 										"id": { "type": "string" },
 										"taskId": { "type": "string" },
-										"type": { "type": "string" },
+										"type": {
+											"enum": [
+												"comment",
+												"task",
+												"status_changed",
+												"priority_changed",
+												"unassigned",
+												"assignee_changed",
+												"due_date_changed",
+												"title_changed",
+												"description_changed",
+												"create"
+											]
+										},
 										"createdAt": {},
 										"userId": { "type": "string" },
 										"content": {
@@ -1739,7 +1868,20 @@
 									"properties": {
 										"id": { "type": "string" },
 										"taskId": { "type": "string" },
-										"type": { "type": "string" },
+										"type": {
+											"enum": [
+												"comment",
+												"task",
+												"status_changed",
+												"priority_changed",
+												"unassigned",
+												"assignee_changed",
+												"due_date_changed",
+												"title_changed",
+												"description_changed",
+												"create"
+											]
+										},
 										"createdAt": {},
 										"userId": { "type": "string" },
 										"content": {
@@ -1788,7 +1930,20 @@
 									"properties": {
 										"id": { "type": "string" },
 										"taskId": { "type": "string" },
-										"type": { "type": "string" },
+										"type": {
+											"enum": [
+												"comment",
+												"task",
+												"status_changed",
+												"priority_changed",
+												"unassigned",
+												"assignee_changed",
+												"due_date_changed",
+												"title_changed",
+												"description_changed",
+												"create"
+											]
+										},
 										"createdAt": {},
 										"userId": { "type": "string" },
 										"content": {
@@ -2384,7 +2539,16 @@
 											"content": {
 												"anyOf": [{ "type": "string" }, { "type": "null" }]
 											},
-											"type": { "type": "string" },
+											"type": {
+												"enum": [
+													"info",
+													"task_created",
+													"workspace_created",
+													"task_status_changed",
+													"task_assignee_changed",
+													"time_entry_created"
+												]
+											},
 											"isRead": {
 												"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 											},
@@ -2392,7 +2556,10 @@
 												"anyOf": [{ "type": "string" }, { "type": "null" }]
 											},
 											"resourceType": {
-												"anyOf": [{ "type": "string" }, { "type": "null" }]
+												"anyOf": [
+													{ "enum": ["task", "workspace"] },
+													{ "type": "null" }
+												]
 											},
 											"createdAt": {}
 										},
@@ -2432,7 +2599,16 @@
 										"content": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"type": { "type": "string" },
+										"type": {
+											"enum": [
+												"info",
+												"task_created",
+												"workspace_created",
+												"task_status_changed",
+												"task_assignee_changed",
+												"time_entry_created"
+											]
+										},
 										"isRead": {
 											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 										},
@@ -2440,7 +2616,10 @@
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
 										"resourceType": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"anyOf": [
+												{ "enum": ["task", "workspace"] },
+												{ "type": "null" }
+											]
 										},
 										"createdAt": {}
 									},
@@ -2499,7 +2678,16 @@
 										"content": {
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
-										"type": { "type": "string" },
+										"type": {
+											"enum": [
+												"info",
+												"task_created",
+												"workspace_created",
+												"task_status_changed",
+												"task_assignee_changed",
+												"time_entry_created"
+											]
+										},
 										"isRead": {
 											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
 										},
@@ -2507,7 +2695,10 @@
 											"anyOf": [{ "type": "string" }, { "type": "null" }]
 										},
 										"resourceType": {
-											"anyOf": [{ "type": "string" }, { "type": "null" }]
+											"anyOf": [
+												{ "enum": ["task", "workspace"] },
+												{ "type": "null" }
+											]
 										},
 										"createdAt": {}
 									},
@@ -2618,9 +2809,24 @@
 													"description": {
 														"anyOf": [{ "type": "string" }, { "type": "null" }]
 													},
-													"status": { "type": "string" },
+													"status": {
+														"enum": [
+															"to-do",
+															"in-progress",
+															"in-review",
+															"done",
+															"archived",
+															"planned"
+														]
+													},
 													"priority": {
-														"anyOf": [{ "type": "string" }, { "type": "null" }]
+														"enum": [
+															"no-priority",
+															"low",
+															"medium",
+															"high",
+															"urgent"
+														]
 													},
 													"dueDate": { "anyOf": [{}, { "type": "null" }] },
 													"createdAt": {}
@@ -2709,7 +2915,20 @@
 												"properties": {
 													"id": { "type": "string" },
 													"taskId": { "type": "string" },
-													"type": { "type": "string" },
+													"type": {
+														"enum": [
+															"comment",
+															"task",
+															"status_changed",
+															"priority_changed",
+															"unassigned",
+															"assignee_changed",
+															"due_date_changed",
+															"title_changed",
+															"description_changed",
+															"create"
+														]
+													},
 													"createdAt": {},
 													"userId": { "type": "string" },
 													"content": {
@@ -2733,7 +2952,20 @@
 												"properties": {
 													"id": { "type": "string" },
 													"taskId": { "type": "string" },
-													"type": { "type": "string" },
+													"type": {
+														"enum": [
+															"comment",
+															"task",
+															"status_changed",
+															"priority_changed",
+															"unassigned",
+															"assignee_changed",
+															"due_date_changed",
+															"title_changed",
+															"description_changed",
+															"create"
+														]
+													},
 													"createdAt": {},
 													"userId": { "type": "string" },
 													"content": {
