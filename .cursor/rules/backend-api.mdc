@@ -1,56 +1,247 @@
 ---
-description:
-globs:
+description: Backend API development guidelines for Hono, Drizzle ORM, and Better Auth
+globs: apps/api/**/*
 alwaysApply: false
 ---
-# Backend API Structure and Patterns
+# Backend API Guidelines
 
-The backend API is located in [apps/api/](mdc:apps/api) and follows a modular, domain-driven architecture.
+The Kaneo API is built with Hono, Drizzle ORM, PostgreSQL, and Better Auth. This document outlines conventions and patterns for backend development.
 
-## Project Structure
+## Framework: Hono
 
-### Core Files
-- **Entry Point**: [apps/api/src/index.ts](mdc:apps/api/src/index.ts) - Main Hono application setup
-- **Database**: [apps/api/src/database/index.ts](mdc:apps/api/src/database/index.ts) - Database connection
-- **Schema**: [apps/api/src/database/schema.ts](mdc:apps/api/src/database/schema.ts) - Drizzle ORM schema definitions
-- **Config**: [apps/api/src/config/index.ts](mdc:apps/api/src/config/index.ts) - Environment configuration
+Hono is a lightweight web framework. Follow these patterns:
 
-### Domain Modules
+### Route Structure
 
-Each domain follows the same structure pattern with `controllers/` and `index.ts`:
+Routes are organized by feature in `apps/api/src/`:
 
-- **Activity**: [apps/api/src/activity/](mdc:apps/api/src/activity) - Activity tracking and comments
-- **Task**: [apps/api/src/task/](mdc:apps/api/src/task) - Task management (CRUD, updates, exports)
-- **Project**: [apps/api/src/project/](mdc:apps/api/src/project) - Project management
-- **Workspace**: [apps/api/src/workspace/](mdc:apps/api/src/workspace) - Workspace management
-- **User**: [apps/api/src/user/](mdc:apps/api/src/user) - Authentication and user management
-- **GitHub Integration**: [apps/api/src/github-integration/](mdc:apps/api/src/github-integration) - GitHub app integration
-- **Time Entry**: [apps/api/src/time-entry/](mdc:apps/api/src/time-entry) - Time tracking
-- **Notification**: [apps/api/src/notification/](mdc:apps/api/src/notification) - User notifications
-- **Label**: [apps/api/src/label/](mdc:apps/api/src/label) - Task labeling system
+```typescript
+// apps/api/src/task/index.ts
+import { Hono } from "hono";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
+import createTask from "./controllers/create-task";
+import getTask from "./controllers/get-task";
 
-## Architecture Patterns
+const task = new Hono<{
+  Variables: {
+    userId: string;
+  };
+}>()
+  .get(
+    "/:id",
+    describeRoute({
+      operationId: "getTask",
+      tags: ["Tasks"],
+      description: "Get a specific task by ID",
+      responses: {
+        200: {
+          description: "Task details",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const task = await getTask(id);
+      return c.json(task);
+    },
+  );
 
-### Controller Pattern
-Each domain has controllers in `controllers/` directory that handle HTTP requests:
-- Controllers use Hono framework
-- Follow naming convention: `{action}-{resource}.ts` (e.g., `create-task.ts`)
-- Each controller exports a Hono route handler
+export default task;
+```
 
-### Module Exports
-Each domain has an [index.ts](mdc:apps/api/src/task/index.ts) that exports all controllers as Hono routes.
+### Best Practices
 
-### Authentication
-- Auth middleware: [apps/api/src/middlewares/auth.ts](mdc:apps/api/src/middlewares/auth.ts)
-- Session management in [apps/api/src/user/utils/](mdc:apps/api/src/user/utils)
+1. **Always use OpenAPI decorators**: Use `describeRoute` for all endpoints
+2. **Validate inputs**: Use `validator` with Valibot schemas
+3. **Extract controllers**: Keep route handlers thin, move logic to controller files
+4. **Type safety**: Use Hono's type system for context variables
 
-### Database Migrations
-- Located in [apps/api/drizzle/](mdc:apps/api/drizzle)
-- Managed by Drizzle ORM
-- Configuration: [apps/api/drizzle.config.ts](mdc:apps/api/drizzle.config.ts)
+```typescript
+// Good: Thin route handler
+.get("/:id", validator("param", v.object({ id: v.string() })), async (c) => {
+  const { id } = c.req.valid("param");
+  const task = await getTask(id);
+  return c.json(task);
+})
 
-## Key Utilities
+// Bad: Business logic in route handler
+.get("/:id", async (c) => {
+  const id = c.req.param("id");
+  const task = await db.select().from(taskTable).where(eq(taskTable.id, id));
+  // ... more logic
+  return c.json(task);
+})
+```
 
-- **Demo Data**: [apps/api/src/utils/create-demo-user.ts](mdc:apps/api/src/utils/create-demo-user.ts)
-- **Settings**: [apps/api/src/utils/get-settings.ts](mdc:apps/api/src/utils/get-settings.ts)
-- **Events**: [apps/api/src/events/index.ts](mdc:apps/api/src/events/index.ts)
+## Database: Drizzle ORM
+
+### Schema Definition
+
+Define schemas in `apps/api/src/database/schema.ts`:
+
+```typescript
+import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { createId } from "@paralleldrive/cuid2";
+
+export const taskTable = pgTable("task", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  title: text("title").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+```
+
+### Best Practices
+
+1. **Use CUID2 for IDs**: Always use `createId()` from `@paralleldrive/cuid2`
+2. **Timestamps**: Always include `createdAt` and `updatedAt` with proper defaults
+3. **Foreign Keys**: Use cascade deletes/updates where appropriate
+4. **Indexes**: Add indexes for frequently queried columns
+
+```typescript
+// Good: Proper schema with indexes
+export const taskTable = pgTable(
+  "task",
+  {
+    id: text("id").$defaultFn(() => createId()).primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    // ...
+  },
+  (table) => [index("task_projectId_idx").on(table.projectId)],
+);
+```
+
+### Migrations
+
+1. **Generate migrations**: `pnpm --filter @kaneo/api db:generate`
+2. **Run migrations**: Automatically on API startup (see `apps/api/src/index.ts`)
+3. **Migration files**: Stored in `apps/api/drizzle/`
+
+## Authentication: Better Auth
+
+Better Auth handles authentication. Access user context via Hono variables:
+
+```typescript
+// User is available in context after auth middleware
+const userId = c.get("userId");
+const user = c.get("user");
+const session = c.get("session");
+```
+
+### API Key Authentication
+
+API keys are supported via Bearer token:
+
+```typescript
+// Middleware in apps/api/src/index.ts handles this
+// Authorization: Bearer <api-key>
+```
+
+## Validation: Valibot
+
+Use Valibot for request validation:
+
+```typescript
+import * as v from "valibot";
+
+validator(
+  "json",
+  v.object({
+    title: v.string(),
+    description: v.optional(v.string()),
+    dueDate: v.optional(v.string()),
+  }),
+)
+```
+
+## Controller Pattern
+
+Controllers contain business logic and are imported into route files:
+
+```typescript
+// apps/api/src/task/controllers/get-task.ts
+import db from "../../database";
+import { taskTable } from "../../database/schema";
+import { eq } from "drizzle-orm";
+
+export default async function getTask(id: string) {
+  const [task] = await db
+    .select()
+    .from(taskTable)
+    .where(eq(taskTable.id, id));
+
+  if (!task) {
+    throw new HTTPException(404, { message: "Task not found" });
+  }
+
+  return task;
+}
+```
+
+## Error Handling
+
+Use Hono's HTTPException for errors:
+
+```typescript
+import { HTTPException } from "hono/http-exception";
+
+if (!task) {
+  throw new HTTPException(404, { message: "Task not found" });
+}
+```
+
+## Events
+
+Publish events for activity tracking:
+
+```typescript
+import { publishEvent } from "../events";
+
+await publishEvent("task.status_changed", {
+  taskId: task.id,
+  userId: user,
+  oldStatus: task.status,
+  newStatus: status,
+  title: task.title,
+  type: "status_changed",
+});
+```
+
+## File Organization
+
+```
+apps/api/src/
+├── activity/          # Activity feature
+│   ├── controllers/
+│   └── index.ts
+├── auth.ts            # Better Auth configuration
+├── config/            # Configuration endpoints
+├── database/          # Database schema and connection
+│   ├── schema.ts
+│   ├── relations.ts
+│   └── index.ts
+├── events/            # Event publishing
+├── task/              # Task feature
+│   ├── controllers/
+│   └── index.ts
+└── index.ts           # Main entry point
+```
+
+## CORS Configuration
+
+CORS is configured in `apps/api/src/index.ts`. Set `CORS_ORIGINS` environment variable for production.

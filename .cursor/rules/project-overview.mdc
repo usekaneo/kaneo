@@ -1,42 +1,84 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: Overview of the Kaneo project structure, architecture, and key technologies
+globs: 
+alwaysApply: true
 ---
-# Kaneo Project Overview
+# Project Overview
 
-Kaneo is a modern project management application built as a monorepo with multiple applications and shared packages.
+Kaneo is a self-hosted project management platform built with a focus on simplicity and performance. This document provides an overview of the project structure and architecture.
 
-## Architecture
+## Project Structure
 
-This is a **monorepo** containing:
+Kaneo is organized as a **monorepo** using pnpm workspaces:
 
-### Applications (`apps/`)
-- **`api/`** - Backend API built with Hono framework and TypeScript
-- **`web/`** - Frontend React application with Vite and TanStack Router
-- **`docs/`** - Documentation website built with Next.js
+```
+kaneo/
+├── apps/
+│   ├── api/          # Backend API (Hono/Node.js)
+│   ├── docs/         # Documentation site (Next.js)
+│   └── web/          # Frontend app (React/Vite)
+├── packages/         # Shared code and configs
+│   ├── email/        # Email utilities
+│   ├── libs/         # Shared libraries
+│   └── typescript-config/  # TypeScript configurations
+├── charts/           # Kubernetes Helm charts
+├── .cursor/          # Cursor IDE rules
+└── compose.yml       # Docker Compose configuration
+```
 
-### Packages (`packages/`)
-- **`libs/`** - Shared TypeScript utilities and Hono extensions
-- **`typescript-config/`** - Shared TypeScript configurations
+## Technology Stack
 
-## Key Technologies
+### Backend (API)
+- **Framework**: Hono (lightweight web framework)
+- **Runtime**: Node.js
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: Better Auth
+- **Validation**: Valibot
+- **API Documentation**: OpenAPI (hono-openapi)
+- **Build Tool**: esbuild
 
-- **Backend**: Hono, TypeScript, Drizzle ORM, PostgreSQL
-- **Frontend**: React, Vite, TanStack Router, TanStack Query, Tailwind CSS
-- **Database**: PostgreSQL with Drizzle ORM migrations
-- **Deployment**: Docker, Kubernetes (Helm charts)
-- **Monorepo**: Turborepo for build orchestration
+### Frontend (Web)
+- **Framework**: React 18+
+- **Routing**: TanStack Router
+- **Data Fetching**: TanStack Query (React Query)
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **UI Components**: Custom component library
 
-## Entry Points
+### Development Tools
+- **Package Manager**: pnpm
+- **Linting/Formatting**: Biome
+- **TypeScript**: Strict mode enabled
+- **Git Hooks**: Husky
 
-- Backend API: [apps/api/src/index.ts](mdc:apps/api/src/index.ts)
-- Frontend Web App: [apps/web/src/main.tsx](mdc:apps/web/src/main.tsx)
-- Documentation: [apps/docs/app/layout.tsx](mdc:apps/docs/app/layout.tsx)
+## Key Principles
 
-## Configuration Files
+1. **Simplicity First**: Features exist to solve real problems, not to impress
+2. **Performance**: Fast load times and responsive interactions
+3. **Self-Hosted**: Your data stays yours
+4. **Open Source**: Free forever, MIT licensed
 
-- Database config: [apps/api/drizzle.config.ts](mdc:apps/api/drizzle.config.ts)
-- Database schema: [apps/api/src/database/schema.ts](mdc:apps/api/src/database/schema.ts)
-- Backend package.json: [apps/api/package.json](mdc:apps/api/package.json)
-- Frontend package.json: [apps/web/package.json](mdc:apps/web/package.json)
+## Development Workflow
+
+1. **Install dependencies**: `pnpm install`
+2. **Start development**: `pnpm dev` (starts both API and web)
+3. **Lint code**: `pnpm lint` (runs Biome)
+4. **Database migrations**: `pnpm --filter @kaneo/api db:generate` and `db:migrate`
+
+## Environment Setup
+
+All environment variables are configured in a single `.env` file at the project root. See `ENVIRONMENT_SETUP.md` for detailed configuration instructions.
+
+## Deployment
+
+- **Docker Compose**: Quick setup for development/testing
+- **Kubernetes**: Production-ready Helm charts in `charts/`
+- **Self-Hosted**: Designed to run on your infrastructure
+
+## Contributing
+
+See `CONTRIBUTING.md` for guidelines on:
+- Code style (Biome configuration)
+- Commit messages (Conventional Commits)
+- Project structure conventions
+- Getting help

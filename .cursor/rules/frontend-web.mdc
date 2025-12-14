@@ -1,67 +1,301 @@
 ---
-description:
-globs:
+description: Frontend web development guidelines for React, TanStack Router, and TanStack Query
+globs: apps/web/**/*
 alwaysApply: false
 ---
-# Frontend Web Application Structure
+# Frontend Web Guidelines
 
-The frontend web application is located in [apps/web/](mdc:apps/web) and is built with React, Vite, and TanStack Router.
+The Kaneo web application is built with React, TanStack Router, TanStack Query, and Vite. This document outlines conventions and patterns for frontend development.
 
-## Project Structure
+## Framework: React
 
-### Core Files
-- **Entry Point**: [apps/web/src/main.tsx](mdc:apps/web/src/main.tsx) - React application root
-- **Root Route**: [apps/web/src/routes/__root.tsx](mdc:apps/web/src/routes/__root.tsx) - Root layout and providers
-- **Router Config**: [apps/web/src/tanstack/router.tsx](mdc:apps/web/src/tanstack/router.tsx) - TanStack Router setup
-- **Route Tree**: [apps/web/src/routeTree.gen.ts](mdc:apps/web/src/routeTree.gen.ts) - Auto-generated route tree
-- **Global Styles**: [apps/web/src/index.css](mdc:apps/web/src/index.css) - Tailwind CSS imports
+### Component Structure
 
-### Routing Structure (`src/routes/`)
-- **Dashboard**: [apps/web/src/routes/dashboard.tsx](mdc:apps/web/src/routes/dashboard.tsx) - Main dashboard layout
-- **Auth Routes**: [apps/web/src/routes/auth/](mdc:apps/web/src/routes/auth) - Sign in/up pages
-- **Home**: [apps/web/src/routes/index.tsx](mdc:apps/web/src/routes/index.tsx) - Landing page
+Components are organized in `apps/web/src/components/`:
 
-### Components Architecture (`src/components/`)
+```typescript
+// apps/web/src/components/task/task-card.tsx
+import { Task } from "@/types/task";
 
-#### Feature Components
-- **Auth**: [apps/web/src/components/auth/](mdc:apps/web/src/components/auth) - Authentication forms and layouts
-- **Dashboard**: [apps/web/src/components/dashboard/](mdc:apps/web/src/components/dashboard) - Dashboard specific components
-- **Task Management**:
-  - [apps/web/src/components/kanban-board/](mdc:apps/web/src/components/kanban-board) - Kanban board view
-  - [apps/web/src/components/list-view/](mdc:apps/web/src/components/list-view) - List view for tasks
-  - [apps/web/src/components/backlog-list-view/](mdc:apps/web/src/components/backlog-list-view) - Backlog view
-  - [apps/web/src/components/task/](mdc:apps/web/src/components/task) - Task detail components
-- **Project**: [apps/web/src/components/project/](mdc:apps/web/src/components/project) - Project management components
-- **Team**: [apps/web/src/components/team/](mdc:apps/web/src/components/team) - Team management components
+type TaskCardProps = {
+  task: Task;
+  onUpdate?: (task: Task) => void;
+};
 
-#### Common Components
-- **UI Library**: [apps/web/src/components/ui/](mdc:apps/web/src/components/ui) - Shadcn/ui components
-- **Common**: [apps/web/src/components/common/](mdc:apps/web/src/components/common) - Shared components (Editor, Logo, Sidebar)
-- **Providers**: [apps/web/src/components/providers/](mdc:apps/web/src/components/providers) - React context providers
+export function TaskCard({ task, onUpdate }: TaskCardProps) {
+  return (
+    <div className="p-4 border rounded-lg">
+      <h3>{task.title}</h3>
+      {/* ... */}
+    </div>
+  );
+}
+```
 
-## Data Management
+### Best Practices
 
-### API Integration (`src/fetchers/`)
-- **TanStack Query**: [apps/web/src/query-client/index.ts](mdc:apps/web/src/query-client/index.ts) - Query client setup
-- **Fetchers**: Domain-specific API calls organized by feature (task, project, user, etc.)
-- **Hooks**:
-  - **Mutations**: [apps/web/src/hooks/mutations/](mdc:apps/web/src/hooks/mutations) - Data mutation hooks
-  - **Queries**: [apps/web/src/hooks/queries/](mdc:apps/web/src/hooks/queries) - Data fetching hooks
+1. **TypeScript**: Always type props and component return types
+2. **Component naming**: Use PascalCase for component files and exports
+3. **Props destructuring**: Destructure props in function parameters
+4. **Conditional rendering**: Use ternary or logical operators clearly
 
-### State Management (`src/store/`)
-- **Zustand Stores**:
-  - [apps/web/src/store/project.ts](mdc:apps/web/src/store/project.ts) - Project state
-  - [apps/web/src/store/workspace.ts](mdc:apps/web/src/store/workspace.ts) - Workspace state
-  - [apps/web/src/store/user-preferences.ts](mdc:apps/web/src/store/user-preferences.ts) - User preferences
+```typescript
+// Good: Typed component with clear structure
+type ButtonProps = {
+  variant?: "primary" | "secondary";
+  children: React.ReactNode;
+  onClick?: () => void;
+};
 
-## Type Definitions (`src/types/`)
-- **API Types**: [apps/web/src/types/api-response.ts](mdc:apps/web/src/types/api-response.ts)
-- **Domain Types**: Organized by feature (task, project, workspace, etc.)
+export function Button({ variant = "primary", children, onClick }: ButtonProps) {
+  return (
+    <button
+      className={cn("px-4 py-2", variant === "primary" && "bg-blue-500")}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
 
-## Utilities and Constants
-- **Utilities**: [apps/web/src/lib/](mdc:apps/web/src/lib) - Helper functions and utilities
-- **Constants**: [apps/web/src/constants/](mdc:apps/web/src/constants) - App constants (columns, colors, icons)
+// Bad: Untyped, unclear structure
+export function Button(props: any) {
+  return <button onClick={props.onClick}>{props.children}</button>;
+}
+```
 
-## Configuration
-- **Components**: [apps/web/components.json](mdc:apps/web/components.json) - Shadcn/ui configuration
-- **Package**: [apps/web/package.json](mdc:apps/web/package.json) - Dependencies and scripts
+## Routing: TanStack Router
+
+### File-Based Routing
+
+Routes are defined using file-based routing in `apps/web/src/routes/`:
+
+```typescript
+// apps/web/src/routes/tasks/$taskId.tsx
+import { createFileRoute } from "@tanstack/react-router";
+import { useTask } from "@/hooks/queries/task/use-task";
+
+export const Route = createFileRoute("/tasks/$taskId")({
+  component: TaskPage,
+});
+
+function TaskPage() {
+  const { taskId } = Route.useParams();
+  const { data: task } = useTask(taskId);
+
+  if (!task) return <div>Loading...</div>;
+
+  return <div>{task.title}</div>;
+}
+```
+
+### Route Patterns
+
+- **Layout routes**: Use `_layout.tsx` for shared layouts
+- **Auth routes**: Grouped in `auth/` directory
+- **Dynamic routes**: Use `$param` syntax for route parameters
+
+```typescript
+// Layout route: apps/web/src/routes/_layout.tsx
+export const Route = createFileRoute("/_layout")({
+  component: Layout,
+});
+
+// Dynamic route: apps/web/src/routes/tasks/$taskId.tsx
+export const Route = createFileRoute("/tasks/$taskId")({
+  component: TaskPage,
+});
+```
+
+## Data Fetching: TanStack Query
+
+### Query Hooks
+
+Create query hooks in `apps/web/src/hooks/queries/`:
+
+```typescript
+// apps/web/src/hooks/queries/task/use-task.ts
+import { useQuery } from "@tanstack/react-query";
+import { getTask } from "@/fetchers/task/get-task";
+
+export function useTask(taskId: string) {
+  return useQuery({
+    queryKey: ["task", taskId],
+    queryFn: () => getTask(taskId),
+  });
+}
+```
+
+### Mutation Hooks
+
+Create mutation hooks in `apps/web/src/hooks/mutations/`:
+
+```typescript
+// apps/web/src/hooks/mutations/task/use-update-task.ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateTask } from "@/fetchers/task/update-task";
+import { toast } from "sonner";
+
+export function useUpdateTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["task"] });
+      toast.success("Task updated");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+}
+```
+
+### Best Practices
+
+1. **Query keys**: Use arrays with consistent structure: `["resource", id]`
+2. **Invalidation**: Invalidate related queries after mutations
+3. **Error handling**: Use toast notifications for user feedback
+4. **Loading states**: Handle loading and error states in components
+
+```typescript
+// Good: Proper query with error handling
+function TaskPage() {
+  const { taskId } = Route.useParams();
+  const { data: task, isLoading, error } = useTask(taskId);
+
+  if (isLoading) return <Skeleton />;
+  if (error) return <Error message={error.message} />;
+  if (!task) return <NotFound />;
+
+  return <TaskDetails task={task} />;
+}
+```
+
+## Fetchers
+
+API calls are abstracted in `apps/web/src/fetchers/`:
+
+```typescript
+// apps/web/src/fetchers/task/get-task.ts
+import { apiClient } from "@/lib/api-client";
+
+export async function getTask(taskId: string) {
+  const response = await apiClient.get(`/api/task/${taskId}`);
+  return response.data;
+}
+```
+
+### Fetcher Organization
+
+Organize fetchers by feature, mirroring API structure:
+
+```
+apps/web/src/fetchers/
+├── task/
+│   ├── get-task.ts
+│   ├── update-task.ts
+│   └── create-task.ts
+├── project/
+│   └── ...
+└── workspace/
+    └── ...
+```
+
+## Styling: Tailwind CSS
+
+Use Tailwind CSS utility classes:
+
+```typescript
+<div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow">
+  <h2 className="text-xl font-semibold">Title</h2>
+</div>
+```
+
+### Utility Functions
+
+Use `cn()` utility for conditional classes:
+
+```typescript
+import { cn } from "@/lib/cn";
+
+<button
+  className={cn(
+    "px-4 py-2 rounded",
+    isActive && "bg-blue-500 text-white",
+    disabled && "opacity-50 cursor-not-allowed",
+  )}
+>
+  Click me
+</button>
+```
+
+## Authentication
+
+Use Better Auth client for authentication:
+
+```typescript
+import { authClient } from "@/lib/auth-client";
+
+// Sign in
+await authClient.signIn.email({
+  email: "user@example.com",
+  password: "password",
+});
+
+// Get current user
+const session = await authClient.getSession();
+```
+
+## File Organization
+
+```
+apps/web/src/
+├── components/        # React components
+│   ├── ui/           # Base UI components
+│   └── ...
+├── fetchers/         # API call functions
+├── hooks/            # Custom React hooks
+│   ├── queries/      # TanStack Query hooks
+│   └── mutations/    # TanStack Query mutations
+├── lib/              # Utility functions
+├── routes/           # TanStack Router routes
+├── store/            # Global state (Zustand)
+├── types/            # TypeScript types
+└── main.tsx          # Entry point
+```
+
+## Type Safety
+
+Share types between frontend and backend when possible:
+
+```typescript
+// apps/web/src/types/task.ts
+export type Task = {
+  id: string;
+  title: string;
+  description?: string;
+  status: string;
+  priority: string;
+  dueDate?: string;
+  createdAt: string;
+};
+```
+
+## Error Handling
+
+Handle errors gracefully with user-friendly messages:
+
+```typescript
+import { toast } from "sonner";
+
+try {
+  await updateTask(taskId, data);
+  toast.success("Task updated");
+} catch (error) {
+  toast.error(
+    error instanceof Error ? error.message : "Failed to update task",
+  );
+}
+```

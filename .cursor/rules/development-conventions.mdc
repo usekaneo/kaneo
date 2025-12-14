@@ -1,147 +1,336 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: Development conventions, code style, and best practices for the Kaneo project
+globs: 
+alwaysApply: true
 ---
-# Development Conventions and Best Practices
+# Development Conventions
 
-This document outlines the coding standards, patterns, and conventions used throughout the Kaneo project.
+This document outlines coding standards, conventions, and best practices for the Kaneo project.
 
-## Code Quality Tools
+## Code Style
 
-- **Biome**: [biome.json](mdc:biome.json) - Linting and formatting configuration
-- **Commitlint**: [commitlint.config.js](mdc:commitlint.config.js) - Commit message conventions
-- **TypeScript**: Strict type checking across all applications
+### Biome Configuration
 
-## File and Directory Naming
+Kaneo uses **Biome** for linting and formatting. Configuration is in `biome.json`.
 
-### General Conventions
-- **kebab-case** for directory names: `github-integration/`, `time-entry/`
-- **kebab-case** for file names: `create-task.ts`, `sign-in-form.tsx`
-- **PascalCase** for React components: `TaskCard.tsx`, `SignInForm.tsx`
+#### Formatting Rules
 
-### Backend API Conventions
-- **Controllers**: `{action}-{resource}.ts` pattern
-  - Examples: `create-task.ts`, `get-project.ts`, `delete-workspace.ts`
-- **Utils**: Descriptive names in `utils/` directories
-- **Domain Modules**: Each module has `controllers/` and `index.ts`
+- **Indentation**: Tabs (not spaces) for TypeScript/TSX
+- **JavaScript**: Spaces for indentation (legacy support)
+- **Quote Style**: Double quotes (`"`)
+- **Semicolons**: Required
 
-### Frontend Conventions
-- **Components**: Organized by feature in `components/`
-- **Hooks**: Custom hooks in `hooks/mutations/` and `hooks/queries/`
-- **Fetchers**: API calls organized by domain in `fetchers/`
-- **Types**: TypeScript definitions in `types/` by domain
+```typescript
+// Good: Tabs, double quotes, semicolons
+function example() {
+	const value = "hello";
+	return value;
+}
 
-## Code Organization Patterns
-
-### Backend Architecture
-```
-src/
-├── {domain}/
-│   ├── controllers/
-│   │   ├── create-{resource}.ts
-│   │   ├── get-{resource}.ts
-│   │   └── update-{resource}.ts
-│   ├── utils/ (optional)
-│   └── index.ts (exports routes)
+// Bad: Spaces, single quotes, no semicolons
+function example() {
+  const value = 'hello'
+  return value
+}
 ```
 
-### Frontend Architecture
+#### Linting Rules
+
+Key Biome rules enabled:
+
+- `noParameterAssign`: Don't reassign function parameters
+- `useAsConstAssertion`: Use `as const` for literal types
+- `useDefaultParameterLast`: Default parameters must be last
+- `useSelfClosingElements`: Use self-closing JSX elements
+- `useSingleVarDeclarator`: One variable per declaration
+- `noInferrableTypes`: Don't add explicit types that can be inferred
+
+```typescript
+// Good: Follows Biome rules
+const items = ["a", "b"] as const;
+function greet(name: string, greeting = "Hello") {
+	return `${greeting}, ${name}`;
+}
+const x = 1;
+const y = 2;
+
+// Bad: Violates Biome rules
+const items: string[] = ["a", "b"];
+function greet(greeting = "Hello", name: string) {
+	return `${greeting}, ${name}`;
+}
+const x = 1, y = 2;
 ```
-src/
-├── components/
-│   ├── {feature}/
-│   │   ├── index.tsx
-│   │   └── {sub-components}.tsx
-├── fetchers/
-│   └── {domain}/
-├── hooks/
-│   ├── mutations/
-│   └── queries/
-└── types/
-    └── {domain}/
+
+### Running Linter
+
+```bash
+# Check and auto-fix
+pnpm lint
+
+# Check only (no fixes)
+pnpm biome check .
 ```
 
 ## TypeScript Conventions
 
-### Import Organization
-1. **External libraries** (React, Hono, etc.)
-2. **Internal shared packages** (@kaneo/libs)
-3. **Relative imports** (./components, ../utils)
-
 ### Type Definitions
-- **Interfaces** for object shapes
-- **Types** for unions and computed types
-- **Enums** for constants with meaningful names
-- **Generics** for reusable type patterns
 
-## React Patterns
+- **Types**: Prefer types for all type definitions (object shapes, unions, intersections, computed types)
+- **Interfaces**: Only use interfaces when extending/merging is needed (rare)
+- **Inference**: Prefer type inference when types are obvious
 
-### Component Structure
-```tsx
-// Props type
-type ComponentProps {
-  prop: string
-}
+```typescript
+// Good: Type for object shape
+type Task = {
+	id: string;
+	title: string;
+	status: string;
+};
 
-// Component with TypeScript
-function Component({ prop }: ComponentProps) {
-  // Hooks first
-  const [state, setState] = useState()
+// Good: Type for union
+type Status = "to-do" | "in-progress" | "done";
 
-  // Event handlers
-  const handleClick = () => {}
-
-  // Render
-  return <div>{prop}</div>
-}
-
-export default Component;
+// Good: Type inference
+const tasks: Task[] = []; // Explicit for arrays
+const count = tasks.length; // Inferred
 ```
 
-### State Management
-- **TanStack Query** for server state
-- **Zustand** for client state: [apps/web/src/store/](mdc:apps/web/src/store)
-- **React Context** for theme and auth: [apps/web/src/components/providers/](mdc:apps/web/src/components/providers)
+### File Naming
 
-## API Design Patterns
+- **Components**: PascalCase: `TaskCard.tsx`
+- **Utilities**: kebab-case: `format-date.ts`
+- **Hooks**: camelCase with `use` prefix: `use-task.ts`
+- **Types**: kebab-case: `task-types.ts`
 
-### REST Conventions
-- **GET** `/api/{resource}` - List resources
-- **GET** `/api/{resource}/{id}` - Get single resource
-- **POST** `/api/{resource}` - Create resource
-- **PUT** `/api/{resource}/{id}` - Update resource
-- **DELETE** `/api/{resource}/{id}` - Delete resource
-
-### Response Format
-```typescript
-// Success response
-{
-  data: T,
-  success: true
-}
-
-// Error response
-{
-  error: string,
-  success: false
-}
+```
+components/
+├── TaskCard.tsx          # Component
+├── task-card.tsx         # Also acceptable
+└── utils/
+    └── format-date.ts   # Utility function
 ```
 
 ## Git Conventions
 
 ### Commit Messages
-Following [Conventional Commits](mdc:https:/www.conventionalcommits.org):
-- `feat:` new features
-- `fix:` bug fixes
-- `docs:` documentation changes
-- `style:` formatting changes
-- `refactor:` code refactoring
-- `test:` adding tests
-- `chore:` maintenance tasks
+
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>: <description>
+
+[optional body]
+
+[optional footer]
+```
+
+#### Commit Types
+
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `refactor:` - Code refactoring (no feature/fix)
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks (deps, config, etc.)
+- `style:` - Code style changes (formatting, etc.)
+
+#### Examples
+
+```bash
+feat: add bulk task operations
+fix: resolve calendar date selection bug
+docs: update deployment guide
+refactor: simplify task controller logic
+chore: update dependencies
+```
 
 ### Branch Naming
-- `feature/description` for new features
-- `fix/description` for bug fixes
-- `docs/description` for documentation
-- `refactor/description` for refactoring
+
+Use descriptive branch names with prefixes:
+
+- `feat/` - New features
+- `fix/` - Bug fixes
+- `docs/` - Documentation
+- `refactor/` - Refactoring
+- `chore/` - Maintenance
+
+```bash
+feat/bulk-task-operations
+fix/calendar-date-bug
+docs/update-deployment-guide
+```
+
+## Import Organization
+
+Biome automatically organizes imports. Follow these patterns:
+
+### Import Order
+
+1. External packages
+2. Internal packages (`@/` aliases)
+3. Relative imports
+
+```typescript
+// Good: Organized imports
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { TaskCard } from "./task-card";
+```
+
+### Import Style
+
+- Use named imports when possible
+- Group related imports
+- Remove unused imports (Biome does this automatically)
+
+```typescript
+// Good: Named imports
+import { useState, useEffect } from "react";
+import { Button, Input } from "@/components/ui";
+
+// Avoid: Default imports when named available
+import React from "react"; // Prefer named imports
+```
+
+## File Structure
+
+### Component Files
+
+```typescript
+// 1. Imports (external, then internal)
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+
+// 2. Types
+type ComponentProps = {
+	title: string;
+};
+
+// 3. Component
+export function Component({ title }: ComponentProps) {
+	// Implementation
+}
+
+// 4. Exports (if needed)
+export default Component;
+```
+
+### API Controller Files
+
+```typescript
+// 1. Imports
+import db from "../../database";
+import { taskTable } from "../../database/schema";
+
+// 2. Function
+export default async function getTask(id: string) {
+	// Implementation
+}
+```
+
+## Error Handling
+
+### Backend
+
+Use Hono's HTTPException:
+
+```typescript
+import { HTTPException } from "hono/http-exception";
+
+if (!task) {
+	throw new HTTPException(404, { message: "Task not found" });
+}
+```
+
+### Frontend
+
+Use try-catch with user-friendly messages:
+
+```typescript
+import { toast } from "sonner";
+
+try {
+	await updateTask(taskId, data);
+	toast.success("Task updated");
+} catch (error) {
+	toast.error(
+		error instanceof Error ? error.message : "Failed to update task",
+	);
+}
+```
+
+## Testing
+
+### Test Structure
+
+```typescript
+describe("Feature", () => {
+	it("should do something", () => {
+		// Arrange
+		const input = "test";
+
+		// Act
+		const result = functionUnderTest(input);
+
+		// Assert
+		expect(result).toBe("expected");
+	});
+});
+```
+
+## Documentation
+
+### Code Comments
+
+- **Why, not what**: Explain reasoning, not obvious code
+- **Complex logic**: Comment complex algorithms or business rules
+- **TODOs**: Use `// TODO: description` for future work
+
+```typescript
+// Good: Explains why
+// Use CUID2 instead of UUID for better database performance
+const id = createId();
+
+// Bad: States the obvious
+// Create an ID
+const id = createId();
+```
+
+### README Files
+
+- Keep README files updated
+- Include setup instructions
+- Document environment variables
+- Provide examples
+
+## Environment Variables
+
+- **Single `.env` file**: All variables in project root
+- **Documentation**: Document all variables in `ENVIRONMENT_SETUP.md`
+- **Never commit**: `.env` files are gitignored
+- **Defaults**: Provide sensible defaults in code when possible
+
+## Performance
+
+### Backend
+
+- Use database indexes for frequently queried columns
+- Limit query results with pagination
+- Use transactions for multi-step operations
+
+### Frontend
+
+- Use React Query for caching and data fetching
+- Implement proper loading states
+- Lazy load routes when possible
+- Optimize images and assets
+
+## Security
+
+- **Never commit secrets**: Use environment variables
+- **Validate inputs**: Always validate user input (Valibot on backend)
+- **Sanitize outputs**: Sanitize data before rendering
+- **Authentication**: Always check authentication in protected routes
+- **Authorization**: Verify user permissions before operations
