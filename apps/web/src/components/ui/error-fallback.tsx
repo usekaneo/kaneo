@@ -1,9 +1,9 @@
 import { ErrorDisplay } from "./error-display";
 
-interface ErrorFallbackProps {
+type ErrorFallbackProps = {
   error: Error;
   resetError: () => void;
-}
+};
 
 export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
   return (

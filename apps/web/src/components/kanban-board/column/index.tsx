@@ -6,9 +6,9 @@ import type { ProjectWithTasks } from "@/types/project";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
 
-interface ColumnProps {
+type ColumnProps = {
   column: ProjectWithTasks["columns"][number];
-}
+};
 
 function Column({ column }: ColumnProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);

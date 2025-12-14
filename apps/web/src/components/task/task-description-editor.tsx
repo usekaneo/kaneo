@@ -37,11 +37,11 @@ import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
-interface TaskDescriptionEditorProps {
+type TaskDescriptionEditorProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-}
+};
 
 export default function TaskDescriptionEditor({
   value: _value,

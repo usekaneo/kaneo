@@ -5,11 +5,11 @@ import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
 import type Task from "@/types/task";
 
-interface PublicTaskCardProps {
+type PublicTaskCardProps = {
   task: Task;
   projectSlug: string;
   onTaskClick: (task: Task) => void;
-}
+};
 
 export function PublicTaskCard({
   task,

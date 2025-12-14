@@ -9,10 +9,10 @@ import {
 import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
 import type Task from "@/types/task";
 
-interface TaskDueDatePopoverProps {
+type TaskDueDatePopoverProps = {
   task: Task;
   children: React.ReactNode;
-}
+};
 
 export default function TaskDueDatePopover({
   task,

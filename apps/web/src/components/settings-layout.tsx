@@ -22,7 +22,7 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import { cn } from "@/lib/cn";
 
-interface SettingsLayoutProps {
+type SettingsLayoutProps = {
   title: string;
   description?: string;
   icon?: ReactNode;
@@ -30,7 +30,7 @@ interface SettingsLayoutProps {
   backLabel?: string;
   children: ReactNode;
   className?: string;
-}
+};
 
 export function SettingsLayout({
   title,
@@ -120,13 +120,13 @@ export function SettingsLayout({
   );
 }
 
-interface SettingsSectionProps {
+type SettingsSectionProps = {
   title: string;
   description?: string;
   icon?: ReactNode;
   children: ReactNode;
   className?: string;
-}
+};
 
 export function SettingsSection({
   title,
@@ -155,11 +155,11 @@ export function SettingsSection({
   );
 }
 
-interface DangerZoneSectionProps {
+type DangerZoneSectionProps = {
   title: string;
   description: string;
   children: ReactNode;
-}
+};
 
 export function DangerZoneSection({
   title,

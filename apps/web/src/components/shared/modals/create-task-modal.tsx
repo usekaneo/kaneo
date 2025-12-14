@@ -44,11 +44,11 @@ import { cn } from "@/lib/cn";
 import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
 
-interface CreateTaskModalProps {
+type CreateTaskModalProps = {
   open: boolean;
   onClose: () => void;
   status?: string;
-}
+};
 
 type Priority = "no-priority" | "low" | "medium" | "high" | "urgent";
 

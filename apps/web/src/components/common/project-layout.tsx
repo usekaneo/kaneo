@@ -25,12 +25,12 @@ import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 
-interface ProjectLayoutProps {
+type ProjectLayoutProps = {
   projectId: string;
   workspaceId: string;
   headerActions?: ReactNode;
   children: ReactNode;
-}
+};
 
 export default function ProjectLayout({
   projectId,

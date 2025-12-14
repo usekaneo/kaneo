@@ -6,12 +6,12 @@ import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { cn } from "@/lib/cn";
 import type Task from "@/types/task";
 
-interface PublicTaskDetailModalProps {
+type PublicTaskDetailModalProps = {
   task: Task | null;
   projectSlug: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
+};
 
 export function PublicTaskDetailModal({
   task,

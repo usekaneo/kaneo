@@ -16,7 +16,7 @@ type ShortcutKey = string;
 type PrefixKey = string;
 type SequentialKey = string;
 
-interface KeyboardShortcutsContextType {
+type KeyboardShortcutsContextType = {
   registerShortcut: (key: ShortcutKey, handler: ShortcutHandler) => void;
   registerSequentialShortcut: (
     prefix: PrefixKey,
@@ -32,7 +32,7 @@ interface KeyboardShortcutsContextType {
   unregisterSequentialShortcut: (prefix: PrefixKey, key: SequentialKey) => void;
   unregisterModifierShortcut: (modifierKey: string, key: string) => void;
   activePrefix: string | null;
-}
+};
 
 const KeyboardShortcutsContext =
   createContext<KeyboardShortcutsContextType | null>(null);

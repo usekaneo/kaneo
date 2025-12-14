@@ -6,9 +6,9 @@ import { getColumnIcon } from "@/lib/column";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 
-interface ColumnHeaderProps {
+type ColumnHeaderProps = {
   column: ProjectWithTasks["columns"][number];
-}
+};
 
 export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { project, setProject } = useProjectStore();

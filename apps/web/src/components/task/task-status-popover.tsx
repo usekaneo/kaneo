@@ -11,10 +11,10 @@ import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-stat
 import { getColumnIcon } from "@/lib/column";
 import type Task from "@/types/task";
 
-interface TaskStatusPopoverProps {
+type TaskStatusPopoverProps = {
   task: Task;
   children: React.ReactNode;
-}
+};
 
 const statusOptions = [
   { value: "to-do", label: "To Do" },

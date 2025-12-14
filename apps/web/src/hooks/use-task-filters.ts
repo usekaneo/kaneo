@@ -3,13 +3,13 @@ import { useState } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 
-export interface BoardFilters {
+export type BoardFilters = {
   status: string | null;
   priority: string | null;
   assignee: string | null;
   dueDate: string | null;
   labels: string[] | null;
-}
+};
 
 export function useTaskFilters(project: ProjectWithTasks | null | undefined) {
   const [filters, setFilters] = useState<BoardFilters>({

@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 
-interface PageTitleProps {
+type PageTitleProps = {
   title: string;
   suffix?: string;
   hideAppName?: boolean;
-}
+};
 
 export default function PageTitle({
   title,

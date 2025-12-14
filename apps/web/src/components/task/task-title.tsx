@@ -7,9 +7,9 @@ import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import debounce from "@/lib/debounce";
 
-interface TaskTitleProps {
+type TaskTitleProps = {
   taskId: string;
-}
+};
 
 export default function TaskTitle({ taskId }: TaskTitleProps) {
   const { data: task } = useGetTask(taskId);

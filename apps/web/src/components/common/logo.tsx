@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import useProjectStore from "@/store/project";
 
-interface LogoProps {
+type LogoProps = {
   className?: string;
-}
+};
 
 export function Logo({ className = "" }: LogoProps) {
   const { setProject } = useProjectStore();

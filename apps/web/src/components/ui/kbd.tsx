@@ -1,11 +1,11 @@
 import { cn } from "@/lib/cn";
 
-interface KbdProps {
+type KbdProps = {
   children: React.ReactNode;
   className?: string;
   description?: string;
   hideDescription?: boolean;
-}
+};
 
 export function Kbd({
   children,
@@ -30,12 +30,12 @@ export function Kbd({
   );
 }
 
-interface KbdSequenceProps {
+type KbdSequenceProps = {
   keys: string[];
   separator?: string;
   className?: string;
   description?: string;
-}
+};
 
 export function KbdSequence({
   keys,

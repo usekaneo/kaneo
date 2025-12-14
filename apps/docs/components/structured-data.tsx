@@ -1,6 +1,6 @@
 import Script from "next/script";
 
-interface StructuredDataProps {
+type StructuredDataProps = {
   type?: "organization" | "software" | "article" | "faq";
   data?: {
     title?: string;
@@ -13,7 +13,7 @@ interface StructuredDataProps {
       answer: string;
     }>;
   };
-}
+};
 
 export default function StructuredData({
   type = "organization",

@@ -38,11 +38,11 @@ type LabelColor =
   | "pink"
   | "red";
 
-interface TaskLabelsPopoverProps {
+type TaskLabelsPopoverProps = {
   task: Task;
   workspaceId: string;
   children: React.ReactNode;
-}
+};
 
 type PopoverStep = "select" | "color";
 

@@ -21,13 +21,13 @@ import { shortcuts } from "@/constants/shortcuts";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 
-interface WorkspaceLayoutProps {
+type WorkspaceLayoutProps = {
   title: string;
   headerActions?: ReactNode;
   children: ReactNode;
   onCreateProject?: () => void;
   className?: string;
-}
+};
 
 export default function WorkspaceLayout({
   title,

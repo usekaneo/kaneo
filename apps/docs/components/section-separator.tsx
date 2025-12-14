@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
-interface SectionSeparatorProps {
+type SectionSeparatorProps = {
   children: ReactNode;
-}
+};
 
 export default function SectionSeparator({ children }: SectionSeparatorProps) {
   return (

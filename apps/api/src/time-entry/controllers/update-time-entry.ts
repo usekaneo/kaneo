@@ -3,12 +3,12 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { timeEntryTable } from "../../database/schema";
 
-interface UpdateTimeEntryParams {
+type UpdateTimeEntryParams = {
   timeEntryId: string;
   startTime: Date;
   endTime?: Date;
   description?: string;
-}
+};
 
 async function updateTimeEntry(params: UpdateTimeEntryParams) {
   const { timeEntryId, startTime, endTime, description } = params;

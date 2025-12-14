@@ -34,11 +34,11 @@ const createApiKeySchema = z.object({
 
 type FormValues = z.infer<typeof createApiKeySchema>;
 
-interface CreateApiKeyDialogProps {
+type CreateApiKeyDialogProps = {
   open: boolean;
   onClose: () => void;
   onSuccess: (data: CreateApiKeyResponse) => void;
-}
+};
 
 export function CreateApiKeyDialog({
   open,

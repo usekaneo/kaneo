@@ -1,15 +1,15 @@
 import React from "react";
 import { ErrorDisplay } from "./error-display";
 
-interface ErrorBoundaryState {
+type ErrorBoundaryState = {
   hasError: boolean;
   error?: Error;
-}
+};
 
-interface ErrorBoundaryProps {
+type ErrorBoundaryProps = {
   children: React.ReactNode;
   fallback?: React.ComponentType<{ error: Error; resetError: () => void }>;
-}
+};
 
 export class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,

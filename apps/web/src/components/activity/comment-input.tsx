@@ -40,9 +40,9 @@ import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
-interface CommentInputProps {
+type CommentInputProps = {
   taskId: string;
-}
+};
 
 export default function CommentInput({ taskId }: CommentInputProps) {
   const { theme } = useUserPreferencesStore();

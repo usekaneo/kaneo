@@ -7,10 +7,10 @@ import { useEffect } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import TaskCard from "../task-card";
 
-interface ColumnDropzoneProps {
+type ColumnDropzoneProps = {
   column: ProjectWithTasks["columns"][number];
   onIsOverChange?: (isOver: boolean) => void;
-}
+};
 
 export function ColumnDropzone({
   column,

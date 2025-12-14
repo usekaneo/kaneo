@@ -1,9 +1,9 @@
-export interface ApiError {
+export type ApiError = {
   message: string;
   type: "network" | "cors" | "auth" | "server" | "unknown";
   status?: number;
   originalError?: Error;
-}
+};
 
 export function parseApiError(error: unknown): ApiError {
   if (error instanceof Error) {

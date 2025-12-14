@@ -14,9 +14,9 @@ type WorkspaceIdSource =
       idKey: string;
     };
 
-interface WorkspaceAccessMiddlewareConfig {
+type WorkspaceAccessMiddlewareConfig = {
   sources: WorkspaceIdSource[];
-}
+};
 
 export function workspaceAccessMiddleware(
   config: WorkspaceAccessMiddlewareConfig,

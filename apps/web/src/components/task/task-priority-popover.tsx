@@ -11,10 +11,10 @@ import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-st
 import { getPriorityIcon } from "@/lib/priority";
 import type Task from "@/types/task";
 
-interface TaskPriorityPopoverProps {
+type TaskPriorityPopoverProps = {
   task: Task;
   children: React.ReactNode;
-}
+};
 
 const priorityOptions = [
   { value: "no-priority", label: "No Priority" },

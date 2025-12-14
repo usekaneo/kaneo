@@ -29,9 +29,9 @@ import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
 import TaskCardLabels from "./task-labels";
 
-interface TaskCardProps {
+type TaskCardProps = {
   task: Task;
-}
+};
 
 function TaskCard({ task }: TaskCardProps) {
   const {

@@ -30,9 +30,9 @@ import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/t
 import TaskCardLabels from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 
-interface BacklogTaskRowProps {
+type BacklogTaskRowProps = {
   task: Task;
-}
+};
 
 export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
   const navigate = useNavigate();

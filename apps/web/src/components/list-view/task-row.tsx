@@ -30,10 +30,10 @@ import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/t
 import TaskCardLabels from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 
-interface TaskRowProps {
+type TaskRowProps = {
   task: Task;
   projectSlug: string;
-}
+};
 
 function TaskRow({ task, projectSlug }: TaskRowProps) {
   const navigate = useNavigate();

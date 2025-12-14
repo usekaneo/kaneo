@@ -31,9 +31,9 @@ import type Task from "@/types/task";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import BacklogTaskRow from "./backlog-task-row";
 
-interface BacklogListViewProps {
+type BacklogListViewProps = {
   project?: ProjectWithTasks;
-}
+};
 
 function BacklogListView({ project }: BacklogListViewProps) {
   const { mutate: updateTask } = useUpdateTask();

@@ -42,9 +42,9 @@ import { cn } from "@/lib/cn";
 import debounce from "@/lib/debounce";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
-interface TaskDescriptionProps {
+type TaskDescriptionProps = {
   taskId: string;
-}
+};
 
 export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const { data: task } = useGetTask(taskId);

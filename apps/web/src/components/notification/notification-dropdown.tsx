@@ -32,9 +32,9 @@ import useGetNotifications from "@/hooks/queries/notification/use-get-notificati
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 
-export interface NotificationDropdownRef {
+export type NotificationDropdownRef = {
   toggle: () => void;
-}
+};
 
 const NotificationDropdown = forwardRef<NotificationDropdownRef>(
   (_props, ref) => {

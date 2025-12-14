@@ -4,17 +4,17 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { PublicTaskCard } from "./task-card";
 
-interface Column {
+type Column = {
   id: string;
   name: string;
   icon: LucideIcon;
   tasks: Task[];
-}
+};
 
-interface PublicKanbanViewProps {
+type PublicKanbanViewProps = {
   project: ProjectWithTasks;
   onTaskClick: (task: Task) => void;
-}
+};
 
 export function PublicKanbanView({
   project,

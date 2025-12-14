@@ -3,12 +3,12 @@ import type { ImageResponseOptions } from "next/dist/compiled/@vercel/og/types";
 import { ImageResponse } from "next/og";
 import type { ReactElement, ReactNode } from "react";
 
-interface GenerateProps {
+type GenerateProps = {
   title: ReactNode;
   description?: ReactNode;
   primaryTextColor?: string;
   site?: string;
-}
+};
 
 const font = readFileSync("./lib/Geist-Regular.ttf");
 const fontBold = readFileSync("./lib/Geist-Bold.ttf");

@@ -13,10 +13,10 @@ import {
   TableRow,
 } from "../ui/table";
 
-interface ApiKeyTableProps {
+type ApiKeyTableProps = {
   apiKeys: ApiKey[];
   isLoading: boolean;
-}
+};
 
 export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
   const { mutateAsync: deleteApiKey } = useDeleteApiKey();

@@ -21,14 +21,14 @@ import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
-interface TaskLayoutProps {
+type TaskLayoutProps = {
   taskId: string;
   projectId: string;
   workspaceId: string;
   headerActions?: ReactNode;
   children: ReactNode;
   rightSidebar?: ReactNode;
-}
+};
 
 export default function TaskLayout({
   taskId,

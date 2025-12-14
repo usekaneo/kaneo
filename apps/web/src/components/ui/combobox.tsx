@@ -17,13 +17,13 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/cn";
 
-export interface ComboboxOption {
+export type ComboboxOption = {
   value: string;
   label: string;
   icon?: React.ReactNode;
-}
+};
 
-export interface ComboboxProps {
+export type ComboboxProps = {
   options: ComboboxOption[];
   value?: string;
   onValueChange?: (value: string) => void;
@@ -40,7 +40,7 @@ export interface ComboboxProps {
     | "ghost"
     | "link";
   size?: "default" | "sm" | "xs";
-}
+};
 
 export function Combobox({
   options,

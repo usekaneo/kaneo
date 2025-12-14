@@ -21,10 +21,10 @@ import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
-interface CreateWorkspaceModalProps {
+type CreateWorkspaceModalProps = {
   open: boolean;
   onClose: () => void;
-}
+};
 
 function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
   const [name, setName] = useState("");

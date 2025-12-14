@@ -12,12 +12,12 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 
-interface ApiKeyCreatedModalProps {
+type ApiKeyCreatedModalProps = {
   apiKey: string;
   keyName: string;
   open: boolean;
   onClose: () => void;
-}
+};
 
 export function ApiKeyCreatedModal({
   apiKey,

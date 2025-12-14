@@ -24,16 +24,16 @@ import { generateLink } from "@/lib/generate-link";
 import { getPriorityIcon } from "@/lib/priority";
 import type Task from "@/types/task";
 
-interface TaskCardContext {
+type TaskCardContext = {
   worskpaceId: string;
   projectId: string;
-}
+};
 
-interface TaskCardContextMenuContentProps {
+type TaskCardContextMenuContentProps = {
   task: Task;
   taskCardContext: TaskCardContext;
   onDeleteClick: () => void;
-}
+};
 
 export default function TaskCardContextMenuContent({
   task,

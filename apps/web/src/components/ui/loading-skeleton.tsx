@@ -1,8 +1,8 @@
 import { cn } from "@/lib/cn";
 
-interface LoadingSkeletonProps {
+type LoadingSkeletonProps = {
   className?: string;
-}
+};
 
 export function LoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (

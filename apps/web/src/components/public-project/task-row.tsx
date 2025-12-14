@@ -5,11 +5,11 @@ import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
 import type Task from "@/types/task";
 
-interface PublicTaskRowProps {
+type PublicTaskRowProps = {
   task: Task;
   projectSlug: string;
   onTaskClick: (task: Task) => void;
-}
+};
 
 export function PublicTaskRow({
   task,

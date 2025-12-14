@@ -4,17 +4,17 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { PublicTaskRow } from "./task-row";
 
-interface Column {
+type Column = {
   id: string;
   name: string;
   icon: LucideIcon;
   tasks: Task[];
-}
+};
 
-interface PublicListViewProps {
+type PublicListViewProps = {
   project: ProjectWithTasks;
   onTaskClick: (task: Task) => void;
-}
+};
 
 export function PublicListView({ project, onTaskClick }: PublicListViewProps) {
   const columns: Column[] = DEFAULT_COLUMNS.map((column) => ({

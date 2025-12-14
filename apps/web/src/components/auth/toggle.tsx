@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 
-interface AuthToggleProps {
+type AuthToggleProps = {
   message: string;
   linkText: string;
   linkTo: string;
-}
+};
 
 export function AuthToggle({ message, linkText, linkTo }: AuthToggleProps) {
   const { data: config } = useGetConfig();

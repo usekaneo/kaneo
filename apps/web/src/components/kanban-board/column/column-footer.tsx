@@ -4,9 +4,9 @@ import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import toKebabCase from "@/lib/to-kebab-case";
 import type { ProjectWithTasks } from "@/types/project";
 
-interface ColumnFooterProps {
+type ColumnFooterProps = {
   column: ProjectWithTasks["columns"][number];
-}
+};
 
 export function ColumnFooter({ column }: ColumnFooterProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);

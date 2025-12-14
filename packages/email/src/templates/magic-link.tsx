@@ -14,9 +14,9 @@ import React from "react";
 
 void React;
 
-export interface MagicLinkEmailProps {
+export type MagicLinkEmailProps = {
   magicLink: string;
-}
+};
 
 const MagicLinkEmail = ({ magicLink }: MagicLinkEmailProps) => (
   <Html>

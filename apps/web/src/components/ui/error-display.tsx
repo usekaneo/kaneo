@@ -13,12 +13,12 @@ import {
   CardTitle,
 } from "./card";
 
-interface ErrorDisplayProps {
+type ErrorDisplayProps = {
   error: unknown;
   onRetry?: () => void;
   title?: string;
   className?: string;
-}
+};
 
 export function ErrorDisplay({
   error,

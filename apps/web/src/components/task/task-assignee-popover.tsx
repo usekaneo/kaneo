@@ -12,11 +12,11 @@ import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-as
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import type Task from "@/types/task";
 
-interface TaskAssigneePopoverProps {
+type TaskAssigneePopoverProps = {
   task: Task;
   workspaceId: string;
   children: React.ReactNode;
-}
+};
 
 export default function TaskAssigneePopover({
   task,

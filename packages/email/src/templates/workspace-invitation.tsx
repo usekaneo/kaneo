@@ -14,13 +14,13 @@ import React from "react";
 
 void React;
 
-export interface WorkspaceInvitationEmailProps {
+export type WorkspaceInvitationEmailProps = {
   workspaceName: string;
   inviterName: string;
   inviterEmail: string;
   invitationLink: string;
   to: string;
-}
+};
 
 const WorkspaceInvitationEmail = ({
   workspaceName,

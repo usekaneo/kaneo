@@ -3,10 +3,10 @@
 
 declare const __APP_VERSION__: string;
 
-interface ImportMetaEnv {
+type ImportMetaEnv = {
   readonly KANEO_API_URL: string;
-}
+};
 
-interface ImportMeta {
+type ImportMeta = {
   readonly env: ImportMetaEnv;
-}
+};

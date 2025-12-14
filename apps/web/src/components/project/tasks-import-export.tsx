@@ -10,9 +10,9 @@ import useImportTasks from "@/hooks/mutations/task/use-import-tasks";
 import { cn } from "@/lib/cn";
 import type { ProjectWithTasks } from "@/types/project";
 
-interface TasksImportExportProps {
+type TasksImportExportProps = {
   project: ProjectWithTasks;
-}
+};
 
 export function TasksImportExport({ project }: TasksImportExportProps) {
   const [isImportOpen, setIsImportOpen] = useState(false);

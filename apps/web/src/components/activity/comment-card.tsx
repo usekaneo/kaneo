@@ -50,7 +50,7 @@ import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
-interface CommentCardProps {
+type CommentCardProps = {
   commentId: string;
   taskId: string;
   content: string;
@@ -61,7 +61,7 @@ interface CommentCardProps {
     image?: string | null;
   } | null;
   createdAt: string;
-}
+};
 
 export default function CommentCard({
   commentId,

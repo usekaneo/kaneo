@@ -8,20 +8,20 @@ import { useUserPreferencesEffects } from "@/hooks/use-user-preferences-effects"
 import { cn } from "@/lib/cn";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
-interface LayoutProps {
+type LayoutProps = {
   children: ReactNode;
   className?: string;
-}
+};
 
-interface HeaderProps {
+type HeaderProps = {
   children: ReactNode;
   className?: string;
-}
+};
 
-interface ContentProps {
+type ContentProps = {
   children: ReactNode;
   className?: string;
-}
+};
 
 function LayoutHeader({ children, className }: HeaderProps) {
   return (

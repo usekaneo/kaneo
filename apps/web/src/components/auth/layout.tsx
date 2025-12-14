@@ -1,10 +1,10 @@
 import { Logo } from "../common/logo";
 
-interface AuthLayoutProps {
+type AuthLayoutProps = {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
-}
+};
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
