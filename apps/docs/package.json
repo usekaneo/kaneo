@@ -35,7 +35,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.3",
-    "tailwindcss": "^4.1.17",
+    "tailwindcss": "^4.1.18",
     "tw-animate-css": "^1.3.8",
     "typescript": "^5.9.3"
   }
