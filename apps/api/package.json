@@ -25,7 +25,7 @@
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^3.0.4",
-    "@valibot/to-json-schema": "^1.4.0",
+    "@valibot/to-json-schema": "^1.5.0",
     "bcrypt": "^6.0.0",
     "better-auth": "^1.4.2",
     "croner": "^9.1.0",
