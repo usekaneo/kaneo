@@ -22,7 +22,7 @@
     "@types/node": "^24.10.1",
     "@types/nodemailer": "^7.0.4",
     "nodemailer": "^7.0.11",
-    "react": "^19.2.1",
+    "react": "^19.2.3",
     "react-dom": "^19.2.1"
   },
   "devDependencies": {
