@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.6",
-    "@hono/standard-validator": "^0.2.0",
+    "@hono/standard-validator": "^0.2.1",
     "@kaneo/email": "workspace:*",
     "@octokit/webhooks": "^14.2.0",
     "@oslojs/crypto": "^1.0.1",
