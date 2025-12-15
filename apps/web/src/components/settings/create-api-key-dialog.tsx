@@ -24,12 +24,43 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+
+const EXPIRATION_OPTIONS = [
+  {
+    label: "1 day",
+    value: "86400",
+  },
+  {
+    label: "7 days",
+    value: "604800",
+  },
+  {
+    label: "30 days",
+    value: "2592000",
+  },
+  {
+    label: "90 days",
+    value: "7776000",
+  },
+  {
+    label: "Never",
+    value: "never",
+  },
+];
 
 const createApiKeySchema = z.object({
   name: z
     .string()
     .min(1, "Name is required")
     .min(3, "Name must be at least 3 characters"),
+  expiresIn: z.string().min(1, "Expiration is required"),
 });
 
 type FormValues = z.infer<typeof createApiKeySchema>;
@@ -52,14 +83,19 @@ export function CreateApiKeyDialog({
     resolver: standardSchemaResolver(createApiKeySchema),
     defaultValues: {
       name: "",
+      expiresIn: "2592000",
     },
   });
 
   const onSubmit = async (data: FormValues) => {
+    const expiresInValue =
+      data.expiresIn === "never" ? null : Number.parseInt(data.expiresIn, 10);
+
     setIsSubmitting(true);
     try {
       const result = await createApiKey({
         name: data.name,
+        expiresIn: Number.isNaN(expiresInValue) ? null : expiresInValue,
       });
 
       form.reset();
@@ -112,6 +148,39 @@ export function CreateApiKeyDialog({
                   </FormControl>
                   <FormDescription className="text-xs">
                     A descriptive name for this API key
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="expiresIn"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs">Expiration</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue placeholder="Select expiration" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {EXPIRATION_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormDescription className="text-xs">
+                    Choose how long this API key should remain valid. Never will
+                    create a key without an automatic expiry.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

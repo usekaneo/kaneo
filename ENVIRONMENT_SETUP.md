@@ -25,7 +25,7 @@ For development, you'll need at minimum:
 
 - `KANEO_CLIENT_URL` - The URL of the web application (e.g., `http://localhost:5173`)
 - `KANEO_API_URL` - The URL of the API (e.g., `http://localhost:1337`)
-- `AUTH_SECRET` - Secret key for JWT token generation
+- `AUTH_SECRET` - Secret key for JWT token generation (**must be at least 32 characters long**; use a long, random value in production)
 - `DATABASE_URL` - PostgreSQL connection string
 - `POSTGRES_DB` - PostgreSQL database name
 - `POSTGRES_USER` - PostgreSQL username

@@ -23,7 +23,7 @@ export type ApiKey = {
 
 export type CreateApiKeyRequest = {
   name?: string;
-  expiresIn?: number;
+  expiresIn?: number | null;
   prefix?: string;
   metadata?: Record<string, unknown>;
 };

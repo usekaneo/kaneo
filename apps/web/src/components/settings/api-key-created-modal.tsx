@@ -1,7 +1,7 @@
-import { AlertTriangle, Check, Copy } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Alert, AlertDescription } from "../ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -46,13 +46,6 @@ export function ApiKeyCreatedModal({
         </DialogHeader>
 
         <div className="space-y-4 px-6 py-4">
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              Copy this key now. You won't be able to see it again.
-            </AlertDescription>
-          </Alert>
-
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium">Your API Key</p>
@@ -81,6 +74,13 @@ export function ApiKeyCreatedModal({
               </code>
             </div>
           </div>
+
+          <Alert>
+            <AlertTitle>Success! Your API key has been created</AlertTitle>
+            <AlertDescription>
+              Copy this key now. You won't be able to see it again.
+            </AlertDescription>
+          </Alert>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">

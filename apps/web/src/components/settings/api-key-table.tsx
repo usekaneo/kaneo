@@ -1,4 +1,4 @@
-import { Copy, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import useDeleteApiKey from "@/hooks/mutations/api-key/use-delete-api-key";
@@ -21,11 +21,6 @@ type ApiKeyTableProps = {
 export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
   const { mutateAsync: deleteApiKey } = useDeleteApiKey();
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
-  };
 
   const handleDelete = async (id: string, name: string | null) => {
     const keyName = name || "this API key";
@@ -74,6 +69,7 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
             <TableHead>Name</TableHead>
             <TableHead>Key</TableHead>
             <TableHead>Created</TableHead>
+            <TableHead>Expires</TableHead>
             <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -86,22 +82,17 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
               <TableCell>
                 <div className="flex items-center gap-2">
                   <code className="text-xs bg-background px-2 py-1 rounded border border-border">
-                    {apiKey.prefix}_{apiKey.start}...
+                    {apiKey.start}...
                   </code>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() =>
-                      handleCopy(`${apiKey.prefix}_${apiKey.start}...`)
-                    }
-                  >
-                    <Copy className="h-3 w-3" />
-                  </Button>
                 </div>
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {new Date(apiKey.createdAt).toLocaleDateString()}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {apiKey.expiresAt
+                  ? new Date(apiKey.expiresAt).toLocaleDateString()
+                  : "Never"}
               </TableCell>
               <TableCell>
                 <Button
