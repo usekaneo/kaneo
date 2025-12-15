@@ -1,3 +1,18 @@
+## [2.1.4](https://github.com/usekaneo/kaneo/compare/v2.1.1...v2.1.4) (2025-12-15)
+
+
+### Bug Fixes
+
+* **auth:** improve OAuth scopes handling and update redirect URI in documentation ([92a345b](https://github.com/usekaneo/kaneo/commit/92a345bd3752cdddd70d8f77557e35a24b072707))
+
+
+### Features
+
+* **api:** enhance workspace access validation with API key support ([c18391a](https://github.com/usekaneo/kaneo/commit/c18391a81f844b5cf49f1d309d7185aca462f157))
+* **docs:** create initial DocsPage component with redirect to core documentation ([4aa1f02](https://github.com/usekaneo/kaneo/commit/4aa1f02961005bce82ed2e53eb842fa33125c436))
+
+
+
 ## [2.1.1](https://github.com/usekaneo/kaneo/compare/v2.0.9...v2.1.1) (2025-12-13)
 
 
