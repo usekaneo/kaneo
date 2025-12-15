@@ -54,7 +54,7 @@
 		"framer-motion": "^12.23.24",
 		"hono": "^4.10.4",
 		"immer": "^10.1.1",
-		"lucide-react": "^0.545.0",
+		"lucide-react": "^0.561.0",
 		"react": "^19.2.0",
 		"react-day-picker": "9.9.0",
 		"react-dom": "^19.2.0",
