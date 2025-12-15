@@ -30,7 +30,7 @@
     "better-auth": "^1.4.2",
     "croner": "^9.1.0",
     "drizzle-kit": "^0.31.6",
-    "drizzle-orm": "^0.45.0",
+    "drizzle-orm": "^0.45.1",
     "hono": "^4.11.1",
     "hono-openapi": "^1.1.2",
     "octokit": "^5.0.5",
