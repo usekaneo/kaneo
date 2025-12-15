@@ -1,4 +1,3 @@
-import { filterSuggestionItems } from "@blocknote/core";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import { useCallback, useEffect, useState } from "react";
@@ -139,7 +138,6 @@ export default function CommentInput({ taskId }: CommentInputProps) {
                           type: "paragraph",
                           icon: Type,
                           props: {},
-                          isSelected: (block) => block.type === "paragraph",
                         } satisfies BlockTypeSelectItem,
                         {
                           name: "Heading 1",
@@ -148,8 +146,6 @@ export default function CommentInput({ taskId }: CommentInputProps) {
                           props: {
                             level: 1,
                           },
-                          isSelected: (block) =>
-                            block.type === "heading" && block.props.level === 1,
                         } satisfies BlockTypeSelectItem,
                         {
                           name: "Heading 2",
@@ -158,8 +154,6 @@ export default function CommentInput({ taskId }: CommentInputProps) {
                           props: {
                             level: 2,
                           },
-                          isSelected: (block) =>
-                            block.type === "heading" && block.props.level === 2,
                         } satisfies BlockTypeSelectItem,
                         {
                           name: "Heading 3",
@@ -168,24 +162,18 @@ export default function CommentInput({ taskId }: CommentInputProps) {
                           props: {
                             level: 3,
                           },
-                          isSelected: (block) =>
-                            block.type === "heading" && block.props.level === 3,
                         } satisfies BlockTypeSelectItem,
                         {
                           name: "Bullet List",
                           type: "bulletListItem",
                           icon: List,
                           props: {},
-                          isSelected: (block) =>
-                            block.type === "bulletListItem",
                         } satisfies BlockTypeSelectItem,
                         {
                           name: "Numbered List",
                           type: "numberedListItem",
                           icon: ListOrdered,
                           props: {},
-                          isSelected: (block) =>
-                            block.type === "numberedListItem",
                         } satisfies BlockTypeSelectItem,
                       ]}
                       key={"blockTypeSelect"}
@@ -315,10 +303,8 @@ export default function CommentInput({ taskId }: CommentInputProps) {
           <SuggestionMenuController
             triggerCharacter={"/"}
             getItems={async (query) =>
-              filterSuggestionItems(
-                getDefaultReactSlashMenuItems(editor).filter(
-                  (item) => item.group !== "Media",
-                ),
+              getDefaultReactSlashMenuItems(editor).filter(
+                (item) => item.group !== "Media",
                 query,
               )
             }

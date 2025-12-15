@@ -265,18 +265,4 @@ subscribeToEvent<{
   );
 });
 
-subscribeToEvent<{
-  taskId: string;
-  userId: string;
-  title: string;
-  type: string;
-}>("task.description_changed", async (data) => {
-  await createActivity(
-    data.taskId,
-    data.type,
-    data.userId,
-    "updated the description",
-  );
-});
-
 export default activity;

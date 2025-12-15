@@ -54,6 +54,13 @@ const baseURLWithoutPath = (() => {
   }
 })();
 
+if (process.env.AUTH_SECRET && process.env.AUTH_SECRET.length < 32) {
+  console.error(
+    "AUTH_SECRET is less than 32 characters, please generate a new one.",
+  );
+  process.exit(1);
+}
+
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
   trustedOrigins,

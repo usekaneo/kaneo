@@ -317,7 +317,7 @@ function RouteComponent() {
         <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full" />
         <div className="flex flex-col gap-4 pt-8">
           <h1 className="text-md font-semibold">Activity</h1>
-          {user?.id && <CommentInput taskId={taskId} userId={user.id} />}
+          {user?.id && <CommentInput taskId={taskId} />}
           <div className="flex flex-col">
             {activities.length === 0 && (
               <p className="text-sm font-medium text-muted-foreground">
