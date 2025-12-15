@@ -11,7 +11,7 @@
 		"@types/react": "^19.2.7",
 		"@types/react-dom": "^19.2.3",
 		"@kaneo/api": "workspace:*",
-		"hono": "^4.10.6",
+		"hono": "^4.11.1",
 		"react": "^19.2.3",
 		"@kaneo/typescript-config": "workspace:*",
 		"typescript": "^5.9.2",
