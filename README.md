@@ -15,7 +15,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://kaneo.app/docs">Quick Start</a>
+    <a href="https://kaneo.app/docs/core">Quick Start</a>
     <span> | </span>
     <a href="https://kaneo.app">Website</a>
     <span> | </span>
@@ -43,7 +43,7 @@ We believe the best tools are **invisible**. They should amplify your team's nat
 - **Actually fast** because we care about performance
 - **Open source** and free forever
 
-Learn more about Kaneo's features and capabilities in our [documentation](https://kaneo.app/docs).
+Learn more about Kaneo's features and capabilities in our [documentation](https://kaneo.app/docs/core).
 
 ## Sponsors
 
@@ -97,9 +97,9 @@ volumes:
   postgres_data:
 ```
 
-Save this as `compose.yml`, create a `.env` file with your configuration (see the [documentation](https://kaneo.app/docs) for all required environment variables), run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
+Save this as `compose.yml`, create a `.env` file with your configuration (see the [documentation](https://kaneo.app/docs/core) for all required environment variables), run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
-> **Important:** See our [full documentation](https://kaneo.app/docs) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
+> **Important:** See our [full documentation](https://kaneo.app/docs/core) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
 
 ### Development Setup
 
@@ -109,7 +109,7 @@ For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for det
 
 Kaneo requires several environment variables to be configured. The Docker Compose setup above handles the database automatically, but you'll need to configure environment variables for the API and web services.
 
-For complete configuration instructions, including all required environment variables, database setup for non-Docker deployments, and advanced settings, see the [documentation](https://kaneo.app/docs).
+For complete configuration instructions, including all required environment variables, database setup for non-Docker deployments, and advanced settings, see the [documentation](https://kaneo.app/docs/core).
 
 ## Kubernetes Deployment
 
@@ -133,13 +133,13 @@ pnpm install
 pnpm dev
 ```
 
-For contributing guidelines, code structure, and development best practices, check out our [contributing guide](CONTRIBUTING.md) and [documentation](https://kaneo.app/docs).
+For contributing guidelines, code structure, and development best practices, check out our [contributing guide](CONTRIBUTING.md) and [documentation](https://kaneo.app/docs/core).
 
 ## Community
 
 - **[Discord](https://discord.gg/rU4tSyhXXU)** - Chat with users and contributors
 - **[GitHub Issues](https://github.com/usekaneo/kaneo/issues)** - Bug reports and feature requests
-- **[Documentation](https://kaneo.app/docs)** - Detailed guides, API docs, and tutorials
+- **[Documentation](https://kaneo.app/docs/core)** - Detailed guides, API docs, and tutorials
 
 ## Contributing
 
