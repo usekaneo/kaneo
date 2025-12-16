@@ -6,6 +6,7 @@ description: The environment variables are used to configure the application.
 ## Set up the file
 
 The environment variables are used to configure the application. We will use a `.env` file to store the variables.
+For the sample environment file, see the [example .env file](https://github.com/usekaneo/kaneo/blob/main/.env.sample).
 
 The variables are split up into the following sections:
 
@@ -47,7 +48,7 @@ This section will cover all the variables related to the authentication.
 
 Name | Description |
 --- | --- |
-| `AUTH_SECRET` | The secret key for the JWT token. **Must be at least 32 characters long** – use a long, random value in production.
+| `AUTH_SECRET` | The secret key for the JWT token. **Must be at least 32 characters long**, use a long, random value in production. Example: use `openssl rand -base64 32` to generate a secure key in Linux/macOS.
 
 
 ## Optional variables
@@ -57,6 +58,7 @@ Name | Description |
 Name | Description | Default |
 --- | --- | --- |
 | `DISABLE_GUEST_ACCESS` | Disable anonymous/guest sign-in. When set to `true`, the guest access button will not be shown on sign-in and sign-up pages. | `false` |
+| `DISABLE_REGISTRATION` | Disable user registration. When set to `true`, the sign-up option will not be shown on the sign-in page. | `false` | 
 
 ### GitHub SSO & Integration
 
