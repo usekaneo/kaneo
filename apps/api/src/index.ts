@@ -20,6 +20,7 @@ import task from "./task";
 import timeEntry from "./time-entry";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
+import { verifyApiKey } from "./utils/verify-api-key";
 
 type ApiKey = {
   id: string;
@@ -126,15 +127,17 @@ api.use("*", async (c, next) => {
     const apiKey = authHeader.substring(7);
 
     try {
-      const result = await auth.api.verifyApiKey({
-        body: { key: apiKey },
-      });
+      const result = await verifyApiKey(apiKey);
 
-      if (result.valid && result.key) {
+      if (result?.valid && result.key) {
         c.set("userId", result.key.userId);
         c.set("user", null);
         c.set("session", null);
-        c.set("apiKey", result.key);
+        c.set("apiKey", {
+          id: result.key.id,
+          userId: result.key.userId,
+          enabled: result.key.enabled,
+        });
         return next();
       }
 

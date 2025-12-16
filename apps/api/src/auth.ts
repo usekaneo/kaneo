@@ -114,7 +114,7 @@ export const auth = betterAuth({
       ? [
           anonymous({
             generateName: async () => generateDemoName(),
-            emailDomainName: "kaneo.com",
+            emailDomainName: "kaneo.app",
           }),
         ]
       : []),
