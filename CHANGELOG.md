@@ -1,3 +1,7 @@
+## [2.1.5](https://github.com/usekaneo/kaneo/compare/v2.1.4...v2.1.5) (2025-12-16)
+
+
+
 ## [2.1.4](https://github.com/usekaneo/kaneo/compare/v2.1.1...v2.1.4) (2025-12-15)
 
 
