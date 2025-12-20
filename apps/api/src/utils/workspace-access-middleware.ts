@@ -24,6 +24,7 @@ export function workspaceAccessMiddleware(
   return async (c: Context, next: Next) => {
     const userId = c.get("userId");
 
+    console.log({ userId });
     if (!userId) {
       throw new HTTPException(401, { message: "Unauthorized" });
     }
@@ -39,7 +40,12 @@ export function workspaceAccessMiddleware(
       } else if (source.type === "param") {
         workspaceId = c.req.param(source.key) || null;
       } else if (source.type === "lookup") {
-        const id = c.req.param(source.idKey) || c.req.query(source.idKey);
+        const body = await c.req.json().catch(() => ({}));
+        const id =
+          c.req.param(source.idKey) ||
+          c.req.query(source.idKey) ||
+          body[source.idKey];
+        console.log(source.idKey, source.type, id, source.resource);
         if (id) {
           workspaceId = await lookupWorkspaceId(source.resource, id);
         }
@@ -173,6 +179,11 @@ export const workspaceAccess = {
     }),
 
   fromTask: (idKey = "id") =>
+    workspaceAccessMiddleware({
+      sources: [{ type: "lookup", resource: "task", idKey }],
+    }),
+
+  fromTaskId: (idKey = "taskId") =>
     workspaceAccessMiddleware({
       sources: [{ type: "lookup", resource: "task", idKey }],
     }),

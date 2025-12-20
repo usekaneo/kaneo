@@ -4,6 +4,7 @@ import * as v from "valibot";
 import { auth } from "../auth";
 import { publishEvent } from "../events";
 import { taskSchema } from "../schemas";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
@@ -39,6 +40,7 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ projectId: v.string() })),
+    workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
 
@@ -73,6 +75,7 @@ const task = new Hono<{
         userId: v.optional(v.string()),
       }),
     ),
+    workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.param();
       const { title, description, dueDate, priority, status, userId } =
@@ -107,6 +110,7 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
 
@@ -144,6 +148,7 @@ const task = new Hono<{
         userId: v.optional(v.string()),
       }),
     ),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
       const {
@@ -201,6 +206,7 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ projectId: v.string() })),
+    workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
 
@@ -240,6 +246,7 @@ const task = new Hono<{
         ),
       }),
     ),
+    workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { tasks } = c.req.valid("json");
@@ -265,6 +272,7 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
 
@@ -290,6 +298,7 @@ const task = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ status: v.string() })),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { status } = c.req.valid("json");
@@ -327,6 +336,7 @@ const task = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ priority: v.string() })),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { priority } = c.req.valid("json");
@@ -363,6 +373,7 @@ const task = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ userId: v.string() })),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { userId } = c.req.valid("json");
@@ -418,6 +429,7 @@ const task = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ dueDate: v.string() })),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { dueDate } = c.req.valid("json");
@@ -455,6 +467,7 @@ const task = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ title: v.string() })),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { title } = c.req.valid("json");
@@ -492,6 +505,7 @@ const task = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ description: v.string() })),
+    workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { description } = c.req.valid("json");

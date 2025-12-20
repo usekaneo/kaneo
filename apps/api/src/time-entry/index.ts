@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { timeEntrySchema } from "../schemas";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTimeEntry from "./controllers/create-time-entry";
 import getTimeEntriesByTaskId from "./controllers/get-time-entries";
 import getTimeEntry from "./controllers/get-time-entry";
@@ -28,6 +29,7 @@ const timeEntry = new Hono<{
       },
     }),
     validator("param", v.object({ taskId: v.string() })),
+    workspaceAccess.fromTaskId(),
     async (c) => {
       const { taskId } = c.req.valid("param");
       const timeEntries = await getTimeEntriesByTaskId(taskId);
@@ -50,6 +52,7 @@ const timeEntry = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromTimeEntry(),
     async (c) => {
       const { id } = c.req.valid("param");
       const timeEntry = await getTimeEntry(id);
@@ -80,6 +83,7 @@ const timeEntry = new Hono<{
         description: v.optional(v.string()),
       }),
     ),
+    workspaceAccess.fromTaskId(),
     async (c) => {
       const { taskId, startTime, endTime, description } = c.req.valid("json");
       const userId = c.get("userId");
@@ -117,6 +121,7 @@ const timeEntry = new Hono<{
         description: v.optional(v.string()),
       }),
     ),
+    workspaceAccess.fromTimeEntry(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { startTime, endTime, description } = c.req.valid("json");

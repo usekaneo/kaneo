@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { labelSchema } from "../schemas";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createLabel from "./controllers/create-label";
 import deleteLabel from "./controllers/delete-label";
 import getLabel from "./controllers/get-label";
@@ -26,6 +27,7 @@ const label = new Hono()
       },
     }),
     validator("param", v.object({ taskId: v.string() })),
+    workspaceAccess.fromTaskId(),
     async (c) => {
       const { taskId } = c.req.valid("param");
       const labels = await getLabelsByTaskId(taskId);
@@ -48,6 +50,7 @@ const label = new Hono()
       },
     }),
     validator("param", v.object({ workspaceId: v.string() })),
+    workspaceAccess.fromParam(),
     async (c) => {
       const { workspaceId } = c.req.valid("param");
       const labels = await getLabelsByWorkspaceId(workspaceId);
@@ -78,6 +81,7 @@ const label = new Hono()
         taskId: v.optional(v.string()),
       }),
     ),
+    workspaceAccess.fromBody(),
     async (c) => {
       const { name, color, workspaceId, taskId } = c.req.valid("json");
       const label = await createLabel(name, color, taskId, workspaceId);
@@ -100,6 +104,7 @@ const label = new Hono()
       },
     }),
     validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromLabel(),
     async (c) => {
       const { id } = c.req.valid("param");
       const label = await getLabel(id);
@@ -129,6 +134,7 @@ const label = new Hono()
         color: v.string(),
       }),
     ),
+    workspaceAccess.fromLabel(),
     async (c) => {
       const { id } = c.req.valid("param");
       const { name, color } = c.req.valid("json");
@@ -152,6 +158,7 @@ const label = new Hono()
       },
     }),
     validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromLabel(),
     async (c) => {
       const { id } = c.req.valid("param");
       const label = await deleteLabel(id);
