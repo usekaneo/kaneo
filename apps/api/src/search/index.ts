@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { activitySchema, projectSchema, taskSchema } from "../schemas";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
 import globalSearch from "./controllers/global-search";
 
 const workspaceSchema = v.object({
@@ -74,6 +75,7 @@ const search = new Hono<{
       userEmail: v.optional(v.pipe(v.string(), v.email())),
     }),
   ),
+  workspaceAccess.fromQuery(),
   async (c) => {
     const { q, type, workspaceId, projectId, limit, userEmail } =
       c.req.valid("query");

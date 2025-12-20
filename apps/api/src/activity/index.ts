@@ -3,6 +3,7 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { subscribeToEvent } from "../events";
 import { activitySchema } from "../schemas";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
@@ -30,6 +31,7 @@ const activity = new Hono<{
       },
     }),
     validator("param", v.object({ taskId: v.string() })),
+    workspaceAccess.fromTaskId(),
     async (c) => {
       const { taskId } = c.req.valid("param");
       const activities = await getActivities(taskId);
@@ -60,6 +62,7 @@ const activity = new Hono<{
         type: v.string(),
       }),
     ),
+    workspaceAccess.fromTaskId(),
     async (c) => {
       const { taskId, userId, message, type } = c.req.valid("json");
       const activity = await createActivity(taskId, type, userId, message);
@@ -88,6 +91,7 @@ const activity = new Hono<{
         comment: v.string(),
       }),
     ),
+    workspaceAccess.fromTaskId(),
     async (c) => {
       const { taskId, comment } = c.req.valid("json");
       const userId = c.get("userId");
@@ -117,6 +121,7 @@ const activity = new Hono<{
         comment: v.string(),
       }),
     ),
+    workspaceAccess.fromActivity("activityId"),
     async (c) => {
       const { activityId, comment } = c.req.valid("json");
       const userId = c.get("userId");
@@ -145,6 +150,7 @@ const activity = new Hono<{
         activityId: v.string(),
       }),
     ),
+    workspaceAccess.fromActivity("activityId"),
     async (c) => {
       const { activityId } = c.req.valid("json");
       const userId = c.get("userId");
