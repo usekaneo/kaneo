@@ -25,6 +25,7 @@ function RouteComponent() {
     id: projectId || "",
     workspaceId: workspace?.id || "",
   });
+  const isArchived = Boolean(project?.archivedAt);
 
   const queryClient = useQueryClient();
   const { mutateAsync: updateProject } = useUpdateProject();
@@ -32,6 +33,7 @@ function RouteComponent() {
 
   const handleToggle = useCallback(async () => {
     if (!project) return;
+    if (isArchived) return;
     if (savingRef.current) return;
     savingRef.current = true;
     try {
@@ -60,7 +62,7 @@ function RouteComponent() {
     } finally {
       savingRef.current = false;
     }
-  }, [project, updateProject, queryClient, workspace?.id]);
+  }, [project, updateProject, queryClient, workspace?.id, isArchived]);
 
   const origin = window.location.origin;
 
@@ -96,6 +98,7 @@ function RouteComponent() {
               <Switch
                 checked={!!project?.isPublic}
                 onCheckedChange={handleToggle}
+                disabled={isArchived}
               />
             </div>
 
