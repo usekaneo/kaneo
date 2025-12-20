@@ -9,7 +9,7 @@ import activity from "./activity";
 import { auth } from "./auth";
 import config from "./config";
 import db from "./database";
-import githubIntegration from "./github-integration";
+import githubIntegration, { handleGithubWebhook } from "./github-integration";
 import label from "./label";
 
 import notification from "./notification";
@@ -72,17 +72,14 @@ api.get("/health", (c) => {
   return c.json({ status: "ok" });
 });
 
-const githubIntegrationApi = api.route(
-  "/github-integration",
-  githubIntegration,
-);
-
 api.get("/public-project/:id", async (c) => {
   const { id } = c.req.param();
   const project = await getPublicProject(id);
 
   return c.json(project);
 });
+
+api.post("/github-integration/webhook", handleGithubWebhook);
 
 const configApi = api.route("/config", config);
 
@@ -170,6 +167,10 @@ const timeEntryApi = api.route("/time-entry", timeEntry);
 const labelApi = api.route("/label", label);
 const notificationApi = api.route("/notification", notification);
 const searchApi = api.route("/search", search);
+const githubIntegrationApi = api.route(
+  "/github-integration",
+  githubIntegration,
+);
 
 app.route("/api", api);
 

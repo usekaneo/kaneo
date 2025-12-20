@@ -19,7 +19,8 @@
 			"!**/.source",
 			"!**/.next",
 			"!**/out",
-			"!**/.cache"
+			"!**/.cache",
+			"!**/.claude"
 		]
 	},
 	"formatter": {

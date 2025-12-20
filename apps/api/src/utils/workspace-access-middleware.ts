@@ -24,7 +24,6 @@ export function workspaceAccessMiddleware(
   return async (c: Context, next: Next) => {
     const userId = c.get("userId");
 
-    console.log({ userId });
     if (!userId) {
       throw new HTTPException(401, { message: "Unauthorized" });
     }
@@ -45,7 +44,6 @@ export function workspaceAccessMiddleware(
           c.req.param(source.idKey) ||
           c.req.query(source.idKey) ||
           body[source.idKey];
-        console.log(source.idKey, source.type, id, source.resource);
         if (id) {
           workspaceId = await lookupWorkspaceId(source.resource, id);
         }
@@ -62,7 +60,6 @@ export function workspaceAccessMiddleware(
       });
     }
 
-    // Get API key ID if present (for API key authentication)
     const apiKey = c.get("apiKey");
     const apiKeyId = apiKey?.id;
 

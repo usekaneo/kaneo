@@ -1,11 +1,15 @@
 import { eq } from "drizzle-orm";
+import type { Context } from "hono";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
-import { githubIntegrationTable } from "../database/schema";
+import { githubIntegrationTable, projectTable } from "../database/schema";
 import { subscribeToEvent } from "../events";
 import { githubIntegrationSchema } from "../schemas";
+import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createGithubIntegration from "./controllers/create-github-integration";
 import deleteGithubIntegration from "./controllers/delete-github-integration";
 import getGithubIntegration from "./controllers/get-github-integration";
@@ -79,7 +83,17 @@ subscribeToEvent<{
   title: string;
 }>("task.priority_changed", handleTaskPriorityChanged);
 
-const githubIntegration = new Hono()
+const githubIntegration = new Hono<{
+  Variables: {
+    userId: string;
+    workspaceId: string;
+    apiKey?: {
+      id: string;
+      userId: string;
+      enabled: boolean;
+    };
+  };
+}>()
   .get(
     "/app-info",
     describeRoute({
@@ -172,6 +186,7 @@ const githubIntegration = new Hono()
       },
     }),
     validator("param", v.object({ projectId: v.string() })),
+    workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const integration = await getGithubIntegration(projectId);
@@ -201,6 +216,7 @@ const githubIntegration = new Hono()
         repositoryName: v.pipe(v.string(), v.minLength(1)),
       }),
     ),
+    workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { repositoryOwner, repositoryName } = c.req.valid("json");
@@ -244,6 +260,7 @@ const githubIntegration = new Hono()
         isActive: v.optional(v.boolean()),
       }),
     ),
+    workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { isActive } = c.req.valid("json");
@@ -283,6 +300,7 @@ const githubIntegration = new Hono()
       },
     }),
     validator("param", v.object({ projectId: v.string() })),
+    workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const result = await deleteGithubIntegration(projectId);
@@ -310,45 +328,72 @@ const githubIntegration = new Hono()
         projectId: v.string(),
       }),
     ),
+    async (c, next) => {
+      const userId = c.get("userId");
+      if (!userId) {
+        throw new HTTPException(401, { message: "Unauthorized" });
+      }
+
+      const body = await c.req.json();
+      const projectId = body.projectId as string;
+
+      const [project] = await db
+        .select({ workspaceId: projectTable.workspaceId })
+        .from(projectTable)
+        .where(eq(projectTable.id, projectId))
+        .limit(1);
+
+      if (!project) {
+        throw new HTTPException(404, { message: "Project not found" });
+      }
+
+      const apiKey = c.get("apiKey");
+      const apiKeyId = apiKey?.id;
+
+      await validateWorkspaceAccess(userId, project.workspaceId, apiKeyId);
+      c.set("workspaceId", project.workspaceId);
+
+      return next();
+    },
     async (c) => {
       const { projectId } = c.req.valid("json");
       const result = await importIssues(projectId);
       return c.json(result);
     },
-  )
-  .post("/webhook", async (c) => {
-    try {
-      if (!githubApp) {
-        return c.json({ error: "GitHub integration not configured" }, 400);
-      }
+  );
 
-      const arrayBuffer = await c.req.arrayBuffer();
-      const body = Buffer.from(arrayBuffer).toString("utf8");
-
-      const signature = c.req.header("x-hub-signature-256");
-      if (!signature) {
-        return c.json({ error: "Missing signature" }, 400);
-      }
-
-      const eventName = c.req.header("x-github-event");
-      if (!eventName) {
-        return c.json({ error: "Missing event name" }, 400);
-      }
-
-      const deliveryId = c.req.header("x-github-delivery") || "";
-
-      await githubApp.webhooks.verifyAndReceive({
-        id: deliveryId,
-        name: eventName as "issues" | "pull_request" | "push" | string,
-        signature,
-        payload: body,
-      });
-
-      return c.json({ status: "success" });
-    } catch (error) {
-      console.error("Webhook processing error:", error);
-      return c.json({ error: "Webhook processing failed" }, 400);
+export async function handleGithubWebhook(c: Context) {
+  try {
+    if (!githubApp) {
+      return c.json({ error: "GitHub integration not configured" }, 400);
     }
-  });
 
+    const arrayBuffer = await c.req.arrayBuffer();
+    const body = Buffer.from(arrayBuffer).toString("utf8");
+
+    const signature = c.req.header("x-hub-signature-256");
+    if (!signature) {
+      return c.json({ error: "Missing signature" }, 400);
+    }
+
+    const eventName = c.req.header("x-github-event");
+    if (!eventName) {
+      return c.json({ error: "Missing event name" }, 400);
+    }
+
+    const deliveryId = c.req.header("x-github-delivery") || "";
+
+    await githubApp.webhooks.verifyAndReceive({
+      id: deliveryId,
+      name: eventName as "issues" | "pull_request" | "push" | string,
+      signature,
+      payload: body,
+    });
+
+    return c.json({ status: "success" });
+  } catch (error) {
+    console.error("Webhook processing error:", error);
+    return c.json({ error: "Webhook processing failed" }, 400);
+  }
+}
 export default githubIntegration;
