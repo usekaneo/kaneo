@@ -1,3 +1,13 @@
+## [2.1.6](https://github.com/usekaneo/kaneo/compare/v2.1.5...v2.1.6) (2025-12-20)
+
+
+### Features
+
+* add access control to API endpoints ([977d49e](https://github.com/usekaneo/kaneo/commit/977d49e7ce7c366a89641970332a3da3ed714183))
+* add GitHub webhook handling and workspace access validation ([49f416f](https://github.com/usekaneo/kaneo/commit/49f416fd646671ba663aedddaa47b2a7b6dbd98f))
+
+
+
 ## [2.1.5](https://github.com/usekaneo/kaneo/compare/v2.1.4...v2.1.5) (2025-12-16)
 
 
