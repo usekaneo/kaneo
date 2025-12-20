@@ -11,11 +11,13 @@ import {
   Check,
   ChevronDown,
   Copy,
+  ExternalLink,
   ExternalLinkIcon,
   MessageCircleIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 
 const cache = new Map<string, string>();
 
@@ -65,6 +67,32 @@ export function LLMCopyButton({
     >
       {checked ? <Check /> : <Copy />}
       Copy Markdown
+    </button>
+  );
+}
+
+export function DeployButton({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => window.open(href, "_blank")}
+      className={cn(
+        buttonVariants({
+          color: "secondary",
+          size: "sm",
+          className:
+            "gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground h-[30px] mt-2",
+        }),
+      )}
+    >
+      <ExternalLink />
+      {children}
     </button>
   );
 }
