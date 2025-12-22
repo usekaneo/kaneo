@@ -10,7 +10,7 @@
 		"lint": "biome check --write ."
 	},
 	"dependencies": {
-		"@blocknote/core": "^0.44.2",
+		"@blocknote/core": "^0.45.0",
 		"@blocknote/react": "^0.44.2",
 		"@blocknote/shadcn": "^0.44.2",
 		"@dnd-kit/core": "^6.3.1",
