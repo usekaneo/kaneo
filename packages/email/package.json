@@ -26,7 +26,7 @@
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
-    "@react-email/preview-server": "5.0.8",
+    "@react-email/preview-server": "5.1.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "react-email": "5.0.8"
