@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@react-email/components": "1.0.1",
-    "@types/node": "^25.0.2",
+    "@types/node": "^25.0.3",
     "@types/nodemailer": "^7.0.4",
     "nodemailer": "^7.0.11",
     "react": "^19.2.3",
