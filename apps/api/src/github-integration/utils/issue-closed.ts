@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import type { Octokit } from "octokit";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { assertTaskWritable } from "../../utils/assert-task-writable";
 import getGithubIntegrationByRepositoryId from "../controllers/get-github-integration-by-repository-id";
 
 export type HandlerFunction<
@@ -55,6 +56,8 @@ export const handleIssueClosed: HandlerFunction<
     }
 
     try {
+      await assertTaskWritable(kaneoTask.id);
+
       await db
         .update(taskTable)
         .set({

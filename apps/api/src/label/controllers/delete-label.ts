@@ -2,9 +2,10 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { labelTable } from "../../database/schema";
+import { assertTaskWritable } from "../../utils/assert-task-writable";
 
 async function deleteLabel(id: string) {
-  const label = db.query.labelTable.findFirst({
+  const label = await db.query.labelTable.findFirst({
     where: (label, { eq }) => eq(label.id, id),
   });
 
@@ -12,6 +13,10 @@ async function deleteLabel(id: string) {
     throw new HTTPException(404, {
       message: "Label not found",
     });
+  }
+
+  if (label.taskId) {
+    await assertTaskWritable(label.taskId);
   }
 
   const [deletedLabel] = await db

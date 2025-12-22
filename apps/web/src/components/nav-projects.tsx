@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
+  Archive,
   ChevronRight,
   Folder,
   Forward,
@@ -34,9 +35,11 @@ import {
 } from "@/components/ui/sidebar";
 import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
+import useArchiveProject from "@/hooks/mutations/project/use-archive-project";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import type { ProjectWithTasks } from "@/types/project";
 import CreateProjectModal from "./shared/modals/create-project-modal";
@@ -61,10 +64,12 @@ import {
 export function NavProjects() {
   const { isMobile } = useSidebar();
   const { data: workspace } = useActiveWorkspace();
+  const { canManageProjects } = useWorkspacePermission();
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
   const queryClient = useQueryClient();
+  const { mutateAsync: archiveProject } = useArchiveProject();
   const { mutateAsync: deleteProject } = useDeleteProject();
   const navigate = useNavigate();
   const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
@@ -178,7 +183,37 @@ export function NavProjects() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
+                        className="items-start cursor-pointer"
+                        disabled={!canManageProjects()}
+                        onClick={async () => {
+                          try {
+                            await archiveProject({
+                              id: project.id,
+                              workspaceId: workspace.id,
+                            });
+                            toast.success("Project archived");
+                            queryClient.invalidateQueries({
+                              queryKey: ["projects"],
+                            });
+                            navigate({
+                              to: "/dashboard/workspace/$workspaceId",
+                              params: { workspaceId: workspace?.id || "" },
+                            });
+                          } catch (error) {
+                            toast.error(
+                              error instanceof Error
+                                ? error.message
+                                : "Failed to archive project",
+                            );
+                          }
+                        }}
+                      >
+                        <Archive className="text-muted-foreground" />
+                        <span>Archive Project</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
                         className="items-start text-destructive cursor-pointer"
+                        disabled={!canManageProjects()}
                         onClick={() => {
                           setProjectToDeleteID(project.id);
                           setIsDeleteProjectModalOpen(true);
@@ -249,6 +284,7 @@ export function NavProjects() {
               onClick={async () => {
                 await deleteProject({
                   id: projectToDeleteId || "",
+                  workspaceId: workspace.id,
                 });
                 toast.success("Project deleted");
                 queryClient.invalidateQueries({

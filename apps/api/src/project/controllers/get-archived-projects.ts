@@ -1,16 +1,17 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
 
-async function getProjects(workspaceId: string) {
+async function getArchivedProjects(workspaceId: string) {
   const projects = await db.query.projectTable.findMany({
     where: and(
       eq(projectTable.workspaceId, workspaceId),
-      isNull(projectTable.archivedAt),
+      isNotNull(projectTable.archivedAt),
     ),
     with: {
       tasks: true,
     },
+    orderBy: [desc(projectTable.archivedAt)],
   });
 
   const projectsWithStatistics = projects.map((project) => {
@@ -43,4 +44,4 @@ async function getProjects(workspaceId: string) {
   return projectsWithStatistics;
 }
 
-export default getProjects;
+export default getArchivedProjects;

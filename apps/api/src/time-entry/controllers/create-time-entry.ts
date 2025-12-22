@@ -4,6 +4,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable, timeEntryTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { assertTaskWritable } from "../../utils/assert-task-writable";
 
 async function createTimeEntry({
   taskId,
@@ -20,6 +21,8 @@ async function createTimeEntry({
   endTime?: Date;
   duration?: number;
 }) {
+  await assertTaskWritable(taskId);
+
   const [createdTimeEntry] = await db
     .insert(timeEntryTable)
     .values({

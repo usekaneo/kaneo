@@ -206,6 +206,11 @@ export const projectTable = pgTable("project", {
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  archivedAt: timestamp("archived_at", { mode: "date" }),
+  archivedBy: text("archived_by").references(() => userTable.id, {
+    onDelete: "set null",
+    onUpdate: "cascade",
+  }),
   isPublic: boolean("is_public").default(false),
 });
 
@@ -312,6 +317,34 @@ export const notificationTable = pgTable("notification", {
     .defaultNow()
     .notNull(),
 });
+
+export const auditLogTable = pgTable(
+  "audit_log",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    actorId: text("actor_id").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    action: text("action").notNull(),
+    resourceType: text("resource_type").notNull(),
+    resourceId: text("resource_id").notNull(),
+    metadata: text("metadata"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("audit_log_workspaceId_idx").on(table.workspaceId),
+    index("audit_log_resource_idx").on(table.resourceType, table.resourceId),
+  ],
+);
 
 export const githubIntegrationTable = pgTable("github_integration", {
   id: text("id")

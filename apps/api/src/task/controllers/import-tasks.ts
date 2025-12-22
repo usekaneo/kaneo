@@ -25,6 +25,12 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
     });
   }
 
+  if (project.archivedAt) {
+    throw new HTTPException(403, {
+      message: "Project is archived and read-only",
+    });
+  }
+
   const nextTaskNumber = await getNextTaskNumber(projectId);
   let taskNumber = nextTaskNumber;
 

@@ -4,7 +4,7 @@ import {
   Outlet,
   useLocation,
 } from "@tanstack/react-router";
-import { ChevronRight, Eye, Plug, Settings } from "lucide-react";
+import { Archive, ChevronRight, Eye, Plug, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Collapsible,
@@ -71,6 +71,20 @@ function RouteComponent() {
               </h3>
               <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 duration-200">
                 <nav className="space-y-0.5">
+                  <Link
+                    to="/dashboard/settings/projects/archived"
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 text-xs rounded-md transition-all duration-200",
+                      "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      location.pathname ===
+                        "/dashboard/settings/projects/archived"
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <Archive className="h-3.5 w-3.5" />
+                    <span>Archived</span>
+                  </Link>
                   {projects?.map((project) => {
                     const IconComponent =
                       icons[project.icon as keyof typeof icons] || icons.Layout;

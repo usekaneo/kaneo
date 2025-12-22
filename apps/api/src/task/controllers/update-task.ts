@@ -2,6 +2,8 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { assertProjectWritable } from "../../utils/assert-project-writable";
+import { assertTaskWritable } from "../../utils/assert-task-writable";
 
 async function updateTask(
   id: string,
@@ -14,6 +16,9 @@ async function updateTask(
   position: number,
   userId?: string,
 ) {
+  await assertTaskWritable(id);
+  await assertProjectWritable(projectId);
+
   const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
   });

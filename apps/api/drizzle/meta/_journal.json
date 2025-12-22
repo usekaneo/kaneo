@@ -64,6 +64,20 @@
 			"when": 1765392072530,
 			"tag": "0008_square_silvermane",
 			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "7",
+			"when": 1766193221069,
+			"tag": "0009_fine_gertrude_yorkes",
+			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "7",
+			"when": 1766193483201,
+			"tag": "0010_big_rocket_raccoon",
+			"breakpoints": true
 		}
 	]
 }

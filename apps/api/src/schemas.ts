@@ -17,6 +17,8 @@ export const projectSchema = v.object({
   name: v.string(),
   description: v.nullable(v.string()),
   createdAt: v.date(),
+  archivedAt: v.nullable(v.date()),
+  archivedBy: v.nullable(v.string()),
   isPublic: v.nullable(v.boolean()),
 });
 

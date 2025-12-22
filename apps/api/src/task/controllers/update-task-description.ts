@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { assertTaskWritable } from "../../utils/assert-task-writable";
 
 async function updateTaskDescription({
   id,
@@ -10,6 +11,8 @@ async function updateTaskDescription({
   id: string;
   description: string;
 }) {
+  await assertTaskWritable(id);
+
   const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
   });

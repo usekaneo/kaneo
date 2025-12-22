@@ -37,10 +37,13 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import icons from "@/constants/project-icons";
+import useArchiveProject from "@/hooks/mutations/project/use-archive-project";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
+import useUnarchiveProject from "@/hooks/mutations/project/use-unarchive-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 
 export const Route = createFileRoute(
@@ -85,7 +88,14 @@ function RouteComponent() {
     workspaceId: workspace?.id || "",
   });
 
+  const isArchived = Boolean(project?.archivedAt);
+  const { canManageProjects } = useWorkspacePermission();
+
   const { mutateAsync: updateProject } = useUpdateProject();
+  const { mutateAsync: archiveProject, isPending: isArchiving } =
+    useArchiveProject();
+  const { mutateAsync: unarchiveProject, isPending: isUnarchiving } =
+    useUnarchiveProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
 
@@ -117,6 +127,7 @@ function RouteComponent() {
   const saveProject = useCallback(
     async (data: ProjectFormValues) => {
       if (!project?.id) return;
+      if (isArchived) return;
 
       try {
         await updateProject({
@@ -148,6 +159,7 @@ function RouteComponent() {
       project?.id,
       project?.isPublic,
       project?.icon,
+      isArchived,
       updateProject,
       queryClient,
       workspace?.id,
@@ -155,6 +167,8 @@ function RouteComponent() {
   );
 
   const debouncedSave = useCallback(() => {
+    if (isArchived) return;
+
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
@@ -167,7 +181,7 @@ function RouteComponent() {
         saveProject(latest as ProjectFormValues);
       }
     }, 800);
-  }, [projectForm, saveProject]);
+  }, [projectForm, saveProject, isArchived]);
 
   useEffect(() => {
     const subscription = projectForm.watch(() => {
@@ -187,9 +201,10 @@ function RouteComponent() {
 
   const handleDeleteProject = useCallback(async () => {
     if (!project?.id) return;
+    if (!workspace?.id) return;
 
     try {
-      await deleteProject({ id: project.id });
+      await deleteProject({ id: project.id, workspaceId: workspace.id });
       toast.success("Project deleted successfully");
 
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
@@ -209,6 +224,56 @@ function RouteComponent() {
     <>
       <PageTitle title="Project Settings" />
       <div className="max-w-4xl mx-auto space-y-8">
+        {isArchived && (
+          <div className="rounded-md border border-border bg-sidebar p-4 text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-muted-foreground">
+                This project is archived and read-only.
+              </div>
+              {canManageProjects() && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  disabled={isUnarchiving}
+                  onClick={async () => {
+                    if (!project?.id) return;
+                    if (!workspace?.id) return;
+                    try {
+                      await unarchiveProject({
+                        id: project.id,
+                        workspaceId: workspace.id,
+                      });
+                      toast.success("Project unarchived");
+                      await Promise.all([
+                        queryClient.invalidateQueries({
+                          queryKey: ["projects"],
+                        }),
+                        queryClient.invalidateQueries({
+                          queryKey: ["projects", workspace?.id],
+                        }),
+                        queryClient.invalidateQueries({
+                          queryKey: ["projects", workspace?.id, "archived"],
+                        }),
+                        queryClient.invalidateQueries({
+                          queryKey: ["projects", workspace?.id, project.id],
+                        }),
+                      ]);
+                    } catch (error) {
+                      toast.error(
+                        error instanceof Error
+                          ? error.message
+                          : "Failed to unarchive project",
+                      );
+                    }
+                  }}
+                >
+                  {isUnarchiving ? "Unarchiving..." : "Unarchive"}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold">General Settings</h1>
           <p className="text-muted-foreground">
@@ -241,6 +306,7 @@ function RouteComponent() {
                   <PopoverTrigger asChild>
                     <button
                       type="button"
+                      disabled={isArchived}
                       className="flex items-center justify-center p-2 rounded border border-border hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
                       title="Pick icon"
                     >
@@ -315,6 +381,7 @@ function RouteComponent() {
                           <Input
                             className="w-64"
                             placeholder="Enter project name"
+                            disabled={isArchived}
                             {...field}
                           />
                         </FormControl>
@@ -345,6 +412,7 @@ function RouteComponent() {
                           <Input
                             className="w-64"
                             placeholder="PRO"
+                            disabled={isArchived}
                             {...field}
                           />
                         </FormControl>
@@ -374,6 +442,7 @@ function RouteComponent() {
                           <Input
                             className="w-64"
                             placeholder="Enter project description"
+                            disabled={isArchived}
                             {...field}
                           />
                         </FormControl>
@@ -396,6 +465,59 @@ function RouteComponent() {
           </div>
 
           <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            {!isArchived && canManageProjects() && (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Archive project</p>
+                    <p className="text-xs text-muted-foreground">
+                      Hide this project from the sidebar. You can restore it
+                      later.
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    disabled={!project || isArchiving}
+                    onClick={async () => {
+                      if (!project?.id) return;
+                      if (!workspace?.id) return;
+                      try {
+                        await archiveProject({
+                          id: project.id,
+                          workspaceId: workspace.id,
+                        });
+                        toast.success("Project archived");
+                        await Promise.all([
+                          queryClient.invalidateQueries({
+                            queryKey: ["projects"],
+                          }),
+                          queryClient.invalidateQueries({
+                            queryKey: ["projects", workspace?.id],
+                          }),
+                          queryClient.invalidateQueries({
+                            queryKey: ["projects", workspace?.id, "archived"],
+                          }),
+                        ]);
+                        navigate({
+                          to: "/dashboard/settings/projects/archived",
+                        });
+                      } catch (error) {
+                        toast.error(
+                          error instanceof Error
+                            ? error.message
+                            : "Failed to archive project",
+                        );
+                      }
+                    }}
+                  >
+                    {isArchiving ? "Archiving..." : "Archive project"}
+                  </Button>
+                </div>
+                <Separator />
+              </>
+            )}
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">Delete project</p>
@@ -409,7 +531,7 @@ function RouteComponent() {
                 className="text-destructive hover:text-destructive transition-colors"
                 type="button"
                 onClick={() => setIsDeleteModalOpen(true)}
-                disabled={!project}
+                disabled={!project || !canManageProjects()}
               >
                 Delete project
               </Button>

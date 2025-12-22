@@ -62,6 +62,8 @@ async function getTasks(projectId: string) {
     slug: project.slug,
     icon: project.icon,
     description: project.description,
+    archivedAt: project.archivedAt,
+    archivedBy: project.archivedBy,
     isPublic: project.isPublic,
     workspaceId: project.workspaceId,
     columns,

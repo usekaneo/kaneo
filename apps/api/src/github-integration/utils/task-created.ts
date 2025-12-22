@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { assertProjectWritable } from "../../utils/assert-project-writable";
 import getGithubIntegration from "../controllers/get-github-integration";
 import createGithubApp from "./create-github-app";
 import { addLabelsToIssue } from "./create-github-labels";
@@ -23,6 +24,12 @@ export async function handleTaskCreated(data: {
 
   const { taskId, userId, title, description, priority, status, projectId } =
     data;
+
+  try {
+    await assertProjectWritable(projectId);
+  } catch {
+    return;
+  }
 
   if (description?.includes("Created from GitHub issue:")) {
     console.log(
