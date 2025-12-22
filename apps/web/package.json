@@ -41,7 +41,7 @@
 		"@tanstack/react-query-devtools": "^5.91.1",
 		"@tanstack/react-router": "^1.140.0",
 		"@tanstack/router-devtools": "^1.142.8",
-		"@tanstack/router-plugin": "^1.140.0",
+		"@tanstack/router-plugin": "^1.142.8",
 		"@types/file-saver": "^2.0.7",
 		"@vitejs/plugin-react": "^5.1.1",
 		"babel-plugin-react-compiler": "^19.0.0-beta-714736e-20250131",
