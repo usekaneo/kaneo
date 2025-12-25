@@ -86,7 +86,7 @@ Après le déploiement initial, vous devez configurer les URLs :
    - **Runtime** : `Node`
    - **Build Command** :
      ```
-     npm install -g pnpm@10.15.1 && pnpm install --frozen-lockfile && pnpm --filter @kaneo/email build && pnpm --filter @kaneo/api build
+     npm install -g pnpm@10.15.1 && pnpm install --no-frozen-lockfile && pnpm --filter @kaneo/email build && pnpm --filter @kaneo/api build
      ```
    - **Start Command** :
      ```
@@ -116,7 +116,7 @@ Après le déploiement initial, vous devez configurer les URLs :
    - **Branch** : `main`
    - **Build Command** :
      ```
-     npm install -g pnpm@10.15.1 && pnpm install --frozen-lockfile && pnpm --filter @kaneo/web build
+     npm install -g pnpm@10.15.1 && pnpm install --no-frozen-lockfile && pnpm --filter @kaneo/web build
      ```
    - **Publish Directory** : `apps/web/dist`
 

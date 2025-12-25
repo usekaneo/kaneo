@@ -12,7 +12,7 @@ services:
     plan: free # Utilisez 'starter' pour la production
     buildCommand: |
       npm install -g pnpm@10.15.1 &&
-      pnpm install --frozen-lockfile &&
+      pnpm install --no-frozen-lockfile &&
       pnpm --filter @kaneo/email build &&
       pnpm --filter @kaneo/api build
     startCommand: |
@@ -42,7 +42,7 @@ services:
     runtime: static
     buildCommand: |
       npm install -g pnpm@10.15.1 &&
-      pnpm install --frozen-lockfile &&
+      pnpm install --no-frozen-lockfile &&
       pnpm --filter @kaneo/web build
     staticPublishPath: apps/web/dist
     headers:
