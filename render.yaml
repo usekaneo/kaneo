@@ -54,6 +54,8 @@ services:
         source: /*
         destination: /index.html
     envVars:
+      - key: CI
+        value: "false" # Désactive --frozen-lockfile par défaut
       - key: VITE_API_URL
         sync: false # URL de l'API backend
       - key: VITE_CLIENT_URL
