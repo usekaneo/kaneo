@@ -44,10 +44,16 @@ export const sendWorkspaceInvitationEmail = async (
   data: WorkspaceInvitationEmailProps,
 ) => {
   const emailTemplate = await render(WorkspaceInvitationEmail({ ...data, to }));
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM,
-    to,
-    subject,
-    html: emailTemplate,
-  });
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+  } catch (error) {
+    console.error("Error sending workspace invitation email", error);
+    // Log the link so admin can copy-paste it manually if needed
+    console.log("Invitation Link (Manual):", data.invitationLink); 
+  }
 };
