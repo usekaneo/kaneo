@@ -22,7 +22,7 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.26.2",
   "version": "2.1.6",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
