@@ -178,6 +178,7 @@ const task = new Hono<{
         const user = c.get("userId");
         await publishEvent("task.status_changed", {
           taskId: task.id,
+          projectId: task.projectId,
           userId: user,
           oldStatus: task.status,
           newStatus: status,
@@ -308,6 +309,7 @@ const task = new Hono<{
 
       await publishEvent("task.status_changed", {
         taskId: task.id,
+        projectId: task.projectId,
         userId: user,
         oldStatus: task.status,
         newStatus: status,
@@ -346,6 +348,7 @@ const task = new Hono<{
 
       await publishEvent("task.priority_changed", {
         taskId: task.id,
+        projectId: task.projectId,
         userId: user,
         oldPriority: task.priority,
         newPriority: priority,
