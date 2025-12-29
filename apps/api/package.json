@@ -36,7 +36,7 @@
     "octokit": "^5.0.5",
     "pg": "^8.16.3",
     "valibot": "^1.2.0",
-    "zod": "^4.1.13"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
