@@ -1,10 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { githubIntegrationTable, projectTable } from "../../database/schema";
-import createGithubApp from "../utils/create-github-app";
-
-const githubApp = createGithubApp();
+import { integrationTable, projectTable } from "../../database/schema";
+import { defaultGitHubConfig } from "../../plugins/github/config";
+import { getGithubApp } from "../../plugins/github/utils/github-app";
 
 async function createGithubIntegration({
   projectId,
@@ -15,9 +14,11 @@ async function createGithubIntegration({
   repositoryOwner: string;
   repositoryName: string;
 }) {
+  const githubApp = getGithubApp();
+
   if (!githubApp) {
     throw new HTTPException(500, {
-      message: "GitHub app not found",
+      message: "GitHub app not configured",
     });
   }
 
@@ -41,38 +42,68 @@ async function createGithubIntegration({
     console.warn("Could not get installation ID for repository:", error);
   }
 
-  const existingIntegration = await db.query.githubIntegrationTable.findFirst({
-    where: eq(githubIntegrationTable.projectId, projectId),
+  const existingIntegration = await db.query.integrationTable.findFirst({
+    where: and(
+      eq(integrationTable.projectId, projectId),
+      eq(integrationTable.type, "github"),
+    ),
   });
+
+  const config = {
+    repositoryOwner,
+    repositoryName,
+    installationId,
+    ...defaultGitHubConfig,
+  };
 
   if (existingIntegration) {
     const [updatedIntegration] = await db
-      .update(githubIntegrationTable)
+      .update(integrationTable)
       .set({
-        repositoryOwner,
-        repositoryName,
-        installationId,
+        config: JSON.stringify(config),
         isActive: true,
         updatedAt: new Date(),
       })
-      .where(eq(githubIntegrationTable.projectId, projectId))
+      .where(
+        and(
+          eq(integrationTable.projectId, projectId),
+          eq(integrationTable.type, "github"),
+        ),
+      )
       .returning();
 
-    return updatedIntegration;
-  }
-
-  const [newIntegration] = await db
-    .insert(githubIntegrationTable)
-    .values({
-      projectId,
+    return {
+      id: updatedIntegration?.id,
+      projectId: updatedIntegration?.projectId,
       repositoryOwner,
       repositoryName,
       installationId,
+      isActive: updatedIntegration?.isActive,
+      createdAt: updatedIntegration?.createdAt,
+      updatedAt: updatedIntegration?.updatedAt,
+    };
+  }
+
+  const [newIntegration] = await db
+    .insert(integrationTable)
+    .values({
+      projectId,
+      type: "github",
+      config: JSON.stringify(config),
       isActive: true,
     })
     .returning();
 
-  return newIntegration;
+  return {
+    id: newIntegration?.id,
+    projectId: newIntegration?.projectId,
+    repositoryOwner,
+    repositoryName,
+    installationId,
+    isActive: newIntegration?.isActive,
+    createdAt: newIntegration?.createdAt,
+    updatedAt: newIntegration?.updatedAt,
+  };
 }
 
 export default createGithubIntegration;

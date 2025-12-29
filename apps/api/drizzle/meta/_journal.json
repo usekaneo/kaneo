@@ -64,6 +64,13 @@
 			"when": 1765392072530,
 			"tag": "0008_square_silvermane",
 			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "7",
+			"when": 1766950050412,
+			"tag": "0009_harsh_blacklash",
+			"breakpoints": true
 		}
 	]
 }

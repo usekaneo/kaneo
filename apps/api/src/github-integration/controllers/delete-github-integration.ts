@@ -1,11 +1,14 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { githubIntegrationTable } from "../../database/schema";
+import { integrationTable } from "../../database/schema";
 
 async function deleteGithubIntegration(projectId: string) {
-  const existingIntegration = await db.query.githubIntegrationTable.findFirst({
-    where: eq(githubIntegrationTable.projectId, projectId),
+  const existingIntegration = await db.query.integrationTable.findFirst({
+    where: and(
+      eq(integrationTable.projectId, projectId),
+      eq(integrationTable.type, "github"),
+    ),
   });
 
   if (!existingIntegration) {
@@ -13,8 +16,13 @@ async function deleteGithubIntegration(projectId: string) {
   }
 
   await db
-    .delete(githubIntegrationTable)
-    .where(eq(githubIntegrationTable.projectId, projectId));
+    .delete(integrationTable)
+    .where(
+      and(
+        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.type, "github"),
+      ),
+    );
 
   return { success: true, message: "GitHub integration deleted" };
 }

@@ -1,12 +1,12 @@
 import { HTTPException } from "hono/http-exception";
-import createGithubApp from "../utils/create-github-app";
-
-const githubApp = createGithubApp();
+import { getGithubApp } from "../../plugins/github/utils/github-app";
 
 async function listUserRepositories() {
+  const githubApp = getGithubApp();
+
   if (!githubApp) {
     throw new HTTPException(500, {
-      message: "GitHub app not found",
+      message: "GitHub app not configured",
     });
   }
 

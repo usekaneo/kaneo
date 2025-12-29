@@ -1,12 +1,12 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
-import { githubIntegrationTable, projectTable } from "../database/schema";
-import { subscribeToEvent } from "../events";
+import { integrationTable, projectTable } from "../database/schema";
+import { handleGitHubWebhook } from "../plugins/github/webhook-handler";
 import { githubIntegrationSchema } from "../schemas";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
@@ -16,12 +16,6 @@ import getGithubIntegration from "./controllers/get-github-integration";
 import { importIssues } from "./controllers/import-issues";
 import listUserRepositories from "./controllers/list-user-repositories";
 import verifyGithubInstallation from "./controllers/verify-github-installation";
-import createGithubApp from "./utils/create-github-app";
-import { handleIssueClosed } from "./utils/issue-closed";
-import { handleIssueOpened } from "./utils/issue-opened";
-import { handleTaskCreated } from "./utils/task-created";
-import { handleTaskPriorityChanged } from "./utils/task-priority-changed";
-import { handleTaskStatusChanged } from "./utils/task-status-changed";
 
 const githubAppInfoSchema = v.object({
   appName: v.nullable(v.string()),
@@ -48,40 +42,6 @@ const importResultSchema = v.object({
   skipped: v.number(),
   errors: v.optional(v.array(v.string())),
 });
-
-const githubApp = createGithubApp();
-
-if (githubApp) {
-  githubApp.webhooks.on("issues.opened", handleIssueOpened);
-  githubApp.webhooks.on("issues.closed", handleIssueClosed);
-}
-
-subscribeToEvent<{
-  taskId: string;
-  userId: string;
-  title: string;
-  description: string;
-  priority: string;
-  status: string;
-  number: number;
-  projectId: string;
-}>("task.created", handleTaskCreated);
-
-subscribeToEvent<{
-  taskId: string;
-  userId: string | null;
-  oldStatus: string;
-  newStatus: string;
-  title: string;
-}>("task.status_changed", handleTaskStatusChanged);
-
-subscribeToEvent<{
-  taskId: string;
-  userId: string | null;
-  oldPriority: string;
-  newPriority: string;
-  title: string;
-}>("task.priority_changed", handleTaskPriorityChanged);
 
 const githubIntegration = new Hono<{
   Variables: {
@@ -272,13 +232,18 @@ const githubIntegration = new Hono<{
       }
 
       const [updatedIntegration] = await db
-        .update(githubIntegrationTable)
+        .update(integrationTable)
         .set({
           isActive:
             isActive !== undefined ? isActive : existingIntegration.isActive,
           updatedAt: new Date(),
         })
-        .where(eq(githubIntegrationTable.projectId, projectId))
+        .where(
+          and(
+            eq(integrationTable.projectId, projectId),
+            eq(integrationTable.type, "github"),
+          ),
+        )
         .returning();
 
       return c.json(updatedIntegration, 200);
@@ -362,38 +327,33 @@ const githubIntegration = new Hono<{
     },
   );
 
-export async function handleGithubWebhook(c: Context) {
-  try {
-    if (!githubApp) {
-      return c.json({ error: "GitHub integration not configured" }, 400);
-    }
+export async function handleGithubWebhookRoute(c: Context) {
+  const arrayBuffer = await c.req.arrayBuffer();
+  const body = Buffer.from(arrayBuffer).toString("utf8");
 
-    const arrayBuffer = await c.req.arrayBuffer();
-    const body = Buffer.from(arrayBuffer).toString("utf8");
-
-    const signature = c.req.header("x-hub-signature-256");
-    if (!signature) {
-      return c.json({ error: "Missing signature" }, 400);
-    }
-
-    const eventName = c.req.header("x-github-event");
-    if (!eventName) {
-      return c.json({ error: "Missing event name" }, 400);
-    }
-
-    const deliveryId = c.req.header("x-github-delivery") || "";
-
-    await githubApp.webhooks.verifyAndReceive({
-      id: deliveryId,
-      name: eventName as "issues" | "pull_request" | "push" | string,
-      signature,
-      payload: body,
-    });
-
-    return c.json({ status: "success" });
-  } catch (error) {
-    console.error("Webhook processing error:", error);
-    return c.json({ error: "Webhook processing failed" }, 400);
+  const signature = c.req.header("x-hub-signature-256");
+  if (!signature) {
+    return c.json({ error: "Missing signature" }, 400);
   }
+
+  const eventName = c.req.header("x-github-event");
+  if (!eventName) {
+    return c.json({ error: "Missing event name" }, 400);
+  }
+
+  const deliveryId = c.req.header("x-github-delivery") || "";
+
+  const result = await handleGitHubWebhook(
+    body,
+    signature,
+    eventName,
+    deliveryId,
+  );
+
+  if (!result.success) {
+    return c.json({ error: result.error }, 400);
+  }
+
+  return c.json({ status: "success" });
 }
 export default githubIntegration;

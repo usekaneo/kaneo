@@ -1,64 +1,112 @@
 import { and, eq, notLike } from "drizzle-orm";
 import db from "../../database";
-import { githubIntegrationTable, taskTable } from "../../database/schema";
-import createGithubApp from "../utils/create-github-app";
-
-const githubApp = createGithubApp();
+import { integrationTable, taskTable } from "../../database/schema";
+import { createExternalLink } from "../../plugins/github/services/link-manager";
+import { getGithubApp } from "../../plugins/github/utils/github-app";
 
 export async function importIssues(projectId: string) {
-  const githubIntegration = await db.query.githubIntegrationTable.findFirst({
-    where: eq(githubIntegrationTable.projectId, projectId),
+  const githubApp = getGithubApp();
+
+  if (!githubApp) {
+    return { error: "GitHub app not configured" };
+  }
+
+  const integration = await db.query.integrationTable.findFirst({
+    where: and(
+      eq(integrationTable.projectId, projectId),
+      eq(integrationTable.type, "github"),
+    ),
   });
 
-  if (!githubIntegration) {
+  if (!integration) {
     return { error: "GitHub integration not found" };
   }
 
-  const installationOctokit = await githubApp?.getInstallationOctokit(
-    githubIntegration.installationId ?? 0,
-  );
+  const config = JSON.parse(integration.config) as {
+    repositoryOwner: string;
+    repositoryName: string;
+    installationId: number | null;
+  };
 
-  if (!installationOctokit) {
-    return { error: "GitHub app not found" };
+  if (!config.installationId) {
+    return { error: "GitHub installation not found" };
   }
 
+  const installationOctokit = await githubApp.getInstallationOctokit(
+    config.installationId,
+  );
+
   const { data: issues } = await installationOctokit.rest.issues.listForRepo({
-    owner: githubIntegration.repositoryOwner,
-    repo: githubIntegration.repositoryName,
+    owner: config.repositoryOwner,
+    repo: config.repositoryName,
+    state: "all",
+    per_page: 100,
   });
 
+  let imported = 0;
+  let skipped = 0;
+
   for (const issue of issues ?? []) {
-    const task = await db.query.taskTable.findFirst({
+    if (issue.pull_request) {
+      skipped++;
+      continue;
+    }
+
+    const existingTask = await db.query.taskTable.findFirst({
       where: and(
-        eq(taskTable.number, issue.number),
         eq(taskTable.projectId, projectId),
         notLike(taskTable.title, "[Kaneo]%"),
       ),
     });
 
-    if (task) {
+    const hasExistingLink = existingTask
+      ? await db.query.externalLinkTable.findFirst({
+          where: and(
+            eq(db._.fullSchema.externalLinkTable.taskId, existingTask.id),
+            eq(
+              db._.fullSchema.externalLinkTable.externalId,
+              issue.number.toString(),
+            ),
+          ),
+        })
+      : null;
+
+    if (hasExistingLink) {
+      skipped++;
       continue;
     }
 
-    const githubIssueUrl = `https://github.com/${githubIntegration.repositoryOwner}/${githubIntegration.repositoryName}/issues/${issue.number}`;
-    let description = issue.body || "";
-    if (description) {
-      description += `\n\nLinked to GitHub issue: ${githubIssueUrl}`;
-    } else {
-      description = `Linked to GitHub issue: ${githubIssueUrl}`;
-    }
+    const [newTask] = await db
+      .insert(taskTable)
+      .values({
+        title: issue.title,
+        description: issue.body || null,
+        projectId,
+        number: issue.number,
+        status: issue.state === "closed" ? "done" : "to-do",
+        priority: "medium",
+        position: 0,
+        createdAt: new Date(issue.created_at),
+      })
+      .returning();
 
-    await db.insert(taskTable).values({
-      title: issue.title,
-      description,
-      projectId,
-      number: issue.number,
-      status: "to-do",
-      priority: "low",
-      position: 0,
-      createdAt: new Date(issue.created_at),
-    });
+    if (newTask) {
+      await createExternalLink({
+        taskId: newTask.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: issue.number.toString(),
+        url: issue.html_url,
+        title: issue.title,
+        metadata: {
+          state: issue.state,
+          importedFrom: "github",
+          author: issue.user?.login,
+        },
+      });
+      imported++;
+    }
   }
 
-  return { success: true, message: "Issues imported" };
+  return { imported, skipped };
 }

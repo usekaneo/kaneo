@@ -2,7 +2,12 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import {
+  Calendar,
+  CalendarClock,
+  CalendarX,
+  GitPullRequest,
+} from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -17,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
@@ -54,6 +60,15 @@ function TaskCard({ task }: TaskCardProps) {
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { data: externalLinks } = useExternalLinks(task.id);
+
+  const activePullRequest = useMemo(() => {
+    if (!externalLinks) return null;
+    return externalLinks.find(
+      (link) =>
+        link.resourceType === "pull_request" && link.metadata?.merged !== true,
+    );
+  }, [externalLinks]);
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -193,6 +208,21 @@ function TaskCard({ task }: TaskCardProps) {
                   )}
                   <span>{format(new Date(task.dueDate), "MMM d")}</span>
                 </div>
+              )}
+
+              {activePullRequest && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(activePullRequest.url, "_blank");
+                  }}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded border border-violet-200 bg-violet-50 text-[10px] font-medium text-violet-700 hover:bg-violet-100 hover:border-violet-300 transition-colors dark:bg-violet-950/50 dark:border-violet-800 dark:text-violet-300 dark:hover:bg-violet-900/50"
+                  title={activePullRequest.title || "Open Pull Request"}
+                >
+                  <GitPullRequest className="w-3 h-3" />
+                  <span>#{activePullRequest.externalId}</span>
+                </button>
               )}
             </div>
           </div>

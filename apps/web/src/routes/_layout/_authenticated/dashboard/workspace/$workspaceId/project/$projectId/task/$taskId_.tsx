@@ -4,8 +4,10 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
+  CircleDot,
   Copy,
   GitBranch,
+  GitPullRequest,
   Plus,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -33,10 +35,11 @@ import {
 } from "@/components/ui/tooltip";
 import labelColors from "@/constants/label-colors";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
+import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
+import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
@@ -48,8 +51,26 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-function toKebabCase(str: string | undefined) {
-  return str?.replace(/ /g, "-").toLowerCase().replace(/^-|-$/g, "");
+function slugify(text: string | undefined): string {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 50);
+}
+
+function generateBranchName(
+  pattern: string,
+  projectSlug: string | undefined,
+  taskNumber: number | undefined,
+  taskTitle: string | undefined,
+): string {
+  if (!projectSlug || !taskNumber) return "";
+  return pattern
+    .replace("{slug}", projectSlug.toLowerCase())
+    .replace("{number}", taskNumber.toString())
+    .replace("{title}", slugify(taskTitle));
 }
 
 function toNormalCase(str: string | undefined) {
@@ -65,14 +86,16 @@ function RouteComponent() {
   const { projectId, workspaceId, taskId } = Route.useParams();
   const { data: task } = useGetTask(taskId);
   const { data: project } = useGetProject({ id: projectId, workspaceId });
-  const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId);
   const { data: activities = [] } = useGetActivitiesByTaskId(taskId);
+  const { data: externalLinks = [], isLoading: isLoadingExternalLinks } =
+    useExternalLinks(taskId);
+  const { data: githubIntegration } = useGetGithubIntegration(projectId);
   const { user } = useAuth();
-  const workspaceName = workspace?.name;
   const projectSlug = project?.slug;
   const taskNumber = task?.number;
+  const branchPattern = githubIntegration?.branchPattern || "{slug}-{number}";
 
   const assignee = workspaceUsers?.members?.find(
     (member) => member.userId === task?.userId,
@@ -86,9 +109,13 @@ function RouteComponent() {
   };
 
   const handleCopyTaskBranch = () => {
-    navigator.clipboard.writeText(
-      `${toKebabCase(workspaceName)}/${toKebabCase(projectSlug)}-${taskNumber}`,
+    const branchName = generateBranchName(
+      branchPattern,
+      projectSlug,
+      taskNumber,
+      task?.title,
     );
+    navigator.clipboard.writeText(branchName);
     toast.message("Task branch copied to clipboard");
   };
 
@@ -300,6 +327,73 @@ function RouteComponent() {
                 )}
               </div>
             </div>
+            {!isLoadingExternalLinks && (
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-muted-foreground pl-2">
+                    External Links
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1.5 px-2">
+                  {externalLinks.length === 0 ? (
+                    <span className="text-xs text-muted-foreground/70 py-1">
+                      No linked resources
+                    </span>
+                  ) : (
+                    externalLinks.map((link) => {
+                      const isMerged = link.metadata?.merged === true;
+                      const isPR = link.resourceType === "pull_request";
+                      const isBranch = link.resourceType === "branch";
+                      const isIssue = link.resourceType === "issue";
+
+                      const getIcon = () => {
+                        if (isPR)
+                          return (
+                            <GitPullRequest
+                              className={`size-3.5 flex-shrink-0 ${isMerged ? "text-emerald-500" : "text-violet-500"}`}
+                            />
+                          );
+                        if (isBranch)
+                          return (
+                            <GitBranch className="size-3.5 flex-shrink-0 text-sky-500" />
+                          );
+                        return (
+                          <CircleDot className="size-3.5 flex-shrink-0 text-muted-foreground" />
+                        );
+                      };
+
+                      const getLabel = () => {
+                        if (link.title) return link.title;
+                        if (isPR) return `PR #${link.externalId}`;
+                        if (isIssue) return `Issue #${link.externalId}`;
+                        if (isBranch) return link.externalId;
+                        return link.externalId;
+                      };
+
+                      return (
+                        <a
+                          key={link.id}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex items-center gap-2 py-1.5 px-2 -mx-2 rounded-md hover:bg-accent/50 transition-colors"
+                        >
+                          {getIcon()}
+                          <span className="text-xs truncate flex-1 text-foreground/80 group-hover:text-foreground">
+                            {getLabel()}
+                          </span>
+                          {isPR && isMerged && (
+                            <span className="text-[10px] font-medium text-emerald-500/80 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                              merged
+                            </span>
+                          )}
+                        </a>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       }
