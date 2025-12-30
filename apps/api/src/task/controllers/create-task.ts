@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable, userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { assertProjectWritable } from "../../utils/assert-project-writable";
 import getNextTaskNumber from "./get-next-task-number";
 
 async function createTask({
@@ -22,6 +23,8 @@ async function createTask({
   description?: string;
   priority?: string;
 }) {
+  await assertProjectWritable(projectId);
+
   const [assignee] = await db
     .select({ name: userTable.name })
     .from(userTable)

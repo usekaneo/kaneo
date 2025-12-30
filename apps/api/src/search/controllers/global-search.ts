@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
@@ -131,6 +131,7 @@ async function globalSearch(params: SearchParams): Promise<{
       .where(
         and(
           workspaceFilter,
+          isNull(projectTable.archivedAt),
           projectId ? eq(taskTable.projectId, projectId) : undefined,
           or(
             ilike(taskTable.title, searchPattern),
@@ -190,6 +191,7 @@ async function globalSearch(params: SearchParams): Promise<{
       .where(
         and(
           workspaceFilter,
+          isNull(projectTable.archivedAt),
           or(
             ilike(projectTable.name, searchPattern),
             ilike(projectTable.description, searchPattern),
@@ -302,6 +304,7 @@ async function globalSearch(params: SearchParams): Promise<{
       .where(
         and(
           workspaceFilter,
+          isNull(projectTable.archivedAt),
           projectId ? eq(taskTable.projectId, projectId) : undefined,
           or(
             ilike(activityTable.content, searchPattern),

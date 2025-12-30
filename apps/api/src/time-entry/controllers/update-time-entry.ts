@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { timeEntryTable } from "../../database/schema";
+import { assertTaskWritable } from "../../utils/assert-task-writable";
 
 type UpdateTimeEntryParams = {
   timeEntryId: string;
@@ -23,6 +24,8 @@ async function updateTimeEntry(params: UpdateTimeEntryParams) {
       message: "Time entry not found",
     });
   }
+
+  await assertTaskWritable(existingTimeEntry.taskId);
 
   // Calculate duration if both startTime and endTime are provided
   let duration: number | null = null;

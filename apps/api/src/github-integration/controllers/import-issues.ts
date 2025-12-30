@@ -1,11 +1,14 @@
 import { and, eq, notLike } from "drizzle-orm";
 import db from "../../database";
 import { githubIntegrationTable, taskTable } from "../../database/schema";
+import { assertProjectWritable } from "../../utils/assert-project-writable";
 import createGithubApp from "../utils/create-github-app";
 
 const githubApp = createGithubApp();
 
 export async function importIssues(projectId: string) {
+  await assertProjectWritable(projectId);
+
   const githubIntegration = await db.query.githubIntegrationTable.findFirst({
     where: eq(githubIntegrationTable.projectId, projectId),
   });

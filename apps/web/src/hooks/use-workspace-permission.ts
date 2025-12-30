@@ -9,102 +9,72 @@ export function useWorkspacePermission() {
   const { data: activeWorkspace } = useActiveWorkspace();
   const { data: activeMember } = useGetActiveWorkspaceUser();
 
-  const permissionCheckers = useMemo(
-    () => ({
-      // Server-side permission checking (most secure)
-      async hasPermission(permissions: Record<string, string[]>) {
-        try {
-          const result = await authClient.organization.hasPermission({
-            permissions,
-          });
-          return result.data || false;
-        } catch (error) {
-          console.error("Permission check failed:", error);
-          return false;
-        }
-      },
+  const permissionCheckers = useMemo(() => {
+    const role = activeMember?.role as PermissionLevel | undefined;
 
-      // Client-side role-based checking (faster for UI)
-      checkRolePermission(permissions: Record<string, string[]>) {
-        if (!activeMember?.role) return false;
-        try {
-          return authClient.organization.checkRolePermission({
-            permissions,
-            role: activeMember.role as PermissionLevel,
-          });
-        } catch (error) {
-          console.error("Role permission check failed:", error);
-          return false;
-        }
-      },
-
-      // Convenience methods for common checks
-      canManageProjects() {
-        return this.checkRolePermission({
-          project: ["create", "update", "delete"],
+    const hasPermission = async (permissions: Record<string, string[]>) => {
+      try {
+        const result = await authClient.organization.hasPermission({
+          permissions,
         });
-      },
+        return result.data || false;
+      } catch (error) {
+        console.error("Permission check failed:", error);
+        return false;
+      }
+    };
 
-      canCreateProjects() {
-        return this.checkRolePermission({ project: ["create"] });
-      },
-
-      canManageTasks() {
-        return this.checkRolePermission({
-          task: ["create", "update", "delete"],
+    const checkRolePermission = (permissions: Record<string, string[]>) => {
+      if (!role) return false;
+      try {
+        return authClient.organization.checkRolePermission({
+          permissions,
+          role,
         });
-      },
+      } catch (error) {
+        console.error("Role permission check failed:", error);
+        return false;
+      }
+    };
 
-      canAssignTasks() {
-        return this.checkRolePermission({ task: ["assign"] });
-      },
+    const checkPermission = (requiredRole: PermissionLevel = "member") => {
+      if (!activeWorkspace || !activeMember) return false;
 
-      canManageWorkspace() {
-        return this.checkRolePermission({
-          workspace: ["update", "manage_settings"],
-        });
-      },
+      const userRole = activeMember.role as PermissionLevel;
 
-      canDeleteWorkspace() {
-        return this.checkRolePermission({ workspace: ["delete"] });
-      },
+      if (requiredRole === "owner") {
+        return userRole === "owner";
+      }
 
-      canInviteUsers() {
-        return this.checkRolePermission({ team: ["invite"] });
-      },
+      if (requiredRole === "admin") {
+        return ["owner", "admin"].includes(userRole);
+      }
 
-      canManageTeam() {
-        return this.checkRolePermission({ team: ["remove", "manage_roles"] });
-      },
+      return ["owner", "admin", "member"].includes(userRole);
+    };
 
-      canRemoveMembers() {
-        return this.checkRolePermission({ team: ["remove"] });
-      },
-
-      // Legacy compatibility method
-      checkPermission(requiredRole: PermissionLevel = "member"): boolean {
-        if (!activeWorkspace || !activeMember) return false;
-
-        const userRole = activeMember.role as PermissionLevel;
-
-        if (requiredRole === "owner") {
-          return userRole === "owner";
-        }
-
-        if (requiredRole === "admin") {
-          return ["owner", "admin"].includes(userRole);
-        }
-
-        // For member level, all roles have access
-        return ["owner", "admin", "member"].includes(userRole);
-      },
-
-      isOwner: activeMember?.role === "owner",
-      isAdmin: ["owner", "admin"].includes(activeMember?.role || ""),
-      role: activeMember?.role as PermissionLevel | undefined,
-    }),
-    [activeMember, activeWorkspace],
-  );
+    return {
+      hasPermission,
+      checkRolePermission,
+      canManageProjects: () =>
+        checkRolePermission({ project: ["create", "update", "delete"] }),
+      canCreateProjects: () => checkRolePermission({ project: ["create"] }),
+      canManageTasks: () =>
+        checkRolePermission({ task: ["create", "update", "delete"] }),
+      canAssignTasks: () => checkRolePermission({ task: ["assign"] }),
+      canManageWorkspace: () =>
+        checkRolePermission({ workspace: ["update", "manage_settings"] }),
+      canDeleteWorkspace: () => checkRolePermission({ workspace: ["delete"] }),
+      canInviteUsers: () => checkRolePermission({ team: ["invite"] }),
+      canManageTeam: () =>
+        checkRolePermission({ team: ["remove", "manage_roles"] }),
+      canRemoveMembers: () => checkRolePermission({ team: ["remove"] }),
+      checkPermission,
+      isOwner: role === "owner",
+      isAdmin: ["owner", "admin"].includes(role || ""),
+      role,
+    };
+  }, [activeMember, activeWorkspace]);
 
   return {
     ...permissionCheckers,
