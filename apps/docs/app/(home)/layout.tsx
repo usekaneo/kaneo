@@ -73,7 +73,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           on: "nav",
           children: (
             <Link
-              href="/docs"
+              href="/docs/core"
               className="inline-flex items-center gap-1 p-2 text-fd-muted-foreground transition-colors hover:text-fd-accent-foreground data-[active=true]:text-fd-primary [&_svg]:size-4 text-base"
             >
               Documentation
