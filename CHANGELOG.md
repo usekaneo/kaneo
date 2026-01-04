@@ -1,3 +1,22 @@
+## [2.1.7](https://github.com/usekaneo/kaneo/compare/v2.1.6...v2.1.7) (2026-01-04)
+
+
+### Bug Fixes
+
+* adjust docs link ([fc93297](https://github.com/usekaneo/kaneo/commit/fc93297f4d5f307b207d86b254453879f5a72d50))
+
+
+### Features
+
+* add external link and integration tables with relations ([d8d6f4c](https://github.com/usekaneo/kaneo/commit/d8d6f4c8bf38d014c42430a1cb0886ad5948aec9))
+* add task title and description change events to GitHub integration ([60ecffd](https://github.com/usekaneo/kaneo/commit/60ecffdc93ac9ed7fc82bd9023f521c256adcb42))
+* enhance activity schema and GitHub integration ([c2a557e](https://github.com/usekaneo/kaneo/commit/c2a557ef07bc0515c4bfdcb34d1916ff8347bd21))
+* enhance GitHub issue import functionality ([f270e73](https://github.com/usekaneo/kaneo/commit/f270e7319776bea78cb089ee08042861fe1423d7))
+* improve repository listing for GitHub installations ([b7f31bd](https://github.com/usekaneo/kaneo/commit/b7f31bd0ac7773b68dd8267c1825d19560d84f91))
+* integrate pull request display in task row with hover card support ([d89494d](https://github.com/usekaneo/kaneo/commit/d89494d90c6aede11814e519e67ea55cebd98c76))
+
+
+
 ## [2.1.6](https://github.com/usekaneo/kaneo/compare/v2.1.5...v2.1.6) (2025-12-20)
 
 
