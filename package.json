@@ -12,11 +12,11 @@
     "@biomejs/biome": "2.3.10",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
-    "esbuild": "0.27.1",
+    "esbuild": "0.27.2",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.2",
     "tar-fs": ">=3.1.1",
-    "turbo": "^2.5.6",
+    "turbo": "^2.7.2",
     "typescript": "5.8.3"
   },
   "engines": {
