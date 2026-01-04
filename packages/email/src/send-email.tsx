@@ -38,16 +38,33 @@ export const sendMagicLinkEmail = async (
   }
 };
 
+export type EmailResult = {
+  success: boolean;
+  reason?: "SMTP_NOT_CONFIGURED";
+};
+
 export const sendWorkspaceInvitationEmail = async (
   to: string,
   subject: string,
   data: WorkspaceInvitationEmailProps,
-) => {
-  const emailTemplate = await render(WorkspaceInvitationEmail({ ...data, to }));
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM,
-    to,
-    subject,
-    html: emailTemplate,
-  });
+): Promise<EmailResult> => {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_FROM) {
+    return { success: false, reason: "SMTP_NOT_CONFIGURED" };
+  }
+
+  try {
+    const emailTemplate = await render(
+      WorkspaceInvitationEmail({ ...data, to }),
+    );
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error sending workspace invitation email", error);
+    throw error;
+  }
 };

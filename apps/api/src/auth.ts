@@ -184,7 +184,7 @@ export const auth = betterAuth({
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.KANEO_CLIENT_URL}/auth/accept-invitation/${data.id}`;
 
-        await sendWorkspaceInvitationEmail(
+        const result = await sendWorkspaceInvitationEmail(
           data.email,
           `${data.inviter.user.name} invited you to join ${data.organization.name} on Kaneo`,
           {
@@ -195,6 +195,16 @@ export const auth = betterAuth({
             to: data.email,
           },
         );
+
+        if (
+          result?.success === false &&
+          result.reason === "SMTP_NOT_CONFIGURED"
+        ) {
+          console.warn(
+            "Invitation created but email not sent due to SMTP not being configured",
+          );
+          return;
+        }
       },
     }),
     genericOAuth({
