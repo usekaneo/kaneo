@@ -34,6 +34,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
 import queryClient from "@/query-client";
+import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
@@ -67,6 +68,8 @@ function TaskCard({ task }: TaskCardProps) {
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
   const { data: externalLinks } = useExternalLinks(task.id);
+  const { toggleSelection, isSelected } = useBulkSelectionStore();
+  const isTaskSelected = isSelected(task.id);
 
   const pullRequests = useMemo(() => {
     if (!externalLinks) return [];
@@ -119,8 +122,15 @@ function TaskCard({ task }: TaskCardProps) {
     );
   }, [workspaceUsers, task.userId]);
 
-  function handleTaskCardClick() {
+  function handleTaskCardClick(
+    e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>,
+  ) {
     if (!project || !task || !workspace) return;
+
+    if ((e as React.MouseEvent).metaKey || (e as React.KeyboardEvent).ctrlKey) {
+      toggleSelection(task.id);
+      return;
+    }
 
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
@@ -131,6 +141,12 @@ function TaskCard({ task }: TaskCardProps) {
       },
     });
   }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      toggleSelection(task.id);
+    }
+  };
 
   const handleDeleteTask = async () => {
     try {
@@ -158,9 +174,13 @@ function TaskCard({ task }: TaskCardProps) {
               isDragging
                 ? "border-primary/30 shadow-lg shadow-primary/10 bg-card/90"
                 : "hover:border-border/70 hover:shadow-sm"
-            }`}
+            } ${isTaskSelected ? "bg-primary/10  shadow-sm" : ""}`}
             onKeyDown={(e) => {
-              if (e.key === "Enter") handleTaskCardClick();
+              if (e.key === "Enter") {
+                handleTaskCardClick(e);
+              } else if (e.key === "Escape") {
+                handleKeyDown(e);
+              }
             }}
           >
             {showTaskNumbers && (

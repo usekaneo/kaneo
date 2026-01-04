@@ -15,10 +15,12 @@ import {
 } from "@dnd-kit/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
+import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import Column from "./column";
 import TaskCard from "./task-card";
 
@@ -29,8 +31,18 @@ type KanbanBoardProps = {
 function KanbanBoard({ project }: KanbanBoardProps) {
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
+  const { setAvailableTasks } = useBulkSelectionStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { mutate: updateTask } = useUpdateTask();
+
+  useEffect(() => {
+    if (project?.columns) {
+      const allTaskIds = project.columns.flatMap((column) =>
+        column.tasks.map((task) => task.id),
+      );
+      setAvailableTasks(allTaskIds);
+    }
+  }, [project, setAvailableTasks]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -207,6 +219,8 @@ function KanbanBoard({ project }: KanbanBoardProps) {
           </div>
         ) : null}
       </DragOverlay>
+
+      <BulkToolbar />
     </DndContext>
   );
 }
