@@ -1,7 +1,11 @@
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { auth } from "../auth";
+import db from "../database";
+import { taskTable } from "../database/schema";
 import { publishEvent } from "../events";
 import { taskSchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
@@ -476,14 +480,23 @@ const task = new Hono<{
       const { title } = c.req.valid("json");
       const user = c.get("userId");
 
+      // Fetch task BEFORE update to get old title
+      const existingTask = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, id),
+      });
+
+      if (!existingTask) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
+
       const task = await updateTaskTitle({ id, title });
 
       await publishEvent("task.title_changed", {
         taskId: task.id,
+        projectId: task.projectId,
         userId: user,
-        oldTitle: task.title,
+        oldTitle: existingTask.title,
         newTitle: title,
-        title: task.title,
         type: "title_changed",
       });
 
@@ -514,12 +527,23 @@ const task = new Hono<{
       const { description } = c.req.valid("json");
       const user = c.get("userId");
 
+      // Fetch task BEFORE update to get old description
+      const existingTask = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, id),
+      });
+
+      if (!existingTask) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
+
       const task = await updateTaskDescription({ id, description });
 
       await publishEvent("task.description_changed", {
         taskId: task.id,
+        projectId: task.projectId,
         userId: user,
-        title: task.title,
+        oldDescription: existingTask.description,
+        newDescription: description,
         type: "description_changed",
       });
 

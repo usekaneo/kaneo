@@ -6,8 +6,10 @@ import type {
   IntegrationPlugin,
   PluginContext,
   TaskCreatedEvent,
+  TaskDescriptionChangedEvent,
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
+  TaskTitleChangedEvent,
 } from "./types";
 
 const plugins = new Map<string, IntegrationPlugin>();
@@ -81,6 +83,38 @@ export function initializeEventSubscriptions(): void {
       oldPriority: data.oldPriority,
       newPriority: data.newPriority,
       title: data.title,
+    });
+  });
+
+  subscribeToEvent<{
+    taskId: string;
+    userId: string | null;
+    oldTitle: string;
+    newTitle: string;
+    projectId: string;
+  }>("task.title_changed", async (data) => {
+    await broadcastTaskTitleChanged({
+      taskId: data.taskId,
+      projectId: data.projectId,
+      userId: data.userId,
+      oldTitle: data.oldTitle,
+      newTitle: data.newTitle,
+    });
+  });
+
+  subscribeToEvent<{
+    taskId: string;
+    userId: string | null;
+    oldDescription: string | null;
+    newDescription: string | null;
+    projectId: string;
+  }>("task.description_changed", async (data) => {
+    await broadcastTaskDescriptionChanged({
+      taskId: data.taskId,
+      projectId: data.projectId,
+      userId: data.userId,
+      oldDescription: data.oldDescription,
+      newDescription: data.newDescription,
     });
   });
 
@@ -177,6 +211,50 @@ export async function broadcastTaskPriorityChanged(
     } catch (error) {
       console.error(
         `Plugin ${plugin.type} error on task.priority_changed:`,
+        error,
+      );
+    }
+  }
+}
+
+export async function broadcastTaskTitleChanged(
+  event: TaskTitleChangedEvent,
+): Promise<void> {
+  const integrations = await getActiveIntegrations(event.projectId);
+
+  for (const integration of integrations) {
+    const plugin = getPlugin(integration.type);
+    if (!plugin?.onTaskTitleChanged) continue;
+
+    const context = createContext(integration);
+
+    try {
+      await plugin.onTaskTitleChanged(event, context);
+    } catch (error) {
+      console.error(
+        `Plugin ${plugin.type} error on task.title_changed:`,
+        error,
+      );
+    }
+  }
+}
+
+export async function broadcastTaskDescriptionChanged(
+  event: TaskDescriptionChangedEvent,
+): Promise<void> {
+  const integrations = await getActiveIntegrations(event.projectId);
+
+  for (const integration of integrations) {
+    const plugin = getPlugin(integration.type);
+    if (!plugin?.onTaskDescriptionChanged) continue;
+
+    const context = createContext(integration);
+
+    try {
+      await plugin.onTaskDescriptionChanged(event, context);
+    } catch (error) {
+      console.error(
+        `Plugin ${plugin.type} error on task.description_changed:`,
         error,
       );
     }

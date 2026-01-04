@@ -33,10 +33,28 @@ export type TaskPriorityChangedEvent = {
   title: string;
 };
 
+export type TaskTitleChangedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  oldTitle: string;
+  newTitle: string;
+};
+
+export type TaskDescriptionChangedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  oldDescription: string | null;
+  newDescription: string | null;
+};
+
 export type TaskEvent =
   | TaskCreatedEvent
   | TaskStatusChangedEvent
-  | TaskPriorityChangedEvent;
+  | TaskPriorityChangedEvent
+  | TaskTitleChangedEvent
+  | TaskDescriptionChangedEvent;
 
 export type ExternalMetadata = {
   type: "issue" | "pull_request" | "branch";
@@ -74,6 +92,8 @@ export type IntegrationPlugin = {
   onTaskCreated?: TaskEventHandler<TaskCreatedEvent>;
   onTaskStatusChanged?: TaskEventHandler<TaskStatusChangedEvent>;
   onTaskPriorityChanged?: TaskEventHandler<TaskPriorityChangedEvent>;
+  onTaskTitleChanged?: TaskEventHandler<TaskTitleChangedEvent>;
+  onTaskDescriptionChanged?: TaskEventHandler<TaskDescriptionChangedEvent>;
 
   handleWebhook?: WebhookHandler;
   getTaskMetadata?: MetadataProvider;

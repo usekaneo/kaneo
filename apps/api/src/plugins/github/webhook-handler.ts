@@ -1,6 +1,7 @@
 import { getGithubApp } from "./utils/github-app";
 import { handleIssueClosed } from "./webhooks/issue-closed";
 import { handleIssueCommentCreated } from "./webhooks/issue-comment-created";
+import { handleIssueEdited } from "./webhooks/issue-edited";
 import { handleIssueLabeled } from "./webhooks/issue-labeled";
 import { handleIssueOpened } from "./webhooks/issue-opened";
 import { handleLabelCreated } from "./webhooks/label-created";
@@ -70,6 +71,10 @@ export function setupWebhookHandlers() {
     await handleIssueLabeled(
       payload as Parameters<typeof handleIssueLabeled>[0],
     );
+  });
+
+  githubApp.webhooks.on("issues.edited", async ({ payload }) => {
+    await handleIssueEdited(payload as Parameters<typeof handleIssueEdited>[0]);
   });
 
   githubApp.webhooks.on("push", async ({ payload }) => {
