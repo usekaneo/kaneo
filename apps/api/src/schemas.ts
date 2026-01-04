@@ -63,8 +63,12 @@ export const activitySchema = v.object({
     "create",
   ] as const),
   createdAt: v.date(),
-  userId: v.string(),
+  userId: v.nullable(v.string()),
   content: v.nullable(v.string()),
+  externalUserName: v.nullable(v.string()),
+  externalUserAvatar: v.nullable(v.string()),
+  externalSource: v.nullable(v.string()),
+  externalUrl: v.nullable(v.string()),
 });
 
 export const timeEntrySchema = v.object({

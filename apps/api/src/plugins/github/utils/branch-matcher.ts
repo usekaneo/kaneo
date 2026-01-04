@@ -31,7 +31,8 @@ export function createBranchRegex(
     .replace("\\{number\\}", "(\\d+)")
     .replace("\\{title\\}", "([a-z0-9-]+)");
 
-  return new RegExp(`^${regexPattern}$`, "i");
+  // Allow optional suffix after the pattern (e.g., lif-3-part-1)
+  return new RegExp(`^${regexPattern}(?:-.*)?$`, "i");
 }
 
 export function extractTaskNumberFromBranch(

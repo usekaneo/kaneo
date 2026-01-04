@@ -1,6 +1,9 @@
 import { getGithubApp } from "./utils/github-app";
 import { handleIssueClosed } from "./webhooks/issue-closed";
+import { handleIssueCommentCreated } from "./webhooks/issue-comment-created";
+import { handleIssueLabeled } from "./webhooks/issue-labeled";
 import { handleIssueOpened } from "./webhooks/issue-opened";
+import { handleLabelCreated } from "./webhooks/label-created";
 import { handlePullRequestClosed } from "./webhooks/pull-request-closed";
 import { handlePullRequestOpened } from "./webhooks/pull-request-opened";
 import { handlePush } from "./webhooks/push";
@@ -20,7 +23,12 @@ export async function handleGitHubWebhook(
   try {
     await githubApp.webhooks.verifyAndReceive({
       id: deliveryId,
-      name: eventName as "issues" | "pull_request" | "push",
+      name: eventName as
+        | "issues"
+        | "pull_request"
+        | "push"
+        | "label"
+        | "issue_comment",
       signature,
       payload: body,
     });
@@ -52,6 +60,18 @@ export function setupWebhookHandlers() {
     await handleIssueClosed(payload as Parameters<typeof handleIssueClosed>[0]);
   });
 
+  githubApp.webhooks.on("issues.labeled", async ({ payload }) => {
+    await handleIssueLabeled(
+      payload as Parameters<typeof handleIssueLabeled>[0],
+    );
+  });
+
+  githubApp.webhooks.on("issues.unlabeled", async ({ payload }) => {
+    await handleIssueLabeled(
+      payload as Parameters<typeof handleIssueLabeled>[0],
+    );
+  });
+
   githubApp.webhooks.on("push", async ({ payload }) => {
     await handlePush(payload as Parameters<typeof handlePush>[0]);
   });
@@ -71,6 +91,18 @@ export function setupWebhookHandlers() {
   githubApp.webhooks.on("pull_request.reopened", async ({ payload }) => {
     await handlePullRequestOpened(
       payload as Parameters<typeof handlePullRequestOpened>[0],
+    );
+  });
+
+  githubApp.webhooks.on("label.created", async ({ payload }) => {
+    await handleLabelCreated(
+      payload as Parameters<typeof handleLabelCreated>[0],
+    );
+  });
+
+  githubApp.webhooks.on("issue_comment.created", async ({ payload }) => {
+    await handleIssueCommentCreated(
+      payload as Parameters<typeof handleIssueCommentCreated>[0],
     );
   });
 

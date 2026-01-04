@@ -1,5 +1,6 @@
+import { eq } from "drizzle-orm";
 import db from "../../../database";
-import { taskTable } from "../../../database/schema";
+import { projectTable, taskTable } from "../../../database/schema";
 import getNextTaskNumber from "../../../task/controllers/get-next-task-number";
 import type { GitHubConfig } from "../config";
 import { createExternalLink, findExternalLink } from "../services/link-manager";
@@ -104,6 +105,19 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
     },
   });
 
+  const project = await db.query.projectTable.findFirst({
+    where: eq(projectTable.id, projectId),
+  });
+
+  if (!project) {
+    console.error("Project not found for task linking comment");
+    return;
+  }
+
+  const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
+  const taskUrl = `${clientUrl}/dashboard/workspace/${project.workspaceId}/project/${projectId}/task/${createdTask.id}`;
+  const taskIdentifier = `${project.slug.toUpperCase()}-${createdTask.number}`;
+
   try {
     let installationId = config.installationId;
     if (!installationId) {
@@ -141,7 +155,14 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
         labelsToAdd,
       );
     }
+
+    await octokit.rest.issues.createComment({
+      owner: repository.owner.login,
+      repo: repository.name,
+      issue_number: issue.number,
+      body: `[${taskIdentifier}](${taskUrl})`,
+    });
   } catch (error) {
-    console.error("Failed to add labels to GitHub issue:", error);
+    console.error("Failed to process GitHub issue:", error);
   }
 }

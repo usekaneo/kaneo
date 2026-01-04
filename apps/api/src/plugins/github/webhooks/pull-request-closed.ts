@@ -74,7 +74,22 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
   });
 
   if (pull_request.merged) {
-    const targetStatus = config.statusTransitions?.onPRMerge || "done";
-    await updateTaskStatus(task.id, targetStatus);
+    const allTaskPRs = await db.query.externalLinkTable.findMany({
+      where: and(
+        eq(externalLinkTable.taskId, task.id),
+        eq(externalLinkTable.resourceType, "pull_request"),
+      ),
+    });
+
+    const hasOpenPRs = allTaskPRs.some((pr) => {
+      if (pr.id === externalLink.id) return false;
+      const metadata = pr.metadata ? JSON.parse(pr.metadata) : {};
+      return metadata.state === "open";
+    });
+
+    if (!hasOpenPRs) {
+      const targetStatus = config.statusTransitions?.onPRMerge || "done";
+      await updateTaskStatus(task.id, targetStatus);
+    }
   }
 }

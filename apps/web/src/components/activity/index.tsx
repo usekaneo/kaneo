@@ -40,8 +40,12 @@ function Activity({
     content: string | null;
     id: string;
     createdAt: string;
-    userId: string;
+    userId: string | null;
     taskId: string;
+    externalUserName?: string | null;
+    externalUserAvatar?: string | null;
+    externalSource?: string | null;
+    externalUrl?: string | null;
   };
   isLast?: boolean;
 }) {
@@ -51,13 +55,27 @@ function Activity({
     workspaceId: workspace?.id,
   });
 
-  const user = workspaceUsers?.find(
-    (user) => user.user?.id === activity.userId,
-  );
+  const user = activity.userId
+    ? workspaceUsers?.find((user) => user.user?.id === activity.userId)
+    : null;
 
-  console.log(activity);
+  const isExternalComment = Boolean(activity.externalSource);
 
   if (activity.type === "comment" && activity.content) {
+    const commentUser = isExternalComment
+      ? {
+          id: undefined,
+          name: activity.externalUserName ?? "GitHub User",
+          email: undefined,
+          image: activity.externalUserAvatar ?? undefined,
+        }
+      : {
+          id: user?.user?.id,
+          name: user?.user?.name,
+          email: user?.user?.email,
+          image: user?.user?.image,
+        };
+
     return (
       <div className="relative flex gap-3 py-2 last:pb-0">
         {!isLast && (
@@ -80,13 +98,10 @@ function Activity({
             commentId={activity.id}
             taskId={activity.taskId}
             content={activity.content}
-            user={{
-              id: user?.user?.id,
-              name: user?.user?.name,
-              email: user?.user?.email,
-              image: user?.user?.image,
-            }}
+            user={commentUser}
             createdAt={activity.createdAt}
+            externalSource={activity.externalSource}
+            externalUrl={activity.externalUrl}
           />
         </div>
       </div>

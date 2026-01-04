@@ -266,13 +266,15 @@ export const activityTable = pgTable("activity", {
     }),
   type: text("type").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => userTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+  userId: text("user_id").references(() => userTable.id, {
+    onDelete: "cascade",
+    onUpdate: "cascade",
+  }),
   content: text("content"),
+  externalUserName: text("external_user_name"),
+  externalUserAvatar: text("external_user_avatar"),
+  externalSource: text("external_source"),
+  externalUrl: text("external_url"),
 });
 
 export const labelTable = pgTable("label", {

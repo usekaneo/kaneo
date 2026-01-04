@@ -4,16 +4,15 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
-  CircleDot,
   Copy,
   GitBranch,
-  GitPullRequest,
   Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import Activity from "@/components/activity";
 import CommentInput from "@/components/activity/comment-input";
 import TaskLayout from "@/components/common/task-layout";
+import { ExternalLinksAccordion } from "@/components/external-links/external-links-accordion";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import TaskAssigneePopover from "@/components/task/task-assignee-popover";
@@ -327,73 +326,6 @@ function RouteComponent() {
                 )}
               </div>
             </div>
-            {!isLoadingExternalLinks && (
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground pl-2">
-                    External Links
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1.5 px-2">
-                  {externalLinks.length === 0 ? (
-                    <span className="text-xs text-muted-foreground/70 py-1">
-                      No linked resources
-                    </span>
-                  ) : (
-                    externalLinks.map((link) => {
-                      const isMerged = link.metadata?.merged === true;
-                      const isPR = link.resourceType === "pull_request";
-                      const isBranch = link.resourceType === "branch";
-                      const isIssue = link.resourceType === "issue";
-
-                      const getIcon = () => {
-                        if (isPR)
-                          return (
-                            <GitPullRequest
-                              className={`size-3.5 flex-shrink-0 ${isMerged ? "text-emerald-500" : "text-violet-500"}`}
-                            />
-                          );
-                        if (isBranch)
-                          return (
-                            <GitBranch className="size-3.5 flex-shrink-0 text-sky-500" />
-                          );
-                        return (
-                          <CircleDot className="size-3.5 flex-shrink-0 text-muted-foreground" />
-                        );
-                      };
-
-                      const getLabel = () => {
-                        if (link.title) return link.title;
-                        if (isPR) return `PR #${link.externalId}`;
-                        if (isIssue) return `Issue #${link.externalId}`;
-                        if (isBranch) return link.externalId;
-                        return link.externalId;
-                      };
-
-                      return (
-                        <a
-                          key={link.id}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group flex items-center gap-2 py-1.5 px-2 -mx-2 rounded-md hover:bg-accent/50 transition-colors"
-                        >
-                          {getIcon()}
-                          <span className="text-xs truncate flex-1 text-foreground/80 group-hover:text-foreground">
-                            {getLabel()}
-                          </span>
-                          {isPR && isMerged && (
-                            <span className="text-[10px] font-medium text-emerald-500/80 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                              merged
-                            </span>
-                          )}
-                        </a>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       }
@@ -408,6 +340,14 @@ function RouteComponent() {
         </p>
         <TaskTitle taskId={taskId} />
         <TaskDescription taskId={taskId} />
+        {!isLoadingExternalLinks && externalLinks.length > 0 && (
+          <div className="mt-4">
+            <ExternalLinksAccordion
+              externalLinks={externalLinks}
+              isLoading={isLoadingExternalLinks}
+            />
+          </div>
+        )}
         <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full" />
         <div className="flex flex-col gap-4 pt-8">
           <h1 className="text-md font-semibold">Activity</h1>
