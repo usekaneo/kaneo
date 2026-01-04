@@ -2,7 +2,13 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import {
+  Calendar,
+  CalendarClock,
+  CalendarX,
+  GitMerge,
+  GitPullRequest,
+} from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -16,7 +22,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
@@ -57,6 +69,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { data: externalLinks } = useExternalLinks(task.id);
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -67,6 +80,38 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
       (member) => member.userId === task.userId,
     );
   }, [workspaceUsers, task.userId]);
+
+  const pullRequests = useMemo(() => {
+    if (!externalLinks) return [];
+    return externalLinks.filter((link) => link.resourceType === "pull_request");
+  }, [externalLinks]);
+
+  const getPRInfo = (pr: (typeof pullRequests)[number]) => {
+    const isMerged = pr.metadata?.merged === true;
+    const isDraft = pr.metadata?.draft === true;
+
+    if (isMerged) {
+      return {
+        icon: <GitMerge className="h-3 w-3 text-purple-400" />,
+        status: "Merged",
+        statusClass: "text-purple-400",
+      };
+    }
+
+    if (isDraft) {
+      return {
+        icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
+        status: "Draft",
+        statusClass: "text-muted-foreground",
+      };
+    }
+
+    return {
+      icon: <GitPullRequest className="h-3 w-3 text-green-400" />,
+      status: "Open",
+      statusClass: "text-green-400",
+    };
+  };
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -145,11 +190,116 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                 <span className="text-sm text-zinc-900 dark:text-zinc-100 truncate">
                   {task.title}
                 </span>
-                {showLabels && (
-                  <div className="flex items-center gap-1">
-                    <TaskCardLabels taskId={task.id} />
-                  </div>
-                )}
+                <div className="flex items-center gap-1">
+                  {showLabels && <TaskCardLabels taskId={task.id} />}
+
+                  {pullRequests.length === 1 && (
+                    <HoverCard openDelay={200} closeDelay={100}>
+                      <HoverCardTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(pullRequests[0].url, "_blank");
+                          }}
+                          className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
+                        >
+                          {getPRInfo(pullRequests[0]).icon}
+                          <span>#{pullRequests[0].externalId}</span>
+                        </button>
+                      </HoverCardTrigger>
+                      <HoverCardContent
+                        className="w-72 p-3"
+                        side="bottom"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            {getPRInfo(pullRequests[0]).icon}
+                            <span>{getPRInfo(pullRequests[0]).status}</span>
+                            <span className="text-muted-foreground/50">•</span>
+                            <span>#{pullRequests[0].externalId}</span>
+                          </div>
+                          <p className="text-sm font-medium leading-snug">
+                            {pullRequests[0].title || "Pull Request"}
+                          </p>
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
+                  )}
+
+                  {pullRequests.length > 1 &&
+                    (() => {
+                      const hasOpen = pullRequests.some(
+                        (pr) => !pr.metadata?.merged && !pr.metadata?.draft,
+                      );
+                      const allMerged = pullRequests.every(
+                        (pr) => pr.metadata?.merged,
+                      );
+                      const iconColor = allMerged
+                        ? "text-purple-400"
+                        : hasOpen
+                          ? "text-green-400"
+                          : "text-muted-foreground";
+
+                      return (
+                        <HoverCard openDelay={200} closeDelay={100}>
+                          <HoverCardTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
+                            >
+                              <GitPullRequest
+                                className={`h-3 w-3 ${iconColor}`}
+                              />
+                              <span>{pullRequests.length} PRs</span>
+                            </button>
+                          </HoverCardTrigger>
+                          <HoverCardContent
+                            className="w-auto min-w-56 max-w-96 p-1"
+                            side="bottom"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {pullRequests.map((pr, index) => {
+                              const prInfo = getPRInfo(pr);
+                              const repoMatch = pr.url.match(
+                                /github\.com\/([^/]+\/[^/]+)\/pull/,
+                              );
+                              const repoName = repoMatch ? repoMatch[1] : null;
+                              return (
+                                <div key={pr.id}>
+                                  {index > 0 && (
+                                    <hr className="border-border my-1" />
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      window.open(pr.url, "_blank")
+                                    }
+                                    className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
+                                  >
+                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                      {prInfo.icon}
+                                      <span>
+                                        {repoName}#{pr.externalId}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs leading-tight line-clamp-2 mt-0.5">
+                                      {pr.title || "Pull Request"}
+                                    </p>
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {prInfo.status}
+                                    </span>
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </HoverCardContent>
+                        </HoverCard>
+                      );
+                    })()}
+                </div>
               </div>
             </div>
 
