@@ -9,10 +9,14 @@ import activity from "./activity";
 import { auth } from "./auth";
 import config from "./config";
 import db from "./database";
-import githubIntegration, { handleGithubWebhook } from "./github-integration";
+import externalLink from "./external-link";
+import githubIntegration, {
+  handleGithubWebhookRoute,
+} from "./github-integration";
 import label from "./label";
-
 import notification from "./notification";
+import { initializePlugins } from "./plugins";
+import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
@@ -79,7 +83,7 @@ api.get("/public-project/:id", async (c) => {
   return c.json(project);
 });
 
-api.post("/github-integration/webhook", handleGithubWebhook);
+api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
 const configApi = api.route("/config", config);
 
@@ -171,6 +175,7 @@ const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
+const externalLinkApi = api.route("/external-link", externalLink);
 
 app.route("/api", api);
 
@@ -184,6 +189,10 @@ app.route("/api", api);
       migrationsFolder: `${process.cwd()}/drizzle`,
     });
     console.log("✅ Database migrated successfully!");
+
+    await migrateGitHubIntegration();
+
+    initializePlugins();
   } catch (error) {
     console.error("❌ Database migration failed!", error);
     process.exit(1);
@@ -211,6 +220,7 @@ export type AppType =
   | typeof labelApi
   | typeof notificationApi
   | typeof searchApi
-  | typeof githubIntegrationApi;
+  | typeof githubIntegrationApi
+  | typeof externalLinkApi;
 
 export default app;

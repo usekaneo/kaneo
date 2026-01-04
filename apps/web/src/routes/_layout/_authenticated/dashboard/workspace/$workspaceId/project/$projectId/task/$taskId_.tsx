@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import Activity from "@/components/activity";
 import CommentInput from "@/components/activity/comment-input";
 import TaskLayout from "@/components/common/task-layout";
+import { ExternalLinksAccordion } from "@/components/external-links/external-links-accordion";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import TaskAssigneePopover from "@/components/task/task-assignee-popover";
@@ -33,10 +34,11 @@ import {
 } from "@/components/ui/tooltip";
 import labelColors from "@/constants/label-colors";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
+import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
+import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
@@ -48,8 +50,26 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-function toKebabCase(str: string | undefined) {
-  return str?.replace(/ /g, "-").toLowerCase().replace(/^-|-$/g, "");
+function slugify(text: string | undefined): string {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 50);
+}
+
+function generateBranchName(
+  pattern: string,
+  projectSlug: string | undefined,
+  taskNumber: number | undefined,
+  taskTitle: string | undefined,
+): string {
+  if (!projectSlug || !taskNumber) return "";
+  return pattern
+    .replace("{slug}", projectSlug.toLowerCase())
+    .replace("{number}", taskNumber.toString())
+    .replace("{title}", slugify(taskTitle));
 }
 
 function toNormalCase(str: string | undefined) {
@@ -65,14 +85,16 @@ function RouteComponent() {
   const { projectId, workspaceId, taskId } = Route.useParams();
   const { data: task } = useGetTask(taskId);
   const { data: project } = useGetProject({ id: projectId, workspaceId });
-  const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId);
   const { data: activities = [] } = useGetActivitiesByTaskId(taskId);
+  const { data: externalLinks = [], isLoading: isLoadingExternalLinks } =
+    useExternalLinks(taskId);
+  const { data: githubIntegration } = useGetGithubIntegration(projectId);
   const { user } = useAuth();
-  const workspaceName = workspace?.name;
   const projectSlug = project?.slug;
   const taskNumber = task?.number;
+  const branchPattern = githubIntegration?.branchPattern || "{slug}-{number}";
 
   const assignee = workspaceUsers?.members?.find(
     (member) => member.userId === task?.userId,
@@ -86,9 +108,13 @@ function RouteComponent() {
   };
 
   const handleCopyTaskBranch = () => {
-    navigator.clipboard.writeText(
-      `${toKebabCase(workspaceName)}/${toKebabCase(projectSlug)}-${taskNumber}`,
+    const branchName = generateBranchName(
+      branchPattern,
+      projectSlug,
+      taskNumber,
+      task?.title,
     );
+    navigator.clipboard.writeText(branchName);
     toast.message("Task branch copied to clipboard");
   };
 
@@ -314,6 +340,14 @@ function RouteComponent() {
         </p>
         <TaskTitle taskId={taskId} />
         <TaskDescription taskId={taskId} />
+        {!isLoadingExternalLinks && externalLinks.length > 0 && (
+          <div className="mt-4">
+            <ExternalLinksAccordion
+              externalLinks={externalLinks}
+              isLoading={isLoadingExternalLinks}
+            />
+          </div>
+        )}
         <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full" />
         <div className="flex flex-col gap-4 pt-8">
           <h1 className="text-md font-semibold">Activity</h1>

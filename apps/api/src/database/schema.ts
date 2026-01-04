@@ -266,13 +266,15 @@ export const activityTable = pgTable("activity", {
     }),
   type: text("type").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => userTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+  userId: text("user_id").references(() => userTable.id, {
+    onDelete: "cascade",
+    onUpdate: "cascade",
+  }),
   content: text("content"),
+  externalUserName: text("external_user_name"),
+  externalUserAvatar: text("external_user_avatar"),
+  externalSource: text("external_source"),
+  externalUrl: text("external_url"),
 });
 
 export const labelTable = pgTable("label", {
@@ -331,6 +333,70 @@ export const githubIntegrationTable = pgTable("github_integration", {
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
+
+export const integrationTable = pgTable(
+  "integration",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    type: text("type").notNull(),
+    config: text("config").notNull(),
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("integration_projectId_idx").on(table.projectId),
+    index("integration_type_idx").on(table.type),
+  ],
+);
+
+export const externalLinkTable = pgTable(
+  "external_link",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    integrationId: text("integration_id")
+      .notNull()
+      .references(() => integrationTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    resourceType: text("resource_type").notNull(),
+    externalId: text("external_id").notNull(),
+    url: text("url").notNull(),
+    title: text("title"),
+    metadata: text("metadata"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("external_link_taskId_idx").on(table.taskId),
+    index("external_link_integrationId_idx").on(table.integrationId),
+    index("external_link_externalId_idx").on(table.externalId),
+    index("external_link_resourceType_idx").on(table.resourceType),
+  ],
+);
 
 export const apikeyTable = pgTable(
   "apikey",

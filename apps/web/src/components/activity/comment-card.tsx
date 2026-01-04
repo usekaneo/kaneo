@@ -16,6 +16,8 @@ import {
   Bold,
   Check,
   Code,
+  ExternalLink,
+  Github,
   Heading1,
   Heading2,
   Heading3,
@@ -60,6 +62,8 @@ type CommentCardProps = {
     image?: string | null;
   } | null;
   createdAt: string;
+  externalSource?: string | null;
+  externalUrl?: string | null;
 };
 
 export default function CommentCard({
@@ -68,6 +72,8 @@ export default function CommentCard({
   content,
   user,
   createdAt,
+  externalSource,
+  externalUrl,
 }: CommentCardProps) {
   const { theme } = useUserPreferencesStore();
   const { user: currentUser } = useAuth();
@@ -211,6 +217,10 @@ export default function CommentCard({
       editorElement?.removeEventListener("keydown", handleKeyDown);
     };
   }, [editor, isEditing, handleSave, handleCancel]);
+  const isFromGitHub = externalSource === "github";
+  const githubProfileUrl =
+    isFromGitHub && user?.name ? `https://github.com/${user.name}` : null;
+  const commentUrl = externalUrl || null;
 
   return (
     <div className="w-full group">
@@ -229,9 +239,9 @@ export default function CommentCard({
               </span>
             </div>
           </HoverCardTrigger>
-          <HoverCardContent className="w-52 p-3">
+          <HoverCardContent className="w-64 p-3">
             <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
                 <AvatarFallback className="text-xs font-medium bg-muted">
                   {user?.name?.charAt(0).toUpperCase()}
@@ -241,16 +251,51 @@ export default function CommentCard({
                 <p className="text-sm font-medium text-foreground leading-none">
                   {user?.name}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {user?.email}
-                </p>
+                {user?.email && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {user.email}
+                  </p>
+                )}
+                {isFromGitHub && (
+                  <div className="flex items-center gap-1 mt-1.5">
+                    <Github className="size-3 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">
+                      GitHub
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
+            {githubProfileUrl && (
+              <a
+                href={githubProfileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ExternalLink className="size-3" />
+                View GitHub Profile
+              </a>
+            )}
           </HoverCardContent>
         </HoverCard>
         <span className="text-xs text-muted-foreground/60">
           {formatDistanceToNow(createdAt, { addSuffix: true })}
         </span>
+        {commentUrl && (
+          <>
+            <span className="text-xs text-muted-foreground/40">·</span>
+            <a
+              href={commentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              <Github className="size-3" />
+              commented on GitHub
+            </a>
+          </>
+        )}
         {canEdit && !isEditing && (
           <TooltipProvider>
             <Tooltip>

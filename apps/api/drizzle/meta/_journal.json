@@ -64,6 +64,27 @@
 			"when": 1765392072530,
 			"tag": "0008_square_silvermane",
 			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "7",
+			"when": 1766950050412,
+			"tag": "0009_harsh_blacklash",
+			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "7",
+			"when": 1767037216750,
+			"tag": "0010_bouncy_taskmaster",
+			"breakpoints": true
+		},
+		{
+			"idx": 11,
+			"version": "7",
+			"when": 1767037714394,
+			"tag": "0011_flashy_masked_marvel",
+			"breakpoints": true
 		}
 	]
 }

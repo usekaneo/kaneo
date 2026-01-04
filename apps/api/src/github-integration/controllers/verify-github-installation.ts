@@ -1,7 +1,5 @@
 import { HTTPException } from "hono/http-exception";
-import createGithubApp from "../utils/create-github-app";
-
-const githubApp = createGithubApp();
+import { getGithubApp } from "../../plugins/github/utils/github-app";
 
 async function verifyGithubInstallation({
   repositoryOwner,
@@ -10,10 +8,12 @@ async function verifyGithubInstallation({
   repositoryOwner: string;
   repositoryName: string;
 }) {
+  const githubApp = getGithubApp();
+
   try {
     if (!githubApp) {
       throw new HTTPException(500, {
-        message: "GitHub app not found",
+        message: "GitHub app not configured",
       });
     }
 
@@ -76,7 +76,7 @@ async function verifyGithubInstallation({
       try {
         if (!githubApp) {
           throw new HTTPException(500, {
-            message: "GitHub app not found",
+            message: "GitHub app not configured",
           });
         }
 
@@ -160,10 +160,12 @@ function getMissingPermissions(
 }
 
 async function getRepositoryId(owner: string, repo: string): Promise<number> {
+  const githubApp = getGithubApp();
+
   try {
     if (!githubApp) {
       throw new HTTPException(500, {
-        message: "GitHub app not found",
+        message: "GitHub app not configured",
       });
     }
 

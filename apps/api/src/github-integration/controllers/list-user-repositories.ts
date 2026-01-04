@@ -1,12 +1,12 @@
 import { HTTPException } from "hono/http-exception";
-import createGithubApp from "../utils/create-github-app";
-
-const githubApp = createGithubApp();
+import { getGithubApp } from "../../plugins/github/utils/github-app";
 
 async function listUserRepositories() {
+  const githubApp = getGithubApp();
+
   if (!githubApp) {
     throw new HTTPException(500, {
-      message: "GitHub app not found",
+      message: "GitHub app not configured",
     });
   }
 
@@ -14,59 +14,36 @@ async function listUserRepositories() {
     const { data: installations } =
       await githubApp.octokit.rest.apps.listInstallations();
 
-    const installationsWithRepos = await Promise.all(
-      installations.map(async (installation) => {
-        try {
-          const installationOctokit = await githubApp.getInstallationOctokit(
-            installation.id,
-          );
-          const { data: repos } =
-            await installationOctokit.rest.apps.listReposAccessibleToInstallation(
-              {
-                per_page: 500,
-              },
-            );
-
-          return {
-            id: installation.id,
-            account: installation.account
-              ? {
-                  login: installation.account.login,
-                  type: installation.account.type,
-                }
-              : null,
-            repositories: repos.repositories.map((repo) => repo.full_name),
-          };
-        } catch (error) {
-          console.warn(
-            `Failed to get repositories for installation ${installation.id}:`,
-            error,
-          );
-          return {
-            id: installation.id,
-            account: installation.account
-              ? {
-                  login: installation.account.login,
-                  type: installation.account.type,
-                }
-              : null,
-            repositories: [],
-          };
-        }
-      }),
-    );
-
     const allRepositories = [];
+    const installationsWithRepos = [];
 
     for (const installation of installations) {
       try {
         const installationOctokit = await githubApp.getInstallationOctokit(
           installation.id,
         );
-        const { data: repos } =
-          await installationOctokit.rest.apps.listReposAccessibleToInstallation();
 
-        const mappedRepos = repos.repositories.map((repo) => ({
+        // Use pagination to fetch ALL repositories for this installation
+        const repos = await installationOctokit.paginate(
+          installationOctokit.rest.apps.listReposAccessibleToInstallation,
+          {
+            per_page: 100, // GitHub's maximum
+          },
+        );
+
+        // Store installation info with repository names for UI
+        installationsWithRepos.push({
+          id: installation.id,
+          account: installation.account
+            ? {
+                login: installation.account.login,
+                type: installation.account.type,
+              }
+            : null,
+          repositories: repos.map((repo) => repo.full_name),
+        });
+
+        const mappedRepos = repos.map((repo) => ({
           id: repo.id,
           name: repo.name,
           full_name: repo.full_name,
@@ -86,6 +63,7 @@ async function listUserRepositories() {
               }
             : undefined,
           updated_at: repo.updated_at || new Date().toISOString(),
+          installation_id: installation.id,
         }));
 
         allRepositories.push(...mappedRepos);
@@ -94,9 +72,21 @@ async function listUserRepositories() {
           `Failed to get repositories for installation ${installation.id}:`,
           error,
         );
+        // Still add installation info even if repo fetch fails
+        installationsWithRepos.push({
+          id: installation.id,
+          account: installation.account
+            ? {
+                login: installation.account.login,
+                type: installation.account.type,
+              }
+            : null,
+          repositories: [],
+        });
       }
     }
 
+    // Remove duplicates and sort by most recently updated
     const uniqueRepositories = allRepositories
       .filter(
         (repo, index, self) =>
@@ -110,6 +100,7 @@ async function listUserRepositories() {
     return {
       repositories: uniqueRepositories,
       installations: installationsWithRepos,
+      total: uniqueRepositories.length,
     };
   } catch (error) {
     console.error("Failed to list user repositories:", error);

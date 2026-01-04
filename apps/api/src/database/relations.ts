@@ -3,7 +3,9 @@ import {
   accountTable,
   activityTable,
   apikeyTable,
+  externalLinkTable,
   githubIntegrationTable,
+  integrationTable,
   invitationTable,
   labelTable,
   notificationTable,
@@ -85,6 +87,7 @@ export const projectTableRelations = relations(
     }),
     tasks: many(taskTable),
     githubIntegration: many(githubIntegrationTable),
+    integrations: many(integrationTable),
   }),
 );
 
@@ -100,6 +103,7 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   labels: many(labelTable),
+  externalLinks: many(externalLinkTable),
 }));
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({
@@ -193,3 +197,28 @@ export const apikeyTableRelations = relations(apikeyTable, ({ one }) => ({
     references: [userTable.id],
   }),
 }));
+
+export const integrationTableRelations = relations(
+  integrationTable,
+  ({ one, many }) => ({
+    project: one(projectTable, {
+      fields: [integrationTable.projectId],
+      references: [projectTable.id],
+    }),
+    externalLinks: many(externalLinkTable),
+  }),
+);
+
+export const externalLinkTableRelations = relations(
+  externalLinkTable,
+  ({ one }) => ({
+    task: one(taskTable, {
+      fields: [externalLinkTable.taskId],
+      references: [taskTable.id],
+    }),
+    integration: one(integrationTable, {
+      fields: [externalLinkTable.integrationId],
+      references: [integrationTable.id],
+    }),
+  }),
+);
