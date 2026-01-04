@@ -161,7 +161,9 @@ export function WorkspaceSwitcher() {
                         </span>
                       </div>
                       <span className="text-foreground/90 flex-1 text-left">
-                        {ws.name}
+                        {isSwitching && ws.id === workspace?.id
+                          ? "Switching..."
+                          : ws.name}
                       </span>
                       <span className="text-xs text-muted-foreground/50">
                         {getModifierKeyText()} {index > 8 ? "0" : index + 1}
