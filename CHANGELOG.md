@@ -1,3 +1,15 @@
+## [2.1.8](https://github.com/usekaneo/kaneo/compare/v2.1.7...v2.1.8) (2026-01-04)
+
+
+### Features
+
+* enhance auto-merge workflow for Dependabot PRs ([a321a4b](https://github.com/usekaneo/kaneo/commit/a321a4bdc266b53fdef691deebce1ec678ad8768))
+* enhance email invitation handling with SMTP configuration check ([51b8c60](https://github.com/usekaneo/kaneo/commit/51b8c6019263372ff503f87097bdeac1efae81be))
+* implement bulk selection and actions for tasks with a new toolbar and menu ([be1f90a](https://github.com/usekaneo/kaneo/commit/be1f90a60eb04a5f0857c3330e7ca02e60c9a8db))
+* update issue import functionality to include closed issues and handle pull request links ([bdb030e](https://github.com/usekaneo/kaneo/commit/bdb030e1325e67b156d69394f656baecba66279a))
+
+
+
 ## [2.1.7](https://github.com/usekaneo/kaneo/compare/v2.1.6...v2.1.7) (2026-01-04)
 
 
