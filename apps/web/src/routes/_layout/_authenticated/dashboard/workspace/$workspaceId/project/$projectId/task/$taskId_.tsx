@@ -43,6 +43,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
+import type { ExternalLink } from "@/types/external-link";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_",
@@ -62,7 +63,7 @@ function slugify(text: string | undefined): string {
 function generateBranchName(
   pattern: string,
   projectSlug: string | undefined,
-  taskNumber: number | undefined,
+  taskNumber: number | null | undefined,
   taskTitle: string | undefined,
 ): string {
   if (!projectSlug || !taskNumber) return "";
@@ -343,7 +344,7 @@ function RouteComponent() {
         {!isLoadingExternalLinks && externalLinks.length > 0 && (
           <div className="mt-4">
             <ExternalLinksAccordion
-              externalLinks={externalLinks}
+              externalLinks={externalLinks as ExternalLink[]}
               isLoading={isLoadingExternalLinks}
             />
           </div>

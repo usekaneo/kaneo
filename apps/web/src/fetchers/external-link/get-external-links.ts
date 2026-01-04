@@ -1,18 +1,18 @@
-import type { ExternalLink } from "@/types/external-link";
+import { client } from "@kaneo/libs";
 
-async function getExternalLinks(taskId: string): Promise<ExternalLink[]> {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_URL || "http://localhost:1337"}/api/external-link/task/${taskId}`,
-    {
-      credentials: "include",
-    },
-  );
+async function getExternalLinks(taskId: string) {
+  const response = await client["external-link"].task[":taskId"].$get({
+    param: { taskId },
+  });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch external links");
+    const error = await response.text();
+    throw new Error(error);
   }
 
-  return response.json();
+  const data = await response.json();
+
+  return data;
 }
 
 export default getExternalLinks;

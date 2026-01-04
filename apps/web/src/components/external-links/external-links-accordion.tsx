@@ -12,15 +12,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-
-interface ExternalLink {
-  id: string;
-  resourceType: "issue" | "pull_request" | "branch";
-  externalId: string;
-  url: string;
-  title?: string | null;
-  metadata?: Record<string, unknown>;
-}
+import type { ExternalLink } from "@/types/external-link";
 
 interface ExternalLinksAccordionProps {
   externalLinks: ExternalLink[];
