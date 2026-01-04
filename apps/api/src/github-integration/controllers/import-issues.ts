@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
+  externalLinkTable,
   integrationTable,
   labelTable,
   taskTable,
@@ -66,12 +67,12 @@ export async function importIssues(projectId: string) {
   let page = 1;
   const perPage = 100;
 
-  // Paginate through all open issues
+  // Paginate through all issues (open and closed)
   while (true) {
     const { data: issues } = await installationOctokit.rest.issues.listForRepo({
       owner: config.repositoryOwner,
       repo: config.repositoryName,
-      state: "open", // Only import open issues
+      state: "all", // Import both open and closed issues
       per_page: perPage,
       page,
     });
@@ -88,7 +89,6 @@ export async function importIssues(projectId: string) {
         continue;
       }
 
-      // Check if issue already imported using proper duplicate detection
       const existingLink = await findExternalLink(
         integration.id,
         "issue",
@@ -96,15 +96,26 @@ export async function importIssues(projectId: string) {
       );
 
       if (existingLink) {
-        skipped++;
-        continue;
+        const taskExists = await db.query.taskTable.findFirst({
+          where: eq(taskTable.id, existingLink.taskId),
+        });
+
+        if (taskExists) {
+          skipped++;
+          continue;
+        }
+
+        await db
+          .delete(externalLinkTable)
+          .where(eq(externalLinkTable.id, existingLink.id));
       }
 
-      // Extract priority and status from labels
       const priority = extractIssuePriority(issue.labels);
-      const status = extractIssueStatus(issue.labels);
+      const statusFromLabels = extractIssueStatus(issue.labels);
 
-      // Create task with imported data
+      const taskStatus =
+        issue.state === "closed" ? "done" : statusFromLabels || "to-do";
+
       const [newTask] = await db
         .insert(taskTable)
         .values({
@@ -112,8 +123,8 @@ export async function importIssues(projectId: string) {
           description: issue.body || null,
           projectId,
           number: issue.number,
-          status: status || "to-do", // Use extracted status or default
-          priority: priority || "no-priority", // Use extracted priority or default
+          status: taskStatus,
+          priority: priority || "no-priority",
           position: 0,
           createdAt: new Date(issue.created_at),
         })
@@ -179,12 +190,10 @@ export async function importIssues(projectId: string) {
 
       if (comments && comments.length > 0) {
         for (const comment of comments) {
-          // Skip bot comments
           if (comment.user?.login.endsWith("[bot]")) {
             continue;
           }
 
-          // Create activity entry for comment
           await db.insert(activityTable).values({
             id: createId(),
             taskId: newTask.id,
@@ -199,10 +208,55 @@ export async function importIssues(projectId: string) {
         }
       }
 
+      try {
+        const { data: timeline } =
+          await installationOctokit.rest.issues.listEventsForTimeline({
+            owner: config.repositoryOwner,
+            repo: config.repositoryName,
+            issue_number: issue.number,
+            per_page: 100,
+          });
+
+        for (const event of timeline) {
+          if (
+            event.event === "cross-referenced" &&
+            "source" in event &&
+            event.source?.issue?.pull_request
+          ) {
+            const prIssue = event.source.issue;
+            const prNumber = prIssue.number;
+
+            const existingPRLink = await findExternalLink(
+              integration.id,
+              "pull_request",
+              prNumber.toString(),
+            );
+
+            if (!existingPRLink) {
+              await createExternalLink({
+                taskId: newTask.id,
+                integrationId: integration.id,
+                resourceType: "pull_request",
+                externalId: prNumber.toString(),
+                url: prIssue.html_url,
+                title: prIssue.title,
+                metadata: {
+                  state: prIssue.state,
+                  merged: prIssue.pull_request?.merged_at ? true : false,
+                  importedFrom: "github-import",
+                  author: prIssue.user?.login,
+                },
+              });
+            }
+          }
+        }
+      } catch {
+        // Timeline API requires specific permissions, silently skip if unavailable
+      }
+
       imported++;
     }
 
-    // Move to next page
     page++;
   }
 
