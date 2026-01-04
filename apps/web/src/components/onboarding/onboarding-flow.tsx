@@ -23,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import { authClient } from "@/lib/auth-client";
-import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type OnboardingStep = "workspace" | "success";
 
@@ -48,7 +47,6 @@ export function OnboardingFlow() {
   const [createdWorkspaceName, setCreatedWorkspaceName] = useState("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { setActiveWorkspaceId } = useUserPreferencesStore();
   const { mutateAsync: createWorkspace, isPending } = useCreateWorkspace();
   const { user } = useAuth();
 
@@ -73,7 +71,6 @@ export function OnboardingFlow() {
         organizationId: workspace.id,
       });
       setCreatedWorkspaceName(data.name);
-      setActiveWorkspaceId(workspace.id);
       toast.success("Workspace created successfully");
 
       setStep("success");

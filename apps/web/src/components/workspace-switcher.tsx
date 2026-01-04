@@ -32,23 +32,31 @@ export function WorkspaceSwitcher() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isCreateWorkspaceModalOpen, setIsCreateWorkspaceModalOpen] =
     React.useState(false);
+  const [isSwitching, setIsSwitching] = React.useState(false);
 
   const handleWorkspaceChange = React.useCallback(
     async (selectedWorkspace: Workspace) => {
+      if (isSwitching) return;
+
+      setIsSwitching(true);
       try {
         await authClient.organization.setActive({
           organizationId: selectedWorkspace.id,
         });
 
-        navigate({
-          to: "/dashboard/workspace/$workspaceId",
-          params: { workspaceId: selectedWorkspace.id },
-        });
+        setTimeout(() => {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId",
+            params: { workspaceId: selectedWorkspace.id },
+          });
+        }, 50);
       } catch (error) {
         console.error("Failed to switch workspace:", error);
+      } finally {
+        setTimeout(() => setIsSwitching(false), 100);
       }
     },
-    [navigate],
+    [navigate, isSwitching],
   );
 
   React.useEffect(() => {
@@ -109,12 +117,14 @@ export function WorkspaceSwitcher() {
                         {workspace.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                    <span className="truncate text-sm text-foreground/90 font-medium">
+                    <span
+                      className={`truncate text-sm text-foreground/90 font-medium ${isSwitching ? "opacity-50" : ""}`}
+                    >
                       {workspace.name}
                     </span>
                   </div>
                   <ChevronDown
-                    className="ml-1 size-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-500 ease-out"
+                    className={`ml-1 size-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-500 ease-out ${isSwitching ? "animate-spin" : ""}`}
                     data-state={isOpen ? "open" : "closed"}
                   />
                 </SidebarMenuButton>
@@ -142,7 +152,8 @@ export function WorkspaceSwitcher() {
                         handleWorkspaceChange(ws);
                         setIsOpen(false);
                       }}
-                      className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80 rounded-sm transition-colors text-sm font-normal"
+                      disabled={isSwitching || ws.id === workspace.id}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80 rounded-sm transition-colors text-sm font-normal ${isSwitching || ws.id === workspace.id ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
                         <span className="text-xs font-medium text-muted-foreground">
