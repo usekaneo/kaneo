@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Kaneo Documentation
-    url: https://kaneo.app/docs
+    url: https://kaneo.app/docs/core
     about: Check our documentation for answers to common questions
   - name: Kaneo Discord Community
     url: https://discord.gg/rU4tSyhXXU

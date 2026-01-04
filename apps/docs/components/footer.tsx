@@ -61,7 +61,7 @@ export default function Footer() {
               <div className="flex flex-wrap gap-4 sm:flex-col">
                 <Link
                   className="text-muted-foreground hover:text-primary block duration-150"
-                  href="/docs"
+                  href="/docs/core"
                 >
                   <span>Documentation</span>
                 </Link>

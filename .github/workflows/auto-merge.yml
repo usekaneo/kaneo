@@ -19,9 +19,23 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Enable Auto-Merge
+      - name: Auto-Merge Dependabot PR
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --rebase "$PR_URL"
+        run: |
+          # Wait a bit for any checks to start
+          sleep 30
+          
+          # Check if all required checks have passed
+          if gh pr view "$PR_URL" --json statusCheckRollup --jq '.statusCheckRollup | all(.conclusion == "SUCCESS")'; then
+            echo "All checks passed, merging..."
+            gh pr merge --rebase "$PR_URL"
+          elif gh pr view "$PR_URL" --json statusCheckRollup --jq '.statusCheckRollup | length == 0'; then
+            echo "No status checks required, merging..."
+            gh pr merge --rebase "$PR_URL"
+          else
+            echo "Status checks not passed, skipping merge"
+            gh pr view "$PR_URL" --json statusCheckRollup
+          fi
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
