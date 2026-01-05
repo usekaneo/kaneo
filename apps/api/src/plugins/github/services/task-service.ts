@@ -34,6 +34,11 @@ export async function getIntegrationWithProject(integrationId: string) {
 }
 
 export async function findIntegrationByRepo(owner: string, repo: string) {
+  const integrations = await findAllIntegrationsByRepo(owner, repo);
+  return integrations[0] || null;
+}
+
+export async function findAllIntegrationsByRepo(owner: string, repo: string) {
   const integrations = await db.query.integrationTable.findMany({
     where: and(
       eq(integrationTable.type, "github"),
@@ -44,7 +49,7 @@ export async function findIntegrationByRepo(owner: string, repo: string) {
     },
   });
 
-  return integrations.find((integration) => {
+  return integrations.filter((integration) => {
     try {
       const config = JSON.parse(integration.config);
       return config.repositoryOwner === owner && config.repositoryName === repo;

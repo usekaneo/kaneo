@@ -1,7 +1,7 @@
 import db from "../../../database";
 import { activityTable } from "../../../database/schema";
 import { findExternalLink } from "../services/link-manager";
-import { findIntegrationByRepo } from "../services/task-service";
+import { findAllIntegrationsByRepo } from "../services/task-service";
 
 type IssueCommentCreatedPayload = {
   action: string;
@@ -38,32 +38,32 @@ export async function handleIssueCommentCreated(
     return;
   }
 
-  const integration = await findIntegrationByRepo(
+  const integrations = await findAllIntegrationsByRepo(
     repository.owner.login,
     repository.name,
   );
 
-  if (!integration) {
+  for (const integration of integrations) {
+    const existingLink = await findExternalLink(
+      integration.id,
+      "issue",
+      issue.number.toString(),
+    );
+
+    if (!existingLink) {
+      continue;
+    }
+
+    await db.insert(activityTable).values({
+      taskId: existingLink.taskId,
+      type: "comment",
+      content: comment.body,
+      externalUserName: comment.user?.login ?? "Unknown",
+      externalUserAvatar: comment.user?.avatar_url ?? null,
+      externalSource: "github",
+      externalUrl: comment.html_url,
+    });
+
     return;
   }
-
-  const existingLink = await findExternalLink(
-    integration.id,
-    "issue",
-    issue.number.toString(),
-  );
-
-  if (!existingLink) {
-    return;
-  }
-
-  await db.insert(activityTable).values({
-    taskId: existingLink.taskId,
-    type: "comment",
-    content: comment.body,
-    externalUserName: comment.user?.login ?? "Unknown",
-    externalUserAvatar: comment.user?.avatar_url ?? null,
-    externalSource: "github",
-    externalUrl: comment.html_url,
-  });
 }
