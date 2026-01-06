@@ -20,15 +20,17 @@ import {
 } from "@dnd-kit/sortable";
 import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import toKebabCase from "@/lib/to-kebab-case";
+import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
+import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 
@@ -38,6 +40,7 @@ type ListViewProps = {
 
 function ListView({ project }: ListViewProps) {
   const { setProject } = useProjectStore();
+  const { setAvailableTasks } = useBulkSelectionStore();
   const { mutate: updateTask } = useUpdateTask();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
@@ -51,6 +54,15 @@ function ListView({ project }: ListViewProps) {
   });
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (project?.columns) {
+      const allTaskIds = project.columns.flatMap((column) =>
+        column.tasks.map((task) => task.id),
+      );
+      setAvailableTasks(allTaskIds);
+    }
+  }, [project, setAvailableTasks]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -348,6 +360,8 @@ function ListView({ project }: ListViewProps) {
         onClose={() => setIsTaskModalOpen(false)}
         status={toKebabCase(activeColumn ?? "done")}
       />
+
+      <BulkToolbar />
     </DndContext>
   );
 }

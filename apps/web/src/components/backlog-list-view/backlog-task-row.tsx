@@ -23,6 +23,7 @@ import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
 import queryClient from "@/query-client";
+import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
@@ -56,6 +57,8 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { toggleSelection, isSelected } = useBacklogBulkSelectionStore();
+  const isTaskSelected = isSelected(task.id);
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -77,6 +80,12 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
   const handleClick = (e: React.MouseEvent) => {
     if (!project || !task) return;
     if (e.defaultPrevented) return;
+
+    if (e.metaKey || e.ctrlKey) {
+      e.preventDefault();
+      toggleSelection(task.id);
+      return;
+    }
 
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
@@ -116,6 +125,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       className={cn(
         "border-b border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-200",
         isDragging && "opacity-50",
+        isTaskSelected && "bg-primary/10 shadow-sm",
       )}
     >
       <ContextMenu>

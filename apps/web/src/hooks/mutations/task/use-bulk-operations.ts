@@ -94,11 +94,32 @@ export function useBulkOperations() {
     },
   });
 
+  const bulkMoveToBoard = useMutation({
+    mutationFn: async ({
+      taskIds,
+      status,
+    }: {
+      taskIds: string[];
+      status: string;
+    }) => {
+      await Promise.all(taskIds.map((id) => updateTaskStatus(id, { status })));
+    },
+    onSuccess: () => {
+      queryClientRef.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+      queryClientRef.invalidateQueries({
+        queryKey: ["projects"],
+      });
+    },
+  });
+
   return {
     bulkDelete: bulkDelete.mutateAsync,
     bulkArchive: bulkArchive.mutateAsync,
     bulkChangeStatus: bulkChangeStatus.mutateAsync,
     bulkAssign: bulkAssign.mutateAsync,
     bulkMoveToBacklog: bulkMoveToBacklog.mutateAsync,
+    bulkMoveToBoard: bulkMoveToBoard.mutateAsync,
   };
 }

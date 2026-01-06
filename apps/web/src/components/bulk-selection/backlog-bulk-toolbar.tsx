@@ -1,4 +1,11 @@
-import { Archive, ArrowDownToLine, Menu, Trash2, X } from "lucide-react";
+import {
+  Archive,
+  ArrowUpToLine,
+  ChevronDown,
+  Menu,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,23 +16,24 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
-import useBulkSelectionStore from "@/store/bulk-selection";
+import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import { Button } from "../ui/button";
 
-function BulkToolbar() {
+function BacklogBulkToolbar() {
   const { selectedTaskIds, clearSelection, selectAll } =
-    useBulkSelectionStore();
-  const {
-    bulkMoveToBacklog,
-    bulkDelete,
-    bulkArchive,
-    bulkChangeStatus,
-    bulkAssign,
-  } = useBulkOperations();
+    useBacklogBulkSelectionStore();
+  const { bulkMoveToBoard, bulkDelete, bulkArchive, bulkAssign } =
+    useBulkOperations();
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -51,13 +59,16 @@ function BulkToolbar() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectAll, clearSelection]);
 
-  const handleMoveToBacklog = async () => {
+  const handleMoveToBoard = async (status: string) => {
     try {
-      await bulkMoveToBacklog(Array.from(selectedTaskIds));
-      toast.success(`${selectedCount} tasks moved to backlog`);
+      await bulkMoveToBoard({
+        taskIds: Array.from(selectedTaskIds),
+        status,
+      });
+      toast.success(`${selectedCount} tasks moved to board`);
       clearSelection();
     } catch (_error) {
-      toast.error("Failed to move tasks to backlog");
+      toast.error("Failed to move tasks to board");
     }
   };
 
@@ -89,17 +100,6 @@ function BulkToolbar() {
     }
   };
 
-  const handleBulkChangeStatus = async (status: string) => {
-    try {
-      await bulkChangeStatus({ taskIds: Array.from(selectedTaskIds), status });
-      toast.success(`${selectedCount} tasks updated`);
-      clearSelection();
-      setIsActionsOpen(false);
-    } catch (_error) {
-      toast.error("Failed to update tasks");
-    }
-  };
-
   const handleBulkAssign = async (userId: string) => {
     try {
       await bulkAssign({ taskIds: Array.from(selectedTaskIds), userId });
@@ -124,10 +124,33 @@ function BulkToolbar() {
 
         <div className="w-px h-6 bg-border" />
 
-        <Button size="sm" variant="ghost" onClick={handleMoveToBacklog}>
-          <ArrowDownToLine className="size-4" />
-          Move to Backlog
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="ghost" className="gap-1.5">
+              <ArrowUpToLine className="size-4" />
+              Move to Board
+              <ChevronDown className="size-3 opacity-60" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-48">
+            <DropdownMenuItem onClick={() => handleMoveToBoard("to-do")}>
+              {getColumnIcon("to-do")}
+              <span className="ml-2">To Do</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleMoveToBoard("in-progress")}>
+              {getColumnIcon("in-progress")}
+              <span className="ml-2">In Progress</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleMoveToBoard("in-review")}>
+              {getColumnIcon("in-review")}
+              <span className="ml-2">In Review</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleMoveToBoard("done")}>
+              {getColumnIcon("done")}
+              <span className="ml-2">Done</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <div className="w-px h-6 bg-border" />
 
@@ -165,25 +188,6 @@ function BulkToolbar() {
             </CommandItem>
           </CommandGroup>
 
-          <CommandGroup heading="Change Status">
-            <CommandItem onSelect={() => handleBulkChangeStatus("to-do")}>
-              {getColumnIcon("to-do")}
-              To Do
-            </CommandItem>
-            <CommandItem onSelect={() => handleBulkChangeStatus("in-progress")}>
-              {getColumnIcon("in-progress")}
-              In Progress
-            </CommandItem>
-            <CommandItem onSelect={() => handleBulkChangeStatus("in-review")}>
-              {getColumnIcon("in-review")}
-              In Review
-            </CommandItem>
-            <CommandItem onSelect={() => handleBulkChangeStatus("done")}>
-              {getColumnIcon("done")}
-              Done
-            </CommandItem>
-          </CommandGroup>
-
           <CommandGroup heading="Assign to">
             {workspaceUsers?.members?.map((member) => (
               <CommandItem
@@ -211,4 +215,4 @@ function BulkToolbar() {
   );
 }
 
-export default BulkToolbar;
+export default BacklogBulkToolbar;

@@ -20,14 +20,16 @@ import {
 } from "@dnd-kit/sortable";
 import { produce } from "immer";
 import { Archive, ChevronRight, Clock, Flag, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import toKebabCase from "@/lib/to-kebab-case";
+import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
+import BacklogBulkToolbar from "../bulk-selection/backlog-bulk-toolbar";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import BacklogTaskRow from "./backlog-task-row";
 
@@ -38,6 +40,7 @@ type BacklogListViewProps = {
 function BacklogListView({ project }: BacklogListViewProps) {
   const { mutate: updateTask } = useUpdateTask();
   const { setProject } = useProjectStore();
+  const { setAvailableTasks } = useBacklogBulkSelectionStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<
@@ -48,6 +51,18 @@ function BacklogListView({ project }: BacklogListViewProps) {
   });
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (project) {
+      const plannedTaskIds = (project.plannedTasks || []).map(
+        (task) => task.id,
+      );
+      const archivedTaskIds = (project.archivedTasks || []).map(
+        (task) => task.id,
+      );
+      setAvailableTasks([...plannedTaskIds, ...archivedTaskIds]);
+    }
+  }, [project, setAvailableTasks]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -373,6 +388,8 @@ function BacklogListView({ project }: BacklogListViewProps) {
         onClose={() => setIsTaskModalOpen(false)}
         status={toKebabCase(activeColumn ?? "planned")}
       />
+
+      <BacklogBulkToolbar />
     </DndContext>
   );
 }
