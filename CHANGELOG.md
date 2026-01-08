@@ -1,3 +1,14 @@
+## [2.1.11](https://github.com/usekaneo/kaneo/compare/v2.1.10...v2.1.11) (2026-01-08)
+
+
+### Features
+
+* add bulk select toolbar on backlog and list view ([9fc2cad](https://github.com/usekaneo/kaneo/commit/9fc2cad875e2cee928ad2fb3e7f97d2dfa959024))
+* enhance GitHub issue and pull request handling matching ([660e026](https://github.com/usekaneo/kaneo/commit/660e0265dbc95b044da4c6fd87f0e54515161c0e))
+* improve github integration, fix invitation bugs, move to otp, email templates improvements ([ab26286](https://github.com/usekaneo/kaneo/commit/ab2628688e07cfa37973fcbfa4cae508966585a9))
+
+
+
 ## [2.1.10](https://github.com/usekaneo/kaneo/compare/v2.1.9...v2.1.10) (2026-01-05)
 
 
