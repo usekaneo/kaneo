@@ -3,6 +3,8 @@ import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
 import type { MagicLinkEmailProps } from "./templates/magic-link";
 import MagicLinkEmail from "./templates/magic-link";
+import type { OtpEmailProps } from "./templates/otp";
+import OtpEmail from "./templates/otp";
 import WorkspaceInvitationEmail, {
   type WorkspaceInvitationEmailProps,
 } from "./templates/workspace-invitation";
@@ -35,6 +37,24 @@ export const sendMagicLinkEmail = async (
     });
   } catch (error) {
     console.error("Error sending magic link email", error);
+  }
+};
+
+export const sendOtpEmail = async (
+  to: string,
+  subject: string,
+  data: OtpEmailProps,
+) => {
+  const emailTemplate = await render(OtpEmail(data));
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+  } catch (error) {
+    console.error("Error sending OTP email", error);
   }
 };
 

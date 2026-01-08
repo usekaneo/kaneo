@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Calendar,
   Filter,
@@ -8,12 +8,13 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
+import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,14 +38,23 @@ import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
+type BoardSearchParams = {
+  taskId?: string;
+};
+
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",
 )({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
+    taskId: typeof search.taskId === "string" ? search.taskId : undefined,
+  }),
 });
 
 function RouteComponent() {
   const { projectId, workspaceId } = Route.useParams();
+  const { taskId } = Route.useSearch();
+  const navigate = useNavigate();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const { viewMode, setViewMode } = useUserPreferencesStore();
@@ -52,6 +62,14 @@ function RouteComponent() {
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
+
+  const handleCloseTaskSheet = useCallback(() => {
+    navigate({
+      to: ".",
+      search: {},
+      replace: true,
+    });
+  }, [navigate]);
 
   useEffect(() => {
     if (data) {
@@ -140,7 +158,7 @@ function RouteComponent() {
         title={`${project?.name} — ${viewMode === "board" ? "Board" : "List"}`}
         hideAppName
       />
-      <div className="flex flex-col h-full min-h-0">
+      <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
         <div className="bg-card border-b border-border">
           <div className="h-10 flex items-center px-4">
             <div className="flex items-center justify-between w-full">
@@ -486,6 +504,13 @@ function RouteComponent() {
         <CreateTaskModal
           open={isTaskModalOpen}
           onClose={() => setIsTaskModalOpen(false)}
+        />
+
+        <TaskDetailsSheet
+          taskId={taskId}
+          projectId={projectId}
+          workspaceId={workspaceId}
+          onClose={handleCloseTaskSheet}
         />
       </div>
     </ProjectLayout>

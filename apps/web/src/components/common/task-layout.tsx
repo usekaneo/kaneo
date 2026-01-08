@@ -43,15 +43,15 @@ export default function TaskLayout({
   const { data: task } = useGetTask(taskId);
 
   return (
-    <Layout className="flex flex-row">
-      <div className="flex-1">
+    <Layout className="flex flex-col lg:flex-row">
+      <div className="flex-1 flex flex-col min-w-0">
         <Layout.Header className="sticky top-0 z-10">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-1 w-full">
+            <div className="flex items-center gap-1 w-full min-w-0">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <SidebarTrigger className="-ml-1 h-6 w-6 cursor-pointer text-muted-foreground" />
+                    <SidebarTrigger className="-ml-1 h-6 w-6 cursor-pointer text-muted-foreground shrink-0" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="flex items-center gap-2 text-[10px]">
@@ -68,48 +68,51 @@ export default function TaskLayout({
               </TooltipProvider>
               <Separator
                 orientation="vertical"
-                className="mx-1.5 data-[orientation=vertical]:h-2.5"
+                className="mx-1.5 data-[orientation=vertical]:h-2.5 shrink-0"
               />
-              <Breadcrumb className="flex items-center text-xs w-full">
-                <BreadcrumbList className="!gap-1">
-                  <BreadcrumbItem>
+              <Breadcrumb className="flex items-center text-xs w-full min-w-0">
+                <BreadcrumbList className="!gap-1 flex-wrap">
+                  <BreadcrumbItem className="hidden sm:inline-flex">
                     <BreadcrumbLink
                       href={`/dashboard/workspace/${workspaceId}`}
                     >
-                      <h1 className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground truncate max-w-[100px]">
                         {workspace?.name}
-                      </h1>
+                      </span>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden sm:inline-flex" />
+                  <BreadcrumbItem className="hidden md:inline-flex">
                     <BreadcrumbLink
                       href={`/dashboard/workspace/${workspaceId}/project/${projectId}/board`}
                     >
-                      <h1 className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground truncate max-w-[100px]">
                         {project?.name}
-                      </h1>
+                      </span>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
-                  <BreadcrumbSeparator />
+                  <BreadcrumbSeparator className="hidden md:inline-flex" />
                   <BreadcrumbItem>
-                    <h1 className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {project?.slug}-{task?.number}
-                    </h1>
+                    </span>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <div className="flex items-center gap-1.5">{headerActions}</div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {headerActions}
+            </div>
           </div>
         </Layout.Header>
         <Layout.Content>
-          <div className="flex h-full">
-            <div className="flex-1 min-w-0">{children}</div>
+          <div className="flex flex-col lg:flex-row h-full">
+            <div className="order-2 lg:order-1 flex-1 min-w-0">{children}</div>
+            <div className="order-1 lg:order-2 lg:hidden">{rightSidebar}</div>
           </div>
         </Layout.Content>
       </div>
-      {rightSidebar}
+      <div className="hidden lg:flex lg:h-full">{rightSidebar}</div>
     </Layout>
   );
 }

@@ -1,5 +1,4 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -22,15 +21,18 @@ export type SignInFormValues = {
   password: string;
 };
 
+type SignInFormProps = {
+  onSuccess?: () => void;
+};
+
 const signInSchema = z.object({
   email: z.email(),
   password: z.string(),
 });
 
-export function SignInForm() {
+export function SignInForm({ onSuccess }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const { history } = useRouter();
   const form = useForm<SignInFormValues>({
     resolver: standardSchemaResolver(signInSchema),
     defaultValues: {
@@ -54,7 +56,7 @@ export function SignInForm() {
 
       toast.success("Signed in successfully");
       setTimeout(() => {
-        history.push("/dashboard");
+        onSuccess?.();
       }, 500);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to sign in");

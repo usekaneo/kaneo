@@ -22,6 +22,7 @@ import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
+import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import { verifyApiKey } from "./utils/verify-api-key";
@@ -84,6 +85,12 @@ api.get("/public-project/:id", async (c) => {
 });
 
 api.post("/github-integration/webhook", handleGithubWebhookRoute);
+
+const intvitationApi = api.get("/invitation/:id", async (c) => {
+  const { id } = c.req.param();
+  const result = await getInvitationDetails(id);
+  return c.json(result);
+});
 
 const configApi = api.route("/config", config);
 
@@ -221,6 +228,7 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
-  | typeof externalLinkApi;
+  | typeof externalLinkApi
+  | typeof intvitationApi;
 
 export default app;

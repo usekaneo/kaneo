@@ -132,14 +132,20 @@ function TaskCard({ task }: TaskCardProps) {
       return;
     }
 
-    navigate({
-      to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-      params: {
-        workspaceId: workspace.id,
-        projectId: project.id,
-        taskId: task.id,
-      },
-    });
+    const currentParams = new URLSearchParams(window.location.search);
+    const currentTaskId = currentParams.get("taskId");
+
+    if (currentTaskId === task.id) {
+      navigate({
+        to: ".",
+        search: {},
+      });
+    } else {
+      navigate({
+        to: ".",
+        search: { taskId: task.id },
+      });
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -150,7 +156,6 @@ function TaskCard({ task }: TaskCardProps) {
 
   const handleDeleteTask = async () => {
     try {
-      await deleteTask(task.id);
       queryClient.invalidateQueries({
         queryKey: ["tasks", project?.id],
       });
@@ -279,6 +284,7 @@ function TaskCard({ task }: TaskCardProps) {
                     className="w-72 p-3"
                     side="bottom"
                     onClick={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
                   >
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -325,6 +331,7 @@ function TaskCard({ task }: TaskCardProps) {
                         className="w-auto min-w-56 max-w-96 p-1"
                         side="bottom"
                         onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
                       >
                         {pullRequests.map((pr, index) => {
                           const prInfo = getPRInfo(pr);

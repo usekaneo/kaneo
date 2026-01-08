@@ -1,11 +1,17 @@
-import { sendMagicLinkEmail, sendWorkspaceInvitationEmail } from "@kaneo/email";
+import {
+  sendMagicLinkEmail,
+  sendOtpEmail,
+  sendWorkspaceInvitationEmail,
+} from "@kaneo/email";
 import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError } from "better-auth/api";
 import {
   anonymous,
   apiKey,
   createAuthMiddleware,
+  emailOTP,
   genericOAuth,
   lastLoginMethod,
   magicLink,
@@ -15,6 +21,7 @@ import { config } from "dotenv-mono";
 import { eq } from "drizzle-orm";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
+import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { generateDemoName } from "./utils/generate-demo-name";
 
 config();
@@ -130,6 +137,13 @@ export const auth = betterAuth({
         }
       },
     }),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        if (type === "sign-in") {
+          await sendOtpEmail(email, "Your Kaneo verification code", { otp });
+        }
+      },
+    }),
     organization({
       // creatorRole: "admin", // maybe will want this "The role of the user who creates the organization."
       // invitationLimit and other fields like this may be beneficial as well
@@ -182,7 +196,7 @@ export const auth = betterAuth({
         },
       },
       async sendInvitationEmail(data) {
-        const inviteLink = `${process.env.KANEO_CLIENT_URL}/auth/accept-invitation/${data.id}`;
+        const inviteLink = `${process.env.KANEO_CLIENT_URL}/invitation/accept/${data.id}`;
 
         const result = await sendWorkspaceInvitationEmail(
           data.email,
@@ -233,7 +247,55 @@ export const auth = betterAuth({
       maxAge: 5 * 60,
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const result = await checkRegistrationAllowed(user.email);
+          if (!result.allowed) {
+            throw new APIError("FORBIDDEN", {
+              message: result.reason,
+            });
+          }
+        },
+      },
+    },
+  },
   hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      const isSignUpPath =
+        ctx.path === "/sign-up/email" ||
+        ctx.path.startsWith("/callback/") ||
+        ctx.path.startsWith("/sign-in/social");
+
+      if (!isSignUpPath) {
+        return;
+      }
+
+      const isRegistrationDisabled =
+        process.env.DISABLE_REGISTRATION === "true";
+      if (!isRegistrationDisabled) {
+        return;
+      }
+
+      const email =
+        ctx.body?.email ||
+        ctx.query?.email ||
+        ctx.headers?.get("x-invitation-email");
+      const invitationId =
+        ctx.body?.invitationId ||
+        ctx.query?.invitationId ||
+        ctx.headers?.get("x-invitation-id");
+
+      if (ctx.path === "/sign-up/email") {
+        const result = await checkRegistrationAllowed(email, invitationId);
+        if (!result.allowed) {
+          throw new APIError("FORBIDDEN", {
+            message: result.reason,
+          });
+        }
+      }
+    }),
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/sign-in")) {
         const newSession = ctx.context.newSession;

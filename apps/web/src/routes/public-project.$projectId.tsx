@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Grid3X3, Layout, List } from "lucide-react";
-import { createElement, useState } from "react";
+import { Layout, List } from "lucide-react";
+import { createElement, useEffect, useState } from "react";
 import PageTitle from "@/components/page-title";
 import { CopyUrlButton } from "@/components/public-project/copy-url-button";
 import { ErrorView } from "@/components/public-project/error-view";
@@ -21,12 +21,26 @@ export const Route = createFileRoute("/public-project/$projectId")({
 
 type ViewMode = "kanban" | "list";
 
+const VIEW_MODE_STORAGE_KEY = "kaneo-public-view-mode";
+
 function RouteComponent() {
   const { projectId } = Route.useParams();
   const { data: project, isLoading, error } = useGetPublicProject(projectId);
-  const [viewMode, setViewMode] = useState<ViewMode>("kanban");
+
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+      return (saved as ViewMode) || "kanban";
+    }
+    return "kanban";
+  });
+
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
+  }, [viewMode]);
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -49,58 +63,58 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title="Public View" />
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 flex flex-col w-full">
-        <header className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-10 backdrop-blur-sm bg-white/95 dark:bg-zinc-900/95">
-          <div className="px-6 py-4">
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-              <div className="space-y-3 flex-1">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-                    {createElement(
-                      icons[project.icon as keyof typeof icons] || Layout,
-                      {
-                        className: "w-6 h-6 shrink-0",
-                      },
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+      <div className="min-h-screen bg-background flex flex-col w-full">
+        <header className="border-b border-border sticky top-0 z-10 bg-background">
+          <div className="px-6 py-2.5">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  {createElement(
+                    icons[project.icon as keyof typeof icons] || Layout,
+                    {
+                      className: "w-5 h-5 text-muted-foreground",
+                    },
+                  )}
+                </div>
+                <div className="flex flex-col gap-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-lg font-semibold text-foreground truncate">
                       {project.name}
                     </h1>
-                    <span className="px-3 py-1 text-sm bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full font-medium border border-green-200 dark:border-green-800">
-                      Public View
+                    <span className="px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground rounded font-medium shrink-0">
+                      Public
                     </span>
                   </div>
+                  {project.description && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      {project.description}
+                    </p>
+                  )}
                 </div>
-                {project.description && (
-                  <p className="text-zinc-600 dark:text-zinc-400 max-w-3xl leading-relaxed">
-                    {project.description}
-                  </p>
-                )}
               </div>
 
-              <div className="flex items-center gap-3 lg:flex-shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <CopyUrlButton />
                 <ThemeToggle />
-                <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-700" />
-                <div className="flex items-center gap-2">
+                <div className="h-4 w-px bg-border" />
+                <div className="flex items-center gap-1">
                   <Button
-                    variant={viewMode === "kanban" ? "default" : "outline"}
+                    variant="ghost"
                     size="sm"
                     onClick={() => setViewMode("kanban")}
-                    className="gap-2"
+                    className={`h-8 gap-2 ${viewMode === "kanban" ? "bg-accent" : ""}`}
                   >
-                    <Grid3X3 className="w-4 h-4" />
-                    Board
+                    <Layout className="h-3 w-3" />
+                    <span className="text-xs">Board</span>
                   </Button>
                   <Button
-                    variant={viewMode === "list" ? "default" : "outline"}
+                    variant="ghost"
                     size="sm"
                     onClick={() => setViewMode("list")}
-                    className="gap-2"
+                    className={`h-8 gap-2 ${viewMode === "list" ? "bg-accent" : ""}`}
                   >
-                    <List className="w-4 h-4" />
-                    List
+                    <List className="h-3 w-3" />
+                    <span className="text-xs">List</span>
                   </Button>
                 </div>
               </div>
@@ -116,13 +130,11 @@ function RouteComponent() {
           )}
         </main>
 
-        <footer className="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4">
-          <div className="px-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <footer className="border-t border-border">
+          <div className="px-6 py-3">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <KaneoBranding />
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center md:text-right">
-                This is a read-only public view of the project.
-              </p>
+              <span>Read-only</span>
             </div>
           </div>
         </footer>

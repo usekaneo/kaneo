@@ -1,1 +1,5 @@
-export { sendMagicLinkEmail, sendWorkspaceInvitationEmail } from "./send-email";
+export {
+  sendMagicLinkEmail,
+  sendOtpEmail,
+  sendWorkspaceInvitationEmail,
+} from "./send-email";

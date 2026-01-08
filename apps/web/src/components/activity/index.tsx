@@ -125,41 +125,43 @@ function Activity({
         </div>
       </div>
 
-      <div className="flex-1 min-w-0 flex items-center gap-2 pt-0.5">
-        <HoverCard>
-          <HoverCardTrigger asChild>
-            <span className="text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors">
-              {user?.user?.name}
-            </span>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-52 p-3">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={user?.user?.image ?? ""}
-                  alt={user?.user?.name || ""}
-                />
-                <AvatarFallback className="text-xs font-medium bg-muted">
-                  {user?.user?.name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground leading-none">
-                  {user?.user?.name}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {user?.user?.email}
-                </p>
+      <div className="flex-1 min-w-0 pt-0.5">
+        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <span className="text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors">
+                {user?.user?.name}
+              </span>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-52 p-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={user?.user?.image ?? ""}
+                    alt={user?.user?.name || ""}
+                  />
+                  <AvatarFallback className="text-xs font-medium bg-muted">
+                    {user?.user?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground leading-none">
+                    {user?.user?.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {user?.user?.email}
+                  </p>
+                </div>
               </div>
-            </div>
-          </HoverCardContent>
-        </HoverCard>
-        <span className="text-sm text-muted-foreground">
-          {activity.content}
-        </span>
-        <span className="text-xs text-muted-foreground/60 ml-auto flex-shrink-0">
-          {formatDistanceToNow(activity.createdAt, { addSuffix: true })}
-        </span>
+            </HoverCardContent>
+          </HoverCard>
+          <span className="text-sm text-muted-foreground">
+            {activity.content}
+          </span>
+          <span className="text-xs text-muted-foreground/60 whitespace-nowrap">
+            {formatDistanceToNow(activity.createdAt, { addSuffix: true })}
+          </span>
+        </div>
       </div>
     </div>
   );

@@ -87,14 +87,20 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       return;
     }
 
-    navigate({
-      to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-      params: {
-        workspaceId: project.workspaceId,
-        projectId: project.id,
-        taskId: task.id,
-      },
-    });
+    const currentParams = new URLSearchParams(window.location.search);
+    const currentTaskId = currentParams.get("taskId");
+
+    if (currentTaskId === task.id) {
+      navigate({
+        to: ".",
+        search: {},
+      });
+    } else {
+      navigate({
+        to: ".",
+        search: { taskId: task.id },
+      });
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

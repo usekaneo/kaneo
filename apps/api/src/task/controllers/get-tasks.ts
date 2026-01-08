@@ -1,7 +1,13 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { projectTable, taskTable, userTable } from "../../database/schema";
+import {
+  externalLinkTable,
+  labelTable,
+  projectTable,
+  taskTable,
+  userTable,
+} from "../../database/schema";
 
 const DEFAULT_COLUMNS = [
   { id: "to-do", name: "To Do" },
@@ -35,6 +41,7 @@ async function getTasks(projectId: string) {
       userId: taskTable.userId,
       assigneeName: userTable.name,
       assigneeId: userTable.id,
+      assigneeImage: userTable.image,
       projectId: taskTable.projectId,
     })
     .from(taskTable)
@@ -43,6 +50,59 @@ async function getTasks(projectId: string) {
     .where(eq(taskTable.projectId, projectId))
     .orderBy(taskTable.position);
 
+  const taskIds = tasks.map((task) => task.id);
+
+  const labelsData =
+    taskIds.length > 0
+      ? await db
+          .select({
+            id: labelTable.id,
+            name: labelTable.name,
+            color: labelTable.color,
+            taskId: labelTable.taskId,
+          })
+          .from(labelTable)
+          .where(inArray(labelTable.taskId, taskIds))
+      : [];
+
+  const externalLinksData =
+    taskIds.length > 0
+      ? await db
+          .select()
+          .from(externalLinkTable)
+          .where(inArray(externalLinkTable.taskId, taskIds))
+      : [];
+
+  const taskLabelsMap = new Map<
+    string,
+    Array<{ id: string; name: string; color: string }>
+  >();
+  for (const label of labelsData) {
+    if (label.taskId) {
+      if (!taskLabelsMap.has(label.taskId)) {
+        taskLabelsMap.set(label.taskId, []);
+      }
+      taskLabelsMap.get(label.taskId)?.push({
+        id: label.id,
+        name: label.name,
+        color: label.color,
+      });
+    }
+  }
+
+  const taskExternalLinksMap = new Map<string, Array<any>>();
+  for (const externalLink of externalLinksData) {
+    if (!taskExternalLinksMap.has(externalLink.taskId)) {
+      taskExternalLinksMap.set(externalLink.taskId, []);
+    }
+    taskExternalLinksMap.get(externalLink.taskId)?.push({
+      ...externalLink,
+      metadata: externalLink.metadata
+        ? JSON.parse(externalLink.metadata)
+        : null,
+    });
+  }
+
   const columns = DEFAULT_COLUMNS.map((column) => ({
     id: column.id,
     name: column.name,
@@ -50,11 +110,26 @@ async function getTasks(projectId: string) {
       .filter((task) => task.status === column.id)
       .map((task) => ({
         ...task,
+        labels: taskLabelsMap.get(task.id) || [],
+        externalLinks: taskExternalLinksMap.get(task.id) || [],
       })),
   }));
 
-  const archivedTasks = tasks.filter((task) => task.status === "archived");
-  const plannedTasks = tasks.filter((task) => task.status === "planned");
+  const archivedTasks = tasks
+    .filter((task) => task.status === "archived")
+    .map((task) => ({
+      ...task,
+      labels: taskLabelsMap.get(task.id) || [],
+      externalLinks: taskExternalLinksMap.get(task.id) || [],
+    }));
+
+  const plannedTasks = tasks
+    .filter((task) => task.status === "planned")
+    .map((task) => ({
+      ...task,
+      labels: taskLabelsMap.get(task.id) || [],
+      externalLinks: taskExternalLinksMap.get(task.id) || [],
+    }));
 
   return {
     id: project.id,

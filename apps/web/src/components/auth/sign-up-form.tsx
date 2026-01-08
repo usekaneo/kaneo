@@ -23,20 +23,25 @@ export type SignUpFormValues = {
   name: string;
 };
 
+type SignUpFormProps = {
+  invitationId?: string;
+  defaultEmail?: string;
+};
+
 const signUpSchema = z.object({
   email: z.email(),
   password: z.string().min(8, { message: "Password is too short" }),
   name: z.string(),
 });
 
-export function SignUpForm() {
+export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
   const form = useForm<SignUpFormValues>({
     resolver: standardSchemaResolver(signUpSchema),
     defaultValues: {
-      email: "",
+      email: defaultEmail || "",
       password: "",
       name: "",
     },
@@ -57,9 +62,12 @@ export function SignUpForm() {
       }
 
       toast.success("Account created successfully");
-      setTimeout(() => {
+
+      if (invitationId) {
+        history.push(`/invitation/accept/${invitationId}`);
+      } else {
         history.push("/dashboard");
-      }, 500);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to sign up");
     } finally {
@@ -101,6 +109,7 @@ export function SignUpForm() {
                     placeholder="me@example.com"
                     type="email"
                     autoComplete="email"
+                    disabled={!!defaultEmail}
                     {...field}
                   />
                 </FormControl>

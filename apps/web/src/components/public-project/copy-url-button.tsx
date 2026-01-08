@@ -1,5 +1,6 @@
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 export function CopyUrlButton() {
@@ -9,28 +10,30 @@ export function CopyUrlButton() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
+      toast.success("URL copied");
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error("Failed to copy URL:", error);
+      toast.error("Failed to copy URL");
     }
   };
 
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="sm"
       onClick={handleCopyUrl}
-      className="gap-2"
+      className="h-8 gap-2"
     >
       {copied ? (
         <>
-          <Check className="w-4 h-4" />
-          Copied
+          <Check className="h-3 w-3" />
+          <span className="text-xs">Copied</span>
         </>
       ) : (
         <>
-          <Copy className="w-4 h-4" />
-          Copy URL
+          <Copy className="h-3 w-3" />
+          <span className="text-xs">Share</span>
         </>
       )}
     </Button>

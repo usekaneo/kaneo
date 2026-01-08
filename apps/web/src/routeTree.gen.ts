@@ -14,11 +14,12 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PublicProjectProjectIdRouteImport } from './routes/public-project.$projectId'
+import { Route as AuthVerifyOtpRouteImport } from './routes/auth/verify-otp'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as LayoutAuthenticatedRouteImport } from './routes/_layout/_authenticated'
-import { Route as AuthAcceptInvitationInviteIdRouteImport } from './routes/auth/accept-invitation/$inviteId'
+import { Route as InvitationAcceptInviteIdRouteImport } from './routes/invitation/accept.$inviteId'
 import { Route as LayoutAuthenticatedProfileSetupRouteImport } from './routes/_layout/_authenticated/profile-setup'
 import { Route as LayoutAuthenticatedOnboardingRouteImport } from './routes/_layout/_authenticated/onboarding'
 import { Route as LayoutAuthenticatedDashboardRouteImport } from './routes/_layout/_authenticated/dashboard'
@@ -68,6 +69,11 @@ const PublicProjectProjectIdRoute = PublicProjectProjectIdRouteImport.update({
   path: '/public-project/$projectId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthVerifyOtpRoute = AuthVerifyOtpRouteImport.update({
+  id: '/verify-otp',
+  path: '/verify-otp',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthSignUpRoute = AuthSignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -87,11 +93,11 @@ const LayoutAuthenticatedRoute = LayoutAuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => LayoutRoute,
 } as any)
-const AuthAcceptInvitationInviteIdRoute =
-  AuthAcceptInvitationInviteIdRouteImport.update({
-    id: '/accept-invitation/$inviteId',
-    path: '/accept-invitation/$inviteId',
-    getParentRoute: () => AuthRoute,
+const InvitationAcceptInviteIdRoute =
+  InvitationAcceptInviteIdRouteImport.update({
+    id: '/invitation/accept/$inviteId',
+    path: '/invitation/accept/$inviteId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const LayoutAuthenticatedProfileSetupRoute =
   LayoutAuthenticatedProfileSetupRouteImport.update({
@@ -263,11 +269,12 @@ export interface FileRoutesByFullPath {
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/verify-otp': typeof AuthVerifyOtpRoute
   '/public-project/$projectId': typeof PublicProjectProjectIdRoute
   '/dashboard': typeof LayoutAuthenticatedDashboardRouteWithChildren
   '/onboarding': typeof LayoutAuthenticatedOnboardingRoute
   '/profile-setup': typeof LayoutAuthenticatedProfileSetupRoute
-  '/auth/accept-invitation/$inviteId': typeof AuthAcceptInvitationInviteIdRoute
+  '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard/': typeof LayoutAuthenticatedDashboardIndexRoute
   '/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
@@ -297,10 +304,11 @@ export interface FileRoutesByTo {
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/verify-otp': typeof AuthVerifyOtpRoute
   '/public-project/$projectId': typeof PublicProjectProjectIdRoute
   '/onboarding': typeof LayoutAuthenticatedOnboardingRoute
   '/profile-setup': typeof LayoutAuthenticatedProfileSetupRoute
-  '/auth/accept-invitation/$inviteId': typeof AuthAcceptInvitationInviteIdRoute
+  '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard': typeof LayoutAuthenticatedDashboardIndexRoute
   '/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
@@ -332,11 +340,12 @@ export interface FileRoutesById {
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/verify-otp': typeof AuthVerifyOtpRoute
   '/public-project/$projectId': typeof PublicProjectProjectIdRoute
   '/_layout/_authenticated/dashboard': typeof LayoutAuthenticatedDashboardRouteWithChildren
   '/_layout/_authenticated/onboarding': typeof LayoutAuthenticatedOnboardingRoute
   '/_layout/_authenticated/profile-setup': typeof LayoutAuthenticatedProfileSetupRoute
-  '/auth/accept-invitation/$inviteId': typeof AuthAcceptInvitationInviteIdRoute
+  '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/_layout/_authenticated/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
   '/_layout/_authenticated/dashboard/': typeof LayoutAuthenticatedDashboardIndexRoute
   '/_layout/_authenticated/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
@@ -368,11 +377,12 @@ export interface FileRouteTypes {
     | '/auth/check-email'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/auth/verify-otp'
     | '/public-project/$projectId'
     | '/dashboard'
     | '/onboarding'
     | '/profile-setup'
-    | '/auth/accept-invitation/$inviteId'
+    | '/invitation/accept/$inviteId'
     | '/dashboard/settings'
     | '/dashboard/'
     | '/dashboard/settings/account'
@@ -402,10 +412,11 @@ export interface FileRouteTypes {
     | '/auth/check-email'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/auth/verify-otp'
     | '/public-project/$projectId'
     | '/onboarding'
     | '/profile-setup'
-    | '/auth/accept-invitation/$inviteId'
+    | '/invitation/accept/$inviteId'
     | '/dashboard/settings'
     | '/dashboard'
     | '/dashboard/settings/account'
@@ -436,11 +447,12 @@ export interface FileRouteTypes {
     | '/auth/check-email'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/auth/verify-otp'
     | '/public-project/$projectId'
     | '/_layout/_authenticated/dashboard'
     | '/_layout/_authenticated/onboarding'
     | '/_layout/_authenticated/profile-setup'
-    | '/auth/accept-invitation/$inviteId'
+    | '/invitation/accept/$inviteId'
     | '/_layout/_authenticated/dashboard/settings'
     | '/_layout/_authenticated/dashboard/'
     | '/_layout/_authenticated/dashboard/settings/account'
@@ -470,6 +482,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   TestErrorRoute: typeof TestErrorRoute
   PublicProjectProjectIdRoute: typeof PublicProjectProjectIdRoute
+  InvitationAcceptInviteIdRoute: typeof InvitationAcceptInviteIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -509,6 +522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicProjectProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/verify-otp': {
+      id: '/auth/verify-otp'
+      path: '/verify-otp'
+      fullPath: '/auth/verify-otp'
+      preLoaderRoute: typeof AuthVerifyOtpRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/auth/sign-up': {
       id: '/auth/sign-up'
       path: '/sign-up'
@@ -537,12 +557,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAuthenticatedRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/auth/accept-invitation/$inviteId': {
-      id: '/auth/accept-invitation/$inviteId'
-      path: '/accept-invitation/$inviteId'
-      fullPath: '/auth/accept-invitation/$inviteId'
-      preLoaderRoute: typeof AuthAcceptInvitationInviteIdRouteImport
-      parentRoute: typeof AuthRoute
+    '/invitation/accept/$inviteId': {
+      id: '/invitation/accept/$inviteId'
+      path: '/invitation/accept/$inviteId'
+      fullPath: '/invitation/accept/$inviteId'
+      preLoaderRoute: typeof InvitationAcceptInviteIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_layout/_authenticated/profile-setup': {
       id: '/_layout/_authenticated/profile-setup'
@@ -881,14 +901,14 @@ interface AuthRouteChildren {
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
-  AuthAcceptInvitationInviteIdRoute: typeof AuthAcceptInvitationInviteIdRoute
+  AuthVerifyOtpRoute: typeof AuthVerifyOtpRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthCheckEmailRoute: AuthCheckEmailRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
-  AuthAcceptInvitationInviteIdRoute: AuthAcceptInvitationInviteIdRoute,
+  AuthVerifyOtpRoute: AuthVerifyOtpRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -899,6 +919,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   TestErrorRoute: TestErrorRoute,
   PublicProjectProjectIdRoute: PublicProjectProjectIdRoute,
+  InvitationAcceptInviteIdRoute: InvitationAcceptInviteIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

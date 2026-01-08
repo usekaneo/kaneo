@@ -1,24 +1,37 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import { Github, KeyRound, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod/v4";
 import PageTitle from "@/components/page-title";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 import { AuthLayout } from "../../components/auth/layout";
-import { MagicLinkSignInForm } from "../../components/auth/magic-link-sign-in-form";
+import { OtpSignInForm } from "../../components/auth/otp-sign-in-form";
 import { SignInForm } from "../../components/auth/sign-in-form";
 import { SignInFormSkeleton } from "../../components/auth/sign-in-form-skeleton";
 import { AuthToggle } from "../../components/auth/toggle";
 
+const signInSearchSchema = z.object({
+  invitationId: z.string().optional(),
+  email: z.string().optional(),
+});
+
 export const Route = createFileRoute("/auth/sign-in")({
   component: SignIn,
+  validateSearch: signInSearchSchema,
 });
 
 function SignIn() {
   const navigate = useNavigate();
+  const search = useSearch({ from: "/auth/sign-in" });
   const [isCustomOAuthLoading, setIsCustomOAuthLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -26,6 +39,16 @@ function SignIn() {
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
+
+  const invitationId = search.invitationId;
+
+  const getCallbackUrl = () => {
+    const baseUrl = import.meta.env.VITE_CLIENT_URL;
+    if (invitationId) {
+      return `${baseUrl}/invitation/accept/${invitationId}`;
+    }
+    return `${baseUrl}/dashboard`;
+  };
 
   const handleGuestAccess = async () => {
     setIsGuestLoading(true);
@@ -50,14 +73,12 @@ function SignIn() {
     try {
       const result = await authClient.signIn.oauth2({
         providerId: "custom",
-        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/dashboard`,
+        callbackURL: getCallbackUrl(),
         errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
       }
-      toast.success("Signed in with OIDC");
-      navigate({ to: "/dashboard" });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to sign in with OIDC",
@@ -72,14 +93,12 @@ function SignIn() {
     try {
       const result = await authClient.signIn.social({
         provider: "google",
-        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/dashboard`,
+        callbackURL: getCallbackUrl(),
         errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
       }
-      toast.success("Signed in with Google");
-      navigate({ to: "/dashboard" });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -96,15 +115,12 @@ function SignIn() {
     try {
       const result = await authClient.signIn.social({
         provider: "github",
-        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/dashboard`,
+        callbackURL: getCallbackUrl(),
         errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
       }
-      toast.success("Signed in with Github");
-      navigate({ to: "/dashboard" });
-      setIsGithubLoading(false);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -121,14 +137,12 @@ function SignIn() {
     try {
       const result = await authClient.signIn.social({
         provider: "discord",
-        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/dashboard`,
+        callbackURL: getCallbackUrl(),
         errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
       }
-      toast.success("Signed in with Discord");
-      navigate({ to: "/dashboard" });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -137,6 +151,14 @@ function SignIn() {
       );
     } finally {
       setIsDiscordLoading(false);
+    }
+  };
+
+  const handleSignInSuccess = () => {
+    if (invitationId) {
+      navigate({ to: `/invitation/accept/${invitationId}` });
+    } else {
+      navigate({ to: "/dashboard" });
     }
   };
 
@@ -159,9 +181,22 @@ function SignIn() {
       <PageTitle title="Sign In" />
       <AuthLayout
         title="Welcome back"
-        subtitle="Enter your credentials to access your workspace"
+        subtitle={
+          invitationId
+            ? "Sign in to accept your invitation"
+            : "Enter your credentials to access your workspace"
+        }
       >
         <div className="mt-6">
+          {invitationId && (
+            <Alert className="mb-4">
+              <AlertDescription>
+                After signing in, you'll be able to accept your workspace
+                invitation.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {(config?.hasGoogleSignIn ||
             config?.hasGithubSignIn ||
             config?.hasDiscordSignIn ||
@@ -284,7 +319,7 @@ function SignIn() {
                   </div>
                 )}
 
-                {config?.hasGuestAccess && (
+                {config?.hasGuestAccess && !invitationId && (
                   <Button
                     variant="outline"
                     onClick={handleGuestAccess}
@@ -307,7 +342,14 @@ function SignIn() {
               </div>
             </>
           )}
-          {config?.hasSmtp ? <MagicLinkSignInForm /> : <SignInForm />}
+          {config?.hasSmtp ? (
+            <OtpSignInForm
+              invitationId={invitationId}
+              onSuccess={handleSignInSuccess}
+            />
+          ) : (
+            <SignInForm onSuccess={handleSignInSuccess} />
+          )}
           <AuthToggle
             message="Don't have an account?"
             linkText="Create account"
