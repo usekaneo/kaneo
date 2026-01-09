@@ -1,3 +1,12 @@
+## [2.1.13](https://github.com/usekaneo/kaneo/compare/v2.1.12...v2.1.13) (2026-01-09)
+
+
+### Features
+
+* enhance touch interactions and improve drag-and-drop responsiveness in Kanban board ([cefc5b4](https://github.com/usekaneo/kaneo/commit/cefc5b49e7656b24681844bd34d9bc5d1d7e79a6))
+
+
+
 ## [2.1.12](https://github.com/usekaneo/kaneo/compare/v2.1.11...v2.1.12) (2026-01-09)
 
 
