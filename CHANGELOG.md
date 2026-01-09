@@ -1,3 +1,12 @@
+## [2.1.12](https://github.com/usekaneo/kaneo/compare/v2.1.11...v2.1.12) (2026-01-09)
+
+
+### Features
+
+* add keyboard shortcuts help dialog and enhance task selection with focus management ([25bd9ee](https://github.com/usekaneo/kaneo/commit/25bd9eed3152c2cf62c5aa42ae20f98891462116))
+
+
+
 ## [2.1.11](https://github.com/usekaneo/kaneo/compare/v2.1.10...v2.1.11) (2026-01-08)
 
 
