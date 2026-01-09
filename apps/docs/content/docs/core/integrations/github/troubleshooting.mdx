@@ -50,13 +50,17 @@ Use the "Browse Repositories" feature in Kaneo to see which repositories your ap
 **Solutions**:
 1. **Update App Permissions**
    - Go to your [GitHub App settings](https://github.com/settings/developers)
-   - Edit your app and check permissions:
-     - **Issues**: Must have **Write** access (not just Read)
-     - **Metadata**: Must have **Read** access
-     - **Contents**: Must have **Read** access
+   - Edit your app and verify these permissions:
+     - **Issues**: Must have **Write** access (for creating/updating issues, adding labels, posting comments)
+     - **Pull Requests**: Must have **Read** access (for linking PRs to tasks)
+     - **Metadata**: Must have **Read** access (for repository information)
+     - **Contents**: Must have **Read** access (for tracking branch pushes)
 
 2. **Update Installation**
    - After changing app permissions, you may need to update the installation
+   - Go to [GitHub App installations](https://github.com/settings/installations)
+   - Click "Configure" on your Kaneo app
+   - Review and accept the new permissions
    - Go to [GitHub App installations](https://github.com/settings/installations)
    - Click "Configure" next to your app
    - Review and accept any permission changes
@@ -172,6 +176,79 @@ Make sure your private key doesn't have any extra characters or missing newlines
    - In GitHub App settings, verify the webhook secret is set
    - If you changed the secret, update the environment variable and restart
    - Generate a new secret if there are persistent issues
+
+### Automatic Status Transitions Not Working
+
+**Problem**: Tasks aren't automatically updating when you push branches or open/merge PRs.
+
+**Symptoms**:
+- Task stays in "to-do" after pushing a branch
+- Task doesn't move to "in-review" when PR is opened
+- Task doesn't move to "done" when PR is merged
+
+**Solutions**:
+1. **Verify Webhook Subscriptions**
+   - Go to your [GitHub App settings](https://github.com/settings/developers)
+   - Check the "Webhook" section and verify these events are subscribed:
+     - **Push** - For branch-based status transitions
+     - **Pull requests** - For PR-based status transitions
+   - If missing, add them and save
+
+2. **Check Pull Requests Permission**
+   - Ensure your app has **Read** access to Pull Requests
+   - Without this permission, PR events won't work
+   - Update the permission if needed and reinstall the app
+
+3. **Verify Branch Naming Pattern**
+   - Your branch name must match the configured pattern (default: `{slug}-{number}`)
+   - Example: For task `PROJ-123`, use branch `proj-123` or `PROJ-123`
+   - Check your project's GitHub integration settings for the configured pattern
+
+4. **Check Status Transition Configuration**
+   - Verify your status transition settings in the project GitHub integration
+   - Default transitions:
+     - Branch push → `in-progress`
+     - PR opened → `in-review`
+     - PR merged → `done`
+   - These can be customized per project
+
+5. **Review Webhook Delivery Logs**
+   - In GitHub App settings → Advanced tab
+   - Check if Push and Pull request events are being delivered
+   - Look for successful 200 responses
+
+<Callout type="tip">
+Test the automatic transitions by:
+1. Creating a task (e.g., `PROJ-123`)
+2. Creating a branch named `proj-123` and pushing it
+3. Verify the task moves to "in-progress"
+4. Opening a PR from that branch
+5. Verify the task moves to "in-review"
+</Callout>
+
+### Issue Label Synchronization Issues
+
+**Problem**: Labels aren't syncing between Kaneo and GitHub.
+
+**Symptoms**:
+- Changing priority in Kaneo doesn't update GitHub labels
+- Adding labels in GitHub doesn't reflect in Kaneo
+- Labels have wrong colors or formats
+
+**Solutions**:
+1. **Check Label Format**
+   - System labels must use the format: `priority:{level}` or `status:{status}`
+   - Valid priority labels: `priority:low`, `priority:medium`, `priority:high`, `priority:urgent`
+   - Valid status labels: `status:to-do`, `status:in-progress`, `status:in-review`, `status:done`
+
+2. **Verify Issues Write Permission**
+   - Label management requires **Write** access to Issues
+   - Check your GitHub App permissions
+   - Update and reinstall if needed
+
+3. **Check Webhook Events**
+   - Ensure **Issues** events are subscribed (especially "labeled" and "unlabeled")
+   - Without these, label changes from GitHub won't sync to Kaneo
 
 ## Testing and Debugging
 

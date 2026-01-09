@@ -27,7 +27,9 @@
 
 <h1 align="center">All you need. Nothing you don't.</h1>
 
-<p align="center">Project management that gets out of your way so you can focus on building great products.</p>
+<p align="center">
+  <img src="https://assets.kaneo.app/readme.png" alt="Kaneo Dashboard" />
+</p>
 
 ## Why Kaneo?
 

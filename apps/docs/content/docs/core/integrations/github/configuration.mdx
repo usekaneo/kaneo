@@ -182,31 +182,112 @@ Once connected, new tasks created in this project will automatically generate Gi
 
 ## Testing the Integration
 
-After connecting a repository, test the integration:
+After connecting a repository, test the integration thoroughly:
 
 <Steps>
 <Step>
-**Create a Test Task**
+**Test Task to Issue Creation**
 
 Create a new task in your connected Kaneo project with:
 - A clear title
 - A description
 - Set priority and status
+
+Navigate to your GitHub repository and verify:
+- A new issue was created
+- The issue has `priority:*` and `status:*` labels
+- A comment links back to the Kaneo task
 </Step>
 
 <Step>
-**Check GitHub**
+**Test Automatic Status Transitions**
 
-Navigate to your connected GitHub repository and check if:
-- A new issue was created
-- The issue title starts with `[Kaneo]`
-- The issue has appropriate labels (`kaneo`, `priority:*`, `status:*`)
-- The issue body contains task details
+Test branch-based workflow:
+1. Note your task number (e.g., `PROJ-123`)
+2. Create and push a branch matching the pattern (e.g., `proj-123`)
+3. Verify the task moves to "in-progress"
+4. Open a PR from that branch
+5. Verify the task moves to "in-review"
+6. Merge the PR
+7. Verify the task moves to "done"
+
+<Callout type="info">
+Default branch pattern is `{slug}-{number}`. You can customize this in project settings.
+</Callout>
+</Step>
+
+<Step>
+**Test Issue to Task Sync**
+
+In GitHub:
+1. Create a new issue
+2. Add labels like `priority:high` or `status:in-progress`
+
+In Kaneo:
+- Verify a task was created from the issue
+- Check that priority and status match the labels
+- Confirm the task links to the GitHub issue
+</Step>
+
+<Step>
+**Test Label Synchronization**
+
+Test both directions:
+1. Change task priority in Kaneo → Check issue labels in GitHub
+2. Add/remove labels in GitHub → Check task in Kaneo
+3. Change task status in Kaneo → Check if issue is closed/reopened
 </Step>
 
 </Steps>
 
 ## Advanced Configuration
+
+### Branch Naming Patterns
+
+Configure how Kaneo matches branches to tasks in your project's GitHub integration settings:
+
+**Predefined Patterns:**
+- `{slug}-{number}` (default) - e.g., `proj-123`
+- `{slug}-{number}-{title}` - e.g., `proj-123-fix-bug`
+- `{number}` - e.g., `123`
+- `{number}-{title}` - e.g., `123-fix-bug`
+- `feature/{slug}-{number}` - e.g., `feature/proj-123`
+- `fix/{slug}-{number}` - e.g., `fix/proj-123`
+
+**Custom Regex:**
+You can also provide a custom regex pattern for more complex matching.
+
+<Callout type="tip">
+The `{slug}` variable is your project's slug (case-insensitive), `{number}` is the task number, and `{title}` is an optional slug of the task title.
+</Callout>
+
+### Status Transition Configuration
+
+Customize when tasks automatically change status:
+
+| Event | Default Status | Customizable |
+|-------|---------------|--------------|
+| Branch Push | `in-progress` | ✅ |
+| PR Opened | `in-review` | ✅ |
+| PR Merged | `done` | ✅ |
+
+Configure these in your project's GitHub integration settings to match your workflow.
+
+<Callout type="warn">
+Status transitions only apply if the task is not already in "done" status. This prevents accidentally reopening completed tasks.
+</Callout>
+
+### Label Synchronization
+
+Kaneo automatically creates and syncs these label types:
+
+**System Labels** (managed automatically):
+- `priority:low`, `priority:medium`, `priority:high`, `priority:urgent`
+- `status:to-do`, `status:in-progress`, `status:in-review`, `status:done`, `status:planned`, `status:archived`
+
+**Custom Labels:**
+- Any labels added to GitHub issues (not starting with `priority:` or `status:`) are synced to Kaneo
+- Labels added in Kaneo can be synced to GitHub (if configured)
 
 ### Multiple Organizations
 If you need to connect repositories from multiple GitHub organizations:
@@ -214,14 +295,6 @@ If you need to connect repositories from multiple GitHub organizations:
 1. Install your GitHub App on each organization
 2. Grant appropriate permissions for each organization
 3. Each Kaneo project can connect to any repository where your app is installed
-
-### Custom Labels
-Currently, Kaneo uses these default labels:
-- `kaneo` - All issues created by Kaneo
-- `priority:high|medium|low` - Based on task priority
-- `status:todo|in-progress|done` - Based on task status
-
-Future versions will support custom label configurations.
 
 ---
 
