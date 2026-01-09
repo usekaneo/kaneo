@@ -94,8 +94,8 @@ function KanbanBoard({ project }: KanbanBoardProps) {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
-        tolerance: 8,
+        delay: 250,
+        tolerance: 10,
       },
     }),
     useSensor(KeyboardSensor),
@@ -241,12 +241,12 @@ function KanbanBoard({ project }: KanbanBoardProps) {
       onDragEnd={handleDragEnd}
     >
       <div className="h-full flex flex-col w-full">
-        <div className="flex-1 min-h-0 overflow-x-auto">
+        <div className="flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]">
           <div className="flex gap-3 p-3 h-full min-w-max transition-all duration-200 ease-out">
             {project.columns?.map((column) => (
               <div
                 key={column.id}
-                className="h-full flex-1 min-w-80 max-w-96 flex-shrink-0"
+                className="h-full flex-1 min-w-80 max-w-96 shrink-0"
               >
                 <Column column={column} />
               </div>

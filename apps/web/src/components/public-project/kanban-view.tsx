@@ -26,7 +26,7 @@ export function PublicKanbanView({
   }));
 
   return (
-    <div className="flex-1 min-h-0 overflow-x-auto">
+    <div className="flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]">
       <div className="flex gap-3 p-3 h-full min-w-max transition-all duration-200 ease-out">
         {columns.map((column) => {
           const IconComponent = column.icon;
@@ -50,7 +50,7 @@ export function PublicKanbanView({
                   </div>
                 </div>
 
-                <div className="p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0">
+                <div className="p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]">
                   <div className="flex flex-col gap-1.5">
                     {column.tasks.map((task) => (
                       <PublicTaskCard

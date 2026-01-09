@@ -32,7 +32,7 @@ function Column({ column }: ColumnProps) {
         <ColumnHeader column={column} />
       </div>
 
-      <div className="p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0">
+      <div className="p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]">
         <ColumnDropzone column={column} onIsOverChange={setIsDropzoneOver} />
       </div>
 

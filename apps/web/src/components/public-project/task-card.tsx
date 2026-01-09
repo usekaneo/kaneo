@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import { useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
@@ -24,12 +25,49 @@ export function PublicTaskCard({
 }: PublicTaskCardProps) {
   const labels = task.labels || [];
   const externalLinks = task.externalLinks || [];
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(
+    null,
+  );
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+
+    if (deltaX > 10 || deltaY > 10 || deltaTime > 300) {
+      e.preventDefault();
+      touchStartRef.current = null;
+      return;
+    }
+
+    touchStartRef.current = null;
+    onTaskClick(task);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (e.detail === 0) return;
+    onTaskClick(task);
+  };
 
   return (
     <button
       type="button"
       className="group w-full text-left p-3 bg-card border border-border rounded-lg cursor-pointer transition-all duration-200 ease-out hover:border-border/70 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
-      onClick={() => onTaskClick(task)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onClick={handleClick}
       aria-label={`View details for task ${task.title}`}
     >
       <div className="text-[10px] font-mono text-muted-foreground mb-2">
