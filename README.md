@@ -25,7 +25,6 @@
   </h3>
 </div>
 
-<h1 align="center">All you need. Nothing you don't.</h1>
 
 <p align="center">
   <img src="https://assets.kaneo.app/readme.png" alt="Kaneo Dashboard" />
