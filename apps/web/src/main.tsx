@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import queryClient from "@/query-client";
 import "@/index.css";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
+import { KeyboardShortcutsHelp } from "./components/keyboard-shortcuts-help";
 import AuthProvider from "./components/providers/auth-provider";
 import { ThemeProvider } from "./components/providers/theme-provider";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
@@ -63,6 +64,7 @@ if (!rootElement.innerHTML) {
           <AuthProvider>
             <KeyboardShortcutsProvider>
               <App />
+              <KeyboardShortcutsHelp />
             </KeyboardShortcutsProvider>
           </AuthProvider>
         </ThemeProvider>

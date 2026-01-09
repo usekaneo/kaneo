@@ -9,7 +9,7 @@ import {
   UserIcon,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -235,6 +235,30 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
     }
   }, [labelsOpen, labelsStep]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!open) return;
+
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (title.trim() && project?.id && workspace?.id) {
+          const form = document.querySelector("form");
+          if (form) {
+            form.dispatchEvent(
+              new Event("submit", { cancelable: true, bubbles: true }),
+            );
+          }
+        }
+      }
+    },
+    [open, title, project?.id, workspace?.id],
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   const resetLabelsPopover = () => {
     setLabelsStep("select");

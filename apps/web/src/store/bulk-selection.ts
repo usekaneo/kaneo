@@ -4,6 +4,7 @@ interface BulkSelectionState {
   selectedTaskIds: Set<string>;
   isSelectMode: boolean;
   availableTaskIds: string[];
+  focusedTaskId: string | null;
 
   selectTask: (taskId: string) => void;
   deselectTask: (taskId: string) => void;
@@ -13,12 +14,18 @@ interface BulkSelectionState {
   setAvailableTasks: (taskIds: string[]) => void;
   getSelectedCount: () => number;
   isSelected: (taskId: string) => boolean;
+  setFocusedTask: (taskId: string | null) => void;
+  clearFocus: () => void;
+  isFocused: (taskId: string) => boolean;
+  focusNext: () => void;
+  focusPrevious: () => void;
 }
 
 const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
   selectedTaskIds: new Set(),
   isSelectMode: false,
   availableTaskIds: [],
+  focusedTaskId: null,
 
   selectTask: (taskId: string) =>
     set((state) => ({
@@ -70,6 +77,52 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
   isSelected: (taskId: string) => {
     const { selectedTaskIds } = get();
     return selectedTaskIds.has(taskId);
+  },
+
+  setFocusedTask: (taskId: string | null) =>
+    set(() => ({
+      focusedTaskId: taskId,
+    })),
+
+  clearFocus: () =>
+    set(() => ({
+      focusedTaskId: null,
+    })),
+
+  isFocused: (taskId: string) => {
+    const { focusedTaskId } = get();
+    return focusedTaskId === taskId;
+  },
+
+  focusNext: () => {
+    const { availableTaskIds, focusedTaskId } = get();
+
+    if (availableTaskIds.length === 0) return;
+
+    if (!focusedTaskId) {
+      get().setFocusedTask(availableTaskIds[0]);
+      return;
+    }
+
+    const currentIndex = availableTaskIds.indexOf(focusedTaskId);
+    const nextIndex = (currentIndex + 1) % availableTaskIds.length;
+    get().setFocusedTask(availableTaskIds[nextIndex]);
+  },
+
+  focusPrevious: () => {
+    const { availableTaskIds, focusedTaskId } = get();
+
+    if (availableTaskIds.length === 0) return;
+
+    if (!focusedTaskId) {
+      get().setFocusedTask(availableTaskIds[availableTaskIds.length - 1]);
+      return;
+    }
+
+    const currentIndex = availableTaskIds.indexOf(focusedTaskId);
+    const previousIndex =
+      currentIndex === 0 ? availableTaskIds.length - 1 : currentIndex - 1;
+    get().setFocusedTask(availableTaskIds[previousIndex]);
   },
 }));
 

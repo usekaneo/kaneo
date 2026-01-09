@@ -23,12 +23,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import labelColors from "@/constants/label-colors";
+import { shortcuts } from "@/constants/shortcuts";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getPriorityIcon } from "@/lib/priority";
 import useProjectStore from "@/store/project";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 
 type BacklogSearchParams = {
@@ -64,6 +67,30 @@ function RouteComponent() {
       replace: true,
     });
   }, [navigate]);
+
+  const { setViewMode } = useUserPreferencesStore();
+
+  useRegisterShortcuts({
+    sequentialShortcuts: {
+      [shortcuts.view.prefix]: {
+        [shortcuts.view.board]: () => {
+          setViewMode("board");
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+            params: { workspaceId, projectId },
+          });
+        },
+        [shortcuts.view.list]: () => {
+          setViewMode("list");
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+            params: { workspaceId, projectId },
+          });
+        },
+        [shortcuts.view.backlog]: () => {},
+      },
+    },
+  });
 
   const [filters, setFilters] = useState({
     priority: null as string | null,

@@ -14,9 +14,11 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -31,9 +33,16 @@ type KanbanBoardProps = {
 function KanbanBoard({ project }: KanbanBoardProps) {
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
-  const { setAvailableTasks } = useBulkSelectionStore();
+  const {
+    setAvailableTasks,
+    focusNext,
+    focusPrevious,
+    focusedTaskId,
+    clearFocus,
+  } = useBulkSelectionStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { mutate: updateTask } = useUpdateTask();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (project?.columns) {
@@ -43,6 +52,41 @@ function KanbanBoard({ project }: KanbanBoardProps) {
       setAvailableTasks(allTaskIds);
     }
   }, [project, setAvailableTasks]);
+
+  useEffect(() => {
+    clearFocus();
+  }, [clearFocus]);
+
+  useRegisterShortcuts({
+    shortcuts: {
+      j: () => {
+        focusNext();
+        const state = useBulkSelectionStore.getState();
+        if (state.focusedTaskId) {
+          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+        }
+      },
+      k: () => {
+        focusPrevious();
+        const state = useBulkSelectionStore.getState();
+        if (state.focusedTaskId) {
+          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+        }
+      },
+      Enter: () => {
+        if (focusedTaskId && project) {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+            params: {
+              workspaceId: project.workspaceId,
+              projectId: project.id,
+              taskId: focusedTaskId,
+            },
+          });
+        }
+      },
+    },
+  });
 
   const sensors = useSensors(
     useSensor(MouseSensor, {

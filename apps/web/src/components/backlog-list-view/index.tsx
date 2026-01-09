@@ -18,11 +18,13 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Archive, ChevronRight, Clock, Flag, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import toKebabCase from "@/lib/to-kebab-case";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
@@ -40,7 +42,14 @@ type BacklogListViewProps = {
 function BacklogListView({ project }: BacklogListViewProps) {
   const { mutate: updateTask } = useUpdateTask();
   const { setProject } = useProjectStore();
-  const { setAvailableTasks } = useBacklogBulkSelectionStore();
+  const {
+    setAvailableTasks,
+    focusNext,
+    focusPrevious,
+    focusedTaskId,
+    clearFocus,
+  } = useBacklogBulkSelectionStore();
+  const navigate = useNavigate();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<
@@ -54,15 +63,55 @@ function BacklogListView({ project }: BacklogListViewProps) {
 
   useEffect(() => {
     if (project) {
-      const plannedTaskIds = (project.plannedTasks || []).map(
-        (task) => task.id,
-      );
-      const archivedTaskIds = (project.archivedTasks || []).map(
-        (task) => task.id,
-      );
-      setAvailableTasks([...plannedTaskIds, ...archivedTaskIds]);
+      const visibleTaskIds: string[] = [];
+      if (expandedSections.planned) {
+        visibleTaskIds.push(
+          ...(project.plannedTasks || []).map((task) => task.id),
+        );
+      }
+      if (expandedSections.archived) {
+        visibleTaskIds.push(
+          ...(project.archivedTasks || []).map((task) => task.id),
+        );
+      }
+      setAvailableTasks(visibleTaskIds);
     }
-  }, [project, setAvailableTasks]);
+  }, [project, expandedSections, setAvailableTasks]);
+
+  useEffect(() => {
+    clearFocus();
+  }, [clearFocus]);
+
+  useRegisterShortcuts({
+    shortcuts: {
+      j: () => {
+        focusNext();
+        const state = useBacklogBulkSelectionStore.getState();
+        if (state.focusedTaskId) {
+          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+        }
+      },
+      k: () => {
+        focusPrevious();
+        const state = useBacklogBulkSelectionStore.getState();
+        if (state.focusedTaskId) {
+          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+        }
+      },
+      Enter: () => {
+        if (focusedTaskId && project) {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+            params: {
+              workspaceId: project.workspaceId,
+              projectId: project.id,
+              taskId: focusedTaskId,
+            },
+          });
+        }
+      },
+    },
+  });
 
   const sensors = useSensors(
     useSensor(MouseSensor, {

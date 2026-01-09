@@ -195,7 +195,22 @@ function AcceptInvitation() {
     );
   }
 
-  const invitation = invitationData.invitation!;
+  const invitation = invitationData.invitation ?? null;
+
+  if (!invitation) {
+    return (
+      <>
+        <PageTitle title="Invalid Invitation" />
+        <AuthLayout title="Invalid Invitation">
+          <div className="space-y-4 mt-4">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-destructive/10 rounded-full">
+              <XCircle className="w-6 h-6 text-destructive" />
+            </div>
+          </div>
+        </AuthLayout>
+      </>
+    );
+  }
 
   if (isSignedIn) {
     return (

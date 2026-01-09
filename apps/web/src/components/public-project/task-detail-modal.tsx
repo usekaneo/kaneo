@@ -4,7 +4,7 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
-  ExternalLink,
+  ExternalLink as ExternalLinkIcon,
   GitBranch,
   GitMerge,
   GitPullRequest,
@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
+import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
 import { MarkdownRenderer } from "./markdown-renderer";
 import { PublicTaskLabels } from "./public-task-labels";
@@ -21,7 +22,7 @@ type PublicTaskDetailModalProps = {
   task:
     | (Task & {
         labels?: Array<{ id: string; name: string; color: string }>;
-        externalLinks?: Array<any>;
+        externalLinks?: Array<ExternalLink>;
       })
     | null;
   projectSlug: string;
@@ -198,7 +199,7 @@ export function PublicTaskDetailModal({
                                 {status.icon}
                                 {status.label}
                               </span>
-                              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                              <ExternalLinkIcon className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
                           </a>
                         );
@@ -227,7 +228,7 @@ export function PublicTaskDetailModal({
                               </span>
                             </div>
                           </div>
-                          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ExternalLinkIcon className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                         </a>
                       ))}
                     </div>
@@ -249,7 +250,7 @@ export function PublicTaskDetailModal({
                               {branch.title || branch.externalId}
                             </span>
                           </div>
-                          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ExternalLinkIcon className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                         </a>
                       ))}
                     </div>

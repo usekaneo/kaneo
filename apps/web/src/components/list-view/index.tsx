@@ -18,12 +18,14 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import toKebabCase from "@/lib/to-kebab-case";
@@ -40,8 +42,15 @@ type ListViewProps = {
 
 function ListView({ project }: ListViewProps) {
   const { setProject } = useProjectStore();
-  const { setAvailableTasks } = useBulkSelectionStore();
+  const {
+    setAvailableTasks,
+    focusNext,
+    focusPrevious,
+    focusedTaskId,
+    clearFocus,
+  } = useBulkSelectionStore();
   const { mutate: updateTask } = useUpdateTask();
+  const navigate = useNavigate();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<
@@ -57,12 +66,47 @@ function ListView({ project }: ListViewProps) {
 
   useEffect(() => {
     if (project?.columns) {
-      const allTaskIds = project.columns.flatMap((column) =>
-        column.tasks.map((task) => task.id),
-      );
-      setAvailableTasks(allTaskIds);
+      const visibleTaskIds = project.columns
+        .filter((column) => expandedSections[column.id])
+        .flatMap((column) => column.tasks.map((task) => task.id));
+      setAvailableTasks(visibleTaskIds);
     }
-  }, [project, setAvailableTasks]);
+  }, [project, expandedSections, setAvailableTasks]);
+
+  useEffect(() => {
+    clearFocus();
+  }, [clearFocus]);
+
+  useRegisterShortcuts({
+    shortcuts: {
+      j: () => {
+        focusNext();
+        const state = useBulkSelectionStore.getState();
+        if (state.focusedTaskId) {
+          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+        }
+      },
+      k: () => {
+        focusPrevious();
+        const state = useBulkSelectionStore.getState();
+        if (state.focusedTaskId) {
+          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+        }
+      },
+      Enter: () => {
+        if (focusedTaskId && project) {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+            params: {
+              workspaceId: project.workspaceId,
+              projectId: project.id,
+              taskId: focusedTaskId,
+            },
+          });
+        }
+      },
+    },
+  });
 
   const sensors = useSensors(
     useSensor(MouseSensor, {

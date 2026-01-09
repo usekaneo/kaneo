@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
   FolderKanban,
+  Keyboard,
   LayoutDashboard,
   Monitor,
   Moon,
@@ -217,6 +218,27 @@ function CommandPalette() {
               {theme === "system" && (
                 <div className="ml-auto h-2 w-2 rounded-full bg-primary" />
               )}
+            </CommandItem>
+          </CommandGroup>
+
+          <CommandGroup heading="Help">
+            <CommandItem
+              onSelect={() => {
+                setOpen(false);
+                setTimeout(() => {
+                  document.dispatchEvent(
+                    new KeyboardEvent("keydown", { key: "?" }),
+                  );
+                }, 100);
+              }}
+            >
+              <Keyboard className="mr-2 h-4 w-4" />
+              <span>Keyboard shortcuts</span>
+              <KbdSequence
+                keys={["?"]}
+                className="ml-auto"
+                description="Show keyboard shortcuts"
+              />
             </CommandItem>
           </CommandGroup>
         </CommandList>

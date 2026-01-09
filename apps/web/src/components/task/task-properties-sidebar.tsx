@@ -69,6 +69,7 @@ type TaskPropertiesSidebarProps = {
   projectId: string;
   workspaceId: string;
   className?: string;
+  compact?: boolean;
 };
 
 export default function TaskPropertiesSidebar({
@@ -76,6 +77,7 @@ export default function TaskPropertiesSidebar({
   projectId,
   workspaceId,
   className,
+  compact = false,
 }: TaskPropertiesSidebarProps) {
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
@@ -111,7 +113,7 @@ export default function TaskPropertiesSidebar({
 
   return (
     <div className={className}>
-      <div className="flex gap-2 p-3 lg:p-4 lg:px-4">
+      <div className="flex gap-2 px-3 py-2">
         <p className="text-sm font-medium text-muted-foreground flex-1">
           Properties
         </p>
@@ -160,13 +162,19 @@ export default function TaskPropertiesSidebar({
         </TooltipProvider>
       </div>
 
-      <div className="flex flex-row flex-wrap lg:flex-col gap-1 lg:gap-2 items-start px-3 lg:px-4 pb-3 lg:pb-0">
+      <div
+        className={
+          compact
+            ? "flex flex-row flex-wrap gap-1 items-start px-3 pb-2"
+            : "flex flex-row flex-wrap lg:flex-col gap-1 lg:gap-2 items-start px-3 lg:px-4 pb-3 lg:pb-0"
+        }
+      >
         {task && (
           <TaskStatusPopover task={task}>
             <Button
               variant="ghost"
               size="sm"
-              className="justify-start h-8 px-2"
+              className="justify-start h-7 px-1.5 gap-1"
             >
               {getColumnIcon(task.status ?? "")}
               <span className="text-xs font-semibold truncate">
@@ -180,7 +188,7 @@ export default function TaskPropertiesSidebar({
             <Button
               variant="ghost"
               size="sm"
-              className="justify-start h-8 px-2"
+              className="justify-start h-7 px-1.5 gap-1"
             >
               {getPriorityIcon(task.priority ?? "")}
               <span className="text-xs font-semibold truncate">
@@ -194,24 +202,24 @@ export default function TaskPropertiesSidebar({
             <Button
               variant="ghost"
               size="sm"
-              className="justify-start h-8 px-2"
+              className="justify-start h-7 px-1.5 gap-1"
             >
               {task.userId ? (
-                <Avatar className="h-[18px] w-[18px]">
+                <Avatar className="h-[16px] w-[16px]">
                   <AvatarImage
                     src={assignee?.user?.image ?? ""}
                     alt={assignee?.user?.name || ""}
                   />
-                  <AvatarFallback className="text-[10px] font-medium border border-border/30 flex-shrink-0 h-[18px] w-[18px]">
+                  <AvatarFallback className="text-[9px] font-medium border border-border/30 flex-shrink-0 h-[16px] w-[16px]">
                     {assignee?.user?.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               ) : (
                 <div
-                  className="w-[18px] h-[18px] rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0"
+                  className="w-[16px] h-[16px] rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0"
                   title="Unassigned"
                 >
-                  <span className="text-[9px] font-medium">?</span>
+                  <span className="text-[8px] font-medium">?</span>
                 </div>
               )}
               <span className="text-xs font-semibold truncate max-w-[100px]">
@@ -225,7 +233,7 @@ export default function TaskPropertiesSidebar({
             <Button
               variant="ghost"
               size="sm"
-              className="justify-start h-8 px-2"
+              className="justify-start h-7 px-1.5 gap-1"
             >
               {task.dueDate ? (
                 <>
@@ -264,7 +272,7 @@ export default function TaskPropertiesSidebar({
 
       <div className="hidden lg:block w-full h-[1px] bg-border my-2" />
 
-      <div className="hidden lg:flex px-3 lg:px-4 pb-3 lg:pb-4 flex-col gap-3">
+      <div className="hidden lg:flex px-3 lg:px-2 pb-3 lg:pb-4 flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-muted-foreground px-2">
             Labels

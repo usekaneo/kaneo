@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,7 +7,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
+import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { getColumnIcon } from "@/lib/column";
 import type Task from "@/types/task";
 
@@ -30,26 +32,41 @@ export default function TaskStatusPopover({
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
 
-  const handleStatusChange = async (newStatus: string) => {
-    try {
-      await updateTaskStatus({
-        ...task,
-        status: newStatus,
-      });
-      setOpen(false);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update task status",
-      );
-    }
-  };
+  const handleStatusChange = useCallback(
+    async (newStatus: string) => {
+      try {
+        await updateTaskStatus({
+          ...task,
+          status: newStatus,
+        });
+        setOpen(false);
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to update task status",
+        );
+      }
+    },
+    [task, updateTaskStatus],
+  );
+
+  const shortcutOptions = useMemo(
+    () =>
+      statusOptions.map((status) => ({
+        onSelect: () => handleStatusChange(status.value),
+      })),
+    [handleStatusChange],
+  );
+
+  useNumberedShortcuts(open, shortcutOptions);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="w-48 p-1" align="start">
         <div className="space-y-1">
-          {statusOptions.map((status) => (
+          {statusOptions.map((status, index) => (
             <Button
               key={status.value}
               variant="ghost"
@@ -59,8 +76,10 @@ export default function TaskStatusPopover({
             >
               {getColumnIcon(status.value)}
               <span className="text-sm">{status.label}</span>
-              {task.status === status.value && (
+              {task.status === status.value ? (
                 <Check className="ml-auto h-4 w-4" />
+              ) : (
+                <ShortcutNumber number={index + 1} />
               )}
             </Button>
           ))}

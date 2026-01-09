@@ -3,6 +3,7 @@ import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
+import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
 import { PublicPRBadge } from "./public-pr-badge";
 import { PublicTaskLabels } from "./public-task-labels";
@@ -10,7 +11,7 @@ import { PublicTaskLabels } from "./public-task-labels";
 type PublicTaskCardProps = {
   task: Task & {
     labels?: Array<{ id: string; name: string; color: string }>;
-    externalLinks?: Array<any>;
+    externalLinks?: Array<ExternalLink>;
   };
   projectSlug: string;
   onTaskClick: (task: Task) => void;

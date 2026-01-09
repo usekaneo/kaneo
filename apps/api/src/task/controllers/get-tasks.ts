@@ -90,7 +90,19 @@ async function getTasks(projectId: string) {
     }
   }
 
-  const taskExternalLinksMap = new Map<string, Array<any>>();
+  const taskExternalLinksMap = new Map<
+    string,
+    Array<{
+      id: string;
+      taskId: string;
+      integrationId: string;
+      resourceType: string;
+      externalId: string;
+      url: string;
+      title: string | null;
+      metadata: Record<string, unknown> | null;
+    }>
+  >();
   for (const externalLink of externalLinksData) {
     if (!taskExternalLinksMap.has(externalLink.taskId)) {
       taskExternalLinksMap.set(externalLink.taskId, []);

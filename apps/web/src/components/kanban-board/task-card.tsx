@@ -27,7 +27,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -66,10 +65,10 @@ function TaskCard({ task }: TaskCardProps) {
     showTaskNumbers,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
-  const { mutateAsync: deleteTask } = useDeleteTask();
   const { data: externalLinks } = useExternalLinks(task.id);
-  const { toggleSelection, isSelected } = useBulkSelectionStore();
+  const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
+  const isTaskFocused = isFocused(task.id);
 
   const pullRequests = useMemo(() => {
     if (!externalLinks) return [];
@@ -179,7 +178,7 @@ function TaskCard({ task }: TaskCardProps) {
               isDragging
                 ? "border-primary/30 shadow-lg shadow-primary/10 bg-card/90"
                 : "hover:border-border/70 hover:shadow-sm"
-            } ${isTaskSelected ? "bg-primary/10  shadow-sm" : ""}`}
+            } ${isTaskSelected ? "bg-primary/10 shadow-sm" : ""} ${isTaskFocused ? "ring-2 ring-inset ring-indigo-500/50 dark:ring-indigo-400/50" : ""}`}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleTaskCardClick(e);

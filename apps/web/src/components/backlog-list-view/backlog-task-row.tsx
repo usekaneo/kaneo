@@ -57,8 +57,10 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
-  const { toggleSelection, isSelected } = useBacklogBulkSelectionStore();
+  const { toggleSelection, isSelected, isFocused } =
+    useBacklogBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
+  const isTaskFocused = isFocused(task.id);
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -132,6 +134,8 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
         "border-b border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-200",
         isDragging && "opacity-50",
         isTaskSelected && "bg-primary/10 shadow-sm",
+        isTaskFocused &&
+          "ring-2 ring-inset ring-indigo-500/50 dark:ring-indigo-400/50",
       )}
     >
       <ContextMenu>

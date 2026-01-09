@@ -29,9 +29,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import labelColors from "@/constants/label-colors";
+import { shortcuts } from "@/constants/shortcuts";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
 import { getColumnIcon } from "@/lib/column";
 import { getPriorityIcon } from "@/lib/priority";
@@ -70,6 +72,20 @@ function RouteComponent() {
       replace: true,
     });
   }, [navigate]);
+
+  useRegisterShortcuts({
+    sequentialShortcuts: {
+      [shortcuts.view.prefix]: {
+        [shortcuts.view.board]: () => setViewMode("board"),
+        [shortcuts.view.list]: () => setViewMode("list"),
+        [shortcuts.view.backlog]: () =>
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
+            params: { workspaceId, projectId },
+          }),
+      },
+    },
+  });
 
   useEffect(() => {
     if (data) {

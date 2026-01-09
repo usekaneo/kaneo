@@ -18,7 +18,6 @@ import { authClient } from "@/lib/auth-client";
 
 type OtpSignInFormProps = {
   invitationId?: string;
-  onSuccess?: () => void;
 };
 
 const emailSchema = z.object({
@@ -27,7 +26,7 @@ const emailSchema = z.object({
 
 type EmailFormValues = z.infer<typeof emailSchema>;
 
-export function OtpSignInForm({ invitationId, onSuccess }: OtpSignInFormProps) {
+export function OtpSignInForm({ invitationId }: OtpSignInFormProps) {
   const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
 

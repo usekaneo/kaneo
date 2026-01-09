@@ -4,7 +4,7 @@ import { getInvitationDetails } from "@/fetchers/invitation/get-invitation-detai
 export function useGetInvitationDetails(invitationId: string | undefined) {
   return useQuery({
     queryKey: ["invitation-details", invitationId],
-    queryFn: () => getInvitationDetails(invitationId!),
+    queryFn: () => getInvitationDetails(invitationId ?? ""),
     enabled: !!invitationId,
   });
 }

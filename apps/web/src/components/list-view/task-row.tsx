@@ -71,8 +71,9 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
   const { data: externalLinks } = useExternalLinks(task.id);
-  const { toggleSelection, isSelected } = useBulkSelectionStore();
+  const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
+  const isTaskFocused = isFocused(task.id);
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -178,6 +179,8 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
         "border-b border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-200",
         isDragging && "opacity-50",
         isTaskSelected && "bg-primary/10 shadow-sm",
+        isTaskFocused &&
+          "ring-2 ring-inset ring-indigo-500/50 dark:ring-indigo-400/50",
       )}
     >
       <ContextMenu>

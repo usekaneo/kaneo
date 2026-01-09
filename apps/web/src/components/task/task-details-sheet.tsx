@@ -39,8 +39,9 @@ export default function TaskDetailsSheet({
 
   useEffect(() => {
     if (taskId) {
-      setCurrentTaskId(taskId);
       setIsVisible(true);
+      // Update taskId immediately without closing/reopening
+      setCurrentTaskId(taskId);
     } else {
       setIsVisible(false);
       const timer = setTimeout(() => {
@@ -75,11 +76,17 @@ export default function TaskDetailsSheet({
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      // Don't close if clicking on a portal element (popover, dropdown, etc.)
       if (
-        isVisible &&
-        panelRef.current &&
-        !panelRef.current.contains(e.target as Node)
+        target.closest('[role="dialog"]') ||
+        target.closest("[data-radix-popper-content-wrapper]")
       ) {
+        return;
+      }
+
+      if (isVisible && panelRef.current && !panelRef.current.contains(target)) {
         onClose();
       }
     };
@@ -100,7 +107,7 @@ export default function TaskDetailsSheet({
         isVisible ? "translate-x-0" : "translate-x-full",
       )}
     >
-      <div className="flex items-center justify-between px-3 sm:px-4 py-3 border-b border-border bg-background shrink-0">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-background shrink-0">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-muted-foreground">
             {project?.slug}-{task?.number}
@@ -133,9 +140,20 @@ export default function TaskDetailsSheet({
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
-        <div className="flex-1 overflow-y-auto order-2 lg:order-1">
-          <div className="px-3 sm:px-4 py-4">
+      <div
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
+        key={currentTaskId}
+      >
+        <TaskPropertiesSidebar
+          taskId={currentTaskId}
+          projectId={projectId}
+          workspaceId={workspaceId}
+          className="w-full bg-sidebar border-b border-border flex flex-col gap-0 overflow-y-auto shrink-0"
+          compact={true}
+        />
+
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-3 py-3">
             <TaskDetailsContent
               taskId={currentTaskId}
               projectId={projectId}
@@ -144,13 +162,6 @@ export default function TaskDetailsSheet({
             />
           </div>
         </div>
-
-        <TaskPropertiesSidebar
-          taskId={currentTaskId}
-          projectId={projectId}
-          workspaceId={workspaceId}
-          className="w-full lg:w-52 bg-sidebar border-b lg:border-b-0 lg:border-l border-border flex flex-col gap-2 overflow-y-auto shrink-0 order-1 lg:order-2"
-        />
       </div>
     </div>
   );

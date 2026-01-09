@@ -30,4 +30,20 @@ export const shortcuts = {
     prefix: "t",
     create: "c",
   },
+  view: {
+    prefix: "v",
+    board: "b",
+    list: "l",
+    backlog: "k",
+  },
+  taskDetails: {
+    status: "s",
+    priority: "p",
+    assignee: "a",
+    labels: "l",
+    dueDate: "d",
+  },
+  help: {
+    key: "?",
+  },
 } as const;
