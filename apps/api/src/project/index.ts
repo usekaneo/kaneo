@@ -154,7 +154,6 @@ const project = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
-    validator("query", v.optional(v.object({ workspaceId: v.string() }))),
     workspaceAccess.fromProject(),
     async (c) => {
       const { id } = c.req.valid("param");
