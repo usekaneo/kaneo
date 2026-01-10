@@ -1,6 +1,5 @@
 import {
   createFileRoute,
-  redirect,
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
@@ -14,7 +13,6 @@ import { AuthToggle } from "@/components/auth/toggle";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { getConfig } from "@/fetchers/config/get-config";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { authClient } from "@/lib/auth-client";
 
@@ -26,14 +24,6 @@ const signUpSearchSchema = z.object({
 export const Route = createFileRoute("/auth/sign-up")({
   component: SignUp,
   validateSearch: signUpSearchSchema,
-  beforeLoad: async ({ search }) => {
-    const config = await getConfig();
-
-    const hasInvitation = !!search.invitationId;
-    if (config.disableRegistration && !hasInvitation) {
-      throw redirect({ to: "/auth/sign-in", replace: true });
-    }
-  },
 });
 
 function SignUp() {
@@ -71,7 +61,9 @@ function SignUp() {
         subtitle={
           invitationId
             ? "Create an account to accept your invitation"
-            : "Get started with your workspace"
+            : config?.disableRegistration
+              ? "Registration requires an invitation"
+              : "Get started with your workspace"
         }
       >
         <div className="space-y-4 mt-6">
@@ -80,6 +72,15 @@ function SignUp() {
               <AlertDescription>
                 After creating your account, you'll be able to accept your
                 workspace invitation.
+              </AlertDescription>
+            </Alert>
+          )}
+          {config?.disableRegistration && !invitationId && (
+            <Alert>
+              <AlertDescription>
+                Registration is currently disabled. If you were invited, enter
+                the email address that received the invitation to create your
+                account.
               </AlertDescription>
             </Alert>
           )}

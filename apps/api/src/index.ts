@@ -13,6 +13,7 @@ import externalLink from "./external-link";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
+import invitation from "./invitation";
 import label from "./label";
 import notification from "./notification";
 import { initializePlugins } from "./plugins";
@@ -69,6 +70,7 @@ const api = new Hono<{
     user: User | null;
     session: Session | null;
     userId: string;
+    userEmail: string;
     apiKey?: ApiKey;
   };
 }>();
@@ -86,7 +88,7 @@ api.get("/public-project/:id", async (c) => {
 
 api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
-const intvitationApi = api.get("/invitation/:id", async (c) => {
+const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
   const { id } = c.req.param();
   const result = await getInvitationDetails(id);
   return c.json(result);
@@ -163,6 +165,7 @@ api.use("*", async (c, next) => {
   c.set("user", session?.user || null);
   c.set("session", session?.session || null);
   c.set("userId", session?.user?.id || "");
+  c.set("userEmail", session?.user?.email || "");
 
   if (!session?.user) {
     throw new HTTPException(401, { message: "Unauthorized" });
@@ -183,6 +186,7 @@ const githubIntegrationApi = api.route(
   githubIntegration,
 );
 const externalLinkApi = api.route("/external-link", externalLink);
+const invitationApi = api.route("/invitation", invitation);
 
 app.route("/api", api);
 
@@ -229,6 +233,7 @@ export type AppType =
   | typeof searchApi
   | typeof githubIntegrationApi
   | typeof externalLinkApi
-  | typeof intvitationApi;
+  | typeof invitationApi
+  | typeof invitationPublicApi;
 
 export default app;

@@ -19,7 +19,7 @@ export type GetInvitationDetailsResponse = {
 export async function getInvitationDetails(
   invitationId: string,
 ): Promise<GetInvitationDetailsResponse> {
-  const response = await client.invitation[":id"].$get({
+  const response = await client.invitation.public[":id"].$get({
     param: {
       id: invitationId,
     },

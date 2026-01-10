@@ -41,6 +41,7 @@ function SignIn() {
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
 
   const invitationId = search.invitationId;
+  const defaultEmail = search.email;
 
   const getCallbackUrl = () => {
     const baseUrl = import.meta.env.VITE_CLIENT_URL;
@@ -345,16 +346,34 @@ function SignIn() {
           {config?.hasSmtp ? (
             <OtpSignInForm
               invitationId={invitationId}
+              defaultEmail={defaultEmail}
               onSuccess={handleSignInSuccess}
             />
           ) : (
-            <SignInForm onSuccess={handleSignInSuccess} />
+            <SignInForm
+              defaultEmail={defaultEmail}
+              onSuccess={handleSignInSuccess}
+            />
           )}
-          <AuthToggle
-            message="Don't have an account?"
-            linkText="Create account"
-            linkTo="/auth/sign-up"
-          />
+          {config?.disableRegistration ? (
+            <div className="text-center pt-4">
+              <p className="text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <a
+                  href="/auth/sign-up"
+                  className="text-primary hover:underline font-medium"
+                >
+                  Sign up with invitation
+                </a>
+              </p>
+            </div>
+          ) : (
+            <AuthToggle
+              message="Don't have an account?"
+              linkText="Create account"
+              linkTo="/auth/sign-up"
+            />
+          )}
         </div>
       </AuthLayout>
     </>

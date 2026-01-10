@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronRight, FolderKanban, Users } from "lucide-react";
+import { ChevronRight, FolderKanban, Mail, Users } from "lucide-react";
 
 import {
   Collapsible,
@@ -13,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import { Button } from "./ui/button";
@@ -20,8 +21,11 @@ import { Button } from "./ui/button";
 export function NavMain() {
   const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
+  const { data: invitations = [] } = usePendingInvitations();
 
   if (!workspace) return null;
+
+  const pendingCount = invitations.length;
 
   const navItems = [
     {
@@ -31,6 +35,7 @@ export function NavMain() {
       isActive:
         window.location.pathname === `/dashboard/workspace/${workspace.id}`,
       isDisabled: false,
+      badge: null,
     },
     {
       title: "Members",
@@ -40,6 +45,15 @@ export function NavMain() {
         window.location.pathname ===
         `/dashboard/workspace/${workspace.id}/members`,
       isDisabled: false,
+      badge: null,
+    },
+    {
+      title: "Invitations",
+      url: "/dashboard/invitations",
+      icon: Mail,
+      isActive: window.location.pathname === "/dashboard/invitations",
+      isDisabled: false,
+      badge: pendingCount > 0 ? pendingCount : null,
     },
   ];
 
@@ -81,7 +95,7 @@ export function NavMain() {
                     variant="ghost"
                     className={cn(
                       "w-full h-7 justify-start items-center gap-2 px-2 text-sm transition-all duration-200 relative",
-                      item.isActive && "!bg-neutral-200 dark:!bg-neutral-800",
+                      item.isActive && "bg-neutral-200! dark:bg-neutral-800!",
                     )}
                   >
                     {item.icon && (
@@ -90,6 +104,11 @@ export function NavMain() {
                     <span className="transition-colors duration-200 relative z-10">
                       {item.title}
                     </span>
+                    {item.badge !== null && (
+                      <span className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary/90 px-1 text-[9px] font-medium text-primary-foreground">
+                        {item.badge}
+                      </span>
+                    )}
                   </Button>
                 </SidebarMenuButton>
               </SidebarMenuItem>

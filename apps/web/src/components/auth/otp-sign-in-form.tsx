@@ -18,6 +18,8 @@ import { authClient } from "@/lib/auth-client";
 
 type OtpSignInFormProps = {
   invitationId?: string;
+  defaultEmail?: string;
+  onSuccess?: () => void;
 };
 
 const emailSchema = z.object({
@@ -26,13 +28,17 @@ const emailSchema = z.object({
 
 type EmailFormValues = z.infer<typeof emailSchema>;
 
-export function OtpSignInForm({ invitationId }: OtpSignInFormProps) {
+export function OtpSignInForm({
+  invitationId,
+  defaultEmail,
+  onSuccess,
+}: OtpSignInFormProps) {
   const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
 
   const form = useForm<EmailFormValues>({
     resolver: standardSchemaResolver(emailSchema),
-    defaultValues: { email: "" },
+    defaultValues: { email: defaultEmail || "" },
   });
 
   const onSubmit = async (data: EmailFormValues) => {
@@ -49,17 +55,12 @@ export function OtpSignInForm({ invitationId }: OtpSignInFormProps) {
       }
 
       toast.success("Verification code sent! Check your email.");
+
       const searchParams = new URLSearchParams({
         email: data.email,
         ...(invitationId && { invitationId }),
       });
       history.push(`/auth/verify-otp?${searchParams.toString()}`);
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to send verification code",
-      );
     } finally {
       setIsPending(false);
     }

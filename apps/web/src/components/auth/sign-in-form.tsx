@@ -23,6 +23,7 @@ export type SignInFormValues = {
 
 type SignInFormProps = {
   onSuccess?: () => void;
+  defaultEmail?: string;
 };
 
 const signInSchema = z.object({
@@ -30,13 +31,13 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
-export function SignInForm({ onSuccess }: SignInFormProps) {
+export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const form = useForm<SignInFormValues>({
     resolver: standardSchemaResolver(signInSchema),
     defaultValues: {
-      email: "",
+      email: defaultEmail || "",
       password: "",
     },
   });

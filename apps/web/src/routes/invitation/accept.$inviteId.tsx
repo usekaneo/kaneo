@@ -80,42 +80,12 @@ function AcceptInvitation() {
     }
   };
 
-  const handleSignIn = async () => {
+  const handleSignIn = () => {
     const email = invitationData?.invitation?.email;
-    if (!email) {
-      navigate({ to: "/auth/sign-in", search: { invitationId: inviteId } });
-      return;
-    }
-
-    try {
-      const result = await authClient.emailOtp.sendVerificationOtp({
-        email,
-        type: "sign-in",
-      });
-
-      if (result.error) {
-        toast.error(result.error.message || "Failed to send verification code");
-        navigate({
-          to: "/auth/sign-in",
-          search: { invitationId: inviteId, email },
-        });
-        return;
-      }
-
-      toast.success("Verification code sent! Check your email.");
-      navigate({
-        to: "/auth/verify-otp",
-        search: { email, invitationId: inviteId },
-      });
-    } catch {
-      toast.error(
-        "Failed to send verification code. Please try signing in manually.",
-      );
-      navigate({
-        to: "/auth/sign-in",
-        search: { invitationId: inviteId, email },
-      });
-    }
+    navigate({
+      to: "/auth/sign-in",
+      search: { invitationId: inviteId, email },
+    });
   };
 
   if (isLoading) {

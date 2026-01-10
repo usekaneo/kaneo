@@ -192,3 +192,35 @@ export async function getInvitationDetails(
     invitation: baseInvitation,
   };
 }
+
+export async function getUserPendingInvitations(userEmail: string) {
+  const now = new Date();
+
+  const result = await db
+    .select({
+      id: invitationTable.id,
+      email: invitationTable.email,
+      workspaceId: invitationTable.workspaceId,
+      workspaceName: workspaceTable.name,
+      inviterName: userTable.name,
+      expiresAt: invitationTable.expiresAt,
+      createdAt: invitationTable.createdAt,
+      status: invitationTable.status,
+    })
+    .from(invitationTable)
+    .innerJoin(
+      workspaceTable,
+      eq(invitationTable.workspaceId, workspaceTable.id),
+    )
+    .innerJoin(userTable, eq(invitationTable.inviterId, userTable.id))
+    .where(
+      and(
+        eq(invitationTable.email, userEmail.toLowerCase()),
+        eq(invitationTable.status, "pending"),
+        gt(invitationTable.expiresAt, now),
+      ),
+    )
+    .orderBy(invitationTable.createdAt);
+
+  return result;
+}
