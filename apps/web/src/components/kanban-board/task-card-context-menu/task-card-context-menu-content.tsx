@@ -243,7 +243,6 @@ export default function TaskCardContextMenuContent({
         className="text-destructive"
         onClick={(e) => {
           e.preventDefault();
-          // Delay to ensure context menu closes before dialog opens
           setTimeout(() => {
             onDeleteClick();
           }, 0);
