@@ -1,3 +1,13 @@
+## [2.1.14](https://github.com/usekaneo/kaneo/compare/v2.1.13...v2.1.14) (2026-01-10)
+
+
+### Features
+
+* enhance GitHub integration documentation ([fc4ccbf](https://github.com/usekaneo/kaneo/commit/fc4ccbfbd7ffed0ada6799201cd4dfbb29a34faf))
+* improve invites for smtp off users ([0282c0d](https://github.com/usekaneo/kaneo/commit/0282c0d4db519236c01d2ed50e6e08727e605677))
+
+
+
 ## [2.1.13](https://github.com/usekaneo/kaneo/compare/v2.1.12...v2.1.13) (2026-01-09)
 
 
