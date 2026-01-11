@@ -20,6 +20,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASSWORD,
   },
   requireTLS: process.env.SMTP_REQUIRE_TLS === "true",
+  ignoreTLS: process.env.SMTP_IGNORE_TLS === "true",
 });
 
 export const sendMagicLinkEmail = async (

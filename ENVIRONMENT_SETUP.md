@@ -45,6 +45,20 @@ Kaneo supports many optional configuration options including:
 - Access control settings
 - CORS configuration
 
+#### SMTP Configuration
+
+For sending emails (workspace invitations, magic links, etc.), configure these variables:
+- `SMTP_HOST` - SMTP server hostname
+- `SMTP_PORT` - SMTP server port
+- `SMTP_USER` - SMTP username
+- `SMTP_PASSWORD` - SMTP password
+- `SMTP_FROM` - From email address
+- `SMTP_SECURE` - Use TLS (default: `true`, set to `false` to disable)
+- `SMTP_REQUIRE_TLS` - Require TLS (default: `false`, set to `true` to require)
+- `SMTP_IGNORE_TLS` - Ignore TLS certificate errors (default: `false`, set to `true` for self-signed certificates)
+
+> **Note:** If you're using an SMTP server with a self-signed or invalid TLS certificate, set `SMTP_IGNORE_TLS=true` to bypass certificate validation.
+
 For a complete list of all environment variables, their descriptions, and configuration options, see the [official documentation](https://kaneo.app/docs/core/installation/environment-variables).
 
 ## Common Issues & Troubleshooting
