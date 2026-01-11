@@ -1,5 +1,6 @@
 import type { IntegrationPlugin } from "../types";
 import { validateGitHubConfig } from "./config";
+import { handleTaskCommentCreated } from "./events/task-comment-created";
 import { handleTaskCreated } from "./events/task-created";
 import { handleTaskDescriptionChanged } from "./events/task-description-changed";
 import { handleTaskPriorityChanged } from "./events/task-priority-changed";
@@ -15,6 +16,7 @@ export const githubPlugin: IntegrationPlugin = {
   onTaskPriorityChanged: handleTaskPriorityChanged,
   onTaskTitleChanged: handleTaskTitleChanged,
   onTaskDescriptionChanged: handleTaskDescriptionChanged,
+  onTaskCommentCreated: handleTaskCommentCreated,
   validateConfig: validateGitHubConfig,
 };
 

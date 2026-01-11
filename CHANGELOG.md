@@ -1,3 +1,26 @@
+## [2.1.17](https://github.com/usekaneo/kaneo/compare/v2.1.16...v2.1.17) (2026-01-11)
+
+
+
+## [2.1.16](https://github.com/usekaneo/kaneo/compare/v2.1.15...v2.1.16) (2026-01-11)
+
+
+### Features
+
+* add admin authentication and enhance task comment event with user details ([6e08df9](https://github.com/usekaneo/kaneo/commit/6e08df906b05253f3a1aec625c50b1bb96364170))
+
+
+
+## [2.1.15](https://github.com/usekaneo/kaneo/compare/v2.1.14...v2.1.15) (2026-01-11)
+
+
+### Features
+
+* implement task comment creation event handling and integrate with GitHub plugin ([089421d](https://github.com/usekaneo/kaneo/commit/089421dce8c94a4317e676ace08a69f8cca71339))
+* integrate Bun for documentation generation and add OpenAPI fetching scripts ([0389477](https://github.com/usekaneo/kaneo/commit/03894779efc0235a75743424d9580cc5a1742f68))
+
+
+
 ## [2.1.14](https://github.com/usekaneo/kaneo/compare/v2.1.13...v2.1.14) (2026-01-10)
 
 

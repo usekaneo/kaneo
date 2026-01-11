@@ -30,6 +30,32 @@ async function createGithubIntegration({
     throw new HTTPException(404, { message: "Project not found" });
   }
 
+  const allGitHubIntegrations = await db.query.integrationTable.findMany({
+    where: eq(integrationTable.type, "github"),
+  });
+
+  for (const integration of allGitHubIntegrations) {
+    if (integration.projectId === projectId) {
+      continue;
+    }
+
+    try {
+      const config = JSON.parse(integration.config);
+      if (
+        config.repositoryOwner === repositoryOwner &&
+        config.repositoryName === repositoryName
+      ) {
+        throw new HTTPException(409, {
+          message: `Repository ${repositoryOwner}/${repositoryName} is already linked to another project`,
+        });
+      }
+    } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+    }
+  }
+
   let installationId: number | null = null;
   try {
     const { data: installation } =
