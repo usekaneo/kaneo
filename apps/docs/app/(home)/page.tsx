@@ -11,6 +11,7 @@ export default function HomePage() {
       <main className="relative">
         <StructuredData type="organization" />
         <StructuredData type="software" />
+        <StructuredData type="website" />
         <StructuredData type="faq" />
 
         <div className="relative">

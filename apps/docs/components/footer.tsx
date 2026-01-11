@@ -73,7 +73,9 @@ export default function Footer() {
                 </Link>
                 <Link
                   className="text-muted-foreground hover:text-primary block duration-150"
-                  href="/docs/roadmap"
+                  href="https://cloud.kaneo.app/public-project/vlu4ak2w8rs9rn1r4lirj2u1"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <span>Roadmap</span>
                 </Link>

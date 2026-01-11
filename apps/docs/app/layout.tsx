@@ -27,8 +27,25 @@ export const metadata: Metadata = {
     "gantt chart",
     "jira alternative",
     "asana alternative",
+    "linear alternative",
+    "plane alternative",
+    "monday alternative",
+    "clickup alternative",
     "productivity",
     "docker",
+    "issue tracking",
+    "agile",
+    "scrum",
+    "sprint planning",
+    "project tracking",
+    "bug tracking",
+    "workflow management",
+    "devops",
+    "github integration",
+    "REST API",
+    "open source project management",
+    "free project management",
+    "self-hosted project management",
   ],
   authors: [{ name: "Andrej Acevski" }],
   creator: "Andrej Acevski",
@@ -70,17 +87,12 @@ export const metadata: Metadata = {
       index: true,
       follow: true,
       "max-video-preview": -1,
-      "max-image-preview": "none",
+      "max-image-preview": "large",
       "max-snippet": -1,
     },
   },
   alternates: {
     canonical: "https://kaneo.app",
-    types: {
-      "application/rss+xml": [
-        { url: "/feed.xml", title: "Kaneo Blog RSS Feed" },
-      ],
-    },
   },
   category: "technology",
 };
@@ -89,22 +101,22 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
         <link
           rel="icon"
           type="image/png"
-          href="/favicon-96x96.png"
+          href="/favicon-96x96.png?v=2"
           sizes="96x96"
         />
-        <link rel="shortcut icon" href="/favicon.ico" />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="/apple-touch-icon.png"
+          href="/apple-touch-icon.png?v=2"
         />
         <meta name="apple-mobile-web-app-title" content="Kaneo" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-        <meta name="theme-color" content="#4f46e5" />
+        <meta name="theme-color" content="#5463FF" />
         <meta name="color-scheme" content="light dark" />
       </head>
       <body className="flex flex-col min-h-screen">

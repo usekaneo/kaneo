@@ -1,7 +1,14 @@
 import Script from "next/script";
 
 type StructuredDataProps = {
-  type?: "organization" | "software" | "article" | "faq";
+  type?:
+    | "organization"
+    | "software"
+    | "article"
+    | "faq"
+    | "website"
+    | "breadcrumb"
+    | "techarticle";
   data?: {
     title?: string;
     description?: string;
@@ -11,6 +18,10 @@ type StructuredDataProps = {
     questions?: Array<{
       question: string;
       answer: string;
+    }>;
+    breadcrumbs?: Array<{
+      name: string;
+      url: string;
     }>;
   };
 };
@@ -139,6 +150,51 @@ export default function StructuredData({
               },
             },
           ],
+        };
+
+      case "website":
+        return {
+          ...baseData,
+          "@type": "WebSite",
+          name: "Kaneo",
+          url: "https://kaneo.app",
+          description:
+            "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
+        };
+
+      case "breadcrumb":
+        return {
+          ...baseData,
+          "@type": "BreadcrumbList",
+          itemListElement: (data?.breadcrumbs || []).map((item, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: item.name,
+            item: item.url,
+          })),
+        };
+
+      case "techarticle":
+        return {
+          ...baseData,
+          "@type": "TechArticle",
+          headline: data?.title || "Kaneo Documentation",
+          description: data?.description || "Technical documentation for Kaneo",
+          author: {
+            "@type": "Organization",
+            name: "Kaneo",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "Kaneo",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://kaneo.app/logo.png",
+            },
+          },
+          datePublished: data?.datePublished || new Date().toISOString(),
+          dateModified: data?.dateModified || new Date().toISOString(),
+          url: data?.url || "https://kaneo.app/docs",
         };
 
       default:
