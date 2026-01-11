@@ -1,3 +1,12 @@
+## [2.1.19](https://github.com/usekaneo/kaneo/compare/v2.1.18...v2.1.19) (2026-01-11)
+
+
+### Bug Fixes
+
+* update OTP email text for clarity ([cec7566](https://github.com/usekaneo/kaneo/commit/cec75665bc10004bad019b986750c629014b8c71))
+
+
+
 ## [2.1.18](https://github.com/usekaneo/kaneo/compare/v2.1.17...v2.1.18) (2026-01-11)
 
 
