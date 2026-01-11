@@ -5,6 +5,7 @@ import { subscribeToEvent } from "../events";
 import type {
   IntegrationPlugin,
   PluginContext,
+  TaskCommentCreatedEvent,
   TaskCreatedEvent,
   TaskDescriptionChangedEvent,
   TaskPriorityChangedEvent,
@@ -115,6 +116,20 @@ export function initializeEventSubscriptions(): void {
       userId: data.userId,
       oldDescription: data.oldDescription,
       newDescription: data.newDescription,
+    });
+  });
+
+  subscribeToEvent<{
+    taskId: string;
+    userId: string;
+    comment: string;
+    projectId: string;
+  }>("task.comment_created", async (data) => {
+    await broadcastTaskCommentCreated({
+      taskId: data.taskId,
+      projectId: data.projectId,
+      userId: data.userId,
+      comment: data.comment,
     });
   });
 
@@ -255,6 +270,28 @@ export async function broadcastTaskDescriptionChanged(
     } catch (error) {
       console.error(
         `Plugin ${plugin.type} error on task.description_changed:`,
+        error,
+      );
+    }
+  }
+}
+
+export async function broadcastTaskCommentCreated(
+  event: TaskCommentCreatedEvent,
+): Promise<void> {
+  const integrations = await getActiveIntegrations(event.projectId);
+
+  for (const integration of integrations) {
+    const plugin = getPlugin(integration.type);
+    if (!plugin?.onTaskCommentCreated) continue;
+
+    const context = createContext(integration);
+
+    try {
+      await plugin.onTaskCommentCreated(event, context);
+    } catch (error) {
+      console.error(
+        `Plugin ${plugin.type} error on task.comment_created:`,
         error,
       );
     }

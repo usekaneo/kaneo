@@ -49,12 +49,20 @@ export type TaskDescriptionChangedEvent = {
   newDescription: string | null;
 };
 
+export type TaskCommentCreatedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string;
+  comment: string;
+};
+
 export type TaskEvent =
   | TaskCreatedEvent
   | TaskStatusChangedEvent
   | TaskPriorityChangedEvent
   | TaskTitleChangedEvent
-  | TaskDescriptionChangedEvent;
+  | TaskDescriptionChangedEvent
+  | TaskCommentCreatedEvent;
 
 export type ExternalMetadata = {
   type: "issue" | "pull_request" | "branch";
@@ -94,6 +102,7 @@ export type IntegrationPlugin = {
   onTaskPriorityChanged?: TaskEventHandler<TaskPriorityChangedEvent>;
   onTaskTitleChanged?: TaskEventHandler<TaskTitleChangedEvent>;
   onTaskDescriptionChanged?: TaskEventHandler<TaskDescriptionChangedEvent>;
+  onTaskCommentCreated?: TaskEventHandler<TaskCommentCreatedEvent>;
 
   handleWebhook?: WebhookHandler;
   getTaskMetadata?: MetadataProvider;

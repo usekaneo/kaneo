@@ -1,7 +1,10 @@
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
-import { subscribeToEvent } from "../events";
+import db from "../database";
+import { taskTable } from "../database/schema";
+import { publishEvent, subscribeToEvent } from "../events";
 import { activitySchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createActivity from "./controllers/create-activity";
@@ -96,6 +99,21 @@ const activity = new Hono<{
       const { taskId, comment } = c.req.valid("json");
       const userId = c.get("userId");
       const newComment = await createComment(taskId, userId, comment);
+
+      const [task] = await db
+        .select({ projectId: taskTable.projectId })
+        .from(taskTable)
+        .where(eq(taskTable.id, taskId));
+
+      if (task) {
+        await publishEvent("task.comment_created", {
+          taskId,
+          userId,
+          comment,
+          projectId: task.projectId,
+        });
+      }
+
       return c.json(newComment);
     },
   )
