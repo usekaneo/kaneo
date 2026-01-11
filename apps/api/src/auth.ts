@@ -8,7 +8,6 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import {
-  admin,
   anonymous,
   apiKey,
   createAuthMiddleware,
@@ -241,7 +240,6 @@ export const auth = betterAuth({
       ],
     }),
     apiKey(),
-    admin(),
   ],
   session: {
     cookieCache: {
