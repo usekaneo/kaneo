@@ -1,3 +1,12 @@
+## [2.1.16](https://github.com/usekaneo/kaneo/compare/v2.1.15...v2.1.16) (2026-01-11)
+
+
+### Features
+
+* add admin authentication and enhance task comment event with user details ([6e08df9](https://github.com/usekaneo/kaneo/commit/6e08df906b05253f3a1aec625c50b1bb96364170))
+
+
+
 ## [2.1.15](https://github.com/usekaneo/kaneo/compare/v2.1.14...v2.1.15) (2026-01-11)
 
 
