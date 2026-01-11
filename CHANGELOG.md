@@ -1,3 +1,12 @@
+## [2.1.20](https://github.com/usekaneo/kaneo/compare/v2.1.19...v2.1.20) (2026-01-11)
+
+
+### Bug Fixes
+
+* correct wording in OTP email template for improved clarity ([7bfa5a1](https://github.com/usekaneo/kaneo/commit/7bfa5a12322face817c3cb221162ef264080b135))
+
+
+
 ## [2.1.19](https://github.com/usekaneo/kaneo/compare/v2.1.18...v2.1.19) (2026-01-11)
 
 
