@@ -20,7 +20,8 @@
 			"!**/.next",
 			"!**/out",
 			"!**/.cache",
-			"!**/.claude"
+			"!**/.claude",
+			"!**/openapi.json"
 		]
 	},
 	"formatter": {

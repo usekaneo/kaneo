@@ -1,5 +1,5 @@
 import { generateFiles } from "fumadocs-openapi";
-import { openapi } from "@/lib/openapi";
+import { openapi } from "../lib/openapi";
 
 const pathToFolder: Record<string, string> = {
   "/github-integration": "github-integration",
@@ -8,6 +8,8 @@ const pathToFolder: Record<string, string> = {
   "/label": "labels",
   "/time-entry": "time-entries",
   "/notification": "notifications",
+  "/invitation": "invitations",
+  "/external-link": "external-links",
   "/search": "",
   "/config": "",
 };

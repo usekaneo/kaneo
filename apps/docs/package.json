@@ -2,11 +2,15 @@
   "name": "@kaneo/docs",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "next build",
+    "build": "bun run fetch-openapi && bun run generate-docs && pnpm run build:next",
+    "build:next": "next build",
     "dev": "next dev --turbo",
     "start": "next start",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx",
+    "fetch-openapi": "bun run ./scripts/fetch-openapi.ts",
+    "generate-docs": "bun run ./scripts/generate-docs.ts"
   },
   "dependencies": {
     "@fumadocs/mdx-remote": "^1.4.4",

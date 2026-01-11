@@ -36,6 +36,11 @@ jobs:
           node-version: "20"
           cache: 'pnpm'
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -44,9 +49,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Fetch OpenAPI spec
+        working-directory: apps/docs
+        run: bun run fetch-openapi
+
+      - name: Generate API docs
+        working-directory: apps/docs
+        run: bun run generate-docs
+
       - name: Build documentation site
         working-directory: apps/docs
-        run: pnpm run build
+        run: pnpm run build:next
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
