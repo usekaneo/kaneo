@@ -1,3 +1,12 @@
+## [2.1.18](https://github.com/usekaneo/kaneo/compare/v2.1.17...v2.1.18) (2026-01-11)
+
+
+### Features
+
+* enhance task due date management with clearing functionality and UI improvements ([a9155cb](https://github.com/usekaneo/kaneo/commit/a9155cbefc406ed37b0b53e1695af3bbd3e6b802))
+
+
+
 ## [2.1.17](https://github.com/usekaneo/kaneo/compare/v2.1.16...v2.1.17) (2026-01-11)
 
 
