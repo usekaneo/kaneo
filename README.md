@@ -52,6 +52,19 @@ Kaneo is open source and free forever. If you find it useful, consider [sponsori
 
 ## Getting Started
 
+### One-Click Deployment with drim
+
+For straightforward deployments, use [drim](https://github.com/usekaneo/drim) - a CLI tool that handles everything for you:
+
+```bash
+curl -fsSL https://assets.kaneo.app/install.sh | sh
+drim setup
+```
+
+That's it. Your Kaneo instance will be running with automatic HTTPS, database setup, and all services configured.
+
+Perfect for quick deployments and production setups where you want things to just work.
+
 ### Quick Start with Docker Compose
 
 The fastest way to try Kaneo is with Docker Compose. This sets up the API, web interface, and PostgreSQL database:

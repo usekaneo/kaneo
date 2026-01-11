@@ -18,9 +18,20 @@ Kaneo is composed of several components:
 
 ### Installation
 
-The installation process is straightforward, we have a Docker Compose file that will start the required services.
+We offer two ways to install Kaneo:
 
-It is part of a three part installation process.
+**Quick Setup with drim (Recommended)**
+
+For straightforward deployments, use [drim](/docs/core/installation/drim) - a CLI tool that handles everything automatically:
+
+```bash
+curl -fsSL https://assets.kaneo.app/install.sh | sh
+drim setup
+```
+
+**Manual Setup with Docker Compose**
+
+For more control or complex setups, follow the manual installation process:
 
 - [Setting up the Docker compose file](/docs/core/installation/docker-compose)
 - [Setting up the environment variables](/docs/core/installation/environment-variables)

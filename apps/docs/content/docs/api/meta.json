@@ -1,17 +1,4 @@
 {
-	"title": "API",
-	"description": "The API for Kaneo",
-	"pages": [
-		"authentication",
-		"getConfig",
-		"globalSearch",
-		"tasks",
-		"projects",
-		"labels",
-		"activities",
-		"comments",
-		"time-entries",
-		"notifications",
-		"github-integration"
-	]
+	"title": "API Reference",
+	"root": true
 }

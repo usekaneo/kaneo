@@ -3,6 +3,7 @@
 	"icon": "Package",
 	"pages": [
 		"index",
+		"drim",
 		"docker-compose",
 		"environment-variables",
 		"start-services"

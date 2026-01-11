@@ -18,6 +18,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   api:
     image: ghcr.io/usekaneo/api:latest
@@ -25,6 +30,9 @@ services:
       - "1337:1337"
     env_file:
       - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   web:
@@ -33,6 +41,8 @@ services:
       - "5173:5173"
     env_file:
       - .env
+    depends_on:
+      - api
     restart: unless-stopped
 
 volumes:
