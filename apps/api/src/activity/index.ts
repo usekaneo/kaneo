@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { auth } from "../auth";
 import db from "../database";
 import { taskTable } from "../database/schema";
 import { publishEvent, subscribeToEvent } from "../events";
@@ -99,6 +100,7 @@ const activity = new Hono<{
       const { taskId, comment } = c.req.valid("json");
       const userId = c.get("userId");
       const newComment = await createComment(taskId, userId, comment);
+      const user = await auth.api.getUser({ query: { id: userId } });
 
       const [task] = await db
         .select({ projectId: taskTable.projectId })
@@ -109,7 +111,7 @@ const activity = new Hono<{
         await publishEvent("task.comment_created", {
           taskId,
           userId,
-          comment,
+          comment: `"${user?.name}" commented: ${comment}`,
           projectId: task.projectId,
         });
       }
