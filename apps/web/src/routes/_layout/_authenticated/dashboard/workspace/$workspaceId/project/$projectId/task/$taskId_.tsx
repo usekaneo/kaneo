@@ -39,7 +39,7 @@ function RouteComponent() {
         taskId={taskId}
         projectId={projectId}
         workspaceId={workspaceId}
-        className="flex flex-col h-full min-h-0 max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-8 gap-2"
+        className="flex flex-col h-full min-h-0 max-w-3xl mx-auto px-3 sm:px-4 xl:py-8 py-2 gap-2"
       />
     </TaskLayout>
   );

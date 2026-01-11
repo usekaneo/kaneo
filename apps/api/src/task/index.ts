@@ -435,14 +435,17 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
-    validator("json", v.object({ dueDate: v.string() })),
+    validator("json", v.object({ dueDate: v.optional(v.string()) })),
     workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
-      const { dueDate } = c.req.valid("json");
+      const { dueDate = null } = c.req.valid("json");
       const user = c.get("userId");
 
-      const task = await updateTaskDueDate({ id, dueDate: new Date(dueDate) });
+      const task = await updateTaskDueDate({
+        id,
+        dueDate: dueDate ? new Date(dueDate) : null,
+      });
 
       await publishEvent("task.due_date_changed", {
         taskId: task.id,

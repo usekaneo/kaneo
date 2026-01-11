@@ -33,7 +33,7 @@ export default function TaskDetailsContent({
   if (!taskId) return null;
 
   return (
-    <div className={className}>
+    <div className={`${className} gap-4`}>
       <p className="text-xs font-semibold text-muted-foreground">
         {project?.slug}-{task?.number}
       </p>
@@ -47,8 +47,8 @@ export default function TaskDetailsContent({
           />
         </div>
       )}
-      <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block mt-4" />
-      <div className="flex flex-col gap-4 pt-8">
+      <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block shrink-0" />
+      <div className="flex flex-col gap-4">
         <h1 className="text-md font-semibold">Activity</h1>
         {user?.id && taskId && <CommentInput taskId={taskId} />}
         <div className="flex flex-col">

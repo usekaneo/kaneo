@@ -1,7 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Maximize2, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/tooltip";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import { cn } from "@/lib/cn";
 import TaskDetailsContent from "./task-details-content";
 import TaskPropertiesSidebar from "./task-properties-sidebar";
 
@@ -28,8 +28,6 @@ export default function TaskDetailsSheet({
   onClose,
 }: TaskDetailsSheetProps) {
   const navigate = useNavigate();
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<string | undefined>(
     taskId,
   );
@@ -39,11 +37,10 @@ export default function TaskDetailsSheet({
 
   useEffect(() => {
     if (taskId) {
-      setIsVisible(true);
       // Update taskId immediately without closing/reopening
       setCurrentTaskId(taskId);
     } else {
-      setIsVisible(false);
+      // Delay clearing to allow exit animation
       const timer = setTimeout(() => {
         setCurrentTaskId(undefined);
       }, 300);
@@ -63,69 +60,13 @@ export default function TaskDetailsSheet({
     });
   }, [navigate, workspaceId, projectId, currentTaskId]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isVisible) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isVisible, onClose]);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-
-      // Don't close if clicking on a portal element (popover, dropdown, etc.)
-      if (
-        target.closest('[role="dialog"]') ||
-        target.closest("[data-radix-popper-content-wrapper]")
-      ) {
-        return;
-      }
-
-      if (isVisible && panelRef.current && !panelRef.current.contains(target)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isVisible, onClose]);
-
-  if (!currentTaskId && !isVisible) {
-    return null;
-  }
-
   return (
-    <>
-      {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onKeyDown and onKeyUp */}
-      <div
-        className={cn(
-          "absolute inset-0 bg-black/50 z-30 transition-opacity duration-300",
-          isVisible ? "opacity-100" : "opacity-0 pointer-events-none",
-        )}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") {
-            onClose();
-          }
-        }}
-        onKeyUp={(e) => {
-          if (e.key === "Escape") {
-            onClose();
-          }
-        }}
-      />
-      <div
-        ref={panelRef}
-        className={cn(
-          "absolute top-0 right-0 bottom-0 w-full max-w-full sm:max-w-md md:max-w-lg lg:max-w-2xl bg-background border-l border-border shadow-xl z-40 flex flex-col transform transition-transform duration-300 ease-in-out",
-          isVisible ? "translate-x-0" : "translate-x-full",
-        )}
+    <Sheet open={!!taskId} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent
+        side="right"
+        className="w-full max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl p-0 gap-0 [&>button]:hidden"
       >
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-background shrink-0">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-muted-foreground">
               {project?.slug}-{task?.number}
@@ -171,17 +112,17 @@ export default function TaskDetailsSheet({
           />
 
           <div className="flex-1 overflow-y-auto">
-            <div className="px-3 py-3">
+            <div className="px-4 py-4">
               <TaskDetailsContent
                 taskId={currentTaskId}
                 projectId={projectId}
                 workspaceId={workspaceId}
-                className="flex flex-col gap-2"
+                className="flex flex-col gap-3"
               />
             </div>
           </div>
         </div>
-      </div>
-    </>
+      </SheetContent>
+    </Sheet>
   );
 }

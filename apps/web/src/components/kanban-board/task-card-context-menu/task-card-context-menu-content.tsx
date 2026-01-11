@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -163,27 +164,55 @@ export default function TaskCardContextMenuContent({
         <ContextMenuSubTrigger>
           <span>Due date</span>
         </ContextMenuSubTrigger>
-        <ContextMenuSubContent className="w-64 p-2">
-          <Calendar
-            mode="single"
-            selected={task.dueDate ? new Date(task.dueDate) : undefined}
-            onSelect={async (date) => {
-              try {
-                await updateTaskDueDate({
-                  ...task,
-                  dueDate: date?.toISOString() || null,
-                });
-                toast.success("Task due date updated successfully");
-              } catch (error) {
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : "Failed to update task due date",
-                );
-              }
-            }}
-            className="w-full !bg-popover"
-          />
+        <ContextMenuSubContent className="w-64 p-0">
+          <div className="p-2">
+            <Calendar
+              mode="single"
+              selected={task.dueDate ? new Date(task.dueDate) : undefined}
+              onSelect={async (date) => {
+                try {
+                  await updateTaskDueDate({
+                    ...task,
+                    dueDate: date?.toISOString() || null,
+                  });
+                  toast.success("Task due date updated successfully");
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error
+                      ? error.message
+                      : "Failed to update task due date",
+                  );
+                }
+              }}
+              className="w-full bg-popover!"
+            />
+          </div>
+          {task.dueDate && (
+            <>
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                className="gap-2 text-muted-foreground"
+                onClick={async () => {
+                  try {
+                    await updateTaskDueDate({
+                      ...task,
+                      dueDate: null,
+                    });
+                    toast.success("Task due date cleared");
+                  } catch (error) {
+                    toast.error(
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to clear due date",
+                    );
+                  }
+                }}
+              >
+                <X className="h-4 w-4" />
+                <span>Clear date</span>
+              </ContextMenuItem>
+            </>
+          )}
         </ContextMenuSubContent>
       </ContextMenuSub>
 

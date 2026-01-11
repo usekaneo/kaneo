@@ -316,9 +316,16 @@ export default function CommentInput({ taskId }: CommentInputProps) {
               <TooltipTrigger asChild>
                 <Button
                   size="xs"
+                  variant="outline"
                   onClick={handleSubmit}
                   disabled={isPending || !content.trim()}
-                  className="h-6 w-6 p-4 text-white"
+                  className={cn(
+                    "h-6 w-6 border-2",
+                    isPending ||
+                      (!content.trim() && "opacity-50 cursor-not-allowed"),
+                    content.trim().length > 0 &&
+                      "bg-background text-sidebar-foreground",
+                  )}
                 >
                   <SendHorizontal className="size-4" />
                 </Button>

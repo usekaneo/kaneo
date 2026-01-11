@@ -82,7 +82,7 @@ export default function TaskPropertiesSidebar({
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
-  const { data: taskLabels = [] } = useGetLabelsByTask(taskId);
+  const { data: taskLabels = [] } = useGetLabelsByTask(taskId ?? "");
   const { data: githubIntegration } = useGetGithubIntegration(projectId);
 
   const projectSlug = project?.slug;
@@ -113,166 +113,475 @@ export default function TaskPropertiesSidebar({
 
   return (
     <div className={className}>
-      <div className="flex gap-2 px-3 py-2">
-        <p className="text-sm font-medium text-muted-foreground flex-1">
-          Properties
-        </p>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="xs"
-                className="text-muted-foreground"
-                onClick={() => handleCopyTaskLink()}
-              >
-                <Copy className="size-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <KbdSequence
-                keys={["Ctrl", "Shift", "C"]}
-                description="Copy task link"
-                separator=""
-              />
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="xs"
-                className="text-muted-foreground"
-                onClick={() => handleCopyTaskBranch()}
-              >
-                <GitBranch className="size-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <KbdSequence
-                keys={["Ctrl", "Shift", "G"]}
-                description="Copy task branch"
-                separator=""
-              />
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-
-      <div
-        className={
-          compact
-            ? "flex flex-row flex-wrap gap-1 items-start px-3 pb-2"
-            : "flex flex-row flex-wrap lg:flex-col gap-1 lg:gap-2 items-start px-3 lg:px-4 pb-3 lg:pb-0"
-        }
-      >
-        {task && (
-          <TaskStatusPopover task={task}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-start h-7 px-1.5 gap-1"
-            >
-              {getColumnIcon(task.status ?? "")}
-              <span className="text-xs font-semibold truncate">
-                {toNormalCase(task.status)}
-              </span>
-            </Button>
-          </TaskStatusPopover>
-        )}
-        {task && (
-          <TaskPriorityPopover task={task}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-start h-7 px-1.5 gap-1"
-            >
-              {getPriorityIcon(task.priority ?? "")}
-              <span className="text-xs font-semibold truncate">
-                {toNormalCase(task.priority ?? "")}
-              </span>
-            </Button>
-          </TaskPriorityPopover>
-        )}
-        {task && (
-          <TaskAssigneePopover task={task} workspaceId={workspaceId}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-start h-7 px-1.5 gap-1"
-            >
-              {task.userId ? (
-                <Avatar className="h-[16px] w-[16px]">
-                  <AvatarImage
-                    src={assignee?.user?.image ?? ""}
-                    alt={assignee?.user?.name || ""}
+      {/* Compact mode: properties + icons in one row */}
+      {compact && (
+        <div className="flex flex-row-reverse gap-2 w-full border-b border-border">
+          <div className="flex gap-2 px-3 py-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    className="text-muted-foreground"
+                    onClick={() => handleCopyTaskLink()}
+                  >
+                    <Copy className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <KbdSequence
+                    keys={["Ctrl", "Shift", "C"]}
+                    description="Copy task link"
+                    separator=""
                   />
-                  <AvatarFallback className="text-[9px] font-medium border border-border/30 flex-shrink-0 h-[16px] w-[16px]">
-                    {assignee?.user?.name?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              ) : (
-                <div
-                  className="w-[16px] h-[16px] rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0"
-                  title="Unassigned"
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    className="text-muted-foreground"
+                    onClick={() => handleCopyTaskBranch()}
+                  >
+                    <GitBranch className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <KbdSequence
+                    keys={["Ctrl", "Shift", "G"]}
+                    description="Copy task branch"
+                    separator=""
+                  />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          <div className="flex flex-row flex-wrap gap-1 items-center p-2 w-full">
+            {task && (
+              <TaskStatusPopover task={task}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start h-7 px-1.5 gap-1"
                 >
-                  <span className="text-[8px] font-medium">?</span>
-                </div>
-              )}
-              <span className="text-xs font-semibold truncate max-w-[100px]">
-                {assignee?.user?.name || task.assigneeName || "Unassigned"}
-              </span>
-            </Button>
-          </TaskAssigneePopover>
-        )}
-        {task && (
-          <TaskDueDatePopover task={task}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-start h-7 px-1.5 gap-1"
-            >
-              {task.dueDate ? (
-                <>
-                  {getDueDateStatus(task.dueDate) === "overdue" && (
-                    <CalendarX
-                      className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
-                    />
-                  )}
-                  {getDueDateStatus(task.dueDate) === "due-soon" && (
-                    <CalendarClock
-                      className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
-                    />
-                  )}
-                  {(getDueDateStatus(task.dueDate) === "far-future" ||
-                    getDueDateStatus(task.dueDate) === "no-due-date") && (
-                    <Calendar
-                      className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
-                    />
-                  )}
-                  <span className="text-xs font-semibold">
-                    {format(new Date(task.dueDate), "MMM d")}
+                  {getColumnIcon(task.status ?? "")}
+                  <span className="text-xs font-semibold truncate">
+                    {toNormalCase(task.status)}
                   </span>
-                </>
-              ) : (
-                <>
-                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    No date
+                </Button>
+              </TaskStatusPopover>
+            )}
+            {task && (
+              <TaskPriorityPopover task={task}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start h-7 px-1.5 gap-1"
+                >
+                  {getPriorityIcon(task.priority ?? "")}
+                  <span className="text-xs font-semibold truncate">
+                    {toNormalCase(task.priority ?? "")}
                   </span>
-                </>
+                </Button>
+              </TaskPriorityPopover>
+            )}
+            {task && (
+              <TaskAssigneePopover task={task} workspaceId={workspaceId}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start h-7 px-1.5 gap-1"
+                >
+                  {task.userId ? (
+                    <Avatar className="h-[16px] w-[16px]">
+                      <AvatarImage
+                        src={assignee?.user?.image ?? ""}
+                        alt={assignee?.user?.name || ""}
+                      />
+                      <AvatarFallback className="text-[9px] font-medium border border-border/30 flex-shrink-0 h-[16px] w-[16px]">
+                        {assignee?.user?.name?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div
+                      className="w-[16px] h-[16px] rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0"
+                      title="Unassigned"
+                    >
+                      <span className="text-[8px] font-medium">?</span>
+                    </div>
+                  )}
+                  <span className="text-xs font-semibold truncate max-w-[100px]">
+                    {assignee?.user?.name || task.assigneeName || "Unassigned"}
+                  </span>
+                </Button>
+              </TaskAssigneePopover>
+            )}
+            {task && (
+              <TaskDueDatePopover task={task}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start h-7 px-1.5 gap-1"
+                >
+                  {task.dueDate ? (
+                    <>
+                      {getDueDateStatus(task.dueDate) === "overdue" && (
+                        <CalendarX
+                          className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                        />
+                      )}
+                      {getDueDateStatus(task.dueDate) === "due-soon" && (
+                        <CalendarClock
+                          className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                        />
+                      )}
+                      {(getDueDateStatus(task.dueDate) === "far-future" ||
+                        getDueDateStatus(task.dueDate) === "no-due-date") && (
+                        <Calendar
+                          className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                        />
+                      )}
+                      <span className="text-xs font-semibold">
+                        {format(new Date(task.dueDate), "MMM d")}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        No date
+                      </span>
+                    </>
+                  )}
+                </Button>
+              </TaskDueDatePopover>
+            )}
+          </div>
+        </div>
+      )}
+
+      {!compact && (
+        <>
+          {/* Mobile: Compact-style layout */}
+          <div className="flex flex-row-reverse gap-2 w-full border-b border-border lg:hidden">
+            <div className="flex gap-2 px-3 py-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      className="text-muted-foreground"
+                      onClick={() => handleCopyTaskLink()}
+                    >
+                      <Copy className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <KbdSequence
+                      keys={["Ctrl", "Shift", "C"]}
+                      description="Copy task link"
+                      separator=""
+                    />
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      className="text-muted-foreground"
+                      onClick={() => handleCopyTaskBranch()}
+                    >
+                      <GitBranch className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <KbdSequence
+                      keys={["Ctrl", "Shift", "G"]}
+                      description="Copy task branch"
+                      separator=""
+                    />
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            <div className="flex flex-row flex-wrap gap-1 items-center p-2 w-full">
+              {task && (
+                <TaskStatusPopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1"
+                  >
+                    {getColumnIcon(task.status ?? "")}
+                    <span className="text-xs font-semibold truncate">
+                      {toNormalCase(task.status)}
+                    </span>
+                  </Button>
+                </TaskStatusPopover>
               )}
-            </Button>
-          </TaskDueDatePopover>
-        )}
-      </div>
+              {task && (
+                <TaskPriorityPopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1"
+                  >
+                    {getPriorityIcon(task.priority ?? "")}
+                    <span className="text-xs font-semibold truncate">
+                      {toNormalCase(task.priority ?? "")}
+                    </span>
+                  </Button>
+                </TaskPriorityPopover>
+              )}
+              {task && (
+                <TaskAssigneePopover task={task} workspaceId={workspaceId}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1"
+                  >
+                    {task.userId ? (
+                      <Avatar className="h-[16px] w-[16px]">
+                        <AvatarImage
+                          src={assignee?.user?.image ?? ""}
+                          alt={assignee?.user?.name || ""}
+                        />
+                        <AvatarFallback className="text-[9px] font-medium border border-border/30 shrink-0 h-[16px] w-[16px]">
+                          {assignee?.user?.name?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div
+                        className="w-[16px] h-[16px] rounded-full bg-muted border border-border flex items-center justify-center shrink-0"
+                        title="Unassigned"
+                      >
+                        <span className="text-[8px] font-medium">?</span>
+                      </div>
+                    )}
+                    <span className="text-xs font-semibold truncate max-w-[100px]">
+                      {assignee?.user?.name ||
+                        task.assigneeName ||
+                        "Unassigned"}
+                    </span>
+                  </Button>
+                </TaskAssigneePopover>
+              )}
+              {task && (
+                <TaskDueDatePopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1"
+                  >
+                    {task.dueDate ? (
+                      <>
+                        {getDueDateStatus(task.dueDate) === "overdue" && (
+                          <CalendarX
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                          />
+                        )}
+                        {getDueDateStatus(task.dueDate) === "due-soon" && (
+                          <CalendarClock
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                          />
+                        )}
+                        {(getDueDateStatus(task.dueDate) === "far-future" ||
+                          getDueDateStatus(task.dueDate) === "no-due-date") && (
+                          <Calendar
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                          />
+                        )}
+                        <span className="text-xs font-semibold">
+                          {format(new Date(task.dueDate), "MMM d")}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          No date
+                        </span>
+                      </>
+                    )}
+                  </Button>
+                </TaskDueDatePopover>
+              )}
+            </div>
+          </div>
 
-      <div className="hidden lg:block w-full h-[1px] bg-border my-2" />
+          {/* Desktop: Title + stacked properties */}
+          <div className="hidden lg:block">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border lg:border-none">
+              <p className="text-sm font-medium text-muted-foreground flex-1">
+                Properties
+              </p>
+              <div className="flex gap-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="text-muted-foreground"
+                        onClick={() => handleCopyTaskLink()}
+                      >
+                        <Copy className="size-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <KbdSequence
+                        keys={["Ctrl", "Shift", "C"]}
+                        description="Copy task link"
+                        separator=""
+                      />
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
 
-      <div className="hidden lg:flex px-3 lg:px-2 pb-3 lg:pb-4 flex-col gap-3">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="text-muted-foreground"
+                        onClick={() => handleCopyTaskBranch()}
+                      >
+                        <GitBranch className="size-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <KbdSequence
+                        keys={["Ctrl", "Shift", "G"]}
+                        description="Copy task branch"
+                        separator=""
+                      />
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 px-3 py-3">
+              {task && (
+                <TaskStatusPopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1 w-full"
+                  >
+                    {getColumnIcon(task.status ?? "")}
+                    <span className="text-xs font-semibold truncate">
+                      {toNormalCase(task.status)}
+                    </span>
+                  </Button>
+                </TaskStatusPopover>
+              )}
+              {task && (
+                <TaskPriorityPopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1 w-full"
+                  >
+                    {getPriorityIcon(task.priority ?? "")}
+                    <span className="text-xs font-semibold truncate">
+                      {toNormalCase(task.priority ?? "")}
+                    </span>
+                  </Button>
+                </TaskPriorityPopover>
+              )}
+              {task && (
+                <TaskAssigneePopover task={task} workspaceId={workspaceId}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1 w-full"
+                  >
+                    {task.userId ? (
+                      <Avatar className="h-[16px] w-[16px]">
+                        <AvatarImage
+                          src={assignee?.user?.image ?? ""}
+                          alt={assignee?.user?.name || ""}
+                        />
+                        <AvatarFallback className="text-[9px] font-medium border border-border/30 shrink-0 h-[16px] w-[16px]">
+                          {assignee?.user?.name?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div
+                        className="w-[16px] h-[16px] rounded-full bg-muted border border-border flex items-center justify-center shrink-0"
+                        title="Unassigned"
+                      >
+                        <span className="text-[8px] font-medium">?</span>
+                      </div>
+                    )}
+                    <span className="text-xs font-semibold truncate max-w-[100px]">
+                      {assignee?.user?.name ||
+                        task.assigneeName ||
+                        "Unassigned"}
+                    </span>
+                  </Button>
+                </TaskAssigneePopover>
+              )}
+              {task && (
+                <TaskDueDatePopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1 w-full"
+                  >
+                    {task.dueDate ? (
+                      <>
+                        {getDueDateStatus(task.dueDate) === "overdue" && (
+                          <CalendarX
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                          />
+                        )}
+                        {getDueDateStatus(task.dueDate) === "due-soon" && (
+                          <CalendarClock
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                          />
+                        )}
+                        {(getDueDateStatus(task.dueDate) === "far-future" ||
+                          getDueDateStatus(task.dueDate) === "no-due-date") && (
+                          <Calendar
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                          />
+                        )}
+                        <span className="text-xs font-semibold">
+                          {format(new Date(task.dueDate), "MMM d")}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          No date
+                        </span>
+                      </>
+                    )}
+                  </Button>
+                </TaskDueDatePopover>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="hidden lg:flex px-3 flex-col gap-3 p-2">
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-muted-foreground px-2">
             Labels

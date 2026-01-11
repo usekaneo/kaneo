@@ -8,7 +8,7 @@ async function updateTaskDueDate({
   dueDate,
 }: {
   id: string;
-  dueDate: Date;
+  dueDate: Date | null;
 }) {
   const updatedTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
@@ -20,7 +20,10 @@ async function updateTaskDueDate({
     });
   }
 
-  await db.update(taskTable).set({ dueDate }).where(eq(taskTable.id, id));
+  await db
+    .update(taskTable)
+    .set({ dueDate: dueDate || null })
+    .where(eq(taskTable.id, id));
 
   if (!updatedTask) {
     throw new HTTPException(404, {
