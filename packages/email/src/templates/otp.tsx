@@ -23,15 +23,12 @@ const OtpEmail = ({ otp }: OtpEmailProps) => (
     <Body style={main}>
       <Preview>Your verification code for Kaneo</Preview>
       <Container style={container}>
-        <Heading style={heading}>Your verification code</Heading>
+        <Heading style={heading}>
+          <strong>Your login code for Kaneo is:</strong>
+        </Heading>
         <Section style={body}>
-          <Text style={paragraph}>
-            Enter this one-time code to sign in to Kaneo:
-          </Text>
           <Text style={codeStyle}>{otp}</Text>
-          <Text style={paragraph}>
-            This code will only be valid for the next 5 minutes.
-          </Text>
+          <Text style={paragraph}>The code is valid for 15 minutes.</Text>
           <Text style={paragraph}>
             If you didn't request this, please ignore this email.
           </Text>
@@ -69,19 +66,19 @@ const body = {
 };
 
 const paragraph = {
-  fontSize: "16px",
-  lineHeight: "26px",
+  fontSize: "14px",
+  lineHeight: "1.6",
+  margin: "12px 0",
+  color: "#666",
 };
 
 const codeStyle = {
-  fontSize: "32px",
-  fontWeight: "bold",
-  letterSpacing: "6px",
+  fontSize: "30px",
+  fontWeight: "bold" as const,
+  letterSpacing: "4px",
   textAlign: "center" as const,
-  margin: "24px 0",
-  padding: "16px",
-  backgroundColor: "#f4f4f5",
-  borderRadius: "8px",
+  margin: "12px 0",
+  color: "#333",
 };
 
 const footerParagraph = {

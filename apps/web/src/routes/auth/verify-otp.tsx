@@ -1,6 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { createFileRoute, useRouter, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
@@ -14,7 +15,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { authClient } from "@/lib/auth-client";
 import { AuthLayout } from "../../components/auth/layout";
 
@@ -42,33 +47,45 @@ function VerifyOtp() {
     defaultValues: { otp: "" },
   });
 
-  const onSubmit = async (data: VerifyOtpFormValues) => {
-    setIsPending(true);
-    try {
-      const result = await authClient.signIn.emailOtp({
-        email,
-        otp: data.otp,
-      });
+  const onSubmit = useCallback(
+    async (data: VerifyOtpFormValues) => {
+      setIsPending(true);
+      try {
+        const result = await authClient.signIn.emailOtp({
+          email,
+          otp: data.otp,
+        });
 
-      if (result.error) {
-        toast.error(result.error.message || "Invalid verification code");
-        return;
-      }
+        if (result.error) {
+          toast.error(result.error.message || "Invalid verification code");
+          return;
+        }
 
-      toast.success("Signed in successfully!");
-      if (invitationId) {
-        history.push(`/invitation/accept/${invitationId}`);
-      } else {
-        history.push("/dashboard");
+        toast.success("Signed in successfully!");
+        if (invitationId) {
+          history.push(`/invitation/accept/${invitationId}`);
+        } else {
+          history.push("/dashboard");
+        }
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to verify code",
+        );
+      } finally {
+        setIsPending(false);
       }
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to verify code",
-      );
-    } finally {
-      setIsPending(false);
-    }
-  };
+    },
+    [email, invitationId, history],
+  );
+
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "otp" && value.otp?.length === 6 && !isPending) {
+        form.handleSubmit(onSubmit)();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, isPending, onSubmit]);
 
   const handleResendOtp = async () => {
     setIsPending(true);
@@ -117,16 +134,22 @@ function VerifyOtp() {
                       Verification Code
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="123456"
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
+                      <InputOTP
                         maxLength={6}
-                        autoComplete="one-time-code"
-                        className="text-center text-2xl tracking-[0.5em] font-mono"
-                        {...field}
-                      />
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        pattern={REGEXP_ONLY_DIGITS}
+                      >
+                        <InputOTPGroup className="w-full justify-center items-center">
+                          <InputOTPSlot className="size-10" index={0} />
+                          <InputOTPSlot className="size-10" index={1} />
+                          <InputOTPSlot className="size-10" index={2} />
+                          <InputOTPSlot className="size-10" index={3} />
+                          <InputOTPSlot className="size-10" index={4} />
+                          <InputOTPSlot className="size-10" index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
                     </FormControl>
                     <FormMessage>{fieldState.error?.message}</FormMessage>
                   </FormItem>
