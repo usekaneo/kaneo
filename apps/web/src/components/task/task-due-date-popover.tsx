@@ -1,5 +1,7 @@
+import { X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -48,6 +50,19 @@ export default function TaskDueDatePopover({
           onSelect={handleDateChange}
           className="w-full bg-popover"
         />
+        {task.dueDate && (
+          <div className="p-2 border-t border-border">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+              onClick={() => handleDateChange(undefined)}
+            >
+              <X className="h-4 w-4" />
+              Clear date
+            </Button>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

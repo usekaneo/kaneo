@@ -269,6 +269,17 @@ subscribeToEvent<{
   const oldDate = data.oldDueDate
     ? new Date(data.oldDueDate).toLocaleDateString()
     : "none";
+
+  if (!data.newDueDate) {
+    await createActivity(
+      data.taskId,
+      data.type,
+      data.userId,
+      "cleared the due date",
+    );
+    return;
+  }
+
   const newDate = new Date(data.newDueDate).toLocaleDateString();
   await createActivity(
     data.taskId,

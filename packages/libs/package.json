@@ -15,6 +15,6 @@
 		"react": "^19.2.3",
 		"@kaneo/typescript-config": "workspace:*",
 		"typescript": "^5.9.2",
-		"vite": "^7.2.7"
+		"vite": "^7.3.1"
 	}
 }

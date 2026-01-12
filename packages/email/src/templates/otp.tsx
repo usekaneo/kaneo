@@ -25,7 +25,9 @@ const OtpEmail = ({ otp }: OtpEmailProps) => (
       <Container style={container}>
         <Heading style={heading}>Your verification code</Heading>
         <Section style={body}>
-          <Text style={paragraph}>Enter this code to sign in to Kaneo:</Text>
+          <Text style={paragraph}>
+            Enter this one-time code to sign in to Kaneo:
+          </Text>
           <Text style={codeStyle}>{otp}</Text>
           <Text style={paragraph}>
             This code will only be valid for the next 5 minutes.
