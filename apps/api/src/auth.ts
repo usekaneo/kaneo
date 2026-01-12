@@ -140,7 +140,7 @@ export const auth = betterAuth({
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
         if (type === "sign-in") {
-          await sendOtpEmail(email, "Your Kaneo verification code", { otp });
+          await sendOtpEmail(email, "Authentication code for Kaneo", { otp });
         }
       },
     }),

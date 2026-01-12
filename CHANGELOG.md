@@ -1,3 +1,12 @@
+## [2.1.21](https://github.com/usekaneo/kaneo/compare/v2.1.20...v2.1.21) (2026-01-12)
+
+
+### Features
+
+* integrate input-otp component for OTP verification ([70a80dd](https://github.com/usekaneo/kaneo/commit/70a80dd91007591e8f5d0b0f8b9328f0f39fbfe6))
+
+
+
 ## [2.1.20](https://github.com/usekaneo/kaneo/compare/v2.1.19...v2.1.20) (2026-01-11)
 
 

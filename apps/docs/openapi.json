@@ -1803,9 +1803,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "dueDate"
-                ]
+                "required": []
               }
             }
           }
