@@ -21,6 +21,8 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@apollo/server": "^5.2.0",
+    "@hono/graphql-server": "^0.7.0",
     "@hono/node-server": "^1.19.8",
     "@hono/standard-validator": "^0.2.1",
     "@kaneo/email": "workspace:*",
@@ -32,8 +34,10 @@
     "bcrypt": "^6.0.0",
     "better-auth": "^1.4.10",
     "croner": "^9.1.0",
+    "drizzle-graphql": "^0.8.5",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
+    "graphql": "^16.12.0",
     "hono": "^4.11.3",
     "hono-openapi": "^1.1.2",
     "octokit": "^5.0.5",

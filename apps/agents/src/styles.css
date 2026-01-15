@@ -1,0 +1,313 @@
+@import "tailwindcss";
+@source "../node_modules/streamdown/dist/index.js";
+
+/* Markdown Table Styling (Tailwind @apply) */
+.markdown-body table {
+  @apply w-full border-collapse my-4 text-[0.95em];
+}
+.markdown-body th,
+.markdown-body td {
+  @apply border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-left;
+}
+.markdown-body th {
+  @apply bg-neutral-100 dark:bg-neutral-800 font-semibold dark:text-neutral-200;
+}
+.markdown-body tr {
+  @apply dark:text-neutral-300;
+}
+.markdown-body tr:nth-child(even) {
+  @apply bg-neutral-50 dark:bg-neutral-850;
+}
+
+/* Custom variants */
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant interactive (&:where(.interactive, .interactive *));
+@custom-variant toggle (&:where(.toggle, .toggle *));
+@custom-variant square (&:where(.square, .square *));
+@custom-variant circular (&:where(.circular, .circular *));
+
+/* Tailwind config */
+@theme {
+  /* Type */
+  --text-xs: 10px;
+  --text-xs--line-height: calc(1 / 0.5);
+
+  --text-sm: 12px;
+  --text-sm--line-height: calc(1 / 0.75);
+
+  --text-base: 14px;
+  --text-base--line-height: calc(1.25 / 0.875);
+
+  /* Easings & transitions */
+  --ease-bounce: cubic-bezier(0.2, 0, 0, 1.5);
+  --default-transition-duration: 100ms /* snappier than default 150ms */;
+
+  /* Animation */
+  --animate-refresh: refresh 0.5s ease-in-out infinite;
+
+  /* Base colors */
+  --color-black: #000;
+  --color-white: #fff;
+
+  --color-neutral-50: oklch(0.985 0 0);
+  --color-neutral-100: oklch(0.97 0 0);
+  --color-neutral-150: oklch(0.96 0 0) /*new */;
+  --color-neutral-200: oklch(0.922 0 0);
+  --color-neutral-250: oklch(0.9 0 0) /* new */;
+  --color-neutral-300: oklch(0.87 0 0);
+  --color-neutral-400: oklch(0.708 0 0);
+  --color-neutral-450: oklch(0.62 0 0) /* new */;
+  --color-neutral-500: oklch(0.556 0 0);
+  --color-neutral-600: oklch(0.439 0 0);
+  --color-neutral-700: oklch(0.371 0 0);
+  --color-neutral-750: oklch(0.31 0 0) /* new */;
+  --color-neutral-800: oklch(0.269 0 0);
+  --color-neutral-850: oklch(0.23 0 0) /* new */;
+  --color-neutral-900: oklch(0.205 0 0);
+  --color-neutral-925: oklch(0.175 0 0) /* new */;
+  --color-neutral-950: oklch(0.145 0 0);
+
+  --color-red-650: oklch(0.55 0.238 27.4);
+  --color-red-750: oklch(0.46 0.195 27.2);
+
+  --color-blue-400: oklch(0.707 0.165 254.624);
+  --color-blue-800: oklch(0.424 0.199 265.638);
+
+  /* Component colors */
+
+  /* Base colors */
+  --color-ob-base-100: var(--color-white);
+  --color-ob-base-200: var(--color-neutral-50);
+  --color-ob-base-300: var(--color-neutral-100);
+  --color-ob-base-400: var(--color-neutral-200);
+  --color-ob-base-500: var(--color-neutral-300);
+  --color-ob-base-1000: var(--color-neutral-900);
+
+  --color-ob-border: var(--color-neutral-200);
+  --color-ob-border-active: var(--color-neutral-400);
+
+  /* Text colors */
+  --text-color-ob-base-100: var(--color-neutral-500);
+  --text-color-ob-base-200: var(--color-neutral-600);
+  --text-color-ob-base-300: var(--color-neutral-900);
+  --text-color-ob-destructive: var(--color-red-600);
+  --text-color-ob-inverted: var(--color-white);
+
+  /* ob-btn */
+  --color-ob-btn-primary-bg: var(--color-neutral-750);
+  --color-ob-btn-primary-bg-hover: var(--color-neutral-850);
+  --color-ob-btn-primary-border: var(--color-neutral-500);
+  --color-ob-btn-primary-border-hover: var(--color-neutral-600);
+
+  --color-ob-btn-secondary-bg: var(--color-white);
+  --color-ob-btn-secondary-bg-hover: var(--color-neutral-50);
+  --color-ob-btn-secondary-border: var(--color-neutral-200);
+  --color-ob-btn-secondary-border-hover: var(--color-neutral-300);
+
+  --color-ob-btn-ghost-bg-hover: var(--color-neutral-150);
+
+  --color-ob-btn-destructive-bg: var(--color-red-600);
+  --color-ob-btn-destructive-bg-hover: var(--color-red-650);
+  --color-ob-btn-destructive-border: var(--color-red-400);
+  --color-ob-btn-destructive-border-hover: var(--color-red-500);
+
+  /* Focus colors */
+  --color-ob-focus: var(--color-blue-400);
+}
+
+.dark {
+  /* Component colors */
+
+  /* Base colors */
+  --color-ob-base-100: var(--color-neutral-950);
+  --color-ob-base-200: var(--color-neutral-900);
+  --color-ob-base-300: var(--color-neutral-850);
+  --color-ob-base-400: var(--color-neutral-800);
+  --color-ob-base-500: var(--color-neutral-750);
+  --color-ob-base-1000: var(--color-neutral-50);
+
+  --color-ob-border: var(--color-neutral-800);
+  --color-ob-border-active: var(--color-neutral-700);
+
+  /* Text colors */
+  --text-color-ob-base-100: var(--color-neutral-500);
+  --text-color-ob-base-200: var(--color-neutral-400);
+  --text-color-ob-base-300: var(--color-neutral-50);
+  --text-color-ob-destructive: var(--color-red-400);
+  --text-color-ob-inverted: var(--color-neutral-900);
+
+  /* ob-btn */
+  --color-ob-btn-primary-bg: var(--color-neutral-300);
+  --color-ob-btn-primary-bg-hover: var(--color-neutral-250);
+  --color-ob-btn-primary-border: var(--color-neutral-100);
+  --color-ob-btn-primary-border-hover: var(--color-white);
+
+  --color-ob-btn-secondary-bg: var(--color-neutral-900);
+  --color-ob-btn-secondary-bg-hover: var(--color-neutral-850);
+  --color-ob-btn-secondary-border: var(--color-neutral-800);
+  --color-ob-btn-secondary-border-hover: var(--color-neutral-750);
+
+  --color-ob-btn-ghost-bg-hover: var(--color-neutral-850);
+
+  --color-ob-btn-destructive-bg: var(--color-red-800);
+  --color-ob-btn-destructive-bg-hover: var(--color-red-750);
+  --color-ob-btn-destructive-border: var(--color-red-700);
+  --color-ob-btn-destructive-border-hover: var(--color-red-600);
+
+  /* Focus colors */
+  --color-ob-focus: var(--color-blue-800);
+}
+
+.btn {
+  &.btn-primary {
+    @apply border-ob-btn-primary-border bg-ob-btn-primary-bg text-ob-inverted shadow-xs;
+
+    @variant interactive {
+      @apply not-disabled:hover:border-ob-btn-primary-border-hover not-disabled:hover:bg-ob-btn-primary-bg-hover;
+
+      @variant toggle {
+        @apply not-disabled:border-ob-btn-primary-border-hover not-disabled:bg-ob-btn-primary-bg-hover;
+      }
+    }
+  }
+
+  &.btn-secondary {
+    @apply border-ob-btn-secondary-border bg-ob-btn-secondary-bg text-ob-base-300 shadow-xs;
+
+    @variant interactive {
+      @apply not-disabled:hover:border-ob-btn-secondary-border-hover not-disabled:hover:bg-ob-btn-secondary-bg-hover;
+
+      @variant toggle {
+        @apply not-disabled:border-ob-btn-secondary-border-hover not-disabled:bg-ob-btn-secondary-bg-hover;
+      }
+    }
+  }
+
+  &.btn-ghost {
+    @apply text-ob-base-300 border-transparent bg-transparent;
+
+    @variant interactive {
+      @apply not-disabled:hover:bg-ob-btn-ghost-bg-hover;
+
+      @variant toggle {
+        @apply not-disabled:bg-ob-btn-ghost-bg-hover;
+      }
+    }
+  }
+
+  &.btn-destructive {
+    @apply border-ob-btn-destructive-border bg-ob-btn-destructive-bg text-white;
+
+    @variant interactive {
+      @apply not-disabled:hover:bg-ob-btn-destructive-bg-hover not-disabled:hover:border-ob-btn-destructive-border-hover;
+
+      @variant toggle {
+        @apply not-disabled:bg-ob-btn-destructive-bg-hover not-disabled:border-ob-btn-destructive-border-hover;
+      }
+    }
+  }
+
+  @apply border;
+
+  @variant interactive {
+    @apply cursor-pointer transition-colors;
+  }
+}
+
+/* Use for elements that require a tab-focus state (most elements) */
+.add-focus {
+  @apply focus-visible:ring-ob-focus outline-none focus:opacity-100 focus-visible:ring-1 *:in-focus:opacity-100;
+}
+
+/* Use for elements that require a disabled state */
+.add-disable {
+  @apply disabled:text-ob-base-100 disabled:cursor-not-allowed;
+}
+
+/* Use size variants for elements that need to match certain heights */
+.add-size-sm {
+  @apply h-6.5 rounded px-2 text-sm;
+
+  @variant square {
+    @apply flex size-6.5 items-center justify-center px-0;
+  }
+
+  @variant circular {
+    @apply flex size-6.5 items-center justify-center rounded-full px-0;
+  }
+}
+
+.add-size-md {
+  @apply h-8 rounded-md px-2.5 text-base;
+
+  @variant square {
+    @apply flex size-8 items-center justify-center px-0;
+  }
+
+  @variant circular {
+    @apply flex size-8 items-center justify-center rounded-full px-0;
+  }
+}
+
+.add-size-base {
+  @apply h-9 rounded-md px-3 text-base;
+
+  @variant square {
+    @apply flex size-9 items-center justify-center px-0;
+  }
+
+  @variant circular {
+    @apply flex size-9 items-center justify-center rounded-full px-0;
+  }
+}
+
+/* Database card animation */
+.db-card {
+  animation: db-card-animation 3s linear infinite;
+  animation-play-state: paused; /* pause while group is not hovered */
+  stroke-dasharray: 100; /* length of each dash */
+
+  &:is(:where(.group):hover *) {
+    @media (hover: hover) {
+      animation-play-state: running; /* play while group is hovered */
+    }
+  }
+}
+
+@keyframes db-card-animation {
+  0% {
+    stroke-dashoffset: -200;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 200;
+  }
+}
+
+/* SVG filters */
+.pixelate {
+  filter: url(#pixelate);
+}
+
+/* Ripple filter */
+.ripple {
+  filter: url(#ripple);
+}
+
+.float {
+  animation: float 5s linear infinite alternate;
+}
+
+@keyframes float {
+  to {
+    transform: translate(5px, 15px);
+  }
+}
+
+@keyframes refresh {
+  to {
+    transform: rotate(360deg) scale(0.9);
+  }
+}

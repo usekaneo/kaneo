@@ -1,0 +1,62 @@
+{
+  "name": "cloudflare-agent-starter",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev",
+    "start": "vite dev",
+    "deploy": "vite build && wrangler deploy",
+    "test": "vitest",
+    "types": "wrangler types env.d.ts --include-runtime false",
+    "format": "prettier --write .",
+    "check": "prettier . --check && biome lint && tsc",
+    "postinstall": "patch-package"
+  },
+  "keywords": [
+    "cloudflare",
+    "ai",
+    "agents"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.10",
+    "@cloudflare/vite-plugin": "1.19.0",
+    "@cloudflare/vitest-pool-workers": "^0.11.1",
+    "@cloudflare/workers-types": "^4.20251231.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/node": "^25.0.6",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "patch-package": "^8.0.1",
+    "prettier": "^3.7.4",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
+    "vitest": "3.2.4",
+    "wrangler": "4.59.1"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^3.0.2",
+    "@ai-sdk/react": "^3.0.5",
+    "@cloudflare/ai-chat": "^0.0.3",
+    "@phosphor-icons/react": "^2.1.10",
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
+    "agents": "^0.3.3",
+    "ai": "^6.0.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "marked": "^17.0.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "streamdown": "^1.6.10",
+    "tailwind-merge": "^3.4.0",
+    "workers-ai-provider": "^3.0.2"
+  }
+}

@@ -1,0 +1,13 @@
+diff --git a/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js b/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+index 02762f0..7deca89 100644
+--- a/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
++++ b/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+@@ -1,7 +1,7 @@
+ /**
+  * AJV-based JSON Schema validator provider
+  */
+-import { Ajv } from 'ajv';
++import Ajv from 'ajv'; // modifying this because vitest is struggling to pick up the import
+ import _addFormats from 'ajv-formats';
+ function createDefaultAjvInstance() {
+     const ajv = new Ajv({

@@ -5,6 +5,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { openAPIRouteHandler } from "hono-openapi";
+import { graphqlServer } from "@hono/graphql-server";
 import activity from "./activity";
 import { auth } from "./auth";
 import config from "./config";
@@ -27,6 +28,7 @@ import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import { verifyApiKey } from "./utils/verify-api-key";
+import { schema } from "./graphql";
 
 type ApiKey = {
   id: string;
@@ -188,6 +190,15 @@ const githubIntegrationApi = api.route(
 const externalLinkApi = api.route("/external-link", externalLink);
 const invitationApi = api.route("/invitation", invitation);
 
+// GraphQL endpoint
+api.use('/graphql', graphqlServer({
+  schema,
+  context: (c) => ({
+    user: c.get('user'),
+    db,
+  }),
+}));
+
 app.route("/api", api);
 
 (async () => {
@@ -218,6 +229,9 @@ serve(
   () => {
     console.log(
       `⚡ API is running at ${process.env.KANEO_API_URL || "http://localhost:1337"}`,
+    );
+    console.log(
+      `📊 GraphQL endpoint: ${process.env.KANEO_API_URL || "http://localhost:1337"}/api/graphql`,
     );
   },
 );
