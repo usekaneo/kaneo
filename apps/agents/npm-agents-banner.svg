@@ -1,0 +1,21 @@
+<svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with dots pattern -->
+  <rect width="800" height="200" fill="#fff"/>
+  <defs>
+    <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#ff6b00" opacity="0.3"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="200" fill="url(#dots)"/>
+  
+  <!-- Terminal window -->
+  <rect x="100" y="50" width="600" height="100" rx="10" fill="none" stroke="#ff6b00" stroke-width="2"/>
+  
+  <!-- Terminal text -->
+  <text x="130" y="110" font-family="'Courier New', monospace" font-size="48" fill="#ff6b00">
+    $ npm i agents
+  </text>
+  
+  <!-- Cursor block -->
+  <rect x="530" y="75" width="25" height="45" fill="#ff6b00"/>
+</svg>
