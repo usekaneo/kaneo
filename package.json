@@ -23,7 +23,7 @@
     "node": ">=18"
   },
   "packageManager": "pnpm@10.28.0",
-  "version": "2.1.21",
+  "version": "2.1.23",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }
