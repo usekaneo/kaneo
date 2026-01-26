@@ -55,7 +55,7 @@
 		"hono": "^4.11.4",
 		"immer": "^11.1.0",
 		"input-otp": "^1.4.2",
-		"lucide-react": "^0.562.0",
+		"lucide-react": "^0.563.0",
 		"react": "^19.2.0",
 		"react-day-picker": "9.13.0",
 		"react-dom": "^19.2.0",
