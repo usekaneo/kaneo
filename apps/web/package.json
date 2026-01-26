@@ -52,7 +52,7 @@
 		"date-fns": "^4.1.0",
 		"file-saver": "^2.0.5",
 		"framer-motion": "^12.27.0",
-		"hono": "^4.11.4",
+		"hono": "^4.11.5",
 		"immer": "^11.1.0",
 		"input-otp": "^1.4.2",
 		"lucide-react": "^0.562.0",
