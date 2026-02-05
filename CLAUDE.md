@@ -83,7 +83,7 @@ kaneo/
 - Framework: Hono (lightweight web framework)
 - Database: PostgreSQL with Drizzle ORM
 - Authentication: Better Auth
-- Validation: Valibot
+- Validation: Valibot (Zod is also present, used by Better Auth and some schemas)
 - API Documentation: OpenAPI (hono-openapi)
 - IDs: CUID2 (via @paralleldrive/cuid2)
 
@@ -134,9 +134,10 @@ kaneo/
 ## Code Style
 
 ### Formatting (Biome)
-- **Indentation**: Tabs for TypeScript/TSX
+- **Indentation**: Spaces for JavaScript/TypeScript/TSX (tabs for other file types)
 - **Quotes**: Double quotes
 - **Semicolons**: Required
+- **Ignored files**: CSS and `package.json` files are excluded from Biome linting/formatting
 - Run `pnpm lint` to auto-fix
 
 ### TypeScript Conventions
@@ -160,6 +161,13 @@ Use Conventional Commits:
 - `chore:` - Maintenance tasks
 
 Husky enforces commit message format via commitlint.
+
+### Pre-commit Hooks
+The pre-commit hook (`.husky/pre-commit`) runs two checks:
+1. `biome ci .` — linting and formatting validation
+2. `pnpm run build` — full monorepo build
+
+Commits will be slow due to the build step. Ensure code compiles before committing.
 
 ## Environment Configuration
 
@@ -216,7 +224,7 @@ See `ENVIRONMENT_SETUP.md` for detailed configuration and troubleshooting.
 
 ## Important Notes
 
-- **Package Manager**: This project uses **pnpm**, not npm or yarn
+- **Package Manager**: This project uses **pnpm** (pinned to `10.28.0` via `packageManager` field), not npm or yarn. Requires Node `>=18`
 - **Migrations**: Auto-run on API startup, stored in `apps/api/drizzle/`
 - **Development Ports**: API runs on 1337, web runs on 5173
 - **Hot Reload**: Both API and web have watch mode via `pnpm dev`
