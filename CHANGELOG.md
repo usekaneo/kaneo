@@ -1,3 +1,12 @@
+## [2.1.24](https://github.com/usekaneo/kaneo/compare/v2.1.23...v2.1.24) (2026-02-05)
+
+
+### Bug Fixes
+
+* **tasks:** fix task deletion ([d86f864](https://github.com/usekaneo/kaneo/commit/d86f8641215fbad4391622f82225e21b3e29b068))
+
+
+
 ## [2.1.23](https://github.com/usekaneo/kaneo/compare/v2.1.21...v2.1.23) (2026-01-17)
 
 
