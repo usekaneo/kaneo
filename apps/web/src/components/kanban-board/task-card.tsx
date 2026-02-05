@@ -27,6 +27,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -56,6 +57,7 @@ function TaskCard({ task }: TaskCardProps) {
   } = useSortable({ id: task.id });
   const { project } = useProjectStore();
   const { data: workspace } = useActiveWorkspace();
+  const { mutateAsync: deleteTask } = useDeleteTask();
   const navigate = useNavigate();
   const {
     showAssignees,
@@ -155,6 +157,7 @@ function TaskCard({ task }: TaskCardProps) {
 
   const handleDeleteTask = async () => {
     try {
+      await deleteTask(task.id);
       queryClient.invalidateQueries({
         queryKey: ["tasks", project?.id],
       });

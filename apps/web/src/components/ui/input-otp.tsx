@@ -59,12 +59,8 @@ const InputOTPSeparator = React.forwardRef<
   React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
-  // biome-ignore lint/a11y/useFocusableInteractive: we don't need to focus on the separator
-  // biome-ignore lint/a11y/useSemanticElements: we use a div to wrap the separator
   <div
     ref={ref}
-    // biome-ignore lint/a11y/useAriaPropsForRole: we use a div to wrap the separator
-    role="separator"
     className={cn("flex items-center justify-center", className)}
     {...props}
   >
