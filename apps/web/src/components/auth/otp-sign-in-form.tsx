@@ -31,7 +31,6 @@ type EmailFormValues = z.infer<typeof emailSchema>;
 export function OtpSignInForm({
   invitationId,
   defaultEmail,
-  onSuccess,
 }: OtpSignInFormProps) {
   const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
