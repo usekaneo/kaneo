@@ -27,6 +27,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -153,17 +154,18 @@ function TaskCard({ task }: TaskCardProps) {
     }
   };
 
+  const { mutateAsync: deleteTask } = useDeleteTask();
   const handleDeleteTask = async () => {
     try {
+      await deleteTask(task.id);
       queryClient.invalidateQueries({
         queryKey: ["tasks", project?.id],
       });
+      toast.success("Task deleted successfully");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to delete task",
       );
-    } finally {
-      toast.success("Task deleted successfully");
     }
   };
 
