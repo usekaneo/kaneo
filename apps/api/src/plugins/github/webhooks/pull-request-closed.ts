@@ -8,6 +8,7 @@ import {
   findTaskById,
   updateTaskStatus,
 } from "../services/task-service";
+import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PRClosedPayload = {
   action: string;
@@ -85,7 +86,11 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
       });
 
       if (!hasOpenPRs) {
-        const targetStatus = config.statusTransitions?.onPRMerge || "done";
+        const targetStatus = await resolveTargetStatus(
+          integration.projectId,
+          "pr_merged",
+          config.statusTransitions?.onPRMerge || "done",
+        );
         await updateTaskStatus(task.id, targetStatus);
       }
     }

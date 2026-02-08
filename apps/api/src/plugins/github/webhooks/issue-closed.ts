@@ -2,7 +2,11 @@ import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable, taskTable } from "../../../database/schema";
 import { updateExternalLink } from "../services/link-manager";
-import { findAllIntegrationsByRepo } from "../services/task-service";
+import {
+  findAllIntegrationsByRepo,
+  updateTaskStatus,
+} from "../services/task-service";
+import { resolveTargetStatus } from "../utils/resolve-column";
 
 type IssueClosedPayload = {
   action: string;
@@ -56,10 +60,13 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
       continue;
     }
 
-    await db
-      .update(taskTable)
-      .set({ status: "done" })
-      .where(eq(taskTable.id, task.id));
+    const targetStatus = await resolveTargetStatus(
+      task.projectId,
+      "issue_closed",
+      "done",
+    );
+
+    await updateTaskStatus(task.id, targetStatus);
 
     await updateExternalLink(externalLink.id, {
       metadata: {

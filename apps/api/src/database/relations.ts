@@ -3,6 +3,7 @@ import {
   accountTable,
   activityTable,
   apikeyTable,
+  columnTable,
   externalLinkTable,
   githubIntegrationTable,
   integrationTable,
@@ -17,6 +18,7 @@ import {
   timeEntryTable,
   userTable,
   verificationTable,
+  workflowRuleTable,
   workspaceTable,
   workspaceUserTable,
 } from "./schema";
@@ -86,8 +88,33 @@ export const projectTableRelations = relations(
       references: [workspaceTable.id],
     }),
     tasks: many(taskTable),
+    columns: many(columnTable),
+    workflowRules: many(workflowRuleTable),
     githubIntegration: many(githubIntegrationTable),
     integrations: many(integrationTable),
+  }),
+);
+
+export const columnTableRelations = relations(columnTable, ({ one, many }) => ({
+  project: one(projectTable, {
+    fields: [columnTable.projectId],
+    references: [projectTable.id],
+  }),
+  tasks: many(taskTable),
+  workflowRules: many(workflowRuleTable),
+}));
+
+export const workflowRuleTableRelations = relations(
+  workflowRuleTable,
+  ({ one }) => ({
+    project: one(projectTable, {
+      fields: [workflowRuleTable.projectId],
+      references: [projectTable.id],
+    }),
+    column: one(columnTable, {
+      fields: [workflowRuleTable.columnId],
+      references: [columnTable.id],
+    }),
   }),
 );
 
@@ -99,6 +126,10 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   assignee: one(userTable, {
     fields: [taskTable.userId],
     references: [userTable.id],
+  }),
+  column: one(columnTable, {
+    fields: [taskTable.columnId],
+    references: [columnTable.id],
   }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),

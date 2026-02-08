@@ -3,8 +3,10 @@ import {
   Link,
   Outlet,
   useLocation,
+  useNavigate,
 } from "@tanstack/react-router";
-import { ChevronRight, Eye, Plug, Settings } from "lucide-react";
+import { ChevronRight, Eye, GitBranch, Plug, Settings } from "lucide-react";
+import { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Collapsible,
@@ -35,14 +37,35 @@ const menuItems = [
     title: "Integrations",
     icon: Plug,
   },
+  {
+    title: "Workflow",
+    icon: GitBranch,
+  },
 ];
 
 function RouteComponent() {
   const { workspace, role } = useWorkspacePermission();
   const location = useLocation();
+  const navigate = useNavigate();
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
+
+  useEffect(() => {
+    const isProjectsRoot =
+      location.pathname === "/dashboard/settings/projects" ||
+      location.pathname === "/dashboard/settings/projects/";
+
+    if (!isProjectsRoot || !projects || projects.length === 0) {
+      return;
+    }
+
+    void navigate({
+      to: "/dashboard/settings/projects/$projectId/general",
+      params: { projectId: projects[0].id },
+      replace: true,
+    });
+  }, [location.pathname, navigate, projects]);
 
   return (
     <div className="flex gap-6 h-full">
@@ -95,6 +118,7 @@ function RouteComponent() {
                                 General: `/dashboard/settings/projects/${project.id}/general`,
                                 Visibility: `/dashboard/settings/projects/${project.id}/visibility`,
                                 Integrations: `/dashboard/settings/projects/${project.id}/integrations`,
+                                Workflow: `/dashboard/settings/projects/${project.id}/workflow`,
                               };
 
                               const toUrl =

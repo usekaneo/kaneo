@@ -11,6 +11,7 @@ import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { getColumnIcon } from "@/lib/column";
+import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 
 type TaskStatusPopoverProps = {
@@ -18,18 +19,17 @@ type TaskStatusPopoverProps = {
   children: React.ReactNode;
 };
 
-const statusOptions = [
-  { value: "to-do", label: "To Do" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "in-review", label: "In Review" },
-  { value: "done", label: "Done" },
-];
-
 export default function TaskStatusPopover({
   task,
   children,
 }: TaskStatusPopoverProps) {
   const [open, setOpen] = useState(false);
+  const { project } = useProjectStore();
+  const statusOptions =
+    project?.columns?.map((col) => ({
+      value: col.id,
+      label: col.name,
+    })) ?? [];
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
 
   const handleStatusChange = useCallback(
@@ -56,7 +56,7 @@ export default function TaskStatusPopover({
       statusOptions.map((status) => ({
         onSelect: () => handleStatusChange(status.value),
       })),
-    [handleStatusChange],
+    [handleStatusChange, statusOptions],
   );
 
   useNumberedShortcuts(open, shortcutOptions);

@@ -6,6 +6,7 @@ import {
   updateTaskStatus,
 } from "../services/task-service";
 import { extractTaskNumber } from "../utils/branch-matcher";
+import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PROpenedPayload = {
   action: string;
@@ -89,7 +90,11 @@ export async function handlePullRequestOpened(payload: PROpenedPayload) {
       },
     });
 
-    const targetStatus = config.statusTransitions?.onPROpen || "in-review";
+    const targetStatus = await resolveTargetStatus(
+      integration.projectId,
+      "pr_opened",
+      config.statusTransitions?.onPROpen || "in-review",
+    );
 
     if (task.status !== targetStatus && task.status !== "done") {
       await updateTaskStatus(task.id, targetStatus);

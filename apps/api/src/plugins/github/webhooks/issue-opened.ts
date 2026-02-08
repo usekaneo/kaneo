@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import db from "../../../database";
-import { projectTable, taskTable } from "../../../database/schema";
+import { columnTable, projectTable, taskTable } from "../../../database/schema";
 import getNextTaskNumber from "../../../task/controllers/get-next-task-number";
 import type { GitHubConfig } from "../config";
 import { createExternalLink, findExternalLink } from "../services/link-manager";
@@ -12,6 +12,7 @@ import {
 import { formatTaskDescriptionFromIssue } from "../utils/format";
 import { getGithubApp } from "../utils/github-app";
 import { addLabelsToIssue } from "../utils/labels";
+import { resolveTargetStatus } from "../utils/resolve-column";
 
 type IssueOpenedPayload = {
   action: string;
@@ -69,18 +70,32 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
 
     const nextTaskNumber = await getNextTaskNumber(projectId);
 
+    const resolvedStatus = await resolveTargetStatus(
+      projectId,
+      "issue_opened",
+      "to-do",
+    );
+
+    const targetStatus = status || resolvedStatus;
+    const targetColumn = await db.query.columnTable.findFirst({
+      where: and(
+        eq(columnTable.projectId, projectId),
+        eq(columnTable.slug, targetStatus),
+      ),
+    });
+
     const taskValues: typeof taskTable.$inferInsert = {
       projectId,
       userId: null,
       title: issue.title,
       description: formatTaskDescriptionFromIssue(issue.body),
-      status: "to-do",
+      status: targetStatus,
+      columnId: targetColumn?.id ?? null,
       priority: null,
       number: nextTaskNumber + 1,
     };
 
     if (priority) taskValues.priority = priority;
-    if (status) taskValues.status = status;
 
     const [createdTask] = await db
       .insert(taskTable)

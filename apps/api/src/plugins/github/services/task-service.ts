@@ -1,6 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
-import { integrationTable, taskTable } from "../../../database/schema";
+import {
+  columnTable,
+  integrationTable,
+  taskTable,
+} from "../../../database/schema";
 
 export async function findTaskByNumber(projectId: string, taskNumber: number) {
   return db.query.taskTable.findFirst({
@@ -18,9 +22,24 @@ export async function findTaskById(taskId: string) {
 }
 
 export async function updateTaskStatus(taskId: string, newStatus: string) {
+  const task = await db.query.taskTable.findFirst({
+    where: eq(taskTable.id, taskId),
+  });
+
+  let columnId: string | null = null;
+  if (task) {
+    const column = await db.query.columnTable.findFirst({
+      where: and(
+        eq(columnTable.projectId, task.projectId),
+        eq(columnTable.slug, newStatus),
+      ),
+    });
+    columnId = column?.id ?? null;
+  }
+
   await db
     .update(taskTable)
-    .set({ status: newStatus })
+    .set({ status: newStatus, columnId })
     .where(eq(taskTable.id, taskId));
 }
 

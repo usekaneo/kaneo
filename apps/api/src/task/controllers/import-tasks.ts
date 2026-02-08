@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { projectTable, taskTable } from "../../database/schema";
+import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import getNextTaskNumber from "./get-next-task-number";
 
@@ -32,6 +32,13 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
 
   for (const taskData of tasksToImport) {
     try {
+      const column = await db.query.columnTable.findFirst({
+        where: and(
+          eq(columnTable.projectId, projectId),
+          eq(columnTable.slug, taskData.status),
+        ),
+      });
+
       const [createdTask] = await db
         .insert(taskTable)
         .values({
@@ -39,6 +46,7 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
           userId: taskData.userId || null,
           title: taskData.title,
           status: taskData.status,
+          columnId: column?.id ?? null,
           dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
           description: taskData.description || "",
           priority: taskData.priority || "low",

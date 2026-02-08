@@ -1,20 +1,14 @@
-import { eq, inArray } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
+  columnTable,
   externalLinkTable,
   labelTable,
   projectTable,
   taskTable,
   userTable,
 } from "../../database/schema";
-
-const DEFAULT_COLUMNS = [
-  { id: "to-do", name: "To Do" },
-  { id: "in-progress", name: "In Progress" },
-  { id: "in-review", name: "In Review" },
-  { id: "done", name: "Done" },
-] as const;
 
 async function getTasks(projectId: string) {
   const project = await db.query.projectTable.findFirst({
@@ -115,11 +109,18 @@ async function getTasks(projectId: string) {
     });
   }
 
-  const columns = DEFAULT_COLUMNS.map((column) => ({
-    id: column.id,
+  const projectColumns = await db
+    .select()
+    .from(columnTable)
+    .where(eq(columnTable.projectId, projectId))
+    .orderBy(asc(columnTable.position));
+
+  const columns = projectColumns.map((column) => ({
+    id: column.slug,
     name: column.name,
+    isFinal: column.isFinal,
     tasks: tasks
-      .filter((task) => task.status === column.id)
+      .filter((task) => task.status === column.slug)
       .map((task) => ({
         ...task,
         labels: taskLabelsMap.get(task.id) || [],

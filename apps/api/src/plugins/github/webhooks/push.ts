@@ -6,6 +6,7 @@ import {
   updateTaskStatus,
 } from "../services/task-service";
 import { extractTaskNumberFromBranch } from "../utils/branch-matcher";
+import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PushPayload = {
   ref: string;
@@ -117,8 +118,11 @@ export async function handlePush(payload: PushPayload) {
       },
     });
 
-    const targetStatus =
-      config.statusTransitions?.onBranchPush || "in-progress";
+    const targetStatus = await resolveTargetStatus(
+      integration.projectId,
+      "branch_push",
+      config.statusTransitions?.onBranchPush || "in-progress",
+    );
     console.log(
       `[Push] Target status: ${targetStatus}, current: ${task.status}`,
     );

@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskTable } from "../../database/schema";
+import { columnTable, taskTable } from "../../database/schema";
 
 async function updateTask(
   id: string,
@@ -24,11 +24,19 @@ async function updateTask(
     });
   }
 
+  const column = await db.query.columnTable.findFirst({
+    where: and(
+      eq(columnTable.projectId, projectId),
+      eq(columnTable.slug, status),
+    ),
+  });
+
   const [updatedTask] = await db
     .update(taskTable)
     .set({
       title,
       status,
+      columnId: column?.id ?? null,
       dueDate: dueDate || null,
       projectId,
       description,

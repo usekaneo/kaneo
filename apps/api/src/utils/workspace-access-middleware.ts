@@ -10,7 +10,14 @@ type WorkspaceIdSource =
   | { type: "param"; key: string }
   | {
       type: "lookup";
-      resource: "project" | "task" | "label" | "timeEntry" | "activity";
+      resource:
+        | "project"
+        | "task"
+        | "label"
+        | "timeEntry"
+        | "activity"
+        | "column"
+        | "workflowRule";
       idKey: string;
     };
 
@@ -72,7 +79,14 @@ export function workspaceAccessMiddleware(
 }
 
 async function lookupWorkspaceId(
-  resource: "project" | "task" | "label" | "timeEntry" | "activity",
+  resource:
+    | "project"
+    | "task"
+    | "label"
+    | "timeEntry"
+    | "activity"
+    | "column"
+    | "workflowRule",
   id: string,
 ): Promise<string | null> {
   try {
@@ -148,6 +162,36 @@ async function lookupWorkspaceId(
         return activity?.workspaceId || null;
       }
 
+      case "column": {
+        const [column] = await db
+          .select({
+            workspaceId: schema.projectTable.workspaceId,
+          })
+          .from(schema.columnTable)
+          .innerJoin(
+            schema.projectTable,
+            eq(schema.columnTable.projectId, schema.projectTable.id),
+          )
+          .where(eq(schema.columnTable.id, id))
+          .limit(1);
+        return column?.workspaceId || null;
+      }
+
+      case "workflowRule": {
+        const [workflowRule] = await db
+          .select({
+            workspaceId: schema.projectTable.workspaceId,
+          })
+          .from(schema.workflowRuleTable)
+          .innerJoin(
+            schema.projectTable,
+            eq(schema.workflowRuleTable.projectId, schema.projectTable.id),
+          )
+          .where(eq(schema.workflowRuleTable.id, id))
+          .limit(1);
+        return workflowRule?.workspaceId || null;
+      }
+
       default:
         return null;
     }
@@ -198,5 +242,15 @@ export const workspaceAccess = {
   fromActivity: (idKey = "id") =>
     workspaceAccessMiddleware({
       sources: [{ type: "lookup", resource: "activity", idKey }],
+    }),
+
+  fromColumn: (idKey = "id") =>
+    workspaceAccessMiddleware({
+      sources: [{ type: "lookup", resource: "column", idKey }],
+    }),
+
+  fromWorkflowRule: (idKey = "id") =>
+    workspaceAccessMiddleware({
+      sources: [{ type: "lookup", resource: "workflowRule", idKey }],
     }),
 };

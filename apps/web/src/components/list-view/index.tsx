@@ -55,11 +55,14 @@ function ListView({ project }: ListViewProps) {
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
-  >({
-    "to-do": true,
-    "in-progress": true,
-    "in-review": true,
-    done: true,
+  >(() => {
+    const sections: Record<string, boolean> = {};
+    if (project?.columns) {
+      for (const col of project.columns) {
+        sections[col.id] = true;
+      }
+    }
+    return sections;
   });
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
@@ -220,24 +223,24 @@ function ListView({ project }: ListViewProps) {
   };
 
   const handleArchiveTasks = (column: ProjectWithTasks["columns"][number]) => {
-    if (column.id !== "done" || column.tasks.length === 0) return;
+    if (!column.isFinal || column.tasks.length === 0) return;
 
     if (!confirm(`Archive all ${column.tasks.length} completed tasks?`)) {
       return;
     }
 
     const updatedProject = produce(project, (draft) => {
-      const doneColumn = draft?.columns?.find((col) => col.id === "done");
-      if (!doneColumn) return;
+      const finalColumn = draft?.columns?.find((col) => col.isFinal);
+      if (!finalColumn) return;
 
-      for (const task of doneColumn.tasks) {
+      for (const task of finalColumn.tasks) {
         updateTask({
           ...task,
           status: "archived",
         });
       }
 
-      doneColumn.tasks = [];
+      finalColumn.tasks = [];
     });
 
     setProject(updatedProject);
@@ -303,7 +306,7 @@ function ListView({ project }: ListViewProps) {
               <Plus className="w-3 h-3" />
             </button>
 
-            {column.id === "done" && column.tasks.length > 0 && (
+            {column.isFinal && column.tasks.length > 0 && (
               <button
                 type="button"
                 onClick={() => handleArchiveTasks(column)}

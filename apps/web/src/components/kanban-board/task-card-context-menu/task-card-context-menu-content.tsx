@@ -23,6 +23,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
 import { getPriorityIcon } from "@/lib/priority";
+import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 
 type TaskCardContext = {
@@ -41,6 +42,7 @@ export default function TaskCardContextMenuContent({
   taskCardContext,
   onDeleteClick,
 }: TaskCardContextMenuContentProps) {
+  const { project } = useProjectStore();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     taskCardContext.worskpaceId,
   );
@@ -146,15 +148,15 @@ export default function TaskCardContextMenuContent({
           <span>Status</span>
         </ContextMenuSubTrigger>
         <ContextMenuSubContent className="w-48">
-          {["to-do", "in-progress", "in-review", "done"].map((status) => (
+          {(project?.columns ?? []).map((col) => (
             <ContextMenuCheckboxItem
-              key={status}
-              checked={task.status === status}
-              onCheckedChange={() => handleChange("status", status)}
+              key={col.id}
+              checked={task.status === col.id}
+              onCheckedChange={() => handleChange("status", col.id)}
               className="[&_svg]:text-muted-foreground"
             >
-              {getColumnIcon(status)}
-              <span className="capitalize">{status}</span>
+              {getColumnIcon(col.id)}
+              <span>{col.name}</span>
             </ContextMenuCheckboxItem>
           ))}
         </ContextMenuSubContent>

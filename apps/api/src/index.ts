@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { openAPIRouteHandler } from "hono-openapi";
 import activity from "./activity";
 import { auth } from "./auth";
+import column from "./column";
 import config from "./config";
 import db from "./database";
 import externalLink from "./external-link";
@@ -15,6 +16,7 @@ import githubIntegration, {
 } from "./github-integration";
 import invitation from "./invitation";
 import label from "./label";
+import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
 import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
@@ -27,6 +29,7 @@ import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import { verifyApiKey } from "./utils/verify-api-key";
+import workflowRule from "./workflow-rule";
 
 type ApiKey = {
   id: string;
@@ -176,6 +179,7 @@ api.use("*", async (c, next) => {
 
 const projectApi = api.route("/project", project);
 const taskApi = api.route("/task", task);
+const columnApi = api.route("/column", column);
 const activityApi = api.route("/activity", activity);
 const timeEntryApi = api.route("/time-entry", timeEntry);
 const labelApi = api.route("/label", label);
@@ -186,6 +190,7 @@ const githubIntegrationApi = api.route(
   githubIntegration,
 );
 const externalLinkApi = api.route("/external-link", externalLink);
+const workflowRuleApi = api.route("/workflow-rule", workflowRule);
 const invitationApi = api.route("/invitation", invitation);
 
 app.route("/api", api);
@@ -202,6 +207,7 @@ app.route("/api", api);
     console.log("✅ Database migrated successfully!");
 
     await migrateGitHubIntegration();
+    await migrateColumns();
 
     initializePlugins();
   } catch (error) {
@@ -226,6 +232,7 @@ export type AppType =
   | typeof configApi
   | typeof projectApi
   | typeof taskApi
+  | typeof columnApi
   | typeof activityApi
   | typeof timeEntryApi
   | typeof labelApi
@@ -233,6 +240,7 @@ export type AppType =
   | typeof searchApi
   | typeof githubIntegrationApi
   | typeof externalLinkApi
+  | typeof workflowRuleApi
   | typeof invitationApi
   | typeof invitationPublicApi;
 
