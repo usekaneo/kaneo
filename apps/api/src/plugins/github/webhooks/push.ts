@@ -3,9 +3,11 @@ import { createOrUpdateExternalLink } from "../services/link-manager";
 import {
   findAllIntegrationsByRepo,
   findTaskByNumber,
+  isTaskInFinalState,
   updateTaskStatus,
 } from "../services/task-service";
 import { extractTaskNumberFromBranch } from "../utils/branch-matcher";
+import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PushPayload = {
   ref: string;
@@ -117,13 +119,18 @@ export async function handlePush(payload: PushPayload) {
       },
     });
 
-    const targetStatus =
-      config.statusTransitions?.onBranchPush || "in-progress";
+    const targetStatus = await resolveTargetStatus(
+      integration.projectId,
+      "branch_push",
+      config.statusTransitions?.onBranchPush || "in-progress",
+    );
     console.log(
       `[Push] Target status: ${targetStatus}, current: ${task.status}`,
     );
 
-    if (task.status !== targetStatus && task.status !== "done") {
+    const isTaskFinal = await isTaskInFinalState(task);
+
+    if (task.status !== targetStatus && !isTaskFinal) {
       console.log(
         `[Push] Updating task ${task.id} status from ${task.status} to ${targetStatus}`,
       );

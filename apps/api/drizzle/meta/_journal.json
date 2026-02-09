@@ -85,6 +85,13 @@
 			"when": 1767037714394,
 			"tag": "0011_flashy_masked_marvel",
 			"breakpoints": true
+		},
+		{
+			"idx": 12,
+			"version": "7",
+			"when": 1770375054098,
+			"tag": "0012_mixed_thor_girl",
+			"breakpoints": true
 		}
 	]
 }

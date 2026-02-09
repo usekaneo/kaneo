@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskTable } from "../../database/schema";
+import { columnTable, taskTable } from "../../database/schema";
 
 async function updateTaskStatus({
   id,
@@ -20,7 +20,17 @@ async function updateTaskStatus({
     });
   }
 
-  await db.update(taskTable).set({ status }).where(eq(taskTable.id, id));
+  const column = await db.query.columnTable.findFirst({
+    where: and(
+      eq(columnTable.projectId, updatedTask.projectId),
+      eq(columnTable.slug, status),
+    ),
+  });
+
+  await db
+    .update(taskTable)
+    .set({ status, columnId: column?.id ?? null })
+    .where(eq(taskTable.id, id));
 
   return updatedTask;
 }

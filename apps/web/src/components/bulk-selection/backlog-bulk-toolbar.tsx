@@ -27,11 +27,13 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
+import useProjectStore from "@/store/project";
 import { Button } from "../ui/button";
 
 function BacklogBulkToolbar() {
   const { selectedTaskIds, clearSelection, selectAll } =
     useBacklogBulkSelectionStore();
+  const { project } = useProjectStore();
   const { bulkMoveToBoard, bulkDelete, bulkArchive, bulkAssign } =
     useBulkOperations();
   const { data: workspace } = useActiveWorkspace();
@@ -133,22 +135,15 @@ function BacklogBulkToolbar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="w-48">
-            <DropdownMenuItem onClick={() => handleMoveToBoard("to-do")}>
-              {getColumnIcon("to-do")}
-              <span className="ml-2">To Do</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleMoveToBoard("in-progress")}>
-              {getColumnIcon("in-progress")}
-              <span className="ml-2">In Progress</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleMoveToBoard("in-review")}>
-              {getColumnIcon("in-review")}
-              <span className="ml-2">In Review</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleMoveToBoard("done")}>
-              {getColumnIcon("done")}
-              <span className="ml-2">Done</span>
-            </DropdownMenuItem>
+            {(project?.columns ?? []).map((col) => (
+              <DropdownMenuItem
+                key={col.id}
+                onClick={() => handleMoveToBoard(col.id)}
+              >
+                {getColumnIcon(col.id, col.isFinal)}
+                <span className="ml-2">{col.name}</span>
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
 

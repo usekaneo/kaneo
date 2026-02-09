@@ -209,6 +209,62 @@ export const projectTable = pgTable("project", {
   isPublic: boolean("is_public").default(false),
 });
 
+export const columnTable = pgTable(
+  "column",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    position: integer("position").notNull().default(0),
+    icon: text("icon"),
+    color: text("color"),
+    isFinal: boolean("is_final").default(false).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("column_projectId_idx").on(table.projectId)],
+);
+
+export const workflowRuleTable = pgTable(
+  "workflow_rule",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    integrationType: text("integration_type").notNull(),
+    eventType: text("event_type").notNull(),
+    columnId: text("column_id")
+      .notNull()
+      .references(() => columnTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("workflow_rule_projectId_idx").on(table.projectId)],
+);
+
 export const taskTable = pgTable("task", {
   id: text("id")
     .$defaultFn(() => createId())
@@ -228,6 +284,10 @@ export const taskTable = pgTable("task", {
   title: text("title").notNull(),
   description: text("description"),
   status: text("status").notNull().default("to-do"),
+  columnId: text("column_id").references(() => columnTable.id, {
+    onDelete: "set null",
+    onUpdate: "cascade",
+  }),
   priority: text("priority").default("low"),
   dueDate: timestamp("due_date", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),

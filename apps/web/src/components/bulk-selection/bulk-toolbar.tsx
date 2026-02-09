@@ -14,11 +14,13 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import useBulkSelectionStore from "@/store/bulk-selection";
+import useProjectStore from "@/store/project";
 import { Button } from "../ui/button";
 
 function BulkToolbar() {
   const { selectedTaskIds, clearSelection, selectAll } =
     useBulkSelectionStore();
+  const { project } = useProjectStore();
   const {
     bulkMoveToBacklog,
     bulkDelete,
@@ -166,22 +168,15 @@ function BulkToolbar() {
           </CommandGroup>
 
           <CommandGroup heading="Change Status">
-            <CommandItem onSelect={() => handleBulkChangeStatus("to-do")}>
-              {getColumnIcon("to-do")}
-              To Do
-            </CommandItem>
-            <CommandItem onSelect={() => handleBulkChangeStatus("in-progress")}>
-              {getColumnIcon("in-progress")}
-              In Progress
-            </CommandItem>
-            <CommandItem onSelect={() => handleBulkChangeStatus("in-review")}>
-              {getColumnIcon("in-review")}
-              In Review
-            </CommandItem>
-            <CommandItem onSelect={() => handleBulkChangeStatus("done")}>
-              {getColumnIcon("done")}
-              Done
-            </CommandItem>
+            {(project?.columns ?? []).map((col) => (
+              <CommandItem
+                key={col.id}
+                onSelect={() => handleBulkChangeStatus(col.id)}
+              >
+                {getColumnIcon(col.id, col.isFinal)}
+                {col.name}
+              </CommandItem>
+            ))}
           </CommandGroup>
 
           <CommandGroup heading="Assign to">

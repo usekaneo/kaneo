@@ -28,14 +28,7 @@ export const taskSchema = v.object({
   userId: v.nullable(v.string()),
   title: v.string(),
   description: v.nullable(v.string()),
-  status: v.picklist([
-    "to-do",
-    "in-progress",
-    "in-review",
-    "done",
-    "archived",
-    "planned",
-  ] as const),
+  status: v.string(),
   priority: v.picklist([
     "no-priority",
     "low",

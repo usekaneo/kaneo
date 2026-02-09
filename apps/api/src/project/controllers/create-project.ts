@@ -1,5 +1,12 @@
 import db from "../../database";
-import { projectTable } from "../../database/schema";
+import { columnTable, projectTable } from "../../database/schema";
+
+const DEFAULT_COLUMNS = [
+  { name: "To Do", slug: "to-do", position: 0, isFinal: false },
+  { name: "In Progress", slug: "in-progress", position: 1, isFinal: false },
+  { name: "In Review", slug: "in-review", position: 2, isFinal: false },
+  { name: "Done", slug: "done", position: 3, isFinal: true },
+];
 
 async function createProject(
   workspaceId: string,
@@ -16,6 +23,18 @@ async function createProject(
       slug,
     })
     .returning();
+
+  if (createdProject) {
+    for (const col of DEFAULT_COLUMNS) {
+      await db.insert(columnTable).values({
+        projectId: createdProject.id,
+        name: col.name,
+        slug: col.slug,
+        position: col.position,
+        isFinal: col.isFinal,
+      });
+    }
+  }
 
   return createdProject;
 }

@@ -15,7 +15,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { mutate: updateTask } = useUpdateTask();
 
   const handleArchiveTasks = () => {
-    if (column.id !== "done") return;
+    if (!column.isFinal) return;
 
     if (column.tasks.length === 0) {
       toast.info("No tasks to archive");
@@ -27,7 +27,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
     }
 
     const updatedProject = produce(project, (draft) => {
-      const doneColumn = draft?.columns?.find((col) => col.id === "done");
+      const doneColumn = draft?.columns?.find((col) => col.isFinal);
       if (!doneColumn) return;
 
       for (const task of doneColumn.tasks) {
@@ -47,7 +47,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        {getColumnIcon(column.id)}
+        {getColumnIcon(column.id, column.isFinal)}
         <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
           {column.name}
         </h3>
@@ -56,7 +56,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         </span>
       </div>
 
-      {column.id === "done" && column.tasks.length > 0 && (
+      {column.isFinal && column.tasks.length > 0 && (
         <button
           type="button"
           onClick={handleArchiveTasks}
