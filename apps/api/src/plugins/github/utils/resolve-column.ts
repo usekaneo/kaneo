@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import db from "../../../database";
 import { columnTable, workflowRuleTable } from "../../../database/schema";
 
@@ -7,6 +7,19 @@ export async function resolveTargetStatus(
   eventType: string,
   fallbackStatus: string,
 ): Promise<string> {
+  const projectColumns = await db
+    .select({
+      id: columnTable.id,
+      slug: columnTable.slug,
+    })
+    .from(columnTable)
+    .where(eq(columnTable.projectId, projectId))
+    .orderBy(asc(columnTable.position));
+
+  if (projectColumns.length === 0) {
+    return fallbackStatus;
+  }
+
   const rule = await db.query.workflowRuleTable.findFirst({
     where: and(
       eq(workflowRuleTable.projectId, projectId),
@@ -15,13 +28,21 @@ export async function resolveTargetStatus(
     ),
   });
 
-  if (!rule) {
-    return fallbackStatus;
+  if (rule) {
+    const mappedColumn = projectColumns.find(
+      (column) => column.id === rule.columnId,
+    );
+    if (mappedColumn) {
+      return mappedColumn.slug;
+    }
   }
 
-  const column = await db.query.columnTable.findFirst({
-    where: eq(columnTable.id, rule.columnId),
-  });
+  const fallbackColumn = projectColumns.find(
+    (column) => column.slug === fallbackStatus,
+  );
+  if (fallbackColumn) {
+    return fallbackColumn.slug;
+  }
 
-  return column?.slug ?? fallbackStatus;
+  return projectColumns[0]?.slug ?? fallbackStatus;
 }

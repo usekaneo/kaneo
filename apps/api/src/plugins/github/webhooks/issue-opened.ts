@@ -73,10 +73,10 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
     const resolvedStatus = await resolveTargetStatus(
       projectId,
       "issue_opened",
-      "to-do",
+      status || "to-do",
     );
 
-    const targetStatus = status || resolvedStatus;
+    const targetStatus = resolvedStatus;
     const targetColumn = await db.query.columnTable.findFirst({
       where: and(
         eq(columnTable.projectId, projectId),

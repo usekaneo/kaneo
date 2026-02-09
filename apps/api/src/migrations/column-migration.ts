@@ -94,7 +94,7 @@ export async function migrateColumns() {
           const targetColumnId = columnMap.get(targetSlug);
           if (!targetColumnId) continue;
 
-          await upsertMigrationWorkflowRule(
+          await ensureMigrationWorkflowRule(
             project.id,
             eventType as string,
             targetColumnId,
@@ -106,7 +106,7 @@ export async function migrateColumns() {
         const doneColumnId = columnMap.get("done");
 
         if (todoColumnId) {
-          await upsertMigrationWorkflowRule(
+          await ensureMigrationWorkflowRule(
             project.id,
             "issue_opened",
             todoColumnId,
@@ -114,7 +114,7 @@ export async function migrateColumns() {
         }
 
         if (doneColumnId) {
-          await upsertMigrationWorkflowRule(
+          await ensureMigrationWorkflowRule(
             project.id,
             "issue_closed",
             doneColumnId,
@@ -133,7 +133,7 @@ export async function migrateColumns() {
   );
 }
 
-async function upsertMigrationWorkflowRule(
+async function ensureMigrationWorkflowRule(
   projectId: string,
   eventType: string,
   columnId: string,
@@ -146,20 +146,14 @@ async function upsertMigrationWorkflowRule(
     ),
   });
 
-  if (!existing) {
-    await db.insert(workflowRuleTable).values({
-      projectId,
-      integrationType: "github",
-      eventType,
-      columnId,
-    });
+  if (existing) {
     return;
   }
 
-  if (existing.columnId !== columnId) {
-    await db
-      .update(workflowRuleTable)
-      .set({ columnId })
-      .where(eq(workflowRuleTable.id, existing.id));
-  }
+  await db.insert(workflowRuleTable).values({
+    projectId,
+    integrationType: "github",
+    eventType,
+    columnId,
+  });
 }
