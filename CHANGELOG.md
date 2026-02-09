@@ -1,3 +1,14 @@
+# [2.2.0](https://github.com/usekaneo/kaneo/compare/v2.1.24...v2.2.0) (2026-02-09)
+
+
+### Features
+
+* **columns:** add column management ([189236c](https://github.com/usekaneo/kaneo/commit/189236cd1976899cdf9f8a3316981eb034e191b7))
+* enhance task status management with new utility functions and improved status update logic ([48a90bf](https://github.com/usekaneo/kaneo/commit/48a90bf3465d23fa66361e346e20f1b1a7e9d4cb))
+* update getColumnIcon to accept isFinal parameter and apply changes across components ([277832d](https://github.com/usekaneo/kaneo/commit/277832d766d326889d69ea0e01978d6ca6da093c))
+
+
+
 ## [2.1.24](https://github.com/usekaneo/kaneo/compare/v2.1.23...v2.1.24) (2026-02-05)
 
 
