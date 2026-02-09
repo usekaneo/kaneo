@@ -34,7 +34,7 @@
     "croner": "^10.0.1",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
-    "hono": "^4.11.7",
+    "hono": "^4.11.9",
     "hono-openapi": "^1.2.0",
     "octokit": "^5.0.5",
     "pg": "^8.18.0",
@@ -43,9 +43,9 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
-    "@types/node": "^25.2.0",
+    "@types/node": "^25.2.2",
     "@types/pg": "^8.16.0",
-    "esbuild": "0.27.2",
+    "esbuild": "0.27.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
