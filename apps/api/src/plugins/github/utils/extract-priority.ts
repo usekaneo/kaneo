@@ -1,17 +1,10 @@
 type GitHubLabel = string | { name?: string };
 
 const VALID_PRIORITIES = ["low", "medium", "high", "urgent"] as const;
-const VALID_STATUSES = [
-  "to-do",
-  "in-progress",
-  "in-review",
-  "done",
-  "planned",
-  "archived",
-] as const;
+const STATUS_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export type ValidPriority = (typeof VALID_PRIORITIES)[number];
-export type ValidStatus = (typeof VALID_STATUSES)[number];
+export type ValidStatus = string;
 
 /**
  * Extract priority from GitHub issue labels.
@@ -51,8 +44,6 @@ export function extractIssueStatus(
   const firstStatusLabel = statusLabels[0];
   if (!firstStatusLabel) return null;
 
-  const status = firstStatusLabel.replace("status:", "");
-  return VALID_STATUSES.includes(status as ValidStatus)
-    ? (status as ValidStatus)
-    : null;
+  const status = firstStatusLabel.replace("status:", "").trim().toLowerCase();
+  return STATUS_SLUG_PATTERN.test(status) ? status : null;
 }

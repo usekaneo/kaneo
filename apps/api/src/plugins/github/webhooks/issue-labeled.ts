@@ -2,7 +2,10 @@ import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { labelTable, taskTable } from "../../../database/schema";
 import { findExternalLink } from "../services/link-manager";
-import { findAllIntegrationsByRepo } from "../services/task-service";
+import {
+  findAllIntegrationsByRepo,
+  updateTaskStatus,
+} from "../services/task-service";
 import {
   extractIssuePriority,
   extractIssueStatus,
@@ -46,21 +49,15 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
     const priority = extractIssuePriority(issue.labels);
     const status = extractIssueStatus(issue.labels);
 
-    const updateData: Record<string, unknown> = {};
-
     if (priority) {
-      updateData.priority = priority;
+      await db
+        .update(taskTable)
+        .set({ priority })
+        .where(eq(taskTable.id, existingLink.taskId));
     }
 
     if (status) {
-      updateData.status = status;
-    }
-
-    if (Object.keys(updateData).length > 0) {
-      await db
-        .update(taskTable)
-        .set(updateData)
-        .where(eq(taskTable.id, existingLink.taskId));
+      await updateTaskStatus(existingLink.taskId, status);
     }
 
     if (!addedLabel) {

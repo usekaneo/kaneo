@@ -3,6 +3,7 @@ import { createExternalLink, findExternalLink } from "../services/link-manager";
 import {
   findAllIntegrationsByRepo,
   findTaskByNumber,
+  isTaskInFinalState,
   updateTaskStatus,
 } from "../services/task-service";
 import { extractTaskNumber } from "../utils/branch-matcher";
@@ -96,7 +97,9 @@ export async function handlePullRequestOpened(payload: PROpenedPayload) {
       config.statusTransitions?.onPROpen || "in-review",
     );
 
-    if (task.status !== targetStatus && task.status !== "done") {
+    const isTaskFinal = await isTaskInFinalState(task);
+
+    if (task.status !== targetStatus && !isTaskFinal) {
       await updateTaskStatus(task.id, targetStatus);
     }
 

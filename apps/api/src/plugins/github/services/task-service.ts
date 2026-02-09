@@ -6,6 +6,8 @@ import {
   taskTable,
 } from "../../../database/schema";
 
+const NON_COLUMN_STATUSES = new Set(["planned", "archived"]);
+
 export async function findTaskByNumber(projectId: string, taskNumber: number) {
   return db.query.taskTable.findFirst({
     where: and(
@@ -26,21 +28,64 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
     where: eq(taskTable.id, taskId),
   });
 
+  if (!task) {
+    return;
+  }
+
   let columnId: string | null = null;
-  if (task) {
-    const column = await db.query.columnTable.findFirst({
-      where: and(
-        eq(columnTable.projectId, task.projectId),
-        eq(columnTable.slug, newStatus),
-      ),
-    });
-    columnId = column?.id ?? null;
+
+  const column = await db.query.columnTable.findFirst({
+    where: and(
+      eq(columnTable.projectId, task.projectId),
+      eq(columnTable.slug, newStatus),
+    ),
+  });
+
+  if (column) {
+    columnId = column.id;
+  } else if (!NON_COLUMN_STATUSES.has(newStatus)) {
+    console.warn(
+      `[GitHub] Skipping status update for task ${taskId}: column "${newStatus}" not found in project ${task.projectId}`,
+    );
+    return;
   }
 
   await db
     .update(taskTable)
     .set({ status: newStatus, columnId })
     .where(eq(taskTable.id, taskId));
+}
+
+export async function isTaskInFinalState(task: {
+  projectId: string;
+  status: string;
+  columnId: string | null;
+}): Promise<boolean> {
+  if (task.columnId) {
+    const columnById = await db.query.columnTable.findFirst({
+      where: and(
+        eq(columnTable.id, task.columnId),
+        eq(columnTable.projectId, task.projectId),
+      ),
+    });
+
+    if (columnById) {
+      return columnById.isFinal;
+    }
+  }
+
+  const columnByStatus = await db.query.columnTable.findFirst({
+    where: and(
+      eq(columnTable.projectId, task.projectId),
+      eq(columnTable.slug, task.status),
+    ),
+  });
+
+  if (columnByStatus) {
+    return columnByStatus.isFinal;
+  }
+
+  return task.status === "done";
 }
 
 export async function getIntegrationWithProject(integrationId: string) {

@@ -3,6 +3,7 @@ import { createOrUpdateExternalLink } from "../services/link-manager";
 import {
   findAllIntegrationsByRepo,
   findTaskByNumber,
+  isTaskInFinalState,
   updateTaskStatus,
 } from "../services/task-service";
 import { extractTaskNumberFromBranch } from "../utils/branch-matcher";
@@ -127,7 +128,9 @@ export async function handlePush(payload: PushPayload) {
       `[Push] Target status: ${targetStatus}, current: ${task.status}`,
     );
 
-    if (task.status !== targetStatus && task.status !== "done") {
+    const isTaskFinal = await isTaskInFinalState(task);
+
+    if (task.status !== targetStatus && !isTaskFinal) {
       console.log(
         `[Push] Updating task ${task.id} status from ${task.status} to ${targetStatus}`,
       );
