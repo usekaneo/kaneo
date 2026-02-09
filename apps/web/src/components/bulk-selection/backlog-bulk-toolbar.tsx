@@ -140,7 +140,7 @@ function BacklogBulkToolbar() {
                 key={col.id}
                 onClick={() => handleMoveToBoard(col.id)}
               >
-                {getColumnIcon(col.id)}
+                {getColumnIcon(col.id, col.isFinal)}
                 <span className="ml-2">{col.name}</span>
               </DropdownMenuItem>
             ))}

@@ -170,7 +170,11 @@ export default function TaskPropertiesSidebar({
                   size="sm"
                   className="justify-start h-7 px-1.5 gap-1"
                 >
-                  {getColumnIcon(task.status ?? "")}
+                  {getColumnIcon(
+                    task.status ?? "",
+                    project?.columns?.find((c) => c.id === task.status)
+                      ?.isFinal,
+                  )}
                   <span className="text-xs font-semibold truncate">
                     {toNormalCase(task.status)}
                   </span>
@@ -324,7 +328,11 @@ export default function TaskPropertiesSidebar({
                     size="sm"
                     className="justify-start h-7 px-1.5 gap-1"
                   >
-                    {getColumnIcon(task.status ?? "")}
+                    {getColumnIcon(
+                      task.status ?? "",
+                      project?.columns?.find((c) => c.id === task.status)
+                        ?.isFinal,
+                    )}
                     <span className="text-xs font-semibold truncate">
                       {toNormalCase(task.status)}
                     </span>
@@ -482,7 +490,11 @@ export default function TaskPropertiesSidebar({
                     size="sm"
                     className="justify-start h-7 px-1.5 gap-1 w-full"
                   >
-                    {getColumnIcon(task.status ?? "")}
+                    {getColumnIcon(
+                      task.status ?? "",
+                      project?.columns?.find((c) => c.id === task.status)
+                        ?.isFinal,
+                    )}
                     <span className="text-xs font-semibold truncate">
                       {toNormalCase(task.status)}
                     </span>

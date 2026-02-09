@@ -173,7 +173,7 @@ function BulkToolbar() {
                 key={col.id}
                 onSelect={() => handleBulkChangeStatus(col.id)}
               >
-                {getColumnIcon(col.id)}
+                {getColumnIcon(col.id, col.isFinal)}
                 {col.name}
               </CommandItem>
             ))}

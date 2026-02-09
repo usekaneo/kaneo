@@ -1,6 +1,6 @@
-import { Check, CheckCircle2, Circle, CircleDot, Search } from "lucide-react";
+import { CheckCircle2, Circle, CircleDot, Search } from "lucide-react";
 
-export const getColumnIcon = (columnId: string) => {
+export const getColumnIcon = (columnId: string, isFinal?: boolean) => {
   switch (columnId) {
     case "to-do":
       return <Circle className="w-4 h-4 text-muted-foreground" />;
@@ -11,6 +11,10 @@ export const getColumnIcon = (columnId: string) => {
     case "done":
       return <CheckCircle2 className="w-4 h-4 text-muted-foreground" />;
     default:
-      return <Check className="w-4 h-4 text-muted-foreground" />;
+      return isFinal ? (
+        <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+      ) : (
+        <Circle className="w-4 h-4 text-muted-foreground" />
+      );
   }
 };

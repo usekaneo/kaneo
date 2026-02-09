@@ -283,7 +283,7 @@ function ListView({ project }: ListViewProps) {
               )}
             />
             <div className="flex items-center gap-2 h-4">
-              {getColumnIcon(column.id)}
+              {getColumnIcon(column.id, column.isFinal)}
               <div className="flex items-center gap-1">
                 <span className="mt-1 mr-1">{column.name}</span>
                 <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">

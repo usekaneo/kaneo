@@ -29,6 +29,7 @@ export default function TaskStatusPopover({
     project?.columns?.map((col) => ({
       value: col.id,
       label: col.name,
+      isFinal: col.isFinal,
     })) ?? [];
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
 
@@ -74,7 +75,7 @@ export default function TaskStatusPopover({
               className="w-full justify-start gap-2 h-8 px-2"
               onClick={() => handleStatusChange(status.value)}
             >
-              {getColumnIcon(status.value)}
+              {getColumnIcon(status.value, status.isFinal)}
               <span className="text-sm">{status.label}</span>
               {task.status === status.value ? (
                 <Check className="ml-auto h-4 w-4" />

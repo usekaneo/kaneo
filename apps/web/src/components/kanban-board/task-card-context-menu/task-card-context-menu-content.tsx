@@ -155,7 +155,7 @@ export default function TaskCardContextMenuContent({
               onCheckedChange={() => handleChange("status", col.id)}
               className="[&_svg]:text-muted-foreground"
             >
-              {getColumnIcon(col.id)}
+              {getColumnIcon(col.id, col.isFinal)}
               <span>{col.name}</span>
             </ContextMenuCheckboxItem>
           ))}

@@ -47,7 +47,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        {getColumnIcon(column.id)}
+        {getColumnIcon(column.id, column.isFinal)}
         <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
           {column.name}
         </h3>

@@ -186,7 +186,11 @@ function RouteComponent() {
                     size="sm"
                     className="h-6 px-2 text-xs gap-1.5"
                   >
-                    {getColumnIcon(filters.status)}
+                    {getColumnIcon(
+                      filters.status,
+                      project?.columns?.find((c) => c.id === filters.status)
+                        ?.isFinal,
+                    )}
                     <span>
                       Status is {getStatusDisplayName(filters.status)}
                     </span>
@@ -353,7 +357,7 @@ function RouteComponent() {
                               updateFilter("status", column.id)
                             }
                           >
-                            {getColumnIcon(column.id)}
+                            {getColumnIcon(column.id, column.isFinal)}
                             <span>{column.name}</span>
                           </DropdownMenuCheckboxItem>
                         ))}
