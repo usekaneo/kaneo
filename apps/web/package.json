@@ -73,7 +73,7 @@
 		"@kaneo/libs": "workspace:*",
 		"@tailwindcss/postcss": "^4.1.8",
 		"@types/node": "^25.2.3",
-		"@types/react": "^19.2.13",
+		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
 		"globals": "^17.3.0",
 		"postcss": "^8.5.1",
