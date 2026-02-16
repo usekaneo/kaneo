@@ -21,7 +21,7 @@ export function PublicTaskLabels({ labels }: PublicTaskLabelsProps) {
             style={{
               backgroundColor:
                 labelColors.find((c) => c.value === label.color)?.color ||
-                "#94a3b8",
+                "var(--color-neutral-400)",
             }}
           />
           <span className="truncate max-w-[80px]">{label.name}</span>

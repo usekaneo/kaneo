@@ -3,7 +3,7 @@ import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { z } from "zod/v4";
 import { Button } from "@/components/ui/button";
 import {
@@ -154,7 +154,7 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
         <Button
           type="submit"
           disabled={isPending}
-          className="w-full mt-4 text-white"
+          className="w-full mt-4"
         >
           {isPending ? "Creating Account..." : "Create Account"}
         </Button>

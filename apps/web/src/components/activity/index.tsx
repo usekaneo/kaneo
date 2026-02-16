@@ -8,7 +8,7 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "../ui/hover-card";
+} from "../ui/preview-card";
 import CommentCard from "./comment-card";
 
 function getActivityTypeComponent(type: string) {

@@ -50,7 +50,7 @@ function Layout({ children, className }: LayoutProps) {
   useUserPreferencesEffects();
 
   return (
-    <div className="flex w-full bg-sidebar">
+    <div className="flex w-full bg-background">
       <SidebarProvider
         defaultOpen={sidebarDefaultOpen}
         style={
@@ -63,7 +63,7 @@ function Layout({ children, className }: LayoutProps) {
         <AppSidebar />
         <SidebarInset
           className={cn(
-            "flex-1 flex flex-col overflow-auto bg-card border border-border rounded-md m-2",
+            "m-2 flex flex-1 flex-col overflow-auto rounded-xl border border-border/80 bg-background shadow-sm/5",
             className,
           )}
         >

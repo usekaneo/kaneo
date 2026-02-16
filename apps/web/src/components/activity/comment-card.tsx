@@ -30,15 +30,16 @@ import {
   Underline,
   X,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import CustomSlashMenu from "@/components/blocknote/custom-slash-menu";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@/components/ui/hover-card";
+} from "@/components/ui/preview-card";
 import { KbdSequence } from "@/components/ui/kbd";
 import {
   Tooltip,
@@ -526,6 +527,7 @@ export default function CommentCard({
             )}
             <SuggestionMenuController
               triggerCharacter={"/"}
+              suggestionMenuComponent={CustomSlashMenu}
               getItems={async (query) =>
                 getDefaultReactSlashMenuItems(editor).filter(
                   (item) => item.group !== "Media",

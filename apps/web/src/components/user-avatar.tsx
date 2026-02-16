@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
 import * as React from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -59,10 +59,10 @@ export function UserAvatar() {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-6 w-6 rounded-full p-0 hover:bg-secondary/50"
+          size="icon"
+          className="h-7 w-7 rounded-full p-0 hover:bg-sidebar-accent/70"
         >
-          <Avatar className="h-6 w-6">
+          <Avatar className="h-7 w-7">
             <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
             <AvatarFallback className="text-xs font-medium border border-border/30">
               {initials}

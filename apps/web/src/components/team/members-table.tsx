@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-invitation";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
 import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/members";
@@ -11,8 +11,8 @@ import type {
 import { useAuth } from "../providers/auth-provider/hooks/use-auth";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
+  
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -248,15 +248,15 @@ function MembersTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogClose disabled={isPending}>Cancel</AlertDialogClose>
+            <AlertDialogClose
               onClick={handleDeleteMember}
               disabled={isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Remove Member
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -277,17 +277,17 @@ function MembersTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isCancelling}>
+            <AlertDialogClose disabled={isCancelling}>
               Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
+            </AlertDialogClose>
+            <AlertDialogClose
               onClick={handleCancelInvitation}
               disabled={isCancelling}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Cancel Invitation
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

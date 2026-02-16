@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-router";
 import { Github, KeyRound, UserCheck } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { z } from "zod/v4";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";

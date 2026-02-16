@@ -1,13 +1,20 @@
 import { Archive, ArrowDownToLine, Menu, Trash2, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { Fragment, type ReactNode, useEffect, useMemo, useState } from "react";
+import { toast } from "@/lib/toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  Command,
+  CommandCollection,
   CommandDialog,
+  CommandDialogPopup,
+  CommandEmpty,
   CommandGroup,
+  CommandGroupLabel,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandPanel,
+  CommandSeparator,
 } from "@/components/ui/command";
 import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -16,6 +23,19 @@ import { getColumnIcon } from "@/lib/column";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { Button } from "../ui/button";
+
+type BulkActionItem = {
+  value: string;
+  label: string;
+  icon?: ReactNode;
+  onRun: () => void;
+};
+
+type BulkActionGroup = {
+  value: string;
+  label: string;
+  items: BulkActionItem[];
+};
 
 function BulkToolbar() {
   const { selectedTaskIds, clearSelection, selectAll } =
@@ -115,6 +135,68 @@ function BulkToolbar() {
 
   if (selectedCount === 0) return null;
 
+  const groupedItems = useMemo<BulkActionGroup[]>(
+    () => [
+      {
+        value: "actions",
+        label: "Actions",
+        items: [
+          {
+            value: "bulk-delete",
+            label: "Delete tasks",
+            icon: <Trash2 className="w-4 h-4 mr-2" />,
+            onRun: () => {
+              void handleBulkDelete();
+            },
+          },
+          {
+            value: "bulk-archive",
+            label: "Archive tasks",
+            icon: <Archive className="w-4 h-4 mr-2" />,
+            onRun: () => {
+              void handleBulkArchive();
+            },
+          },
+        ],
+      },
+      {
+        value: "status",
+        label: "Change Status",
+        items: (project?.columns ?? []).map((col) => ({
+          value: `status-${col.id}`,
+          label: col.name,
+          icon: getColumnIcon(col.id, col.isFinal),
+          onRun: () => {
+            void handleBulkChangeStatus(col.id);
+          },
+        })),
+      },
+      {
+        value: "assign",
+        label: "Assign to",
+        items: (workspaceUsers?.members ?? []).map((member) => ({
+          value: `assign-${member.userId}`,
+          label: member.user?.name || "Unknown User",
+          icon: (
+            <Avatar className="h-6 w-6 mr-2">
+              <AvatarImage
+                src={member.user?.image ?? ""}
+                alt={member.user?.name || ""}
+              />
+              <AvatarFallback className="text-xs font-medium border border-border/30">
+                {member.user?.name?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          ),
+          onRun: () => {
+            void handleBulkAssign(member.userId);
+          },
+        })),
+      },
+    ],
+    [project?.columns, workspaceUsers?.members, selectedCount],
+  );
+
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="bg-background text-foreground rounded-xl shadow-lg px-2 py-2 flex items-center gap-1 border border-border">
@@ -154,53 +236,36 @@ function BulkToolbar() {
         open={isActionsOpen}
         onOpenChange={setIsActionsOpen}
       >
-        <CommandInput placeholder="Search actions..." />
-        <CommandList>
-          <CommandGroup heading="Actions">
-            <CommandItem onSelect={handleBulkDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete tasks
-            </CommandItem>
-            <CommandItem onSelect={handleBulkArchive}>
-              <Archive className="w-4 h-4 mr-2" />
-              Archive tasks
-            </CommandItem>
-          </CommandGroup>
-
-          <CommandGroup heading="Change Status">
-            {(project?.columns ?? []).map((col) => (
-              <CommandItem
-                key={col.id}
-                onSelect={() => handleBulkChangeStatus(col.id)}
-              >
-                {getColumnIcon(col.id, col.isFinal)}
-                {col.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-
-          <CommandGroup heading="Assign to">
-            {workspaceUsers?.members?.map((member) => (
-              <CommandItem
-                key={member.userId}
-                onSelect={() => handleBulkAssign(member.userId)}
-              >
-                <Avatar className="h-6 w-6">
-                  <AvatarImage
-                    src={member.user?.image ?? ""}
-                    alt={member.user?.name || ""}
-                  />
-                  <AvatarFallback className="text-xs font-medium border border-border/30">
-                    {member.user?.name?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm">
-                  {member.user?.name || "Unknown User"}
-                </span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
+        <CommandDialogPopup>
+          <Command items={groupedItems}>
+            <CommandInput placeholder="Search actions..." />
+            <CommandPanel>
+              <CommandEmpty>No actions found.</CommandEmpty>
+              <CommandList>
+                {(group: BulkActionGroup, groupIndex: number) => (
+                  <Fragment key={group.value}>
+                    <CommandGroup items={group.items}>
+                      <CommandGroupLabel>{group.label}</CommandGroupLabel>
+                      <CommandCollection>
+                        {(item: BulkActionItem) => (
+                          <CommandItem
+                            key={item.value}
+                            value={item.value}
+                            onClick={item.onRun}
+                          >
+                            {item.icon}
+                            <span className="text-sm">{item.label}</span>
+                          </CommandItem>
+                        )}
+                      </CommandCollection>
+                    </CommandGroup>
+                    {groupIndex < groupedItems.length - 1 && <CommandSeparator />}
+                  </Fragment>
+                )}
+              </CommandList>
+            </CommandPanel>
+          </Command>
+        </CommandDialogPopup>
       </CommandDialog>
     </div>
   );

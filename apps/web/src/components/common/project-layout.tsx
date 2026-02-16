@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -62,7 +61,7 @@ export default function ProjectLayout({
 
   return (
     <Layout>
-      <Layout.Header>
+      <Layout.Header className="border-border/80">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-5 w-full">
             <div className="flex items-center gap-1">
@@ -84,19 +83,16 @@ export default function ProjectLayout({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <Separator
-                orientation="vertical"
-                className="mx-1.5 data-[orientation=vertical]:h-2.5"
-              />
+              <div className="mx-1.5 h-4 w-px shrink-0 bg-border/80" />
               <Breadcrumb className="flex items-center text-xs">
                 <BreadcrumbList className="!gap-1">
                   <BreadcrumbItem>
                     <BreadcrumbLink
                       href={`/dashboard/workspace/${workspaceId}`}
                     >
-                      <h1 className="text-xs text-muted-foreground">
+                      <span className="text-xs font-normal text-muted-foreground">
                         {workspace?.name}
-                      </h1>
+                      </span>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
@@ -104,9 +100,9 @@ export default function ProjectLayout({
                     <BreadcrumbLink
                       href={`/dashboard/workspace/${workspaceId}/project/${projectId}/board`}
                     >
-                      <h1 className="text-xs text-muted-foreground">
+                      <span className="text-xs font-normal text-muted-foreground">
                         {project?.name}
-                      </h1>
+                      </span>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                 </BreadcrumbList>
@@ -120,7 +116,7 @@ export default function ProjectLayout({
                 onClick={handleNavigateToBacklog}
                 className={cn(
                   "gap-1.5 h-6 px-2 text-xs text-muted-foreground",
-                  isBacklogRoute && "text-black dark:text-white",
+                  isBacklogRoute && "text-foreground",
                 )}
               >
                 <SquircleDashed className="w-3 h-3" />
@@ -136,7 +132,7 @@ export default function ProjectLayout({
                 <span
                   className={cn(
                     "text-xs text-muted-foreground",
-                    isBoardRoute && "text-black dark:text-white",
+                    isBoardRoute && "text-foreground",
                   )}
                 >
                   Tasks

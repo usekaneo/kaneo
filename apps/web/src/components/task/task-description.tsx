@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import CustomSlashMenu from "@/components/blocknote/custom-slash-menu";
 import { Form, FormControl, FormField } from "@/components/ui/form";
 import { KbdSequence } from "@/components/ui/kbd";
 import {
@@ -355,6 +356,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                 />
                 <SuggestionMenuController
                   triggerCharacter={"/"}
+                  suggestionMenuComponent={CustomSlashMenu}
                   getItems={async (query) =>
                     getDefaultReactSlashMenuItems(editor).filter(
                       (item) => item.group !== "Media",

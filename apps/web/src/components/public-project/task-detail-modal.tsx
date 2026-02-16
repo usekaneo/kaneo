@@ -1,4 +1,3 @@
-import * as Dialog from "@radix-ui/react-dialog";
 import { format } from "date-fns";
 import {
   Calendar,
@@ -11,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogClose, DialogPopup, DialogTitle } from "@/components/ui/dialog";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
@@ -54,7 +54,7 @@ export function PublicTaskDetailModal({
       return {
         icon: <GitMerge className="w-3.5 h-3.5" />,
         label: "Merged",
-        className: "text-purple-500",
+        className: "text-info-foreground",
       };
     }
     if (pr.metadata?.draft) {
@@ -67,15 +67,13 @@ export function PublicTaskDetailModal({
     return {
       icon: <GitPullRequest className="w-3.5 h-3.5" />,
       label: "Open",
-      className: "text-green-500",
+      className: "text-success-foreground",
     };
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
-        <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl max-h-[85vh]">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogPopup className="w-full max-w-3xl max-h-[85vh]">
           <div className="bg-background border border-border rounded-lg flex flex-col max-h-[85vh] shadow-lg">
             <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
               <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -86,9 +84,12 @@ export function PublicTaskDetailModal({
                   {task.status?.replace("-", " ")}
                 </span>
               </div>
-              <Dialog.Close className="shrink-0 p-1.5 hover:bg-muted rounded transition-colors">
+              <DialogClose
+                className="shrink-0 p-1.5 hover:bg-muted rounded transition-colors"
+                render={<button type="button" />}
+              >
                 <X className="w-4 h-4 text-muted-foreground" />
-              </Dialog.Close>
+              </DialogClose>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -280,8 +281,7 @@ export function PublicTaskDetailModal({
               </div>
             </div>
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </DialogPopup>
+    </Dialog>
   );
 }

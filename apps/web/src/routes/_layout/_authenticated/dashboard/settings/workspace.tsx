@@ -37,7 +37,7 @@ function RouteComponent() {
                 src={workspace?.logo ?? ""}
                 alt={workspace?.name || ""}
               />
-              <AvatarFallback className="text-md text-white bg-primary font-medium border border-border/30">
+              <AvatarFallback className="text-md  bg-primary font-medium border border-border/30">
                 {workspace?.name?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>

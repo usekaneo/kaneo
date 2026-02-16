@@ -4,7 +4,7 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@/components/ui/hover-card";
+} from "@/components/ui/preview-card";
 import type { ExternalLink } from "@/types/external-link";
 
 type PublicPRBadgeProps = {
@@ -25,9 +25,9 @@ export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
 
     if (isMerged) {
       return {
-        icon: <GitMerge className="h-3 w-3 text-purple-400" />,
+        icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
         status: "Merged",
-        statusClass: "text-purple-400",
+        statusClass: "text-info-foreground",
       };
     }
 
@@ -40,9 +40,9 @@ export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
     }
 
     return {
-      icon: <GitPullRequest className="h-3 w-3 text-green-400" />,
+      icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
       status: "Open",
-      statusClass: "text-green-400",
+      statusClass: "text-success-foreground",
     };
   };
 
@@ -89,9 +89,9 @@ export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
     );
     const allMerged = pullRequests.every((pr) => pr.metadata?.merged);
     const iconColor = allMerged
-      ? "text-purple-400"
+      ? "text-info-foreground"
       : hasOpen
-        ? "text-green-400"
+        ? "text-success-foreground"
         : "text-muted-foreground";
 
     return (

@@ -184,7 +184,7 @@ function KanbanBoard({ project }: KanbanBoardProps) {
       <div className="h-full flex flex-col w-full">
         <header className="mb-6 mt-6 space-y-6 shrink-0 px-6">
           <div className="flex items-center justify-between">
-            <div className="w-48 h-8 bg-zinc-100 dark:bg-zinc-800/50 rounded-md animate-pulse" />
+            <div className="w-48 h-8 bg-muted/50 rounded-md animate-pulse" />
           </div>
         </header>
 
@@ -196,11 +196,11 @@ function KanbanBoard({ project }: KanbanBoardProps) {
                   // biome-ignore lint/suspicious/noArrayIndexKey: It's a skeleton
                   i
                 }`}
-                className="flex-1 w-full min-w-80 flex flex-col bg-zinc-50 dark:bg-zinc-900 rounded-lg h-full"
+                className="flex-1 w-full min-w-80 flex flex-col bg-background rounded-lg h-full"
               >
                 <div className="px-4 py-3 flex items-center justify-between">
-                  <div className="w-24 h-5 bg-zinc-100 dark:bg-zinc-800/50 rounded animate-pulse" />
-                  <div className="w-8 h-5 bg-zinc-100 dark:bg-zinc-800/50 rounded animate-pulse" />
+                  <div className="w-24 h-5 bg-muted/50 rounded animate-pulse" />
+                  <div className="w-8 h-5 bg-muted/50 rounded animate-pulse" />
                 </div>
 
                 <div className="px-2 pb-4 flex flex-col gap-3 flex-1">
@@ -210,11 +210,11 @@ function KanbanBoard({ project }: KanbanBoardProps) {
                         // biome-ignore lint/suspicious/noArrayIndexKey: It's a skeleton
                         j
                       }`}
-                      className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-800/50 animate-pulse"
+                      className="p-4 bg-card rounded-lg border border-border/50 animate-pulse"
                     >
                       <div className="space-y-3">
-                        <div className="w-2/3 h-4 bg-zinc-200 dark:bg-zinc-700/50 rounded" />
-                        <div className="w-1/2 h-3 bg-zinc-200 dark:bg-zinc-700/50 rounded" />
+                        <div className="w-2/3 h-4 bg-muted/70 rounded" />
+                        <div className="w-1/2 h-3 bg-muted/70 rounded" />
                       </div>
                     </div>
                   ))}
@@ -241,7 +241,7 @@ function KanbanBoard({ project }: KanbanBoardProps) {
       onDragEnd={handleDragEnd}
     >
       <div className="h-full flex flex-col w-full">
-        <div className="flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]">
+        <div className="flex-1 min-h-0 overflow-x-auto bg-background [-webkit-overflow-scrolling:touch]">
           <div className="flex gap-3 p-3 h-full min-w-max transition-all duration-200 ease-out">
             {project.columns?.map((column) => (
               <div
@@ -256,8 +256,8 @@ function KanbanBoard({ project }: KanbanBoardProps) {
       </div>
       <DragOverlay dropAnimation={dropAnimation}>
         {activeTask ? (
-          <div className="transform rotate-1 scale-[1.03] shadow-xl shadow-indigo-500/20 dark:shadow-indigo-400/10">
-            <div className="ring-2 ring-indigo-500/30 dark:ring-indigo-400/40 rounded-lg">
+          <div className="transform rotate-1 scale-[1.03] shadow-lg">
+            <div className="ring-2 ring-ring/35 rounded-lg">
               <TaskCard task={activeTask} />
             </div>
           </div>

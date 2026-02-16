@@ -1,6 +1,6 @@
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Button } from "../ui/button";
 import {
@@ -57,7 +57,7 @@ export function ApiKeyCreatedModal({
               >
                 {copied ? (
                   <>
-                    <Check className="h-3 w-3 text-green-500" />
+                    <Check className="h-3 w-3 text-success-foreground" />
                     Copied
                   </>
                 ) : (

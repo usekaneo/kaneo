@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle, Loader2, Mail, X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import Layout from "@/components/common/layout";
 import PageTitle from "@/components/page-title";
 import { Badge } from "@/components/ui/badge";

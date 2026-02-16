@@ -64,7 +64,7 @@ export function PublicTaskCard({
   return (
     <button
       type="button"
-      className="group w-full text-left p-3 bg-card border border-border rounded-lg cursor-pointer transition-all duration-200 ease-out hover:border-border/70 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+      className="group w-full text-left p-3 bg-card border border-border rounded-lg cursor-pointer transition-all duration-200 ease-out hover:border-border/70 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onClick={handleClick}

@@ -3,7 +3,7 @@ import { createFileRoute, useRouter, useSearch } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { z } from "zod/v4";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
@@ -159,7 +159,7 @@ function VerifyOtp() {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full text-white"
+                className="w-full"
               >
                 {isPending ? "Verifying..." : "Verify & Sign In"}
               </Button>

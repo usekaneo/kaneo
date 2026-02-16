@@ -22,7 +22,7 @@ export function Logo({ className = "" }: LogoProps) {
         viewBox="0 0 450 104"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-auto text-[#1E1E1E] dark:text-white"
+        className="h-6 w-auto text-foreground"
       >
         <title>Kaneo Logo</title>
         <path

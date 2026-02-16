@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import useDeleteApiKey from "@/hooks/mutations/api-key/use-delete-api-key";
 import type { ApiKey } from "@/types/api-key";
 import { Button } from "../ui/button";

@@ -4,11 +4,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
+  
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -131,11 +131,10 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "border-b border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-200",
+        "border-b border-border/50 transition-all duration-200",
         isDragging && "opacity-50",
-        isTaskSelected && "bg-primary/10 shadow-sm",
-        isTaskFocused &&
-          "ring-2 ring-inset ring-indigo-500/50 dark:ring-indigo-400/50",
+        isTaskSelected && "bg-accent/50 shadow-sm",
+        isTaskFocused && "ring-2 ring-inset ring-ring/50",
       )}
     >
       <ContextMenu>
@@ -144,7 +143,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
           <div
             onClick={handleClick}
             onKeyDown={handleKeyDown}
-            className="group relative flex items-center gap-3 px-4 py-1.5 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/20 transition-colors cursor-pointer"
+            className="group relative flex items-center gap-3 px-4 py-1.5 hover:bg-accent/60 transition-colors cursor-pointer"
             {...attributes}
             {...listeners}
           >
@@ -154,14 +153,14 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
               </div>
             )}
             {showTaskNumbers && (
-              <div className="text-xs font-mono text-zinc-400 dark:text-zinc-500 flex-shrink-0">
+              <div className="text-xs font-mono text-muted-foreground flex-shrink-0">
                 {project?.slug}-{task.number}
               </div>
             )}
 
             <div className="flex-1 min-w-0 flex items-center gap-2">
               <div className="flex items-center gap-2 justify-between w-full">
-                <span className="text-sm text-zinc-900 dark:text-zinc-100 truncate">
+                <span className="text-sm text-foreground truncate">
                   {task.title}
                 </span>
                 {showLabels && (
@@ -242,13 +241,13 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogClose>Cancel</AlertDialogClose>
+            <AlertDialogClose
               onClick={handleDeleteTask}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete Task
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

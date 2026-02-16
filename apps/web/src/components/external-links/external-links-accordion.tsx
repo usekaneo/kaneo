@@ -64,7 +64,7 @@ export function ExternalLinksAccordion({
 
     if (isMerged) {
       return (
-        <span className="text-xs font-medium text-purple-500 flex items-center gap-1">
+        <span className="flex items-center gap-1 font-medium text-info-foreground text-xs">
           <GitMerge className="size-3" />
           Merged
         </span>
@@ -81,7 +81,7 @@ export function ExternalLinksAccordion({
     }
 
     return (
-      <span className="text-xs font-medium text-green-500 flex items-center gap-1">
+      <span className="flex items-center gap-1 font-medium text-success-foreground text-xs">
         <GitPullRequest className="size-3" />
         Open
       </span>

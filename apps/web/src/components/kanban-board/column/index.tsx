@@ -16,10 +16,10 @@ function Column({ column }: ColumnProps) {
 
   return (
     <div
-      className={`flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg relative group transition-all duration-300 ease-out ${
+      className={`group relative flex h-full min-h-0 w-full flex-col rounded-lg border transition-all duration-300 ease-out ${
         isDropzoneOver
-          ? "bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-200 dark:ring-indigo-800/50 shadow-md shadow-indigo-500/10"
-          : "bg-sidebar border border-border/50 dark:bg-zinc-900/30 hover:bg-zinc-50/40 dark:hover:bg-zinc-900/40 hover:shadow-sm"
+          ? "border-ring/40 bg-accent/55 shadow-sm ring-2 ring-ring/30"
+          : "border-border bg-muted/45 shadow-xs/5 hover:bg-muted/60 hover:shadow-sm"
       }`}
     >
       <CreateTaskModal
@@ -40,7 +40,7 @@ function Column({ column }: ColumnProps) {
         <button
           type="button"
           onClick={() => setIsTaskModalOpen(true)}
-          className="w-full text-left px-2 py-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 rounded-md flex items-center gap-2 transition-all"
+          className="w-full text-left px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/40 rounded-md flex items-center gap-2 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>Add task</span>

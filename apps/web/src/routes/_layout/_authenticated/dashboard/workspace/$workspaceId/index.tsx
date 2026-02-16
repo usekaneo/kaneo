@@ -147,7 +147,7 @@ function RouteComponent() {
               </div>
               <Button
                 onClick={handleCreateProject}
-                className="gap-2 text-white"
+                className="gap-2 "
               >
                 <Plus className="w-4 h-4" />
                 Create project

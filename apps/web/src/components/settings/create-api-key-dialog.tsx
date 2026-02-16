@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { z } from "zod";
 import useCreateApiKey from "@/hooks/mutations/api-key/use-create-api-key";
 import type { CreateApiKeyResponse } from "@/types/api-key";

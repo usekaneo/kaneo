@@ -10,11 +10,11 @@ import {
   GitPullRequest,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
+  
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -26,7 +26,7 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@/components/ui/hover-card";
+} from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -83,9 +83,9 @@ function TaskCard({ task }: TaskCardProps) {
 
     if (isMerged) {
       return {
-        icon: <GitMerge className="h-3 w-3 text-purple-400" />,
+        icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
         status: "Merged",
-        statusClass: "text-purple-400",
+        statusClass: "text-info-foreground",
       };
     }
 
@@ -98,9 +98,9 @@ function TaskCard({ task }: TaskCardProps) {
     }
 
     return {
-      icon: <GitPullRequest className="h-3 w-3 text-green-400" />,
+      icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
       status: "Open",
-      statusClass: "text-green-400",
+      statusClass: "text-success-foreground",
     };
   };
 
@@ -179,9 +179,9 @@ function TaskCard({ task }: TaskCardProps) {
             onClick={handleTaskCardClick}
             className={`group bg-card border border-border rounded-lg p-3 cursor-move transition-all duration-200 ease-out relative ${
               isDragging
-                ? "border-primary/30 shadow-lg shadow-primary/10 bg-card/90"
+                ? "border-ring/40 shadow-lg bg-card/95"
                 : "hover:border-border/70 hover:shadow-sm"
-            } ${isTaskSelected ? "bg-primary/10 shadow-sm" : ""} ${isTaskFocused ? "ring-2 ring-inset ring-indigo-500/50 dark:ring-indigo-400/50" : ""}`}
+            } ${isTaskSelected ? "bg-accent/50 shadow-sm" : ""} ${isTaskFocused ? "ring-2 ring-inset ring-ring/50" : ""}`}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleTaskCardClick(e);
@@ -222,8 +222,8 @@ function TaskCard({ task }: TaskCardProps) {
             )}
 
             <div className="mb-3 pr-7">
-              <h3
-                className="font-medium text-foreground text-sm leading-relaxed overflow-hidden break-words"
+              <div
+                className="text-[15px] font-medium text-foreground/95 leading-6 overflow-hidden break-words"
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 3,
@@ -233,7 +233,7 @@ function TaskCard({ task }: TaskCardProps) {
                 }}
               >
                 {task.title}
-              </h3>
+              </div>
             </div>
 
             {showLabels && (
@@ -312,9 +312,9 @@ function TaskCard({ task }: TaskCardProps) {
                     (pr) => pr.metadata?.merged,
                   );
                   const iconColor = allMerged
-                    ? "text-purple-400"
+                    ? "text-info-foreground"
                     : hasOpen
-                      ? "text-green-400"
+                      ? "text-success-foreground"
                       : "text-muted-foreground";
 
                   return (
@@ -400,13 +400,13 @@ function TaskCard({ task }: TaskCardProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogClose>Cancel</AlertDialogClose>
+            <AlertDialogClose
               onClick={handleDeleteTask}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete Task
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

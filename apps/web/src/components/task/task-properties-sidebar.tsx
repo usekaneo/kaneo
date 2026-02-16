@@ -7,7 +7,7 @@ import {
   GitBranch,
   Plus,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -617,7 +617,7 @@ export default function TaskPropertiesSidebar({
                         style={{
                           backgroundColor:
                             labelColors.find((c) => c.value === label.color)
-                              ?.color || "#94a3b8",
+                              ?.color || "var(--color-neutral-400)",
                         }}
                       />
                       <span className="truncate max-w-[60px]">

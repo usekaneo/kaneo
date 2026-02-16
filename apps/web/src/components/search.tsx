@@ -4,7 +4,6 @@ import { shortcuts } from "@/constants/shortcuts";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import SearchCommandMenu from "./search-command-menu";
 import { Input } from "./ui/input";
-import { Kbd } from "./ui/kbd";
 import { SidebarGroup } from "./ui/sidebar";
 
 function Search() {
@@ -19,21 +18,30 @@ function Search() {
   });
 
   return (
-    <SidebarGroup className="pb-0">
+    <SidebarGroup className="pb-1">
       <div className="relative">
         <Input
           name="search"
-          type="text"
+          type="search"
           placeholder="Search"
-          className="peer shadow-none block w-full rounded-sm py-1 pl-8 pr-10 text-sm h-8 cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:border-ring-0 focus-visible:outline-none"
-          onClick={() => setOpen(true)}
           readOnly
-          tabIndex={-1}
+          className="peer rounded-md border-sidebar-border/70 bg-sidebar-accent/15 ps-9 pe-9 text-sidebar-foreground placeholder:text-sidebar-foreground/60 shadow-none"
+          onClick={() => setOpen(true)}
+          onFocus={() => setOpen(true)}
         />
-        <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-        <Kbd className="absolute right-2 top-1/2 -translate-y-1/2 h-4 text-[9px] bg-muted">
-          {shortcuts.search.prefix}
-        </Kbd>
+        <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-sidebar-foreground/65 peer-disabled:opacity-50">
+          <SearchIcon aria-hidden="true" className="h-4 w-4" />
+        </div>
+        <button
+          aria-label="Open search"
+          className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-sidebar-foreground/70 outline-none transition-[color,box-shadow] hover:text-sidebar-foreground focus:z-10 focus-visible:ring-[3px] focus-visible:ring-ring/40"
+          onClick={() => setOpen(true)}
+          type="button"
+        >
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-md bg-sidebar-accent px-1.5 text-[10px] leading-none text-sidebar-foreground/75">
+            {shortcuts.search.prefix}
+          </span>
+        </button>
       </div>
       <SearchCommandMenu open={open} setOpen={setOpen} />
     </SidebarGroup>

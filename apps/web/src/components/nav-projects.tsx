@@ -9,11 +9,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
 import {
   Collapsible,
-  CollapsibleContent,
+  CollapsiblePanel,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
@@ -22,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/menu";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -33,30 +32,20 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import icons from "@/constants/project-icons";
-import { shortcuts } from "@/constants/shortcuts";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { cn } from "@/lib/cn";
 import type { ProjectWithTasks } from "@/types/project";
 import CreateProjectModal from "./shared/modals/create-project-modal";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { KbdSequence } from "./ui/kbd";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip";
 
 export function NavProjects() {
   const { isMobile } = useSidebar();
@@ -99,16 +88,19 @@ export function NavProjects() {
   if (!workspace) return null;
 
   return (
-    <Collapsible defaultOpen={true} className="group/collapsible">
+    <Collapsible defaultOpen className="group/collapsible">
       <SidebarGroup className="group-data-[collapsible=icon]:hidden pt-0">
-        <CollapsibleTrigger asChild>
-          <SidebarGroupLabel className="px-2 text-xs text-muted-foreground/70 font-medium cursor-pointer hover:text-muted-foreground transition-colors duration-200 flex items-center justify-between">
-            Projects
-            <ChevronRight className="ml-auto h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-          </SidebarGroupLabel>
+        <CollapsibleTrigger
+          className="data-panel-open:[&_svg]:rotate-90"
+          render={
+            <SidebarGroupLabel className="cursor-pointer px-2 text-sidebar-foreground/85 text-sm transition-colors duration-200 hover:text-sidebar-foreground flex items-center justify-between" />
+          }
+        >
+          <span>Projects</span>
+          <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200" />
         </CollapsibleTrigger>
-        <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 duration-200">
-          <SidebarMenu className="space-y-0.5">
+        <CollapsiblePanel className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 duration-200">
+          <SidebarMenu className="space-y-0">
             {projects?.map((project, index) => {
               const IconComponent =
                 icons[project.icon as keyof typeof icons] || icons.Layout;
@@ -120,29 +112,13 @@ export function NavProjects() {
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <SidebarMenuButton
-                    asChild
                     isActive={isCurrentProject(project.id)}
-                    size="sm"
-                    className="h-7 px-2 text-xs rounded-sm group text-foreground/60"
+                    size="default"
+                    className="h-9 rounded-md px-2.5 text-[15px] font-normal text-sidebar-foreground data-[active=true]:bg-sidebar-accent/70 data-[active=true]:font-medium"
+                    onClick={() => handleProjectClick(project)}
                   >
-                    <Button
-                      onClick={() => handleProjectClick(project)}
-                      variant="ghost"
-                      className={cn(
-                        "w-full h-7 justify-start items-center gap-2 px-2 text-sm transition-all duration-200 relative",
-                        isCurrentProject(project.id) &&
-                          "!bg-neutral-200 dark:!bg-neutral-800",
-                      )}
-                    >
-                      <IconComponent className="w-3.5 h-3.5 transition-colors duration-200 relative z-10" />
-                      <span
-                        className={cn(
-                          `transition-colors duration-200 relative z-10 font-normal ${isCurrentProject(project.id) ? "font-medium" : ""}`,
-                        )}
-                      >
-                        {project.name}
-                      </span>
-                    </Button>
+                    <IconComponent className="h-4.5 w-4.5 opacity-90" />
+                    <span>{project.name}</span>
                   </SidebarMenuButton>
 
                   <DropdownMenu>
@@ -158,14 +134,14 @@ export function NavProjects() {
                       align={isMobile ? "end" : "start"}
                     >
                       <DropdownMenuItem
-                        className="items-start cursor-pointer"
+                        className="h-8 items-start cursor-pointer text-sm"
                         onClick={() => handleProjectClick(project)}
                       >
                         <Folder className="text-muted-foreground" />
                         <span>View Project</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="items-start cursor-pointer"
+                        className="h-8 items-start cursor-pointer text-sm"
                         onClick={() => {
                           navigator.clipboard.writeText(
                             `${window.location.origin}/dashboard/workspace/${workspace?.id}/project/${project.id}`,
@@ -178,7 +154,7 @@ export function NavProjects() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        className="items-start text-destructive cursor-pointer"
+                        className="h-8 items-start text-destructive cursor-pointer text-sm"
                         onClick={() => {
                           setProjectToDeleteID(project.id);
                           setIsDeleteProjectModalOpen(true);
@@ -193,38 +169,20 @@ export function NavProjects() {
               );
             })}
             <SidebarMenuItem
-              className="data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 duration-200"
+              className="mt-1 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 duration-200"
               style={{ animationDelay: `${(projects?.length || 0) * 50}ms` }}
             >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <SidebarMenuButton
-                      size="sm"
-                      className="h-7 px-2 text-xs text-sidebar-foreground/70"
-                      onClick={() => setIsCreateProjectModalOpen(true)}
-                    >
-                      <Plus className="w-3.5 h-3.5 text-sidebar-foreground/70" />
-                      <span className="text-sm text-sidebar-foreground/70">
-                        Add project
-                      </span>
-                    </SidebarMenuButton>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <KbdSequence
-                      keys={[
-                        shortcuts.project.prefix,
-                        shortcuts.project.create,
-                      ]}
-                      className="ml-auto"
-                      description="Add project"
-                    />
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <SidebarMenuButton
+                size="default"
+                className="h-9 rounded-md px-2.5 text-[15px] font-normal text-sidebar-foreground/95 hover:text-sidebar-foreground"
+                onClick={() => setIsCreateProjectModalOpen(true)}
+              >
+                <Plus className="h-4.5 w-4.5 opacity-90" />
+                <span>Add project</span>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
-        </CollapsibleContent>
+        </CollapsiblePanel>
       </SidebarGroup>
       <CreateProjectModal
         open={isCreateProjectModalOpen}
@@ -244,8 +202,8 @@ export function NavProjects() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogClose>Cancel</AlertDialogClose>
+            <AlertDialogClose
               onClick={async () => {
                 await deleteProject({
                   id: projectToDeleteId || "",
@@ -264,7 +222,7 @@ export function NavProjects() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete Project
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
