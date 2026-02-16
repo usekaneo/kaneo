@@ -1,3 +1,12 @@
+## [2.2.1](https://github.com/usekaneo/kaneo/compare/v2.2.0...v2.2.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* apps/web/Dockerfile to reduce vulnerabilities ([c1b5731](https://github.com/usekaneo/kaneo/commit/c1b57312cff8d09ef23d7aee95d315d582b6af35))
+
+
+
 # [2.2.0](https://github.com/usekaneo/kaneo/compare/v2.1.24...v2.2.0) (2026-02-09)
 
 
