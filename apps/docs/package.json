@@ -13,7 +13,7 @@
     "generate-docs": "bun run ./scripts/generate-docs.ts"
   },
   "dependencies": {
-    "@fumadocs/mdx-remote": "^1.4.4",
+    "@fumadocs/mdx-remote": "^1.4.5",
     "@radix-ui/react-hover-card": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",
