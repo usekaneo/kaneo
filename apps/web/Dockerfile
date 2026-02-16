@@ -27,7 +27,7 @@ WORKDIR /app/apps/web
 RUN pnpm run build
 
 # Production stage with specific version
-FROM nginx:1.25-alpine AS runtime
+FROM nginx:1.29.5-alpine AS runtime
 
 # Create non-root user and configure nginx in a single layer
 RUN addgroup -g 1001 appuser && \
