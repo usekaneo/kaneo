@@ -23,7 +23,7 @@
     "fumadocs-openapi": "^10.3.3",
     "fumadocs-twoslash": "^3.1.13",
     "fumadocs-ui": "16.5.2",
-    "lucide-react": "^0.563.0",
+    "lucide-react": "^0.564.0",
     "motion": "^12.29.2",
     "next": "16.1.6",
     "react": "^19.2.4",
