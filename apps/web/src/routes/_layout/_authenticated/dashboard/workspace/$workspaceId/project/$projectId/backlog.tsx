@@ -3,7 +3,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { ArrowRight, Calendar, Filter, Plus, User, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "@/lib/toast";
 import BacklogListView from "@/components/backlog-list-view";
 import ProjectLayout from "@/components/common/project-layout";
 import PageTitle from "@/components/page-title";
@@ -29,6 +28,7 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getPriorityIcon } from "@/lib/priority";
+import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
@@ -318,13 +318,17 @@ function RouteComponent() {
   };
 
   return (
-    <ProjectLayout projectId={projectId} workspaceId={workspaceId}>
+    <ProjectLayout
+      projectId={projectId}
+      workspaceId={workspaceId}
+      activeView="backlog"
+    >
       <PageTitle title={`${project?.name}'s backlog`} />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
-        <div className="bg-card border-b border-border/80">
-          <div className="h-10 flex items-center px-4">
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
+        <div className="border-border/80 border-b bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/70">
+          <div className="flex min-h-12 items-center px-3 py-2 md:px-4">
+            <div className="flex w-full items-center gap-2">
+              <div className="flex w-full flex-wrap items-center gap-1.5">
                 <Button
                   variant="ghost"
                   size="xs"
@@ -466,17 +470,14 @@ function RouteComponent() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 gap-2 px-3 font-medium text-foreground"
+                        className="h-7 gap-2 px-2.5 text-xs font-medium text-foreground"
                       />
                     }
                   >
                     <Filter className="h-3.5 w-3.5" />
                     Filter
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-80"
-                    align="start"
-                  >
+                  <DropdownMenuContent className="w-80" align="start">
                     <DropdownMenuItem
                       disabled
                       className="h-8 rounded-md border border-border/80 bg-card text-sm text-muted-foreground"
@@ -525,7 +526,10 @@ function RouteComponent() {
                         key={member.userId}
                         checked={filters.assignee === member.userId}
                         onCheckedChange={(checked) =>
-                          updateFilter("assignee", checked ? member.userId : null)
+                          updateFilter(
+                            "assignee",
+                            checked ? member.userId : null,
+                          )
                         }
                         className="h-8 rounded-md text-sm"
                       >
@@ -586,8 +590,9 @@ function RouteComponent() {
                               className="w-3 h-3 rounded-full flex-shrink-0"
                               style={{
                                 backgroundColor:
-                                  labelColors.find((c) => c.value === label.color)
-                                    ?.color || "var(--color-neutral-400)",
+                                  labelColors.find(
+                                    (c) => c.value === label.color,
+                                  )?.color || "var(--color-neutral-400)",
                               }}
                             />
                             <span>{label.name}</span>

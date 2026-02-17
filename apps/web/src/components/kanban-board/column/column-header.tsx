@@ -1,8 +1,8 @@
 import { produce } from "immer";
 import { Archive } from "lucide-react";
-import { toast } from "@/lib/toast";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { getColumnIcon } from "@/lib/column";
+import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 
@@ -45,13 +45,15 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        {getColumnIcon(column.id, column.isFinal)}
-        <span className="text-[15px] font-medium text-foreground/95">
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="text-muted-foreground">
+          {getColumnIcon(column.id, column.isFinal)}
+        </span>
+        <span className="truncate text-sm font-medium text-foreground/95">
           {column.name}
         </span>
-        <span className="text-[15px] font-normal text-muted-foreground">
+        <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
           {column.tasks.length}
         </span>
       </div>
@@ -60,7 +62,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         <button
           type="button"
           onClick={handleArchiveTasks}
-          className="text-left px-2 py-1.5 text-muted-foreground hover:bg-accent/50 rounded-md flex items-center transition-all group"
+          className="flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-all hover:bg-accent/50"
           title="Archive all completed tasks"
         >
           <Archive className="w-4 h-4 text-muted-foreground" />

@@ -181,22 +181,22 @@ function KanbanBoard({ project }: KanbanBoardProps) {
 
   if (!project || !project?.columns) {
     return (
-      <div className="h-full flex flex-col w-full">
+      <div className="flex h-full w-full flex-col bg-linear-to-b from-muted/25 to-background">
         <header className="mb-6 mt-6 space-y-6 shrink-0 px-6">
           <div className="flex items-center justify-between">
             <div className="w-48 h-8 bg-muted/50 rounded-md animate-pulse" />
           </div>
         </header>
 
-        <div className="flex-1 relative min-h-0">
-          <div className="flex gap-6 flex-1 overflow-x-auto pb-4 px-4 md:px-6 h-full">
+        <div className="relative min-h-0 flex-1">
+          <div className="flex h-full flex-1 gap-4 overflow-x-auto px-4 pb-4 md:px-5">
             {[...Array(4)].map((_, i) => (
               <div
                 key={`kanban-column-skeleton-${
                   // biome-ignore lint/suspicious/noArrayIndexKey: It's a skeleton
                   i
                 }`}
-                className="flex-1 w-full min-w-80 flex flex-col bg-background rounded-lg h-full"
+                className="h-full min-w-80 w-full flex-1 rounded-xl border border-border/70 bg-card"
               >
                 <div className="px-4 py-3 flex items-center justify-between">
                   <div className="w-24 h-5 bg-muted/50 rounded animate-pulse" />
@@ -240,13 +240,13 @@ function KanbanBoard({ project }: KanbanBoardProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="h-full flex flex-col w-full">
-        <div className="flex-1 min-h-0 overflow-x-auto bg-background [-webkit-overflow-scrolling:touch]">
-          <div className="flex gap-3 p-3 h-full min-w-max transition-all duration-200 ease-out">
+      <div className="flex h-full w-full flex-col bg-linear-to-b from-muted/20 to-background">
+        <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
+          <div className="flex h-full min-w-max gap-4 px-4 py-4 transition-all duration-200 ease-out md:px-5">
             {project.columns?.map((column) => (
               <div
                 key={column.id}
-                className="h-full flex-1 min-w-80 max-w-96 shrink-0"
+                className="h-full max-w-96 min-w-80 shrink-0 flex-1"
               >
                 <Column column={column} />
               </div>

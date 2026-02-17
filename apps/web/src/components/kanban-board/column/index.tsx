@@ -16,10 +16,10 @@ function Column({ column }: ColumnProps) {
 
   return (
     <div
-      className={`group relative flex h-full min-h-0 w-full flex-col rounded-lg border transition-all duration-300 ease-out ${
+      className={`group relative flex h-full min-h-0 w-full flex-col rounded-xl border transition-all duration-300 ease-out ${
         isDropzoneOver
-          ? "border-ring/40 bg-accent/55 shadow-sm ring-2 ring-ring/30"
-          : "border-border bg-muted/45 shadow-xs/5 hover:bg-muted/60 hover:shadow-sm"
+          ? "border-ring/40 bg-accent/60 shadow-md ring-2 ring-ring/30"
+          : "border-border/70 bg-muted/40 shadow-xs/5 hover:border-border/90 dark:bg-card/90"
       }`}
     >
       <CreateTaskModal
@@ -28,19 +28,19 @@ function Column({ column }: ColumnProps) {
         status={toKebabCase(column.name)}
       />
 
-      <div className="p-2 shrink-0">
+      <div className="shrink-0 border-b border-border/60 px-3 py-2">
         <ColumnHeader column={column} />
       </div>
 
-      <div className="p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 [-webkit-overflow-scrolling:touch]">
         <ColumnDropzone column={column} onIsOverChange={setIsDropzoneOver} />
       </div>
 
-      <div className="p-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+      <div className="border-t border-border/60 p-1.5 transition-opacity md:opacity-0 md:group-hover:opacity-100">
         <button
           type="button"
           onClick={() => setIsTaskModalOpen(true)}
-          className="w-full text-left px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/40 rounded-md flex items-center gap-2 transition-all"
+          className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm text-muted-foreground transition-all hover:bg-accent/50 hover:text-foreground"
         >
           <Plus className="w-4 h-4" />
           <span>Add task</span>

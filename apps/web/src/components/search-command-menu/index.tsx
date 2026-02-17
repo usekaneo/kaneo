@@ -53,6 +53,14 @@ type SearchCommandMenuProps = {
   setOpen: (open: boolean) => void;
 };
 
+const GROUP_LABELS: Record<SearchResultItem["type"], string> = {
+  task: "Tasks",
+  project: "Projects",
+  workspace: "Workspaces",
+  comment: "Comments",
+  activity: "Activities",
+};
+
 function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
   const [query, setQuery] = useState("");
   const { data: workspace } = useActiveWorkspace();
@@ -152,23 +160,6 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
     }
   };
 
-  const getGroupLabel = (type: string) => {
-    switch (type) {
-      case "task":
-        return "Tasks";
-      case "project":
-        return "Projects";
-      case "workspace":
-        return "Workspaces";
-      case "comment":
-        return "Comments";
-      case "activity":
-        return "Activities";
-      default:
-        return "Results";
-    }
-  };
-
   const groupedItems = useMemo<SearchGroup[]>(() => {
     if (!searchEnabled) return [];
     const results = (searchResults?.results ?? []) as SearchResultItem[];
@@ -183,7 +174,7 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
 
     return Object.entries(grouped).map(([type, items]) => ({
       value: type,
-      label: getGroupLabel(type),
+      label: GROUP_LABELS[type as SearchResultItem["type"]] ?? "Results",
       items,
     }));
   }, [searchEnabled, searchResults?.results]);
@@ -200,7 +191,7 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
           <CommandInput
             placeholder="Search tasks, projects, comments..."
             value={query}
-            onValueChange={setQuery}
+            onChange={(event) => setQuery(event.target.value)}
           />
           <CommandPanel>
             <CommandEmpty>

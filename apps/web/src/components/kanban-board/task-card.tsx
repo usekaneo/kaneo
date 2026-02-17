@@ -10,11 +10,9 @@ import {
   GitPullRequest,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
-import { toast } from "@/lib/toast";
 import {
   AlertDialog,
   AlertDialogClose,
-  
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -33,6 +31,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
+import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -177,11 +176,11 @@ function TaskCard({ task }: TaskCardProps) {
           {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
           <div
             onClick={handleTaskCardClick}
-            className={`group bg-card border border-border rounded-lg p-3 cursor-move transition-all duration-200 ease-out relative ${
+            className={`group relative cursor-move rounded-lg border border-border bg-background p-3 shadow-xs/5 transition-all duration-200 ease-out ${
               isDragging
-                ? "border-ring/40 shadow-lg bg-card/95"
-                : "hover:border-border/70 hover:shadow-sm"
-            } ${isTaskSelected ? "bg-accent/50 shadow-sm" : ""} ${isTaskFocused ? "ring-2 ring-inset ring-ring/50" : ""}`}
+                ? "border-ring/40 bg-card shadow-lg"
+                : "hover:border-border/90 hover:bg-background hover:shadow-sm"
+            } ${isTaskSelected ? "bg-accent/45 shadow-sm" : ""} ${isTaskFocused ? "ring-2 ring-inset ring-ring/50" : ""}`}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleTaskCardClick(e);
@@ -191,7 +190,7 @@ function TaskCard({ task }: TaskCardProps) {
             }}
           >
             {showTaskNumbers && (
-              <div className="text-[10px] font-mono text-muted-foreground mb-2">
+              <div className="mb-2 text-[10px] font-mono text-muted-foreground/90">
                 {project?.slug}-{task.number}
               </div>
             )}
@@ -199,7 +198,7 @@ function TaskCard({ task }: TaskCardProps) {
             {showAssignees && (
               <div className="absolute top-3 right-3">
                 {task.userId ? (
-                  <Avatar className="h-6 w-6">
+                  <Avatar className="h-5 w-5">
                     <AvatarImage
                       src={assignee?.user?.image ?? ""}
                       alt={assignee?.user?.name || ""}
@@ -210,7 +209,7 @@ function TaskCard({ task }: TaskCardProps) {
                   </Avatar>
                 ) : (
                   <div
-                    className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
+                    className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-muted"
                     title="Unassigned"
                   >
                     <span className="text-[10px] font-medium text-muted-foreground">
@@ -221,9 +220,9 @@ function TaskCard({ task }: TaskCardProps) {
               </div>
             )}
 
-            <div className="mb-3 pr-7">
+            <div className="mb-2.5 pr-6">
               <div
-                className="text-[15px] font-medium text-foreground/95 leading-6 overflow-hidden break-words"
+                className="overflow-hidden break-words text-sm leading-5 font-medium text-foreground/95"
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 3,
@@ -237,14 +236,14 @@ function TaskCard({ task }: TaskCardProps) {
             </div>
 
             {showLabels && (
-              <div className="mb-3">
+              <div className="mb-2.5">
                 <TaskCardLabels taskId={task.id} />
               </div>
             )}
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {showPriority && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground">
                   {getPriorityIcon(task.priority ?? "")}
                 </span>
               )}
@@ -276,7 +275,7 @@ function TaskCard({ task }: TaskCardProps) {
                         e.stopPropagation();
                         window.open(pullRequests[0].url, "_blank");
                       }}
-                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
+                      className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
                     >
                       {getPRInfo(pullRequests[0]).icon}
                       <span>#{pullRequests[0].externalId}</span>
@@ -323,7 +322,7 @@ function TaskCard({ task }: TaskCardProps) {
                         <button
                           type="button"
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
+                          className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
                         >
                           <GitPullRequest className={`h-3 w-3 ${iconColor}`} />
                           <span>{pullRequests.length} PRs</span>
