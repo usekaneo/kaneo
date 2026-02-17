@@ -10,12 +10,16 @@ function Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {
 
 function CollapsibleTrigger({
   className,
+  render,
+  nativeButton,
   ...props
 }: CollapsiblePrimitive.Trigger.Props) {
   return (
     <CollapsiblePrimitive.Trigger
       className={cn("cursor-pointer", className)}
       data-slot="collapsible-trigger"
+      nativeButton={render ? false : nativeButton}
+      render={render}
       {...props}
     />
   );
