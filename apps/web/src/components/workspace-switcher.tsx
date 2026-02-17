@@ -113,25 +113,25 @@ export function WorkspaceSwitcher() {
               <DropdownMenuTrigger
                 render={
                   <SidebarMenuButton
-                    className="group h-9 w-full rounded-md px-2.5 text-sidebar-foreground data-[active=true]:bg-sidebar-accent/60"
+                    className="group h-8 w-full rounded-md px-2 text-sidebar-foreground data-[active=true]:bg-sidebar-accent/50"
                     size="default"
                   />
                 }
               >
                 <div className="flex items-center min-w-0 w-full">
                   <span
-                    className={`truncate text-base font-medium text-sidebar-foreground ${isSwitching ? "opacity-50" : ""}`}
+                    className={`truncate text-sm font-medium text-sidebar-foreground ${isSwitching ? "opacity-50" : ""}`}
                   >
                     {workspace.name}
                   </span>
                 </div>
                 <ChevronDown
-                  className={`ml-1 size-4 text-sidebar-foreground/85 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
+                  className={`ml-1 size-3.5 text-sidebar-foreground/72 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
                   data-state={isOpen ? "open" : "closed"}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="min-w-56 text-sidebar-foreground"
+                className="min-w-(--anchor-width) text-sidebar-foreground"
                 align="start"
                 side="bottom"
                 sideOffset={4}
@@ -151,7 +151,7 @@ export function WorkspaceSwitcher() {
                       }
                     }}
                     disabled={isSwitching || ws.id === workspace.id}
-                    className="h-8 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
+                    className="h-7 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
                   >
                     <span className="flex-1 text-left">
                       {isSwitching && ws.id === workspace?.id
@@ -170,7 +170,7 @@ export function WorkspaceSwitcher() {
                     setIsCreateWorkspaceModalOpen(true);
                     setIsOpen(false);
                   }}
-                  className="h-8 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
+                  className="h-7 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
                 >
                   <span>Add workspace</span>
                 </DropdownMenuItem>

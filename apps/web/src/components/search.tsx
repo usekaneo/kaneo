@@ -1,12 +1,13 @@
+"use client";
+
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
+import SearchCommandMenu from "@/components/search-command-menu";
+import { SidebarGroup } from "@/components/ui/sidebar";
 import { shortcuts } from "@/constants/shortcuts";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import SearchCommandMenu from "./search-command-menu";
-import { Input } from "./ui/input";
-import { SidebarGroup } from "./ui/sidebar";
 
-function Search() {
+export default function Search() {
   const [open, setOpen] = useState(false);
 
   useRegisterShortcuts({
@@ -19,33 +20,25 @@ function Search() {
 
   return (
     <SidebarGroup className="pb-1">
-      <div className="relative">
-        <Input
-          name="search"
-          type="search"
-          placeholder="Search"
-          readOnly
-          className="peer rounded-md border-sidebar-border/70 bg-sidebar-accent/15 ps-9 pe-9 text-sidebar-foreground placeholder:text-sidebar-foreground/60 shadow-none"
-          onClick={() => setOpen(true)}
-          onFocus={() => setOpen(true)}
-        />
-        <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-sidebar-foreground/65 peer-disabled:opacity-50">
-          <SearchIcon aria-hidden="true" className="h-4 w-4" />
-        </div>
-        <button
-          aria-label="Open search"
-          className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-sidebar-foreground/70 outline-none transition-[color,box-shadow] hover:text-sidebar-foreground focus:z-10 focus-visible:ring-[3px] focus-visible:ring-ring/40"
-          onClick={() => setOpen(true)}
-          type="button"
-        >
-          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-md bg-sidebar-accent px-1.5 text-[10px] leading-none text-sidebar-foreground/75">
-            {shortcuts.search.prefix}
-          </span>
-        </button>
-      </div>
+      <button
+        className="inline-flex h-8 w-full cursor-pointer rounded-md border border-input bg-background px-2 py-1.5 text-foreground text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        onClick={() => setOpen(true)}
+        type="button"
+      >
+        <span className="flex grow items-center">
+          <SearchIcon
+            aria-hidden="true"
+            className="-ms-1 me-3 text-muted-foreground/80"
+            size={16}
+          />
+          <span className="font-normal text-muted-foreground/70">Search</span>
+        </span>
+        <kbd className="-me-0.5 ms-6 inline-flex h-4 max-h-full items-center rounded border border-border/70 bg-background px-1 font-[inherit] font-medium text-[0.625rem] text-muted-foreground/60">
+          {shortcuts.search.prefix}
+        </kbd>
+      </button>
+
       <SearchCommandMenu open={open} setOpen={setOpen} />
     </SidebarGroup>
   );
 }
-
-export default Search;
