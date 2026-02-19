@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
-import NotificationDropdown from "@/components/notification/notification-dropdown";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -79,7 +78,6 @@ export default function WorkspaceLayout({
             </Breadcrumb>
           </div>
           <div className={`${cn("flex items-center gap-1.5", className)}`}>
-            <NotificationDropdown />
             {headerActions}
           </div>
         </div>

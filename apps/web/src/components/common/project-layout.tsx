@@ -5,7 +5,6 @@ import MobileProjectNav from "@/components/common/header/mobile-project-nav";
 import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
 import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-select";
 import Layout from "@/components/common/layout";
-import NotificationDropdown from "@/components/notification/notification-dropdown";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
@@ -18,8 +17,6 @@ import {
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 
 type ProjectLayoutProps = {
@@ -41,7 +38,6 @@ export default function ProjectLayout({
 }: ProjectLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: workspace } = useActiveWorkspace();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
     useState(false);
@@ -61,17 +57,6 @@ export default function ProjectLayout({
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
       params: { workspaceId, projectId },
-    });
-  };
-
-  const handleWorkspaceSwitch = async (nextWorkspaceId: string) => {
-    await authClient.organization.setActive({
-      organizationId: nextWorkspaceId,
-    });
-
-    navigate({
-      to: "/dashboard/workspace/$workspaceId",
-      params: { workspaceId: nextWorkspaceId },
     });
   };
 
@@ -170,7 +155,6 @@ export default function ProjectLayout({
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            <NotificationDropdown />
             {headerActions}
           </div>
         </div>

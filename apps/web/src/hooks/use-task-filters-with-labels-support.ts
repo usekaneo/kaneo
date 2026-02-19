@@ -43,6 +43,7 @@ function normalizeFilters(raw: unknown): BoardFilters {
 export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,
+  textQuery?: string,
 ) {
   const queryClient = useQueryClient();
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
@@ -84,7 +85,21 @@ export function useTaskFiltersWithLabelsSupport(
 
   const filterTasks = useCallback(
     (tasks: Task[]): Task[] => {
+      const normalizedTextQuery = textQuery?.trim().toLowerCase();
+
       return tasks.filter((task) => {
+        if (normalizedTextQuery) {
+          const title = task.title?.toLowerCase() ?? "";
+          const description = task.description?.toLowerCase() ?? "";
+          const matchesText =
+            title.includes(normalizedTextQuery) ||
+            description.includes(normalizedTextQuery);
+
+          if (!matchesText) {
+            return false;
+          }
+        }
+
         if (
           filters.status &&
           filters.status.length > 0 &&
@@ -167,7 +182,7 @@ export function useTaskFiltersWithLabelsSupport(
         return true;
       });
     },
-    [filters, getTaskLabels],
+    [filters, getTaskLabels, textQuery],
   );
 
   const filteredProject = useMemo(() => {
