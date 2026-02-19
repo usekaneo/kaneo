@@ -96,7 +96,7 @@ export default function ProjectLayout({
           <div className="flex min-w-0 items-center gap-2">
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger>
                   <SidebarTrigger className="-ml-1 h-7 w-7 cursor-pointer text-foreground/85 hover:text-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
@@ -116,11 +116,7 @@ export default function ProjectLayout({
             <div className="h-4 w-px shrink-0 bg-border/80" />
 
             <div className="hidden min-w-0 items-center gap-1 md:flex">
-              <WorkspaceCrumbSelect
-                workspaceId={workspaceId}
-                workspaceName={workspace?.name}
-                onSelectWorkspace={handleWorkspaceSwitch}
-              />
+              <WorkspaceCrumbSelect />
               <span className="text-muted-foreground/70 text-xs">/</span>
               <ProjectCrumbSelect
                 workspaceId={workspaceId}

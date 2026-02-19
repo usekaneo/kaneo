@@ -84,7 +84,7 @@ function ActiveFilterChip({
       <span className="h-full w-px bg-border" />
       <span className="px-2 text-foreground/80">{operator}</span>
       <span className="h-full w-px bg-border" />
-      <span className="px-2 text-foreground">{value}</span>
+      <span className="flex px-2 text-foreground">{value}</span>
       <span className="h-full w-px bg-border" />
       <button
         className="inline-flex h-full w-7 items-center justify-center rounded-r-md text-foreground/70 hover:bg-accent/70 hover:text-foreground"
