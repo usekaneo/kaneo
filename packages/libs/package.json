@@ -8,10 +8,10 @@
 		"lint": "biome check --write ."
 	},
 	"devDependencies": {
-		"@types/react": "^19.2.10",
+		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
 		"@kaneo/api": "workspace:*",
-		"hono": "^4.11.5",
+		"hono": "^4.11.9",
 		"react": "^19.2.4",
 		"@kaneo/typescript-config": "workspace:*",
 		"typescript": "^5.9.2",
