@@ -297,8 +297,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
       <div
         className={cn(
           "border-b border-border/50 transition-all duration-200 overflow-auto",
-          showDropIndicator &&
-            "border-l-4 border-l-ring bg-accent/35",
+          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
         )}
       >
         <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">

@@ -5,9 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, User } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "@/lib/toast";
 import { z } from "zod/v4";
-
 import { Logo } from "@/components/common/logo";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
@@ -22,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import useUpdateUserProfile from "@/hooks/mutations/use-update-user-profile";
+import { toast } from "@/lib/toast";
 
 type ProfileSetupStep = "profile" | "success";
 

@@ -1,6 +1,12 @@
 import { Archive, ArrowDownToLine, Menu, Trash2, X } from "lucide-react";
-import { Fragment, type ReactNode, useEffect, useMemo, useState } from "react";
-import { toast } from "@/lib/toast";
+import {
+  Fragment,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Command,
@@ -20,6 +26,7 @@ import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
+import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { Button } from "../ui/button";
@@ -73,7 +80,7 @@ function BulkToolbar() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectAll, clearSelection]);
 
-  const handleMoveToBacklog = async () => {
+  const handleMoveToBacklog = useCallback(async () => {
     try {
       await bulkMoveToBacklog(Array.from(selectedTaskIds));
       toast.success(`${selectedCount} tasks moved to backlog`);
@@ -81,9 +88,9 @@ function BulkToolbar() {
     } catch (_error) {
       toast.error("Failed to move tasks to backlog");
     }
-  };
+  }, [bulkMoveToBacklog, selectedTaskIds, selectedCount, clearSelection]);
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = useCallback(async () => {
     if (
       !confirm(`Delete ${selectedCount} tasks? This action cannot be undone.`)
     ) {
@@ -98,9 +105,9 @@ function BulkToolbar() {
     } catch (_error) {
       toast.error("Failed to delete tasks");
     }
-  };
+  }, [bulkDelete, selectedTaskIds, selectedCount, clearSelection]);
 
-  const handleBulkArchive = async () => {
+  const handleBulkArchive = useCallback(async () => {
     try {
       await bulkArchive(Array.from(selectedTaskIds));
       toast.success(`${selectedCount} tasks archived`);
@@ -109,31 +116,38 @@ function BulkToolbar() {
     } catch (_error) {
       toast.error("Failed to archive tasks");
     }
-  };
+  }, [bulkArchive, selectedTaskIds, selectedCount, clearSelection]);
 
-  const handleBulkChangeStatus = async (status: string) => {
-    try {
-      await bulkChangeStatus({ taskIds: Array.from(selectedTaskIds), status });
-      toast.success(`${selectedCount} tasks updated`);
-      clearSelection();
-      setIsActionsOpen(false);
-    } catch (_error) {
-      toast.error("Failed to update tasks");
-    }
-  };
+  const handleBulkChangeStatus = useCallback(
+    async (status: string) => {
+      try {
+        await bulkChangeStatus({
+          taskIds: Array.from(selectedTaskIds),
+          status,
+        });
+        toast.success(`${selectedCount} tasks updated`);
+        clearSelection();
+        setIsActionsOpen(false);
+      } catch (_error) {
+        toast.error("Failed to update tasks");
+      }
+    },
+    [bulkChangeStatus, selectedTaskIds, selectedCount, clearSelection],
+  );
 
-  const handleBulkAssign = async (userId: string) => {
-    try {
-      await bulkAssign({ taskIds: Array.from(selectedTaskIds), userId });
-      toast.success(`${selectedCount} tasks assigned`);
-      clearSelection();
-      setIsActionsOpen(false);
-    } catch (_error) {
-      toast.error("Failed to assign tasks");
-    }
-  };
-
-  if (selectedCount === 0) return null;
+  const handleBulkAssign = useCallback(
+    async (userId: string) => {
+      try {
+        await bulkAssign({ taskIds: Array.from(selectedTaskIds), userId });
+        toast.success(`${selectedCount} tasks assigned`);
+        clearSelection();
+        setIsActionsOpen(false);
+      } catch (_error) {
+        toast.error("Failed to assign tasks");
+      }
+    },
+    [bulkAssign, selectedTaskIds, selectedCount, clearSelection],
+  );
 
   const groupedItems = useMemo<BulkActionGroup[]>(
     () => [
@@ -194,8 +208,17 @@ function BulkToolbar() {
         })),
       },
     ],
-    [project?.columns, workspaceUsers?.members, selectedCount],
+    [
+      project?.columns,
+      workspaceUsers?.members,
+      handleBulkDelete,
+      handleBulkArchive,
+      handleBulkChangeStatus,
+      handleBulkAssign,
+    ],
   );
+
+  if (selectedCount === 0) return null;
 
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
@@ -259,7 +282,9 @@ function BulkToolbar() {
                         )}
                       </CommandCollection>
                     </CommandGroup>
-                    {groupIndex < groupedItems.length - 1 && <CommandSeparator />}
+                    {groupIndex < groupedItems.length - 1 && (
+                      <CommandSeparator />
+                    )}
                   </Fragment>
                 )}
               </CommandList>

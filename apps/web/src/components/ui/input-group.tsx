@@ -2,10 +2,9 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
-
-import { cn } from "@/lib/cn";
 import { Input, type InputProps } from "@/components/ui/input";
 import { Textarea, type TextareaProps } from "@/components/ui/textarea";
+import { cn } from "@/lib/cn";
 
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -15,7 +14,6 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
         className,
       )}
       data-slot="input-group"
-      role="group"
       {...props}
     />
   );
@@ -52,21 +50,6 @@ function InputGroupAddon({
       className={cn(inputGroupAddonVariants({ align }), className)}
       data-align={align}
       data-slot="input-group-addon"
-      onMouseDown={(e) => {
-        const target = e.target as HTMLElement;
-        const isInteractive = target.closest(
-          "button, a, input, select, textarea, [role='button'], [role='combobox'], [role='listbox'], [data-slot='select-trigger']",
-        );
-        if (isInteractive) return;
-        e.preventDefault();
-        const parent = e.currentTarget.parentElement;
-        const input = parent?.querySelector<
-          HTMLInputElement | HTMLTextAreaElement
-        >("input, textarea");
-        if (input && !parent?.querySelector("input:focus, textarea:focus")) {
-          input.focus();
-        }
-      }}
       {...props}
     />
   );

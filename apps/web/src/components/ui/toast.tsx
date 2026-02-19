@@ -8,9 +8,8 @@ import {
   LoaderCircleIcon,
   TriangleAlertIcon,
 } from "lucide-react";
-
-import { cn } from "@/lib/cn";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 
 const toastManager = Toast.createToastManager();
 const anchoredToastManager = Toast.createToastManager();

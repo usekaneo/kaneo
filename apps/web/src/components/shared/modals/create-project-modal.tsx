@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "@/lib/toast";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,6 +27,7 @@ import useCreateProject from "@/hooks/mutations/project/use-create-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import generateProjectSlug from "@/lib/generate-project-id";
+import { toast } from "@/lib/toast";
 
 type CreateProjectModalProps = {
   open: boolean;

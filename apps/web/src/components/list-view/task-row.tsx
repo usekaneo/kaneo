@@ -10,11 +10,9 @@ import {
   GitPullRequest,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
-import { toast } from "@/lib/toast";
 import {
   AlertDialog,
   AlertDialogClose,
-  
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -34,6 +32,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
+import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";

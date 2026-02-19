@@ -42,11 +42,14 @@ function addToast(
 
 type ToastFn = (title: string, options?: ToastOptions) => string;
 
-const success: ToastFn = (title, options) => addToast(title, "success", options);
+const success: ToastFn = (title, options) =>
+  addToast(title, "success", options);
 const error: ToastFn = (title, options) => addToast(title, "error", options);
 const info: ToastFn = (title, options) => addToast(title, "info", options);
-const warning: ToastFn = (title, options) => addToast(title, "warning", options);
-const message: ToastFn = (title, options) => addToast(title, undefined, options);
+const warning: ToastFn = (title, options) =>
+  addToast(title, "warning", options);
+const message: ToastFn = (title, options) =>
+  addToast(title, undefined, options);
 
 const toast = Object.assign(message, {
   success,

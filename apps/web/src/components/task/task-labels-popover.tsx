@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Check, Plus, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "@/lib/toast";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -13,6 +12,7 @@ import useDeleteLabel from "@/hooks/mutations/label/use-delete-label";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
 const labelColors = [

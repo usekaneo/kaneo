@@ -7,13 +7,11 @@ import {
 } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "@/lib/toast";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
 import {
   AlertDialog,
   AlertDialogClose,
-  
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -42,6 +40,7 @@ import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/general",

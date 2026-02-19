@@ -22,13 +22,13 @@ import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "@/lib/toast";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import toKebabCase from "@/lib/to-kebab-case";
+import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -266,8 +266,7 @@ function ListView({ project }: ListViewProps) {
       <div
         className={cn(
           "border-b border-border/50 transition-all duration-200 overflow-auto",
-          showDropIndicator &&
-            "border-l-4 border-l-ring bg-accent/35",
+          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
         )}
       >
         <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">

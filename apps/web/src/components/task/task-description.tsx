@@ -24,9 +24,8 @@ import {
   Type,
   Underline,
 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import CustomSlashMenu from "@/components/blocknote/custom-slash-menu";
+import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField } from "@/components/ui/form";
 import { KbdSequence } from "@/components/ui/kbd";
 import {

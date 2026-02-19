@@ -35,11 +35,12 @@ export default function CustomSlashMenu(
               className={cn("kaneo-slash-menu-item", {
                 "is-selected": selectedIndex === index,
               })}
-              aria-selected={selectedIndex === index}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => onItemClick?.(item)}
             >
-              {item.icon && <span className="kaneo-slash-menu-icon">{item.icon}</span>}
+              {item.icon && (
+                <span className="kaneo-slash-menu-icon">{item.icon}</span>
+              )}
               <span className="kaneo-slash-menu-title">{item.title}</span>
               {shortcut && (
                 <span className="kaneo-slash-menu-shortcut">{shortcut}</span>

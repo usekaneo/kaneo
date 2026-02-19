@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "@/lib/toast";
 import { z } from "zod/v4";
 import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +36,7 @@ import {
 import useImportGithubIssues from "@/hooks/mutations/github-integration/use-import-github-issues";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 
 const githubIntegrationSchema = z.object({
   repositoryOwner: z

@@ -1,10 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CornerDownLeftIcon,
-} from "lucide-react";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { ArrowDownIcon, ArrowUpIcon, CornerDownLeftIcon } from "lucide-react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import SearchCommandMenu from "@/components/search-command-menu";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import CreateWorkspaceModal from "@/components/shared/modals/create-workspace-modal";
@@ -89,10 +85,10 @@ function CommandPalette() {
     },
   });
 
-  const runCommand = (command: () => void) => {
+  const runCommand = useCallback((command: () => void) => {
     command();
     setOpen(false);
-  };
+  }, []);
 
   const groupedItems = useMemo<PaletteGroup[]>(
     () => [
@@ -191,7 +187,10 @@ function CommandPalette() {
     for (const group of groupedItems) {
       for (const item of group.items) {
         if (!item.shortcut) continue;
-        handlers.set(item.shortcut.replace(/\s+/g, "").toLowerCase(), item.onRun);
+        handlers.set(
+          item.shortcut.replace(/\s+/g, "").toLowerCase(),
+          item.onRun,
+        );
       }
     }
     return handlers;
@@ -204,7 +203,12 @@ function CommandPalette() {
     let timeout: ReturnType<typeof setTimeout> | undefined;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey || event.key === "Shift") {
+      if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.key === "Shift"
+      ) {
         return;
       }
 
@@ -232,7 +236,7 @@ function CommandPalette() {
       clearTimeout(timeout);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, shortcutHandlers]);
+  }, [open, shortcutHandlers, runCommand]);
 
   return (
     <>
@@ -258,14 +262,18 @@ function CommandPalette() {
                             >
                               <span className="flex-1">{item.label}</span>
                               {item.shortcut && (
-                                <CommandShortcut>{item.shortcut}</CommandShortcut>
+                                <CommandShortcut>
+                                  {item.shortcut}
+                                </CommandShortcut>
                               )}
                             </CommandItem>
                           );
                         }}
                       </CommandCollection>
                     </CommandGroup>
-                    {groupIndex < groupedItems.length - 1 && <CommandSeparator />}
+                    {groupIndex < groupedItems.length - 1 && (
+                      <CommandSeparator />
+                    )}
                   </Fragment>
                 )}
               </CommandList>

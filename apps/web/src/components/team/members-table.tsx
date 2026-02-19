@@ -1,8 +1,8 @@
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "@/lib/toast";
 import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-invitation";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
+import { toast } from "@/lib/toast";
 import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/members";
 import type {
   WorkspaceUser,
@@ -12,7 +12,6 @@ import { useAuth } from "../providers/auth-provider/hooks/use-auth";
 import {
   AlertDialog,
   AlertDialogClose,
-  
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -277,9 +276,7 @@ function MembersTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose disabled={isCancelling}>
-              Cancel
-            </AlertDialogClose>
+            <AlertDialogClose disabled={isCancelling}>Cancel</AlertDialogClose>
             <AlertDialogClose
               onClick={handleCancelInvitation}
               disabled={isCancelling}

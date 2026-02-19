@@ -67,9 +67,7 @@ export function ErrorDisplay({
                     key={`step-${index}-${step.slice(0, 10)}`}
                     className="flex items-start gap-2"
                   >
-                    <span className="text-muted-foreground mt-0.5">
-                      •
-                    </span>
+                    <span className="text-muted-foreground mt-0.5">•</span>
                     <span>{step}</span>
                   </li>
                 ))}
