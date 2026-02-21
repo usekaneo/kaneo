@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.0.3",
   "info": {
     "title": "Kaneo API",
     "description": "Kaneo Project Management API - Manage projects, tasks, labels, and more",
@@ -42,14 +42,8 @@
                   "type": "object",
                   "properties": {
                     "disableRegistration": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "isDemoMode": {
                       "type": "boolean"
@@ -58,54 +52,24 @@
                       "type": "boolean"
                     },
                     "hasGithubSignIn": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "hasGoogleSignIn": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "hasDiscordSignIn": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "hasCustomOAuth": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "hasGuestAccess": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -152,38 +116,20 @@
                         "type": "string"
                       },
                       "icon": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "name": {
                         "type": "string"
                       },
                       "description": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "createdAt": {},
                       "isPublic": {
-                        "anyOf": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "boolean",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -237,38 +183,20 @@
                       "type": "string"
                     },
                     "icon": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "name": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "isPublic": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -342,38 +270,20 @@
                       "type": "string"
                     },
                     "icon": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "name": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "isPublic": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -434,38 +344,20 @@
                       "type": "string"
                     },
                     "icon": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "name": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "isPublic": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -551,38 +443,20 @@
                       "type": "string"
                     },
                     "icon": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "name": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "isPublic": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -663,47 +537,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -715,7 +565,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -806,47 +657,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -858,7 +685,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -912,47 +740,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -964,7 +768,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1061,47 +866,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -1113,7 +894,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1230,14 +1012,8 @@
                           "type": "string"
                         },
                         "userId": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -1278,47 +1054,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -1330,7 +1082,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1403,47 +1156,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -1455,7 +1184,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1528,47 +1258,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -1580,7 +1286,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1653,47 +1360,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -1705,7 +1388,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1746,8 +1430,7 @@
                   "dueDate": {
                     "type": "string"
                   }
-                },
-                "required": []
+                }
               }
             }
           }
@@ -1776,47 +1459,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -1828,7 +1487,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1901,47 +1561,23 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
                       "type": "string"
@@ -1953,7 +1589,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -2184,30 +1821,17 @@
                     "type": "string"
                   },
                   "icon": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "nullable": true
                   },
                   "color": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "nullable": true
                   },
                   "isFinal": {
                     "type": "boolean"
                   }
-                },
-                "required": []
+                }
               }
             }
           }
@@ -2276,68 +1900,33 @@
                           "title_changed",
                           "description_changed",
                           "create"
-                        ]
+                        ],
+                        "type": "string"
                       },
                       "createdAt": {},
                       "userId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "content": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "externalUserName": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "externalUserAvatar": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "externalSource": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "externalUrl": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -2403,68 +1992,33 @@
                         "title_changed",
                         "description_changed",
                         "create"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {},
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalSource": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUrl": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2548,68 +2102,33 @@
                         "title_changed",
                         "description_changed",
                         "create"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {},
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalSource": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUrl": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2683,68 +2202,33 @@
                         "title_changed",
                         "description_changed",
                         "create"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {},
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalSource": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUrl": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2818,68 +2302,33 @@
                         "title_changed",
                         "description_changed",
                         "create"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {},
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalSource": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUrl": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2942,36 +2391,18 @@
                         "type": "string"
                       },
                       "userId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "description": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "startTime": {},
                       "endTime": {},
                       "duration": {
-                        "anyOf": [
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "number",
+                        "nullable": true
                       },
                       "createdAt": {}
                     },
@@ -3024,36 +2455,18 @@
                       "type": "string"
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "startTime": {},
                     "endTime": {},
                     "duration": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "createdAt": {}
                   },
@@ -3103,36 +2516,18 @@
                       "type": "string"
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "startTime": {},
                     "endTime": {},
                     "duration": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "createdAt": {}
                   },
@@ -3207,36 +2602,18 @@
                       "type": "string"
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "startTime": {},
                     "endTime": {},
                     "duration": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "createdAt": {}
                   },
@@ -3311,24 +2688,12 @@
                       },
                       "createdAt": {},
                       "taskId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "workspaceId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -3385,24 +2750,12 @@
                       },
                       "createdAt": {},
                       "taskId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "workspaceId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -3457,24 +2810,12 @@
                     },
                     "createdAt": {},
                     "taskId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "workspaceId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3546,24 +2887,12 @@
                     },
                     "createdAt": {},
                     "taskId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "workspaceId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3615,24 +2944,12 @@
                     },
                     "createdAt": {},
                     "taskId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "workspaceId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3705,24 +3022,12 @@
                     },
                     "createdAt": {},
                     "taskId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "workspaceId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3777,14 +3082,8 @@
                         "type": "string"
                       },
                       "content": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "type": {
                         "enum": [
@@ -3794,7 +3093,8 @@
                           "task_status_changed",
                           "task_assignee_changed",
                           "time_entry_created"
-                        ]
+                        ],
+                        "type": "string"
                       },
                       "isRead": {
                         "type": "boolean"
@@ -3806,7 +3106,8 @@
                         "enum": [
                           "task",
                           "workspace"
-                        ]
+                        ],
+                        "type": "string"
                       },
                       "createdAt": {}
                     },
@@ -3849,14 +3150,8 @@
                       "type": "string"
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "type": {
                       "enum": [
@@ -3866,7 +3161,8 @@
                         "task_status_changed",
                         "task_assignee_changed",
                         "time_entry_created"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "isRead": {
                       "type": "boolean"
@@ -3878,7 +3174,8 @@
                       "enum": [
                         "task",
                         "workspace"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {}
                   },
@@ -3957,14 +3254,8 @@
                       "type": "string"
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "type": {
                       "enum": [
@@ -3974,7 +3265,8 @@
                         "task_status_changed",
                         "task_assignee_changed",
                         "time_entry_created"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "isRead": {
                       "type": "boolean"
@@ -3986,7 +3278,8 @@
                       "enum": [
                         "task",
                         "workspace"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {}
                   },
@@ -4106,47 +3399,23 @@
                             "type": "string"
                           },
                           "position": {
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "number",
+                            "nullable": true
                           },
                           "number": {
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "number",
+                            "nullable": true
                           },
                           "userId": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "title": {
                             "type": "string"
                           },
                           "description": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "status": {
                             "type": "string"
@@ -4158,7 +3427,8 @@
                               "medium",
                               "high",
                               "urgent"
-                            ]
+                            ],
+                            "type": "string"
                           },
                           "dueDate": {},
                           "createdAt": {}
@@ -4192,38 +3462,20 @@
                             "type": "string"
                           },
                           "icon": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "name": {
                             "type": "string"
                           },
                           "description": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "createdAt": {},
                           "isPublic": {
-                            "anyOf": [
-                              {
-                                "type": "boolean"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "boolean",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -4253,34 +3505,16 @@
                             "type": "string"
                           },
                           "logo": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "metadata": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "description": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "createdAt": {}
                         },
@@ -4318,68 +3552,33 @@
                               "title_changed",
                               "description_changed",
                               "create"
-                            ]
+                            ],
+                            "type": "string"
                           },
                           "createdAt": {},
                           "userId": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "content": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUserName": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUserAvatar": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalSource": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUrl": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -4419,68 +3618,33 @@
                               "title_changed",
                               "description_changed",
                               "create"
-                            ]
+                            ],
+                            "type": "string"
                           },
                           "createdAt": {},
                           "userId": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "content": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUserName": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUserAvatar": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalSource": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUrl": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -4497,8 +3661,7 @@
                         ]
                       }
                     }
-                  },
-                  "required": []
+                  }
                 }
               }
             }
@@ -4526,7 +3689,8 @@
                 "comments",
                 "activities"
               ],
-              "default": "all"
+              "default": "all",
+              "type": "string"
             }
           },
           {
@@ -4580,14 +3744,8 @@
                   "type": "object",
                   "properties": {
                     "appName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -4743,24 +3901,12 @@
                       "type": "string"
                     },
                     "installationId": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "isActive": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "updatedAt": {}
@@ -4818,24 +3964,12 @@
                       "type": "string"
                     },
                     "installationId": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "isActive": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "updatedAt": {}
@@ -4916,24 +4050,12 @@
                       "type": "string"
                     },
                     "installationId": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "isActive": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "updatedAt": {}
@@ -4990,8 +4112,7 @@
                   "isActive": {
                     "type": "boolean"
                   }
-                },
-                "required": []
+                }
               }
             }
           }
@@ -5024,24 +4145,12 @@
                       "type": "string"
                     },
                     "installationId": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "isActive": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "updatedAt": {}
@@ -5165,14 +4274,8 @@
                         "type": "string"
                       },
                       "title": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "metadata": {},
                       "createdAt": {},
