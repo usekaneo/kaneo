@@ -7,7 +7,7 @@ This directory contains Kaneo documentation powered by Mintlify.
 - Repository: `kaneo`
 - Docs root for Mintlify: `/apps/docs`
 - Main config: `apps/docs/docs.json`
-- OpenAPI source: `https://cloud.kaneo.app/api/openapi`
+- OpenAPI source file: `apps/docs/openapi.json`
 
 ## Local preview
 
@@ -30,4 +30,4 @@ mint dev
 - `index.mdx`: docs landing page
 - `core/**`: product and deployment guides
 - `api-reference/**`: overview/auth pages
-- API endpoints are generated from the OpenAPI URL in `docs.json`
+- API endpoints are generated from the local OpenAPI file in `docs.json`
