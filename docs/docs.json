@@ -53,19 +53,24 @@
               "core/deployments/railway",
               "core/guide/migrating-from-v1"
             ]
-          },
-          {
-            "group": "API Basics",
-            "pages": [
-              "api-reference/introduction",
-              "api-reference/authentication"
-            ]
           }
         ]
       },
       {
         "tab": "API Reference",
-        "openapi": "https://cloud.kaneo.app/api/openapi"
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "https://cloud.kaneo.app/api/openapi"
+          }
+        ]
       }
     ],
     "global": {
