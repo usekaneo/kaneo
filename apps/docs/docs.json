@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Kaneo",
   "colors": {
-    "primary": "#5463FF",
-    "light": "#6D79FF",
-    "dark": "#3F4AE0"
+    "primary": "#262626",
+    "light": "#525252",
+    "dark": "#171717"
   },
   "favicon": "/favicon.svg",
   "logo": {
