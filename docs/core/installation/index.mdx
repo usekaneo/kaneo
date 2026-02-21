@@ -1,0 +1,51 @@
+---
+title: Installation Overview
+description: Choose how to install Kaneo - quick setup with drim or manual Docker Compose
+---
+
+## Choose Your Installation Method
+
+Kaneo offers two installation methods depending on your needs:
+
+### Quick Setup with drim (Recommended)
+
+[drim](/core/installation/drim) is a CLI tool designed for straightforward Kaneo deployments. It's perfect for:
+
+- Getting started quickly with minimal configuration
+- Local development environments
+- Simple production deployments with a single domain
+- Automatic HTTPS setup
+
+```bash
+curl -fsSL https://assets.kaneo.app/install.sh | sh
+drim setup
+```
+
+### Manual Setup with Docker Compose
+
+For more control over your deployment or complex setups, use the manual installation process:
+
+1. [Create the Docker Compose file](/core/installation/docker-compose)
+2. [Configure environment variables](/core/installation/environment-variables)
+3. [Start the services](/core/installation/start-services)
+
+This method is ideal for:
+- Custom networking configurations
+- Multiple domains or complex reverse proxy setups
+- Integration with existing infrastructure
+- Advanced customization needs
+
+## Requirements
+
+Both methods require:
+
+- Docker 20.10+
+- Docker Compose V2
+- 2GB RAM minimum
+- 10GB disk space
+
+**Supported Platforms:** Linux, macOS, Windows (WSL)
+
+## Next Steps
+
+Choose your preferred method and follow the corresponding guide to get Kaneo up and running.

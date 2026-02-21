@@ -1,0 +1,120 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Kaneo Documentation",
+  "colors": {
+    "primary": "#84cc16",
+    "light": "#a3e635",
+    "dark": "#65a30d"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "core/index",
+              "core/installation/index",
+              "core/installation/drim",
+              "core/installation/docker-compose",
+              "core/installation/environment-variables",
+              "core/installation/start-services"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "core/integrations/github/setup",
+              "core/integrations/github/configuration",
+              "core/integrations/github/troubleshooting"
+            ]
+          },
+          {
+            "group": "Social Providers",
+            "pages": [
+              "core/social-providers/github",
+              "core/social-providers/google",
+              "core/social-providers/discord",
+              "core/social-providers/custom-oauth"
+            ]
+          },
+          {
+            "group": "Operations",
+            "pages": [
+              "core/reverse-proxy/nginx",
+              "core/deployments/railway",
+              "core/guide/migrating-from-v1"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "https://cloud.kaneo.app/api/openapi"
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Website",
+          "href": "https://kaneo.app",
+          "icon": "globe"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/usekaneo/kaneo",
+          "icon": "github"
+        }
+      ]
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/usekaneo/kaneo"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Open Kaneo",
+      "href": "https://kaneo.app"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "cursor"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "website": "https://kaneo.app",
+      "github": "https://github.com/usekaneo/kaneo",
+      "x": "https://x.com/usekaneo"
+    }
+  }
+}

@@ -1,5 +1,0 @@
-{
-	"title": "Activities",
-	"pages": ["createActivity", "getActivities"],
-	"defaultOpen": true
-}

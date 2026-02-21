@@ -1,5 +1,0 @@
-{
-	"title": "Time Entries",
-	"pages": ["createTimeEntry", "getTimeEntry", "updateTimeEntry"],
-	"defaultOpen": true
-}
