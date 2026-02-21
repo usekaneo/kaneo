@@ -3,9 +3,23 @@
   "theme": "mint",
   "name": "Kaneo",
   "colors": {
-    "primary": "#262626",
-    "light": "#525252",
-    "dark": "#171717"
+    "primary": "#111111",
+    "light": "#fafafa",
+    "dark": "#1f1f1f"
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "styling": {
+    "codeblocks": {
+      "theme": {
+        "light": "min-light",
+        "dark": "min-dark"
+      }
+    }
   },
   "favicon": "/favicon.svg",
   "logo": {
