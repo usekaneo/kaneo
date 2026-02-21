@@ -54,13 +54,6 @@
               "core/deployments/railway",
               "core/guide/migrating-from-v1"
             ]
-          },
-          {
-            "group": "API Basics",
-            "pages": [
-              "api-reference/introduction",
-              "api-reference/authentication"
-            ]
           }
         ]
       },
@@ -73,6 +66,10 @@
               "api-reference/introduction",
               "api-reference/authentication"
             ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "/openapi.json"
           }
         ]
       }
