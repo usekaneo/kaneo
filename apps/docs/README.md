@@ -5,8 +5,8 @@ This directory contains Kaneo documentation powered by Mintlify.
 ## Monorepo setup
 
 - Repository: `kaneo`
-- Docs root for Mintlify: `/docs`
-- Main config: `docs/docs.json`
+- Docs root for Mintlify: `/apps/docs`
+- Main config: `apps/docs/docs.json`
 - OpenAPI source: `https://cloud.kaneo.app/api/openapi`
 
 ## Local preview
