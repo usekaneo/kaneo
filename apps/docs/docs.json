@@ -2,7 +2,6 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Kaneo",
-  "openapi": "openapi.json",
   "colors": {
     "primary": "#5463FF",
     "light": "#6D79FF",
@@ -59,19 +58,7 @@
       },
       {
         "tab": "API Reference",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "api-reference/introduction",
-              "api-reference/authentication"
-            ]
-          },
-          {
-            "group": "Endpoints",
-            "openapi": "openapi.json"
-          }
-        ]
+        "openapi": "openapi.json"
       }
     ],
     "global": {
