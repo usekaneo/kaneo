@@ -1,12 +1,12 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Kaneo Documentation",
+  "name": "Kaneo",
   "openapi": "/openapi.json",
   "colors": {
-    "primary": "#84cc16",
-    "light": "#a3e635",
-    "dark": "#65a30d"
+    "primary": "#5463FF",
+    "light": "#6D79FF",
+    "dark": "#3F4AE0"
   },
   "favicon": "/favicon.svg",
   "logo": {
@@ -68,128 +68,8 @@
             ]
           },
           {
-            "group": "Activity",
-            "pages": [
-              "api-reference/endpoints/activity/createActivity",
-              "api-reference/endpoints/activity/createComment",
-              "api-reference/endpoints/activity/deleteComment",
-              "api-reference/endpoints/activity/getActivities",
-              "api-reference/endpoints/activity/updateComment"
-            ]
-          },
-          {
-            "group": "Columns",
-            "pages": [
-              "api-reference/endpoints/columns/createColumn",
-              "api-reference/endpoints/columns/deleteColumn",
-              "api-reference/endpoints/columns/getColumns",
-              "api-reference/endpoints/columns/reorderColumns",
-              "api-reference/endpoints/columns/updateColumn"
-            ]
-          },
-          {
-            "group": "Config",
-            "pages": [
-              "api-reference/endpoints/config/getConfig"
-            ]
-          },
-          {
-            "group": "External Links",
-            "pages": [
-              "api-reference/endpoints/external-links/getExternalLinksByTask"
-            ]
-          },
-          {
-            "group": "GitHub",
-            "pages": [
-              "api-reference/endpoints/github/createGitHubIntegration",
-              "api-reference/endpoints/github/deleteGitHubIntegration",
-              "api-reference/endpoints/github/getGitHubAppInfo",
-              "api-reference/endpoints/github/getGitHubIntegration",
-              "api-reference/endpoints/github/importGitHubIssues",
-              "api-reference/endpoints/github/listGitHubRepositories",
-              "api-reference/endpoints/github/updateGitHubIntegration",
-              "api-reference/endpoints/github/verifyGitHubInstallation"
-            ]
-          },
-          {
-            "group": "Invitations",
-            "pages": [
-              "api-reference/endpoints/invitations/getInvitationDetails",
-              "api-reference/endpoints/invitations/getUserPendingInvitations"
-            ]
-          },
-          {
-            "group": "Labels",
-            "pages": [
-              "api-reference/endpoints/labels/createLabel",
-              "api-reference/endpoints/labels/deleteLabel",
-              "api-reference/endpoints/labels/getLabel",
-              "api-reference/endpoints/labels/getTaskLabels",
-              "api-reference/endpoints/labels/getWorkspaceLabels",
-              "api-reference/endpoints/labels/updateLabel"
-            ]
-          },
-          {
-            "group": "Notifications",
-            "pages": [
-              "api-reference/endpoints/notifications/clearAllNotifications",
-              "api-reference/endpoints/notifications/createNotification",
-              "api-reference/endpoints/notifications/listNotifications",
-              "api-reference/endpoints/notifications/markAllNotificationsAsRead",
-              "api-reference/endpoints/notifications/markNotificationAsRead"
-            ]
-          },
-          {
-            "group": "Projects",
-            "pages": [
-              "api-reference/endpoints/projects/createProject",
-              "api-reference/endpoints/projects/deleteProject",
-              "api-reference/endpoints/projects/getProject",
-              "api-reference/endpoints/projects/listProjects",
-              "api-reference/endpoints/projects/updateProject"
-            ]
-          },
-          {
-            "group": "Search",
-            "pages": [
-              "api-reference/endpoints/search/globalSearch"
-            ]
-          },
-          {
-            "group": "Tasks",
-            "pages": [
-              "api-reference/endpoints/tasks/createTask",
-              "api-reference/endpoints/tasks/deleteTask",
-              "api-reference/endpoints/tasks/exportTasks",
-              "api-reference/endpoints/tasks/getTask",
-              "api-reference/endpoints/tasks/importTasks",
-              "api-reference/endpoints/tasks/listTasks",
-              "api-reference/endpoints/tasks/updateTask",
-              "api-reference/endpoints/tasks/updateTaskAssignee",
-              "api-reference/endpoints/tasks/updateTaskDescription",
-              "api-reference/endpoints/tasks/updateTaskDueDate",
-              "api-reference/endpoints/tasks/updateTaskPriority",
-              "api-reference/endpoints/tasks/updateTaskStatus",
-              "api-reference/endpoints/tasks/updateTaskTitle"
-            ]
-          },
-          {
-            "group": "Time Entries",
-            "pages": [
-              "api-reference/endpoints/time-entries/createTimeEntry",
-              "api-reference/endpoints/time-entries/getTaskTimeEntries",
-              "api-reference/endpoints/time-entries/getTimeEntry",
-              "api-reference/endpoints/time-entries/updateTimeEntry"
-            ]
-          },
-          {
-            "group": "Workflow Rules",
-            "pages": [
-              "api-reference/endpoints/workflow-rules/deleteWorkflowRule",
-              "api-reference/endpoints/workflow-rules/getWorkflowRules",
-              "api-reference/endpoints/workflow-rules/upsertWorkflowRule"
-            ]
+            "group": "Endpoints",
+            "openapi": "/openapi.json"
           }
         ]
       }
