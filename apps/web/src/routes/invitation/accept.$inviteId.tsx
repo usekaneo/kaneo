@@ -14,12 +14,12 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useGetInvitationDetails } from "@/hooks/queries/invitation/use-get-invitation-details";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/lib/toast";
 import { AuthLayout } from "../../components/auth/layout";
 
 export const Route = createFileRoute("/invitation/accept/$inviteId")({

@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod/v4";
 import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +36,7 @@ import {
 import useImportGithubIssues from "@/hooks/mutations/github-integration/use-import-github-issues";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 
 const githubIntegrationSchema = z.object({
   repositoryOwner: z
@@ -314,22 +314,22 @@ export function GitHubIntegrationSettings({
                 {verificationResult.isInstalled &&
                 verificationResult.hasRequiredPermissions ? (
                   <>
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-green-600 font-medium">
+                    <CheckCircle className="h-4 w-4 text-success-foreground" />
+                    <span className="font-medium text-success-foreground">
                       Properly configured
                     </span>
                   </>
                 ) : verificationResult.isInstalled ? (
                   <>
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
-                    <span className="text-amber-600 font-medium">
+                    <AlertTriangle className="h-4 w-4 text-warning-foreground" />
+                    <span className="font-medium text-warning-foreground">
                       Missing permissions
                     </span>
                   </>
                 ) : (
                   <>
-                    <XCircle className="w-4 h-4 text-red-600" />
-                    <span className="text-red-600 font-medium">
+                    <XCircle className="h-4 w-4 text-destructive-foreground" />
+                    <span className="font-medium text-destructive-foreground">
                       Not installed
                     </span>
                   </>
@@ -480,22 +480,22 @@ export function GitHubIntegrationSettings({
                   "flex items-start gap-3 p-3 border rounded-md text-sm",
                   verificationResult.isInstalled &&
                     verificationResult.hasRequiredPermissions
-                    ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                    ? "border-success/25 bg-success/10"
                     : verificationResult.isInstalled
-                      ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+                      ? "border-warning/25 bg-warning/10"
                       : verificationResult.repositoryExists
-                        ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
-                        : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800",
+                        ? "border-warning/25 bg-warning/10"
+                        : "border-destructive/25 bg-destructive/10",
                 )}
               >
                 {verificationResult.isInstalled &&
                 verificationResult.hasRequiredPermissions ? (
-                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                  <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-success-foreground" />
                 ) : verificationResult.isInstalled ||
                   verificationResult.repositoryExists ? (
-                  <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-foreground" />
                 ) : (
-                  <XCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive-foreground" />
                 )}
                 <div className="flex-1">
                   <p className="font-medium">{verificationResult.message}</p>

@@ -7,7 +7,6 @@ import {
   GitBranch,
   Plus,
 } from "lucide-react";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
+import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
 import TaskLabelsPopover from "./task-labels-popover";
@@ -617,7 +617,7 @@ export default function TaskPropertiesSidebar({
                         style={{
                           backgroundColor:
                             labelColors.find((c) => c.value === label.color)
-                              ?.color || "#94a3b8",
+                              ?.color || "var(--color-neutral-400)",
                         }}
                       />
                       <span className="truncate max-w-[60px]">

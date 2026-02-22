@@ -1,7 +1,7 @@
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
 
 export function CopyUrlButton() {
   const [copied, setCopied] = useState(false);

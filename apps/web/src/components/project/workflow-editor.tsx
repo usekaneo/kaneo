@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -9,6 +8,7 @@ import {
 import { useUpsertWorkflowRule } from "@/hooks/mutations/workflow-rule/use-upsert-workflow-rule";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useGetWorkflowRules } from "@/hooks/queries/workflow-rule/use-get-workflow-rules";
+import { toast } from "@/lib/toast";
 
 const GITHUB_EVENTS = [
   { eventType: "branch_push", label: "Branch Push" },

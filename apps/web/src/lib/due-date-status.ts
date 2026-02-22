@@ -19,13 +19,10 @@ export function getDueDateStatus(dueDate: string | null): DueDateStatus {
 }
 
 export const dueDateStatusColors = {
-  overdue: "text-red-500 dark:text-red-400 bg-red-50/50 dark:bg-red-950/20",
-  "due-soon":
-    "text-orange-500 dark:text-orange-400 bg-orange-50/50 dark:bg-orange-950/20",
-  "far-future":
-    "text-zinc-500 dark:text-zinc-400 bg-zinc-50/50 dark:bg-zinc-800/30",
-  "no-due-date":
-    "text-zinc-500 dark:text-zinc-400 bg-zinc-50/50 dark:bg-zinc-800/30",
+  overdue: "bg-destructive/10 text-destructive-foreground",
+  "due-soon": "bg-warning/10 text-warning-foreground",
+  "far-future": "bg-muted/50 text-muted-foreground",
+  "no-due-date": "bg-muted/50 text-muted-foreground",
 } as const;
 
 export const dueDateStatusIcons = {

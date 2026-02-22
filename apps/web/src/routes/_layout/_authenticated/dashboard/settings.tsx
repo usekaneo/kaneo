@@ -61,7 +61,7 @@ function SettingsLayout() {
               Back to Workspace
             </Button>
 
-            <h1 className="text-2xl font-bold pl-2 mt-2">Settings</h1>
+            <h1 className="text-2xl font-semibold pl-2 mt-2">Settings</h1>
 
             <Tabs value={activeTab} className="w-[400px] pt-2">
               <TabsList className="bg-sidebar gap-2">

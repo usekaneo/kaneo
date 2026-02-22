@@ -1,6 +1,5 @@
 import { Check } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -11,6 +10,7 @@ import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { getPriorityIcon } from "@/lib/priority";
+import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
 type TaskPriorityPopoverProps = {

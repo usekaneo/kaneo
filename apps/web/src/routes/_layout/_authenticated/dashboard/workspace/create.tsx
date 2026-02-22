@@ -2,14 +2,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Building2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/create",
@@ -63,21 +62,21 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title="Create Workspace" />
-      <div className="min-h-screen w-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 overflow-y-auto">
         <div className="w-full max-w-md">
-          <Card className="border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm">
+          <Card className="shadow-sm">
             <CardContent className="p-8">
               <div className="text-center mb-8">
                 <div className="flex justify-center mb-4">
-                  <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-700 rounded-lg flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
+                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-muted-foreground" />
                   </div>
                 </div>
 
-                <h1 className="text-2xl font-semibold text-zinc-900 dark:text-white mb-2">
+                <h1 className="text-2xl font-semibold text-foreground mb-2">
                   Create a new workspace
                 </h1>
-                <p className="text-zinc-600 dark:text-zinc-400 text-sm">
+                <p className="text-muted-foreground text-sm">
                   Workspaces are shared environments where teams can work on
                   projects, cycles and issues.
                 </p>
@@ -88,7 +87,7 @@ function RouteComponent() {
                   <div>
                     <label
                       htmlFor="workspace-name"
-                      className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                      className="block text-sm font-medium text-foreground mb-2"
                     >
                       Workspace Name
                     </label>
@@ -98,18 +97,20 @@ function RouteComponent() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Enter workspace name"
-                      className="h-12 text-lg font-medium border-zinc-300 dark:border-zinc-600 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                      className="h-12 text-lg font-medium"
                       required
                     />
                     {!name.trim() && (
-                      <p className="text-red-500 text-sm mt-1">Required</p>
+                      <p className="mt-1 text-destructive-foreground text-sm">
+                        Required
+                      </p>
                     )}
                   </div>
 
                   <div>
                     <label
                       htmlFor="workspace-description"
-                      className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                      className="block text-sm font-medium text-foreground mb-2"
                     >
                       Description (optional)
                     </label>
@@ -118,7 +119,7 @@ function RouteComponent() {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Add a description for your workspace"
-                      className="h-10 border-zinc-300 dark:border-zinc-600 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                      className="h-10"
                     />
                   </div>
                 </div>
@@ -127,7 +128,7 @@ function RouteComponent() {
                   <Button
                     type="submit"
                     disabled={!name.trim() || isPending}
-                    className="w-full h-12 bg-indigo-600 hover:bg-indigo-500 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-12 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isPending ? "Creating..." : "Create workspace"}
                   </Button>

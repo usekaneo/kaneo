@@ -1,13 +1,13 @@
+"use client";
+
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
+import SearchCommandMenu from "@/components/search-command-menu";
+import { SidebarGroup } from "@/components/ui/sidebar";
 import { shortcuts } from "@/constants/shortcuts";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import SearchCommandMenu from "./search-command-menu";
-import { Input } from "./ui/input";
-import { Kbd } from "./ui/kbd";
-import { SidebarGroup } from "./ui/sidebar";
 
-function Search() {
+export default function Search() {
   const [open, setOpen] = useState(false);
 
   useRegisterShortcuts({
@@ -19,25 +19,26 @@ function Search() {
   });
 
   return (
-    <SidebarGroup className="pb-0">
-      <div className="relative">
-        <Input
-          name="search"
-          type="text"
-          placeholder="Search"
-          className="peer shadow-none block w-full rounded-sm py-1 pl-8 pr-10 text-sm h-8 cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:border-ring-0 focus-visible:outline-none"
-          onClick={() => setOpen(true)}
-          readOnly
-          tabIndex={-1}
-        />
-        <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-        <Kbd className="absolute right-2 top-1/2 -translate-y-1/2 h-4 text-[9px] bg-muted">
+    <SidebarGroup className="pb-1">
+      <button
+        className="inline-flex h-8 w-full cursor-pointer rounded-md border border-input bg-background px-2 py-1.5 text-foreground text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        onClick={() => setOpen(true)}
+        type="button"
+      >
+        <span className="flex grow items-center">
+          <SearchIcon
+            aria-hidden="true"
+            className="-ms-1 me-3 text-muted-foreground/80"
+            size={16}
+          />
+          <span className="font-normal text-muted-foreground/70">Search</span>
+        </span>
+        <kbd className="-me-0.5 ms-6 inline-flex h-4 max-h-full items-center rounded border border-border/70 bg-background px-1 font-[inherit] font-medium text-[0.625rem] text-muted-foreground/60">
           {shortcuts.search.prefix}
-        </Kbd>
-      </div>
+        </kbd>
+      </button>
+
       <SearchCommandMenu open={open} setOpen={setOpen} />
     </SidebarGroup>
   );
 }
-
-export default Search;

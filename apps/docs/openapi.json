@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.0.3",
   "info": {
     "title": "Kaneo API",
     "description": "Kaneo Project Management API - Manage projects, tasks, labels, and more",
@@ -42,14 +42,8 @@
                   "type": "object",
                   "properties": {
                     "disableRegistration": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "isDemoMode": {
                       "type": "boolean"
@@ -58,54 +52,24 @@
                       "type": "boolean"
                     },
                     "hasGithubSignIn": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "hasGoogleSignIn": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "hasDiscordSignIn": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "hasCustomOAuth": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "hasGuestAccess": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -152,38 +116,20 @@
                         "type": "string"
                       },
                       "icon": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "name": {
                         "type": "string"
                       },
                       "description": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "createdAt": {},
                       "isPublic": {
-                        "anyOf": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "boolean",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -237,38 +183,20 @@
                       "type": "string"
                     },
                     "icon": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "name": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "isPublic": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -342,38 +270,20 @@
                       "type": "string"
                     },
                     "icon": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "name": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "isPublic": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -434,38 +344,20 @@
                       "type": "string"
                     },
                     "icon": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "name": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "isPublic": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -551,38 +443,20 @@
                       "type": "string"
                     },
                     "icon": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "name": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "isPublic": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -663,57 +537,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -722,7 +565,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -813,57 +657,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -872,7 +685,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -926,57 +740,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -985,7 +768,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1082,57 +866,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -1141,7 +894,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1258,14 +1012,8 @@
                           "type": "string"
                         },
                         "userId": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -1306,57 +1054,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -1365,7 +1082,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1438,57 +1156,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -1497,7 +1184,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1570,57 +1258,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -1629,7 +1286,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1702,57 +1360,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -1761,7 +1388,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1802,8 +1430,7 @@
                   "dueDate": {
                     "type": "string"
                   }
-                },
-                "required": []
+                }
               }
             }
           }
@@ -1832,57 +1459,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -1891,7 +1487,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -1964,57 +1561,26 @@
                       "type": "string"
                     },
                     "position": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "number": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "status": {
-                      "enum": [
-                        "to-do",
-                        "in-progress",
-                        "in-review",
-                        "done",
-                        "archived",
-                        "planned"
-                      ]
+                      "type": "string"
                     },
                     "priority": {
                       "enum": [
@@ -2023,7 +1589,8 @@
                         "medium",
                         "high",
                         "urgent"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "dueDate": {},
                     "createdAt": {}
@@ -2074,6 +1641,230 @@
         }
       }
     },
+    "/column/{projectId}": {
+      "get": {
+        "operationId": "getColumns",
+        "tags": [
+          "Columns"
+        ],
+        "description": "Get all columns for a project",
+        "responses": {
+          "200": {
+            "description": "List of columns ordered by position",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createColumn",
+        "tags": [
+          "Columns"
+        ],
+        "description": "Create a new column in a project",
+        "responses": {
+          "200": {
+            "description": "Column created successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "color": {
+                    "type": "string"
+                  },
+                  "isFinal": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/column/reorder/{projectId}": {
+      "put": {
+        "operationId": "reorderColumns",
+        "tags": [
+          "Columns"
+        ],
+        "description": "Reorder columns in a project",
+        "responses": {
+          "200": {
+            "description": "Columns reordered successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "columns": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "position"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "columns"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/column/{id}": {
+      "put": {
+        "operationId": "updateColumn",
+        "tags": [
+          "Columns"
+        ],
+        "description": "Update a column",
+        "responses": {
+          "200": {
+            "description": "Column updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "color": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "isFinal": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteColumn",
+        "tags": [
+          "Columns"
+        ],
+        "description": "Delete a column",
+        "responses": {
+          "200": {
+            "description": "Column deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
     "/activity/{taskId}": {
       "get": {
         "operationId": "getActivities",
@@ -2109,68 +1900,33 @@
                           "title_changed",
                           "description_changed",
                           "create"
-                        ]
+                        ],
+                        "type": "string"
                       },
                       "createdAt": {},
                       "userId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "content": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "externalUserName": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "externalUserAvatar": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "externalSource": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "externalUrl": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -2236,68 +1992,33 @@
                         "title_changed",
                         "description_changed",
                         "create"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {},
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalSource": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUrl": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2381,68 +2102,33 @@
                         "title_changed",
                         "description_changed",
                         "create"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {},
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalSource": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUrl": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2516,68 +2202,33 @@
                         "title_changed",
                         "description_changed",
                         "create"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {},
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalSource": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUrl": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2651,68 +2302,33 @@
                         "title_changed",
                         "description_changed",
                         "create"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {},
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUserAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalSource": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalUrl": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2775,36 +2391,18 @@
                         "type": "string"
                       },
                       "userId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "description": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "startTime": {},
                       "endTime": {},
                       "duration": {
-                        "anyOf": [
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "number",
+                        "nullable": true
                       },
                       "createdAt": {}
                     },
@@ -2857,36 +2455,18 @@
                       "type": "string"
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "startTime": {},
                     "endTime": {},
                     "duration": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "createdAt": {}
                   },
@@ -2936,36 +2516,18 @@
                       "type": "string"
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "startTime": {},
                     "endTime": {},
                     "duration": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "createdAt": {}
                   },
@@ -3040,36 +2602,18 @@
                       "type": "string"
                     },
                     "userId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "startTime": {},
                     "endTime": {},
                     "duration": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "createdAt": {}
                   },
@@ -3144,24 +2688,12 @@
                       },
                       "createdAt": {},
                       "taskId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "workspaceId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -3218,24 +2750,12 @@
                       },
                       "createdAt": {},
                       "taskId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "workspaceId": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -3290,24 +2810,12 @@
                     },
                     "createdAt": {},
                     "taskId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "workspaceId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3379,24 +2887,12 @@
                     },
                     "createdAt": {},
                     "taskId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "workspaceId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3448,24 +2944,12 @@
                     },
                     "createdAt": {},
                     "taskId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "workspaceId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3538,24 +3022,12 @@
                     },
                     "createdAt": {},
                     "taskId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "workspaceId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3610,14 +3082,8 @@
                         "type": "string"
                       },
                       "content": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "type": {
                         "enum": [
@@ -3627,7 +3093,8 @@
                           "task_status_changed",
                           "task_assignee_changed",
                           "time_entry_created"
-                        ]
+                        ],
+                        "type": "string"
                       },
                       "isRead": {
                         "type": "boolean"
@@ -3639,7 +3106,8 @@
                         "enum": [
                           "task",
                           "workspace"
-                        ]
+                        ],
+                        "type": "string"
                       },
                       "createdAt": {}
                     },
@@ -3682,14 +3150,8 @@
                       "type": "string"
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "type": {
                       "enum": [
@@ -3699,7 +3161,8 @@
                         "task_status_changed",
                         "task_assignee_changed",
                         "time_entry_created"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "isRead": {
                       "type": "boolean"
@@ -3711,7 +3174,8 @@
                       "enum": [
                         "task",
                         "workspace"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {}
                   },
@@ -3790,14 +3254,8 @@
                       "type": "string"
                     },
                     "content": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "type": {
                       "enum": [
@@ -3807,7 +3265,8 @@
                         "task_status_changed",
                         "task_assignee_changed",
                         "time_entry_created"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "isRead": {
                       "type": "boolean"
@@ -3819,7 +3278,8 @@
                       "enum": [
                         "task",
                         "workspace"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "createdAt": {}
                   },
@@ -3939,57 +3399,26 @@
                             "type": "string"
                           },
                           "position": {
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "number",
+                            "nullable": true
                           },
                           "number": {
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "number",
+                            "nullable": true
                           },
                           "userId": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "title": {
                             "type": "string"
                           },
                           "description": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "status": {
-                            "enum": [
-                              "to-do",
-                              "in-progress",
-                              "in-review",
-                              "done",
-                              "archived",
-                              "planned"
-                            ]
+                            "type": "string"
                           },
                           "priority": {
                             "enum": [
@@ -3998,7 +3427,8 @@
                               "medium",
                               "high",
                               "urgent"
-                            ]
+                            ],
+                            "type": "string"
                           },
                           "dueDate": {},
                           "createdAt": {}
@@ -4032,38 +3462,20 @@
                             "type": "string"
                           },
                           "icon": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "name": {
                             "type": "string"
                           },
                           "description": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "createdAt": {},
                           "isPublic": {
-                            "anyOf": [
-                              {
-                                "type": "boolean"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "boolean",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -4093,34 +3505,16 @@
                             "type": "string"
                           },
                           "logo": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "metadata": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "description": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "createdAt": {}
                         },
@@ -4158,68 +3552,33 @@
                               "title_changed",
                               "description_changed",
                               "create"
-                            ]
+                            ],
+                            "type": "string"
                           },
                           "createdAt": {},
                           "userId": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "content": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUserName": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUserAvatar": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalSource": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUrl": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -4259,68 +3618,33 @@
                               "title_changed",
                               "description_changed",
                               "create"
-                            ]
+                            ],
+                            "type": "string"
                           },
                           "createdAt": {},
                           "userId": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "content": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUserName": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUserAvatar": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalSource": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalUrl": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -4337,8 +3661,7 @@
                         ]
                       }
                     }
-                  },
-                  "required": []
+                  }
                 }
               }
             }
@@ -4366,7 +3689,8 @@
                 "comments",
                 "activities"
               ],
-              "default": "all"
+              "default": "all",
+              "type": "string"
             }
           },
           {
@@ -4387,10 +3711,10 @@
             "in": "query",
             "name": "limit",
             "schema": {
-              "type": "string",
+              "type": "integer",
               "minimum": 1,
               "maximum": 50,
-              "default": "20"
+              "default": 20
             }
           },
           {
@@ -4420,14 +3744,8 @@
                   "type": "object",
                   "properties": {
                     "appName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -4583,24 +3901,12 @@
                       "type": "string"
                     },
                     "installationId": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "isActive": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "updatedAt": {}
@@ -4658,24 +3964,12 @@
                       "type": "string"
                     },
                     "installationId": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "isActive": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "updatedAt": {}
@@ -4756,24 +4050,12 @@
                       "type": "string"
                     },
                     "installationId": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "isActive": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "updatedAt": {}
@@ -4830,8 +4112,7 @@
                   "isActive": {
                     "type": "boolean"
                   }
-                },
-                "required": []
+                }
               }
             }
           }
@@ -4864,24 +4145,12 @@
                       "type": "string"
                     },
                     "installationId": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "isActive": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "boolean",
+                      "nullable": true
                     },
                     "createdAt": {},
                     "updatedAt": {}
@@ -5005,14 +4274,8 @@
                         "type": "string"
                       },
                       "title": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
+                        "type": "string",
+                        "nullable": true
                       },
                       "metadata": {},
                       "createdAt": {},
@@ -5040,6 +4303,116 @@
           {
             "in": "path",
             "name": "taskId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/workflow-rule/{projectId}": {
+      "get": {
+        "operationId": "getWorkflowRules",
+        "tags": [
+          "Workflow Rules"
+        ],
+        "description": "Get all workflow rules for a project",
+        "responses": {
+          "200": {
+            "description": "List of workflow rules",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ]
+      },
+      "put": {
+        "operationId": "upsertWorkflowRule",
+        "tags": [
+          "Workflow Rules"
+        ],
+        "description": "Create or update a workflow rule",
+        "responses": {
+          "200": {
+            "description": "Workflow rule upserted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "integrationType": {
+                    "type": "string"
+                  },
+                  "eventType": {
+                    "type": "string"
+                  },
+                  "columnId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "integrationType",
+                  "eventType",
+                  "columnId"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workflow-rule/{id}": {
+      "delete": {
+        "operationId": "deleteWorkflowRule",
+        "tags": [
+          "Workflow Rules"
+        ],
+        "description": "Delete a workflow rule",
+        "responses": {
+          "200": {
+            "description": "Workflow rule deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
             "schema": {
               "type": "string"
             },

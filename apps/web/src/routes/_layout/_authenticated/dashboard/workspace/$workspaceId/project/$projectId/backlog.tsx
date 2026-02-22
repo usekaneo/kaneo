@@ -3,7 +3,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { ArrowRight, Calendar, Filter, Plus, User, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import BacklogListView from "@/components/backlog-list-view";
 import ProjectLayout from "@/components/common/project-layout";
 import PageTitle from "@/components/page-title";
@@ -15,13 +14,12 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/menu";
 import labelColors from "@/constants/label-colors";
 import { shortcuts } from "@/constants/shortcuts";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
@@ -30,6 +28,7 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getPriorityIcon } from "@/lib/priority";
+import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
@@ -319,18 +318,22 @@ function RouteComponent() {
   };
 
   return (
-    <ProjectLayout projectId={projectId} workspaceId={workspaceId}>
+    <ProjectLayout
+      projectId={projectId}
+      workspaceId={workspaceId}
+      activeView="backlog"
+    >
       <PageTitle title={`${project?.name}'s backlog`} />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
-        <div className="bg-card border-b border-border">
-          <div className="h-10 flex items-center px-4">
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
+        <div className="border-border/80 border-b bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/70">
+          <div className="flex min-h-12 items-center px-3 py-2 md:px-4">
+            <div className="flex w-full items-center gap-2">
+              <div className="flex w-full flex-wrap items-center gap-1.5">
                 <Button
                   variant="ghost"
                   size="xs"
                   onClick={() => setIsTaskModalOpen(true)}
-                  className="h-6 px-2 text-xs text-zinc-600 dark:text-zinc-400"
+                  className="h-6 px-2 text-xs text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 >
                   <Plus className="h-3 w-3 mr-1" />
                   Plan
@@ -340,7 +343,7 @@ function RouteComponent() {
                   variant="ghost"
                   size="xs"
                   onClick={handleMoveAllPlannedToTodo}
-                  className="h-6 px-2 text-xs text-zinc-600 dark:text-zinc-400"
+                  className="h-6 px-2 text-xs text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   title="Move All Planned to To Do"
                 >
                   <ArrowRight className="h-3 w-3 mr-1" />
@@ -350,17 +353,17 @@ function RouteComponent() {
                 {filters.priority && (
                   <Button
                     variant="secondary"
-                    size="sm"
-                    className="h-6 px-2 text-xs gap-1.5"
+                    size="xs"
+                    className="h-7 rounded-md px-2 text-xs font-medium gap-1.5"
                   >
                     {getPriorityIcon(filters.priority)}
                     <span>
-                      Priority is {getPriorityDisplayName(filters.priority)}
+                      Priority: {getPriorityDisplayName(filters.priority)}
                     </span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
                       onClick={(e) => {
                         e.stopPropagation();
                         updateFilter("priority", null);
@@ -374,17 +377,17 @@ function RouteComponent() {
                 {filters.assignee && (
                   <Button
                     variant="secondary"
-                    size="sm"
-                    className="h-6 px-2 text-xs gap-1.5"
+                    size="xs"
+                    className="h-7 rounded-md px-2 text-xs font-medium gap-1.5"
                   >
                     <User className="h-3 w-3" />
                     <span>
-                      Assignee is {getAssigneeDisplayName(filters.assignee)}
+                      Assignee: {getAssigneeDisplayName(filters.assignee)}
                     </span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
                       onClick={(e) => {
                         e.stopPropagation();
                         updateFilter("assignee", null);
@@ -398,15 +401,15 @@ function RouteComponent() {
                 {filters.dueDate && (
                   <Button
                     variant="secondary"
-                    size="sm"
-                    className="h-6 px-2 text-xs gap-1.5"
+                    size="xs"
+                    className="h-7 rounded-md px-2 text-xs font-medium gap-1.5"
                   >
                     <Calendar className="h-3 w-3" />
-                    <span>Due date is {filters.dueDate}</span>
+                    <span>Due: {filters.dueDate}</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
                       onClick={(e) => {
                         e.stopPropagation();
                         updateFilter("dueDate", null);
@@ -435,22 +438,22 @@ function RouteComponent() {
                       <Button
                         key={`${label.name}-${label.color}`}
                         variant="secondary"
-                        size="sm"
-                        className="h-6 px-2 text-xs gap-1.5"
+                        size="xs"
+                        className="h-7 rounded-md px-2 text-xs font-medium gap-1.5"
                       >
                         <span
                           className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                           style={{
                             backgroundColor:
                               labelColors.find((c) => c.value === label.color)
-                                ?.color || "#94a3b8",
+                                ?.color || "var(--color-neutral-400)",
                           }}
                         />
-                        <span>Label is {label.name}</span>
+                        <span>Label: {label.name}</span>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-3 w-3 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                          className="h-4 w-4 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleLabelGroup(label);
@@ -462,127 +465,148 @@ function RouteComponent() {
                     ))}
 
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-xs text-muted-foreground"
-                    >
-                      <Filter className="h-3 w-3 mr-1" />
-                      Filter
-                    </Button>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 gap-2 px-2.5 text-xs font-medium text-foreground"
+                      />
+                    }
+                  >
+                    <Filter className="h-3.5 w-3.5" />
+                    Filter
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-46" align="start">
+                  <DropdownMenuContent className="w-80" align="start">
+                    <DropdownMenuItem
+                      disabled
+                      className="h-8 rounded-md border border-border/80 bg-card text-sm text-muted-foreground"
+                    >
+                      Add filter...
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     {hasActiveFilters && (
                       <>
-                        <DropdownMenuItem onClick={clearFilters}>
+                        <DropdownMenuItem
+                          onClick={clearFilters}
+                          className="h-8 text-sm text-muted-foreground"
+                        >
                           <span>Clear all filters</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                       </>
                     )}
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
+                        Priority
+                      </DropdownMenuLabel>
+                    </DropdownMenuGroup>
+                    {["urgent", "high", "medium", "low"].map((priority) => (
+                      <DropdownMenuCheckboxItem
+                        key={priority}
+                        checked={filters.priority === priority}
+                        onCheckedChange={(checked) =>
+                          updateFilter("priority", checked ? priority : null)
+                        }
+                        className="h-8 rounded-md text-sm [&_svg]:text-sidebar-foreground"
+                      >
+                        {getPriorityIcon(priority)}
+                        <span className="capitalize">{priority}</span>
+                      </DropdownMenuCheckboxItem>
+                    ))}
 
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="gap-2">
-                        <span>Priority</span>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-48">
-                        {["urgent", "high", "medium", "low"].map((priority) => (
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
+                        Assignee
+                      </DropdownMenuLabel>
+                    </DropdownMenuGroup>
+                    {users?.members?.map((member) => (
+                      <DropdownMenuCheckboxItem
+                        key={member.userId}
+                        checked={filters.assignee === member.userId}
+                        onCheckedChange={(checked) =>
+                          updateFilter(
+                            "assignee",
+                            checked ? member.userId : null,
+                          )
+                        }
+                        className="h-8 rounded-md text-sm"
+                      >
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={member.user?.image ?? ""}
+                            alt={member.user?.name || ""}
+                          />
+                          <AvatarFallback className="text-xs font-medium border border-border/30">
+                            {member.user?.name?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span>{member.user?.name}</span>
+                      </DropdownMenuCheckboxItem>
+                    ))}
+
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
+                        Due date
+                      </DropdownMenuLabel>
+                    </DropdownMenuGroup>
+                    {["Due this week", "Due next week", "No due date"].map(
+                      (dueDate) => (
+                        <DropdownMenuCheckboxItem
+                          key={dueDate}
+                          checked={filters.dueDate === dueDate}
+                          onCheckedChange={(checked) =>
+                            updateFilter("dueDate", checked ? dueDate : null)
+                          }
+                          className="h-8 rounded-md text-sm"
+                        >
+                          <span>{dueDate}</span>
+                        </DropdownMenuCheckboxItem>
+                      ),
+                    )}
+
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
+                        Labels
+                      </DropdownMenuLabel>
+                    </DropdownMenuGroup>
+                    {uniqueLabels.length > 0 ? (
+                      uniqueLabels.map(
+                        (label: {
+                          id: string;
+                          name: string;
+                          color: string;
+                        }) => (
                           <DropdownMenuCheckboxItem
-                            key={priority}
-                            checked={filters.priority === priority}
-                            onCheckedChange={() =>
-                              updateFilter("priority", priority)
-                            }
-                            className="[&_svg]:text-muted-foreground"
+                            key={label.id}
+                            checked={isLabelGroupSelected(label)}
+                            onCheckedChange={() => toggleLabelGroup(label)}
+                            className="h-8 rounded-md text-sm"
                           >
-                            {getPriorityIcon(priority)}
-                            <span className="capitalize">{priority}</span>
+                            <span
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{
+                                backgroundColor:
+                                  labelColors.find(
+                                    (c) => c.value === label.color,
+                                  )?.color || "var(--color-neutral-400)",
+                              }}
+                            />
+                            <span>{label.name}</span>
                           </DropdownMenuCheckboxItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="gap-2">
-                        <span>Assignee</span>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-48">
-                        {users?.members?.map((member) => (
-                          <DropdownMenuCheckboxItem
-                            key={member.userId}
-                            checked={filters.assignee === member.userId}
-                            onCheckedChange={() =>
-                              updateFilter("assignee", member.userId)
-                            }
-                          >
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage
-                                src={member.user?.image ?? ""}
-                                alt={member.user?.name || ""}
-                              />
-                              <AvatarFallback className="text-xs font-medium border border-border/30">
-                                {member.user?.name?.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span>{member.user?.name}</span>
-                          </DropdownMenuCheckboxItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="gap-2">
-                        <span>Due Date</span>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-48">
-                        {["Due this week", "Due next week", "No due date"].map(
-                          (dueDate) => (
-                            <DropdownMenuCheckboxItem
-                              key={dueDate}
-                              checked={filters.dueDate === dueDate}
-                              onCheckedChange={() =>
-                                updateFilter("dueDate", dueDate)
-                              }
-                            >
-                              <span>{dueDate}</span>
-                            </DropdownMenuCheckboxItem>
-                          ),
-                        )}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="gap-2">
-                        <span>Labels</span>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-48">
-                        {uniqueLabels.map(
-                          (label: {
-                            id: string;
-                            name: string;
-                            color: string;
-                          }) => (
-                            <DropdownMenuCheckboxItem
-                              key={label.id}
-                              checked={isLabelGroupSelected(label)}
-                              onCheckedChange={() => toggleLabelGroup(label)}
-                            >
-                              <span
-                                className="w-3 h-3 rounded-full flex-shrink-0"
-                                style={{
-                                  backgroundColor:
-                                    labelColors.find(
-                                      (c) => c.value === label.color,
-                                    )?.color || "#94a3b8",
-                                }}
-                              />
-                              <span>{label.name}</span>
-                            </DropdownMenuCheckboxItem>
-                          ),
-                        )}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
+                        ),
+                      )
+                    ) : (
+                      <DropdownMenuItem
+                        disabled
+                        className="h-8 rounded-md text-sm text-muted-foreground"
+                      >
+                        <span>No labels available</span>
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -596,10 +620,10 @@ function RouteComponent() {
           ) : (
             <div className="flex h-full items-center justify-center">
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-zinc-200 dark:bg-zinc-800 rounded-lg animate-pulse mx-auto" />
+                <div className="w-16 h-16 bg-muted rounded-lg animate-pulse mx-auto" />
                 <div className="space-y-2">
-                  <div className="w-48 h-4 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mx-auto" />
-                  <div className="w-64 h-3 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mx-auto" />
+                  <div className="w-48 h-4 bg-muted rounded animate-pulse mx-auto" />
+                  <div className="w-64 h-3 bg-muted rounded animate-pulse mx-auto" />
                 </div>
               </div>
             </div>

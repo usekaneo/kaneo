@@ -16,10 +16,10 @@ function Column({ column }: ColumnProps) {
 
   return (
     <div
-      className={`flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg relative group transition-all duration-300 ease-out ${
+      className={`group relative flex h-full min-h-0 w-full flex-col rounded-xl border transition-all duration-300 ease-out ${
         isDropzoneOver
-          ? "bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-200 dark:ring-indigo-800/50 shadow-md shadow-indigo-500/10"
-          : "bg-sidebar border border-border/50 dark:bg-zinc-900/30 hover:bg-zinc-50/40 dark:hover:bg-zinc-900/40 hover:shadow-sm"
+          ? "border-ring/40 bg-accent/60 shadow-md ring-2 ring-ring/30"
+          : "border-border/70 bg-muted/40 shadow-xs/5 hover:border-border/90 dark:bg-card/90"
       }`}
     >
       <CreateTaskModal
@@ -28,19 +28,19 @@ function Column({ column }: ColumnProps) {
         status={toKebabCase(column.name)}
       />
 
-      <div className="p-2 shrink-0">
+      <div className="shrink-0 border-b border-border/60 px-3 py-2">
         <ColumnHeader column={column} />
       </div>
 
-      <div className="p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 [-webkit-overflow-scrolling:touch]">
         <ColumnDropzone column={column} onIsOverChange={setIsDropzoneOver} />
       </div>
 
-      <div className="p-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+      <div className="border-t border-border/60 p-1.5 transition-opacity md:opacity-0 md:group-hover:opacity-100">
         <button
           type="button"
           onClick={() => setIsTaskModalOpen(true)}
-          className="w-full text-left px-2 py-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 rounded-md flex items-center gap-2 transition-all"
+          className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm text-muted-foreground transition-all hover:bg-accent/50 hover:text-foreground"
         >
           <Plus className="w-4 h-4" />
           <span>Add task</span>

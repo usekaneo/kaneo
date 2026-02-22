@@ -1,6 +1,5 @@
 import { CheckCircle2, Circle, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -9,6 +8,7 @@ import { useDeleteColumn } from "@/hooks/mutations/column/use-delete-column";
 import { useReorderColumns } from "@/hooks/mutations/column/use-reorder-columns";
 import { useUpdateColumn } from "@/hooks/mutations/column/use-update-column";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
+import { toast } from "@/lib/toast";
 
 type ColumnEditorProps = {
   projectId: string;

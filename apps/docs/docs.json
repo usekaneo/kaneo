@@ -1,0 +1,145 @@
+{
+	"$schema": "https://mintlify.com/docs.json",
+	"theme": "almond",
+	"name": "Kaneo",
+	"colors": {
+		"primary": "#111111",
+		"light": "#fafafa",
+		"dark": "#1f1f1f"
+	},
+	"appearance": {
+		"default": "dark"
+	},
+	"icons": {
+		"library": "lucide"
+	},
+	"styling": {
+		"codeblocks": {
+			"theme": {
+				"light": "min-light",
+				"dark": "min-dark"
+			}
+		}
+	},
+	"fonts": {
+		"heading": {
+			"family": "Cal Sans Heading",
+			"source": "/fonts/cal-sans-heading.woff2",
+			"format": "woff2"
+		},
+		"body": {
+			"family": "Cal Sans UI",
+			"source": "/fonts/cal-sans-body.woff2",
+			"format": "woff2"
+		}
+	},
+	"favicon": "/favicon.svg",
+	"logo": {
+		"light": "/logo/dark.svg",
+		"dark": "/logo/light.svg"
+	},
+	"navigation": {
+		"tabs": [
+			{
+				"tab": "Guides",
+				"groups": [
+					{
+						"group": "Overview",
+						"pages": ["index", "core/index"]
+					},
+					{
+						"group": "Functional Guides",
+						"pages": [
+							"core/functional/index",
+							"core/functional/create-workspace-and-project",
+							"core/functional/plan-and-execute-tasks",
+							"core/functional/backlog-planning",
+							"core/functional/collaborate-with-team",
+							"core/functional/configure-workflows",
+							"core/functional/personalize-your-workspace"
+						]
+					},
+					{
+						"group": "Installation",
+						"pages": [
+							"core/installation/index",
+							"core/installation/drim",
+							"core/installation/docker-compose",
+							"core/installation/environment-variables",
+							"core/installation/start-services"
+						]
+					},
+					{
+						"group": "GitHub Integration",
+						"pages": [
+							"core/integrations/github/setup",
+							"core/integrations/github/configuration",
+							"core/integrations/github/troubleshooting"
+						]
+					},
+					{
+						"group": "Authentication Providers",
+						"pages": [
+							"core/social-providers/github",
+							"core/social-providers/google",
+							"core/social-providers/discord",
+							"core/social-providers/custom-oauth"
+						]
+					},
+					{
+						"group": "Deployment & Operations",
+						"pages": ["core/reverse-proxy/nginx", "core/deployments/railway"]
+					},
+					{
+						"group": "Migration",
+						"pages": ["core/guide/migrating-from-v1"]
+					}
+				]
+			},
+			{
+				"tab": "API Reference",
+				"openapi": "openapi.json"
+			}
+		],
+		"global": {
+			"anchors": [
+				{
+					"anchor": "Website",
+					"href": "https://kaneo.app",
+					"icon": "globe"
+				},
+				{
+					"anchor": "GitHub",
+					"href": "https://github.com/usekaneo/kaneo",
+					"icon": "github"
+				}
+			]
+		}
+	},
+	"navbar": {
+		"links": [
+			{
+				"label": "GitHub",
+				"href": "https://github.com/usekaneo/kaneo"
+			}
+		],
+		"primary": {
+			"type": "button",
+			"label": "Open Kaneo",
+			"href": "https://kaneo.app"
+		}
+	},
+	"contextual": {
+		"options": ["copy", "view", "chatgpt", "claude", "cursor"]
+	},
+	"footer": {
+		"socials": {
+			"website": "https://kaneo.app",
+			"github": "https://github.com/usekaneo/kaneo",
+			"x": "https://x.com/usekaneo"
+		}
+	},
+	"seo": {
+		"indexing": "all"
+	}
+}

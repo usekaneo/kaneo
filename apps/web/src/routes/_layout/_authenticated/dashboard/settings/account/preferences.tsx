@@ -74,18 +74,22 @@ function RouteComponent() {
               <SelectContent>
                 <SelectItem value="light">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 bg-[#F4F4F5] rounded-md p-1 border border-border">
+                    <div className="flex items-center gap-1 rounded-md border border-border bg-muted p-1">
                       <span className="rounded-full size-2 bg-primary" />
-                      <span className="text-xs font-normal text-black">Aa</span>
+                      <span className="text-xs font-normal text-foreground">
+                        Aa
+                      </span>
                     </div>
                     <span className="text-xs font-normal">Light</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="dark">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 bg-[#18181B] rounded-md p-1 border border-border">
+                    <div className="flex items-center gap-1 rounded-md border border-border bg-card p-1">
                       <span className="rounded-full size-2 bg-primary" />
-                      <span className="text-xs font-normal text-white">Aa</span>
+                      <span className="text-xs font-normal text-foreground">
+                        Aa
+                      </span>
                     </div>
                     <span className="text-xs font-normal">Dark</span>
                   </div>

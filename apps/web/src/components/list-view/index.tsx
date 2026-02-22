@@ -22,13 +22,13 @@ import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import toKebabCase from "@/lib/to-kebab-case";
+import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -265,16 +265,15 @@ function ListView({ project }: ListViewProps) {
     return (
       <div
         className={cn(
-          "border-b border-zinc-200 dark:border-zinc-800/50 transition-all duration-200 overflow-auto",
-          showDropIndicator &&
-            "border-l-4 border-l-indigo-500 dark:border-l-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/10",
+          "border-b border-border/50 transition-all duration-200 overflow-auto",
+          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
         )}
       >
-        <div className="flex items-center justify-between py-2 px-4 bg-zinc-100/60 dark:bg-zinc-800/20 border-b border-zinc-200/50 dark:border-zinc-800/30">
+        <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">
           <button
             type="button"
             onClick={() => toggleSection(column.id)}
-            className="flex items-center gap-2 text-sm font-medium text-zinc-800 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
           >
             <ChevronRight
               className={cn(
@@ -286,7 +285,7 @@ function ListView({ project }: ListViewProps) {
               {getColumnIcon(column.id, column.isFinal)}
               <div className="flex items-center gap-1">
                 <span className="mt-1 mr-1">{column.name}</span>
-                <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                <span className="text-xs text-muted-foreground mt-0.5">
                   {column.tasks.length}
                 </span>
               </div>
@@ -300,7 +299,7 @@ function ListView({ project }: ListViewProps) {
                 setIsTaskModalOpen(true);
                 setActiveColumn(column.id);
               }}
-              className="p-1 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 rounded text-zinc-600 hover:text-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
               title="Add task"
             >
               <Plus className="w-3 h-3" />
@@ -310,7 +309,7 @@ function ListView({ project }: ListViewProps) {
               <button
                 type="button"
                 onClick={() => handleArchiveTasks(column)}
-                className="p-1 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 rounded text-zinc-600 hover:text-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+                className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
                 title="Archive all completed tasks"
               >
                 <Archive className="w-3 h-3" />
@@ -320,7 +319,7 @@ function ListView({ project }: ListViewProps) {
         </div>
 
         {expandedSections[column.id] && (
-          <div ref={setNodeRef} className="bg-white dark:bg-transparent">
+          <div ref={setNodeRef} className="bg-card">
             <SortableContext
               items={column.tasks}
               strategy={verticalListSortingStrategy}
@@ -335,7 +334,7 @@ function ListView({ project }: ListViewProps) {
             </SortableContext>
 
             {column.tasks.length === 0 && (
-              <div className="py-6 px-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+              <div className="py-6 px-4 text-center text-xs text-muted-foreground">
                 No tasks
               </div>
             )}
@@ -364,8 +363,8 @@ function ListView({ project }: ListViewProps) {
       onDragEnd={handleDragEnd}
       modifiers={[snapCenterToCursor]}
     >
-      <div className="w-full h-full overflow-auto bg-zinc-50/30 dark:bg-transparent">
-        <div className="divide-y divide-zinc-200 dark:divide-zinc-800/50">
+      <div className="w-full h-full overflow-auto bg-muted/20">
+        <div className="divide-y divide-border/50">
           {project.columns.map((column) => (
             <ColumnSection key={column.id} column={column} />
           ))}
@@ -374,7 +373,7 @@ function ListView({ project }: ListViewProps) {
 
       <DragOverlay>
         {activeTask && (
-          <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
+          <div className="bg-card border border-border rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
             <div className="flex items-center gap-2">
               <div className="flex-shrink-0">
                 <Flag
@@ -389,10 +388,10 @@ function ListView({ project }: ListViewProps) {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+                  <span className="text-[10px] font-mono text-muted-foreground">
                     {project?.slug}-{activeTask.number}
                   </span>
-                  <span className="text-xs text-zinc-900 dark:text-zinc-100 truncate">
+                  <span className="text-xs text-foreground truncate">
                     {activeTask.title}
                   </span>
                 </div>

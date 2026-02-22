@@ -3,8 +3,7 @@ import { Bell } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -13,12 +12,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { KbdSequence } from "@/components/ui/kbd";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { KbdSequence } from "@/components/ui/kbd";
+} from "@/components/ui/menu";
 import {
   Tooltip,
   TooltipContent,
@@ -79,7 +78,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                   >
                     <Bell className="h-4 w-4" />
                     {unreadNotifications.length > 0 && (
-                      <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
+                      <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-destructive" />
                     )}
                     <span className="sr-only">Notifications</span>
                   </Button>
@@ -188,13 +187,13 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
+              <AlertDialogClose>Cancel</AlertDialogClose>
+              <AlertDialogClose
                 onClick={handleClearAll}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Clear all
-              </AlertDialogAction>
+              </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

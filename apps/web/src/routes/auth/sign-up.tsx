@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-router";
 import { UserCheck } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { z } from "zod/v4";
 import { AuthLayout } from "@/components/auth/layout";
 import { SignUpForm } from "@/components/auth/sign-up-form";
@@ -15,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/lib/toast";
 
 const signUpSearchSchema = z.object({
   invitationId: z.string().optional(),
@@ -98,11 +98,9 @@ function SignUp() {
                 {isGuestLoading ? "Signing in..." : "Continue as guest"}
               </Button>
               <div className="flex items-center gap-4 my-4">
-                <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">
-                  or
-                </span>
-                <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-sm text-muted-foreground">or</span>
+                <div className="flex-1 h-px bg-border" />
               </div>
             </>
           )}

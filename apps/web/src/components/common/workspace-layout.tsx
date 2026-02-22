@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Layout from "@/components/common/layout";
-import NotificationDropdown from "@/components/notification/notification-dropdown";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +8,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { KbdSequence } from "@/components/ui/kbd";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -60,28 +58,26 @@ export default function WorkspaceLayout({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Separator
-              orientation="vertical"
-              className="mx-1.5 data-[orientation=vertical]:h-2.5"
-            />
+            <div className="mx-1.5 h-4 w-px shrink-0 bg-border/80" />
             <Breadcrumb className="flex items-center gap-1 text-xs w-full">
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink href="/">
-                    <h1 className="text-xs text-card-foreground">
+                    <span className="text-xs font-normal text-card-foreground">
                       {workspace?.name}
-                    </h1>
+                    </span>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <h1 className="text-xs text-card-foreground">{title}</h1>
+                  <span className="text-xs font-normal text-card-foreground">
+                    {title}
+                  </span>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
           <div className={`${cn("flex items-center gap-1.5", className)}`}>
-            <NotificationDropdown />
             {headerActions}
           </div>
         </div>

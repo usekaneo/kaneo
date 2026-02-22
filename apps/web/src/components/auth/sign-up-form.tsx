@@ -3,7 +3,6 @@ import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod/v4";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/lib/toast";
 
 export type SignUpFormValues = {
   email: string;
@@ -151,11 +151,7 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
           />
         </div>
 
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="w-full mt-4 text-white"
-        >
+        <Button type="submit" disabled={isPending} className="w-full mt-4">
           {isPending ? "Creating Account..." : "Create Account"}
         </Button>
       </form>

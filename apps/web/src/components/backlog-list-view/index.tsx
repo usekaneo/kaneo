@@ -296,16 +296,15 @@ function BacklogListView({ project }: BacklogListViewProps) {
     return (
       <div
         className={cn(
-          "border-b border-zinc-200 dark:border-zinc-800/50 transition-all duration-200 overflow-auto",
-          showDropIndicator &&
-            "border-l-4 border-l-indigo-500 dark:border-l-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/10",
+          "border-b border-border/50 transition-all duration-200 overflow-auto",
+          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
         )}
       >
-        <div className="flex items-center justify-between py-2 px-4 bg-zinc-100/60 dark:bg-zinc-800/20 border-b border-zinc-200/50 dark:border-zinc-800/30">
+        <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">
           <button
             type="button"
             onClick={() => toggleSection(sectionId)}
-            className="flex items-center gap-2 text-sm font-medium text-zinc-800 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
           >
             <ChevronRight
               className={cn(
@@ -314,10 +313,10 @@ function BacklogListView({ project }: BacklogListViewProps) {
               )}
             />
             <div className="flex items-center gap-2 h-4">
-              <IconComponent className="w-4 h-4 flex-shrink-0 text-zinc-500 dark:text-zinc-400" />
+              <IconComponent className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
               <div className="flex items-center gap-1">
                 <span className="mt-1 mr-1">{title}</span>
-                <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                <span className="text-xs text-muted-foreground mt-0.5">
                   {tasks.length}
                 </span>
               </div>
@@ -332,7 +331,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
                   setIsTaskModalOpen(true);
                   setActiveColumn("planned");
                 }}
-                className="p-1 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 rounded text-zinc-600 hover:text-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+                className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
                 title="Add task"
               >
                 <Plus className="w-3 h-3" />
@@ -342,7 +341,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
         </div>
 
         {expandedSections[sectionId] && (
-          <div ref={setNodeRef} className="bg-white dark:bg-transparent">
+          <div ref={setNodeRef} className="bg-card">
             <SortableContext
               items={tasks}
               strategy={verticalListSortingStrategy}
@@ -353,7 +352,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
             </SortableContext>
 
             {tasks.length === 0 && (
-              <div className="py-6 px-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+              <div className="py-6 px-4 text-center text-xs text-muted-foreground">
                 No {title.toLowerCase()} tasks
               </div>
             )}
@@ -383,8 +382,8 @@ function BacklogListView({ project }: BacklogListViewProps) {
       onDragEnd={handleDragEnd}
       modifiers={[snapCenterToCursor]}
     >
-      <div className="w-full h-full overflow-auto bg-zinc-50/30 dark:bg-transparent">
-        <div className="divide-y divide-zinc-200 dark:divide-zinc-800/50">
+      <div className="w-full h-full overflow-auto bg-muted/20">
+        <div className="divide-y divide-border/50">
           <BacklogSection
             sectionId="planned"
             title="Planned"
@@ -404,7 +403,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
 
       <DragOverlay>
         {activeTask && (
-          <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
+          <div className="bg-card border border-border rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
             <div className="flex items-center gap-2">
               <div className="flex-shrink-0">
                 <Flag
@@ -419,10 +418,10 @@ function BacklogListView({ project }: BacklogListViewProps) {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+                  <span className="text-[10px] font-mono text-muted-foreground">
                     {project?.slug}-{activeTask.number}
                   </span>
-                  <span className="text-xs text-zinc-900 dark:text-zinc-100 truncate">
+                  <span className="text-xs text-foreground truncate">
                     {activeTask.title}
                   </span>
                 </div>

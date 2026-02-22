@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,6 +27,7 @@ import useCreateProject from "@/hooks/mutations/project/use-create-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import generateProjectSlug from "@/lib/generate-project-id";
+import { toast } from "@/lib/toast";
 
 type CreateProjectModalProps = {
   open: boolean;
@@ -96,11 +96,11 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
           <DialogTitle asChild>
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider text-sm">
+                <BreadcrumbItem className="text-muted-foreground font-semibold tracking-wider text-sm">
                   {workspace?.name?.toUpperCase() || "WORKSPACE"}
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem className="text-zinc-700 dark:text-zinc-300 font-medium text-sm">
+                <BreadcrumbItem className="text-foreground font-medium text-sm">
                   Create a new project
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -122,9 +122,9 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex items-center justify-center p-2 rounded border border-border hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+                  className="flex items-center justify-center p-2 rounded border border-border hover:bg-accent transition-colors"
                 >
-                  <IconComponent className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+                  <IconComponent className="w-4 h-4 text-muted-foreground" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-2" align="start">
@@ -141,8 +141,8 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                         className={cn(
                           "p-2 rounded-lg transition-all duration-200 flex items-center justify-center group hover:scale-105",
                           selectedIcon === iconName
-                            ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                            : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700",
+                            ? "bg-accent text-foreground"
+                            : "text-muted-foreground hover:bg-accent",
                         )}
                         title={iconName}
                       >
@@ -159,15 +159,15 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               onChange={handleNameChange}
               autoFocus
               placeholder="Project name"
-              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground tracking-tight focus:!outline-none focus-visible:!outline-none"
               required
             />
           </div>
 
           <div className="space-y-4 px-6">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-zinc-50 to-zinc-100/50 dark:from-zinc-900/50 dark:to-zinc-800/30 border border-zinc-200/50 dark:border-zinc-700/30">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <span className="text-sm font-medium text-muted-foreground">
                   Key:
                 </span>
                 <Input
@@ -175,11 +175,11 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="PRO"
-                  className="w-20 h-8 text-center font-semibold text-sm bg-white/80 dark:bg-zinc-900/80 border-zinc-300/50 dark:border-zinc-600/50 rounded-lg focus:bg-white dark:focus:bg-zinc-900 focus:border-indigo-400 dark:focus:border-indigo-500 transition-all duration-200"
+                  className="w-20 h-8 text-center font-semibold text-sm bg-background border-border rounded-lg transition-all duration-200"
                   required
                 />
               </div>
-              <div className="flex-1 text-xs text-zinc-500 dark:text-zinc-400 opacity-80">
+              <div className="flex-1 text-xs text-muted-foreground opacity-80">
                 Used for ticket IDs (e.g., {slug || "ABC"}-123)
               </div>
             </div>
@@ -191,7 +191,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               onClick={handleClose}
               variant="outline"
               size="sm"
-              className="border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="border-border text-foreground hover:bg-accent"
             >
               Cancel
             </Button>
@@ -199,7 +199,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               type="submit"
               disabled={!name.trim() || !slug.trim()}
               size="sm"
-              className="bg-primary hover:bg-primary/90 text-white disabled:opacity-50"
+              className="bg-primary hover:bg-primary/90  disabled:opacity-50"
             >
               Create Project
             </Button>

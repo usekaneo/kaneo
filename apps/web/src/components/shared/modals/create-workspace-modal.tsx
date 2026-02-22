@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/lib/toast";
 
 type CreateWorkspaceModalProps = {
   open: boolean;
@@ -83,11 +83,11 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
           <DialogTitle asChild>
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider text-sm">
+                <BreadcrumbItem className="text-muted-foreground font-semibold tracking-wider text-sm">
                   KANEO
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem className="text-zinc-700 dark:text-zinc-300 font-medium text-sm">
+                <BreadcrumbItem className="text-foreground font-medium text-sm">
                   Create a new workspace
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -105,7 +105,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Workspace name"
-              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground tracking-tight focus:!outline-none focus-visible:!outline-none"
               required
             />
 
@@ -113,7 +113,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add description..."
-              className="!border-0 px-0 py-2 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-700 dark:text-zinc-300 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:!outline-none focus-visible:!outline-none"
+              className="!border-0 px-0 py-2 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground focus:!outline-none focus-visible:!outline-none"
             />
           </div>
 
@@ -123,7 +123,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
               onClick={handleClose}
               variant="outline"
               size="sm"
-              className="border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="border-border text-foreground hover:bg-accent"
             >
               Cancel
             </Button>
@@ -131,7 +131,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
               type="submit"
               disabled={!name.trim()}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50"
+              className="disabled:opacity-50"
             >
               Create Workspace
             </Button>

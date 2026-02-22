@@ -1,18 +1,13 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { SquareKanban, SquircleDashed } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
+import MobileProjectNav from "@/components/common/header/mobile-project-nav";
+import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
+import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-select";
 import Layout from "@/components/common/layout";
-import NotificationDropdown from "@/components/notification/notification-dropdown";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -22,7 +17,6 @@ import {
 } from "@/components/ui/tooltip";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 
 type ProjectLayoutProps = {
@@ -30,6 +24,8 @@ type ProjectLayoutProps = {
   workspaceId: string;
   headerActions?: ReactNode;
   children: ReactNode;
+  showViewSwitcher?: boolean;
+  activeView?: "backlog" | "board";
 };
 
 export default function ProjectLayout({
@@ -37,14 +33,18 @@ export default function ProjectLayout({
   workspaceId,
   headerActions,
   children,
+  showViewSwitcher = true,
+  activeView,
 }: ProjectLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: workspace } = useActiveWorkspace();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
+    useState(false);
 
-  const isBacklogRoute = location.pathname.includes("/backlog");
-  const isBoardRoute = location.pathname.includes("/board");
+  const resolvedView =
+    activeView ??
+    (location.pathname.includes("/backlog") ? "backlog" : "board");
 
   const handleNavigateToBacklog = () => {
     navigate({
@@ -60,97 +60,112 @@ export default function ProjectLayout({
     });
   };
 
+  const handleProjectSwitch = (nextProjectId: string) => {
+    const isBacklog = resolvedView === "backlog";
+
+    navigate({
+      to: isBacklog
+        ? "/dashboard/workspace/$workspaceId/project/$projectId/backlog"
+        : "/dashboard/workspace/$workspaceId/project/$projectId/board",
+      params: {
+        workspaceId,
+        projectId: nextProjectId,
+      },
+    });
+  };
+
   return (
     <Layout>
-      <Layout.Header>
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-5 w-full">
-            <div className="flex items-center gap-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <SidebarTrigger className="-ml-1 h-6 w-6 cursor-pointer text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="flex items-center gap-2 text-[10px]">
-                      Toggle sidebar
-                      <KbdSequence
-                        keys={[
-                          shortcuts.sidebar.prefix,
-                          shortcuts.sidebar.toggle,
-                        ]}
-                      />
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <Separator
-                orientation="vertical"
-                className="mx-1.5 data-[orientation=vertical]:h-2.5"
+      <Layout.Header className="h-11 border-border/80 px-2">
+        <div className="flex w-full items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <SidebarTrigger className="-ml-1 h-7 w-7 cursor-pointer text-foreground/85 hover:text-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="flex items-center gap-2 text-[10px]">
+                    Toggle sidebar
+                    <KbdSequence
+                      keys={[
+                        shortcuts.sidebar.prefix,
+                        shortcuts.sidebar.toggle,
+                      ]}
+                    />
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <div className="h-4 w-px shrink-0 bg-border/80" />
+
+            <div className="hidden min-w-0 items-center gap-1 md:flex">
+              <WorkspaceCrumbSelect />
+              <span className="text-muted-foreground/70 text-xs">/</span>
+              <ProjectCrumbSelect
+                workspaceId={workspaceId}
+                projectId={projectId}
+                projectName={project?.name}
+                onSelectProject={handleProjectSwitch}
+                onAddProject={() => setIsCreateProjectModalOpen(true)}
               />
-              <Breadcrumb className="flex items-center text-xs">
-                <BreadcrumbList className="!gap-1">
-                  <BreadcrumbItem>
-                    <BreadcrumbLink
-                      href={`/dashboard/workspace/${workspaceId}`}
-                    >
-                      <h1 className="text-xs text-muted-foreground">
-                        {workspace?.name}
-                      </h1>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink
-                      href={`/dashboard/workspace/${workspaceId}/project/${projectId}/board`}
-                    >
-                      <h1 className="text-xs text-muted-foreground">
-                        {project?.name}
-                      </h1>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={handleNavigateToBacklog}
-                className={cn(
-                  "gap-1.5 h-6 px-2 text-xs text-muted-foreground",
-                  isBacklogRoute && "text-black dark:text-white",
-                )}
-              >
-                <SquircleDashed className="w-3 h-3" />
-                Backlog
-              </Button>
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={handleNavigateToBoard}
-                className="gap-1.5 h-6 px-2 text-xs text-muted-foreground"
-              >
-                <SquareKanban className="w-3 h-3" />
-                <span
+            <div className="md:hidden">
+              <MobileProjectNav
+                workspaceId={workspaceId}
+                projectId={projectId}
+                activeView={resolvedView}
+                onSelectBacklog={handleNavigateToBacklog}
+                onSelectBoard={handleNavigateToBoard}
+                onSelectProject={handleProjectSwitch}
+                onAddProject={() => setIsCreateProjectModalOpen(true)}
+              />
+            </div>
+
+            {showViewSwitcher && (
+              <div className="hidden h-8 items-center gap-0.5 rounded-lg border border-border/80 bg-background p-0.5 sm:inline-flex">
+                <Button
+                  variant={resolvedView === "backlog" ? "secondary" : "ghost"}
+                  size="xs"
+                  onClick={handleNavigateToBacklog}
                   className={cn(
-                    "text-xs text-muted-foreground",
-                    isBoardRoute && "text-black dark:text-white",
+                    "h-6 gap-1.5 rounded-md px-2 text-xs",
+                    resolvedView !== "backlog" && "text-muted-foreground",
                   )}
                 >
-                  Tasks
-                </span>
-              </Button>
-            </div>
+                  <SquircleDashed className="size-3.5" />
+                  Backlog
+                </Button>
+                <Button
+                  variant={resolvedView === "board" ? "secondary" : "ghost"}
+                  size="xs"
+                  onClick={handleNavigateToBoard}
+                  className={cn(
+                    "h-6 gap-1.5 rounded-md px-2 text-xs",
+                    resolvedView !== "board" && "text-muted-foreground",
+                  )}
+                >
+                  <SquareKanban className="size-3.5" />
+                  Board
+                </Button>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-1.5">
-            <NotificationDropdown />
+
+          <div className="flex shrink-0 items-center gap-1.5">
             {headerActions}
           </div>
         </div>
       </Layout.Header>
+
       <Layout.Content>{children}</Layout.Content>
+
+      <CreateProjectModal
+        open={isCreateProjectModalOpen}
+        onClose={() => setIsCreateProjectModalOpen(false)}
+      />
     </Layout>
   );
 }

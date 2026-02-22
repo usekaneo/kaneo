@@ -7,13 +7,11 @@ import {
 } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -42,6 +40,7 @@ import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/general",
@@ -241,7 +240,7 @@ function RouteComponent() {
                   <PopoverTrigger asChild>
                     <button
                       type="button"
-                      className="flex items-center justify-center p-2 rounded border border-border hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+                      className="flex items-center justify-center p-2 rounded border border-border hover:bg-accent transition-colors"
                       title="Pick icon"
                     >
                       {(() => {
@@ -250,7 +249,7 @@ function RouteComponent() {
                           "Layout";
                         const Icon = icons[key] || icons.Layout;
                         return (
-                          <Icon className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+                          <Icon className="w-4 h-4 text-muted-foreground" />
                         );
                       })()}
                     </button>
@@ -278,8 +277,8 @@ function RouteComponent() {
                             className={cn(
                               "p-2 rounded-lg transition-all duration-200 flex items-center justify-center group hover:scale-105",
                               projectForm.getValues("icon") === iconName
-                                ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700",
+                                ? "bg-accent text-foreground"
+                                : "text-muted-foreground hover:bg-accent",
                             )}
                             title={iconName}
                           >
@@ -430,14 +429,14 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
+              <AlertDialogClose>Cancel</AlertDialogClose>
+              <AlertDialogClose
                 onClick={handleDeleteProject}
                 disabled={isDeleting}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {isDeleting ? "Deleting..." : "Delete Project"}
-              </AlertDialogAction>
+              </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

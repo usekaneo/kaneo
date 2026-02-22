@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle, Loader2, Mail, X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import Layout from "@/components/common/layout";
 import PageTitle from "@/components/page-title";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +19,7 @@ import {
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/invitations",

@@ -5,9 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod/v4";
-
 import { Logo } from "@/components/common/logo";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
@@ -23,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/lib/toast";
 
 type OnboardingStep = "workspace" | "success";
 
@@ -101,12 +100,12 @@ export function OnboardingFlow() {
     >
       <Logo className="mx-auto mb-6 w-full flex items-end justify-center" />
 
-      <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 p-6 shadow-xl shadow-zinc-200/20 dark:shadow-zinc-950/20">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="text-center mb-6">
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+          <h1 className="text-xl font-semibold text-foreground mb-2">
             Create workspace
           </h1>
-          <p className="text-zinc-600 dark:text-zinc-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             Set up your workspace to start managing projects
           </p>
         </div>
@@ -139,7 +138,7 @@ export function OnboardingFlow() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                    <FormLabel className="text-sm font-medium text-muted-foreground">
                       Description (optional)
                     </FormLabel>
                     <FormControl>
@@ -175,23 +174,23 @@ export function OnboardingFlow() {
     >
       <Logo className="mx-auto mb-6 w-full flex items-end justify-center" />
 
-      <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 p-6 shadow-xl shadow-zinc-200/20 dark:shadow-zinc-950/20">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="text-center space-y-4">
-          <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+          <div className="w-12 h-12 bg-success/12 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle2 className="h-6 w-6 text-success-foreground" />
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+            <h1 className="text-xl font-semibold text-foreground">
               Workspace created
             </h1>
-            <p className="text-zinc-600 dark:text-zinc-400 text-sm">
+            <p className="text-muted-foreground text-sm">
               Taking you to <strong>{createdWorkspaceName}</strong>...
             </p>
           </div>
 
           <div className="w-6 h-6 mx-auto">
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-zinc-200 dark:border-zinc-700 border-t-zinc-600 dark:border-t-zinc-300" />
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-border border-t-foreground" />
           </div>
         </div>
       </div>
@@ -201,7 +200,7 @@ export function OnboardingFlow() {
   return (
     <>
       <PageTitle title="Create Workspace" />
-      <div className="min-h-screen w-full bg-gradient-to-b from-zinc-100 to-white dark:from-zinc-900 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4">
         <AnimatePresence mode="wait">
           {step === "workspace" && renderWorkspaceStep()}
           {step === "success" && renderSuccessStep()}

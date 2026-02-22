@@ -30,16 +30,16 @@ import {
   Underline,
   X,
 } from "lucide-react";
-import { toast } from "sonner";
+import CustomSlashMenu from "@/components/blocknote/custom-slash-menu";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { KbdSequence } from "@/components/ui/kbd";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { KbdSequence } from "@/components/ui/kbd";
+} from "@/components/ui/preview-card";
 import {
   Tooltip,
   TooltipContent,
@@ -49,6 +49,7 @@ import {
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type CommentCardProps = {
@@ -226,7 +227,7 @@ export default function CommentCard({
     <div className="w-full group">
       <div className="flex items-center gap-2 mb-2">
         <HoverCard>
-          <HoverCardTrigger asChild>
+          <HoverCardTrigger>
             <div className="flex items-center gap-2 cursor-pointer">
               <Avatar className="h-6 w-6">
                 <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
@@ -526,6 +527,7 @@ export default function CommentCard({
             )}
             <SuggestionMenuController
               triggerCharacter={"/"}
+              suggestionMenuComponent={CustomSlashMenu}
               getItems={async (query) =>
                 getDefaultReactSlashMenuItems(editor).filter(
                   (item) => item.group !== "Media",

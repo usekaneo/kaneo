@@ -23,7 +23,7 @@ import {
   Type,
   Underline,
 } from "lucide-react";
-
+import CustomSlashMenu from "@/components/blocknote/custom-slash-menu";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
 import {
@@ -258,6 +258,7 @@ export default function TaskDescriptionEditor({
         />
         <SuggestionMenuController
           triggerCharacter={"/"}
+          suggestionMenuComponent={CustomSlashMenu}
           getItems={async (query) =>
             getDefaultReactSlashMenuItems(editor).filter(
               (item) => item.group !== "Media",

@@ -2,8 +2,8 @@ import { Button } from "./ui/button";
 
 export function DemoAlert() {
   return (
-    <div className="flex sticky top-0 left-0 right-0 flex-col bg-amber-500/10 border-b border-amber-500/20 px-4 py-3 text-center">
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-amber-900 dark:text-amber-300">
+    <div className="sticky top-0 left-0 right-0 flex flex-col border-warning/30 border-b bg-warning/10 px-4 py-3 text-center">
+      <div className="flex flex-col items-center justify-center gap-2 text-sm text-warning-foreground sm:flex-row">
         <p className="flex flex-col sm:flex-row items-center gap-2">
           This is a demo environment. All data will be automatically purged
           every hour.
@@ -11,7 +11,7 @@ export function DemoAlert() {
             onClick={() =>
               window.open("https://github.com/usekaneo/kaneo", "_blank")
             }
-            className="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 h-7 sm:h-6 px-3 sm:px-2 whitespace-nowrap"
+            className="h-7 whitespace-nowrap bg-warning/15 px-3 text-warning-foreground text-xs hover:bg-warning/25 sm:h-6 sm:px-2"
           >
             Deploy your own
           </Button>

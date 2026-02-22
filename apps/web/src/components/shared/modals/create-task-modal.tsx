@@ -10,7 +10,6 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +41,7 @@ import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-wor
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import { getPriorityIcon } from "@/lib/priority";
+import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 
 type CreateTaskModalProps = {
@@ -75,15 +75,51 @@ type Label = {
 type PopoverStep = "select" | "color";
 
 const labelColors = [
-  { value: "gray" as LabelColor, label: "Stone", color: "#78716c" },
-  { value: "dark-gray" as LabelColor, label: "Slate", color: "#64748b" },
-  { value: "purple" as LabelColor, label: "Lavender", color: "#8b5cf6" },
-  { value: "teal" as LabelColor, label: "Sage", color: "#059669" },
-  { value: "green" as LabelColor, label: "Forest", color: "#16a34a" },
-  { value: "yellow" as LabelColor, label: "Amber", color: "#d97706" },
-  { value: "orange" as LabelColor, label: "Terracotta", color: "#ea580c" },
-  { value: "pink" as LabelColor, label: "Rose", color: "#e11d48" },
-  { value: "red" as LabelColor, label: "Crimson", color: "#dc2626" },
+  {
+    value: "gray" as LabelColor,
+    label: "Stone",
+    color: "var(--color-stone-500)",
+  },
+  {
+    value: "dark-gray" as LabelColor,
+    label: "Slate",
+    color: "var(--color-slate-500)",
+  },
+  {
+    value: "purple" as LabelColor,
+    label: "Lavender",
+    color: "var(--color-violet-500)",
+  },
+  {
+    value: "teal" as LabelColor,
+    label: "Sage",
+    color: "var(--color-emerald-600)",
+  },
+  {
+    value: "green" as LabelColor,
+    label: "Forest",
+    color: "var(--color-green-600)",
+  },
+  {
+    value: "yellow" as LabelColor,
+    label: "Amber",
+    color: "var(--color-amber-600)",
+  },
+  {
+    value: "orange" as LabelColor,
+    label: "Terracotta",
+    color: "var(--color-orange-600)",
+  },
+  {
+    value: "pink" as LabelColor,
+    label: "Rose",
+    color: "var(--color-rose-600)",
+  },
+  {
+    value: "red" as LabelColor,
+    label: "Crimson",
+    color: "var(--color-red-600)",
+  },
 ];
 
 function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
@@ -345,11 +381,11 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
           <DialogTitle asChild>
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="text-zinc-600 dark:text-zinc-400 font-semibold tracking-wider text-sm">
+                <BreadcrumbItem className="text-muted-foreground font-semibold tracking-wider text-sm">
                   {project?.slug?.toUpperCase() || "TASK"}
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem className="text-zinc-700 dark:text-zinc-300 font-medium text-sm">
+                <BreadcrumbItem className="text-foreground font-medium text-sm">
                   New Task
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -371,7 +407,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               onChange={(e) => setTitle(e.target.value)}
               autoFocus
               placeholder="Task title"
-              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground tracking-tight focus:!outline-none focus-visible:!outline-none"
               required
             />
 
@@ -390,7 +426,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     key={label.name}
                     color={label.color}
                     variant="outline"
-                    className="flex items-center gap-1 pl-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors"
+                    className="flex items-center gap-1 pl-3 cursor-pointer hover:bg-accent/50 transition-colors"
                     onClick={() => removeLabel(label.name)}
                   >
                     <span
@@ -398,7 +434,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                       style={{
                         backgroundColor:
                           labelColors.find((c) => c.value === label.color)
-                            ?.color || "#94a3b8",
+                            ?.color || "var(--color-neutral-400)",
                       }}
                     />
                     {label.name}
@@ -625,7 +661,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                                 backgroundColor:
                                   labelColors.find(
                                     (c) => c.value === label.color,
-                                  )?.color || "#94a3b8",
+                                  )?.color || "var(--color-neutral-400)",
                               }}
                             />
                             <span className="truncate">{label.name}</span>
@@ -650,7 +686,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                                 backgroundColor:
                                   labelColors.find(
                                     (c) => c.value === selectedColor,
-                                  )?.color || "#94a3b8",
+                                  )?.color || "var(--color-neutral-400)",
                               }}
                             />
                             <span className="truncate">
@@ -709,12 +745,12 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
 
           <DialogFooter>
             <div className="flex items-center gap-3 mr-auto">
-              <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
                 <input
                   type="checkbox"
                   checked={createMore}
                   onChange={(e) => setCreateMore(e.target.checked)}
-                  className="rounded border-zinc-400 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0 focus:ring-2 transition-all"
+                  className="rounded border-border bg-background text-primary focus:ring-ring focus:ring-offset-0 focus:ring-2 transition-all"
                 />
                 Create more
               </label>
@@ -725,7 +761,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               onClick={handleClose}
               variant="outline"
               size="sm"
-              className="border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="border-border text-foreground hover:bg-accent"
             >
               Cancel
             </Button>
@@ -733,7 +769,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               type="submit"
               disabled={!title.trim()}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50"
+              className="disabled:opacity-50"
             >
               Create Task
             </Button>

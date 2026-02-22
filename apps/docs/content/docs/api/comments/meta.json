@@ -1,5 +1,0 @@
-{
-	"title": "Comments",
-	"pages": ["createComment", "updateComment", "deleteComment"],
-	"defaultOpen": true
-}

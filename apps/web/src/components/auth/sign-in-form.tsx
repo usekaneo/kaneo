@@ -2,7 +2,6 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod/v4";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/lib/toast";
 
 export type SignInFormValues = {
   email: string;
@@ -126,7 +126,7 @@ export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
           type="submit"
           disabled={isPending}
           size="sm"
-          className="w-full mt-4 text-white"
+          className="w-full mt-4"
         >
           {isPending ? "Signing In..." : "Sign In"}
         </Button>

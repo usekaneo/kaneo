@@ -6,29 +6,56 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import {
+  Fragment,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  Command,
+  CommandCollection,
   CommandDialog,
+  CommandDialogPopup,
+  CommandEmpty,
   CommandGroup,
+  CommandGroupLabel,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandPanel,
+  CommandSeparator,
 } from "@/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/menu";
 import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
+import { toast } from "@/lib/toast";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
 import { Button } from "../ui/button";
+
+type BacklogActionItem = {
+  value: string;
+  label: string;
+  icon?: ReactNode;
+  onRun: () => void;
+};
+
+type BacklogActionGroup = {
+  value: string;
+  label: string;
+  items: BacklogActionItem[];
+};
 
 function BacklogBulkToolbar() {
   const { selectedTaskIds, clearSelection, selectAll } =
@@ -61,20 +88,23 @@ function BacklogBulkToolbar() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectAll, clearSelection]);
 
-  const handleMoveToBoard = async (status: string) => {
-    try {
-      await bulkMoveToBoard({
-        taskIds: Array.from(selectedTaskIds),
-        status,
-      });
-      toast.success(`${selectedCount} tasks moved to board`);
-      clearSelection();
-    } catch (_error) {
-      toast.error("Failed to move tasks to board");
-    }
-  };
+  const handleMoveToBoard = useCallback(
+    async (status: string) => {
+      try {
+        await bulkMoveToBoard({
+          taskIds: Array.from(selectedTaskIds),
+          status,
+        });
+        toast.success(`${selectedCount} tasks moved to board`);
+        clearSelection();
+      } catch (_error) {
+        toast.error("Failed to move tasks to board");
+      }
+    },
+    [bulkMoveToBoard, selectedTaskIds, selectedCount, clearSelection],
+  );
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = useCallback(async () => {
     if (
       !confirm(`Delete ${selectedCount} tasks? This action cannot be undone.`)
     ) {
@@ -89,9 +119,9 @@ function BacklogBulkToolbar() {
     } catch (_error) {
       toast.error("Failed to delete tasks");
     }
-  };
+  }, [bulkDelete, selectedTaskIds, selectedCount, clearSelection]);
 
-  const handleBulkArchive = async () => {
+  const handleBulkArchive = useCallback(async () => {
     try {
       await bulkArchive(Array.from(selectedTaskIds));
       toast.success(`${selectedCount} tasks archived`);
@@ -100,18 +130,76 @@ function BacklogBulkToolbar() {
     } catch (_error) {
       toast.error("Failed to archive tasks");
     }
-  };
+  }, [bulkArchive, selectedTaskIds, selectedCount, clearSelection]);
 
-  const handleBulkAssign = async (userId: string) => {
-    try {
-      await bulkAssign({ taskIds: Array.from(selectedTaskIds), userId });
-      toast.success(`${selectedCount} tasks assigned`);
-      clearSelection();
-      setIsActionsOpen(false);
-    } catch (_error) {
-      toast.error("Failed to assign tasks");
-    }
-  };
+  const handleBulkAssign = useCallback(
+    async (userId: string) => {
+      try {
+        await bulkAssign({ taskIds: Array.from(selectedTaskIds), userId });
+        toast.success(`${selectedCount} tasks assigned`);
+        clearSelection();
+        setIsActionsOpen(false);
+      } catch (_error) {
+        toast.error("Failed to assign tasks");
+      }
+    },
+    [bulkAssign, selectedTaskIds, selectedCount, clearSelection],
+  );
+
+  const groupedItems = useMemo<BacklogActionGroup[]>(
+    () => [
+      {
+        value: "actions",
+        label: "Actions",
+        items: [
+          {
+            value: "bulk-delete",
+            label: "Delete tasks",
+            icon: <Trash2 className="w-4 h-4 mr-2" />,
+            onRun: () => {
+              void handleBulkDelete();
+            },
+          },
+          {
+            value: "bulk-archive",
+            label: "Archive tasks",
+            icon: <Archive className="w-4 h-4 mr-2" />,
+            onRun: () => {
+              void handleBulkArchive();
+            },
+          },
+        ],
+      },
+      {
+        value: "assign",
+        label: "Assign to",
+        items: (workspaceUsers?.members ?? []).map((member) => ({
+          value: `assign-${member.userId}`,
+          label: member.user?.name || "Unknown User",
+          icon: (
+            <Avatar className="h-6 w-6 mr-2">
+              <AvatarImage
+                src={member.user?.image ?? ""}
+                alt={member.user?.name || ""}
+              />
+              <AvatarFallback className="text-xs font-medium border border-border/30">
+                {member.user?.name?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          ),
+          onRun: () => {
+            void handleBulkAssign(member.userId);
+          },
+        })),
+      },
+    ],
+    [
+      workspaceUsers?.members,
+      handleBulkDelete,
+      handleBulkArchive,
+      handleBulkAssign,
+    ],
+  );
 
   if (selectedCount === 0) return null;
 
@@ -170,41 +258,38 @@ function BacklogBulkToolbar() {
         open={isActionsOpen}
         onOpenChange={setIsActionsOpen}
       >
-        <CommandInput placeholder="Search actions..." />
-        <CommandList>
-          <CommandGroup heading="Actions">
-            <CommandItem onSelect={handleBulkDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete tasks
-            </CommandItem>
-            <CommandItem onSelect={handleBulkArchive}>
-              <Archive className="w-4 h-4 mr-2" />
-              Archive tasks
-            </CommandItem>
-          </CommandGroup>
-
-          <CommandGroup heading="Assign to">
-            {workspaceUsers?.members?.map((member) => (
-              <CommandItem
-                key={member.userId}
-                onSelect={() => handleBulkAssign(member.userId)}
-              >
-                <Avatar className="h-6 w-6">
-                  <AvatarImage
-                    src={member.user?.image ?? ""}
-                    alt={member.user?.name || ""}
-                  />
-                  <AvatarFallback className="text-xs font-medium border border-border/30">
-                    {member.user?.name?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm">
-                  {member.user?.name || "Unknown User"}
-                </span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
+        <CommandDialogPopup>
+          <Command items={groupedItems}>
+            <CommandInput placeholder="Search actions..." />
+            <CommandPanel>
+              <CommandEmpty>No actions found.</CommandEmpty>
+              <CommandList>
+                {(group: BacklogActionGroup, groupIndex: number) => (
+                  <Fragment key={group.value}>
+                    <CommandGroup items={group.items}>
+                      <CommandGroupLabel>{group.label}</CommandGroupLabel>
+                      <CommandCollection>
+                        {(item: BacklogActionItem) => (
+                          <CommandItem
+                            key={item.value}
+                            value={item.value}
+                            onClick={item.onRun}
+                          >
+                            {item.icon}
+                            <span className="text-sm">{item.label}</span>
+                          </CommandItem>
+                        )}
+                      </CommandCollection>
+                    </CommandGroup>
+                    {groupIndex < groupedItems.length - 1 && (
+                      <CommandSeparator />
+                    )}
+                  </Fragment>
+                )}
+              </CommandList>
+            </CommandPanel>
+          </Command>
+        </CommandDialogPopup>
       </CommandDialog>
     </div>
   );

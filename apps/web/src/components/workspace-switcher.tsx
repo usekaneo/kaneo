@@ -1,13 +1,17 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import * as React from "react";
 
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -105,98 +109,79 @@ export function WorkspaceSwitcher() {
       <div className="flex items-center justify-between w-full gap-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <Popover open={isOpen} onOpenChange={setIsOpen}>
-              <PopoverTrigger asChild>
-                <SidebarMenuButton
-                  size="sm"
-                  className="h-8 py-0 w-auto w-full group"
-                >
-                  <div className="flex items-end gap-2 min-w-0 w-full">
-                    <div className="bg-primary flex aspect-square size-5 items-end justify-center rounded-sm">
-                      <span className="text-xs font-medium text-white">
-                        {workspace.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <span
-                      className={`truncate text-sm text-foreground/90 font-medium ${isSwitching ? "opacity-50" : ""}`}
-                    >
-                      {workspace.name}
-                    </span>
-                  </div>
-                  <ChevronDown
-                    className={`ml-1 size-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-500 ease-out ${isSwitching ? "animate-spin" : ""}`}
-                    data-state={isOpen ? "open" : "closed"}
+            <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+              <DropdownMenuTrigger
+                render={
+                  <SidebarMenuButton
+                    className="group h-8 w-full rounded-md px-2 text-sidebar-foreground data-[active=true]:bg-sidebar-accent/50"
+                    size="default"
                   />
-                </SidebarMenuButton>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-fit min-w-48 p-0 rounded-lg"
+                }
+              >
+                <div className="flex items-center min-w-0 w-full">
+                  <span
+                    className={`truncate text-sm font-medium text-sidebar-foreground ${isSwitching ? "opacity-50" : ""}`}
+                  >
+                    {workspace.name}
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`ml-1 size-3.5 text-sidebar-foreground/72 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
+                  data-state={isOpen ? "open" : "closed"}
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="min-w-(--anchor-width) text-sidebar-foreground"
                 align="start"
                 side="bottom"
                 sideOffset={4}
               >
-                <div className="p-3">
-                  <div className="text-muted-foreground/60 text-xs">
-                    Workspaces
-                  </div>
-                </div>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
 
-                <Separator />
-
-                <div className="p-1">
-                  {workspaces?.map((ws: Workspace, index: number) => (
-                    <button
-                      type="button"
-                      key={ws.id}
-                      onClick={() => {
+                {workspaces?.map((ws: Workspace, index: number) => (
+                  <DropdownMenuItem
+                    key={ws.id}
+                    onClick={() => {
+                      if (!isSwitching && ws.id !== workspace.id) {
                         handleWorkspaceChange(ws);
                         setIsOpen(false);
-                      }}
-                      disabled={isSwitching || ws.id === workspace.id}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80 rounded-sm transition-colors text-sm font-normal ${isSwitching || ws.id === workspace.id ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                      <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
-                        <span className="text-xs font-medium text-muted-foreground">
-                          {ws.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <span className="text-foreground/90 flex-1 text-left">
-                        {isSwitching && ws.id === workspace?.id
-                          ? "Switching..."
-                          : ws.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground/50">
-                        {getModifierKeyText()} {index > 8 ? "0" : index + 1}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-
-                <Separator />
-
-                <div className="p-1">
-                  <button
-                    type="button"
-                    className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-secondary/80 focus:bg-secondary/80 rounded-sm transition-colors text-sm font-normal"
-                    onClick={() => {
-                      setIsCreateWorkspaceModalOpen(true);
-                      setIsOpen(false);
+                      }
                     }}
+                    disabled={isSwitching || ws.id === workspace.id}
+                    className="h-7 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
                   >
-                    <div className="bg-muted/20 border border-border/30 flex size-5 items-center justify-center rounded-sm">
-                      <Plus className="size-3 text-muted-foreground" />
-                    </div>
-                    <span className="text-muted-foreground flex-1 text-left">
-                      Add workspace
+                    <span className="flex-1 text-left">
+                      {isSwitching && ws.id === workspace?.id
+                        ? "Switching..."
+                        : ws.name}
                     </span>
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
+                    <DropdownMenuShortcut>
+                      {getModifierKeyText()} {index > 8 ? "0" : index + 1}
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                ))}
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    setIsCreateWorkspaceModalOpen(true);
+                    setIsOpen(false);
+                  }}
+                  className="h-7 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
+                >
+                  <span>Add workspace</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
 
-        <UserAvatar />
+        <div className="h-7 w-7 shrink-0">
+          <UserAvatar />
+        </div>
       </div>
 
       <CreateWorkspaceModal

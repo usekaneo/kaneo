@@ -1,0 +1,37 @@
+---
+title: Quick Start
+description: Get started with Kaneo in minutes
+---
+
+## Introduction
+
+Kaneo <span className='text-fd-muted-foreground text-sm'>(/kəˈneɪ.oʊ/)</span> is a project management tool that gets out of your way. It is designed to be a simple, yet powerful tool for managing your projects. It **works for you** instead of you working for it.
+
+### Components
+
+Kaneo is composed of several components:
+
+- API: The backend API that powers the application, it is built with Hono and TypeScript.
+- Web: The frontend web application that is built with React and Tailwind CSS.
+- Database: The database that is built with PostgreSQL.
+
+### Installation
+
+We offer two ways to install Kaneo:
+
+**Quick Setup with drim (Recommended)**
+
+For straightforward deployments, use [drim](/core/installation/drim) - a CLI tool that handles everything automatically:
+
+```bash
+curl -fsSL https://assets.kaneo.app/install.sh | sh
+drim setup
+```
+
+**Manual Setup with Docker Compose**
+
+For more control or complex setups, follow the manual installation process:
+
+- [Setting up the Docker compose file](/core/installation/docker-compose)
+- [Setting up the environment variables](/core/installation/environment-variables)
+- [Starting the services](/core/installation/start-services)

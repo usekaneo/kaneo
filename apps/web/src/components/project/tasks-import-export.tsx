@@ -1,13 +1,18 @@
-import * as Dialog from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
 import { Download, Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogPopup,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import useExportTasks from "@/hooks/mutations/task/use-export-tasks";
 import useImportTasks from "@/hooks/mutations/task/use-import-tasks";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 import type { ProjectWithTasks } from "@/types/project";
 
 type TasksImportExportProps = {
@@ -122,7 +127,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Button
-          className="flex items-center gap-1.5 bg-white hover:bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700"
+          className="flex items-center gap-1.5 bg-card hover:bg-accent text-foreground border border-border"
           size="sm"
           onClick={handleExport}
           disabled={isExporting}
@@ -136,7 +141,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
         </Button>
 
         <Button
-          className="flex items-center gap-1.5 bg-white hover:bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700"
+          className="flex items-center gap-1.5 bg-card hover:bg-accent text-foreground border border-border"
           size="sm"
           onClick={() => setIsImportOpen(true)}
         >
@@ -153,35 +158,32 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
         />
       </div>
 
-      <Dialog.Root open={isImportOpen} onOpenChange={resetAndCloseModal}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
-          <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-800">
-              <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-                <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                  Import Tasks
-                </Dialog.Title>
-                <Dialog.Close
-                  asChild
-                  className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
-                >
-                  <X size={20} className="cursor-pointer" />
-                </Dialog.Close>
-              </div>
+      <Dialog open={isImportOpen} onOpenChange={resetAndCloseModal}>
+        <DialogPopup className="w-full max-w-md">
+          <div className="bg-card rounded-lg shadow-xl border border-border">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <DialogTitle className="text-lg font-semibold text-foreground">
+                Import Tasks
+              </DialogTitle>
+              <DialogClose
+                className="text-muted-foreground hover:text-foreground"
+                render={<button type="button" />}
+              >
+                <X size={20} className="cursor-pointer" />
+              </DialogClose>
+            </div>
 
-              <div className="p-4">
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">
-                  Upload a JSON file containing tasks to import into this
-                  project.
+            <div className="p-4">
+              <p className="text-sm text-muted-foreground mb-2">
+                Upload a JSON file containing tasks to import into this project.
+              </p>
+
+              <div className="mb-4 p-3 bg-muted rounded-md border border-border/50 font-mono text-sm">
+                <p className="text-muted-foreground mb-1 text-xs">
+                  Expected format:
                 </p>
-
-                <div className="mb-4 p-3 bg-zinc-950 dark:bg-zinc-900 rounded-md border border-zinc-200/10 dark:border-zinc-800/50 font-mono text-sm">
-                  <p className="text-zinc-400 dark:text-zinc-500 mb-1 text-xs">
-                    Expected format:
-                  </p>
-                  <pre className="text-zinc-100 dark:text-zinc-200 overflow-auto max-h-32 text-xs">
-                    {`{
+                <pre className="text-foreground overflow-auto max-h-32 text-xs">
+                  {`{
   "tasks": [
     {
       "title": "Task title",
@@ -193,53 +195,54 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
     }
   ]
 }`}
-                  </pre>
-                </div>
+                </pre>
+              </div>
 
-                {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onDrop and onDragOver */}
-                <div
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-8 text-center mb-4",
-                    "border-zinc-300 dark:border-zinc-700",
-                    "hover:border-zinc-400 dark:hover:border-zinc-600",
-                    "bg-zinc-50 dark:bg-zinc-800/30",
-                    "transition-colors",
-                  )}
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                >
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <Upload className="h-8 w-8 text-zinc-400" />
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Drag and drop your JSON file here
-                    </p>
-                    <Button
-                      className="mt-2 bg-white hover:bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700"
-                      size="sm"
-                      onClick={handleImportClick}
-                      disabled={isImporting}
-                    >
-                      {isImporting ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        "Select File"
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2">
-                  <Dialog.Close asChild>
-                    <Button className="bg-white hover:bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700">
-                      Cancel
-                    </Button>
-                  </Dialog.Close>
+              {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onDrop and onDragOver */}
+              <div
+                className={cn(
+                  "border-2 border-dashed rounded-lg p-8 text-center mb-4",
+                  "border-border",
+                  "hover:border-ring",
+                  "bg-muted/60",
+                  "transition-colors",
+                )}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+              >
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    Drag and drop your JSON file here
+                  </p>
+                  <Button
+                    className="mt-2 bg-card hover:bg-accent text-foreground border border-border"
+                    size="sm"
+                    onClick={handleImportClick}
+                    disabled={isImporting}
+                  >
+                    {isImporting ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      "Select File"
+                    )}
+                  </Button>
                 </div>
               </div>
+
+              <div className="flex justify-end gap-2">
+                <DialogClose
+                  render={
+                    <Button className="bg-card hover:bg-accent text-foreground border border-border" />
+                  }
+                >
+                  Cancel
+                </DialogClose>
+              </div>
             </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+          </div>
+        </DialogPopup>
+      </Dialog>
     </div>
   );
 }

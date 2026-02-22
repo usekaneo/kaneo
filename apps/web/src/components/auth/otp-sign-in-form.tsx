@@ -2,7 +2,6 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod/v4";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/lib/toast";
 
 type OtpSignInFormProps = {
   invitationId?: string;
@@ -87,11 +87,7 @@ export function OtpSignInForm({
           )}
         />
 
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="w-full mt-4 text-white"
-        >
+        <Button type="submit" disabled={isPending} className="w-full mt-4">
           {isPending ? "Sending..." : "Send Verification Code"}
         </Button>
       </form>

@@ -1,18 +1,19 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
-import * as React from "react";
-import { toast } from "sonner";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/menu";
 import { Separator } from "@/components/ui/separator";
 import useSignOut from "@/hooks/mutations/use-sign-out";
+import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 
 export function UserAvatar() {
@@ -21,7 +22,6 @@ export function UserAvatar() {
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
   const navigate = useNavigate();
-  const [open, setOpen] = React.useState(false);
 
   if (!user) {
     return null;
@@ -32,7 +32,6 @@ export function UserAvatar() {
       await signOut();
       queryClient.clear();
       setProject(undefined);
-      setOpen(false);
       toast.success("Signed out successfully");
     } catch (error) {
       toast.error(
@@ -43,7 +42,6 @@ export function UserAvatar() {
 
   const handleSettings = () => {
     navigate({ to: "/dashboard/settings/account/information" });
-    setOpen(false);
   };
 
   const initials = user.name
@@ -55,30 +53,25 @@ export function UserAvatar() {
     : user.email?.substring(0, 2).toUpperCase() || "U";
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-6 w-6 rounded-full p-0 hover:bg-secondary/50"
+          size="icon"
+          className="h-7 w-7 rounded-full p-0 hover:bg-sidebar-accent/70"
         >
-          <Avatar className="h-6 w-6">
+          <Avatar className="h-7 w-7">
             <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
             <AvatarFallback className="text-xs font-medium border border-border/30">
               {initials}
             </AvatarFallback>
           </Avatar>
         </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-56 p-0 rounded-lg"
-        side="bottom"
-        align="start"
-        sideOffset={4}
-      >
-        <div className="p-3">
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-52 p-0" side="bottom" align="start">
+        <div className="px-2.5 py-2">
           <div className="flex items-center gap-2 text-left text-sm">
-            <Avatar className="h-8 w-8 rounded-full">
+            <Avatar className="h-7 w-7 rounded-full">
               <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
               <AvatarFallback className="rounded-full border border-border/30">
                 {initials}
@@ -99,31 +92,29 @@ export function UserAvatar() {
 
         <Separator />
 
-        <div className="p-1">
-          <Button
-            variant="ghost"
+        <div className="p-0.5">
+          <DropdownMenuItem
             onClick={handleSettings}
-            className="w-full justify-start gap-2 px-2 py-1.5 text-sm font-normal text-muted-foreground hover:bg-secondary/80"
+            className="h-7 gap-2 px-2 text-sm font-normal"
           >
-            <Settings className="size-3" />
+            <Settings className="size-3.5" />
             Settings
-          </Button>
+          </DropdownMenuItem>
         </div>
 
-        <Separator />
+        <DropdownMenuSeparator />
 
-        <div className="p-1">
-          <Button
-            variant="ghost"
+        <div className="p-0.5">
+          <DropdownMenuItem
             onClick={handleSignOut}
             disabled={isPending}
-            className="w-full justify-start gap-2 px-2 py-1.5 text-sm font-normal text-muted-foreground hover:bg-secondary/80"
+            className="h-7 gap-2 px-2 text-sm font-normal"
           >
-            <LogOut className="size-3" />
+            <LogOut className="size-3.5" />
             {isPending ? "Signing out..." : "Log out"}
-          </Button>
+          </DropdownMenuItem>
         </div>
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

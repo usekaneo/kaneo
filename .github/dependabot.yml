@@ -19,8 +19,3 @@ updates:
     directory: "/packages/email"
     schedule:
       interval: "weekly"
-
-  - package-ecosystem: "npm"
-    directory: "/apps/docs"
-    schedule:
-      interval: "weekly"

@@ -84,7 +84,7 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
             <Input
               {...field}
               placeholder="Click to add a title"
-              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground tracking-tight focus:!outline-none focus-visible:!outline-none"
               onChange={(e) => {
                 field.onChange(e);
                 handleTitleChange(e.target.value);

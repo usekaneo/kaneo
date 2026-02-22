@@ -2,15 +2,15 @@ import { Badge } from "@/components/ui/badge";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 
 const labelColors = [
-  { value: "gray", label: "Stone", color: "#78716c" },
-  { value: "dark-gray", label: "Slate", color: "#64748b" },
-  { value: "purple", label: "Lavender", color: "#8b5cf6" },
-  { value: "teal", label: "Sage", color: "#059669" },
-  { value: "green", label: "Forest", color: "#16a34a" },
-  { value: "yellow", label: "Amber", color: "#d97706" },
-  { value: "orange", label: "Terracotta", color: "#ea580c" },
-  { value: "pink", label: "Rose", color: "#e11d48" },
-  { value: "red", label: "Crimson", color: "#dc2626" },
+  { value: "gray", label: "Stone", color: "var(--color-stone-500)" },
+  { value: "dark-gray", label: "Slate", color: "var(--color-slate-500)" },
+  { value: "purple", label: "Lavender", color: "var(--color-violet-500)" },
+  { value: "teal", label: "Sage", color: "var(--color-emerald-600)" },
+  { value: "green", label: "Forest", color: "var(--color-green-600)" },
+  { value: "yellow", label: "Amber", color: "var(--color-amber-600)" },
+  { value: "orange", label: "Terracotta", color: "var(--color-orange-600)" },
+  { value: "pink", label: "Rose", color: "var(--color-rose-600)" },
+  { value: "red", label: "Crimson", color: "var(--color-red-600)" },
 ];
 
 function TaskCardLabels({ taskId }: { taskId: string }) {
@@ -32,7 +32,7 @@ function TaskCardLabels({ taskId }: { taskId: string }) {
             style={{
               backgroundColor:
                 labelColors.find((c) => c.value === label.color)?.color ||
-                "#94a3b8",
+                "var(--color-neutral-400)",
             }}
           />
           <span className="truncate max-w-[80px]">{label.name}</span>

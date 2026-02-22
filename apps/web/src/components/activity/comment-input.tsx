@@ -25,7 +25,7 @@ import {
   Type,
   Underline,
 } from "lucide-react";
-import { toast } from "sonner";
+import CustomSlashMenu from "@/components/blocknote/custom-slash-menu";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
 import {
@@ -37,6 +37,7 @@ import {
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
+import { toast } from "@/lib/toast";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type CommentInputProps = {
@@ -302,6 +303,7 @@ export default function CommentInput({ taskId }: CommentInputProps) {
           />
           <SuggestionMenuController
             triggerCharacter={"/"}
+            suggestionMenuComponent={CustomSlashMenu}
             getItems={async (query) =>
               getDefaultReactSlashMenuItems(editor).filter(
                 (item) => item.group !== "Media",

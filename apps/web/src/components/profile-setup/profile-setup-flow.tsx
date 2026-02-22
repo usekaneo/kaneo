@@ -5,9 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, User } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod/v4";
-
 import { Logo } from "@/components/common/logo";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
@@ -22,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import useUpdateUserProfile from "@/hooks/mutations/use-update-user-profile";
+import { toast } from "@/lib/toast";
 
 type ProfileSetupStep = "profile" | "success";
 
@@ -99,7 +98,7 @@ export function ProfileSetupFlow() {
           <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="text-xl font-bold text-foreground mb-2">
+          <h1 className="text-xl font-semibold text-foreground mb-2">
             Complete your profile
           </h1>
           <p className="text-muted-foreground text-sm">
@@ -148,12 +147,12 @@ export function ProfileSetupFlow() {
 
       <div className="bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 p-6 shadow-xl shadow-background/20">
         <div className="text-center space-y-4">
-          <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+          <div className="w-12 h-12 bg-success/12 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle2 className="h-6 w-6 text-success-foreground" />
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl font-bold text-foreground">
+            <h1 className="text-xl font-semibold text-foreground">
               Welcome, {userName}!
             </h1>
             <p className="text-muted-foreground text-sm">

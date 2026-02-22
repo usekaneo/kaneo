@@ -1,6 +1,5 @@
 import { X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -9,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
+import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
 type TaskDueDatePopoverProps = {

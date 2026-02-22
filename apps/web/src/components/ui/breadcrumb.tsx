@@ -1,4 +1,7 @@
-import { Slot } from "@radix-ui/react-slot";
+"use client";
+
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
 import type * as React from "react";
 
@@ -11,11 +14,11 @@ function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
   return (
     <ol
-      data-slot="breadcrumb-list"
       className={cn(
-        "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",
+        "wrap-break-word flex flex-wrap items-center gap-1.5 text-muted-foreground text-sm sm:gap-2.5",
         className,
       )}
+      data-slot="breadcrumb-list"
       {...props}
     />
   );
@@ -24,39 +27,39 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
 function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
   return (
     <li
-      data-slot="breadcrumb-item"
       className={cn("inline-flex items-center gap-1.5", className)}
+      data-slot="breadcrumb-item"
       {...props}
     />
   );
 }
 
 function BreadcrumbLink({
-  asChild,
   className,
+  render,
   ...props
-}: React.ComponentProps<"a"> & {
-  asChild?: boolean;
-}) {
-  const Comp = asChild ? Slot : "a";
+}: useRender.ComponentProps<"a">) {
+  const defaultProps = {
+    className: cn("transition-colors hover:text-foreground", className),
+    "data-slot": "breadcrumb-link",
+  };
 
-  return (
-    <Comp
-      data-slot="breadcrumb-link"
-      className={cn("hover:text-foreground transition-colors", className)}
-      {...props}
-    />
-  );
+  return useRender({
+    defaultTagName: "a",
+    props: mergeProps<"a">(defaultProps, props),
+    render,
+  });
 }
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
   return (
+    // biome-ignore lint(a11y/useFocusableInteractive): known
     <span
-      data-slot="breadcrumb-page"
-      role="presentation"
-      aria-disabled="true"
       aria-current="page"
-      className={cn("text-foreground font-normal", className)}
+      aria-disabled="true"
+      className={cn("font-normal text-foreground", className)}
+      data-slot="breadcrumb-page"
+      role="link"
       {...props}
     />
   );
@@ -69,10 +72,10 @@ function BreadcrumbSeparator({
 }: React.ComponentProps<"li">) {
   return (
     <li
+      aria-hidden="true"
+      className={cn("opacity-80 [&>svg]:size-4", className)}
       data-slot="breadcrumb-separator"
       role="presentation"
-      aria-hidden="true"
-      className={cn("[&>svg]:size-3.5", className)}
       {...props}
     >
       {children ?? <ChevronRight />}
@@ -86,10 +89,10 @@ function BreadcrumbEllipsis({
 }: React.ComponentProps<"span">) {
   return (
     <span
+      aria-hidden="true"
+      className={className}
       data-slot="breadcrumb-ellipsis"
       role="presentation"
-      aria-hidden="true"
-      className={cn("flex size-9 items-center justify-center", className)}
       {...props}
     >
       <MoreHorizontal className="size-4" />
