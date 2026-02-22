@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "aspen",
   "name": "Kaneo",
   "colors": {
     "primary": "#111111",
@@ -128,5 +128,8 @@
       "github": "https://github.com/usekaneo/kaneo",
       "x": "https://x.com/usekaneo"
     }
+  },
+  "seo": {
+    "indexing": "all"
   }
 }
