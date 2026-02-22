@@ -21,6 +21,18 @@
       }
     }
   },
+  "fonts": {
+    "heading": {
+      "family": "Cal Sans Heading",
+      "source": "/fonts/cal-sans-heading.woff2",
+      "format": "woff2"
+    },
+    "body": {
+      "family": "Cal Sans UI",
+      "source": "/fonts/cal-sans-body.woff2",
+      "format": "woff2"
+    }
+  },
   "favicon": "/favicon.svg",
   "logo": {
     "light": "/logo/dark.svg",
@@ -36,6 +48,18 @@
             "pages": [
               "index",
               "core/index"
+            ]
+          },
+          {
+            "group": "Functional Guides",
+            "pages": [
+              "core/functional/index",
+              "core/functional/create-workspace-and-project",
+              "core/functional/plan-and-execute-tasks",
+              "core/functional/backlog-planning",
+              "core/functional/collaborate-with-team",
+              "core/functional/configure-workflows",
+              "core/functional/personalize-your-workspace"
             ]
           },
           {
