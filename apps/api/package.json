@@ -34,7 +34,7 @@
     "croner": "^10.0.1",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
-    "hono": "^4.11.9",
+    "hono": "^4.12.1",
     "hono-openapi": "^1.2.0",
     "octokit": "^5.0.5",
     "pg": "^8.18.0",
