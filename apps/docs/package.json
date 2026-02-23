@@ -20,7 +20,7 @@
     "clsx": "^2.1.1",
     "fumadocs-core": "16.6.1",
     "fumadocs-mdx": "14.2.6",
-    "fumadocs-openapi": "^10.3.5",
+    "fumadocs-openapi": "^10.3.9",
     "fumadocs-twoslash": "^3.1.13",
     "fumadocs-ui": "16.6.1",
     "lucide-react": "^0.564.0",
