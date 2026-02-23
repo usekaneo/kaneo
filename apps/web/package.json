@@ -59,7 +59,7 @@
 		"react": "^19.2.4",
 		"react-day-picker": "9.13.2",
 		"react-dom": "^19.2.4",
-		"react-hook-form": "^7.71.1",
+		"react-hook-form": "^7.71.2",
 		"react-markdown": "^10.1.0",
 		"react-use-websocket": "^4.11.1",
 		"sonner": "^2.0.6",
