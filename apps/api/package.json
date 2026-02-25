@@ -28,7 +28,7 @@
     "@octokit/webhooks": "^14.2.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
-    "@paralleldrive/cuid2": "^3.0.6",
+    "@paralleldrive/cuid2": "^3.3.0",
     "@valibot/to-json-schema": "^1.5.0",
     "bcrypt": "^6.0.0",
     "better-auth": "^1.4.19",
