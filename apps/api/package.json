@@ -31,7 +31,7 @@
     "@paralleldrive/cuid2": "^3.0.6",
     "@valibot/to-json-schema": "^1.5.0",
     "bcrypt": "^6.0.0",
-    "better-auth": "^1.4.17",
+    "better-auth": "^1.4.19",
     "croner": "^10.0.1",
     "drizzle-kit": "^0.31.9",
     "drizzle-orm": "^0.45.1",
