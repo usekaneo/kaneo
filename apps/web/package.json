@@ -46,7 +46,7 @@
 		"@types/file-saver": "^2.0.7",
 		"@vitejs/plugin-react": "^5.1.4",
 		"babel-plugin-react-compiler": "^19.0.0-beta-714736e-20250131",
-		"better-auth": "^1.4.18",
+		"better-auth": "^1.4.19",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
