@@ -11,7 +11,7 @@
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.2.0",
-		"@blocknote/core": "^0.46.1",
+		"@blocknote/core": "^0.47.0",
 		"@blocknote/react": "^0.47.0",
 		"@blocknote/shadcn": "^0.46.2",
 		"@dnd-kit/core": "^6.3.1",
