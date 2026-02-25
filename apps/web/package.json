@@ -54,7 +54,7 @@
 		"file-saver": "^2.0.5",
 		"framer-motion": "^12.34.3",
 		"hono": "^4.12.1",
-		"immer": "^11.1.0",
+		"immer": "^11.1.4",
 		"input-otp": "^1.4.2",
 		"lucide-react": "^0.563.0",
 		"react": "^19.2.4",
