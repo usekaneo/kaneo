@@ -1,6 +1,7 @@
 "use client";
 
 import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible";
+import * as React from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -9,19 +10,26 @@ function Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {
 }
 
 function CollapsibleTrigger({
+  asChild = false,
   className,
+  children,
   render,
   nativeButton,
   ...props
-}: CollapsiblePrimitive.Trigger.Props) {
+}: CollapsiblePrimitive.Trigger.Props & { asChild?: boolean }) {
+  const resolvedRender =
+    asChild && React.isValidElement(children) ? children : render;
+
   return (
     <CollapsiblePrimitive.Trigger
       className={cn("cursor-pointer", className)}
       data-slot="collapsible-trigger"
       nativeButton={render ? false : nativeButton}
-      render={render}
+      render={resolvedRender}
       {...props}
-    />
+    >
+      {asChild ? undefined : children}
+    </CollapsiblePrimitive.Trigger>
   );
 }
 

@@ -1,14 +1,40 @@
 "use client";
 
 import { PreviewCard as PreviewCardPrimitive } from "@base-ui/react/preview-card";
+import * as React from "react";
 
 import { cn } from "@/lib/cn";
 
-const PreviewCard = PreviewCardPrimitive.Root;
+function PreviewCard({
+  closeDelay,
+  openDelay,
+  ...props
+}: PreviewCardPrimitive.Root.Props & {
+  openDelay?: number;
+  closeDelay?: number;
+}) {
+  void openDelay;
+  void closeDelay;
+  return <PreviewCardPrimitive.Root {...props} />;
+}
 
-function PreviewCardTrigger({ ...props }: PreviewCardPrimitive.Trigger.Props) {
+function PreviewCardTrigger({
+  asChild = false,
+  children,
+  render,
+  ...props
+}: PreviewCardPrimitive.Trigger.Props & { asChild?: boolean }) {
+  const resolvedRender =
+    asChild && React.isValidElement(children) ? children : render;
+
   return (
-    <PreviewCardPrimitive.Trigger data-slot="preview-card-trigger" {...props} />
+    <PreviewCardPrimitive.Trigger
+      data-slot="preview-card-trigger"
+      render={resolvedRender}
+      {...props}
+    >
+      {asChild ? undefined : children}
+    </PreviewCardPrimitive.Trigger>
   );
 }
 
@@ -16,11 +42,13 @@ function PreviewCardPopup({
   className,
   children,
   align = "center",
+  side = "top",
   sideOffset = 4,
   anchor,
   ...props
 }: PreviewCardPrimitive.Popup.Props & {
   align?: PreviewCardPrimitive.Positioner.Props["align"];
+  side?: PreviewCardPrimitive.Positioner.Props["side"];
   sideOffset?: PreviewCardPrimitive.Positioner.Props["sideOffset"];
   anchor?: PreviewCardPrimitive.Positioner.Props["anchor"];
 }) {
@@ -31,6 +59,7 @@ function PreviewCardPopup({
         anchor={anchor}
         className="z-50"
         data-slot="preview-card-positioner"
+        side={side}
         sideOffset={sideOffset}
       >
         <PreviewCardPrimitive.Popup
