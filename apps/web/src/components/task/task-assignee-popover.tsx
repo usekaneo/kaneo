@@ -70,8 +70,8 @@ export default function TaskAssigneePopover({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-48 p-1" align="start">
-        <div className="space-y-1">
+      <PopoverContent className="w-48 p-0" align="start">
+        <div className="space-y-1 p-1">
           <Button
             variant="ghost"
             size="sm"

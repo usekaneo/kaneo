@@ -12,13 +12,8 @@ export function useReorderColumns() {
       projectId: string;
       columns: Array<{ id: string; position: number }>;
     }) => reorderColumns(projectId, columns),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["columns", variables.projectId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["tasks"],
-      });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ refetchType: "all" });
     },
   });
 }

@@ -27,17 +27,19 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
     }
 
     const updatedProject = produce(project, (draft) => {
-      const doneColumn = draft?.columns?.find((col) => col.isFinal);
-      if (!doneColumn) return;
+      const archivedColumn = draft?.columns?.find(
+        (col) => col.id === column.id,
+      );
+      if (!archivedColumn) return;
 
-      for (const task of doneColumn.tasks) {
+      for (const task of archivedColumn.tasks) {
         updateTask({
           ...task,
           status: "archived",
         });
       }
 
-      doneColumn.tasks = [];
+      archivedColumn.tasks = [];
     });
 
     setProject(updatedProject);

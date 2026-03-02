@@ -6,13 +6,8 @@ export function useDeleteColumn() {
 
   return useMutation({
     mutationFn: ({ id }: { id: string; projectId: string }) => deleteColumn(id),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["columns", variables.projectId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["tasks"],
-      });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ refetchType: "all" });
     },
   });
 }

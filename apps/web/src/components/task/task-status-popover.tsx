@@ -65,14 +65,14 @@ export default function TaskStatusPopover({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-48 p-1" align="start">
-        <div className="space-y-1">
+      <PopoverContent className="w-48 p-0" align="start">
+        <div>
           {statusOptions.map((status, index) => (
             <Button
               key={status.value}
               variant="ghost"
               size="sm"
-              className="w-full justify-start gap-2 h-8 px-2"
+              className="w-full justify-start gap-2 h-8 px-2 rounded-none first:rounded-t-md last:rounded-b-md"
               onClick={() => handleStatusChange(status.value)}
             >
               {getColumnIcon(status.value, status.isFinal)}

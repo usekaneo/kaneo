@@ -375,7 +375,6 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       <DialogContent
         className="max-w-2xl max-h-[90vh] flex flex-col"
         showCloseButton={false}
-        onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader className="flex-shrink-0">
           <DialogTitle asChild>
@@ -403,11 +402,12 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         >
           <div className="space-y-6 px-6">
             <Input
+              unstyled
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               autoFocus
               placeholder="Task title"
-              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-3 [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:leading-tight [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
               required
             />
 

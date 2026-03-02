@@ -168,13 +168,9 @@ export default function TaskPropertiesSidebar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="justify-start h-7 px-1.5 gap-1"
+                  className="justify-start h-7 px-1.5 gap-1.5"
                 >
-                  {getColumnIcon(
-                    task.status ?? "",
-                    project?.columns?.find((c) => c.id === task.status)
-                      ?.isFinal,
-                  )}
+                  {getColumnIcon(task.status ?? "", false)}
                   <span className="text-xs font-semibold truncate">
                     {toNormalCase(task.status)}
                   </span>
@@ -186,7 +182,7 @@ export default function TaskPropertiesSidebar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="justify-start h-7 px-1.5 gap-1"
+                  className="justify-start h-7 px-1.5 gap-1.5"
                 >
                   {getPriorityIcon(task.priority ?? "")}
                   <span className="text-xs font-semibold truncate">
@@ -200,7 +196,7 @@ export default function TaskPropertiesSidebar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="justify-start h-7 px-1.5 gap-1"
+                  className="justify-start h-7 px-1.5 gap-1.5"
                 >
                   {task.userId ? (
                     <Avatar className="h-[16px] w-[16px]">
@@ -231,7 +227,7 @@ export default function TaskPropertiesSidebar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="justify-start h-7 px-1.5 gap-1"
+                  className="justify-start h-7 px-1.5 gap-1.5"
                 >
                   {task.dueDate ? (
                     <>
@@ -326,13 +322,9 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1"
+                    className="justify-start h-7 px-1.5 gap-1.5"
                   >
-                    {getColumnIcon(
-                      task.status ?? "",
-                      project?.columns?.find((c) => c.id === task.status)
-                        ?.isFinal,
-                    )}
+                    {getColumnIcon(task.status ?? "", false)}
                     <span className="text-xs font-semibold truncate">
                       {toNormalCase(task.status)}
                     </span>
@@ -344,7 +336,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1"
+                    className="justify-start h-7 px-1.5 gap-1.5"
                   >
                     {getPriorityIcon(task.priority ?? "")}
                     <span className="text-xs font-semibold truncate">
@@ -358,7 +350,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1"
+                    className="justify-start h-7 px-1.5 gap-1.5"
                   >
                     {task.userId ? (
                       <Avatar className="h-[16px] w-[16px]">
@@ -391,7 +383,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1"
+                    className="justify-start h-7 px-1.5 gap-1.5"
                   >
                     {task.dueDate ? (
                       <>
@@ -488,13 +480,9 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1 w-full"
+                    className="justify-start h-7 px-1.5 gap-1.5 w-full"
                   >
-                    {getColumnIcon(
-                      task.status ?? "",
-                      project?.columns?.find((c) => c.id === task.status)
-                        ?.isFinal,
-                    )}
+                    {getColumnIcon(task.status ?? "", false)}
                     <span className="text-xs font-semibold truncate">
                       {toNormalCase(task.status)}
                     </span>
@@ -506,7 +494,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1 w-full"
+                    className="justify-start h-7 px-1.5 gap-1.5 w-full"
                   >
                     {getPriorityIcon(task.priority ?? "")}
                     <span className="text-xs font-semibold truncate">
@@ -520,7 +508,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1 w-full"
+                    className="justify-start h-7 px-1.5 gap-1.5 w-full"
                   >
                     {task.userId ? (
                       <Avatar className="h-[16px] w-[16px]">
@@ -553,7 +541,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1 w-full"
+                    className="justify-start h-7 px-1.5 gap-1.5 w-full"
                   >
                     {task.dueDate ? (
                       <>
