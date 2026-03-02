@@ -18,13 +18,17 @@ export function useUpdateColumn() {
         isFinal?: boolean;
       };
     }) => updateColumn(id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["columns", variables.projectId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["tasks"],
-      });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["columns", variables.projectId],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["tasks", variables.projectId],
+          refetchType: "all",
+        }),
+      ]);
     },
   });
 }

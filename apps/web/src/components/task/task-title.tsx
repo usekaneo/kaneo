@@ -68,7 +68,6 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
         return;
       }
 
-      console.log("Title changed:", value);
       debouncedUpdate(value);
     },
     [debouncedUpdate],
@@ -83,8 +82,9 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
           <FormControl>
             <Input
               {...field}
+              unstyled
               placeholder="Click to add a title"
-              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="w-full [&_[data-slot=input]]:!h-auto [&_[data-slot=input]]:!px-0 [&_[data-slot=input]]:!py-0 [&_[data-slot=input]]:!leading-tight [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
               onChange={(e) => {
                 field.onChange(e);
                 handleTitleChange(e.target.value);

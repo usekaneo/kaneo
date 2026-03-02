@@ -247,14 +247,16 @@ function MembersTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose disabled={isPending}>Cancel</AlertDialogClose>
-            <AlertDialogClose
-              onClick={handleDeleteMember}
-              disabled={isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Remove Member
+            <AlertDialogClose disabled={isPending}>
+              <Button variant="outline" size="sm" disabled={isPending}>
+                Cancel
+              </Button>
+            </AlertDialogClose>
+            <AlertDialogClose onClick={handleDeleteMember} disabled={isPending}>
+              <Button variant="destructive" size="sm" disabled={isPending}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Remove Member
+              </Button>
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -276,14 +278,19 @@ function MembersTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose disabled={isCancelling}>Cancel</AlertDialogClose>
+            <AlertDialogClose disabled={isCancelling}>
+              <Button variant="outline" size="sm" disabled={isCancelling}>
+                Cancel
+              </Button>
+            </AlertDialogClose>
             <AlertDialogClose
               onClick={handleCancelInvitation}
               disabled={isCancelling}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Cancel Invitation
+              <Button variant="destructive" size="sm" disabled={isCancelling}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Cancel Invitation
+              </Button>
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>

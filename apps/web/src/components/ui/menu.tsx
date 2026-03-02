@@ -2,7 +2,7 @@
 
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { ChevronRightIcon } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -13,17 +13,23 @@ const Menu = MenuPrimitive.Root;
 const MenuPortal = MenuPrimitive.Portal;
 
 function MenuTrigger({
+  asChild = false,
   className,
   children,
+  render,
   ...props
-}: MenuPrimitive.Trigger.Props) {
+}: MenuPrimitive.Trigger.Props & { asChild?: boolean }) {
+  const resolvedRender =
+    asChild && React.isValidElement(children) ? children : render;
+
   return (
     <MenuPrimitive.Trigger
       className={className}
       data-slot="menu-trigger"
+      render={resolvedRender}
       {...props}
     >
-      {children}
+      {asChild ? undefined : children}
     </MenuPrimitive.Trigger>
   );
 }

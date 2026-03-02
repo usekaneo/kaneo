@@ -41,6 +41,7 @@ function addToast(
 }
 
 type ToastFn = (title: string, options?: ToastOptions) => string;
+type ToastId = string;
 
 const success: ToastFn = (title, options) =>
   addToast(title, "success", options);
@@ -50,6 +51,16 @@ const warning: ToastFn = (title, options) =>
   addToast(title, "warning", options);
 const message: ToastFn = (title, options) =>
   addToast(title, undefined, options);
+const loading: ToastFn = (title, options) =>
+  toastManager.add({
+    title,
+    description: options?.description,
+    type: "loading",
+  });
+const dismiss = (id?: ToastId) => {
+  if (!id) return;
+  toastManager.close(id);
+};
 
 const toast = Object.assign(message, {
   success,
@@ -57,6 +68,8 @@ const toast = Object.assign(message, {
   info,
   warning,
   message,
+  loading,
+  dismiss,
 });
 
 export { toast };

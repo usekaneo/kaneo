@@ -42,12 +42,6 @@ const router = createRouter({
   },
 });
 
-declare module "@tanstack/react-router" {
-  type Register = {
-    router: typeof router;
-  };
-}
-
 function App() {
   const { user } = useAuth();
 

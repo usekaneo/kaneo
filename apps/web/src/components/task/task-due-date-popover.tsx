@@ -51,11 +51,11 @@ export default function TaskDueDatePopover({
           className="w-full bg-popover"
         />
         {task.dueDate && (
-          <div className="p-2 border-t border-border">
+          <div className="p-0 border-t border-border">
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+              className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground rounded-none"
               onClick={() => handleDateChange(undefined)}
             >
               <X className="h-4 w-4" />

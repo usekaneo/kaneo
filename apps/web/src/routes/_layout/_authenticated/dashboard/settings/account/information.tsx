@@ -31,6 +31,11 @@ type ProfileFormValues = {
   email: string;
 };
 
+type NormalizedProfileValues = {
+  name: string;
+  email: string;
+};
+
 const profileSchema = z.object({
   name: z
     .string()
@@ -39,15 +44,27 @@ const profileSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
+function normalizeProfileValues(
+  data: ProfileFormValues,
+): NormalizedProfileValues {
+  return {
+    name: data.name.trim(),
+    email: data.email,
+  };
+}
+
 function RouteComponent() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfile();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const debouncedSaveRef = useRef<(data: ProfileFormValues) => void>(() => {});
+  const isSavingRef = useRef(false);
+  const queuedSaveRef = useRef<ProfileFormValues | null>(null);
+  const lastSavedRef = useRef<NormalizedProfileValues | null>(null);
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: standardSchemaResolver(profileSchema),
+    mode: "onChange",
     defaultValues: {
       name: user?.name || "",
       email: user?.email || "",
@@ -55,22 +72,42 @@ function RouteComponent() {
   });
 
   useEffect(() => {
-    if (user && !profileForm.formState.isDirty) {
-      profileForm.reset({
-        name: user.name || "",
-        email: user.email || "",
-      });
+    if (!user) return;
+
+    const nextValues = {
+      name: user.name || "",
+      email: user.email || "",
+    };
+    lastSavedRef.current = normalizeProfileValues(nextValues);
+
+    if (!profileForm.formState.isDirty) {
+      profileForm.reset(nextValues);
     }
   }, [user, profileForm]);
 
   const saveProfile = useCallback(
     async (data: ProfileFormValues) => {
+      const normalizedData = normalizeProfileValues(data);
+
+      if (lastSavedRef.current?.name === normalizedData.name) {
+        return;
+      }
+
+      if (isSavingRef.current) {
+        queuedSaveRef.current = data;
+        return;
+      }
+
+      isSavingRef.current = true;
+
       try {
         await updateProfile({
-          name: data.name.trim(),
+          name: normalizedData.name,
         });
 
-        profileForm.reset(data, { keepDirty: false });
+        profileForm.reset(normalizedData, { keepDirty: false });
+        lastSavedRef.current = normalizedData;
+        queuedSaveRef.current = null;
 
         await queryClient.invalidateQueries({ queryKey: ["session"] });
         toast.success("Profile updated successfully");
@@ -78,6 +115,14 @@ function RouteComponent() {
         toast.error(
           error instanceof Error ? error.message : "Failed to update profile",
         );
+      } finally {
+        isSavingRef.current = false;
+
+        if (queuedSaveRef.current) {
+          const queuedData = queuedSaveRef.current;
+          queuedSaveRef.current = null;
+          await saveProfile(queuedData);
+        }
       }
     },
     [updateProfile, queryClient, profileForm],
@@ -96,17 +141,15 @@ function RouteComponent() {
     [saveProfile],
   );
 
-  debouncedSaveRef.current = debouncedSave;
-
   useEffect(() => {
-    const subscription = profileForm.watch((data) => {
+    const subscription = profileForm.watch(() => {
       if (profileForm.formState.isDirty && profileForm.formState.isValid) {
-        debouncedSaveRef.current?.(data as ProfileFormValues);
+        debouncedSave(profileForm.getValues());
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [profileForm]);
+  }, [profileForm, debouncedSave]);
 
   useEffect(() => {
     return () => {

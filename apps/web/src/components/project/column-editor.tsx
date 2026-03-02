@@ -42,6 +42,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   const handleRename = async (id: string, name: string) => {
     try {
       await updateColumn({ id, projectId, data: { name } });
+      toast.success("Column renamed");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to update column",
@@ -121,6 +122,12 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
               onBlur={(e) => {
                 if (e.target.value !== col.name) {
                   handleRename(col.id, e.target.value);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  e.currentTarget.blur();
                 }
               }}
             />

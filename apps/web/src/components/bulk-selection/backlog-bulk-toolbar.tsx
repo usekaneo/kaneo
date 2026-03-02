@@ -43,6 +43,7 @@ import { toast } from "@/lib/toast";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
 import { Button } from "../ui/button";
+import { Toolbar, ToolbarGroup, ToolbarSeparator } from "../ui/toolbar";
 
 type BacklogActionItem = {
   value: string;
@@ -155,7 +156,7 @@ function BacklogBulkToolbar() {
           {
             value: "bulk-delete",
             label: "Delete tasks",
-            icon: <Trash2 className="w-4 h-4 mr-2" />,
+            icon: <Trash2 className="h-4 w-4 text-muted-foreground" />,
             onRun: () => {
               void handleBulkDelete();
             },
@@ -163,7 +164,7 @@ function BacklogBulkToolbar() {
           {
             value: "bulk-archive",
             label: "Archive tasks",
-            icon: <Archive className="w-4 h-4 mr-2" />,
+            icon: <Archive className="h-4 w-4 text-muted-foreground" />,
             onRun: () => {
               void handleBulkArchive();
             },
@@ -177,7 +178,7 @@ function BacklogBulkToolbar() {
           value: `assign-${member.userId}`,
           label: member.user?.name || "Unknown User",
           icon: (
-            <Avatar className="h-6 w-6 mr-2">
+            <Avatar className="h-5 w-5">
               <AvatarImage
                 src={member.user?.image ?? ""}
                 alt={member.user?.name || ""}
@@ -205,59 +206,61 @@ function BacklogBulkToolbar() {
 
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-background text-foreground rounded-xl shadow-lg px-2 py-2 flex items-center gap-1 border border-border">
-        <div className="flex items-center gap-1.5 px-3">
+      <Toolbar className="items-center gap-1 rounded-xl border-border/80 bg-background px-1.5 py-1 shadow-lg/8">
+        <ToolbarGroup className="px-1.5">
           <span className="text-sm font-medium text-foreground">
             {selectedCount} selected
           </span>
-        </div>
+        </ToolbarGroup>
 
-        <div className="w-px h-6 bg-border" />
+        <ToolbarSeparator orientation="vertical" className="my-1 h-5" />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="ghost" className="gap-1.5">
-              <ArrowUpToLine className="size-4" />
-              Move to Board
-              <ChevronDown className="size-3 opacity-60" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-48">
-            {(project?.columns ?? []).map((col) => (
-              <DropdownMenuItem
-                key={col.id}
-                onClick={() => handleMoveToBoard(col.id)}
-              >
-                {getColumnIcon(col.id, col.isFinal)}
-                <span className="ml-2">{col.name}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ToolbarGroup>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="ghost" className="gap-1.5">
+                <ArrowUpToLine className="size-4" />
+                Move to Board
+                <ChevronDown className="size-3 opacity-60" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-48">
+              {(project?.columns ?? []).map((col) => (
+                <DropdownMenuItem
+                  key={col.id}
+                  onClick={() => handleMoveToBoard(col.id)}
+                >
+                  {getColumnIcon(col.id, col.isFinal)}
+                  <span className="ml-2">{col.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ToolbarGroup>
 
-        <div className="w-px h-6 bg-border" />
+        <ToolbarSeparator orientation="vertical" className="my-1 h-5" />
 
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => setIsActionsOpen(true)}
-        >
-          <Menu className="size-4" />
-          Actions
-        </Button>
+        <ToolbarGroup>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setIsActionsOpen(true)}
+          >
+            <Menu className="size-4" />
+            Actions
+          </Button>
+        </ToolbarGroup>
 
-        <div className="w-px h-6 bg-border" />
+        <ToolbarSeparator orientation="vertical" className="my-1 h-5" />
 
-        <Button size="sm" variant="ghost" onClick={clearSelection}>
-          <X className="size-4" />
-        </Button>
-      </div>
+        <ToolbarGroup>
+          <Button size="sm" variant="ghost" onClick={clearSelection}>
+            <X className="size-4" />
+          </Button>
+        </ToolbarGroup>
+      </Toolbar>
 
-      <CommandDialog
-        title="Bulk Actions"
-        open={isActionsOpen}
-        onOpenChange={setIsActionsOpen}
-      >
+      <CommandDialog open={isActionsOpen} onOpenChange={setIsActionsOpen}>
         <CommandDialogPopup>
           <Command items={groupedItems}>
             <CommandInput placeholder="Search actions..." />
@@ -274,9 +277,10 @@ function BacklogBulkToolbar() {
                             key={item.value}
                             value={item.value}
                             onClick={item.onRun}
+                            className="gap-1.5 px-3"
                           >
-                            {item.icon}
-                            <span className="text-sm">{item.label}</span>
+                            <span className="shrink-0">{item.icon}</span>
+                            <span className="flex-1 text-sm">{item.label}</span>
                           </CommandItem>
                         )}
                       </CommandCollection>

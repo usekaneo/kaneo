@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   HoverCard,
   HoverCardContent,
@@ -177,7 +178,8 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
       className={cn(
         "border-b border-border/50 transition-all duration-200",
         isDragging && "opacity-50",
-        isTaskSelected && "bg-accent/50 shadow-sm",
+        isTaskSelected &&
+          "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",
         isTaskFocused && "ring-2 ring-inset ring-ring/50",
       )}
     >
@@ -187,7 +189,10 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
           <div
             onClick={handleClick}
             onKeyDown={handleKeyDown}
-            className="group relative flex items-center gap-3 px-4 py-1.5 hover:bg-accent/60 transition-colors cursor-pointer"
+            className={cn(
+              "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
+              isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
+            )}
             {...attributes}
             {...listeners}
           >
@@ -390,12 +395,15 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose>Cancel</AlertDialogClose>
-            <AlertDialogClose
-              onClick={handleDeleteTask}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete Task
+            <AlertDialogClose>
+              <Button variant="outline" size="sm">
+                Cancel
+              </Button>
+            </AlertDialogClose>
+            <AlertDialogClose onClick={handleDeleteTask}>
+              <Button variant="destructive" size="sm">
+                Delete Task
+              </Button>
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>

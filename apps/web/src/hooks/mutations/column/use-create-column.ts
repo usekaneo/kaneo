@@ -12,13 +12,8 @@ export function useCreateColumn() {
       projectId: string;
       data: { name: string; icon?: string; color?: string; isFinal?: boolean };
     }) => createColumn(projectId, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["columns", variables.projectId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["tasks"],
-      });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ refetchType: "all" });
     },
   });
 }

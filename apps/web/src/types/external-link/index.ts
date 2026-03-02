@@ -18,13 +18,13 @@ export type ExternalLink = {
   id: string;
   taskId: string;
   integrationId: string;
-  resourceType: "issue" | "pull_request" | "branch";
+  resourceType: string;
   externalId: string;
   url: string;
   title: string | null;
   metadata: ExternalLinkMetadata | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   integration?: {
     id: string;
     type: string;

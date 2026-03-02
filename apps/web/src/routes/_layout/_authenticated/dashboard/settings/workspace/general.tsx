@@ -41,6 +41,11 @@ type WorkspaceFormValues = {
   description?: string;
 };
 
+type NormalizedWorkspaceValues = {
+  name: string;
+  description: string;
+};
+
 const workspaceSchema = z.object({
   name: z
     .string()
@@ -49,46 +54,99 @@ const workspaceSchema = z.object({
   description: z.string().optional(),
 });
 
+function normalizeWorkspaceValues(
+  data: WorkspaceFormValues,
+): NormalizedWorkspaceValues {
+  return {
+    name: data.name.trim(),
+    description: (data.description ?? "").trim(),
+  };
+}
+
 function RouteComponent() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSavingRef = useRef(false);
+  const queuedSaveRef = useRef<WorkspaceFormValues | null>(null);
+  const lastSavedRef = useRef<NormalizedWorkspaceValues | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { data: workspace } = useActiveWorkspace();
   const { mutateAsync: updateWorkspace } = useUpdateWorkspace();
   const { mutateAsync: deleteWorkspace, isPending: isDeleting } =
     useDeleteWorkspace();
+  const workspaceDescription =
+    typeof workspace?.metadata === "object" &&
+    workspace?.metadata &&
+    "description" in workspace.metadata
+      ? String(workspace.metadata.description ?? "")
+      : "";
 
   const workspaceForm = useForm<WorkspaceFormValues>({
     resolver: standardSchemaResolver(workspaceSchema),
+    mode: "onChange",
     defaultValues: {
       name: workspace?.name || "",
-      description: workspace?.metadata?.description || "",
+      description: workspaceDescription,
     },
   });
 
   useEffect(() => {
-    if (workspace) {
-      workspaceForm.reset({
-        name: workspace.name || "",
-        description: workspace.metadata?.description || "",
-      });
+    if (!workspace) return;
+
+    const nextValues = {
+      name: workspace.name || "",
+      description: workspaceDescription,
+    };
+    lastSavedRef.current = normalizeWorkspaceValues(nextValues);
+
+    if (!workspaceForm.formState.isDirty) {
+      workspaceForm.reset(nextValues);
     }
-  }, [workspace, workspaceForm]);
+  }, [workspace, workspaceDescription, workspaceForm]);
 
   const saveWorkspace = useCallback(
     async (data: WorkspaceFormValues) => {
       if (!workspace?.id) return;
 
+      const normalizedData = normalizeWorkspaceValues(data);
+      const nameChanged = lastSavedRef.current?.name !== normalizedData.name;
+      const descriptionChanged =
+        lastSavedRef.current?.description !== normalizedData.description;
+      const hasChanges = nameChanged || descriptionChanged;
+
+      if (!hasChanges) return;
+
+      if (isSavingRef.current) {
+        queuedSaveRef.current = data;
+        return;
+      }
+
+      isSavingRef.current = true;
+
       try {
-        await updateWorkspace({
+        const updatePayload: {
+          workspaceId: string;
+          name?: string;
+          description?: string;
+        } = {
           workspaceId: workspace.id,
-          name: data.name.trim(),
-          metadata: {
-            description: data.description?.trim() || undefined,
-          },
-        });
+        };
+
+        if (nameChanged) {
+          updatePayload.name = normalizedData.name;
+        }
+
+        if (descriptionChanged) {
+          updatePayload.description = normalizedData.description;
+        }
+
+        await updateWorkspace(updatePayload);
+
+        workspaceForm.reset(normalizedData, { keepDirty: false });
+        lastSavedRef.current = normalizedData;
+        queuedSaveRef.current = null;
 
         await queryClient.invalidateQueries({
           queryKey: ["active-organization"],
@@ -98,9 +156,17 @@ function RouteComponent() {
         toast.error(
           error instanceof Error ? error.message : "Failed to update workspace",
         );
+      } finally {
+        isSavingRef.current = false;
+
+        if (queuedSaveRef.current) {
+          const queuedData = queuedSaveRef.current;
+          queuedSaveRef.current = null;
+          await saveWorkspace(queuedData);
+        }
       }
     },
-    [workspace?.id, updateWorkspace, queryClient],
+    [workspace, updateWorkspace, queryClient, workspaceForm],
   );
 
   const handleDeleteWorkspace = useCallback(async () => {
@@ -138,9 +204,9 @@ function RouteComponent() {
   );
 
   useEffect(() => {
-    const subscription = workspaceForm.watch((data) => {
+    const subscription = workspaceForm.watch(() => {
       if (workspaceForm.formState.isDirty && workspaceForm.formState.isValid) {
-        debouncedSave(data as WorkspaceFormValues);
+        debouncedSave(workspaceForm.getValues());
       }
     });
 
@@ -279,13 +345,18 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose>Cancel</AlertDialogClose>
+              <AlertDialogClose>
+                <Button variant="outline" size="sm">
+                  Cancel
+                </Button>
+              </AlertDialogClose>
               <AlertDialogClose
                 onClick={handleDeleteWorkspace}
                 disabled={isDeleting}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {isDeleting ? "Deleting..." : "Delete Workspace"}
+                <Button variant="destructive" size="sm" disabled={isDeleting}>
+                  {isDeleting ? "Deleting..." : "Delete Workspace"}
+                </Button>
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>

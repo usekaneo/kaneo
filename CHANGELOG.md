@@ -1,3 +1,18 @@
+## [2.3.1](https://github.com/usekaneo/kaneo/compare/v2.3.0...v2.3.1) (2026-03-02)
+
+
+### Bug Fixes
+
+* favicon ([3dbe1b9](https://github.com/usekaneo/kaneo/commit/3dbe1b9171a198070edf643757c5cb992b99d5a3))
+* **types:** align client models and add reliable web typecheck command ([e9ea473](https://github.com/usekaneo/kaneo/commit/e9ea4731984bcbe7e94634aa1b48fbbc83bebe6a))
+
+
+### Features
+
+* add Plausible analytics scripts for tracking ([736791a](https://github.com/usekaneo/kaneo/commit/736791a04cee3aa43f0c0dbcccce58db7e0bafe5))
+* implement FadeIn component for smooth animations in landing pages ([9fcaaac](https://github.com/usekaneo/kaneo/commit/9fcaaac58c5d0424a30ef87fbf057e4a548e3d6b))
+* **settings:** refresh settings sidebars and project/workspace UX ([3424436](https://github.com/usekaneo/kaneo/commit/3424436ad3d1137df90c2895ff5d9e628be6c192))
+* **tasks:** improve bulk selection, column actions, and task detail popovers ([6723296](https://github.com/usekaneo/kaneo/commit/6723296ab59c1be365fbbb51326ad3e44c97e4b3))
 # [2.3.0](https://github.com/usekaneo/kaneo/compare/v2.2.1...v2.3.0) (2026-02-25)
 
 

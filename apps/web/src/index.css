@@ -235,6 +235,11 @@
     --bn-colors-shadow: --alpha(var(--color-black) / 12%);
   }
 
+  .blocknote-transparent .bn-editor,
+  .blocknote-transparent .ProseMirror {
+    font-family: var(--font-sans);
+  }
+
   .blocknote-transparent .bn-suggestion-menu {
     min-width: 18rem;
     max-width: 28rem;

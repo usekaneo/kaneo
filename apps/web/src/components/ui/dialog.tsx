@@ -2,6 +2,7 @@
 
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/cn";
@@ -12,12 +13,44 @@ const Dialog = DialogPrimitive.Root;
 
 const DialogPortal = DialogPrimitive.Portal;
 
-function DialogTrigger(props: DialogPrimitive.Trigger.Props) {
-  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
+function DialogTrigger({
+  asChild = false,
+  children,
+  render,
+  ...props
+}: DialogPrimitive.Trigger.Props & { asChild?: boolean }) {
+  const resolvedRender =
+    asChild && React.isValidElement(children) ? children : render;
+
+  return (
+    <DialogPrimitive.Trigger
+      data-slot="dialog-trigger"
+      render={resolvedRender}
+      {...props}
+    >
+      {asChild ? undefined : children}
+    </DialogPrimitive.Trigger>
+  );
 }
 
-function DialogClose(props: DialogPrimitive.Close.Props) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+function DialogClose({
+  asChild = false,
+  children,
+  render,
+  ...props
+}: DialogPrimitive.Close.Props & { asChild?: boolean }) {
+  const resolvedRender =
+    asChild && React.isValidElement(children) ? children : render;
+
+  return (
+    <DialogPrimitive.Close
+      data-slot="dialog-close"
+      render={resolvedRender}
+      {...props}
+    >
+      {asChild ? undefined : children}
+    </DialogPrimitive.Close>
+  );
 }
 
 function DialogBackdrop({
@@ -132,7 +165,16 @@ function DialogFooter({
   );
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+function DialogTitle({
+  asChild = false,
+  className,
+  children,
+  render,
+  ...props
+}: DialogPrimitive.Title.Props & { asChild?: boolean }) {
+  const resolvedRender =
+    asChild && React.isValidElement(children) ? children : render;
+
   return (
     <DialogPrimitive.Title
       className={cn(
@@ -140,8 +182,11 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
         className,
       )}
       data-slot="dialog-title"
+      render={resolvedRender}
       {...props}
-    />
+    >
+      {asChild ? undefined : children}
+    </DialogPrimitive.Title>
   );
 }
 
