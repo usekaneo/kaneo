@@ -6,6 +6,14 @@ import {
 } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 
@@ -26,54 +34,65 @@ const menuItems = [
 function RouteComponent() {
   const { workspace, role } = useWorkspacePermission();
   const location = useLocation();
+  const isActivePath = (path: string) => location.pathname === path;
+  const workspaceInitials =
+    workspace?.name
+      ?.split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "WS";
 
   return (
     <div className="flex gap-6 h-full">
-      <div className="w-64 flex-shrink-0">
-        <div className="p-4 h-fit">
-          <div className="flex items-center gap-3 mb-6">
-            <Avatar className="h-10 w-10">
+      <aside className="w-64 flex-shrink-0">
+        <div className="p-2">
+          <div className="mb-1 flex items-center gap-3 rounded-md px-2 py-2">
+            <Avatar className="h-8 w-8">
               <AvatarImage
                 src={workspace?.logo ?? ""}
                 alt={workspace?.name || ""}
               />
-              <AvatarFallback className="text-md  bg-primary font-medium border border-border/30">
-                {workspace?.name?.charAt(0).toUpperCase()}
+              <AvatarFallback className="border border-sidebar-border/70 bg-sidebar-accent/70 text-[11px] font-medium text-sidebar-accent-foreground">
+                {workspaceInitials}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <p className="text-sm font-medium">{workspace?.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">{role}</p>
+              <p className="text-sm">{workspace?.name}</p>
+              <p className="text-[11px] text-sidebar-foreground/60 capitalize">
+                {role}
+              </p>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                Workspace
-              </h3>
-              <nav className="space-y-0.5">
+          <SidebarGroup className="gap-1 p-1">
+            <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
+              Workspace
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
                 {menuItems.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.url}
-                    className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 text-xs rounded-sm transition-colors",
-                      "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      location.pathname === item.url
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    <item.icon className="h-3.5 w-3.5" />
-                    <span>{item.title}</span>
-                  </Link>
+                  <SidebarMenuItem key={item.title}>
+                    <Button
+                      render={<Link to={item.url} />}
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "h-8 w-full justify-start gap-2 rounded-lg px-2 text-[11px] font-normal text-sidebar-foreground/80",
+                        isActivePath(item.url) &&
+                          "bg-sidebar-accent text-sidebar-accent-foreground",
+                      )}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Button>
+                  </SidebarMenuItem>
                 ))}
-              </nav>
-            </div>
-          </div>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </div>
-      </div>
+      </aside>
 
       <div className="flex-1 min-w-0 overflow-y-auto">
         <Outlet />

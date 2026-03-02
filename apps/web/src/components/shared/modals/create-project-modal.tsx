@@ -39,6 +39,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   const [slug, setSlug] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("Layout");
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
+  const [iconSearch, setIconSearch] = useState("");
   const queryClient = useQueryClient();
   const { data: workspace } = useActiveWorkspace();
   const { mutateAsync } = useCreateProject({
@@ -47,7 +48,11 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     workspaceId: workspace?.id ?? "",
     icon: selectedIcon,
   });
-  const IconComponent = icons[selectedIcon as keyof typeof icons];
+  const SelectedIcon =
+    icons[selectedIcon as keyof typeof icons] || icons.Layout;
+  const filteredIcons = Object.entries(icons).filter(([iconName]) =>
+    iconName.toLowerCase().includes(iconSearch.trim().toLowerCase()),
+  );
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -55,6 +60,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     setSlug("");
     setSelectedIcon("Layout");
     setIconPopoverOpen(false);
+    setIconSearch("");
     onClose();
   };
 
@@ -92,79 +98,98 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md" showCloseButton={false}>
-        <DialogHeader className="pb-6">
-          <DialogTitle asChild>
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="text-muted-foreground font-semibold tracking-wider text-sm">
-                  {workspace?.name?.toUpperCase() || "WORKSPACE"}
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem className="text-foreground font-medium text-sm">
-                  Create a new project
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </DialogTitle>
+        <DialogHeader className="px-3 pt-4 pb-1 gap-1.5">
+          <DialogTitle className="sr-only">Create a new project</DialogTitle>
+          <Breadcrumb>
+            <BreadcrumbList className="gap-1 text-xs">
+              <BreadcrumbItem className="text-muted-foreground font-medium tracking-wide">
+                {workspace?.name?.toUpperCase() || "WORKSPACE"}
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="[&>svg]:size-3.5" />
+              <BreadcrumbItem className="text-foreground font-medium">
+                Create a new project
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <DialogDescription className="sr-only">
             Create a new project in your workspace by providing a name, key, and
             selecting an icon.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4 px-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-6 px-3 pt-2">
             <Popover
               open={iconPopoverOpen}
-              onOpenChange={setIconPopoverOpen}
+              onOpenChange={(open) => {
+                setIconPopoverOpen(open);
+                if (!open) setIconSearch("");
+              }}
               modal={true}
             >
               <PopoverTrigger asChild>
-                <button
+                <Button
                   type="button"
-                  className="flex items-center justify-center p-2 rounded border border-border hover:bg-accent transition-colors"
+                  variant="outline"
+                  size="icon-sm"
+                  className="h-8 w-8 p-0"
+                  title="Pick icon"
                 >
-                  <IconComponent className="w-4 h-4 text-muted-foreground" />
-                </button>
+                  <SelectedIcon className="h-4 w-4" />
+                </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-2" align="start">
-                <div className="max-h-[300px] overflow-y-auto">
-                  <div className="grid grid-cols-8 gap-2">
-                    {Object.entries(icons).map(([iconName, Icon]) => (
-                      <button
-                        key={iconName}
-                        type="button"
-                        onClick={() => {
-                          setSelectedIcon(iconName);
-                          setIconPopoverOpen(false);
-                        }}
-                        className={cn(
-                          "p-2 rounded-lg transition-all duration-200 flex items-center justify-center group hover:scale-105",
-                          selectedIcon === iconName
-                            ? "bg-accent text-foreground"
-                            : "text-muted-foreground hover:bg-accent",
-                        )}
-                        title={iconName}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </button>
-                    ))}
+              <PopoverContent className="w-64 p-2" align="start">
+                <div className="space-y-2">
+                  <Input
+                    value={iconSearch}
+                    onChange={(e) => setIconSearch(e.target.value)}
+                    placeholder="Search icons..."
+                    className="h-8 text-xs"
+                  />
+                  <div className="max-h-[280px] overflow-y-auto pr-1">
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {filteredIcons.map(([iconName, Icon]) => {
+                        const isSelected = selectedIcon === iconName;
+                        return (
+                          <Button
+                            key={iconName}
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedIcon(iconName);
+                              setIconPopoverOpen(false);
+                              setIconSearch("");
+                            }}
+                            className={cn(
+                              "h-10 items-center justify-center rounded-md p-0",
+                              isSelected &&
+                                "bg-sidebar-accent text-sidebar-accent-foreground",
+                            )}
+                            title={iconName}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </Button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </PopoverContent>
             </Popover>
 
             <Input
+              unstyled
               value={name}
               onChange={handleNameChange}
               autoFocus
               placeholder="Project name"
-              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-2 [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:leading-tight [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
               required
             />
           </div>
 
-          <div className="space-y-4 px-6">
+          <div className="space-y-3 px-3">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">

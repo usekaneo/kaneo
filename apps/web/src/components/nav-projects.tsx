@@ -44,6 +44,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
+import { Button } from "./ui/button";
 
 export function NavProjects() {
   const { isMobile } = useSidebar();
@@ -199,7 +200,11 @@ export function NavProjects() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose>Cancel</AlertDialogClose>
+            <AlertDialogClose>
+              <Button variant="outline" size="sm">
+                Cancel
+              </Button>
+            </AlertDialogClose>
             <AlertDialogClose
               onClick={async () => {
                 await deleteProject({
@@ -216,9 +221,10 @@ export function NavProjects() {
                   },
                 });
               }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete Project
+              <Button variant="destructive" size="sm">
+                Delete Project
+              </Button>
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>

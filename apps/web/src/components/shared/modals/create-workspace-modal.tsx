@@ -102,18 +102,20 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
           <div className="space-y-4 px-6">
             <Input
               ref={inputRef}
+              unstyled
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Workspace name"
-              className="!text-2xl font-semibold !border-0 px-0 py-3 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground tracking-tight focus:!outline-none focus-visible:!outline-none"
+              className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-2 [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:leading-tight [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
               required
             />
 
             <Input
+              unstyled
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add description..."
-              className="!border-0 px-0 py-2 !shadow-none focus-visible:!ring-0 !bg-transparent text-foreground placeholder:text-muted-foreground focus:!outline-none focus-visible:!outline-none"
+              className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-2 [&_[data-slot=input]]:text-base [&_[data-slot=input]]:leading-relaxed [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
             />
           </div>
 

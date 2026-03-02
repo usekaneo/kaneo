@@ -187,12 +187,15 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose>Cancel</AlertDialogClose>
-              <AlertDialogClose
-                onClick={handleClearAll}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Clear all
+              <AlertDialogClose>
+                <Button variant="outline" size="sm">
+                  Cancel
+                </Button>
+              </AlertDialogClose>
+              <AlertDialogClose onClick={handleClearAll}>
+                <Button variant="destructive" size="sm">
+                  Clear all
+                </Button>
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>

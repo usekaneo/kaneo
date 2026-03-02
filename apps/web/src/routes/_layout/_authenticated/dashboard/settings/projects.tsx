@@ -5,15 +5,23 @@ import {
   useLocation,
   useNavigate,
 } from "@tanstack/react-router";
-import { ChevronRight, Eye, GitBranch, Plug, Settings } from "lucide-react";
+import { Eye, GitBranch, Plug, Settings } from "lucide-react";
 import { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import icons from "@/constants/project-icons";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
@@ -28,18 +36,22 @@ const menuItems = [
   {
     title: "General",
     icon: Settings,
+    segment: "general",
   },
   {
     title: "Visibility",
     icon: Eye,
+    segment: "visibility",
   },
   {
     title: "Integrations",
     icon: Plug,
+    segment: "integrations",
   },
   {
     title: "Workflow",
     icon: GitBranch,
+    segment: "workflow",
   },
 ];
 
@@ -50,6 +62,23 @@ function RouteComponent() {
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
+
+  const workspaceInitials =
+    workspace?.name
+      ?.split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "WS";
+
+  const selectedProjectMatch = location.pathname.match(
+    /^\/dashboard\/settings\/projects\/([^/]+)\//,
+  );
+  const selectedProjectId = selectedProjectMatch?.[1] || "";
+  const selectedSegment =
+    location.pathname.match(
+      /^\/dashboard\/settings\/projects\/[^/]+\/([^/]+)/,
+    )?.[1] || "general";
 
   useEffect(() => {
     const isProjectsRoot =
@@ -67,93 +96,115 @@ function RouteComponent() {
     });
   }, [location.pathname, navigate, projects]);
 
+  const selectedProject = projects?.find(
+    (project) => project.id === selectedProjectId,
+  );
+
   return (
     <div className="flex gap-6 h-full">
-      <div className="w-64 flex-shrink-0">
-        <div className="p-4 h-fit">
-          <div className="flex items-center gap-3 mb-6">
-            <Avatar className="h-10 w-10">
+      <aside className="w-64 flex-shrink-0">
+        <div className="p-2">
+          <div className="mb-1 flex items-center gap-3 rounded-md px-2 py-2">
+            <Avatar className="h-8 w-8">
               <AvatarImage
                 src={workspace?.logo ?? ""}
                 alt={workspace?.name || ""}
               />
-              <AvatarFallback className="text-md  bg-primary font-medium border border-border/30">
-                {workspace?.name?.charAt(0).toUpperCase()}
+              <AvatarFallback className="border border-sidebar-border/70 bg-sidebar-accent/70 text-[11px] font-medium text-sidebar-accent-foreground">
+                {workspaceInitials}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <p className="text-sm font-medium">{workspace?.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">{role}</p>
+              <p className="text-sm">{workspace?.name}</p>
+              <p className="text-[11px] text-sidebar-foreground/60 capitalize">
+                {role}
+              </p>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <Collapsible defaultOpen={true} className="group/collapsible">
-              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                Projects
-              </h3>
-              <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 duration-200">
-                <nav className="space-y-0.5">
-                  {projects?.map((project) => {
-                    const IconComponent =
-                      icons[project.icon as keyof typeof icons] || icons.Layout;
+          <SidebarGroup className="gap-1 p-1">
+            <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
+              Project
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <Select
+                value={selectedProjectId}
+                onValueChange={(projectId) => {
+                  const nextSegment = menuItems.some(
+                    (item) => item.segment === selectedSegment,
+                  )
+                    ? selectedSegment
+                    : "general";
 
-                    return (
-                      <Collapsible
-                        key={project.id}
-                        defaultOpen={true}
-                        className="group/project-collapsible"
+                  void navigate({
+                    to: `/dashboard/settings/projects/${projectId}/${nextSegment}`,
+                  });
+                }}
+              >
+                <SelectTrigger
+                  className="h-8 text-[11px] font-normal text-foreground"
+                  size="sm"
+                >
+                  <span className="truncate font-normal text-foreground">
+                    {selectedProject?.name ||
+                      (projects?.length ? "Select project" : "No projects")}
+                  </span>
+                </SelectTrigger>
+                <SelectContent
+                  side="bottom"
+                  align="start"
+                  sideOffset={6}
+                  alignItemWithTrigger={false}
+                  className="w-(--anchor-width)"
+                >
+                  {projects?.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      <span className="font-normal text-foreground">
+                        {project.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup className="gap-1 p-1">
+            <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
+              Settings
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {menuItems.map((item) => {
+                  const toUrl = selectedProject
+                    ? `/dashboard/settings/projects/${selectedProject.id}/${item.segment}`
+                    : "/dashboard/settings/projects";
+                  const isActive = selectedSegment === item.segment;
+
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <Button
+                        render={<Link to={toUrl} />}
+                        variant="ghost"
+                        size="sm"
+                        disabled={!selectedProject}
+                        className={cn(
+                          "h-8 w-full justify-start gap-2 rounded-lg px-2 text-[11px] font-normal text-sidebar-foreground/80",
+                          isActive &&
+                            "bg-sidebar-accent text-sidebar-accent-foreground",
+                        )}
                       >
-                        <CollapsibleTrigger asChild>
-                          <div className="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md transition-all duration-200 cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group text-muted-foreground">
-                            <IconComponent className="w-3.5 h-3.5" />
-                            <span>{project.name}</span>
-                            <ChevronRight className="w-4 h-4 ml-auto transition-transform duration-200 group-data-[state=open]/project-collapsible:rotate-90" />
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 duration-200">
-                          <div className="flex flex-col gap-1 ml-6 mt-1">
-                            {menuItems.map((item) => {
-                              const urlMap = {
-                                General: `/dashboard/settings/projects/${project.id}/general`,
-                                Visibility: `/dashboard/settings/projects/${project.id}/visibility`,
-                                Integrations: `/dashboard/settings/projects/${project.id}/integrations`,
-                                Workflow: `/dashboard/settings/projects/${project.id}/workflow`,
-                              };
-
-                              const toUrl =
-                                urlMap[item.title as keyof typeof urlMap];
-
-                              const isActive = location.pathname === toUrl;
-
-                              return (
-                                <Link
-                                  key={item.title}
-                                  to={toUrl}
-                                  className={cn(
-                                    "flex items-center gap-2.5 px-3 py-2 text-xs rounded-md transition-all duration-200",
-                                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                                    isActive
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                                      : "text-muted-foreground hover:text-foreground",
-                                  )}
-                                >
-                                  <item.icon className="h-3.5 w-3.5" />
-                                  <span>{item.title}</span>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    );
-                  })}
-                </nav>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+                        <item.icon className="h-3.5 w-3.5" />
+                        <span>{item.title}</span>
+                      </Button>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </div>
-      </div>
+      </aside>
 
       <div className="flex-1 min-w-0 overflow-y-auto">
         <Outlet />

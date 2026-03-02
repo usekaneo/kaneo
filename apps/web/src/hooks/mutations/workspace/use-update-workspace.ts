@@ -5,6 +5,7 @@ import { createSlug } from "@/lib/utils/create-slug";
 type UpdateWorkspaceRequest = {
   workspaceId: string;
   name?: string;
+  description?: string;
   slug?: string;
   logo?: string;
   metadata?: Record<string, unknown>;
@@ -15,12 +16,14 @@ function useUpdateWorkspace() {
     mutationFn: async ({
       workspaceId,
       name,
+      description,
       slug,
       logo,
       metadata,
     }: UpdateWorkspaceRequest) => {
       const updateData: {
         name?: string;
+        description?: string;
         slug?: string;
         logo?: string;
         metadata?: Record<string, unknown>;
@@ -35,6 +38,10 @@ function useUpdateWorkspace() {
 
       if (slug !== undefined) {
         updateData.slug = slug;
+      }
+
+      if (description !== undefined) {
+        updateData.description = description;
       }
 
       if (logo !== undefined) {

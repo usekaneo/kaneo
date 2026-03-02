@@ -7,6 +7,14 @@ import {
 import { Code, Settings, User } from "lucide-react";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 import { cn } from "@/lib/cn";
 
 export const Route = createFileRoute(
@@ -31,73 +39,80 @@ const menuItems = [
 function RouteComponent() {
   const { user } = useAuth();
   const location = useLocation();
+  const isActivePath = (path: string) => location.pathname === path;
 
   return (
     <div className="flex gap-6 h-full">
-      <div className="w-64 flex-shrink-0">
-        <div className="p-4 h-fit">
-          <div className="flex items-center gap-3 mb-6">
-            <Avatar className="h-10 w-10">
+      <aside className="w-64 flex-shrink-0">
+        <div className="p-2">
+          <div className="mb-1 flex items-center gap-3 rounded-md px-2 py-2">
+            <Avatar className="h-9 w-9">
               <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
               <AvatarFallback className="text-xs font-medium border border-border/30">
                 {user?.name?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
+              <p className="text-sm">{user?.name}</p>
+              <p className="text-xs text-sidebar-foreground/70">
+                {user?.email}
+              </p>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                Account
-              </h3>
-              <nav className="space-y-0.5">
+          <SidebarGroup className="gap-1 p-1">
+            <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
+              Account
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
                 {menuItems.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.url}
+                  <SidebarMenuItem key={item.title}>
+                    <Button
+                      render={<Link to={item.url} />}
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "h-8 w-full justify-start gap-2 rounded-lg px-2 text-[11px] font-normal text-sidebar-foreground/80",
+                        isActivePath(item.url) &&
+                          "bg-sidebar-accent text-sidebar-accent-foreground",
+                      )}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Button>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup className="gap-1 p-1">
+            <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
+              Developer
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                <SidebarMenuItem>
+                  <Button
+                    render={<Link to="/dashboard/settings/account/developer" />}
+                    variant="ghost"
+                    size="sm"
                     className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 text-xs rounded-sm transition-colors",
-                      "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      location.pathname === item.url
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                        : "text-muted-foreground",
+                      "h-8 w-full justify-start gap-2 rounded-lg px-2 text-[11px] font-normal text-sidebar-foreground/80",
+                      isActivePath("/dashboard/settings/account/developer") &&
+                        "bg-sidebar-accent text-sidebar-accent-foreground",
                     )}
                   >
-                    <item.icon className="h-3.5 w-3.5" />
-                    <span>{item.title}</span>
-                  </Link>
-                ))}
-              </nav>
-            </div>
-
-            <div>
-              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                Developer
-              </h3>
-              <nav className="space-y-0.5">
-                <Link
-                  to="/dashboard/settings/account/developer"
-                  className={cn(
-                    "flex items-center gap-2 px-2 py-1.5 text-xs rounded-sm transition-colors",
-                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    location.pathname ===
-                      "/dashboard/settings/account/developer"
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  <Code className="h-3.5 w-3.5" />
-                  <span>API Keys</span>
-                </Link>
-              </nav>
-            </div>
-          </div>
+                    <Code className="h-4 w-4" />
+                    <span>API Keys</span>
+                  </Button>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </div>
-      </div>
+      </aside>
 
       <div className="flex-1 min-w-0 overflow-y-auto">
         <Outlet />

@@ -55,6 +55,13 @@ type ProjectFormValues = {
   icon: string;
 };
 
+type NormalizedProjectValues = {
+  name: string;
+  slug: string;
+  description: string;
+  icon: string;
+};
+
 const projectSchema = z.object({
   name: z
     .string()
@@ -69,12 +76,27 @@ const projectSchema = z.object({
   icon: z.string().min(1, "Icon is required"),
 });
 
+function normalizeProjectValues(
+  data: ProjectFormValues,
+): NormalizedProjectValues {
+  return {
+    name: data.name.trim(),
+    slug: data.slug.trim(),
+    description: (data.description ?? "").trim(),
+    icon: data.icon || "Layout",
+  };
+}
+
 function RouteComponent() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSavingRef = useRef(false);
+  const queuedSaveRef = useRef<ProjectFormValues | null>(null);
+  const lastSavedRef = useRef<NormalizedProjectValues | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
+  const [iconSearch, setIconSearch] = useState("");
 
   const { data: workspace } = useActiveWorkspace();
   const { projectId: rawProjectId } = useParams({ strict: false });
@@ -101,31 +123,63 @@ function RouteComponent() {
 
   useEffect(() => {
     if (!project) return;
-    // Reset form values when project changes without marking as dirty
-    projectForm.reset(
-      {
-        name: project.name || "",
-        slug: project.slug || "",
-        description: project.description || "",
-        icon: project.icon || "Layout",
-      },
-      { keepDirty: false, keepTouched: false, keepIsValid: true },
-    );
+
+    const nextValues = {
+      name: project.name || "",
+      slug: project.slug || "",
+      description: project.description || "",
+      icon: project.icon || "Layout",
+    };
+    lastSavedRef.current = normalizeProjectValues(nextValues);
+
+    if (projectForm.formState.isDirty) return;
+
+    projectForm.reset(nextValues, {
+      keepDirty: false,
+      keepTouched: false,
+      keepIsValid: true,
+    });
   }, [project, projectForm]);
 
   const saveProject = useCallback(
     async (data: ProjectFormValues) => {
       if (!project?.id) return;
 
+      const normalizedData = normalizeProjectValues(data);
+      const nameChanged = lastSavedRef.current?.name !== normalizedData.name;
+      const slugChanged = lastSavedRef.current?.slug !== normalizedData.slug;
+      const descriptionChanged =
+        lastSavedRef.current?.description !== normalizedData.description;
+      const iconChanged = lastSavedRef.current?.icon !== normalizedData.icon;
+      const hasChanges =
+        nameChanged || slugChanged || descriptionChanged || iconChanged;
+
+      if (!hasChanges) return;
+
+      if (isSavingRef.current) {
+        queuedSaveRef.current = data;
+        return;
+      }
+
+      isSavingRef.current = true;
+
       try {
-        await updateProject({
+        const updatePayload = {
           id: project.id,
-          name: data.name.trim(),
-          slug: data.slug.trim(),
-          description: (data.description ?? "").trim(),
-          icon: data.icon || project?.icon || "Layout",
+          name: nameChanged ? normalizedData.name : project.name,
+          slug: slugChanged ? normalizedData.slug : project.slug,
+          description: descriptionChanged
+            ? normalizedData.description
+            : (project.description ?? ""),
+          icon: iconChanged ? normalizedData.icon : (project.icon ?? "Layout"),
           isPublic: !!project.isPublic,
-        });
+        };
+
+        await updateProject(updatePayload);
+
+        projectForm.reset(normalizedData, { keepDirty: false });
+        lastSavedRef.current = normalizedData;
+        queuedSaveRef.current = null;
 
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["projects"] }),
@@ -141,15 +195,27 @@ function RouteComponent() {
         toast.error(
           error instanceof Error ? error.message : "Failed to update project",
         );
+      } finally {
+        isSavingRef.current = false;
+
+        if (queuedSaveRef.current) {
+          const queuedData = queuedSaveRef.current;
+          queuedSaveRef.current = null;
+          await saveProject(queuedData);
+        }
       }
     },
     [
       project?.id,
       project?.isPublic,
+      project?.name,
+      project?.slug,
+      project?.description,
       project?.icon,
       updateProject,
       queryClient,
       workspace?.id,
+      projectForm,
     ],
   );
 
@@ -170,6 +236,7 @@ function RouteComponent() {
 
   useEffect(() => {
     const subscription = projectForm.watch(() => {
+      if (!projectForm.formState.isDirty) return;
       debouncedSave();
     });
 
@@ -234,57 +301,77 @@ function RouteComponent() {
               <div className="flex items-center gap-3">
                 <Popover
                   open={iconPopoverOpen}
-                  onOpenChange={setIconPopoverOpen}
+                  onOpenChange={(open) => {
+                    setIconPopoverOpen(open);
+                    if (!open) setIconSearch("");
+                  }}
                   modal={true}
                 >
-                  <PopoverTrigger asChild>
-                    <button
+                  <PopoverTrigger>
+                    <Button
                       type="button"
-                      className="flex items-center justify-center p-2 rounded border border-border hover:bg-accent transition-colors"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 w-auto justify-start gap-2 font-normal"
                       title="Pick icon"
                     >
                       {(() => {
-                        const key =
+                        const selectedKey =
                           (projectForm.watch("icon") as keyof typeof icons) ||
                           "Layout";
-                        const Icon = icons[key] || icons.Layout;
-                        return (
-                          <Icon className="w-4 h-4 text-muted-foreground" />
-                        );
+                        const SelectedIcon = icons[selectedKey] || icons.Layout;
+                        return <SelectedIcon className="h-4 w-4" />;
                       })()}
-                    </button>
+                      <span className="truncate text-xs">
+                        {projectForm.watch("icon") || "Layout"}
+                      </span>
+                    </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80 p-2" align="end">
-                    <div className="max-h-[300px] overflow-y-auto">
-                      <div className="grid grid-cols-8 gap-2">
-                        {Object.entries(icons).map(([iconName, Icon]) => (
-                          <button
-                            key={iconName}
-                            type="button"
-                            onClick={() => {
-                              projectForm.setValue("icon", iconName, {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                              });
-                              // Save immediately on icon change
-                              const values = projectForm.getValues();
-                              void saveProject({
-                                ...values,
-                                icon: iconName,
-                              } as ProjectFormValues);
-                              setIconPopoverOpen(false);
-                            }}
-                            className={cn(
-                              "p-2 rounded-lg transition-all duration-200 flex items-center justify-center group hover:scale-105",
-                              projectForm.getValues("icon") === iconName
-                                ? "bg-accent text-foreground"
-                                : "text-muted-foreground hover:bg-accent",
-                            )}
-                            title={iconName}
-                          >
-                            <Icon className="w-4 h-4" />
-                          </button>
-                        ))}
+                  <PopoverContent className="w-80" align="end">
+                    <div className="space-y-2">
+                      <Input
+                        value={iconSearch}
+                        onChange={(e) => setIconSearch(e.target.value)}
+                        placeholder="Search icons..."
+                        className="h-8 text-xs"
+                      />
+                      <div className="max-h-[280px] overflow-y-auto pr-1">
+                        <div className="grid grid-cols-6 gap-1.5">
+                          {Object.entries(icons)
+                            .filter(([iconName]) =>
+                              iconName
+                                .toLowerCase()
+                                .includes(iconSearch.trim().toLowerCase()),
+                            )
+                            .map(([iconName, Icon]) => {
+                              const isSelected =
+                                projectForm.getValues("icon") === iconName;
+                              return (
+                                <Button
+                                  key={iconName}
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    projectForm.setValue("icon", iconName, {
+                                      shouldDirty: true,
+                                      shouldValidate: true,
+                                    });
+                                    setIconPopoverOpen(false);
+                                    setIconSearch("");
+                                  }}
+                                  className={cn(
+                                    "h-10 items-center justify-center rounded-md p-0",
+                                    isSelected &&
+                                      "bg-sidebar-accent text-sidebar-accent-foreground",
+                                  )}
+                                  title={iconName}
+                                >
+                                  <Icon className="h-4 w-4" />
+                                </Button>
+                              );
+                            })}
+                        </div>
                       </div>
                     </div>
                   </PopoverContent>
@@ -429,13 +516,18 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose>Cancel</AlertDialogClose>
+              <AlertDialogClose>
+                <Button variant="outline" size="sm">
+                  Cancel
+                </Button>
+              </AlertDialogClose>
               <AlertDialogClose
                 onClick={handleDeleteProject}
                 disabled={isDeleting}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {isDeleting ? "Deleting..." : "Delete Project"}
+                <Button variant="destructive" size="sm" disabled={isDeleting}>
+                  {isDeleting ? "Deleting..." : "Delete Project"}
+                </Button>
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>
