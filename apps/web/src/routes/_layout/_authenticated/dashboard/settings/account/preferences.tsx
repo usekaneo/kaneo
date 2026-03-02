@@ -67,7 +67,10 @@ function RouteComponent() {
                 Choose your preferred color scheme
               </p>
             </div>
-            <Select value={theme} onValueChange={setTheme}>
+            <Select
+              value={theme}
+              onValueChange={(value) => value && setTheme(value)}
+            >
               <SelectTrigger className="!py-4">
                 <SelectValue placeholder="Select a theme" />
               </SelectTrigger>
@@ -107,7 +110,10 @@ function RouteComponent() {
                 Choose your preferred task view mode
               </p>
             </div>
-            <Select value={viewMode} onValueChange={setViewMode}>
+            <Select
+              value={viewMode}
+              onValueChange={(value) => value && setViewMode(value)}
+            >
               <SelectTrigger className="!py-4">
                 <SelectValue placeholder="Select a view mode" />
               </SelectTrigger>

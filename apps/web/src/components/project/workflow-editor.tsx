@@ -28,7 +28,9 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
     useGetWorkflowRules(projectId);
   const { mutateAsync: upsertRule } = useUpsertWorkflowRule();
 
-  const handleChange = async (eventType: string, columnId: string) => {
+  const handleChange = async (eventType: string, columnId: string | null) => {
+    if (!columnId) return;
+
     try {
       await upsertRule({
         projectId,

@@ -1,7 +1,9 @@
 import { client } from "@kaneo/libs";
 import type Task from "@/types/task";
 
-async function updateTaskStatus(taskId: string, task: Task) {
+type UpdateTaskStatusPayload = Pick<Task, "status">;
+
+async function updateTaskStatus(taskId: string, task: UpdateTaskStatusPayload) {
   const response = await client.task.status[":id"].$put({
     param: { id: taskId },
     json: {

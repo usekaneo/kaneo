@@ -110,7 +110,7 @@ function AcceptInvitation() {
             <div className="flex items-center justify-center w-12 h-12 mx-auto bg-destructive/10 rounded-full">
               <XCircle className="w-6 h-6 text-destructive" />
             </div>
-            <Alert variant="destructive">
+            <Alert variant="error">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 Failed to load invitation details. The invitation may be invalid

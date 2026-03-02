@@ -82,7 +82,7 @@ api.get("/health", (c) => {
   return c.json({ status: "ok" });
 });
 
-api.get("/public-project/:id", async (c) => {
+const publicProjectApi = api.get("/public-project/:id", async (c) => {
   const { id } = c.req.param();
   const project = await getPublicProject(id);
 
@@ -242,6 +242,7 @@ export type AppType =
   | typeof externalLinkApi
   | typeof workflowRuleApi
   | typeof invitationApi
+  | typeof publicProjectApi
   | typeof invitationPublicApi;
 
 export default app;
