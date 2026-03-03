@@ -22,6 +22,7 @@
     "db:seed:user-data": "tsx scripts/seed-user-data.ts"
   },
   "dependencies": {
+    "@better-auth/api-key": "^1.5.1",
     "@hono/node-server": "^1.19.9",
     "@hono/standard-validator": "^0.2.2",
     "@kaneo/email": "workspace:*",

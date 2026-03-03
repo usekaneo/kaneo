@@ -1,3 +1,4 @@
+import { apiKey } from "@better-auth/api-key";
 import {
   sendMagicLinkEmail,
   sendOtpEmail,
@@ -7,10 +8,9 @@ import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
+import { createAuthMiddleware } from "better-auth/api";
 import {
   anonymous,
-  apiKey,
-  createAuthMiddleware,
   emailOTP,
   genericOAuth,
   lastLoginMethod,
@@ -184,9 +184,9 @@ export const auth = betterAuth({
           },
         },
       },
-      organizationCreation: {
-        disabled: false,
-        afterCreate: async ({ organization, user }) => {
+      allowUserToCreateOrganization: true,
+      organizationHooks: {
+        afterCreateOrganization: async ({ organization, user }) => {
           publishEvent("workspace.created", {
             workspaceId: organization.id,
             workspaceName: organization.name,
