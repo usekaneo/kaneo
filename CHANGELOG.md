@@ -1,3 +1,10 @@
+## [2.3.2](https://github.com/usekaneo/kaneo/compare/v2.3.1...v2.3.2) (2026-03-03)
+
+
+### Bug Fixes
+
+* consolidate imports from better-auth/api ([3e7e2c6](https://github.com/usekaneo/kaneo/commit/3e7e2c6f1d4be274a044b8c0594fdfa27df463c7))
+* update auth logic and add apiKey dependency ([22c9c2a](https://github.com/usekaneo/kaneo/commit/22c9c2af760a7097e35960c6bd4c8c4e48963abc))
 ## [2.3.1](https://github.com/usekaneo/kaneo/compare/v2.3.0...v2.3.1) (2026-03-02)
 
 
