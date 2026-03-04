@@ -1,3 +1,9 @@
+## [2.3.3](https://github.com/usekaneo/kaneo/compare/v2.3.2...v2.3.3) (2026-03-04)
+
+
+### Bug Fixes
+
+* api keys couldn't be created ([04c8f8f](https://github.com/usekaneo/kaneo/commit/04c8f8f7ab65c78bbd6c2ab15a608b481eef223a))
 ## [2.3.2](https://github.com/usekaneo/kaneo/compare/v2.3.1...v2.3.2) (2026-03-03)
 
 
