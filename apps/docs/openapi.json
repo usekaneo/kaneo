@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:1337/api",
+      "url": "https://cloud.kaneo.app/api",
       "description": "Kaneo API Server"
     }
   ],
