@@ -1,12 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { KeyRound, Plus } from "lucide-react";
 import { useState } from "react";
 import PageTitle from "@/components/page-title";
 import { ApiKeyCreatedModal } from "@/components/settings/api-key-created-modal";
 import { ApiKeyTable } from "@/components/settings/api-key-table";
 import { CreateApiKeyDialog } from "@/components/settings/create-api-key-dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardFrame,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
 import useGetApiKeys from "@/hooks/queries/use-get-api-keys";
 import type { CreateApiKeyResponse } from "@/types/api-key";
 
@@ -46,31 +54,34 @@ function RouteComponent() {
           </p>
         </div>
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-md font-medium">API Keys</h2>
-                <p className="text-xs text-muted-foreground">
-                  Create and manage API keys for programmatic access to Kaneo.
-                </p>
-              </div>
-              <Button
-                onClick={() => setCreateDialogOpen(true)}
-                size="sm"
-                variant="outline"
-                className="gap-1.5 h-8"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span className="text-xs">Create API Key</span>
-              </Button>
-            </div>
-          </div>
+        <CardFrame>
+          <Card className="!rounded-none !border-t-0">
+            <CardHeader>
+              <CardTitle className="inline-flex items-center gap-2 text-base">
+                <KeyRound className="size-4" />
+                API Keys
+              </CardTitle>
+              <CardDescription>
+                Create and manage API keys for programmatic access to Kaneo.
+              </CardDescription>
+              <CardAction>
+                <Button
+                  onClick={() => setCreateDialogOpen(true)}
+                  className="gap-2"
+                >
+                  <Plus className="size-4" />
+                  Create API Key
+                </Button>
+              </CardAction>
+            </CardHeader>
+          </Card>
 
-          <Separator />
-
-          <ApiKeyTable apiKeys={apiKeys} isLoading={isLoading} />
-        </div>
+          <Card className="!rounded-none">
+            <CardPanel className="p-4">
+              <ApiKeyTable apiKeys={apiKeys} isLoading={isLoading} />
+            </CardPanel>
+          </Card>
+        </CardFrame>
       </div>
 
       <CreateApiKeyDialog

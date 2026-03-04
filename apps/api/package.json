@@ -22,7 +22,8 @@
     "db:seed:user-data": "tsx scripts/seed-user-data.ts"
   },
   "dependencies": {
-    "@better-auth/api-key": "^1.5.1",
+    "@better-auth/api-key": "^1.5.3",
+    "@better-auth/drizzle-adapter": "^1.5.3",
     "@hono/node-server": "^1.19.9",
     "@hono/standard-validator": "^0.2.2",
     "@kaneo/email": "workspace:*",
@@ -32,7 +33,7 @@
     "@paralleldrive/cuid2": "^3.3.0",
     "@valibot/to-json-schema": "^1.5.0",
     "bcrypt": "^6.0.0",
-    "better-auth": "^1.5.1",
+    "better-auth": "^1.5.3",
     "croner": "^10.0.1",
     "drizzle-kit": "^0.31.9",
     "drizzle-orm": "^0.45.1",

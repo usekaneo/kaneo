@@ -1,4 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
+import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -464,13 +465,17 @@ export const apikeyTable = pgTable(
     id: text("id")
       .$defaultFn(() => createId())
       .primaryKey(),
+    configId: text("config_id").default("default").notNull(),
     name: text("name"),
     start: text("start"),
-    prefix: text("prefix"),
-    key: text("key").notNull(),
-    userId: text("user_id")
+    referenceId: text("reference_id")
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
+    prefix: text("prefix"),
+    key: text("key").notNull(),
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "cascade",
+    }),
     refillInterval: integer("refill_interval"),
     refillAmount: integer("refill_amount"),
     lastRefillAt: timestamp("last_refill_at", { mode: "date" }),
@@ -488,7 +493,94 @@ export const apikeyTable = pgTable(
     metadata: text("metadata"),
   },
   (table) => [
+    index("apikey_configId_idx").on(table.configId),
     index("apikey_key_idx").on(table.key),
+    index("apikey_referenceId_idx").on(table.referenceId),
     index("apikey_userId_idx").on(table.userId),
   ],
 );
+
+// Auth-schema compatible aliases in schema.ts
+export const user = userTable;
+export const session = sessionTable;
+export const account = accountTable;
+export const verification = verificationTable;
+export const workspace = workspaceTable;
+export const team = teamTable;
+export const teamMember = teamMemberTable;
+export const workspace_member = workspaceUserTable;
+export const invitation = invitationTable;
+export const apikey = apikeyTable;
+
+// Auth-schema compatible relation exports in schema.ts
+export const userRelations = relations(user, ({ many }) => ({
+  sessions: many(session),
+  accounts: many(account),
+  teamMembers: many(teamMember),
+  workspace_members: many(workspace_member),
+  invitations: many(invitation),
+}));
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+export const workspaceRelations = relations(workspace, ({ many }) => ({
+  teams: many(team),
+  workspace_members: many(workspace_member),
+  invitations: many(invitation),
+}));
+
+export const teamRelations = relations(team, ({ one, many }) => ({
+  workspace: one(workspace, {
+    fields: [team.workspaceId],
+    references: [workspace.id],
+  }),
+  teamMembers: many(teamMember),
+}));
+
+export const teamMemberRelations = relations(teamMember, ({ one }) => ({
+  team: one(team, {
+    fields: [teamMember.teamId],
+    references: [team.id],
+  }),
+  user: one(user, {
+    fields: [teamMember.userId],
+    references: [user.id],
+  }),
+}));
+
+export const workspace_memberRelations = relations(
+  workspace_member,
+  ({ one }) => ({
+    workspace: one(workspace, {
+      fields: [workspace_member.workspaceId],
+      references: [workspace.id],
+    }),
+    user: one(user, {
+      fields: [workspace_member.userId],
+      references: [user.id],
+    }),
+  }),
+);
+
+export const invitationRelations = relations(invitation, ({ one }) => ({
+  workspace: one(workspace, {
+    fields: [invitation.workspaceId],
+    references: [workspace.id],
+  }),
+  user: one(user, {
+    fields: [invitation.inviterId],
+    references: [user.id],
+  }),
+}));

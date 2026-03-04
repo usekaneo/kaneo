@@ -32,28 +32,35 @@ import {
   SelectValue,
 } from "../ui/select";
 
+const EXPIRATION_SECONDS = {
+  "1d": 86400,
+  "7d": 604800,
+  "30d": 2592000,
+  "90d": 7776000,
+} as const;
+
 const EXPIRATION_OPTIONS = [
   {
     label: "1 day",
-    value: "86400",
+    value: "1d",
   },
   {
     label: "7 days",
-    value: "604800",
+    value: "7d",
   },
   {
     label: "30 days",
-    value: "2592000",
+    value: "30d",
   },
   {
     label: "90 days",
-    value: "7776000",
+    value: "90d",
   },
   {
     label: "Never",
     value: "never",
   },
-];
+] as const;
 
 const createApiKeySchema = z.object({
   name: z
@@ -83,19 +90,21 @@ export function CreateApiKeyDialog({
     resolver: standardSchemaResolver(createApiKeySchema),
     defaultValues: {
       name: "",
-      expiresIn: "2592000",
+      expiresIn: "30d",
     },
   });
 
   const onSubmit = async (data: FormValues) => {
     const expiresInValue =
-      data.expiresIn === "never" ? null : Number.parseInt(data.expiresIn, 10);
+      data.expiresIn === "never"
+        ? null
+        : EXPIRATION_SECONDS[data.expiresIn as keyof typeof EXPIRATION_SECONDS];
 
     setIsSubmitting(true);
     try {
       const result = await createApiKey({
         name: data.name,
-        expiresIn: Number.isNaN(expiresInValue) ? null : expiresInValue,
+        expiresIn: expiresInValue ?? null,
       });
 
       form.reset();
@@ -119,8 +128,8 @@ export function CreateApiKeyDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg p-0 gap-0">
+        <DialogHeader className="px-6 py-5 border-b border-border">
           <DialogTitle>Create API Key</DialogTitle>
           <DialogDescription>
             Create a new API key to access the Kaneo API programmatically.
@@ -128,64 +137,62 @@ export function CreateApiKeyDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 px-6"
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs">Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="My API Key"
-                      {...field}
-                      disabled={isSubmitting}
-                      className="h-8 text-sm"
-                    />
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    A descriptive name for this API key
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
+            <div className="space-y-5 px-6 py-5">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="My API Key"
+                        {...field}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      A descriptive name for this API key
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="expiresIn"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs">Expiration</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={isSubmitting}
-                    >
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue placeholder="Select expiration" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {EXPIRATION_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    Choose how long this API key should remain valid. Never will
-                    create a key without an automatic expiry.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="expiresIn"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Expiration</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={isSubmitting}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select expiration" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {EXPIRATION_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>
+                      Choose how long this API key should remain valid. Never
+                      will create a key without an automatic expiry.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <DialogFooter className="gap-2 sm:gap-2">
               <Button
@@ -193,15 +200,10 @@ export function CreateApiKeyDialog({
                 variant="outline"
                 onClick={handleClose}
                 disabled={isSubmitting}
-                className="h-8 text-xs"
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="h-8 text-xs"
-              >
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Creating..." : "Create"}
               </Button>
             </DialogFooter>

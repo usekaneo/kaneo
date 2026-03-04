@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
-import type { ApiKey } from "@/types/api-key";
 
 function useGetApiKeys() {
   return useQuery({
@@ -12,7 +11,7 @@ function useGetApiKeys() {
         throw new Error(result.error.message);
       }
 
-      return (result.data || []) as ApiKey[];
+      return result.data.apiKeys || [];
     },
   });
 }

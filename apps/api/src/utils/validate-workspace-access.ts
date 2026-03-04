@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
 
@@ -14,7 +14,10 @@ export async function validateWorkspaceAccess(
       .where(
         and(
           eq(schema.apikeyTable.id, apiKeyId),
-          eq(schema.apikeyTable.userId, userId),
+          or(
+            eq(schema.apikeyTable.referenceId, userId),
+            eq(schema.apikeyTable.userId, userId),
+          ),
           eq(schema.apikeyTable.enabled, true),
         ),
       )

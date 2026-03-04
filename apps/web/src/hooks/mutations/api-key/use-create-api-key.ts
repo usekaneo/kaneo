@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import type {
-  CreateApiKeyRequest,
+  CreateApiKeyClientRequest,
   CreateApiKeyResponse,
 } from "@/types/api-key";
 
@@ -9,7 +9,7 @@ function useCreateApiKey() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CreateApiKeyRequest) => {
+    mutationFn: async (data: CreateApiKeyClientRequest) => {
       const result = await authClient.apiKey.create({
         name: data.name,
         expiresIn: data.expiresIn,

@@ -1,33 +1,15 @@
-export type ApiKey = {
-  id: string;
-  name: string | null;
-  prefix: string | null;
-  start: string | null;
-  enabled: boolean;
-  createdAt: Date;
-  expiresAt: Date | null;
-  permissions: Record<string, string[]> | null;
-  userId: string;
-  refillInterval: number | null;
-  refillAmount: number | null;
-  lastRefillAt: Date | null;
-  rateLimitEnabled: boolean;
-  rateLimitTimeWindow: number | null;
-  rateLimitMax: number | null;
-  requestCount: number;
-  remaining: number | null;
-  lastRequest: Date | null;
-  updatedAt: Date;
-  metadata: Record<string, unknown> | null;
-};
+import type { authClient } from "@/lib/auth-client";
 
-export type CreateApiKeyRequest = {
-  name?: string;
-  expiresIn?: number | null;
-  prefix?: string;
-  metadata?: Record<string, unknown>;
-};
+export type ApiKey = NonNullable<
+  Awaited<ReturnType<typeof authClient.apiKey.list>>["data"]
+>;
 
-export type CreateApiKeyResponse = ApiKey & {
-  key: string; // Full key, only shown once
-};
+export type CreateApiKeyRequest = NonNullable<
+  Parameters<typeof authClient.apiKey.create>[0]
+>;
+
+export type CreateApiKeyClientRequest = Omit<CreateApiKeyRequest, "userId">;
+
+export type CreateApiKeyResponse = NonNullable<
+  Awaited<ReturnType<typeof authClient.apiKey.create>>["data"]
+>;

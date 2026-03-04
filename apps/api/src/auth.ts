@@ -14,6 +14,7 @@ import {
   genericOAuth,
   lastLoginMethod,
   magicLink,
+  openAPI,
   organization,
 } from "better-auth/plugins";
 import { config } from "dotenv-mono";
@@ -238,7 +239,11 @@ export const auth = betterAuth({
         },
       ],
     }),
-    apiKey(),
+    apiKey({
+      enableSessionForAPIKeys: true,
+      apiKeyHeaders: "x-api-key",
+    }),
+    openAPI(),
   ],
   session: {
     cookieCache: {

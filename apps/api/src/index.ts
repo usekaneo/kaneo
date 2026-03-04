@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server";
 import type { Session, User } from "better-auth/types";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
@@ -26,6 +26,7 @@ import search from "./search";
 import task from "./task";
 import timeEntry from "./time-entry";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
+import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import { verifyApiKey } from "./utils/verify-api-key";
@@ -99,45 +100,143 @@ const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
 
 const configApi = api.route("/config", config);
 
-api.get(
-  "/openapi",
-  openAPIRouteHandler(api, {
-    documentation: {
-      openapi: "3.0.0",
-      info: {
-        title: "Kaneo API",
-        version: "1.0.0",
-        description:
-          "Kaneo Project Management API - Manage projects, tasks, labels, and more",
-      },
-      servers: [
-        {
-          url: process.env.KANEO_API_URL || "http://localhost:1337",
-          description: "Kaneo API Server",
-        },
-      ],
-      components: {
-        securitySchemes: {
-          bearerAuth: {
-            type: "http",
-            scheme: "bearer",
-            description: "API Key authentication",
-          },
-        },
-      },
-      security: [{ bearerAuth: [] }],
-    },
-  }),
-);
+const normalizeApiServerUrl = (baseUrl: string): string => {
+  const trimmed = baseUrl.replace(/\/+$/, "");
+  return trimmed.endsWith("/api") ? trimmed : `${trimmed}/api`;
+};
 
-api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) =>
-  auth.handler(c.req.raw),
-);
+const mergeOpenApiSpecs = (
+  honoSpec: Record<string, unknown>,
+  authSpec: Record<string, unknown>,
+) => {
+  const mergeRecord = (a: unknown, b: unknown): Record<string, unknown> => ({
+    ...((a as Record<string, unknown>) || {}),
+    ...((b as Record<string, unknown>) || {}),
+  });
+
+  const mergeArray = (a: unknown, b: unknown): unknown[] => [
+    ...((a as unknown[]) || []),
+    ...((b as unknown[]) || []),
+  ];
+
+  return {
+    ...honoSpec,
+    openapi:
+      (honoSpec as { openapi?: string }).openapi ||
+      (authSpec as { openapi?: string }).openapi ||
+      "3.0.3",
+    info:
+      (honoSpec as { info?: unknown }).info ||
+      (authSpec as { info?: unknown }).info,
+    servers:
+      (honoSpec as { servers?: unknown[] }).servers ||
+      (authSpec as { servers?: unknown[] }).servers,
+    security:
+      (honoSpec as { security?: unknown[] }).security ||
+      (authSpec as { security?: unknown[] }).security,
+    paths: mergeRecord(
+      (honoSpec as { paths?: unknown }).paths,
+      (authSpec as { paths?: unknown }).paths,
+    ),
+    tags: mergeArray(
+      (honoSpec as { tags?: unknown[] }).tags,
+      (authSpec as { tags?: unknown[] }).tags,
+    ),
+    components: {
+      ...mergeRecord(
+        (honoSpec as { components?: unknown }).components,
+        (authSpec as { components?: unknown }).components,
+      ),
+      schemas: mergeRecord(
+        (honoSpec as { components?: { schemas?: unknown } }).components
+          ?.schemas,
+        (authSpec as { components?: { schemas?: unknown } }).components
+          ?.schemas,
+      ),
+      securitySchemes: mergeRecord(
+        (honoSpec as { components?: { securitySchemes?: unknown } }).components
+          ?.securitySchemes,
+        (authSpec as { components?: { securitySchemes?: unknown } }).components
+          ?.securitySchemes,
+      ),
+    },
+  };
+};
+
+const honoOpenApiHandler = openAPIRouteHandler(api, {
+  documentation: {
+    openapi: "3.0.3",
+    info: {
+      title: "Kaneo API",
+      version: "1.0.0",
+      description:
+        "Kaneo Project Management API - Manage projects, tasks, labels, and more",
+    },
+    servers: [
+      {
+        url: normalizeApiServerUrl(
+          process.env.KANEO_API_URL || "https://cloud.kaneo.app",
+        ),
+        description: "Kaneo API Server",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          description: "API Key authentication",
+        },
+      },
+    },
+    security: [{ bearerAuth: [] }],
+  },
+});
+
+api.get("/openapi", async (c) => {
+  const maybeResponse = await honoOpenApiHandler(c, async () => {});
+  const honoSpecResponse = maybeResponse ?? c.res;
+  const honoSpec = (await honoSpecResponse.json()) as Record<string, unknown>;
+
+  let authSpec: Record<string, unknown> = {};
+  try {
+    authSpec = (await auth.api.generateOpenAPISchema()) as Record<
+      string,
+      unknown
+    >;
+  } catch (error) {
+    console.error("Failed to generate Better Auth OpenAPI schema:", error);
+  }
+
+  return c.json(mergeOpenApiSpecs(honoSpec, authSpec));
+});
+
+api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
+  const authHeader = c.req.header("Authorization");
+
+  if (authHeader?.startsWith("Bearer ")) {
+    const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
+    const headers = new Headers(c.req.raw.headers);
+
+    // Better Auth API key plugin validates from x-api-key by default.
+    if (!headers.get("x-api-key")) {
+      headers.set("x-api-key", apiKey);
+    }
+
+    return auth.handler(
+      new Request(c.req.raw, {
+        headers,
+      }),
+    );
+  }
+
+  return auth.handler(c.req.raw);
+});
 
 api.use("*", async (c, next) => {
   const authHeader = c.req.header("Authorization");
   if (authHeader?.startsWith("Bearer ")) {
-    const apiKey = authHeader.substring(7);
+    const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
 
     try {
       const result = await verifyApiKey(apiKey);
@@ -199,6 +298,7 @@ app.route("/api", api);
   try {
     await migrateWorkspaceUserEmail();
     await migrateSessionColumn();
+    await migrateApiKeyReferenceId();
 
     console.log("🔄 Migrating database...");
     await migrate(db, {

@@ -224,7 +224,7 @@ export const invitationTableRelations = relations(
 
 export const apikeyTableRelations = relations(apikeyTable, ({ one }) => ({
   user: one(userTable, {
-    fields: [apikeyTable.userId],
+    fields: [apikeyTable.referenceId],
     references: [userTable.id],
   }),
 }));
