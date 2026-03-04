@@ -29,6 +29,12 @@ import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
+import {
+  dedupeOperationIds,
+  mergeOpenApiSpecs,
+  normalizeApiServerUrl,
+  normalizeOrganizationAuthOperations,
+} from "./utils/openapi-spec";
 import { verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 
@@ -100,123 +106,6 @@ const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
 
 const configApi = api.route("/config", config);
 
-const normalizeApiServerUrl = (baseUrl: string): string => {
-  const trimmed = baseUrl.replace(/\/+$/, "");
-  return trimmed.endsWith("/api") ? trimmed : `${trimmed}/api`;
-};
-
-const mergeOpenApiSpecs = (
-  honoSpec: Record<string, unknown>,
-  authSpec: Record<string, unknown>,
-) => {
-  const mergeRecord = (a: unknown, b: unknown): Record<string, unknown> => ({
-    ...((a as Record<string, unknown>) || {}),
-    ...((b as Record<string, unknown>) || {}),
-  });
-
-  const mergeArray = (a: unknown, b: unknown): unknown[] => [
-    ...((a as unknown[]) || []),
-    ...((b as unknown[]) || []),
-  ];
-
-  return {
-    ...honoSpec,
-    openapi:
-      (honoSpec as { openapi?: string }).openapi ||
-      (authSpec as { openapi?: string }).openapi ||
-      "3.0.3",
-    info:
-      (honoSpec as { info?: unknown }).info ||
-      (authSpec as { info?: unknown }).info,
-    servers:
-      (honoSpec as { servers?: unknown[] }).servers ||
-      (authSpec as { servers?: unknown[] }).servers,
-    security:
-      (honoSpec as { security?: unknown[] }).security ||
-      (authSpec as { security?: unknown[] }).security,
-    paths: mergeRecord(
-      (honoSpec as { paths?: unknown }).paths,
-      (authSpec as { paths?: unknown }).paths,
-    ),
-    tags: mergeArray(
-      (honoSpec as { tags?: unknown[] }).tags,
-      (authSpec as { tags?: unknown[] }).tags,
-    ),
-    components: {
-      ...mergeRecord(
-        (honoSpec as { components?: unknown }).components,
-        (authSpec as { components?: unknown }).components,
-      ),
-      schemas: mergeRecord(
-        (honoSpec as { components?: { schemas?: unknown } }).components
-          ?.schemas,
-        (authSpec as { components?: { schemas?: unknown } }).components
-          ?.schemas,
-      ),
-      securitySchemes: mergeRecord(
-        (honoSpec as { components?: { securitySchemes?: unknown } }).components
-          ?.securitySchemes,
-        (authSpec as { components?: { securitySchemes?: unknown } }).components
-          ?.securitySchemes,
-      ),
-    },
-  };
-};
-
-const dedupeOperationIds = (spec: Record<string, unknown>) => {
-  const paths = ((spec as { paths?: unknown }).paths || {}) as Record<
-    string,
-    unknown
-  >;
-  const seen = new Set<string>();
-
-  for (const [path, pathItem] of Object.entries(paths)) {
-    if (!pathItem || typeof pathItem !== "object") {
-      continue;
-    }
-
-    for (const method of [
-      "get",
-      "put",
-      "post",
-      "delete",
-      "patch",
-      "head",
-      "options",
-      "trace",
-    ] as const) {
-      const operation = (pathItem as Record<string, unknown>)[method] as
-        | Record<string, unknown>
-        | undefined;
-
-      if (!operation || typeof operation !== "object") {
-        continue;
-      }
-
-      const operationId = operation.operationId;
-      if (typeof operationId !== "string" || operationId.length === 0) {
-        continue;
-      }
-
-      if (!seen.has(operationId)) {
-        seen.add(operationId);
-        continue;
-      }
-
-      const pathSuffix = path
-        .replace(/\//g, "_")
-        .replace(/[{}]/g, "")
-        .replace(/_+/g, "_")
-        .replace(/^_+|_+$/g, "");
-      const nextId = `${operationId}_${method}_${pathSuffix || "root"}`;
-      operation.operationId = nextId;
-      seen.add(nextId);
-    }
-  }
-
-  return spec;
-};
-
 const honoOpenApiHandler = openAPIRouteHandler(api, {
   documentation: {
     openapi: "3.0.3",
@@ -262,7 +151,10 @@ api.get("/openapi", async (c) => {
     console.error("Failed to generate Better Auth OpenAPI schema:", error);
   }
 
-  return c.json(dedupeOperationIds(mergeOpenApiSpecs(honoSpec, authSpec)));
+  const normalizedAuthSpec = normalizeOrganizationAuthOperations(authSpec);
+  return c.json(
+    dedupeOperationIds(mergeOpenApiSpecs(honoSpec, normalizedAuthSpec)),
+  );
 });
 
 api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
