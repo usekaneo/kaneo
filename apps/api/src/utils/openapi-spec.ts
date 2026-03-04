@@ -51,7 +51,16 @@ export const normalizeOrganizationAuthOperations = (
     unknown
   >;
   const organizationPaths = Object.fromEntries(
-    Object.entries(paths).filter(([path]) => path.startsWith("/organization")),
+    Object.entries(paths)
+      .filter(
+        ([path]) =>
+          path.startsWith("/organization") ||
+          path.startsWith("/auth/organization"),
+      )
+      .map(([path, pathItem]) => [
+        path.startsWith("/auth/") ? path : `/auth${path}`,
+        pathItem,
+      ]),
   ) as Record<string, unknown>;
 
   for (const [path, pathItem] of Object.entries(organizationPaths)) {
@@ -59,7 +68,9 @@ export const normalizeOrganizationAuthOperations = (
       continue;
     }
 
-    const endpointWords = toWords(path.replace(/^\/organization\/?/, ""));
+    const endpointWords = toWords(
+      path.replace(/^\/(?:auth\/)?organization\/?/, ""),
+    );
     const action = endpointWords[0] || "get";
     const rest = endpointWords.slice(1);
     const opIdBaseParts = [action, "organization", ...rest];

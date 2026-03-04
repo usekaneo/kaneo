@@ -10050,7 +10050,7 @@
         ]
       }
     },
-    "/organization/create": {
+    "/auth/organization/create": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10092,7 +10092,7 @@
         "summary": "Create Organization"
       }
     },
-    "/organization/update": {
+    "/auth/organization/update": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10134,7 +10134,7 @@
         "summary": "Update Organization"
       }
     },
-    "/organization/delete": {
+    "/auth/organization/delete": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10176,7 +10176,7 @@
         "summary": "Delete Organization"
       }
     },
-    "/organization/set-active": {
+    "/auth/organization/set-active": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10218,7 +10218,7 @@
         "summary": "Set Organization Active"
       }
     },
-    "/organization/get-full-organization": {
+    "/auth/organization/get-full-organization": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10257,7 +10257,7 @@
         "summary": "Get Organization Full Organization"
       }
     },
-    "/organization/list": {
+    "/auth/organization/list": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10296,7 +10296,7 @@
         "summary": "List Organization"
       }
     },
-    "/organization/invite-member": {
+    "/auth/organization/invite-member": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10338,7 +10338,7 @@
         "summary": "Invite Organization Member"
       }
     },
-    "/organization/cancel-invitation": {
+    "/auth/organization/cancel-invitation": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10376,7 +10376,7 @@
         "summary": "Cancel Organization Invitation"
       }
     },
-    "/organization/accept-invitation": {
+    "/auth/organization/accept-invitation": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10418,7 +10418,7 @@
         "summary": "Accept Organization Invitation"
       }
     },
-    "/organization/get-invitation": {
+    "/auth/organization/get-invitation": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10461,7 +10461,7 @@
         "summary": "Get Organization Invitation"
       }
     },
-    "/organization/reject-invitation": {
+    "/auth/organization/reject-invitation": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10503,7 +10503,7 @@
         "summary": "Reject Organization Invitation"
       }
     },
-    "/organization/list-invitations": {
+    "/auth/organization/list-invitations": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10538,7 +10538,7 @@
         "summary": "List Organization Invitations"
       }
     },
-    "/organization/get-active-member": {
+    "/auth/organization/get-active-member": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10577,7 +10577,7 @@
         "summary": "Get Organization Active Member"
       }
     },
-    "/organization/check-slug": {
+    "/auth/organization/check-slug": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10615,7 +10615,7 @@
         "summary": "Check Organization Slug"
       }
     },
-    "/organization/remove-member": {
+    "/auth/organization/remove-member": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10657,7 +10657,7 @@
         "summary": "Remove Organization Member"
       }
     },
-    "/organization/update-member-role": {
+    "/auth/organization/update-member-role": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10699,7 +10699,7 @@
         "summary": "Update Organization Member Role"
       }
     },
-    "/organization/leave": {
+    "/auth/organization/leave": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10737,7 +10737,7 @@
         "summary": "Leave Organization"
       }
     },
-    "/organization/list-user-invitations": {
+    "/auth/organization/list-user-invitations": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10776,7 +10776,7 @@
         "summary": "List Organization User Invitations"
       }
     },
-    "/organization/list-members": {
+    "/auth/organization/list-members": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10811,7 +10811,7 @@
         "summary": "List Organization Members"
       }
     },
-    "/organization/get-active-member-role": {
+    "/auth/organization/get-active-member-role": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10846,7 +10846,7 @@
         "summary": "Get Organization Active Member Role"
       }
     },
-    "/organization/create-team": {
+    "/auth/organization/create-team": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10888,7 +10888,7 @@
         "summary": "Create Organization Team"
       }
     },
-    "/organization/list-teams": {
+    "/auth/organization/list-teams": {
       "get": {
         "tags": [
           "Organization Management"
@@ -10927,7 +10927,7 @@
         "summary": "List Organization Teams"
       }
     },
-    "/organization/remove-team": {
+    "/auth/organization/remove-team": {
       "post": {
         "tags": [
           "Organization Management"
@@ -10969,7 +10969,7 @@
         "summary": "Remove Organization Team"
       }
     },
-    "/organization/update-team": {
+    "/auth/organization/update-team": {
       "post": {
         "tags": [
           "Organization Management"
@@ -11011,7 +11011,7 @@
         "summary": "Update Organization Team"
       }
     },
-    "/organization/set-active-team": {
+    "/auth/organization/set-active-team": {
       "post": {
         "tags": [
           "Organization Management"
@@ -11053,7 +11053,7 @@
         "summary": "Set Organization Active Team"
       }
     },
-    "/organization/list-user-teams": {
+    "/auth/organization/list-user-teams": {
       "get": {
         "tags": [
           "Organization Management"
@@ -11092,7 +11092,7 @@
         "summary": "List Organization User Teams"
       }
     },
-    "/organization/list-team-members": {
+    "/auth/organization/list-team-members": {
       "get": {
         "tags": [
           "Organization Management"
@@ -11131,7 +11131,7 @@
         "summary": "List Organization Team Members"
       }
     },
-    "/organization/add-team-member": {
+    "/auth/organization/add-team-member": {
       "post": {
         "tags": [
           "Organization Management"
@@ -11173,7 +11173,7 @@
         "summary": "Add Organization Team Member"
       }
     },
-    "/organization/remove-team-member": {
+    "/auth/organization/remove-team-member": {
       "post": {
         "tags": [
           "Organization Management"
@@ -11215,7 +11215,7 @@
         "summary": "Remove Organization Team Member"
       }
     },
-    "/organization/has-permission": {
+    "/auth/organization/has-permission": {
       "post": {
         "tags": [
           "Organization Management"
