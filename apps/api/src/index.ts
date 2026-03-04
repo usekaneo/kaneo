@@ -163,6 +163,60 @@ const mergeOpenApiSpecs = (
   };
 };
 
+const dedupeOperationIds = (spec: Record<string, unknown>) => {
+  const paths = ((spec as { paths?: unknown }).paths || {}) as Record<
+    string,
+    unknown
+  >;
+  const seen = new Set<string>();
+
+  for (const [path, pathItem] of Object.entries(paths)) {
+    if (!pathItem || typeof pathItem !== "object") {
+      continue;
+    }
+
+    for (const method of [
+      "get",
+      "put",
+      "post",
+      "delete",
+      "patch",
+      "head",
+      "options",
+      "trace",
+    ] as const) {
+      const operation = (pathItem as Record<string, unknown>)[method] as
+        | Record<string, unknown>
+        | undefined;
+
+      if (!operation || typeof operation !== "object") {
+        continue;
+      }
+
+      const operationId = operation.operationId;
+      if (typeof operationId !== "string" || operationId.length === 0) {
+        continue;
+      }
+
+      if (!seen.has(operationId)) {
+        seen.add(operationId);
+        continue;
+      }
+
+      const pathSuffix = path
+        .replace(/\//g, "_")
+        .replace(/[{}]/g, "")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "");
+      const nextId = `${operationId}_${method}_${pathSuffix || "root"}`;
+      operation.operationId = nextId;
+      seen.add(nextId);
+    }
+  }
+
+  return spec;
+};
+
 const honoOpenApiHandler = openAPIRouteHandler(api, {
   documentation: {
     openapi: "3.0.3",
@@ -208,7 +262,7 @@ api.get("/openapi", async (c) => {
     console.error("Failed to generate Better Auth OpenAPI schema:", error);
   }
 
-  return c.json(mergeOpenApiSpecs(honoSpec, authSpec));
+  return c.json(dedupeOperationIds(mergeOpenApiSpecs(honoSpec, authSpec)));
 });
 
 api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
