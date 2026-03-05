@@ -27,6 +27,13 @@ const toCamelCase = (parts: string[]): string =>
 const toTitleCase = (parts: string[]): string =>
   parts.map((part) => wordCapitalize(part)).join(" ");
 
+const splitCamelCase = (value: string): string[] =>
+  value
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .split(/[^a-zA-Z0-9]+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
 const summarizeAction = (action: string): string => {
   if (action === "has") {
     return "check";
@@ -300,6 +307,47 @@ export const dedupeOperationIds = (spec: Record<string, unknown>) => {
       const nextId = `${operationId}_${method}_${pathSuffix || "root"}`;
       operation.operationId = nextId;
       seen.add(nextId);
+    }
+  }
+
+  return spec;
+};
+
+export const ensureOperationSummaries = (spec: Record<string, unknown>) => {
+  const paths = ((spec as { paths?: unknown }).paths || {}) as Record<
+    string,
+    unknown
+  >;
+
+  for (const pathItem of Object.values(paths)) {
+    if (!pathItem || typeof pathItem !== "object") {
+      continue;
+    }
+
+    for (const method of HTTP_METHODS) {
+      const operation = (pathItem as Record<string, unknown>)[method] as
+        | Record<string, unknown>
+        | undefined;
+      if (!operation || typeof operation !== "object") {
+        continue;
+      }
+
+      const summary = operation.summary;
+      if (typeof summary === "string" && summary.trim().length > 0) {
+        continue;
+      }
+
+      const operationId = operation.operationId;
+      if (typeof operationId !== "string" || operationId.trim().length === 0) {
+        continue;
+      }
+
+      const words = splitCamelCase(operationId);
+      if (words.length === 0) {
+        continue;
+      }
+
+      operation.summary = words.map((word) => wordCapitalize(word)).join(" ");
     }
   }
 

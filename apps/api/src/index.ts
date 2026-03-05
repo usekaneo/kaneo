@@ -31,6 +31,7 @@ import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import {
   dedupeOperationIds,
+  ensureOperationSummaries,
   mergeOpenApiSpecs,
   normalizeApiServerUrl,
   normalizeOrganizationAuthOperations,
@@ -153,7 +154,9 @@ api.get("/openapi", async (c) => {
 
   const normalizedAuthSpec = normalizeOrganizationAuthOperations(authSpec);
   return c.json(
-    dedupeOperationIds(mergeOpenApiSpecs(honoSpec, normalizedAuthSpec)),
+    ensureOperationSummaries(
+      dedupeOperationIds(mergeOpenApiSpecs(honoSpec, normalizedAuthSpec)),
+    ),
   );
 });
 
