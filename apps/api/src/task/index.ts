@@ -3,9 +3,8 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
-import { auth } from "../auth";
 import db from "../database";
-import { taskTable } from "../database/schema";
+import { taskTable, userTable } from "../database/schema";
 import { publishEvent } from "../events";
 import { taskSchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
@@ -387,14 +386,15 @@ const task = new Hono<{
       const user = c.get("userId");
 
       const task = await updateTaskAssignee({ id, userId });
-
-      const members = await auth.api.listMembers({
-        headers: c.req.header(),
-      });
-
-      const newAssigneeName = members.members.find(
-        (member) => member.userId === userId,
-      )?.user?.name;
+      const newAssigneeName = userId
+        ? (
+            await db
+              .select({ name: userTable.name })
+              .from(userTable)
+              .where(eq(userTable.id, userId))
+              .limit(1)
+          )[0]?.name
+        : undefined;
 
       if (!userId) {
         await publishEvent("task.unassigned", {
