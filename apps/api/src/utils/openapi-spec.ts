@@ -313,6 +313,103 @@ export const dedupeOperationIds = (spec: Record<string, unknown>) => {
   return spec;
 };
 
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === "object" && !Array.isArray(value);
+
+const setObjectContents = (
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+) => {
+  for (const key of Object.keys(target)) {
+    delete target[key];
+  }
+  Object.assign(target, source);
+};
+
+export const normalizeNullableSchemasForOpenApi30 = (
+  spec: Record<string, unknown>,
+) => {
+  const visit = (node: unknown): void => {
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        visit(item);
+      }
+      return;
+    }
+
+    if (!isPlainObject(node)) {
+      return;
+    }
+
+    const typeValue = node.type;
+    if (Array.isArray(typeValue)) {
+      const nullRemoved = typeValue.filter((entry) => entry !== "null");
+      const hadNull = nullRemoved.length !== typeValue.length;
+
+      if (hadNull && nullRemoved.length === 1) {
+        node.type = nullRemoved[0];
+        node.nullable = true;
+      }
+    }
+
+    const anyOfValue = node.anyOf;
+    if (Array.isArray(anyOfValue) && anyOfValue.length >= 2) {
+      const nullSchema = anyOfValue.find(
+        (entry) => isPlainObject(entry) && entry.type === "null",
+      );
+      const nonNullSchemas = anyOfValue.filter(
+        (entry) => !(isPlainObject(entry) && entry.type === "null"),
+      );
+
+      if (
+        nullSchema &&
+        nonNullSchemas.length === 1 &&
+        isPlainObject(nonNullSchemas[0])
+      ) {
+        const { anyOf: _anyOf, ...rest } = node;
+        setObjectContents(node, {
+          ...rest,
+          ...(nonNullSchemas[0] as Record<string, unknown>),
+          nullable: true,
+        });
+      }
+    }
+
+    for (const value of Object.values(node)) {
+      visit(value);
+    }
+  };
+
+  visit(spec);
+  return spec;
+};
+
+export const normalizeEmptyRequiredArrays = (spec: Record<string, unknown>) => {
+  const visit = (node: unknown): void => {
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        visit(item);
+      }
+      return;
+    }
+
+    if (!isPlainObject(node)) {
+      return;
+    }
+
+    if (Array.isArray(node.required) && node.required.length === 0) {
+      delete node.required;
+    }
+
+    for (const value of Object.values(node)) {
+      visit(value);
+    }
+  };
+
+  visit(spec);
+  return spec;
+};
+
 export const ensureOperationSummaries = (spec: Record<string, unknown>) => {
   const paths = ((spec as { paths?: unknown }).paths || {}) as Record<
     string,

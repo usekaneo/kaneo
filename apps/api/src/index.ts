@@ -34,6 +34,8 @@ import {
   ensureOperationSummaries,
   mergeOpenApiSpecs,
   normalizeApiServerUrl,
+  normalizeEmptyRequiredArrays,
+  normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
 } from "./utils/openapi-spec";
 import { verifyApiKey } from "./utils/verify-api-key";
@@ -155,7 +157,13 @@ api.get("/openapi", async (c) => {
   const normalizedAuthSpec = normalizeOrganizationAuthOperations(authSpec);
   return c.json(
     ensureOperationSummaries(
-      dedupeOperationIds(mergeOpenApiSpecs(honoSpec, normalizedAuthSpec)),
+      dedupeOperationIds(
+        normalizeNullableSchemasForOpenApi30(
+          normalizeEmptyRequiredArrays(
+            mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+          ),
+        ),
+      ),
     ),
   );
 });
