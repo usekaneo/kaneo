@@ -1,3 +1,17 @@
+## [2.3.4](https://github.com/usekaneo/kaneo/compare/v2.3.3...v2.3.4) (2026-03-05)
+
+
+### Bug Fixes
+
+* update API server URL to use HTTPS ([88e869f](https://github.com/usekaneo/kaneo/commit/88e869f66fd50fd15f9087549d74d0858abbe675))
+* update organization paths to include auth prefix ([e7b2a42](https://github.com/usekaneo/kaneo/commit/e7b2a424afd860ebce473566ef6f69d7a9c7d07b))
+* update task assignee retrieval to use user table ([f8fed51](https://github.com/usekaneo/kaneo/commit/f8fed517b8beb578e8fab6e8a200342d7358865b))
+
+
+### Features
+
+* add operation summary generation for OpenAPI specs ([14939d2](https://github.com/usekaneo/kaneo/commit/14939d291968d4e65c5b44a74037366609aabcc5))
+* openapi spec + migrations ([50b0ae5](https://github.com/usekaneo/kaneo/commit/50b0ae54a047d915cd15dc06c97e28aa7ac3ca9f))
 ## [2.3.3](https://github.com/usekaneo/kaneo/compare/v2.3.2...v2.3.3) (2026-03-04)
 
 
