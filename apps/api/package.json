@@ -24,7 +24,7 @@
   "dependencies": {
     "@better-auth/api-key": "^1.5.3",
     "@better-auth/drizzle-adapter": "^1.5.3",
-    "@hono/node-server": "^1.19.9",
+    "@hono/node-server": "^1.19.10",
     "@hono/standard-validator": "^0.2.2",
     "@kaneo/email": "workspace:*",
     "@octokit/webhooks": "^14.2.0",
@@ -37,7 +37,7 @@
     "croner": "^10.0.1",
     "drizzle-kit": "^0.31.9",
     "drizzle-orm": "^0.45.1",
-    "hono": "^4.12.3",
+    "hono": "^4.12.4",
     "hono-openapi": "^1.2.0",
     "octokit": "^5.0.5",
     "pg": "^8.19.0",
