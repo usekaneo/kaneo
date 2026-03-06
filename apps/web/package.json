@@ -82,6 +82,7 @@
 		"react-hook-form": "^7.71.2",
 		"react-markdown": "^10.1.0",
 		"react-use-websocket": "^4.11.1",
+		"shiki": "^4.0.1",
 		"sonner": "^2.0.6",
 		"tailwind-animate": "^0.2.10",
 		"tailwind-merge": "^3.5.0",
