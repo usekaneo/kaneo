@@ -1,3 +1,9 @@
+## [2.3.5](https://github.com/usekaneo/kaneo/compare/v2.3.4...v2.3.5) (2026-03-06)
+
+
+### Features
+
+* redesign task details page ([d2bebe8](https://github.com/usekaneo/kaneo/commit/d2bebe8a6827c0d8f3512bd9fd7fb67ad1a55943))
 ## [2.3.4](https://github.com/usekaneo/kaneo/compare/v2.3.3...v2.3.4) (2026-03-05)
 
 
