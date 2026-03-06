@@ -1,7 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
-import toKebabCase from "@/lib/to-kebab-case";
 import type { ProjectWithTasks } from "@/types/project";
 
 type ColumnFooterProps = {
@@ -16,7 +15,7 @@ export function ColumnFooter({ column }: ColumnFooterProps) {
       <CreateTaskModal
         open={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
-        status={toKebabCase(column.name)}
+        status={column.id}
       />
       <div className="flex items-center justify-between">
         <button

@@ -1,31 +1,7 @@
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/shadcn";
-import { useCallback, useEffect, useState } from "react";
-import "@blocknote/shadcn/style.css";
-import {
-  BlockTypeSelect,
-  type BlockTypeSelectItem,
-  CreateLinkButton,
-  FormattingToolbarController,
-  getDefaultReactSlashMenuItems,
-  SuggestionMenuController,
-} from "@blocknote/react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Bold,
-  Code,
-  Heading1,
-  Heading2,
-  Heading3,
-  Italic,
-  List,
-  ListOrdered,
-  SendHorizontal,
-  Strikethrough,
-  Type,
-  Underline,
-} from "lucide-react";
-import CustomSlashMenu from "@/components/blocknote/custom-slash-menu";
+import { ArrowUp } from "lucide-react";
+import { useCallback, useState } from "react";
+import CommentEditor from "@/components/activity/comment-editor";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
 import {
@@ -38,35 +14,15 @@ import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
-import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type CommentInputProps = {
   taskId: string;
 };
 
 export default function CommentInput({ taskId }: CommentInputProps) {
-  const { theme } = useUserPreferencesStore();
   const [content, setContent] = useState("");
   const { mutateAsync: createComment, isPending } = useCreateComment();
   const queryClient = useQueryClient();
-
-  const editor = useCreateBlockNote({
-    initialContent: [
-      {
-        type: "paragraph",
-        content: "",
-      },
-    ],
-  });
-
-  const handleEditorChange = useCallback(async () => {
-    try {
-      const markdown = await editor.blocksToMarkdownLossy(editor.document);
-      setContent(markdown.trim());
-    } catch (error) {
-      console.error("Failed to convert blocks to markdown:", error);
-    }
-  }, [editor]);
 
   const handleSubmit = useCallback(async () => {
     if (!content.trim()) {
@@ -80,12 +36,7 @@ export default function CommentInput({ taskId }: CommentInputProps) {
         comment: content,
       });
 
-      // Clear editor
-      const blocks = await editor.tryParseMarkdownToBlocks("");
-      editor.replaceBlocks(editor.document, blocks);
       setContent("");
-
-      // Invalidate activities query to refresh the list
       await queryClient.invalidateQueries({ queryKey: ["activities", taskId] });
 
       toast.success("Comment added");
@@ -93,243 +44,35 @@ export default function CommentInput({ taskId }: CommentInputProps) {
       console.error("Failed to create comment:", error);
       toast.error("Failed to add comment");
     }
-  }, [content, createComment, taskId, editor, queryClient]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-        e.preventDefault();
-        handleSubmit();
-      }
-    };
-
-    const editorElement = editor.domElement;
-    editorElement?.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      editorElement?.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [editor, handleSubmit]);
+  }, [content, createComment, taskId, queryClient]);
 
   return (
     <div className="w-full">
-      <div className="blocknote-transparent border border-border/50 rounded-lg bg-background/30 hover:border-border transition-colors focus-within:border-border relative pb-8">
-        <BlockNoteView
-          editor={editor}
-          className="min-h-[42px] max-h-[300px] overflow-y-auto [&>div:first-of-type]:!pl-3 [&>div:first-of-type]:!pr-20 [&>div:first-of-type]:!py-2.5 [&>div:first-of-type]:!bg-transparent [&>div:first-of-type]:!min-h-[42px]"
-          data-placeholder="Leave a comment..."
-          formattingToolbar={false}
-          linkToolbar={false}
-          filePanel={false}
-          sideMenu={false}
-          slashMenu={false}
-          tableHandles={false}
-          theme={theme as "dark" | "light"}
-          onChange={handleEditorChange}
-        >
-          <FormattingToolbarController
-            formattingToolbar={() => (
-              <TooltipProvider>
-                <div className="bg-popover flex items-center gap-0.5 px-1.5 py-1 rounded-md border border-border shadow-lg">
-                  <div className="[&_button]:h-6 [&_button]:px-2 [&_button]:text-xs [&_svg]:size-3">
-                    <BlockTypeSelect
-                      items={[
-                        {
-                          name: "Paragraph",
-                          type: "paragraph",
-                          icon: Type,
-                          props: {},
-                        } satisfies BlockTypeSelectItem,
-                        {
-                          name: "Heading 1",
-                          type: "heading",
-                          icon: Heading1,
-                          props: {
-                            level: 1,
-                          },
-                        } satisfies BlockTypeSelectItem,
-                        {
-                          name: "Heading 2",
-                          type: "heading",
-                          icon: Heading2,
-                          props: {
-                            level: 2,
-                          },
-                        } satisfies BlockTypeSelectItem,
-                        {
-                          name: "Heading 3",
-                          type: "heading",
-                          icon: Heading3,
-                          props: {
-                            level: 3,
-                          },
-                        } satisfies BlockTypeSelectItem,
-                        {
-                          name: "Bullet List",
-                          type: "bulletListItem",
-                          icon: List,
-                          props: {},
-                        } satisfies BlockTypeSelectItem,
-                        {
-                          name: "Numbered List",
-                          type: "numberedListItem",
-                          icon: ListOrdered,
-                          props: {},
-                        } satisfies BlockTypeSelectItem,
-                      ]}
-                      key={"blockTypeSelect"}
-                    />
-                  </div>
-
-                  <div className="w-px h-4 bg-border mx-0.5" />
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={() => editor.toggleStyles({ bold: true })}
-                        className={cn(
-                          "h-6 w-6 p-0",
-                          editor.getActiveStyles().bold &&
-                            "bg-accent text-accent-foreground",
-                        )}
-                      >
-                        <Bold className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <KbdSequence
-                        keys={[getModifierKeyText(), "B"]}
-                        description="Bold"
-                      />
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={() => editor.toggleStyles({ italic: true })}
-                        className={cn(
-                          "h-6 w-6 p-0",
-                          editor.getActiveStyles().italic &&
-                            "bg-accent text-accent-foreground",
-                        )}
-                      >
-                        <Italic className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <KbdSequence
-                        keys={[getModifierKeyText(), "I"]}
-                        description="Italic"
-                      />
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={() => editor.toggleStyles({ underline: true })}
-                        className={cn(
-                          "h-6 w-6 p-0",
-                          editor.getActiveStyles().underline &&
-                            "bg-accent text-accent-foreground",
-                        )}
-                      >
-                        <Underline className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <KbdSequence
-                        keys={[getModifierKeyText(), "U"]}
-                        description="Underline"
-                      />
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={() => editor.toggleStyles({ code: true })}
-                        className={cn(
-                          "h-6 w-6 p-0",
-                          editor.getActiveStyles().code &&
-                            "bg-accent text-accent-foreground",
-                        )}
-                      >
-                        <Code className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <KbdSequence
-                        keys={[getModifierKeyText(), "E"]}
-                        description="Code"
-                      />
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={() => editor.toggleStyles({ strike: true })}
-                        className={cn(
-                          "h-6 w-6 p-0",
-                          editor.getActiveStyles().strike &&
-                            "bg-accent text-accent-foreground",
-                        )}
-                      >
-                        <Strikethrough className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <KbdSequence
-                        keys={[getModifierKeyText(), "Shift", "X"]}
-                        description="Strikethrough"
-                      />
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <div className="w-px h-4 bg-border mx-0.5" />
-
-                  <CreateLinkButton key={"createLinkButton"} />
-                </div>
-              </TooltipProvider>
-            )}
-          />
-          <SuggestionMenuController
-            triggerCharacter={"/"}
-            suggestionMenuComponent={CustomSlashMenu}
-            getItems={async (query) =>
-              getDefaultReactSlashMenuItems(editor).filter(
-                (item) => item.group !== "Media",
-                query,
-              )
-            }
-          />
-        </BlockNoteView>
-        <div className="absolute right-2 bottom-0 -translate-y-1/2 flex items-center gap-1">
+      <div className="rounded-xl border border-border/80 bg-card/70 transition-colors focus-within:border-ring/60 focus-within:shadow-[0_0_0_2px_color-mix(in_srgb,var(--ring)_20%,transparent)]">
+        <CommentEditor
+          value={content}
+          onChange={setContent}
+          placeholder="Leave a comment..."
+          className="[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[3rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"
+          onSubmitShortcut={handleSubmit}
+        />
+        <div className="flex items-center justify-end border-border/70 border-t px-2 py-2">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   size="xs"
-                  variant="outline"
+                  variant="default"
                   onClick={handleSubmit}
                   disabled={isPending || !content.trim()}
                   className={cn(
-                    "h-6 w-6 border-2",
                     isPending ||
                       (!content.trim() && "opacity-50 cursor-not-allowed"),
                     content.trim().length > 0 &&
-                      "bg-background text-sidebar-foreground",
+                      "bg-primary text-primary-foreground",
                   )}
                 >
-                  <SendHorizontal className="size-4" />
+                  <ArrowUp className="size-3.5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

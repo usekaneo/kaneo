@@ -1,125 +1,337 @@
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/shadcn";
-import { useCallback, useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
-import "@blocknote/shadcn/style.css";
-import {
-  BlockTypeSelect,
-  type BlockTypeSelectItem,
-  CreateLinkButton,
-  FormattingToolbarController,
-  getDefaultReactSlashMenuItems,
-  SuggestionMenuController,
-} from "@blocknote/react";
+import type { Editor } from "@tiptap/core";
+import Placeholder from "@tiptap/extension-placeholder";
+import { Table } from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import TaskList from "@tiptap/extension-task-list";
+import { Markdown } from "@tiptap/markdown";
+import { Fragment, Slice } from "@tiptap/pm/model";
+import { TextSelection } from "@tiptap/pm/state";
+import { EditorContent, useEditor } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
+import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
+  Braces,
+  Check,
+  ChevronDown,
   Code,
-  Heading1,
+  Copy,
   Heading2,
-  Heading3,
   Italic,
+  Link2,
   List,
   ListOrdered,
+  ListTodo,
+  Quote,
   Strikethrough,
-  Type,
-  Underline,
+  Table2,
+  Underline as UnderlineIcon,
 } from "lucide-react";
-import CustomSlashMenu from "@/components/blocknote/custom-slash-menu";
+import type { MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { bundledLanguages, type Highlighter } from "shiki";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField } from "@/components/ui/form";
-import { KbdSequence } from "@/components/ui/kbd";
+import { Input } from "@/components/ui/input";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/menu";
 import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import debounce from "@/lib/debounce";
-import { useUserPreferencesStore } from "@/store/user-preferences";
+import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
+import {
+  extractIssueKeyFromUrl,
+  extractTaskIdFromUrl,
+  isYouTubeUrl,
+  normalizeUrl,
+} from "@/lib/editor-url-utils";
+import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
+import { EmbedBlock } from "./extensions/embed-block";
+import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
+import {
+  SHIKI_CODEBLOCK_REFRESH_META,
+  ShikiCodeBlock,
+} from "./extensions/shiki-code-block";
+import { TaskItemWithCheckbox } from "./extensions/task-item-with-checkbox";
+import "tippy.js/dist/tippy.css";
 
 type TaskDescriptionProps = {
   taskId: string;
 };
 
+type HoveredCodeBlock = {
+  language: string;
+  nodePos: number;
+  top: number;
+  left: number;
+};
+
+type SlashRange = { from: number; to: number };
+
+type SlashCommand = {
+  id: string;
+  label: string;
+  group: "text" | "lists" | "insert";
+  shortcut?: string;
+  search: string;
+  run: (editor: Editor, range: SlashRange) => void;
+};
+
+type SlashMenuState = {
+  from: number;
+  to: number;
+  query: string;
+  top: number;
+  left: number;
+  selectedIndex: number;
+};
+
+function formatMarkdown(markdown: string) {
+  return markdown
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\n{2,}$/g, "\n");
+}
+
+type EmbedComposerState = {
+  mode: "choice" | "input";
+  url: string;
+  top: number;
+  left: number;
+  range?: SlashRange;
+};
+
+const CODE_LANGUAGE_OPTIONS = [
+  { value: "bash", label: "Bash" },
+  { value: "csharp", label: "C#" },
+  { value: "cpp", label: "C++" },
+  { value: "css", label: "CSS" },
+  { value: "clojure", label: "Clojure" },
+  { value: "cypher", label: "Cypher" },
+  { value: "dart", label: "Dart" },
+  { value: "diff", label: "Diff" },
+  { value: "elixir", label: "Elixir" },
+  { value: "excel", label: "Excel" },
+  { value: "go", label: "Golang" },
+  { value: "graphql", label: "GraphQL" },
+  { value: "html", label: "HTML" },
+  { value: "haskell", label: "Haskell" },
+  { value: "json", label: "JSON" },
+  { value: "java", label: "Java" },
+  { value: "javascript", label: "JavaScript" },
+  { value: "kotlin", label: "Kotlin" },
+  { value: "makefile", label: "Makefile" },
+  { value: "markdown", label: "Markdown" },
+  { value: "ocaml", label: "OCaml" },
+  { value: "php", label: "PHP" },
+  { value: "perl", label: "Perl" },
+  { value: "plaintext", label: "Plaintext" },
+  { value: "python", label: "Python" },
+  { value: "r", label: "R" },
+  { value: "reasonml", label: "ReasonML" },
+  { value: "ruby", label: "Ruby" },
+  { value: "rust", label: "Rust" },
+  { value: "sql", label: "SQL" },
+  { value: "swift", label: "Swift" },
+  { value: "toml", label: "TOML" },
+  { value: "terraform", label: "Terraform" },
+  { value: "typescript", label: "TypeScript" },
+  { value: "xml", label: "XML" },
+  { value: "yaml", label: "YAML" },
+];
+
+const SHIKI_LANGUAGE_ALIASES: Record<string, string> = {
+  excel: "csv",
+  plaintext: "text",
+  reasonml: "ocaml",
+};
+
+const SLASH_COMMANDS: SlashCommand[] = [
+  {
+    id: "paragraph",
+    label: "Text",
+    group: "text",
+    search: "text paragraph normal",
+    run: (editor, range) => {
+      editor.chain().focus().deleteRange(range).setParagraph().run();
+    },
+  },
+  {
+    id: "heading-2",
+    label: "Heading",
+    group: "text",
+    shortcut: "Ctrl Alt 2",
+    search: "heading title h2",
+    run: (editor, range) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .toggleHeading({ level: 2 })
+        .run();
+    },
+  },
+  {
+    id: "bullet-list",
+    label: "Bulleted list",
+    group: "lists",
+    shortcut: "Ctrl Alt 8",
+    search: "list bullet unordered",
+    run: (editor, range) => {
+      editor.chain().focus().deleteRange(range).toggleBulletList().run();
+    },
+  },
+  {
+    id: "task-list",
+    label: "To-do list",
+    group: "lists",
+    search: "todo to-do checklist checkbox task list",
+    run: (editor, range) => {
+      editor.chain().focus().deleteRange(range).toggleTaskList().run();
+    },
+  },
+  {
+    id: "ordered-list",
+    label: "Numbered list",
+    group: "lists",
+    shortcut: "Ctrl Alt 9",
+    search: "list ordered numbered",
+    run: (editor, range) => {
+      editor.chain().focus().deleteRange(range).toggleOrderedList().run();
+    },
+  },
+  {
+    id: "blockquote",
+    label: "Quote",
+    group: "insert",
+    search: "quote blockquote",
+    run: (editor, range) => {
+      editor.chain().focus().deleteRange(range).toggleBlockquote().run();
+    },
+  },
+  {
+    id: "code-block",
+    label: "Code block",
+    group: "insert",
+    shortcut: "Ctrl Alt \\",
+    search: "code snippet",
+    run: (editor, range) => {
+      editor.chain().focus().deleteRange(range).toggleCodeBlock().run();
+    },
+  },
+  {
+    id: "table",
+    label: "Table",
+    group: "insert",
+    search: "table grid",
+    run: (editor, range) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertTable({ cols: 3, rows: 3 })
+        .run();
+    },
+  },
+];
+
 export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const { data: task } = useGetTask(taskId);
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
-  const { theme } = useUserPreferencesStore();
-  const isInitializedRef = useRef(false);
-  const isLoadingInitialContent = useRef(false);
+
+  const editorShellRef = useRef<HTMLDivElement | null>(null);
   const taskRef = useRef(task);
   const updateTaskRef = useRef(updateTaskDescription);
+  const activeTaskIdRef = useRef<string | null>(null);
+  const lastEditorRef = useRef<Editor | null>(null);
+  const hasHydratedRef = useRef(false);
+  const isSyncingExternalContentRef = useRef(false);
+  const latestSyncedMarkdownRef = useRef("");
+  const hoveredCodeBlockElementRef = useRef<HTMLElement | null>(null);
+  const [hoveredCodeBlock, setHoveredCodeBlock] =
+    useState<HoveredCodeBlock | null>(null);
+  const [isCodeLanguageMenuOpen, setIsCodeLanguageMenuOpen] = useState(false);
+  const codeCopyResetTimeoutRef = useRef<number | null>(null);
+  const [isCodeCopied, setIsCodeCopied] = useState(false);
+  const [shikiHighlighter, setShikiHighlighter] = useState<Highlighter | null>(
+    null,
+  );
+  const shikiHighlighterRef = useRef<Highlighter | null>(null);
+  const [slashMenu, setSlashMenu] = useState<SlashMenuState | null>(null);
+  const [embedComposer, setEmbedComposer] = useState<EmbedComposerState | null>(
+    null,
+  );
+  const [embedComposerError, setEmbedComposerError] = useState("");
+  const slashMenuRef = useRef<SlashMenuState | null>(null);
 
   useEffect(() => {
     taskRef.current = task;
     updateTaskRef.current = updateTaskDescription;
   }, [task, updateTaskDescription]);
 
-  const form = useForm<{
-    description: string;
-  }>({
-    values: {
-      description: task?.description || "",
-    },
-  });
+  const shikiSupportedLanguages = useMemo(
+    () => new Set([...Object.keys(bundledLanguages), "text"]),
+    [],
+  );
+  const toShikiLanguage = useCallback(
+    (language: string) => SHIKI_LANGUAGE_ALIASES[language] || language,
+    [],
+  );
+  const codeLanguages = useMemo(
+    () =>
+      CODE_LANGUAGE_OPTIONS.filter(({ value }) =>
+        shikiSupportedLanguages.has(toShikiLanguage(value)),
+      ),
+    [shikiSupportedLanguages, toShikiLanguage],
+  );
+  const getOverlayPosition = useCallback(
+    (editorView: Editor["view"], pos: number) => {
+      const coords = editorView.coordsAtPos(pos);
+      const shellRect = editorShellRef.current?.getBoundingClientRect();
 
-  const editor = useCreateBlockNote({
-    initialContent: [
-      {
-        type: "paragraph",
-        content: "",
-      },
-    ],
-  });
+      if (!shellRect) {
+        return { top: coords.bottom + 8, left: coords.left };
+      }
+
+      return {
+        top: coords.bottom - shellRect.top + 8,
+        left: coords.left - shellRect.left,
+      };
+    },
+    [],
+  );
 
   useEffect(() => {
-    if (task?.description?.trim() && !isInitializedRef.current) {
-      const loadMarkdown = async () => {
-        isLoadingInitialContent.current = true;
-        try {
-          const blocks = await editor.tryParseMarkdownToBlocks(
-            task.description || "",
-          );
-          editor.replaceBlocks(editor.document, blocks);
-          setTimeout(() => {
-            isInitializedRef.current = true;
-            isLoadingInitialContent.current = false;
-          }, 100);
-        } catch {
-          const blocks = await editor.tryParseMarkdownToBlocks("");
-          editor.replaceBlocks(editor.document, blocks);
-          setTimeout(() => {
-            isInitializedRef.current = true;
-            isLoadingInitialContent.current = false;
-          }, 100);
+    let isDisposed = false;
+
+    void getSharedShikiHighlighter()
+      .then((nextHighlighter) => {
+        shikiHighlighterRef.current = nextHighlighter;
+        if (!isDisposed) {
+          setShikiHighlighter(nextHighlighter);
         }
-      };
-      loadMarkdown();
-    } else if (!task?.description?.trim() && !isInitializedRef.current) {
-      const clearEditor = async () => {
-        isLoadingInitialContent.current = true;
-        const blocks = await editor.tryParseMarkdownToBlocks("");
-        editor.replaceBlocks(editor.document, blocks);
-        setTimeout(() => {
-          isInitializedRef.current = true;
-          isLoadingInitialContent.current = false;
-        }, 100);
-      };
-      clearEditor();
-    }
-  }, [task?.description, editor]);
+      })
+      .catch((error) => {
+        console.error("Failed to initialize Shiki highlighter:", error);
+      });
+
+    return () => {
+      isDisposed = true;
+    };
+  }, []);
 
   const debouncedUpdate = useCallback(
     debounce(async (markdown: string) => {
-      if (!isInitializedRef.current) return;
-
       const currentTask = taskRef.current;
       const updateTaskFn = updateTaskRef.current;
-
       if (!currentTask || !updateTaskFn) return;
 
       try {
@@ -130,244 +342,1045 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       } catch (error) {
         console.error("Failed to update description:", error);
       }
-    }, 800),
+    }, 700),
     [],
   );
 
-  const handleEditorChange = useCallback(async () => {
-    if (!isInitializedRef.current || isLoadingInitialContent.current) {
+  const editor = useEditor(
+    {
+      immediatelyRender: false,
+      extensions: [
+        StarterKit.configure({
+          codeBlock: {
+            HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
+          },
+          trailingNode: false,
+          heading: { levels: [1, 2, 3] },
+          link: {
+            autolink: true,
+            defaultProtocol: "https",
+            openOnClick: false,
+          },
+        }),
+        Markdown.configure({
+          markedOptions: {
+            breaks: true,
+            gfm: true,
+          },
+        }),
+        ShikiCodeBlock.configure({
+          highlighter: () => shikiHighlighterRef.current,
+          resolveLanguage: toShikiLanguage,
+          themeDark: "github-dark",
+          themeLight: "github-light",
+        }),
+        EmbedBlock,
+        KaneoIssueLink,
+        TaskList,
+        TaskItemWithCheckbox.configure({
+          nested: true,
+        }),
+        Placeholder.configure({
+          placeholder: "Write a description…",
+        }),
+        Table.configure({
+          resizable: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
+      ],
+      editorProps: {
+        attributes: {
+          class: "kaneo-tiptap-prose",
+        },
+        handlePaste: (view, event) => {
+          const plainText = event.clipboardData?.getData("text/plain") || "";
+          const taskListNodes = parseTaskListMarkdownToNodes(plainText);
+          if (taskListNodes) {
+            event.preventDefault();
+            const nodes = taskListNodes.map((node) =>
+              view.state.schema.nodeFromJSON(node),
+            );
+            const fragment = Fragment.fromArray(nodes);
+            view.dispatch(
+              view.state.tr
+                .replaceSelection(new Slice(fragment, 0, 0))
+                .scrollIntoView(),
+            );
+            return true;
+          }
+
+          const pastedText = plainText.trim();
+          if (!pastedText || /\s/.test(pastedText)) return false;
+
+          const url = normalizeUrl(pastedText);
+          if (!url) return false;
+
+          const issueKey = extractIssueKeyFromUrl(url);
+          const taskIdFromUrl = extractTaskIdFromUrl(url);
+          if (issueKey || taskIdFromUrl) {
+            event.preventDefault();
+            view.dispatch(
+              view.state.tr.replaceSelectionWith(
+                view.state.schema.nodes.kaneoIssueLink.create({
+                  url,
+                  issueKey: issueKey || "",
+                  taskId: taskIdFromUrl || "",
+                }),
+              ),
+            );
+            return true;
+          }
+
+          if (!isYouTubeUrl(url)) return false;
+
+          event.preventDefault();
+          const coords = getOverlayPosition(view, view.state.selection.from);
+
+          setEmbedComposer({
+            mode: "choice",
+            url,
+            top: coords.top,
+            left: coords.left,
+          });
+          setEmbedComposerError("");
+          return true;
+        },
+        handleKeyDown: (view, event) => {
+          if (
+            !(
+              (event.metaKey || event.ctrlKey) &&
+              event.key.toLowerCase() === "a"
+            )
+          ) {
+            return false;
+          }
+
+          const { state } = view;
+          const { $from } = state.selection;
+          if ($from.parent.type.name !== "codeBlock") {
+            return false;
+          }
+
+          event.preventDefault();
+          view.dispatch(
+            state.tr.setSelection(
+              TextSelection.create(state.doc, $from.start(), $from.end()),
+            ),
+          );
+          return true;
+        },
+      },
+      onUpdate: ({ editor: activeEditor }) => {
+        if (isSyncingExternalContentRef.current) return;
+        const markdown = formatMarkdown(activeEditor.getMarkdown());
+        if (markdown === latestSyncedMarkdownRef.current) return;
+        latestSyncedMarkdownRef.current = markdown;
+        debouncedUpdate(markdown);
+      },
+    },
+    [getOverlayPosition, toShikiLanguage],
+  );
+
+  useEffect(() => {
+    if (!editor || !shikiHighlighter) return;
+    editor.view.dispatch(
+      editor.state.tr.setMeta(SHIKI_CODEBLOCK_REFRESH_META, true),
+    );
+  }, [editor, shikiHighlighter]);
+
+  useEffect(() => {
+    if (!editor || typeof document === "undefined") return;
+
+    const root = document.documentElement;
+    const refreshShikiTheme = () => {
+      editor.view.dispatch(
+        editor.state.tr.setMeta(SHIKI_CODEBLOCK_REFRESH_META, true),
+      );
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.attributeName === "class") {
+          refreshShikiTheme();
+          break;
+        }
+      }
+    });
+
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      observer.disconnect();
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    slashMenuRef.current = slashMenu;
+  }, [slashMenu]);
+
+  const setLink = useCallback(
+    (prefilledUrl?: string) => {
+      if (!editor) return;
+      const previousUrl = editor.getAttributes("link").href as
+        | string
+        | undefined;
+      const url = window.prompt("Enter URL", prefilledUrl || previousUrl || "");
+      if (url === null) return;
+      if (url.trim() === "") {
+        editor.chain().focus().extendMarkRange("link").unsetLink().run();
+        return;
+      }
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: url })
+        .run();
+    },
+    [editor],
+  );
+
+  const filteredSlashCommands = useMemo(() => {
+    const query = slashMenu?.query.trim().toLowerCase() || "";
+    if (!query) return SLASH_COMMANDS;
+    return SLASH_COMMANDS.filter(
+      (command) =>
+        command.label.toLowerCase().includes(query) ||
+        command.search.includes(query),
+    );
+  }, [slashMenu?.query]);
+
+  const filteredSlashCommandsRef = useRef<SlashCommand[]>(
+    filteredSlashCommands,
+  );
+  useEffect(() => {
+    filteredSlashCommandsRef.current = filteredSlashCommands;
+  }, [filteredSlashCommands]);
+
+  const groupedSlashCommands = useMemo(
+    () => [
+      {
+        title: "Text",
+        items: filteredSlashCommands.filter(
+          (command) => command.group === "text",
+        ),
+      },
+      {
+        title: "Lists",
+        items: filteredSlashCommands.filter(
+          (command) => command.group === "lists",
+        ),
+      },
+      {
+        title: "Insert",
+        items: filteredSlashCommands.filter(
+          (command) => command.group === "insert",
+        ),
+      },
+    ],
+    [filteredSlashCommands],
+  );
+
+  const runSlashCommand = useCallback(
+    (command: SlashCommand) => {
+      if (!editor || !slashMenuRef.current) return;
+      command.run(editor, {
+        from: slashMenuRef.current.from,
+        to: slashMenuRef.current.to,
+      });
+      setSlashMenu(null);
+    },
+    [editor],
+  );
+
+  const syncSlashMenu = useCallback(
+    (activeEditor: Editor) => {
+      const { state, view } = activeEditor;
+      if (!state.selection.empty) {
+        setSlashMenu(null);
+        return;
+      }
+
+      const { $from } = state.selection;
+      if ($from.parent.type.name === "codeBlock") {
+        setSlashMenu(null);
+        return;
+      }
+
+      const textBeforeCursor = state.doc.textBetween(
+        $from.start(),
+        $from.pos,
+        "\n",
+        "\0",
+      );
+      const match = /(?:^|\s)\/([^\s/]*)$/.exec(textBeforeCursor);
+      if (!match) {
+        setSlashMenu(null);
+        return;
+      }
+
+      const query = match[1] || "";
+      const from = $from.pos - query.length - 1;
+      const to = $from.pos;
+      const coords = getOverlayPosition(view, $from.pos);
+
+      setSlashMenu((current) => {
+        const isSameQuery =
+          current?.from === from &&
+          current?.to === to &&
+          current?.query === query;
+        return {
+          from,
+          to,
+          query,
+          top: coords.top - 2,
+          left: coords.left,
+          selectedIndex: isSameQuery ? current.selectedIndex : 0,
+        };
+      });
+    },
+    [getOverlayPosition],
+  );
+
+  useEffect(() => {
+    if (!editor) return;
+    if (lastEditorRef.current !== editor) {
+      hasHydratedRef.current = false;
+      lastEditorRef.current = editor;
+    }
+
+    const isTaskChanged = activeTaskIdRef.current !== taskId;
+    if (isTaskChanged) {
+      activeTaskIdRef.current = taskId;
+      hasHydratedRef.current = false;
+      latestSyncedMarkdownRef.current = "";
+    }
+
+    const incomingMarkdown = formatMarkdown(task?.description || "");
+    if (!hasHydratedRef.current) {
+      isSyncingExternalContentRef.current = true;
+      latestSyncedMarkdownRef.current = incomingMarkdown;
+      editor.commands.setContent(incomingMarkdown, {
+        emitUpdate: false,
+        contentType: "markdown",
+      });
+      hasHydratedRef.current = true;
+      requestAnimationFrame(() => {
+        isSyncingExternalContentRef.current = false;
+      });
       return;
     }
 
-    try {
-      const markdown = await editor.blocksToMarkdownLossy(editor.document);
-      form.setValue("description", markdown);
-      debouncedUpdate(markdown);
-    } catch (error) {
-      console.error("Failed to convert blocks to markdown:", error);
+    if (editor.isFocused) return;
+    if (incomingMarkdown === latestSyncedMarkdownRef.current) return;
+
+    isSyncingExternalContentRef.current = true;
+    latestSyncedMarkdownRef.current = incomingMarkdown;
+    editor.commands.setContent(incomingMarkdown, {
+      emitUpdate: false,
+      contentType: "markdown",
+    });
+    requestAnimationFrame(() => {
+      isSyncingExternalContentRef.current = false;
+    });
+  }, [editor, taskId, task?.description]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    syncSlashMenu(editor);
+    const onSelection = () => syncSlashMenu(editor);
+    const onUpdate = () => syncSlashMenu(editor);
+
+    editor.on("selectionUpdate", onSelection);
+    editor.on("update", onUpdate);
+
+    return () => {
+      editor.off("selectionUpdate", onSelection);
+      editor.off("update", onUpdate);
+    };
+  }, [editor, syncSlashMenu]);
+
+  const submitEmbedComposer = useCallback(
+    (mode: "embed" | "link") => {
+      if (!editor || !embedComposer) return;
+      const url = normalizeUrl(embedComposer.url);
+      if (!url) {
+        setEmbedComposerError("Enter a valid URL");
+        return;
+      }
+
+      const chain = editor.chain().focus();
+      if (embedComposer.range) {
+        chain.deleteRange(embedComposer.range);
+      }
+
+      if (mode === "link") {
+        chain.insertContent(url).run();
+      } else {
+        if (!isYouTubeUrl(url)) {
+          setEmbedComposerError("Only YouTube links can be embedded.");
+          return;
+        }
+        chain
+          .insertContent({
+            type: "embedBlock",
+            attrs: {
+              url,
+              mode: "embed",
+            },
+          })
+          .run();
+      }
+
+      setEmbedComposer(null);
+      setEmbedComposerError("");
+    },
+    [editor, embedComposer],
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (embedComposer) {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          submitEmbedComposer("embed");
+          return;
+        }
+        if (event.key === "Enter") {
+          event.preventDefault();
+          submitEmbedComposer("link");
+          return;
+        }
+        if (event.key === "Escape") {
+          event.preventDefault();
+          if (embedComposer.mode === "choice") {
+            submitEmbedComposer("link");
+          } else {
+            setEmbedComposer(null);
+            setEmbedComposerError("");
+          }
+        }
+        return;
+      }
+
+      const current = slashMenuRef.current;
+      if (!editor || !current || !editor.isFocused) return;
+
+      const commands = filteredSlashCommandsRef.current;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setSlashMenu(null);
+        return;
+      }
+
+      if (!commands.length) return;
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        setSlashMenu((value) =>
+          value
+            ? {
+                ...value,
+                selectedIndex: (value.selectedIndex + 1) % commands.length,
+              }
+            : value,
+        );
+        return;
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        setSlashMenu((value) =>
+          value
+            ? {
+                ...value,
+                selectedIndex:
+                  (value.selectedIndex - 1 + commands.length) % commands.length,
+              }
+            : value,
+        );
+        return;
+      }
+
+      if (event.key === "Enter" || event.key === "Tab") {
+        event.preventDefault();
+        const command = commands[current.selectedIndex] || commands[0];
+        if (!command) return;
+        runSlashCommand(command);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [editor, embedComposer, runSlashCommand, submitEmbedComposer]);
+
+  useEffect(() => {
+    if (!slashMenu) return;
+    if (filteredSlashCommands.length === 0) return;
+    if (slashMenu.selectedIndex < filteredSlashCommands.length) return;
+    setSlashMenu((value) => (value ? { ...value, selectedIndex: 0 } : value));
+  }, [filteredSlashCommands, slashMenu]);
+
+  const setCodeLanguage = (language: string | null) => {
+    if (!editor || !hoveredCodeBlock) return;
+    const { nodePos } = hoveredCodeBlock;
+    const resolvedLanguage = language || "auto";
+
+    if (resolvedLanguage === "auto") {
+      editor
+        .chain()
+        .focus()
+        .setNodeSelection(nodePos)
+        .updateAttributes("codeBlock", { language: "" })
+        .run();
+      setHoveredCodeBlock((current) =>
+        current ? { ...current, language: "auto" } : current,
+      );
+      return;
     }
-  }, [editor, form, debouncedUpdate]);
+
+    editor
+      .chain()
+      .focus()
+      .setNodeSelection(nodePos)
+      .updateAttributes("codeBlock", { language: resolvedLanguage })
+      .run();
+    setHoveredCodeBlock((current) =>
+      current ? { ...current, language: resolvedLanguage } : current,
+    );
+  };
+
+  const resolveCodeBlockNodeData = useCallback(
+    (pos: number) => {
+      if (!editor) return null;
+      const resolvedPos = editor.state.doc.resolve(
+        Math.max(0, Math.min(pos, editor.state.doc.content.size)),
+      );
+
+      for (let depth = resolvedPos.depth; depth > 0; depth -= 1) {
+        const node = resolvedPos.node(depth);
+        if (node.type.name !== "codeBlock") continue;
+        return {
+          language: (node.attrs.language as string | undefined) || "auto",
+          nodePos: resolvedPos.before(depth),
+        };
+      }
+
+      return null;
+    },
+    [editor],
+  );
+
+  const updateHoveredCodeBlockFromElement = useCallback(
+    (codeBlockElement: HTMLElement | null) => {
+      if (!editor || !codeBlockElement) {
+        if (!isCodeLanguageMenuOpen) {
+          hoveredCodeBlockElementRef.current = null;
+          setHoveredCodeBlock(null);
+        }
+        return;
+      }
+
+      const domPos = editor.view.posAtDOM(codeBlockElement, 0);
+      const nodeData = resolveCodeBlockNodeData(domPos);
+      if (!nodeData) return;
+
+      const rect = codeBlockElement.getBoundingClientRect();
+      const shellRect = editorShellRef.current?.getBoundingClientRect();
+      hoveredCodeBlockElementRef.current = codeBlockElement;
+      setHoveredCodeBlock((current) => {
+        if (current?.nodePos !== nodeData.nodePos) {
+          setIsCodeCopied(false);
+        }
+
+        return {
+          language: nodeData.language,
+          nodePos: nodeData.nodePos,
+          top: shellRect ? rect.top - shellRect.top + 8 : rect.top + 8,
+          left: shellRect ? rect.right - shellRect.left - 10 : rect.right - 10,
+        };
+      });
+    },
+    [editor, isCodeLanguageMenuOpen, resolveCodeBlockNodeData],
+  );
+
+  const activeCodeLanguageLabel =
+    codeLanguages.find(
+      (language) => language.value === hoveredCodeBlock?.language,
+    )?.label || "Auto detect";
+
+  useEffect(() => {
+    return () => {
+      if (codeCopyResetTimeoutRef.current !== null) {
+        window.clearTimeout(codeCopyResetTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const copyHoveredCodeBlock = useCallback(async () => {
+    if (!editor || !hoveredCodeBlock) return;
+    const node = editor.state.doc.nodeAt(hoveredCodeBlock.nodePos);
+    if (!node || node.type.name !== "codeBlock") return;
+
+    const content = node.textContent || "";
+    if (!content) return;
+
+    try {
+      await navigator.clipboard.writeText(content);
+      setIsCodeCopied(true);
+      if (codeCopyResetTimeoutRef.current !== null) {
+        window.clearTimeout(codeCopyResetTimeoutRef.current);
+      }
+      codeCopyResetTimeoutRef.current = window.setTimeout(() => {
+        setIsCodeCopied(false);
+        codeCopyResetTimeoutRef.current = null;
+      }, 1400);
+    } catch (_error) {
+      // ignore clipboard write failures
+    }
+  }, [editor, hoveredCodeBlock]);
+
+  useEffect(() => {
+    if (!hoveredCodeBlockElementRef.current || !hoveredCodeBlock) return;
+    const syncPosition = () => {
+      updateHoveredCodeBlockFromElement(hoveredCodeBlockElementRef.current);
+    };
+
+    window.addEventListener("scroll", syncPosition, true);
+    window.addEventListener("resize", syncPosition);
+    return () => {
+      window.removeEventListener("scroll", syncPosition, true);
+      window.removeEventListener("resize", syncPosition);
+    };
+  }, [hoveredCodeBlock, updateHoveredCodeBlockFromElement]);
+
+  const handleEditorMouseMove = useCallback(
+    (event: ReactMouseEvent<HTMLElement>) => {
+      const target = event.target as HTMLElement;
+      if (target.closest(".kaneo-codeblock-language")) return;
+      const hovered = target.closest(
+        "pre.kaneo-tiptap-codeblock",
+      ) as HTMLElement | null;
+
+      if (!hovered) {
+        if (!isCodeLanguageMenuOpen) {
+          hoveredCodeBlockElementRef.current = null;
+          setHoveredCodeBlock(null);
+        }
+        return;
+      }
+
+      updateHoveredCodeBlockFromElement(hovered);
+    },
+    [isCodeLanguageMenuOpen, updateHoveredCodeBlockFromElement],
+  );
+
+  const handleEditorMouseLeave = useCallback(
+    (event: ReactMouseEvent<HTMLElement>) => {
+      const relatedTarget = event.relatedTarget as HTMLElement | null;
+      if (relatedTarget?.closest(".kaneo-codeblock-language")) return;
+      if (isCodeLanguageMenuOpen) return;
+      hoveredCodeBlockElementRef.current = null;
+      setHoveredCodeBlock(null);
+    },
+    [isCodeLanguageMenuOpen],
+  );
 
   return (
-    <Form {...form}>
-      <FormField
-        control={form.control}
-        name="description"
-        render={() => (
-          <FormControl>
-            <div className="blocknote-transparent">
-              <BlockNoteView
-                editor={editor}
-                className="min-h-[200px] [&>div:first-of-type]:!pl-0 [&>div:first-of-type]:!bg-transparent"
-                data-placeholder="Add a description..."
-                formattingToolbar={false}
-                linkToolbar={false}
-                filePanel={false}
-                sideMenu={false}
-                slashMenu={false}
-                tableHandles={false}
-                theme={theme as "dark" | "light"}
-                onChange={handleEditorChange}
+    <div ref={editorShellRef} className="kaneo-tiptap-shell group">
+      {editor && hoveredCodeBlock && (
+        <div
+          className="kaneo-codeblock-language"
+          style={{
+            top: hoveredCodeBlock.top,
+            left: hoveredCodeBlock.left,
+            position: "absolute",
+          }}
+        >
+          <button
+            type="button"
+            className="kaneo-codeblock-language-trigger kaneo-codeblock-copy-trigger"
+            aria-label={isCodeCopied ? "Copied" : "Copy code"}
+            onMouseDown={(event) => {
+              event.preventDefault();
+            }}
+            onClick={() => {
+              void copyHoveredCodeBlock();
+            }}
+          >
+            {isCodeCopied ? (
+              <Check className="size-3.5" />
+            ) : (
+              <Copy className="size-3.5" />
+            )}
+            <span>{isCodeCopied ? "Copied" : "Copy"}</span>
+          </button>
+          <DropdownMenu
+            open={isCodeLanguageMenuOpen}
+            onOpenChange={setIsCodeLanguageMenuOpen}
+          >
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="kaneo-codeblock-language-trigger"
               >
-                <FormattingToolbarController
-                  formattingToolbar={() => (
-                    <TooltipProvider>
-                      <div className="bg-sidebar flex items-center gap-0.5 px-1.5 py-1 rounded-md border border-border shadow-sm">
-                        <div className="[&_button]:h-6 [&_button]:px-2 [&_button]:text-xs [&_svg]:size-3">
-                          <BlockTypeSelect
-                            items={[
-                              {
-                                name: "Paragraph",
-                                type: "paragraph",
-                                icon: Type,
-                                props: {},
-                              } satisfies BlockTypeSelectItem,
-                              {
-                                name: "Heading 1",
-                                type: "heading",
-                                icon: Heading1,
-                                props: {
-                                  level: 1,
-                                },
-                              } satisfies BlockTypeSelectItem,
-                              {
-                                name: "Heading 2",
-                                type: "heading",
-                                icon: Heading2,
-                                props: {
-                                  level: 2,
-                                },
-                              } satisfies BlockTypeSelectItem,
-                              {
-                                name: "Heading 3",
-                                type: "heading",
-                                icon: Heading3,
-                                props: {
-                                  level: 3,
-                                },
-                              } satisfies BlockTypeSelectItem,
-                              {
-                                name: "Bullet List",
-                                type: "bulletListItem",
-                                icon: List,
-                                props: {},
-                              } satisfies BlockTypeSelectItem,
-                              {
-                                name: "Numbered List",
-                                type: "numberedListItem",
-                                icon: ListOrdered,
-                                props: {},
-                              } satisfies BlockTypeSelectItem,
-                            ]}
-                            key={"blockTypeSelect"}
-                          />
-                        </div>
+                <span className="truncate">{activeCodeLanguageLabel}</span>
+                <ChevronDown className="size-3.5 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              side="bottom"
+              sideOffset={6}
+              className="max-h-72 w-48 overflow-y-auto"
+            >
+              <DropdownMenuRadioGroup
+                value={hoveredCodeBlock.language}
+                onValueChange={setCodeLanguage}
+              >
+                <DropdownMenuRadioItem value="auto">
+                  Auto detect
+                </DropdownMenuRadioItem>
+                <DropdownMenuSeparator />
+                {codeLanguages.map(({ value, label }) => (
+                  <DropdownMenuRadioItem key={value} value={value}>
+                    {label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
 
-                        <div className="w-px h-4 bg-border mx-0.5" />
+      {editor && (
+        <BubbleMenu editor={editor} className="kaneo-tiptap-bubble">
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("heading", { level: 2 }) &&
+                "bg-accent text-accent-foreground",
+            )}
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+            }
+          >
+            <Heading2 className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("bulletList") &&
+                "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+          >
+            <List className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("taskList") && "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleTaskList().run()}
+          >
+            <ListTodo className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("orderedList") &&
+                "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          >
+            <ListOrdered className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("blockquote") &&
+                "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          >
+            <Quote className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("codeBlock") &&
+                "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          >
+            <Braces className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-tiptap-bubble-btn"
+            onClick={() =>
+              editor.chain().focus().insertTable({ cols: 3, rows: 3 }).run()
+            }
+          >
+            <Table2 className="size-3.5" />
+          </Button>
+          <span className="kaneo-tiptap-bubble-separator" />
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("bold") && "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleBold().run()}
+          >
+            <Bold className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("italic") && "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+          >
+            <Italic className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("underline") &&
+                "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+          >
+            <UnderlineIcon className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("strike") && "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+          >
+            <Strikethrough className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("code") && "bg-accent text-accent-foreground",
+            )}
+            onClick={() => editor.chain().focus().toggleCode().run()}
+          >
+            <Code className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-tiptap-bubble-btn",
+              editor.isActive("link") && "bg-accent text-accent-foreground",
+            )}
+            onClick={() => setLink()}
+          >
+            <Link2 className="size-3.5" />
+          </Button>
+        </BubbleMenu>
+      )}
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="xs"
-                              onClick={() =>
-                                editor.toggleStyles({ bold: true })
-                              }
-                              className={cn(
-                                "h-6 w-6 p-0",
-                                editor.getActiveStyles().bold &&
-                                  "bg-accent text-accent-foreground",
-                              )}
-                            >
-                              <Bold className="size-3" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <KbdSequence
-                              keys={[getModifierKeyText(), "B"]}
-                              description="Bold"
-                            />
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="xs"
-                              onClick={() =>
-                                editor.toggleStyles({ italic: true })
-                              }
-                              className={cn(
-                                "h-6 w-6 p-0",
-                                editor.getActiveStyles().italic &&
-                                  "bg-accent text-accent-foreground",
-                              )}
-                            >
-                              <Italic className="size-3" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <KbdSequence
-                              keys={[getModifierKeyText(), "I"]}
-                              description="Italic"
-                            />
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="xs"
-                              onClick={() =>
-                                editor.toggleStyles({ underline: true })
-                              }
-                              className={cn(
-                                "h-6 w-6 p-0",
-                                editor.getActiveStyles().underline &&
-                                  "bg-accent text-accent-foreground",
-                              )}
-                            >
-                              <Underline className="size-3" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <KbdSequence
-                              keys={[getModifierKeyText(), "U"]}
-                              description="Underline"
-                            />
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="xs"
-                              onClick={() =>
-                                editor.toggleStyles({ code: true })
-                              }
-                              className={cn(
-                                "h-6 w-6 p-0",
-                                editor.getActiveStyles().code &&
-                                  "bg-accent text-accent-foreground",
-                              )}
-                            >
-                              <Code className="size-3" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <KbdSequence
-                              keys={[getModifierKeyText(), "E"]}
-                              description="Code"
-                            />
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="xs"
-                              onClick={() =>
-                                editor.toggleStyles({ strike: true })
-                              }
-                              className={cn(
-                                "h-6 w-6 p-0",
-                                editor.getActiveStyles().strike &&
-                                  "bg-accent text-accent-foreground",
-                              )}
-                            >
-                              <Strikethrough className="size-3" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <KbdSequence
-                              keys={[getModifierKeyText(), "Shift", "X"]}
-                              description="Strikethrough"
-                            />
-                          </TooltipContent>
-                        </Tooltip>
+      {editor && slashMenu && (
+        <div
+          className="kaneo-tiptap-slash-menu"
+          style={{
+            top: slashMenu.top,
+            left: slashMenu.left,
+            position: "absolute",
+          }}
+        >
+          {filteredSlashCommands.length > 0 ? (
+            groupedSlashCommands.map((group) => {
+              if (!group.items.length) return null;
+              return (
+                <div key={group.title} className="kaneo-tiptap-slash-group">
+                  <div className="kaneo-tiptap-slash-group-title">
+                    {group.title}
+                  </div>
+                  {group.items.map((command) => {
+                    const index = filteredSlashCommands.findIndex(
+                      (candidate) => candidate.id === command.id,
+                    );
+                    return (
+                      <button
+                        key={command.id}
+                        type="button"
+                        className={cn(
+                          "kaneo-tiptap-slash-item",
+                          slashMenu.selectedIndex === index && "is-selected",
+                        )}
+                        onMouseEnter={() =>
+                          setSlashMenu((current) =>
+                            current
+                              ? { ...current, selectedIndex: index }
+                              : current,
+                          )
+                        }
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          runSlashCommand(command);
+                        }}
+                      >
+                        <span className="kaneo-tiptap-slash-label">
+                          {command.label}
+                        </span>
+                        {command.shortcut && (
+                          <span className="kaneo-tiptap-slash-shortcut">
+                            {command.shortcut}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })
+          ) : (
+            <div className="kaneo-tiptap-slash-empty">No commands</div>
+          )}
+        </div>
+      )}
 
-                        <div className="w-px h-4 bg-border mx-0.5" />
-
-                        <CreateLinkButton key={"createLinkButton"} />
-                      </div>
-                    </TooltipProvider>
-                  )}
-                />
-                <SuggestionMenuController
-                  triggerCharacter={"/"}
-                  suggestionMenuComponent={CustomSlashMenu}
-                  getItems={async (query) =>
-                    getDefaultReactSlashMenuItems(editor).filter(
-                      (item) => item.group !== "Media",
-                      query,
-                    )
-                  }
-                />
-              </BlockNoteView>
+      {editor && embedComposer && (
+        <div
+          className="kaneo-embed-composer"
+          style={{
+            top: embedComposer.top,
+            left: embedComposer.left,
+            position: "absolute",
+          }}
+        >
+          {embedComposer.mode === "choice" ? (
+            <div className="kaneo-embed-choice-menu">
+              <button
+                type="button"
+                className="kaneo-embed-choice-item is-primary"
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  submitEmbedComposer("embed");
+                }}
+              >
+                <span>Embed video</span>
+                <span className="kaneo-embed-choice-hint">Tab</span>
+              </button>
+              <button
+                type="button"
+                className="kaneo-embed-choice-item"
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  submitEmbedComposer("link");
+                }}
+              >
+                <span>Keep as link</span>
+                <span className="kaneo-embed-choice-hint">Esc</span>
+              </button>
             </div>
-          </FormControl>
-        )}
+          ) : (
+            <form
+              className="kaneo-embed-composer-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                submitEmbedComposer("embed");
+              }}
+            >
+              <Input
+                size="sm"
+                value={embedComposer.url}
+                onChange={(event) => {
+                  setEmbedComposer((current) =>
+                    current ? { ...current, url: event.target.value } : current,
+                  );
+                  if (embedComposerError) setEmbedComposerError("");
+                }}
+                placeholder="Paste URL"
+                autoFocus
+              />
+              <div className="kaneo-embed-composer-actions">
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => submitEmbedComposer("link")}
+                >
+                  As link
+                </Button>
+                <Button type="submit" size="xs">
+                  Embed
+                </Button>
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => {
+                    setEmbedComposer(null);
+                    setEmbedComposerError("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+              {embedComposerError && (
+                <p className="kaneo-embed-composer-error">
+                  {embedComposerError}
+                </p>
+              )}
+            </form>
+          )}
+        </div>
+      )}
+
+      <EditorContent
+        editor={editor}
+        className="kaneo-tiptap-content"
+        onMouseMove={handleEditorMouseMove}
+        onMouseLeave={handleEditorMouseLeave}
       />
-    </Form>
+    </div>
   );
 }

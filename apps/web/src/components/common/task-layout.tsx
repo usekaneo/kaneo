@@ -1,14 +1,8 @@
+import { useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import TaskCrumbSelect from "@/components/common/header/task-crumb-select";
 import Layout from "@/components/common/layout";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { KbdSequence } from "@/components/ui/kbd";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -19,7 +13,6 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
 type TaskLayoutProps = {
   taskId: string;
@@ -38,20 +31,31 @@ export default function TaskLayout({
   children,
   rightSidebar,
 }: TaskLayoutProps) {
-  const { data: workspace } = useActiveWorkspace();
+  const navigate = useNavigate();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: task } = useGetTask(taskId);
+  const taskLabel =
+    project?.slug && task?.number != null
+      ? `${project.slug}-${task.number}`
+      : "Select task";
+
+  const handleTaskSwitch = (nextTaskId: string) => {
+    navigate({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+      params: { workspaceId, projectId, taskId: nextTaskId },
+    });
+  };
 
   return (
     <Layout className="flex flex-col lg:flex-row">
-      <div className="flex-1 flex flex-col min-w-0">
-        <Layout.Header className="sticky top-0 z-10">
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-1 w-full min-w-0">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <Layout.Header className="h-11 border-border/80 px-2">
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <SidebarTrigger className="-ml-1 h-6 w-6 cursor-pointer text-muted-foreground shrink-0" />
+                    <SidebarTrigger className="-ml-1 h-7 w-7 cursor-pointer text-foreground/85 hover:text-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="flex items-center gap-2 text-[10px]">
@@ -66,53 +70,52 @@ export default function TaskLayout({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <Separator
-                orientation="vertical"
-                className="mx-1.5 data-[orientation=vertical]:h-2.5 shrink-0"
-              />
-              <Breadcrumb className="flex items-center text-xs w-full min-w-0">
-                <BreadcrumbList className="!gap-1 flex-wrap">
-                  <BreadcrumbItem className="hidden sm:inline-flex">
-                    <BreadcrumbLink
-                      href={`/dashboard/workspace/${workspaceId}`}
-                    >
-                      <span className="text-xs text-muted-foreground truncate max-w-[100px]">
-                        {workspace?.name}
-                      </span>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden sm:inline-flex" />
-                  <BreadcrumbItem className="hidden md:inline-flex">
-                    <BreadcrumbLink
-                      href={`/dashboard/workspace/${workspaceId}/project/${projectId}/board`}
-                    >
-                      <span className="text-xs text-muted-foreground truncate max-w-[100px]">
-                        {project?.name}
-                      </span>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:inline-flex" />
-                  <BreadcrumbItem>
-                    <span className="text-xs text-muted-foreground">
-                      {project?.slug}-{task?.number}
-                    </span>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+
+              <div className="h-4 w-px shrink-0 bg-border/80" />
+
+              <div className="min-w-0 items-center gap-1.5 flex">
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate({
+                      to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+                      params: { workspaceId, projectId },
+                    })
+                  }
+                  className="max-w-40 truncate text-left text-xs text-foreground hover:underline"
+                >
+                  {project?.name || "Project"}
+                </button>
+                <span className="text-foreground/70 text-xs">/</span>
+                <TaskCrumbSelect
+                  projectId={projectId}
+                  taskId={taskId}
+                  taskLabel={taskLabel}
+                  onSelectTask={handleTaskSwitch}
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
+
+            <div className="flex shrink-0 items-center gap-1.5">
               {headerActions}
             </div>
           </div>
         </Layout.Header>
+
         <Layout.Content>
-          <div className="flex flex-col lg:flex-row h-full">
-            <div className="order-2 lg:order-1 flex-1 min-w-0">{children}</div>
-            <div className="order-1 lg:order-2 lg:hidden">{rightSidebar}</div>
+          <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row">
+            <div className="order-2 min-h-0 flex-1 overflow-y-auto overscroll-contain lg:order-1">
+              {children}
+            </div>
+            <div className="order-1 border-b border-border/80 lg:order-2 lg:hidden">
+              {rightSidebar}
+            </div>
           </div>
         </Layout.Content>
       </div>
-      <div className="hidden lg:flex lg:h-full">{rightSidebar}</div>
+      <div className="hidden border-l border-border/80 bg-card lg:flex lg:h-full lg:overflow-y-auto">
+        {rightSidebar}
+      </div>
     </Layout>
   );
 }

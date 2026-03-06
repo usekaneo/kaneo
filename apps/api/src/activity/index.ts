@@ -13,6 +13,27 @@ import deleteComment from "./controllers/delete-comment";
 import getActivities from "./controllers/get-activities";
 import updateComment from "./controllers/update-comment";
 
+function toDisplayCase(value: string) {
+  return value
+    .replace(/[-_]/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function formatActivityDate(value: Date | string | null | undefined) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
 const activity = new Hono<{
   Variables: {
     userId: string;
@@ -207,7 +228,7 @@ subscribeToEvent<{
     data.taskId,
     data.type,
     data.userId,
-    `changed status from "${data.oldStatus}" to "${data.newStatus}"`,
+    `changed status from ${toDisplayCase(data.oldStatus)} to ${toDisplayCase(data.newStatus)}`,
   );
 });
 
@@ -223,7 +244,7 @@ subscribeToEvent<{
     data.taskId,
     data.type,
     data.userId,
-    `changed priority from "${data.oldPriority}" to "${data.newPriority}"`,
+    `changed priority from ${toDisplayCase(data.oldPriority)} to ${toDisplayCase(data.newPriority)}`,
   );
 });
 
@@ -250,11 +271,21 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.assignee_changed", async (data) => {
+  if (data.userId === data.newAssigneeId) {
+    await createActivity(
+      data.taskId,
+      data.type,
+      data.userId,
+      "assigned the task to themselves",
+    );
+    return;
+  }
+
   await createActivity(
     data.taskId,
     data.type,
     data.userId,
-    `assigned the task to ${data.newAssignee}`,
+    `assigned the task to [[user:${data.newAssigneeId}|${data.newAssignee}]]`,
   );
 });
 
@@ -266,9 +297,7 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.due_date_changed", async (data) => {
-  const oldDate = data.oldDueDate
-    ? new Date(data.oldDueDate).toLocaleDateString()
-    : "none";
+  const oldDate = formatActivityDate(data.oldDueDate) || "none";
 
   if (!data.newDueDate) {
     await createActivity(
@@ -280,7 +309,9 @@ subscribeToEvent<{
     return;
   }
 
-  const newDate = new Date(data.newDueDate).toLocaleDateString();
+  const newDate = formatActivityDate(data.newDueDate);
+  if (!newDate) return;
+
   await createActivity(
     data.taskId,
     data.type,

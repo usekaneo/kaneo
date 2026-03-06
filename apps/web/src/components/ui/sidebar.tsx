@@ -96,6 +96,17 @@ function SidebarProvider({
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+
+      const target = event.target as HTMLElement | null;
+      const isEditableTarget = Boolean(
+        target &&
+          (target.isContentEditable ||
+            ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+            target.closest('[contenteditable="true"]')),
+      );
+      if (isEditableTarget) return;
+
       if (
         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
         (event.metaKey || event.ctrlKey)

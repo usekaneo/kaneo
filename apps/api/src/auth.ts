@@ -242,6 +242,11 @@ export const auth = betterAuth({
     apiKey({
       enableSessionForAPIKeys: true,
       apiKeyHeaders: "x-api-key",
+      rateLimit: {
+        enabled: true,
+        maxRequests: 100,
+        timeWindow: 60 * 1000,
+      },
     }),
     openAPI(),
   ],

@@ -11,6 +11,7 @@ const Popover = PopoverPrimitive.Root;
 
 function PopoverTrigger({
   asChild = false,
+  nativeButton = true,
   className,
   children,
   render,
@@ -23,6 +24,7 @@ function PopoverTrigger({
     <PopoverPrimitive.Trigger
       className={className}
       data-slot="popover-trigger"
+      nativeButton={nativeButton}
       render={resolvedRender}
       {...props}
     >

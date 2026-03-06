@@ -222,139 +222,867 @@
 }
 
 @layer components {
-  .blocknote-transparent .bn-container {
-    --bn-font-family: var(--font-sans);
-    --bn-border-radius: var(--radius);
-    --bn-colors-menu-background: var(--popover);
-    --bn-colors-menu-text: var(--popover-foreground);
-    --bn-colors-hovered-background: var(--accent);
-    --bn-colors-hovered-text: var(--accent-foreground);
-    --bn-colors-selected-background: var(--accent);
-    --bn-colors-selected-text: var(--accent-foreground);
-    --bn-colors-border: var(--border);
-    --bn-colors-shadow: --alpha(var(--color-black) / 12%);
+  .kaneo-tiptap-shell {
+    position: relative;
   }
 
-  .blocknote-transparent .bn-editor,
-  .blocknote-transparent .ProseMirror {
-    font-family: var(--font-sans);
+  .kaneo-tiptap-shell:focus-within {
+    outline: none;
   }
 
-  .blocknote-transparent .bn-suggestion-menu {
-    min-width: 18rem;
-    max-width: 28rem;
-    max-height: min(24rem, 60vh);
-    overflow-y: auto;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--popover);
-    color: var(--popover-foreground);
-    box-shadow:
-      0 8px 24px --alpha(var(--color-black) / 10%),
-      0 1px 2px --alpha(var(--color-black) / 8%);
-    padding: 0.25rem;
-  }
-
-  .blocknote-transparent .bn-suggestion-menu-loader {
-    color: var(--muted-foreground);
-    font-size: 0.8125rem;
-    padding: 0.5rem;
-  }
-
-  .kaneo-slash-menu {
-    min-width: 17rem;
-    max-width: 22rem;
-    max-height: min(20rem, 56vh);
-    overflow-y: auto;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--popover);
-    color: var(--popover-foreground);
-    box-shadow:
-      0 8px 24px --alpha(var(--color-black) / 10%),
-      0 1px 2px --alpha(var(--color-black) / 8%);
-    padding: 0.25rem;
-  }
-
-  .kaneo-slash-menu-label {
-    color: var(--muted-foreground);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 0.375rem 0.5rem 0.25rem;
-  }
-
-  .kaneo-slash-menu-item {
-    appearance: none;
-    border: 0;
-    background: transparent;
-    width: 100%;
-    height: 2rem;
-    display: flex !important;
+  .kaneo-tiptap-bubble {
+    display: inline-flex;
     align-items: center;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    gap: 0.5rem;
-    padding: 0 0.5rem;
-    border-radius: calc(var(--radius) - 4px);
-    color: var(--popover-foreground);
-    text-align: left;
-    transition: background-color 0.12s ease;
-    cursor: pointer;
+    gap: 0.1rem;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    background: var(--popover);
+    padding: 0.2rem 0.24rem;
+    box-shadow:
+      0 8px 24px --alpha(var(--color-black) / 14%),
+      0 1px 2px --alpha(var(--color-black) / 9%);
+  }
+
+  .kaneo-tiptap-bubble-btn {
+    height: 1.6rem;
+    width: 1.6rem;
+    padding: 0;
+  }
+
+  .kaneo-tiptap-bubble-separator {
+    display: block;
+    width: 1px;
+    height: 1rem;
+    background: color-mix(in srgb, var(--border) 84%, transparent);
+    margin: 0 0.15rem;
+  }
+
+  .kaneo-codeblock-language {
+    position: fixed;
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transform: translateX(-100%);
+  }
+
+  .kaneo-codeblock-language-trigger {
+    display: inline-flex;
+    max-width: 10rem;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, var(--background) 90%, transparent);
+    padding: 0.2rem 0.5rem;
+    font-size: 0.72rem;
+    line-height: 1;
+    color: color-mix(in srgb, var(--foreground) 80%, transparent);
+    backdrop-filter: blur(8px);
+    transition:
+      border-color 0.12s ease,
+      color 0.12s ease,
+      background-color 0.12s ease;
+  }
+
+  .kaneo-codeblock-language-trigger:hover {
+    border-color: color-mix(in srgb, var(--ring) 42%, var(--border));
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--background) 96%, transparent);
+  }
+
+  .kaneo-codeblock-copy-trigger {
+    min-width: 4.6rem;
+    justify-content: center;
+  }
+
+  .kaneo-codeblock-copy-trigger > span {
     line-height: 1;
   }
 
-  .kaneo-slash-menu-item:hover,
-  .kaneo-slash-menu-item.is-selected {
+  .kaneo-tiptap-content .ProseMirror {
+    min-height: 1.85rem;
+    padding: 0.2rem 0 0.24rem;
+    font-family: var(--font-sans);
+    font-size: 0.965rem;
+    line-height: 1.72;
+    white-space: pre-wrap;
+    color: var(--foreground);
+    caret-color: var(--foreground);
+    outline: none;
+  }
+
+  .kaneo-tiptap-slash-menu {
+    position: fixed;
+    z-index: 50;
+    min-width: 16rem;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+    border-radius: 0.5rem;
+    background: var(--popover);
+    padding: 0.32rem;
+    box-shadow:
+      0 10px 28px --alpha(var(--color-black) / 18%),
+      0 1px 2px --alpha(var(--color-black) / 10%);
+  }
+
+  .kaneo-tiptap-slash-group + .kaneo-tiptap-slash-group {
+    margin-top: 0.2rem;
+    border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    padding-top: 0.2rem;
+  }
+
+  .kaneo-tiptap-slash-group-title {
+    padding: 0.22rem 0.42rem 0.3rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--foreground) 48%, transparent);
+  }
+
+  .kaneo-tiptap-slash-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    border-radius: 0.35rem;
+    padding: 0.4rem 0.45rem;
+    text-align: left;
+    font-size: 0.79rem;
+    color: color-mix(in srgb, var(--foreground) 88%, transparent);
+  }
+
+  .kaneo-tiptap-slash-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .kaneo-tiptap-slash-shortcut {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    color: color-mix(in srgb, var(--foreground) 52%, transparent);
+  }
+
+  .kaneo-tiptap-slash-item:hover,
+  .kaneo-tiptap-slash-item.is-selected {
     background: var(--accent);
     color: var(--accent-foreground);
   }
 
-  .kaneo-slash-menu-icon {
-    width: 1.125rem;
-    min-width: 1.125rem;
-    height: 1.125rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.85;
-    color: var(--muted-foreground);
+  .kaneo-tiptap-slash-empty {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.76rem;
+    color: color-mix(in srgb, var(--foreground) 56%, transparent);
   }
 
-  .kaneo-slash-menu-title {
-    flex: 1;
+  .kaneo-tiptap-content .ProseMirror p {
+    margin: 0.2rem 0;
+  }
+
+  .kaneo-tiptap-content .ProseMirror h1,
+  .kaneo-tiptap-content .ProseMirror h2,
+  .kaneo-tiptap-content .ProseMirror h3 {
+    margin: 1.05rem 0 0.45rem;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.26;
+    color: var(--foreground);
+  }
+
+  .kaneo-tiptap-content .ProseMirror h1 {
+    font-size: 1.24rem;
+  }
+
+  .kaneo-tiptap-content .ProseMirror h2 {
+    font-size: 1.12rem;
+  }
+
+  .kaneo-tiptap-content .ProseMirror h3 {
+    font-size: 1.02rem;
+  }
+
+  .kaneo-tiptap-content .ProseMirror ul,
+  .kaneo-tiptap-content .ProseMirror ol {
+    margin: 0.3rem 0;
+    padding-inline-start: 1.35rem;
+  }
+
+  .kaneo-tiptap-content .ProseMirror ul {
+    list-style-type: disc;
+  }
+
+  .kaneo-tiptap-content .ProseMirror ol {
+    list-style-type: decimal;
+  }
+
+  .kaneo-tiptap-content .ProseMirror ul ul {
+    list-style-type: circle;
+  }
+
+  .kaneo-tiptap-content .ProseMirror ul ul ul {
+    list-style-type: square;
+  }
+
+  .kaneo-tiptap-content .ProseMirror ol ol {
+    list-style-type: lower-alpha;
+  }
+
+  .kaneo-tiptap-content .ProseMirror li::marker {
+    color: color-mix(in srgb, var(--foreground) 70%, transparent);
+  }
+
+  .kaneo-tiptap-content .ProseMirror li {
+    margin: 0.1rem 0;
+  }
+
+  .kaneo-tiptap-content .ProseMirror ul[data-type="taskList"] {
+    list-style: none;
+    margin: 0.3rem 0;
+    padding-inline-start: 0;
+  }
+
+  .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.45rem;
+    margin: 0.18rem 0;
+    text-align: left;
+  }
+
+  .kaneo-tiptap-content
+    .ProseMirror
+    li[data-type="taskItem"]
+    > :is(label, .kaneo-task-item-checkbox) {
+    margin-top: 0;
+    display: inline-flex;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] > div {
+    flex: 0 1 auto;
     min-width: 0;
-    font-size: 0.875rem;
+    text-align: left;
+  }
+
+  .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] > div > * {
+    margin-inline: 0;
+  }
+
+  .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] ul,
+  .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] ol {
+    margin-top: 0.2rem;
+  }
+
+  .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] [data-slot="checkbox"] {
+    margin-top: 0;
+  }
+
+  .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] > div p {
+    margin: 0;
+    line-height: 1.45;
+  }
+
+  .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"][data-checked="true"] > div p {
+    color: color-mix(in srgb, var(--foreground) 62%, transparent);
+    text-decoration: line-through;
+  }
+
+  .kaneo-tiptap-content .ProseMirror a {
+    color: var(--primary);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    text-decoration-color: color-mix(
+      in srgb,
+      var(--primary) 68%,
+      transparent
+    );
+    transition:
+      color 0.12s ease,
+      text-decoration-color 0.12s ease;
+  }
+
+  .kaneo-tiptap-content .ProseMirror a:hover {
+    color: color-mix(in srgb, var(--primary) 84%, var(--foreground));
+    text-decoration-color: currentColor;
+  }
+
+  .kaneo-tiptap-content .ProseMirror :not(pre) > code {
+    border: 1px solid var(--border);
+    border-radius: 0.34rem;
+    background: var(--code-highlight);
+    font-family: var(--font-mono);
+    font-size: 0.84em;
+    padding: 0.11rem 0.32rem;
+  }
+
+  .kaneo-tiptap-content .ProseMirror pre {
+    margin: 0.45rem 0;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 3px);
+    background: var(--code);
+    padding: 0.75rem 0.9rem;
+  }
+
+  .kaneo-tiptap-content .ProseMirror pre code {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--code-foreground);
+  }
+
+  .kaneo-tiptap-content .ProseMirror blockquote {
+    margin: 0.5rem 0;
+    border-left: 2px solid var(--border);
+    padding-left: 0.75rem;
+    color: color-mix(in srgb, var(--foreground) 78%, transparent);
+  }
+
+  .kaneo-tiptap-content .ProseMirror .is-editor-empty:first-child::before {
+    pointer-events: none;
+    content: attr(data-placeholder);
+    height: 0;
+    float: left;
+    color: color-mix(in srgb, var(--foreground) 40%, transparent);
+  }
+
+  .kaneo-tiptap-content .ProseMirror table {
+    border-collapse: collapse;
+    margin: 0.7rem 0;
+    overflow: hidden;
+    table-layout: fixed;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 3px);
+  }
+
+  .kaneo-tiptap-content .ProseMirror table td,
+  .kaneo-tiptap-content .ProseMirror table th {
+    min-width: 1em;
+    border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+    padding: 0.45rem 0.55rem;
+    vertical-align: top;
+  }
+
+  .kaneo-tiptap-content .ProseMirror table th {
+    background: color-mix(in srgb, var(--accent) 70%, transparent);
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .kaneo-tiptap-content .ProseMirror .selectedCell:after {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    content: "";
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+  }
+
+  .kaneo-tiptap-content .ProseMirror .tableWrapper {
+    overflow-x: auto;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-type="kaneo-embed"] {
+    margin: 0.65rem 0;
+    border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+    border-radius: calc(var(--radius) - 2px);
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
+    overflow: hidden;
+    transition:
+      border-color 0.12s ease,
+      box-shadow 0.12s ease;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-type="kaneo-embed"] iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    display: block;
+    background: black;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-type="kaneo-embed"] > a {
+    display: block;
+    padding: 0.6rem 0.7rem;
+    color: var(--foreground);
+    text-decoration: none;
+    font-size: 0.82rem;
+    word-break: break-word;
+  }
+
+  .kaneo-tiptap-content .ProseMirror
+    [data-type="kaneo-embed"].ProseMirror-selectednode {
+    border-color: color-mix(in srgb, var(--ring) 82%, var(--border));
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--ring) 38%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--ring) 70%, transparent) inset;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-type="kaneo-embed"] .kaneo-embed-unsupported {
+    padding: 0.62rem 0.72rem;
+    font-size: 0.78rem;
+    color: color-mix(in srgb, var(--foreground) 62%, transparent);
+  }
+
+  .kaneo-issue-link-node {
+    display: inline-flex;
+    vertical-align: baseline;
+  }
+
+  .kaneo-issue-link-chip {
+    display: inline-flex;
+    max-width: min(26rem, 85vw);
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    padding: 0.12rem 0.42rem;
+    color: var(--foreground);
+    text-decoration: none;
+    line-height: 1.3;
+    transform: translateY(-0.02rem);
+  }
+
+  .kaneo-issue-link-chip:hover {
+    border-color: color-mix(in srgb, var(--ring) 56%, var(--border));
+    background: color-mix(in srgb, var(--accent) 34%, transparent);
+  }
+
+  .kaneo-issue-link-key {
+    flex-shrink: 0;
+    font-size: 0.76rem;
     font-weight: 500;
-    line-height: 1;
-    white-space: nowrap;
+    color: color-mix(in srgb, var(--foreground) 64%, transparent);
+  }
+
+  .kaneo-issue-link-title {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--foreground);
   }
 
-  .kaneo-slash-menu-shortcut {
-    margin-left: auto;
+  .kaneo-issue-link-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: min(21rem, calc(100vw - 1.5rem));
+    padding: 0.72rem;
+    text-wrap: pretty;
+  }
+
+  .kaneo-issue-link-preview-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    font-size: 0.75rem;
+    color: color-mix(in srgb, var(--foreground) 68%, transparent);
+  }
+
+  .kaneo-issue-link-preview-key {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .kaneo-issue-link-preview-title {
+    margin-top: 0.45rem;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    font-weight: 500;
+    color: var(--foreground);
+  }
+
+  .kaneo-issue-link-preview-meta {
+    margin-top: 0.55rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+    padding-top: 0.45rem;
+    font-size: 0.76rem;
+    color: color-mix(in srgb, var(--foreground) 72%, transparent);
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-type="kaneo-embed"]:focus-within {
+    border-color: color-mix(in srgb, var(--ring) 80%, var(--border));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 34%, transparent);
+  }
+
+  .kaneo-embed-composer {
+    position: fixed;
+    z-index: 60;
+    width: min(24rem, calc(100vw - 2rem));
+    border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+    border-radius: 0.6rem;
+    background: var(--popover);
+    padding: 0.5rem;
+    box-shadow:
+      0 12px 32px --alpha(var(--color-black) / 20%),
+      0 1px 2px --alpha(var(--color-black) / 10%);
+  }
+
+  .kaneo-embed-composer-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .kaneo-embed-choice-menu {
+    display: flex;
+    min-width: 10.5rem;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .kaneo-embed-choice-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    border-radius: 0.4rem;
+    padding: 0.38rem 0.45rem;
+    text-align: left;
+    font-size: 0.82rem;
+    color: color-mix(in srgb, var(--foreground) 90%, transparent);
+  }
+
+  .kaneo-embed-choice-item:hover,
+  .kaneo-embed-choice-item.is-primary {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+
+  .kaneo-embed-choice-hint {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    color: color-mix(in srgb, currentColor 62%, transparent);
+  }
+
+  .kaneo-embed-composer-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    justify-content: flex-end;
+  }
+
+  .kaneo-embed-composer-error {
+    font-size: 0.72rem;
+    color: var(--destructive);
+  }
+
+  .kaneo-comment-composer {
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+    border-radius: 0.62rem;
+    background: color-mix(in srgb, var(--background) 96%, transparent);
+    transition:
+      border-color 0.14s ease,
+      box-shadow 0.14s ease;
+  }
+
+  .kaneo-comment-composer:focus-within {
+    border-color: color-mix(in srgb, var(--ring) 64%, var(--border));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 20%, transparent);
+  }
+
+  .kaneo-comment-card-body {
+    border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+    border-radius: 0.6rem;
+    background: color-mix(in srgb, var(--card) 82%, transparent);
+    backdrop-filter: blur(3px);
+    position: relative;
+  }
+
+  .kaneo-comment-editor-shell {
+    position: relative;
+    isolation: isolate;
+    z-index: 1;
+  }
+
+  .kaneo-comment-editor-shell:focus-within {
+    z-index: 80;
+  }
+
+  .kaneo-comment-editor-shell-readonly {
+    pointer-events: auto;
+  }
+
+  .kaneo-comment-editor-content .ProseMirror {
+    min-height: 2.2rem;
+    max-height: 18rem;
+    overflow-y: auto;
+    padding: 0.62rem 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    color: var(--foreground);
+    caret-color: var(--foreground);
+    outline: none;
+  }
+
+  .kaneo-comment-editor-shell-readonly .kaneo-comment-editor-content .ProseMirror {
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    padding: 0.62rem 0.75rem;
+  }
+
+  .kaneo-comment-viewer .kaneo-comment-editor-content .ProseMirror {
+    max-height: none;
+    overflow: visible;
+    padding-bottom: 0.8rem;
+  }
+
+  .kaneo-comment-editor-prose p {
+    margin: 0;
+  }
+
+  .kaneo-comment-editor-prose h1,
+  .kaneo-comment-editor-prose h2,
+  .kaneo-comment-editor-prose h3 {
+    margin: 0.12rem 0 0;
+    line-height: 1.32;
+  }
+
+  .kaneo-comment-editor-prose ul,
+  .kaneo-comment-editor-prose ol {
+    margin: 0.12rem 0 0;
+    padding-inline-start: 1.2rem;
+  }
+
+  .kaneo-comment-editor-prose ul {
+    list-style-type: disc;
+  }
+
+  .kaneo-comment-editor-prose ol {
+    list-style-type: decimal;
+  }
+
+  .kaneo-comment-editor-prose ul ul {
+    list-style-type: circle;
+  }
+
+  .kaneo-comment-editor-prose ul ul ul {
+    list-style-type: square;
+  }
+
+  .kaneo-comment-editor-prose ol ol {
+    list-style-type: lower-alpha;
+  }
+
+  .kaneo-comment-editor-prose li::marker {
+    color: color-mix(in srgb, var(--foreground) 70%, transparent);
+  }
+
+  .kaneo-comment-editor-prose li {
+    margin: 0.08rem 0;
+  }
+
+  .kaneo-comment-editor-prose ul[data-type="taskList"] {
+    list-style: none;
+    margin: 0.12rem 0 0;
+    padding-inline-start: 0;
+  }
+
+  .kaneo-comment-editor-prose li[data-type="taskItem"] {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.45rem;
+    margin: 0.14rem 0;
+    text-align: left;
+  }
+
+  .kaneo-comment-editor-prose
+    li[data-type="taskItem"]
+    > :is(label, .kaneo-task-item-checkbox) {
+    margin-top: 0;
+    display: inline-flex;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .kaneo-comment-editor-prose li[data-type="taskItem"] > div {
+    flex: 0 1 auto;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .kaneo-comment-editor-prose li[data-type="taskItem"] > div > * {
+    margin-inline: 0;
+  }
+
+  .kaneo-comment-editor-prose li[data-type="taskItem"] ul,
+  .kaneo-comment-editor-prose li[data-type="taskItem"] ol {
+    margin-top: 0.16rem;
+  }
+
+  .kaneo-comment-editor-prose li[data-type="taskItem"] [data-slot="checkbox"] {
+    margin-top: 0;
+  }
+
+  .kaneo-comment-editor-prose li[data-type="taskItem"] > div p {
+    margin: 0;
+    line-height: 1.45;
+  }
+
+  .kaneo-comment-editor-prose li[data-type="taskItem"][data-checked="true"] > div p {
+    color: color-mix(in srgb, var(--foreground) 62%, transparent);
+    text-decoration: line-through;
+  }
+
+  .kaneo-comment-editor-prose a {
+    color: color-mix(in srgb, var(--foreground) 88%, #4c9aff 12%);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--ring) 44%, transparent);
+    text-underline-offset: 2px;
+  }
+
+  .kaneo-comment-editor-prose :not(pre) > code {
+    border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
+    border-radius: 0.34rem;
+    background: color-mix(in srgb, var(--accent) 40%, transparent);
+    padding: 0.08rem 0.36rem;
+    font-size: 0.79em;
+    font-family: var(--font-mono);
+  }
+
+  .kaneo-comment-editor-prose pre {
+    margin: 0.12rem 0 0;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, var(--card) 80%, transparent);
+    padding: 0.55rem 0.7rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .kaneo-comment-editor-prose [data-type="kaneo-embed"] {
+    margin: 0.12rem 0 0;
+    border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+    border-radius: calc(var(--radius) - 2px);
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
+    overflow: hidden;
+    transition:
+      border-color 0.12s ease,
+      box-shadow 0.12s ease;
+  }
+
+  .kaneo-comment-editor-prose [data-type="kaneo-embed"] iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    display: block;
+    background: black;
+  }
+
+  .kaneo-comment-editor-prose [data-type="kaneo-embed"] > a {
+    display: block;
+    padding: 0.6rem 0.7rem;
+    color: var(--foreground);
+    text-decoration: none;
+    font-size: 0.82rem;
+    word-break: break-word;
+  }
+
+  .kaneo-comment-editor-prose
+    [data-type="kaneo-embed"].ProseMirror-selectednode {
+    border-color: color-mix(in srgb, var(--ring) 82%, var(--border));
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--ring) 38%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--ring) 70%, transparent) inset;
+  }
+
+  .kaneo-comment-editor-prose [data-type="kaneo-embed"]:focus-within {
+    border-color: color-mix(in srgb, var(--ring) 80%, var(--border));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 34%, transparent);
+  }
+
+  .kaneo-comment-editor-prose table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 0.12rem 0 0;
+    border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
+    border-radius: 0.45rem;
+    overflow: hidden;
+  }
+
+  .kaneo-comment-editor-prose table td,
+  .kaneo-comment-editor-prose table th {
+    min-width: 1em;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+    padding: 0.4rem 0.5rem;
+    vertical-align: top;
+  }
+
+  .kaneo-comment-editor-prose table th {
+    background: color-mix(in srgb, var(--accent) 65%, transparent);
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .kaneo-comment-editor-prose .tableWrapper {
+    overflow-x: auto;
+  }
+
+  .kaneo-comment-editor-prose .is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: color-mix(in srgb, var(--foreground) 42%, transparent);
+    pointer-events: none;
+    float: left;
+    height: 0;
+  }
+
+  .kaneo-comment-editor-prose p > .ProseMirror-trailingBreak {
+    line-height: 1;
+  }
+
+  .kaneo-comment-editor-bubble {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    height: 1.25rem;
-    padding: 0 0.375rem;
-    border-radius: 0.375rem;
-    border: 1px solid var(--input);
-    background: var(--muted);
-    color: var(--muted-foreground);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    line-height: 1;
-    white-space: nowrap;
+    gap: 0.12rem;
+    border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
+    border-radius: 0.45rem;
+    background: var(--popover);
+    padding: 0.2rem 0.24rem;
+    box-shadow:
+      0 8px 24px --alpha(var(--color-black) / 14%),
+      0 1px 2px --alpha(var(--color-black) / 9%);
   }
 
-  .kaneo-slash-menu-item.is-selected .kaneo-slash-menu-shortcut {
-    color: color-mix(in srgb, var(--accent-foreground) 72%, transparent);
+  .kaneo-comment-editor-bubble-btn {
+    height: 1.58rem;
+    width: 1.58rem;
+    padding: 0;
   }
 
-  .dark .blocknote-transparent .bn-container {
-    --bn-colors-shadow: --alpha(var(--color-black) / 44%);
+  .kaneo-comment-editor-shell .kaneo-tiptap-slash-menu {
+    position: absolute;
+    z-index: 120;
+    opacity: 1;
+    background-color: var(--popover);
+    background-image: none;
+    backdrop-filter: none;
   }
+
+  .kaneo-tiptap-content .ProseMirror ::selection {
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+
 }

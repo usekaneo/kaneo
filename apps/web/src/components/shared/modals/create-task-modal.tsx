@@ -411,7 +411,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               required
             />
 
-            <div className="h-[200px] rounded-lg overflow-hidden">
+            <div className="min-h-[200px]">
               <TaskDescriptionEditor
                 value={description}
                 onChange={setDescription}

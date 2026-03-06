@@ -74,7 +74,15 @@ function BacklogBulkToolbar() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTypingContext = Boolean(
+        target?.closest(
+          "input, textarea, [contenteditable='true'], .ProseMirror",
+        ),
+      );
+
       if ((e.metaKey || e.ctrlKey) && e.key === "a") {
+        if (isTypingContext) return;
         e.preventDefault();
         selectAll();
       }

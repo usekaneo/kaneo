@@ -1,7 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
-import toKebabCase from "@/lib/to-kebab-case";
 import type { ProjectWithTasks } from "@/types/project";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
@@ -25,7 +24,7 @@ function Column({ column }: ColumnProps) {
       <CreateTaskModal
         open={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
-        status={toKebabCase(column.name)}
+        status={column.id}
       />
 
       <div className="shrink-0 border-b border-border/60 px-3 py-2">

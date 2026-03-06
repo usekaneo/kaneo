@@ -26,7 +26,6 @@ import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
-import toKebabCase from "@/lib/to-kebab-case";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -434,7 +433,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
       <CreateTaskModal
         open={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
-        status={toKebabCase(activeColumn ?? "planned")}
+        status={activeColumn ?? "planned"}
       />
 
       <BacklogBulkToolbar />

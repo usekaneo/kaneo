@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
-import { Form, FormControl, FormField } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form, FormField } from "@/components/ui/form";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import debounce from "@/lib/debounce";
@@ -23,6 +22,11 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
     updateTaskRef.current = updateTaskTitle;
   }, [task, updateTaskTitle]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: taskId is not needed here
+  useEffect(() => {
+    isInitializedRef.current = false;
+  }, [taskId]);
+
   const form = useForm<{
     title: string;
   }>({
@@ -32,11 +36,7 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
   });
 
   useEffect(() => {
-    if (task?.title !== undefined && !isInitializedRef.current) {
-      setTimeout(() => {
-        isInitializedRef.current = true;
-      }, 100);
-    }
+    if (task?.title !== undefined) isInitializedRef.current = true;
   }, [task?.title]);
 
   const debouncedUpdate = useCallback(
@@ -51,9 +51,8 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
       try {
         await updateTaskFn({
           ...currentTask,
-          title: title,
+          title,
         });
-        console.log("Title updated successfully");
       } catch (error) {
         console.error("Failed to update title:", error);
       }
@@ -63,10 +62,7 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
 
   const handleTitleChange = useCallback(
     (value: string) => {
-      if (!isInitializedRef.current) {
-        console.log("Title change ignored - not initialized yet");
-        return;
-      }
+      if (!isInitializedRef.current) return;
 
       debouncedUpdate(value);
     },
@@ -79,18 +75,16 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
         control={form.control}
         name="title"
         render={({ field }) => (
-          <FormControl>
-            <Input
-              {...field}
-              unstyled
-              placeholder="Click to add a title"
-              className="w-full [&_[data-slot=input]]:!h-auto [&_[data-slot=input]]:!px-0 [&_[data-slot=input]]:!py-0 [&_[data-slot=input]]:!leading-tight [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
-              onChange={(e) => {
-                field.onChange(e);
-                handleTitleChange(e.target.value);
-              }}
-            />
-          </FormControl>
+          <input
+            {...field}
+            type="text"
+            placeholder="Click to add a title"
+            className="block h-auto w-full appearance-none border-0 bg-transparent p-0 font-heading text-[2rem] leading-[1.15] font-semibold tracking-[-0.02em] text-foreground outline-none placeholder:text-foreground/45"
+            onChange={(e) => {
+              field.onChange(e);
+              handleTitleChange(e.target.value);
+            }}
+          />
         )}
       />
     </Form>

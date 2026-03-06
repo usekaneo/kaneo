@@ -3,6 +3,7 @@ import getLabelsByWorkspace from "@/fetchers/label/get-label-by-workspace";
 
 function useGetLabelsByWorkspace(workspaceId: string) {
   return useQuery({
+    enabled: Boolean(workspaceId),
     queryKey: ["labels", workspaceId],
     queryFn: () => getLabelsByWorkspace({ workspaceId }),
   });

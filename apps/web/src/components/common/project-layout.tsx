@@ -81,7 +81,7 @@ export default function ProjectLayout({
           <div className="flex min-w-0 items-center gap-2">
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <SidebarTrigger className="-ml-1 h-7 w-7 cursor-pointer text-foreground/85 hover:text-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>

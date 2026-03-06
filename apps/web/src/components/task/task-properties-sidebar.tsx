@@ -595,6 +595,7 @@ export default function TaskPropertiesSidebar({
                     key={`edit-${label.id}`}
                     task={task}
                     workspaceId={workspaceId}
+                    triggerNativeButton={false}
                   >
                     <Badge
                       variant="outline"
