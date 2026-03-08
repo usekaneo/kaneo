@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.3.5",
     "@types/pg": "^8.18.0",
     "esbuild": "0.27.3",
     "tsx": "^4.21.0",
