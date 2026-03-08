@@ -43,7 +43,7 @@
 		"@tanstack/router-devtools": "^1.163.3",
 		"@tanstack/router-plugin": "^1.164.0",
 		"@tiptap/core": "^3.20.0",
-		"@tiptap/extension-code-block-lowlight": "^3.20.0",
+		"@tiptap/extension-code-block-lowlight": "^3.20.1",
 		"@tiptap/extension-link": "^3.20.0",
 		"@tiptap/extension-list": "^3.20.1",
 		"@tiptap/extension-placeholder": "^3.20.0",
