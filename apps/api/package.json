@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@better-auth/api-key": "^1.5.4",
-    "@better-auth/drizzle-adapter": "^1.5.3",
+    "@better-auth/drizzle-adapter": "^1.5.4",
     "@hono/node-server": "^1.19.10",
     "@hono/standard-validator": "^0.2.2",
     "@kaneo/email": "workspace:*",
