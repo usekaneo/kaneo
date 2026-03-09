@@ -150,18 +150,18 @@ web:
   #     cpu: 100m
   #     memory: 128Mi
 
-  livenessProbe:
-    httpGet:
-      path: /
-      port: web
-    initialDelaySeconds: 90
-    periodSeconds: 10
-  readinessProbe:
-    httpGet:
-      path: /
-      port: web
-    initialDelaySeconds: 60
-    periodSeconds: 10
+#  livenessProbe:
+#    httpGet:
+#      path: /
+#      port: web
+#    initialDelaySeconds: 90
+#    periodSeconds: 10
+#  readinessProbe:
+#    httpGet:
+#      path: /
+#      port: web
+#    initialDelaySeconds: 60
+#    periodSeconds: 10
 # Ingress configuration
 ingress:
   enabled: false
