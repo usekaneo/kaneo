@@ -95,11 +95,7 @@ spec:
           env:
             - name: KANEO_API_URL
               value: "{{- if .Values.web.env.apiUrl -}}
-                {{- if hasSuffix "/" .Values.web.env.apiUrl -}}
-                  {{- .Values.web.env.apiUrl -}}api
-                {{- else -}}
-                  {{- .Values.web.env.apiUrl -}}/api
-                {{- end -}}
+                {{- .Values.web.env.apiUrl -}}
               {{- else -}}
                 http://localhost:{{ .Values.api.service.targetPort }}
               {{- end -}}"
