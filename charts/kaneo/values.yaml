@@ -80,11 +80,12 @@ api:
 
   # Environment variables for the API
   env:
-    jwtAccess: change_me
+    # Must be at least 32 characters long for Better Auth
+    authSecret: change_me_to_at_least_32_characters_long_string
     existingSecret:
       enabled: false
       name: ""
-      key: jwt-access
+      key: auth-secret
     disableRegistration: false
     # Database configuration
     database:
@@ -111,13 +112,13 @@ api:
           passwordKey: postgres_uri
   livenessProbe:
     httpGet:
-      path: /me
+      path: /health
       port: api
     initialDelaySeconds: 30
     periodSeconds: 10
   readinessProbe:
     httpGet:
-      path: /me
+      path: /health
       port: api
     initialDelaySeconds: 5
     periodSeconds: 10
