@@ -59,6 +59,18 @@ spec:
               {{- else -}}
                 http://localhost:{{ .Values.api.service.targetPort }}
               {{- end -}}"
+            - name: KANEO_API_URL
+              value: "{{- if .Values.web.env.apiUrl -}}
+                {{- .Values.web.env.apiUrl -}}
+              {{- else -}}
+                http://localhost:{{ .Values.api.service.targetPort }}
+              {{- end -}}"
+            - name: KANEO_CLIENT_URL
+              value: "{{- if .Values.web.env.apiUrl -}}
+                {{- .Values.web.env.apiUrl -}}
+              {{- else -}}
+                http://localhost:{{ .Values.web.service.targetPort }}
+              {{- end -}}"
             - name: CORS_ORIGINS
               value: "{{ .Values.web.env.apiUrl | default "*" }}"
             - name: DATABASE_URL
