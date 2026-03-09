@@ -112,13 +112,13 @@ api:
           passwordKey: postgres_uri
   livenessProbe:
     httpGet:
-      path: /health
+      path: /api/health
       port: api
     initialDelaySeconds: 30
     periodSeconds: 10
   readinessProbe:
     httpGet:
-      path: /health
+      path: /api/health
       port: api
     initialDelaySeconds: 5
     periodSeconds: 10
@@ -139,7 +139,7 @@ web:
   service:
     type: ClusterIP
     port: 80
-    targetPort: 80
+    targetPort: 5173 # FIX: Correctly maps the service to the unprivileged Nginx port
   # Resources are optional and disabled by default
   resources: {}
   # resources:
