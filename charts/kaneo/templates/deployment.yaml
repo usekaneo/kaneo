@@ -108,17 +108,9 @@ spec:
                 http://localhost:{{ .Values.api.service.targetPort }}
               {{- end -}}"
           livenessProbe:
-            httpGet:
-              path: /
-              port: web
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            {{- toYaml .Values.web.livenessProbe | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: web
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            {{- toYaml .Values.web.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
 
