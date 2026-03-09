@@ -154,13 +154,13 @@ web:
     httpGet:
       path: /
       port: web
-    initialDelaySeconds: 30
+    initialDelaySeconds: 90
     periodSeconds: 10
   readinessProbe:
     httpGet:
       path: /
       port: web
-    initialDelaySeconds: 5
+    initialDelaySeconds: 60
     periodSeconds: 10
 # Ingress configuration
 ingress:
