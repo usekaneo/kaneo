@@ -338,6 +338,52 @@ export const activityTable = pgTable("activity", {
   externalUrl: text("external_url"),
 });
 
+export const assetTable = pgTable(
+  "asset",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    taskId: text("task_id").references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    activityId: text("activity_id").references(() => activityTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    objectKey: text("object_key").notNull().unique(),
+    filename: text("filename").notNull(),
+    mimeType: text("mime_type").notNull(),
+    size: integer("size").notNull(),
+    kind: text("kind").notNull().default("image"),
+    surface: text("surface").notNull().default("description"),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("asset_workspaceId_idx").on(table.workspaceId),
+    index("asset_projectId_idx").on(table.projectId),
+    index("asset_taskId_idx").on(table.taskId),
+    index("asset_activityId_idx").on(table.activityId),
+  ],
+);
+
 export const labelTable = pgTable("label", {
   id: text("id")
     .$defaultFn(() => createId())

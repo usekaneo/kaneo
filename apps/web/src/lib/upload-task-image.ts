@@ -1,4 +1,6 @@
-import createImageUpload from "@/fetchers/task/create-image-upload";
+import createImageUpload, {
+  finalizeImageUpload,
+} from "@/fetchers/task/create-image-upload";
 
 const allowedImageMimeTypes = new Set([
   "image/apng",
@@ -19,6 +21,10 @@ export function isSupportedImageFile(file: File) {
   return allowedImageMimeTypes.has(file.type.toLowerCase());
 }
 
+export function isSupportedTaskAsset(file: File) {
+  return file.size > 0;
+}
+
 export function getImageAltText(filename: string) {
   return filename
     .replace(/\.[^/.]+$/, "")
@@ -36,7 +42,9 @@ export async function uploadTaskImage({
   file: File;
 }) {
   if (!isSupportedImageFile(file)) {
-    throw new Error("Only image uploads are supported.");
+    if (!isSupportedTaskAsset(file)) {
+      throw new Error("Only non-empty file uploads are supported.");
+    }
   }
 
   const upload = await createImageUpload({
@@ -54,11 +62,24 @@ export async function uploadTaskImage({
   });
 
   if (!response.ok) {
-    throw new Error("Failed to upload image to storage.");
+    throw new Error("Failed to upload file to storage.");
   }
 
+  const asset = await finalizeImageUpload({
+    taskId,
+    key: upload.key,
+    filename: file.name || "image",
+    contentType: file.type,
+    size: file.size,
+    surface,
+  });
+
   return {
-    url: upload.assetUrl,
+    url: asset.url,
     alt: getImageAltText(file.name || "image"),
+    filename: file.name || "file",
+    kind: isSupportedImageFile(file) ? "image" : "attachment",
+    mimeType: file.type,
+    size: file.size,
   };
 }

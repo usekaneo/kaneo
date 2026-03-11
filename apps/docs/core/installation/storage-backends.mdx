@@ -1,16 +1,24 @@
 ---
 title: Storage backends
-description: Configure image uploads with MinIO, AWS S3, or Cloudflare R2.
+description: Configure private uploads with MinIO, AWS S3, or Cloudflare R2.
 ---
 
 ## Overview
 
-Kaneo uses S3-compatible object storage for image uploads in:
+Kaneo uses S3-compatible object storage for uploads in:
 
 - task descriptions
 - task comments
 
 The browser uploads directly to the configured storage backend using presigned URLs.
+
+Kaneo then serves uploaded assets back through its own API.
+
+Current behavior:
+
+- images render inline
+- non-image files such as CSV, PDF, and ZIP render as attachment cards/links
+- assets are private by default
 
 That means one rule matters for every backend:
 
@@ -27,14 +35,13 @@ S3_ACCESS_KEY_ID=
 S3_SECRET_ACCESS_KEY=
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=false
-S3_PUBLIC_BASE_URL=
 ```
 
 Notes:
 
-- `S3_PUBLIC_BASE_URL` is recommended when your asset URL should be different from the raw S3 endpoint.
 - `S3_FORCE_PATH_STYLE=true` is usually needed for MinIO.
 - `S3_FORCE_PATH_STYLE=false` is usually correct for AWS S3 and R2.
+- `S3_PUBLIC_BASE_URL` is optional and not required for the current private asset flow.
 
 ## MinIO
 
@@ -54,7 +61,6 @@ S3_ACCESS_KEY_ID=minioadmin
 S3_SECRET_ACCESS_KEY=minioadmin
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=true
-S3_PUBLIC_BASE_URL=http://localhost:9000/kaneo-uploads
 ```
 
 This works when Kaneo and MinIO are on the same Docker network and your browser reaches MinIO through `localhost`.
@@ -79,13 +85,13 @@ S3_ACCESS_KEY_ID=minioadmin
 S3_SECRET_ACCESS_KEY=minioadmin
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=true
-S3_PUBLIC_BASE_URL=https://files.cloud.kaneo.app/kaneo-uploads
 ```
 
 You also need:
 
 - a created bucket
 - MinIO CORS allowing your Kaneo origin
+- no anonymous bucket read policy is required
 
 ## AWS S3
 
@@ -102,13 +108,11 @@ S3_ACCESS_KEY_ID=AKIA...
 S3_SECRET_ACCESS_KEY=...
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=false
-S3_PUBLIC_BASE_URL=https://kaneo-uploads.s3.us-east-1.amazonaws.com
 ```
 
-For another AWS region, adjust both:
+For another AWS region, adjust:
 
 - `S3_ENDPOINT`
-- `S3_PUBLIC_BASE_URL`
 
 Recommended S3 CORS policy:
 
@@ -138,14 +142,12 @@ S3_ACCESS_KEY_ID=...
 S3_SECRET_ACCESS_KEY=...
 S3_REGION=auto
 S3_FORCE_PATH_STYLE=false
-S3_PUBLIC_BASE_URL=https://pub-<hash>.r2.dev
 ```
 
 Notes:
 
 - `S3_REGION=auto` is typical for R2
-- `S3_PUBLIC_BASE_URL` should usually point to your public bucket domain or custom domain
-- if your bucket is not public, image rendering will not work from stored asset URLs
+- a public bucket is not required for Kaneo's current private asset flow
 
 ## One copy-paste self-hosted example
 
@@ -212,7 +214,6 @@ S3_ACCESS_KEY_ID=minioadmin
 S3_SECRET_ACCESS_KEY=change-me
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=true
-S3_PUBLIC_BASE_URL=https://files.cloud.kaneo.app/kaneo-uploads
 ```
 
 Before testing uploads:
@@ -227,6 +228,5 @@ If uploads fail:
 
 - check that the bucket exists
 - check that `S3_ENDPOINT` is public and browser-reachable
-- check that `S3_PUBLIC_BASE_URL` points to the correct public asset host
 - check CORS on your storage backend
 - check that the access key can `PutObject` and `GetObject`

@@ -63,11 +63,12 @@ Additionally, the following volumes are used:
 
 ## Notes on object storage
 
-Kaneo uses S3-compatible object storage for image uploads in task descriptions and comments.
+Kaneo uses S3-compatible object storage for private uploads in task descriptions and comments.
 
 - Object storage is optional. Kaneo runs without it, but image uploads in task descriptions and comments will be unavailable.
 - For local/self-hosted setups, MinIO is the recommended option when you want uploads.
 - The Kaneo API creates presigned upload URLs and the browser uploads images directly to the configured storage backend.
+- Kaneo serves uploaded assets back through its own API, so the bucket does not need to be public.
 - If you do not configure object storage, leave the `S3_*` variables unset.
 - For a complete MinIO example and backend-specific setup notes, see the [storage backends guide](/core/installation/storage-backends).
 

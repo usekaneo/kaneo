@@ -99,6 +99,13 @@
 			"when": 1772660160328,
 			"tag": "0013_quiet_gladiator",
 			"breakpoints": true
+		},
+		{
+			"idx": 14,
+			"version": "7",
+			"when": 1773259300000,
+			"tag": "0014_private_assets",
+			"breakpoints": true
 		}
 	]
 }

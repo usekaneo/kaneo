@@ -1,4 +1,7 @@
+import { Readable } from "node:stream";
 import {
+  GetObjectCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
   type S3ClientConfig,
@@ -24,6 +27,10 @@ const allowedImageMimeTypes = new Set([
   "image/svg+xml",
   "image/webp",
 ]);
+
+export function isImageContentType(contentType: string) {
+  return allowedImageMimeTypes.has(contentType.toLowerCase());
+}
 
 type UploadSurface = "description" | "comment";
 
@@ -52,7 +59,14 @@ type TaskImageUploadUrl = {
   key: string;
   uploadUrl: string;
   headers: Record<string, string>;
-  assetUrl: string;
+};
+
+type AssetObject = {
+  body: unknown;
+  contentType: string | undefined;
+  contentLength: number | undefined;
+  etag: string | undefined;
+  lastModified: Date | undefined;
 };
 
 let clientCache:
@@ -162,39 +176,26 @@ function getFileExtension(filename: string) {
   return sanitizePathSegment(extension).slice(0, 12);
 }
 
-function encodeKeyPath(key: string) {
-  return key
-    .split("/")
-    .map((segment) => encodeURIComponent(segment))
-    .join("/");
-}
+function buildObjectKeyPrefix(
+  context: Omit<TaskImageUploadContext, "filename" | "contentType">,
+) {
+  const surfaceFolder =
+    context.surface === "comment" ? "comments" : "descriptions";
 
-function buildAssetUrl(config: StorageConfig, key: string) {
-  const encodedKey = encodeKeyPath(key);
-
-  if (config.publicBaseUrl) {
-    return new URL(
-      encodedKey,
-      `${config.publicBaseUrl.replace(/\/+$/, "")}/`,
-    ).toString();
-  }
-
-  const endpoint = new URL(config.endpoint);
-
-  if (config.forcePathStyle) {
-    endpoint.pathname = `${endpoint.pathname.replace(/\/+$/, "")}/${config.bucket}/${encodedKey}`;
-    return endpoint.toString();
-  }
-
-  endpoint.hostname = `${config.bucket}.${endpoint.hostname}`;
-  endpoint.pathname = `${endpoint.pathname.replace(/\/+$/, "")}/${encodedKey}`;
-  return endpoint.toString();
+  return [
+    "workspace",
+    sanitizePathSegment(context.workspaceId),
+    "project",
+    sanitizePathSegment(context.projectId),
+    "task",
+    sanitizePathSegment(context.taskId),
+    surfaceFolder,
+  ].join("/");
 }
 
 function buildObjectKey(context: TaskImageUploadContext) {
   const extension = getFileExtension(context.filename);
-  const surfaceFolder =
-    context.surface === "comment" ? "comments" : "descriptions";
+  const objectKeyPrefix = buildObjectKeyPrefix(context);
   const timestamp = Date.now();
   const randomId = createId();
 
@@ -206,32 +207,26 @@ function buildObjectKey(context: TaskImageUploadContext) {
     ? `${baseName}-${timestamp}-${randomId}.${extension}`
     : `${baseName}-${timestamp}-${randomId}`;
 
-  return [
-    "workspace",
-    sanitizePathSegment(context.workspaceId),
-    "project",
-    sanitizePathSegment(context.projectId),
-    "task",
-    sanitizePathSegment(context.taskId),
-    surfaceFolder,
-    fileName,
-  ].join("/");
+  return `${objectKeyPrefix}/${fileName}`;
 }
 
-export function validateImageUploadInput(contentType: string, size: number) {
+export function validateTaskAssetUploadInput(
+  contentType: string,
+  size: number,
+) {
   const maxImageUploadBytes = getMaxImageUploadBytes();
 
-  if (!allowedImageMimeTypes.has(contentType.toLowerCase())) {
-    throw new Error("Only image uploads are supported.");
+  if (!contentType.trim()) {
+    throw new Error("A valid content type is required.");
   }
 
   if (size <= 0) {
-    throw new Error("Image upload size must be greater than zero.");
+    throw new Error("Upload size must be greater than zero.");
   }
 
   if (size > maxImageUploadBytes) {
     throw new Error(
-      `Image exceeds the maximum upload size of ${Math.floor(maxImageUploadBytes / (1024 * 1024))}MB.`,
+      `Upload exceeds the maximum upload size of ${Math.floor(maxImageUploadBytes / (1024 * 1024))}MB.`,
     );
   }
 }
@@ -259,10 +254,57 @@ export async function createTaskImageUploadUrl(
     headers: {
       "Content-Type": context.contentType,
     },
-    assetUrl: buildAssetUrl(config, key),
   };
 }
 
 export function assertStorageConfigured() {
   return getStorageConfig();
+}
+
+export function assertTaskImageKeyMatchesContext(
+  key: string,
+  context: Omit<TaskImageUploadContext, "filename" | "contentType">,
+) {
+  const prefix = `${buildObjectKeyPrefix(context)}/`;
+  return key.startsWith(prefix);
+}
+
+export async function assertObjectExists(key: string) {
+  const config = getStorageConfig();
+  const client = getClient(config);
+
+  await client.send(
+    new HeadObjectCommand({
+      Bucket: config.bucket,
+      Key: key,
+    }),
+  );
+}
+
+export async function getPrivateObject(key: string): Promise<AssetObject> {
+  const config = getStorageConfig();
+  const client = getClient(config);
+  const response = await client.send(
+    new GetObjectCommand({
+      Bucket: config.bucket,
+      Key: key,
+    }),
+  );
+
+  if (!response.Body) {
+    throw new Error("Storage object body is missing.");
+  }
+
+  const body =
+    "transformToWebStream" in response.Body
+      ? response.Body.transformToWebStream()
+      : Readable.toWeb(response.Body as Readable);
+
+  return {
+    body,
+    contentType: response.ContentType,
+    contentLength: response.ContentLength,
+    etag: response.ETag,
+    lastModified: response.LastModified,
+  };
 }

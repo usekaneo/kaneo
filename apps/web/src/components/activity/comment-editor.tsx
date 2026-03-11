@@ -17,17 +17,18 @@ import {
   Check,
   ChevronDown,
   Copy,
-  ImagePlus,
   Italic,
   Link2,
   List,
   ListOrdered,
   ListTodo,
+  Paperclip,
   UnderlineIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { bundledLanguages, type Highlighter } from "shiki";
+import { AttachmentCard } from "@/components/task/extensions/attachment-card";
 import { EmbedBlock } from "@/components/task/extensions/embed-block";
 import { KaneoIssueLink } from "@/components/task/extensions/kaneo-issue-link";
 import {
@@ -75,6 +76,8 @@ type CommentEditorProps = {
   taskId?: string;
   uploadSurface?: "description" | "comment";
   ensureTaskId?: () => Promise<string | null>;
+  showQuickAttachButton?: boolean;
+  onAttachActionChange?: (attach: (() => void) | null) => void;
 };
 
 type SlashRange = { from: number; to: number };
@@ -163,6 +166,8 @@ export default function CommentEditor({
   taskId,
   uploadSurface = "comment",
   ensureTaskId,
+  showQuickAttachButton = true,
+  onAttachActionChange,
 }: CommentEditorProps) {
   const editorShellRef = useRef<HTMLDivElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -237,51 +242,84 @@ export default function CommentEditor({
     uploadSurfaceRef.current = uploadSurface;
   }, [ensureTaskId, taskId, uploadSurface]);
 
-  const handleImageFileUpload = useCallback(
+  const insertUploadedAsset = useCallback(
+    (
+      activeEditor: Editor,
+      asset: Awaited<ReturnType<typeof uploadTaskImage>>,
+      range?: SlashRange,
+    ) => {
+      const chain = activeEditor.chain().focus();
+
+      if (range) {
+        chain.deleteRange(range);
+      } else {
+        const { selection } = activeEditor.state;
+        if (!selection.empty) {
+          chain.setTextSelection(selection.to);
+        }
+      }
+
+      if (asset.kind === "image") {
+        chain
+          .setImage({
+            src: asset.url,
+            alt: asset.alt,
+          })
+          .run();
+        return;
+      }
+
+      chain
+        .insertContent({
+          type: "attachmentCard",
+          attrs: {
+            url: asset.url,
+            filename: asset.filename,
+            mimeType: asset.mimeType,
+            size: asset.size,
+          },
+        })
+        .run();
+    },
+    [],
+  );
+
+  const handleAssetFileUpload = useCallback(
     async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
       const activeEditor = targetEditor || lastEditorRef.current;
       const resolvedTaskId =
         taskIdRef.current ?? (await ensureTaskIdRef.current?.());
 
       if (!activeEditor || !resolvedTaskId) {
-        toast.error("Image uploads are only available on saved tasks.");
+        toast.error("File uploads are only available on saved tasks.");
         return;
       }
 
-      const loadingToast = toast.loading("Uploading image...");
+      const loadingToast = toast.loading("Uploading file...");
 
       try {
-        const uploadedImage = await uploadTaskImage({
+        const uploadedAsset = await uploadTaskImage({
           taskId: resolvedTaskId,
           surface: uploadSurfaceRef.current,
           file,
         });
-
-        const chain = activeEditor.chain().focus();
-        if (range) {
-          chain.deleteRange(range);
-        }
-
-        chain
-          .setImage({
-            src: uploadedImage.url,
-            alt: uploadedImage.alt,
-          })
-          .run();
+        insertUploadedAsset(activeEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
-        toast.success("Image uploaded");
+        toast.success(
+          uploadedAsset.kind === "image" ? "Image uploaded" : "File attached",
+        );
       } catch (error) {
         toast.dismiss(loadingToast);
         toast.error(
-          error instanceof Error ? error.message : "Failed to upload image",
+          error instanceof Error ? error.message : "Failed to upload file",
         );
       }
     },
-    [],
+    [insertUploadedAsset],
   );
 
-  const canUploadImages = Boolean(taskId || ensureTaskId);
+  const canUploadFiles = Boolean(taskId || ensureTaskId);
 
   const openImagePicker = useCallback(
     (activeEditor?: Editor | null, range?: SlashRange) => {
@@ -293,27 +331,27 @@ export default function CommentEditor({
     [],
   );
 
-  const hasImageDrag = useCallback((event: React.DragEvent<HTMLElement>) => {
-    return Array.from(event.dataTransfer?.items || []).some((item) =>
-      item.type.toLowerCase().startsWith("image/"),
+  const hasFileDrag = useCallback((event: React.DragEvent<HTMLElement>) => {
+    return Array.from(event.dataTransfer?.items || []).some(
+      (item) => item.kind === "file",
     );
   }, []);
 
   const handleShellDragEnter = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (readOnly || disabled || !canUploadImages || !hasImageDrag(event)) {
+      if (readOnly || disabled || !canUploadFiles || !hasFileDrag(event)) {
         return;
       }
       event.preventDefault();
       dragDepthRef.current += 1;
       setIsDragActive(true);
     },
-    [canUploadImages, disabled, hasImageDrag, readOnly],
+    [canUploadFiles, disabled, hasFileDrag, readOnly],
   );
 
   const handleShellDragOver = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (readOnly || disabled || !canUploadImages || !hasImageDrag(event)) {
+      if (readOnly || disabled || !canUploadFiles || !hasFileDrag(event)) {
         return;
       }
       event.preventDefault();
@@ -322,12 +360,12 @@ export default function CommentEditor({
         setIsDragActive(true);
       }
     },
-    [canUploadImages, disabled, hasImageDrag, isDragActive, readOnly],
+    [canUploadFiles, disabled, hasFileDrag, isDragActive, readOnly],
   );
 
   const handleShellDragLeave = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (readOnly || disabled || !canUploadImages || !hasImageDrag(event)) {
+      if (readOnly || disabled || !canUploadFiles || !hasFileDrag(event)) {
         return;
       }
       event.preventDefault();
@@ -336,18 +374,18 @@ export default function CommentEditor({
         setIsDragActive(false);
       }
     },
-    [canUploadImages, disabled, hasImageDrag, readOnly],
+    [canUploadFiles, disabled, hasFileDrag, readOnly],
   );
 
   const handleShellDrop = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (readOnly || disabled || !canUploadImages || !hasImageDrag(event)) {
+      if (readOnly || disabled || !canUploadFiles || !hasFileDrag(event)) {
         return;
       }
       dragDepthRef.current = 0;
       setIsDragActive(false);
     },
-    [canUploadImages, disabled, hasImageDrag, readOnly],
+    [canUploadFiles, disabled, hasFileDrag, readOnly],
   );
 
   const slashCommands = useMemo<SlashCommand[]>(
@@ -464,10 +502,10 @@ export default function CommentEditor({
         },
       },
       {
-        id: "image",
-        label: "Image",
+        id: "file",
+        label: "File",
         group: "insert",
-        search: "image photo picture upload",
+        search: "file attachment image photo picture upload",
         run: (activeEditor, range) => {
           activeEditor.chain().focus().deleteRange(range).run();
           openImagePicker(activeEditor);
@@ -531,6 +569,7 @@ export default function CommentEditor({
           themeLight: "github-light",
         }),
         EmbedBlock,
+        AttachmentCard,
         KaneoIssueLink,
         TaskList,
         Image.configure({
@@ -563,13 +602,11 @@ export default function CommentEditor({
           if (readOnly || disabled) return false;
 
           const pastedFiles = Array.from(event.clipboardData?.files || []);
-          const pastedImage = pastedFiles.find((file) =>
-            file.type.toLowerCase().startsWith("image/"),
-          );
+          const pastedFile = pastedFiles[0];
 
-          if (pastedImage) {
+          if (pastedFile) {
             event.preventDefault();
-            void handleImageFileUpload(pastedImage, editor);
+            void handleAssetFileUpload(pastedFile, editor);
             return true;
           }
 
@@ -628,11 +665,9 @@ export default function CommentEditor({
           if (readOnly || disabled) return false;
 
           const droppedFiles = Array.from(event.dataTransfer?.files || []);
-          const droppedImage = droppedFiles.find((file) =>
-            file.type.toLowerCase().startsWith("image/"),
-          );
+          const droppedFile = droppedFiles[0];
 
-          if (!droppedImage) return false;
+          if (!droppedFile) return false;
 
           event.preventDefault();
           const coordinates = view.posAtCoords({
@@ -644,7 +679,7 @@ export default function CommentEditor({
             ? { from: coordinates.pos, to: coordinates.pos }
             : undefined;
 
-          void handleImageFileUpload(droppedImage, editor, dropRange);
+          void handleAssetFileUpload(droppedFile, editor, dropRange);
           return true;
         },
         handleKeyDown: (_view, event) => {
@@ -753,8 +788,18 @@ export default function CommentEditor({
         onChange(markdown);
       },
     },
-    [handleImageFileUpload, toShikiLanguage],
+    [handleAssetFileUpload, toShikiLanguage],
   );
+
+  useEffect(() => {
+    if (!onAttachActionChange) return;
+
+    onAttachActionChange(editor ? () => openImagePicker(editor) : null);
+
+    return () => {
+      onAttachActionChange(null);
+    };
+  }, [editor, onAttachActionChange, openImagePicker]);
 
   useEffect(() => {
     if (!editor || !shikiHighlighter) return;
@@ -1257,7 +1302,6 @@ export default function CommentEditor({
         <input
           ref={imageInputRef}
           type="file"
-          accept="image/*"
           className="sr-only"
           onChange={(event) => {
             const file = event.target.files?.[0];
@@ -1265,7 +1309,7 @@ export default function CommentEditor({
 
             const pendingInsert = pendingImageInsertRef.current;
             pendingImageInsertRef.current = null;
-            void handleImageFileUpload(
+            void handleAssetFileUpload(
               file,
               pendingInsert?.editor,
               pendingInsert?.range,
@@ -1446,7 +1490,7 @@ export default function CommentEditor({
             className="kaneo-comment-editor-bubble-btn"
             onClick={() => openImagePicker(editor)}
           >
-            <ImagePlus className="size-3.5" />
+            <Paperclip className="size-3.5" />
           </Button>
         </BubbleMenu>
       )}
@@ -1608,6 +1652,19 @@ export default function CommentEditor({
         onMouseMove={handleEditorMouseMove}
         onMouseLeave={handleEditorMouseLeave}
       />
+      {!readOnly && !disabled && showQuickAttachButton && (
+        <button
+          type="button"
+          className="kaneo-editor-quick-attach"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => openImagePicker(editor)}
+          aria-label="Attach file"
+        >
+          <Paperclip className="size-3.5" />
+        </button>
+      )}
       {isDragActive && (
         <div className="kaneo-editor-drop-indicator">
           <span>Drop image to upload</span>

@@ -25,6 +25,7 @@ import {
   List,
   ListOrdered,
   ListTodo,
+  Paperclip,
   Quote,
   Strikethrough,
   Table2,
@@ -58,6 +59,7 @@ import {
 import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
+import { AttachmentCard } from "./extensions/attachment-card";
 import { EmbedBlock } from "./extensions/embed-block";
 import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
 import {
@@ -324,46 +326,79 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     [],
   );
 
-  const handleImageFileUpload = useCallback(
+  const insertUploadedAsset = useCallback(
+    (
+      activeEditor: Editor,
+      asset: Awaited<ReturnType<typeof uploadTaskImage>>,
+      range?: SlashRange,
+    ) => {
+      const chain = activeEditor.chain().focus();
+
+      if (range) {
+        chain.deleteRange(range);
+      } else {
+        const { selection } = activeEditor.state;
+        if (!selection.empty) {
+          chain.setTextSelection(selection.to);
+        }
+      }
+
+      if (asset.kind === "image") {
+        chain
+          .setImage({
+            src: asset.url,
+            alt: asset.alt,
+          })
+          .run();
+        return;
+      }
+
+      chain
+        .insertContent({
+          type: "attachmentCard",
+          attrs: {
+            url: asset.url,
+            filename: asset.filename,
+            mimeType: asset.mimeType,
+            size: asset.size,
+          },
+        })
+        .run();
+    },
+    [],
+  );
+
+  const handleAssetFileUpload = useCallback(
     async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
       const activeEditor = targetEditor || lastEditorRef.current;
 
       if (!activeEditor) {
-        toast.error("Image upload failed");
+        toast.error("File upload failed");
         return;
       }
 
-      const loadingToast = toast.loading("Uploading image...");
+      const loadingToast = toast.loading("Uploading file...");
 
       try {
-        const uploadedImage = await uploadTaskImage({
+        const uploadedAsset = await uploadTaskImage({
           taskId,
           surface: "description",
           file,
         });
-
-        const chain = activeEditor.chain().focus();
-        if (range) {
-          chain.deleteRange(range);
-        }
-
-        chain
-          .setImage({
-            src: uploadedImage.url,
-            alt: uploadedImage.alt,
-          })
-          .run();
+        insertUploadedAsset(activeEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
-        toast.success("Image uploaded");
+        toast.success(
+          uploadedAsset.kind === "image" ? "Image uploaded" : "File attached",
+        );
       } catch (error) {
         toast.dismiss(loadingToast);
         toast.error(
-          error instanceof Error ? error.message : "Failed to upload image",
+          error instanceof Error ? error.message : "Failed to upload file",
         );
       }
     },
-    [taskId],
+    [insertUploadedAsset, taskId],
   );
 
   const openImagePicker = useCallback(
@@ -376,63 +411,63 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     [],
   );
 
-  const hasImageDrag = useCallback((event: React.DragEvent<HTMLElement>) => {
-    return Array.from(event.dataTransfer?.items || []).some((item) =>
-      item.type.toLowerCase().startsWith("image/"),
+  const hasFileDrag = useCallback((event: React.DragEvent<HTMLElement>) => {
+    return Array.from(event.dataTransfer?.items || []).some(
+      (item) => item.kind === "file",
     );
   }, []);
 
   const handleShellDragEnter = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (!taskId || !hasImageDrag(event)) return;
+      if (!taskId || !hasFileDrag(event)) return;
       event.preventDefault();
       dragDepthRef.current += 1;
       setIsDragActive(true);
     },
-    [hasImageDrag, taskId],
+    [hasFileDrag, taskId],
   );
 
   const handleShellDragOver = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (!taskId || !hasImageDrag(event)) return;
+      if (!taskId || !hasFileDrag(event)) return;
       event.preventDefault();
       event.dataTransfer.dropEffect = "copy";
       if (!isDragActive) {
         setIsDragActive(true);
       }
     },
-    [hasImageDrag, isDragActive, taskId],
+    [hasFileDrag, isDragActive, taskId],
   );
 
   const handleShellDragLeave = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (!taskId || !hasImageDrag(event)) return;
+      if (!taskId || !hasFileDrag(event)) return;
       event.preventDefault();
       dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
       if (dragDepthRef.current === 0) {
         setIsDragActive(false);
       }
     },
-    [hasImageDrag, taskId],
+    [hasFileDrag, taskId],
   );
 
   const handleShellDrop = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (!taskId || !hasImageDrag(event)) return;
+      if (!taskId || !hasFileDrag(event)) return;
       dragDepthRef.current = 0;
       setIsDragActive(false);
     },
-    [hasImageDrag, taskId],
+    [hasFileDrag, taskId],
   );
 
   const slashCommands = useMemo(
     () => [
       ...SLASH_COMMANDS,
       {
-        id: "image",
-        label: "Image",
+        id: "file",
+        label: "File",
         group: "insert" as const,
-        search: "image photo picture upload",
+        search: "file attachment image photo picture upload",
         run: (activeEditor: Editor, range: SlashRange) => {
           activeEditor.chain().focus().deleteRange(range).run();
           openImagePicker(activeEditor);
@@ -508,6 +543,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           themeLight: "github-light",
         }),
         EmbedBlock,
+        AttachmentCard,
         KaneoIssueLink,
         TaskList,
         Image.configure({
@@ -535,13 +571,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         },
         handlePaste: (view, event) => {
           const pastedFiles = Array.from(event.clipboardData?.files || []);
-          const pastedImage = pastedFiles.find((file) =>
-            file.type.toLowerCase().startsWith("image/"),
-          );
+          const pastedFile = pastedFiles[0];
 
-          if (pastedImage) {
+          if (pastedFile) {
             event.preventDefault();
-            void handleImageFileUpload(pastedImage, editor);
+            void handleAssetFileUpload(pastedFile, editor);
             return true;
           }
 
@@ -599,11 +633,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         },
         handleDrop: (view, event) => {
           const droppedFiles = Array.from(event.dataTransfer?.files || []);
-          const droppedImage = droppedFiles.find((file) =>
-            file.type.toLowerCase().startsWith("image/"),
-          );
+          const droppedFile = droppedFiles[0];
 
-          if (!droppedImage) return false;
+          if (!droppedFile) return false;
 
           event.preventDefault();
           const coordinates = view.posAtCoords({
@@ -614,7 +646,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
             ? { from: coordinates.pos, to: coordinates.pos }
             : undefined;
 
-          void handleImageFileUpload(droppedImage, editor, dropRange);
+          void handleAssetFileUpload(droppedFile, editor, dropRange);
           return true;
         },
         handleKeyDown: (view, event) => {
@@ -650,7 +682,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         debouncedUpdate(markdown);
       },
     },
-    [getOverlayPosition, handleImageFileUpload, toShikiLanguage],
+    [getOverlayPosition, handleAssetFileUpload, toShikiLanguage],
   );
 
   useEffect(() => {
@@ -1199,7 +1231,6 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       <input
         ref={imageInputRef}
         type="file"
-        accept="image/*"
         className="sr-only"
         onChange={(event) => {
           const file = event.target.files?.[0];
@@ -1207,7 +1238,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
           const pendingInsert = pendingImageInsertRef.current;
           pendingImageInsertRef.current = null;
-          void handleImageFileUpload(
+          void handleAssetFileUpload(
             file,
             pendingInsert?.editor,
             pendingInsert?.range,
@@ -1614,6 +1645,17 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         onMouseMove={handleEditorMouseMove}
         onMouseLeave={handleEditorMouseLeave}
       />
+      <button
+        type="button"
+        className="kaneo-editor-quick-attach"
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
+        onClick={() => openImagePicker(editor)}
+        aria-label="Attach file"
+      >
+        <Paperclip className="size-3.5" />
+      </button>
       {isDragActive && (
         <div className="kaneo-editor-drop-indicator">
           <span>Drop image to upload</span>
