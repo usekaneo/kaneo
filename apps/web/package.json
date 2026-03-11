@@ -69,7 +69,7 @@
 		"file-saver": "^2.0.5",
 		"framer-motion": "^12.34.3",
 		"highlight.js": "^11.11.1",
-		"hono": "^4.12.4",
+		"hono": "^4.12.7",
 		"immer": "^11.1.4",
 		"input-otp": "^1.4.2",
 		"lowlight": "^3.3.0",
