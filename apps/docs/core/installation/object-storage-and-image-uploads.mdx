@@ -15,6 +15,8 @@ Uploads use an S3-compatible object storage backend:
 
 This means Kaneo can work with multiple backends as long as they expose a compatible S3-style API.
 
+If you want backend-specific setup examples, see the [storage backends guide](/core/installation/storage-backends).
+
 ## Recommended local setup: MinIO
 
 For local or self-hosted deployments, MinIO is the recommended storage backend.
@@ -41,6 +43,48 @@ S3_FORCE_PATH_STYLE=true
 ```
 
 Create the bucket before using uploads.
+
+## Important: internal Docker URLs are not enough in production
+
+When Kaneo generates a presigned upload URL, the browser uploads directly to your storage backend.
+
+That means `S3_ENDPOINT` must be reachable by the browser, not just by Docker containers.
+
+For example:
+
+- `http://minio:9000` works only inside Docker
+- `https://files.example.com` works from the browser
+
+If your Kaneo deployment is public, do not leave `S3_ENDPOINT` set to `http://minio:9000`.
+
+Use a public MinIO hostname instead, for example:
+
+```env
+S3_ENDPOINT=https://files.cloud.kaneo.app
+S3_BUCKET=kaneo-uploads
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=true
+S3_PUBLIC_BASE_URL=https://files.cloud.kaneo.app/kaneo-uploads
+```
+
+## Recommended public setup
+
+The simplest production setup is:
+
+- `cloud.kaneo.app` for Kaneo
+- `files.cloud.kaneo.app` for MinIO
+
+Expose MinIO on its own public hostname through your reverse proxy.
+
+Why this is needed:
+
+- Kaneo signs uploads against `S3_ENDPOINT`
+- the browser uses that signed URL directly
+- Docker-internal names like `minio` are not resolvable from a user's browser
+
+Using a dedicated subdomain is recommended over proxying MinIO under a path.
 
 ## Other S3-compatible backends
 
@@ -107,5 +151,7 @@ If uploads fail:
 
 - confirm the bucket exists
 - confirm the credentials can write to the bucket
-- confirm the storage endpoint is reachable from the Kaneo API
+- confirm the storage endpoint is reachable from the browser
+- confirm `S3_ENDPOINT` is a public URL, not an internal Docker hostname
+- confirm `S3_PUBLIC_BASE_URL` matches the public asset host if you are using one
 - if using direct browser uploads, confirm CORS is configured correctly for your storage endpoint
