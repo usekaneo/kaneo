@@ -61,4 +61,63 @@ Additionally, the following volumes are used:
 
 - `postgres_data`: The PostgreSQL data.
 
+## Notes on object storage
+
+Kaneo uses S3-compatible object storage for image uploads in task descriptions and comments.
+
+- Object storage is optional. Kaneo runs without it, but image uploads in task descriptions and comments will be unavailable.
+- For local/self-hosted setups, MinIO is the recommended option when you want uploads.
+- The Kaneo API creates presigned upload URLs and the browser uploads images directly to the configured storage backend.
+- If you do not configure object storage, leave the `S3_*` variables unset.
+
+### Optional MinIO service
+
+Add this service and volume to your `compose.yml` only if you want image uploads:
+
+```yml
+services:
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    env_file:
+      - .env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+volumes:
+  minio_data:
+```
+
+Set the matching `S3_*` environment variables in your `.env` file. See the [environment variables page](/core/installation/environment-variables).
+
+### Example `.env` values for MinIO
+
+```env
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=minioadmin
+
+S3_ENDPOINT=http://minio:9000
+S3_BUCKET=kaneo-uploads
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=true
+```
+
+Create the bucket before testing uploads. With MinIO, you can do that from the MinIO Console at `http://localhost:9001`.
+
+### Using `fs` instead of MinIO
+
+If you want to use [`fs`](https://github.com/ferdzo/fs), you can point the same `S3_*` variables at its endpoint instead of MinIO. Kaneo only needs an S3-compatible API endpoint, credentials, and a bucket.
+
+When using `fs`, keep these differences in mind:
+
+- Set `S3_FORCE_PATH_STYLE=true`.
+- Create buckets through the S3 API or CLI, not through a web console.
+- Browser uploads may require reverse-proxy CORS handling, because `fs` does not currently implement S3 CORS APIs.
+
 After creating the compose file, the next step is to set up the environment variables.

@@ -4,9 +4,18 @@ import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
-import { taskTable, userTable } from "../database/schema";
+import {
+  projectTable,
+  taskTable,
+  userTable,
+  workspaceTable,
+} from "../database/schema";
 import { publishEvent } from "../events";
 import { taskSchema } from "../schemas";
+import {
+  createTaskImageUploadUrl,
+  validateImageUploadInput,
+} from "../storage/s3";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
@@ -507,6 +516,88 @@ const task = new Hono<{
     },
   )
 
+  .put(
+    "/image-upload/:id",
+    describeRoute({
+      operationId: "createTaskImageUpload",
+      tags: ["Tasks"],
+      description:
+        "Create a presigned image upload URL for a task description or comment",
+      responses: {
+        200: {
+          description: "Image upload URL created successfully",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator(
+      "json",
+      v.object({
+        filename: v.string(),
+        contentType: v.string(),
+        size: v.number(),
+        surface: v.picklist(["description", "comment"] as const),
+      }),
+    ),
+    workspaceAccess.fromTask(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { filename, contentType, size, surface } = c.req.valid("json");
+
+      try {
+        validateImageUploadInput(contentType, size);
+      } catch (error) {
+        throw new HTTPException(400, {
+          message:
+            error instanceof Error
+              ? error.message
+              : "Invalid image upload request",
+        });
+      }
+
+      const [taskContext] = await db
+        .select({
+          taskId: taskTable.id,
+          projectId: taskTable.projectId,
+          workspaceId: workspaceTable.id,
+        })
+        .from(taskTable)
+        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+        .innerJoin(
+          workspaceTable,
+          eq(projectTable.workspaceId, workspaceTable.id),
+        )
+        .where(eq(taskTable.id, id))
+        .limit(1);
+
+      if (!taskContext) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
+
+      try {
+        const upload = await createTaskImageUploadUrl({
+          workspaceId: taskContext.workspaceId,
+          projectId: taskContext.projectId,
+          taskId: taskContext.taskId,
+          surface,
+          filename,
+          contentType,
+        });
+
+        return c.json(upload);
+      } catch (error) {
+        throw new HTTPException(503, {
+          message:
+            error instanceof Error
+              ? error.message
+              : "Image uploads are not configured",
+        });
+      }
+    },
+  )
   .put(
     "/description/:id",
     describeRoute({

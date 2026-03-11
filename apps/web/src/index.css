@@ -230,6 +230,11 @@
     outline: none;
   }
 
+  .kaneo-tiptap-shell.is-drag-active,
+  .kaneo-comment-editor-shell.is-drag-active {
+    z-index: 90;
+  }
+
   .kaneo-tiptap-bubble {
     display: inline-flex;
     align-items: center;
@@ -543,6 +548,25 @@
     color: color-mix(in srgb, var(--foreground) 78%, transparent);
   }
 
+  .kaneo-tiptap-content .ProseMirror img.kaneo-editor-image,
+  .kaneo-comment-editor-prose img.kaneo-editor-image {
+    display: block;
+    max-width: min(100%, 44rem);
+    width: auto;
+    height: auto;
+    margin: 0.75rem 0;
+    border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+    border-radius: calc(var(--radius) - 2px);
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    object-fit: contain;
+    overflow: hidden;
+  }
+
+  .kaneo-create-task-modal .kaneo-comment-editor-prose img.kaneo-editor-image {
+    max-height: min(50vh, 28rem);
+    width: 100%;
+  }
+
   .kaneo-tiptap-content .ProseMirror .is-editor-empty:first-child::before {
     pointer-events: none;
     content: attr(data-placeholder);
@@ -813,6 +837,23 @@
 
   .kaneo-comment-editor-shell:focus-within {
     z-index: 80;
+  }
+
+  .kaneo-editor-drop-indicator {
+    pointer-events: none;
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    top: 0.75rem;
+    height: 2px;
+    z-index: 85;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ring) 78%, var(--primary));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--background) 88%, transparent);
+  }
+
+  .kaneo-editor-drop-indicator span {
+    display: none;
   }
 
   .kaneo-comment-editor-shell-readonly {
