@@ -1,10 +1,12 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { createFileRoute, useRouter, useSearch } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { ArrowLeft, RefreshCcw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import PageTitle from "@/components/page-title";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -114,14 +116,17 @@ function VerifyOtp() {
   return (
     <>
       <PageTitle title="Verify Code" />
-      <AuthLayout title="Enter verification code">
-        <div className="mt-4">
-          <div className="text-center space-y-2 mb-6">
-            <p className="text-sm text-muted-foreground">
-              Enter the 6-digit code sent to
-            </p>
-            <p className="text-sm font-medium">{email}</p>
-          </div>
+      <AuthLayout
+        title="Enter verification code"
+        subtitle="Use the 6-digit code sent to your email to continue"
+      >
+        <div className="space-y-4">
+          <Alert>
+            <AlertDescription className="text-xs">
+              Code sent to{" "}
+              <span className="font-mono text-foreground">{email}</span>
+            </AlertDescription>
+          </Alert>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -140,14 +145,17 @@ function VerifyOtp() {
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         pattern={REGEXP_ONLY_DIGITS}
+                        autoComplete="one-time-code"
+                        inputMode="numeric"
+                        name="one-time-code"
                       >
-                        <InputOTPGroup className="w-full justify-center items-center">
-                          <InputOTPSlot className="size-10" index={0} />
-                          <InputOTPSlot className="size-10" index={1} />
-                          <InputOTPSlot className="size-10" index={2} />
-                          <InputOTPSlot className="size-10" index={3} />
-                          <InputOTPSlot className="size-10" index={4} />
-                          <InputOTPSlot className="size-10" index={5} />
+                        <InputOTPGroup className="grid w-full grid-cols-6 gap-1.5">
+                          <InputOTPSlot className="h-11 w-full" index={0} />
+                          <InputOTPSlot className="h-11 w-full" index={1} />
+                          <InputOTPSlot className="h-11 w-full" index={2} />
+                          <InputOTPSlot className="h-11 w-full" index={3} />
+                          <InputOTPSlot className="h-11 w-full" index={4} />
+                          <InputOTPSlot className="h-11 w-full" index={5} />
                         </InputOTPGroup>
                       </InputOTP>
                     </FormControl>
@@ -160,22 +168,26 @@ function VerifyOtp() {
                 {isPending ? "Verifying..." : "Verify & Sign In"}
               </Button>
 
-              <div className="flex items-center justify-between text-sm">
-                <button
+              <div className="grid grid-cols-2 gap-2">
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => history.push("/auth/sign-in")}
-                  className="text-muted-foreground hover:text-foreground"
+                  className="w-full"
                 >
+                  <ArrowLeft className="size-4" />
                   Change email
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={handleResendOtp}
                   disabled={isPending}
-                  className="text-primary hover:underline"
+                  className="w-full"
                 >
-                  Resend code
-                </button>
+                  <RefreshCcw className="size-4" />
+                  Resend
+                </Button>
               </div>
             </form>
           </Form>
