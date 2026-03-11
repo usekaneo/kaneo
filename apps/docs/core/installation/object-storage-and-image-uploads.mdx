@@ -10,7 +10,7 @@ Kaneo supports private uploads in task descriptions and task comments.
 Uploads use an S3-compatible object storage backend:
 
 - the Kaneo API creates presigned upload URLs
-- the browser uploads images directly to the storage backend
+- the browser uploads files directly to the storage backend
 - Kaneo finalizes uploads into private asset records
 - Kaneo serves uploaded files back through its own API
 
@@ -146,7 +146,7 @@ Optional:
 | Name | Description |
 | --- | --- |
 | `S3_PUBLIC_BASE_URL` | Optional public asset base URL. Kaneo does not require this for the current private asset flow. |
-| `S3_MAX_IMAGE_UPLOAD_BYTES` | Maximum allowed upload size in bytes |
+| `S3_MAX_IMAGE_UPLOAD_BYTES` | Maximum allowed upload size in bytes for images and other uploaded files |
 | `S3_PRESIGN_TTL_SECONDS` | Presigned upload URL lifetime |
 
 ## Testing uploads
