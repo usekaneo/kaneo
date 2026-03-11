@@ -10,14 +10,14 @@ jobs:
   dependabot:
     name: Dependabot Auto-Merge
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: github.actor == 'dependabot[bot]' && github.event.pull_request.user.login == 'dependabot[bot]'
 
     steps:
       - name: Dependabot Metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: "${{ secrets.AUTO_MERGE_PAT }}"
 
       - name: Auto-Merge Dependabot PR
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
@@ -28,14 +28,14 @@ jobs:
           # Check if all required checks have passed
           if gh pr view "$PR_URL" --json statusCheckRollup --jq '.statusCheckRollup | all(.conclusion == "SUCCESS")'; then
             echo "All checks passed, merging..."
-            gh pr merge --rebase "$PR_URL"
+            gh pr merge --squash "$PR_URL"
           elif gh pr view "$PR_URL" --json statusCheckRollup --jq '.statusCheckRollup | length == 0'; then
             echo "No status checks required, merging..."
-            gh pr merge --rebase "$PR_URL"
+            gh pr merge --squash "$PR_URL"
           else
             echo "Status checks not passed, skipping merge"
             gh pr view "$PR_URL" --json statusCheckRollup
           fi
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GH_TOKEN: ${{secrets.AUTO_MERGE_PAT}}
