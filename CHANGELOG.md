@@ -1,3 +1,9 @@
+## [2.3.8](https://github.com/usekaneo/kaneo/compare/v2.3.7...v2.3.8) (2026-03-11)
+
+
+### Features
+
+* add image upload functionality to task descriptions and comments ([33f6940](https://github.com/usekaneo/kaneo/commit/33f69409f00da4341d1c3ad849ae865d2606c7c5))
 ## [2.3.7](https://github.com/usekaneo/kaneo/compare/v2.3.6...v2.3.7) (2026-03-11)
 
 
