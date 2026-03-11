@@ -1,3 +1,9 @@
+## [2.3.7](https://github.com/usekaneo/kaneo/compare/v2.3.6...v2.3.7) (2026-03-11)
+
+
+### Bug Fixes
+
+* update actions/checkout version to v6 in workflow files ([d26728b](https://github.com/usekaneo/kaneo/commit/d26728b4be7ca63bfbc0b33cf34c8403af900e71))
 ## [2.3.6](https://github.com/usekaneo/kaneo/compare/v2.3.4...v2.3.6) (2026-03-11)
 
 
