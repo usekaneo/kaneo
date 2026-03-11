@@ -1,3 +1,16 @@
+## [2.3.6](https://github.com/usekaneo/kaneo/compare/v2.3.4...v2.3.6) (2026-03-11)
+
+
+### Bug Fixes
+
+* update auto-merge conditions and change merge strategy to squash ([51ede69](https://github.com/usekaneo/kaneo/commit/51ede69004cf47382e029e4005f1f01807aa5c2b))
+* update better-auth and tiptap dependencies to latest versions ([9583146](https://github.com/usekaneo/kaneo/commit/9583146a38eb042b33df504e9f3456f68876fdf0))
+* update packageManager version to pnpm@10.32.1 ([c25c33d](https://github.com/usekaneo/kaneo/commit/c25c33db791de63153c79474d6f496dfb3da64ec))
+
+
+### Features
+
+* redesign task details page ([d2bebe8](https://github.com/usekaneo/kaneo/commit/d2bebe8a6827c0d8f3512bd9fd7fb67ad1a55943))
 ## [2.3.4](https://github.com/usekaneo/kaneo/compare/v2.3.3...v2.3.4) (2026-03-05)
 
 
