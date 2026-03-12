@@ -188,3 +188,32 @@ ingress:
           service: api
           port: 1337
   tls: []
+
+# Gateway API configuration
+gateway:
+  enabled: false
+  annotations: {}
+  labels: {}
+  parentRefs: []
+  hostnames: []
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - service: api
+          port: 1337
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - service: web
+          port: 80

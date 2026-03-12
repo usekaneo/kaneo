@@ -4,7 +4,7 @@ This Helm chart deploys [Kaneo](https://kaneo.app) - open source project managem
 
 ## Introduction
 
-This chart bootstraps a Kaneo deployment on a Kubernetes cluster using the Helm package manager. It deploys both the API backend and Web frontend components, along with a PostgreSQL database, with optional ingress resources.
+This chart bootstraps a Kaneo deployment on a Kubernetes cluster using the Helm package manager. It deploys both the API backend and Web frontend components, along with a PostgreSQL database, with optional ingress or Gateway API resources.
 
 ## Prerequisites
 
@@ -43,6 +43,21 @@ helm install kaneo ./charts/kaneo \
   --set ingress.enabled=true \
   --set ingress.className=nginx \
   --set "ingress.hosts[0].host=pm.yourcompany.com"
+```
+
+### Production Setup with Gateway API
+
+If your cluster already has Gateway API CRDs and a `Gateway` configured, you can expose Kaneo with an `HTTPRoute`:
+
+```bash
+helm install kaneo ./charts/kaneo \
+  --namespace kaneo \
+  --create-namespace \
+  --set gateway.enabled=true \
+  --set "gateway.parentRefs[0].name=main-gateway" \
+  --set "gateway.parentRefs[0].namespace=gateway-system" \
+  --set "gateway.parentRefs[0].sectionName=https" \
+  --set "gateway.hostnames[0]=pm.yourcompany.com"
 ```
 
 ## Installing the Chart
@@ -148,6 +163,17 @@ helm uninstall my-kaneo
 | `ingress.annotations`               | Ingress annotations                                                                                                | `{}`                            |
 | `ingress.hosts`                     | Ingress hosts configuration                                                                                        | See `values.yaml`               |
 | `ingress.tls`                       | Ingress TLS configuration                                                                                          | `[]`                            |
+
+### Gateway API parameters
+
+| Name                                | Description                                                                                                        | Value                           |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
+| `gateway.enabled`                   | Enable Gateway API `HTTPRoute` creation                                                                            | `false`                         |
+| `gateway.annotations`               | Annotations added to the `HTTPRoute`                                                                               | `{}`                            |
+| `gateway.labels`                    | Extra labels added to the `HTTPRoute`                                                                              | `{}`                            |
+| `gateway.parentRefs`                | Parent Gateway listener references for attaching the `HTTPRoute`                                                   | `[]`                            |
+| `gateway.hostnames`                 | Hostnames exposed by the `HTTPRoute`                                                                               | `[]`                            |
+| `gateway.rules`                     | Gateway API routing rules mapping paths to the chart services                                                      | See `values.yaml`               |
 
 ## Configuration Examples
 
@@ -379,52 +405,26 @@ ingress:
 
 ## Using Gateway API
 
-As an alternative to Ingress, you can use the Kubernetes Gateway API for more advanced routing capabilities:
+As an alternative to Ingress, the chart can create an `HTTPRoute` for the Kubernetes Gateway API:
 
 ```yaml
-# kaneo-gateway.yaml
-apiVersion: gateway.networking.k8s.io/v1beta1
-kind: HTTPRoute
-metadata:
-  name: kaneo
-  namespace: kaneo
-spec:
+# values.yaml
+gateway:
+  enabled: true
   parentRefs:
-  - name: main-gateway  # Your gateway name
-    namespace: gateway-system  # Your gateway namespace
-    sectionName: https
+    - name: main-gateway
+      namespace: gateway-system
+      sectionName: https
   hostnames:
-  - "kaneo.example.com"
-  rules:
-  # Frontend route (root path)
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: kaneo-web
-      port: 80
-  # API route (api path prefix)
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /api
-    backendRefs:
-    - name: kaneo-api
-      port: 1337
-    filters:
-    - type: URLRewrite
-      urlRewrite:
-        path:
-          type: ReplacePrefixMatch
-          replacePrefixMatch: /
+    - kaneo.example.com
 ```
 
-Apply the Gateway configuration:
+By default the chart creates two Gateway API rules:
 
-```bash
-kubectl apply -f kaneo-gateway.yaml
-```
+1. `/api` goes to the API service and rewrites the prefix to `/`
+2. `/` goes to the web service
+
+If you need custom matching or multiple backend references, override `gateway.rules` directly. Each `backendRefs` entry follows the same pattern as ingress and uses the chart-specific `service` field (`api` or `web`), which is expanded to the release-specific Service name.
 
 ## Security
 
