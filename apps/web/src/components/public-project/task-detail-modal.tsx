@@ -73,14 +73,14 @@ export function PublicTaskDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogPopup className="w-full max-w-3xl max-h-[85vh]">
-        <div className="bg-background border border-border rounded-lg flex flex-col max-h-[85vh] shadow-lg">
-          <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
+      <DialogPopup className="w-full max-w-4xl max-h-[85vh] p-0">
+        <div className="bg-background border border-border rounded-xl flex flex-col max-h-[85vh] shadow-lg">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/70 shrink-0">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="text-xs font-mono text-muted-foreground shrink-0">
+              <span className="text-sm font-medium text-muted-foreground shrink-0">
                 {projectSlug.toUpperCase()}-{task.number}
               </span>
-              <span className="text-xs text-muted-foreground px-1.5 py-0.5 bg-muted rounded capitalize shrink-0">
+              <span className="text-xs text-muted-foreground px-1.5 py-0.5 bg-muted rounded-md capitalize shrink-0">
                 {task.status?.replace("-", " ")}
               </span>
             </div>
@@ -92,9 +92,9 @@ export function PublicTaskDetailModal({
             </DialogClose>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground pr-8">
+          <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
+            <div className="space-y-3">
+              <h2 className="pr-8 text-2xl font-heading font-semibold leading-tight text-foreground">
                 {task.title}
               </h2>
 
@@ -141,23 +141,18 @@ export function PublicTaskDetailModal({
               </div>
             </div>
 
+            {task.description && (
+              <div className="pt-1">
+                <MarkdownRenderer content={task.description} />
+              </div>
+            )}
+
             {labels.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Labels
                 </h3>
                 <PublicTaskLabels labels={labels} />
-              </div>
-            )}
-
-            {task.description && (
-              <div className="space-y-2">
-                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Description
-                </h3>
-                <div className="text-sm text-foreground leading-relaxed bg-muted/30 p-4 rounded-md border border-border/50">
-                  <MarkdownRenderer content={task.description} />
-                </div>
               </div>
             )}
 

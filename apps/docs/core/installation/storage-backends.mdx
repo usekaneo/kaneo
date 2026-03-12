@@ -1,0 +1,232 @@
+---
+title: Storage backends
+description: Configure private uploads with MinIO, AWS S3, or Cloudflare R2.
+---
+
+## Overview
+
+Kaneo uses S3-compatible object storage for uploads in:
+
+- task descriptions
+- task comments
+
+The browser uploads directly to the configured storage backend using presigned URLs.
+
+Kaneo then serves uploaded assets back through its own API.
+
+Current behavior:
+
+- images render inline
+- non-image files such as CSV, PDF, and ZIP render as attachment cards/links
+- assets are private by default
+
+That means one rule matters for every backend:
+
+- `S3_ENDPOINT` must be reachable by the browser
+
+Do not use a Docker-internal hostname such as `http://minio:9000` for a public deployment unless the browser can actually reach it.
+
+## Required Kaneo variables
+
+```env
+S3_ENDPOINT=
+S3_BUCKET=
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=false
+```
+
+Notes:
+
+- `S3_FORCE_PATH_STYLE=true` is usually needed for MinIO.
+- `S3_FORCE_PATH_STYLE=false` is usually correct for AWS S3 and R2.
+- `S3_PUBLIC_BASE_URL` is optional and not required for the current private asset flow.
+
+## MinIO
+
+MinIO is the recommended self-hosted option.
+
+### Local Docker setup
+
+For local development, this is fine:
+
+```env
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=minioadmin
+
+S3_ENDPOINT=http://minio:9000
+S3_BUCKET=kaneo-uploads
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=true
+```
+
+This works when Kaneo and MinIO are on the same Docker network and your browser reaches MinIO through `localhost`.
+
+### Public deployment
+
+For a public deployment, expose MinIO on its own hostname through your reverse proxy.
+
+Example:
+
+- Kaneo: `https://cloud.kaneo.app`
+- MinIO: `https://files.cloud.kaneo.app`
+
+This can be done with Caddy, Nginx, Traefik, or any other reverse proxy.
+
+Then use:
+
+```env
+S3_ENDPOINT=https://files.cloud.kaneo.app
+S3_BUCKET=kaneo-uploads
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=true
+```
+
+You also need:
+
+- a created bucket
+- MinIO CORS allowing your Kaneo origin
+- no anonymous bucket read policy is required
+
+## AWS S3
+
+AWS S3 is the simplest managed option.
+
+Use a bucket and an IAM user with access to that bucket.
+
+Example:
+
+```env
+S3_ENDPOINT=https://s3.us-east-1.amazonaws.com
+S3_BUCKET=kaneo-uploads
+S3_ACCESS_KEY_ID=AKIA...
+S3_SECRET_ACCESS_KEY=...
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=false
+```
+
+For another AWS region, adjust:
+
+- `S3_ENDPOINT`
+
+Recommended S3 CORS policy:
+
+```json
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "PUT", "HEAD"],
+    "AllowedOrigins": ["https://cloud.kaneo.app"],
+    "ExposeHeaders": ["ETag"]
+  }
+]
+```
+
+## Cloudflare R2
+
+R2 works well because it exposes an S3-compatible API.
+
+Use your account endpoint, bucket, and R2 access keys.
+
+Example:
+
+```env
+S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+S3_BUCKET=kaneo-uploads
+S3_ACCESS_KEY_ID=...
+S3_SECRET_ACCESS_KEY=...
+S3_REGION=auto
+S3_FORCE_PATH_STYLE=false
+```
+
+Notes:
+
+- `S3_REGION=auto` is typical for R2
+- a public bucket is not required for Kaneo's current private asset flow
+
+## One copy-paste self-hosted example
+
+This example gives you Kaneo + MinIO in one Compose file.
+
+```yml
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ghcr.io/usekaneo/api:latest
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/usekaneo/web:latest
+    env_file:
+      - .env
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    env_file:
+      - .env
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  minio_data:
+```
+
+Matching `.env`:
+
+```env
+KANEO_CLIENT_URL=https://cloud.kaneo.app
+KANEO_API_URL=https://cloud.kaneo.app/api
+
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=change-me
+
+S3_ENDPOINT=https://files.cloud.kaneo.app
+S3_BUCKET=kaneo-uploads
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=change-me
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=true
+```
+
+Before testing uploads:
+
+1. Create the `kaneo-uploads` bucket.
+2. Configure MinIO CORS for your Kaneo origin.
+3. Make sure `files.cloud.kaneo.app` resolves publicly.
+
+## Troubleshooting
+
+If uploads fail:
+
+- check that the bucket exists
+- check that `S3_ENDPOINT` is public and browser-reachable
+- check CORS on your storage backend
+- check that the access key can `PutObject` and `GetObject`

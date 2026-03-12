@@ -37,12 +37,15 @@ import {
 } from "@/components/ui/popover";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
+import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
+import type Task from "@/types/task";
 
 type CreateTaskModalProps = {
   open: boolean;
@@ -73,6 +76,26 @@ type Label = {
 };
 
 type PopoverStep = "select" | "color";
+
+function normalizeTask(
+  task: Partial<Task> &
+    Pick<Task, "id" | "title" | "status" | "projectId" | "createdAt">,
+): Task {
+  return {
+    ...task,
+    number: task.number ?? null,
+    description: task.description ?? null,
+    priority: task.priority ?? null,
+    dueDate: task.dueDate ?? null,
+    position: task.position ?? 0,
+    userId: task.userId ?? null,
+    assigneeId: task.assigneeId ?? task.userId ?? null,
+    assigneeName: task.assigneeName ?? null,
+    assigneeImage: task.assigneeImage ?? null,
+    labels: task.labels ?? [],
+    externalLinks: task.externalLinks ?? [],
+  };
+}
 
 const labelColors = [
   {
@@ -137,6 +160,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
+  const [draftTask, setDraftTask] = useState<Task | null>(null);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
   const [labelsStep, setLabelsStep] = useState<PopoverStep>("select");
@@ -145,8 +169,12 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const [newLabelName, setNewLabelName] = useState("");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const draftCreationPromiseRef = useRef<Promise<Task> | null>(null);
+  const didSubmitRef = useRef(false);
 
-  const { mutateAsync } = useCreateTask();
+  const { mutateAsync: createTask } = useCreateTask();
+  const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: deleteTask } = useDeleteTask();
 
   const filteredLabels = (() => {
     const searchFiltered = workspaceLabels.filter((label) =>
@@ -171,6 +199,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     );
 
   const handleClose = () => {
+    const shouldDeleteDraft = draftTask && !didSubmitRef.current;
+
     setTitle("");
     setDescription("");
     setPriority("no-priority");
@@ -182,8 +212,121 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     setSearchValue("");
     setSelectedColor("gray");
     setNewLabelName("");
+    draftCreationPromiseRef.current = null;
+    didSubmitRef.current = false;
+    setDraftTask(null);
     onClose();
+
+    if (shouldDeleteDraft) {
+      void deleteTask(draftTask.id).catch(() => {
+        // ignore cleanup failures for abandoned empty drafts
+      });
+    }
   };
+
+  const syncTaskIntoProject = useCallback(
+    (task: Task) => {
+      if (!project) return;
+
+      const updatedProject = produce(project, (draft) => {
+        let existingTask:
+          | (typeof draft.columns)[number]["tasks"][number]
+          | undefined;
+
+        for (const column of draft.columns ?? []) {
+          const taskIndex = column.tasks.findIndex(
+            (columnTask) => columnTask.id === task.id,
+          );
+
+          if (taskIndex !== -1) {
+            existingTask = column.tasks[taskIndex];
+            column.tasks.splice(taskIndex, 1);
+            break;
+          }
+        }
+
+        if (task.status === "planned" || task.status === "archived") {
+          return;
+        }
+
+        const targetColumn = draft.columns?.find(
+          (column) => column.id === task.status,
+        );
+        if (!targetColumn) return;
+
+        targetColumn.tasks.push({
+          ...existingTask,
+          ...task,
+          assigneeId: task.userId,
+          assigneeName:
+            workspace?.members?.find((member) => member.userId === task.userId)
+              ?.user?.name ??
+            existingTask?.assigneeName ??
+            null,
+          assigneeImage:
+            workspace?.members?.find((member) => member.userId === task.userId)
+              ?.user?.image ??
+            existingTask?.assigneeImage ??
+            null,
+          position: task.position ?? 0,
+        });
+      });
+
+      setProject(updatedProject);
+    },
+    [project, setProject, workspace?.members],
+  );
+
+  const ensureDraftTask = useCallback(async () => {
+    if (draftTask) {
+      return draftTask.id;
+    }
+
+    if (draftCreationPromiseRef.current) {
+      const pendingTask = await draftCreationPromiseRef.current;
+      return pendingTask.id;
+    }
+
+    if (!project?.id) {
+      toast.error("Choose a project before uploading images.");
+      return null;
+    }
+
+    const draftStatus = "planned";
+    const draftPromise = createTask({
+      title: title.trim() || "Untitled task",
+      description: description.trim() || "",
+      userId: assigneeId,
+      priority,
+      projectId: project.id,
+      dueDate: dueDate ? dueDate.toISOString() : undefined,
+      status: draftStatus,
+    }).then((task) => normalizeTask(task));
+
+    draftCreationPromiseRef.current = draftPromise;
+
+    try {
+      const createdTask = await draftPromise;
+      setDraftTask(createdTask);
+      return createdTask.id;
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to prepare task",
+      );
+      return null;
+    } finally {
+      draftCreationPromiseRef.current = null;
+    }
+  }, [
+    assigneeId,
+    createTask,
+    description,
+    draftTask,
+    dueDate,
+    priority,
+    project?.id,
+    title,
+  ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,48 +334,51 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
 
     try {
       const taskStatus = status ?? "to-do";
+      didSubmitRef.current = true;
 
-      const newTask = await mutateAsync({
-        title: title.trim(),
-        description: description.trim() || "",
-        userId: assigneeId,
-        priority,
-        projectId: project?.id,
-        dueDate: dueDate ? dueDate.toISOString() : undefined,
-        status: taskStatus,
-      });
+      const savedTask = draftTask
+        ? normalizeTask(
+            await updateTask({
+              ...draftTask,
+              title: title.trim(),
+              description: description.trim() || "",
+              userId: assigneeId || null,
+              status: taskStatus,
+              priority,
+              dueDate: dueDate ? dueDate.toISOString() : null,
+              projectId: project.id,
+            }),
+          )
+        : normalizeTask(
+            await createTask({
+              title: title.trim(),
+              description: description.trim() || "",
+              userId: assigneeId,
+              priority,
+              projectId: project.id,
+              dueDate: dueDate ? dueDate.toISOString() : undefined,
+              status: taskStatus,
+            }),
+          );
 
       for (const label of labels) {
         try {
           await createLabel({
             name: label.name,
             color: label.color,
-            taskId: newTask.id,
-            workspaceId: workspace?.id,
+            taskId: savedTask.id,
+            workspaceId: workspace.id,
           });
         } catch (error) {
           console.error("Failed to create label:", error);
         }
       }
 
-      const updatedProject = produce(project, (draft) => {
-        if (newTask.status !== "planned" && newTask.status !== "archived") {
-          const targetColumn = draft.columns?.find(
-            (col) => col.id === newTask.status,
-          );
-          if (targetColumn) {
-            targetColumn.tasks.push({
-              ...newTask,
-              assigneeId: assigneeId,
-              assigneeName: assigneeId,
-              position: 0,
-            });
-          }
-        }
-      });
-
-      setProject(updatedProject);
-      toast.success("Task created successfully");
+      setDraftTask(savedTask);
+      syncTaskIntoProject(savedTask);
+      toast.success(
+        draftTask ? "Task updated successfully" : "Task created successfully",
+      );
 
       if (createMore) {
         setTitle("");
@@ -245,10 +391,14 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         setSearchValue("");
         setSelectedColor("gray");
         setNewLabelName("");
+        draftCreationPromiseRef.current = null;
+        didSubmitRef.current = false;
+        setDraftTask(null);
       } else {
         handleClose();
       }
     } catch (error) {
+      didSubmitRef.current = false;
       toast.error(
         error instanceof Error ? error.message : "Failed to create task",
       );
@@ -373,7 +523,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
-        className="max-w-2xl max-h-[90vh] flex flex-col"
+        className="kaneo-create-task-modal max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
         showCloseButton={false}
       >
         <DialogHeader className="flex-shrink-0">
@@ -400,7 +550,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
           onSubmit={handleSubmit}
           className="flex flex-col flex-1 min-h-0 space-y-6"
         >
-          <div className="space-y-6 px-6">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-6 px-6">
             <Input
               unstyled
               value={title}
@@ -416,6 +566,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                 value={description}
                 onChange={setDescription}
                 placeholder="Add a description for your task..."
+                taskId={draftTask?.id}
+                ensureTaskId={ensureDraftTask}
               />
             </div>
 
@@ -743,7 +895,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0 border-t border-border bg-background px-6 py-4">
             <div className="flex items-center gap-3 mr-auto">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
                 <input

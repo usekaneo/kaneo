@@ -202,6 +202,8 @@ export default function CommentCard({
           value={isEditing ? editedContent : content}
           onChange={isEditing ? setEditedContent : undefined}
           placeholder="Edit comment..."
+          taskId={taskId}
+          uploadSurface="comment"
           className={
             isEditing
               ? "[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[3rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-2.5 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"

@@ -1,4 +1,5 @@
 import type { Editor } from "@tiptap/core";
+import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -24,6 +25,7 @@ import {
   List,
   ListOrdered,
   ListTodo,
+  Paperclip,
   Quote,
   Strikethrough,
   Table2,
@@ -33,6 +35,7 @@ import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { bundledLanguages, type Highlighter } from "shiki";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogPopup } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -54,6 +57,9 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
+import { toast } from "@/lib/toast";
+import { uploadTaskImage } from "@/lib/upload-task-image";
+import { AttachmentCard } from "./extensions/attachment-card";
 import { EmbedBlock } from "./extensions/embed-block";
 import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
 import {
@@ -248,10 +254,16 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
 
   const editorShellRef = useRef<HTMLDivElement | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const dragDepthRef = useRef(0);
   const taskRef = useRef(task);
   const updateTaskRef = useRef(updateTaskDescription);
   const activeTaskIdRef = useRef<string | null>(null);
   const lastEditorRef = useRef<Editor | null>(null);
+  const pendingImageInsertRef = useRef<{
+    editor: Editor;
+    range?: SlashRange;
+  } | null>(null);
   const hasHydratedRef = useRef(false);
   const isSyncingExternalContentRef = useRef(false);
   const latestSyncedMarkdownRef = useRef("");
@@ -270,6 +282,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     null,
   );
   const [embedComposerError, setEmbedComposerError] = useState("");
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{
+    src: string;
+    alt: string;
+  } | null>(null);
   const slashMenuRef = useRef<SlashMenuState | null>(null);
 
   useEffect(() => {
@@ -307,6 +324,157 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       };
     },
     [],
+  );
+
+  const insertUploadedAsset = useCallback(
+    (
+      activeEditor: Editor,
+      asset: Awaited<ReturnType<typeof uploadTaskImage>>,
+      range?: SlashRange,
+    ) => {
+      const chain = activeEditor.chain().focus();
+
+      if (range) {
+        chain.deleteRange(range);
+      } else {
+        const { selection } = activeEditor.state;
+        if (!selection.empty) {
+          chain.setTextSelection(selection.to);
+        }
+      }
+
+      if (asset.kind === "image") {
+        chain
+          .setImage({
+            src: asset.url,
+            alt: asset.alt,
+          })
+          .run();
+        return;
+      }
+
+      chain
+        .insertContent({
+          type: "attachmentCard",
+          attrs: {
+            url: asset.url,
+            filename: asset.filename,
+            mimeType: asset.mimeType,
+            size: asset.size,
+          },
+        })
+        .run();
+    },
+    [],
+  );
+
+  const handleAssetFileUpload = useCallback(
+    async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
+      const activeEditor = targetEditor || lastEditorRef.current;
+
+      if (!activeEditor) {
+        toast.error("File upload failed");
+        return;
+      }
+
+      const loadingToast = toast.loading("Uploading file...");
+
+      try {
+        const uploadedAsset = await uploadTaskImage({
+          taskId,
+          surface: "description",
+          file,
+        });
+        insertUploadedAsset(activeEditor, uploadedAsset, range);
+
+        toast.dismiss(loadingToast);
+        toast.success(
+          uploadedAsset.kind === "image" ? "Image uploaded" : "File attached",
+        );
+      } catch (error) {
+        toast.dismiss(loadingToast);
+        toast.error(
+          error instanceof Error ? error.message : "Failed to upload file",
+        );
+      }
+    },
+    [insertUploadedAsset, taskId],
+  );
+
+  const openImagePicker = useCallback(
+    (activeEditor?: Editor | null, range?: SlashRange) => {
+      pendingImageInsertRef.current = activeEditor
+        ? { editor: activeEditor, range }
+        : null;
+      imageInputRef.current?.click();
+    },
+    [],
+  );
+
+  const hasFileDrag = useCallback((event: React.DragEvent<HTMLElement>) => {
+    return Array.from(event.dataTransfer?.items || []).some(
+      (item) => item.kind === "file",
+    );
+  }, []);
+
+  const handleShellDragEnter = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      if (!taskId || !hasFileDrag(event)) return;
+      event.preventDefault();
+      dragDepthRef.current += 1;
+      setIsDragActive(true);
+    },
+    [hasFileDrag, taskId],
+  );
+
+  const handleShellDragOver = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      if (!taskId || !hasFileDrag(event)) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+      if (!isDragActive) {
+        setIsDragActive(true);
+      }
+    },
+    [hasFileDrag, isDragActive, taskId],
+  );
+
+  const handleShellDragLeave = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      if (!taskId || !hasFileDrag(event)) return;
+      event.preventDefault();
+      dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+      if (dragDepthRef.current === 0) {
+        setIsDragActive(false);
+      }
+    },
+    [hasFileDrag, taskId],
+  );
+
+  const handleShellDrop = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      if (!taskId || !hasFileDrag(event)) return;
+      dragDepthRef.current = 0;
+      setIsDragActive(false);
+    },
+    [hasFileDrag, taskId],
+  );
+
+  const slashCommands = useMemo(
+    () => [
+      ...SLASH_COMMANDS,
+      {
+        id: "file",
+        label: "File",
+        group: "insert" as const,
+        search: "file attachment image photo picture upload",
+        run: (activeEditor: Editor, range: SlashRange) => {
+          activeEditor.chain().focus().deleteRange(range).run();
+          openImagePicker(activeEditor);
+        },
+      },
+    ],
+    [openImagePicker],
   );
 
   useEffect(() => {
@@ -375,8 +543,15 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           themeLight: "github-light",
         }),
         EmbedBlock,
+        AttachmentCard,
         KaneoIssueLink,
         TaskList,
+        Image.configure({
+          HTMLAttributes: {
+            class: "kaneo-editor-image",
+            loading: "lazy",
+          },
+        }),
         TaskItemWithCheckbox.configure({
           nested: true,
         }),
@@ -395,6 +570,15 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           class: "kaneo-tiptap-prose",
         },
         handlePaste: (view, event) => {
+          const pastedFiles = Array.from(event.clipboardData?.files || []);
+          const pastedFile = pastedFiles[0];
+
+          if (pastedFile) {
+            event.preventDefault();
+            void handleAssetFileUpload(pastedFile, editor);
+            return true;
+          }
+
           const plainText = event.clipboardData?.getData("text/plain") || "";
           const taskListNodes = parseTaskListMarkdownToNodes(plainText);
           if (taskListNodes) {
@@ -447,6 +631,24 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           setEmbedComposerError("");
           return true;
         },
+        handleDrop: (view, event) => {
+          const droppedFiles = Array.from(event.dataTransfer?.files || []);
+          const droppedFile = droppedFiles[0];
+
+          if (!droppedFile) return false;
+
+          event.preventDefault();
+          const coordinates = view.posAtCoords({
+            left: event.clientX,
+            top: event.clientY,
+          });
+          const dropRange = coordinates
+            ? { from: coordinates.pos, to: coordinates.pos }
+            : undefined;
+
+          void handleAssetFileUpload(droppedFile, editor, dropRange);
+          return true;
+        },
         handleKeyDown: (view, event) => {
           if (
             !(
@@ -480,7 +682,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         debouncedUpdate(markdown);
       },
     },
-    [getOverlayPosition, toShikiLanguage],
+    [getOverlayPosition, handleAssetFileUpload, toShikiLanguage],
   );
 
   useEffect(() => {
@@ -516,6 +718,29 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   }, [editor]);
 
   useEffect(() => {
+    if (!editor) return;
+
+    const handleImagePreviewClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!(target instanceof HTMLImageElement)) return;
+      if (!target.classList.contains("kaneo-editor-image")) return;
+
+      event.preventDefault();
+      setPreviewImage({
+        src: target.currentSrc || target.src,
+        alt: target.alt || "Preview image",
+      });
+    };
+
+    const dom = editor.view.dom;
+    dom.addEventListener("click", handleImagePreviewClick);
+
+    return () => {
+      dom.removeEventListener("click", handleImagePreviewClick);
+    };
+  }, [editor]);
+
+  useEffect(() => {
     slashMenuRef.current = slashMenu;
   }, [slashMenu]);
 
@@ -543,13 +768,13 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const filteredSlashCommands = useMemo(() => {
     const query = slashMenu?.query.trim().toLowerCase() || "";
-    if (!query) return SLASH_COMMANDS;
-    return SLASH_COMMANDS.filter(
+    if (!query) return slashCommands;
+    return slashCommands.filter(
       (command) =>
         command.label.toLowerCase().includes(query) ||
         command.search.includes(query),
     );
-  }, [slashMenu?.query]);
+  }, [slashCommands, slashMenu?.query]);
 
   const filteredSlashCommandsRef = useRef<SlashCommand[]>(
     filteredSlashCommands,
@@ -991,7 +1216,37 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   );
 
   return (
-    <div ref={editorShellRef} className="kaneo-tiptap-shell group">
+    <section
+      ref={editorShellRef}
+      aria-label="Task description editor"
+      className={cn(
+        "kaneo-tiptap-shell group",
+        isDragActive && "is-drag-active",
+      )}
+      onDragEnter={handleShellDragEnter}
+      onDragOver={handleShellDragOver}
+      onDragLeave={handleShellDragLeave}
+      onDrop={handleShellDrop}
+    >
+      <input
+        ref={imageInputRef}
+        type="file"
+        className="sr-only"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+
+          const pendingInsert = pendingImageInsertRef.current;
+          pendingImageInsertRef.current = null;
+          void handleAssetFileUpload(
+            file,
+            pendingInsert?.editor,
+            pendingInsert?.range,
+          );
+
+          event.target.value = "";
+        }}
+      />
       {editor && hoveredCodeBlock && (
         <div
           className="kaneo-codeblock-language"
@@ -1058,7 +1313,16 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       )}
 
       {editor && (
-        <BubbleMenu editor={editor} className="kaneo-tiptap-bubble">
+        <BubbleMenu
+          editor={editor}
+          className="kaneo-tiptap-bubble"
+          shouldShow={({ editor: activeEditor, from, to }) => {
+            if (activeEditor.isActive("embedBlock")) return false;
+            if (activeEditor.isActive("image")) return false;
+            if (activeEditor.isEmpty) return false;
+            return from !== to;
+          }}
+        >
           <Button
             type="button"
             variant="ghost"
@@ -1381,6 +1645,44 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         onMouseMove={handleEditorMouseMove}
         onMouseLeave={handleEditorMouseLeave}
       />
-    </div>
+      <button
+        type="button"
+        className="kaneo-editor-quick-attach"
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
+        onClick={() => openImagePicker(editor)}
+        aria-label="Attach file"
+      >
+        <Paperclip className="size-3.5" />
+      </button>
+      {isDragActive && (
+        <div className="kaneo-editor-drop-indicator">
+          <span>Drop image to upload</span>
+        </div>
+      )}
+      <Dialog
+        open={Boolean(previewImage)}
+        onOpenChange={(open) => {
+          if (!open) setPreviewImage(null);
+        }}
+      >
+        <DialogPopup
+          className="max-w-6xl border-0 bg-transparent p-0 shadow-none before:hidden"
+          showCloseButton={false}
+          bottomStickOnMobile={false}
+        >
+          {previewImage && (
+            <div className="flex max-h-[90vh] items-center justify-center p-4">
+              <img
+                src={previewImage.src}
+                alt={previewImage.alt}
+                className="max-h-[85vh] max-w-[92vw] rounded-xl border border-white/12 bg-black/30 object-contain shadow-2xl"
+              />
+            </div>
+          )}
+        </DialogPopup>
+      </Dialog>
+    </section>
   );
 }

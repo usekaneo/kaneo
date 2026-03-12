@@ -5,6 +5,7 @@ import {
   accountTableRelations,
   activityTableRelations,
   apikeyTableRelations,
+  assetTableRelations,
   columnTableRelations,
   externalLinkTableRelations,
   githubIntegrationTableRelations,
@@ -28,6 +29,7 @@ import {
   accountTable,
   activityTable,
   apikeyTable,
+  assetTable,
   columnTable,
   externalLinkTable,
   githubIntegrationTable,
@@ -58,6 +60,7 @@ const pool = new Pool({
 
 export const schema = {
   accountTable,
+  assetTable,
   activityTable,
   apikeyTable,
   columnTable,
@@ -79,6 +82,7 @@ export const schema = {
   workspaceTable,
   workspaceUserTable,
   accountTableRelations,
+  assetTableRelations,
   activityTableRelations,
   apikeyTableRelations,
   columnTableRelations,

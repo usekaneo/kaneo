@@ -3,6 +3,7 @@ import {
   accountTable,
   activityTable,
   apikeyTable,
+  assetTable,
   columnTable,
   externalLinkTable,
   githubIntegrationTable,
@@ -32,6 +33,7 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
   assignedTasks: many(taskTable),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
+  assets: many(assetTable),
   notifications: many(notificationTable),
   sentInvitations: many(invitationTable),
   apikeys: many(apikeyTable),
@@ -62,6 +64,7 @@ export const workspaceTableRelations = relations(
     teams: many(teamTable),
     members: many(workspaceUserTable),
     projects: many(projectTable),
+    assets: many(assetTable),
     invitations: many(invitationTable),
   }),
 );
@@ -88,6 +91,7 @@ export const projectTableRelations = relations(
       references: [workspaceTable.id],
     }),
     tasks: many(taskTable),
+    assets: many(assetTable),
     columns: many(columnTable),
     workflowRules: many(workflowRuleTable),
     githubIntegration: many(githubIntegrationTable),
@@ -133,6 +137,7 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
+  assets: many(assetTable),
   labels: many(labelTable),
   externalLinks: many(externalLinkTable),
 }));
@@ -155,6 +160,29 @@ export const activityTableRelations = relations(activityTable, ({ one }) => ({
   }),
   user: one(userTable, {
     fields: [activityTable.userId],
+    references: [userTable.id],
+  }),
+}));
+
+export const assetTableRelations = relations(assetTable, ({ one }) => ({
+  workspace: one(workspaceTable, {
+    fields: [assetTable.workspaceId],
+    references: [workspaceTable.id],
+  }),
+  project: one(projectTable, {
+    fields: [assetTable.projectId],
+    references: [projectTable.id],
+  }),
+  task: one(taskTable, {
+    fields: [assetTable.taskId],
+    references: [taskTable.id],
+  }),
+  activity: one(activityTable, {
+    fields: [assetTable.activityId],
+    references: [activityTable.id],
+  }),
+  creator: one(userTable, {
+    fields: [assetTable.createdBy],
     references: [userTable.id],
   }),
 }));

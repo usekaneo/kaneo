@@ -5,6 +5,9 @@ import type { MagicLinkEmailProps } from "./templates/magic-link";
 import MagicLinkEmail from "./templates/magic-link";
 import type { OtpEmailProps } from "./templates/otp";
 import OtpEmail from "./templates/otp";
+import PasswordResetEmail, {
+  type PasswordResetEmailProps,
+} from "./templates/password-reset";
 import WorkspaceInvitationEmail, {
   type WorkspaceInvitationEmailProps,
 } from "./templates/workspace-invitation";
@@ -56,6 +59,24 @@ export const sendOtpEmail = async (
     });
   } catch (error) {
     console.error("Error sending OTP email", error);
+  }
+};
+
+export const sendPasswordResetEmail = async (
+  to: string,
+  subject: string,
+  data: PasswordResetEmailProps,
+) => {
+  const emailTemplate = await render(PasswordResetEmail(data));
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+  } catch (error) {
+    console.error("Error sending password reset email", error);
   }
 };
 

@@ -65,6 +65,8 @@
 							"core/installation/index",
 							"core/installation/drim",
 							"core/installation/docker-compose",
+							"core/installation/object-storage-and-image-uploads",
+							"core/installation/storage-backends",
 							"core/installation/environment-variables",
 							"core/installation/start-services"
 						]

@@ -13,6 +13,7 @@ The variables are split up into the following sections:
 - [General URLs](#general-urls)
 - [Database](#database)
 - [Authentication](#authentication)
+- [Object Storage](#object-storage)
 - [Access Control](#access-control)
 - [GitHub SSO & Integration](#github-sso-&-integration)
 - [Google SSO](#google-sso)
@@ -52,6 +53,24 @@ Name | Description |
 
 
 ## Optional variables
+
+### Object Storage
+
+Kaneo uses S3-compatible object storage for private uploads in task descriptions and task comments.
+
+MinIO is the easiest local option and the primary tested target. You can also use other S3-compatible storage backends such as AWS S3, Cloudflare R2, or [`fs`](https://github.com/ferdzo/fs).
+
+Name | Description | Default |
+--- | --- | --- |
+| `S3_ENDPOINT` | The S3-compatible API endpoint used by the Kaneo API for presigned uploads. Example: `http://minio:9000`. |  |
+| `S3_BUCKET` | The bucket Kaneo will use for uploaded files. |  |
+| `S3_ACCESS_KEY_ID` | Access key used by the Kaneo API to create presigned upload URLs. |  |
+| `S3_SECRET_ACCESS_KEY` | Secret key used by the Kaneo API to create presigned upload URLs. |  |
+| `S3_REGION` | The storage region used for request signing. | `us-east-1` |
+| `S3_PUBLIC_BASE_URL` | Optional public base URL for uploaded assets. Kaneo does not require this for the current private asset flow. |  |
+| `S3_FORCE_PATH_STYLE` | Use path-style S3 URLs. This should usually be `true` for MinIO and `fs`. | `true` |
+| `S3_MAX_IMAGE_UPLOAD_BYTES` | Maximum allowed upload size in bytes for images and other uploaded files. | `10485760` |
+| `S3_PRESIGN_TTL_SECONDS` | How long presigned upload URLs remain valid. | `300` |
 
 ### Access Control
 

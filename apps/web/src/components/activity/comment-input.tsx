@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Paperclip } from "lucide-react";
 import { useCallback, useState } from "react";
 import CommentEditor from "@/components/activity/comment-editor";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ type CommentInputProps = {
 
 export default function CommentInput({ taskId }: CommentInputProps) {
   const [content, setContent] = useState("");
+  const [attachAction, setAttachAction] = useState<(() => void) | null>(null);
   const { mutateAsync: createComment, isPending } = useCreateComment();
   const queryClient = useQueryClient();
 
@@ -46,6 +47,13 @@ export default function CommentInput({ taskId }: CommentInputProps) {
     }
   }, [content, createComment, taskId, queryClient]);
 
+  const handleAttachActionChange = useCallback(
+    (nextAttachAction: (() => void) | null) => {
+      setAttachAction(() => nextAttachAction);
+    },
+    [],
+  );
+
   return (
     <div className="w-full">
       <div className="rounded-xl border border-border/80 bg-card/70 transition-colors focus-within:border-ring/60 focus-within:shadow-[0_0_0_2px_color-mix(in_srgb,var(--ring)_20%,transparent)]">
@@ -53,10 +61,24 @@ export default function CommentInput({ taskId }: CommentInputProps) {
           value={content}
           onChange={setContent}
           placeholder="Leave a comment..."
+          taskId={taskId}
+          uploadSurface="comment"
+          showQuickAttachButton={false}
+          onAttachActionChange={handleAttachActionChange}
           className="[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[3rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"
           onSubmitShortcut={handleSubmit}
         />
-        <div className="flex items-center justify-end border-border/70 border-t px-2 py-2">
+        <div className="flex items-center justify-end gap-2 border-border/70 border-t px-2 py-2">
+          <Button
+            size="xs"
+            variant="ghost"
+            onClick={() => attachAction?.()}
+            disabled={!attachAction}
+            className="text-muted-foreground"
+            aria-label="Attach file"
+          >
+            <Paperclip className="size-3.5" />
+          </Button>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

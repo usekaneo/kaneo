@@ -1,6 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
-import { createSlug } from "@/lib/utils/create-slug";
+import {
+  createUniqueWorkspaceSlug,
+  isWorkspaceSlugCollisionError,
+} from "@/lib/utils/create-workspace-slug";
 
 type CreateWorkspaceRequest = {
   name: string;
@@ -22,22 +25,45 @@ function useCreateWorkspace() {
       userId,
     }: CreateWorkspaceRequest) => {
       const metadata = description ? { description } : undefined;
-      const workspaceSlug = slug || createSlug(name);
+      const existingWorkspaces = slug
+        ? []
+        : ((await authClient.organization.list()).data ?? []);
+      let workspaceSlug = slug
+        ? slug
+        : createUniqueWorkspaceSlug(
+            name,
+            existingWorkspaces.map((workspace) => workspace.slug),
+          );
 
-      const { data, error } = await authClient.organization.create({
-        name,
-        slug: workspaceSlug,
-        logo: logo || undefined,
-        metadata,
-        keepCurrentActiveOrganization,
-        userId: userId,
-      });
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const { data, error } = await authClient.organization.create({
+          name,
+          slug: workspaceSlug,
+          logo: logo || undefined,
+          metadata,
+          keepCurrentActiveOrganization,
+          userId: userId,
+        });
 
-      if (error) {
-        throw new Error(error.message || "Failed to create workspace");
+        if (!error) {
+          return data;
+        }
+
+        const createError = new Error(
+          error.message || "Failed to create workspace",
+        );
+
+        if (slug || !isWorkspaceSlugCollisionError(createError)) {
+          throw createError;
+        }
+
+        workspaceSlug = createUniqueWorkspaceSlug(name, [
+          ...existingWorkspaces.map((workspace) => workspace.slug),
+          workspaceSlug,
+        ]);
       }
 
-      return data;
+      throw new Error("Failed to create workspace");
     },
   });
 }

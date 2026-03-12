@@ -34,15 +34,45 @@ spec:
               containerPort: {{ .Values.api.service.targetPort }}
               protocol: TCP
           env:
-            - name: JWT_ACCESS
+            # Updated to support Better Auth
+            - name: BETTER_AUTH_SECRET
               {{- if .Values.api.env.existingSecret.enabled }}
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.api.env.existingSecret.name }}
                   key: {{ .Values.api.env.existingSecret.key }}
               {{- else }}
-              value: "{{ .Values.api.env.jwtAccess }}"
+              value: "{{ .Values.api.env.authSecret }}"
               {{- end }}
+            - name: AUTH_SECRET
+              {{- if .Values.api.env.existingSecret.enabled }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.api.env.existingSecret.name }}
+                  key: {{ .Values.api.env.existingSecret.key }}
+              {{- else }}
+              value: "{{ .Values.api.env.authSecret }}"
+              {{- end }}
+            - name: BETTER_AUTH_URL
+              value: "{{- if .Values.web.env.apiUrl -}}
+                {{ .Values.web.env.apiUrl }}
+              {{- else -}}
+                http://localhost:{{ .Values.api.service.targetPort }}
+              {{- end -}}"
+            - name: KANEO_API_URL
+              value: "{{- if .Values.web.env.apiUrl -}}
+                {{- .Values.web.env.apiUrl -}}
+              {{- else -}}
+                http://localhost:{{ .Values.api.service.targetPort }}
+              {{- end -}}"
+            - name: KANEO_CLIENT_URL
+              value: "{{- if .Values.web.env.apiUrl -}}
+                {{- .Values.web.env.apiUrl -}}
+              {{- else -}}
+                http://localhost:{{ .Values.web.service.targetPort }}
+              {{- end -}}"
+            - name: CORS_ORIGINS
+              value: "{{ .Values.web.env.apiUrl | default "*" }}"
             - name: DATABASE_URL
               {{- if .Values.api.env.database.external.enabled }}
               {{- if .Values.api.env.database.external.existingSecret.enabled }}
@@ -77,26 +107,14 @@ spec:
           env:
             - name: KANEO_API_URL
               value: "{{- if .Values.web.env.apiUrl -}}
-                {{- if hasSuffix "/" .Values.web.env.apiUrl -}}
-                  {{- .Values.web.env.apiUrl -}}api
-                {{- else -}}
-                  {{- .Values.web.env.apiUrl -}}/api
-                {{- end -}}
+                {{- .Values.web.env.apiUrl -}}
               {{- else -}}
                 http://localhost:{{ .Values.api.service.targetPort }}
               {{- end -}}"
           livenessProbe:
-            httpGet:
-              path: /
-              port: web
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            {{- toYaml .Values.web.livenessProbe | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: web
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            {{- toYaml .Values.web.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
 

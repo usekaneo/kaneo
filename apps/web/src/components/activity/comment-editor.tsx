@@ -1,4 +1,5 @@
 import type { Editor } from "@tiptap/core";
+import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -21,11 +22,13 @@ import {
   List,
   ListOrdered,
   ListTodo,
+  Paperclip,
   UnderlineIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { bundledLanguages, type Highlighter } from "shiki";
+import { AttachmentCard } from "@/components/task/extensions/attachment-card";
 import { EmbedBlock } from "@/components/task/extensions/embed-block";
 import { KaneoIssueLink } from "@/components/task/extensions/kaneo-issue-link";
 import {
@@ -34,6 +37,7 @@ import {
 } from "@/components/task/extensions/shiki-code-block";
 import { TaskItemWithCheckbox } from "@/components/task/extensions/task-item-with-checkbox";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogPopup } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -52,12 +56,16 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
+import { toast } from "@/lib/toast";
+import { uploadTaskImage } from "@/lib/upload-task-image";
 
 type CommentEditorProps = {
   value: string;
   onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
+  contentClassName?: string;
+  proseClassName?: string;
   autoFocus?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
@@ -65,6 +73,11 @@ type CommentEditorProps = {
   slashMenuPosition?: "absolute" | "fixed";
   onSubmitShortcut?: () => void;
   onCancelShortcut?: () => void;
+  taskId?: string;
+  uploadSurface?: "description" | "comment";
+  ensureTaskId?: () => Promise<string | null>;
+  showQuickAttachButton?: boolean;
+  onAttachActionChange?: (attach: (() => void) | null) => void;
 };
 
 type SlashRange = { from: number; to: number };
@@ -141,6 +154,8 @@ export default function CommentEditor({
   onChange,
   placeholder = "Leave a comment...",
   className,
+  contentClassName,
+  proseClassName,
   autoFocus = false,
   disabled = false,
   readOnly = false,
@@ -148,12 +163,26 @@ export default function CommentEditor({
   slashMenuPosition = "absolute",
   onSubmitShortcut,
   onCancelShortcut,
+  taskId,
+  uploadSurface = "comment",
+  ensureTaskId,
+  showQuickAttachButton = true,
+  onAttachActionChange,
 }: CommentEditorProps) {
   const editorShellRef = useRef<HTMLDivElement | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const dragDepthRef = useRef(0);
   const isSyncingRef = useRef(false);
   const hasHydratedRef = useRef(false);
   const latestValueRef = useRef(normalizeMarkdown(value || ""));
   const lastEditorRef = useRef<Editor | null>(null);
+  const taskIdRef = useRef(taskId);
+  const ensureTaskIdRef = useRef(ensureTaskId);
+  const uploadSurfaceRef = useRef(uploadSurface);
+  const pendingImageInsertRef = useRef<{
+    editor: Editor;
+    range?: SlashRange;
+  } | null>(null);
   const [slashMenu, setSlashMenu] = useState<SlashMenuState | null>(null);
   const [shikiHighlighter, setShikiHighlighter] = useState<Highlighter | null>(
     null,
@@ -170,6 +199,11 @@ export default function CommentEditor({
     null,
   );
   const [embedComposerError, setEmbedComposerError] = useState("");
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{
+    src: string;
+    alt: string;
+  } | null>(null);
   const codeLanguages = useMemo(() => COMMENT_CODE_LANGUAGE_OPTIONS, []);
   const availableShikiLanguages = useMemo(
     () => new Set(Object.keys(bundledLanguages)),
@@ -200,6 +234,158 @@ export default function CommentEditor({
       };
     },
     [slashMenuPosition],
+  );
+
+  useEffect(() => {
+    taskIdRef.current = taskId;
+    ensureTaskIdRef.current = ensureTaskId;
+    uploadSurfaceRef.current = uploadSurface;
+  }, [ensureTaskId, taskId, uploadSurface]);
+
+  const insertUploadedAsset = useCallback(
+    (
+      activeEditor: Editor,
+      asset: Awaited<ReturnType<typeof uploadTaskImage>>,
+      range?: SlashRange,
+    ) => {
+      const chain = activeEditor.chain().focus();
+
+      if (range) {
+        chain.deleteRange(range);
+      } else {
+        const { selection } = activeEditor.state;
+        if (!selection.empty) {
+          chain.setTextSelection(selection.to);
+        }
+      }
+
+      if (asset.kind === "image") {
+        chain
+          .setImage({
+            src: asset.url,
+            alt: asset.alt,
+          })
+          .run();
+        return;
+      }
+
+      chain
+        .insertContent({
+          type: "attachmentCard",
+          attrs: {
+            url: asset.url,
+            filename: asset.filename,
+            mimeType: asset.mimeType,
+            size: asset.size,
+          },
+        })
+        .run();
+    },
+    [],
+  );
+
+  const handleAssetFileUpload = useCallback(
+    async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
+      const activeEditor = targetEditor || lastEditorRef.current;
+      const resolvedTaskId =
+        taskIdRef.current ?? (await ensureTaskIdRef.current?.());
+
+      if (!activeEditor || !resolvedTaskId) {
+        toast.error("File uploads are only available on saved tasks.");
+        return;
+      }
+
+      const loadingToast = toast.loading("Uploading file...");
+
+      try {
+        const uploadedAsset = await uploadTaskImage({
+          taskId: resolvedTaskId,
+          surface: uploadSurfaceRef.current,
+          file,
+        });
+        insertUploadedAsset(activeEditor, uploadedAsset, range);
+
+        toast.dismiss(loadingToast);
+        toast.success(
+          uploadedAsset.kind === "image" ? "Image uploaded" : "File attached",
+        );
+      } catch (error) {
+        toast.dismiss(loadingToast);
+        toast.error(
+          error instanceof Error ? error.message : "Failed to upload file",
+        );
+      }
+    },
+    [insertUploadedAsset],
+  );
+
+  const canUploadFiles = Boolean(taskId || ensureTaskId);
+
+  const openImagePicker = useCallback(
+    (activeEditor?: Editor | null, range?: SlashRange) => {
+      pendingImageInsertRef.current = activeEditor
+        ? { editor: activeEditor, range }
+        : null;
+      imageInputRef.current?.click();
+    },
+    [],
+  );
+
+  const hasFileDrag = useCallback((event: React.DragEvent<HTMLElement>) => {
+    return Array.from(event.dataTransfer?.items || []).some(
+      (item) => item.kind === "file",
+    );
+  }, []);
+
+  const handleShellDragEnter = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      if (readOnly || disabled || !canUploadFiles || !hasFileDrag(event)) {
+        return;
+      }
+      event.preventDefault();
+      dragDepthRef.current += 1;
+      setIsDragActive(true);
+    },
+    [canUploadFiles, disabled, hasFileDrag, readOnly],
+  );
+
+  const handleShellDragOver = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      if (readOnly || disabled || !canUploadFiles || !hasFileDrag(event)) {
+        return;
+      }
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+      if (!isDragActive) {
+        setIsDragActive(true);
+      }
+    },
+    [canUploadFiles, disabled, hasFileDrag, isDragActive, readOnly],
+  );
+
+  const handleShellDragLeave = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      if (readOnly || disabled || !canUploadFiles || !hasFileDrag(event)) {
+        return;
+      }
+      event.preventDefault();
+      dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+      if (dragDepthRef.current === 0) {
+        setIsDragActive(false);
+      }
+    },
+    [canUploadFiles, disabled, hasFileDrag, readOnly],
+  );
+
+  const handleShellDrop = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      if (readOnly || disabled || !canUploadFiles || !hasFileDrag(event)) {
+        return;
+      }
+      dragDepthRef.current = 0;
+      setIsDragActive(false);
+    },
+    [canUploadFiles, disabled, hasFileDrag, readOnly],
   );
 
   const slashCommands = useMemo<SlashCommand[]>(
@@ -315,8 +501,18 @@ export default function CommentEditor({
             .run();
         },
       },
+      {
+        id: "file",
+        label: "File",
+        group: "insert",
+        search: "file attachment image photo picture upload",
+        run: (activeEditor, range) => {
+          activeEditor.chain().focus().deleteRange(range).run();
+          openImagePicker(activeEditor);
+        },
+      },
     ],
-    [],
+    [openImagePicker],
   );
 
   useEffect(() => {
@@ -373,8 +569,15 @@ export default function CommentEditor({
           themeLight: "github-light",
         }),
         EmbedBlock,
+        AttachmentCard,
         KaneoIssueLink,
         TaskList,
+        Image.configure({
+          HTMLAttributes: {
+            class: "kaneo-editor-image",
+            loading: "lazy",
+          },
+        }),
         TaskItemWithCheckbox.configure({
           nested: true,
         }),
@@ -391,12 +594,21 @@ export default function CommentEditor({
       editorProps: {
         attributes: {
           class: cn(
-            "kaneo-comment-editor-prose",
+            proseClassName || "kaneo-comment-editor-prose",
             readOnly && "kaneo-comment-editor-prose-readonly",
           ),
         },
         handlePaste: (view, event) => {
           if (readOnly || disabled) return false;
+
+          const pastedFiles = Array.from(event.clipboardData?.files || []);
+          const pastedFile = pastedFiles[0];
+
+          if (pastedFile) {
+            event.preventDefault();
+            void handleAssetFileUpload(pastedFile, editor);
+            return true;
+          }
 
           const plainText = event.clipboardData?.getData("text/plain") || "";
           const taskListNodes = parseTaskListMarkdownToNodes(plainText);
@@ -447,6 +659,27 @@ export default function CommentEditor({
             left: coords.left,
           });
           setEmbedComposerError("");
+          return true;
+        },
+        handleDrop: (view, event) => {
+          if (readOnly || disabled) return false;
+
+          const droppedFiles = Array.from(event.dataTransfer?.files || []);
+          const droppedFile = droppedFiles[0];
+
+          if (!droppedFile) return false;
+
+          event.preventDefault();
+          const coordinates = view.posAtCoords({
+            left: event.clientX,
+            top: event.clientY,
+          });
+
+          const dropRange = coordinates
+            ? { from: coordinates.pos, to: coordinates.pos }
+            : undefined;
+
+          void handleAssetFileUpload(droppedFile, editor, dropRange);
           return true;
         },
         handleKeyDown: (_view, event) => {
@@ -555,8 +788,18 @@ export default function CommentEditor({
         onChange(markdown);
       },
     },
-    [toShikiLanguage],
+    [handleAssetFileUpload, toShikiLanguage],
   );
+
+  useEffect(() => {
+    if (!onAttachActionChange) return;
+
+    onAttachActionChange(editor ? () => openImagePicker(editor) : null);
+
+    return () => {
+      onAttachActionChange(null);
+    };
+  }, [editor, onAttachActionChange, openImagePicker]);
 
   useEffect(() => {
     if (!editor || !shikiHighlighter) return;
@@ -587,6 +830,29 @@ export default function CommentEditor({
     observer.observe(root, { attributes: true, attributeFilter: ["class"] });
     return () => {
       observer.disconnect();
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleImagePreviewClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!(target instanceof HTMLImageElement)) return;
+      if (!target.classList.contains("kaneo-editor-image")) return;
+
+      event.preventDefault();
+      setPreviewImage({
+        src: target.currentSrc || target.src,
+        alt: target.alt || "Preview image",
+      });
+    };
+
+    const dom = editor.view.dom;
+    dom.addEventListener("click", handleImagePreviewClick);
+
+    return () => {
+      dom.removeEventListener("click", handleImagePreviewClick);
     };
   }, [editor]);
 
@@ -1018,14 +1284,41 @@ export default function CommentEditor({
   }, [editor, hoveredCodeBlock]);
 
   return (
-    <div
+    <section
       ref={editorShellRef}
+      aria-label={readOnly ? "Comment content" : "Comment editor"}
       className={cn(
         "kaneo-comment-editor-shell",
+        isDragActive && "is-drag-active",
         readOnly && "kaneo-comment-editor-shell-readonly",
         className,
       )}
+      onDragEnter={handleShellDragEnter}
+      onDragOver={handleShellDragOver}
+      onDragLeave={handleShellDragLeave}
+      onDrop={handleShellDrop}
     >
+      {!readOnly && !disabled && (
+        <input
+          ref={imageInputRef}
+          type="file"
+          className="sr-only"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            const pendingInsert = pendingImageInsertRef.current;
+            pendingImageInsertRef.current = null;
+            void handleAssetFileUpload(
+              file,
+              pendingInsert?.editor,
+              pendingInsert?.range,
+            );
+
+            event.target.value = "";
+          }}
+        />
+      )}
       {editor && hoveredCodeBlock && !disabled && (
         <div
           className="kaneo-codeblock-language"
@@ -1098,6 +1391,7 @@ export default function CommentEditor({
           className="kaneo-comment-editor-bubble"
           shouldShow={({ editor: activeEditor, from, to }) => {
             if (activeEditor.isActive("embedBlock")) return false;
+            if (activeEditor.isActive("image")) return false;
             if (activeEditor.isEmpty) return false;
             return from !== to;
           }}
@@ -1188,6 +1482,15 @@ export default function CommentEditor({
             onClick={setLink}
           >
             <Link2 className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            onClick={() => openImagePicker(editor)}
+          >
+            <Paperclip className="size-3.5" />
           </Button>
         </BubbleMenu>
       )}
@@ -1345,10 +1648,50 @@ export default function CommentEditor({
       )}
       <EditorContent
         editor={editor}
-        className="kaneo-comment-editor-content"
+        className={cn("kaneo-comment-editor-content", contentClassName)}
         onMouseMove={handleEditorMouseMove}
         onMouseLeave={handleEditorMouseLeave}
       />
-    </div>
+      {!readOnly && !disabled && showQuickAttachButton && (
+        <button
+          type="button"
+          className="kaneo-editor-quick-attach"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => openImagePicker(editor)}
+          aria-label="Attach file"
+        >
+          <Paperclip className="size-3.5" />
+        </button>
+      )}
+      {isDragActive && (
+        <div className="kaneo-editor-drop-indicator">
+          <span>Drop image to upload</span>
+        </div>
+      )}
+      <Dialog
+        open={Boolean(previewImage)}
+        onOpenChange={(open) => {
+          if (!open) setPreviewImage(null);
+        }}
+      >
+        <DialogPopup
+          className="max-w-6xl border-0 bg-transparent p-0 shadow-none before:hidden"
+          showCloseButton={false}
+          bottomStickOnMobile={false}
+        >
+          {previewImage && (
+            <div className="flex max-h-[90vh] items-center justify-center p-4">
+              <img
+                src={previewImage.src}
+                alt={previewImage.alt}
+                className="max-h-[85vh] max-w-[92vw] rounded-xl border border-white/12 bg-black/30 object-contain shadow-2xl"
+              />
+            </div>
+          )}
+        </DialogPopup>
+      </Dialog>
+    </section>
   );
 }

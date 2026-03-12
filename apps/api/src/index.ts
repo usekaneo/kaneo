@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import type { Session, User } from "better-auth/types";
+import { eq } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -9,7 +10,7 @@ import activity from "./activity";
 import { auth } from "./auth";
 import column from "./column";
 import config from "./config";
-import db from "./database";
+import db, { schema } from "./database";
 import externalLink from "./external-link";
 import githubIntegration, {
   handleGithubWebhookRoute,
@@ -23,6 +24,7 @@ import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
+import { getPrivateObject } from "./storage/s3";
 import task from "./task";
 import timeEntry from "./time-entry";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
@@ -38,6 +40,7 @@ import {
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
 } from "./utils/openapi-spec";
+import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
 import { verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 
@@ -105,6 +108,59 @@ const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
   const { id } = c.req.param();
   const result = await getInvitationDetails(id);
   return c.json(result);
+});
+
+api.get("/asset/:id", async (c) => {
+  const { id } = c.req.param();
+  const [asset] = await db
+    .select({
+      id: schema.assetTable.id,
+      objectKey: schema.assetTable.objectKey,
+      mimeType: schema.assetTable.mimeType,
+      filename: schema.assetTable.filename,
+      workspaceId: schema.assetTable.workspaceId,
+      isPublic: schema.projectTable.isPublic,
+    })
+    .from(schema.assetTable)
+    .innerJoin(
+      schema.projectTable,
+      eq(schema.assetTable.projectId, schema.projectTable.id),
+    )
+    .where(eq(schema.assetTable.id, id))
+    .limit(1);
+
+  if (!asset) {
+    throw new HTTPException(404, { message: "Asset not found" });
+  }
+
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  const userId = session?.user?.id || "";
+
+  if (userId) {
+    await validateWorkspaceAccess(userId, asset.workspaceId);
+  } else if (!asset.isPublic) {
+    throw new HTTPException(401, { message: "Unauthorized" });
+  }
+
+  try {
+    const object = await getPrivateObject(asset.objectKey);
+
+    return new Response(object.body as BodyInit, {
+      headers: {
+        "Cache-Control": asset.isPublic
+          ? "public, max-age=300"
+          : "private, max-age=120",
+        "Content-Disposition": `inline; filename="${asset.filename.replace(/"/g, "")}"`,
+        "Content-Length": object.contentLength?.toString() || "",
+        "Content-Type": object.contentType || asset.mimeType,
+        ETag: object.etag || "",
+        "Last-Modified": object.lastModified?.toUTCString() || "",
+      },
+    });
+  } catch (error) {
+    console.error("Failed to stream asset:", error);
+    throw new HTTPException(404, { message: "Asset object not found" });
+  }
 });
 
 const configApi = api.route("/config", config);

@@ -80,11 +80,12 @@ api:
 
   # Environment variables for the API
   env:
-    jwtAccess: change_me
+    # Must be at least 32 characters long for Better Auth
+    authSecret: change_me_to_at_least_32_characters_long_string
     existingSecret:
       enabled: false
       name: ""
-      key: jwt-access
+      key: auth-secret
     disableRegistration: false
     # Database configuration
     database:
@@ -111,13 +112,13 @@ api:
           passwordKey: postgres_uri
   livenessProbe:
     httpGet:
-      path: /me
+      path: /api/health
       port: api
     initialDelaySeconds: 30
     periodSeconds: 10
   readinessProbe:
     httpGet:
-      path: /me
+      path: /api/health
       port: api
     initialDelaySeconds: 5
     periodSeconds: 10
@@ -138,7 +139,7 @@ web:
   service:
     type: ClusterIP
     port: 80
-    targetPort: 80
+    targetPort: 5173 # FIX: Correctly maps the service to the unprivileged Nginx port
   # Resources are optional and disabled by default
   resources: {}
   # resources:
@@ -149,18 +150,18 @@ web:
   #     cpu: 100m
   #     memory: 128Mi
 
-  livenessProbe:
-    httpGet:
-      path: /
-      port: web
-    initialDelaySeconds: 30
-    periodSeconds: 10
-  readinessProbe:
-    httpGet:
-      path: /
-      port: web
-    initialDelaySeconds: 5
-    periodSeconds: 10
+#  livenessProbe:
+#    httpGet:
+#      path: /
+#      port: web
+#    initialDelaySeconds: 90
+#    periodSeconds: 10
+#  readinessProbe:
+#    httpGet:
+#      path: /
+#      port: web
+#    initialDelaySeconds: 60
+#    periodSeconds: 10
 # Ingress configuration
 ingress:
   enabled: false
