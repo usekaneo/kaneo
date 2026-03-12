@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--foreground) !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 @font-face {
   font-family: "Cal Sans UI";
   src: url("./assets/fonts/CalSansUI[MODE,wght].woff2") format("woff2");
