@@ -50,6 +50,25 @@ type ApiKey = {
   enabled: boolean;
 };
 
+function buildContentDisposition(filename: string) {
+  const normalized = filename.normalize("NFC").replace(/[\r\n"]/g, "").trim();
+  const safeFilename = normalized || "file";
+  const asciiFallback =
+    safeFilename
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[\\\/]/g, "-")
+      .replace(/[^\x20-\x7E]+/g, "_")
+      .replace(/\s+/g, " ")
+      .trim() || "file";
+  const encodedFilename = encodeURIComponent(safeFilename).replace(
+    /['()*]/g,
+    (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`,
+  );
+
+  return `inline; filename="${asciiFallback}"; filename*=UTF-8''${encodedFilename}`;
+}
+
 const app = new Hono<{
   Variables: {
     user: User | null;
@@ -150,7 +169,7 @@ api.get("/asset/:id", async (c) => {
         "Cache-Control": asset.isPublic
           ? "public, max-age=300"
           : "private, max-age=120",
-        "Content-Disposition": `inline; filename="${asset.filename.replace(/"/g, "")}"`,
+        "Content-Disposition": buildContentDisposition(asset.filename),
         "Content-Length": object.contentLength?.toString() || "",
         "Content-Type": object.contentType || asset.mimeType,
         ETag: object.etag || "",
