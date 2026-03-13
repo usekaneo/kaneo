@@ -1,3 +1,14 @@
+## [2.3.9](https://github.com/usekaneo/kaneo/compare/v2.3.8...v2.3.9) (2026-03-13)
+
+
+### Bug Fixes
+
+* file upload with umlauts ([07718d7](https://github.com/usekaneo/kaneo/commit/07718d7843bb6ca1a47c1ef33fed500a15e5e8b2))
+
+
+### Features
+
+* enhance file upload functionality for attachments ([c76af9d](https://github.com/usekaneo/kaneo/commit/c76af9dcd712a688a0c8d49fab7cd3c8cff47c2f))
 ## [2.3.8](https://github.com/usekaneo/kaneo/compare/v2.3.7...v2.3.8) (2026-03-11)
 
 
