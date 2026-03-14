@@ -200,6 +200,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="PRO"
+                  maxLength={8}
                   className="w-20 h-8 text-center font-semibold text-sm bg-background border-border rounded-lg transition-all duration-200"
                   required
                 />
