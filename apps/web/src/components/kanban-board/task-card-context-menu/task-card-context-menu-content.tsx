@@ -166,7 +166,7 @@ export default function TaskCardContextMenuContent({
         <ContextMenuSubTrigger>
           <span>Due date</span>
         </ContextMenuSubTrigger>
-        <ContextMenuSubContent className="w-64 p-0">
+        <ContextMenuSubContent className="w-fit min-w-0 p-0">
           <div className="p-2">
             <Calendar
               mode="single"
