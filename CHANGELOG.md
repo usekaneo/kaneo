@@ -1,3 +1,11 @@
+## [2.3.10](https://github.com/usekaneo/kaneo/compare/v2.3.9...v2.3.10) (2026-03-14)
+
+
+### Bug Fixes
+
+* due date calendar width ([63e4bb5](https://github.com/usekaneo/kaneo/commit/63e4bb5c5fef4f31df0d821a3397c15abef79f2a))
+* mistake with regex ([28b2221](https://github.com/usekaneo/kaneo/commit/28b222129d3fadea9d4a09335e55969a04d35785))
+* **web:** preserve text color on autofilled inputs in dark theme ([8fb0b9e](https://github.com/usekaneo/kaneo/commit/8fb0b9e38e82425913090123972ffea2ab1e68d1))
 ## [2.3.9](https://github.com/usekaneo/kaneo/compare/v2.3.8...v2.3.9) (2026-03-13)
 
 
