@@ -3,11 +3,13 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { labelSchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import assignLabelToTask from "./controllers/assign-label-to-task";
 import createLabel from "./controllers/create-label";
 import deleteLabel from "./controllers/delete-label";
 import getLabel from "./controllers/get-label";
 import getLabelsByTaskId from "./controllers/get-labels-by-task-id";
 import getLabelsByWorkspaceId from "./controllers/get-labels-by-workspace-id";
+import unassignLabelFromTask from "./controllers/unassign-label-from-task";
 import updateLabel from "./controllers/update-label";
 
 const label = new Hono()
@@ -108,6 +110,54 @@ const label = new Hono()
     async (c) => {
       const { id } = c.req.valid("param");
       const label = await getLabel(id);
+      return c.json(label);
+    },
+  )
+  .put(
+    "/:id/task",
+    describeRoute({
+      operationId: "attachLabelToTask",
+      tags: ["Labels"],
+      description: "Attach an existing label to a task",
+      responses: {
+        200: {
+          description: "Label attached to task successfully",
+          content: {
+            "application/json": { schema: resolver(labelSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ taskId: v.string() })),
+    workspaceAccess.fromLabel(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { taskId } = c.req.valid("json");
+      const label = await assignLabelToTask(id, taskId);
+      return c.json(label);
+    },
+  )
+  .delete(
+    "/:id/task",
+    describeRoute({
+      operationId: "detachLabelFromTask",
+      tags: ["Labels"],
+      description: "Detach a label from its current task",
+      responses: {
+        200: {
+          description: "Label detached from task successfully",
+          content: {
+            "application/json": { schema: resolver(labelSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromLabel(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const label = await unassignLabelFromTask(id);
       return c.json(label);
     },
   )

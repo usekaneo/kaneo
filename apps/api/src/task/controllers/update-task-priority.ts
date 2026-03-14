@@ -10,21 +10,25 @@ async function updateTaskPriority({
   id: string;
   priority: string;
 }) {
-  const updatedTask = await db.query.taskTable.findFirst({
+  const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
   });
 
-  if (!updatedTask) {
+  if (!existingTask) {
     throw new HTTPException(404, {
       message: "Task not found",
     });
   }
 
-  await db.update(taskTable).set({ priority }).where(eq(taskTable.id, id));
+  const [updatedTask] = await db
+    .update(taskTable)
+    .set({ priority })
+    .where(eq(taskTable.id, id))
+    .returning();
 
   if (!updatedTask) {
-    throw new HTTPException(404, {
-      message: "Task not found",
+    throw new HTTPException(500, {
+      message: "Failed to update task priority",
     });
   }
 

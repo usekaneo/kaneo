@@ -53,7 +53,7 @@ async function updateTask(
     });
   }
 
-  return existingTask;
+  return updatedTask;
 }
 
 export default updateTask;
