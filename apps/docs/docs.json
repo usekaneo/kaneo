@@ -100,7 +100,7 @@
 			},
 			{
 				"tab": "API Reference",
-				"openapi": "./openapi.json"
+				"openapi": "https://cloud.kaneo.app/api/openapi"
 			}
 		],
 		"global": {

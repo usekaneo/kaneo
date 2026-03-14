@@ -221,36 +221,57 @@ export const workspaceAccess = {
 
   fromTask: (idKey = "id") =>
     workspaceAccessMiddleware({
-      sources: [{ type: "lookup", resource: "task", idKey }],
+      sources: [
+        { type: "lookup", resource: "task", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
     }),
 
   fromTaskId: (idKey = "taskId") =>
     workspaceAccessMiddleware({
-      sources: [{ type: "lookup", resource: "task", idKey }],
+      sources: [
+        { type: "lookup", resource: "task", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
     }),
 
   fromLabel: (idKey = "id") =>
     workspaceAccessMiddleware({
-      sources: [{ type: "lookup", resource: "label", idKey }],
+      sources: [
+        { type: "lookup", resource: "label", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
     }),
 
   fromTimeEntry: (idKey = "id") =>
     workspaceAccessMiddleware({
-      sources: [{ type: "lookup", resource: "timeEntry", idKey }],
+      sources: [
+        { type: "lookup", resource: "timeEntry", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
     }),
 
   fromActivity: (idKey = "id") =>
     workspaceAccessMiddleware({
-      sources: [{ type: "lookup", resource: "activity", idKey }],
+      sources: [
+        { type: "lookup", resource: "activity", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
     }),
 
   fromColumn: (idKey = "id") =>
     workspaceAccessMiddleware({
-      sources: [{ type: "lookup", resource: "column", idKey }],
+      sources: [
+        { type: "lookup", resource: "column", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
     }),
 
   fromWorkflowRule: (idKey = "id") =>
     workspaceAccessMiddleware({
-      sources: [{ type: "lookup", resource: "workflowRule", idKey }],
+      sources: [
+        { type: "lookup", resource: "workflowRule", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
     }),
 };

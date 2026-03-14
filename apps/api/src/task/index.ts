@@ -56,11 +56,24 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ projectId: v.string() })),
+    validator(
+      "query",
+      v.optional(
+        v.object({
+          status: v.optional(v.string()),
+          priority: v.optional(v.string()),
+          assigneeId: v.optional(v.string()),
+          page: v.optional(v.pipe(v.string(), v.transform(Number))),
+          limit: v.optional(v.pipe(v.string(), v.transform(Number))),
+        }),
+      ),
+    ),
     workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
+      const filters = c.req.valid("query") || {};
 
-      const tasks = await getTasks(projectId);
+      const tasks = await getTasks(projectId, filters);
 
       return c.json(tasks);
     },
@@ -167,6 +180,9 @@ const task = new Hono<{
     workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");
+      const existingTask = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, id),
+      });
       const {
         title,
         description,
@@ -177,6 +193,10 @@ const task = new Hono<{
         position,
         userId,
       } = c.req.valid("json");
+
+      if (!existingTask) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
 
       const task = await updateTask(
         id,
@@ -190,13 +210,13 @@ const task = new Hono<{
         userId,
       );
 
-      if (status !== task.status) {
+      if (existingTask.status !== status) {
         const user = c.get("userId");
         await publishEvent("task.status_changed", {
           taskId: task.id,
           projectId: task.projectId,
           userId: user,
-          oldStatus: task.status,
+          oldStatus: existingTask.status,
           newStatus: status,
           title: task.title,
           assigneeId: task.userId,
@@ -320,6 +340,13 @@ const task = new Hono<{
       const { id } = c.req.valid("param");
       const { status } = c.req.valid("json");
       const user = c.get("userId");
+      const existingTask = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, id),
+      });
+
+      if (!existingTask) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
 
       const task = await updateTaskStatus({ id, status });
 
@@ -327,7 +354,7 @@ const task = new Hono<{
         taskId: task.id,
         projectId: task.projectId,
         userId: user,
-        oldStatus: task.status,
+        oldStatus: existingTask.status,
         newStatus: status,
         title: task.title,
         assigneeId: task.userId,
@@ -359,6 +386,13 @@ const task = new Hono<{
       const { id } = c.req.valid("param");
       const { priority } = c.req.valid("json");
       const user = c.get("userId");
+      const existingTask = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, id),
+      });
+
+      if (!existingTask) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
 
       const task = await updateTaskPriority({ id, priority });
 
@@ -366,7 +400,7 @@ const task = new Hono<{
         taskId: task.id,
         projectId: task.projectId,
         userId: user,
-        oldPriority: task.priority,
+        oldPriority: existingTask.priority,
         newPriority: priority,
         title: task.title,
         type: "priority_changed",
@@ -397,6 +431,13 @@ const task = new Hono<{
       const { id } = c.req.valid("param");
       const { userId } = c.req.valid("json");
       const user = c.get("userId");
+      const existingTask = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, id),
+      });
+
+      if (!existingTask) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
 
       const task = await updateTaskAssignee({ id, userId });
       const newAssigneeName = userId
@@ -422,7 +463,7 @@ const task = new Hono<{
       await publishEvent("task.assignee_changed", {
         taskId: task.id,
         userId: user,
-        oldAssignee: task.userId,
+        oldAssignee: existingTask.userId,
         newAssignee: newAssigneeName,
         newAssigneeId: userId,
         title: task.title,
@@ -454,6 +495,13 @@ const task = new Hono<{
       const { id } = c.req.valid("param");
       const { dueDate = null } = c.req.valid("json");
       const user = c.get("userId");
+      const existingTask = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, id),
+      });
+
+      if (!existingTask) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
 
       const task = await updateTaskDueDate({
         id,
@@ -463,7 +511,7 @@ const task = new Hono<{
       await publishEvent("task.due_date_changed", {
         taskId: task.id,
         userId: user,
-        oldDueDate: task.dueDate,
+        oldDueDate: existingTask.dueDate,
         newDueDate: dueDate,
         title: task.title,
         type: "due_date_changed",

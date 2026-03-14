@@ -5,7 +5,13 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
-import { openAPIRouteHandler } from "hono-openapi";
+import {
+  describeRoute,
+  openAPIRouteHandler,
+  resolver,
+  validator,
+} from "hono-openapi";
+import * as v from "valibot";
 import activity from "./activity";
 import { auth } from "./auth";
 import column from "./column";
@@ -132,58 +138,117 @@ const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
   return c.json(result);
 });
 
-api.get("/asset/:id", async (c) => {
-  const { id } = c.req.param();
-  const [asset] = await db
-    .select({
-      id: schema.assetTable.id,
-      objectKey: schema.assetTable.objectKey,
-      mimeType: schema.assetTable.mimeType,
-      filename: schema.assetTable.filename,
-      workspaceId: schema.assetTable.workspaceId,
-      isPublic: schema.projectTable.isPublic,
-    })
-    .from(schema.assetTable)
-    .innerJoin(
-      schema.projectTable,
-      eq(schema.assetTable.projectId, schema.projectTable.id),
-    )
-    .where(eq(schema.assetTable.id, id))
-    .limit(1);
-
-  if (!asset) {
-    throw new HTTPException(404, { message: "Asset not found" });
-  }
-
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  const userId = session?.user?.id || "";
-
-  if (userId) {
-    await validateWorkspaceAccess(userId, asset.workspaceId);
-  } else if (!asset.isPublic) {
-    throw new HTTPException(401, { message: "Unauthorized" });
-  }
-
-  try {
-    const object = await getPrivateObject(asset.objectKey);
-
-    return new Response(object.body as BodyInit, {
-      headers: {
-        "Cache-Control": asset.isPublic
-          ? "public, max-age=300"
-          : "private, max-age=120",
-        "Content-Disposition": buildContentDisposition(asset.filename),
-        "Content-Length": object.contentLength?.toString() || "",
-        "Content-Type": object.contentType || asset.mimeType,
-        ETag: object.etag || "",
-        "Last-Modified": object.lastModified?.toUTCString() || "",
+api.get(
+  "/auth/get-session",
+  describeRoute({
+    operationId: "getSession",
+    tags: ["Authentication"],
+    description: "Get the current authenticated session",
+    security: [],
+    responses: {
+      200: {
+        description: "Current session details or null when unauthenticated",
+        content: {
+          "application/json": { schema: resolver(v.any()) },
+        },
       },
-    });
-  } catch (error) {
-    console.error("Failed to stream asset:", error);
-    throw new HTTPException(404, { message: "Asset object not found" });
-  }
-});
+    },
+  }),
+  async (c) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers });
+    return c.json(session ?? null);
+  },
+);
+
+api.get(
+  "/asset/:id",
+  describeRoute({
+    operationId: "getAsset",
+    tags: ["Assets"],
+    description: "Download an uploaded asset by ID",
+    security: [],
+    responses: {
+      200: {
+        description: "The requested asset binary stream",
+        content: {
+          "*/*": { schema: resolver(v.any()) },
+        },
+      },
+    },
+  }),
+  validator("param", v.object({ id: v.string() })),
+  async (c) => {
+    const { id } = c.req.param();
+    const [asset] = await db
+      .select({
+        id: schema.assetTable.id,
+        objectKey: schema.assetTable.objectKey,
+        mimeType: schema.assetTable.mimeType,
+        filename: schema.assetTable.filename,
+        workspaceId: schema.assetTable.workspaceId,
+        isPublic: schema.projectTable.isPublic,
+      })
+      .from(schema.assetTable)
+      .innerJoin(
+        schema.projectTable,
+        eq(schema.assetTable.projectId, schema.projectTable.id),
+      )
+      .where(eq(schema.assetTable.id, id))
+      .limit(1);
+
+    if (!asset) {
+      throw new HTTPException(404, { message: "Asset not found" });
+    }
+
+    const authHeader = c.req.header("Authorization");
+    const bearerToken = authHeader?.startsWith("Bearer ")
+      ? authHeader.substring(7).replace(/\s+/g, "").trim()
+      : null;
+
+    let userId = "";
+    let apiKeyId: string | undefined;
+
+    if (bearerToken) {
+      const result = await verifyApiKey(bearerToken);
+
+      if (result?.valid && result.key) {
+        userId = result.key.userId;
+        apiKeyId = result.key.id;
+      } else {
+        throw new HTTPException(401, { message: "Invalid API key" });
+      }
+    } else {
+      const session = await auth.api.getSession({ headers: c.req.raw.headers });
+      userId = session?.user?.id || "";
+    }
+
+    if (userId) {
+      await validateWorkspaceAccess(userId, asset.workspaceId, apiKeyId);
+    } else if (!asset.isPublic) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+
+    try {
+      const object = await getPrivateObject(asset.objectKey);
+
+      return new Response(object.body as BodyInit, {
+        headers: {
+          "Cache-Control": asset.isPublic
+            ? "public, max-age=300"
+            : "private, max-age=120",
+          "Content-Disposition": buildContentDisposition(asset.filename),
+          "Content-Length": object.contentLength?.toString() || "",
+          "Content-Type": object.contentType || asset.mimeType,
+          ETag: object.etag || "",
+          "Last-Modified": object.lastModified?.toUTCString() || "",
+        },
+      });
+    } catch (error) {
+      console.error("Failed to stream asset:", error);
+      throw new HTTPException(404, { message: "Asset object not found" });
+    }
+  },
+);
 
 const configApi = api.route("/config", config);
 

@@ -10,24 +10,25 @@ async function updateTaskAssignee({
   id: string;
   userId: string;
 }) {
-  const updatedTask = await db.query.taskTable.findFirst({
+  const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
   });
 
-  if (!updatedTask) {
+  if (!existingTask) {
     throw new HTTPException(404, {
       message: "Task not found",
     });
   }
 
-  await db
+  const [updatedTask] = await db
     .update(taskTable)
     .set({ userId: userId || null })
-    .where(eq(taskTable.id, id));
+    .where(eq(taskTable.id, id))
+    .returning();
 
   if (!updatedTask) {
-    throw new HTTPException(404, {
-      message: "Task not found",
+    throw new HTTPException(500, {
+      message: "Failed to update task assignee",
     });
   }
 

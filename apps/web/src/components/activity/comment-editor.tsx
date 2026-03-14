@@ -1,5 +1,6 @@
 import type { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -146,6 +147,7 @@ type EmbedComposerState = {
   url: string;
   top: number;
   left: number;
+  linkRange?: { from: number; to: number };
   range?: SlashRange;
 };
 
@@ -550,11 +552,12 @@ export default function CommentEditor({
           codeBlock: {
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
-          link: {
-            autolink: true,
-            defaultProtocol: "https",
-            openOnClick: readOnly,
-          },
+        }),
+        Link.configure({
+          autolink: true,
+          defaultProtocol: "https",
+          linkOnPaste: true,
+          openOnClick: readOnly,
         }),
         Markdown.configure({
           markedOptions: {
@@ -651,12 +654,24 @@ export default function CommentEditor({
           if (!isYouTubeUrl(url)) return false;
 
           event.preventDefault();
+          const { from } = view.state.selection;
+          const linkMark = view.state.schema.marks.link?.create({ href: url });
+          const linkText = view.state.schema.text(
+            url,
+            linkMark ? [linkMark] : [],
+          );
+          view.dispatch(
+            view.state.tr
+              .replaceSelectionWith(linkText, false)
+              .scrollIntoView(),
+          );
           const coords = getOverlayPosition(view, view.state.selection.from);
           setEmbedComposer({
             mode: "choice",
             url,
             top: coords.top,
             left: coords.left,
+            linkRange: { from, to: from + url.length },
           });
           setEmbedComposerError("");
           return true;
@@ -680,6 +695,38 @@ export default function CommentEditor({
             : undefined;
 
           void handleAssetFileUpload(droppedFile, editor, dropRange);
+          return true;
+        },
+        handleTextInput: (view, _from, _to, text) => {
+          if (readOnly || disabled || text !== "`") return false;
+
+          const { state } = view;
+          const { $from } = state.selection;
+          if ($from.parent.type.name !== "paragraph") return false;
+
+          const textBefore = $from.parent.textBetween(
+            0,
+            $from.parentOffset,
+            "\0",
+            "\0",
+          );
+
+          if (!/^\s*``$/.test(textBefore)) return false;
+
+          const paragraphStart = $from.before();
+          const codeBlock = state.schema.nodes.codeBlock?.create();
+          if (!codeBlock) return false;
+
+          const tr = state.tr.replaceWith(
+            paragraphStart,
+            paragraphStart + $from.parent.nodeSize,
+            codeBlock,
+          );
+
+          tr.setSelection(
+            TextSelection.near(tr.doc.resolve(paragraphStart + 1)),
+          );
+          view.dispatch(tr.scrollIntoView());
           return true;
         },
         handleKeyDown: (_view, event) => {
@@ -1132,12 +1179,33 @@ export default function CommentEditor({
       }
 
       const chain = editor.chain().focus();
-      if (embedComposer.range) {
+      if (embedComposer.mode === "choice" && mode === "link") {
+        setEmbedComposer(null);
+        setEmbedComposerError("");
+        return;
+      }
+
+      if (embedComposer.linkRange) {
+        chain.deleteRange(embedComposer.linkRange);
+      } else if (embedComposer.range) {
         chain.deleteRange(embedComposer.range);
       }
 
       if (mode === "link") {
-        chain.insertContent(url).run();
+        chain
+          .insertContent({
+            type: "text",
+            text: url,
+            marks: [
+              {
+                type: "link",
+                attrs: {
+                  href: url,
+                },
+              },
+            ],
+          })
+          .run();
       } else {
         if (!isYouTubeUrl(url)) {
           setEmbedComposerError("Only YouTube links can be embedded.");
@@ -1165,8 +1233,15 @@ export default function CommentEditor({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!embedComposer) return;
+      event.stopPropagation();
+      event.stopImmediatePropagation();
 
       if (embedComposer.mode === "choice") {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          return;
+        }
+
         if (event.key === "Tab") {
           event.preventDefault();
           submitEmbedComposer("embed");
@@ -1175,7 +1250,8 @@ export default function CommentEditor({
 
         if (event.key === "Escape") {
           event.preventDefault();
-          submitEmbedComposer("link");
+          setEmbedComposer(null);
+          setEmbedComposerError("");
           return;
         }
 
@@ -1586,7 +1662,8 @@ export default function CommentEditor({
                 className="kaneo-embed-choice-item"
                 onMouseDown={(event) => {
                   event.preventDefault();
-                  submitEmbedComposer("link");
+                  setEmbedComposer(null);
+                  setEmbedComposerError("");
                 }}
               >
                 <span>Keep as link</span>

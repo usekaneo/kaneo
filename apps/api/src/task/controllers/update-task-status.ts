@@ -10,11 +10,11 @@ async function updateTaskStatus({
   id: string;
   status: string;
 }) {
-  const updatedTask = await db.query.taskTable.findFirst({
+  const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
   });
 
-  if (!updatedTask) {
+  if (!existingTask) {
     throw new HTTPException(404, {
       message: "Task not found",
     });
@@ -22,15 +22,22 @@ async function updateTaskStatus({
 
   const column = await db.query.columnTable.findFirst({
     where: and(
-      eq(columnTable.projectId, updatedTask.projectId),
+      eq(columnTable.projectId, existingTask.projectId),
       eq(columnTable.slug, status),
     ),
   });
 
-  await db
+  const [updatedTask] = await db
     .update(taskTable)
     .set({ status, columnId: column?.id ?? null })
-    .where(eq(taskTable.id, id));
+    .where(eq(taskTable.id, id))
+    .returning();
+
+  if (!updatedTask) {
+    throw new HTTPException(500, {
+      message: "Failed to update task status",
+    });
+  }
 
   return updatedTask;
 }

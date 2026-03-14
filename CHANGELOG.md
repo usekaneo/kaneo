@@ -1,3 +1,9 @@
+## [2.3.11](https://github.com/usekaneo/kaneo/compare/v2.3.10...v2.3.11) (2026-03-14)
+
+
+### Features
+
+* **api,web:** fix task access and editor link handling ([710d175](https://github.com/usekaneo/kaneo/commit/710d17517f181f5d19c1e32b9190680d7b0f8c69))
 ## [2.3.10](https://github.com/usekaneo/kaneo/compare/v2.3.9...v2.3.10) (2026-03-14)
 
 
