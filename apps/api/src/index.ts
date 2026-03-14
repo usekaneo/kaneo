@@ -51,13 +51,16 @@ type ApiKey = {
 };
 
 function buildContentDisposition(filename: string) {
-  const normalized = filename.normalize("NFC").replace(/[\r\n"]/g, "").trim();
+  const normalized = filename
+    .normalize("NFC")
+    .replace(/[\r\n"]/g, "")
+    .trim();
   const safeFilename = normalized || "file";
   const asciiFallback =
     safeFilename
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[\\\/]/g, "-")
+      .replace(/[\\/]/g, "-")
       .replace(/[^\x20-\x7E]+/g, "_")
       .replace(/\s+/g, " ")
       .trim() || "file";
