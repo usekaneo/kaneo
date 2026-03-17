@@ -13,6 +13,23 @@ const labelColors = [
   { value: "red", label: "Crimson", color: "var(--color-red-600)" },
 ];
 
+function isValidHtmlColor(color: string): boolean {
+  const s = new Option().style;
+  s.color = color;
+  return s.color !== "";
+}
+
+function validColor(value: string): string {
+  if (isValidHtmlColor(value)) {
+    return value;
+  }
+
+  return (
+    labelColors.find((c) => c.value === value)?.color ||
+    "var(--color-neutral-400)"
+  );
+}
+
 function TaskCardLabels({ taskId }: { taskId: string }) {
   const { data: labels = [] } = useGetLabelsByTask(taskId);
 
@@ -30,9 +47,7 @@ function TaskCardLabels({ taskId }: { taskId: string }) {
           <span
             className="inline-block w-1.5 h-1.5 mr-1 rounded-full"
             style={{
-              backgroundColor:
-                labelColors.find((c) => c.value === label.color)?.color ||
-                "var(--color-neutral-400)",
+              backgroundColor: validColor(label.color),
             }}
           />
           <span className="truncate max-w-[80px]">{label.name}</span>
