@@ -37,9 +37,10 @@ import TaskRow from "./task-row";
 
 type ListViewProps = {
   project: ProjectWithTasks;
+  disableDragDrop?: boolean;
 };
 
-function ListView({ project }: ListViewProps) {
+function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const { setProject } = useProjectStore();
   const {
     setAvailableTasks,
@@ -112,11 +113,11 @@ function ListView({ project }: ListViewProps) {
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
+        delay: disableDragDrop ? 999999 : 200,
         tolerance: 8,
       },
     }),
@@ -194,18 +195,30 @@ function ListView({ project }: ListViewProps) {
           updateTask({
             ...t,
             status: destinationColumn.id,
-            position: index + 1,
+            position: index,
           });
         });
       } else {
         task.status = destinationColumn.id;
-        destinationColumn.tasks.push(task);
+        const destinationIndex =
+          overId === destinationColumn.id
+            ? destinationColumn.tasks.length
+            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
+
+        destinationColumn.tasks.splice(destinationIndex, 0, task);
 
         destinationColumn.tasks.forEach((t, index) => {
           updateTask({
             ...t,
             status: destinationColumn.id,
-            position: index + 1,
+            position: index,
+          });
+        });
+
+        sourceColumn.tasks.forEach((t, index) => {
+          updateTask({
+            ...t,
+            position: index,
           });
         });
       }
