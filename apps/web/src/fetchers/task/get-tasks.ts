@@ -10,9 +10,9 @@ async function getTasks(projectId: string) {
     throw new Error(error);
   }
 
-  const data = await response.json();
+  const json = await response.json();
 
-  return data;
+  return json.data;
 }
 
 export default getTasks;
