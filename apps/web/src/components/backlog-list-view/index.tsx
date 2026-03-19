@@ -232,7 +232,7 @@ function BacklogListView({ project }: BacklogListViewProps) {
         finalTasks.forEach((t, index) => {
           updateTask({
             ...t,
-            position: index + 1,
+            position: index,
           });
         });
       } else {
@@ -253,7 +253,19 @@ function BacklogListView({ project }: BacklogListViewProps) {
           updateTask({
             ...t,
             status: targetSection,
-            position: index + 1,
+            position: index,
+          });
+        });
+
+        const sourceTasks =
+          activeTask.status === "planned"
+            ? draft.plannedTasks || []
+            : draft.archivedTasks || [];
+
+        sourceTasks.forEach((t, index) => {
+          updateTask({
+            ...t,
+            position: index,
           });
         });
       }

@@ -194,18 +194,30 @@ function ListView({ project }: ListViewProps) {
           updateTask({
             ...t,
             status: destinationColumn.id,
-            position: index + 1,
+            position: index,
           });
         });
       } else {
         task.status = destinationColumn.id;
-        destinationColumn.tasks.push(task);
+        const destinationIndex =
+          overId === destinationColumn.id
+            ? destinationColumn.tasks.length
+            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
+
+        destinationColumn.tasks.splice(destinationIndex, 0, task);
 
         destinationColumn.tasks.forEach((t, index) => {
           updateTask({
             ...t,
             status: destinationColumn.id,
-            position: index + 1,
+            position: index,
+          });
+        });
+
+        sourceColumn.tasks.forEach((t, index) => {
+          updateTask({
+            ...t,
+            position: index,
           });
         });
       }

@@ -154,23 +154,27 @@ function KanbanBoard({ project }: KanbanBoardProps) {
         destinationColumn.tasks.splice(destinationIndex, 0, task);
 
         destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index + 1 });
+          updateTask({ ...t, position: index });
         });
 
         queryClient.invalidateQueries({
           queryKey: ["projects", project.workspaceId],
         });
       } else {
-        const updatedTask = { ...task, status: destinationColumn.id };
+        task.status = destinationColumn.id;
         const destinationIndex =
           overId === destinationColumn.id
             ? destinationColumn.tasks.length
-            : destinationColumn.tasks.findIndex((t) => t.id === overId);
+            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
 
-        destinationColumn.tasks.splice(destinationIndex + 1, 0, updatedTask);
+        destinationColumn.tasks.splice(destinationIndex, 0, task);
 
         destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index + 1 });
+          updateTask({ ...t, status: destinationColumn.id, position: index });
+        });
+
+        sourceColumn.tasks.forEach((t, index) => {
+          updateTask({ ...t, position: index });
         });
       }
     });
