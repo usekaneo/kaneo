@@ -10,6 +10,8 @@ import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import type { ExternalLink } from "@/types/external-link";
 import TaskDescription from "./task-description";
+import TaskRelations from "./task-relations";
+import TaskSubtasks from "./task-subtasks";
 import TaskTitle from "./task-title";
 
 type TaskDetailsContentProps = {
@@ -51,6 +53,20 @@ export default function TaskDetailsContent({
           />
         </div>
       )}
+      <div className="mt-4">
+        <TaskSubtasks
+          taskId={taskId}
+          projectId={projectId}
+          workspaceId={workspaceId}
+        />
+      </div>
+      <div className="mt-2">
+        <TaskRelations
+          taskId={taskId}
+          projectId={projectId}
+          workspaceId={workspaceId}
+        />
+      </div>
       <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block shrink-0" />
       <div className="flex flex-col gap-4">
         <h1 className="text-md font-semibold">Activity</h1>

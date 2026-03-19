@@ -537,6 +537,33 @@ export const commentTable = pgTable(
   ],
 );
 
+export const taskRelationTable = pgTable(
+  "task_relation",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    sourceTaskId: text("source_task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    targetTaskId: text("target_task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    relationType: text("relation_type").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("task_relation_source_idx").on(table.sourceTaskId),
+    index("task_relation_target_idx").on(table.targetTaskId),
+  ],
+);
+
 export const apikeyTable = pgTable(
   "apikey",
   {
