@@ -1,3 +1,19 @@
+## [2.3.12](https://github.com/usekaneo/kaneo/compare/v2.3.11...v2.3.12) (2026-03-21)
+
+
+### Bug Fixes
+
+* **api,web:** fix kanban position persistence and task numbering ([59d5771](https://github.com/usekaneo/kaneo/commit/59d57711bd7921684130e583da30de796db5417d))
+* **api:** consolidate migrations into single 0015 without duplicate asset table ([ebb9b67](https://github.com/usekaneo/kaneo/commit/ebb9b67de41305cc2bd8a832a453a479b841c991))
+* project key input limit ([a330444](https://github.com/usekaneo/kaneo/commit/a3304440ef035735588819b09ee5a4a9df4832d3))
+
+
+### Features
+
+* **api,web:** add global search with short-id support ([c74987d](https://github.com/usekaneo/kaneo/commit/c74987d9800263deb466837ac8beb8fd3231be75))
+* **api:** add pagination, bulk ops, comments, members, and project archival ([af22fd2](https://github.com/usekaneo/kaneo/commit/af22fd257fd5e3cdcfd31e62045be350d4c2e399))
+* better label color support ([d8f5c55](https://github.com/usekaneo/kaneo/commit/d8f5c5542f2d10786328dcbcf5bf1880265475ef)), closes [#1058](https://github.com/usekaneo/kaneo/issues/1058)
+* **web:** add sorting controls to board, backlog, and list views ([a9c46e9](https://github.com/usekaneo/kaneo/commit/a9c46e9b6c3f8f32343727024fd32fcb58468eb1))
 ## [2.3.11](https://github.com/usekaneo/kaneo/compare/v2.3.10...v2.3.11) (2026-03-14)
 
 
