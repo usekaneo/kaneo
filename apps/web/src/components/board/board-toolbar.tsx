@@ -1,5 +1,6 @@
 import { Filter, PanelsTopLeft, Rows3, X } from "lucide-react";
 import type { ReactNode } from "react";
+import SortControl from "@/components/common/sort-control";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,6 +18,7 @@ import labelColors from "@/constants/label-colors";
 import type { BoardFilters } from "@/hooks/use-task-filters";
 import { getColumnIcon } from "@/lib/column";
 import { getPriorityIcon } from "@/lib/priority";
+import type { SortConfig } from "@/lib/sort-tasks";
 import type { ProjectWithTasks } from "@/types/project";
 
 type WorkspaceLabel = {
@@ -49,6 +51,8 @@ type BoardToolbarProps = {
   workspaceLabels: WorkspaceLabel[];
   viewMode: "board" | "list";
   setViewMode: (mode: "board" | "list") => void;
+  sort: SortConfig;
+  onSortChange: (sort: SortConfig) => void;
 };
 
 function CheckSlot({ checked }: { checked: boolean }) {
@@ -131,6 +135,8 @@ export default function BoardToolbar({
   workspaceLabels,
   viewMode,
   setViewMode,
+  sort,
+  onSortChange,
 }: BoardToolbarProps) {
   const selectedStatusIds = filters.status ?? [];
   const selectedPriorityIds = filters.priority ?? [];
@@ -502,6 +508,8 @@ export default function BoardToolbar({
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <SortControl sort={sort} onSortChange={onSortChange} />
 
             {selectedStatusIds.length > 0 && (
               <ActiveFilterChip

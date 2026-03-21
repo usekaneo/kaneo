@@ -28,9 +28,10 @@ import TaskCard from "./task-card";
 
 type KanbanBoardProps = {
   project: ProjectWithTasks;
+  disableDragDrop?: boolean;
 };
 
-function KanbanBoard({ project }: KanbanBoardProps) {
+function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
   const {
@@ -90,11 +91,11 @@ function KanbanBoard({ project }: KanbanBoardProps) {
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250,
+        delay: disableDragDrop ? 999999 : 250,
         tolerance: 10,
       },
     }),
@@ -154,23 +155,27 @@ function KanbanBoard({ project }: KanbanBoardProps) {
         destinationColumn.tasks.splice(destinationIndex, 0, task);
 
         destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index + 1 });
+          updateTask({ ...t, position: index });
         });
 
         queryClient.invalidateQueries({
           queryKey: ["projects", project.workspaceId],
         });
       } else {
-        const updatedTask = { ...task, status: destinationColumn.id };
+        task.status = destinationColumn.id;
         const destinationIndex =
           overId === destinationColumn.id
             ? destinationColumn.tasks.length
-            : destinationColumn.tasks.findIndex((t) => t.id === overId);
+            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
 
-        destinationColumn.tasks.splice(destinationIndex + 1, 0, updatedTask);
+        destinationColumn.tasks.splice(destinationIndex, 0, task);
 
         destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index + 1 });
+          updateTask({ ...t, status: destinationColumn.id, position: index });
+        });
+
+        sourceColumn.tasks.forEach((t, index) => {
+          updateTask({ ...t, position: index });
         });
       }
     });
