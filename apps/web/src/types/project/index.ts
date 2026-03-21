@@ -7,13 +7,12 @@ export type Project = Extract<
   { id: string }
 >;
 
-type ProjectWithTasksRaw = Extract<
-  InferResponseType<
-    (typeof client)["task"]["tasks"][":projectId"]["$get"],
-    200
-  >,
-  { id: string }
+type TasksApiResponse = InferResponseType<
+  (typeof client)["task"]["tasks"][":projectId"]["$get"],
+  200
 >;
+
+type ProjectWithTasksRaw = TasksApiResponse["data"];
 
 export type ProjectWithTasks = Omit<
   ProjectWithTasksRaw,
