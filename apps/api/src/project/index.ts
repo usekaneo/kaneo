@@ -3,10 +3,12 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { projectSchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
 import getProjectCtrl from "./controllers/get-project";
 import getProjectsCtrl from "./controllers/get-projects";
+import unarchiveProjectCtrl from "./controllers/unarchive-project";
 import updateProjectCtrl from "./controllers/update-project";
 
 const project = new Hono<{
@@ -30,11 +32,21 @@ const project = new Hono<{
         },
       },
     }),
-    validator("query", v.object({ workspaceId: v.string() })),
+    validator(
+      "query",
+      v.object({
+        workspaceId: v.string(),
+        includeArchived: v.optional(v.string()),
+      }),
+    ),
     workspaceAccess.fromQuery(),
     async (c) => {
       const workspaceId = c.get("workspaceId");
-      const projects = await getProjectsCtrl(workspaceId);
+      const { includeArchived } = c.req.valid("query");
+      const projects = await getProjectsCtrl(
+        workspaceId,
+        includeArchived === "true",
+      );
       return c.json(projects);
     },
   )
@@ -159,6 +171,54 @@ const project = new Hono<{
       const workspaceId = c.get("workspaceId");
       const deletedProject = await deleteProjectCtrl(id, workspaceId);
       return c.json(deletedProject);
+    },
+  )
+  .put(
+    "/:id/archive",
+    describeRoute({
+      operationId: "archiveProject",
+      tags: ["Projects"],
+      description: "Archive a project by ID",
+      responses: {
+        200: {
+          description: "Project archived successfully",
+          content: {
+            "application/json": { schema: resolver(projectSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromProject(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const workspaceId = c.get("workspaceId");
+      const archivedProject = await archiveProjectCtrl(id, workspaceId);
+      return c.json(archivedProject);
+    },
+  )
+  .put(
+    "/:id/unarchive",
+    describeRoute({
+      operationId: "unarchiveProject",
+      tags: ["Projects"],
+      description: "Unarchive a project by ID",
+      responses: {
+        200: {
+          description: "Project unarchived successfully",
+          content: {
+            "application/json": { schema: resolver(projectSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromProject(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const workspaceId = c.get("workspaceId");
+      const unarchivedProject = await unarchiveProjectCtrl(id, workspaceId);
+      return c.json(unarchivedProject);
     },
   );
 

@@ -5,6 +5,7 @@ import {
   apikeyTable,
   assetTable,
   columnTable,
+  commentTable,
   externalLinkTable,
   githubIntegrationTable,
   integrationTable,
@@ -33,6 +34,7 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
   assignedTasks: many(taskTable),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
+  comments: many(commentTable),
   assets: many(assetTable),
   notifications: many(notificationTable),
   sentInvitations: many(invitationTable),
@@ -137,6 +139,7 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
+  comments: many(commentTable),
   assets: many(assetTable),
   labels: many(labelTable),
   externalLinks: many(externalLinkTable),
@@ -281,3 +284,14 @@ export const externalLinkTableRelations = relations(
     }),
   }),
 );
+
+export const commentTableRelations = relations(commentTable, ({ one }) => ({
+  task: one(taskTable, {
+    fields: [commentTable.taskId],
+    references: [taskTable.id],
+  }),
+  user: one(userTable, {
+    fields: [commentTable.userId],
+    references: [userTable.id],
+  }),
+}));

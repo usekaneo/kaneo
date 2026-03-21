@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable, userTable } from "../../database/schema";
@@ -36,6 +36,20 @@ async function createTask({
     ),
   });
 
+  const [maxPositionResult] = await db
+    .select({ maxPosition: max(taskTable.position) })
+    .from(taskTable)
+    .where(
+      and(
+        eq(taskTable.projectId, projectId),
+        column?.id
+          ? eq(taskTable.columnId, column.id)
+          : eq(taskTable.status, status || "to-do"),
+      ),
+    );
+
+  const nextPosition = (maxPositionResult?.maxPosition ?? 0) + 1;
+
   const [createdTask] = await db
     .insert(taskTable)
     .values({
@@ -48,6 +62,7 @@ async function createTask({
       description: description || "",
       priority: priority || "",
       number: nextTaskNumber + 1,
+      position: nextPosition,
     })
     .returning();
 

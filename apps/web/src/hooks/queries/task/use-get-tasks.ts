@@ -5,7 +5,7 @@ export function useGetTasks(projectId: string) {
   return useQuery({
     queryKey: ["tasks", projectId],
     queryFn: () => getTasks(projectId),
-    refetchInterval: 5000,
+    refetchInterval: 30000,
     enabled: !!projectId,
   });
 }

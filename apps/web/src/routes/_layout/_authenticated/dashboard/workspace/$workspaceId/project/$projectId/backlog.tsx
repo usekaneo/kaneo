@@ -5,6 +5,7 @@ import { ArrowRight, Calendar, Filter, Plus, User, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import BacklogListView from "@/components/backlog-list-view";
 import ProjectLayout from "@/components/common/project-layout";
+import SortControl from "@/components/common/sort-control";
 import PageTitle from "@/components/page-title";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
@@ -28,6 +29,8 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getPriorityIcon } from "@/lib/priority";
+import type { SortConfig } from "@/lib/sort-tasks";
+import { sortTasks } from "@/lib/sort-tasks";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -54,6 +57,10 @@ function RouteComponent() {
   const { project, setProject } = useProjectStore();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const { mutate: updateTask } = useUpdateTask();
+  const [sort, setSort] = useState<SortConfig>({
+    field: "position",
+    direction: "asc",
+  });
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -278,6 +285,15 @@ function RouteComponent() {
     }
   };
 
+  const sortedProject = useMemo(() => {
+    if (!filteredProject || sort.field === "position") return filteredProject;
+    return {
+      ...filteredProject,
+      plannedTasks: sortTasks(filteredProject.plannedTasks || [], sort),
+      archivedTasks: sortTasks(filteredProject.archivedTasks || [], sort),
+    };
+  }, [filteredProject, sort]);
+
   const handleMoveAllPlannedToTodo = () => {
     if (!project) return;
 
@@ -464,6 +480,8 @@ function RouteComponent() {
                       </Button>
                     ))}
 
+                <SortControl sort={sort} onSortChange={setSort} />
+
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
@@ -615,8 +633,11 @@ function RouteComponent() {
         </div>
 
         <div className="flex-1 overflow-hidden bg-card h-full">
-          {filteredProject ? (
-            <BacklogListView project={filteredProject} />
+          {sortedProject ? (
+            <BacklogListView
+              project={sortedProject}
+              disableDragDrop={sort.field !== "position"}
+            />
           ) : (
             <div className="flex h-full items-center justify-center">
               <div className="text-center space-y-4">

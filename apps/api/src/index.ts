@@ -15,6 +15,7 @@ import * as v from "valibot";
 import activity from "./activity";
 import { auth } from "./auth";
 import column from "./column";
+import comment from "./comment";
 import config from "./config";
 import db, { schema } from "./database";
 import externalLink from "./external-link";
@@ -49,6 +50,7 @@ import {
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
 import { verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
+import workspace from "./workspace";
 
 type ApiKey = {
   id: string;
@@ -380,6 +382,7 @@ const projectApi = api.route("/project", project);
 const taskApi = api.route("/task", task);
 const columnApi = api.route("/column", column);
 const activityApi = api.route("/activity", activity);
+const commentApi = api.route("/comment", comment);
 const timeEntryApi = api.route("/time-entry", timeEntry);
 const labelApi = api.route("/label", label);
 const notificationApi = api.route("/notification", notification);
@@ -391,6 +394,7 @@ const githubIntegrationApi = api.route(
 const externalLinkApi = api.route("/external-link", externalLink);
 const workflowRuleApi = api.route("/workflow-rule", workflowRule);
 const invitationApi = api.route("/invitation", invitation);
+const workspaceApi = api.route("/workspace", workspace);
 
 app.route("/api", api);
 
@@ -434,6 +438,7 @@ export type AppType =
   | typeof taskApi
   | typeof columnApi
   | typeof activityApi
+  | typeof commentApi
   | typeof timeEntryApi
   | typeof labelApi
   | typeof notificationApi
@@ -442,6 +447,7 @@ export type AppType =
   | typeof externalLinkApi
   | typeof workflowRuleApi
   | typeof invitationApi
+  | typeof workspaceApi
   | typeof publicProjectApi
   | typeof invitationPublicApi;
 

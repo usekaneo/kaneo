@@ -21,6 +21,7 @@ import {
   validateTaskAssetUploadInput,
 } from "../storage/s3";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import bulkUpdateTasks from "./controllers/bulk-update-tasks";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
@@ -65,6 +66,19 @@ const task = new Hono<{
           assigneeId: v.optional(v.string()),
           page: v.optional(v.pipe(v.string(), v.transform(Number))),
           limit: v.optional(v.pipe(v.string(), v.transform(Number))),
+          sortBy: v.optional(
+            v.picklist([
+              "createdAt",
+              "priority",
+              "dueDate",
+              "position",
+              "title",
+              "number",
+            ]),
+          ),
+          sortOrder: v.optional(v.picklist(["asc", "desc"])),
+          dueBefore: v.optional(v.string()),
+          dueAfter: v.optional(v.string()),
         }),
       ),
     ),
@@ -76,6 +90,67 @@ const task = new Hono<{
       const tasks = await getTasks(projectId, filters);
 
       return c.json(tasks);
+    },
+  )
+  .patch(
+    "/bulk",
+    describeRoute({
+      operationId: "bulkUpdateTasks",
+      tags: ["Tasks"],
+      description: "Perform bulk operations on multiple tasks",
+      responses: {
+        200: {
+          description: "Bulk operation completed successfully",
+          content: {
+            "application/json": {
+              schema: resolver(
+                v.object({
+                  success: v.boolean(),
+                  updatedCount: v.number(),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    }),
+    validator(
+      "json",
+      v.object({
+        taskIds: v.pipe(v.array(v.string()), v.minLength(1)),
+        operation: v.picklist([
+          "updateStatus",
+          "updatePriority",
+          "updateAssignee",
+          "delete",
+          "addLabel",
+          "removeLabel",
+        ] as const),
+        value: v.optional(v.nullable(v.string())),
+      }),
+    ),
+    async (c) => {
+      const { taskIds, operation, value } = c.req.valid("json");
+      const userId = c.get("userId");
+
+      if (!userId) {
+        throw new HTTPException(401, { message: "Unauthorized" });
+      }
+
+      if (operation !== "delete" && value === undefined) {
+        throw new HTTPException(400, {
+          message: "Value is required for this operation",
+        });
+      }
+
+      const result = await bulkUpdateTasks({
+        taskIds,
+        operation,
+        value,
+        userId,
+      });
+
+      return c.json(result);
     },
   )
   .post(

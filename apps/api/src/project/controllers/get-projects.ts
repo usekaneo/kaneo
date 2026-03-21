@@ -1,10 +1,15 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
 
-async function getProjects(workspaceId: string) {
+async function getProjects(workspaceId: string, includeArchived = false) {
   const projects = await db.query.projectTable.findMany({
-    where: eq(projectTable.workspaceId, workspaceId),
+    where: includeArchived
+      ? eq(projectTable.workspaceId, workspaceId)
+      : and(
+          eq(projectTable.workspaceId, workspaceId),
+          isNull(projectTable.archivedAt),
+        ),
     with: {
       tasks: true,
     },
