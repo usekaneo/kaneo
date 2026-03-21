@@ -36,9 +36,13 @@ import BacklogTaskRow from "./backlog-task-row";
 
 type BacklogListViewProps = {
   project?: ProjectWithTasks;
+  disableDragDrop?: boolean;
 };
 
-function BacklogListView({ project }: BacklogListViewProps) {
+function BacklogListView({
+  project,
+  disableDragDrop = false,
+}: BacklogListViewProps) {
   const { mutate: updateTask } = useUpdateTask();
   const { setProject } = useProjectStore();
   const {
@@ -114,11 +118,11 @@ function BacklogListView({ project }: BacklogListViewProps) {
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
+        delay: disableDragDrop ? 999999 : 200,
         tolerance: 8,
       },
     }),

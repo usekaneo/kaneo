@@ -37,9 +37,10 @@ import TaskRow from "./task-row";
 
 type ListViewProps = {
   project: ProjectWithTasks;
+  disableDragDrop?: boolean;
 };
 
-function ListView({ project }: ListViewProps) {
+function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const { setProject } = useProjectStore();
   const {
     setAvailableTasks,
@@ -112,11 +113,11 @@ function ListView({ project }: ListViewProps) {
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
+        delay: disableDragDrop ? 999999 : 200,
         tolerance: 8,
       },
     }),

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import BoardToolbar from "@/components/board/board-toolbar";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
@@ -15,6 +15,8 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import type { SortConfig } from "@/lib/sort-tasks";
+import { sortTasks } from "@/lib/sort-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
@@ -44,6 +46,10 @@ function RouteComponent() {
   const [isBoardSearchVisible, setIsBoardSearchVisible] = useState(false);
   const [boardSearchInput, setBoardSearchInput] =
     useState<HTMLInputElement | null>(null);
+  const [sort, setSort] = useState<SortConfig>({
+    field: "position",
+    direction: "asc",
+  });
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -115,6 +121,17 @@ function RouteComponent() {
     clearFilters,
   } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
 
+  const sortedProject = useMemo(() => {
+    if (!filteredProject || sort.field === "position") return filteredProject;
+    return {
+      ...filteredProject,
+      columns: filteredProject.columns.map((column) => ({
+        ...column,
+        tasks: sortTasks(column.tasks, sort),
+      })),
+    };
+  }, [filteredProject, sort]);
+
   const boardHeaderSearch = isBoardSearchMounted ? (
     <div
       className={`relative w-[240px] origin-top transition-all duration-180 ease-out ${
@@ -167,14 +184,22 @@ function RouteComponent() {
           workspaceLabels={workspaceLabels}
           viewMode={viewMode}
           setViewMode={setViewMode}
+          sort={sort}
+          onSortChange={setSort}
         />
 
         <div className="flex h-full flex-1 overflow-hidden bg-background">
-          {filteredProject ? (
+          {sortedProject ? (
             viewMode === "board" ? (
-              <KanbanBoard project={filteredProject} />
+              <KanbanBoard
+                project={sortedProject}
+                disableDragDrop={sort.field !== "position"}
+              />
             ) : (
-              <ListView project={filteredProject} />
+              <ListView
+                project={sortedProject}
+                disableDragDrop={sort.field !== "position"}
+              />
             )
           ) : (
             <div className="flex h-full items-center justify-center">

@@ -97,7 +97,75 @@ async function globalSearch(params: SearchParams): Promise<{
     ? eq(projectTable.workspaceId, workspaceId)
     : sql`${projectTable.workspaceId} IN ${accessibleWorkspaceIds}`;
 
+  // Check if query matches short-id pattern (e.g. "DEP-23")
+  const shortIdMatch = query.match(/^([A-Za-z][\w-]*)-(\d+)$/);
+
   if (type === "all" || type === "tasks") {
+    const seenTaskIds = new Set<string>();
+
+    // If query matches short-id pattern, look up by project slug + task number first
+    if (shortIdMatch) {
+      const [, slug, numberStr] = shortIdMatch;
+      const taskNumber = Number.parseInt(numberStr, 10);
+
+      const shortIdTasks = await db
+        .select({
+          id: taskTable.id,
+          title: taskTable.title,
+          description: taskTable.description,
+          projectId: taskTable.projectId,
+          projectName: projectTable.name,
+          projectSlug: projectTable.slug,
+          workspaceId: projectTable.workspaceId,
+          workspaceName: workspaceTable.name,
+          userId: taskTable.userId,
+          userName: userTable.name,
+          createdAt: taskTable.createdAt,
+          taskNumber: taskTable.number,
+          priority: taskTable.priority,
+          status: taskTable.status,
+        })
+        .from(taskTable)
+        .leftJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+        .leftJoin(
+          workspaceTable,
+          eq(projectTable.workspaceId, workspaceTable.id),
+        )
+        .leftJoin(userTable, eq(taskTable.userId, userTable.id))
+        .where(
+          and(
+            workspaceFilter,
+            projectId ? eq(taskTable.projectId, projectId) : undefined,
+            ilike(projectTable.slug, slug),
+            eq(taskTable.number, taskNumber),
+          ),
+        )
+        .limit(1);
+
+      for (const task of shortIdTasks) {
+        seenTaskIds.add(task.id);
+        results.push({
+          id: task.id,
+          type: "task",
+          title: task.title,
+          description: task.description || undefined,
+          projectId: task.projectId,
+          projectName: task.projectName || undefined,
+          projectSlug: task.projectSlug || undefined,
+          workspaceId: task.workspaceId || undefined,
+          workspaceName: task.workspaceName || undefined,
+          userId: task.userId || undefined,
+          userName: task.userName || undefined,
+          createdAt: task.createdAt,
+          relevanceScore: 10, // Highest relevance for exact short-id match
+          taskNumber: task.taskNumber || undefined,
+          priority: task.priority || undefined,
+          status: task.status,
+        });
+      }
+    }
+
+    // Also run text search for tasks
     const taskRelevanceScore = sql<number>`
       CASE
         WHEN LOWER(${taskTable.title}) LIKE ${searchPattern} THEN 3
@@ -144,6 +212,7 @@ async function globalSearch(params: SearchParams): Promise<{
     const tasks = await taskQuery;
 
     for (const task of tasks) {
+      if (seenTaskIds.has(task.id)) continue;
       results.push({
         id: task.id,
         type: "task",

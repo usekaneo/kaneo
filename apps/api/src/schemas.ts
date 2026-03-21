@@ -18,6 +18,7 @@ export const projectSchema = v.object({
   description: v.nullable(v.string()),
   createdAt: v.date(),
   isPublic: v.nullable(v.boolean()),
+  archivedAt: v.nullable(v.date()),
 });
 
 export const taskSchema = v.object({
@@ -103,6 +104,21 @@ export const githubIntegrationSchema = v.object({
   isActive: v.nullable(v.boolean()),
   createdAt: v.date(),
   updatedAt: v.date(),
+});
+
+export const commentSchema = v.object({
+  id: v.string(),
+  taskId: v.string(),
+  userId: v.string(),
+  content: v.string(),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+  user: v.optional(
+    v.object({
+      name: v.string(),
+      image: v.nullable(v.string()),
+    }),
+  ),
 });
 
 export const configSchema = v.object({

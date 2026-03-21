@@ -28,9 +28,10 @@ import TaskCard from "./task-card";
 
 type KanbanBoardProps = {
   project: ProjectWithTasks;
+  disableDragDrop?: boolean;
 };
 
-function KanbanBoard({ project }: KanbanBoardProps) {
+function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
   const {
@@ -90,11 +91,11 @@ function KanbanBoard({ project }: KanbanBoardProps) {
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250,
+        delay: disableDragDrop ? 999999 : 250,
         tolerance: 10,
       },
     }),
