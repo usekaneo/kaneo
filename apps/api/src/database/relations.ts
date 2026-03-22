@@ -14,6 +14,7 @@ import {
   notificationTable,
   projectTable,
   sessionTable,
+  taskRelationTable,
   taskTable,
   teamMemberTable,
   teamTable,
@@ -143,6 +144,8 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   assets: many(assetTable),
   labels: many(labelTable),
   externalLinks: many(externalLinkTable),
+  sourceRelations: many(taskRelationTable, { relationName: "sourceTask" }),
+  targetRelations: many(taskRelationTable, { relationName: "targetTask" }),
 }));
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({
@@ -268,6 +271,22 @@ export const integrationTableRelations = relations(
       references: [projectTable.id],
     }),
     externalLinks: many(externalLinkTable),
+  }),
+);
+
+export const taskRelationTableRelations = relations(
+  taskRelationTable,
+  ({ one }) => ({
+    sourceTask: one(taskTable, {
+      fields: [taskRelationTable.sourceTaskId],
+      references: [taskTable.id],
+      relationName: "sourceTask",
+    }),
+    targetTask: one(taskTable, {
+      fields: [taskRelationTable.targetTaskId],
+      references: [taskTable.id],
+      relationName: "targetTask",
+    }),
   }),
 );
 
