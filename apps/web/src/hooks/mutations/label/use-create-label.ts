@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import createLabel from "@/fetchers/label/create-label";
 import type { CreateLabelRequest } from "@/fetchers/label/create-label";
+import createLabel from "@/fetchers/label/create-label";
 
 function useCreateLabel() {
   const queryClient = useQueryClient();
