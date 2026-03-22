@@ -1,3 +1,14 @@
+## [2.3.13](https://github.com/usekaneo/kaneo/compare/v2.3.12...v2.3.13) (2026-03-22)
+
+
+### Bug Fixes
+
+* **api:** only apply task pagination when explicitly requested ([500c609](https://github.com/usekaneo/kaneo/commit/500c609eda36e69bab6c2006a1d73b6851817286)), closes [#1065](https://github.com/usekaneo/kaneo/issues/1065)
+
+
+### Features
+
+* **web:** refine breadcrumb and workspace switcher styling ([bd52ce2](https://github.com/usekaneo/kaneo/commit/bd52ce27ae393cd6b9b89f42f7deb0176f9b5003))
 ## [2.3.12](https://github.com/usekaneo/kaneo/compare/v2.3.11...v2.3.12) (2026-03-21)
 
 
