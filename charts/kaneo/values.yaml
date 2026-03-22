@@ -87,6 +87,7 @@ api:
       name: ""
       key: auth-secret
     disableRegistration: false
+    disablePasswordRegistration: false
     # Database configuration
     database:
       # Use external PostgreSQL (set postgresql.enabled to false)
