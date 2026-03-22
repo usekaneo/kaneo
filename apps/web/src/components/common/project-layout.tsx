@@ -102,7 +102,7 @@ export default function ProjectLayout({
 
             <div className="hidden min-w-0 items-center gap-1 md:flex">
               <WorkspaceCrumbSelect />
-              <span className="text-muted-foreground/70 text-xs">/</span>
+              <span className="text-foreground/30 text-xs">/</span>
               <ProjectCrumbSelect
                 workspaceId={workspaceId}
                 projectId={projectId}
@@ -148,7 +148,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <SquareKanban className="size-3.5" />
-                  Board
+                  Tasks
                 </Button>
               </div>
             )}

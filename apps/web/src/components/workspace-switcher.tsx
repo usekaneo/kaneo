@@ -120,13 +120,13 @@ export function WorkspaceSwitcher() {
               >
                 <div className="flex items-center min-w-0 w-full">
                   <span
-                    className={`truncate text-sm font-medium text-sidebar-foreground ${isSwitching ? "opacity-50" : ""}`}
+                    className={`truncate text-sm font-medium text-foreground ${isSwitching ? "opacity-50" : ""}`}
                   >
                     {workspace.name}
                   </span>
                 </div>
                 <ChevronDown
-                  className={`ml-1 size-3.5 text-sidebar-foreground/72 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
+                  className={`ml-1 size-3.5 text-foreground/70 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
                   data-state={isOpen ? "open" : "closed"}
                 />
               </DropdownMenuTrigger>
