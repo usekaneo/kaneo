@@ -1,3 +1,19 @@
+## [2.3.14](https://github.com/usekaneo/kaneo/compare/v2.3.13...v2.3.14) (2026-03-23)
+
+
+### Bug Fixes
+
+* **api:** only apply task pagination when explicitly requested ([eed1c35](https://github.com/usekaneo/kaneo/commit/eed1c352e19cc2b17db7362bf99cc952d1b4be73)), closes [#1065](https://github.com/usekaneo/kaneo/issues/1065)
+
+
+### Features
+
+* **api,web:** add subtasks and task relations ([c73ef78](https://github.com/usekaneo/kaneo/commit/c73ef7821f054f8217568e8814c847c1c654bd76))
+* **auth:** allow OIDC-only user registration ([5e8600e](https://github.com/usekaneo/kaneo/commit/5e8600e8f214d11dfa66e2e82117be5b88e23930))
+* replace browser confirm with Archive modal ([9ed268f](https://github.com/usekaneo/kaneo/commit/9ed268f89ac29684e974757d5cf202031972fdf6))
+* **web:** add relations to task detail, animated subtasks, and keyboard nav ([752bab0](https://github.com/usekaneo/kaneo/commit/752bab0277ba918eb8e4975e20d045bd8c8063b1))
+* **web:** redesign subtasks UI with bulk actions ([9b059f3](https://github.com/usekaneo/kaneo/commit/9b059f39443971566d32ca49738bb2f84b37e079))
+* **web:** refine breadcrumb and workspace switcher styling ([a2bcc9a](https://github.com/usekaneo/kaneo/commit/a2bcc9af27a118fce5701bc2daae0f82cca85554))
 ## [2.3.13](https://github.com/usekaneo/kaneo/compare/v2.3.12...v2.3.13) (2026-03-22)
 
 
