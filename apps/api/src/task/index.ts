@@ -125,6 +125,7 @@ const task = new Hono<{
           "delete",
           "addLabel",
           "removeLabel",
+          "updateDueDate",
         ] as const),
         value: v.optional(v.nullable(v.string())),
       }),
@@ -137,7 +138,11 @@ const task = new Hono<{
         throw new HTTPException(401, { message: "Unauthorized" });
       }
 
-      if (operation !== "delete" && value === undefined) {
+      if (
+        operation !== "delete" &&
+        operation !== "updateDueDate" &&
+        value === undefined
+      ) {
         throw new HTTPException(400, {
           message: "Value is required for this operation",
         });

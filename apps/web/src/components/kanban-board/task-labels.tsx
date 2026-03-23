@@ -20,14 +20,16 @@ function isValidHtmlColor(color: string): boolean {
 }
 
 function validColor(value: string): string {
+  const mapped = labelColors.find((c) => c.value === value)?.color;
+  if (mapped) {
+    return mapped;
+  }
+
   if (isValidHtmlColor(value)) {
     return value;
   }
 
-  return (
-    labelColors.find((c) => c.value === value)?.color ||
-    "var(--color-neutral-400)"
-  );
+  return "var(--color-neutral-400)";
 }
 
 function TaskCardLabels({ taskId }: { taskId: string }) {
@@ -40,7 +42,6 @@ function TaskCardLabels({ taskId }: { taskId: string }) {
       {labels.map((label: { id: string; name: string; color: string }) => (
         <Badge
           key={label.id}
-          color={label.color}
           variant="outline"
           className="px-2 py-0.5 text-[10px] flex items-center"
         >

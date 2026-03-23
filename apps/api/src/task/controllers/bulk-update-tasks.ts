@@ -15,7 +15,8 @@ type BulkOperation =
   | "updateAssignee"
   | "delete"
   | "addLabel"
-  | "removeLabel";
+  | "removeLabel"
+  | "updateDueDate";
 
 async function bulkUpdateTasks({
   taskIds,
@@ -186,6 +187,16 @@ async function bulkUpdateTasks({
         .where(
           and(eq(labelTable.id, value), inArray(labelTable.taskId, foundIds)),
         );
+
+      updatedCount = result.rowCount ?? foundIds.length;
+      break;
+    }
+
+    case "updateDueDate": {
+      const result = await db
+        .update(taskTable)
+        .set({ dueDate: value ? new Date(value) : null })
+        .where(inArray(taskTable.id, foundIds));
 
       updatedCount = result.rowCount ?? foundIds.length;
       break;
