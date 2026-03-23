@@ -78,7 +78,7 @@ function InputGroupTextarea({ className, ...props }: TextareaProps) {
 export {
   InputGroup,
   InputGroupAddon,
-  InputGroupText,
   InputGroupInput,
+  InputGroupText,
   InputGroupTextarea,
 };

@@ -231,14 +231,14 @@ function SelectGroupLabel(props: SelectPrimitive.GroupLabel.Props) {
 
 export {
   Select,
-  SelectTrigger,
   SelectButton,
-  selectTriggerVariants,
-  SelectValue,
-  SelectPopup,
-  SelectPopup as SelectContent,
-  SelectItem,
-  SelectSeparator,
   SelectGroup,
   SelectGroupLabel,
+  SelectItem,
+  SelectPopup,
+  SelectPopup as SelectContent,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+  selectTriggerVariants,
 };

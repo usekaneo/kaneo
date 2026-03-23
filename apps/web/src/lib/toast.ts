@@ -72,5 +72,5 @@ const toast = Object.assign(message, {
   dismiss,
 });
 
-export { toast };
 export type { ToastOptions };
+export { toast };

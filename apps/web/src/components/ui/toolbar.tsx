@@ -75,9 +75,9 @@ function ToolbarSeparator({
 
 export {
   Toolbar,
-  ToolbarGroup,
-  ToolbarSeparator,
   ToolbarButton,
-  ToolbarLink,
+  ToolbarGroup,
   ToolbarInput,
+  ToolbarLink,
+  ToolbarSeparator,
 };

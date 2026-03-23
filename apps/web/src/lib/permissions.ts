@@ -42,4 +42,4 @@ const owner = ac.newRole({
   // team: ["invite", "remove", "manage_roles"],
 });
 
-export { ac, member, admin, owner, statement };
+export { ac, admin, member, owner, statement };
