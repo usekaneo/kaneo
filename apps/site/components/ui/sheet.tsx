@@ -191,16 +191,16 @@ function SheetPanel({
 
 export {
   Sheet,
-  SheetTrigger,
-  SheetPortal,
-  SheetClose,
   SheetBackdrop,
   SheetBackdrop as SheetOverlay,
+  SheetClose,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetPanel,
   SheetPopup,
   SheetPopup as SheetContent,
-  SheetHeader,
-  SheetFooter,
+  SheetPortal,
   SheetTitle,
-  SheetDescription,
-  SheetPanel,
+  SheetTrigger,
 };

@@ -23,6 +23,9 @@ export function useUpdateTaskStatus() {
       queryClient.invalidateQueries({
         queryKey: ["activities", variables.id],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["task-relations"],
+      });
     },
   });
 }

@@ -18,6 +18,7 @@ import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
@@ -43,6 +44,19 @@ export default function TaskCardContextMenuContent({
   onDeleteClick,
 }: TaskCardContextMenuContentProps) {
   const { project } = useProjectStore();
+  const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
+  const columns =
+    project?.columns && project.columns.length > 0
+      ? project.columns.map((col) => ({
+          slug: col.id,
+          name: col.name,
+          isFinal: col.isFinal,
+        }))
+      : columnsData.map((col) => ({
+          slug: col.slug,
+          name: col.name,
+          isFinal: col.isFinal,
+        }));
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     taskCardContext.worskpaceId,
   );
@@ -124,6 +138,7 @@ export default function TaskCardContextMenuContent({
             key="no-priority"
             checked={task.priority === "no-priority"}
             onCheckedChange={() => handleChange("priority", "no-priority")}
+            closeOnClick
             className="[&_svg]:text-muted-foreground"
           >
             {getPriorityIcon("no-priority")}
@@ -134,6 +149,7 @@ export default function TaskCardContextMenuContent({
               key={priority}
               checked={task.priority === priority}
               onCheckedChange={() => handleChange("priority", priority)}
+              closeOnClick
               className="[&_svg]:text-muted-foreground"
             >
               {getPriorityIcon(priority)}
@@ -148,14 +164,15 @@ export default function TaskCardContextMenuContent({
           <span>Status</span>
         </ContextMenuSubTrigger>
         <ContextMenuSubContent className="w-48">
-          {(project?.columns ?? []).map((col) => (
+          {columns.map((col) => (
             <ContextMenuCheckboxItem
-              key={col.id}
-              checked={task.status === col.id}
-              onCheckedChange={() => handleChange("status", col.id)}
+              key={col.slug}
+              checked={task.status === col.slug}
+              onCheckedChange={() => handleChange("status", col.slug)}
+              closeOnClick
               className="[&_svg]:text-muted-foreground"
             >
-              {getColumnIcon(col.id, col.isFinal)}
+              {getColumnIcon(col.slug, col.isFinal)}
               <span>{col.name}</span>
             </ContextMenuCheckboxItem>
           ))}
@@ -227,6 +244,7 @@ export default function TaskCardContextMenuContent({
             <ContextMenuCheckboxItem
               checked={!task.userId}
               onCheckedChange={() => handleChange("userId", "")}
+              closeOnClick
             >
               <div
                 className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
@@ -243,6 +261,7 @@ export default function TaskCardContextMenuContent({
                 key={user.value}
                 checked={task.userId === user.value}
                 onCheckedChange={() => handleChange("userId", user.value ?? "")}
+                closeOnClick
               >
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={user.image ?? ""} alt={user.name || ""} />

@@ -223,19 +223,19 @@ function DialogPanel({
 }
 
 export {
-  DialogCreateHandle,
   Dialog,
-  DialogTrigger,
-  DialogPortal,
-  DialogClose,
   DialogBackdrop,
   DialogBackdrop as DialogOverlay,
+  DialogClose,
+  DialogCreateHandle,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
   DialogPopup,
   DialogPopup as DialogContent,
-  DialogHeader,
-  DialogFooter,
+  DialogPortal,
   DialogTitle,
-  DialogDescription,
-  DialogPanel,
+  DialogTrigger,
   DialogViewport,
 };
