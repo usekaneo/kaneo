@@ -1,3 +1,10 @@
+## [2.3.15](https://github.com/usekaneo/kaneo/compare/v2.3.14...v2.3.15) (2026-03-23)
+
+
+### Features
+
+* add bulk assign labels, priority & deadlines ([bd5d7f4](https://github.com/usekaneo/kaneo/commit/bd5d7f463babcd501d204e9b23e32422458f0e49))
+* add bulk assign labels, priority & deadlines ([37d1356](https://github.com/usekaneo/kaneo/commit/37d1356631fabd55db9f8e2d851f14442b43caa5))
 ## [2.3.14](https://github.com/usekaneo/kaneo/compare/v2.3.13...v2.3.14) (2026-03-23)
 
 
