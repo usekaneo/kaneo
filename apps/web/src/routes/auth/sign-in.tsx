@@ -355,16 +355,13 @@ function SignIn() {
               onSuccess={handleSignInSuccess}
             />
           )}
-          {config?.disableRegistration ? (
+          {config?.disableRegistration ||
+          config?.disablePasswordRegistration ? (
             <div className="text-center pt-4">
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <a
-                  href="/auth/sign-up"
-                  className="text-primary hover:underline font-medium"
-                >
-                  Sign up with invitation
-                </a>
+                {config?.disableRegistration
+                  ? "Public registration is disabled. Use an invitation to create an account."
+                  : "Password registration is disabled. Use a configured social or OIDC sign-in method to create an account."}
               </p>
             </div>
           ) : (

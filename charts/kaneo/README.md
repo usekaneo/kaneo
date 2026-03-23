@@ -133,6 +133,7 @@ helm uninstall my-kaneo
 | `api.env.existingSecret.name`       | Name of the existing secret containing the JWT access token                                                       | `""`                            |
 | `api.env.existingSecret.key`        | Key in the existing secret that contains the JWT access token                                                     | `jwt-access`                    |
 | `api.env.disableRegistration`       | Disable new user registration                                                                                      | `false`                         |
+| `api.env.disablePasswordRegistration` | Disable password-based account creation while keeping social/OIDC registration available                        | `false`                         |
 | `api.env.database.external.enabled` | Use external PostgreSQL database (set postgresql.enabled to false)                                               | `false`                         |
 | `api.env.database.external.host`    | External PostgreSQL host                                                                                          | `""`                            |
 | `api.env.database.external.port`    | External PostgreSQL port                                                                                          | `5432`                          |
