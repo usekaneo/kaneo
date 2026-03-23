@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
+import { AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -46,6 +47,8 @@ export default function TaskSubtasks({
   const [newTitle, setNewTitle] = useState("");
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { data: relations = [] } = useGetTaskRelations(taskId);
   const { data: workspace } = useActiveWorkspace();
@@ -72,7 +75,7 @@ export default function TaskSubtasks({
   const totalCount = subtasks.length;
   const hasSelection = selectedIds.size > 0;
 
-  const toggleSelection = (id: string) => {
+  const toggleSelection = useCallback((id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -82,7 +85,12 @@ export default function TaskSubtasks({
       }
       return next;
     });
-  };
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+    setFocusedIndex(-1);
+  }, []);
 
   const buildTaskObject = (subtask: (typeof subtasks)[number]): Task => ({
     id: subtask.task.id,
@@ -128,6 +136,84 @@ export default function TaskSubtasks({
     if (nextSelected) return "rounded-t-md rounded-b-none";
     return "rounded-md";
   };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || totalCount === 0) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.closest(
+          "input, textarea, [contenteditable='true'], .ProseMirror",
+        )
+      )
+        return;
+
+      if (!container.contains(document.activeElement) && focusedIndex === -1)
+        return;
+
+      switch (e.key) {
+        case "ArrowDown":
+        case "j": {
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev < totalCount - 1 ? prev + 1 : prev));
+          break;
+        }
+        case "ArrowUp":
+        case "k": {
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+          break;
+        }
+        case " ": {
+          if (focusedIndex >= 0 && focusedIndex < totalCount) {
+            e.preventDefault();
+            toggleSelection(subtasks[focusedIndex].task.id);
+          }
+          break;
+        }
+        case "Enter": {
+          if (focusedIndex >= 0 && focusedIndex < totalCount) {
+            e.preventDefault();
+            navigate({
+              to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+              params: {
+                workspaceId,
+                projectId,
+                taskId: subtasks[focusedIndex].task.id,
+              },
+            });
+          }
+          break;
+        }
+        case "Escape": {
+          if (hasSelection) {
+            e.preventDefault();
+            clearSelection();
+          } else if (focusedIndex >= 0) {
+            e.preventDefault();
+            setFocusedIndex(-1);
+          }
+          break;
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [
+    focusedIndex,
+    totalCount,
+    subtasks,
+    hasSelection,
+    clearSelection,
+    navigate,
+    workspaceId,
+    projectId,
+    toggleSelection,
+  ]);
 
   const handleAddSubtask = async () => {
     if (!newTitle.trim()) return;
@@ -216,36 +302,48 @@ export default function TaskSubtasks({
         </div>
 
         <CollapsibleContent>
-          <div className="flex flex-col mt-1">
-            {subtasks.map((subtask, index) => {
-              const taskObj = buildTaskObject(subtask);
-              const isSelected = selectedIds.has(subtask.task.id);
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: keyboard nav managed via document listener */}
+          <div
+            ref={containerRef}
+            className="flex flex-col mt-1"
+            onMouseDown={() => {
+              if (focusedIndex === -1 && !hasSelection) {
+                setFocusedIndex(0);
+              }
+            }}
+          >
+            <AnimatePresence initial={false}>
+              {subtasks.map((subtask, index) => {
+                const taskObj = buildTaskObject(subtask);
+                const isSelected = selectedIds.has(subtask.task.id);
 
-              return (
-                <SubtaskRow
-                  key={subtask.relation.id}
-                  task={taskObj}
-                  tasks={getTargetTasks(taskObj)}
-                  projectId={projectId}
-                  workspaceId={workspace?.id ?? workspaceId}
-                  isSelected={isSelected}
-                  selectionRadius={getSelectionRadius(index, isSelected)}
-                  assignee={getAssignee(subtask.task.userId)}
-                  onToggleSelection={() => toggleSelection(subtask.task.id)}
-                  onNavigate={() =>
-                    navigate({
-                      to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-                      params: {
-                        workspaceId,
-                        projectId,
-                        taskId: subtask.task.id,
-                      },
-                    })
-                  }
-                  onDeleteClick={() => setDeleteTaskId(subtask.task.id)}
-                />
-              );
-            })}
+                return (
+                  <SubtaskRow
+                    key={subtask.task.id}
+                    task={taskObj}
+                    tasks={getTargetTasks(taskObj)}
+                    projectId={projectId}
+                    workspaceId={workspace?.id ?? workspaceId}
+                    isSelected={isSelected}
+                    isFocused={focusedIndex === index}
+                    selectionRadius={getSelectionRadius(index, isSelected)}
+                    assignee={getAssignee(subtask.task.userId)}
+                    onToggleSelection={() => toggleSelection(subtask.task.id)}
+                    onNavigate={() =>
+                      navigate({
+                        to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+                        params: {
+                          workspaceId,
+                          projectId,
+                          taskId: subtask.task.id,
+                        },
+                      })
+                    }
+                    onDeleteClick={() => setDeleteTaskId(subtask.task.id)}
+                  />
+                );
+              })}
+            </AnimatePresence>
           </div>
 
           {isAdding && (

@@ -13,6 +13,7 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import type { ExternalLink } from "@/types/external-link";
 import TaskDescription from "./task-description";
+import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
 import TaskTitle from "./task-title";
 
@@ -85,6 +86,13 @@ export default function TaskDetailsContent({
       )}
       <div className="mt-4">
         <TaskSubtasks
+          taskId={taskId}
+          projectId={projectId}
+          workspaceId={workspaceId}
+        />
+      </div>
+      <div className="mt-2">
+        <TaskRelations
           taskId={taskId}
           projectId={projectId}
           workspaceId={workspaceId}
