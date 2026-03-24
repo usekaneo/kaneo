@@ -224,7 +224,7 @@ export default function TaskSubtasks({
         description: "",
         projectId,
         status: "to-do",
-        priority: "low",
+        priority: "no-priority",
       });
 
       await createRelation.mutateAsync({
