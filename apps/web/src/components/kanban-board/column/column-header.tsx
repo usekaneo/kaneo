@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import { Archive } from "lucide-react";
-import { useState } from "react"; // Toegevoegd
+import { useState } from "react";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
@@ -15,7 +15,7 @@ type ColumnHeaderProps = {
 export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { project, setProject } = useProjectStore();
   const { mutate: updateTask } = useUpdateTask();
-  
+
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 
   const handleConfirmArchive = () => {
