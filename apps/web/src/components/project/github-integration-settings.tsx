@@ -310,8 +310,7 @@ export function GitHubIntegrationSettings({
                 </p>
                 <p className="text-xs text-muted-foreground">
                   When enabled, Kaneo posts a comment on each new GitHub issue
-                  with a link to the task. Disable this if that adds noise for
-                  people who do not use Kaneo.
+                  with a link to the task.
                 </p>
               </div>
               <Switch
