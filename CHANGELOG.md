@@ -1,3 +1,10 @@
+## [2.3.16](https://github.com/usekaneo/kaneo/compare/v2.3.15...v2.3.16) (2026-03-24)
+
+
+### Bug Fixes
+
+* Subtasks default priority ([#1080](https://github.com/usekaneo/kaneo/issues/1080)) ([506fa55](https://github.com/usekaneo/kaneo/commit/506fa5531f05e2e36bdacf067c0ae26a4bdcc160))
+* **ui:** make subtasks appear after creation without refresh ([#1084](https://github.com/usekaneo/kaneo/issues/1084)) ([a5daa49](https://github.com/usekaneo/kaneo/commit/a5daa49d2791544e8fafecc8c8caa85de25c71da))
 ## [2.3.15](https://github.com/usekaneo/kaneo/compare/v2.3.14...v2.3.15) (2026-03-23)
 
 
