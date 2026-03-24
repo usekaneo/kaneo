@@ -60,7 +60,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         <>
           <button
             type="button"
-            onClick={() => setIsArchiveModalOpen(true)} // Opent nu de modal
+            onClick={() => setIsArchiveModalOpen(true)}
             className="flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-all hover:bg-accent/50"
             title="Archive all completed tasks"
           >
