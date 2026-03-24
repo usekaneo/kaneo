@@ -10,6 +10,7 @@ type ImportTask = {
   description?: string;
   status: string;
   priority?: string;
+  startDate?: string;
   dueDate?: string;
   userId?: string | null;
 };
@@ -47,6 +48,7 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
           title: taskData.title,
           status: taskData.status,
           columnId: column?.id ?? null,
+          startDate: taskData.startDate ? new Date(taskData.startDate) : null,
           dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
           description: taskData.description || "",
           priority: taskData.priority || "low",

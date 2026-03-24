@@ -5,6 +5,7 @@ export type TaskToImport = {
   description?: string;
   status: string;
   priority?: string;
+  startDate?: string;
   dueDate?: string;
   userId?: string | null;
 };

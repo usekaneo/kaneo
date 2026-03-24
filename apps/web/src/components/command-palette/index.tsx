@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ArrowDownIcon, ArrowUpIcon, CornerDownLeftIcon } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import SearchCommandMenu from "@/components/search-command-menu";
@@ -43,12 +43,15 @@ type PaletteGroup = {
 function CommandPalette() {
   const { setTheme } = useUserPreferencesStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
   const [open, setOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);
+  const projectIdFromRoute =
+    location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? undefined;
 
   useRegisterShortcuts({
     shortcuts: {
@@ -310,6 +313,7 @@ function CommandPalette() {
       <SearchCommandMenu open={isSearchOpen} setOpen={setIsSearchOpen} />
       <CreateTaskModal
         open={isCreateTaskOpen}
+        projectId={projectIdFromRoute}
         onClose={() => setIsCreateTaskOpen(false)}
       />
       <CreateWorkspaceModal

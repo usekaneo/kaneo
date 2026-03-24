@@ -10,6 +10,7 @@ async function createTask({
   userId,
   title,
   status,
+  startDate,
   dueDate,
   description,
   priority,
@@ -18,6 +19,7 @@ async function createTask({
   userId?: string;
   title: string;
   status: string;
+  startDate?: Date;
   dueDate?: Date;
   description?: string;
   priority?: string;
@@ -58,6 +60,7 @@ async function createTask({
       title: title || "",
       status: status || "",
       columnId: column?.id ?? null,
+      startDate: startDate || null,
       dueDate: dueDate || null,
       description: description || "",
       priority: priority || "",

@@ -11,6 +11,7 @@ function useCreateTask() {
       userId,
       projectId,
       status,
+      startDate,
       dueDate,
       priority,
     }: CreateTaskRequest) =>
@@ -20,6 +21,7 @@ function useCreateTask() {
         projectId,
         userId ?? "",
         status,
+        startDate ? new Date(startDate) : undefined,
         dueDate ? new Date(dueDate) : undefined,
         priority,
       ),

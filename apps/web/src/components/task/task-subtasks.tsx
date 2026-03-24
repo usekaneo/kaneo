@@ -99,6 +99,7 @@ export default function TaskSubtasks({
     description: null,
     status: subtask.task.status,
     priority: subtask.task.priority,
+    startDate: null,
     dueDate: null,
     position: null,
     createdAt: "",
@@ -119,7 +120,9 @@ export default function TaskSubtasks({
 
   const getAssignee = (userId: string | null) => {
     if (!userId || !workspaceUsers?.members) return null;
-    return workspaceUsers.members.find((member) => member.userId === userId);
+    return (
+      workspaceUsers.members.find((member) => member.userId === userId) ?? null
+    );
   };
 
   const getSelectionRadius = (index: number, isSelected: boolean) => {
