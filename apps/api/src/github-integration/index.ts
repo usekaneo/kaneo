@@ -6,6 +6,10 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
 import { integrationTable, projectTable } from "../database/schema";
+import {
+  type GitHubConfig,
+  validateGitHubConfig,
+} from "../plugins/github/config";
 import { handleGitHubWebhook } from "../plugins/github/webhook-handler";
 import { githubIntegrationSchema } from "../schemas";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
@@ -218,24 +222,54 @@ const githubIntegration = new Hono<{
       "json",
       v.object({
         isActive: v.optional(v.boolean()),
+        commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { isActive } = c.req.valid("json");
+      const body = c.req.valid("json");
 
-      const existingIntegration = await getGithubIntegration(projectId);
+      const row = await db.query.integrationTable.findFirst({
+        where: and(
+          eq(integrationTable.projectId, projectId),
+          eq(integrationTable.type, "github"),
+        ),
+      });
 
-      if (!existingIntegration) {
+      if (!row) {
         return c.json({ error: "Integration not found" }, 404);
       }
 
-      const [updatedIntegration] = await db
+      let config: GitHubConfig;
+      try {
+        config = JSON.parse(row.config) as GitHubConfig;
+      } catch {
+        throw new HTTPException(500, { message: "Invalid integration config" });
+      }
+
+      if (body.commentTaskLinkOnGitHubIssue !== undefined) {
+        config = {
+          ...config,
+          commentTaskLinkOnGitHubIssue: body.commentTaskLinkOnGitHubIssue,
+        };
+      }
+
+      const validation = await validateGitHubConfig(config);
+      if (!validation.valid) {
+        throw new HTTPException(400, {
+          message: validation.errors?.join(", ") ?? "Invalid config",
+        });
+      }
+
+      await db
         .update(integrationTable)
         .set({
+          config: JSON.stringify(config),
           isActive:
-            isActive !== undefined ? isActive : existingIntegration.isActive,
+            body.isActive !== undefined
+              ? body.isActive
+              : (row.isActive ?? true),
           updatedAt: new Date(),
         })
         .where(
@@ -243,10 +277,10 @@ const githubIntegration = new Hono<{
             eq(integrationTable.projectId, projectId),
             eq(integrationTable.type, "github"),
           ),
-        )
-        .returning();
+        );
 
-      return c.json(updatedIntegration, 200);
+      const updated = await getGithubIntegration(projectId);
+      return c.json(updated, 200);
     },
   )
   .delete(

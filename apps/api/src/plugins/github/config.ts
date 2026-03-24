@@ -19,6 +19,7 @@ export const githubConfigSchema = v.object({
   installationId: v.nullable(v.number()),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),
+  commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),
   statusTransitions: v.optional(
     v.object({
       onBranchPush: v.optional(v.string()),
@@ -52,6 +53,7 @@ export async function validateGitHubConfig(
 
 export const defaultGitHubConfig: Partial<GitHubConfig> = {
   branchPattern: "{slug}-{number}",
+  commentTaskLinkOnGitHubIssue: true,
   statusTransitions: {
     onBranchPush: "in-progress",
     onPROpen: "in-review",
