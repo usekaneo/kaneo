@@ -231,12 +231,7 @@ input:-webkit-autofill:active {
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-neutral-200) transparent;
-  }
-
-  .dark * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-neutral-800) transparent;
+    scrollbar-color: var(--border) transparent;
   }
 
   *::-webkit-scrollbar {
