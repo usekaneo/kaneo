@@ -410,6 +410,33 @@ export const normalizeEmptyRequiredArrays = (spec: Record<string, unknown>) => {
   return spec;
 };
 
+export const markOptionalSchemaFieldsNullable = (
+  spec: Record<string, unknown>,
+) => {
+  const schemas = ((spec as { components?: { schemas?: unknown } }).components
+    ?.schemas || {}) as Record<string, unknown>;
+
+  for (const schema of Object.values(schemas)) {
+    if (!isPlainObject(schema)) continue;
+
+    const properties = schema.properties as Record<string, unknown> | undefined;
+    if (!isPlainObject(properties)) continue;
+
+    const required = Array.isArray(schema.required) ? schema.required : [];
+
+    for (const [name, prop] of Object.entries(properties)) {
+      if (required.includes(name)) continue;
+      if (!isPlainObject(prop)) continue;
+      if (prop.nullable === true) continue;
+      if (typeof prop.type !== "string") continue;
+
+      prop.nullable = true;
+    }
+  }
+
+  return spec;
+};
+
 export const ensureOperationSummaries = (spec: Record<string, unknown>) => {
   const paths = ((spec as { paths?: unknown }).paths || {}) as Record<
     string,

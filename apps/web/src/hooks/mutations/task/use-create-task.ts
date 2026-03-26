@@ -1,9 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createTask, {
   type CreateTaskRequest,
 } from "@/fetchers/task/create-task";
 
 function useCreateTask() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({
       title,
@@ -25,6 +27,11 @@ function useCreateTask() {
         dueDate ? new Date(dueDate) : undefined,
         priority,
       ),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: ["tasks", variables.projectId],
+      });
+    },
   });
 }
 

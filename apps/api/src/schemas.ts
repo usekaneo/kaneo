@@ -102,6 +102,8 @@ export const githubIntegrationSchema = v.object({
   repositoryOwner: v.string(),
   repositoryName: v.string(),
   installationId: v.nullable(v.number()),
+  branchPattern: v.optional(v.string()),
+  commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),
   isActive: v.nullable(v.boolean()),
   createdAt: v.date(),
   updatedAt: v.date(),

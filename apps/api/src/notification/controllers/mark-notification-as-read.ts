@@ -1,13 +1,15 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { notificationTable } from "../../database/schema";
 
-async function markNotificationAsRead(id: string) {
+async function markNotificationAsRead(id: string, userId: string) {
   const [notification] = await db
     .update(notificationTable)
     .set({ isRead: true })
-    .where(eq(notificationTable.id, id))
+    .where(
+      and(eq(notificationTable.id, id), eq(notificationTable.userId, userId)),
+    )
     .returning();
 
   if (!notification) {
