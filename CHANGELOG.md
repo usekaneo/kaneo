@@ -1,3 +1,19 @@
+# [2.4.0](https://github.com/usekaneo/kaneo/compare/v2.3.16...v2.4.0) (2026-03-26)
+
+
+### Bug Fixes
+
+* enforce user ownership in notification endpoints ([#1089](https://github.com/usekaneo/kaneo/issues/1089)) ([16c28a9](https://github.com/usekaneo/kaneo/commit/16c28a92551a86c831419131d5499cad9e6ef762)), closes [#974](https://github.com/usekaneo/kaneo/issues/974)
+* fix public project access after getTasks response shape change ([#1088](https://github.com/usekaneo/kaneo/issues/1088)) ([f17400e](https://github.com/usekaneo/kaneo/commit/f17400ed37d4676461c1cbcab308f4642b40a81e))
+* improve task sidebar icon button styling ([ce6a53c](https://github.com/usekaneo/kaneo/commit/ce6a53cf69a01df8a6a09ef68429b32df66d24f9))
+* mark optional Organization fields as nullable in OpenAPI spec ([#1090](https://github.com/usekaneo/kaneo/issues/1090)) ([a1755d3](https://github.com/usekaneo/kaneo/commit/a1755d3bcbbad4188338e63a02c0b6b0600f3989)), closes [#1087](https://github.com/usekaneo/kaneo/issues/1087)
+* prevent start date after due date and improve activity messages ([61cb4d3](https://github.com/usekaneo/kaneo/commit/61cb4d3f67ceeb478d2014416045428425a88cea))
+* resolve picomatch security vulnerabilities ([ee94d12](https://github.com/usekaneo/kaneo/commit/ee94d12d7664db9fc679c81ba8d7fcdb60d4b291))
+
+
+### Features
+
+* gantt view and task start date ([#1083](https://github.com/usekaneo/kaneo/issues/1083)) ([e1cc1ea](https://github.com/usekaneo/kaneo/commit/e1cc1ea30ecd124b9d25bf020e5a9a2d4c49a841))
 ## [2.3.16](https://github.com/usekaneo/kaneo/compare/v2.3.15...v2.3.16) (2026-03-24)
 
 
