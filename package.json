@@ -38,7 +38,8 @@
       "seroval": "1.4.1",
       "effect": ">=3.20.0",
       "fast-xml-parser": ">=5.5.7",
-      "socket.io-parser": ">=4.2.6"
+      "socket.io-parser": ">=4.2.6",
+      "picomatch": ">=2.3.2"
     }
   },
   "packageManager": "pnpm@10.32.1",
