@@ -42,6 +42,7 @@ import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email"
 import {
   dedupeOperationIds,
   ensureOperationSummaries,
+  markOptionalSchemaFieldsNullable,
   mergeOpenApiSpecs,
   normalizeApiServerUrl,
   normalizeEmptyRequiredArrays,
@@ -304,9 +305,11 @@ api.get("/openapi", async (c) => {
   return c.json(
     ensureOperationSummaries(
       dedupeOperationIds(
-        normalizeNullableSchemasForOpenApi30(
-          normalizeEmptyRequiredArrays(
-            mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+        markOptionalSchemaFieldsNullable(
+          normalizeNullableSchemasForOpenApi30(
+            normalizeEmptyRequiredArrays(
+              mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+            ),
           ),
         ),
       ),
