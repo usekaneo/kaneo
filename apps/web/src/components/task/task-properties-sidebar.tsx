@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import {
   Calendar,
   CalendarClock,
+  CalendarDays,
   CalendarX,
   Copy,
   GitBranch,
@@ -31,6 +32,7 @@ import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskPriorityPopover from "./task-priority-popover";
+import TaskStartDatePopover from "./task-start-date-popover";
 import TaskStatusPopover from "./task-status-popover";
 
 function slugify(text: string | undefined): string {
@@ -223,6 +225,24 @@ export default function TaskPropertiesSidebar({
               </TaskAssigneePopover>
             )}
             {task && (
+              <TaskStartDatePopover task={task}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start h-7 px-1.5 gap-1.5"
+                >
+                  <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span
+                    className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
+                  >
+                    {task.startDate
+                      ? format(new Date(task.startDate), "MMM d")
+                      : "Start"}
+                  </span>
+                </Button>
+              </TaskStartDatePopover>
+            )}
+            {task && (
               <TaskDueDatePopover task={task}>
                 <Button
                   variant="ghost"
@@ -377,6 +397,24 @@ export default function TaskPropertiesSidebar({
                     </span>
                   </Button>
                 </TaskAssigneePopover>
+              )}
+              {task && (
+                <TaskStartDatePopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5"
+                  >
+                    <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span
+                      className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
+                    >
+                      {task.startDate
+                        ? format(new Date(task.startDate), "MMM d")
+                        : "Start"}
+                    </span>
+                  </Button>
+                </TaskStartDatePopover>
               )}
               {task && (
                 <TaskDueDatePopover task={task}>
@@ -535,6 +573,24 @@ export default function TaskPropertiesSidebar({
                     </span>
                   </Button>
                 </TaskAssigneePopover>
+              )}
+              {task && (
+                <TaskStartDatePopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5 w-full"
+                  >
+                    <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span
+                      className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
+                    >
+                      {task.startDate
+                        ? format(new Date(task.startDate), "MMM d")
+                        : "Start date"}
+                    </span>
+                  </Button>
+                </TaskStartDatePopover>
               )}
               {task && (
                 <TaskDueDatePopover task={task}>

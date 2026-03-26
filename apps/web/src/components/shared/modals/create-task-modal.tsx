@@ -1,3 +1,4 @@
+import { useLocation } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { produce } from "immer";
 import {
@@ -51,6 +52,7 @@ type CreateTaskModalProps = {
   open: boolean;
   onClose: () => void;
   status?: string;
+  projectId?: string;
 };
 
 type Priority = "no-priority" | "low" | "medium" | "high" | "urgent";
@@ -86,6 +88,7 @@ function normalizeTask(
     number: task.number ?? null,
     description: task.description ?? null,
     priority: task.priority ?? null,
+    startDate: task.startDate ?? null,
     dueDate: task.dueDate ?? null,
     position: task.position ?? 0,
     userId: task.userId ?? null,
@@ -145,8 +148,14 @@ const labelColors = [
   },
 ];
 
-function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
+function CreateTaskModal({
+  open,
+  onClose,
+  status,
+  projectId,
+}: CreateTaskModalProps) {
   const { project, setProject } = useProjectStore();
+  const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
   const { mutateAsync: createLabel } = useCreateLabel();
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
@@ -157,6 +166,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
   const [assigneeId, setAssigneeId] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
@@ -167,6 +177,10 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
   const [searchValue, setSearchValue] = useState("");
   const [selectedColor, setSelectedColor] = useState<LabelColor>("gray");
   const [newLabelName, setNewLabelName] = useState("");
+
+  const routeProjectId =
+    location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
+  const resolvedProjectId = projectId || project?.id || routeProjectId || "";
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const draftCreationPromiseRef = useRef<Promise<Task> | null>(null);
@@ -205,6 +219,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     setDescription("");
     setPriority("no-priority");
     setAssigneeId("");
+    setStartDate(undefined);
     setDueDate(undefined);
     setCreateMore(false);
     setLabels([]);
@@ -287,7 +302,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       return pendingTask.id;
     }
 
-    if (!project?.id) {
+    if (!resolvedProjectId) {
       toast.error("Choose a project before uploading images.");
       return null;
     }
@@ -298,7 +313,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
       description: description.trim() || "",
       userId: assigneeId,
       priority,
-      projectId: project.id,
+      projectId: resolvedProjectId,
+      startDate: startDate ? startDate.toISOString() : undefined,
       dueDate: dueDate ? dueDate.toISOString() : undefined,
       status: draftStatus,
     }).then((task) => normalizeTask(task));
@@ -322,15 +338,16 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
     createTask,
     description,
     draftTask,
+    startDate,
     dueDate,
     priority,
-    project?.id,
+    resolvedProjectId,
     title,
   ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !project?.id || !workspace?.id) return;
+    if (!title.trim() || !resolvedProjectId || !workspace?.id) return;
 
     try {
       const taskStatus = status ?? "to-do";
@@ -345,8 +362,9 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               userId: assigneeId || null,
               status: taskStatus,
               priority,
+              startDate: startDate ? startDate.toISOString() : null,
               dueDate: dueDate ? dueDate.toISOString() : null,
-              projectId: project.id,
+              projectId: resolvedProjectId,
             }),
           )
         : normalizeTask(
@@ -355,7 +373,8 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
               description: description.trim() || "",
               userId: assigneeId,
               priority,
-              projectId: project.id,
+              projectId: resolvedProjectId,
+              startDate: startDate ? startDate.toISOString() : undefined,
               dueDate: dueDate ? dueDate.toISOString() : undefined,
               status: taskStatus,
             }),
@@ -385,6 +404,7 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
         setDescription("");
         setPriority("no-priority");
         setAssigneeId("");
+        setStartDate(undefined);
         setDueDate(undefined);
         setLabels([]);
         setLabelsStep("select");
@@ -603,6 +623,48 @@ function CreateTaskModal({ open, onClose, status }: CreateTaskModalProps) {
                     status.slice(1).replace("-", " ")
                   : "In Progress"}
               </div>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                      startDate
+                        ? "bg-accent/30 text-foreground"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="w-3.5 h-3.5" />
+                    <span>
+                      {startDate
+                        ? format(startDate, "MMM d, yyyy")
+                        : "Start date"}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    className="w-full bg-popover"
+                  />
+                  {startDate && (
+                    <div className="p-2 border-t border-border">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs"
+                        onClick={() => setStartDate(undefined)}
+                      >
+                        Clear start date
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
 
               <Popover>
                 <PopoverTrigger asChild>

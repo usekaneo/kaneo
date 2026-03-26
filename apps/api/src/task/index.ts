@@ -178,6 +178,7 @@ const task = new Hono<{
       v.object({
         title: v.string(),
         description: v.string(),
+        startDate: v.optional(v.string()),
         dueDate: v.optional(v.string()),
         priority: v.string(),
         status: v.string(),
@@ -187,14 +188,22 @@ const task = new Hono<{
     workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.param();
-      const { title, description, dueDate, priority, status, userId } =
-        c.req.valid("json");
+      const {
+        title,
+        description,
+        startDate,
+        dueDate,
+        priority,
+        status,
+        userId,
+      } = c.req.valid("json");
 
       const task = await createTask({
         projectId,
         userId,
         title,
         description,
+        startDate: startDate ? new Date(startDate) : undefined,
         dueDate: dueDate ? new Date(dueDate) : undefined,
         priority,
         status,
@@ -249,6 +258,7 @@ const task = new Hono<{
       v.object({
         title: v.string(),
         description: v.string(),
+        startDate: v.optional(v.string()),
         dueDate: v.optional(v.string()),
         priority: v.string(),
         status: v.string(),
@@ -266,6 +276,7 @@ const task = new Hono<{
       const {
         title,
         description,
+        startDate,
         dueDate,
         priority,
         status,
@@ -282,6 +293,7 @@ const task = new Hono<{
         id,
         title,
         status,
+        startDate ? new Date(startDate) : undefined,
         dueDate ? new Date(dueDate) : undefined,
         projectId,
         description,
@@ -357,6 +369,7 @@ const task = new Hono<{
             description: v.optional(v.string()),
             status: v.string(),
             priority: v.optional(v.string()),
+            startDate: v.optional(v.string()),
             dueDate: v.optional(v.string()),
             userId: v.optional(v.nullable(v.string())),
           }),

@@ -1,4 +1,4 @@
-import { Check, Menu, Plus } from "lucide-react";
+import { CalendarDays, Check, Menu, Plus, SquareKanban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -12,9 +12,10 @@ import { cn } from "@/lib/cn";
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
-  activeView: "backlog" | "board";
+  activeView: "backlog" | "board" | "gantt";
   onSelectBoard: () => void;
   onSelectBacklog: () => void;
+  onSelectGantt: () => void;
   onSelectProject: (projectId: string) => void;
   onAddProject: () => void;
 };
@@ -25,6 +26,7 @@ export default function MobileProjectNav({
   activeView,
   onSelectBoard,
   onSelectBacklog,
+  onSelectGantt,
   onSelectProject,
   onAddProject,
 }: MobileProjectNavProps) {
@@ -49,12 +51,12 @@ export default function MobileProjectNav({
             <p className="px-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
               View
             </p>
-            <div className="grid grid-cols-2 gap-1">
+            <div className="grid grid-cols-3 gap-1">
               <button
                 type="button"
                 onClick={onSelectBacklog}
                 className={cn(
-                  "rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
                   activeView === "backlog"
                     ? "border-border bg-secondary text-foreground"
                     : "border-transparent text-muted-foreground hover:bg-accent",
@@ -66,13 +68,27 @@ export default function MobileProjectNav({
                 type="button"
                 onClick={onSelectBoard}
                 className={cn(
-                  "rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
                   activeView === "board"
                     ? "border-border bg-secondary text-foreground"
                     : "border-transparent text-muted-foreground hover:bg-accent",
                 )}
               >
+                <SquareKanban className="size-3.5" />
                 Board
+              </button>
+              <button
+                type="button"
+                onClick={onSelectGantt}
+                className={cn(
+                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                  activeView === "gantt"
+                    ? "border-border bg-secondary text-foreground"
+                    : "border-transparent text-muted-foreground hover:bg-accent",
+                )}
+              >
+                <CalendarDays className="size-3.5" />
+                Gantt
               </button>
             </div>
           </div>
