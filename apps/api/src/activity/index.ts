@@ -297,7 +297,7 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.due_date_changed", async (data) => {
-  const oldDate = formatActivityDate(data.oldDueDate) || "none";
+  const oldDate = formatActivityDate(data.oldDueDate);
 
   if (!data.newDueDate) {
     await createActivity(
@@ -312,12 +312,11 @@ subscribeToEvent<{
   const newDate = formatActivityDate(data.newDueDate);
   if (!newDate) return;
 
-  await createActivity(
-    data.taskId,
-    data.type,
-    data.userId,
-    `changed due date from ${oldDate} to ${newDate}`,
-  );
+  const message = oldDate
+    ? `changed due date from ${oldDate} to ${newDate}`
+    : `set due date to ${newDate}`;
+
+  await createActivity(data.taskId, data.type, data.userId, message);
 });
 
 subscribeToEvent<{
