@@ -58,8 +58,9 @@ function RouteComponent() {
   const isMobile = useIsMobile();
   const [isTaskRailOpen, setIsTaskRailOpen] = useState(false);
 
-  const dayColumnWidthRem = 2.75;
-  const taskColumnWidthRem = 14;
+  // Wider day columns on small screens so dragging and reading dates is easier.
+  const dayColumnWidthRem = isMobile ? 3.125 : 2.75;
+  const taskColumnWidthRem = isMobile ? 12 : 14;
   const showTaskRail = !isMobile || isTaskRailOpen;
   const timelineTrackRef = useRef<HTMLDivElement>(null);
   const [pixelsPerDay, setPixelsPerDay] = useState(44);
@@ -151,7 +152,7 @@ function RouteComponent() {
       gridTemplateColumns: `repeat(${days.length}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
       timelineMinWidthRem: days.length * dayColumnWidthRem,
     };
-  }, [parsedTasks]);
+  }, [parsedTasks, dayColumnWidthRem]);
 
   useLayoutEffect(() => {
     const element = timelineTrackRef.current;
@@ -177,7 +178,7 @@ function RouteComponent() {
     >
       <PageTitle title={`${project?.name} — Gantt`} hideAppName />
       <div className="flex h-full min-h-0 flex-col bg-background">
-        <div className="border-b border-border/80 px-4 py-3">
+        <div className="border-b border-border/80 px-3 py-3 sm:px-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-1">
               <h1 className="text-sm font-semibold text-foreground">
@@ -191,14 +192,14 @@ function RouteComponent() {
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search scheduled tickets..."
-                className="h-8 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
+                className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
               />
             </div>
 
             <Button
               variant="outline"
               size="xs"
-              className="sm:hidden"
+              className="min-h-11 touch-manipulation sm:hidden"
               onClick={() => setIsTaskRailOpen((current) => !current)}
             >
               {showTaskRail ? (
@@ -238,12 +239,12 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <div className="min-h-0 flex-1 overflow-auto">
-            <div className="relative min-w-max">
+          <div className="min-h-0 flex-1 overflow-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+            <div className="relative min-w-max touch-pan-x touch-pan-y">
               <div className="sticky top-0 z-20 flex border-b border-border bg-background/95 backdrop-blur">
                 {showTaskRail ? (
                   <div
-                    className="sticky left-0 z-30 shrink-0 border-r border-border bg-background px-3 py-3 sm:w-80 sm:px-4"
+                    className="sticky left-0 z-30 shrink-0 border-r border-border bg-background px-2 py-2.5 sm:w-80 sm:px-4 sm:py-3"
                     style={{
                       width: isMobile ? `${taskColumnWidthRem}rem` : undefined,
                     }}
@@ -269,7 +270,7 @@ function RouteComponent() {
                       <div
                         key={day.toISOString()}
                         className={cn(
-                          "border-r border-border/70 px-1 py-2 text-center",
+                          "border-r border-border/70 px-0.5 py-2 text-center sm:px-1",
                           isWeekend(day) && "bg-muted/25",
                         )}
                       >
@@ -334,7 +335,7 @@ function RouteComponent() {
                           <div className="sticky left-0 z-[11] h-full border-r border-border bg-background">
                             <button
                               type="button"
-                              className="flex h-full w-full min-w-0 flex-col items-start justify-center gap-0.5 px-3 py-1.5 text-left transition-colors hover:bg-muted"
+                              className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left transition-colors hover:bg-muted sm:min-h-0 sm:px-3 sm:py-1.5"
                               onClick={() =>
                                 navigate({
                                   to: ".",
@@ -375,6 +376,7 @@ function RouteComponent() {
                             task={task}
                             timeline={timeline}
                             pixelsPerDay={pixelsPerDay}
+                            isMobile={isMobile}
                             onOpenTask={() =>
                               navigate({
                                 to: ".",

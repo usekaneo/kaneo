@@ -6,6 +6,7 @@ import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
 const CLICK_MOVE_THRESHOLD_PX = 4;
+const MOBILE_MOVE_THRESHOLD_PX = 14;
 
 type ScheduledTask = Task & {
   scheduleStart: Date;
@@ -20,6 +21,7 @@ type GanttTaskBarProps = {
     gridTemplateColumns: string;
   };
   pixelsPerDay: number;
+  isMobile?: boolean;
   onOpenTask: () => void;
 };
 
@@ -51,6 +53,7 @@ export function GanttTaskBar({
   task,
   timeline,
   pixelsPerDay,
+  isMobile = false,
   onOpenTask,
 }: GanttTaskBarProps) {
   const { mutateAsync: updateTask } = useUpdateTask();
@@ -104,6 +107,9 @@ export function GanttTaskBar({
   );
 
   const pxPerDay = Math.max(pixelsPerDay, 1e-6);
+  const moveThresholdPx = isMobile
+    ? MOBILE_MOVE_THRESHOLD_PX
+    : CLICK_MOVE_THRESHOLD_PX;
 
   const handleResizeLeftPointerDown = (event: React.PointerEvent) => {
     event.preventDefault();
@@ -129,6 +135,11 @@ export function GanttTaskBar({
     const onUp = async (ev: PointerEvent) => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onCancel);
+      if (ev.type === "pointercancel") {
+        setDragDisplay(null);
+        return;
+      }
       const deltaDays = Math.round((ev.clientX - originX) / pxPerDay);
       let nextStartIdx = startIdx + deltaDays;
       nextStartIdx = Math.max(0, Math.min(nextStartIdx, endIdx));
@@ -143,8 +154,11 @@ export function GanttTaskBar({
       }
     };
 
+    const onCancel = onUp;
+
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onCancel);
   };
 
   const handleResizeRightPointerDown = (event: React.PointerEvent) => {
@@ -171,6 +185,11 @@ export function GanttTaskBar({
     const onUp = async (ev: PointerEvent) => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onCancel);
+      if (ev.type === "pointercancel") {
+        setDragDisplay(null);
+        return;
+      }
       const deltaDays = Math.round((ev.clientX - originX) / pxPerDay);
       let nextEndIdx = endIdx + deltaDays;
       nextEndIdx = Math.max(startIdx, Math.min(nextEndIdx, trackCount - 1));
@@ -185,8 +204,11 @@ export function GanttTaskBar({
       }
     };
 
+    const onCancel = onUp;
+
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onCancel);
   };
 
   const handleMovePointerDown = (event: React.PointerEvent) => {
@@ -214,6 +236,11 @@ export function GanttTaskBar({
     const onUp = async (ev: PointerEvent) => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onCancel);
+      if (ev.type === "pointercancel") {
+        setDragDisplay(null);
+        return;
+      }
       const moved = Math.abs(ev.clientX - originX);
       const deltaDays = Math.round((ev.clientX - originX) / pxPerDay);
       let nextStartIdx = startIdx + deltaDays;
@@ -222,7 +249,7 @@ export function GanttTaskBar({
       const nextStart = timeline.days[nextStartIdx] ?? initialStart;
       const nextEnd = addDays(nextStart, durationDays);
 
-      if (moved < CLICK_MOVE_THRESHOLD_PX) {
+      if (moved < moveThresholdPx) {
         setDragDisplay(null);
         onOpenTask();
         return;
@@ -240,8 +267,11 @@ export function GanttTaskBar({
       }
     };
 
+    const onCancel = onUp;
+
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onCancel);
   };
 
   if (!barInView || lineEnd <= lineStart) {
@@ -257,21 +287,22 @@ export function GanttTaskBar({
     >
       <div
         style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
-        className="group pointer-events-auto relative mx-1 flex h-11 min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40"
+        className="group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40 sm:h-11 sm:min-h-0"
       >
         <button
           type="button"
           aria-label="Resize start date"
           onPointerDown={handleResizeLeftPointerDown}
           className={cn(
-            "relative z-20 w-2 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
+            "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
+            "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
           )}
         />
         <button
           type="button"
           aria-label={`${task.title} — open or drag to move`}
-          className="relative z-10 min-w-0 flex-1 cursor-grab overflow-hidden px-2.5 text-left active:cursor-grabbing"
+          className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
           onPointerDown={handleMovePointerDown}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -288,7 +319,8 @@ export function GanttTaskBar({
           aria-label="Resize due date"
           onPointerDown={handleResizeRightPointerDown}
           className={cn(
-            "relative z-20 w-2 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
+            "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
+            "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
           )}
         />
