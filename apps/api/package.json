@@ -16,6 +16,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=esm --packages=external --external:fs --external:path --external:crypto --external:os --external:util --external:stream --external:buffer --external:events --external:url --external:querystring --external:http --external:https --external:net --external:tls --external:zlib",
     "lint": "biome check --write .",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
@@ -50,8 +52,10 @@
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^25.3.5",
     "@types/pg": "^8.18.0",
+    "@vitest/coverage-v8": "^4.1.2",
     "esbuild": "0.27.4",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.2"
   }
 }

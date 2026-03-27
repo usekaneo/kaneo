@@ -80,12 +80,12 @@ function env(name: string) {
   return process.env[name]?.trim() || "";
 }
 
-function parseBoolean(value: string | undefined, fallback: boolean) {
+export function parseBoolean(value: string | undefined, fallback: boolean) {
   if (value === undefined || value.trim() === "") return fallback;
   return value.trim().toLowerCase() === "true";
 }
 
-function parsePositiveInt(value: string | undefined, fallback: number) {
+export function parsePositiveInt(value: string | undefined, fallback: number) {
   const parsed = Number.parseInt(value?.trim() || "", 10);
   if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
   return parsed;
@@ -157,7 +157,7 @@ function getClient(config: StorageConfig) {
   return client;
 }
 
-function sanitizePathSegment(value: string) {
+export function sanitizePathSegment(value: string) {
   return (
     value
       .toLowerCase()
@@ -167,7 +167,7 @@ function sanitizePathSegment(value: string) {
   );
 }
 
-function getFileExtension(filename: string) {
+export function getFileExtension(filename: string) {
   const normalized = filename.trim();
   const extension = normalized.includes(".")
     ? normalized.split(".").pop() || ""
@@ -176,7 +176,7 @@ function getFileExtension(filename: string) {
   return sanitizePathSegment(extension).slice(0, 12);
 }
 
-function buildObjectKeyPrefix(
+export function buildObjectKeyPrefix(
   context: Omit<TaskImageUploadContext, "filename" | "contentType">,
 ) {
   const surfaceFolder =
@@ -193,7 +193,7 @@ function buildObjectKeyPrefix(
   ].join("/");
 }
 
-function buildObjectKey(context: TaskImageUploadContext) {
+export function buildObjectKey(context: TaskImageUploadContext) {
   const extension = getFileExtension(context.filename);
   const objectKeyPrefix = buildObjectKeyPrefix(context);
   const timestamp = Date.now();
