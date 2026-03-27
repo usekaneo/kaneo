@@ -1,3 +1,16 @@
+## [2.4.1](https://github.com/usekaneo/kaneo/compare/v2.4.0...v2.4.1) (2026-03-27)
+
+
+### Bug Fixes
+
+* validate task status and priority inputs across all API endpoints ([#1093](https://github.com/usekaneo/kaneo/issues/1093)) ([b3f6568](https://github.com/usekaneo/kaneo/commit/b3f656885961bf02835b6136f247d0a016db5a31))
+* **web:** resolve Biome noArrayIndexKey lint in shortcuts, repo modal, and error display ([#1096](https://github.com/usekaneo/kaneo/issues/1096)) ([16eddd6](https://github.com/usekaneo/kaneo/commit/16eddd6d6974cb648b0312b40b38d21f9250ef80))
+
+
+### Features
+
+* **ui:** gantt chart resize dates ([#1095](https://github.com/usekaneo/kaneo/issues/1095)) ([7f7bd6b](https://github.com/usekaneo/kaneo/commit/7f7bd6bf9fd6bc6c9fa641aa3d80b3ebacfc0bd9))
+* **ui:** refine ArchiveTasksModal layout and alignment ([#1091](https://github.com/usekaneo/kaneo/issues/1091)) ([528a982](https://github.com/usekaneo/kaneo/commit/528a982b7196b25299da2b51f5c3f564f1af0d97))
 # [2.4.0](https://github.com/usekaneo/kaneo/compare/v2.3.16...v2.4.0) (2026-03-26)
 
 
