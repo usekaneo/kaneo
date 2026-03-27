@@ -62,11 +62,8 @@ export function ErrorDisplay({
                 Troubleshooting steps:
               </h4>
               <ul className="text-xs text-muted-foreground space-y-1">
-                {troubleshootingSteps.map((step, index) => (
-                  <li
-                    key={`step-${index}-${step.slice(0, 10)}`}
-                    className="flex items-start gap-2"
-                  >
+                {troubleshootingSteps.map((step) => (
+                  <li key={step} className="flex items-start gap-2">
                     <span className="text-muted-foreground mt-0.5">•</span>
                     <span>{step}</span>
                   </li>

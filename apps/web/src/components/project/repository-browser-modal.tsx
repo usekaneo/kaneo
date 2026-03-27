@@ -133,9 +133,9 @@ export function RepositoryBrowserModal({
         <div className="flex-1 overflow-y-auto min-h-[300px]">
           {isLoading && (
             <div className="px-6 py-4 space-y-3">
-              {Array.from({ length: 5 }, (_, i) => (
+              {[0, 1, 2, 3, 4].map((slot) => (
                 <div
-                  key={`loading-skeleton-repo-${i}-${Date.now()}`}
+                  key={`loading-skeleton-repo-${slot}`}
                   className="p-4 border border-border rounded-md bg-sidebar animate-pulse"
                 >
                   <div className="flex items-center gap-3">
