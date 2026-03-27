@@ -427,6 +427,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
       <CreateTaskModal
         open={isTaskModalOpen}
+        projectId={project.id}
         onClose={() => setIsTaskModalOpen(false)}
         status={activeColumn ?? "done"}
       />

@@ -7,35 +7,35 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
-type TaskDueDatePopoverProps = {
+type TaskStartDatePopoverProps = {
   task: Task;
   children: React.ReactNode;
 };
 
-export default function TaskDueDatePopover({
+export default function TaskStartDatePopover({
   task,
   children,
-}: TaskDueDatePopoverProps) {
+}: TaskStartDatePopoverProps) {
   const [open, setOpen] = useState(false);
-  const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
+  const { mutateAsync: updateTask } = useUpdateTask();
 
   const handleDateChange = async (date: Date | undefined) => {
     try {
-      await updateTaskDueDate({
+      await updateTask({
         ...task,
-        dueDate: date?.toISOString() || null,
+        startDate: date?.toISOString() || null,
       });
-      toast.success("Task due date updated successfully");
+      toast.success("Task start date updated successfully");
       setOpen(false);
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to update task due date",
+          : "Failed to update task start date",
       );
     }
   };
@@ -46,14 +46,14 @@ export default function TaskDueDatePopover({
       <PopoverContent className="p-0" align="start">
         <Calendar
           mode="single"
-          selected={task.dueDate ? new Date(task.dueDate) : undefined}
+          selected={task.startDate ? new Date(task.startDate) : undefined}
           onSelect={handleDateChange}
           disabled={
-            task.startDate ? { before: new Date(task.startDate) } : undefined
+            task.dueDate ? { after: new Date(task.dueDate) } : undefined
           }
           className="w-full bg-popover"
         />
-        {task.dueDate && (
+        {task.startDate && (
           <div className="pt-2 border-t border-border">
             <Button
               variant="ghost"
@@ -62,7 +62,7 @@ export default function TaskDueDatePopover({
               onClick={() => handleDateChange(undefined)}
             >
               <X className="h-4 w-4" />
-              Clear date
+              Clear start date
             </Button>
           </div>
         )}

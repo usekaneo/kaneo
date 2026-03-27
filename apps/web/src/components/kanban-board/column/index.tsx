@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
+import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
@@ -12,6 +13,7 @@ type ColumnProps = {
 function Column({ column }: ColumnProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isDropzoneOver, setIsDropzoneOver] = useState(false);
+  const { project } = useProjectStore();
 
   return (
     <div
@@ -24,6 +26,7 @@ function Column({ column }: ColumnProps) {
       <CreateTaskModal
         open={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
+        projectId={project?.id}
         status={column.id}
       />
 

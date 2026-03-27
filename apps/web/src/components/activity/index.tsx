@@ -191,21 +191,33 @@ function renderActivityContent({
   }
 
   if (activity.type === "due_date_changed") {
-    const match = content.match(/changed due date from (.+) to (.+)$/i);
-    if (!match)
-      return <span className="text-sm text-muted-foreground">{content}</span>;
-    return (
-      <span className="text-sm text-muted-foreground">
-        changed due date from{" "}
-        <span className="text-foreground">
-          {formatActivityDateText(match[1])}
-        </span>{" "}
-        to{" "}
-        <span className="text-foreground">
-          {formatActivityDateText(match[2])}
+    const changeMatch = content.match(/changed due date from (.+) to (.+)$/i);
+    if (changeMatch) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          changed due date from{" "}
+          <span className="text-foreground">
+            {formatActivityDateText(changeMatch[1])}
+          </span>{" "}
+          to{" "}
+          <span className="text-foreground">
+            {formatActivityDateText(changeMatch[2])}
+          </span>
         </span>
-      </span>
-    );
+      );
+    }
+    const setMatch = content.match(/set due date to (.+)$/i);
+    if (setMatch) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          set due date to{" "}
+          <span className="text-foreground">
+            {formatActivityDateText(setMatch[1])}
+          </span>
+        </span>
+      );
+    }
+    return <span className="text-sm text-muted-foreground">{content}</span>;
   }
 
   if (activity.type === "assignee_changed") {

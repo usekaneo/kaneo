@@ -67,6 +67,11 @@ function RouteComponent() {
       [shortcuts.view.prefix]: {
         [shortcuts.view.board]: () => setViewMode("board"),
         [shortcuts.view.list]: () => setViewMode("list"),
+        [shortcuts.view.gantt]: () =>
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
+            params: { workspaceId, projectId },
+          }),
         [shortcuts.view.backlog]: () =>
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
@@ -210,6 +215,7 @@ function RouteComponent() {
 
         <CreateTaskModal
           open={isTaskModalOpen}
+          projectId={projectId}
           onClose={() => setIsTaskModalOpen(false)}
         />
 

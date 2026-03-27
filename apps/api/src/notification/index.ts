@@ -60,7 +60,6 @@ const notification = new Hono<{
     validator(
       "json",
       v.object({
-        userId: v.string(),
         title: v.string(),
         message: v.string(),
         type: v.string(),
@@ -69,14 +68,9 @@ const notification = new Hono<{
       }),
     ),
     async (c) => {
-      const {
-        userId,
-        title,
-        message,
-        type,
-        relatedEntityId,
-        relatedEntityType,
-      } = c.req.valid("json");
+      const { title, message, type, relatedEntityId, relatedEntityType } =
+        c.req.valid("json");
+      const userId = c.get("userId");
       const notification = await createNotification({
         userId,
         title,
@@ -106,7 +100,8 @@ const notification = new Hono<{
     validator("param", v.object({ id: v.string() })),
     async (c) => {
       const { id } = c.req.valid("param");
-      const notification = await markAsRead(id);
+      const userId = c.get("userId");
+      const notification = await markAsRead(id, userId);
       return c.json(notification);
     },
   )

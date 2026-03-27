@@ -448,6 +448,7 @@ function BacklogListView({
 
       <CreateTaskModal
         open={isTaskModalOpen}
+        projectId={project?.id}
         onClose={() => setIsTaskModalOpen(false)}
         status={activeColumn ?? "planned"}
       />

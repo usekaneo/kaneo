@@ -80,7 +80,7 @@ export default function TaskDetailsSheet({
                     variant="ghost"
                     size="sm"
                     onClick={handleOpenFullPage}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-foreground"
                   >
                     <Maximize2 className="size-4" />
                   </Button>
@@ -92,7 +92,7 @@ export default function TaskDetailsSheet({
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-foreground"
             >
               <X className="size-4" />
             </Button>

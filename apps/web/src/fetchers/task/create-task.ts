@@ -12,15 +12,21 @@ async function createTask(
   projectId: string,
   userId: string,
   status: string,
+  startDate: Date | undefined,
   dueDate: Date | undefined,
   priority: string,
 ) {
+  if (!projectId) {
+    throw new Error("No project selected for task creation");
+  }
+
   const response = await client.task[":projectId"].$post({
     json: {
       title,
       description,
       userId,
       status,
+      startDate: startDate?.toISOString() || undefined,
       dueDate: dueDate?.toISOString() || undefined,
       priority,
     },

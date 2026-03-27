@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable, userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { assertValidTaskStatus } from "../validate-task-fields";
 import getNextTaskNumber from "./get-next-task-number";
 
 async function createTask({
@@ -10,6 +11,7 @@ async function createTask({
   userId,
   title,
   status,
+  startDate,
   dueDate,
   description,
   priority,
@@ -18,10 +20,16 @@ async function createTask({
   userId?: string;
   title: string;
   status: string;
+  startDate?: Date;
   dueDate?: Date;
   description?: string;
   priority?: string;
 }) {
+  const resolvedStatus = status || "to-do";
+  const resolvedPriority = priority || "no-priority";
+
+  await assertValidTaskStatus(resolvedStatus, projectId);
+
   const [assignee] = await db
     .select({ name: userTable.name })
     .from(userTable)
@@ -32,7 +40,7 @@ async function createTask({
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, projectId),
-      eq(columnTable.slug, status || "to-do"),
+      eq(columnTable.slug, resolvedStatus),
     ),
   });
 
@@ -44,7 +52,7 @@ async function createTask({
         eq(taskTable.projectId, projectId),
         column?.id
           ? eq(taskTable.columnId, column.id)
-          : eq(taskTable.status, status || "to-do"),
+          : eq(taskTable.status, resolvedStatus),
       ),
     );
 
@@ -56,11 +64,12 @@ async function createTask({
       projectId,
       userId: userId || null,
       title: title || "",
-      status: status || "",
+      status: resolvedStatus,
       columnId: column?.id ?? null,
+      startDate: startDate || null,
       dueDate: dueDate || null,
       description: description || "",
-      priority: priority || "",
+      priority: resolvedPriority,
       number: nextTaskNumber + 1,
       position: nextPosition,
     })

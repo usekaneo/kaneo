@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import {
   Calendar,
   CalendarClock,
+  CalendarDays,
   CalendarX,
   Copy,
   GitBranch,
@@ -31,6 +32,7 @@ import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskPriorityPopover from "./task-priority-popover";
+import TaskStartDatePopover from "./task-start-date-popover";
 import TaskStatusPopover from "./task-status-popover";
 
 function slugify(text: string | undefined): string {
@@ -116,14 +118,14 @@ export default function TaskPropertiesSidebar({
       {/* Compact mode: properties + icons in one row */}
       {compact && (
         <div className="flex flex-row-reverse gap-2 w-full border-b border-border">
-          <div className="flex gap-2 px-3 py-2">
+          <div className="flex px-3 py-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="ghost"
-                    size="xs"
-                    className="text-muted-foreground"
+                    variant="outline"
+                    size="sm"
+                    className="text-foreground rounded-r-none border-r-0"
                     onClick={() => handleCopyTaskLink()}
                   >
                     <Copy className="size-4" />
@@ -143,9 +145,9 @@ export default function TaskPropertiesSidebar({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="ghost"
-                    size="xs"
-                    className="text-muted-foreground"
+                    variant="outline"
+                    size="sm"
+                    className="text-foreground rounded-l-none"
                     onClick={() => handleCopyTaskBranch()}
                   >
                     <GitBranch className="size-4" />
@@ -223,6 +225,24 @@ export default function TaskPropertiesSidebar({
               </TaskAssigneePopover>
             )}
             {task && (
+              <TaskStartDatePopover task={task}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start h-7 px-1.5 gap-1.5"
+                >
+                  <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span
+                    className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
+                  >
+                    {task.startDate
+                      ? format(new Date(task.startDate), "MMM d")
+                      : "Start"}
+                  </span>
+                </Button>
+              </TaskStartDatePopover>
+            )}
+            {task && (
               <TaskDueDatePopover task={task}>
                 <Button
                   variant="ghost"
@@ -270,14 +290,14 @@ export default function TaskPropertiesSidebar({
         <>
           {/* Mobile: Compact-style layout */}
           <div className="flex flex-row-reverse gap-2 w-full border-b border-border lg:hidden">
-            <div className="flex gap-2 px-3 py-2">
+            <div className="flex px-3 py-2">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant="ghost"
-                      size="xs"
-                      className="text-muted-foreground"
+                      variant="outline"
+                      size="sm"
+                      className="text-foreground rounded-r-none border-r-0"
                       onClick={() => handleCopyTaskLink()}
                     >
                       <Copy className="size-4" />
@@ -297,9 +317,9 @@ export default function TaskPropertiesSidebar({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant="ghost"
-                      size="xs"
-                      className="text-muted-foreground"
+                      variant="outline"
+                      size="sm"
+                      className="text-foreground rounded-l-none"
                       onClick={() => handleCopyTaskBranch()}
                     >
                       <GitBranch className="size-4" />
@@ -379,6 +399,24 @@ export default function TaskPropertiesSidebar({
                 </TaskAssigneePopover>
               )}
               {task && (
+                <TaskStartDatePopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5"
+                  >
+                    <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span
+                      className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
+                    >
+                      {task.startDate
+                        ? format(new Date(task.startDate), "MMM d")
+                        : "Start"}
+                    </span>
+                  </Button>
+                </TaskStartDatePopover>
+              )}
+              {task && (
                 <TaskDueDatePopover task={task}>
                   <Button
                     variant="ghost"
@@ -427,14 +465,14 @@ export default function TaskPropertiesSidebar({
               <p className="text-sm font-medium text-foreground/70 flex-1">
                 Properties
               </p>
-              <div className="flex gap-2">
+              <div className="flex">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="ghost"
-                        size="xs"
-                        className="text-muted-foreground"
+                        variant="outline"
+                        size="sm"
+                        className="text-foreground rounded-r-none border-r-0"
                         onClick={() => handleCopyTaskLink()}
                       >
                         <Copy className="size-4" />
@@ -454,9 +492,9 @@ export default function TaskPropertiesSidebar({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="ghost"
-                        size="xs"
-                        className="text-muted-foreground"
+                        variant="outline"
+                        size="sm"
+                        className="text-foreground rounded-l-none"
                         onClick={() => handleCopyTaskBranch()}
                       >
                         <GitBranch className="size-4" />
@@ -535,6 +573,24 @@ export default function TaskPropertiesSidebar({
                     </span>
                   </Button>
                 </TaskAssigneePopover>
+              )}
+              {task && (
+                <TaskStartDatePopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5 w-full"
+                  >
+                    <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span
+                      className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
+                    >
+                      {task.startDate
+                        ? format(new Date(task.startDate), "MMM d")
+                        : "Start date"}
+                    </span>
+                  </Button>
+                </TaskStartDatePopover>
               )}
               {task && (
                 <TaskDueDatePopover task={task}>
