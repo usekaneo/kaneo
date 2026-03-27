@@ -5,7 +5,7 @@ export default defineConfig({
     environment: "node",
     include: ["../../tests/api/**/*.test.ts"],
     coverage: {
-      enabled: true,
+      enabled: false,
       provider: "v8",
       reporter: ["text", "html"],
       reportsDirectory: "./coverage",
