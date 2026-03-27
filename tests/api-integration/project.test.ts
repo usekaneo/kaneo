@@ -1,49 +1,10 @@
-import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
-
-type SeededMemberContext = {
-  user: typeof schema.userTable.$inferSelect;
-  workspace: typeof schema.workspaceTable.$inferSelect;
-};
-
-async function createWorkspaceMember(): Promise<SeededMemberContext> {
-  const userId = `user-${randomUUID()}`;
-  const workspaceId = `workspace-${randomUUID()}`;
-
-  const [user] = await db
-    .insert(schema.userTable)
-    .values({
-      id: userId,
-      email: `${userId}@example.com`,
-      emailVerified: true,
-      name: "Integration Test User",
-    })
-    .returning();
-
-  const [workspace] = await db
-    .insert(schema.workspaceTable)
-    .values({
-      id: workspaceId,
-      createdAt: new Date(),
-      name: "Integration Test Workspace",
-      slug: `workspace-${randomUUID()}`,
-    })
-    .returning();
-
-  await db.insert(schema.workspaceUserTable).values({
-    workspaceId: workspace.id,
-    userId: user.id,
-    role: "owner",
-    joinedAt: new Date(),
-  });
-
-  return { user, workspace };
-}
+import { createWorkspaceMember } from "./helpers/fixtures";
 
 describe("API integration: project creation", () => {
   beforeEach(async () => {
@@ -133,7 +94,7 @@ describe("API integration: project creation", () => {
 
   it("rejects project creation for users outside the workspace", async () => {
     const member = await createWorkspaceMember();
-    const outsiderId = `user-${randomUUID()}`;
+    const outsiderId = "user-outsider";
 
     const [outsider] = await db
       .insert(schema.userTable)
