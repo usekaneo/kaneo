@@ -1,5 +1,5 @@
 import { addDays, differenceInCalendarDays, startOfDay } from "date-fns";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -59,6 +59,18 @@ export function GanttTaskBar({
     end: Date;
   } | null>(null);
 
+  // Drop the drag overlay once server data matches
+  useEffect(() => {
+    if (!dragDisplay) return;
+    const startMatches =
+      differenceInCalendarDays(task.scheduleStart, dragDisplay.start) === 0;
+    const endMatches =
+      differenceInCalendarDays(task.scheduleEnd, dragDisplay.end) === 0;
+    if (startMatches && endMatches) {
+      setDragDisplay(null);
+    }
+  }, [dragDisplay, task.scheduleEnd, task.scheduleStart]);
+
   const displayStart = dragDisplay?.start ?? task.scheduleStart;
   const displayEnd = dragDisplay?.end ?? task.scheduleEnd;
 
@@ -71,19 +83,21 @@ export function GanttTaskBar({
   );
 
   const persistDates = useCallback(
-    async (nextStart: Date, nextEnd: Date) => {
+    async (nextStart: Date, nextEnd: Date): Promise<boolean> => {
       try {
         await updateTask({
           ...task,
           startDate: toIsoDay(nextStart),
           dueDate: toIsoDay(nextEnd),
         });
+        return true;
       } catch (error) {
         toast.error(
           error instanceof Error
             ? error.message
             : "Failed to update task dates",
         );
+        return false;
       }
     },
     [task, updateTask],
@@ -119,9 +133,13 @@ export function GanttTaskBar({
       let nextStartIdx = startIdx + deltaDays;
       nextStartIdx = Math.max(0, Math.min(nextStartIdx, endIdx));
       const nextStart = timeline.days[nextStartIdx] ?? initialStart;
-      setDragDisplay(null);
-      if (nextStart.getTime() !== initialStart.getTime()) {
-        await persistDates(nextStart, initialEnd);
+      if (nextStart.getTime() === initialStart.getTime()) {
+        setDragDisplay(null);
+        return;
+      }
+      const ok = await persistDates(nextStart, initialEnd);
+      if (!ok) {
+        setDragDisplay(null);
       }
     };
 
@@ -157,9 +175,13 @@ export function GanttTaskBar({
       let nextEndIdx = endIdx + deltaDays;
       nextEndIdx = Math.max(startIdx, Math.min(nextEndIdx, trackCount - 1));
       const nextEnd = timeline.days[nextEndIdx] ?? initialEnd;
-      setDragDisplay(null);
-      if (nextEnd.getTime() !== initialEnd.getTime()) {
-        await persistDates(initialStart, nextEnd);
+      if (nextEnd.getTime() === initialEnd.getTime()) {
+        setDragDisplay(null);
+        return;
+      }
+      const ok = await persistDates(initialStart, nextEnd);
+      if (!ok) {
+        setDragDisplay(null);
       }
     };
 
@@ -199,17 +221,22 @@ export function GanttTaskBar({
       nextStartIdx = Math.max(0, Math.min(nextStartIdx, maxStart));
       const nextStart = timeline.days[nextStartIdx] ?? initialStart;
       const nextEnd = addDays(nextStart, durationDays);
-      setDragDisplay(null);
 
       if (moved < CLICK_MOVE_THRESHOLD_PX) {
+        setDragDisplay(null);
         onOpenTask();
         return;
       }
       if (
-        nextStart.getTime() !== initialStart.getTime() ||
-        nextEnd.getTime() !== initialEnd.getTime()
+        nextStart.getTime() === initialStart.getTime() &&
+        nextEnd.getTime() === initialEnd.getTime()
       ) {
-        await persistDates(nextStart, nextEnd);
+        setDragDisplay(null);
+        return;
+      }
+      const ok = await persistDates(nextStart, nextEnd);
+      if (!ok) {
+        setDragDisplay(null);
       }
     };
 
