@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
-  differenceInCalendarDays,
   eachDayOfInterval,
   endOfWeek,
   format,
@@ -11,8 +10,9 @@ import {
   startOfWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import ProjectLayout from "@/components/common/project-layout";
+import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
 import PageTitle from "@/components/page-title";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
@@ -59,6 +59,8 @@ function RouteComponent() {
   const dayColumnWidthRem = 2.75;
   const taskColumnWidthRem = 14;
   const showTaskRail = !isMobile || isTaskRailOpen;
+  const timelineTrackRef = useRef<HTMLDivElement>(null);
+  const [pixelsPerDay, setPixelsPerDay] = useState(44);
 
   useEffect(() => {
     if (!isMobile) {
@@ -144,6 +146,22 @@ function RouteComponent() {
       timelineMinWidthRem: days.length * dayColumnWidthRem,
     };
   }, [parsedTasks]);
+
+  useLayoutEffect(() => {
+    const element = timelineTrackRef.current;
+    if (!element || !timeline) return;
+
+    const update = () => {
+      const count = timeline.days.length;
+      if (count <= 0) return;
+      setPixelsPerDay(element.clientWidth / count);
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [timeline]);
 
   return (
     <ProjectLayout
@@ -269,6 +287,7 @@ function RouteComponent() {
 
               <div className="relative">
                 <div
+                  ref={timelineTrackRef}
                   className="absolute inset-y-0 z-0 grid"
                   style={{
                     left: showTaskRail
@@ -293,29 +312,6 @@ function RouteComponent() {
 
                 <div className="relative z-10 flex flex-col">
                   {scheduledTasks.map((task) => {
-                    const startIndex = differenceInCalendarDays(
-                      task.scheduleStart,
-                      timeline.rangeStart,
-                    );
-                    const endIndex = differenceInCalendarDays(
-                      task.scheduleEnd,
-                      timeline.rangeStart,
-                    );
-                    const trackCount = timeline.days.length;
-                    const barInView =
-                      endIndex >= 0 &&
-                      startIndex < trackCount &&
-                      trackCount > 0;
-                    const lineStart = barInView
-                      ? Math.max(1, Math.min(startIndex + 1, trackCount))
-                      : 1;
-                    const lineEnd = barInView
-                      ? Math.max(
-                          lineStart + 1,
-                          Math.min(endIndex + 2, trackCount + 1),
-                        )
-                      : 1;
-
                     return (
                       <div
                         key={task.id}
@@ -364,40 +360,23 @@ function RouteComponent() {
                         ) : null}
 
                         <div
-                          className="relative min-h-11 shrink-0"
+                          className="relative min-h-11 shrink-0 select-none"
                           style={{
                             minWidth: `${timeline.timelineMinWidthRem}rem`,
                           }}
                         >
-                          {barInView && lineEnd > lineStart ? (
-                            <div
-                              className="pointer-events-none absolute inset-0 z-[1] grid items-center"
-                              style={{
-                                gridTemplateColumns:
-                                  timeline.gridTemplateColumns,
-                              }}
-                            >
-                              <button
-                                type="button"
-                                style={{
-                                  gridColumn: `${lineStart} / ${lineEnd}`,
-                                }}
-                                className="group pointer-events-auto relative mx-1 flex h-11 min-w-0 items-center overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40"
-                                onClick={() =>
-                                  navigate({
-                                    to: ".",
-                                    search: { taskId: task.id },
-                                    replace: true,
-                                  })
-                                }
-                              >
-                                <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
-                                <span className="relative z-10 truncate px-3.5">
-                                  {task.title}
-                                </span>
-                              </button>
-                            </div>
-                          ) : null}
+                          <GanttTaskBar
+                            task={task}
+                            timeline={timeline}
+                            pixelsPerDay={pixelsPerDay}
+                            onOpenTask={() =>
+                              navigate({
+                                to: ".",
+                                search: { taskId: task.id },
+                                replace: true,
+                              })
+                            }
+                          />
                         </div>
                       </div>
                     );
