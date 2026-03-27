@@ -2,6 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable } from "../../database/schema";
+import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
 
 function toSlug(name: string): string {
   return name
@@ -25,6 +26,18 @@ async function createColumn({
   isFinal?: boolean;
 }) {
   const slug = toSlug(name);
+
+  if (!slug) {
+    throw new HTTPException(400, {
+      message: "Column name must contain at least one alphanumeric character",
+    });
+  }
+
+  if ((VIRTUAL_STATUSES as readonly string[]).includes(slug)) {
+    throw new HTTPException(409, {
+      message: `Column slug "${slug}" is reserved for virtual task statuses`,
+    });
+  }
 
   const existing = await db
     .select({ id: columnTable.id })

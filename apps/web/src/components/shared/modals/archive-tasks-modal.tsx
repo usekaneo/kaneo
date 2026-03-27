@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,42 +22,54 @@ export function ArchiveTasksModal({
   onConfirm,
   taskCount,
 }: ArchiveTasksModalProps) {
+  const isSingular = taskCount === 1;
+  const taskLabel = isSingular ? "completed task" : "completed tasks";
+  const allLabel = isSingular ? "" : "all ";
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md" showCloseButton={false}>
-        <DialogHeader className="px-3 pt-6 pb-2 gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-            <AlertTriangle className="h-6 w-6 text-destructive" />
-          </div>
-          <div className="space-y-1">
-            <DialogTitle className="text-xl font-semibold tracking-tight">
-              Archive Tasks
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-              Are you sure you want to archive all **{taskCount}** completed
-              tasks? This will remove them from the active board.
+      <DialogContent
+        className="max-w-md p-0 overflow-hidden border-border bg-card shadow-2xl"
+        showCloseButton={false}
+      >
+        <div className="p-8">
+          <div className="flex flex-col gap-6">
+            <DialogHeader className="flex flex-row items-center gap-4 text-left space-y-0 p-0">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
+                <Archive className="h-6 w-6 text-primary" />
+              </div>
+              <DialogTitle className="text-2xl font-bold tracking-tight text-foreground leading-tight">
+                Archive Tasks
+              </DialogTitle>
+            </DialogHeader>
+
+            <DialogDescription className="text-base text-muted-foreground leading-relaxed">
+              Are you sure you want to archive {allLabel}
+              <span className="font-bold text-foreground mx-1">
+                {taskCount}
+              </span>
+              {taskLabel}? This will move them from the active board to your
+              archive.
             </DialogDescription>
           </div>
-        </DialogHeader>
+        </div>
 
-        <DialogFooter className="border-t border-border bg-muted/30 px-6 py-4 mt-2">
+        <DialogFooter className="border-t border-border bg-muted/30 px-8 py-5 flex flex-row justify-end gap-3">
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             onClick={onClose}
-            className="border-border text-foreground hover:bg-accent"
-            size="sm"
+            className="text-muted-foreground hover:text-foreground hover:bg-accent min-w-[80px]"
           >
             Cancel
           </Button>
           <Button
             type="button"
-            variant="destructive"
+            variant="default"
             onClick={onConfirm}
-            size="sm"
-            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-sm"
+            className="shadow-sm min-w-[100px] font-medium"
           >
-            Archive {taskCount} tasks
+            Confirm
           </Button>
         </DialogFooter>
       </DialogContent>

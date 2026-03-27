@@ -3,6 +3,11 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import {
+  coercePriority,
+  coerceStatus,
+  getValidTaskStatuses,
+} from "../validate-task-fields";
 import getNextTaskNumber from "./get-next-task-number";
 
 type ImportTask = {
@@ -28,15 +33,25 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
 
   const nextTaskNumber = await getNextTaskNumber(projectId);
   let taskNumber = nextTaskNumber;
+  const validStatuses = await getValidTaskStatuses(projectId);
 
   const results = [];
 
   for (const taskData of tasksToImport) {
     try {
+      const { status, warning: statusWarning } = coerceStatus(
+        taskData.status,
+        validStatuses,
+      );
+      const { priority, warning: priorityWarning } = coercePriority(
+        taskData.priority || "low",
+      );
+      const warnings = [statusWarning, priorityWarning].filter(Boolean);
+
       const column = await db.query.columnTable.findFirst({
         where: and(
           eq(columnTable.projectId, projectId),
-          eq(columnTable.slug, taskData.status),
+          eq(columnTable.slug, status),
         ),
       });
 
@@ -46,12 +61,12 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
           projectId,
           userId: taskData.userId || null,
           title: taskData.title,
-          status: taskData.status,
+          status,
           columnId: column?.id ?? null,
           startDate: taskData.startDate ? new Date(taskData.startDate) : null,
           dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
           description: taskData.description || "",
-          priority: taskData.priority || "low",
+          priority,
           number: ++taskNumber,
         })
         .returning();
@@ -67,6 +82,7 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
         results.push({
           success: true,
           task: createdTask,
+          ...(warnings.length > 0 && { warnings }),
         });
       } else {
         results.push({
@@ -76,6 +92,9 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
         });
       }
     } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
       results.push({
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",

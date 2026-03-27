@@ -35,6 +35,7 @@ import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
+import { VALID_PRIORITIES } from "./validate-task-fields";
 
 const task = new Hono<{
   Variables: {
@@ -180,7 +181,7 @@ const task = new Hono<{
         description: v.string(),
         startDate: v.optional(v.string()),
         dueDate: v.optional(v.string()),
-        priority: v.string(),
+        priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
         userId: v.optional(v.string()),
       }),
@@ -260,7 +261,7 @@ const task = new Hono<{
         description: v.string(),
         startDate: v.optional(v.string()),
         dueDate: v.optional(v.string()),
-        priority: v.string(),
+        priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
         projectId: v.string(),
         position: v.number(),
@@ -473,7 +474,7 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
-    validator("json", v.object({ priority: v.string() })),
+    validator("json", v.object({ priority: v.picklist(VALID_PRIORITIES) })),
     workspaceAccess.fromTask(),
     async (c) => {
       const { id } = c.req.valid("param");

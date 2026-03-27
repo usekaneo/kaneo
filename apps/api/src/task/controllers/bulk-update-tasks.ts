@@ -8,6 +8,10 @@ import {
   taskTable,
   workspaceUserTable,
 } from "../../database/schema";
+import {
+  assertValidPriority,
+  assertValidTaskStatus,
+} from "../validate-task-fields";
 
 type BulkOperation =
   | "updateStatus"
@@ -89,6 +93,8 @@ async function bulkUpdateTasks({
       const projectIds = [...new Set(tasks.map((t) => t.projectId))];
 
       for (const projectId of projectIds) {
+        await assertValidTaskStatus(value, projectId);
+
         const column = await db.query.columnTable.findFirst({
           where: and(
             eq(columnTable.projectId, projectId),
@@ -114,6 +120,8 @@ async function bulkUpdateTasks({
       if (!value) {
         throw new HTTPException(400, { message: "Priority value is required" });
       }
+      assertValidPriority(value);
+
       const result = await db
         .update(taskTable)
         .set({ priority: value })
@@ -193,13 +201,29 @@ async function bulkUpdateTasks({
     }
 
     case "updateDueDate": {
+      let parsedDate: Date | null = null;
+      if (value) {
+        parsedDate = new Date(value);
+        if (Number.isNaN(parsedDate.getTime())) {
+          throw new HTTPException(400, {
+            message: `Invalid date value "${value}"`,
+          });
+        }
+      }
+
       const result = await db
         .update(taskTable)
-        .set({ dueDate: value ? new Date(value) : null })
+        .set({ dueDate: parsedDate })
         .where(inArray(taskTable.id, foundIds));
 
       updatedCount = result.rowCount ?? foundIds.length;
       break;
+    }
+
+    default: {
+      throw new HTTPException(400, {
+        message: `Unknown operation "${operation}"`,
+      });
     }
   }
 

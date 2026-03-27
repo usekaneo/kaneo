@@ -171,9 +171,9 @@ export function KeyboardShortcutsHelp() {
                   {category.title}
                 </h3>
                 <div className="space-y-1">
-                  {category.shortcuts.map((shortcut, index) => (
+                  {category.shortcuts.map((shortcut) => (
                     <div
-                      key={`${category.title}-${index}`}
+                      key={`${category.title}-${shortcut.description}-${shortcut.keys.join("+")}`}
                       className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-muted/50"
                     >
                       <span className="text-xs">{shortcut.description}</span>
