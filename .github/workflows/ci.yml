@@ -50,3 +50,47 @@ jobs:
 
       - name: Run unit tests
         run: pnpm test
+
+  integration:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: kaneo_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kaneo_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      AUTH_SECRET: test-secret-with-at-least-32-chars
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/kaneo_test
+      KANEO_API_URL: http://localhost:1337
+      KANEO_CLIENT_URL: http://localhost:5173
+      DISABLE_GUEST_ACCESS: "false"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run API integration tests
+        run: pnpm test:integration
