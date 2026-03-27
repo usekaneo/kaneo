@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
+import { assertValidTaskStatus } from "../validate-task-fields";
 
 async function updateTask(
   id: string,
@@ -24,6 +25,8 @@ async function updateTask(
       message: "Task not found",
     });
   }
+
+  await assertValidTaskStatus(status, projectId);
 
   const column = await db.query.columnTable.findFirst({
     where: and(
