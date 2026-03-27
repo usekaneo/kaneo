@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
+  addDays,
   eachDayOfInterval,
   endOfWeek,
   format,
@@ -8,6 +9,7 @@ import {
   isWeekend,
   parseISO,
   startOfWeek,
+  subDays,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -134,8 +136,12 @@ function RouteComponent() {
       parsedTasks[0].scheduleEnd,
     );
 
-    const rangeStart = startOfWeek(earliest, { weekStartsOn: 1 });
-    const rangeEnd = endOfWeek(latest, { weekStartsOn: 1 });
+    // Week-aligned bounds around task dates, then pad with extra days so bars can
+    // be resized or moved past the current last task without running out of grid.
+    const weekStart = startOfWeek(earliest, { weekStartsOn: 1 });
+    const weekEnd = endOfWeek(latest, { weekStartsOn: 1 });
+    const rangeStart = subDays(weekStart, 7);
+    const rangeEnd = addDays(weekEnd, 28);
 
     const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
 
