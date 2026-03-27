@@ -16,12 +16,7 @@ function getDatabaseName(connectionString: string) {
 
 function getAdminDatabaseUrl(connectionString: string) {
   const url = new URL(connectionString);
-  const databaseName = getDatabaseName(connectionString);
-
-  if (databaseName.endsWith("_test")) {
-    url.pathname = `/${databaseName.slice(0, -5) || "postgres"}`;
-  }
-
+  url.pathname = "/postgres";
   return url.toString();
 }
 
