@@ -93,6 +93,15 @@ export const auth = betterAuth({
       apikey: schema.apikeyTable,
     },
   }),
+  user: {
+    additionalFields: {
+      locale: {
+        type: "string",
+        input: true,
+        required: false,
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
@@ -201,6 +210,11 @@ export const auth = betterAuth({
       },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.KANEO_CLIENT_URL}/invitation/accept/${data.id}`;
+        const [invitedUser] = await db
+          .select({ locale: schema.userTable.locale })
+          .from(schema.userTable)
+          .where(eq(schema.userTable.email, data.email))
+          .limit(1);
 
         const result = await sendWorkspaceInvitationEmail(
           data.email,
@@ -208,6 +222,7 @@ export const auth = betterAuth({
           {
             inviterEmail: data.inviter.user.email,
             inviterName: data.inviter.user.name,
+            locale: invitedUser?.locale ?? null,
             workspaceName: data.organization.name,
             invitationLink: inviteLink,
             to: data.email,
