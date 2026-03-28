@@ -391,7 +391,7 @@ function RouteComponent() {
                   >
                     {getPriorityIcon(filters.priority)}
                     <span>
-                      {t("tasks:backlog.filters.assignee", {
+                      {t("tasks:backlog.filters.priority", {
                         name: getPriorityLabel(filters.priority),
                       })}
                     </span>
