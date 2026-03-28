@@ -132,20 +132,57 @@ export function createApp() {
     return c.json({ status: "ok" });
   });
 
-  const publicProjectApi = api.get("/public-project/:id", async (c) => {
-    const { id } = c.req.param();
-    const project = await getPublicProject(id);
+  const publicProjectApi = api.get(
+    "/public-project/:id",
+    describeRoute({
+      operationId: "getPublicProject",
+      tags: ["Projects"],
+      description: "Get a public project by ID (no authentication required)",
+      security: [],
+      responses: {
+        200: {
+          description: "Public project details",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const project = await getPublicProject(id);
 
-    return c.json(project);
-  });
+      return c.json(project);
+    },
+  );
 
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
-  const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
-    const { id } = c.req.param();
-    const result = await getInvitationDetails(id);
-    return c.json(result);
-  });
+  const invitationPublicApi = api.get(
+    "/invitation/public/:id",
+    describeRoute({
+      operationId: "getPublicInvitationDetails",
+      tags: ["Invitations"],
+      description:
+        "Get invitation details by token ID (no authentication required)",
+      security: [],
+      responses: {
+        200: {
+          description: "Invitation details for the public link",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const result = await getInvitationDetails(id);
+      return c.json(result);
+    },
+  );
 
   api.get(
     "/auth/get-session",
@@ -355,7 +392,8 @@ export function createApp() {
         const result = await verifyApiKey(apiKey);
 
         if (result?.valid && result.key) {
-          c.set("userId", result.key.userId);
+          const userId = result.key.userId;
+          c.set("userId", userId);
           c.set("user", null);
           c.set("session", null);
           c.set("apiKey", {
@@ -363,6 +401,14 @@ export function createApp() {
             userId: result.key.userId,
             enabled: result.key.enabled,
           });
+
+          const [userRow] = await db
+            .select({ email: schema.userTable.email })
+            .from(schema.userTable)
+            .where(eq(schema.userTable.id, userId))
+            .limit(1);
+          c.set("userEmail", userRow?.email ?? "");
+
           return next();
         }
 
