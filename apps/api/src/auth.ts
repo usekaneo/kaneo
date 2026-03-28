@@ -98,6 +98,16 @@ function getAuthEmailCopy(locale?: string | null) {
       };
 }
 
+function getInvitationEmailSubject(
+  locale: string | null,
+  inviterName: string,
+  workspaceName: string,
+) {
+  return getLocaleKey(locale) === "de"
+    ? `${inviterName} hat dich eingeladen, ${workspaceName} auf Kaneo beizutreten`
+    : `${inviterName} invited you to join ${workspaceName} on Kaneo`;
+}
+
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
   trustedOrigins,
@@ -248,7 +258,11 @@ export const auth = betterAuth({
 
         const result = await sendWorkspaceInvitationEmail(
           data.email,
-          `${data.inviter.user.name} invited you to join ${data.organization.name} on Kaneo`,
+          getInvitationEmailSubject(
+            locale,
+            data.inviter.user.name,
+            data.organization.name,
+          ),
           {
             inviterEmail: data.inviter.user.email,
             inviterName: data.inviter.user.name,
