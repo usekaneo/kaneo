@@ -121,7 +121,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     transform: CSS.Transform.toString(transform),
     transition:
       transition || "transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-    touchAction: "none",
+    touchAction: isDragging ? "none" : "auto",
   };
 
   const handleClick = (e: React.MouseEvent) => {
