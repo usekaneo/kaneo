@@ -72,6 +72,32 @@ if (process.env.AUTH_SECRET && process.env.AUTH_SECRET.length < 32) {
   process.exit(1);
 }
 
+async function getUserLocale(email: string) {
+  const [user] = await db
+    .select({ locale: schema.userTable.locale })
+    .from(schema.userTable)
+    .where(eq(schema.userTable.email, email))
+    .limit(1);
+
+  return user?.locale ?? null;
+}
+
+function getLocaleKey(locale?: string | null) {
+  return locale?.toLowerCase().startsWith("de") ? "de" : "en";
+}
+
+function getAuthEmailCopy(locale?: string | null) {
+  return getLocaleKey(locale) === "de"
+    ? {
+        magicLinkSubject: "Anmeldelink fuer Kaneo",
+        otpSubject: "Bestaetigungscode fuer Kaneo",
+      }
+    : {
+        magicLinkSubject: "Login for Kaneo",
+        otpSubject: "Authentication code for Kaneo",
+      };
+}
+
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
   trustedOrigins,
@@ -142,8 +168,11 @@ export const auth = betterAuth({
     magicLink({
       sendMagicLink: async ({ email, url }) => {
         try {
-          await sendMagicLinkEmail(email, "Login for Kaneo", {
+          const locale = await getUserLocale(email);
+          const copy = getAuthEmailCopy(locale);
+          await sendMagicLinkEmail(email, copy.magicLinkSubject, {
             magicLink: url,
+            locale,
           });
         } catch (error) {
           console.error(error);
@@ -153,7 +182,12 @@ export const auth = betterAuth({
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
         if (type === "sign-in") {
-          await sendOtpEmail(email, "Authentication code for Kaneo", { otp });
+          const locale = await getUserLocale(email);
+          const copy = getAuthEmailCopy(locale);
+          await sendOtpEmail(email, copy.otpSubject, {
+            otp,
+            locale,
+          });
         }
       },
     }),
@@ -210,11 +244,7 @@ export const auth = betterAuth({
       },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.KANEO_CLIENT_URL}/invitation/accept/${data.id}`;
-        const [invitedUser] = await db
-          .select({ locale: schema.userTable.locale })
-          .from(schema.userTable)
-          .where(eq(schema.userTable.email, data.email))
-          .limit(1);
+        const locale = await getUserLocale(data.email);
 
         const result = await sendWorkspaceInvitationEmail(
           data.email,
@@ -222,7 +252,7 @@ export const auth = betterAuth({
           {
             inviterEmail: data.inviter.user.email,
             inviterName: data.inviter.user.name,
-            locale: invitedUser?.locale ?? null,
+            locale,
             workspaceName: data.organization.name,
             invitationLink: inviteLink,
             to: data.email,
