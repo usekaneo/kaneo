@@ -38,6 +38,7 @@ describe("github labels helpers", () => {
     ]);
 
     expect(octokit.rest.issues.getLabel).toHaveBeenCalledTimes(2);
+    expect(octokit.rest.issues.createLabel).toHaveBeenCalledTimes(1);
     expect(octokit.rest.issues.createLabel).toHaveBeenCalledWith({
       owner: "usekaneo",
       repo: "kaneo",
@@ -55,6 +56,8 @@ describe("github labels helpers", () => {
       "status:done",
     ]);
 
+    expect(octokit.rest.issues.getLabel).toHaveBeenCalledTimes(2);
+    expect(octokit.rest.issues.createLabel).not.toHaveBeenCalled();
     expect(octokit.rest.issues.addLabels).toHaveBeenCalledWith({
       owner: "usekaneo",
       repo: "kaneo",
