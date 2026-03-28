@@ -18,17 +18,17 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@react-email/components": "1.0.8",
-    "@types/node": "^25.3.5",
+    "@react-email/components": "1.0.10",
+    "@types/node": "^25.5.0",
     "@types/nodemailer": "^7.0.11",
-    "nodemailer": "^8.0.1",
+    "nodemailer": "^8.0.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@react-email/preview-server": "5.2.9",
+    "@react-email/preview-server": "5.2.10",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "react-email": "5.2.9"
+    "react-email": "5.2.10"
   }
 }

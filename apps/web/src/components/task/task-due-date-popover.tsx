@@ -48,14 +48,17 @@ export default function TaskDueDatePopover({
           mode="single"
           selected={task.dueDate ? new Date(task.dueDate) : undefined}
           onSelect={handleDateChange}
+          disabled={
+            task.startDate ? { before: new Date(task.startDate) } : undefined
+          }
           className="w-full bg-popover"
         />
         {task.dueDate && (
-          <div className="p-0 border-t border-border">
+          <div className="pt-2 border-t border-border">
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground rounded-none"
+              className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
               onClick={() => handleDateChange(undefined)}
             >
               <X className="h-4 w-4" />

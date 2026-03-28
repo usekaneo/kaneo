@@ -228,6 +228,19 @@ input:-webkit-autofill:active {
   h6 {
     @apply font-heading font-semibold tracking-tight;
   }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
 }
 
 @layer components {

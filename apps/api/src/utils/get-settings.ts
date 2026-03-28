@@ -5,6 +5,8 @@ config();
 function getSettings() {
   return {
     disableRegistration: process.env.DISABLE_REGISTRATION === "true",
+    disablePasswordRegistration:
+      process.env.DISABLE_PASSWORD_REGISTRATION === "true",
     isDemoMode: process.env.DEMO_MODE === "true",
     hasSmtp:
       Boolean(process.env.SMTP_HOST) &&

@@ -1,4 +1,11 @@
-import { CheckCircle2, Circle, CircleDot, Search } from "lucide-react";
+import {
+  Archive,
+  CheckCircle2,
+  Circle,
+  CircleDashed,
+  CircleDot,
+  Search,
+} from "lucide-react";
 
 export const getColumnIcon = (columnId: string, isFinal?: boolean) => {
   switch (columnId) {
@@ -10,6 +17,10 @@ export const getColumnIcon = (columnId: string, isFinal?: boolean) => {
       return <Search className="w-4 h-4 text-muted-foreground" />;
     case "done":
       return <CheckCircle2 className="w-4 h-4 text-muted-foreground" />;
+    case "archived":
+      return <Archive className="w-4 h-4 text-muted-foreground" />;
+    case "planned":
+      return <CircleDashed className="w-4 h-4 text-muted-foreground" />;
     default:
       return isFinal ? (
         <CheckCircle2 className="w-4 h-4 text-muted-foreground" />

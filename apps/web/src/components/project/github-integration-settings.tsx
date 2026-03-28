@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import type { VerifyGithubInstallationResponse } from "@/fetchers/github-integration/verify-github-installation";
 import {
   useCreateGithubIntegration,
@@ -34,6 +35,7 @@ import {
   useVerifyGithubInstallation,
 } from "@/hooks/mutations/github-integration/use-create-github-integration";
 import useImportGithubIssues from "@/hooks/mutations/github-integration/use-import-github-issues";
+import { useUpdateGithubIntegration } from "@/hooks/mutations/github-integration/use-update-github-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -65,6 +67,8 @@ export function GitHubIntegrationSettings({
     useVerifyGithubInstallation();
   const { mutateAsync: importIssues, isPending: isImporting } =
     useImportGithubIssues();
+  const { mutateAsync: updateGithubSettings, isPending: isUpdatingSettings } =
+    useUpdateGithubIntegration();
 
   const [verificationResult, setVerificationResult] =
     React.useState<VerifyGithubInstallationResponse | null>(null);
@@ -296,6 +300,42 @@ export function GitHubIntegrationSettings({
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
+            </div>
+
+            <Separator />
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <p className="text-sm font-medium">
+                  Comment Kaneo link on new issues
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  When enabled, Kaneo posts a comment on each new GitHub issue
+                  with a link to the task.
+                </p>
+              </div>
+              <Switch
+                checked={integration.commentTaskLinkOnGitHubIssue !== false}
+                onCheckedChange={async (checked) => {
+                  try {
+                    await updateGithubSettings({
+                      projectId,
+                      json: { commentTaskLinkOnGitHubIssue: checked },
+                    });
+                    toast.success(
+                      checked
+                        ? "Kaneo will comment with a task link on new issues"
+                        : "Task link comments on new issues are turned off",
+                    );
+                  } catch (error) {
+                    toast.error(
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to update GitHub integration",
+                    );
+                  }
+                }}
+                disabled={isUpdatingSettings}
+              />
             </div>
           </>
         )}

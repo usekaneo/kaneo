@@ -37,6 +37,7 @@ export const taskSchema = v.object({
     "high",
     "urgent",
   ] as const),
+  startDate: v.optional(v.date()),
   dueDate: v.optional(v.date()),
   createdAt: v.date(),
 });
@@ -101,6 +102,8 @@ export const githubIntegrationSchema = v.object({
   repositoryOwner: v.string(),
   repositoryName: v.string(),
   installationId: v.nullable(v.number()),
+  branchPattern: v.optional(v.string()),
+  commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),
   isActive: v.nullable(v.boolean()),
   createdAt: v.date(),
   updatedAt: v.date(),
@@ -123,6 +126,7 @@ export const commentSchema = v.object({
 
 export const configSchema = v.object({
   disableRegistration: v.nullable(v.boolean()),
+  disablePasswordRegistration: v.nullable(v.boolean()),
   isDemoMode: v.boolean(),
   hasSmtp: v.boolean(),
   hasGithubSignIn: v.nullable(v.boolean()),

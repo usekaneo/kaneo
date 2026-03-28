@@ -88,6 +88,8 @@ spec:
               {{- end }}
             - name: DISABLE_REGISTRATION
               value: {{ .Values.api.env.disableRegistration | quote }}
+            - name: DISABLE_PASSWORD_REGISTRATION
+              value: {{ .Values.api.env.disablePasswordRegistration | quote }}
           livenessProbe:
             {{- toYaml .Values.api.livenessProbe | nindent 12 }}
           readinessProbe:

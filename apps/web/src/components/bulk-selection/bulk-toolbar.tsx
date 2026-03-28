@@ -1,4 +1,11 @@
-import { Archive, ArrowDownToLine, Menu, Trash2, X } from "lucide-react";
+import {
+  Archive,
+  ArrowDownToLine,
+  CalendarIcon,
+  Menu,
+  Trash2,
+  X,
+} from "lucide-react";
 import {
   Fragment,
   type ReactNode,
@@ -8,6 +15,7 @@ import {
   useState,
 } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Command,
   CommandCollection,
@@ -22,10 +30,18 @@ import {
   CommandPanel,
   CommandSeparator,
 } from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import labelColors from "@/constants/label-colors";
 import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
+import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
+import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -45,6 +61,14 @@ type BulkActionGroup = {
   items: BulkActionItem[];
 };
 
+const priorityOptions = [
+  { value: "urgent", label: "Urgent" },
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "low", label: "Low" },
+  { value: "no-priority", label: "No Priority" },
+];
+
 function BulkToolbar() {
   const { selectedTaskIds, clearSelection, selectAll } =
     useBulkSelectionStore();
@@ -55,14 +79,32 @@ function BulkToolbar() {
     bulkArchive,
     bulkChangeStatus,
     bulkAssign,
+    bulkPriority,
+    bulkAddLabel,
+    bulkDueDate,
   } = useBulkOperations();
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
   );
+  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
+    workspace?.id ?? "",
+  );
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const selectedCount = selectedTaskIds.size;
+
+  const uniqueLabels = useMemo(() => {
+    const labelMap = new Map<string, (typeof workspaceLabels)[0]>();
+    for (const label of workspaceLabels) {
+      const existing = labelMap.get(label.name);
+      if (!existing || (label.taskId === null && existing.taskId !== null)) {
+        labelMap.set(label.name, label);
+      }
+    }
+    return Array.from(labelMap.values());
+  }, [workspaceLabels]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -158,6 +200,57 @@ function BulkToolbar() {
     [bulkAssign, selectedTaskIds, selectedCount, clearSelection],
   );
 
+  const handleBulkPriority = useCallback(
+    async (priority: string) => {
+      try {
+        await bulkPriority({
+          taskIds: Array.from(selectedTaskIds),
+          priority,
+        });
+        toast.success(`${selectedCount} tasks updated`);
+        clearSelection();
+        setIsActionsOpen(false);
+      } catch (_error) {
+        toast.error("Failed to update priority");
+      }
+    },
+    [bulkPriority, selectedTaskIds, selectedCount, clearSelection],
+  );
+
+  const handleBulkAddLabel = useCallback(
+    async (labelId: string) => {
+      try {
+        await bulkAddLabel({
+          taskIds: Array.from(selectedTaskIds),
+          labelId,
+        });
+        toast.success(`Label added to ${selectedCount} tasks`);
+        clearSelection();
+        setIsActionsOpen(false);
+      } catch (_error) {
+        toast.error("Failed to add label");
+      }
+    },
+    [bulkAddLabel, selectedTaskIds, selectedCount, clearSelection],
+  );
+
+  const handleBulkDueDate = useCallback(
+    async (date: Date | undefined) => {
+      try {
+        await bulkDueDate({
+          taskIds: Array.from(selectedTaskIds),
+          dueDate: date?.toISOString() ?? null,
+        });
+        toast.success(`${selectedCount} tasks updated`);
+        clearSelection();
+        setIsDatePickerOpen(false);
+      } catch (_error) {
+        toast.error("Failed to update due date");
+      }
+    },
+    [bulkDueDate, selectedTaskIds, selectedCount, clearSelection],
+  );
+
   const groupedItems = useMemo<BulkActionGroup[]>(
     () => [
       {
@@ -216,14 +309,50 @@ function BulkToolbar() {
           },
         })),
       },
+      {
+        value: "priority",
+        label: "Set Priority",
+        items: priorityOptions.map((opt) => ({
+          value: `priority-${opt.value}`,
+          label: opt.label,
+          icon: getPriorityIcon(opt.value),
+          onRun: () => {
+            void handleBulkPriority(opt.value);
+          },
+        })),
+      },
+      {
+        value: "label",
+        label: "Add Label",
+        items: uniqueLabels.map((label) => ({
+          value: `label-${label.id}`,
+          label: label.name,
+          icon: (
+            <span
+              className="inline-block w-3 h-3 rounded-full shrink-0"
+              style={{
+                backgroundColor:
+                  labelColors.find((c) => c.value === label.color)?.color ||
+                  "var(--color-neutral-400)",
+              }}
+            />
+          ),
+          onRun: () => {
+            void handleBulkAddLabel(label.id);
+          },
+        })),
+      },
     ],
     [
       project?.columns,
       workspaceUsers?.members,
+      uniqueLabels,
       handleBulkDelete,
       handleBulkArchive,
       handleBulkChangeStatus,
       handleBulkAssign,
+      handleBulkPriority,
+      handleBulkAddLabel,
     ],
   );
 
@@ -245,6 +374,37 @@ function BulkToolbar() {
             <ArrowDownToLine className="size-4" />
             Move to Backlog
           </Button>
+        </ToolbarGroup>
+
+        <ToolbarSeparator orientation="vertical" className="my-1 h-5" />
+
+        <ToolbarGroup>
+          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="ghost">
+                <CalendarIcon className="size-4" />
+                Set Due Date
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0" align="center">
+              <Calendar
+                mode="single"
+                onSelect={handleBulkDueDate}
+                className="w-full bg-popover"
+              />
+              <div className="p-0 border-t border-border">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground rounded-none"
+                  onClick={() => handleBulkDueDate(undefined)}
+                >
+                  <X className="h-4 w-4" />
+                  Clear date
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </ToolbarGroup>
 
         <ToolbarSeparator orientation="vertical" className="my-1 h-5" />

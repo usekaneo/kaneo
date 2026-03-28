@@ -65,10 +65,10 @@ const FieldValidity = FieldPrimitive.Validity;
 
 export {
   Field,
-  FieldLabel,
+  FieldControl,
   FieldDescription,
   FieldError,
-  FieldControl,
   FieldItem,
+  FieldLabel,
   FieldValidity,
 };

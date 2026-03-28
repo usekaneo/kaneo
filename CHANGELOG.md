@@ -1,3 +1,73 @@
+## [2.4.1](https://github.com/usekaneo/kaneo/compare/v2.4.0...v2.4.1) (2026-03-27)
+
+
+### Bug Fixes
+
+* validate task status and priority inputs across all API endpoints ([#1093](https://github.com/usekaneo/kaneo/issues/1093)) ([b3f6568](https://github.com/usekaneo/kaneo/commit/b3f656885961bf02835b6136f247d0a016db5a31))
+* **web:** resolve Biome noArrayIndexKey lint in shortcuts, repo modal, and error display ([#1096](https://github.com/usekaneo/kaneo/issues/1096)) ([16eddd6](https://github.com/usekaneo/kaneo/commit/16eddd6d6974cb648b0312b40b38d21f9250ef80))
+
+
+### Features
+
+* **ui:** gantt chart resize dates ([#1095](https://github.com/usekaneo/kaneo/issues/1095)) ([7f7bd6b](https://github.com/usekaneo/kaneo/commit/7f7bd6bf9fd6bc6c9fa641aa3d80b3ebacfc0bd9))
+* **ui:** refine ArchiveTasksModal layout and alignment ([#1091](https://github.com/usekaneo/kaneo/issues/1091)) ([528a982](https://github.com/usekaneo/kaneo/commit/528a982b7196b25299da2b51f5c3f564f1af0d97))
+# [2.4.0](https://github.com/usekaneo/kaneo/compare/v2.3.16...v2.4.0) (2026-03-26)
+
+
+### Bug Fixes
+
+* enforce user ownership in notification endpoints ([#1089](https://github.com/usekaneo/kaneo/issues/1089)) ([16c28a9](https://github.com/usekaneo/kaneo/commit/16c28a92551a86c831419131d5499cad9e6ef762)), closes [#974](https://github.com/usekaneo/kaneo/issues/974)
+* fix public project access after getTasks response shape change ([#1088](https://github.com/usekaneo/kaneo/issues/1088)) ([f17400e](https://github.com/usekaneo/kaneo/commit/f17400ed37d4676461c1cbcab308f4642b40a81e))
+* improve task sidebar icon button styling ([ce6a53c](https://github.com/usekaneo/kaneo/commit/ce6a53cf69a01df8a6a09ef68429b32df66d24f9))
+* mark optional Organization fields as nullable in OpenAPI spec ([#1090](https://github.com/usekaneo/kaneo/issues/1090)) ([a1755d3](https://github.com/usekaneo/kaneo/commit/a1755d3bcbbad4188338e63a02c0b6b0600f3989)), closes [#1087](https://github.com/usekaneo/kaneo/issues/1087)
+* prevent start date after due date and improve activity messages ([61cb4d3](https://github.com/usekaneo/kaneo/commit/61cb4d3f67ceeb478d2014416045428425a88cea))
+* resolve picomatch security vulnerabilities ([ee94d12](https://github.com/usekaneo/kaneo/commit/ee94d12d7664db9fc679c81ba8d7fcdb60d4b291))
+
+
+### Features
+
+* gantt view and task start date ([#1083](https://github.com/usekaneo/kaneo/issues/1083)) ([e1cc1ea](https://github.com/usekaneo/kaneo/commit/e1cc1ea30ecd124b9d25bf020e5a9a2d4c49a841))
+## [2.3.16](https://github.com/usekaneo/kaneo/compare/v2.3.15...v2.3.16) (2026-03-24)
+
+
+### Bug Fixes
+
+* Subtasks default priority ([#1080](https://github.com/usekaneo/kaneo/issues/1080)) ([506fa55](https://github.com/usekaneo/kaneo/commit/506fa5531f05e2e36bdacf067c0ae26a4bdcc160))
+* **ui:** make subtasks appear after creation without refresh ([#1084](https://github.com/usekaneo/kaneo/issues/1084)) ([a5daa49](https://github.com/usekaneo/kaneo/commit/a5daa49d2791544e8fafecc8c8caa85de25c71da))
+## [2.3.15](https://github.com/usekaneo/kaneo/compare/v2.3.14...v2.3.15) (2026-03-23)
+
+
+### Features
+
+* add bulk assign labels, priority & deadlines ([bd5d7f4](https://github.com/usekaneo/kaneo/commit/bd5d7f463babcd501d204e9b23e32422458f0e49))
+* add bulk assign labels, priority & deadlines ([37d1356](https://github.com/usekaneo/kaneo/commit/37d1356631fabd55db9f8e2d851f14442b43caa5))
+## [2.3.14](https://github.com/usekaneo/kaneo/compare/v2.3.13...v2.3.14) (2026-03-23)
+
+
+### Bug Fixes
+
+* **api:** only apply task pagination when explicitly requested ([eed1c35](https://github.com/usekaneo/kaneo/commit/eed1c352e19cc2b17db7362bf99cc952d1b4be73)), closes [#1065](https://github.com/usekaneo/kaneo/issues/1065)
+
+
+### Features
+
+* **api,web:** add subtasks and task relations ([c73ef78](https://github.com/usekaneo/kaneo/commit/c73ef7821f054f8217568e8814c847c1c654bd76))
+* **auth:** allow OIDC-only user registration ([5e8600e](https://github.com/usekaneo/kaneo/commit/5e8600e8f214d11dfa66e2e82117be5b88e23930))
+* replace browser confirm with Archive modal ([9ed268f](https://github.com/usekaneo/kaneo/commit/9ed268f89ac29684e974757d5cf202031972fdf6))
+* **web:** add relations to task detail, animated subtasks, and keyboard nav ([752bab0](https://github.com/usekaneo/kaneo/commit/752bab0277ba918eb8e4975e20d045bd8c8063b1))
+* **web:** redesign subtasks UI with bulk actions ([9b059f3](https://github.com/usekaneo/kaneo/commit/9b059f39443971566d32ca49738bb2f84b37e079))
+* **web:** refine breadcrumb and workspace switcher styling ([a2bcc9a](https://github.com/usekaneo/kaneo/commit/a2bcc9af27a118fce5701bc2daae0f82cca85554))
+## [2.3.13](https://github.com/usekaneo/kaneo/compare/v2.3.12...v2.3.13) (2026-03-22)
+
+
+### Bug Fixes
+
+* **api:** only apply task pagination when explicitly requested ([500c609](https://github.com/usekaneo/kaneo/commit/500c609eda36e69bab6c2006a1d73b6851817286)), closes [#1065](https://github.com/usekaneo/kaneo/issues/1065)
+
+
+### Features
+
+* **web:** refine breadcrumb and workspace switcher styling ([bd52ce2](https://github.com/usekaneo/kaneo/commit/bd52ce27ae393cd6b9b89f42f7deb0176f9b5003))
 ## [2.3.12](https://github.com/usekaneo/kaneo/compare/v2.3.11...v2.3.12) (2026-03-21)
 
 

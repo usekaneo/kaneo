@@ -26,6 +26,10 @@ import { generateDemoName } from "./utils/generate-demo-name";
 
 config();
 
+const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
+const isPasswordRegistrationDisabled =
+  process.env.DISABLE_PASSWORD_REGISTRATION === "true";
+
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
 const isHttps = apiUrl.startsWith("https://");
@@ -281,8 +285,15 @@ export const auth = betterAuth({
         return;
       }
 
-      const isRegistrationDisabled =
-        process.env.DISABLE_REGISTRATION === "true";
+      if (ctx.path === "/sign-up/email") {
+        if (isPasswordRegistrationDisabled) {
+          throw new APIError("FORBIDDEN", {
+            message:
+              "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
+          });
+        }
+      }
+
       if (!isRegistrationDisabled) {
         return;
       }

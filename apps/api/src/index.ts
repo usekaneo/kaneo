@@ -33,6 +33,7 @@ import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
+import taskRelation from "./task-relation";
 import timeEntry from "./time-entry";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
@@ -41,6 +42,7 @@ import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email"
 import {
   dedupeOperationIds,
   ensureOperationSummaries,
+  markOptionalSchemaFieldsNullable,
   mergeOpenApiSpecs,
   normalizeApiServerUrl,
   normalizeEmptyRequiredArrays,
@@ -303,9 +305,11 @@ api.get("/openapi", async (c) => {
   return c.json(
     ensureOperationSummaries(
       dedupeOperationIds(
-        normalizeNullableSchemasForOpenApi30(
-          normalizeEmptyRequiredArrays(
-            mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+        markOptionalSchemaFieldsNullable(
+          normalizeNullableSchemasForOpenApi30(
+            normalizeEmptyRequiredArrays(
+              mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+            ),
           ),
         ),
       ),
@@ -391,6 +395,7 @@ const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
+const taskRelationApi = api.route("/task-relation", taskRelation);
 const externalLinkApi = api.route("/external-link", externalLink);
 const workflowRuleApi = api.route("/workflow-rule", workflowRule);
 const invitationApi = api.route("/invitation", invitation);
@@ -444,6 +449,7 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof taskRelationApi
   | typeof externalLinkApi
   | typeof workflowRuleApi
   | typeof invitationApi

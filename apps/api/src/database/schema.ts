@@ -291,6 +291,7 @@ export const taskTable = pgTable("task", {
     onUpdate: "cascade",
   }),
   priority: text("priority").default("low"),
+  startDate: timestamp("start_date", { mode: "date" }),
   dueDate: timestamp("due_date", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
@@ -534,6 +535,33 @@ export const commentTable = pgTable(
   (table) => [
     index("comment_task_idx").on(table.taskId),
     index("comment_user_idx").on(table.userId),
+  ],
+);
+
+export const taskRelationTable = pgTable(
+  "task_relation",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    sourceTaskId: text("source_task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    targetTaskId: text("target_task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    relationType: text("relation_type").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("task_relation_source_idx").on(table.sourceTaskId),
+    index("task_relation_target_idx").on(table.targetTaskId),
   ],
 );
 

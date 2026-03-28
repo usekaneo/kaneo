@@ -63,7 +63,9 @@ function SignUp() {
             ? "Create an account to accept your invitation"
             : config?.disableRegistration
               ? "Registration requires an invitation"
-              : "Get started with your workspace"
+              : config?.disablePasswordRegistration
+                ? "Use social or OIDC sign-in to create an account"
+                : "Get started with your workspace"
         }
       >
         <div className="space-y-4 mt-6">
@@ -84,27 +86,42 @@ function SignUp() {
               </AlertDescription>
             </Alert>
           )}
-
-          {config?.hasGuestAccess && !invitationId && (
-            <>
-              <Button
-                variant="outline"
-                onClick={handleGuestAccess}
-                disabled={isGuestLoading}
-                className="w-full mb-0"
-                size="sm"
-              >
-                <UserCheck className="w-4 h-4 mr-2" />
-                {isGuestLoading ? "Signing in..." : "Continue as guest"}
-              </Button>
-              <div className="flex items-center gap-4 my-4">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-sm text-muted-foreground">or</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-            </>
+          {config?.disablePasswordRegistration && (
+            <Alert>
+              <AlertDescription>
+                Password-based account creation is disabled. Use a configured
+                social or OIDC sign-in method from the sign-in page.
+              </AlertDescription>
+            </Alert>
           )}
-          <SignUpForm invitationId={invitationId} defaultEmail={prefillEmail} />
+
+          {config?.hasGuestAccess &&
+            !invitationId &&
+            !config?.disablePasswordRegistration && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleGuestAccess}
+                  disabled={isGuestLoading}
+                  className="w-full mb-0"
+                  size="sm"
+                >
+                  <UserCheck className="w-4 h-4 mr-2" />
+                  {isGuestLoading ? "Signing in..." : "Continue as guest"}
+                </Button>
+                <div className="flex items-center gap-4 my-4">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-sm text-muted-foreground">or</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+              </>
+            )}
+          {!config?.disablePasswordRegistration && (
+            <SignUpForm
+              invitationId={invitationId}
+              defaultEmail={prefillEmail}
+            />
+          )}
           <AuthToggle
             message="Already have an account?"
             linkText="Sign in"

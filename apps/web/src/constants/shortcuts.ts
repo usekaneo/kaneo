@@ -33,6 +33,7 @@ export const shortcuts = {
   view: {
     prefix: "v",
     board: "b",
+    gantt: "g",
     list: "l",
     backlog: "k",
   },

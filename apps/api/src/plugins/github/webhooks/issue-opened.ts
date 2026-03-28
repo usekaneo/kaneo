@@ -172,12 +172,14 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
         );
       }
 
-      await octokit.rest.issues.createComment({
-        owner: repository.owner.login,
-        repo: repository.name,
-        issue_number: issue.number,
-        body: `[${taskIdentifier}](${taskUrl})`,
-      });
+      if (config.commentTaskLinkOnGitHubIssue !== false) {
+        await octokit.rest.issues.createComment({
+          owner: repository.owner.login,
+          repo: repository.name,
+          issue_number: issue.number,
+          body: `[${taskIdentifier}](${taskUrl})`,
+        });
+      }
     } catch (error) {
       console.error("Failed to process GitHub issue:", error);
     }

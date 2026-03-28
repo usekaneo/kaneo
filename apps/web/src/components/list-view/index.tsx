@@ -32,6 +32,7 @@ import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
+import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 
@@ -66,6 +67,10 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   });
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [columnToArchive, setColumnToArchive] = useState<
+    ProjectWithTasks["columns"][number] | null
+  >(null);
 
   useEffect(() => {
     if (project?.columns) {
@@ -234,16 +239,18 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     }));
   };
 
-  const handleArchiveTasks = (column: ProjectWithTasks["columns"][number]) => {
+  const handleArchiveClick = (column: ProjectWithTasks["columns"][number]) => {
     if (!column.isFinal || column.tasks.length === 0) return;
+    setColumnToArchive(column);
+    setIsArchiveModalOpen(true);
+  };
 
-    if (!confirm(`Archive all ${column.tasks.length} completed tasks?`)) {
-      return;
-    }
+  const handleConfirmArchive = () => {
+    if (!columnToArchive) return;
 
     const updatedProject = produce(project, (draft) => {
       const archivedColumn = draft?.columns?.find(
-        (col) => col.id === column.id,
+        (col) => col.id === columnToArchive.id,
       );
       if (!archivedColumn) return;
 
@@ -258,7 +265,10 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     });
 
     setProject(updatedProject);
-    toast.success(`Archived ${column.tasks.length} tasks`);
+    toast.success(`Archived ${columnToArchive.tasks.length} tasks`);
+
+    setIsArchiveModalOpen(false);
+    setColumnToArchive(null);
   };
 
   function ColumnSection({
@@ -322,7 +332,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
             {column.isFinal && column.tasks.length > 0 && (
               <button
                 type="button"
-                onClick={() => handleArchiveTasks(column)}
+                onClick={() => handleArchiveClick(column)} // Verander dit naar de nieuwe naam
                 className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
                 title="Archive all completed tasks"
               >
@@ -417,8 +427,18 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
       <CreateTaskModal
         open={isTaskModalOpen}
+        projectId={project.id}
         onClose={() => setIsTaskModalOpen(false)}
         status={activeColumn ?? "done"}
+      />
+      <ArchiveTasksModal
+        open={isArchiveModalOpen}
+        onClose={() => {
+          setIsArchiveModalOpen(false);
+          setColumnToArchive(null);
+        }}
+        onConfirm={handleConfirmArchive}
+        taskCount={columnToArchive?.tasks.length ?? 0}
       />
 
       <BulkToolbar />

@@ -102,6 +102,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
   }
 
   const whereClause = and(...conditions);
+  const usePagination = options.page != null || options.limit != null;
   const page = options.page && options.page > 0 ? options.page : 1;
   const pageSize =
     options.limit && options.limit > 0 ? Math.min(options.limit, 100) : 50;
@@ -126,6 +127,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     description: taskTable.description,
     status: taskTable.status,
     priority: taskTable.priority,
+    startDate: taskTable.startDate,
     dueDate: taskTable.dueDate,
     position: taskTable.position,
     createdAt: taskTable.createdAt,
@@ -136,15 +138,17 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     projectId: taskTable.projectId,
   };
 
-  const paginatedTasks = await db
+  const query = db
     .select(taskSelection)
     .from(taskTable)
     .leftJoin(userTable, eq(taskTable.userId, userTable.id))
     .leftJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(whereClause)
-    .orderBy(orderByClause)
-    .limit(pageSize)
-    .offset(offset);
+    .orderBy(orderByClause);
+
+  const paginatedTasks = usePagination
+    ? await query.limit(pageSize).offset(offset)
+    : await query;
 
   const taskIds = paginatedTasks.map((task) => task.id);
 
@@ -259,12 +263,19 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
       archivedTasks,
       plannedTasks,
     },
-    pagination: {
-      total,
-      page,
-      pageSize,
-      totalPages: Math.max(1, Math.ceil(total / pageSize)),
-    },
+    pagination: usePagination
+      ? {
+          total,
+          page,
+          pageSize,
+          totalPages: Math.max(1, Math.ceil(total / pageSize)),
+        }
+      : {
+          total,
+          page: 1,
+          pageSize: total,
+          totalPages: 1,
+        },
   };
 }
 

@@ -2,11 +2,13 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
+import { assertValidTaskStatus } from "../validate-task-fields";
 
 async function updateTask(
   id: string,
   title: string,
   status: string,
+  startDate: Date | undefined,
   dueDate: Date | undefined,
   projectId: string,
   description: string,
@@ -24,6 +26,8 @@ async function updateTask(
     });
   }
 
+  await assertValidTaskStatus(status, projectId);
+
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, projectId),
@@ -37,6 +41,7 @@ async function updateTask(
       title,
       status,
       columnId: column?.id ?? null,
+      startDate: startDate || null,
       dueDate: dueDate || null,
       projectId,
       description,

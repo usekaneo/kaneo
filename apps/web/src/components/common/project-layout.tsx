@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { SquareKanban, SquircleDashed } from "lucide-react";
+import { CalendarDays, SquareKanban, SquircleDashed } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import MobileProjectNav from "@/components/common/header/mobile-project-nav";
 import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
@@ -25,7 +25,7 @@ type ProjectLayoutProps = {
   headerActions?: ReactNode;
   children: ReactNode;
   showViewSwitcher?: boolean;
-  activeView?: "backlog" | "board";
+  activeView?: "backlog" | "board" | "gantt";
 };
 
 export default function ProjectLayout({
@@ -44,7 +44,11 @@ export default function ProjectLayout({
 
   const resolvedView =
     activeView ??
-    (location.pathname.includes("/backlog") ? "backlog" : "board");
+    (location.pathname.includes("/backlog")
+      ? "backlog"
+      : location.pathname.includes("/gantt")
+        ? "gantt"
+        : "board");
 
   const handleNavigateToBacklog = () => {
     navigate({
@@ -60,13 +64,21 @@ export default function ProjectLayout({
     });
   };
 
-  const handleProjectSwitch = (nextProjectId: string) => {
-    const isBacklog = resolvedView === "backlog";
-
+  const handleNavigateToGantt = () => {
     navigate({
-      to: isBacklog
-        ? "/dashboard/workspace/$workspaceId/project/$projectId/backlog"
-        : "/dashboard/workspace/$workspaceId/project/$projectId/board",
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
+      params: { workspaceId, projectId },
+    });
+  };
+
+  const handleProjectSwitch = (nextProjectId: string) => {
+    navigate({
+      to:
+        resolvedView === "backlog"
+          ? "/dashboard/workspace/$workspaceId/project/$projectId/backlog"
+          : resolvedView === "gantt"
+            ? "/dashboard/workspace/$workspaceId/project/$projectId/gantt"
+            : "/dashboard/workspace/$workspaceId/project/$projectId/board",
       params: {
         workspaceId,
         projectId: nextProjectId,
@@ -102,7 +114,7 @@ export default function ProjectLayout({
 
             <div className="hidden min-w-0 items-center gap-1 md:flex">
               <WorkspaceCrumbSelect />
-              <span className="text-muted-foreground/70 text-xs">/</span>
+              <span className="text-foreground/30 text-xs">/</span>
               <ProjectCrumbSelect
                 workspaceId={workspaceId}
                 projectId={projectId}
@@ -119,6 +131,7 @@ export default function ProjectLayout({
                 activeView={resolvedView}
                 onSelectBacklog={handleNavigateToBacklog}
                 onSelectBoard={handleNavigateToBoard}
+                onSelectGantt={handleNavigateToGantt}
                 onSelectProject={handleProjectSwitch}
                 onAddProject={() => setIsCreateProjectModalOpen(true)}
               />
@@ -148,7 +161,19 @@ export default function ProjectLayout({
                   )}
                 >
                   <SquareKanban className="size-3.5" />
-                  Board
+                  Tasks
+                </Button>
+                <Button
+                  variant={resolvedView === "gantt" ? "secondary" : "ghost"}
+                  size="xs"
+                  onClick={handleNavigateToGantt}
+                  className={cn(
+                    "h-6 gap-1.5 rounded-md px-2 text-xs",
+                    resolvedView !== "gantt" && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarDays className="size-3.5" />
+                  Gantt
                 </Button>
               </div>
             )}
