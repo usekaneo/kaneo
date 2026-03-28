@@ -38,10 +38,7 @@ const messages = {
   },
 } as const;
 
-function interpolate(
-  template: string,
-  values: Record<string, string>,
-) {
+function interpolate(template: string, values: Record<string, string>) {
   return template.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => {
     return values[key] ?? "";
   });
@@ -54,7 +51,7 @@ const WorkspaceInvitationEmail = ({
   invitationLink,
   to,
   locale,
-}: WorkspaceInvitationEmailProps) => (
+}: WorkspaceInvitationEmailProps) =>
   (() => {
     const localeKey = locale?.toLowerCase().startsWith("de") ? "de" : "en";
     const copy = messages[localeKey];
@@ -66,23 +63,18 @@ const WorkspaceInvitationEmail = ({
         title={interpolate(copy.title, values)}
         subtitle={interpolate(copy.subtitle, values)}
       >
-    <Section>
-      <Link style={styles.button} href={`${invitationLink}?email=${to}`}>
+        <Section>
+          <Link style={styles.button} href={`${invitationLink}?email=${to}`}>
             {copy.cta}
-      </Link>
-      <Text style={styles.paragraph}>
-            {copy.sameEmail}
-      </Text>
-      <Text style={styles.muted}>
-            {copy.ignore}
-      </Text>
-      <Section style={styles.divider} />
+          </Link>
+          <Text style={styles.paragraph}>{copy.sameEmail}</Text>
+          <Text style={styles.muted}>{copy.ignore}</Text>
+          <Section style={styles.divider} />
           <Text style={styles.footer}>{copy.footer}</Text>
-    </Section>
-  </EmailShell>
+        </Section>
+      </EmailShell>
     );
-  })()
-);
+  })();
 
 WorkspaceInvitationEmail.PreviewProps = {
   workspaceName: "Acme Inc",

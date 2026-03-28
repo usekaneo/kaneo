@@ -28,8 +28,12 @@ let hasIssues = false;
 
 for (const locale of filteredLocales) {
   const localeKeys = flattenLocale(locale.data);
-  const missing = new Set([...referenceKeys].filter((key) => !localeKeys.has(key)));
-  const extra = new Set([...localeKeys].filter((key) => !referenceKeys.has(key)));
+  const missing = new Set(
+    [...referenceKeys].filter((key) => !localeKeys.has(key)),
+  );
+  const extra = new Set(
+    [...localeKeys].filter((key) => !referenceKeys.has(key)),
+  );
 
   if (missing.size === 0 && extra.size === 0) {
     console.log(`${locale.locale}: OK`);

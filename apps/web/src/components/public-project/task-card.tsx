@@ -1,6 +1,5 @@
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { useRef } from "react";
-import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
@@ -24,7 +23,6 @@ export function PublicTaskCard({
   projectSlug,
   onTaskClick,
 }: PublicTaskCardProps) {
-  const { t } = useTranslation();
   const labels = task.labels || [];
   const externalLinks = task.externalLinks || [];
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(

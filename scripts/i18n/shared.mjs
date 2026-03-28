@@ -137,7 +137,11 @@ function pruneNamespace(value, prefix, allowedKeys) {
   const nextValue = {};
 
   for (const [childKey, childValue] of Object.entries(value)) {
-    const pruned = pruneNamespace(childValue, `${prefix}${childKey}.`, allowedKeys);
+    const pruned = pruneNamespace(
+      childValue,
+      `${prefix}${childKey}.`,
+      allowedKeys,
+    );
     if (pruned !== undefined) {
       nextValue[childKey] = pruned;
     }

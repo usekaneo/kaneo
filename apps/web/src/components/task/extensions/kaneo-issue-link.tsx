@@ -11,14 +11,6 @@ import {
 import getProject from "@/fetchers/project/get-project";
 import getTask from "@/fetchers/task/get-task";
 
-function toTitleCase(value?: string | null) {
-  if (!value) return "";
-  return value
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 function parseTaskRouteFromUrl(url: string) {
   try {
     const parsed = new URL(url);

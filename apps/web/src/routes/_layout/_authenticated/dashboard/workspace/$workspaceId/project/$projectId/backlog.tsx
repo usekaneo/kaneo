@@ -147,10 +147,6 @@ function RouteComponent() {
     }
   }, [data, setProject]);
 
-  const getPriorityDisplayName = (priority: string) => {
-    return priority.charAt(0).toUpperCase() + priority.slice(1);
-  };
-
   const getAssigneeDisplayName = (userId: string) => {
     const member = users?.members?.find((m) => m.userId === userId);
     return member?.user?.name || t("common:people.unknown");

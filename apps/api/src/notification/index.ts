@@ -76,8 +76,7 @@ const notification = new Hono<{
         eventData,
         relatedEntityId,
         relatedEntityType,
-      } =
-        c.req.valid("json");
+      } = c.req.valid("json");
       const userId = c.get("userId");
       const notification = await createNotification({
         userId,

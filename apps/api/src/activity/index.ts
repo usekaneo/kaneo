@@ -210,16 +210,10 @@ subscribeToEvent<{
   assigneeId?: string;
   type: string;
 }>("task.status_changed", async (data) => {
-  await createActivity(
-    data.taskId,
-    data.type,
-    data.userId,
-    null,
-    {
-      oldStatus: data.oldStatus,
-      newStatus: data.newStatus,
-    },
-  );
+  await createActivity(data.taskId, data.type, data.userId, null, {
+    oldStatus: data.oldStatus,
+    newStatus: data.newStatus,
+  });
 });
 
 subscribeToEvent<{
@@ -230,16 +224,10 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.priority_changed", async (data) => {
-  await createActivity(
-    data.taskId,
-    data.type,
-    data.userId,
-    null,
-    {
-      oldPriority: data.oldPriority,
-      newPriority: data.newPriority,
-    },
-  );
+  await createActivity(data.taskId, data.type, data.userId, null, {
+    oldPriority: data.oldPriority,
+    newPriority: data.newPriority,
+  });
 });
 
 subscribeToEvent<{
@@ -260,17 +248,11 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.assignee_changed", async (data) => {
-  await createActivity(
-    data.taskId,
-    data.type,
-    data.userId,
-    null,
-    {
-      newAssigneeId: data.newAssigneeId,
-      newAssignee: data.newAssignee,
-      isSelfAssigned: data.userId === data.newAssigneeId,
-    },
-  );
+  await createActivity(data.taskId, data.type, data.userId, null, {
+    newAssigneeId: data.newAssigneeId,
+    newAssignee: data.newAssignee,
+    isSelfAssigned: data.userId === data.newAssigneeId,
+  });
 });
 
 subscribeToEvent<{
@@ -301,16 +283,10 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.title_changed", async (data) => {
-  await createActivity(
-    data.taskId,
-    data.type,
-    data.userId,
-    null,
-    {
-      oldTitle: data.oldTitle,
-      newTitle: data.newTitle,
-    },
-  );
+  await createActivity(data.taskId, data.type, data.userId, null, {
+    oldTitle: data.oldTitle,
+    newTitle: data.newTitle,
+  });
 });
 
 export default activity;

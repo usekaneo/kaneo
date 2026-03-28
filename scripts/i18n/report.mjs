@@ -17,8 +17,11 @@ const shouldFix = args.includes("--fix");
 
 const { locales, reference } = await loadLocales();
 const localeKeys = flattenLocale(reference.data);
-const sourceFiles = await collectSourceFiles(path.join(repoRoot, "apps", "web", "src"));
-const { staticKeys, dynamicCalls, dynamicPrefixes } = await collectUsedKeys(sourceFiles);
+const sourceFiles = await collectSourceFiles(
+  path.join(repoRoot, "apps", "web", "src"),
+);
+const { staticKeys, dynamicCalls, dynamicPrefixes } =
+  await collectUsedKeys(sourceFiles);
 
 const missing = new Set(
   [...staticKeys].filter((key) => !isRepresentedByLocaleKeys(key, localeKeys)),
@@ -60,14 +63,18 @@ if (shouldFix) {
   if (unused.size === 0) {
     console.log("No unused keys to remove.");
   } else {
-    const allowedKeys = new Set([...localeKeys].filter((key) => !unused.has(key)));
+    const allowedKeys = new Set(
+      [...localeKeys].filter((key) => !unused.has(key)),
+    );
 
     for (const locale of locales) {
       const nextLocale = pruneLocale(locale.data, allowedKeys);
       await writeJson(locale.path, nextLocale);
     }
 
-    console.log(`Removed ${unused.size} unused key(s) from ${defaultLocale} and other locales.`);
+    console.log(
+      `Removed ${unused.size} unused key(s) from ${defaultLocale} and other locales.`,
+    );
   }
 }
 
@@ -105,15 +112,21 @@ async function collectUsedKeys(files) {
   for (const file of files) {
     const source = await fs.readFile(file, "utf8");
 
-    for (const match of source.matchAll(/\b(?:[\w$]+\.)?t\(\s*(['"])([^'"\\]+)\1/gu)) {
+    for (const match of source.matchAll(
+      /\b(?:[\w$]+\.)?t\(\s*(['"])([^'"\\]+)\1/gu,
+    )) {
       staticKeys.add(match[2]);
     }
 
-    for (const match of source.matchAll(/\bi18nKey\s*=\s*(['"])([^'"\\]+)\1/gu)) {
+    for (const match of source.matchAll(
+      /\bi18nKey\s*=\s*(['"])([^'"\\]+)\1/gu,
+    )) {
       staticKeys.add(match[2]);
     }
 
-    for (const match of source.matchAll(/\b(?:[\w$]+\.)?t\(\s*(`[^`]*\$\{[^`]*\}`|[^'"`\s][^,\n)]*)/gu)) {
+    for (const match of source.matchAll(
+      /\b(?:[\w$]+\.)?t\(\s*(`[^`]*\$\{[^`]*\}`|[^'"`\s][^,\n)]*)/gu,
+    )) {
       const call = match[0].trim();
       dynamicCalls.push(`${path.relative(repoRoot, file)}: ${call}`);
       const prefixMatch = call.match(/`([^`$]*)\$\{/u);

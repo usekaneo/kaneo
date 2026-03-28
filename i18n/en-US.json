@@ -1137,11 +1137,11 @@
 				"archived": "Archived"
 			},
 			"noTasksInSection": "No {{section}} tasks",
-      "filters": {
-        "priority": "Priority: {{name}}",
-        "assignee": "Assignee: {{name}}",
-        "due": "Due: {{date}}",
-        "label": "Label: {{name}}",
+			"filters": {
+				"priority": "Priority: {{name}}",
+				"assignee": "Assignee: {{name}}",
+				"due": "Due: {{date}}",
+				"label": "Label: {{name}}",
 				"dueThisWeek": "Due this week",
 				"dueNextWeek": "Due next week",
 				"noDueDate": "No due date"
