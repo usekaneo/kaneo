@@ -13,27 +13,6 @@ import deleteComment from "./controllers/delete-comment";
 import getActivities from "./controllers/get-activities";
 import updateComment from "./controllers/update-comment";
 
-function toDisplayCase(value: string) {
-  return value
-    .replace(/[-_]/g, " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-    .join(" ");
-}
-
-function formatActivityDate(value: Date | string | null | undefined) {
-  if (!value) return null;
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
-}
-
 const activity = new Hono<{
   Variables: {
     userId: string;
@@ -82,14 +61,21 @@ const activity = new Hono<{
       v.object({
         taskId: v.string(),
         userId: v.string(),
-        message: v.string(),
+        message: v.nullable(v.string()),
         type: v.string(),
+        eventData: v.optional(v.nullable(v.record(v.string(), v.unknown()))),
       }),
     ),
     workspaceAccess.fromTaskId(),
     async (c) => {
-      const { taskId, userId, message, type } = c.req.valid("json");
-      const activity = await createActivity(taskId, type, userId, message);
+      const { taskId, userId, message, type, eventData } = c.req.valid("json");
+      const activity = await createActivity(
+        taskId,
+        type,
+        userId,
+        message,
+        eventData,
+      );
       return c.json(activity);
     },
   )
@@ -212,7 +198,7 @@ subscribeToEvent<{
   if (!data.userId || !data.taskId || !data.type || !data.content) {
     return;
   }
-  await createActivity(data.taskId, data.type, data.userId, data.content);
+  await createActivity(data.taskId, data.type, data.userId, data.content, null);
 });
 
 subscribeToEvent<{
@@ -228,7 +214,11 @@ subscribeToEvent<{
     data.taskId,
     data.type,
     data.userId,
-    `changed status from ${toDisplayCase(data.oldStatus)} to ${toDisplayCase(data.newStatus)}`,
+    null,
+    {
+      oldStatus: data.oldStatus,
+      newStatus: data.newStatus,
+    },
   );
 });
 
@@ -244,7 +234,11 @@ subscribeToEvent<{
     data.taskId,
     data.type,
     data.userId,
-    `changed priority from ${toDisplayCase(data.oldPriority)} to ${toDisplayCase(data.newPriority)}`,
+    null,
+    {
+      oldPriority: data.oldPriority,
+      newPriority: data.newPriority,
+    },
   );
 });
 
@@ -254,12 +248,7 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.unassigned", async (data) => {
-  await createActivity(
-    data.taskId,
-    data.type,
-    data.userId,
-    "unassigned the task",
-  );
+  await createActivity(data.taskId, data.type, data.userId, null, {});
 });
 
 subscribeToEvent<{
@@ -271,21 +260,16 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.assignee_changed", async (data) => {
-  if (data.userId === data.newAssigneeId) {
-    await createActivity(
-      data.taskId,
-      data.type,
-      data.userId,
-      "assigned the task to themselves",
-    );
-    return;
-  }
-
   await createActivity(
     data.taskId,
     data.type,
     data.userId,
-    `assigned the task to [[user:${data.newAssigneeId}|${data.newAssignee}]]`,
+    null,
+    {
+      newAssigneeId: data.newAssigneeId,
+      newAssignee: data.newAssignee,
+      isSelfAssigned: data.userId === data.newAssigneeId,
+    },
   );
 });
 
@@ -297,26 +281,16 @@ subscribeToEvent<{
   title: string;
   type: string;
 }>("task.due_date_changed", async (data) => {
-  const oldDate = formatActivityDate(data.oldDueDate);
-
-  if (!data.newDueDate) {
-    await createActivity(
-      data.taskId,
-      data.type,
-      data.userId,
-      "cleared the due date",
-    );
-    return;
-  }
-
-  const newDate = formatActivityDate(data.newDueDate);
-  if (!newDate) return;
-
-  const message = oldDate
-    ? `changed due date from ${oldDate} to ${newDate}`
-    : `set due date to ${newDate}`;
-
-  await createActivity(data.taskId, data.type, data.userId, message);
+  await createActivity(data.taskId, data.type, data.userId, null, {
+    oldDueDate:
+      data.oldDueDate instanceof Date
+        ? data.oldDueDate.toISOString()
+        : data.oldDueDate,
+    newDueDate:
+      data.newDueDate instanceof Date
+        ? data.newDueDate.toISOString()
+        : data.newDueDate,
+  });
 });
 
 subscribeToEvent<{
@@ -331,7 +305,11 @@ subscribeToEvent<{
     data.taskId,
     data.type,
     data.userId,
-    `changed title from "${data.oldTitle}" to "${data.newTitle}"`,
+    null,
+    {
+      oldTitle: data.oldTitle,
+      newTitle: data.newTitle,
+    },
   );
 });
 

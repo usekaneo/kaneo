@@ -60,15 +60,23 @@ const notification = new Hono<{
     validator(
       "json",
       v.object({
-        title: v.string(),
-        message: v.string(),
+        title: v.optional(v.nullable(v.string())),
+        message: v.optional(v.nullable(v.string())),
         type: v.string(),
+        eventData: v.optional(v.nullable(v.record(v.string(), v.unknown()))),
         relatedEntityId: v.optional(v.string()),
         relatedEntityType: v.optional(v.string()),
       }),
     ),
     async (c) => {
-      const { title, message, type, relatedEntityId, relatedEntityType } =
+      const {
+        title,
+        message,
+        type,
+        eventData,
+        relatedEntityId,
+        relatedEntityType,
+      } =
         c.req.valid("json");
       const userId = c.get("userId");
       const notification = await createNotification({
@@ -76,6 +84,7 @@ const notification = new Hono<{
         title,
         content: message,
         type,
+        eventData,
         resourceId: relatedEntityId,
         resourceType: relatedEntityType,
       });
@@ -157,9 +166,10 @@ subscribeToEvent<{
   if (data.userId) {
     await createNotification({
       userId: data.userId,
-      title: "New Task Created",
-      content: `Task "${data.title}" was created`,
       type: "task_created",
+      eventData: {
+        taskTitle: data.title,
+      },
       resourceId: data.taskId,
       resourceType: "task",
     });
@@ -175,9 +185,10 @@ subscribeToEvent<{
   if (data.ownerId) {
     await createNotification({
       userId: data.ownerId,
-      title: "Workspace created",
-      content: `Your workspace "${data.workspaceName}" has been created successfully`,
       type: "workspace_created",
+      eventData: {
+        workspaceName: data.workspaceName,
+      },
       resourceId: data.workspaceId,
       resourceType: "workspace",
     });
@@ -195,9 +206,12 @@ subscribeToEvent<{
   if (data.assigneeId && data.assigneeId !== data.userId) {
     await createNotification({
       userId: data.assigneeId,
-      title: "Task status changed",
-      content: `Task "${data.title}" status changed from "${data.oldStatus}" to "${data.newStatus}"`,
       type: "task_status_changed",
+      eventData: {
+        taskTitle: data.title,
+        oldStatus: data.oldStatus,
+        newStatus: data.newStatus,
+      },
       resourceId: data.taskId,
       resourceType: "task",
     });
@@ -215,9 +229,10 @@ subscribeToEvent<{
   if (data.newAssigneeId) {
     await createNotification({
       userId: data.newAssigneeId,
-      title: "Task assigned to you",
-      content: `You have been assigned to task: ${data.title}`,
       type: "task_assignee_changed",
+      eventData: {
+        taskTitle: data.title,
+      },
       resourceId: data.taskId,
       resourceType: "task",
     });
@@ -234,9 +249,10 @@ subscribeToEvent<{
   if (data.taskOwnerId && data.taskOwnerId !== data.userId) {
     await createNotification({
       userId: data.taskOwnerId,
-      title: "Time tracking started",
-      content: `Time tracking started on task${data.taskTitle ? `: ${data.taskTitle}` : ""}`,
       type: "time_entry_created",
+      eventData: {
+        taskTitle: data.taskTitle ?? null,
+      },
       resourceId: data.taskId,
       resourceType: "task",
     });
