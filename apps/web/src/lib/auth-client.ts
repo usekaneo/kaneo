@@ -3,6 +3,7 @@ import {
   anonymousClient,
   emailOTPClient,
   genericOAuthClient,
+  inferAdditionalFields,
   lastLoginMethodClient,
   magicLinkClient,
   organizationClient,
@@ -38,5 +39,14 @@ export const authClient = createAuthClient({
     }),
     genericOAuthClient(),
     apiKeyClient(),
+    inferAdditionalFields({
+      user: {
+        locale: {
+          type: "string",
+          required: false,
+          input: true,
+        },
+      },
+    }),
   ],
 });
