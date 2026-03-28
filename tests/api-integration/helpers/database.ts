@@ -64,7 +64,12 @@ export async function ensureTestDatabaseMigrated() {
     })();
   }
 
-  await migrationPromise;
+  try {
+    await migrationPromise;
+  } catch (error) {
+    migrationPromise = null;
+    throw error;
+  }
 }
 
 export async function resetTestDatabase() {

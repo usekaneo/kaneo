@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import db, { schema } from "../../../apps/api/src/database";
+import { DEFAULT_PROJECT_COLUMNS } from "../../../apps/api/src/project/controllers/create-project";
 
 export type SeededMemberContext = {
   user: typeof schema.userTable.$inferSelect;
@@ -39,7 +40,7 @@ export async function createWorkspaceMember(
   await db.insert(schema.workspaceUserTable).values({
     workspaceId: workspace.id,
     userId: user.id,
-    role: overrides?.role || "owner",
+    role: overrides?.role ?? "member",
     joinedAt: new Date(),
   });
 
@@ -67,33 +68,40 @@ export async function createProjectFixture({
     })
     .returning();
 
-  const [todoColumn] = await db
-    .insert(schema.columnTable)
-    .values({
-      projectId: project.id,
-      name: "To Do",
-      slug: "to-do",
-      position: 0,
-      isFinal: false,
-    })
-    .returning();
+  const insertedColumns: (typeof schema.columnTable.$inferSelect)[] = [];
 
-  const [doneColumn] = await db
-    .insert(schema.columnTable)
-    .values({
-      projectId: project.id,
-      name: "Done",
-      slug: "done",
-      position: 1,
-      isFinal: true,
-    })
-    .returning();
+  for (const col of DEFAULT_PROJECT_COLUMNS) {
+    const [inserted] = await db
+      .insert(schema.columnTable)
+      .values({
+        projectId: project.id,
+        name: col.name,
+        slug: col.slug,
+        position: col.position,
+        isFinal: col.isFinal,
+      })
+      .returning();
+    if (inserted) {
+      insertedColumns.push(inserted);
+    }
+  }
+
+  const todo = insertedColumns[0];
+  const inProgress = insertedColumns[1];
+  const inReview = insertedColumns[2];
+  const done = insertedColumns[3];
+
+  if (!todo || !inProgress || !inReview || !done) {
+    throw new Error("Failed to seed default project columns");
+  }
 
   return {
     project,
     columns: {
-      todo: todoColumn,
-      done: doneColumn,
+      todo,
+      inProgress,
+      inReview,
+      done,
     },
   };
 }
