@@ -15,13 +15,15 @@ export function resolveLocale(
   preferredLocale?: string | null,
   browserLocale?: string | null,
 ): AppLocale {
-  const candidates = [preferredLocale, browserLocale]
-    .filter(Boolean)
-    .map((value) => value?.toLowerCase());
+  const candidates = [preferredLocale, browserLocale].filter(
+    (value): value is string => Boolean(value),
+  );
 
   for (const candidate of candidates) {
-    if (!candidate) continue;
-    const exactMatch = supportedLocales.find((locale) => locale === candidate);
+    const normalizedCandidate = candidate.toLowerCase();
+    const exactMatch = supportedLocales.find(
+      (locale) => locale.toLowerCase() === normalizedCandidate,
+    );
     if (exactMatch) return exactMatch;
 
     const languageMatch = supportedLocales.find(
