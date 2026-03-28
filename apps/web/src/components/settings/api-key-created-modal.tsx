@@ -1,5 +1,6 @@
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Button } from "../ui/button";
@@ -25,30 +26,33 @@ export function ApiKeyCreatedModal({
   open,
   onClose,
 }: ApiKeyCreatedModalProps) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(apiKey);
     setCopied(true);
-    toast.success("API key copied to clipboard");
+    toast.success(t("settings:apiKey.createdModal.toastCopied"));
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-[446px]">
         <DialogHeader>
-          <DialogTitle>API Key Created</DialogTitle>
+          <DialogTitle>{t("settings:apiKey.createdModal.title")}</DialogTitle>
           <DialogDescription>
-            Your API key{" "}
-            <span className="font-medium text-foreground">"{keyName}"</span> has
-            been created successfully.
+            {t("settings:apiKey.createdModal.description", {
+              keyName,
+            })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 px-6 py-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-medium">Your API Key</p>
+              <p className="text-xs font-medium">
+                {t("settings:apiKey.createdModal.yourApiKey")}
+              </p>
               <Button
                 variant="ghost"
                 size="sm"
@@ -58,12 +62,12 @@ export function ApiKeyCreatedModal({
                 {copied ? (
                   <>
                     <Check className="h-3 w-3 text-success-foreground" />
-                    Copied
+                    {t("settings:apiKey.createdModal.copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="h-3 w-3" />
-                    Copy
+                    {t("settings:apiKey.createdModal.copy")}
                   </>
                 )}
               </Button>
@@ -76,9 +80,11 @@ export function ApiKeyCreatedModal({
           </div>
 
           <Alert>
-            <AlertTitle>Success! Your API key has been created</AlertTitle>
+            <AlertTitle>
+              {t("settings:apiKey.createdModal.alertTitle")}
+            </AlertTitle>
             <AlertDescription>
-              Copy this key now. You won't be able to see it again.
+              {t("settings:apiKey.createdModal.alertDescription")}
             </AlertDescription>
           </Alert>
         </div>
@@ -89,7 +95,9 @@ export function ApiKeyCreatedModal({
             disabled={!copied}
             className="h-8 text-xs w-full sm:w-auto"
           >
-            {copied ? "Done" : "Copy key to continue"}
+            {copied
+              ? t("settings:apiKey.createdModal.done")
+              : t("settings:apiKey.createdModal.copyToContinue")}
           </Button>
         </DialogFooter>
       </DialogContent>

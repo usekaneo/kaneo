@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -35,6 +36,7 @@ type CreateProjectModalProps = {
 };
 
 function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("Layout");
@@ -84,7 +86,9 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
       handleClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create project",
+        error instanceof Error
+          ? error.message
+          : t("common:modals.createProject.errorToast"),
       );
     }
   };
@@ -99,21 +103,23 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md" showCloseButton={false}>
         <DialogHeader className="px-3 pt-4 pb-1 gap-1.5">
-          <DialogTitle className="sr-only">Create a new project</DialogTitle>
+          <DialogTitle className="sr-only">
+            {t("common:modals.createProject.title")}
+          </DialogTitle>
           <Breadcrumb>
             <BreadcrumbList className="gap-1 text-xs">
               <BreadcrumbItem className="text-muted-foreground font-medium tracking-wide">
-                {workspace?.name?.toUpperCase() || "WORKSPACE"}
+                {workspace?.name?.toUpperCase() ||
+                  t("common:modals.createProject.workspaceFallback")}
               </BreadcrumbItem>
               <BreadcrumbSeparator className="[&>svg]:size-3.5" />
               <BreadcrumbItem className="text-foreground font-medium">
-                Create a new project
+                {t("common:modals.createProject.breadcrumbNew")}
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
           <DialogDescription className="sr-only">
-            Create a new project in your workspace by providing a name, key, and
-            selecting an icon.
+            {t("common:modals.createProject.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -133,7 +139,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   variant="outline"
                   size="icon-sm"
                   className="h-8 w-8 p-0"
-                  title="Pick icon"
+                  title={t("common:modals.createProject.pickIcon")}
                 >
                   <SelectedIcon className="h-4 w-4" />
                 </Button>
@@ -143,7 +149,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                   <Input
                     value={iconSearch}
                     onChange={(e) => setIconSearch(e.target.value)}
-                    placeholder="Search icons..."
+                    placeholder={t("common:modals.createProject.searchIcons")}
                     className="h-8 text-xs"
                   />
                   <div className="max-h-[280px] overflow-y-auto pr-1">
@@ -183,7 +189,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               value={name}
               onChange={handleNameChange}
               autoFocus
-              placeholder="Project name"
+              placeholder={t("common:modals.createProject.projectName")}
               className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-2 [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:leading-tight [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
               required
             />
@@ -193,7 +199,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">
-                  Key:
+                  {t("common:modals.createProject.keyLabel")}
                 </span>
                 <Input
                   id="project-key"
@@ -206,7 +212,9 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                 />
               </div>
               <div className="flex-1 text-xs text-muted-foreground opacity-80">
-                Used for ticket IDs (e.g., {slug || "ABC"}-123)
+                {t("common:modals.createProject.keyHint", {
+                  example: slug || "ABC",
+                })}
               </div>
             </div>
           </div>
@@ -219,7 +227,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               size="sm"
               className="border-border text-foreground hover:bg-accent"
             >
-              Cancel
+              {t("common:actions.cancel")}
             </Button>
             <Button
               type="submit"
@@ -227,7 +235,7 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               size="sm"
               className="bg-primary hover:bg-primary/90  disabled:opacity-50"
             >
-              Create Project
+              {t("common:modals.createProject.createButton")}
             </Button>
           </DialogFooter>
         </form>

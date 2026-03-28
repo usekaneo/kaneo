@@ -1,7 +1,9 @@
-import { formatDistanceToNow } from "date-fns";
 import { Calendar, CircleAlert, History, UserRound } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
+import { formatDateMedium, formatRelativeTime } from "@/lib/format";
+import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   HoverCard,
@@ -15,6 +17,7 @@ import { isCommentActivity } from "./utils";
 type ActivityItem = {
   type: string;
   content: string | null;
+  eventData?: unknown;
   id: string;
   createdAt: string;
   userId: string | null;
@@ -24,6 +27,16 @@ type ActivityItem = {
   externalSource?: string | null;
   externalUrl?: string | null;
 };
+
+function getEventDataRecord(
+  eventData: unknown,
+): Record<string, unknown> | null {
+  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) {
+    return null;
+  }
+
+  return eventData as Record<string, unknown>;
+}
 
 type WorkspaceUser = {
   user?: {
@@ -51,23 +64,10 @@ function getActivityTypeIcon(type: string) {
   }
 }
 
-function toDisplayCase(value: string) {
-  return value
-    .replace(/[-_]/g, " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-    .join(" ");
-}
-
 function formatActivityDateText(value: string) {
   const parsed = new Date(value);
   if (!Number.isNaN(parsed.getTime())) {
-    return parsed.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatDateMedium(parsed);
   }
 
   const slashMatch = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -75,11 +75,16 @@ function formatActivityDateText(value: string) {
   const [, month, day, year] = slashMatch;
   const fromSlashDate = new Date(`${year}-${month}-${day}T00:00:00`);
   if (Number.isNaN(fromSlashDate.getTime())) return value;
-  return fromSlashDate.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDateMedium(fromSlashDate);
+}
+
+function toDisplayCase(value: string) {
+  return value
+    .replace(/[-_]/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
 }
 
 function findUserByName(users: WorkspaceUser[] | undefined, name: string) {
@@ -156,75 +161,164 @@ function ActorAvatar({
 function renderActivityContent({
   activity,
   workspaceUsers,
+  t,
 }: {
   activity: ActivityItem;
   workspaceUsers: WorkspaceUser[] | undefined;
+  t: (key: string, options?: Record<string, unknown>) => string;
 }) {
   const content = activity.content || "";
+  const eventData = getEventDataRecord(activity.eventData);
 
   if (activity.type === "priority_changed") {
+    if (eventData) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          {t("activity:changedPriority", {
+            from: getPriorityLabel(String(eventData.oldPriority ?? "")),
+            to: getPriorityLabel(String(eventData.newPriority ?? "")),
+          })}
+        </span>
+      );
+    }
+
     const match = content.match(
       /changed priority from "?(.+?)"? to "?(.+?)"?$/i,
     );
-    if (!match)
+    if (!match) {
       return <span className="text-sm text-muted-foreground">{content}</span>;
+    }
+
     return (
       <span className="text-sm text-muted-foreground">
-        changed priority from{" "}
-        <span className="text-foreground">{toDisplayCase(match[1])}</span> to{" "}
-        <span className="text-foreground">{toDisplayCase(match[2])}</span>
+        {t("activity:changedPriority", {
+          from: getPriorityLabel(match[1]),
+          to: getPriorityLabel(match[2]),
+        })}
       </span>
     );
   }
 
   if (activity.type === "status_changed") {
+    if (eventData) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          {t("activity:changedStatus", {
+            from: getStatusLabel(String(eventData.oldStatus ?? "")),
+            to: getStatusLabel(String(eventData.newStatus ?? "")),
+          })}
+        </span>
+      );
+    }
+
     const match = content.match(/changed status from "?(.+?)"? to "?(.+?)"?$/i);
-    if (!match)
+    if (!match) {
       return <span className="text-sm text-muted-foreground">{content}</span>;
+    }
+
     return (
       <span className="text-sm text-muted-foreground">
-        changed status from{" "}
-        <span className="text-foreground">{toDisplayCase(match[1])}</span> to{" "}
-        <span className="text-foreground">{toDisplayCase(match[2])}</span>
+        {t("activity:changedStatus", {
+          from: getStatusLabel(match[1]),
+          to: getStatusLabel(match[2]),
+        })}
       </span>
     );
   }
 
   if (activity.type === "due_date_changed") {
+    if (eventData) {
+      const oldDueDate = eventData.oldDueDate
+        ? formatActivityDateText(String(eventData.oldDueDate))
+        : null;
+      const newDueDate = eventData.newDueDate
+        ? formatActivityDateText(String(eventData.newDueDate))
+        : null;
+
+      return (
+        <span className="text-sm text-muted-foreground">
+          {newDueDate
+            ? oldDueDate
+              ? t("activity:changedDueDate", {
+                  from: oldDueDate,
+                  to: newDueDate,
+                })
+              : t("activity:setDueDate", { date: newDueDate })
+            : t("activity:clearedDueDate")}
+        </span>
+      );
+    }
+
     const changeMatch = content.match(/changed due date from (.+) to (.+)$/i);
     if (changeMatch) {
       return (
         <span className="text-sm text-muted-foreground">
-          changed due date from{" "}
-          <span className="text-foreground">
-            {formatActivityDateText(changeMatch[1])}
-          </span>{" "}
-          to{" "}
-          <span className="text-foreground">
-            {formatActivityDateText(changeMatch[2])}
-          </span>
+          {t("activity:changedDueDate", {
+            from: formatActivityDateText(changeMatch[1]),
+            to: formatActivityDateText(changeMatch[2]),
+          })}
         </span>
       );
     }
+
     const setMatch = content.match(/set due date to (.+)$/i);
     if (setMatch) {
       return (
         <span className="text-sm text-muted-foreground">
-          set due date to{" "}
-          <span className="text-foreground">
-            {formatActivityDateText(setMatch[1])}
-          </span>
+          {t("activity:setDueDate", {
+            date: formatActivityDateText(setMatch[1]),
+          })}
         </span>
       );
     }
+
+    if (content.includes("cleared the due date")) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          {t("activity:clearedDueDate")}
+        </span>
+      );
+    }
+
     return <span className="text-sm text-muted-foreground">{content}</span>;
   }
 
+  if (activity.type === "unassigned") {
+    return (
+      <span className="text-sm text-muted-foreground">
+        {t("activity:unassigned")}
+      </span>
+    );
+  }
+
   if (activity.type === "assignee_changed") {
+    if (eventData) {
+      if (eventData.isSelfAssigned) {
+        return (
+          <span className="text-sm text-muted-foreground">
+            {t("activity:assignedToSelf")}
+          </span>
+        );
+      }
+
+      const targetId = String(eventData.newAssigneeId ?? "");
+      const targetName = String(eventData.newAssignee ?? "");
+      const targetUser =
+        workspaceUsers?.find((member) => member.user?.id === targetId) || null;
+
+      return (
+        <span className="text-sm text-muted-foreground">
+          {t("activity:assignedTo", {
+            name: targetUser?.user?.name ?? targetName,
+          })}
+        </span>
+      );
+    }
+
     if (content.includes("themselves")) {
       return (
         <span className="text-sm text-muted-foreground">
-          assigned the task to themselves
+          {t("activity:assignedToSelf")}
         </span>
       );
     }
@@ -236,10 +330,12 @@ function renderActivityContent({
       const [, targetId, targetName] = tokenMatch;
       const targetUser =
         workspaceUsers?.find((member) => member.user?.id === targetId) || null;
+
       return (
         <span className="text-sm text-muted-foreground">
-          assigned the task to{" "}
-          <UserHoverName user={targetUser} fallbackName={targetName} />
+          {t("activity:assignedTo", {
+            name: targetUser?.user?.name ?? targetName,
+          })}
         </span>
       );
     }
@@ -250,14 +346,44 @@ function renderActivityContent({
       const targetUser = findUserByName(workspaceUsers, targetName);
       return (
         <span className="text-sm text-muted-foreground">
-          assigned the task to{" "}
-          <UserHoverName user={targetUser} fallbackName={targetName} />
+          {t("activity:assignedTo", {
+            name: targetUser?.user?.name ?? targetName,
+          })}
         </span>
       );
     }
   }
 
-  return <span className="text-sm text-muted-foreground">{content}</span>;
+  if (activity.type === "title_changed") {
+    if (eventData) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          {t("activity:changedTitle", {
+            from: String(eventData.oldTitle ?? ""),
+            to: String(eventData.newTitle ?? ""),
+          })}
+        </span>
+      );
+    }
+
+    const legacyMatch = content.match(/changed title from "(.+)" to "(.+)"$/i);
+    if (legacyMatch) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          {t("activity:changedTitle", {
+            from: legacyMatch[1],
+            to: legacyMatch[2],
+          })}
+        </span>
+      );
+    }
+  }
+
+  return (
+    <span className="text-sm text-muted-foreground">
+      {content || toDisplayCase(activity.type)}
+    </span>
+  );
 }
 
 function Activity({
@@ -269,24 +395,26 @@ function Activity({
   step: number;
   showConnector?: boolean;
 }) {
+  const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
-
   const { data: workspaceUsers } = useGetWorkspaceUsers({
     workspaceId: workspace?.id,
   });
 
   const user = activity.userId
-    ? workspaceUsers?.find((user) => user.user?.id === activity.userId)
+    ? workspaceUsers?.find(
+        (workspaceUser) => workspaceUser.user?.id === activity.userId,
+      )
     : null;
 
   const isExternalComment = Boolean(activity.externalSource);
-  const actorName = user?.user?.name || "Someone";
+  const actorName = user?.user?.name || t("common:people.someone");
 
   if (isCommentActivity(activity)) {
     const commentUser = isExternalComment
       ? {
           id: undefined,
-          name: activity.externalUserName ?? "GitHub User",
+          name: activity.externalUserName ?? t("activity:githubUser"),
           email: undefined,
           image: activity.externalUserAvatar ?? undefined,
         }
@@ -333,9 +461,10 @@ function Activity({
         {renderActivityContent({
           activity,
           workspaceUsers: workspaceUsers as WorkspaceUser[] | undefined,
+          t,
         })}{" "}
         <span className="whitespace-nowrap text-muted-foreground/70 text-xs">
-          {formatDistanceToNow(activity.createdAt, { addSuffix: true })}
+          {formatRelativeTime(activity.createdAt)}
         </span>
       </TimelineContent>
     </TimelineItem>

@@ -1,5 +1,6 @@
 import { addDays, differenceInCalendarDays, startOfDay } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -56,6 +57,7 @@ export function GanttTaskBar({
   isMobile = false,
   onOpenTask,
 }: GanttTaskBarProps) {
+  const { t } = useTranslation();
   const { mutateAsync: updateTask } = useUpdateTask();
   const [dragDisplay, setDragDisplay] = useState<{
     start: Date;
@@ -98,12 +100,12 @@ export function GanttTaskBar({
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to update task dates",
+            : t("tasks:gantt.updateDatesError"),
         );
         return false;
       }
     },
-    [task, updateTask],
+    [task, updateTask, t],
   );
 
   const pxPerDay = Math.max(pixelsPerDay, 1e-6);
@@ -291,7 +293,7 @@ export function GanttTaskBar({
       >
         <button
           type="button"
-          aria-label="Resize start date"
+          aria-label={t("tasks:gantt.resizeStart")}
           onPointerDown={handleResizeLeftPointerDown}
           className={cn(
             "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
@@ -301,7 +303,7 @@ export function GanttTaskBar({
         />
         <button
           type="button"
-          aria-label={`${task.title} — open or drag to move`}
+          aria-label={t("tasks:gantt.taskAriaLabel", { title: task.title })}
           className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
           onPointerDown={handleMovePointerDown}
           onKeyDown={(e) => {
@@ -316,7 +318,7 @@ export function GanttTaskBar({
         </button>
         <button
           type="button"
-          aria-label="Resize due date"
+          aria-label={t("tasks:gantt.resizeDue")}
           onPointerDown={handleResizeRightPointerDown}
           className={cn(
             "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",

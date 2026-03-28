@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
 import { ExternalLink, Github, Pencil } from "lucide-react";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
+import { formatRelativeTime } from "@/lib/format";
 import { toast } from "@/lib/toast";
 
 type CommentCardProps = {
@@ -44,6 +45,7 @@ export default function CommentCard({
   externalSource,
   externalUrl,
 }: CommentCardProps) {
+  const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
@@ -68,12 +70,12 @@ export default function CommentCard({
 
   const handleSave = useCallback(async () => {
     if (!editedContent.trim()) {
-      toast.error("Comment cannot be empty");
+      toast.error(t("activity:comment.cannotBeEmpty"));
       return;
     }
 
     if (!currentUser?.id) {
-      toast.error("You must be logged in to edit comments");
+      toast.error(t("activity:comment.mustBeLoggedInToEdit"));
       return;
     }
 
@@ -85,16 +87,17 @@ export default function CommentCard({
 
       setIsEditing(false);
       await queryClient.invalidateQueries({ queryKey: ["activities", taskId] });
-      toast.success("Comment updated");
+      toast.success(t("activity:comment.updated"));
     } catch (error) {
       console.error("Failed to update comment:", error);
-      toast.error("Failed to update comment");
+      toast.error(t("activity:comment.failedToUpdate"));
     }
   }, [
     commentId,
     currentUser?.id,
     editedContent,
     queryClient,
+    t,
     taskId,
     updateComment,
   ]);
@@ -137,7 +140,7 @@ export default function CommentCard({
                   <div className="mt-1.5 flex items-center gap-1">
                     <Github className="size-3 text-muted-foreground" />
                     <span className="text-xs text-muted-foreground">
-                      GitHub
+                      {t("activity:comment.github")}
                     </span>
                   </div>
                 )}
@@ -151,14 +154,14 @@ export default function CommentCard({
                 className="mt-3 flex items-center gap-1.5 border-t border-border pt-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
                 <ExternalLink className="size-3" />
-                View GitHub Profile
+                {t("activity:comment.viewGithubProfile")}
               </a>
             )}
           </HoverCardContent>
         </HoverCard>
 
         <span className="text-xs text-muted-foreground/62">
-          {formatDistanceToNow(createdAt, { addSuffix: true })}
+          {formatRelativeTime(createdAt)}
         </span>
 
         {commentUrl && (
@@ -171,7 +174,7 @@ export default function CommentCard({
               className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
               <Github className="size-3" />
-              commented on GitHub
+              {t("activity:comment.commentedOnGithub")}
             </a>
           </>
         )}
@@ -191,7 +194,7 @@ export default function CommentCard({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p className="text-xs">Edit comment</p>
+              <p className="text-xs">{t("activity:comment.edit")}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -201,7 +204,7 @@ export default function CommentCard({
         <CommentEditor
           value={isEditing ? editedContent : content}
           onChange={isEditing ? setEditedContent : undefined}
-          placeholder="Edit comment..."
+          placeholder={t("activity:comment.editPlaceholder")}
           taskId={taskId}
           uploadSurface="comment"
           className={
@@ -225,7 +228,7 @@ export default function CommentCard({
             disabled={isPending}
             className="h-7 px-2.5 text-xs"
           >
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             variant="default"
@@ -234,7 +237,7 @@ export default function CommentCard({
             disabled={isPending || !editedContent.trim()}
             className="h-7 px-2.5 text-xs"
           >
-            Save
+            {t("activity:comment.save")}
           </Button>
         </div>
       )}

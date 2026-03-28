@@ -45,11 +45,7 @@ export class ErrorBoundary extends React.Component<
       }
 
       return (
-        <ErrorDisplay
-          error={this.state.error}
-          onRetry={this.resetError}
-          title="Something went wrong"
-        />
+        <ErrorDisplay error={this.state.error} onRetry={this.resetError} />
       );
     }
 

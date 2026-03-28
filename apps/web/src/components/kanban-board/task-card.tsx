@@ -10,6 +10,7 @@ import {
   GitPullRequest,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -47,6 +48,7 @@ type TaskCardProps = {
 };
 
 function TaskCard({ task }: TaskCardProps) {
+  const { t } = useTranslation();
   const {
     attributes,
     listeners,
@@ -84,7 +86,7 @@ function TaskCard({ task }: TaskCardProps) {
     if (isMerged) {
       return {
         icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
-        status: "Merged",
+        status: t("tasks:pr.merged"),
         statusClass: "text-info-foreground",
       };
     }
@@ -92,14 +94,14 @@ function TaskCard({ task }: TaskCardProps) {
     if (isDraft) {
       return {
         icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
-        status: "Draft",
+        status: t("tasks:pr.draft"),
         statusClass: "text-muted-foreground",
       };
     }
 
     return {
       icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
-      status: "Open",
+      status: t("tasks:pr.open"),
       statusClass: "text-success-foreground",
     };
   };
@@ -163,10 +165,10 @@ function TaskCard({ task }: TaskCardProps) {
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete task",
+        error instanceof Error ? error.message : t("tasks:delete.error"),
       );
     } finally {
-      toast.success("Task deleted successfully");
+      toast.success(t("tasks:delete.success"));
     }
   };
 
@@ -215,7 +217,7 @@ function TaskCard({ task }: TaskCardProps) {
                 ) : (
                   <div
                     className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-muted"
-                    title="Unassigned"
+                    title={t("tasks:assignee.unassigned")}
                   >
                     <span className="text-[10px] font-medium text-muted-foreground">
                       ?
@@ -300,7 +302,7 @@ function TaskCard({ task }: TaskCardProps) {
                         <span>#{pullRequests[0].externalId}</span>
                       </div>
                       <p className="text-sm font-medium leading-snug">
-                        {pullRequests[0].title || "Pull Request"}
+                        {pullRequests[0].title || t("tasks:pr.label")}
                       </p>
                     </div>
                   </HoverCardContent>
@@ -330,7 +332,11 @@ function TaskCard({ task }: TaskCardProps) {
                           className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
                         >
                           <GitPullRequest className={`h-3 w-3 ${iconColor}`} />
-                          <span>{pullRequests.length} PRs</span>
+                          <span>
+                            {t("tasks:pr.count", {
+                              count: pullRequests.length,
+                            })}
+                          </span>
                         </button>
                       </HoverCardTrigger>
                       <HoverCardContent
@@ -362,7 +368,7 @@ function TaskCard({ task }: TaskCardProps) {
                                   </span>
                                 </div>
                                 <p className="text-xs leading-tight line-clamp-2 mt-0.5">
-                                  {pr.title || "Pull Request"}
+                                  {pr.title || t("tasks:pr.label")}
                                 </p>
                                 <span className="text-[10px] text-muted-foreground">
                                   {prInfo.status}
@@ -397,21 +403,20 @@ function TaskCard({ task }: TaskCardProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Task?</AlertDialogTitle>
+            <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the task and all its data. You can't
-              undo this action.
+              {t("tasks:delete.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogClose>
               <Button variant="outline" size="sm">
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
             </AlertDialogClose>
             <AlertDialogClose onClick={handleDeleteTask}>
               <Button variant="destructive" size="sm">
-                Delete Task
+                {t("tasks:delete.action")}
               </Button>
             </AlertDialogClose>
           </AlertDialogFooter>

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { mergeAttributes, Node } from "@tiptap/core";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
+import { useTranslation } from "react-i18next";
 import {
   HoverCard,
   HoverCardContent,
@@ -36,6 +37,7 @@ function parseTaskRouteFromUrl(url: string) {
 }
 
 function KaneoIssueLinkView({ node }: NodeViewProps) {
+  const { t } = useTranslation();
   const issueKey = String(node.attrs.issueKey || "");
   const taskIdAttr = String(node.attrs.taskId || "");
   const url = String(node.attrs.url || "");
@@ -68,10 +70,14 @@ function KaneoIssueLinkView({ node }: NodeViewProps) {
   const resolvedIssueKey =
     issueKey ||
     (projectSlug && task?.number ? `${projectSlug}-${task.number}` : "");
-  const title = task?.title || issueKey || "Task";
-  const status = toTitleCase(task?.status) || "Todo";
-  const priority = toTitleCase(task?.priority) || "No priority";
-  const assignee = task?.assigneeName || "Unassigned";
+  const title = task?.title || issueKey || t("tasks:entity.task");
+  const status = task?.status
+    ? t(`tasks:status.${task.status}`)
+    : t("tasks:status.to-do");
+  const priority = task?.priority
+    ? t(`tasks:priority.${task.priority}`)
+    : t("tasks:priority.no-priority");
+  const assignee = task?.assigneeName || t("tasks:assignee.unassigned");
   const href =
     taskRoute?.workspaceId && taskRoute?.projectId && task?.id
       ? `/dashboard/workspace/${taskRoute.workspaceId}/project/${taskRoute.projectId}/task/${task.id}`
@@ -102,7 +108,7 @@ function KaneoIssueLinkView({ node }: NodeViewProps) {
         >
           <div className="kaneo-issue-link-preview-top">
             <span className="kaneo-issue-link-preview-key">
-              {resolvedIssueKey || "Task"}
+              {resolvedIssueKey || t("tasks:entity.task")}
             </span>
             <span className="kaneo-issue-link-preview-assignee">
               {assignee}

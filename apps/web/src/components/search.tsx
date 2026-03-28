@@ -2,12 +2,14 @@
 
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import SearchCommandMenu from "@/components/search-command-menu";
 import { SidebarGroup } from "@/components/ui/sidebar";
 import { shortcuts } from "@/constants/shortcuts";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 export default function Search() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   useRegisterShortcuts({
@@ -31,7 +33,9 @@ export default function Search() {
             className="-ms-1 me-3 text-muted-foreground/80"
             size={16}
           />
-          <span className="font-normal text-muted-foreground/70">Search</span>
+          <span className="font-normal text-muted-foreground/70">
+            {t("navigation:commandPalette.search")}
+          </span>
         </span>
         <kbd className="-me-0.5 ms-6 inline-flex h-4 max-h-full items-center rounded border border-border/70 bg-background px-1 font-[inherit] font-medium text-[0.625rem] text-muted-foreground/60">
           {shortcuts.search.prefix}

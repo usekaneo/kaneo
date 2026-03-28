@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -21,95 +22,110 @@ type ShortcutCategory = {
   shortcuts: ShortcutItem[];
 };
 
-const shortcutCategories: ShortcutCategory[] = [
-  {
-    title: "General",
-    shortcuts: [
+function useShortcutCategories(): ShortcutCategory[] {
+  const { t } = useTranslation();
+
+  return useMemo(
+    () => [
       {
-        keys: [shortcuts.palette.prefix, shortcuts.palette.open],
-        description: "Open command palette",
+        title: t("navigation:keyboardShortcuts.categories.general"),
+        shortcuts: [
+          {
+            keys: [shortcuts.palette.prefix, shortcuts.palette.open],
+            description: t(
+              "navigation:keyboardShortcuts.items.openCommandPalette",
+            ),
+          },
+          {
+            keys: [shortcuts.search.prefix],
+            description: t("navigation:keyboardShortcuts.items.globalSearch"),
+          },
+          {
+            keys: [shortcuts.sidebar.prefix, shortcuts.sidebar.toggle],
+            description: t("navigation:keyboardShortcuts.items.toggleSidebar"),
+          },
+          {
+            keys: ["?"],
+            description: t("navigation:keyboardShortcuts.items.showShortcuts"),
+          },
+          {
+            keys: ["Escape"],
+            description: t("navigation:keyboardShortcuts.items.closeModal"),
+          },
+        ],
       },
       {
-        keys: [shortcuts.search.prefix],
-        description: "Global search",
+        title: t("navigation:keyboardShortcuts.categories.create"),
+        shortcuts: [
+          {
+            keys: [shortcuts.task.prefix, shortcuts.task.create],
+            description: t("navigation:keyboardShortcuts.items.createTask"),
+          },
+          {
+            keys: [shortcuts.project.prefix, shortcuts.project.create],
+            description: t("navigation:keyboardShortcuts.items.createProject"),
+          },
+          {
+            keys: [shortcuts.workspace.prefix, shortcuts.workspace.create],
+            description: t(
+              "navigation:keyboardShortcuts.items.createWorkspace",
+            ),
+          },
+        ],
       },
       {
-        keys: [shortcuts.sidebar.prefix, shortcuts.sidebar.toggle],
-        description: "Toggle sidebar",
+        title: t("navigation:keyboardShortcuts.categories.views"),
+        shortcuts: [
+          {
+            keys: [shortcuts.view.prefix, shortcuts.view.board],
+            description: t("navigation:keyboardShortcuts.items.boardView"),
+          },
+          {
+            keys: [shortcuts.view.prefix, shortcuts.view.list],
+            description: t("navigation:keyboardShortcuts.items.listView"),
+          },
+          {
+            keys: [shortcuts.view.prefix, shortcuts.view.backlog],
+            description: t("navigation:keyboardShortcuts.items.backlogView"),
+          },
+        ],
       },
       {
-        keys: ["?"],
-        description: "Show keyboard shortcuts",
+        title: t("navigation:keyboardShortcuts.categories.navigation"),
+        shortcuts: [
+          {
+            keys: ["j"],
+            description: t("navigation:keyboardShortcuts.items.nextTask"),
+          },
+          {
+            keys: ["k"],
+            description: t("navigation:keyboardShortcuts.items.prevTask"),
+          },
+          {
+            keys: ["Enter"],
+            description: t("navigation:keyboardShortcuts.items.openTask"),
+          },
+        ],
       },
       {
-        keys: ["Escape"],
-        description: "Close modal/popover",
+        title: t("navigation:keyboardShortcuts.categories.quickSelect"),
+        shortcuts: [
+          {
+            keys: ["1", "2", "3", "..."],
+            description: t(
+              "navigation:keyboardShortcuts.items.quickSelectNumber",
+            ),
+          },
+        ],
       },
     ],
-  },
-  {
-    title: "Create",
-    shortcuts: [
-      {
-        keys: [shortcuts.task.prefix, shortcuts.task.create],
-        description: "Create task",
-      },
-      {
-        keys: [shortcuts.project.prefix, shortcuts.project.create],
-        description: "Create project",
-      },
-      {
-        keys: [shortcuts.workspace.prefix, shortcuts.workspace.create],
-        description: "Create workspace",
-      },
-    ],
-  },
-  {
-    title: "Views",
-    shortcuts: [
-      {
-        keys: [shortcuts.view.prefix, shortcuts.view.board],
-        description: "Switch to board view",
-      },
-      {
-        keys: [shortcuts.view.prefix, shortcuts.view.list],
-        description: "Switch to list view",
-      },
-      {
-        keys: [shortcuts.view.prefix, shortcuts.view.backlog],
-        description: "Switch to backlog view",
-      },
-    ],
-  },
-  {
-    title: "Navigation",
-    shortcuts: [
-      {
-        keys: ["j"],
-        description: "Next task",
-      },
-      {
-        keys: ["k"],
-        description: "Previous task",
-      },
-      {
-        keys: ["Enter"],
-        description: "Open selected task",
-      },
-    ],
-  },
-  {
-    title: "Quick Select (in popovers)",
-    shortcuts: [
-      {
-        keys: ["1", "2", "3", "..."],
-        description: "Select option by number",
-      },
-    ],
-  },
-];
+    [t],
+  );
+}
 
 export function KeyboardShortcutsHelp() {
+  const { t } = useTranslation();
+  const shortcutCategories = useShortcutCategories();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -150,14 +166,14 @@ export function KeyboardShortcutsHelp() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="px-4 max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Keyboard Shortcuts</DialogTitle>
+          <DialogTitle>{t("navigation:keyboardShortcuts.title")}</DialogTitle>
           <DialogDescription>
-            Speed up your workflow with keyboard shortcuts
+            {t("navigation:keyboardShortcuts.subtitle")}
           </DialogDescription>
         </DialogHeader>
 
         <Input
-          placeholder="Search shortcuts..."
+          placeholder={t("navigation:keyboardShortcuts.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="mb-4"
@@ -187,8 +203,12 @@ export function KeyboardShortcutsHelp() {
         </div>
 
         <div className="mt-4 pt-4 border-t text-xs text-muted-foreground mb-4">
-          Press <kbd className="px-1.5 py-0.5 rounded bg-muted">Escape</kbd> to
-          close
+          <Trans
+            i18nKey="navigation:keyboardShortcuts.footer"
+            components={{
+              kbd: <kbd className="px-1.5 py-0.5 rounded bg-muted" />,
+            }}
+          />
         </div>
       </DialogContent>
     </Dialog>

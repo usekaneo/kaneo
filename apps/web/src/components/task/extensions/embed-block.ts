@@ -1,4 +1,5 @@
 import { mergeAttributes, Node } from "@tiptap/core";
+import { i18n } from "@/lib/i18n";
 
 type EmbedMode = "embed" | "link";
 
@@ -101,7 +102,7 @@ export const EmbedBlock = Node.create({
               "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
             allowfullscreen: "true",
             referrerpolicy: "strict-origin-when-cross-origin",
-            title: "Embedded content",
+            title: i18n.t("tasks:detail.editor.embed.embeddedContent"),
           },
         ],
       ];
@@ -114,7 +115,7 @@ export const EmbedBlock = Node.create({
         [
           "div",
           { class: "kaneo-embed-unsupported" },
-          "Only YouTube URLs can be embedded. Use link mode instead.",
+          i18n.t("tasks:detail.editor.embed.onlyYoutubeInline"),
         ],
       ];
     }

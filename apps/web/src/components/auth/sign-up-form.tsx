@@ -1,8 +1,9 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,16 +29,24 @@ type SignUpFormProps = {
   defaultEmail?: string;
 };
 
-const signUpSchema = z.object({
-  email: z.email(),
-  password: z.string().min(8, { message: "Password is too short" }),
-  name: z.string(),
-});
-
 export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
+
+  const signUpSchema = useMemo(
+    () =>
+      z.object({
+        email: z.email(),
+        password: z.string().min(8, {
+          message: t("auth:signUpForm.passwordTooShort"),
+        }),
+        name: z.string(),
+      }),
+    [t],
+  );
+
   const form = useForm<SignUpFormValues>({
     resolver: standardSchemaResolver(signUpSchema),
     defaultValues: {
@@ -57,11 +66,11 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
       });
 
       if (result.error) {
-        toast.error(result.error.message || "Failed to sign up");
+        toast.error(result.error.message || t("auth:signUpForm.failedSignUp"));
         return;
       }
 
-      toast.success("Account created successfully");
+      toast.success(t("auth:signUpForm.accountCreated"));
 
       if (invitationId) {
         history.push(`/invitation/accept/${invitationId}`);
@@ -69,7 +78,11 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
         history.push("/dashboard");
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to sign up");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("auth:signUpForm.failedSignUp"),
+      );
     } finally {
       setIsPending(false);
     }
@@ -84,10 +97,12 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
             name="name"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Full Name</FormLabel>
+                <FormLabel className="text-sm font-medium">
+                  {t("auth:signUpForm.fullName")}
+                </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="John Doe"
+                    placeholder={t("auth:signUpForm.namePlaceholder")}
                     type="text"
                     autoComplete="name"
                     {...field}
@@ -103,10 +118,12 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
             name="email"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Email</FormLabel>
+                <FormLabel className="text-sm font-medium">
+                  {t("auth:forms.email")}
+                </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="me@example.com"
+                    placeholder={t("auth:forms.emailPlaceholder")}
                     type="email"
                     autoComplete="email"
                     disabled={!!defaultEmail}
@@ -123,11 +140,13 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
             name="password"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Password</FormLabel>
+                <FormLabel className="text-sm font-medium">
+                  {t("auth:forms.password")}
+                </FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
-                      placeholder="••••••••"
+                      placeholder={t("auth:forms.passwordPlaceholder")}
                       type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
                       {...field}
@@ -137,7 +156,9 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       aria-label={
-                        showPassword ? "Hide password" : "Show password"
+                        showPassword
+                          ? t("auth:forms.hidePassword")
+                          : t("auth:forms.showPassword")
                       }
                       aria-pressed={showPassword}
                     >
@@ -152,7 +173,9 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
         </div>
 
         <Button type="submit" disabled={isPending} className="w-full mt-4">
-          {isPending ? "Creating Account..." : "Create Account"}
+          {isPending
+            ? t("auth:signUpForm.creatingAccount")
+            : t("auth:signUpForm.createAccount")}
         </Button>
       </form>
     </Form>

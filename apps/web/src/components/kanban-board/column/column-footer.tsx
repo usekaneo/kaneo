@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import type { ProjectWithTasks } from "@/types/project";
 
@@ -8,6 +9,7 @@ type ColumnFooterProps = {
 };
 
 export function ColumnFooter({ column }: ColumnFooterProps) {
+  const { t } = useTranslation();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   return (
@@ -24,7 +26,7 @@ export function ColumnFooter({ column }: ColumnFooterProps) {
           className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-accent/50 rounded-md flex items-center gap-2 transition-all"
         >
           <Plus className="w-4 h-4 text-muted-foreground" />
-          <span>Add task</span>
+          <span>{t("tasks:kanban.addTask")}</span>
         </button>
       </div>
     </>

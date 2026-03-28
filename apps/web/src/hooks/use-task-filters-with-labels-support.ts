@@ -3,7 +3,7 @@ import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
-import type { BoardFilters } from "./use-task-filters";
+import { type BoardFilters, DUE_DATE_FILTER_VALUES } from "./use-task-filters";
 
 const DEFAULT_FILTERS: BoardFilters = {
   status: null,
@@ -129,7 +129,7 @@ export function useTaskFiltersWithLabelsSupport(
           const taskDate = task.dueDate ? new Date(task.dueDate) : null;
 
           const matchesAnyDueDate = filters.dueDate.some((dueDateFilter) => {
-            if (dueDateFilter === "No due date") {
+            if (dueDateFilter === DUE_DATE_FILTER_VALUES.noDueDate) {
               return !task.dueDate;
             }
 
@@ -138,7 +138,7 @@ export function useTaskFiltersWithLabelsSupport(
             }
 
             switch (dueDateFilter) {
-              case "Due this week": {
+              case DUE_DATE_FILTER_VALUES.dueThisWeek: {
                 const weekStart = startOfWeek(today);
                 const weekEnd = endOfWeek(today);
                 return isWithinInterval(taskDate, {
@@ -146,7 +146,7 @@ export function useTaskFiltersWithLabelsSupport(
                   end: weekEnd,
                 });
               }
-              case "Due next week": {
+              case DUE_DATE_FILTER_VALUES.dueNextWeek: {
                 const nextWeekStart = startOfWeek(addWeeks(today, 1));
                 const nextWeekEnd = endOfWeek(addWeeks(today, 1));
                 return isWithinInterval(taskDate, {

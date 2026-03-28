@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   DropdownMenu,
@@ -30,6 +31,7 @@ import type { Workspace } from "@/types/workspace";
 import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
 
 export function WorkspaceSwitcher() {
+  const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaces } = useGetWorkspaces();
   const navigate = useNavigate();
@@ -137,7 +139,9 @@ export function WorkspaceSwitcher() {
                 sideOffset={4}
               >
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+                  <DropdownMenuLabel>
+                    {t("navigation:workspaceSwitcher.workspaces")}
+                  </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
 
@@ -155,7 +159,7 @@ export function WorkspaceSwitcher() {
                   >
                     <span className="flex-1 text-left">
                       {isSwitching && ws.id === workspace?.id
-                        ? "Switching..."
+                        ? t("navigation:workspaceSwitcher.switching")
                         : ws.name}
                     </span>
                     <DropdownMenuShortcut>
@@ -172,7 +176,7 @@ export function WorkspaceSwitcher() {
                   }}
                   className="h-7 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
                 >
-                  <span>Add workspace</span>
+                  <span>{t("navigation:workspaceSwitcher.addWorkspace")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

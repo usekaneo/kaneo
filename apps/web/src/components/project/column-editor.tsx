@@ -1,5 +1,6 @@
 import { CheckCircle2, Circle, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -15,6 +16,7 @@ type ColumnEditorProps = {
 };
 
 export default function ColumnEditor({ projectId }: ColumnEditorProps) {
+  const { t } = useTranslation();
   const { data: columns, isLoading } = useGetColumns(projectId);
   const { mutateAsync: createColumn } = useCreateColumn();
   const { mutateAsync: updateColumn } = useUpdateColumn();
@@ -31,10 +33,12 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
         data: { name: newColumnName.trim() },
       });
       setNewColumnName("");
-      toast.success("Column created");
+      toast.success(t("settings:columnEditor.toastCreated"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create column",
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastCreateError"),
       );
     }
   };
@@ -42,10 +46,12 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   const handleRename = async (id: string, name: string) => {
     try {
       await updateColumn({ id, projectId, data: { name } });
-      toast.success("Column renamed");
+      toast.success(t("settings:columnEditor.toastRenamed"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update column",
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastRenameError"),
       );
     }
   };
@@ -54,11 +60,15 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     try {
       await updateColumn({ id, projectId, data: { isFinal } });
       toast.success(
-        isFinal ? "Column marked as final" : "Column unmarked as final",
+        isFinal
+          ? t("settings:columnEditor.toastFinalOn")
+          : t("settings:columnEditor.toastFinalOff"),
       );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update column",
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastUpdateError"),
       );
     }
   };
@@ -66,10 +76,12 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   const handleDelete = async (id: string) => {
     try {
       await deleteColumn({ id, projectId });
-      toast.success("Column deleted");
+      toast.success(t("settings:columnEditor.toastDeleted"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete column",
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastDeleteError"),
       );
     }
   };
@@ -97,7 +109,9 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
 
   if (isLoading) {
     return (
-      <div className="text-sm text-muted-foreground">Loading columns...</div>
+      <div className="text-sm text-muted-foreground">
+        {t("settings:columnEditor.loading")}
+      </div>
     );
   }
 
@@ -134,7 +148,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
             <div className="flex items-center gap-1.5 shrink-0">
               <div
                 className="flex items-center gap-2"
-                title="Treat this as a done column"
+                title={t("settings:columnEditor.doneColumnTooltip")}
               >
                 {col.isFinal ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-muted-foreground" />
@@ -142,18 +156,22 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                   <Circle className="w-3.5 h-3.5 text-muted-foreground" />
                 )}
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  Done column
+                  {t("settings:columnEditor.doneColumn")}
                 </span>
                 <Switch
                   checked={col.isFinal}
                   onCheckedChange={(checked) =>
                     handleToggleFinal(col.id, checked)
                   }
-                  aria-label={`Mark ${col.name} as done column`}
+                  aria-label={t("settings:columnEditor.markDoneAria", {
+                    name: col.name,
+                  })}
                   className="scale-75"
                 />
                 <span className="text-[11px] text-muted-foreground w-8">
-                  {col.isFinal ? "On" : "Off"}
+                  {col.isFinal
+                    ? t("settings:columnEditor.on")
+                    : t("settings:columnEditor.off")}
                 </span>
               </div>
               <Button
@@ -171,7 +189,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
 
       <div className="flex items-center gap-2">
         <Input
-          placeholder="New column name..."
+          placeholder={t("settings:columnEditor.newColumnPlaceholder")}
           value={newColumnName}
           onChange={(e) => setNewColumnName(e.target.value)}
           className="h-8 text-sm flex-1"
@@ -187,7 +205,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
           className="h-8 gap-1"
         >
           <Plus className="w-3.5 h-3.5" />
-          Add
+          {t("settings:columnEditor.add")}
         </Button>
       </div>
     </div>

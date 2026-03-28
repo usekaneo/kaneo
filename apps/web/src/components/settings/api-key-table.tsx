@@ -1,5 +1,6 @@
 import { Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useDeleteApiKey from "@/hooks/mutations/api-key/use-delete-api-key";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -41,24 +42,25 @@ function formatDate(value: Date | string | null) {
   }).format(date);
 }
 
-function getExpirationState(expiresAt: Date | string | null) {
-  if (!expiresAt) {
-    return { label: "Never", isExpired: false };
-  }
-
-  const expirationDate = new Date(expiresAt);
-  const isExpired = expirationDate.getTime() <= Date.now();
-
-  return {
-    label: formatDate(expirationDate),
-    isExpired,
-  };
-}
-
 export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
+  const { t } = useTranslation();
   const { mutateAsync: deleteApiKey } = useDeleteApiKey();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  const getExpirationState = (expiresAt: Date | string | null) => {
+    if (!expiresAt) {
+      return { label: t("common:formats.never"), isExpired: false };
+    }
+
+    const expirationDate = new Date(expiresAt);
+    const isExpired = expirationDate.getTime() <= Date.now();
+
+    return {
+      label: formatDate(expirationDate),
+      isExpired,
+    };
+  };
 
   const pendingDeleteKey = useMemo(
     () => apiKeys.find((key) => key.id === pendingDeleteId) ?? null,
@@ -71,11 +73,13 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
     setDeletingId(pendingDeleteKey.id);
     try {
       await deleteApiKey(pendingDeleteKey.id);
-      toast.success("API key deleted successfully");
+      toast.success(t("settings:apiKey.table.toastDeleted"));
       setPendingDeleteId(null);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete API key",
+        error instanceof Error
+          ? error.message
+          : t("settings:apiKey.table.toastDeleteError"),
       );
     } finally {
       setDeletingId(null);
@@ -87,7 +91,7 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
       <Frame>
         <FramePanel className="p-8">
           <p className="text-sm text-muted-foreground text-center">
-            Loading API keys...
+            {t("settings:apiKey.table.loading")}
           </p>
         </FramePanel>
       </Frame>
@@ -99,7 +103,7 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
       <Frame>
         <FramePanel className="p-8">
           <p className="text-sm text-muted-foreground text-center">
-            No API keys yet. Create one to get started.
+            {t("settings:apiKey.table.empty")}
           </p>
         </FramePanel>
       </Frame>
@@ -112,11 +116,13 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Key</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Expires</TableHead>
-              <TableHead className="w-[90px] text-right">Actions</TableHead>
+              <TableHead>{t("settings:apiKey.table.columnName")}</TableHead>
+              <TableHead>{t("settings:apiKey.table.columnKey")}</TableHead>
+              <TableHead>{t("settings:apiKey.table.columnCreated")}</TableHead>
+              <TableHead>{t("settings:apiKey.table.columnExpires")}</TableHead>
+              <TableHead className="w-[90px] text-right">
+                {t("settings:apiKey.table.columnActions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -137,7 +143,7 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
                       expiration.isExpired && "text-destructive-foreground",
                     )}
                   >
-                    {apiKey.name || "Unnamed Key"}
+                    {apiKey.name || t("settings:apiKey.table.unnamedKey")}
                   </TableCell>
                   <TableCell>
                     <code className="text-xs bg-background px-2 py-1 rounded border border-border">
@@ -149,7 +155,11 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
                   </TableCell>
                   <TableCell>
                     {expiration.isExpired ? (
-                      <Badge variant="error">Expired {expiration.label}</Badge>
+                      <Badge variant="error">
+                        {t("settings:apiKey.table.expiredBadge", {
+                          label: expiration.label,
+                        })}
+                      </Badge>
                     ) : (
                       <span className="text-muted-foreground">
                         {expiration.label}
@@ -163,7 +173,11 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
                       className="h-8 w-8 text-destructive hover:text-destructive"
                       onClick={() => setPendingDeleteId(apiKey.id)}
                       disabled={deletingId === apiKey.id}
-                      aria-label={`Delete ${apiKey.name || "API key"}`}
+                      aria-label={t("settings:apiKey.table.deleteAria", {
+                        name:
+                          apiKey.name ||
+                          t("settings:apiKey.table.deleteAriaFallback"),
+                      })}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -185,26 +199,29 @@ export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete API key?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("settings:apiKey.table.deleteConfirmTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete
-              <span className="font-medium text-foreground">
-                {" "}
-                {pendingDeleteKey?.name || "this API key"}
-              </span>
-              .
+              {t("settings:apiKey.table.deleteConfirmDescription", {
+                name:
+                  pendingDeleteKey?.name ||
+                  t("settings:apiKey.table.deleteFallbackName"),
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogClose render={<Button variant="outline" />}>
-              Cancel
+              {t("common:actions.cancel")}
             </AlertDialogClose>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={Boolean(deletingId)}
             >
-              {deletingId ? "Deleting..." : "Delete"}
+              {deletingId
+                ? t("settings:apiKey.table.deleting")
+                : t("settings:apiKey.table.delete")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
