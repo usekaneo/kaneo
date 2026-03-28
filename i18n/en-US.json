@@ -1,0 +1,1440 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "Cancel",
+			"close": "Close",
+			"clearAll": "Clear all",
+			"delete": "Delete",
+			"deleting": "Deleting...",
+			"markAllRead": "Mark all read",
+			"remove": "Remove",
+			"reset": "Reset",
+			"filter": "Filter",
+			"clearAllFilters": "Clear all filters"
+		},
+		"a11y": {
+			"toggleSidebar": "Toggle sidebar"
+		},
+		"sidebar": {
+			"title": "Sidebar",
+			"mobileDescription": "Displays the mobile sidebar."
+		},
+		"empty": {
+			"loading": "Loading..."
+		},
+		"pagination": {
+			"label": "Pagination",
+			"previous": "Previous",
+			"next": "Next",
+			"previousPage": "Go to previous page",
+			"nextPage": "Go to next page",
+			"morePages": "More pages"
+		},
+		"breadcrumb": {
+			"label": "Breadcrumb",
+			"more": "More"
+		},
+		"language": {
+			"english": "English",
+			"german": "German"
+		},
+		"people": {
+			"someone": "Someone",
+			"unknown": "Unknown"
+		},
+		"error": {
+			"title": "Something went wrong",
+			"troubleshooting": "Troubleshooting steps:",
+			"tryAgain": "Try Again",
+			"viewDeploymentGuide": "View Deployment Guide",
+			"refreshPage": "Refresh Page"
+		},
+		"formats": {
+			"never": "Never"
+		},
+		"modals": {
+			"createProject": {
+				"title": "Create a new project",
+				"breadcrumbNew": "Create a new project",
+				"workspaceFallback": "WORKSPACE",
+				"description": "Create a new project in your workspace by providing a name, key, and selecting an icon.",
+				"pickIcon": "Pick icon",
+				"searchIcons": "Search icons...",
+				"projectName": "Project name",
+				"keyLabel": "Key:",
+				"keyHint": "Used for ticket IDs (e.g., {{example}}-123)",
+				"createButton": "Create Project",
+				"successToast": "Project created successfully",
+				"errorToast": "Failed to create project"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "Create a new workspace",
+				"description": "Create a new workspace by providing a name for your workspace.",
+				"namePlaceholder": "Workspace name",
+				"descriptionPlaceholder": "Add description...",
+				"createButton": "Create Workspace",
+				"successToast": "Workspace created successfully",
+				"errorToast": "Failed to create workspace"
+			},
+			"createTask": {
+				"breadcrumbTask": "TASK",
+				"title": "New Task",
+				"description": "Create a new task by providing a title, description, and other details.",
+				"taskTitlePlaceholder": "Task title",
+				"descriptionPlaceholder": "Add a description for your task...",
+				"chooseProjectForImages": "Choose a project before uploading images.",
+				"prepareTaskError": "Failed to prepare task",
+				"successCreated": "Task created successfully",
+				"successUpdated": "Task updated successfully",
+				"createError": "Failed to create task",
+				"priority": "Priority",
+				"statusFallback": "In Progress",
+				"startDate": "Start date",
+				"dueDate": "Due date",
+				"clearStartDate": "Clear start date",
+				"clearDueDate": "Clear due date",
+				"assign": "Assign",
+				"assignUnassigned": "Unassigned",
+				"assignUnassignedTitle": "Unassigned",
+				"labels": "Labels",
+				"searchLabels": "Search labels...",
+				"noLabelsFound": "No labels found",
+				"createLabel": "Create \"{{name}}\"",
+				"chooseColor": "Choose color",
+				"labelCreated": "Label created",
+				"labelCreateError": "Failed to create label",
+				"createMore": "Create more",
+				"createButton": "Create Task",
+				"untitledTask": "Untitled task",
+				"labelColors": {
+					"stone": "Stone",
+					"slate": "Slate",
+					"lavender": "Lavender",
+					"sage": "Sage",
+					"forest": "Forest",
+					"amber": "Amber",
+					"terracotta": "Terracotta",
+					"rose": "Rose",
+					"crimson": "Crimson"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "Sign In",
+			"title": "Welcome back",
+			"subtitle": "Enter your credentials to access your workspace",
+			"invitationSubtitle": "Sign in to accept your invitation",
+			"invitationAlert": "After signing in, you'll be able to accept your workspace invitation.",
+			"signingIn": "Signing in...",
+			"continueWithGoogle": "Continue with Google",
+			"continueWithGithub": "Continue with GitHub",
+			"continueWithDiscord": "Continue with Discord",
+			"continueWithOidc": "Continue with OIDC",
+			"lastUsed": "Last used",
+			"registrationDisabled": "Public registration is disabled. Use an invitation to create an account.",
+			"passwordRegistrationDisabled": "Password registration is disabled. Use a configured social or OIDC sign-in method to create an account.",
+			"toggleMessage": "Don't have an account?",
+			"toggleLink": "Create account",
+			"guestSuccess": "Signed in as guest",
+			"guestError": "Failed to sign in as guest",
+			"oidcError": "Failed to sign in with OIDC",
+			"googleError": "Failed to sign in with Google",
+			"githubError": "Failed to sign in with GitHub",
+			"discordError": "Failed to sign in with Discord"
+		},
+		"providers": {
+			"google": "Google",
+			"discord": "Discord"
+		},
+		"forms": {
+			"or": "or",
+			"email": "Email",
+			"password": "Password",
+			"emailPlaceholder": "me@example.com",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "Show password",
+			"hidePassword": "Hide password"
+		},
+		"checkEmail": {
+			"pageTitle": "Check Your Email",
+			"title": "Check your email",
+			"inboxMessage": "We've sent you a temporary login link. Please check your inbox at <email>{{email}}</email>.",
+			"emailFallback": "your email address",
+			"backToLogin": "Back to login"
+		},
+		"signUp": {
+			"pageTitle": "Create Account",
+			"title": "Create account",
+			"subtitleInvitation": "Create an account to accept your invitation",
+			"subtitleRegistrationDisabled": "Registration requires an invitation",
+			"subtitlePasswordDisabled": "Use social or OIDC sign-in to create an account",
+			"subtitleDefault": "Get started with your workspace",
+			"invitationAlert": "After creating your account, you'll be able to accept your workspace invitation.",
+			"registrationDisabledAlert": "Registration is currently disabled. If you were invited, enter the email address that received the invitation to create your account.",
+			"passwordDisabledAlert": "Password-based account creation is disabled. Use a configured social or OIDC sign-in method from the sign-in page.",
+			"signingIn": "Signing in...",
+			"continueAsGuest": "Continue as guest",
+			"toggleMessage": "Already have an account?",
+			"toggleLink": "Sign in"
+		},
+		"verifyOtp": {
+			"pageTitle": "Verify Code",
+			"title": "Enter verification code",
+			"subtitle": "Use the 6-digit code sent to your email to continue",
+			"codeSentTo": "Code sent to {{email}}",
+			"verificationCodeLabel": "Verification Code",
+			"verifying": "Verifying...",
+			"verifyAndSignIn": "Verify & Sign In",
+			"changeEmail": "Change email",
+			"resend": "Resend",
+			"validation": {
+				"codeLength": "Code must be 6 digits"
+			},
+			"toast": {
+				"invalidCode": "Invalid verification code",
+				"signedInSuccess": "Signed in successfully!",
+				"verifyFailed": "Failed to verify code",
+				"resendFailed": "Failed to resend code",
+				"resendSuccess": "New verification code sent!"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "Failed to send verification code",
+			"codeSent": "Verification code sent! Check your email.",
+			"sending": "Sending...",
+			"sendVerificationCode": "Send Verification Code"
+		},
+		"signInForm": {
+			"failedSignIn": "Failed to sign in",
+			"signedInSuccess": "Signed in successfully",
+			"signingIn": "Signing In...",
+			"signIn": "Sign In"
+		},
+		"signUpForm": {
+			"fullName": "Full Name",
+			"namePlaceholder": "John Doe",
+			"failedSignUp": "Failed to sign up",
+			"accountCreated": "Account created successfully",
+			"passwordTooShort": "Password is too short",
+			"creatingAccount": "Creating Account...",
+			"createAccount": "Create Account"
+		},
+		"invitation": {
+			"pageTitleAccept": "Accept Invitation",
+			"pageTitleError": "Invitation Error",
+			"pageTitleInvalid": "Invalid Invitation",
+			"loadingTitle": "Loading invitation...",
+			"errorTitle": "Invitation Error",
+			"invalidTitle": "Invalid Invitation",
+			"invitationExpired": "Invitation Expired",
+			"errorLoadDescription": "Failed to load invitation details. The invitation may be invalid or expired.",
+			"goToSignIn": "Go to Sign In",
+			"workspaceLabel": "Workspace: {{workspaceName}}",
+			"joinWorkspace": "Join {{workspaceName}}",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace on Kaneo.",
+			"signInToAccept": "Sign in to accept this invitation.",
+			"accepting": "Accepting...",
+			"acceptInvitation": "Accept Invitation",
+			"goToDashboard": "Go to Dashboard",
+			"signedInAs": "Signed in as <email>{{email}}</email>",
+			"youveBeenInvited": "You've been invited!",
+			"invitationFor": "Invitation for: <email>{{email}}</email>",
+			"signIn": "Sign In",
+			"toast": {
+				"acceptFailed": "Failed to accept invitation",
+				"acceptSuccess": "Invitation accepted! Welcome to the team."
+			}
+		},
+		"onboarding": {
+			"pageTitle": "Welcome to Kaneo",
+			"workspacePageTitle": "Create Workspace",
+			"createWorkspaceTitle": "Create workspace",
+			"createWorkspaceSubtitle": "Set up your workspace to start managing projects",
+			"workspaceName": "Workspace name",
+			"workspaceNamePlaceholder": "e.g. Acme Inc, My Team",
+			"descriptionOptional": "Description (optional)",
+			"descriptionPlaceholder": "What does your team work on?",
+			"creating": "Creating...",
+			"createWorkspace": "Create workspace",
+			"workspaceCreatedTitle": "Workspace created",
+			"redirectingToWorkspace": "Taking you to <name>{{name}}</name>...",
+			"toast": {
+				"workspaceCreated": "Workspace created successfully",
+				"createFailed": "Failed to create workspace"
+			},
+			"validation": {
+				"workspaceNameRequired": "Workspace name is required"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "Complete Profile",
+			"completeTitle": "Complete your profile",
+			"subtitle": "Please enter your name to get started",
+			"yourName": "Your name",
+			"namePlaceholder": "e.g. John Doe",
+			"saving": "Saving...",
+			"continue": "Continue",
+			"welcome": "Welcome, {{name}}!",
+			"redirecting": "Taking you to your dashboard...",
+			"toast": {
+				"updateSuccess": "Profile updated successfully",
+				"updateFailed": "Failed to update profile"
+			},
+			"validation": {
+				"nameRequired": "Name is required",
+				"nameShort": "Name must be at least 2 characters"
+			}
+		}
+	},
+	"settings": {
+		"account": "Account",
+		"developer": "Developer",
+		"information": "Information",
+		"preferences": "Preferences",
+		"apiKeys": "API Keys",
+		"informationPage": {
+			"pageTitle": "Personal Information",
+			"title": "Personal Information",
+			"subtitle": "Manage your personal details and account information.",
+			"sectionTitle": "Account Information",
+			"sectionSubtitle": "Manage your profile and account details.",
+			"profilePicture": "Profile picture",
+			"fullName": "Full name",
+			"fullNamePlaceholder": "Enter your name",
+			"email": "Email",
+			"emailPlaceholder": "Enter your email",
+			"updateSuccess": "Profile updated successfully",
+			"updateError": "Failed to update profile",
+			"validation": {
+				"nameRequired": "Name is required",
+				"nameShort": "Name must be at least 2 characters",
+				"invalidEmail": "Invalid email address"
+			}
+		},
+		"preferencesPage": {
+			"title": "Preferences",
+			"subtitle": "Customize your Kaneo experience.",
+			"appearanceTitle": "Appearance",
+			"appearanceSubtitle": "Visual settings and layout preferences.",
+			"theme": "Theme",
+			"themeDescription": "Choose your preferred color scheme",
+			"selectTheme": "Select a theme",
+			"themeLight": "Light",
+			"themeDark": "Dark",
+			"themeSystem": "System",
+			"language": "Language",
+			"languageDescription": "Choose your preferred interface language",
+			"selectLanguage": "Select a language",
+			"defaultView": "Default View",
+			"defaultViewDescription": "Choose your preferred task view mode",
+			"selectViewMode": "Select a view mode",
+			"board": "Board",
+			"list": "List",
+			"compactMode": "Compact Mode",
+			"compactModeDescription": "Use reduced spacing for more content",
+			"sidebarDefault": "Sidebar Default",
+			"sidebarDefaultDescription": "Keep sidebar expanded on startup",
+			"displayOptions": "Display options",
+			"displayOptionsDescription": "Choose which information to show in task views",
+			"taskNumbers": "Task Numbers",
+			"taskNumbersDescription": "Show task IDs and numbers",
+			"assignees": "Assignees",
+			"assigneesDescription": "Show who is assigned to tasks",
+			"dueDates": "Due Dates",
+			"dueDatesDescription": "Display task deadlines",
+			"labels": "Labels",
+			"labelsDescription": "Show task labels and tags",
+			"priority": "Priority",
+			"priorityDescription": "Display priority indicators"
+		},
+		"developerPage": {
+			"pageTitle": "Developer Settings",
+			"title": "Developer Settings",
+			"subtitle": "Manage your API keys and developer resources.",
+			"apiKeysCardTitle": "API Keys",
+			"apiKeysCardDescription": "Create and manage API keys for programmatic access to Kaneo.",
+			"createApiKey": "Create API Key",
+			"unnamedKey": "Unnamed Key"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "API Key Created",
+				"description": "Your API key \"{{keyName}}\" has been created successfully.",
+				"yourApiKey": "Your API Key",
+				"copy": "Copy",
+				"copied": "Copied",
+				"toastCopied": "API key copied to clipboard",
+				"alertTitle": "Success! Your API key has been created",
+				"alertDescription": "Copy this key now. You won't be able to see it again.",
+				"done": "Done",
+				"copyToContinue": "Copy key to continue"
+			},
+			"table": {
+				"loading": "Loading API keys...",
+				"empty": "No API keys yet. Create one to get started.",
+				"columnName": "Name",
+				"columnKey": "Key",
+				"columnCreated": "Created",
+				"columnExpires": "Expires",
+				"columnActions": "Actions",
+				"unnamedKey": "Unnamed Key",
+				"expiredBadge": "Expired {{label}}",
+				"deleteConfirmTitle": "Delete API key?",
+				"deleteConfirmDescription": "This action cannot be undone. This will permanently delete {{name}}.",
+				"deleteFallbackName": "this API key",
+				"delete": "Delete",
+				"deleting": "Deleting...",
+				"deleteAria": "Delete {{name}}",
+				"deleteAriaFallback": "API key",
+				"toastDeleted": "API key deleted successfully",
+				"toastDeleteError": "Failed to delete API key"
+			},
+			"createDialog": {
+				"title": "Create API Key",
+				"description": "Create a new API key to access the Kaneo API programmatically.",
+				"nameLabel": "Name",
+				"namePlaceholder": "My API Key",
+				"nameDescription": "A descriptive name for this API key",
+				"expirationLabel": "Expiration",
+				"expirationPlaceholder": "Select expiration",
+				"expirationDescription": "Choose how long this API key should remain valid. Never will create a key without an automatic expiry.",
+				"expiration1d": "1 day",
+				"expiration7d": "7 days",
+				"expiration30d": "30 days",
+				"expiration90d": "90 days",
+				"expirationNever": "Never",
+				"create": "Create",
+				"creating": "Creating...",
+				"failedCreate": "Failed to create API key",
+				"validation": {
+					"nameRequired": "Name is required",
+					"nameShort": "Name must be at least 3 characters",
+					"expirationRequired": "Expiration is required"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "General Settings",
+			"title": "General Settings",
+			"subtitle": "Manage your workspace name and description.",
+			"workspaceInfoTitle": "Workspace Information",
+			"workspaceInfoSubtitle": "Configure your workspace details and preferences.",
+			"nameLabel": "Workspace name",
+			"nameHint": "The name of your workspace",
+			"namePlaceholder": "Enter workspace name",
+			"descriptionLabel": "Description",
+			"descriptionHint": "A brief description of your workspace",
+			"descriptionPlaceholder": "Enter workspace description",
+			"dangerZone": "Danger zone",
+			"dangerZoneSubtitle": "Irreversible and destructive actions.",
+			"deleteWorkspace": "Delete workspace",
+			"deleteWorkspaceDescription": "Schedule workspace to be permanently deleted",
+			"deleteModalTitle": "Delete Workspace?",
+			"deleteModalDescription": "This will permanently delete the workspace \"{{name}}\" and all its data. This action cannot be undone.",
+			"deleteModalConfirm": "Delete Workspace",
+			"toastUpdated": "Workspace updated successfully",
+			"toastUpdateError": "Failed to update workspace",
+			"toastDeleted": "Workspace deleted successfully",
+			"toastDeleteError": "Failed to delete workspace",
+			"validation": {
+				"nameRequired": "Workspace name is required",
+				"nameShort": "Workspace name must be at least 2 characters"
+			}
+		},
+		"projectGeneral": {
+			"pageTitle": "Project Settings",
+			"title": "General Settings",
+			"subtitle": "Manage your project name, key, icon and description.",
+			"projectInfoTitle": "Project Information",
+			"projectInfoSubtitle": "Configure your project details and preferences.",
+			"iconLabel": "Icon",
+			"iconHint": "Displayed in the sidebar and project surfaces.",
+			"pickIconTitle": "Pick icon",
+			"searchIconsPlaceholder": "Search icons...",
+			"projectNameLabel": "Project name",
+			"projectNameHint": "The name of your project",
+			"projectNamePlaceholder": "Enter project name",
+			"keyLabel": "Key",
+			"keyHint": "Used for ticket IDs (e.g., {{slug}}-123)",
+			"keyPlaceholder": "PRO",
+			"descriptionLabel": "Description",
+			"descriptionHint": "A brief description of your project",
+			"descriptionPlaceholder": "Enter project description",
+			"dangerZone": "Danger zone",
+			"dangerZoneSubtitle": "Irreversible and destructive actions.",
+			"deleteProject": "Delete project",
+			"deleteProjectDescription": "Schedule project to be permanently deleted",
+			"deleteModalTitle": "Delete Project?",
+			"deleteModalDescription": "This will permanently delete the project \"{{name}}\" and all its data. This action cannot be undone.",
+			"deleteModalConfirm": "Delete Project",
+			"toastUpdated": "Project updated successfully",
+			"toastUpdateError": "Failed to update project",
+			"toastDeleted": "Project deleted successfully",
+			"toastDeleteError": "Failed to delete project",
+			"validation": {
+				"nameRequired": "Project name is required",
+				"nameShort": "Project name must be at least 2 characters",
+				"keyRequired": "Key is required",
+				"keyShort": "Key must be at least 2 characters",
+				"keyMax": "Key must be at most 8 characters",
+				"iconRequired": "Icon is required"
+			}
+		},
+		"projectIntegrations": {
+			"pageTitle": "Project Integrations",
+			"title": "Project Integrations",
+			"subtitle": "Connect your project with external tools and services to streamline your workflow.",
+			"githubSectionTitle": "GitHub Integration",
+			"githubSectionSubtitle": "Synchronize tasks with GitHub issues and enable two-way sync."
+		},
+		"projectVisibility": {
+			"pageTitle": "Project Visibility",
+			"title": "Visibility",
+			"subtitle": "Control who can view and access your project.",
+			"sectionTitle": "Visibility",
+			"sectionSubtitle": "Toggle public access and share the public URL.",
+			"publicAccess": "Public access",
+			"publicAccessHint": "Allow anyone with the URL to view this project",
+			"publicUrl": "Public URL",
+			"publicUrlHint": "Share this link if the project is public",
+			"copy": "Copy",
+			"copiedToast": "Copied",
+			"toastUpdated": "Visibility updated",
+			"toastUpdateError": "Failed to update visibility"
+		},
+		"projectWorkflow": {
+			"pageTitle": "Workflow Settings",
+			"title": "Workflow",
+			"subtitle": "Configure board columns and automation rules for this project.",
+			"columnsTitle": "Columns",
+			"columnsDescription": "Manage the columns that appear on your board. Drag to reorder. Turn on \"Done column\" for stages that represent completed work.",
+			"automationTitle": "Automation Rules",
+			"automationDescription": "Map integration events to columns. When an event occurs, the linked task moves to the specified column."
+		},
+		"projectSwitcher": {
+			"selectProject": "Select project",
+			"noProjects": "No projects"
+		},
+		"columnEditor": {
+			"toastCreated": "Column created",
+			"toastCreateError": "Failed to create column",
+			"toastRenamed": "Column renamed",
+			"toastRenameError": "Failed to update column",
+			"toastFinalOn": "Column marked as final",
+			"toastFinalOff": "Column unmarked as final",
+			"toastUpdateError": "Failed to update column",
+			"toastDeleted": "Column deleted",
+			"toastDeleteError": "Failed to delete column",
+			"loading": "Loading columns...",
+			"doneColumnTooltip": "Treat this as a done column",
+			"doneColumn": "Done column",
+			"markDoneAria": "Mark {{name}} as done column",
+			"on": "On",
+			"off": "Off",
+			"newColumnPlaceholder": "New column name...",
+			"add": "Add"
+		},
+		"githubIntegration": {
+			"validation": {
+				"ownerRequired": "Repository owner is required",
+				"ownerInvalid": "Invalid repository owner format",
+				"nameRequired": "Repository name is required",
+				"nameInvalid": "Invalid repository name format"
+			},
+			"toast": {
+				"installedOk": "GitHub App is properly installed!",
+				"installedMissingPerms": "GitHub App is installed but missing required permissions",
+				"needsInstallOnRepo": "GitHub App needs to be installed on this repository",
+				"repoNotFound": "Repository not found or not accessible",
+				"verifyError": "Failed to verify GitHub installation",
+				"installAppFirst": "Please install the GitHub App on this repository first",
+				"missingPermsDetail": "GitHub App is missing required permissions: {{list}}. Please update the app permissions.",
+				"updated": "GitHub integration updated successfully",
+				"updateError": "Failed to update GitHub integration",
+				"removed": "GitHub integration removed successfully",
+				"removeError": "Failed to remove GitHub integration",
+				"issuesImported": "Issues imported successfully",
+				"importError": "Failed to import issues",
+				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
+				"commentOnDisabled": "Task link comments on new issues are turned off",
+				"settingsUpdateError": "Failed to update GitHub integration"
+			},
+			"connectionStatus": "Connection Status",
+			"connectedActive": "Repository connected and active",
+			"notConnectedHint": "No repository connected",
+			"badgeConnected": "Connected",
+			"badgeNotConnected": "Not Connected",
+			"repository": "Repository",
+			"repositoryHint": "Connected GitHub repository",
+			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
+			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new GitHub issue with a link to the task.",
+			"appStatusTitle": "GitHub App Status",
+			"appStatusHint": "Installation and permissions status",
+			"statusProperlyConfigured": "Properly configured",
+			"statusMissingPermissions": "Missing permissions",
+			"statusNotInstalled": "Not installed",
+			"ownerLabel": "Repository Owner",
+			"ownerHint": "GitHub username or organization",
+			"ownerPlaceholder": "e.g., octocat",
+			"repoNameLabel": "Repository Name",
+			"repoNameHint": "The repository name",
+			"repoNamePlaceholder": "e.g., my-project",
+			"actionsTitle": "Actions",
+			"actionsHint": "Manage your repository connection",
+			"browse": "Browse",
+			"verify": "Verify",
+			"update": "Update",
+			"connect": "Connect",
+			"disconnect": "Disconnect",
+			"missingPermissionsLabel": "Missing permissions:",
+			"updatePermissions": "Update Permissions",
+			"installGithubApp": "Install GitHub App",
+			"importSectionTitle": "Import GitHub Issues",
+			"importSectionHint": "Import existing issues from your GitHub repository as tasks",
+			"importing": "Importing...",
+			"importIssues": "Import Issues",
+			"importDisabledHint": "Complete the repository configuration above to enable importing"
+		},
+		"repositoryBrowser": {
+			"title": "Select Repository",
+			"description": "Choose a repository where your GitHub App is installed to enable issue synchronization.",
+			"searchPlaceholder": "Search repositories...",
+			"loadError": "Failed to load repositories",
+			"tryAgain": "Try Again",
+			"emptyTitle": "No repositories found",
+			"emptyHint": "Install the GitHub App on your repositories to see them here.",
+			"installGithubApp": "Install GitHub App",
+			"noSearchMatchTitle": "No repositories match your search",
+			"noSearchMatchHint": "Try adjusting your search terms or clear the search to see all repositories.",
+			"footerSummary": "{{repoCount}} repositories across {{installationCount}} installations",
+			"manageInstallations": "Manage Installations",
+			"updatedPrefix": "Updated",
+			"relativeJustNow": "just now",
+			"relativeMinutesAgo": "{{count}}m ago",
+			"relativeHoursAgo": "{{count}}h ago",
+			"relativeDaysAgo": "{{count}}d ago"
+		},
+		"tasksImportExport": {
+			"exportTasks": "Export Tasks",
+			"importTasks": "Import Tasks",
+			"dialogTitle": "Import Tasks",
+			"dialogDescription": "Upload a JSON file containing tasks to import into this project.",
+			"expectedFormat": "Expected format:",
+			"dropHint": "Drag and drop your JSON file here",
+			"selectFile": "Select File",
+			"exporting": "Exporting tasks...",
+			"exportSuccess": "Tasks exported successfully",
+			"exportError": "Failed to export tasks",
+			"importing": "Importing tasks...",
+			"importSuccess": "Imported {{count}} tasks successfully",
+			"importPartialError": "Failed to import {{count}} tasks",
+			"importError": "Failed to import tasks",
+			"invalidFormat": "Invalid import file format",
+			"noFileDropped": "No file was dropped",
+			"notJsonFile": "Please upload a JSON file"
+		},
+		"workflowEditor": {
+			"loading": "Loading...",
+			"createColumnsFirst": "Create columns first to configure automation rules.",
+			"githubHeading": "GitHub",
+			"githubHint": "When a GitHub event occurs, move the linked task to a column.",
+			"selectColumnPlaceholder": "Select column...",
+			"toastUpdated": "Workflow rule updated",
+			"toastError": "Failed to update rule",
+			"events": {
+				"branch_push": "Branch Push",
+				"pr_opened": "PR Opened",
+				"pr_merged": "PR Merged",
+				"issue_opened": "Issue Opened",
+				"issue_closed": "Issue Closed"
+			}
+		},
+		"externalLinks": {
+			"resources": "Resources",
+			"issue": "Issue",
+			"branch": "Branch",
+			"merged": "Merged",
+			"draft": "Draft",
+			"open": "Open"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "Suggestions",
+			"commands": "Commands",
+			"projects": "Projects",
+			"search": "Search",
+			"members": "Members",
+			"createTask": "Create task",
+			"createProject": "Create project",
+			"createWorkspace": "Create workspace",
+			"lightTheme": "Light theme",
+			"darkTheme": "Dark theme",
+			"systemTheme": "System theme",
+			"keyboardShortcuts": "Keyboard shortcuts",
+			"inputPlaceholder": "Search for apps and commands...",
+			"empty": "No results found.",
+			"footer": {
+				"navigate": "Navigate",
+				"open": "Open",
+				"close": "Close"
+			}
+		},
+		"notifications": "Notifications",
+		"sidebar": {
+			"overview": "Overview",
+			"projects": "Projects",
+			"members": "Members",
+			"invitations": "Invitations",
+			"more": "More"
+		},
+		"projectList": {
+			"viewProject": "View Project",
+			"shareProject": "Share Project",
+			"linkCopied": "Project link copied to clipboard",
+			"addProject": "Add project",
+			"deleteConfirmTitle": "Delete Project?",
+			"deleteConfirmDescription": "This will permanently remove the project and all its data. You can't undo this action.",
+			"deletedToast": "Project deleted",
+			"deleteProject": "Delete Project"
+		},
+		"search": {
+			"inputPlaceholder": "Search tasks, projects, comments...",
+			"minCharsHint": "Type at least 3 characters to search",
+			"groups": {
+				"task": "Tasks",
+				"project": "Projects",
+				"workspace": "Workspaces",
+				"comment": "Comments",
+				"activity": "Activities",
+				"fallback": "Results"
+			}
+		},
+		"settingsLayout": {
+			"toggleSidebar": "Toggle sidebar",
+			"back": "Back"
+		},
+		"userMenu": {
+			"signedOutSuccess": "Signed out successfully",
+			"signOutFailed": "Failed to sign out",
+			"unnamedUser": "User",
+			"settings": "Settings",
+			"signingOut": "Signing out...",
+			"logOut": "Log out"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "Workspaces",
+			"switching": "Switching...",
+			"addWorkspace": "Add workspace",
+			"selectWorkspace": "Select workspace"
+		},
+		"page": {
+			"projectsTitle": "Projects",
+			"settingsTitle": "Settings",
+			"backToWorkspace": "Back to Workspace",
+			"settingsWorkspaceTab": "Workspace"
+		},
+		"projectSettings": {
+			"projectLabel": "Project"
+		},
+		"keyboardShortcuts": {
+			"title": "Keyboard Shortcuts",
+			"subtitle": "Speed up your workflow with keyboard shortcuts",
+			"searchPlaceholder": "Search shortcuts...",
+			"footer": "Press <kbd>Escape</kbd> to close",
+			"categories": {
+				"general": "General",
+				"create": "Create",
+				"views": "Views",
+				"navigation": "Navigation",
+				"quickSelect": "Quick Select (in popovers)"
+			},
+			"items": {
+				"openCommandPalette": "Open command palette",
+				"globalSearch": "Global search",
+				"toggleSidebar": "Toggle sidebar",
+				"showShortcuts": "Show keyboard shortcuts",
+				"closeModal": "Close modal/popover",
+				"createTask": "Create task",
+				"createProject": "Create project",
+				"createWorkspace": "Create workspace",
+				"boardView": "Switch to board view",
+				"listView": "Switch to list view",
+				"backlogView": "Switch to backlog view",
+				"nextTask": "Next task",
+				"prevTask": "Previous task",
+				"openTask": "Open selected task",
+				"quickSelectNumber": "Select option by number"
+			}
+		}
+	},
+	"notifications": {
+		"title": "Notifications",
+		"newCount_one": "{{count}} new",
+		"newCount_other": "{{count}} new",
+		"emptyTitle": "No notifications yet",
+		"emptySubtitle": "You'll see updates and activity here.",
+		"clearAll": "Clear all notifications",
+		"clearDialogTitle": "Clear all notifications?",
+		"clearDialogDescription": "This will permanently remove all notifications. You can't undo this action.",
+		"shortcuts": {
+			"open": "Open notifications"
+		},
+		"events": {
+			"task_created": {
+				"title": "New Task Created",
+				"content": "Task \"{{taskTitle}}\" was created"
+			},
+			"workspace_created": {
+				"title": "Workspace created",
+				"content": "Your workspace \"{{workspaceName}}\" has been created successfully"
+			},
+			"task_status_changed": {
+				"title": "Task status changed",
+				"content": "Task \"{{taskTitle}}\" status changed from \"{{oldStatus}}\" to \"{{newStatus}}\""
+			},
+			"task_assignee_changed": {
+				"title": "Task assigned to you",
+				"content": "You have been assigned to task: {{taskTitle}}"
+			},
+			"time_entry_created": {
+				"title": "Time tracking started",
+				"contentWithTask": "Time tracking started on task: {{taskTitle}}",
+				"contentWithoutTask": "Time tracking started on a task"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "assigned the task to themselves",
+		"unassigned": "unassigned the task",
+		"assignedTo": "assigned the task to {{name}}",
+		"changedStatus": "changed status from {{from}} to {{to}}",
+		"changedPriority": "changed priority from {{from}} to {{to}}",
+		"clearedDueDate": "cleared the due date",
+		"setDueDate": "set due date to {{date}}",
+		"changedDueDate": "changed due date from {{from}} to {{to}}",
+		"changedTitle": "changed title from \"{{from}}\" to \"{{to}}\"",
+		"githubUser": "GitHub User",
+		"comment": {
+			"github": "GitHub",
+			"viewGithubProfile": "View GitHub Profile",
+			"commentedOnGithub": "commented on GitHub",
+			"cannotBeEmpty": "Comment cannot be empty",
+			"mustBeLoggedInToEdit": "You must be logged in to edit comments",
+			"updated": "Comment updated",
+			"failedToUpdate": "Failed to update comment",
+			"edit": "Edit comment",
+			"editPlaceholder": "Edit comment...",
+			"save": "Save",
+			"added": "Comment added",
+			"failedToAdd": "Failed to add comment",
+			"leavePlaceholder": "Leave a comment...",
+			"attachFile": "Attach file",
+			"submitShortcut": "Submit comment",
+			"editor": {
+				"uploadsOnlyOnSavedTasks": "File uploads are only available on saved tasks.",
+				"uploadingFile": "Uploading file...",
+				"imageUploaded": "Image uploaded",
+				"fileAttached": "File attached",
+				"failedToUploadFile": "Failed to upload file",
+				"enterUrl": "Enter URL",
+				"plaintext": "Plaintext",
+				"autoDetect": "Auto detect",
+				"slashGroupText": "Text",
+				"slashGroupLists": "Lists",
+				"slashGroupInsert": "Insert",
+				"slashParagraph": "Text",
+				"slashHeading": "Heading",
+				"slashBulletList": "Bulleted list",
+				"slashTaskList": "To-do list",
+				"slashOrderedList": "Numbered list",
+				"slashQuote": "Quote",
+				"slashCodeBlock": "Code block",
+				"slashTable": "Table",
+				"slashFile": "File",
+				"searchParagraph": "text paragraph normal",
+				"searchHeading": "heading title h2",
+				"searchBulletList": "list bullet unordered",
+				"searchTaskList": "todo to-do checklist checkbox task list",
+				"searchOrderedList": "list ordered numbered",
+				"searchQuote": "quote blockquote",
+				"searchCodeBlock": "code snippet",
+				"searchTable": "table grid",
+				"searchFile": "file attachment image photo picture upload",
+				"embedErrorInvalidUrl": "Enter a valid URL",
+				"embedErrorYoutubeOnly": "Only YouTube links can be embedded.",
+				"embedVideo": "Embed video",
+				"keepAsLink": "Keep as link",
+				"hintTab": "Tab",
+				"hintEsc": "Esc",
+				"pasteUrl": "Paste URL",
+				"asLink": "As link",
+				"embed": "Embed",
+				"noCommands": "No commands",
+				"ariaCommentContent": "Comment content",
+				"ariaCommentEditor": "Comment editor",
+				"ariaCopyCode": "Copy code",
+				"ariaCopied": "Copied",
+				"copy": "Copy",
+				"copied": "Copied",
+				"dropImageToUpload": "Drop image to upload",
+				"previewImageAlt": "Preview image",
+				"codeLang": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"markdown": "Markdown",
+					"plaintext": "Plaintext",
+					"python": "Python",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"typescript": "TypeScript",
+					"yaml": "YAML"
+				}
+			}
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "Status",
+			"to-do": "To Do",
+			"in-progress": "In Progress",
+			"in-review": "In Review",
+			"done": "Done",
+			"archived": "Archived",
+			"planned": "Planned"
+		},
+		"priority": {
+			"label": "Priority",
+			"no-priority": "No priority",
+			"low": "Low",
+			"medium": "Medium",
+			"high": "High",
+			"urgent": "Urgent"
+		},
+		"boardSearchPlaceholder": "Search tickets...",
+		"view": {
+			"board": "Board",
+			"list": "List"
+		},
+		"common": {
+			"selectTask": "Select task",
+			"loadingTask": "Loading task..."
+		},
+		"detail": {
+			"subtaskOf": "Subtask of",
+			"activity": "Activity",
+			"noActivity": "No activity found",
+			"openInFullPage": "Open in full page",
+			"titlePlaceholder": "Click to add a title",
+			"addDescription": "Add a description...",
+			"editor": {
+				"ariaLabel": "Task description editor",
+				"placeholder": "Write a description...",
+				"previewImage": "Preview image",
+				"enterUrl": "Enter URL",
+				"autoDetect": "Auto detect",
+				"copyCode": "Copy code",
+				"copy": "Copy",
+				"copied": "Copied",
+				"attachFile": "Attach file",
+				"dropToUpload": "Drop image to upload",
+				"checkbox": {
+					"markIncomplete": "Mark task as incomplete",
+					"markComplete": "Mark task as complete"
+				},
+				"upload": {
+					"loading": "Uploading file...",
+					"failed": "Failed to upload file",
+					"imageSuccess": "Image uploaded",
+					"fileSuccess": "File attached"
+				},
+				"slash": {
+					"groups": {
+						"text": "Text",
+						"lists": "Lists",
+						"insert": "Insert"
+					},
+					"empty": "No commands",
+					"commands": {
+						"paragraph": "Text",
+						"heading-2": "Heading",
+						"bullet-list": "Bulleted list",
+						"task-list": "To-do list",
+						"ordered-list": "Numbered list",
+						"blockquote": "Quote",
+						"code-block": "Code block",
+						"table": "Table",
+						"file": "File"
+					}
+				},
+				"languages": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"clojure": "Clojure",
+					"cypher": "Cypher",
+					"dart": "Dart",
+					"diff": "Diff",
+					"elixir": "Elixir",
+					"excel": "Excel",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"haskell": "Haskell",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"kotlin": "Kotlin",
+					"makefile": "Makefile",
+					"markdown": "Markdown",
+					"ocaml": "OCaml",
+					"php": "PHP",
+					"perl": "Perl",
+					"plaintext": "Plaintext",
+					"python": "Python",
+					"r": "R",
+					"reasonml": "ReasonML",
+					"ruby": "Ruby",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"toml": "TOML",
+					"terraform": "Terraform",
+					"typescript": "TypeScript",
+					"xml": "XML",
+					"yaml": "YAML"
+				},
+				"embed": {
+					"choice": {
+						"embedVideo": "Embed video",
+						"keepAsLink": "Keep as link"
+					},
+					"inputPlaceholder": "Paste URL",
+					"embeddedContent": "Embedded content",
+					"asLink": "As link",
+					"submit": "Embed",
+					"errors": {
+						"invalidUrl": "Enter a valid URL",
+						"onlyYoutube": "Only YouTube links can be embedded."
+					},
+					"onlyYoutubeInline": "Only YouTube URLs can be embedded. Use link mode instead."
+				}
+			}
+		},
+		"entity": {
+			"task": "Task"
+		},
+		"relations": {
+			"title": "Relations",
+			"tasksInProject": "Tasks in project",
+			"linkError": "Failed to link task",
+			"empty": "No related tasks",
+			"searchPlaceholder": "Search tasks to link...",
+			"noTasksFound": "No tasks found",
+			"openTask": "Open task",
+			"removeRelation": "Remove relation",
+			"related": "Related",
+			"blocks": "Blocks",
+			"selectTask": "Select a task to link",
+			"types": {
+				"blocks": "blocks",
+				"related": "relates to"
+			}
+		},
+		"subtasks": {
+			"title": "Sub-tasks",
+			"inputPlaceholder": "Subtask title...",
+			"addAction": "Add",
+			"empty": "No subtasks yet",
+			"createError": "Failed to create subtask",
+			"deleteSuccess": "Task deleted successfully",
+			"deleteError": "Failed to delete task",
+			"deleteDialogTitle": "Delete Task?",
+			"deleteDialogDescription": "This will permanently remove the task and all its data. You can't undo this action.",
+			"deleteAction": "Delete Task"
+		},
+		"properties": {
+			"title": "Properties",
+			"labels": "Labels",
+			"copyTaskLink": "Copy task link",
+			"copyTaskBranch": "Copy task branch",
+			"start": "Start",
+			"startDate": "Start date",
+			"noDate": "No date"
+		},
+		"popover": {
+			"assignee": {
+				"unassigned": "Unassigned",
+				"updateError": "Failed to update task assignee"
+			},
+			"status": {
+				"updateError": "Failed to update task status"
+			},
+			"priority": {
+				"updateError": "Failed to update task priority"
+			},
+			"dueDate": {
+				"updateSuccess": "Task due date updated successfully",
+				"updateError": "Failed to update task due date",
+				"clear": "Clear date"
+			},
+			"startDate": {
+				"updateSuccess": "Task start date updated successfully",
+				"updateError": "Failed to update task start date",
+				"clear": "Clear start date"
+			},
+			"labels": {
+				"searchPlaceholder": "Search labels...",
+				"empty": "No labels found",
+				"create": "Create \"{{name}}\"",
+				"chooseColor": "Choose color",
+				"addSuccess": "Label added",
+				"removeSuccess": "Label removed",
+				"updateError": "Failed to update label",
+				"createSuccess": "Label created and added",
+				"createError": "Failed to create label",
+				"colors": {
+					"stone": "Stone",
+					"slate": "Slate",
+					"lavender": "Lavender",
+					"sage": "Sage",
+					"forest": "Forest",
+					"amber": "Amber",
+					"terracotta": "Terracotta",
+					"rose": "Rose",
+					"crimson": "Crimson"
+				}
+			}
+		},
+		"backlog": {
+			"pageTitle": "{{name}}'s backlog",
+			"noTasksToMove": "No planned tasks to move",
+			"moveAllConfirm": "Move all {{count}} planned tasks to To Do?",
+			"moveAllSuccess": "Moved {{count}} tasks to To Do",
+			"plan": "Plan",
+			"moveAllTooltip": "Move All Planned to To Do",
+			"moveAll": "Move All",
+			"addTask": "Add task",
+			"filter": "Filter",
+			"addFilter": "Add filter...",
+			"sections": {
+				"planned": "Planned",
+				"archived": "Archived"
+			},
+			"noTasksInSection": "No {{section}} tasks",
+      "filters": {
+        "priority": "Priority: {{name}}",
+        "assignee": "Assignee: {{name}}",
+        "due": "Due: {{date}}",
+        "label": "Label: {{name}}",
+				"dueThisWeek": "Due this week",
+				"dueNextWeek": "Due next week",
+				"noDueDate": "No due date"
+			}
+		},
+		"sort": {
+			"label": "Sort",
+			"by": "Sort By",
+			"direction": "Direction",
+			"ascending": "Ascending",
+			"descending": "Descending",
+			"fields": {
+				"position": "Manual (position)",
+				"createdAt": "Created date",
+				"priority": "Priority",
+				"dueDate": "Due date",
+				"title": "Title",
+				"number": "Task number"
+			}
+		},
+		"boardFilters": {
+			"filterBy": "Filter By",
+			"allStatuses": "All statuses",
+			"allPriorities": "All priorities",
+			"allAssignees": "All assignees",
+			"allDueDates": "All due dates",
+			"allLabels": "All labels",
+			"selectedCount": "{{count}} selected",
+			"subjects": {
+				"status": "Status",
+				"priority": "Priority",
+				"assignee": "Assignee",
+				"dueDate": "Due date",
+				"labels": "Labels"
+			},
+			"operators": {
+				"isAnyOf": "is any of",
+				"includeAnyOf": "include any of"
+			}
+		},
+		"gantt": {
+			"pageTitle": "{{name}} — Gantt",
+			"title": "Gantt Timeline",
+			"searchPlaceholder": "Search scheduled tickets...",
+			"hideTasks": "Hide tasks",
+			"showTasks": "Show tasks",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the project timeline.",
+			"noTasksFound": "No tasks found",
+			"noTasksMatch": "No scheduled tasks match \"{{query}}\"",
+			"taskHeader": "Task",
+			"updateDatesError": "Failed to update task dates",
+			"resizeStart": "Resize start date",
+			"resizeDue": "Resize due date",
+			"taskAriaLabel": "{{title}} — open or drag to move"
+		},
+		"delete": {
+			"title": "Delete Task?",
+			"description": "This will permanently remove the task and all its data. You can't undo this action.",
+			"action": "Delete Task",
+			"success": "Task deleted successfully",
+			"error": "Failed to delete task"
+		},
+		"archive": {
+			"success": "Archived {{count}} tasks"
+		},
+		"listView": {
+			"addTask": "Add task",
+			"archiveAllTooltip": "Archive all completed tasks",
+			"noTasks": "No tasks"
+		},
+		"kanban": {
+			"addTask": "Add task"
+		},
+		"pr": {
+			"merged": "Merged",
+			"draft": "Draft",
+			"open": "Open",
+			"label": "Pull Request",
+			"count_one": "{{count}} PR",
+			"count_other": "{{count}} PRs"
+		},
+		"assignee": {
+			"label": "Assignee",
+			"unassigned": "Unassigned"
+		},
+		"dueDate": {
+			"label": "Due date",
+			"clear": "Clear date",
+			"updateSuccess": "Task due date updated successfully",
+			"updateError": "Failed to update task due date",
+			"clearSuccess": "Task due date cleared",
+			"clearError": "Failed to clear due date"
+		},
+		"labels": {
+			"label": "Labels",
+			"empty": "No labels available"
+		},
+		"update": {
+			"success": "Task updated successfully",
+			"error": "Failed to update task"
+		},
+		"contextMenu": {
+			"copyLink": "Copy link",
+			"copyLinkSuccess": "Task link copied!"
+		},
+		"actions": {
+			"archive": "Archive",
+			"markAsPlanned": "Mark as planned",
+			"delete": "Delete..."
+		},
+		"bulk": {
+			"selectedCount": "{{count}} selected",
+			"moveToBacklog": "Move to Backlog",
+			"moveToBacklogSuccess": "{{count}} tasks moved to backlog",
+			"moveToBacklogError": "Failed to move tasks to backlog",
+			"moveToBoard": "Move to Board",
+			"moveToBoardSuccess": "{{count}} tasks moved to board",
+			"moveToBoardError": "Failed to move tasks to board",
+			"delete": "Delete tasks",
+			"deleteConfirm": "Delete {{count}} tasks? This action cannot be undone.",
+			"deleteSuccess": "{{count}} tasks deleted",
+			"deleteError": "Failed to delete tasks",
+			"archive": "Archive tasks",
+			"archiveSuccess": "{{count}} tasks archived",
+			"archiveError": "Failed to archive tasks",
+			"updateSuccess": "{{count}} tasks updated",
+			"updateError": "Failed to update tasks",
+			"assignTo": "Assign to",
+			"assignSuccess": "{{count}} tasks assigned",
+			"assignError": "Failed to assign tasks",
+			"setPriority": "Set Priority",
+			"updatePriorityError": "Failed to update priority",
+			"addLabel": "Add Label",
+			"addLabelSuccess": "Label added to {{count}} tasks",
+			"addLabelError": "Failed to add label",
+			"setDueDate": "Set Due Date",
+			"updateDueDateError": "Failed to update due date",
+			"actions": "Actions",
+			"searchActions": "Search actions...",
+			"noActionsFound": "No actions found.",
+			"changeStatus": "Change Status"
+		}
+	},
+	"invitations": {
+		"pageTitle": "Invitations",
+		"pendingInvitations": "Pending Invitations",
+		"acceptSubtitle": "Accept invitations to join workspaces",
+		"noPendingTitle": "No pending invitations",
+		"noPendingDescription": "You don't have any pending workspace invitations at the moment.",
+		"continueToSetup": "Continue to Setup",
+		"skipForNow": "Skip for now",
+		"table": {
+			"workspace": "Workspace",
+			"invitedBy": "Invited By",
+			"expires": "Expires"
+		},
+		"toast": {
+			"acceptError": "Failed to accept invitation",
+			"acceptSuccess": "Invitation accepted! Welcome to the team.",
+			"rejectError": "Failed to reject invitation",
+			"rejectSuccess": "Invitation rejected"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "Projects",
+			"createProject": "Create project",
+			"title": "Title",
+			"progress": "Progress",
+			"targetDate": "Target date",
+			"dueDate": "Due date",
+			"status": "Status",
+			"emptyTitle": "No projects yet",
+			"emptyDescription": "Get started by creating your first project.",
+			"projectStatus": {
+				"notStarted": "Not started",
+				"complete": "Complete",
+				"inProgress": "In progress"
+			},
+			"noDueDate": "No due date"
+		},
+		"search": {
+			"pageTitle": "Search",
+			"backToDashboard": "Back to Dashboard",
+			"placeholder": "Search tasks by title or short ID (e.g. DEP-23)...",
+			"hint": "Search across all projects in this workspace. Use short IDs like DEP-23 to find specific tasks.",
+			"searching": "Searching...",
+			"resultsFound_one": "{{count}} result found",
+			"resultsFound_other": "{{count}} results found",
+			"noResultsTitle": "No results found",
+			"noResultsDescription": "Try adjusting your search terms or search for something else",
+			"startTitle": "Start Searching",
+			"startDescription": "Enter a search term to find tasks across all projects",
+			"quickSearchesLabel": "Quick searches:",
+			"suggestionHighPriority": "High priority",
+			"suggestionBug": "Bug",
+			"suggestionFeature": "Feature",
+			"suggestionInProgress": "In progress",
+			"suggestionCompleted": "Completed"
+		},
+		"create": {
+			"pageTitle": "Create Workspace",
+			"heading": "Create a new workspace",
+			"subtitle": "Workspaces are shared environments where teams can work on projects, cycles and issues.",
+			"nameLabel": "Workspace Name",
+			"namePlaceholder": "Enter workspace name",
+			"descriptionLabel": "Description (optional)",
+			"descriptionPlaceholder": "Add a description for your workspace",
+			"required": "Required",
+			"creating": "Creating...",
+			"submit": "Create workspace",
+			"success": "Workspace created successfully",
+			"error": "Failed to create workspace"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "Owner",
+			"admin": "Admin",
+			"member": "Member"
+		},
+		"members": {
+			"pageTitle": "Members",
+			"inviteMember": "Invite member"
+		},
+		"inviteModal": {
+			"title": "Invite Team Member",
+			"emailLabel": "Email",
+			"emailPlaceholder": "colleague@company.com",
+			"sendInvitation": "Send Invitation",
+			"success": "Invitation sent successfully",
+			"error": "Failed to invite team member"
+		},
+		"membersTable": {
+			"emptyTitle": "No team members yet",
+			"emptyDescription": "Invite your first team member to get started.",
+			"columns": {
+				"name": "Name",
+				"role": "Role",
+				"joined": "Joined",
+				"actions": "Actions"
+			},
+			"memberRolePending": "{{role}} (Pending)",
+			"ariaCancelInvitation": "Cancel invitation",
+			"ariaRemoveMember": "Remove member",
+			"removeDialogTitle": "Remove Team Member?",
+			"removeDialogDescription": "Are you sure you want to remove {{name}} from the workspace? This action cannot be undone.",
+			"cancelDialogTitle": "Cancel Invitation?",
+			"cancelDialogDescription": "Are you sure you want to cancel the invitation for {{email}}? This action cannot be undone.",
+			"removeMember": "Remove Member",
+			"cancelInvitation": "Cancel Invitation",
+			"removeSuccess": "Team member removed successfully",
+			"removeError": "Failed to remove team member",
+			"cancelInviteSuccess": "Invitation cancelled successfully",
+			"cancelInviteError": "Failed to cancel invitation"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "Public View",
+		"badge": "Public",
+		"readOnly": "Read-only",
+		"error": {
+			"title": "Project Not Found",
+			"description": "This project doesn't exist or is not publicly accessible."
+		},
+		"taskCard": {
+			"viewDetailsAria": "View details for task {{title}}"
+		},
+		"taskDetail": {
+			"labels": "Labels",
+			"externalLinks": "External Links",
+			"pullRequestFallback": "Pull Request",
+			"issueFallback": "Issue",
+			"prStatusMerged": "Merged",
+			"prStatusDraft": "Draft",
+			"prStatusOpen": "Open",
+			"dueWithDate": "Due {{date}}",
+			"created": "Created",
+			"dueDateLabel": "Due Date"
+		},
+		"theme": {
+			"switchToLight": "Switch to light mode",
+			"switchToDark": "Switch to dark mode"
+		},
+		"copyUrl": {
+			"successToast": "URL copied",
+			"errorToast": "Failed to copy URL",
+			"copied": "Copied",
+			"share": "Share"
+		},
+		"branding": {
+			"poweredBy": "Powered by"
+		}
+	}
+}
