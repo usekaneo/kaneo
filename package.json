@@ -5,6 +5,11 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "i18n:check": "node ./scripts/i18n/check.mjs",
+    "i18n:check:fix": "node ./scripts/i18n/check.mjs --fix",
+    "i18n:report": "node ./scripts/i18n/report.mjs",
+    "i18n:report:fix": "node ./scripts/i18n/report.mjs --fix",
+    "i18n:schema": "node ./scripts/i18n/schema.mjs",
     "lint": "turbo lint",
     "prepare": "husky"
   },
