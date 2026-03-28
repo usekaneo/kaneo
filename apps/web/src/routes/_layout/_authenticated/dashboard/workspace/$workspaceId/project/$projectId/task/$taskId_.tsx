@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import TaskLayout from "@/components/common/task-layout";
 import PageTitle from "@/components/page-title";
 import TaskDetailsContent from "@/components/task/task-details-content";
@@ -20,6 +21,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { projectId, workspaceId, taskId } = Route.useParams();
   const { data: task, isLoading: isTaskLoading } = useGetTask(taskId);
   const { data: project, isLoading: isProjectLoading } = useGetProject({
@@ -66,7 +68,7 @@ function RouteComponent() {
       <PageTitle
         title={
           isLoading
-            ? "Loading task..."
+            ? t("tasks:common.loadingTask")
             : `${project?.slug}-${task?.number} — ${task?.title}`
         }
         hideAppName

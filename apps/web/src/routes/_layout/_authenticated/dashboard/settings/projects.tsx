@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { Eye, GitBranch, Plug, Settings } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,33 +33,33 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-const menuItems = [
-  {
-    title: "General",
-    icon: Settings,
-    segment: "general",
-  },
-  {
-    title: "Visibility",
-    icon: Eye,
-    segment: "visibility",
-  },
-  {
-    title: "Integrations",
-    icon: Plug,
-    segment: "integrations",
-  },
-  {
-    title: "Workflow",
-    icon: GitBranch,
-    segment: "workflow",
-  },
-];
-
 function RouteComponent() {
+  const { t } = useTranslation();
   const { workspace, role } = useWorkspacePermission();
   const location = useLocation();
   const navigate = useNavigate();
+  const menuItems = [
+    {
+      title: t("settings:projectGeneral.title"),
+      icon: Settings,
+      segment: "general",
+    },
+    {
+      title: t("settings:projectVisibility.title"),
+      icon: Eye,
+      segment: "visibility",
+    },
+    {
+      title: t("settings:projectIntegrations.title"),
+      icon: Plug,
+      segment: "integrations",
+    },
+    {
+      title: t("settings:projectWorkflow.title"),
+      icon: GitBranch,
+      segment: "workflow",
+    },
+  ];
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
@@ -117,14 +118,14 @@ function RouteComponent() {
             <div className="flex flex-col">
               <p className="text-sm">{workspace?.name}</p>
               <p className="text-[11px] text-sidebar-foreground/60 capitalize">
-                {role}
+                {t(`team:roles.${role}`, { defaultValue: role })}
               </p>
             </div>
           </div>
 
           <SidebarGroup className="gap-1 p-1">
             <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
-              Project
+              {t("navigation:projectSettings.projectLabel")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <Select
@@ -147,7 +148,9 @@ function RouteComponent() {
                 >
                   <span className="truncate font-normal text-foreground">
                     {selectedProject?.name ||
-                      (projects?.length ? "Select project" : "No projects")}
+                      (projects?.length
+                        ? t("settings:projectSwitcher.selectProject")
+                        : t("settings:projectSwitcher.noProjects"))}
                   </span>
                 </SelectTrigger>
                 <SelectContent
@@ -171,7 +174,7 @@ function RouteComponent() {
 
           <SidebarGroup className="gap-1 p-1">
             <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
-              Settings
+              {t("navigation:page.settingsTitle")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">

@@ -5,6 +5,7 @@ import {
   useLocation,
 } from "@tanstack/react-router";
 import { Code, Settings, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -23,23 +24,23 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-const menuItems = [
-  {
-    title: "Information",
-    url: "/dashboard/settings/account/information",
-    icon: User,
-  },
-  {
-    title: "Preferences",
-    url: "/dashboard/settings/account/preferences",
-    icon: Settings,
-  },
-];
-
 function RouteComponent() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const location = useLocation();
   const isActivePath = (path: string) => location.pathname === path;
+  const menuItems = [
+    {
+      title: t("settings:information"),
+      url: "/dashboard/settings/account/information",
+      icon: User,
+    },
+    {
+      title: t("settings:preferences"),
+      url: "/dashboard/settings/account/preferences",
+      icon: Settings,
+    },
+  ];
 
   return (
     <div className="flex gap-6 h-full">
@@ -62,7 +63,7 @@ function RouteComponent() {
 
           <SidebarGroup className="gap-1 p-1">
             <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
-              Account
+              {t("settings:account")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">
@@ -89,7 +90,7 @@ function RouteComponent() {
 
           <SidebarGroup className="gap-1 p-1">
             <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
-              Developer
+              {t("settings:developer")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">
@@ -105,7 +106,7 @@ function RouteComponent() {
                     )}
                   >
                     <Code className="h-4 w-4" />
-                    <span>API Keys</span>
+                    <span>{t("settings:apiKeys")}</span>
                   </Button>
                 </SidebarMenuItem>
               </SidebarMenu>

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import BoardToolbar from "@/components/board/board-toolbar";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
@@ -34,6 +35,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
@@ -160,7 +162,7 @@ function RouteComponent() {
             closeBoardSearch();
           }
         }}
-        placeholder="Search tickets..."
+        placeholder={t("tasks:boardSearchPlaceholder")}
         className="h-7.5 [&_[data-slot=input]]:h-7 [&_[data-slot=input]]:leading-7 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs [&_[data-slot=input]]:placeholder:text-xs [&_[data-slot=input]]:placeholder:leading-7"
       />
     </div>
@@ -174,7 +176,7 @@ function RouteComponent() {
       headerActions={boardHeaderSearch}
     >
       <PageTitle
-        title={`${project?.name} — ${viewMode === "board" ? "Board" : "List"}`}
+        title={`${project?.name} — ${viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")}`}
         hideAppName
       />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">

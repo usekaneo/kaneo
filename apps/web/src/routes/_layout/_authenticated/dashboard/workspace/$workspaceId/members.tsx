@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import PageTitle from "@/components/page-title";
 import InviteTeamMemberModal from "@/components/team/invite-team-member-modal";
@@ -15,6 +16,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { workspaceId } = Route.useParams();
   const { data: workspace } = useGetFullWorkspace({ workspaceId });
 
@@ -26,9 +28,9 @@ function RouteComponent() {
 
   return (
     <>
-      <PageTitle title="Members" />
+      <PageTitle title={t("team:members.pageTitle")} />
       <WorkspaceLayout
-        title="Members"
+        title={t("team:members.pageTitle")}
         headerActions={
           <Button
             onClick={() => setIsInviteTeamMemberModalOpen(true)}
@@ -37,7 +39,7 @@ function RouteComponent() {
             className="gap-1 w-full md:w-auto"
           >
             <UserPlus className="w-3 h-3" />
-            Invite member
+            {t("team:members.inviteMember")}
           </Button>
         }
       >

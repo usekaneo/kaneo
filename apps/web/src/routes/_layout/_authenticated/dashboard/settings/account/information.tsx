@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
@@ -36,14 +37,6 @@ type NormalizedProfileValues = {
   email: string;
 };
 
-const profileSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-});
-
 function normalizeProfileValues(
   data: ProfileFormValues,
 ): NormalizedProfileValues {
@@ -54,6 +47,7 @@ function normalizeProfileValues(
 }
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfile();
@@ -61,6 +55,15 @@ function RouteComponent() {
   const isSavingRef = useRef(false);
   const queuedSaveRef = useRef<ProfileFormValues | null>(null);
   const lastSavedRef = useRef<NormalizedProfileValues | null>(null);
+  const profileSchema = z.object({
+    name: z
+      .string()
+      .min(1, t("settings:informationPage.validation.nameRequired"))
+      .min(2, t("settings:informationPage.validation.nameShort")),
+    email: z
+      .string()
+      .email(t("settings:informationPage.validation.invalidEmail")),
+  });
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: standardSchemaResolver(profileSchema),
@@ -110,10 +113,12 @@ function RouteComponent() {
         queuedSaveRef.current = null;
 
         await queryClient.invalidateQueries({ queryKey: ["session"] });
-        toast.success("Profile updated successfully");
+        toast.success(t("settings:informationPage.updateSuccess"));
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to update profile",
+          error instanceof Error
+            ? error.message
+            : t("settings:informationPage.updateError"),
         );
       } finally {
         isSavingRef.current = false;
@@ -125,7 +130,7 @@ function RouteComponent() {
         }
       }
     },
-    [updateProfile, queryClient, profileForm],
+    [t, updateProfile, queryClient, profileForm],
   );
 
   const debouncedSave = useCallback(
@@ -161,27 +166,33 @@ function RouteComponent() {
 
   return (
     <>
-      <PageTitle title="Personal Information" />
+      <PageTitle title={t("settings:informationPage.pageTitle")} />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">Personal Information</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("settings:informationPage.title")}
+          </h1>
           <p className="text-muted-foreground">
-            Manage your personal details and account information.
+            {t("settings:informationPage.subtitle")}
           </p>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-1">
-            <h2 className="text-md font-medium">Account Information</h2>
+            <h2 className="text-md font-medium">
+              {t("settings:informationPage.sectionTitle")}
+            </h2>
             <p className="text-xs text-muted-foreground">
-              Manage your profile and account details.
+              {t("settings:informationPage.sectionSubtitle")}
             </p>
           </div>
 
           <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">Profile picture</p>
+                <p className="text-sm font-medium">
+                  {t("settings:informationPage.profilePicture")}
+                </p>
               </div>
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
@@ -203,13 +214,15 @@ function RouteComponent() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
-                            Full name
+                            {t("settings:informationPage.fullName")}
                           </FormLabel>
                         </div>
                         <FormControl>
                           <Input
                             className="w-48"
-                            placeholder="Enter your name"
+                            placeholder={t(
+                              "settings:informationPage.fullNamePlaceholder",
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -229,13 +242,15 @@ function RouteComponent() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
-                            Email
+                            {t("settings:informationPage.email")}
                           </FormLabel>
                         </div>
                         <FormControl>
                           <Input
                             className="w-48"
-                            placeholder="Enter your email"
+                            placeholder={t(
+                              "settings:informationPage.emailPlaceholder",
+                            )}
                             {...field}
                             disabled
                             value={user?.email || ""}
