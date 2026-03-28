@@ -333,7 +333,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
             {column.isFinal && column.tasks.length > 0 && (
               <button
                 type="button"
-                onClick={() => handleArchiveClick(column)} // Verander dit naar de neue naam
+                onClick={() => handleArchiveClick(column)}
                 className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
                 title={t("tasks:listView.archiveAllTooltip")}
               >
