@@ -445,7 +445,12 @@ function RouteComponent() {
                     <span>
                       {t("tasks:backlog.filters.due", {
                         date: t(
-                          `tasks:backlog.filters.${filters.dueDate.toLowerCase().replace(/\s+/g, "")}`,
+                          filters.dueDate === DUE_DATE_FILTER_VALUES.dueThisWeek
+                            ? "tasks:backlog.filters.dueThisWeek"
+                            : filters.dueDate ===
+                                DUE_DATE_FILTER_VALUES.dueNextWeek
+                              ? "tasks:backlog.filters.dueNextWeek"
+                              : "tasks:backlog.filters.noDueDate",
                           { defaultValue: filters.dueDate },
                         ),
                       })}
