@@ -60,7 +60,8 @@ export async function validateGenericWebhookConfig(
 ): Promise<{ valid: boolean; errors?: string[] }> {
   try {
     const parsed = v.parse(genericWebhookConfigSchema, config);
-    normalizeGenericWebhookConfig(parsed);
+    const normalized = normalizeGenericWebhookConfig(parsed);
+    void normalized;
     return { valid: true };
   } catch (error) {
     if (error instanceof v.ValiError) {

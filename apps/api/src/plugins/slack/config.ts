@@ -1,5 +1,8 @@
 import * as v from "valibot";
 
+const slackWebhookUrlPattern =
+  /^https:\/\/hooks\.slack\.com\/services\/[A-Za-z0-9]+\/[A-Za-z0-9]+\/[A-Za-z0-9]+$/;
+
 export const slackEventKeys = [
   "taskCreated",
   "taskStatusChanged",
@@ -12,7 +15,10 @@ export const slackEventKeys = [
 export type SlackEventKey = (typeof slackEventKeys)[number];
 
 export const slackConfigSchema = v.object({
-  webhookUrl: v.pipe(v.string(), v.url()),
+  webhookUrl: v.pipe(
+    v.string(),
+    v.regex(slackWebhookUrlPattern, "Invalid Slack webhook URL"),
+  ),
   channelName: v.optional(v.string()),
   events: v.optional(
     v.object({

@@ -5,6 +5,7 @@ function useGetDiscordIntegration(projectId: string) {
   return useQuery({
     queryKey: ["discord-integration", projectId],
     queryFn: () => getDiscordIntegration(projectId),
+    enabled: Boolean(projectId),
   });
 }
 

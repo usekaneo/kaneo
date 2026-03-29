@@ -35,8 +35,7 @@ function isEnabled(
   config: GenericWebhookConfig,
   key: GenericWebhookEventKey,
 ): boolean {
-  const normalized = normalizeGenericWebhookConfig(config);
-  return normalized.events?.[key] ?? false;
+  return config.events?.[key] ?? false;
 }
 
 async function getTaskData(
@@ -108,32 +107,42 @@ async function sendEvent(
 
   const actor = await getActor(userId);
 
-  await postToGenericWebhook(
-    config.webhookUrl,
-    {
-      event: eventName,
-      timestamp: new Date().toISOString(),
-      integration: {
-        type: "generic-webhook",
+  try {
+    await postToGenericWebhook(
+      config.webhookUrl,
+      {
+        event: eventName,
+        timestamp: new Date().toISOString(),
+        integration: {
+          type: "generic-webhook",
+        },
+        project: {
+          id: task.projectId,
+          name: task.projectName,
+          workspaceId: task.workspaceId,
+        },
+        task: {
+          id: task.id,
+          number: task.number,
+          title: task.title,
+          status: task.status,
+          priority: task.priority,
+          url: task.taskUrl,
+        },
+        actor,
+        data,
       },
-      project: {
-        id: task.projectId,
-        name: task.projectName,
-        workspaceId: task.workspaceId,
-      },
-      task: {
-        id: task.id,
-        number: task.number,
-        title: task.title,
-        status: task.status,
-        priority: task.priority,
-        url: task.taskUrl,
-      },
-      actor,
-      data,
-    },
-    config.secret,
-  );
+      config.secret,
+    );
+  } catch (error) {
+    console.error("sendEvent postToGenericWebhook failed", {
+      error,
+      eventName,
+      taskId,
+      projectId,
+      webhookUrl: config.webhookUrl,
+    });
+  }
 }
 
 export async function handleTaskCreated(

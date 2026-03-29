@@ -135,10 +135,11 @@ export function DiscordIntegrationSettings({
       taskCommentCreated: true,
     },
   });
+  const { reset } = form;
 
   React.useEffect(() => {
-    form.reset(normalizedValues);
-  }, [form, normalizedValues]);
+    reset(normalizedValues);
+  }, [normalizedValues, reset]);
 
   const isConnected = Boolean(integration?.webhookConfigured);
   const isBusy = isCreating || isUpdating || isDeleting;

@@ -121,10 +121,11 @@ export function GenericWebhookIntegrationSettings({
     resolver: standardSchemaResolver(schema),
     defaultValues: normalizedValues,
   });
+  const { reset } = form;
 
   React.useEffect(() => {
-    form.reset(normalizedValues);
-  }, [form, normalizedValues]);
+    reset(normalizedValues);
+  }, [normalizedValues, reset]);
 
   const isConnected = Boolean(integration?.webhookConfigured);
   const isBusy = isCreating || isUpdating || isDeleting;

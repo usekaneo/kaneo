@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/fetchers/get-api-url";
+
 export type GenericWebhookIntegration = {
   id: string;
   projectId: string;
@@ -16,22 +18,15 @@ export type GenericWebhookIntegration = {
   isActive: boolean | null;
   createdAt: string;
   updatedAt: string;
-} | null;
+};
 
-function getApiUrl(path: string) {
-  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:1337";
-  const apiUrl = baseUrl.endsWith("/api") ? baseUrl : `${baseUrl}/api`;
-  return `${apiUrl}${path}`;
-}
-
-async function getGenericWebhookIntegration(projectId: string) {
+async function getGenericWebhookIntegration(
+  projectId: string,
+): Promise<GenericWebhookIntegration | null> {
   const response = await fetch(
     getApiUrl(`/generic-webhook-integration/project/${projectId}`),
     {
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
     },
   );
 
@@ -40,7 +35,7 @@ async function getGenericWebhookIntegration(projectId: string) {
     throw new Error(error);
   }
 
-  return (await response.json()) as GenericWebhookIntegration;
+  return (await response.json()) as GenericWebhookIntegration | null;
 }
 
 export default getGenericWebhookIntegration;

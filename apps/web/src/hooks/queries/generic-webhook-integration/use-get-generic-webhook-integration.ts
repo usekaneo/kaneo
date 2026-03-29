@@ -5,6 +5,7 @@ function useGetGenericWebhookIntegration(projectId: string) {
   return useQuery({
     queryKey: ["generic-webhook-integration", projectId],
     queryFn: () => getGenericWebhookIntegration(projectId),
+    enabled: Boolean(projectId),
   });
 }
 

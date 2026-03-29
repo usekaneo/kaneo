@@ -30,8 +30,7 @@ type DiscordEventData = {
 };
 
 function isEnabled(config: DiscordConfig, key: DiscordEventKey): boolean {
-  const normalized = normalizeDiscordConfig(config);
-  return normalized.events?.[key] ?? false;
+  return config.events?.[key] ?? false;
 }
 
 function toSentenceCase(value: string | null): string {
@@ -106,44 +105,54 @@ async function sendDiscordMessage(
     data.taskNumber !== null ? `#${data.taskNumber}` : "Task update";
   const taskLabel = `${issueKey} ${data.taskTitle}`;
 
-  await postToDiscord(config.webhookUrl, {
-    content: `${title}: ${data.taskTitle}`,
-    embeds: [
-      {
-        title,
-        description: body,
-        url: data.taskUrl ?? undefined,
-        color: 0x5865f2,
-        fields: [
-          {
-            name: "Task",
-            value: data.taskUrl ? `[${taskLabel}](${data.taskUrl})` : taskLabel,
-            inline: true,
+  try {
+    await postToDiscord(config.webhookUrl, {
+      content: `${title}: ${data.taskTitle}`,
+      embeds: [
+        {
+          title,
+          description: body,
+          url: data.taskUrl ?? undefined,
+          color: 0x5865f2,
+          fields: [
+            {
+              name: "Task",
+              value: data.taskUrl
+                ? `[${taskLabel}](${data.taskUrl})`
+                : taskLabel,
+              inline: true,
+            },
+            {
+              name: "Project",
+              value: data.projectName,
+              inline: true,
+            },
+            {
+              name: "Status",
+              value: toSentenceCase(data.status),
+              inline: true,
+            },
+            {
+              name: "Priority",
+              value: toSentenceCase(data.priority),
+              inline: true,
+            },
+          ],
+          footer: {
+            text: data.actorName
+              ? `Triggered by ${data.actorName}`
+              : "Triggered by Kaneo",
           },
-          {
-            name: "Project",
-            value: data.projectName,
-            inline: true,
-          },
-          {
-            name: "Status",
-            value: toSentenceCase(data.status),
-            inline: true,
-          },
-          {
-            name: "Priority",
-            value: toSentenceCase(data.priority),
-            inline: true,
-          },
-        ],
-        footer: {
-          text: data.actorName
-            ? `Triggered by ${data.actorName}`
-            : "Triggered by Kaneo",
         },
-      },
-    ],
-  });
+      ],
+    });
+  } catch (error) {
+    console.error("sendDiscordMessage postToDiscord failed", {
+      error,
+      webhookUrl: config.webhookUrl,
+      taskUrl: data.taskUrl,
+    });
+  }
 }
 
 export async function handleTaskCreated(

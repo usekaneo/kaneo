@@ -1,9 +1,12 @@
+import { getApiUrl } from "@/fetchers/get-api-url";
+
 export type SlackIntegration = {
   id: string;
   projectId: string;
   channelName: string | null;
   webhookConfigured: boolean;
   webhookUrl: string;
+  maskedWebhookUrl: string;
   events: {
     taskCreated: boolean;
     taskStatusChanged: boolean;
@@ -17,20 +20,11 @@ export type SlackIntegration = {
   updatedAt: string;
 } | null;
 
-function getApiUrl(path: string) {
-  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:1337";
-  const apiUrl = baseUrl.endsWith("/api") ? baseUrl : `${baseUrl}/api`;
-  return `${apiUrl}${path}`;
-}
-
 async function getSlackIntegration(projectId: string) {
   const response = await fetch(
     getApiUrl(`/slack-integration/project/${projectId}`),
     {
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
     },
   );
 

@@ -30,8 +30,14 @@ type SlackEventData = {
 };
 
 function isEnabled(config: SlackConfig, key: SlackEventKey): boolean {
-  const normalized = normalizeSlackConfig(config);
-  return normalized.events?.[key] ?? false;
+  return config.events?.[key] ?? false;
+}
+
+function escapeSlack(text: string): string {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
 
 function toSentenceCase(value: string | null): string {
@@ -104,9 +110,13 @@ async function sendSlackMessage(
 ): Promise<void> {
   const issueKey =
     data.taskNumber !== null ? `#${data.taskNumber}` : "Task update";
+  const escapedIssueKey = escapeSlack(issueKey);
+  const escapedTaskTitle = escapeSlack(data.taskTitle);
   const taskLabel = data.taskUrl
-    ? `<${data.taskUrl}|${issueKey} ${data.taskTitle}>`
-    : `${issueKey} ${data.taskTitle}`;
+    ? `<${data.taskUrl}|${escapedIssueKey} ${escapedTaskTitle}>`
+    : `${escapedIssueKey} ${escapedTaskTitle}`;
+  const escapedTitle = escapeSlack(title);
+  const escapedBody = escapeSlack(body);
 
   await postToSlack(config.webhookUrl, {
     text: `${title}: ${data.taskTitle}`,
@@ -115,7 +125,7 @@ async function sendSlackMessage(
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*${title}*\n${body}`,
+          text: `*${escapedTitle}*\n${escapedBody}`,
         },
         fields: [
           {
@@ -124,15 +134,15 @@ async function sendSlackMessage(
           },
           {
             type: "mrkdwn",
-            text: `*Project*\n${data.projectName}`,
+            text: `*Project*\n${escapeSlack(data.projectName)}`,
           },
           {
             type: "mrkdwn",
-            text: `*Status*\n${toSentenceCase(data.status)}`,
+            text: `*Status*\n${escapeSlack(toSentenceCase(data.status))}`,
           },
           {
             type: "mrkdwn",
-            text: `*Priority*\n${toSentenceCase(data.priority)}`,
+            text: `*Priority*\n${escapeSlack(toSentenceCase(data.priority))}`,
           },
         ],
       },
@@ -142,7 +152,7 @@ async function sendSlackMessage(
           {
             type: "mrkdwn",
             text: data.actorName
-              ? `Triggered by ${data.actorName}`
+              ? `Triggered by ${escapeSlack(data.actorName)}`
               : "Triggered by Kaneo",
           },
         ],

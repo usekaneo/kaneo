@@ -111,6 +111,15 @@ export const githubIntegrationSchema = v.object({
   updatedAt: v.date(),
 });
 
+export const integrationEventsSchema = v.object({
+  taskCreated: v.boolean(),
+  taskStatusChanged: v.boolean(),
+  taskPriorityChanged: v.boolean(),
+  taskTitleChanged: v.boolean(),
+  taskDescriptionChanged: v.boolean(),
+  taskCommentCreated: v.boolean(),
+});
+
 export const slackIntegrationSchema = v.object({
   id: v.string(),
   projectId: v.string(),
@@ -118,14 +127,7 @@ export const slackIntegrationSchema = v.object({
   webhookConfigured: v.boolean(),
   webhookUrl: v.string(),
   maskedWebhookUrl: v.string(),
-  events: v.object({
-    taskCreated: v.boolean(),
-    taskStatusChanged: v.boolean(),
-    taskPriorityChanged: v.boolean(),
-    taskTitleChanged: v.boolean(),
-    taskDescriptionChanged: v.boolean(),
-    taskCommentCreated: v.boolean(),
-  }),
+  events: integrationEventsSchema,
   isActive: v.nullable(v.boolean()),
   createdAt: v.date(),
   updatedAt: v.date(),
@@ -138,14 +140,7 @@ export const discordIntegrationSchema = v.object({
   webhookConfigured: v.boolean(),
   webhookUrl: v.string(),
   maskedWebhookUrl: v.string(),
-  events: v.object({
-    taskCreated: v.boolean(),
-    taskStatusChanged: v.boolean(),
-    taskPriorityChanged: v.boolean(),
-    taskTitleChanged: v.boolean(),
-    taskDescriptionChanged: v.boolean(),
-    taskCommentCreated: v.boolean(),
-  }),
+  events: integrationEventsSchema,
   isActive: v.nullable(v.boolean()),
   createdAt: v.date(),
   updatedAt: v.date(),
@@ -158,14 +153,7 @@ export const genericWebhookIntegrationSchema = v.object({
   webhookUrl: v.string(),
   secretConfigured: v.boolean(),
   maskedSecret: v.nullable(v.string()),
-  events: v.object({
-    taskCreated: v.boolean(),
-    taskStatusChanged: v.boolean(),
-    taskPriorityChanged: v.boolean(),
-    taskTitleChanged: v.boolean(),
-    taskDescriptionChanged: v.boolean(),
-    taskCommentCreated: v.boolean(),
-  }),
+  events: integrationEventsSchema,
   isActive: v.nullable(v.boolean()),
   createdAt: v.date(),
   updatedAt: v.date(),
