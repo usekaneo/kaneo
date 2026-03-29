@@ -65,8 +65,7 @@ export async function validateSlackConfig(
   config: unknown,
 ): Promise<{ valid: boolean; errors?: string[] }> {
   try {
-    const parsed = v.parse(slackConfigSchema, config);
-    normalizeSlackConfig(parsed);
+    v.parse(slackConfigSchema, config);
     return { valid: true };
   } catch (error) {
     if (error instanceof v.ValiError) {
