@@ -1,3 +1,16 @@
+## [2.4.3](https://github.com/usekaneo/kaneo/compare/v2.4.2...v2.4.3) (2026-03-29)
+
+
+### Features
+
+* add el-GR translation ([db47558](https://github.com/usekaneo/kaneo/commit/db475585a1df1f494567ee78eb4f84173c703df3))
+* add el-GR translations ([eaeb7fb](https://github.com/usekaneo/kaneo/commit/eaeb7fbf4c218970375f76782fdea4c5c3abe42a))
+* add greek language to schema ([f748efe](https://github.com/usekaneo/kaneo/commit/f748efe817e380c5ba8eb7c9c7b480d42c03049d))
+* add Greek locale ([23187dd](https://github.com/usekaneo/kaneo/commit/23187dd58222eb1a67aa4af8360435b105b1cb82))
+* add Greek locale file ([1584918](https://github.com/usekaneo/kaneo/commit/15849182879827a7324b073c2fd7bcb01285a4b6))
+* Added support for el-GR ([6fb4429](https://github.com/usekaneo/kaneo/commit/6fb4429ee2f0c62df326edda9ad7efbff9d76f67))
+* added support for el-GR language ([2f5ceb6](https://github.com/usekaneo/kaneo/commit/2f5ceb612582a10ab4ab470de1797d60f8c22cc5))
+* **i18n:** add Macedonian (mk-MK) translation ([af2592b](https://github.com/usekaneo/kaneo/commit/af2592bfdbfef0c8304ba6df47d2cbd862512dc9))
 ## [2.4.2](https://github.com/usekaneo/kaneo/compare/v2.4.1...v2.4.2) (2026-03-29)
 
 
