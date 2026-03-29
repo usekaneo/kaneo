@@ -1,4 +1,5 @@
 import { AlertTriangle, ExternalLink, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   getCorsTroubleshootingSteps,
   getNetworkTroubleshootingSteps,
@@ -23,10 +24,12 @@ type ErrorDisplayProps = {
 export function ErrorDisplay({
   error,
   onRetry,
-  title = "Something went wrong",
+  title,
   className,
 }: ErrorDisplayProps) {
+  const { t } = useTranslation();
   const parsedError = parseApiError(error);
+  const resolvedTitle = title ?? t("common:error.title");
 
   const getTroubleshootingSteps = () => {
     switch (parsedError.type) {
@@ -50,7 +53,7 @@ export function ErrorDisplay({
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/12">
             <AlertTriangle className="h-6 w-6 text-destructive-foreground" />
           </div>
-          <CardTitle className="text-lg">{title}</CardTitle>
+          <CardTitle className="text-lg">{resolvedTitle}</CardTitle>
           <CardDescription className="text-sm">
             {parsedError.message}
           </CardDescription>
@@ -59,7 +62,7 @@ export function ErrorDisplay({
           {troubleshootingSteps.length > 0 && (
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-foreground">
-                Troubleshooting steps:
+                {t("common:error.troubleshooting")}
               </h4>
               <ul className="text-xs text-muted-foreground space-y-1">
                 {troubleshootingSteps.map((step) => (
@@ -81,7 +84,7 @@ export function ErrorDisplay({
                 className="w-full"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Try Again
+                {t("common:error.tryAgain")}
               </Button>
             )}
 
@@ -93,7 +96,7 @@ export function ErrorDisplay({
                 className="w-full"
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
-                View Deployment Guide
+                {t("common:error.viewDeploymentGuide")}
               </Button>
             )}
 
@@ -104,7 +107,7 @@ export function ErrorDisplay({
               className="w-full"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh Page
+              {t("common:error.refreshPage")}
             </Button>
           </div>
         </CardContent>

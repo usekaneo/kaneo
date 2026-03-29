@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { ArrowRight, Calendar, Filter, Plus, User, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import BacklogListView from "@/components/backlog-list-view";
 import ProjectLayout from "@/components/common/project-layout";
 import SortControl from "@/components/common/sort-control";
@@ -28,6 +29,8 @@ import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-wor
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { DUE_DATE_FILTER_VALUES } from "@/hooks/use-task-filters";
+import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import type { SortConfig } from "@/lib/sort-tasks";
 import { sortTasks } from "@/lib/sort-tasks";
@@ -50,6 +53,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
@@ -143,13 +147,9 @@ function RouteComponent() {
     }
   }, [data, setProject]);
 
-  const getPriorityDisplayName = (priority: string) => {
-    return priority.charAt(0).toUpperCase() + priority.slice(1);
-  };
-
   const getAssigneeDisplayName = (userId: string) => {
     const member = users?.members?.find((m) => m.userId === userId);
-    return member?.user?.name || "Unknown";
+    return member?.user?.name || t("common:people.unknown");
   };
 
   const getTaskLabels = useCallback(
@@ -181,7 +181,7 @@ function RouteComponent() {
           const taskDate = new Date(task.dueDate);
 
           switch (filters.dueDate) {
-            case "Due this week": {
+            case DUE_DATE_FILTER_VALUES.dueThisWeek: {
               const weekStart = new Date(
                 today.getFullYear(),
                 today.getMonth(),
@@ -195,7 +195,7 @@ function RouteComponent() {
               }
               break;
             }
-            case "Due next week": {
+            case DUE_DATE_FILTER_VALUES.dueNextWeek: {
               const nextWeekStart = new Date(
                 today.getFullYear(),
                 today.getMonth(),
@@ -209,13 +209,16 @@ function RouteComponent() {
               }
               break;
             }
-            case "No due date": {
+            case DUE_DATE_FILTER_VALUES.noDueDate: {
               return false;
             }
           }
         }
 
-        if (filters.dueDate === "No due date" && task.dueDate) {
+        if (
+          filters.dueDate === DUE_DATE_FILTER_VALUES.noDueDate &&
+          task.dueDate
+        ) {
           return false;
         }
 
@@ -306,11 +309,15 @@ function RouteComponent() {
     const plannedTasks = project.plannedTasks || [];
 
     if (plannedTasks.length === 0) {
-      toast.info("No planned tasks to move");
+      toast.info(t("tasks:backlog.noTasksToMove"));
       return;
     }
 
-    if (!confirm(`Move all ${plannedTasks.length} planned tasks to To Do?`)) {
+    if (
+      !confirm(
+        t("tasks:backlog.moveAllConfirm", { count: plannedTasks.length }),
+      )
+    ) {
       return;
     }
 
@@ -336,7 +343,9 @@ function RouteComponent() {
     });
 
     setProject(updatedProject);
-    toast.success(`Moved ${plannedTasks.length} tasks to To Do`);
+    toast.success(
+      t("tasks:backlog.moveAllSuccess", { count: plannedTasks.length }),
+    );
   };
 
   return (
@@ -345,7 +354,9 @@ function RouteComponent() {
       workspaceId={workspaceId}
       activeView="backlog"
     >
-      <PageTitle title={`${project?.name}'s backlog`} />
+      <PageTitle
+        title={t("tasks:backlog.pageTitle", { name: project?.name })}
+      />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
         <div className="border-border/80 border-b bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/70">
           <div className="flex min-h-12 items-center px-3 py-2 md:px-4">
@@ -358,7 +369,7 @@ function RouteComponent() {
                   className="h-6 px-2 text-xs text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 >
                   <Plus className="h-3 w-3 mr-1" />
-                  Plan
+                  {t("tasks:backlog.plan")}
                 </Button>
 
                 <Button
@@ -366,10 +377,10 @@ function RouteComponent() {
                   size="xs"
                   onClick={handleMoveAllPlannedToTodo}
                   className="h-6 px-2 text-xs text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  title="Move All Planned to To Do"
+                  title={t("tasks:backlog.moveAllTooltip")}
                 >
                   <ArrowRight className="h-3 w-3 mr-1" />
-                  Move All
+                  {t("tasks:backlog.moveAll")}
                 </Button>
 
                 {filters.priority && (
@@ -380,7 +391,9 @@ function RouteComponent() {
                   >
                     {getPriorityIcon(filters.priority)}
                     <span>
-                      Priority: {getPriorityDisplayName(filters.priority)}
+                      {t("tasks:backlog.filters.priority", {
+                        name: getPriorityLabel(filters.priority),
+                      })}
                     </span>
                     <Button
                       variant="ghost"
@@ -404,7 +417,9 @@ function RouteComponent() {
                   >
                     <User className="h-3 w-3" />
                     <span>
-                      Assignee: {getAssigneeDisplayName(filters.assignee)}
+                      {t("tasks:backlog.filters.assignee", {
+                        name: getAssigneeDisplayName(filters.assignee),
+                      })}
                     </span>
                     <Button
                       variant="ghost"
@@ -427,7 +442,19 @@ function RouteComponent() {
                     className="h-7 rounded-md px-2 text-xs font-medium gap-1.5"
                   >
                     <Calendar className="h-3 w-3" />
-                    <span>Due: {filters.dueDate}</span>
+                    <span>
+                      {t("tasks:backlog.filters.due", {
+                        date: t(
+                          filters.dueDate === DUE_DATE_FILTER_VALUES.dueThisWeek
+                            ? "tasks:backlog.filters.dueThisWeek"
+                            : filters.dueDate ===
+                                DUE_DATE_FILTER_VALUES.dueNextWeek
+                              ? "tasks:backlog.filters.dueNextWeek"
+                              : "tasks:backlog.filters.noDueDate",
+                          { defaultValue: filters.dueDate },
+                        ),
+                      })}
+                    </span>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -471,7 +498,11 @@ function RouteComponent() {
                                 ?.color || "var(--color-neutral-400)",
                           }}
                         />
-                        <span>Label: {label.name}</span>
+                        <span>
+                          {t("tasks:backlog.filters.label", {
+                            name: label.name,
+                          })}
+                        </span>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -499,14 +530,14 @@ function RouteComponent() {
                     }
                   >
                     <Filter className="h-3.5 w-3.5" />
-                    Filter
+                    {t("tasks:backlog.filter")}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-80" align="start">
                     <DropdownMenuItem
                       disabled
                       className="h-8 rounded-md border border-border/80 bg-card text-sm text-muted-foreground"
                     >
-                      Add filter...
+                      {t("tasks:backlog.addFilter")}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     {hasActiveFilters && (
@@ -515,14 +546,14 @@ function RouteComponent() {
                           onClick={clearFilters}
                           className="h-8 text-sm text-muted-foreground"
                         >
-                          <span>Clear all filters</span>
+                          <span>{t("common:actions.clearAllFilters")}</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                       </>
                     )}
                     <DropdownMenuGroup>
                       <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-                        Priority
+                        {t("tasks:priority.label")}
                       </DropdownMenuLabel>
                     </DropdownMenuGroup>
                     {["urgent", "high", "medium", "low"].map((priority) => (
@@ -535,14 +566,16 @@ function RouteComponent() {
                         className="h-8 rounded-md text-sm [&_svg]:text-sidebar-foreground"
                       >
                         {getPriorityIcon(priority)}
-                        <span className="capitalize">{priority}</span>
+                        <span className="capitalize">
+                          {getPriorityLabel(priority)}
+                        </span>
                       </DropdownMenuCheckboxItem>
                     ))}
 
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-                        Assignee
+                        {t("tasks:assignee.label")}
                       </DropdownMenuLabel>
                     </DropdownMenuGroup>
                     {users?.members?.map((member) => (
@@ -573,28 +606,39 @@ function RouteComponent() {
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-                        Due date
+                        {t("tasks:dueDate.label")}
                       </DropdownMenuLabel>
                     </DropdownMenuGroup>
-                    {["Due this week", "Due next week", "No due date"].map(
-                      (dueDate) => (
-                        <DropdownMenuCheckboxItem
-                          key={dueDate}
-                          checked={filters.dueDate === dueDate}
-                          onCheckedChange={(checked) =>
-                            updateFilter("dueDate", checked ? dueDate : null)
-                          }
-                          className="h-8 rounded-md text-sm"
-                        >
-                          <span>{dueDate}</span>
-                        </DropdownMenuCheckboxItem>
-                      ),
-                    )}
+                    {[
+                      {
+                        label: DUE_DATE_FILTER_VALUES.dueThisWeek,
+                        key: "dueThisWeek",
+                      },
+                      {
+                        label: DUE_DATE_FILTER_VALUES.dueNextWeek,
+                        key: "dueNextWeek",
+                      },
+                      {
+                        label: DUE_DATE_FILTER_VALUES.noDueDate,
+                        key: "noDueDate",
+                      },
+                    ].map((item) => (
+                      <DropdownMenuCheckboxItem
+                        key={item.label}
+                        checked={filters.dueDate === item.label}
+                        onCheckedChange={(checked) =>
+                          updateFilter("dueDate", checked ? item.label : null)
+                        }
+                        className="h-8 rounded-md text-sm"
+                      >
+                        <span>{t(`tasks:backlog.filters.${item.key}`)}</span>
+                      </DropdownMenuCheckboxItem>
+                    ))}
 
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-                        Labels
+                        {t("tasks:labels.label")}
                       </DropdownMenuLabel>
                     </DropdownMenuGroup>
                     {uniqueLabels.length > 0 ? (
@@ -628,7 +672,7 @@ function RouteComponent() {
                         disabled
                         className="h-8 rounded-md text-sm text-muted-foreground"
                       >
-                        <span>No labels available</span>
+                        <span>{t("tasks:labels.empty")}</span>
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>

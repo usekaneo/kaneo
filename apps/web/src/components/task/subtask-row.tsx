@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import TaskCardContextMenuContent from "@/components/kanban-board/task-card-context-menu/task-card-context-menu-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,6 +38,8 @@ export default function SubtaskRow({
   onNavigate,
   onDeleteClick,
 }: SubtaskRowProps) {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       layout
@@ -94,7 +97,7 @@ export default function SubtaskRow({
                 ) : (
                   <div
                     className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-border/70"
-                    title="Unassigned"
+                    title={t("tasks:popover.assignee.unassigned")}
                   >
                     <span className="text-[9px] font-medium text-muted-foreground">
                       ?

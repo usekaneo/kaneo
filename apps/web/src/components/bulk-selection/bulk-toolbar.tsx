@@ -11,9 +11,9 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -41,6 +41,7 @@ import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-wor
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
+import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -61,17 +62,18 @@ type BulkActionGroup = {
   items: BulkActionItem[];
 };
 
-const priorityOptions = [
-  { value: "urgent", label: "Urgent" },
-  { value: "high", label: "High" },
-  { value: "medium", label: "Medium" },
-  { value: "low", label: "Low" },
-  { value: "no-priority", label: "No Priority" },
-];
-
 function BulkToolbar() {
+  const { t } = useTranslation();
   const { selectedTaskIds, clearSelection, selectAll } =
     useBulkSelectionStore();
+
+  const priorityOptions = [
+    { value: "urgent", label: getPriorityLabel("urgent") },
+    { value: "high", label: getPriorityLabel("high") },
+    { value: "medium", label: getPriorityLabel("medium") },
+    { value: "low", label: getPriorityLabel("low") },
+    { value: "no-priority", label: getPriorityLabel("no-priority") },
+  ];
   const { project } = useProjectStore();
   const {
     bulkMoveToBacklog,
@@ -134,40 +136,40 @@ function BulkToolbar() {
   const handleMoveToBacklog = useCallback(async () => {
     try {
       await bulkMoveToBacklog(Array.from(selectedTaskIds));
-      toast.success(`${selectedCount} tasks moved to backlog`);
+      toast.success(
+        t("tasks:bulk.moveToBacklogSuccess", { count: selectedCount }),
+      );
       clearSelection();
     } catch (_error) {
-      toast.error("Failed to move tasks to backlog");
+      toast.error(t("tasks:bulk.moveToBacklogError"));
     }
-  }, [bulkMoveToBacklog, selectedTaskIds, selectedCount, clearSelection]);
+  }, [bulkMoveToBacklog, selectedTaskIds, selectedCount, clearSelection, t]);
 
   const handleBulkDelete = useCallback(async () => {
-    if (
-      !confirm(`Delete ${selectedCount} tasks? This action cannot be undone.`)
-    ) {
+    if (!confirm(t("tasks:bulk.deleteConfirm", { count: selectedCount }))) {
       return;
     }
 
     try {
       await bulkDelete(Array.from(selectedTaskIds));
-      toast.success(`${selectedCount} tasks deleted`);
+      toast.success(t("tasks:bulk.deleteSuccess", { count: selectedCount }));
       clearSelection();
       setIsActionsOpen(false);
     } catch (_error) {
-      toast.error("Failed to delete tasks");
+      toast.error(t("tasks:bulk.deleteError"));
     }
-  }, [bulkDelete, selectedTaskIds, selectedCount, clearSelection]);
+  }, [bulkDelete, selectedTaskIds, selectedCount, clearSelection, t]);
 
   const handleBulkArchive = useCallback(async () => {
     try {
       await bulkArchive(Array.from(selectedTaskIds));
-      toast.success(`${selectedCount} tasks archived`);
+      toast.success(t("tasks:bulk.archiveSuccess", { count: selectedCount }));
       clearSelection();
       setIsActionsOpen(false);
     } catch (_error) {
-      toast.error("Failed to archive tasks");
+      toast.error(t("tasks:bulk.archiveError"));
     }
-  }, [bulkArchive, selectedTaskIds, selectedCount, clearSelection]);
+  }, [bulkArchive, selectedTaskIds, selectedCount, clearSelection, t]);
 
   const handleBulkChangeStatus = useCallback(
     async (status: string) => {
@@ -176,28 +178,28 @@ function BulkToolbar() {
           taskIds: Array.from(selectedTaskIds),
           status,
         });
-        toast.success(`${selectedCount} tasks updated`);
+        toast.success(t("tasks:bulk.updateSuccess", { count: selectedCount }));
         clearSelection();
         setIsActionsOpen(false);
       } catch (_error) {
-        toast.error("Failed to update tasks");
+        toast.error(t("tasks:bulk.updateError"));
       }
     },
-    [bulkChangeStatus, selectedTaskIds, selectedCount, clearSelection],
+    [bulkChangeStatus, selectedTaskIds, selectedCount, clearSelection, t],
   );
 
   const handleBulkAssign = useCallback(
     async (userId: string) => {
       try {
         await bulkAssign({ taskIds: Array.from(selectedTaskIds), userId });
-        toast.success(`${selectedCount} tasks assigned`);
+        toast.success(t("tasks:bulk.assignSuccess", { count: selectedCount }));
         clearSelection();
         setIsActionsOpen(false);
       } catch (_error) {
-        toast.error("Failed to assign tasks");
+        toast.error(t("tasks:bulk.assignError"));
       }
     },
-    [bulkAssign, selectedTaskIds, selectedCount, clearSelection],
+    [bulkAssign, selectedTaskIds, selectedCount, clearSelection, t],
   );
 
   const handleBulkPriority = useCallback(
@@ -207,14 +209,14 @@ function BulkToolbar() {
           taskIds: Array.from(selectedTaskIds),
           priority,
         });
-        toast.success(`${selectedCount} tasks updated`);
+        toast.success(t("tasks:bulk.updateSuccess", { count: selectedCount }));
         clearSelection();
         setIsActionsOpen(false);
       } catch (_error) {
-        toast.error("Failed to update priority");
+        toast.error(t("tasks:bulk.updatePriorityError"));
       }
     },
-    [bulkPriority, selectedTaskIds, selectedCount, clearSelection],
+    [bulkPriority, selectedTaskIds, selectedCount, clearSelection, t],
   );
 
   const handleBulkAddLabel = useCallback(
@@ -224,14 +226,16 @@ function BulkToolbar() {
           taskIds: Array.from(selectedTaskIds),
           labelId,
         });
-        toast.success(`Label added to ${selectedCount} tasks`);
+        toast.success(
+          t("tasks:bulk.addLabelSuccess", { count: selectedCount }),
+        );
         clearSelection();
         setIsActionsOpen(false);
       } catch (_error) {
-        toast.error("Failed to add label");
+        toast.error(t("tasks:bulk.addLabelError"));
       }
     },
-    [bulkAddLabel, selectedTaskIds, selectedCount, clearSelection],
+    [bulkAddLabel, selectedTaskIds, selectedCount, clearSelection, t],
   );
 
   const handleBulkDueDate = useCallback(
@@ -241,25 +245,25 @@ function BulkToolbar() {
           taskIds: Array.from(selectedTaskIds),
           dueDate: date?.toISOString() ?? null,
         });
-        toast.success(`${selectedCount} tasks updated`);
+        toast.success(t("tasks:bulk.updateSuccess", { count: selectedCount }));
         clearSelection();
         setIsDatePickerOpen(false);
       } catch (_error) {
-        toast.error("Failed to update due date");
+        toast.error(t("tasks:bulk.updateDueDateError"));
       }
     },
-    [bulkDueDate, selectedTaskIds, selectedCount, clearSelection],
+    [bulkDueDate, selectedTaskIds, selectedCount, clearSelection, t],
   );
 
   const groupedItems = useMemo<BulkActionGroup[]>(
     () => [
       {
         value: "actions",
-        label: "Actions",
+        label: t("tasks:bulk.actions"),
         items: [
           {
             value: "bulk-delete",
-            label: "Delete tasks",
+            label: t("tasks:bulk.delete"),
             icon: <Trash2 className="h-4 w-4 text-muted-foreground" />,
             onRun: () => {
               void handleBulkDelete();
@@ -267,7 +271,7 @@ function BulkToolbar() {
           },
           {
             value: "bulk-archive",
-            label: "Archive tasks",
+            label: t("tasks:bulk.archive"),
             icon: <Archive className="h-4 w-4 text-muted-foreground" />,
             onRun: () => {
               void handleBulkArchive();
@@ -277,7 +281,7 @@ function BulkToolbar() {
       },
       {
         value: "status",
-        label: "Change Status",
+        label: t("tasks:bulk.changeStatus"),
         items: (project?.columns ?? []).map((col) => ({
           value: `status-${col.id}`,
           label: col.name,
@@ -289,10 +293,10 @@ function BulkToolbar() {
       },
       {
         value: "assign",
-        label: "Assign to",
+        label: t("tasks:bulk.assignTo"),
         items: (workspaceUsers?.members ?? []).map((member) => ({
           value: `assign-${member.userId}`,
-          label: member.user?.name || "Unknown User",
+          label: member.user?.name || t("common:people.someone"),
           icon: (
             <Avatar className="h-5 w-5">
               <AvatarImage
@@ -311,7 +315,7 @@ function BulkToolbar() {
       },
       {
         value: "priority",
-        label: "Set Priority",
+        label: t("tasks:bulk.setPriority"),
         items: priorityOptions.map((opt) => ({
           value: `priority-${opt.value}`,
           label: opt.label,
@@ -323,7 +327,7 @@ function BulkToolbar() {
       },
       {
         value: "label",
-        label: "Add Label",
+        label: t("tasks:bulk.addLabel"),
         items: uniqueLabels.map((label) => ({
           value: `label-${label.id}`,
           label: label.name,
@@ -353,6 +357,8 @@ function BulkToolbar() {
       handleBulkAssign,
       handleBulkPriority,
       handleBulkAddLabel,
+      priorityOptions,
+      t,
     ],
   );
 
@@ -363,7 +369,7 @@ function BulkToolbar() {
       <Toolbar className="items-center gap-1 rounded-xl border-border/80 bg-background px-1.5 py-1 shadow-lg/8">
         <ToolbarGroup className="px-1.5">
           <span className="text-sm font-medium text-foreground">
-            {selectedCount} selected
+            {t("tasks:bulk.selectedCount", { count: selectedCount })}
           </span>
         </ToolbarGroup>
 
@@ -372,7 +378,7 @@ function BulkToolbar() {
         <ToolbarGroup>
           <Button size="sm" variant="ghost" onClick={handleMoveToBacklog}>
             <ArrowDownToLine className="size-4" />
-            Move to Backlog
+            {t("tasks:bulk.moveToBacklog")}
           </Button>
         </ToolbarGroup>
 
@@ -383,7 +389,7 @@ function BulkToolbar() {
             <PopoverTrigger asChild>
               <Button size="sm" variant="ghost">
                 <CalendarIcon className="size-4" />
-                Set Due Date
+                {t("tasks:bulk.setDueDate")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0" align="center">
@@ -400,7 +406,7 @@ function BulkToolbar() {
                   onClick={() => handleBulkDueDate(undefined)}
                 >
                   <X className="h-4 w-4" />
-                  Clear date
+                  {t("tasks:dueDate.clear")}
                 </Button>
               </div>
             </PopoverContent>
@@ -416,7 +422,7 @@ function BulkToolbar() {
             onClick={() => setIsActionsOpen(true)}
           >
             <Menu className="size-4" />
-            Actions
+            {t("tasks:bulk.actions")}
           </Button>
         </ToolbarGroup>
 
@@ -432,9 +438,9 @@ function BulkToolbar() {
       <CommandDialog open={isActionsOpen} onOpenChange={setIsActionsOpen}>
         <CommandDialogPopup>
           <Command items={groupedItems}>
-            <CommandInput placeholder="Search actions..." />
+            <CommandInput placeholder={t("tasks:bulk.searchActions")} />
             <CommandPanel>
-              <CommandEmpty>No actions found.</CommandEmpty>
+              <CommandEmpty>{t("tasks:bulk.noActionsFound")}</CommandEmpty>
               <CommandList>
                 {(group: BulkActionGroup, groupIndex: number) => (
                   <Fragment key={group.value}>

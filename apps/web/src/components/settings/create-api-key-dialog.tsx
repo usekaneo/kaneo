@@ -1,6 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import useCreateApiKey from "@/hooks/mutations/api-key/use-create-api-key";
 import { toast } from "@/lib/toast";
@@ -39,38 +40,10 @@ const EXPIRATION_SECONDS = {
   "90d": 7776000,
 } as const;
 
-const EXPIRATION_OPTIONS = [
-  {
-    label: "1 day",
-    value: "1d",
-  },
-  {
-    label: "7 days",
-    value: "7d",
-  },
-  {
-    label: "30 days",
-    value: "30d",
-  },
-  {
-    label: "90 days",
-    value: "90d",
-  },
-  {
-    label: "Never",
-    value: "never",
-  },
-] as const;
-
-const createApiKeySchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .min(3, "Name must be at least 3 characters"),
-  expiresIn: z.string().min(1, "Expiration is required"),
-});
-
-type FormValues = z.infer<typeof createApiKeySchema>;
+type FormValues = {
+  name: string;
+  expiresIn: string;
+};
 
 type CreateApiKeyDialogProps = {
   open: boolean;
@@ -83,8 +56,53 @@ export function CreateApiKeyDialog({
   onClose,
   onSuccess,
 }: CreateApiKeyDialogProps) {
+  const { t } = useTranslation();
   const { mutateAsync: createApiKey } = useCreateApiKey();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const createApiKeySchema = useMemo(
+    () =>
+      z.object({
+        name: z
+          .string()
+          .min(1, t("settings:apiKey.createDialog.validation.nameRequired"))
+          .min(3, t("settings:apiKey.createDialog.validation.nameShort")),
+        expiresIn: z
+          .string()
+          .min(
+            1,
+            t("settings:apiKey.createDialog.validation.expirationRequired"),
+          ),
+      }),
+    [t],
+  );
+
+  const expirationOptions = useMemo(
+    () =>
+      [
+        {
+          label: t("settings:apiKey.createDialog.expiration1d"),
+          value: "1d",
+        },
+        {
+          label: t("settings:apiKey.createDialog.expiration7d"),
+          value: "7d",
+        },
+        {
+          label: t("settings:apiKey.createDialog.expiration30d"),
+          value: "30d",
+        },
+        {
+          label: t("settings:apiKey.createDialog.expiration90d"),
+          value: "90d",
+        },
+        {
+          label: t("settings:apiKey.createDialog.expirationNever"),
+          value: "never",
+        },
+      ] as const,
+    [t],
+  );
 
   const form = useForm<FormValues>({
     resolver: standardSchemaResolver(createApiKeySchema),
@@ -112,7 +130,9 @@ export function CreateApiKeyDialog({
       onClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create API key",
+        error instanceof Error
+          ? error.message
+          : t("settings:apiKey.createDialog.failedCreate"),
       );
     } finally {
       setIsSubmitting(false);
@@ -130,9 +150,9 @@ export function CreateApiKeyDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg p-0 gap-0">
         <DialogHeader className="px-6 py-5 border-b border-border">
-          <DialogTitle>Create API Key</DialogTitle>
+          <DialogTitle>{t("settings:apiKey.createDialog.title")}</DialogTitle>
           <DialogDescription>
-            Create a new API key to access the Kaneo API programmatically.
+            {t("settings:apiKey.createDialog.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -144,16 +164,20 @@ export function CreateApiKeyDialog({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>
+                      {t("settings:apiKey.createDialog.nameLabel")}
+                    </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="My API Key"
+                        placeholder={t(
+                          "settings:apiKey.createDialog.namePlaceholder",
+                        )}
                         {...field}
                         disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormDescription>
-                      A descriptive name for this API key
+                      {t("settings:apiKey.createDialog.nameDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -165,7 +189,9 @@ export function CreateApiKeyDialog({
                 name="expiresIn"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Expiration</FormLabel>
+                    <FormLabel>
+                      {t("settings:apiKey.createDialog.expirationLabel")}
+                    </FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
@@ -173,10 +199,14 @@ export function CreateApiKeyDialog({
                         disabled={isSubmitting}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select expiration" />
+                          <SelectValue
+                            placeholder={t(
+                              "settings:apiKey.createDialog.expirationPlaceholder",
+                            )}
+                          />
                         </SelectTrigger>
                         <SelectContent>
-                          {EXPIRATION_OPTIONS.map((option) => (
+                          {expirationOptions.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>
@@ -185,8 +215,7 @@ export function CreateApiKeyDialog({
                       </Select>
                     </FormControl>
                     <FormDescription>
-                      Choose how long this API key should remain valid. Never
-                      will create a key without an automatic expiry.
+                      {t("settings:apiKey.createDialog.expirationDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -201,10 +230,12 @@ export function CreateApiKeyDialog({
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create"}
+                {isSubmitting
+                  ? t("settings:apiKey.createDialog.creating")
+                  : t("settings:apiKey.createDialog.create")}
               </Button>
             </DialogFooter>
           </form>

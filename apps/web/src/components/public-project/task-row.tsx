@@ -1,7 +1,8 @@
-import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { formatDateShort } from "@/lib/format";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -22,6 +23,7 @@ export function PublicTaskRow({
   projectSlug,
   onTaskClick,
 }: PublicTaskRowProps) {
+  const { t } = useTranslation();
   const labels = task.labels || [];
   const externalLinks = task.externalLinks || [];
 
@@ -30,7 +32,9 @@ export function PublicTaskRow({
       type="button"
       className="group w-full text-left px-4 py-3 rounded-lg flex items-center gap-4 bg-card border border-border shadow-sm hover:shadow-md transition-all duration-200 ease-out hover:border-border/70 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
       onClick={() => onTaskClick(task)}
-      aria-label={`View details for task ${task.title}`}
+      aria-label={t("publicProject:taskCard.viewDetailsAria", {
+        title: task.title,
+      })}
     >
       <div className="flex-1 min-w-0 flex items-center gap-3">
         <div className="text-xs font-mono text-muted-foreground shrink-0 font-medium">
@@ -76,7 +80,7 @@ export function PublicTaskRow({
               getDueDateStatus(task.dueDate) === "no-due-date") && (
               <Calendar className="w-3 h-3" />
             )}
-            <span>{format(new Date(task.dueDate), "MMM d")}</span>
+            <span>{formatDateShort(task.dueDate)}</span>
           </div>
         )}
 

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectContent,
@@ -10,19 +11,20 @@ import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useGetWorkflowRules } from "@/hooks/queries/workflow-rule/use-get-workflow-rules";
 import { toast } from "@/lib/toast";
 
-const GITHUB_EVENTS = [
-  { eventType: "branch_push", label: "Branch Push" },
-  { eventType: "pr_opened", label: "PR Opened" },
-  { eventType: "pr_merged", label: "PR Merged" },
-  { eventType: "issue_opened", label: "Issue Opened" },
-  { eventType: "issue_closed", label: "Issue Closed" },
-];
+const GITHUB_EVENT_TYPES = [
+  "branch_push",
+  "pr_opened",
+  "pr_merged",
+  "issue_opened",
+  "issue_closed",
+] as const;
 
 type WorkflowEditorProps = {
   projectId: string;
 };
 
 export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
+  const { t } = useTranslation();
   const { data: columns, isLoading: columnsLoading } = useGetColumns(projectId);
   const { data: rules, isLoading: rulesLoading } =
     useGetWorkflowRules(projectId);
@@ -40,22 +42,28 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
           columnId,
         },
       });
-      toast.success("Workflow rule updated");
+      toast.success(t("settings:workflowEditor.toastUpdated"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update rule",
+        error instanceof Error
+          ? error.message
+          : t("settings:workflowEditor.toastError"),
       );
     }
   };
 
   if (columnsLoading || rulesLoading) {
-    return <div className="text-sm text-muted-foreground">Loading...</div>;
+    return (
+      <div className="text-sm text-muted-foreground">
+        {t("settings:workflowEditor.loading")}
+      </div>
+    );
   }
 
   if (!columns || columns.length === 0) {
     return (
       <div className="text-sm text-muted-foreground">
-        Create columns first to configure automation rules.
+        {t("settings:workflowEditor.createColumnsFirst")}
       </div>
     );
   }
@@ -65,30 +73,38 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h3 className="text-sm font-medium">GitHub</h3>
+        <h3 className="text-sm font-medium">
+          {t("settings:workflowEditor.githubHeading")}
+        </h3>
         <p className="text-xs text-muted-foreground">
-          When a GitHub event occurs, move the linked task to a column.
+          {t("settings:workflowEditor.githubHint")}
         </p>
       </div>
 
       <div className="space-y-2">
-        {GITHUB_EVENTS.map((event) => {
+        {GITHUB_EVENT_TYPES.map((eventType) => {
           const currentRule = githubRules?.find(
-            (r) => r.eventType === event.eventType,
+            (r) => r.eventType === eventType,
           );
 
           return (
             <div
-              key={event.eventType}
+              key={eventType}
               className="flex items-center justify-between gap-4 p-3 border border-border rounded-md bg-sidebar"
             >
-              <span className="text-sm">{event.label}</span>
+              <span className="text-sm">
+                {t(`settings:workflowEditor.events.${eventType}`)}
+              </span>
               <Select
                 value={currentRule?.columnId ?? ""}
-                onValueChange={(value) => handleChange(event.eventType, value)}
+                onValueChange={(value) => handleChange(eventType, value)}
               >
                 <SelectTrigger className="w-48 h-8 text-sm">
-                  <SelectValue placeholder="Select column..." />
+                  <SelectValue
+                    placeholder={t(
+                      "settings:workflowEditor.selectColumnPlaceholder",
+                    )}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {columns.map((col) => (

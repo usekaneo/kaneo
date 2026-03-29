@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Loader2, Search } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export const Route = createFileRoute(
 });
 
 function SearchComponent() {
+  const { t } = useTranslation();
   const { workspaceId } = Route.useParams();
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
@@ -51,16 +53,27 @@ function SearchComponent() {
   const hasQuery = debouncedQuery.length > 0;
   const showLoading = hasQuery && (isLoading || isFetching);
 
+  const quickSearchSuggestions = useMemo(
+    () => [
+      t("workspace:search.suggestionHighPriority"),
+      t("workspace:search.suggestionBug"),
+      t("workspace:search.suggestionFeature"),
+      t("workspace:search.suggestionInProgress"),
+      t("workspace:search.suggestionCompleted"),
+    ],
+    [t],
+  );
+
   return (
     <>
-      <PageTitle title="Search" />
+      <PageTitle title={t("workspace:search.pageTitle")} />
       <WorkspaceLayout
-        title="Search"
+        title={t("workspace:search.pageTitle")}
         headerActions={
           <Link to="/dashboard/workspace/$workspaceId" params={{ workspaceId }}>
             <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
+              {t("workspace:search.backToDashboard")}
             </Button>
           </Link>
         }
@@ -70,7 +83,7 @@ function SearchComponent() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Search tasks by title or short ID (e.g. DEP-23)..."
+                placeholder={t("workspace:search.placeholder")}
                 value={searchInput}
                 onChange={(e) => handleInputChange(e.target.value)}
                 className="pl-10 h-12 text-lg"
@@ -81,8 +94,7 @@ function SearchComponent() {
               )}
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              Search across all projects in this workspace. Use short IDs like
-              DEP-23 to find specific tasks.
+              {t("workspace:search.hint")}
             </p>
           </div>
 
@@ -93,16 +105,16 @@ function SearchComponent() {
                   <div className="text-center space-y-4">
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mx-auto" />
                     <p className="text-sm text-muted-foreground">
-                      Searching...
+                      {t("workspace:search.searching")}
                     </p>
                   </div>
                 </div>
               ) : results.length > 0 ? (
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground mb-3">
-                    {data?.totalCount ?? results.length} result
-                    {(data?.totalCount ?? results.length) !== 1 ? "s" : ""}{" "}
-                    found
+                    {t("workspace:search.resultsFound", {
+                      count: data?.totalCount ?? results.length,
+                    })}
                   </p>
                   {results.map((result) => (
                     <button
@@ -155,9 +167,11 @@ function SearchComponent() {
               ) : (
                 <div className="text-center py-12">
                   <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-lg font-medium mb-2">No results found</p>
+                  <p className="text-lg font-medium mb-2">
+                    {t("workspace:search.noResultsTitle")}
+                  </p>
                   <p className="text-muted-foreground">
-                    Try adjusting your search terms or search for something else
+                    {t("workspace:search.noResultsDescription")}
                   </p>
                 </div>
               )}
@@ -165,23 +179,19 @@ function SearchComponent() {
           ) : (
             <div className="text-center py-12">
               <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Start Searching</h2>
+              <h2 className="text-xl font-semibold mb-2">
+                {t("workspace:search.startTitle")}
+              </h2>
               <p className="text-muted-foreground mb-6">
-                Enter a search term to find tasks across all projects
+                {t("workspace:search.startDescription")}
               </p>
 
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Quick searches:
+                  {t("workspace:search.quickSearchesLabel")}
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center">
-                  {[
-                    "High priority",
-                    "Bug",
-                    "Feature",
-                    "In progress",
-                    "Completed",
-                  ].map((suggestion) => (
+                  {quickSearchSuggestions.map((suggestion) => (
                     <Button
                       key={suggestion}
                       variant="outline"

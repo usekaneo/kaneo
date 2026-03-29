@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ export default function TaskAssigneePopover({
   workspaceId,
   children,
 }: TaskAssigneePopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
@@ -50,11 +52,11 @@ export default function TaskAssigneePopover({
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to update task assignee",
+            : t("tasks:popover.assignee.updateError"),
         );
       }
     },
-    [task, updateTaskAssignee],
+    [t, task, updateTaskAssignee],
   );
 
   const shortcutOptions = useMemo(() => {
@@ -80,13 +82,15 @@ export default function TaskAssigneePopover({
           >
             <div
               className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
-              title="Unassigned"
+              title={t("tasks:popover.assignee.unassigned")}
             >
               <span className="text-[10px] font-medium text-muted-foreground">
                 ?
               </span>
             </div>
-            <span className="text-sm">Unassigned</span>
+            <span className="text-sm">
+              {t("tasks:popover.assignee.unassigned")}
+            </span>
             {!task.userId ? (
               <Check className="ml-auto h-4 w-4" />
             ) : (

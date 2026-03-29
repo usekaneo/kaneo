@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
 import { Download, Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +21,7 @@ type TasksImportExportProps = {
 };
 
 export function TasksImportExport({ project }: TasksImportExportProps) {
+  const { t } = useTranslation();
   const [isImportOpen, setIsImportOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -31,7 +33,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
 
   const handleExport = async () => {
     try {
-      toast.loading("Exporting tasks...");
+      toast.loading(t("settings:tasksImportExport.exporting"));
       const exportData = await exportTasksMutation(project.id);
 
       const blob = new Blob([JSON.stringify(exportData, null, 2)], {
@@ -41,10 +43,10 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
       saveAs(blob, `${project.slug}-tasks-export.json`);
 
       toast.dismiss();
-      toast.success("Tasks exported successfully");
+      toast.success(t("settings:tasksImportExport.exportSuccess"));
     } catch (error) {
       toast.dismiss();
-      toast.error("Failed to export tasks");
+      toast.error(t("settings:tasksImportExport.exportError"));
       console.error(error);
     }
   };
@@ -71,11 +73,11 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
       const jsonData = JSON.parse(content);
 
       if (!jsonData.tasks || !Array.isArray(jsonData.tasks)) {
-        toast.error("Invalid import file format");
+        toast.error(t("settings:tasksImportExport.invalidFormat"));
         return;
       }
 
-      toast.loading("Importing tasks...");
+      toast.loading(t("settings:tasksImportExport.importing"));
 
       const result = await importTasksMutation({
         projectId: project.id,
@@ -88,14 +90,22 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
 
       setIsImportOpen(false);
       toast.dismiss();
-      toast.success(`Imported ${result.results.successful} tasks successfully`);
+      toast.success(
+        t("settings:tasksImportExport.importSuccess", {
+          count: result.results.successful,
+        }),
+      );
 
       if (result.results.failed > 0) {
-        toast.error(`Failed to import ${result.results.failed} tasks`);
+        toast.error(
+          t("settings:tasksImportExport.importPartialError", {
+            count: result.results.failed,
+          }),
+        );
       }
     } catch (error) {
       toast.dismiss();
-      toast.error("Failed to import tasks");
+      toast.error(t("settings:tasksImportExport.importError"));
       console.error(error);
     }
   };
@@ -104,14 +114,14 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     if (!file) {
-      toast.error("No file was dropped");
+      toast.error(t("settings:tasksImportExport.noFileDropped"));
       return;
     }
 
     if (file.type === "application/json" || file.name.endsWith(".json")) {
       confirmImport(file);
     } else {
-      toast.error("Please upload a JSON file");
+      toast.error(t("settings:tasksImportExport.notJsonFile"));
     }
   };
 
@@ -137,7 +147,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
           ) : (
             <Download className="h-4 w-4" />
           )}
-          Export Tasks
+          {t("settings:tasksImportExport.exportTasks")}
         </Button>
 
         <Button
@@ -146,7 +156,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
           onClick={() => setIsImportOpen(true)}
         >
           <Upload className="h-4 w-4" />
-          Import Tasks
+          {t("settings:tasksImportExport.importTasks")}
         </Button>
 
         <input
@@ -163,7 +173,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
           <div className="bg-card rounded-lg shadow-xl border border-border">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <DialogTitle className="text-lg font-semibold text-foreground">
-                Import Tasks
+                {t("settings:tasksImportExport.dialogTitle")}
               </DialogTitle>
               <DialogClose
                 className="text-muted-foreground hover:text-foreground"
@@ -175,12 +185,12 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
 
             <div className="p-4">
               <p className="text-sm text-muted-foreground mb-2">
-                Upload a JSON file containing tasks to import into this project.
+                {t("settings:tasksImportExport.dialogDescription")}
               </p>
 
               <div className="mb-4 p-3 bg-muted rounded-md border border-border/50 font-mono text-sm">
                 <p className="text-muted-foreground mb-1 text-xs">
-                  Expected format:
+                  {t("settings:tasksImportExport.expectedFormat")}
                 </p>
                 <pre className="text-foreground overflow-auto max-h-32 text-xs">
                   {`{
@@ -214,7 +224,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
                 <div className="flex flex-col items-center justify-center gap-2">
                   <Upload className="h-8 w-8 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">
-                    Drag and drop your JSON file here
+                    {t("settings:tasksImportExport.dropHint")}
                   </p>
                   <Button
                     className="mt-2 bg-card hover:bg-accent text-foreground border border-border"
@@ -225,7 +235,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
                     {isImporting ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
-                      "Select File"
+                      t("settings:tasksImportExport.selectFile")
                     )}
                   </Button>
                 </div>
@@ -237,7 +247,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
                     <Button className="bg-card hover:bg-accent text-foreground border border-border" />
                   }
                 >
-                  Cancel
+                  {t("common:actions.cancel")}
                 </DialogClose>
               </div>
             </div>

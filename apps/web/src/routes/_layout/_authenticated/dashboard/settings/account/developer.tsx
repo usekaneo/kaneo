@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { KeyRound, Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { ApiKeyCreatedModal } from "@/components/settings/api-key-created-modal";
 import { ApiKeyTable } from "@/components/settings/api-key-table";
@@ -25,6 +26,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { data: apiKeys = [], isLoading } = useGetApiKeys();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createdKey, setCreatedKey] = useState<{
@@ -35,7 +37,7 @@ function RouteComponent() {
   const handleCreateSuccess = (data: CreateApiKeyResponse) => {
     setCreatedKey({
       key: data.key,
-      name: data.name || "Unnamed Key",
+      name: data.name || t("settings:developerPage.unnamedKey"),
     });
   };
 
@@ -45,12 +47,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageTitle title="Developer Settings" />
+      <PageTitle title={t("settings:developerPage.pageTitle")} />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">Developer Settings</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("settings:developerPage.title")}
+          </h1>
           <p className="text-muted-foreground">
-            Manage your API keys and developer resources.
+            {t("settings:developerPage.subtitle")}
           </p>
         </div>
 
@@ -59,10 +63,10 @@ function RouteComponent() {
             <CardHeader>
               <CardTitle className="inline-flex items-center gap-2 text-base">
                 <KeyRound className="size-4" />
-                API Keys
+                {t("settings:developerPage.apiKeysCardTitle")}
               </CardTitle>
               <CardDescription>
-                Create and manage API keys for programmatic access to Kaneo.
+                {t("settings:developerPage.apiKeysCardDescription")}
               </CardDescription>
               <CardAction>
                 <Button
@@ -70,7 +74,7 @@ function RouteComponent() {
                   className="gap-2"
                 >
                   <Plus className="size-4" />
-                  Create API Key
+                  {t("settings:developerPage.createApiKey")}
                 </Button>
               </CardAction>
             </CardHeader>

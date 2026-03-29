@@ -1,5 +1,6 @@
 import { Filter, PanelsTopLeft, Rows3, X } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import SortControl from "@/components/common/sort-control";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -15,8 +16,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
 import labelColors from "@/constants/label-colors";
-import type { BoardFilters } from "@/hooks/use-task-filters";
+import {
+  type BoardFilters,
+  DUE_DATE_FILTER_VALUES,
+} from "@/hooks/use-task-filters";
 import { getColumnIcon } from "@/lib/column";
+import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import type { SortConfig } from "@/lib/sort-tasks";
 import type { ProjectWithTasks } from "@/types/project";
@@ -138,6 +143,7 @@ export default function BoardToolbar({
   sort,
   onSortChange,
 }: BoardToolbarProps) {
+  const { t } = useTranslation();
   const selectedStatusIds = filters.status ?? [];
   const selectedPriorityIds = filters.priority ?? [];
   const selectedAssigneeIds = filters.assignee ?? [];
@@ -153,11 +159,11 @@ export default function BoardToolbar({
   };
 
   const getPriorityDisplayName = (priority: string) =>
-    priority.charAt(0).toUpperCase() + priority.slice(1);
+    getPriorityLabel(priority);
 
   const getAssigneeDisplayName = (userId: string) => {
     const member = users?.members?.find((m) => m.userId === userId);
-    return member?.user?.name || "Unknown";
+    return member?.user?.name || t("common:people.unknown");
   };
   const getAssigneeAvatar = (userId: string) => {
     const member = users?.members?.find((m) => m.userId === userId);
@@ -259,19 +265,19 @@ export default function BoardToolbar({
                 }
               >
                 <Filter className="h-3 w-3" />
-                Filter
+                {t("common:actions.filter")}
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="start">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-                    Filter By
+                    {t("tasks:boardFilters.filterBy")}
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
 
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
-                    Status
+                    {t("tasks:boardFilters.subjects.status")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="w-72">
                     <div className="grid grid-cols-1 gap-1 p-1">
@@ -285,7 +291,7 @@ export default function BoardToolbar({
                         type="button"
                       >
                         <CheckSlot checked={selectedStatusIds.length === 0} />
-                        All statuses
+                        {t("tasks:boardFilters.allStatuses")}
                       </button>
                       {project?.columns?.map((column) => (
                         <button
@@ -313,7 +319,7 @@ export default function BoardToolbar({
 
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
-                    Priority
+                    {t("tasks:boardFilters.subjects.priority")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="w-72">
                     <div className="grid grid-cols-1 gap-1 p-1">
@@ -327,7 +333,7 @@ export default function BoardToolbar({
                         type="button"
                       >
                         <CheckSlot checked={selectedPriorityIds.length === 0} />
-                        All priorities
+                        {t("tasks:boardFilters.allPriorities")}
                       </button>
                       {["urgent", "high", "medium", "low"].map((priority) => (
                         <button
@@ -347,7 +353,7 @@ export default function BoardToolbar({
                             {getPriorityIcon(priority)}
                           </span>
                           <span className="truncate capitalize">
-                            {priority}
+                            {getPriorityDisplayName(priority)}
                           </span>
                         </button>
                       ))}
@@ -357,7 +363,7 @@ export default function BoardToolbar({
 
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
-                    Assignee
+                    {t("tasks:boardFilters.subjects.assignee")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="w-64">
                     <div className="grid grid-cols-1 gap-1 p-1">
@@ -371,7 +377,7 @@ export default function BoardToolbar({
                         type="button"
                       >
                         <CheckSlot checked={selectedAssigneeIds.length === 0} />
-                        All assignees
+                        {t("tasks:boardFilters.allAssignees")}
                       </button>
                       {users?.members?.map((member) => (
                         <button
@@ -409,7 +415,7 @@ export default function BoardToolbar({
 
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
-                    Due date
+                    {t("tasks:boardFilters.subjects.dueDate")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="w-56">
                     <div className="grid grid-cols-1 gap-1 p-1">
@@ -425,34 +431,44 @@ export default function BoardToolbar({
                         <CheckSlot
                           checked={selectedDueDateFilters.length === 0}
                         />
-                        All due dates
+                        {t("tasks:boardFilters.allDueDates")}
                       </button>
-                      {["Due this week", "Due next week", "No due date"].map(
-                        (dueDate) => (
-                          <button
-                            key={dueDate}
-                            className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
-                              selectedDueDateFilters.includes(dueDate)
-                                ? "bg-accent text-accent-foreground"
-                                : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
-                            }`}
-                            onClick={() => toggleDueDateFilter(dueDate)}
-                            type="button"
-                          >
-                            <CheckSlot
-                              checked={selectedDueDateFilters.includes(dueDate)}
-                            />
-                            {dueDate}
-                          </button>
-                        ),
-                      )}
+                      {[
+                        DUE_DATE_FILTER_VALUES.dueThisWeek,
+                        DUE_DATE_FILTER_VALUES.dueNextWeek,
+                        DUE_DATE_FILTER_VALUES.noDueDate,
+                      ].map((dueDate) => (
+                        <button
+                          key={dueDate}
+                          className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
+                            selectedDueDateFilters.includes(dueDate)
+                              ? "bg-accent text-accent-foreground"
+                              : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
+                          }`}
+                          onClick={() => toggleDueDateFilter(dueDate)}
+                          type="button"
+                        >
+                          <CheckSlot
+                            checked={selectedDueDateFilters.includes(dueDate)}
+                          />
+                          {t(
+                            `tasks:backlog.filters.${
+                              dueDate === DUE_DATE_FILTER_VALUES.dueThisWeek
+                                ? "dueThisWeek"
+                                : dueDate === DUE_DATE_FILTER_VALUES.dueNextWeek
+                                  ? "dueNextWeek"
+                                  : "noDueDate"
+                            }`,
+                          )}
+                        </button>
+                      ))}
                     </div>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
 
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
-                    Labels
+                    {t("tasks:properties.labels")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="w-64">
                     <DropdownMenuItem
@@ -462,7 +478,7 @@ export default function BoardToolbar({
                       <CheckSlot
                         checked={!filters.labels || filters.labels.length === 0}
                       />
-                      All labels
+                      {t("tasks:boardFilters.allLabels")}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     {uniqueLabels.length > 0 ? (
@@ -489,7 +505,7 @@ export default function BoardToolbar({
                         disabled
                         className="h-8 rounded-md text-sm text-muted-foreground"
                       >
-                        No labels available
+                        {t("tasks:labels.empty")}
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuSubContent>
@@ -502,7 +518,7 @@ export default function BoardToolbar({
                       onClick={clearFilters}
                       className="h-8 rounded-md text-sm text-muted-foreground"
                     >
-                      Clear all filters
+                      {t("common:actions.clearAllFilters")}
                     </DropdownMenuItem>
                   </>
                 )}
@@ -513,8 +529,8 @@ export default function BoardToolbar({
 
             {selectedStatusIds.length > 0 && (
               <ActiveFilterChip
-                subject="Status"
-                operator="is any of"
+                subject={t("tasks:boardFilters.subjects.status")}
+                operator={t("tasks:boardFilters.operators.isAnyOf")}
                 value={
                   <span className="inline-flex items-center gap-1.5">
                     <StackedIcons
@@ -527,7 +543,9 @@ export default function BoardToolbar({
                     <span>
                       {selectedStatusIds.length === 1
                         ? getStatusDisplayName(selectedStatusIds[0])
-                        : `${selectedStatusIds.length} selected`}
+                        : t("tasks:boardFilters.selectedCount", {
+                            count: selectedStatusIds.length,
+                          })}
                     </span>
                   </span>
                 }
@@ -537,8 +555,8 @@ export default function BoardToolbar({
 
             {selectedPriorityIds.length > 0 && (
               <ActiveFilterChip
-                subject="Priority"
-                operator="is any of"
+                subject={t("tasks:boardFilters.subjects.priority")}
+                operator={t("tasks:boardFilters.operators.isAnyOf")}
                 value={
                   <span className="inline-flex items-center gap-1.5">
                     <StackedIcons
@@ -550,7 +568,9 @@ export default function BoardToolbar({
                     <span>
                       {selectedPriorityIds.length === 1
                         ? getPriorityDisplayName(selectedPriorityIds[0])
-                        : `${selectedPriorityIds.length} selected`}
+                        : t("tasks:boardFilters.selectedCount", {
+                            count: selectedPriorityIds.length,
+                          })}
                     </span>
                   </span>
                 }
@@ -560,8 +580,8 @@ export default function BoardToolbar({
 
             {selectedAssigneeIds.length > 0 && (
               <ActiveFilterChip
-                subject="Assignee"
-                operator="is any of"
+                subject={t("tasks:boardFilters.subjects.assignee")}
+                operator={t("tasks:boardFilters.operators.isAnyOf")}
                 value={
                   <span className="inline-flex items-center gap-1.5">
                     <StackedIcons
@@ -573,7 +593,9 @@ export default function BoardToolbar({
                     <span>
                       {selectedAssigneeIds.length === 1
                         ? getAssigneeDisplayName(selectedAssigneeIds[0])
-                        : `${selectedAssigneeIds.length} selected`}
+                        : t("tasks:boardFilters.selectedCount", {
+                            count: selectedAssigneeIds.length,
+                          })}
                     </span>
                   </span>
                 }
@@ -583,12 +605,24 @@ export default function BoardToolbar({
 
             {selectedDueDateFilters.length > 0 && (
               <ActiveFilterChip
-                subject="Due date"
-                operator="is any of"
+                subject={t("tasks:boardFilters.subjects.dueDate")}
+                operator={t("tasks:boardFilters.operators.isAnyOf")}
                 value={
                   selectedDueDateFilters.length === 1
-                    ? selectedDueDateFilters[0]
-                    : `${selectedDueDateFilters.length} selected`
+                    ? t(
+                        `tasks:backlog.filters.${
+                          selectedDueDateFilters[0] ===
+                          DUE_DATE_FILTER_VALUES.dueThisWeek
+                            ? "dueThisWeek"
+                            : selectedDueDateFilters[0] ===
+                                DUE_DATE_FILTER_VALUES.dueNextWeek
+                              ? "dueNextWeek"
+                              : "noDueDate"
+                        }`,
+                      )
+                    : t("tasks:boardFilters.selectedCount", {
+                        count: selectedDueDateFilters.length,
+                      })
                 }
                 onClear={() => updateFilter("dueDate", null)}
               />
@@ -596,9 +630,11 @@ export default function BoardToolbar({
 
             {filters.labels && filters.labels.length > 0 && (
               <ActiveFilterChip
-                subject="Labels"
-                operator="include any of"
-                value={`${filters.labels.length} selected`}
+                subject={t("tasks:boardFilters.subjects.labels")}
+                operator={t("tasks:boardFilters.operators.includeAnyOf")}
+                value={t("tasks:boardFilters.selectedCount", {
+                  count: filters.labels.length,
+                })}
                 onClear={clearLabelFilters}
               />
             )}

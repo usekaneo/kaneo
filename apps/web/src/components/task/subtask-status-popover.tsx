@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -11,6 +12,7 @@ import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-stat
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { getColumnIcon } from "@/lib/column";
+import { getStatusLabel } from "@/lib/i18n/domain";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
@@ -25,6 +27,7 @@ export default function SubtaskStatusPopover({
   projectId,
   children,
 }: SubtaskStatusPopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { data: columns = [] } = useGetColumns(projectId);
   const statusOptions = columns.map((col) => ({
@@ -54,11 +57,11 @@ export default function SubtaskStatusPopover({
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to update task status",
+            : t("tasks:popover.status.updateError"),
         );
       }
     },
-    [tasks, updateTaskStatus],
+    [t, tasks, updateTaskStatus],
   );
 
   const shortcutOptions = useMemo(
@@ -85,7 +88,9 @@ export default function SubtaskStatusPopover({
               onClick={() => handleStatusChange(status.value)}
             >
               {getColumnIcon(status.value, status.isFinal)}
-              <span className="text-sm">{status.label}</span>
+              <span className="text-sm">
+                {getStatusLabel(status.value) || status.label}
+              </span>
               {currentStatus === status.value ? (
                 <Check className="ml-auto h-4 w-4" />
               ) : (

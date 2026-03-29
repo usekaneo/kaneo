@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -20,6 +21,7 @@ export default function TaskStartDatePopover({
   task,
   children,
 }: TaskStartDatePopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTask } = useUpdateTask();
 
@@ -29,13 +31,13 @@ export default function TaskStartDatePopover({
         ...task,
         startDate: date?.toISOString() || null,
       });
-      toast.success("Task start date updated successfully");
+      toast.success(t("tasks:popover.startDate.updateSuccess"));
       setOpen(false);
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to update task start date",
+          : t("tasks:popover.startDate.updateError"),
       );
     }
   };
@@ -62,7 +64,7 @@ export default function TaskStartDatePopover({
               onClick={() => handleDateChange(undefined)}
             >
               <X className="h-4 w-4" />
-              Clear start date
+              {t("tasks:popover.startDate.clear")}
             </Button>
           </div>
         )}

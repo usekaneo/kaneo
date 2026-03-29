@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 
 export function UserAvatar() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { mutateAsync: signOut, isPending } = useSignOut();
   const queryClient = useQueryClient();
@@ -32,10 +34,12 @@ export function UserAvatar() {
       await signOut();
       queryClient.clear();
       setProject(undefined);
-      toast.success("Signed out successfully");
+      toast.success(t("navigation:userMenu.signedOutSuccess"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to sign out",
+        error instanceof Error
+          ? error.message
+          : t("navigation:userMenu.signOutFailed"),
       );
     }
   };
@@ -79,7 +83,7 @@ export function UserAvatar() {
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">
-                {user.name || "User"}
+                {user.name || t("navigation:userMenu.unnamedUser")}
               </span>
               {user.email && (
                 <span className="truncate text-xs text-muted-foreground">
@@ -98,7 +102,7 @@ export function UserAvatar() {
             className="h-7 gap-2 px-2 text-sm font-normal"
           >
             <Settings className="size-3.5" />
-            Settings
+            {t("navigation:userMenu.settings")}
           </DropdownMenuItem>
         </div>
 
@@ -111,7 +115,9 @@ export function UserAvatar() {
             className="h-7 gap-2 px-2 text-sm font-normal"
           >
             <LogOut className="size-3.5" />
-            {isPending ? "Signing out..." : "Log out"}
+            {isPending
+              ? t("navigation:userMenu.signingOut")
+              : t("navigation:userMenu.logOut")}
           </DropdownMenuItem>
         </div>
       </DropdownMenuContent>

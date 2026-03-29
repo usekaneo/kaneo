@@ -45,6 +45,53 @@ type SearchResult = {
   status?: string;
 };
 
+function toDisplayCase(value: string) {
+  return value
+    .replace(/[-_]/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function getActivitySearchContent(
+  type: string,
+  content: string | null,
+  eventData: unknown,
+) {
+  if (content) return content;
+  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) {
+    return undefined;
+  }
+
+  const data = eventData as Record<string, unknown>;
+
+  switch (type) {
+    case "status_changed":
+      return `changed status from ${toDisplayCase(String(data.oldStatus ?? ""))} to ${toDisplayCase(String(data.newStatus ?? ""))}`;
+    case "priority_changed":
+      return `changed priority from ${toDisplayCase(String(data.oldPriority ?? ""))} to ${toDisplayCase(String(data.newPriority ?? ""))}`;
+    case "unassigned":
+      return "unassigned the task";
+    case "assignee_changed":
+      return data.isSelfAssigned
+        ? "assigned the task to themselves"
+        : `assigned the task to ${String(data.newAssignee ?? "someone")}`;
+    case "due_date_changed":
+      if (!data.newDueDate) {
+        return "cleared the due date";
+      }
+      if (!data.oldDueDate) {
+        return `set due date to ${String(data.newDueDate)}`;
+      }
+      return `changed due date from ${String(data.oldDueDate)} to ${String(data.newDueDate)}`;
+    case "title_changed":
+      return `changed title from "${String(data.oldTitle ?? "")}" to "${String(data.newTitle ?? "")}"`;
+    default:
+      return undefined;
+  }
+}
+
 async function globalSearch(params: SearchParams): Promise<{
   results: SearchResult[];
   totalCount: number;
@@ -105,7 +152,11 @@ async function globalSearch(params: SearchParams): Promise<{
 
     // If query matches short-id pattern, look up by project slug + task number first
     if (shortIdMatch) {
-      const [, slug, numberStr] = shortIdMatch;
+      const slug = shortIdMatch[1];
+      const numberStr = shortIdMatch[2];
+      if (!slug || !numberStr) {
+        return { results: [], totalCount: 0, searchQuery: query };
+      }
       const taskNumber = Number.parseInt(numberStr, 10);
 
       const shortIdTasks = await db
@@ -337,9 +388,10 @@ async function globalSearch(params: SearchParams): Promise<{
   }
 
   if (type === "all" || type === "comments" || type === "activities") {
+    const searchableActivityText = sql<string>`COALESCE(${activityTable.content}, CAST(${activityTable.eventData} AS text), '')`;
     const activityRelevanceScore = sql<number>`
       CASE
-        WHEN LOWER(${activityTable.content}) LIKE ${searchPattern} THEN 2
+        WHEN LOWER(${searchableActivityText}) LIKE ${searchPattern} THEN 2
         WHEN LOWER(${taskTable.title}) LIKE ${searchPattern} THEN 1
         ELSE 1
       END
@@ -350,6 +402,7 @@ async function globalSearch(params: SearchParams): Promise<{
         id: activityTable.id,
         type: activityTable.type,
         content: activityTable.content,
+        eventData: activityTable.eventData,
         taskId: activityTable.taskId,
         taskTitle: taskTable.title,
         taskNumber: taskTable.number,
@@ -373,7 +426,7 @@ async function globalSearch(params: SearchParams): Promise<{
           workspaceFilter,
           projectId ? eq(taskTable.projectId, projectId) : undefined,
           or(
-            ilike(activityTable.content, searchPattern),
+            ilike(searchableActivityText, searchPattern),
             ilike(taskTable.title, searchPattern),
           ),
           type === "comments" ? eq(activityTable.type, "comment") : undefined,
@@ -386,13 +439,18 @@ async function globalSearch(params: SearchParams): Promise<{
 
     for (const activity of activities) {
       const isComment = activity.type === "comment";
+      const activityContent = getActivitySearchContent(
+        activity.type,
+        activity.content,
+        activity.eventData,
+      );
       results.push({
         id: activity.id,
         type: isComment ? "comment" : "activity",
         title: isComment
           ? `Comment on ${activity.taskTitle || "task"}`
           : `${activity.type} on ${activity.taskTitle || "task"}`,
-        content: activity.content || undefined,
+        content: activityContent,
         projectId: activity.projectId || undefined,
         projectName: activity.projectName || undefined,
         projectSlug: activity.projectSlug || undefined,

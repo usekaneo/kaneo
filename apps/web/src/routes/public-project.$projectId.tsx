@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Layout, List } from "lucide-react";
 import { createElement, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { CopyUrlButton } from "@/components/public-project/copy-url-button";
 import { ErrorView } from "@/components/public-project/error-view";
@@ -24,6 +25,7 @@ type ViewMode = "kanban" | "list";
 const VIEW_MODE_STORAGE_KEY = "kaneo-public-view-mode";
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { projectId } = Route.useParams();
   const { data: project, isLoading, error } = useGetPublicProject(projectId);
 
@@ -62,7 +64,7 @@ function RouteComponent() {
 
   return (
     <>
-      <PageTitle title="Public View" />
+      <PageTitle title={t("publicProject:pageTitle")} />
       <div className="min-h-screen bg-background flex flex-col w-full">
         <header className="border-b border-border sticky top-0 z-10 bg-background">
           <div className="px-6 py-2.5">
@@ -82,7 +84,7 @@ function RouteComponent() {
                       {project.name}
                     </h1>
                     <span className="px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground rounded font-medium shrink-0">
-                      Public
+                      {t("publicProject:badge")}
                     </span>
                   </div>
                   {project.description && (
@@ -105,7 +107,7 @@ function RouteComponent() {
                     className={`h-8 gap-2 ${viewMode === "kanban" ? "bg-accent" : ""}`}
                   >
                     <Layout className="h-3 w-3" />
-                    <span className="text-xs">Board</span>
+                    <span className="text-xs">{t("tasks:view.board")}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -114,7 +116,7 @@ function RouteComponent() {
                     className={`h-8 gap-2 ${viewMode === "list" ? "bg-accent" : ""}`}
                   >
                     <List className="h-3 w-3" />
-                    <span className="text-xs">List</span>
+                    <span className="text-xs">{t("tasks:view.list")}</span>
                   </Button>
                 </div>
               </div>
@@ -134,7 +136,7 @@ function RouteComponent() {
           <div className="px-6 py-3">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <KaneoBranding />
-              <span>Read-only</span>
+              <span>{t("publicProject:readOnly")}</span>
             </div>
           </div>
         </footer>

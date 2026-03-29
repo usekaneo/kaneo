@@ -60,6 +60,7 @@ export const activitySchema = v.object({
   createdAt: v.date(),
   userId: v.nullable(v.string()),
   content: v.nullable(v.string()),
+  eventData: v.nullable(v.record(v.string(), v.unknown())),
   externalUserName: v.nullable(v.string()),
   externalUserAvatar: v.nullable(v.string()),
   externalSource: v.nullable(v.string()),
@@ -80,7 +81,7 @@ export const timeEntrySchema = v.object({
 export const notificationSchema = v.object({
   id: v.string(),
   userId: v.string(),
-  title: v.string(),
+  title: v.nullable(v.string()),
   content: v.nullable(v.string()),
   type: v.picklist([
     "info",
@@ -90,6 +91,7 @@ export const notificationSchema = v.object({
     "task_assignee_changed",
     "time_entry_created",
   ] as const),
+  eventData: v.nullable(v.record(v.string(), v.unknown())),
   isRead: v.optional(v.boolean()),
   resourceId: v.optional(v.string()),
   resourceType: v.optional(v.picklist(["task", "workspace"] as const)),

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LayoutGrid, Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import PageTitle from "@/components/page-title";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
@@ -20,6 +21,7 @@ import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { formatDateMedium } from "@/lib/format";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/",
@@ -28,6 +30,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const { workspaceId } = Route.useParams();
   const navigate = useNavigate();
@@ -57,9 +60,9 @@ function RouteComponent() {
   if (isLoading) {
     return (
       <>
-        <PageTitle title="Projects" />
+        <PageTitle title={t("workspace:projects.pageTitle")} />
         <WorkspaceLayout
-          title="Projects"
+          title={t("workspace:projects.pageTitle")}
           headerActions={
             <Button
               variant="outline"
@@ -68,7 +71,7 @@ function RouteComponent() {
               className="gap-1"
             >
               <Plus className="w-3 h-3" />
-              Create project
+              {t("workspace:projects.createProject")}
             </Button>
           }
         >
@@ -76,16 +79,16 @@ function RouteComponent() {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-foreground font-medium">
-                  Title
+                  {t("workspace:projects.title")}
                 </TableHead>
                 <TableHead className="text-foreground font-medium">
-                  Progress
+                  {t("workspace:projects.progress")}
                 </TableHead>
                 <TableHead className="text-foreground font-medium">
-                  Target date
+                  {t("workspace:projects.targetDate")}
                 </TableHead>
                 <TableHead className="text-foreground font-medium">
-                  Status
+                  {t("workspace:projects.status")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -119,9 +122,9 @@ function RouteComponent() {
   if (!projects || projects.length === 0) {
     return (
       <>
-        <PageTitle title="Projects" />
+        <PageTitle title={t("workspace:projects.pageTitle")} />
         <WorkspaceLayout
-          title="Projects"
+          title={t("workspace:projects.pageTitle")}
           headerActions={
             <Button
               variant="outline"
@@ -130,7 +133,7 @@ function RouteComponent() {
               className="gap-1"
             >
               <Plus className="w-3 h-3" />
-              Create project
+              {t("workspace:projects.createProject")}
             </Button>
           }
         >
@@ -140,14 +143,16 @@ function RouteComponent() {
                 <LayoutGrid className="w-8 h-8 text-muted-foreground" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold">No projects yet</h3>
+                <h3 className="text-xl font-semibold">
+                  {t("workspace:projects.emptyTitle")}
+                </h3>
                 <p className="text-muted-foreground">
-                  Get started by creating your first project.
+                  {t("workspace:projects.emptyDescription")}
                 </p>
               </div>
               <Button onClick={handleCreateProject} className="gap-2 ">
                 <Plus className="w-4 h-4" />
-                Create project
+                {t("workspace:projects.createProject")}
               </Button>
             </div>
           </div>
@@ -163,9 +168,9 @@ function RouteComponent() {
 
   return (
     <>
-      <PageTitle title="Projects" />
+      <PageTitle title={t("workspace:projects.pageTitle")} />
       <WorkspaceLayout
-        title="Projects"
+        title={t("workspace:projects.pageTitle")}
         headerActions={
           <Button
             variant="outline"
@@ -174,7 +179,7 @@ function RouteComponent() {
             className="gap-1"
           >
             <Plus className="w-3 h-3" />
-            Create project
+            {t("workspace:projects.createProject")}
           </Button>
         }
       >
@@ -182,16 +187,16 @@ function RouteComponent() {
           <TableHeader className="p-4">
             <TableRow>
               <TableHead className="text-foreground font-medium">
-                Title
+                {t("workspace:projects.title")}
               </TableHead>
               <TableHead className="text-foreground font-medium">
-                Progress
+                {t("workspace:projects.progress")}
               </TableHead>
               <TableHead className="text-foreground font-medium">
-                Due date
+                {t("workspace:projects.dueDate")}
               </TableHead>
               <TableHead className="text-foreground font-medium">
-                Status
+                {t("workspace:projects.status")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -203,10 +208,11 @@ function RouteComponent() {
                 icons[project.icon as keyof typeof icons] || icons.Layout;
 
               const getStatusText = () => {
-                if (project.statistics.totalTasks === 0) return "Not started";
+                if (project.statistics.totalTasks === 0)
+                  return t("workspace:projects.projectStatus.notStarted");
                 if (project.statistics.completionPercentage === 100)
-                  return "Complete";
-                return "In progress";
+                  return t("workspace:projects.projectStatus.complete");
+                return t("workspace:projects.projectStatus.inProgress");
               };
 
               const getStatusVariant = () => {
@@ -242,14 +248,8 @@ function RouteComponent() {
                   <TableCell className="py-3">
                     <span className="text-sm text-muted-foreground">
                       {project.statistics.dueDate
-                        ? new Date(
-                            project.statistics.dueDate,
-                          ).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })
-                        : "No due date"}
+                        ? formatDateMedium(project.statistics.dueDate)
+                        : t("workspace:projects.noDueDate")}
                     </span>
                   </TableCell>
                   <TableCell className="py-3">

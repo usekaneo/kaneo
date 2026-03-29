@@ -11,6 +11,12 @@ export type BoardFilters = {
   labels: string[] | null;
 };
 
+export const DUE_DATE_FILTER_VALUES = {
+  dueNextWeek: "dueNextWeek",
+  dueThisWeek: "dueThisWeek",
+  noDueDate: "noDueDate",
+} as const;
+
 const DEFAULT_FILTERS: BoardFilters = {
   status: null,
   priority: null,
@@ -106,7 +112,7 @@ export function useTaskFilters(
         const taskDate = task.dueDate ? new Date(task.dueDate) : null;
 
         const matchesAnyDueDate = filters.dueDate.some((dueDateFilter) => {
-          if (dueDateFilter === "No due date") {
+          if (dueDateFilter === DUE_DATE_FILTER_VALUES.noDueDate) {
             return !task.dueDate;
           }
 
@@ -115,7 +121,7 @@ export function useTaskFilters(
           }
 
           switch (dueDateFilter) {
-            case "Due this week": {
+            case DUE_DATE_FILTER_VALUES.dueThisWeek: {
               const weekStart = startOfWeek(today);
               const weekEnd = endOfWeek(today);
               return isWithinInterval(taskDate, {
@@ -123,7 +129,7 @@ export function useTaskFilters(
                 end: weekEnd,
               });
             }
-            case "Due next week": {
+            case DUE_DATE_FILTER_VALUES.dueNextWeek: {
               const nextWeekStart = startOfWeek(addWeeks(today, 1));
               const nextWeekEnd = endOfWeek(addWeeks(today, 1));
               return isWithinInterval(taskDate, {

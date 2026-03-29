@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { projectId } = useParams({ strict: false });
   const { data: workspace } = useActiveWorkspace();
   const { data: project } = useGetProject({
@@ -52,15 +54,17 @@ function RouteComponent() {
           queryKey: ["projects", workspace?.id, project.id],
         }),
       ]);
-      toast.success("Visibility updated");
+      toast.success(t("settings:projectVisibility.toastUpdated"));
     } catch (e) {
       toast.error(
-        e instanceof Error ? e.message : "Failed to update visibility",
+        e instanceof Error
+          ? e.message
+          : t("settings:projectVisibility.toastUpdateError"),
       );
     } finally {
       savingRef.current = false;
     }
-  }, [project, updateProject, queryClient, workspace?.id]);
+  }, [project, updateProject, queryClient, workspace?.id, t]);
 
   const origin = window.location.origin;
 
@@ -68,29 +72,35 @@ function RouteComponent() {
 
   return (
     <>
-      <PageTitle title="Project Visibility" />
+      <PageTitle title={t("settings:projectVisibility.pageTitle")} />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">Visibility</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("settings:projectVisibility.title")}
+          </h1>
           <p className="text-muted-foreground">
-            Control who can view and access your project.
+            {t("settings:projectVisibility.subtitle")}
           </p>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-1">
-            <h2 className="text-md font-medium">Visibility</h2>
+            <h2 className="text-md font-medium">
+              {t("settings:projectVisibility.sectionTitle")}
+            </h2>
             <p className="text-xs text-muted-foreground">
-              Toggle public access and share the public URL.
+              {t("settings:projectVisibility.sectionSubtitle")}
             </p>
           </div>
 
           <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="text-sm font-medium">Public access</Label>
+                <Label className="text-sm font-medium">
+                  {t("settings:projectVisibility.publicAccess")}
+                </Label>
                 <p className="text-xs text-muted-foreground">
-                  Allow anyone with the URL to view this project
+                  {t("settings:projectVisibility.publicAccessHint")}
                 </p>
               </div>
               <Switch
@@ -103,9 +113,11 @@ function RouteComponent() {
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="text-sm font-medium">Public URL</Label>
+                <Label className="text-sm font-medium">
+                  {t("settings:projectVisibility.publicUrl")}
+                </Label>
                 <p className="text-xs text-muted-foreground">
-                  Share this link if the project is public
+                  {t("settings:projectVisibility.publicUrlHint")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -116,10 +128,14 @@ function RouteComponent() {
                     if (!publicUrl) return;
                     navigator.clipboard
                       .writeText(publicUrl)
-                      .then(() => toast.success("Copied"));
+                      .then(() =>
+                        toast.success(
+                          t("settings:projectVisibility.copiedToast"),
+                        ),
+                      );
                   }}
                 >
-                  Copy
+                  {t("settings:projectVisibility.copy")}
                 </Button>
               </div>
             </div>
