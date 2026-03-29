@@ -78,7 +78,7 @@
 				"namePlaceholder": "Nom de l'espace de travail",
 				"descriptionPlaceholder": "Ajouter une description...",
 				"createButton": "Créer l'espace de travail",
-				"successToast": "Espace de travail crée avec succès",
+				"successToast": "Espace de travail créé avec succès",
 				"errorToast": "Échec de la création de l'espace de travail"
 			},
 			"createTask": {
@@ -103,11 +103,11 @@
 				"assignUnassignedTitle": "Non assigné",
 				"labels": "Labels",
 				"searchLabels": "Rechercher des labels...",
-				"noLabelsFound": "Aucune label trouvée",
+				"noLabelsFound": "Aucun label trouvé",
 				"createLabel": "Créer \"{{name}}\"",
 				"chooseColor": "Choisir une couleur",
-				"labelCreated": "Label créée",
-				"labelCreateError": "Échec de la création de l'label",
+				"labelCreated": "Label créé",
+				"labelCreateError": "Échec de la création du label",
 				"createMore": "Créer plus",
 				"createButton": "Créer la tâche",
 				"untitledTask": "Tâche sans titre",
@@ -603,7 +603,7 @@
 			"importDisabledHint": "Complétez la configuration du dépôt ci-dessus pour activer l'importation"
 		},
 		"repositoryBrowser": {
-			"title": "Selectionner un dêpot",
+			"title": "Sélectionner un dépôt",
 			"description": "Choisissez un dépôt où votre application GitHub est installée pour activer la synchronisation des problèmes.",
 			"searchPlaceholder": "Rechercher des dépôts...",
 			"loadError": "Échec du chargement des dépôts",
@@ -617,9 +617,9 @@
 			"manageInstallations": "Gérer les installations",
 			"updatedPrefix": "Mis à jour",
 			"relativeJustNow": "Maintenant",
-			"relativeMinutesAgo": "il y à {{count}}m",
-			"relativeHoursAgo": "il y à {{count}}h",
-			"relativeDaysAgo": "il y à {{count}}d"
+			"relativeMinutesAgo": "il y a {{count}}m",
+			"relativeHoursAgo": "il y a {{count}}h",
+			"relativeDaysAgo": "il y a {{count}}j"
 		},
 		"tasksImportExport": {
 			"exportTasks": "Exporter les tâches",
