@@ -59,6 +59,7 @@ function RouteComponent() {
   const localeLabels: Record<string, string> = {
     "en-US": t("common:language.english"),
     "de-DE": t("common:language.german"),
+    "el-GR": t("common:language.greek"),
   };
 
   return (
@@ -149,6 +150,9 @@ function RouteComponent() {
                 </SelectItem>
                 <SelectItem value="de-DE">
                   {t("common:language.german")}
+                </SelectItem>
+                <SelectItem value="el-GR">
+                  {t("common:language.greek")}
                 </SelectItem>
               </SelectContent>
             </Select>
