@@ -42,7 +42,7 @@
 		"@tanstack/react-router": "^1.167.0",
 		"@tanstack/router-devtools": "^1.166.2",
 		"@tanstack/router-plugin": "^1.164.0",
-		"@tiptap/core": "^3.20.1",
+		"@tiptap/core": "^3.21.0",
 		"@tiptap/extension-code-block-lowlight": "^3.20.1",
 		"@tiptap/extension-image": "^3.20.1",
 		"@tiptap/extension-link": "^3.20.1",
