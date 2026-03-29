@@ -193,12 +193,12 @@ subscribeToEvent<{
   taskId: string;
   userId: string;
   type: string;
-  content: string;
+  content: string | null;
 }>("task.created", async (data) => {
-  if (!data.userId || !data.taskId || !data.type || !data.content) {
+  if (!data.userId || !data.taskId || !data.type) {
     return;
   }
-  await createActivity(data.taskId, data.type, data.userId, data.content, null);
+  await createActivity(data.taskId, data.type, data.userId, null, {});
 });
 
 subscribeToEvent<{

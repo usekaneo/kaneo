@@ -1,5 +1,6 @@
 import { Link, Section, Text } from "@react-email/components";
 import React from "react";
+import { resolveEmailLocale } from "./resolve-locale";
 import { EmailShell, styles } from "./shell";
 
 void React;
@@ -51,30 +52,28 @@ const WorkspaceInvitationEmail = ({
   invitationLink,
   to,
   locale,
-}: WorkspaceInvitationEmailProps) =>
-  (() => {
-    const localeKey = locale?.toLowerCase().startsWith("de") ? "de" : "en";
-    const copy = messages[localeKey];
-    const values = { workspaceName, inviterName, inviterEmail };
+}: WorkspaceInvitationEmailProps) => {
+  const copy = messages[resolveEmailLocale(locale)];
+  const values = { workspaceName, inviterName, inviterEmail };
 
-    return (
-      <EmailShell
-        preview={interpolate(copy.preview, values)}
-        title={interpolate(copy.title, values)}
-        subtitle={interpolate(copy.subtitle, values)}
-      >
-        <Section>
-          <Link style={styles.button} href={`${invitationLink}?email=${to}`}>
-            {copy.cta}
-          </Link>
-          <Text style={styles.paragraph}>{copy.sameEmail}</Text>
-          <Text style={styles.muted}>{copy.ignore}</Text>
-          <Section style={styles.divider} />
-          <Text style={styles.footer}>{copy.footer}</Text>
-        </Section>
-      </EmailShell>
-    );
-  })();
+  return (
+    <EmailShell
+      preview={interpolate(copy.preview, values)}
+      title={interpolate(copy.title, values)}
+      subtitle={interpolate(copy.subtitle, values)}
+    >
+      <Section>
+        <Link style={styles.button} href={`${invitationLink}?email=${to}`}>
+          {copy.cta}
+        </Link>
+        <Text style={styles.paragraph}>{copy.sameEmail}</Text>
+        <Text style={styles.muted}>{copy.ignore}</Text>
+        <Section style={styles.divider} />
+        <Text style={styles.footer}>{copy.footer}</Text>
+      </Section>
+    </EmailShell>
+  );
+};
 
 WorkspaceInvitationEmail.PreviewProps = {
   workspaceName: "Acme Inc",

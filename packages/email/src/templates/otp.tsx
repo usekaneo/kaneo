@@ -1,5 +1,6 @@
 import { Section, Text } from "@react-email/components";
 import React from "react";
+import { resolveEmailLocale } from "./resolve-locale";
 import { EmailShell, styles } from "./shell";
 
 void React;
@@ -32,9 +33,7 @@ const messages = {
 } as const;
 
 const OtpEmail = ({ otp, locale }: OtpEmailProps) => {
-  const copy = locale?.toLowerCase().startsWith("de")
-    ? messages.de
-    : messages.en;
+  const copy = messages[resolveEmailLocale(locale)];
 
   return (
     <EmailShell

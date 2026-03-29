@@ -12,6 +12,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -74,13 +75,16 @@ function BacklogBulkToolbar() {
   const { selectedTaskIds, clearSelection, selectAll } =
     useBacklogBulkSelectionStore();
 
-  const priorityOptions = [
-    { value: "urgent", label: getPriorityLabel("urgent") },
-    { value: "high", label: getPriorityLabel("high") },
-    { value: "medium", label: getPriorityLabel("medium") },
-    { value: "low", label: getPriorityLabel("low") },
-    { value: "no-priority", label: getPriorityLabel("no-priority") },
-  ];
+  const priorityOptions = useMemo(
+    () => [
+      { value: "urgent", label: getPriorityLabel("urgent") },
+      { value: "high", label: getPriorityLabel("high") },
+      { value: "medium", label: getPriorityLabel("medium") },
+      { value: "low", label: getPriorityLabel("low") },
+      { value: "no-priority", label: getPriorityLabel("no-priority") },
+    ],
+    [],
+  );
   const { project } = useProjectStore();
   const {
     bulkMoveToBoard,

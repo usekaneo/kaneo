@@ -651,7 +651,7 @@ export default function BoardToolbar({
               onClick={() => setViewMode("board")}
             >
               <PanelsTopLeft className="h-3 w-3" />
-              Board
+              {t("tasks:view.board")}
             </button>
             <button
               type="button"
@@ -663,7 +663,7 @@ export default function BoardToolbar({
               onClick={() => setViewMode("list")}
             >
               <Rows3 className="h-3 w-3" />
-              List
+              {t("tasks:view.list")}
             </button>
           </div>
         </div>

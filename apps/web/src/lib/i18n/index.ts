@@ -44,6 +44,7 @@ void i18n.use(initReactI18next).init({
   resources,
   lng: resolveLocale(null, getBrowserLocale()),
   fallbackLng: defaultLocale,
+  ns: Object.keys(resources[defaultLocale]),
   defaultNS: "common",
   interpolation: {
     escapeValue: false,

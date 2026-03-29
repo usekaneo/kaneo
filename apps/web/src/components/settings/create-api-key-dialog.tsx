@@ -203,7 +203,11 @@ export function CreateApiKeyDialog({
                             placeholder={t(
                               "settings:apiKey.createDialog.expirationPlaceholder",
                             )}
-                          />
+                          >
+                            {expirationOptions.find(
+                              (o) => o.value === field.value,
+                            )?.label ?? field.value}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {expirationOptions.map((option) => (

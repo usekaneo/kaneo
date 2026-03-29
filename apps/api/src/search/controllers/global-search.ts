@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
@@ -87,6 +87,8 @@ function getActivitySearchContent(
       return `changed due date from ${String(data.oldDueDate)} to ${String(data.newDueDate)}`;
     case "title_changed":
       return `changed title from "${String(data.oldTitle ?? "")}" to "${String(data.newTitle ?? "")}"`;
+    case "task":
+      return "created the task";
     default:
       return undefined;
   }
@@ -142,7 +144,7 @@ async function globalSearch(params: SearchParams): Promise<{
 
   const workspaceFilter = workspaceId
     ? eq(projectTable.workspaceId, workspaceId)
-    : sql`${projectTable.workspaceId} IN ${accessibleWorkspaceIds}`;
+    : inArray(projectTable.workspaceId, accessibleWorkspaceIds);
 
   // Check if query matches short-id pattern (e.g. "DEP-23")
   const shortIdMatch = query.match(/^([A-Za-z][\w-]*)-(\d+)$/);
@@ -151,12 +153,9 @@ async function globalSearch(params: SearchParams): Promise<{
     const seenTaskIds = new Set<string>();
 
     // If query matches short-id pattern, look up by project slug + task number first
-    if (shortIdMatch) {
+    if (shortIdMatch?.[1] && shortIdMatch[2]) {
       const slug = shortIdMatch[1];
       const numberStr = shortIdMatch[2];
-      if (!slug || !numberStr) {
-        return { results: [], totalCount: 0, searchQuery: query };
-      }
       const taskNumber = Number.parseInt(numberStr, 10);
 
       const shortIdTasks = await db
@@ -361,7 +360,7 @@ async function globalSearch(params: SearchParams): Promise<{
       )
       .where(
         and(
-          sql`${workspaceTable.id} IN ${accessibleWorkspaceIds}`,
+          inArray(workspaceTable.id, accessibleWorkspaceIds),
           or(
             ilike(workspaceTable.name, searchPattern),
             ilike(workspaceTable.description, searchPattern),

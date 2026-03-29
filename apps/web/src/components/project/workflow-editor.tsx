@@ -104,7 +104,11 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
                     placeholder={t(
                       "settings:workflowEditor.selectColumnPlaceholder",
                     )}
-                  />
+                  >
+                    {columns.find((c) => c.id === currentRule?.columnId)
+                      ?.name ??
+                      t("settings:workflowEditor.selectColumnPlaceholder")}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {columns.map((col) => (

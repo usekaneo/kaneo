@@ -1,5 +1,6 @@
+import type { AppLocale } from "@i18n/resources";
 import { createFileRoute } from "@tanstack/react-router";
-import { LayoutGrid, List, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,8 +30,6 @@ function RouteComponent() {
     setTheme,
     viewMode,
     setViewMode,
-    compactMode,
-    setCompactMode,
     showTaskNumbers,
     setShowTaskNumbers,
     showAssignees,
@@ -45,6 +44,22 @@ function RouteComponent() {
     sidebarDefaultOpen,
     setSidebarDefaultOpen,
   } = useUserPreferencesStore();
+
+  const themeLabels: Record<string, string> = {
+    light: t("settings:preferencesPage.themeLight"),
+    dark: t("settings:preferencesPage.themeDark"),
+    system: t("settings:preferencesPage.themeSystem"),
+  };
+
+  const viewLabels: Record<string, string> = {
+    board: t("settings:preferencesPage.board"),
+    list: t("settings:preferencesPage.list"),
+  };
+
+  const localeLabels: Record<string, string> = {
+    "en-US": t("common:language.english"),
+    "de-DE": t("common:language.german"),
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -81,42 +96,22 @@ function RouteComponent() {
               value={theme}
               onValueChange={(value) => value && setTheme(value)}
             >
-              <SelectTrigger className="!py-4">
+              <SelectTrigger size="sm" className="w-40">
                 <SelectValue
                   placeholder={t("settings:preferencesPage.selectTheme")}
-                />
+                >
+                  {themeLabels[theme]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="light">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 rounded-md border border-border bg-muted p-1">
-                      <span className="rounded-full size-2 bg-primary" />
-                      <span className="text-xs font-normal text-foreground">
-                        Aa
-                      </span>
-                    </div>
-                    <span className="text-xs font-normal">
-                      {t("settings:preferencesPage.themeLight")}
-                    </span>
-                  </div>
+                  {t("settings:preferencesPage.themeLight")}
                 </SelectItem>
                 <SelectItem value="dark">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 rounded-md border border-border bg-card p-1">
-                      <span className="rounded-full size-2 bg-primary" />
-                      <span className="text-xs font-normal text-foreground">
-                        Aa
-                      </span>
-                    </div>
-                    <span className="text-xs font-normal">
-                      {t("settings:preferencesPage.themeDark")}
-                    </span>
-                  </div>
+                  {t("settings:preferencesPage.themeDark")}
                 </SelectItem>
                 <SelectItem value="system">
-                  <span className="text-xs font-normal">
-                    {t("settings:preferencesPage.themeSystem")}
-                  </span>
+                  {t("settings:preferencesPage.themeSystem")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -137,14 +132,16 @@ function RouteComponent() {
               value={locale ?? "en-US"}
               onValueChange={(value) => {
                 if (value) {
-                  void setLocale(value);
+                  void setLocale(value as AppLocale);
                 }
               }}
             >
-              <SelectTrigger className="!py-4">
+              <SelectTrigger size="sm" className="w-40">
                 <SelectValue
                   placeholder={t("settings:preferencesPage.selectLanguage")}
-                />
+                >
+                  {localeLabels[locale ?? "en-US"]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en-US">
@@ -172,44 +169,22 @@ function RouteComponent() {
               value={viewMode}
               onValueChange={(value) => value && setViewMode(value)}
             >
-              <SelectTrigger className="!py-4">
+              <SelectTrigger size="sm" className="w-40">
                 <SelectValue
                   placeholder={t("settings:preferencesPage.selectViewMode")}
-                />
+                >
+                  {viewLabels[viewMode]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="board">
-                  <div className="flex items-center gap-3">
-                    <LayoutGrid className="h-4 w-4 mr-1" />
-                    <span className="text-xs font-normal">
-                      {t("settings:preferencesPage.board")}
-                    </span>
-                  </div>
+                  {t("settings:preferencesPage.board")}
                 </SelectItem>
                 <SelectItem value="list">
-                  <div className="flex items-center gap-3">
-                    <List className="h-4 w-4 mr-1" />
-                    <span className="text-xs font-normal">
-                      {t("settings:preferencesPage.list")}
-                    </span>
-                  </div>
+                  {t("settings:preferencesPage.list")}
                 </SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <Separator />
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
-                {t("settings:preferencesPage.compactMode")}
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                {t("settings:preferencesPage.compactModeDescription")}
-              </p>
-            </div>
-            <Switch checked={compactMode} onCheckedChange={setCompactMode} />
           </div>
 
           <Separator />
