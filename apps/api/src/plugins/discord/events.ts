@@ -48,6 +48,19 @@ function truncate(value: string, maxLength: number): string {
   return `${value.slice(0, maxLength - 1)}…`;
 }
 
+function redactWebhookUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    const parts = url.pathname.split("/").filter(Boolean);
+    const token = parts.at(-1) ?? "";
+    const maskedToken =
+      token.length > 6 ? `${token.slice(0, 2)}…${token.slice(-4)}` : "redacted";
+    return `${url.origin}/${parts.slice(0, -1).join("/")}/${maskedToken}`;
+  } catch {
+    return "redacted";
+  }
+}
+
 async function getDiscordEventData(
   taskId: string,
   projectId: string,
@@ -149,7 +162,8 @@ async function sendDiscordMessage(
   } catch (error) {
     console.error("sendDiscordMessage postToDiscord failed", {
       error,
-      webhookUrl: config.webhookUrl,
+      webhookUrl: redactWebhookUrl(config.webhookUrl),
+      channelName: config.channelName ?? null,
       taskUrl: data.taskUrl,
     });
   }
