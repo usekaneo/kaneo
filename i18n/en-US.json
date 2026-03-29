@@ -492,6 +492,8 @@
 			"githubSectionSubtitle": "Synchronize tasks with GitHub issues and enable two-way sync.",
 			"discordSectionTitle": "Discord Integration",
 			"discordSectionSubtitle": "Send project task updates into a Discord channel with a webhook.",
+			"genericWebhookSectionTitle": "Generic Webhooks",
+			"genericWebhookSectionSubtitle": "Send project task events to any HTTP endpoint as JSON.",
 			"slackSectionTitle": "Slack Integration",
 			"slackSectionSubtitle": "Send project task updates into a Slack channel with an incoming webhook."
 		},
@@ -677,6 +679,44 @@
 			"connect": "Connect Discord",
 			"saveChanges": "Save changes",
 			"update": "Update Discord",
+			"disconnect": "Disconnect"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid webhook URL"
+			},
+			"toast": {
+				"saved": "Generic webhook integration saved successfully",
+				"saveError": "Failed to save generic webhook integration",
+				"enabled": "Generic webhook notifications enabled",
+				"disabled": "Generic webhook notifications paused",
+				"updateError": "Failed to update generic webhook integration",
+				"removed": "Generic webhook integration removed successfully",
+				"removeError": "Failed to remove generic webhook integration"
+			},
+			"connectionTitle": "Outgoing webhook connection",
+			"connectionHint": "Send task events to your own endpoint as JSON. A signed X-Kaneo-Signature header is included when a secret is configured.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Endpoint URL",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo sends POST requests with a JSON payload for each enabled event.",
+			"secretLabel": "Signing secret",
+			"secretPlaceholder": "Optional shared secret",
+			"secretHint": "Optional. If provided, Kaneo signs the request body and sends the hex digest in the X-Kaneo-Signature header.",
+			"secretHintConfigured": "A signing secret is already configured ({{secret}}). Enter a new one to replace it.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should trigger outgoing webhooks.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect webhook",
+			"saveChanges": "Save changes",
 			"disconnect": "Disconnect"
 		},
 		"repositoryBrowser": {

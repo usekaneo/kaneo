@@ -492,6 +492,8 @@
 			"githubSectionSubtitle": "Synchronisiere Aufgaben mit GitHub-Issues und aktiviere die bidirektionale Synchronisierung.",
 			"discordSectionTitle": "Discord-Integration",
 			"discordSectionSubtitle": "Sende Projektaktualisierungen per Webhook in einen Discord-Kanal.",
+			"genericWebhookSectionTitle": "Generische Webhooks",
+			"genericWebhookSectionSubtitle": "Sende Projektaufgabenereignisse als JSON an einen beliebigen HTTP-Endpunkt.",
 			"slackSectionTitle": "Slack-Integration",
 			"slackSectionSubtitle": "Sende Projektaktualisierungen per Incoming Webhook in einen Slack-Kanal."
 		},
@@ -677,6 +679,44 @@
 			"connect": "Discord verbinden",
 			"saveChanges": "Änderungen speichern",
 			"update": "Discord aktualisieren",
+			"disconnect": "Trennen"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Gib eine gültige Webhook-URL ein"
+			},
+			"toast": {
+				"saved": "Generische Webhook-Integration erfolgreich gespeichert",
+				"saveError": "Generische Webhook-Integration konnte nicht gespeichert werden",
+				"enabled": "Generische Webhook-Benachrichtigungen aktiviert",
+				"disabled": "Generische Webhook-Benachrichtigungen pausiert",
+				"updateError": "Generische Webhook-Integration konnte nicht aktualisiert werden",
+				"removed": "Generische Webhook-Integration erfolgreich entfernt",
+				"removeError": "Generische Webhook-Integration konnte nicht entfernt werden"
+			},
+			"connectionTitle": "Ausgehende Webhook-Verbindung",
+			"connectionHint": "Sende Aufgabenereignisse als JSON an deinen eigenen Endpunkt. Wenn ein Secret konfiguriert ist, wird ein signierter X-Kaneo-Signature-Header mitgesendet.",
+			"connected": "Verbunden",
+			"paused": "Pausiert",
+			"webhookLabel": "Endpunkt-URL",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo sendet POST-Anfragen mit einer JSON-Nutzlast für jedes aktivierte Ereignis.",
+			"secretLabel": "Signatur-Secret",
+			"secretPlaceholder": "Optionales gemeinsames Secret",
+			"secretHint": "Optional. Wenn gesetzt, signiert Kaneo den Request-Body und sendet den Hex-Digest im Header X-Kaneo-Signature.",
+			"secretHintConfigured": "Ein Signatur-Secret ist bereits konfiguriert ({{secret}}). Gib ein neues ein, um es zu ersetzen.",
+			"eventsTitle": "Ereignisbenachrichtigungen",
+			"eventsHint": "Wähle aus, welche Projektänderungen ausgehende Webhooks auslösen sollen.",
+			"events": {
+				"taskCreated": "Neue Aufgaben",
+				"taskStatusChanged": "Statusänderungen",
+				"taskPriorityChanged": "Prioritätsänderungen",
+				"taskTitleChanged": "Titeländerungen",
+				"taskDescriptionChanged": "Beschreibungsänderungen",
+				"taskCommentCreated": "Neue Kommentare"
+			},
+			"connect": "Webhook verbinden",
+			"saveChanges": "Änderungen speichern",
 			"disconnect": "Trennen"
 		},
 		"repositoryBrowser": {

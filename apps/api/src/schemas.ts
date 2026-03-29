@@ -151,6 +151,26 @@ export const discordIntegrationSchema = v.object({
   updatedAt: v.date(),
 });
 
+export const genericWebhookIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  webhookConfigured: v.boolean(),
+  webhookUrl: v.string(),
+  secretConfigured: v.boolean(),
+  maskedSecret: v.nullable(v.string()),
+  events: v.object({
+    taskCreated: v.boolean(),
+    taskStatusChanged: v.boolean(),
+    taskPriorityChanged: v.boolean(),
+    taskTitleChanged: v.boolean(),
+    taskDescriptionChanged: v.boolean(),
+    taskCommentCreated: v.boolean(),
+  }),
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
 export const commentSchema = v.object({
   id: v.string(),
   taskId: v.string(),

@@ -20,6 +20,7 @@ import config from "./config";
 import db, { schema } from "./database";
 import discordIntegration from "./discord-integration";
 import externalLink from "./external-link";
+import genericWebhookIntegration from "./generic-webhook-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -397,6 +398,10 @@ const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
+const genericWebhookIntegrationApi = api.route(
+  "/generic-webhook-integration",
+  genericWebhookIntegration,
+);
 const discordIntegrationApi = api.route(
   "/discord-integration",
   discordIntegration,
@@ -456,6 +461,7 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
   | typeof slackIntegrationApi
   | typeof taskRelationApi
