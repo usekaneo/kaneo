@@ -96,7 +96,7 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
     useDeleteSlackIntegration();
   const normalizedValues = React.useMemo<SlackIntegrationFormValues>(
     () => ({
-      webhookUrl: integration?.webhookUrl ?? "",
+      webhookUrl: "",
       channelName: integration?.channelName ?? "",
       taskCreated: integration?.events?.taskCreated ?? true,
       taskStatusChanged: integration?.events?.taskStatusChanged ?? true,

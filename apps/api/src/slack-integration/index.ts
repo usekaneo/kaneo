@@ -56,7 +56,6 @@ function toResponse(integration: {
     projectId: integration.projectId,
     channelName: config.channelName ?? null,
     webhookConfigured: Boolean(config.webhookUrl),
-    webhookUrl: config.webhookUrl ?? "",
     maskedWebhookUrl: maskWebhookUrl(config.webhookUrl),
     events: {
       ...defaultSlackEvents,
