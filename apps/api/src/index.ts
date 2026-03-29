@@ -18,6 +18,7 @@ import column from "./column";
 import comment from "./comment";
 import config from "./config";
 import db, { schema } from "./database";
+import discordIntegration from "./discord-integration";
 import externalLink from "./external-link";
 import githubIntegration, {
   handleGithubWebhookRoute,
@@ -396,6 +397,10 @@ const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
+const discordIntegrationApi = api.route(
+  "/discord-integration",
+  discordIntegration,
+);
 const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
 const taskRelationApi = api.route("/task-relation", taskRelation);
 const externalLinkApi = api.route("/external-link", externalLink);
@@ -451,6 +456,7 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof discordIntegrationApi
   | typeof slackIntegrationApi
   | typeof taskRelationApi
   | typeof externalLinkApi

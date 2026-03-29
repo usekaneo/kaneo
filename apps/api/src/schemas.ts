@@ -131,6 +131,26 @@ export const slackIntegrationSchema = v.object({
   updatedAt: v.date(),
 });
 
+export const discordIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  channelName: v.nullable(v.string()),
+  webhookConfigured: v.boolean(),
+  webhookUrl: v.string(),
+  maskedWebhookUrl: v.string(),
+  events: v.object({
+    taskCreated: v.boolean(),
+    taskStatusChanged: v.boolean(),
+    taskPriorityChanged: v.boolean(),
+    taskTitleChanged: v.boolean(),
+    taskDescriptionChanged: v.boolean(),
+    taskCommentCreated: v.boolean(),
+  }),
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
 export const commentSchema = v.object({
   id: v.string(),
   taskId: v.string(),

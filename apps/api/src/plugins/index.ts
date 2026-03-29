@@ -1,3 +1,4 @@
+import { discordPlugin } from "./discord";
 import { githubPlugin, initializeGitHubPlugin } from "./github";
 import { initializeEventSubscriptions, registerPlugin } from "./registry";
 import { slackPlugin } from "./slack";
@@ -7,6 +8,7 @@ export function initializePlugins() {
 
   registerPlugin(githubPlugin);
   registerPlugin(slackPlugin);
+  registerPlugin(discordPlugin);
   initializeGitHubPlugin();
   initializeEventSubscriptions();
 

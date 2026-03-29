@@ -490,6 +490,8 @@
 			"subtitle": "Connect your project with external tools and services to streamline your workflow.",
 			"githubSectionTitle": "GitHub Integration",
 			"githubSectionSubtitle": "Synchronize tasks with GitHub issues and enable two-way sync.",
+			"discordSectionTitle": "Discord Integration",
+			"discordSectionSubtitle": "Send project task updates into a Discord channel with a webhook.",
 			"slackSectionTitle": "Slack Integration",
 			"slackSectionSubtitle": "Send project task updates into a Slack channel with an incoming webhook."
 		},
@@ -637,6 +639,44 @@
 			"connect": "Connect Slack",
 			"saveChanges": "Save changes",
 			"update": "Update Slack",
+			"disconnect": "Disconnect"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid Discord webhook URL"
+			},
+			"toast": {
+				"saved": "Discord integration saved successfully",
+				"saveError": "Failed to save Discord integration",
+				"enabled": "Discord notifications enabled",
+				"disabled": "Discord notifications paused",
+				"updateError": "Failed to update Discord integration",
+				"removed": "Discord integration removed successfully",
+				"removeError": "Failed to remove Discord integration"
+			},
+			"connectionTitle": "Discord webhook connection",
+			"connectionHint": "Paste a Discord webhook URL and choose which task events should be posted.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Webhook URL",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Create a Discord channel webhook and paste the generated URL here.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optional label for your reference. Discord controls the actual destination channel from the webhook setup.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should post to Discord.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect Discord",
+			"saveChanges": "Save changes",
+			"update": "Update Discord",
 			"disconnect": "Disconnect"
 		},
 		"repositoryBrowser": {

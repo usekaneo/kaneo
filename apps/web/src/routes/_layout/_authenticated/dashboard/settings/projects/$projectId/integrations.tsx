@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ChevronDown, Github, Webhook } from "lucide-react";
+import { ChevronDown, Github, MessageCircle, Webhook } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
+import { DiscordIntegrationSettings } from "@/components/project/discord-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
 import {
@@ -42,6 +43,14 @@ function RouteComponent() {
             title={t("settings:projectIntegrations.githubSectionTitle")}
           >
             <GitHubIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<MessageCircle className="size-4" />}
+            subtitle={t("settings:projectIntegrations.discordSectionSubtitle")}
+            title={t("settings:projectIntegrations.discordSectionTitle")}
+          >
+            <DiscordIntegrationSettings projectId={projectId} />
           </IntegrationSection>
 
           <IntegrationSection
