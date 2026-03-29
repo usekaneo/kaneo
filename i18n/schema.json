@@ -147,9 +147,12 @@
 						},
 						"german": {
 							"type": "string"
+						},
+						"greek": {
+							"type": "string"
 						}
 					},
-					"required": ["english", "german"]
+					"required": ["english", "german", "greek"]
 				},
 				"people": {
 					"type": "object",
