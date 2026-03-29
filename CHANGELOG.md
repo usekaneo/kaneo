@@ -6,6 +6,38 @@
 * **api:** restore activity search for event data ([025d6fe](https://github.com/usekaneo/kaneo/commit/025d6fe065c330bdeb504abd59e82405f286cb3a))
 * **auth:** localize invitation email subject ([4f3f10a](https://github.com/usekaneo/kaneo/commit/4f3f10a788bb1e8c96bd6ab5017f04d1b586e7b6))
 * **deps:** patch security vulnerabilities in transitive dependencies ([b560b17](https://github.com/usekaneo/kaneo/commit/b560b17f70553806bc4da3d70562b052ded7b134))
+* **docker:** copy i18n directory into web container build context ([187c72c](https://github.com/usekaneo/kaneo/commit/187c72cd03f58e1705bd62901827beef09dae7c7))
+* **email:** localize auth sign-in emails ([e00a6e6](https://github.com/usekaneo/kaneo/commit/e00a6e633c865377b9dc3a44b54ceada7ce96352))
+* resolve i18n review issues and improve UI components ([7a2172f](https://github.com/usekaneo/kaneo/commit/7a2172f0742b7a79dd3844081580bc4ed7b495f7))
+* **ui:** touchAction on the sortable row style object is now conditional on isDragging ([#1098](https://github.com/usekaneo/kaneo/issues/1098)) ([fad643e](https://github.com/usekaneo/kaneo/commit/fad643e529ef38ccb3ba23a5a1b815723b0a1ded))
+* **web:** correct backlog priority filter chip label ([c3bda60](https://github.com/usekaneo/kaneo/commit/c3bda6029985ea43242164b5f024db5cbf954878))
+* **web:** invalidate session after locale updates ([2566f3e](https://github.com/usekaneo/kaneo/commit/2566f3eed6805b4d05c23c139be68c0677a5e3d0))
+* **web:** make backlog due-date labels explicit ([5ea45a9](https://github.com/usekaneo/kaneo/commit/5ea45a91cb72b332d50bd31e1863fbb3aaf79229))
+* **web:** preserve exact locale matching in resolver ([b9eae21](https://github.com/usekaneo/kaneo/commit/b9eae212cda8c7e9bf0a24de6242848053f6068c))
+* **web:** refresh bulk priority labels on locale change ([966b75b](https://github.com/usekaneo/kaneo/commit/966b75b242ef08c9f3486d43c4453db823196b67))
+
+
+### Features
+
+* add initial configuration for Coderabbit integration ([#1099](https://github.com/usekaneo/kaneo/issues/1099)) ([2a4fa06](https://github.com/usekaneo/kaneo/commit/2a4fa066cdf7dc14bfd0522a749f9a4bb9ac14b5))
+* **api:** add user locale and event_data columns for i18n ([270c5c7](https://github.com/usekaneo/kaneo/commit/270c5c719d6664256572ce16d74a25cd8f493d30))
+* **api:** persist structured activity and notification events for i18n ([51c7a8c](https://github.com/usekaneo/kaneo/commit/51c7a8c56b456721236d49fd77a8b759eb430017))
+* **api:** wire user locale into auth and API validation ([fff7d5e](https://github.com/usekaneo/kaneo/commit/fff7d5e7900036d135421ff59e3487f82227d63f))
+* **email:** localize workspace invitation template ([f6bec30](https://github.com/usekaneo/kaneo/commit/f6bec303e27bc4cbe79422dcc40bddd2dfa120bf))
+* **i18n:** add check, report, and schema maintenance scripts ([c2204ab](https://github.com/usekaneo/kaneo/commit/c2204ab2e643ef9d6bef770c40cdc726eddbaf1c))
+* **i18n:** add English and German translation catalogs and schema ([8c27064](https://github.com/usekaneo/kaneo/commit/8c27064dd8308a627ac15abe4c535c53663f56d7))
+* **web:** add i18next, locale hook, and Vite i18n integration ([8603385](https://github.com/usekaneo/kaneo/commit/860338571830f320884952a14d658a3b2b348571))
+* **web:** internationalize components and task filter hooks ([06aee41](https://github.com/usekaneo/kaneo/commit/06aee41a0b2b3798edc39284da5e5ca055032d94))
+* **web:** internationalize routes and notification types ([8132bab](https://github.com/usekaneo/kaneo/commit/8132bab6c4e3f385870c2defbc082d11b136041d))
+* **web:** sync locale with auth session and account preferences ([d2339ff](https://github.com/usekaneo/kaneo/commit/d2339ffe2051730fe853ed36dcb9022f39ee293e))
+## [2.4.2](https://github.com/usekaneo/kaneo/compare/v2.4.1...v2.4.2) (2026-03-29)
+
+
+### Bug Fixes
+
+* **api:** restore activity search for event data ([025d6fe](https://github.com/usekaneo/kaneo/commit/025d6fe065c330bdeb504abd59e82405f286cb3a))
+* **auth:** localize invitation email subject ([4f3f10a](https://github.com/usekaneo/kaneo/commit/4f3f10a788bb1e8c96bd6ab5017f04d1b586e7b6))
+* **deps:** patch security vulnerabilities in transitive dependencies ([b560b17](https://github.com/usekaneo/kaneo/commit/b560b17f70553806bc4da3d70562b052ded7b134))
 * **email:** localize auth sign-in emails ([e00a6e6](https://github.com/usekaneo/kaneo/commit/e00a6e633c865377b9dc3a44b54ceada7ce96352))
 * resolve i18n review issues and improve UI components ([7a2172f](https://github.com/usekaneo/kaneo/commit/7a2172f0742b7a79dd3844081580bc4ed7b495f7))
 * **ui:** touchAction on the sortable row style object is now conditional on isDragging ([#1098](https://github.com/usekaneo/kaneo/issues/1098)) ([fad643e](https://github.com/usekaneo/kaneo/commit/fad643e529ef38ccb3ba23a5a1b815723b0a1ded))
