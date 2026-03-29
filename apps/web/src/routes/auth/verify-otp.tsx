@@ -2,8 +2,9 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { createFileRoute, useRouter, useSearch } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { ArrowLeft, RefreshCcw } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -25,12 +26,6 @@ import { authClient } from "@/lib/auth-client";
 import { toast } from "@/lib/toast";
 import { AuthLayout } from "../../components/auth/layout";
 
-const verifyOtpSchema = z.object({
-  otp: z.string().length(6, "Code must be 6 digits"),
-});
-
-type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>;
-
 export const Route = createFileRoute("/auth/verify-otp")({
   component: VerifyOtp,
   validateSearch: (search: Record<string, unknown>) => ({
@@ -40,9 +35,20 @@ export const Route = createFileRoute("/auth/verify-otp")({
 });
 
 function VerifyOtp() {
+  const { t } = useTranslation();
   const { history } = useRouter();
   const { email, invitationId } = useSearch({ from: "/auth/verify-otp" });
   const [isPending, setIsPending] = useState(false);
+
+  const verifyOtpSchema = useMemo(
+    () =>
+      z.object({
+        otp: z.string().length(6, t("auth:verifyOtp.validation.codeLength")),
+      }),
+    [t],
+  );
+
+  type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>;
 
   const form = useForm<VerifyOtpFormValues>({
     resolver: standardSchemaResolver(verifyOtpSchema),
@@ -59,11 +65,13 @@ function VerifyOtp() {
         });
 
         if (result.error) {
-          toast.error(result.error.message || "Invalid verification code");
+          toast.error(
+            result.error.message || t("auth:verifyOtp.toast.invalidCode"),
+          );
           return;
         }
 
-        toast.success("Signed in successfully!");
+        toast.success(t("auth:verifyOtp.toast.signedInSuccess"));
         if (invitationId) {
           history.push(`/invitation/accept/${invitationId}`);
         } else {
@@ -71,13 +79,15 @@ function VerifyOtp() {
         }
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to verify code",
+          error instanceof Error
+            ? error.message
+            : t("auth:verifyOtp.toast.verifyFailed"),
         );
       } finally {
         setIsPending(false);
       }
     },
-    [email, invitationId, history],
+    [email, invitationId, history, t],
   );
 
   useEffect(() => {
@@ -98,15 +108,19 @@ function VerifyOtp() {
       });
 
       if (result.error) {
-        toast.error(result.error.message || "Failed to resend code");
+        toast.error(
+          result.error.message || t("auth:verifyOtp.toast.resendFailed"),
+        );
         return;
       }
 
-      toast.success("New verification code sent!");
+      toast.success(t("auth:verifyOtp.toast.resendSuccess"));
       form.reset();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to resend code",
+        error instanceof Error
+          ? error.message
+          : t("auth:verifyOtp.toast.resendFailed"),
       );
     } finally {
       setIsPending(false);
@@ -115,16 +129,15 @@ function VerifyOtp() {
 
   return (
     <>
-      <PageTitle title="Verify Code" />
+      <PageTitle title={t("auth:verifyOtp.pageTitle")} />
       <AuthLayout
-        title="Enter verification code"
-        subtitle="Use the 6-digit code sent to your email to continue"
+        title={t("auth:verifyOtp.title")}
+        subtitle={t("auth:verifyOtp.subtitle")}
       >
         <div className="space-y-4">
           <Alert>
             <AlertDescription className="text-xs">
-              Code sent to{" "}
-              <span className="font-mono text-foreground">{email}</span>
+              {t("auth:verifyOtp.codeSentTo", { email })}
             </AlertDescription>
           </Alert>
 
@@ -136,7 +149,7 @@ function VerifyOtp() {
                 render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium sr-only">
-                      Verification Code
+                      {t("auth:verifyOtp.verificationCodeLabel")}
                     </FormLabel>
                     <FormControl>
                       <InputOTP
@@ -165,7 +178,9 @@ function VerifyOtp() {
               />
 
               <Button type="submit" disabled={isPending} className="w-full">
-                {isPending ? "Verifying..." : "Verify & Sign In"}
+                {isPending
+                  ? t("auth:verifyOtp.verifying")
+                  : t("auth:verifyOtp.verifyAndSignIn")}
               </Button>
 
               <div className="grid grid-cols-2 gap-2">
@@ -176,7 +191,7 @@ function VerifyOtp() {
                   className="w-full"
                 >
                   <ArrowLeft className="size-4" />
-                  Change email
+                  {t("auth:verifyOtp.changeEmail")}
                 </Button>
                 <Button
                   type="button"
@@ -186,7 +201,7 @@ function VerifyOtp() {
                   className="w-full"
                 >
                   <RefreshCcw className="size-4" />
-                  Resend
+                  {t("auth:verifyOtp.resend")}
                 </Button>
               </div>
             </form>

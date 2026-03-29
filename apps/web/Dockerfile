@@ -20,6 +20,7 @@ RUN pnpm install --frozen-lockfile
 # Copy only necessary source code
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/libs ./packages/libs
+COPY i18n ./i18n
 COPY apps/web ./apps/web
 
 # Build the application

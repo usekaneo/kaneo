@@ -5,3 +5,5 @@ export type Notification = Extract<
   InferResponseType<(typeof client)["notification"]["$get"]>[number],
   { id: string }
 >;
+
+export type NotificationEventData = Record<string, unknown> | null | undefined;

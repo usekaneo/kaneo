@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import TaskCrumbSelect from "@/components/common/header/task-crumb-select";
 import Layout from "@/components/common/layout";
 import { KbdSequence } from "@/components/ui/kbd";
@@ -31,13 +32,14 @@ export default function TaskLayout({
   children,
   rightSidebar,
 }: TaskLayoutProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: task } = useGetTask(taskId);
   const taskLabel =
     project?.slug && task?.number != null
       ? `${project.slug}-${task.number}`
-      : "Select task";
+      : t("tasks:common.selectTask");
 
   const handleTaskSwitch = (nextTaskId: string) => {
     navigate({
@@ -84,7 +86,7 @@ export default function TaskLayout({
                   }
                   className="max-w-40 truncate text-left text-xs text-foreground hover:underline"
                 >
-                  {project?.name || "Project"}
+                  {project?.name || t("navigation:sidebar.projects")}
                 </button>
                 <span className="text-foreground/70 text-xs">/</span>
                 <TaskCrumbSelect

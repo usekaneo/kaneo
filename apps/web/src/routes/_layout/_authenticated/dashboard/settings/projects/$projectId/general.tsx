@@ -5,8 +5,9 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
 import {
@@ -62,20 +63,6 @@ type NormalizedProjectValues = {
   icon: string;
 };
 
-const projectSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Project name is required")
-    .min(2, "Project name must be at least 2 characters"),
-  slug: z
-    .string()
-    .min(1, "Key is required")
-    .min(2, "Key must be at least 2 characters")
-    .max(8, "Key must be at most 8 characters"),
-  description: z.string().optional(),
-  icon: z.string().min(1, "Icon is required"),
-});
-
 function normalizeProjectValues(
   data: ProjectFormValues,
 ): NormalizedProjectValues {
@@ -88,6 +75,27 @@ function normalizeProjectValues(
 }
 
 function RouteComponent() {
+  const { t } = useTranslation();
+  const projectSchema = useMemo(
+    () =>
+      z.object({
+        name: z
+          .string()
+          .min(1, t("settings:projectGeneral.validation.nameRequired"))
+          .min(2, t("settings:projectGeneral.validation.nameShort")),
+        slug: z
+          .string()
+          .min(1, t("settings:projectGeneral.validation.keyRequired"))
+          .min(2, t("settings:projectGeneral.validation.keyShort"))
+          .max(8, t("settings:projectGeneral.validation.keyMax")),
+        description: z.string().optional(),
+        icon: z
+          .string()
+          .min(1, t("settings:projectGeneral.validation.iconRequired")),
+      }),
+    [t],
+  );
+
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -190,10 +198,12 @@ function RouteComponent() {
             queryKey: ["projects", workspace?.id, project.id],
           }),
         ]);
-        toast.success("Project updated successfully");
+        toast.success(t("settings:projectGeneral.toastUpdated"));
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to update project",
+          error instanceof Error
+            ? error.message
+            : t("settings:projectGeneral.toastUpdateError"),
         );
       } finally {
         isSavingRef.current = false;
@@ -216,6 +226,7 @@ function RouteComponent() {
       queryClient,
       workspace?.id,
       projectForm,
+      t,
     ],
   );
 
@@ -256,7 +267,7 @@ function RouteComponent() {
 
     try {
       await deleteProject({ id: project.id });
-      toast.success("Project deleted successfully");
+      toast.success(t("settings:projectGeneral.toastDeleted"));
 
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
 
@@ -266,36 +277,44 @@ function RouteComponent() {
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete project",
+        error instanceof Error
+          ? error.message
+          : t("settings:projectGeneral.toastDeleteError"),
       );
     }
-  }, [project?.id, deleteProject, queryClient, navigate, workspace?.id]);
+  }, [project?.id, deleteProject, queryClient, navigate, workspace?.id, t]);
 
   return (
     <>
-      <PageTitle title="Project Settings" />
+      <PageTitle title={t("settings:projectGeneral.pageTitle")} />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">General Settings</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("settings:projectGeneral.title")}
+          </h1>
           <p className="text-muted-foreground">
-            Manage your project name, key, icon and description.
+            {t("settings:projectGeneral.subtitle")}
           </p>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-1">
-            <h2 className="text-md font-medium">Project Information</h2>
+            <h2 className="text-md font-medium">
+              {t("settings:projectGeneral.projectInfoTitle")}
+            </h2>
             <p className="text-xs text-muted-foreground">
-              Configure your project details and preferences.
+              {t("settings:projectGeneral.projectInfoSubtitle")}
             </p>
           </div>
 
           <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">Icon</p>
+                <p className="text-sm font-medium">
+                  {t("settings:projectGeneral.iconLabel")}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Displayed in the sidebar and project surfaces.
+                  {t("settings:projectGeneral.iconHint")}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -313,7 +332,7 @@ function RouteComponent() {
                       variant="outline"
                       size="sm"
                       className="h-8 w-auto justify-start gap-2 font-normal"
-                      title="Pick icon"
+                      title={t("settings:projectGeneral.pickIconTitle")}
                     >
                       {(() => {
                         const selectedKey =
@@ -332,7 +351,9 @@ function RouteComponent() {
                       <Input
                         value={iconSearch}
                         onChange={(e) => setIconSearch(e.target.value)}
-                        placeholder="Search icons..."
+                        placeholder={t(
+                          "settings:projectGeneral.searchIconsPlaceholder",
+                        )}
                         className="h-8 text-xs"
                       />
                       <div className="max-h-[280px] overflow-y-auto pr-1">
@@ -391,16 +412,18 @@ function RouteComponent() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
-                            Project name
+                            {t("settings:projectGeneral.projectNameLabel")}
                           </FormLabel>
                           <p className="text-xs text-muted-foreground">
-                            The name of your project
+                            {t("settings:projectGeneral.projectNameHint")}
                           </p>
                         </div>
                         <FormControl>
                           <Input
                             className="w-64"
-                            placeholder="Enter project name"
+                            placeholder={t(
+                              "settings:projectGeneral.projectNamePlaceholder",
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -420,17 +443,20 @@ function RouteComponent() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
-                            Key
+                            {t("settings:projectGeneral.keyLabel")}
                           </FormLabel>
                           <p className="text-xs text-muted-foreground">
-                            Used for ticket IDs (e.g.,{" "}
-                            {projectForm.watch("slug") || "ABC"}-123)
+                            {t("settings:projectGeneral.keyHint", {
+                              slug: projectForm.watch("slug") || "ABC",
+                            })}
                           </p>
                         </div>
                         <FormControl>
                           <Input
                             className="w-64"
-                            placeholder="PRO"
+                            placeholder={t(
+                              "settings:projectGeneral.keyPlaceholder",
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -450,16 +476,18 @@ function RouteComponent() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
-                            Description
+                            {t("settings:projectGeneral.descriptionLabel")}
                           </FormLabel>
                           <p className="text-xs text-muted-foreground">
-                            A brief description of your project
+                            {t("settings:projectGeneral.descriptionHint")}
                           </p>
                         </div>
                         <FormControl>
                           <Input
                             className="w-64"
-                            placeholder="Enter project description"
+                            placeholder={t(
+                              "settings:projectGeneral.descriptionPlaceholder",
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -475,18 +503,22 @@ function RouteComponent() {
 
         <div className="space-y-6">
           <div className="space-y-1">
-            <h2 className="text-md font-medium">Danger zone</h2>
+            <h2 className="text-md font-medium">
+              {t("settings:projectGeneral.dangerZone")}
+            </h2>
             <p className="text-xs text-muted-foreground">
-              Irreversible and destructive actions.
+              {t("settings:projectGeneral.dangerZoneSubtitle")}
             </p>
           </div>
 
           <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">Delete project</p>
+                <p className="text-sm font-medium">
+                  {t("settings:projectGeneral.deleteProject")}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Schedule project to be permanently deleted
+                  {t("settings:projectGeneral.deleteProjectDescription")}
                 </p>
               </div>
               <Button
@@ -497,7 +529,7 @@ function RouteComponent() {
                 onClick={() => setIsDeleteModalOpen(true)}
                 disabled={!project}
               >
-                Delete project
+                {t("settings:projectGeneral.deleteProject")}
               </Button>
             </div>
           </div>
@@ -509,16 +541,19 @@ function RouteComponent() {
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Project?</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("settings:projectGeneral.deleteModalTitle")}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete the project "{project?.name}" and
-                all its data. This action cannot be undone.
+                {t("settings:projectGeneral.deleteModalDescription", {
+                  name: project?.name ?? "",
+                })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogClose>
                 <Button variant="outline" size="sm">
-                  Cancel
+                  {t("common:actions.cancel")}
                 </Button>
               </AlertDialogClose>
               <AlertDialogClose
@@ -526,7 +561,9 @@ function RouteComponent() {
                 disabled={isDeleting}
               >
                 <Button variant="destructive" size="sm" disabled={isDeleting}>
-                  {isDeleting ? "Deleting..." : "Delete Project"}
+                  {isDeleting
+                    ? t("common:actions.deleting")
+                    : t("settings:projectGeneral.deleteModalConfirm")}
                 </Button>
               </AlertDialogClose>
             </AlertDialogFooter>

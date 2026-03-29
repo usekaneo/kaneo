@@ -2,6 +2,7 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
 import { toast } from "@/lib/toast";
@@ -30,6 +31,7 @@ const teamMemberSchema = z.object({
 type TeamMemberFormValues = z.infer<typeof teamMemberSchema>;
 
 function InviteTeamMemberModal({ open, onClose }: Props) {
+  const { t } = useTranslation();
   const { mutateAsync } = useInviteWorkspaceUser();
   const queryClient = useQueryClient();
   const { workspaceId } = Route.useParams();
@@ -48,13 +50,13 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
         queryKey: ["workspace-users", workspaceId],
       });
 
-      toast.success("Invitation sent successfully");
+      toast.success(t("team:inviteModal.success"));
 
       resetInviteTeamMember();
       onClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to invite team member",
+        error instanceof Error ? error.message : t("team:inviteModal.error"),
       );
     }
   };
@@ -77,7 +79,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
         <div className="bg-card rounded-lg shadow-xl">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <DialogTitle className="text-lg font-semibold text-foreground">
-              Invite Team Member
+              {t("team:inviteModal.title")}
             </DialogTitle>
             <DialogClose
               className="text-muted-foreground hover:text-foreground"
@@ -97,12 +99,12 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-foreground mb-1">
-                          Email
+                          {t("team:inviteModal.emailLabel")}
                         </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="colleague@company.com"
+                            placeholder={t("team:inviteModal.emailPlaceholder")}
                             className="bg-card/50"
                             autoFocus
                           />
@@ -123,9 +125,11 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                     />
                   }
                 >
-                  Cancel
+                  {t("common:actions.cancel")}
                 </DialogClose>
-                <Button type="submit">Send Invitation</Button>
+                <Button type="submit">
+                  {t("team:inviteModal.sendInvitation")}
+                </Button>
               </div>
             </form>
           </Form>

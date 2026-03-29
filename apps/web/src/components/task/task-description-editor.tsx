@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
 
 type TaskDescriptionEditorProps = {
@@ -11,15 +12,17 @@ type TaskDescriptionEditorProps = {
 export default function TaskDescriptionEditor({
   value,
   onChange,
-  placeholder = "Add a description...",
+  placeholder,
   taskId,
   ensureTaskId,
 }: TaskDescriptionEditorProps) {
+  const { t } = useTranslation();
+
   return (
     <CommentEditor
       value={value}
       onChange={onChange}
-      placeholder={placeholder}
+      placeholder={placeholder ?? t("tasks:detail.addDescription")}
       taskId={taskId}
       ensureTaskId={ensureTaskId}
       uploadSurface="description"

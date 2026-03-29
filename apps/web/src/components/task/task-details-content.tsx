@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
 import CommentInput from "@/components/activity/comment-input";
 import { isCommentActivity } from "@/components/activity/utils";
@@ -30,6 +31,7 @@ export default function TaskDetailsContent({
   workspaceId,
   className,
 }: TaskDetailsContentProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
@@ -66,7 +68,8 @@ export default function TaskDetailsContent({
           >
             <ArrowUpRight className="size-3" />
             <span>
-              Subtask of <span className="font-medium">{parentTask.title}</span>
+              {t("tasks:detail.subtaskOf")}{" "}
+              <span className="font-medium">{parentTask.title}</span>
             </span>
           </button>
         )}
@@ -100,7 +103,7 @@ export default function TaskDetailsContent({
       </div>
       <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block shrink-0" />
       <div className="flex flex-col gap-4">
-        <h1 className="text-md font-semibold">Activity</h1>
+        <h1 className="text-md font-semibold">{t("tasks:detail.activity")}</h1>
         {user?.id && taskId && <CommentInput taskId={taskId} />}
         {activities.length > 0 ? (
           <Timeline>
@@ -123,7 +126,7 @@ export default function TaskDetailsContent({
           </Timeline>
         ) : (
           <p className="text-sm font-medium text-muted-foreground">
-            No activity found
+            {t("tasks:detail.noActivity")}
           </p>
         )}
       </div>

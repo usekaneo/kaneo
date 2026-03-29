@@ -1,4 +1,5 @@
 import { ChevronsUpDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ export default function TaskCrumbSelect({
   taskLabel,
   onSelectTask,
 }: TaskCrumbSelectProps) {
+  const { t } = useTranslation();
   const { data: project } = useGetTasks(projectId);
   const tasks = [
     ...(project?.columns?.flatMap((column) => column.tasks) ?? []),
@@ -42,13 +44,15 @@ export default function TaskCrumbSelect({
           />
         }
       >
-        <span className="truncate text-left">{taskLabel || "Select task"}</span>
+        <span className="truncate text-left">
+          {taskLabel || t("tasks:common.selectTask")}
+        </span>
         <ChevronsUpDown className="size-3.5 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80" align="start">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-            Tasks
+            {t("navigation:search.groups.task")}
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -72,7 +76,7 @@ export default function TaskCrumbSelect({
               disabled
               className="h-8 text-sm text-muted-foreground"
             >
-              No tasks
+              {t("tasks:listView.noTasks")}
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>

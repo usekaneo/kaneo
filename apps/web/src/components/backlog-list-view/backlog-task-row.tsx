@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -36,6 +37,7 @@ type BacklogTaskRowProps = {
 };
 
 export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     attributes,
@@ -119,10 +121,10 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete task",
+        error instanceof Error ? error.message : t("tasks:delete.error"),
       );
     } finally {
-      toast.success("Task deleted successfully");
+      toast.success(t("tasks:delete.success"));
     }
   };
 
@@ -208,7 +210,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
                 ) : (
                   <div
                     className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
-                    title="Unassigned"
+                    title={t("tasks:assignee.unassigned")}
                   >
                     <span className="text-[10px] font-medium text-muted-foreground">
                       ?
@@ -238,21 +240,20 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Task?</AlertDialogTitle>
+            <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the task and all its data. You can't
-              undo this action.
+              {t("tasks:delete.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogClose>
               <Button variant="outline" size="sm">
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
             </AlertDialogClose>
             <AlertDialogClose onClick={handleDeleteTask}>
               <Button variant="destructive" size="sm">
-                Delete Task
+                {t("tasks:delete.action")}
               </Button>
             </AlertDialogClose>
           </AlertDialogFooter>

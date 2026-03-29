@@ -5,9 +5,11 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
+import { useTranslation } from "react-i18next";
 import { Checkbox } from "@/components/ui/checkbox";
 
 function TaskItemNodeView({ editor, node, updateAttributes }: NodeViewProps) {
+  const { t } = useTranslation();
   const checked = Boolean(node.attrs.checked);
   const isEditable = editor.isEditable;
 
@@ -22,7 +24,9 @@ function TaskItemNodeView({ editor, node, updateAttributes }: NodeViewProps) {
           checked={checked}
           disabled={!isEditable}
           aria-label={
-            checked ? "Mark task as incomplete" : "Mark task as complete"
+            checked
+              ? t("tasks:detail.editor.checkbox.markIncomplete")
+              : t("tasks:detail.editor.checkbox.markComplete")
           }
           onCheckedChange={(value) => {
             if (!isEditable) return;

@@ -1,8 +1,8 @@
-import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { formatDateShort } from "@/lib/format";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -133,7 +133,7 @@ export function PublicTaskCard({
               getDueDateStatus(task.dueDate) === "no-due-date") && (
               <Calendar className="w-3 h-3" />
             )}
-            <span>{format(new Date(task.dueDate), "MMM d")}</span>
+            <span>{formatDateShort(task.dueDate)}</span>
           </div>
         )}
 

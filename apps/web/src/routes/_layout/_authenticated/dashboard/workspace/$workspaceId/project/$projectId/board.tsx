@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import BoardToolbar from "@/components/board/board-toolbar";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
@@ -33,7 +34,48 @@ export const Route = createFileRoute(
   }),
 });
 
+const skeletonColumns = [
+  { key: "col-todo", cards: 3 },
+  { key: "col-progress", cards: 4 },
+  { key: "col-review", cards: 2 },
+  { key: "col-done", cards: 1 },
+];
+
+function BoardSkeleton() {
+  return (
+    <div className="flex h-full w-full gap-4 p-4 overflow-hidden">
+      {skeletonColumns.map((col) => (
+        <div key={col.key} className="flex w-72 shrink-0 flex-col gap-3">
+          <div className="flex items-center gap-2 px-1">
+            <div className="h-3 w-3 rounded-full bg-muted animate-pulse" />
+            <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+            <div className="h-4 w-5 rounded bg-muted animate-pulse" />
+          </div>
+          <div className="flex flex-col gap-2.5">
+            {Array.from({ length: col.cards }, (_, i) => `${col.key}-${i}`).map(
+              (cardKey) => (
+                <div
+                  key={cardKey}
+                  className="rounded-lg border border-border bg-card p-3 space-y-2.5"
+                >
+                  <div className="h-3.5 w-4/5 rounded bg-muted animate-pulse" />
+                  <div className="h-3 w-3/5 rounded bg-muted animate-pulse" />
+                  <div className="flex items-center gap-2 pt-1">
+                    <div className="h-5 w-5 rounded-full bg-muted animate-pulse" />
+                    <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function RouteComponent() {
+  const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
@@ -160,7 +202,7 @@ function RouteComponent() {
             closeBoardSearch();
           }
         }}
-        placeholder="Search tickets..."
+        placeholder={t("tasks:boardSearchPlaceholder")}
         className="h-7.5 [&_[data-slot=input]]:h-7 [&_[data-slot=input]]:leading-7 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs [&_[data-slot=input]]:placeholder:text-xs [&_[data-slot=input]]:placeholder:leading-7"
       />
     </div>
@@ -174,7 +216,7 @@ function RouteComponent() {
       headerActions={boardHeaderSearch}
     >
       <PageTitle
-        title={`${project?.name} — ${viewMode === "board" ? "Board" : "List"}`}
+        title={`${project?.name} — ${viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")}`}
         hideAppName
       />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
@@ -207,9 +249,7 @@ function RouteComponent() {
               />
             )
           ) : (
-            <div className="flex h-full items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-foreground" />
-            </div>
+            <BoardSkeleton />
           )}
         </div>
 

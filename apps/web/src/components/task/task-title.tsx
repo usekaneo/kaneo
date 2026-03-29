@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import { Form, FormField } from "@/components/ui/form";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
@@ -11,6 +12,7 @@ type TaskTitleProps = {
 };
 
 export default function TaskTitle({ taskId }: TaskTitleProps) {
+  const { t } = useTranslation();
   const { data: task } = useGetTask(taskId);
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const isInitializedRef = useRef(false);
@@ -78,7 +80,7 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
           <input
             {...field}
             type="text"
-            placeholder="Click to add a title"
+            placeholder={t("tasks:detail.titlePlaceholder")}
             className="block h-auto w-full appearance-none border-0 bg-transparent p-0 font-heading text-[2rem] leading-[1.15] font-semibold tracking-[-0.02em] text-foreground outline-none placeholder:text-foreground/45"
             onChange={(e) => {
               field.onChange(e);

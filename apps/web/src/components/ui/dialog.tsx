@@ -6,6 +6,7 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/cn";
+import { i18n } from "@/lib/i18n";
 
 const DialogCreateHandle = DialogPrimitive.createHandle;
 
@@ -117,7 +118,7 @@ function DialogPopup({
           {children}
           {showCloseButton && (
             <DialogPrimitive.Close
-              aria-label="Close"
+              aria-label={i18n.t("common:actions.close")}
               className="absolute end-2 top-2"
               render={<Button size="icon" variant="ghost" />}
             >

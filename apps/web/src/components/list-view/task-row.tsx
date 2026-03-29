@@ -10,6 +10,7 @@ import {
   GitPullRequest,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -49,6 +50,7 @@ type TaskRowProps = {
 };
 
 function TaskRow({ task, projectSlug }: TaskRowProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     attributes,
@@ -97,7 +99,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     if (isMerged) {
       return {
         icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
-        status: "Merged",
+        status: t("tasks:pr.merged"),
         statusClass: "text-info-foreground",
       };
     }
@@ -105,14 +107,14 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     if (isDraft) {
       return {
         icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
-        status: "Draft",
+        status: t("tasks:pr.draft"),
         statusClass: "text-muted-foreground",
       };
     }
 
     return {
       icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
-      status: "Open",
+      status: t("tasks:pr.open"),
       statusClass: "text-success-foreground",
     };
   };
@@ -164,10 +166,10 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete task",
+        error instanceof Error ? error.message : t("tasks:delete.error"),
       );
     } finally {
-      toast.success("Task deleted successfully");
+      toast.success(t("tasks:delete.success"));
     }
   };
 
@@ -243,7 +245,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                             <span>#{pullRequests[0].externalId}</span>
                           </div>
                           <p className="text-sm font-medium leading-snug">
-                            {pullRequests[0].title || "Pull Request"}
+                            {pullRequests[0].title || t("tasks:pr.label")}
                           </p>
                         </div>
                       </HoverCardContent>
@@ -275,7 +277,11 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                               <GitPullRequest
                                 className={`h-3 w-3 ${iconColor}`}
                               />
-                              <span>{pullRequests.length} PRs</span>
+                              <span>
+                                {t("tasks:pr.count", {
+                                  count: pullRequests.length,
+                                })}
+                              </span>
                             </button>
                           </HoverCardTrigger>
                           <HoverCardContent
@@ -308,7 +314,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                                       </span>
                                     </div>
                                     <p className="text-xs leading-tight line-clamp-2 mt-0.5">
-                                      {pr.title || "Pull Request"}
+                                      {pr.title || t("tasks:pr.label")}
                                     </p>
                                     <span className="text-[10px] text-muted-foreground">
                                       {prInfo.status}
@@ -358,7 +364,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                 ) : (
                   <div
                     className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
-                    title="Unassigned"
+                    title={t("tasks:assignee.unassigned")}
                   >
                     <span className="text-[10px] font-medium text-muted-foreground">
                       ?
@@ -388,21 +394,20 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Task?</AlertDialogTitle>
+            <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the task and all its data. You can't
-              undo this action.
+              {t("tasks:delete.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogClose>
               <Button variant="outline" size="sm">
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
             </AlertDialogClose>
             <AlertDialogClose onClick={handleDeleteTask}>
               <Button variant="destructive" size="sm">
-                Delete Task
+                {t("tasks:delete.action")}
               </Button>
             </AlertDialogClose>
           </AlertDialogFooter>

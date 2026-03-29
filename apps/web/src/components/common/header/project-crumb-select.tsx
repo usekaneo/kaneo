@@ -1,4 +1,5 @@
 import { ChevronsUpDown, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ export default function ProjectCrumbSelect({
   onSelectProject,
   onAddProject,
 }: ProjectCrumbSelectProps) {
+  const { t } = useTranslation();
   const { data: projects = [] } = useGetProjects({ workspaceId });
 
   return (
@@ -40,14 +42,14 @@ export default function ProjectCrumbSelect({
         }
       >
         <span className="truncate text-left">
-          {projectName || "Select project"}
+          {projectName || t("settings:projectSwitcher.selectProject")}
         </span>
         <ChevronsUpDown className="size-3 text-foreground/70" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-72" align="start">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-            Projects
+            {t("navigation:sidebar.projects")}
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -70,7 +72,7 @@ export default function ProjectCrumbSelect({
               disabled
               className="h-8 text-sm text-muted-foreground"
             >
-              No projects
+              {t("settings:projectSwitcher.noProjects")}
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
@@ -81,7 +83,7 @@ export default function ProjectCrumbSelect({
             className="h-8 gap-2 text-sm"
           >
             <Plus className="size-3.5" />
-            Add project
+            {t("navigation:projectList.addProject")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

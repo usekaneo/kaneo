@@ -7,7 +7,8 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@i18n/*": ["../../i18n/*"]
 		}
 	},
 	"exclude": ["../api/**/*", "../docs/**/*", "../../packages/**/*"]

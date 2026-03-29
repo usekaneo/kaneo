@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,6 +28,7 @@ type CreateWorkspaceModalProps = {
 };
 
 function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +56,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
 
     try {
       const createdWorkspace = await mutateAsync({ name, description });
-      toast.success("Workspace created successfully");
+      toast.success(t("common:modals.createWorkspace.successToast"));
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
 
       await authClient.organization.setActive({
@@ -71,7 +73,9 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
       handleClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create workspace",
+        error instanceof Error
+          ? error.message
+          : t("common:modals.createWorkspace.errorToast"),
       );
     }
   };
@@ -84,17 +88,17 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="text-muted-foreground font-semibold tracking-wider text-sm">
-                  KANEO
+                  {t("common:modals.createWorkspace.breadcrumbKaneo")}
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem className="text-foreground font-medium text-sm">
-                  Create a new workspace
+                  {t("common:modals.createWorkspace.title")}
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Create a new workspace by providing a name for your workspace.
+            {t("common:modals.createWorkspace.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -105,7 +109,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
               unstyled
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Workspace name"
+              placeholder={t("common:modals.createWorkspace.namePlaceholder")}
               className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-2 [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:leading-tight [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
               required
             />
@@ -114,7 +118,9 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
               unstyled
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add description..."
+              placeholder={t(
+                "common:modals.createWorkspace.descriptionPlaceholder",
+              )}
               className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-2 [&_[data-slot=input]]:text-base [&_[data-slot=input]]:leading-relaxed [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
             />
           </div>
@@ -127,7 +133,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
               size="sm"
               className="border-border text-foreground hover:bg-accent"
             >
-              Cancel
+              {t("common:actions.cancel")}
             </Button>
             <Button
               type="submit"
@@ -135,7 +141,7 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
               size="sm"
               className="disabled:opacity-50"
             >
-              Create Workspace
+              {t("common:modals.createWorkspace.createButton")}
             </Button>
           </DialogFooter>
         </form>
