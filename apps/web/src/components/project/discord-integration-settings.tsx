@@ -136,10 +136,17 @@ export function DiscordIntegrationSettings({
     },
   });
   const { reset } = form;
+  const lastResetKeyRef = React.useRef<string | null>(null);
+  const resetKey = `${projectId}:${integration?.id ?? "none"}`;
 
   React.useEffect(() => {
+    if (form.formState.isDirty && lastResetKeyRef.current === resetKey) {
+      return;
+    }
+
     reset(normalizedValues);
-  }, [normalizedValues, reset]);
+    lastResetKeyRef.current = resetKey;
+  }, [form.formState.isDirty, normalizedValues, reset, resetKey]);
 
   const isConnected = Boolean(integration?.webhookConfigured);
   const isBusy = isCreating || isUpdating || isDeleting;
