@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
+  integrationTable,
   projectTable,
   taskTable,
   userTable,
@@ -94,6 +95,41 @@ async function getActor(userId: string | null): Promise<{
   };
 }
 
+async function persistWebhookHealth(
+  projectId: string,
+  update: (config: GenericWebhookConfig) => GenericWebhookConfig,
+): Promise<void> {
+  try {
+    const integration = await db.query.integrationTable.findFirst({
+      where: and(
+        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.type, "generic-webhook"),
+      ),
+    });
+
+    if (!integration) {
+      return;
+    }
+
+    const currentConfig = normalizeGenericWebhookConfig(
+      JSON.parse(integration.config) as GenericWebhookConfig,
+    );
+
+    await db
+      .update(integrationTable)
+      .set({
+        config: JSON.stringify(update(currentConfig)),
+        updatedAt: new Date(),
+      })
+      .where(eq(integrationTable.id, integration.id));
+  } catch (error) {
+    console.error("persistWebhookHealth failed", {
+      error,
+      projectId,
+    });
+  }
+}
+
 async function sendEvent(
   config: GenericWebhookConfig,
   eventName: string,
@@ -106,6 +142,12 @@ async function sendEvent(
   if (!task) return;
 
   const actor = await getActor(userId);
+  const attempt = {
+    eventName,
+    taskId,
+    projectId,
+    webhookUrl: config.webhookUrl,
+  };
 
   try {
     await postToGenericWebhook(
@@ -134,7 +176,31 @@ async function sendEvent(
       },
       config.secret,
     );
+
+    void persistWebhookHealth(projectId, (currentConfig) => ({
+      ...currentConfig,
+      health: {
+        ...currentConfig.health,
+        lastSuccessAt: new Date().toISOString(),
+        lastFailureMessage: undefined,
+        lastAttempt: attempt,
+      },
+    }));
   } catch (error) {
+    const message =
+      error instanceof Error ? (error.stack ?? error.message) : String(error);
+
+    void persistWebhookHealth(projectId, (currentConfig) => ({
+      ...currentConfig,
+      health: {
+        ...currentConfig.health,
+        lastFailureAt: new Date().toISOString(),
+        lastFailureMessage: message,
+        failureCount: (currentConfig.health?.failureCount ?? 0) + 1,
+        lastAttempt: attempt,
+      },
+    }));
+
     console.error("sendEvent postToGenericWebhook failed", {
       error,
       eventName,
