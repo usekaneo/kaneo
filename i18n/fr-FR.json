@@ -1,0 +1,1442 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "Annuler",
+			"close": "Fermer",
+			"clearAll": "Tout effacer",
+			"delete": "Supprimer",
+			"deleting": "Suppression...",
+			"markAllRead": "Tout marquer comme lu",
+			"remove": "Retirer",
+			"reset": "Réinitialiser",
+			"filter": "Filtrer",
+			"clearAllFilters": "Effacer tous les filtres"
+		},
+		"a11y": {
+			"toggleSidebar": "Basculer la barre latérale"
+		},
+		"sidebar": {
+			"title": "Barre latérale",
+			"mobileDescription": "Affiche la barre latérale mobile."
+		},
+		"empty": {
+			"loading": "Chargement..."
+		},
+		"pagination": {
+			"label": "Pagination",
+			"previous": "Précédent",
+			"next": "Suivant",
+			"previousPage": "Aller à la page précédente",
+			"nextPage": "Aller à la page suivante",
+			"morePages": "Plus de pages"
+		},
+		"breadcrumb": {
+			"label": "Fil d'Ariane",
+			"more": "Plus"
+		},
+		"language": {
+			"english": "Anglais",
+			"german": "Allemand",
+			"greek": "Grec",
+			"macedonian": "Macédonien",
+			"french": "Français"
+		},
+		"people": {
+			"someone": "Quelqu'un",
+			"unknown": "Inconnu"
+		},
+		"error": {
+			"title": "Quelque chose s'est mal passé",
+			"troubleshooting": "Étapes de dépannage :",
+			"tryAgain": "Réessayer",
+			"viewDeploymentGuide": "Voir le guide de déploiement",
+			"refreshPage": "Rafraîchir la page"
+		},
+		"formats": {
+			"never": "Jamais"
+		},
+		"modals": {
+			"createProject": {
+				"title": "Créer un nouveau projet",
+				"breadcrumbNew": "Créer un nouveau projet",
+				"workspaceFallback": "ESPACE DE TRAVAIL",
+				"description": "Créez un nouveau projet dans votre espace de travail en fournissant un nom, une clé et en sélectionnant une icône.",
+				"pickIcon": "Choisir une icône",
+				"searchIcons": "Rechercher des icônes...",
+				"projectName": "Nom du projet",
+				"keyLabel": "Clé :",
+				"keyHint": "Utilisée pour les ID de tickets (par ex. {{example}}-123)",
+				"createButton": "Créer le projet",
+				"successToast": "Projet créé avec succès",
+				"errorToast": "Échec de la création du projet"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "Créer un nouvel espace de travail",
+				"description": "Créez un nouvel espace de travail en lui donnant un nom.",
+				"namePlaceholder": "Nom de l'espace de travail",
+				"descriptionPlaceholder": "Ajouter une description...",
+				"createButton": "Créer l'espace de travail",
+				"successToast": "Espace de travail crée avec succès",
+				"errorToast": "Échec de la création de l'espace de travail"
+			},
+			"createTask": {
+				"breadcrumbTask": "TÂCHE",
+				"title": "Nouvelle tâche",
+				"description": "Créez une nouvelle tâche en fournissant un titre, une description et d'autres détails.",
+				"taskTitlePlaceholder": "Titre de la tâche",
+				"descriptionPlaceholder": "Ajoutez une description pour votre tâche...",
+				"chooseProjectForImages": "Choisissez un projet avant d'importer des images.",
+				"prepareTaskError": "Échec de la préparation de la tâche",
+				"successCreated": "Tâche créée avec succès",
+				"successUpdated": "Tâche mise à jour avec succès",
+				"createError": "Échec de la création de la tâche",
+				"priority": "Priorité",
+				"statusFallback": "En cours",
+				"startDate": "Date de début",
+				"dueDate": "Date d'échéance",
+				"clearStartDate": "Supprimer la date de début",
+				"clearDueDate": "Supprimer la date d'échéance",
+				"assign": "Assigner",
+				"assignUnassigned": "Non assigné",
+				"assignUnassignedTitle": "Non assigné",
+				"labels": "Labels",
+				"searchLabels": "Rechercher des labels...",
+				"noLabelsFound": "Aucune label trouvée",
+				"createLabel": "Créer \"{{name}}\"",
+				"chooseColor": "Choisir une couleur",
+				"labelCreated": "Label créée",
+				"labelCreateError": "Échec de la création de l'label",
+				"createMore": "Créer plus",
+				"createButton": "Créer la tâche",
+				"untitledTask": "Tâche sans titre",
+				"labelColors": {
+					"stone": "Pierre",
+					"slate": "Ardoise",
+					"lavender": "Lavande",
+					"sage": "Sauge",
+					"forest": "Forêt",
+					"amber": "Ambre",
+					"terracotta": "Terre cuite",
+					"rose": "Rose",
+					"crimson": "Cramoisi"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "Connexion",
+			"title": "Content de te revoir",
+			"subtitle": "Entrez vos identifiants pour accéder à votre espace de travail",
+			"invitationSubtitle": "Connectez-vous pour accepter votre invitation",
+			"invitationAlert": "Après vous être connecté, vous pourrez accepter votre invitation à l'espace de travail.",
+			"signingIn": "Connexion...",
+			"continueWithGoogle": "Continuer avec Google",
+			"continueWithGithub": "Continuer avec GitHub",
+			"continueWithDiscord": "Continuer avec Discord",
+			"continueWithOidc": "Continuer avec OIDC",
+			"lastUsed": "Dernière utilisation",
+			"registrationDisabled": "Inscription publique désactivée. Utilisez une invitation pour créer un compte.",
+			"passwordRegistrationDisabled": "Inscription par mot de passe désactivée. Utilisez une méthode de connexion sociale ou OIDC configurée pour créer un compte.",
+			"toggleMessage": "Vous n'avez pas de compte ?",
+			"toggleLink": "Créer un compte",
+			"guestSuccess": "Connecté en tant qu'invité",
+			"guestError": "Échec de la connexion en tant qu'invité",
+			"oidcError": "Échec de la connexion avec OIDC",
+			"googleError": "Échec de la connexion avec Google",
+			"githubError": "Échec de la connexion avec GitHub",
+			"discordError": "Échec de la connexion avec Discord"
+		},
+		"providers": {
+			"google": "Google",
+			"discord": "Discord"
+		},
+		"forms": {
+			"or": "ou",
+			"email": "Email",
+			"password": "Mot de passe",
+			"emailPlaceholder": "moi@exemple.fr",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "Afficher le mot de passe",
+			"hidePassword": "Masquer le mot de passe"
+		},
+		"checkEmail": {
+			"pageTitle": "Vérifier vos mails",
+			"title": "Vérifier vos mails",
+			"inboxMessage": "Nous vous avons envoyé un lien de connexion temporaire. Veuillez vérifier votre boîte de réception à l'adresse <email>{{email}}</email>.",
+			"emailFallback": "votre adresse email",
+			"backToLogin": "Retour à la connexion"
+		},
+		"signUp": {
+			"pageTitle": "Créer un compte",
+			"title": "Créer un compte",
+			"subtitleInvitation": "Créer un compte pour accepter votre invitation",
+			"subtitleRegistrationDisabled": "L'inscription nécessite une invitation",
+			"subtitlePasswordDisabled": "Utilisez la connexion sociale ou OIDC pour créer un compte",
+			"subtitleDefault": "Commencez avec votre espace de travail",
+			"invitationAlert": "Après avoir créé votre compte, vous pourrez accepter votre invitation à l'espace de travail.",
+			"registrationDisabledAlert": "L'inscription est actuellement désactivée. Si vous avez été invité, entrez l'adresse e-mail qui a reçu l'invitation pour créer votre compte.",
+			"passwordDisabledAlert": "La création de compte par mot de passe est désactivée. Utilisez une méthode de connexion sociale ou OIDC configurée depuis la page de connexion.",
+			"signingIn": "Connexion...",
+			"continueAsGuest": "Continuer en tant qu'invité",
+			"toggleMessage": "Vous avez déjà un compte?",
+			"toggleLink": "Se connecter"
+		},
+		"verifyOtp": {
+			"pageTitle": "Vérifier le code",
+			"title": "Entrez le code de vérification",
+			"subtitle": "Utilisez le code à 6 chiffres envoyé à votre e-mail pour continuer",
+			"codeSentTo": "Code envoyé à {{email}}",
+			"verificationCodeLabel": "Code de vérification",
+			"verifying": "Vérification...",
+			"verifyAndSignIn": "Vérifier et se connecter",
+			"changeEmail": "Changer l'email",
+			"resend": "Renvoyer",
+			"validation": {
+				"codeLength": "Le code doit contenir 6 chiffres"
+			},
+			"toast": {
+				"invalidCode": "Code de vérification invalide",
+				"signedInSuccess": "Connecté avec succès!",
+				"verifyFailed": "Échec de la vérification du code",
+				"resendFailed": "Échec de l'envoi du code",
+				"resendSuccess": "Nouveau code de vérification envoyé!"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "Échec de l'envoi du code de vérification",
+			"codeSent": "Code de vérification envoyé! Vérifiez votre e-mail.",
+			"sending": "Envoi...",
+			"sendVerificationCode": "Envoyer le code de vérification"
+		},
+		"signInForm": {
+			"failedSignIn": "Échec de la connexion",
+			"signedInSuccess": "Connexion réussie",
+			"signingIn": "Connexion...",
+			"signIn": "Se connecter"
+		},
+		"signUpForm": {
+			"fullName": "Nom complet",
+			"namePlaceholder": "John Doe",
+			"failedSignUp": "Échec de l'inscription",
+			"accountCreated": "Compte créé avec succès",
+			"passwordTooShort": "Le mot de passe est trop court",
+			"creatingAccount": "Création du compte...",
+			"createAccount": "Créer un compte"
+		},
+		"invitation": {
+			"pageTitleAccept": "Accepter l'invitation",
+			"pageTitleError": "Erreur d'invitation",
+			"pageTitleInvalid": "Invitation invalide",
+			"loadingTitle": "Chargement de l'invitation...",
+			"errorTitle": "Erreur d'invitation",
+			"invalidTitle": "Invitation invalide",
+			"invitationExpired": "Invitation expirée",
+			"errorLoadDescription": "Échec du chargement des détails de l'invitation. L'invitation peut être invalide ou expirée.",
+			"goToSignIn": "Aller à la connexion",
+			"workspaceLabel": "Espace de travail: {{workspaceName}}",
+			"joinWorkspace": "Rejoindre {{workspaceName}}",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> vous a invité à rejoindre son espace de travail.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> vous a invité à rejoindre son espace de travail sur Kaneo.",
+			"signInToAccept": "Connectez-vous pour accepter cette invitation.",
+			"accepting": "Acceptation...",
+			"acceptInvitation": "Accepter l'invitation",
+			"goToDashboard": "Aller au tableau de bord",
+			"signedInAs": "Connecté en tant que <email>{{email}}</email>",
+			"youveBeenInvited": "Vous avez été invité!",
+			"invitationFor": "Invitation pour: <email>{{email}}</email>",
+			"signIn": "Se connecter",
+			"toast": {
+				"acceptFailed": "Échec de l'acceptation de l'invitation",
+				"acceptSuccess": "Invitation acceptée! Bienvenue dans l'équipe."
+			}
+		},
+		"onboarding": {
+			"pageTitle": "Bienvenue sur Kaneo",
+			"workspacePageTitle": "Créer un espace de travail",
+			"createWorkspaceTitle": "Créer un espace de travail",
+			"createWorkspaceSubtitle": "Configurez votre espace de travail pour commencer à gérer des projets",
+			"workspaceName": "Nom de l'espace de travail",
+			"workspaceNamePlaceholder": "ex: Acme Inc, Mon équipe",
+			"descriptionOptional": "Description (optionnelle)",
+			"descriptionPlaceholder": "Sur quoi travaille votre équipe?",
+			"creating": "Création...",
+			"createWorkspace": "Créer un espace de travail",
+			"workspaceCreatedTitle": "Espace de travail créé",
+			"redirectingToWorkspace": "Redirection vers <name>{{name}}</name>...",
+			"toast": {
+				"workspaceCreated": "Espace de travail créé avec succès",
+				"createFailed": "Échec de la création de l'espace de travail"
+			},
+			"validation": {
+				"workspaceNameRequired": "Le nom de l'espace de travail est requis"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "Compléter le profil",
+			"completeTitle": "Compléter votre profil",
+			"subtitle": "Veuillez entrer votre nom pour commencer",
+			"yourName": "Votre nom",
+			"namePlaceholder": "ex: John Doe",
+			"saving": "Sauvegarde...",
+			"continue": "Continuer",
+			"welcome": "Bienvenue, {{name}}!",
+			"redirecting": "Redirection vers votre tableau de bord...",
+			"toast": {
+				"updateSuccess": "Profil mis à jour avec succès",
+				"updateFailed": "Échec de la mise à jour du profil"
+			},
+			"validation": {
+				"nameRequired": "Le nom est requis",
+				"nameShort": "Le nom doit contenir au moins 2 caractères"
+			}
+		}
+	},
+	"settings": {
+		"account": "Compte",
+		"developer": "Développeur",
+		"information": "Information",
+		"preferences": "Préférences",
+		"apiKeys": "Clés API",
+		"informationPage": {
+			"pageTitle": "Informations personnelles",
+			"title": "Informations personnelles",
+			"subtitle": "Gérez vos informations personnelles et les détails de votre compte.",
+			"sectionTitle": "Informations sur le compte",
+			"sectionSubtitle": "Gérez votre profil et les détails de votre compte.",
+			"profilePicture": "Photo de profil",
+			"fullName": "Nom complet",
+			"fullNamePlaceholder": "Entrez votre nom",
+			"email": "Email",
+			"emailPlaceholder": "Entrez votre email",
+			"updateSuccess": "Profil mis à jour avec succès",
+			"updateError": "Échec de la mise à jour du profil",
+			"validation": {
+				"nameRequired": "Le nom est requis",
+				"nameShort": "Le nom doit contenir au moins 2 caractères",
+				"invalidEmail": "Adresse email invalide"
+			}
+		},
+		"preferencesPage": {
+			"title": "Préférences",
+			"subtitle": "Personnalisez votre expérience Kaneo.",
+			"appearanceTitle": "Apparence",
+			"appearanceSubtitle": "Paramètres visuels et préférences de mise en page.",
+			"theme": "Thème",
+			"themeDescription": "Choisissez votre palette de couleurs préférée",
+			"selectTheme": "Sélectionnez un thème",
+			"themeLight": "Clair",
+			"themeDark": "Sombre",
+			"themeSystem": "Système",
+			"language": "Langue",
+			"languageDescription": "Choisissez la langue de l'interface",
+			"selectLanguage": "Sélectionnez une langue",
+			"defaultView": "Vue par défaut",
+			"defaultViewDescription": "Choisissez votre mode d'affichage des tâches préféré",
+			"selectViewMode": "Sélectionnez un mode d'affichage",
+			"board": "Tableau",
+			"list": "Liste",
+			"gantt": "Gantt",
+			"sidebarDefault": "Barre latérale par défaut",
+			"sidebarDefaultDescription": "Garder la barre latérale ouverte au démarrage",
+			"displayOptions": "Options d'affichage",
+			"displayOptionsDescription": "Choisissez les informations à afficher dans les vues de tâches",
+			"taskNumbers": "Numéros de tâches",
+			"taskNumbersDescription": "Afficher les ID et numéros de tâches",
+			"assignees": "Assignés",
+			"assigneesDescription": "Afficher les personnes assignées aux tâches",
+			"dueDates": "Dates d'échéance",
+			"dueDatesDescription": "Afficher les dates d'échéance des tâches",
+			"labels": "Labels",
+			"labelsDescription": "Afficher les labels et tags des tâches",
+			"priority": "Priorité",
+			"priorityDescription": "Afficher les indicateurs de priorité"
+		},
+		"developerPage": {
+			"pageTitle": "Paramètres développeur",
+			"title": "Paramètres développeur",
+			"subtitle": "Gérez vos clés API et vos ressources développeur.",
+			"apiKeysCardTitle": "Clés API",
+			"apiKeysCardDescription": "Créez et gérez des clés API pour un accès programmatique à Kaneo.",
+			"createApiKey": "Créer une clé API",
+			"unnamedKey": "Clé sans nom"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "Clé API créée",
+				"description": "Votre clé API \"{{keyName}}\" a été créée avec succès.",
+				"yourApiKey": "Votre clé API",
+				"copy": "Copier",
+				"copied": "Copié",
+				"toastCopied": "Clé API copiée dans le presse-papiers",
+				"alertTitle": "Succès! Votre clé API a été créée",
+				"alertDescription": "Copiez cette clé maintenant. Vous ne pourrez plus la voir.",
+				"done": "Terminé",
+				"copyToContinue": "Copier la clé pour continuer"
+			},
+			"table": {
+				"loading": "Chargement des clés API...",
+				"empty": "Aucune clé API pour le moment. Créez-en une pour commencer.",
+				"columnName": "Nom",
+				"columnKey": "Clé",
+				"columnCreated": "Créé",
+				"columnExpires": "Expiré",
+				"columnActions": "Actions",
+				"unnamedKey": "Clé sans nom",
+				"expiredBadge": "Expiré {{label}}",
+				"deleteConfirmTitle": "Supprimer la clé API?",
+				"deleteConfirmDescription": "Cette action ne peut pas être annulée. Cela supprimera définitivement {{name}}.",
+				"deleteFallbackName": "cette clé API",
+				"delete": "Supprimer",
+				"deleting": "Suppression...",
+				"deleteAria": "Supprimer {{name}}",
+				"deleteAriaFallback": "Clé API",
+				"toastDeleted": "Clé API supprimée avec succès",
+				"toastDeleteError": "Échec de la suppression de la clé API"
+			},
+			"createDialog": {
+				"title": "Créer une clé API",
+				"description": "Créez une nouvelle clé API pour accéder à l'API Kaneo par programme.",
+				"nameLabel": "Nom",
+				"namePlaceholder": "Ma clé API",
+				"nameDescription": "Un nom descriptif pour cette clé API",
+				"expirationLabel": "Expiration",
+				"expirationPlaceholder": "Sélectionner une expiration",
+				"expirationDescription": "Choisissez combien de temps cette clé API doit rester valide. \"Jamais\" créera une clé sans expiration automatique.",
+				"expiration1d": "1 jour",
+				"expiration7d": "7 jours",
+				"expiration30d": "30 jours",
+				"expiration90d": "90 jours",
+				"expirationNever": "Jamais",
+				"create": "Créer",
+				"creating": "Création...",
+				"failedCreate": "Échec de la création de la clé API",
+				"validation": {
+					"nameRequired": "Le nom est requis",
+					"nameShort": "Le nom doit contenir au moins 3 caractères",
+					"expirationRequired": "Une date d'expiration est requise"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "Paramètres Généraux",
+			"title": "Paramètres Généraux",
+			"subtitle": "Gérez le nom et la description de votre espace de travail.",
+			"workspaceInfoTitle": "Informations sur l'espace de travail",
+			"workspaceInfoSubtitle": "Configurez les détails et les préférences de votre espace de travail.",
+			"nameLabel": "Nom de l'espace de travail",
+			"nameHint": "Le nom de votre espace de travail",
+			"namePlaceholder": "Entrez le nom de l'espace de travail",
+			"descriptionLabel": "Description",
+			"descriptionHint": "Une brève description de votre espace de travail",
+			"descriptionPlaceholder": "Entrez la description de l'espace de travail",
+			"dangerZone": "Zone dangereuse",
+			"dangerZoneSubtitle": "Actions irréversibles et destructrices.",
+			"deleteWorkspace": "Supprimer l'espace de travail",
+			"deleteWorkspaceDescription": "Planifier la suppression définitive de l'espace de travail",
+			"deleteModalTitle": "Supprimer l'espace de travail?",
+			"deleteModalDescription": "Cela supprimera définitivement l'espace de travail \"{{name}}\" et toutes ses données. Cette action ne peut pas être annulée.",
+			"deleteModalConfirm": "Supprimer l'espace de travail",
+			"toastUpdated": "Espace de travail mis à jour avec succès",
+			"toastUpdateError": "Échec de la mise à jour de l'espace de travail",
+			"toastDeleted": "Espace de travail supprimé avec succès",
+			"toastDeleteError": "Échec de la suppression de l'espace de travail",
+			"validation": {
+				"nameRequired": "Le nom de l'espace de travail est requis",
+				"nameShort": "Le nom de l'espace de travail doit contenir au moins 2 caractères"
+			}
+		},
+		"projectGeneral": {
+			"pageTitle": "Paramètres du projet",
+			"title": "Paramètres Généraux",
+			"subtitle": "Gérez le nom, la clé, l'icône et la description de votre projet.",
+			"projectInfoTitle": "Informations sur le projet",
+			"projectInfoSubtitle": "Configurez les détails et les préférences de votre projet.",
+			"iconLabel": "Icône",
+			"iconHint": "S'affiche dans la barre latérale et les surfaces du projet.",
+			"pickIconTitle": "Choisir une icône",
+			"searchIconsPlaceholder": "Rechercher des icônes...",
+			"projectNameLabel": "Nom du projet",
+			"projectNameHint": "Le nom de votre projet",
+			"projectNamePlaceholder": "Entrez le nom du projet",
+			"keyLabel": "Clé",
+			"keyHint": "Utilisé pour les ID de tickets (ex: {{slug}}-123)",
+			"keyPlaceholder": "PRO",
+			"descriptionLabel": "Description",
+			"descriptionHint": "Une brève description de votre projet",
+			"descriptionPlaceholder": "Entrez la description du projet",
+			"dangerZone": "Zone dangereuse",
+			"dangerZoneSubtitle": "Actions irréversibles et destructrices.",
+			"deleteProject": "Supprimer le projet",
+			"deleteProjectDescription": "Planifier la suppression définitive du projet",
+			"deleteModalTitle": "Supprimer le projet?",
+			"deleteModalDescription": "Cela supprimera définitivement le projet \"{{name}}\" et toutes ses données. Cette action ne peut pas être annulée.",
+			"deleteModalConfirm": "Supprimer le projet",
+			"toastUpdated": "Projet mis à jour avec succès",
+			"toastUpdateError": "Échec de la mise à jour du projet",
+			"toastDeleted": "Projet supprimé avec succès",
+			"toastDeleteError": "Échec de la suppression du projet",
+			"validation": {
+				"nameRequired": "Le nom du projet est requis",
+				"nameShort": "Le nom du projet doit contenir au moins 2 caractères",
+				"keyRequired": "La clé est requise",
+				"keyShort": "La clé doit contenir au moins 2 caractères",
+				"keyMax": "La clé doit contenir au plus 8 caractères",
+				"iconRequired": "L'icône est requise"
+			}
+		},
+		"projectIntegrations": {
+			"pageTitle": "Intégrations du projet",
+			"title": "Intégrations du projet",
+			"subtitle": "Connectez votre projet avec des outils et services externes pour rationaliser votre flux de travail.",
+			"githubSectionTitle": "Intégration GitHub",
+			"githubSectionSubtitle": "Synchronisez les tâches avec les problèmes GitHub et activez la synchronisation bidirectionnelle."
+		},
+		"projectVisibility": {
+			"pageTitle": "Visibilité du projet",
+			"title": "Visibilité",
+			"subtitle": "Contrôlez qui peut voir et accéder à votre projet.",
+			"sectionTitle": "Visibilité",
+			"sectionSubtitle": "Activez l'accès public et partagez l'URL publique.",
+			"publicAccess": "Accès public",
+			"publicAccessHint": "Permet à toute personne disposant de l'URL de visualiser ce projet",
+			"publicUrl": "URL publique",
+			"publicUrlHint": "Partagez ce lien si le projet est public",
+			"copy": "Copier",
+			"copiedToast": "Copié",
+			"toastUpdated": "Visibilité mise à jour",
+			"toastUpdateError": "Échec de la mise à jour de la visibilité"
+		},
+		"projectWorkflow": {
+			"pageTitle": "Paramètres du flux de travail",
+			"title": "Flux de travail",
+			"subtitle": "Configurez les colonnes du tableau et les règles d'automatisation pour ce projet.",
+			"columnsTitle": "Colonnes",
+			"columnsDescription": "Gérez les colonnes qui apparaissent sur votre tableau. Faites glisser pour réorganiser. Activez \"Colonne terminée\" pour les étapes qui représentent le travail terminé.",
+			"automationTitle": "Règles d'automatisation",
+			"automationDescription": "Mappez les événements d'intégration aux colonnes. Lorsqu'un événement se produit, la tâche liée se déplace vers la colonne spécifiée."
+		},
+		"projectSwitcher": {
+			"selectProject": "Sélectionner un projet",
+			"noProjects": "Aucun projet"
+		},
+		"columnEditor": {
+			"toastCreated": "Colonne créée",
+			"toastCreateError": "Échec de la création de la colonne",
+			"toastRenamed": "Colonne renommée",
+			"toastRenameError": "Échec de la mise à jour de la colonne",
+			"toastFinalOn": "Colonne marquée comme terminée",
+			"toastFinalOff": "La colonne n'est plus marquée comme terminée",
+			"toastUpdateError": "Échec de la mise à jour de la colonne",
+			"toastDeleted": "Colonne supprimée",
+			"toastDeleteError": "Échec de la suppression de la colonne",
+			"loading": "Chargement des colonnes...",
+			"doneColumnTooltip": "Considérer ceci comme une colonne terminée",
+			"doneColumn": "Colonne terminée",
+			"markDoneAria": "Marquer {{name}} comme colonne terminée",
+			"on": "On",
+			"off": "Off",
+			"newColumnPlaceholder": "Nouveau nom de colonne...",
+			"add": "Ajouter"
+		},
+		"githubIntegration": {
+			"validation": {
+				"ownerRequired": "Le propriétaire du dépôt est requis",
+				"ownerInvalid": "Format de propriétaire de dépôt invalide",
+				"nameRequired": "Le nom du dépôt est requis",
+				"nameInvalid": "Format de nom de dépôt invalide"
+			},
+			"toast": {
+				"installedOk": "L'application GitHub est correctement installée!",
+				"installedMissingPerms": "L'application GitHub est installée mais manque des permissions requises",
+				"needsInstallOnRepo": "L'application GitHub doit être installée sur ce dépôt",
+				"repoNotFound": "Dépôt non trouvé ou inaccessible",
+				"verifyError": "Échec de la vérification de l'installation GitHub",
+				"installAppFirst": "Veuillez installer l'application GitHub sur ce dépôt en premier",
+				"missingPermsDetail": "L'application GitHub manque des permissions requises: {{list}}. Veuillez mettre à jour les permissions de l'application.",
+				"updated": "Intégration GitHub mise à jour avec succès",
+				"updateError": "Échec de la mise à jour de l'intégration GitHub",
+				"removed": "Intégration GitHub supprimée avec succès",
+				"removeError": "Échec de la suppression de l'intégration GitHub",
+				"issuesImported": "Problèmes importés avec succès",
+				"importError": "Échec de l'importation des problèmes",
+				"commentOnEnabled": "Kaneo laissera un commentaire avec un lien de tâche sur les nouveaux problèmes",
+				"commentOnDisabled": "Les commentaires de lien de tâche sur les nouveaux problèmes sont désactivés",
+				"settingsUpdateError": "Échec de la mise à jour de l'intégration GitHub"
+			},
+			"connectionStatus": "Statut de la connexion",
+			"connectedActive": "Dépôt connecté et actif",
+			"notConnectedHint": "Aucun dépôt connecté",
+			"badgeConnected": "Connecté",
+			"badgeNotConnected": "Non connecté",
+			"repository": "Dépôt",
+			"repositoryHint": "Dépôt GitHub connecté",
+			"commentTaskLinkTitle": "Commenter le lien Kaneo sur les nouveaux problèmes",
+			"commentTaskLinkHint": "Lorsque cette option est activée, Kaneo publie un commentaire avec un lien de tâche sur chaque nouveau problème GitHub.",
+			"appStatusTitle": "Statut de l'application GitHub",
+			"appStatusHint": "Statut d'installation et de permissions",
+			"statusProperlyConfigured": "Correctement configuré",
+			"statusMissingPermissions": "Permissions manquantes",
+			"statusNotInstalled": "Non installé",
+			"ownerLabel": "Propriétaire du dépôt",
+			"ownerHint": "Nom d'utilisateur ou organisation GitHub",
+			"ownerPlaceholder": "e.g., octocat",
+			"repoNameLabel": "Nom du dépôt",
+			"repoNameHint": "Le nom du dépôt",
+			"repoNamePlaceholder": "e.g., my-project",
+			"actionsTitle": "Actions",
+			"actionsHint": "Gérer la connexion de votre dépôt",
+			"browse": "Parcourir",
+			"verify": "Vérifier",
+			"update": "Mettre à jour",
+			"connect": "Connecter",
+			"disconnect": "Déconnecter",
+			"missingPermissionsLabel": "Permissions manquantes:",
+			"updatePermissions": "Mettre à jour les permissions",
+			"installGithubApp": "Installer l'application GitHub",
+			"importSectionTitle": "Importer les problèmes GitHub",
+			"importSectionHint": "Importer les problèmes existants de votre dépôt GitHub en tant que tâches",
+			"importing": "Importation...",
+			"importIssues": "Importer les problèmes",
+			"importDisabledHint": "Complétez la configuration du dépôt ci-dessus pour activer l'importation"
+		},
+		"repositoryBrowser": {
+			"title": "Selectionner un dêpot",
+			"description": "Choisissez un dépôt où votre application GitHub est installée pour activer la synchronisation des problèmes.",
+			"searchPlaceholder": "Rechercher des dépôts...",
+			"loadError": "Échec du chargement des dépôts",
+			"tryAgain": "Réessayer",
+			"emptyTitle": "Aucun dépôt trouvé",
+			"emptyHint": "Installez l'application GitHub sur vos dépôts pour les voir ici.",
+			"installGithubApp": "Installer l'application GitHub",
+			"noSearchMatchTitle": "Aucun dépôt ne correspond à votre recherche",
+			"noSearchMatchHint": "Essayez d'ajuster vos termes de recherche ou effacez la recherche pour voir tous les dépôts.",
+			"footerSummary": "{{repoCount}} dépôts répartis sur {{installationCount}} installations",
+			"manageInstallations": "Gérer les installations",
+			"updatedPrefix": "Mis à jour",
+			"relativeJustNow": "Maintenant",
+			"relativeMinutesAgo": "il y à {{count}}m",
+			"relativeHoursAgo": "il y à {{count}}h",
+			"relativeDaysAgo": "il y à {{count}}d"
+		},
+		"tasksImportExport": {
+			"exportTasks": "Exporter les tâches",
+			"importTasks": "Importer les tâches",
+			"dialogTitle": "Importer les tâches",
+			"dialogDescription": "Téléversez un fichier JSON contenant les tâches à importer dans ce projet.",
+			"expectedFormat": "Format attendu:",
+			"dropHint": "Glissez et déposez votre fichier JSON ici",
+			"selectFile": "Sélectionner un fichier",
+			"exporting": "Exportation des tâches...",
+			"exportSuccess": "Tâches exportées avec succès",
+			"exportError": "Échec de l'exportation des tâches",
+			"importing": "Importation des tâches...",
+			"importSuccess": "Importation réussie de {{count}} tâches",
+			"importPartialError": "Échec de l'importation de {{count}} tâches",
+			"importError": "Échec de l'importation des tâches",
+			"invalidFormat": "Format de fichier d'importation invalide",
+			"noFileDropped": "Aucun fichier n'a été déposé",
+			"notJsonFile": "Veuillez importer un fichier JSON"
+		},
+		"workflowEditor": {
+			"loading": "Chargement...",
+			"createColumnsFirst": "Créez des colonnes d'abord pour configurer les règles d'automatisation.",
+			"githubHeading": "GitHub",
+			"githubHint": "Lorsqu'un événement GitHub se produit, déplacez la tâche liée vers une colonne.",
+			"selectColumnPlaceholder": "Sélectionner une colonne...",
+			"toastUpdated": "Règle de workflow mise à jour",
+			"toastError": "Échec de la mise à jour de la règle",
+			"events": {
+				"branch_push": "Push de branche",
+				"pr_opened": "PR Ouverte",
+				"pr_merged": "PR Fusionné",
+				"issue_opened": "Problème Ouvert",
+				"issue_closed": "Problème Fermé"
+			}
+		},
+		"externalLinks": {
+			"resources": "Ressources",
+			"issue": "Problème",
+			"branch": "Branche",
+			"merged": "Fusionné",
+			"draft": "Brouillon",
+			"open": "Ouvert"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "Suggestions",
+			"commands": "Commandes",
+			"projects": "Projets",
+			"search": "Recherche",
+			"members": "Membres",
+			"createTask": "Créer une tâche",
+			"createProject": "Créer un projet",
+			"createWorkspace": "Créer un espace de travail",
+			"lightTheme": "Thème clair",
+			"darkTheme": "Thème sombre",
+			"systemTheme": "Thème système",
+			"keyboardShortcuts": "Raccourcis clavier",
+			"inputPlaceholder": "Rechercher des applications et des commandes...",
+			"empty": "Aucun résultat trouvé.",
+			"footer": {
+				"navigate": "Naviguer",
+				"open": "Ouvrir",
+				"close": "Fermer"
+			}
+		},
+		"notifications": "Notifications",
+		"sidebar": {
+			"overview": "Vue d'ensemble",
+			"projects": "Projets",
+			"members": "Membres",
+			"invitations": "Invitations",
+			"more": "Plus"
+		},
+		"projectList": {
+			"viewProject": "Voir le projet",
+			"shareProject": "Partager le projet",
+			"linkCopied": "Lien du projet copié dans le presse-papiers",
+			"addProject": "Ajouter un projet",
+			"deleteConfirmTitle": "Supprimer le projet?",
+			"deleteConfirmDescription": "Cela supprimera définitivement le projet et toutes ses données. Vous ne pouvez pas annuler cette action.",
+			"deletedToast": "Projet supprimé",
+			"deleteProject": "Supprimer le projet"
+		},
+		"search": {
+			"inputPlaceholder": "Rechercher des tâches, projets, commentaires...",
+			"minCharsHint": "Tapez au moins 3 caractères pour rechercher",
+			"groups": {
+				"task": "Tâches",
+				"project": "Projets",
+				"workspace": "Espaces de travail",
+				"comment": "Commentaires",
+				"activity": "Activités",
+				"fallback": "Résultats"
+			}
+		},
+		"settingsLayout": {
+			"toggleSidebar": "Basculer la barre latérale",
+			"back": "Retour"
+		},
+		"userMenu": {
+			"signedOutSuccess": "Déconnexion réussie",
+			"signOutFailed": "Échec de la déconnexion",
+			"unnamedUser": "Utilisateur",
+			"settings": "Paramètres",
+			"signingOut": "Déconnexion...",
+			"logOut": "Déconnexion"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "Espaces de travail",
+			"switching": "Changement...",
+			"addWorkspace": "Ajouter un espace de travail",
+			"selectWorkspace": "Sélectionner un espace de travail"
+		},
+		"page": {
+			"projectsTitle": "Projets",
+			"settingsTitle": "Paramètres",
+			"backToWorkspace": "Retour à l'espace de travail",
+			"settingsWorkspaceTab": "Espace de travail"
+		},
+		"projectSettings": {
+			"projectLabel": "Projet"
+		},
+		"keyboardShortcuts": {
+			"title": "Raccourcis clavier",
+			"subtitle": "Accélérez votre flux de travail avec les raccourcis clavier",
+			"searchPlaceholder": "Rechercher des raccourcis...",
+			"footer": "Appuyez sur <kbd>Echap</kbd> pour fermer",
+			"categories": {
+				"general": "Général",
+				"create": "Créer",
+				"views": "Vues",
+				"navigation": "Navigation",
+				"quickSelect": "Sélection rapide (dans les popovers)"
+			},
+			"items": {
+				"openCommandPalette": "Ouvrir la palette de commandes",
+				"globalSearch": "Recherche globale",
+				"toggleSidebar": "Basculer la barre latérale",
+				"showShortcuts": "Afficher les raccourcis clavier",
+				"closeModal": "Fermer la modale/popover",
+				"createTask": "Créer une tâche",
+				"createProject": "Créer un projet",
+				"createWorkspace": "Créer un espace de travail",
+				"boardView": "Passer à la vue tableau",
+				"listView": "Passer à la vue de liste",
+				"backlogView": "Passer à la vue backlog",
+				"nextTask": "Tâche suivante",
+				"prevTask": "Tâche précédente",
+				"openTask": "Ouvrir la tâche sélectionnée",
+				"quickSelectNumber": "Sélectionner une option par numéro"
+			}
+		}
+	},
+	"notifications": {
+		"title": "Notifications",
+		"newCount_one": "{{count}} nouvelle",
+		"newCount_other": "{{count}} nouvelles",
+		"emptyTitle": "Aucune notification pour le moment",
+		"emptySubtitle": "Vous verrez les mises à jour et l'activité ici.",
+		"clearAll": "Effacer toutes les notifications",
+		"clearDialogTitle": "Effacer toutes les notifications?",
+		"clearDialogDescription": "Cela supprimera définitivement toutes les notifications. Vous ne pouvez pas annuler cette action.",
+		"shortcuts": {
+			"open": "Ouvrir les notifications"
+		},
+		"events": {
+			"task_created": {
+				"title": "Nouvelle tâche créée",
+				"content": "La tâche \"{{taskTitle}}\" a été créée"
+			},
+			"workspace_created": {
+				"title": "Espace de travail créé",
+				"content": "Votre espace de travail \"{{workspaceName}}\" a été créé avec succès"
+			},
+			"task_status_changed": {
+				"title": "Statut de la tâche modifié",
+				"content": "Le statut de la tâche \"{{taskTitle}}\" est passé de \"{{oldStatus}}\" à \"{{newStatus}}\""
+			},
+			"task_assignee_changed": {
+				"title": "Tâche assignée à vous",
+				"content": "Vous avez été assigné à la tâche : {{taskTitle}}"
+			},
+			"time_entry_created": {
+				"title": "Suivi du temps démarré",
+				"contentWithTask": "Le suivi du temps a démarré sur la tâche : {{taskTitle}}",
+				"contentWithoutTask": "Le suivi du temps a démarré sur une tâche"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "s'est assigné la tâche",
+		"unassigned": "a désassigné la tâche",
+		"assignedTo": "a assigné la tâche à {{name}}",
+		"changedStatus": "a changé le statut de {{from}} à {{to}}",
+		"changedPriority": "a changé la priorité de {{from}} à {{to}}",
+		"clearedDueDate": "a effacé la date d'échéance",
+		"setDueDate": "a défini la date d'échéance à {{date}}",
+		"changedDueDate": "a changé la date d'échéance de {{from}} à {{to}}",
+		"changedTitle": "a changé le titre de \"{{from}}\" à \"{{to}}\"",
+		"githubUser": "GitHub User",
+		"comment": {
+			"github": "GitHub",
+			"viewGithubProfile": "View GitHub Profile",
+			"commentedOnGithub": "a commenté sur GitHub",
+			"cannotBeEmpty": "Le commentaire ne peut pas être vide",
+			"mustBeLoggedInToEdit": "Vous devez être connecté pour modifier les commentaires",
+			"updated": "Commentaire mis à jour",
+			"failedToUpdate": "Échec de la mise à jour du commentaire",
+			"edit": "Modifier le commentaire",
+			"editPlaceholder": "Modifier le commentaire...",
+			"save": "Enregistrer",
+			"added": "Commentaire ajouté",
+			"failedToAdd": "Échec de l'ajout du commentaire",
+			"leavePlaceholder": "Laisser un commentaire...",
+			"attachFile": "Joindre un fichier",
+			"submitShortcut": "Soumettre le commentaire",
+			"editor": {
+				"uploadsOnlyOnSavedTasks": "Les téléversements de fichiers sont uniquement disponibles sur les tâches enregistrées.",
+				"uploadingFile": "Téléversement du fichier...",
+				"imageUploaded": "Image téléversée",
+				"fileAttached": "Fichier joint",
+				"failedToUploadFile": "Échec du téléversement du fichier",
+				"enterUrl": "Entrer une URL",
+				"plaintext": "Texte brut",
+				"autoDetect": "Détection automatique",
+				"slashGroupText": "Texte",
+				"slashGroupLists": "Listes",
+				"slashGroupInsert": "Insérer",
+				"slashParagraph": "Texte",
+				"slashHeading": "Titre",
+				"slashBulletList": "Liste à puces",
+				"slashTaskList": "Liste de tâches",
+				"slashOrderedList": "Liste numérotée",
+				"slashQuote": "Citation",
+				"slashCodeBlock": "Bloc de code",
+				"slashTable": "Tableau",
+				"slashFile": "Fichier",
+				"searchParagraph": "texte paragraphe normal",
+				"searchHeading": "titre h2",
+				"searchBulletList": "liste puces non ordonnée",
+				"searchTaskList": "tache à faire liste à cocher case à cocher liste de tâches",
+				"searchOrderedList": "liste ordonnée numérotée",
+				"searchQuote": "citation",
+				"searchCodeBlock": "bloc de code",
+				"searchTable": "tableau grille",
+				"searchFile": "fichier pièce jointe image photo picture upload",
+				"embedErrorInvalidUrl": "Entrez une URL valide",
+				"embedErrorYoutubeOnly": "Seuls les liens YouTube peuvent être intégrés.",
+				"embedVideo": "Intégrer la vidéo",
+				"keepAsLink": "Conserver comme lien",
+				"hintTab": "Tab",
+				"hintEsc": "Esc",
+				"pasteUrl": "Coller l'URL",
+				"asLink": "Comme lien",
+				"embed": "Intégrer",
+				"noCommands": "Aucune commande",
+				"ariaCommentContent": "Contenu du commentaire",
+				"ariaCommentEditor": "Éditeur de commentaires",
+				"ariaCopyCode": "Copier le code",
+				"ariaCopied": "Copié",
+				"copy": "Copier",
+				"copied": "Copié",
+				"dropImageToUpload": "Déposer l'image pour téléverser",
+				"previewImageAlt": "Aperçu de l'image",
+				"codeLang": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"markdown": "Markdown",
+					"plaintext": "Plaintext",
+					"python": "Python",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"typescript": "TypeScript",
+					"yaml": "YAML"
+				}
+			}
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "Statut",
+			"to-do": "À faire",
+			"in-progress": "En cours",
+			"in-review": "En revue",
+			"done": "Fait",
+			"archived": "Archivé",
+			"planned": "Planifié"
+		},
+		"priority": {
+			"label": "Priorité",
+			"no-priority": "Pas de priorité",
+			"low": "Basse",
+			"medium": "Moyenne",
+			"high": "Haute",
+			"urgent": "Urgente"
+		},
+		"boardSearchPlaceholder": "Rechercher des tickets...",
+		"view": {
+			"board": "Tableau",
+			"list": "Liste"
+		},
+		"common": {
+			"selectTask": "Sélectionner une tâche",
+			"loadingTask": "Chargement de la tâche..."
+		},
+		"detail": {
+			"subtaskOf": "Sous-tâche de",
+			"activity": "Activité",
+			"noActivity": "Aucune activité trouvée",
+			"openInFullPage": "Ouvrir en plein écran",
+			"titlePlaceholder": "Cliquez pour ajouter un titre",
+			"addDescription": "Ajouter une description...",
+			"editor": {
+				"ariaLabel": "Éditeur de description de tâche",
+				"placeholder": "Écrire une description...",
+				"previewImage": "Aperçu de l'image",
+				"enterUrl": "Entrer une URL",
+				"autoDetect": "Détection automatique",
+				"copyCode": "Copier le code",
+				"copy": "Copier",
+				"copied": "Copié",
+				"attachFile": "Joindre un fichier",
+				"dropToUpload": "Déposer l'image pour téléverser",
+				"checkbox": {
+					"markIncomplete": "Marquer la tâche comme incomplète",
+					"markComplete": "Marquer la tâche comme terminée"
+				},
+				"upload": {
+					"loading": "Téléversement du fichier...",
+					"failed": "Échec du téléversement du fichier",
+					"imageSuccess": "Image téléversée",
+					"fileSuccess": "Fichier joint"
+				},
+				"slash": {
+					"groups": {
+						"text": "Texte",
+						"lists": "Listes",
+						"insert": "Insérer"
+					},
+					"empty": "Aucune commande",
+					"commands": {
+						"paragraph": "Texte",
+						"heading-2": "Titre",
+						"bullet-list": "Liste à puces",
+						"task-list": "Liste de tâches",
+						"ordered-list": "Liste numérotée",
+						"blockquote": "Citation",
+						"code-block": "Bloc de code",
+						"table": "Tableau",
+						"file": "Fichier"
+					}
+				},
+				"languages": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"clojure": "Clojure",
+					"cypher": "Cypher",
+					"dart": "Dart",
+					"diff": "Diff",
+					"elixir": "Elixir",
+					"excel": "Excel",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"haskell": "Haskell",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"kotlin": "Kotlin",
+					"makefile": "Makefile",
+					"markdown": "Markdown",
+					"ocaml": "OCaml",
+					"php": "PHP",
+					"perl": "Perl",
+					"plaintext": "Plaintext",
+					"python": "Python",
+					"r": "R",
+					"reasonml": "ReasonML",
+					"ruby": "Ruby",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"toml": "TOML",
+					"terraform": "Terraform",
+					"typescript": "TypeScript",
+					"xml": "XML",
+					"yaml": "YAML"
+				},
+				"embed": {
+					"choice": {
+						"embedVideo": "Intégrer la vidéo",
+						"keepAsLink": "Conserver comme lien"
+					},
+					"inputPlaceholder": "Coller l'URL",
+					"embeddedContent": "Contenu intégré",
+					"asLink": "Comme lien",
+					"submit": "Intégrer",
+					"errors": {
+						"invalidUrl": "Entrez une URL valide",
+						"onlyYoutube": "Seuls les liens YouTube peuvent être intégrés."
+					},
+					"onlyYoutubeInline": "Seuls les liens YouTube peuvent être intégrés. Utilisez le mode lien à la place."
+				}
+			}
+		},
+		"entity": {
+			"task": "Tâche"
+		},
+		"relations": {
+			"title": "Relations",
+			"tasksInProject": "Tâches dans le projet",
+			"linkError": "Échec de la liaison de la tâche",
+			"empty": "Aucune tâche liée",
+			"searchPlaceholder": "Rechercher des tâches à lier...",
+			"noTasksFound": "Aucune tâche trouvée",
+			"openTask": "Ouvrir la tâche",
+			"removeRelation": "Supprimer la relation",
+			"related": "Related",
+			"blocks": "Blocks",
+			"selectTask": "Select a task to link",
+			"types": {
+				"blocks": "blocs",
+				"related": "relatif à"
+			}
+		},
+		"subtasks": {
+			"title": "Sous-tâches",
+			"inputPlaceholder": "Titre de la sous-tâche...",
+			"addAction": "Ajouter",
+			"empty": "Aucune sous-tâche pour le moment",
+			"createError": "Échec de la création de la sous-tâche",
+			"deleteSuccess": "Tâche supprimée avec succès",
+			"deleteError": "Échec de la suppression de la tâche",
+			"deleteDialogTitle": "Supprimer la tâche ?",
+			"deleteDialogDescription": "Cela supprimera définitivement la tâche et toutes ses données. Vous ne pouvez pas annuler cette action.",
+			"deleteAction": "Supprimer la tâche"
+		},
+		"properties": {
+			"title": "Propriétés",
+			"labels": "Labels",
+			"copyTaskLink": "Copier le lien de la tâche",
+			"copyTaskBranch": "Copier la branche de la tâche",
+			"start": "Début",
+			"startDate": "Date de début",
+			"noDate": "Pas de date"
+		},
+		"popover": {
+			"assignee": {
+				"unassigned": "Non assigné",
+				"updateError": "Échec de la mise à jour de l'assigné de la tâche"
+			},
+			"status": {
+				"updateError": "Échec de la mise à jour du statut de la tâche"
+			},
+			"priority": {
+				"updateError": "Échec de la mise à jour de la priorité de la tâche"
+			},
+			"dueDate": {
+				"updateSuccess": "Date d'échéance de la tâche mise à jour avec succès",
+				"updateError": "Échec de la mise à jour de la date d'échéance de la tâche",
+				"clear": "Effacer la date"
+			},
+			"startDate": {
+				"updateSuccess": "Date de début de la tâche mise à jour avec succès",
+				"updateError": "Échec de la mise à jour de la date de début de la tâche",
+				"clear": "Effacer la date de début"
+			},
+			"labels": {
+				"searchPlaceholder": "Rechercher des labels...",
+				"empty": "Aucun label trouvé",
+				"create": "Créer \"{{name}}\"",
+				"chooseColor": "Choisir une couleur",
+				"addSuccess": "Label ajouté",
+				"removeSuccess": "Label supprimé",
+				"updateError": "Échec de la mise à jour du label",
+				"createSuccess": "Label créé et ajouté",
+				"createError": "Échec de la création du label",
+				"colors": {
+					"stone": "Pierre",
+					"slate": "Ardoise",
+					"lavender": "Lavande",
+					"sage": "Sauge",
+					"forest": "Forêt",
+					"amber": "Ambre",
+					"terracotta": "Terre cuite",
+					"rose": "Rose",
+					"crimson": "Cramoisi"
+				}
+			}
+		},
+		"backlog": {
+			"pageTitle": "Backlog de {{name}}",
+			"noTasksToMove": "Aucune tâche planifiée à déplacer",
+			"moveAllConfirm": "Déplacer toutes les tâches planifiées {{count}} vers À faire ?",
+			"moveAllSuccess": "Déplacé {{count}} tâches vers À faire",
+			"plan": "Plan",
+			"moveAllTooltip": "Déplacer toutes les tâches planifiées vers À faire",
+			"moveAll": "Déplacer toutes",
+			"addTask": "Ajouter une tâche",
+			"filter": "Filtrer",
+			"addFilter": "Ajouter un filtre...",
+			"sections": {
+				"planned": "Planifié",
+				"archived": "Archivé"
+			},
+			"noTasksInSection": "Aucune tâche {{section}}",
+			"filters": {
+				"priority": "Priorité: {{name}}",
+				"assignee": "Assigné: {{name}}",
+				"due": "Échéance: {{date}}",
+				"label": "Label: {{name}}",
+				"dueThisWeek": "Échéance cette semaine",
+				"dueNextWeek": "Échéance la semaine prochaine",
+				"noDueDate": "Pas de date d'échéance"
+			}
+		},
+		"sort": {
+			"label": "Trier",
+			"by": "Trier par",
+			"direction": "Direction",
+			"ascending": "Croissant",
+			"descending": "Décroissant",
+			"fields": {
+				"position": "Manuel (position)",
+				"createdAt": "Date de création",
+				"priority": "Priorité",
+				"dueDate": "Date d'échéance",
+				"title": "Titre",
+				"number": "Numéro de tâche"
+			}
+		},
+		"boardFilters": {
+			"filterBy": "Filtrer par",
+			"allStatuses": "Tous les statuts",
+			"allPriorities": "Toutes les priorités",
+			"allAssignees": "Tous les assignés",
+			"allDueDates": "Toutes les dates d'échéance",
+			"allLabels": "Tous les labels",
+			"selectedCount": "{{count}} sélectionné",
+			"subjects": {
+				"status": "Statut",
+				"priority": "Priorité",
+				"assignee": "Assigné",
+				"dueDate": "Date d'échéance",
+				"labels": "Labels"
+			},
+			"operators": {
+				"isAnyOf": "est l'un des",
+				"includeAnyOf": "inclut l'un des"
+			}
+		},
+		"gantt": {
+			"pageTitle": "{{name}} — Gantt",
+			"title": "Chronologie de Gantt",
+			"searchPlaceholder": "Rechercher des tâches planifiées...",
+			"hideTasks": "Masquer les tâches",
+			"showTasks": "Afficher les tâches",
+			"noTasks": "Aucune tâche planifiée",
+			"noTasksSubtitle": "Ajoutez une date de début, une date d'échéance ou les deux pour placer les tâches dans la chronologie du projet.",
+			"noTasksFound": "Aucune tâche trouvée",
+			"noTasksMatch": "Aucune tâche planifiée ne correspond à \"{{query}}\"",
+			"taskHeader": "Tâche",
+			"updateDatesError": "Échec de la mise à jour des dates de la tâche",
+			"resizeStart": "Redimensionner la date de début",
+			"resizeDue": "Redimensionner la date d'échéance",
+			"taskAriaLabel": "{{title}} — ouvrir ou déplacer"
+		},
+		"delete": {
+			"title": "Supprimer la tâche ?",
+			"description": "Cela supprimera définitivement la tâche et toutes ses données. Vous ne pouvez pas annuler cette action.",
+			"action": "Supprimer la tâche",
+			"success": "Tâche supprimée avec succès",
+			"error": "Échec de la suppression de la tâche"
+		},
+		"archive": {
+			"success": "{{count}} tâches archivées"
+		},
+		"listView": {
+			"addTask": "Ajouter une tâche",
+			"archiveAllTooltip": "Archiver toutes les tâches terminées",
+			"noTasks": "Aucune tâche"
+		},
+		"kanban": {
+			"addTask": "Ajouter une tâche"
+		},
+		"pr": {
+			"merged": "Fusionné",
+			"draft": "Brouillon",
+			"open": "Ouvert",
+			"label": "Pull Request",
+			"count_one": "{{count}} PR",
+			"count_other": "{{count}} PRs"
+		},
+		"assignee": {
+			"label": "Assigné",
+			"unassigned": "Non assigné"
+		},
+		"dueDate": {
+			"label": "Date d'échéance",
+			"clear": "Effacer la date",
+			"updateSuccess": "Date d'échéance de la tâche mise à jour avec succès",
+			"updateError": "Échec de la mise à jour de la date d'échéance de la tâche",
+			"clearSuccess": "Date d'échéance de la tâche effacée",
+			"clearError": "Échec de l'effacement de la date d'échéance"
+		},
+		"labels": {
+			"label": "Labels",
+			"empty": "Aucun label disponible"
+		},
+		"update": {
+			"success": "Tâche mise à jour avec succès",
+			"error": "Échec de la mise à jour de la tâche"
+		},
+		"contextMenu": {
+			"copyLink": "Copier le lien",
+			"copyLinkSuccess": "Lien de la tâche copié !"
+		},
+		"actions": {
+			"archive": "Archiver",
+			"markAsPlanned": "Marquer comme planifié",
+			"delete": "Supprimer..."
+		},
+		"bulk": {
+			"selectedCount": "{{count}} sélectionné",
+			"moveToBacklog": "Déplacer vers le backlog",
+			"moveToBacklogSuccess": "{{count}} tâches déplacées vers le backlog",
+			"moveToBacklogError": "Échec du déplacement des tâches vers le backlog",
+			"moveToBoard": "Déplacer vers le tableau",
+			"moveToBoardSuccess": "{{count}} tâches déplacées vers le tableau",
+			"moveToBoardError": "Échec du déplacement des tâches vers le tableau",
+			"delete": "Supprimer les tâches",
+			"deleteConfirm": "Supprimer {{count}} tâches ? Cette action ne peut pas être annulée.",
+			"deleteSuccess": "{{count}} tâches supprimées",
+			"deleteError": "Échec de la suppression des tâches",
+			"archive": "Archiver les tâches",
+			"archiveSuccess": "{{count}} tâches archivées",
+			"archiveError": "Échec de l'archivage des tâches",
+			"updateSuccess": "{{count}} tâches mises à jour",
+			"updateError": "Échec de la mise à jour des tâches",
+			"assignTo": "Attribuer à",
+			"assignSuccess": "{{count}} tâches attribuées",
+			"assignError": "Échec de l'attribution des tâches",
+			"setPriority": "Définir la priorité",
+			"updatePriorityError": "Échec de la mise à jour de la priorité",
+			"addLabel": "Ajouter un label",
+			"addLabelSuccess": "Label ajouté à {{count}} tâches",
+			"addLabelError": "Échec de l'ajout du label",
+			"setDueDate": "Définir la date d'échéance",
+			"updateDueDateError": "Échec de la mise à jour de la date d'échéance",
+			"actions": "Actions",
+			"searchActions": "Rechercher des actions...",
+			"noActionsFound": "Aucune action trouvée.",
+			"changeStatus": "Changer le statut"
+		}
+	},
+	"invitations": {
+		"pageTitle": "Invitations",
+		"pendingInvitations": "Invitations en attente",
+		"acceptSubtitle": "Acceptez les invitations pour rejoindre les workspaces",
+		"noPendingTitle": "Aucune invitation en attente",
+		"noPendingDescription": "Vous n'avez aucune invitation de workspace en attente pour le moment.",
+		"continueToSetup": "Continuer vers la configuration",
+		"skipForNow": "Ignorer pour l'instant",
+		"table": {
+			"workspace": "Workspace",
+			"invitedBy": "Invité par",
+			"expires": "Expire"
+		},
+		"toast": {
+			"acceptError": "Échec de l'acceptation de l'invitation",
+			"acceptSuccess": "Invitation acceptée ! Bienvenue dans l'équipe.",
+			"rejectError": "Échec du rejet de l'invitation",
+			"rejectSuccess": "Invitation rejetée"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "Projets",
+			"createProject": "Créer un projet",
+			"title": "Titre",
+			"progress": "Progression",
+			"targetDate": "Date cible",
+			"dueDate": "Date d'échéance",
+			"status": "Statut",
+			"emptyTitle": "Aucun projet pour le moment",
+			"emptyDescription": "Commencez par créer votre premier projet.",
+			"projectStatus": {
+				"notStarted": "Non commencé",
+				"complete": "Terminé",
+				"inProgress": "En cours"
+			},
+			"noDueDate": "Pas de date d'échéance"
+		},
+		"search": {
+			"pageTitle": "Rechercher",
+			"backToDashboard": "Retour au tableau de bord",
+			"placeholder": "Rechercher des tâches par titre ou ID court (ex: DEP-23)...",
+			"hint": "Rechercher dans tous les projets de ce workspace. Utilisez des ID courts comme DEP-23 pour trouver des tâches spécifiques.",
+			"searching": "Recherche...",
+			"resultsFound_one": "{{count}} résultat trouvé",
+			"resultsFound_other": "{{count}} résultats trouvés",
+			"noResultsTitle": "Aucun résultat trouvé",
+			"noResultsDescription": "Essayez d'ajuster vos termes de recherche ou recherchez autre chose",
+			"startTitle": "Commencer la recherche",
+			"startDescription": "Entrez un terme de recherche pour trouver des tâches dans tous les projets",
+			"quickSearchesLabel": "Recherches rapides :",
+			"suggestionHighPriority": "Priorité élevée",
+			"suggestionBug": "Bug",
+			"suggestionFeature": "Fonctionnalité",
+			"suggestionInProgress": "En cours",
+			"suggestionCompleted": "Terminé"
+		},
+		"create": {
+			"pageTitle": "Créer un workspace",
+			"heading": "Créer un nouveau workspace",
+			"subtitle": "Les workspaces sont des environnements partagés où les équipes peuvent travailler sur des projets, des cycles et des problèmes.",
+			"nameLabel": "Nom du workspace",
+			"namePlaceholder": "Entrez le nom du workspace",
+			"descriptionLabel": "Description (optionnel)",
+			"descriptionPlaceholder": "Ajoutez une description pour votre workspace",
+			"required": "Obligatoire",
+			"creating": "Création...",
+			"submit": "Créer un workspace",
+			"success": "Workspace créé avec succès",
+			"error": "Échec de la création du workspace"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "Propriétaire",
+			"admin": "Admin",
+			"member": "Membre"
+		},
+		"members": {
+			"pageTitle": "Membres",
+			"inviteMember": "Inviter un membre"
+		},
+		"inviteModal": {
+			"title": "Inviter un membre de l'équipe",
+			"emailLabel": "Email",
+			"emailPlaceholder": "collegue@entreprise.fr",
+			"sendInvitation": "Envoyer l'invitation",
+			"success": "Invitation envoyée avec succès",
+			"error": "Échec de l'envoi de l'invitation"
+		},
+		"membersTable": {
+			"emptyTitle": "Aucun membre de l'équipe pour le moment",
+			"emptyDescription": "Invitez votre premier membre dans l'équipe pour commencer.",
+			"columns": {
+				"name": "Nom",
+				"role": "Rôle",
+				"joined": "Rejoint",
+				"actions": "Actions"
+			},
+			"memberRolePending": "{{role}} (En attente)",
+			"ariaCancelInvitation": "Annuler l'invitation",
+			"ariaRemoveMember": "Supprimer le membre",
+			"removeDialogTitle": "Supprimer un membre de l'équipe ?",
+			"removeDialogDescription": "Êtes-vous sûr de vouloir supprimer {{name}} de l'équipe ? Cette action ne peut pas être annulée.",
+			"cancelDialogTitle": "Annuler l'invitation ?",
+			"cancelDialogDescription": "Êtes-vous sûr de vouloir annuler l'invitation pour {{email}} ? Cette action ne peut pas être annulée.",
+			"removeMember": "Supprimer le membre",
+			"cancelInvitation": "Annuler l'invitation",
+			"removeSuccess": "Membre de l'équipe supprimé avec succès",
+			"removeError": "Échec de la suppression du membre de l'équipe",
+			"cancelInviteSuccess": "Invitation annulée avec succès",
+			"cancelInviteError": "Échec de l'annulation de l'invitation"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "Vue publique",
+		"badge": "Public",
+		"readOnly": "Lecture seule",
+		"error": {
+			"title": "Projet non trouvé",
+			"description": "Ce projet n'existe pas ou n'est pas accessible publiquement."
+		},
+		"taskCard": {
+			"viewDetailsAria": "Voir les détails de la tâche {{title}}"
+		},
+		"taskDetail": {
+			"labels": "Labels",
+			"externalLinks": "Liens externes",
+			"pullRequestFallback": "Demande de fusion",
+			"issueFallback": "Problème",
+			"prStatusMerged": "Fusionné",
+			"prStatusDraft": "Brouillon",
+			"prStatusOpen": "Ouvert",
+			"dueWithDate": "Échéance {{date}}",
+			"created": "Créé",
+			"dueDateLabel": "Date d'échéance"
+		},
+		"theme": {
+			"switchToLight": "Passer en mode clair",
+			"switchToDark": "Passer en mode sombre"
+		},
+		"copyUrl": {
+			"successToast": "URL copiée",
+			"errorToast": "Échec de la copie de l'URL",
+			"copied": "Copié",
+			"share": "Partager"
+		},
+		"branding": {
+			"poweredBy": "Propulsé par"
+		}
+	}
+}
