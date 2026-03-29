@@ -76,7 +76,7 @@
 		"i18next": "^25.5.3",
 		"lowlight": "^3.3.0",
 		"lucide-react": "^0.577.0",
-		"marked": "^17.0.4",
+		"marked": "^17.0.5",
 		"radix-ui": "^1.4.3",
 		"react": "^19.2.4",
 		"react-day-picker": "9.14.0",
