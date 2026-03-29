@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Dependabot Metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v1
+        uses: dependabot/fetch-metadata@v3
         with:
           github-token: "${{ secrets.AUTO_MERGE_PAT }}"
 
