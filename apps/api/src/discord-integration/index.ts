@@ -56,7 +56,6 @@ function toResponse(integration: {
     projectId: integration.projectId,
     channelName: config.channelName ?? null,
     webhookConfigured: Boolean(config.webhookUrl),
-    webhookUrl: config.webhookUrl ?? "",
     maskedWebhookUrl: config.webhookUrl
       ? maskWebhookUrl(config.webhookUrl)
       : "",
@@ -160,32 +159,22 @@ discordIntegration
         });
       }
 
-      await db.transaction(async (tx) => {
-        const existing = await tx.query.integrationTable.findFirst({
-          where: and(
-            eq(integrationTable.projectId, projectId),
-            eq(integrationTable.type, "discord"),
-          ),
-        });
-
-        if (existing) {
-          await tx
-            .update(integrationTable)
-            .set({
-              config: JSON.stringify(config),
-              isActive: true,
-              updatedAt: new Date(),
-            })
-            .where(eq(integrationTable.id, existing.id));
-        } else {
-          await tx.insert(integrationTable).values({
-            projectId,
-            type: "discord",
+      await db
+        .insert(integrationTable)
+        .values({
+          projectId,
+          type: "discord",
+          config: JSON.stringify(config),
+          isActive: true,
+        })
+        .onConflictDoUpdate({
+          target: [integrationTable.projectId, integrationTable.type],
+          set: {
             config: JSON.stringify(config),
             isActive: true,
-          });
-        }
-      });
+            updatedAt: new Date(),
+          },
+        });
 
       const integration = await getDiscordIntegration(projectId);
       return c.json(integration);

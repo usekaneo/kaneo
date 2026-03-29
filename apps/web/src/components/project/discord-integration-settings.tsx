@@ -109,7 +109,7 @@ export function DiscordIntegrationSettings({
     useDeleteDiscordIntegration();
   const normalizedValues = React.useMemo<DiscordIntegrationFormValues>(
     () => ({
-      webhookUrl: integration?.webhookUrl ?? "",
+      webhookUrl: "",
       channelName: integration?.channelName ?? "",
       taskCreated: integration?.events?.taskCreated ?? true,
       taskStatusChanged: integration?.events?.taskStatusChanged ?? true,

@@ -5,7 +5,6 @@ export type DiscordIntegration = {
   projectId: string;
   channelName: string | null;
   webhookConfigured: boolean;
-  webhookUrl: string;
   maskedWebhookUrl: string;
   events: {
     taskCreated: boolean;
