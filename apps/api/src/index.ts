@@ -31,6 +31,7 @@ import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
+import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
 import taskRelation from "./task-relation";
@@ -395,6 +396,7 @@ const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
+const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
 const taskRelationApi = api.route("/task-relation", taskRelation);
 const externalLinkApi = api.route("/external-link", externalLink);
 const workflowRuleApi = api.route("/workflow-rule", workflowRule);
@@ -449,6 +451,7 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof slackIntegrationApi
   | typeof taskRelationApi
   | typeof externalLinkApi
   | typeof workflowRuleApi

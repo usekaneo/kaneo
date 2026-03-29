@@ -1,7 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ChevronDown, Github, Webhook } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
+import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/integrations",
@@ -27,20 +35,61 @@ function RouteComponent() {
         </div>
 
         <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:projectIntegrations.githubSectionTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:projectIntegrations.githubSectionSubtitle")}
-            </p>
-          </div>
-
-          <div className="space-y-4">
+          <IntegrationSection
+            defaultOpen
+            icon={<Github className="size-4" />}
+            subtitle={t("settings:projectIntegrations.githubSectionSubtitle")}
+            title={t("settings:projectIntegrations.githubSectionTitle")}
+          >
             <GitHubIntegrationSettings projectId={projectId} />
-          </div>
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<Webhook className="size-4" />}
+            subtitle={t("settings:projectIntegrations.slackSectionSubtitle")}
+            title={t("settings:projectIntegrations.slackSectionTitle")}
+          >
+            <SlackIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
         </div>
       </div>
     </>
+  );
+}
+
+function IntegrationSection({
+  title,
+  subtitle,
+  icon,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  icon: ReactNode;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Collapsible
+      className="rounded-xl border border-border bg-background"
+      defaultOpen={defaultOpen}
+    >
+      <CollapsibleTrigger className="group flex w-full items-center justify-between gap-4 px-4 py-4 text-left">
+        <div className="flex min-w-0 items-start gap-3">
+          <div className="mt-0.5 text-muted-foreground">{icon}</div>
+          <div className="min-w-0">
+            <h2 className="text-md font-medium">{title}</h2>
+            <p className="text-xs text-muted-foreground">{subtitle}</p>
+          </div>
+        </div>
+
+        <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[panel-open]:rotate-180" />
+      </CollapsibleTrigger>
+
+      <CollapsibleContent>
+        <div className="border-t border-border p-4">{children}</div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

@@ -489,7 +489,9 @@
 			"title": "Project Integrations",
 			"subtitle": "Connect your project with external tools and services to streamline your workflow.",
 			"githubSectionTitle": "GitHub Integration",
-			"githubSectionSubtitle": "Synchronize tasks with GitHub issues and enable two-way sync."
+			"githubSectionSubtitle": "Synchronize tasks with GitHub issues and enable two-way sync.",
+			"slackSectionTitle": "Slack Integration",
+			"slackSectionSubtitle": "Send project task updates into a Slack channel with an incoming webhook."
 		},
 		"projectVisibility": {
 			"pageTitle": "Project Visibility",
@@ -598,6 +600,44 @@
 			"importing": "Importing...",
 			"importIssues": "Import Issues",
 			"importDisabledHint": "Complete the repository configuration above to enable importing"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid Slack webhook URL"
+			},
+			"toast": {
+				"saved": "Slack integration saved successfully",
+				"saveError": "Failed to save Slack integration",
+				"enabled": "Slack notifications enabled",
+				"disabled": "Slack notifications paused",
+				"updateError": "Failed to update Slack integration",
+				"removed": "Slack integration removed successfully",
+				"removeError": "Failed to remove Slack integration"
+			},
+			"connectionTitle": "Slack webhook connection",
+			"connectionHint": "Paste a Slack incoming webhook URL and choose which task events should be posted.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Create an Incoming Webhook in Slack and paste the generated URL here.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optional label for your reference. Slack controls the actual destination channel from the webhook setup.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should post to Slack.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect Slack",
+			"saveChanges": "Save changes",
+			"update": "Update Slack",
+			"disconnect": "Disconnect"
 		},
 		"repositoryBrowser": {
 			"title": "Select Repository",
