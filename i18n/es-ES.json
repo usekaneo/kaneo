@@ -25,61 +25,62 @@
 		},
 		"pagination": {
 			"label": "Pagination",
-			"previous": "Previous",
-			"next": "Next",
-			"previousPage": "Go to previous page",
-			"nextPage": "Go to next page",
-			"morePages": "More pages"
+			"previous": "Anterior",
+			"next": "Siguiente",
+			"previousPage": "Ir a la página anterior",
+			"nextPage": "Ir a la página siguiente",
+			"morePages": "Más páginas"
 		},
 		"breadcrumb": {
 			"label": "Breadcrumb",
-			"more": "More"
+			"more": "Más"
 		},
 		"language": {
-			"english": "English",
-			"german": "German",
-			"greek": "Greek",
-			"macedonian": "Macedonian",
-			"french": "French"
+			"english": "Inglés",
+			"german": "Alemán",
+			"greek": "Griego",
+			"macedonian": "Macedonio",
+			"french": "Francés",
+			"spanish": "Español"
 		},
 		"people": {
-			"someone": "Someone",
-			"unknown": "Unknown"
+			"someone": "Alguien",
+			"unknown": "Desconocido"
 		},
 		"error": {
-			"title": "Something went wrong",
+			"title": "Algo ha ido mal",
 			"troubleshooting": "Troubleshooting steps:",
-			"tryAgain": "Try Again",
-			"viewDeploymentGuide": "View Deployment Guide",
-			"refreshPage": "Refresh Page"
+			"tryAgain": "Intentar de nuevo",
+			"viewDeploymentGuide": "Ver el manual del despliegue",
+			"refreshPage": "Actualizar página"
 		},
 		"formats": {
-			"never": "Never"
+			"never": "Nunca"
 		},
 		"modals": {
 			"createProject": {
-				"title": "Create a new project",
-				"breadcrumbNew": "Create a new project",
+				"title": "Crear un nuevo proyecto",
+				"breadcrumbNew": "Crear un nuevo proyecto",
 				"workspaceFallback": "WORKSPACE",
-				"description": "Create a new project in your workspace by providing a name, key, and selecting an icon.",
-				"pickIcon": "Pick icon",
-				"searchIcons": "Search icons...",
-				"projectName": "Project name",
-				"keyLabel": "Key:",
-				"keyHint": "Used for ticket IDs (e.g., {{example}}-123)",
-				"createButton": "Create Project",
-				"successToast": "Project created successfully",
-				"errorToast": "Failed to create project"
+				"description": "Crea un nuevo proyecto en tu espacio de trabajo, eligiendo nombre, identificador y seleccionando un icono.",
+				"pickIcon": "Elegir icono",
+				"searchIcons": "Buscar iconos...",
+				"projectName": "Nombre del proyecto",
+				"keyLabel": "Identificador:",
+				"keyHint": "Empleado en los ids de los tickets, por ejemplo {{identificador}}-123)",
+				"createButton": "Crear proyecto",
+				"successToast": "Proyecto creado satisfactoriamente",
+				"errorToast": "Hubo un error al crear el proyecto"
 			},
 			"createWorkspace": {
 				"breadcrumbKaneo": "KANEO",
-				"title": "Create a new workspace",
-				"description": "Create a new workspace by providing a name for your workspace.",
-				"namePlaceholder": "Workspace name",
-				"descriptionPlaceholder": "Add description...",
-				"createButton": "Create Workspace",
-				"successToast": "Workspace created successfully",
-				"errorToast": "Failed to create workspace"
+				"title": "Crear un nuevo espacio de trabajo",
+				"description": "Crea un nuevo espacio de trabajo eligiendo un nombre.",
+				"namePlaceholder": "Nombre del espacio de trabajo",
+				"descriptionPlaceholder": "Añadir descripción...",
+				"createButton": "Crear espacio de trabajo",
+				"successToast": "Espacio de trabajo creado satisfactoriamente",
+				"errorToast": "Hubo un error al crear el espacio de trabajo"
 			},
 			"createTask": {
 				"breadcrumbTask": "TASK",

@@ -3,6 +3,7 @@ import elGR from "./el-GR.json";
 import enUS from "./en-US.json";
 import frFR from "./fr-FR.json";
 import mkMK from "./mk-MK.json";
+import esES from "./es-ES.json";
 
 export const supportedLocales = [
   "en-US",
@@ -10,6 +11,7 @@ export const supportedLocales = [
   "el-GR",
   "mk-MK",
   "fr-FR",
+  "es-ES",
 ] as const;
 
 export type AppLocale = (typeof supportedLocales)[number];
@@ -22,4 +24,5 @@ export const resources = {
   "el-GR": elGR,
   "mk-MK": mkMK,
   "fr-FR": frFR,
+  "es-ES": esES,
 } as const;
