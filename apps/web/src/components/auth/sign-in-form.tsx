@@ -2,6 +2,7 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +33,7 @@ const signInSchema = z.object({
 });
 
 export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const form = useForm<SignInFormValues>({
@@ -51,16 +53,20 @@ export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
       });
 
       if (result.error) {
-        toast.error(result.error.message || "Failed to sign in");
+        toast.error(result.error.message || t("auth:signInForm.failedSignIn"));
         return;
       }
 
-      toast.success("Signed in successfully");
+      toast.success(t("auth:signInForm.signedInSuccess"));
       setTimeout(() => {
         onSuccess?.();
       }, 500);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to sign in");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("auth:signInForm.failedSignIn"),
+      );
     } finally {
       setIsPending(false);
     }
@@ -75,10 +81,12 @@ export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Email</FormLabel>
+                <FormLabel className="text-sm font-medium">
+                  {t("auth:forms.email")}
+                </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="me@example.com"
+                    placeholder={t("auth:forms.emailPlaceholder")}
                     type="email"
                     autoComplete="email"
                     {...field}
@@ -94,11 +102,13 @@ export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Password</FormLabel>
+                <FormLabel className="text-sm font-medium">
+                  {t("auth:forms.password")}
+                </FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
-                      placeholder="••••••••"
+                      placeholder={t("auth:forms.passwordPlaceholder")}
                       type={showPassword ? "text" : "password"}
                       autoComplete="current-password"
                       {...field}
@@ -108,7 +118,9 @@ export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       aria-label={
-                        showPassword ? "Hide password" : "Show password"
+                        showPassword
+                          ? t("auth:forms.hidePassword")
+                          : t("auth:forms.showPassword")
                       }
                       aria-pressed={showPassword}
                     >
@@ -128,7 +140,9 @@ export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
           size="sm"
           className="w-full mt-4"
         >
-          {isPending ? "Signing In..." : "Sign In"}
+          {isPending
+            ? t("auth:signInForm.signingIn")
+            : t("auth:signInForm.signIn")}
         </Button>
       </form>
     </Form>

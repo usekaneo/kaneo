@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,11 +57,6 @@ type TaskRelationsProps = {
   workspaceId: string;
 };
 
-const relationTypeLabels: Record<string, string> = {
-  blocks: "blocks",
-  related: "relates to",
-};
-
 type TaskItem = {
   id: string;
   title: string;
@@ -79,6 +75,7 @@ export default function TaskRelations({
   projectId,
   workspaceId,
 }: TaskRelationsProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
   const [commandOpen, setCommandOpen] = useState(false);
@@ -168,11 +165,11 @@ export default function TaskRelations({
     return [
       {
         value: "tasks",
-        label: "Tasks in project",
+        label: t("tasks:relations.tasksInProject"),
         items: filteredTasks,
       },
     ];
-  }, [filteredTasks]);
+  }, [filteredTasks, t]);
 
   const handleLinkTask = async (targetTaskId: string) => {
     try {
@@ -184,7 +181,7 @@ export default function TaskRelations({
       setCommandOpen(false);
       setSearchQuery("");
     } catch {
-      toast.error("Failed to link task");
+      toast.error(t("tasks:relations.linkError"));
     }
   };
 
@@ -239,7 +236,7 @@ export default function TaskRelations({
                 ) : (
                   <ChevronRight className="size-4" />
                 )}
-                <span>Relations</span>
+                <span>{t("tasks:relations.title")}</span>
               </button>
             </CollapsibleTrigger>
             {totalCount > 0 && (
@@ -262,7 +259,7 @@ export default function TaskRelations({
           {Object.entries(groupedRelations).map(([type, items]) => (
             <div key={type} className="mt-1.5">
               <span className="text-[11px] text-muted-foreground/70 px-2">
-                {relationTypeLabels[type] || type}
+                {t(`tasks:relations.types.${type}`, { defaultValue: type })}
               </span>
               <div className="flex flex-col mt-0.5">
                 {items.map((item) => {
@@ -320,7 +317,7 @@ export default function TaskRelations({
                               ) : (
                                 <div
                                   className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-border/70"
-                                  title="Unassigned"
+                                  title={t("tasks:popover.assignee.unassigned")}
                                 >
                                   <span className="text-[9px] font-medium text-muted-foreground">
                                     ?
@@ -336,14 +333,14 @@ export default function TaskRelations({
                         <ContextMenuItem
                           onClick={() => handleNavigateToTask(item.task.id)}
                         >
-                          <span>Open task</span>
+                          <span>{t("tasks:relations.openTask")}</span>
                         </ContextMenuItem>
                         <ContextMenuSeparator />
                         <ContextMenuItem
                           className="text-destructive"
                           onClick={() => handleRemoveRelation(item.id)}
                         >
-                          <span>Remove relation</span>
+                          <span>{t("tasks:relations.removeRelation")}</span>
                         </ContextMenuItem>
                       </ContextMenuContent>
                     </ContextMenu>
@@ -355,7 +352,7 @@ export default function TaskRelations({
 
           {totalCount === 0 && (
             <p className="text-xs text-muted-foreground px-2 py-1">
-              No related tasks
+              {t("tasks:relations.empty")}
             </p>
           )}
         </CollapsibleContent>
@@ -365,7 +362,7 @@ export default function TaskRelations({
         <CommandDialogPopup>
           <Command items={commandGroups}>
             <CommandInput
-              placeholder="Search tasks to link..."
+              placeholder={t("tasks:relations.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -374,7 +371,7 @@ export default function TaskRelations({
                 <div className="text-center py-6">
                   <Search className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">
-                    No tasks found
+                    {t("tasks:relations.noTasksFound")}
                   </p>
                 </div>
               </CommandEmpty>
@@ -417,7 +414,7 @@ export default function TaskRelations({
                   onClick={() => setSelectedRelationType("related")}
                 >
                   <Link2 className="size-3" />
-                  Related
+                  {t("tasks:relations.related")}
                 </button>
                 <button
                   type="button"
@@ -425,11 +422,11 @@ export default function TaskRelations({
                   onClick={() => setSelectedRelationType("blocks")}
                 >
                   <X className="size-3" />
-                  Blocks
+                  {t("tasks:relations.blocks")}
                 </button>
               </div>
               <span className="text-muted-foreground/60">
-                Select a task to link
+                {t("tasks:relations.selectTask")}
               </span>
             </CommandFooter>
           </Command>

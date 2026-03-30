@@ -10,6 +10,7 @@ import {
   Settings,
 } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ export function RepositoryBrowserModal({
   onSelectRepository,
   selectedRepository,
 }: RepositoryBrowserModalProps) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -83,12 +85,23 @@ export function RepositoryBrowserModal({
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return "just now";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400)
-      return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    if (diffInSeconds < 2592000)
-      return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    if (diffInSeconds < 60)
+      return t("settings:repositoryBrowser.relativeJustNow");
+    if (diffInSeconds < 3600) {
+      return t("settings:repositoryBrowser.relativeMinutesAgo", {
+        count: Math.floor(diffInSeconds / 60),
+      });
+    }
+    if (diffInSeconds < 86400) {
+      return t("settings:repositoryBrowser.relativeHoursAgo", {
+        count: Math.floor(diffInSeconds / 3600),
+      });
+    }
+    if (diffInSeconds < 2592000) {
+      return t("settings:repositoryBrowser.relativeDaysAgo", {
+        count: Math.floor(diffInSeconds / 86400),
+      });
+    }
 
     return date.toLocaleDateString();
   };
@@ -106,11 +119,10 @@ export function RepositoryBrowserModal({
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <GitBranch className="w-5 h-5" />
-            Select Repository
+            {t("settings:repositoryBrowser.title")}
           </DialogTitle>
           <DialogDescription className="mt-1.5">
-            Choose a repository where your GitHub App is installed to enable
-            issue synchronization.
+            {t("settings:repositoryBrowser.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -120,7 +132,7 @@ export function RepositoryBrowserModal({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Search repositories..."
+              placeholder={t("settings:repositoryBrowser.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -153,10 +165,10 @@ export function RepositoryBrowserModal({
           {error && (
             <div className="text-center py-12 px-6">
               <div className="text-destructive mb-3 font-medium">
-                Failed to load repositories
+                {t("settings:repositoryBrowser.loadError")}
               </div>
               <Button variant="outline" onClick={() => refetch()}>
-                Try Again
+                {t("settings:repositoryBrowser.tryAgain")}
               </Button>
             </div>
           )}
@@ -167,11 +179,10 @@ export function RepositoryBrowserModal({
                 <div className="text-center py-12 px-6">
                   <GitBranch className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">
-                    No repositories found
+                    {t("settings:repositoryBrowser.emptyTitle")}
                   </h3>
                   <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-                    Install the GitHub App on your repositories to see them
-                    here.
+                    {t("settings:repositoryBrowser.emptyHint")}
                   </p>
                   {appInfo?.appName && (
                     <Button
@@ -183,7 +194,7 @@ export function RepositoryBrowserModal({
                       }
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
-                      Install GitHub App
+                      {t("settings:repositoryBrowser.installGithubApp")}
                     </Button>
                   )}
                 </div>
@@ -239,7 +250,8 @@ export function RepositoryBrowserModal({
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
-                                Updated {formatTimeAgo(repository.updated_at)}
+                                {t("settings:repositoryBrowser.updatedPrefix")}{" "}
+                                {formatTimeAgo(repository.updated_at)}
                               </div>
                             </div>
                           </div>
@@ -272,11 +284,10 @@ export function RepositoryBrowserModal({
                   <div className="text-center py-12 px-6">
                     <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">
-                      No repositories match your search
+                      {t("settings:repositoryBrowser.noSearchMatchTitle")}
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Try adjusting your search terms or clear the search to see
-                      all repositories.
+                      {t("settings:repositoryBrowser.noSearchMatchHint")}
                     </p>
                   </div>
                 )}
@@ -290,8 +301,10 @@ export function RepositoryBrowserModal({
             <div className="px-6 py-4">
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>
-                  {data.repositories.length} repositories across{" "}
-                  {data.installations.length} installations
+                  {t("settings:repositoryBrowser.footerSummary", {
+                    repoCount: data.repositories.length,
+                    installationCount: data.installations.length,
+                  })}
                 </span>
                 <Button
                   variant="ghost"
@@ -304,7 +317,7 @@ export function RepositoryBrowserModal({
                   }
                 >
                   <Settings className="w-4 h-4 mr-2" />
-                  Manage Installations
+                  {t("settings:repositoryBrowser.manageInstallations")}
                 </Button>
               </div>
             </div>

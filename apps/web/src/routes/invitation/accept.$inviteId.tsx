@@ -14,6 +14,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/invitation/accept/$inviteId")({
 });
 
 function AcceptInvitation() {
+  const { t } = useTranslation();
   const { inviteId } = useParams({
     from: "/invitation/accept/$inviteId",
   });
@@ -52,7 +54,7 @@ function AcceptInvitation() {
       });
 
       if (error) {
-        toast.error(error.message || "Failed to accept invitation");
+        toast.error(error.message || t("auth:invitation.toast.acceptFailed"));
         return;
       }
 
@@ -60,7 +62,7 @@ function AcceptInvitation() {
         organizationId: data?.invitation.organizationId,
       });
 
-      toast.success("Invitation accepted! Welcome to the team.");
+      toast.success(t("auth:invitation.toast.acceptSuccess"));
 
       if (!session?.user?.name) {
         navigate({ to: "/profile-setup" });
@@ -73,7 +75,9 @@ function AcceptInvitation() {
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to accept invitation",
+        error instanceof Error
+          ? error.message
+          : t("auth:invitation.toast.acceptFailed"),
       );
     } finally {
       setIsAccepting(false);
@@ -91,8 +95,8 @@ function AcceptInvitation() {
   if (isLoading) {
     return (
       <>
-        <PageTitle title="Accept Invitation" />
-        <AuthLayout title="Loading invitation...">
+        <PageTitle title={t("auth:invitation.pageTitleAccept")} />
+        <AuthLayout title={t("auth:invitation.loadingTitle")}>
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
@@ -104,8 +108,8 @@ function AcceptInvitation() {
   if (invitationError || !invitationData) {
     return (
       <>
-        <PageTitle title="Invitation Error" />
-        <AuthLayout title="Invitation Error">
+        <PageTitle title={t("auth:invitation.pageTitleError")} />
+        <AuthLayout title={t("auth:invitation.errorTitle")}>
           <div className="space-y-4 mt-4">
             <div className="flex items-center justify-center w-12 h-12 mx-auto bg-destructive/10 rounded-full">
               <XCircle className="w-6 h-6 text-destructive" />
@@ -113,12 +117,11 @@ function AcceptInvitation() {
             <Alert variant="error">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Failed to load invitation details. The invitation may be invalid
-                or expired.
+                {t("auth:invitation.errorLoadDescription")}
               </AlertDescription>
             </Alert>
             <Button asChild variant="outline" className="w-full">
-              <Link to="/auth/sign-in">Go to Sign In</Link>
+              <Link to="/auth/sign-in">{t("auth:invitation.goToSignIn")}</Link>
             </Button>
           </div>
         </AuthLayout>
@@ -129,8 +132,8 @@ function AcceptInvitation() {
   if (!invitationData.valid) {
     return (
       <>
-        <PageTitle title="Invalid Invitation" />
-        <AuthLayout title="Invalid Invitation">
+        <PageTitle title={t("auth:invitation.pageTitleInvalid")} />
+        <AuthLayout title={t("auth:invitation.invalidTitle")}>
           <div className="space-y-4 mt-4">
             <div className="flex items-center justify-center w-12 h-12 mx-auto bg-destructive/10 rounded-full">
               {invitationData.invitation?.expired ? (
@@ -143,21 +146,23 @@ function AcceptInvitation() {
             <div className="space-y-3 text-center">
               <h2 className="text-lg font-semibold text-foreground">
                 {invitationData.invitation?.expired
-                  ? "Invitation Expired"
-                  : "Invalid Invitation"}
+                  ? t("auth:invitation.invitationExpired")
+                  : t("auth:invitation.invalidTitle")}
               </h2>
               <p className="text-sm text-muted-foreground">
                 {invitationData.error}
               </p>
               {invitationData.invitation && (
                 <p className="text-xs text-muted-foreground">
-                  Workspace: {invitationData.invitation.workspaceName}
+                  {t("auth:invitation.workspaceLabel", {
+                    workspaceName: invitationData.invitation.workspaceName,
+                  })}
                 </p>
               )}
             </div>
 
             <Button asChild variant="outline" className="w-full">
-              <Link to="/auth/sign-in">Go to Sign In</Link>
+              <Link to="/auth/sign-in">{t("auth:invitation.goToSignIn")}</Link>
             </Button>
           </div>
         </AuthLayout>
@@ -170,8 +175,8 @@ function AcceptInvitation() {
   if (!invitation) {
     return (
       <>
-        <PageTitle title="Invalid Invitation" />
-        <AuthLayout title="Invalid Invitation">
+        <PageTitle title={t("auth:invitation.pageTitleInvalid")} />
+        <AuthLayout title={t("auth:invitation.invalidTitle")}>
           <div className="space-y-4 mt-4">
             <div className="flex items-center justify-center w-12 h-12 mx-auto bg-destructive/10 rounded-full">
               <XCircle className="w-6 h-6 text-destructive" />
@@ -185,8 +190,8 @@ function AcceptInvitation() {
   if (isSignedIn) {
     return (
       <>
-        <PageTitle title="Accept Invitation" />
-        <AuthLayout title="Accept Invitation">
+        <PageTitle title={t("auth:invitation.pageTitleAccept")} />
+        <AuthLayout title={t("auth:invitation.pageTitleAccept")}>
           <div className="space-y-4 mt-4">
             <div className="flex items-center justify-center w-12 h-12 mx-auto bg-primary/10 rounded-full">
               <Users className="w-6 h-6 text-primary" />
@@ -194,11 +199,16 @@ function AcceptInvitation() {
 
             <div className="space-y-3 text-center">
               <h2 className="text-lg font-semibold text-foreground">
-                Join {invitation.workspaceName}
+                {t("auth:invitation.joinWorkspace", {
+                  workspaceName: invitation.workspaceName,
+                })}
               </h2>
               <p className="text-sm text-muted-foreground">
-                <strong>{invitation.inviterName}</strong> has invited you to
-                join their workspace.
+                <Trans
+                  i18nKey="auth:invitation.inviteBodySignedIn"
+                  values={{ inviterName: invitation.inviterName }}
+                  components={{ inviter: <strong /> }}
+                />
               </p>
             </div>
 
@@ -211,24 +221,30 @@ function AcceptInvitation() {
                 {isAccepting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Accepting...
+                    {t("auth:invitation.accepting")}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    Accept Invitation
+                    {t("auth:invitation.acceptInvitation")}
                   </>
                 )}
               </Button>
 
               <Button asChild variant="outline" className="w-full">
-                <Link to="/dashboard">Go to Dashboard</Link>
+                <Link to="/dashboard">
+                  {t("auth:invitation.goToDashboard")}
+                </Link>
               </Button>
             </div>
 
             <div className="pt-4 border-t border-border">
               <p className="text-xs text-center text-muted-foreground">
-                Signed in as <strong>{session.user.email}</strong>
+                <Trans
+                  i18nKey="auth:invitation.signedInAs"
+                  values={{ email: session.user.email }}
+                  components={{ email: <strong /> }}
+                />
               </p>
             </div>
           </div>
@@ -239,8 +255,8 @@ function AcceptInvitation() {
 
   return (
     <>
-      <PageTitle title="Accept Invitation" />
-      <AuthLayout title="You've been invited!">
+      <PageTitle title={t("auth:invitation.pageTitleAccept")} />
+      <AuthLayout title={t("auth:invitation.youveBeenInvited")}>
         <div className="space-y-4 mt-4">
           <div className="flex items-center justify-center w-12 h-12 mx-auto bg-primary/10 rounded-full">
             <Users className="w-6 h-6 text-primary" />
@@ -248,28 +264,37 @@ function AcceptInvitation() {
 
           <div className="space-y-3 text-center">
             <h2 className="text-lg font-semibold text-foreground">
-              Join {invitation.workspaceName}
+              {t("auth:invitation.joinWorkspace", {
+                workspaceName: invitation.workspaceName,
+              })}
             </h2>
             <p className="text-sm text-muted-foreground">
-              <strong>{invitation.inviterName}</strong> has invited you to join
-              their workspace on Kaneo.
+              <Trans
+                i18nKey="auth:invitation.inviteBodySignedOut"
+                values={{ inviterName: invitation.inviterName }}
+                components={{ inviter: <strong /> }}
+              />
             </p>
             <p className="text-sm text-muted-foreground">
-              Sign in to accept this invitation.
+              {t("auth:invitation.signInToAccept")}
             </p>
           </div>
 
           <div className="space-y-3 pt-2">
             <Button onClick={handleSignIn} className="w-full">
               <LogIn className="w-4 h-4 mr-2" />
-              Sign In
+              {t("auth:invitation.signIn")}
             </Button>
           </div>
 
           <div className="pt-4 border-t border-border">
             <div className="text-center space-y-1">
               <p className="text-xs text-muted-foreground">
-                Invitation for: <strong>{invitation.email}</strong>
+                <Trans
+                  i18nKey="auth:invitation.invitationFor"
+                  values={{ email: invitation.email }}
+                  components={{ email: <strong /> }}
+                />
               </p>
             </div>
           </div>

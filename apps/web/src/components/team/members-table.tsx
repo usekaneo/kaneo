@@ -1,7 +1,9 @@
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-invitation";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
+import { formatDateMedium } from "@/lib/format";
 import { toast } from "@/lib/toast";
 import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/members";
 import type {
@@ -41,6 +43,7 @@ function MembersTable({
   );
   const [invitationToCancel, setInvitationToCancel] =
     useState<WorkspaceUserInvitation | null>(null);
+  const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const { workspaceId } = Route.useParams();
   const { mutateAsync: deleteWorkspaceUser, isPending } =
@@ -56,10 +59,12 @@ function MembersTable({
         workspaceId,
         userId: memberToDelete.user.email,
       });
-      toast.success("Team member removed successfully");
+      toast.success(t("team:membersTable.removeSuccess"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to remove team member",
+        error instanceof Error
+          ? error.message
+          : t("team:membersTable.removeError"),
       );
     } finally {
       setMemberToDelete(null);
@@ -74,10 +79,12 @@ function MembersTable({
         invitationId: invitationToCancel.id,
         workspaceId,
       });
-      toast.success("Invitation cancelled successfully");
+      toast.success(t("team:membersTable.cancelInviteSuccess"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to cancel invitation",
+        error instanceof Error
+          ? error.message
+          : t("team:membersTable.cancelInviteError"),
       );
     } finally {
       setInvitationToCancel(null);
@@ -92,9 +99,11 @@ function MembersTable({
             <span className="text-2xl">👥</span>
           </div>
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold">No team members yet</h3>
+            <h3 className="text-xl font-semibold">
+              {t("team:membersTable.emptyTitle")}
+            </h3>
             <p className="text-muted-foreground">
-              Invite your first team member to get started.
+              {t("team:membersTable.emptyDescription")}
             </p>
           </div>
         </div>
@@ -108,16 +117,16 @@ function MembersTable({
         <TableHeader>
           <TableRow>
             <TableHead className="text-muted-foreground text-xs w-2/3 pl-6">
-              Name
+              {t("team:membersTable.columns.name")}
             </TableHead>
             <TableHead className="text-muted-foreground text-xs">
-              Role
+              {t("team:membersTable.columns.role")}
             </TableHead>
             <TableHead className="text-muted-foreground text-xs">
-              Joined
+              {t("team:membersTable.columns.joined")}
             </TableHead>
             <TableHead className="text-muted-foreground text-xs pr-6 text-right">
-              Actions
+              {t("team:membersTable.columns.actions")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -142,22 +151,17 @@ function MembersTable({
                 </TableCell>
                 <TableCell className="py-3">
                   <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
-                    {invitation.role.charAt(0).toUpperCase() +
-                      invitation.role.slice(1).toLowerCase()}{" "}
-                    (Pending)
+                    {t("team:membersTable.memberRolePending", {
+                      role:
+                        invitation.role.charAt(0).toUpperCase() +
+                        invitation.role.slice(1).toLowerCase(),
+                    })}
                   </span>
                 </TableCell>
                 <TableCell className="py-3">
                   <span className="text-sm text-muted-foreground">
                     {invitation.expiresAt &&
-                      new Date(invitation.expiresAt).toLocaleDateString(
-                        "en-US",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        },
-                      )}
+                      formatDateMedium(invitation.expiresAt)}
                   </span>
                 </TableCell>
                 <TableCell className="py-3 pr-6 text-right">
@@ -169,7 +173,7 @@ function MembersTable({
                       setInvitationToCancel(invitation);
                     }}
                     className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    aria-label="Cancel invitation"
+                    aria-label={t("team:membersTable.ariaCancelInvitation")}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -202,12 +206,7 @@ function MembersTable({
 
               <TableCell className="py-3">
                 <span className="text-sm text-muted-foreground">
-                  {member.createdAt &&
-                    new Date(member.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                  {member.createdAt && formatDateMedium(member.createdAt)}
                 </span>
               </TableCell>
               <TableCell className="py-3 pr-6 text-right">
@@ -220,7 +219,7 @@ function MembersTable({
                       setMemberToDelete(member);
                     }}
                     className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    aria-label="Remove member"
+                    aria-label={t("team:membersTable.ariaRemoveMember")}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -237,25 +236,26 @@ function MembersTable({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Team Member?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("team:membersTable.removeDialogTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove{" "}
-              <span className="font-medium text-foreground">
-                {memberToDelete?.user.name || memberToDelete?.user.email}
-              </span>{" "}
-              from the workspace? This action cannot be undone.
+              {t("team:membersTable.removeDialogDescription", {
+                name:
+                  memberToDelete?.user.name || memberToDelete?.user.email || "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogClose disabled={isPending}>
               <Button variant="outline" size="sm" disabled={isPending}>
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
             </AlertDialogClose>
             <AlertDialogClose onClick={handleDeleteMember} disabled={isPending}>
               <Button variant="destructive" size="sm" disabled={isPending}>
                 <Trash2 className="w-4 h-4 mr-2" />
-                Remove Member
+                {t("team:membersTable.removeMember")}
               </Button>
             </AlertDialogClose>
           </AlertDialogFooter>
@@ -268,19 +268,19 @@ function MembersTable({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Invitation?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("team:membersTable.cancelDialogTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to cancel the invitation for{" "}
-              <span className="font-medium text-foreground">
-                {invitationToCancel?.email}
-              </span>
-              ? This action cannot be undone.
+              {t("team:membersTable.cancelDialogDescription", {
+                email: invitationToCancel?.email ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogClose disabled={isCancelling}>
               <Button variant="outline" size="sm" disabled={isCancelling}>
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
             </AlertDialogClose>
             <AlertDialogClose
@@ -289,7 +289,7 @@ function MembersTable({
             >
               <Button variant="destructive" size="sm" disabled={isCancelling}>
                 <Trash2 className="w-4 h-4 mr-2" />
-                Cancel Invitation
+                {t("team:membersTable.cancelInvitation")}
               </Button>
             </AlertDialogClose>
           </AlertDialogFooter>

@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/common/layout";
 import {
   Breadcrumb,
@@ -36,11 +37,13 @@ export function SettingsLayout({
   title,
   description,
   backPath,
-  backLabel = "Back",
+  backLabel,
   children,
   className,
 }: SettingsLayoutProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const resolvedBackLabel = backLabel ?? t("navigation:settingsLayout.back");
 
   const handleBack = () => {
     if (backPath) {
@@ -62,7 +65,7 @@ export function SettingsLayout({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="flex items-center gap-2 text-[10px]">
-                    Toggle sidebar
+                    {t("navigation:settingsLayout.toggleSidebar")}
                     <KbdSequence
                       keys={[
                         shortcuts.sidebar.prefix,
@@ -81,7 +84,9 @@ export function SettingsLayout({
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink href="/dashboard/settings">
-                    <h1 className="text-xs text-card-foreground">Settings</h1>
+                    <h1 className="text-xs text-card-foreground">
+                      {t("navigation:page.settingsTitle")}
+                    </h1>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
@@ -100,7 +105,7 @@ export function SettingsLayout({
                 className="gap-1.5 text-xs"
               >
                 <ArrowLeft className="w-3 h-3" />
-                {backLabel}
+                {resolvedBackLabel}
               </Button>
             )}
           </div>

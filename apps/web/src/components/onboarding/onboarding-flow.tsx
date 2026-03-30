@@ -3,8 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import { Logo } from "@/components/common/logo";
 import PageTitle from "@/components/page-title";
@@ -30,11 +31,6 @@ export type WorkspaceFormValues = {
   description?: string;
 };
 
-const workspaceSchema = z.object({
-  name: z.string().min(1, "Workspace name is required"),
-  description: z.string().optional(),
-});
-
 const fadeTransition = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -42,12 +38,24 @@ const fadeTransition = {
 };
 
 export function OnboardingFlow() {
+  const { t } = useTranslation();
   const [step, setStep] = useState<OnboardingStep>("workspace");
   const [createdWorkspaceName, setCreatedWorkspaceName] = useState("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { mutateAsync: createWorkspace, isPending } = useCreateWorkspace();
   const { user } = useAuth();
+
+  const workspaceSchema = useMemo(
+    () =>
+      z.object({
+        name: z
+          .string()
+          .min(1, t("auth:onboarding.validation.workspaceNameRequired")),
+        description: z.string().optional(),
+      }),
+    [t],
+  );
 
   const form = useForm<WorkspaceFormValues>({
     resolver: standardSchemaResolver(workspaceSchema),
@@ -70,7 +78,7 @@ export function OnboardingFlow() {
         organizationId: workspace.id,
       });
       setCreatedWorkspaceName(data.name);
-      toast.success("Workspace created successfully");
+      toast.success(t("auth:onboarding.toast.workspaceCreated"));
 
       setStep("success");
 
@@ -83,7 +91,9 @@ export function OnboardingFlow() {
       }, 1500);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create workspace",
+        error instanceof Error
+          ? error.message
+          : t("auth:onboarding.toast.createFailed"),
       );
     }
   };
@@ -103,10 +113,10 @@ export function OnboardingFlow() {
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="text-center mb-6">
           <h1 className="text-xl font-semibold text-foreground mb-2">
-            Create workspace
+            {t("auth:onboarding.createWorkspaceTitle")}
           </h1>
           <p className="text-muted-foreground text-sm">
-            Set up your workspace to start managing projects
+            {t("auth:onboarding.createWorkspaceSubtitle")}
           </p>
         </div>
 
@@ -119,11 +129,13 @@ export function OnboardingFlow() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">
-                      Workspace name
+                      {t("auth:onboarding.workspaceName")}
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g. Acme Inc, My Team"
+                        placeholder={t(
+                          "auth:onboarding.workspaceNamePlaceholder",
+                        )}
                         autoFocus
                         {...field}
                       />
@@ -139,11 +151,13 @@ export function OnboardingFlow() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium text-muted-foreground">
-                      Description (optional)
+                      {t("auth:onboarding.descriptionOptional")}
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="What does your team work on?"
+                        placeholder={t(
+                          "auth:onboarding.descriptionPlaceholder",
+                        )}
                         {...field}
                       />
                     </FormControl>
@@ -154,7 +168,9 @@ export function OnboardingFlow() {
             </div>
 
             <Button type="submit" disabled={isPending} className="w-full mt-4">
-              {isPending ? "Creating..." : "Create workspace"}
+              {isPending
+                ? t("auth:onboarding.creating")
+                : t("auth:onboarding.createWorkspace")}
             </Button>
           </form>
         </Form>
@@ -182,10 +198,14 @@ export function OnboardingFlow() {
 
           <div className="space-y-2">
             <h1 className="text-xl font-semibold text-foreground">
-              Workspace created
+              {t("auth:onboarding.workspaceCreatedTitle")}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Taking you to <strong>{createdWorkspaceName}</strong>...
+              <Trans
+                i18nKey="auth:onboarding.redirectingToWorkspace"
+                values={{ name: createdWorkspaceName }}
+                components={{ name: <strong /> }}
+              />
             </p>
           </div>
 
@@ -199,7 +219,7 @@ export function OnboardingFlow() {
 
   return (
     <>
-      <PageTitle title="Create Workspace" />
+      <PageTitle title={t("auth:onboarding.workspacePageTitle")} />
       <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4">
         <AnimatePresence mode="wait">
           {step === "workspace" && renderWorkspaceStep()}

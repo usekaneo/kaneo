@@ -13,6 +13,7 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ProjectLayout from "@/components/common/project-layout";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
 import PageTitle from "@/components/page-title";
@@ -22,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
+import { getStatusLabel } from "@/lib/i18n/domain";
 
 type GanttSearchParams = {
   taskId?: string;
@@ -36,13 +38,6 @@ export const Route = createFileRoute(
   }),
 });
 
-function toDisplayStatus(status: string) {
-  return status
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 function parseTaskDate(value: string | null) {
   if (!value) return null;
   const parsed = parseISO(value);
@@ -50,6 +45,7 @@ function parseTaskDate(value: string | null) {
 }
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
@@ -176,13 +172,16 @@ function RouteComponent() {
       workspaceId={workspaceId}
       activeView="gantt"
     >
-      <PageTitle title={`${project?.name} — Gantt`} hideAppName />
+      <PageTitle
+        title={t("tasks:gantt.pageTitle", { name: project?.name })}
+        hideAppName
+      />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <div className="border-b border-border/80 px-3 py-3 sm:px-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-1">
               <h1 className="text-sm font-semibold text-foreground">
-                Gantt Timeline
+                {t("tasks:gantt.title")}
               </h1>
             </div>
 
@@ -191,7 +190,7 @@ function RouteComponent() {
               <Input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search scheduled tickets..."
+                placeholder={t("tasks:gantt.searchPlaceholder")}
                 className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
               />
             </div>
@@ -207,7 +206,9 @@ function RouteComponent() {
               ) : (
                 <ChevronRight className="size-3.5" />
               )}
-              {showTaskRail ? "Hide tasks" : "Show tasks"}
+              {showTaskRail
+                ? t("tasks:gantt.hideTasks")
+                : t("tasks:gantt.showTasks")}
             </Button>
           </div>
         </div>
@@ -216,11 +217,10 @@ function RouteComponent() {
           <div className="flex flex-1 items-center justify-center px-6">
             <div className="max-w-sm text-center">
               <h2 className="text-sm font-semibold text-foreground">
-                No scheduled tasks
+                {t("tasks:gantt.noTasks")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Add a start date, due date, or both to tasks to place them on
-                the project timeline.
+                {t("tasks:gantt.noTasksSubtitle")}
               </p>
             </div>
           </div>
@@ -228,13 +228,10 @@ function RouteComponent() {
           <div className="flex flex-1 items-center justify-center px-6">
             <div className="max-w-sm text-center">
               <h2 className="text-sm font-semibold text-foreground">
-                No tasks found
+                {t("tasks:gantt.noTasksFound")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                No scheduled tasks match{" "}
-                <span className="font-medium text-foreground">
-                  "{searchQuery}"
-                </span>
+                {t("tasks:gantt.noTasksMatch", { query: searchQuery })}
               </p>
             </div>
           </div>
@@ -250,7 +247,7 @@ function RouteComponent() {
                     }}
                   >
                     <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                      Task
+                      {t("tasks:gantt.taskHeader")}
                     </p>
                   </div>
                 ) : null}
@@ -346,7 +343,7 @@ function RouteComponent() {
                             >
                               <div className="flex w-full items-center gap-1.5">
                                 <span className="max-w-[7rem] truncate rounded-full bg-secondary px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground sm:max-w-none">
-                                  {toDisplayStatus(task.status)}
+                                  {getStatusLabel(task.status)}
                                 </span>
                                 <span className="truncate text-[10px] text-muted-foreground">
                                   {project?.slug}-{task.number}

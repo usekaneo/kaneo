@@ -5,6 +5,7 @@ import {
   useLocation,
 } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,17 +24,17 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-const menuItems = [
-  {
-    title: "General",
-    url: "/dashboard/settings/workspace/general",
-    icon: Settings,
-  },
-];
-
 function RouteComponent() {
+  const { t } = useTranslation();
   const { workspace, role } = useWorkspacePermission();
   const location = useLocation();
+  const menuItems = [
+    {
+      title: t("settings:workspaceGeneral.title"),
+      url: "/dashboard/settings/workspace/general",
+      icon: Settings,
+    },
+  ];
   const isActivePath = (path: string) => location.pathname === path;
   const workspaceInitials =
     workspace?.name
@@ -60,14 +61,14 @@ function RouteComponent() {
             <div className="flex flex-col">
               <p className="text-sm">{workspace?.name}</p>
               <p className="text-[11px] text-sidebar-foreground/60 capitalize">
-                {role}
+                {t(`team:roles.${role}`, { defaultValue: role })}
               </p>
             </div>
           </div>
 
           <SidebarGroup className="gap-1 p-1">
             <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
-              Workspace
+              {t("navigation:page.settingsWorkspaceTab")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">

@@ -1,0 +1,1441 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "Abbrechen",
+			"close": "Schließen",
+			"clearAll": "Alle löschen",
+			"delete": "Löschen",
+			"deleting": "Wird gelöscht...",
+			"markAllRead": "Alle als gelesen markieren",
+			"remove": "Entfernen",
+			"reset": "Zurücksetzen",
+			"filter": "Filter",
+			"clearAllFilters": "Alle Filter löschen"
+		},
+		"a11y": {
+			"toggleSidebar": "Sidebar umschalten"
+		},
+		"sidebar": {
+			"title": "Sidebar",
+			"mobileDescription": "Zeigt die mobile Sidebar an."
+		},
+		"empty": {
+			"loading": "Lädt..."
+		},
+		"pagination": {
+			"label": "Seitennavigation",
+			"previous": "Zurück",
+			"next": "Weiter",
+			"previousPage": "Zur vorherigen Seite",
+			"nextPage": "Zur nächsten Seite",
+			"morePages": "Weitere Seiten"
+		},
+		"breadcrumb": {
+			"label": "Brotkrümelnavigation",
+			"more": "Mehr"
+		},
+		"language": {
+			"english": "Englisch",
+			"german": "Deutsch",
+			"greek": "Griechisch",
+			"macedonian": "Mazedonisch"
+		},
+		"people": {
+			"someone": "Jemand",
+			"unknown": "Unbekannt"
+		},
+		"error": {
+			"title": "Etwas ist schiefgelaufen",
+			"troubleshooting": "Schritte zur Fehlerbehebung:",
+			"tryAgain": "Erneut versuchen",
+			"viewDeploymentGuide": "Bereitstellungsanleitung ansehen",
+			"refreshPage": "Seite neu laden"
+		},
+		"formats": {
+			"never": "Nie"
+		},
+		"modals": {
+			"createProject": {
+				"title": "Neues Projekt erstellen",
+				"breadcrumbNew": "Neues Projekt erstellen",
+				"workspaceFallback": "WORKSPACE",
+				"description": "Erstelle ein neues Projekt in deinem Workspace, indem du einen Namen, einen Schlüssel und ein Symbol auswählst.",
+				"pickIcon": "Symbol auswählen",
+				"searchIcons": "Symbole suchen...",
+				"projectName": "Projektname",
+				"keyLabel": "Schlüssel:",
+				"keyHint": "Wird für Ticket-IDs verwendet (z. B. {{example}}-123)",
+				"createButton": "Projekt erstellen",
+				"successToast": "Projekt erfolgreich erstellt",
+				"errorToast": "Projekt konnte nicht erstellt werden"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "Neuen Workspace erstellen",
+				"description": "Erstelle einen neuen Workspace, indem du einen Namen dafür angibst.",
+				"namePlaceholder": "Workspace-Name",
+				"descriptionPlaceholder": "Beschreibung hinzufügen...",
+				"createButton": "Workspace erstellen",
+				"successToast": "Workspace erfolgreich erstellt",
+				"errorToast": "Workspace konnte nicht erstellt werden"
+			},
+			"createTask": {
+				"breadcrumbTask": "AUFGABE",
+				"title": "Neue Aufgabe",
+				"description": "Erstelle eine neue Aufgabe, indem du einen Titel, eine Beschreibung und weitere Details angibst.",
+				"taskTitlePlaceholder": "Aufgabentitel",
+				"descriptionPlaceholder": "Füge eine Beschreibung für deine Aufgabe hinzu...",
+				"chooseProjectForImages": "Wähle ein Projekt aus, bevor du Bilder hochlädst.",
+				"prepareTaskError": "Aufgabe konnte nicht vorbereitet werden",
+				"successCreated": "Aufgabe erfolgreich erstellt",
+				"successUpdated": "Aufgabe erfolgreich aktualisiert",
+				"createError": "Aufgabe konnte nicht erstellt werden",
+				"priority": "Priorität",
+				"statusFallback": "In Bearbeitung",
+				"startDate": "Startdatum",
+				"dueDate": "Fälligkeitsdatum",
+				"clearStartDate": "Startdatum entfernen",
+				"clearDueDate": "Fälligkeitsdatum entfernen",
+				"assign": "Zuweisen",
+				"assignUnassigned": "Nicht zugewiesen",
+				"assignUnassignedTitle": "Nicht zugewiesen",
+				"labels": "Labels",
+				"searchLabels": "Labels suchen...",
+				"noLabelsFound": "Keine Labels gefunden",
+				"createLabel": "\"{{name}}\" erstellen",
+				"chooseColor": "Farbe auswählen",
+				"labelCreated": "Label erstellt",
+				"labelCreateError": "Label konnte nicht erstellt werden",
+				"createMore": "Weitere erstellen",
+				"createButton": "Aufgabe erstellen",
+				"untitledTask": "Unbenannte Aufgabe",
+				"labelColors": {
+					"stone": "Stein",
+					"slate": "Schiefer",
+					"lavender": "Lavendel",
+					"sage": "Salbei",
+					"forest": "Wald",
+					"amber": "Bernstein",
+					"terracotta": "Terrakotta",
+					"rose": "Rosa",
+					"crimson": "Karmesinrot"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "Anmelden",
+			"title": "Willkommen zurück",
+			"subtitle": "Gib deine Zugangsdaten ein, um auf deinen Workspace zuzugreifen",
+			"invitationSubtitle": "Melde dich an, um deine Einladung anzunehmen",
+			"invitationAlert": "Nach der Anmeldung kannst du deine Workspace-Einladung annehmen.",
+			"signingIn": "Wird angemeldet...",
+			"continueWithGoogle": "Mit Google fortfahren",
+			"continueWithGithub": "Mit GitHub fortfahren",
+			"continueWithDiscord": "Mit Discord fortfahren",
+			"continueWithOidc": "Mit OIDC fortfahren",
+			"lastUsed": "Zuletzt verwendet",
+			"registrationDisabled": "Die öffentliche Registrierung ist deaktiviert. Nutze eine Einladung, um ein Konto zu erstellen.",
+			"passwordRegistrationDisabled": "Die Registrierung per Passwort ist deaktiviert. Nutze eine konfigurierte Social- oder OIDC-Anmeldemethode, um ein Konto zu erstellen.",
+			"toggleMessage": "Du hast noch kein Konto?",
+			"toggleLink": "Konto erstellen",
+			"guestSuccess": "Als Gast angemeldet",
+			"guestError": "Anmeldung als Gast fehlgeschlagen",
+			"oidcError": "Anmeldung mit OIDC fehlgeschlagen",
+			"googleError": "Anmeldung mit Google fehlgeschlagen",
+			"githubError": "Anmeldung mit GitHub fehlgeschlagen",
+			"discordError": "Anmeldung mit Discord fehlgeschlagen"
+		},
+		"providers": {
+			"google": "Google",
+			"discord": "Discord"
+		},
+		"forms": {
+			"or": "oder",
+			"email": "E-Mail",
+			"password": "Passwort",
+			"emailPlaceholder": "me@example.com",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "Passwort anzeigen",
+			"hidePassword": "Passwort ausblenden"
+		},
+		"checkEmail": {
+			"pageTitle": "Prüfe deine E-Mails",
+			"title": "Prüfe deine E-Mails",
+			"inboxMessage": "Wir haben dir einen temporären Anmeldelink gesendet. Bitte prüfe dein Postfach unter <email>{{email}}</email>.",
+			"emailFallback": "deine E-Mail-Adresse",
+			"backToLogin": "Zurück zur Anmeldung"
+		},
+		"signUp": {
+			"pageTitle": "Konto erstellen",
+			"title": "Konto erstellen",
+			"subtitleInvitation": "Erstelle ein Konto, um deine Einladung anzunehmen",
+			"subtitleRegistrationDisabled": "Für die Registrierung ist eine Einladung erforderlich",
+			"subtitlePasswordDisabled": "Nutze Social- oder OIDC-Anmeldung, um ein Konto zu erstellen",
+			"subtitleDefault": "Lege mit deinem Workspace los",
+			"invitationAlert": "Nach dem Erstellen deines Kontos kannst du deine Workspace-Einladung annehmen.",
+			"registrationDisabledAlert": "Die Registrierung ist derzeit deaktiviert. Wenn du eingeladen wurdest, gib die E-Mail-Adresse ein, die die Einladung erhalten hat, um dein Konto zu erstellen.",
+			"passwordDisabledAlert": "Die kontoerstellung per Passwort ist deaktiviert. Nutze eine konfigurierte Social- oder OIDC-Anmeldemethode auf der Anmeldeseite.",
+			"signingIn": "Anmeldung läuft...",
+			"continueAsGuest": "Als Gast fortfahren",
+			"toggleMessage": "Du hast bereits ein Konto?",
+			"toggleLink": "Anmelden"
+		},
+		"verifyOtp": {
+			"pageTitle": "Code verifizieren",
+			"title": "Bestätigungscode eingeben",
+			"subtitle": "Nutze den 6-stelligen Code, der an deine E-Mail gesendet wurde, um fortzufahren",
+			"codeSentTo": "Code gesendet an {{email}}",
+			"verificationCodeLabel": "Bestätigungscode",
+			"verifying": "Wird verifiziert...",
+			"verifyAndSignIn": "Verifizieren & anmelden",
+			"changeEmail": "E-Mail ändern",
+			"resend": "Erneut senden",
+			"validation": {
+				"codeLength": "Der Code muss 6 Ziffern haben"
+			},
+			"toast": {
+				"invalidCode": "Ungültiger Bestätigungscode",
+				"signedInSuccess": "Erfolgreich angemeldet!",
+				"verifyFailed": "Code konnte nicht verifiziert werden",
+				"resendFailed": "Code konnte nicht erneut gesendet werden",
+				"resendSuccess": "Neuer Bestätigungscode gesendet!"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "Bestätigungscode konnte nicht gesendet werden",
+			"codeSent": "Bestätigungscode gesendet! Prüfe deine E-Mails.",
+			"sending": "Wird gesendet...",
+			"sendVerificationCode": "Bestätigungscode senden"
+		},
+		"signInForm": {
+			"failedSignIn": "Anmeldung fehlgeschlagen",
+			"signedInSuccess": "Erfolgreich angemeldet",
+			"signingIn": "Wird angemeldet...",
+			"signIn": "Anmelden"
+		},
+		"signUpForm": {
+			"fullName": "Vollständiger Name",
+			"namePlaceholder": "Max Mustermann",
+			"failedSignUp": "Registrierung fehlgeschlagen",
+			"accountCreated": "Konto erfolgreich erstellt",
+			"passwordTooShort": "Das Passwort ist zu kurz",
+			"creatingAccount": "Konto wird erstellt...",
+			"createAccount": "Konto erstellen"
+		},
+		"invitation": {
+			"pageTitleAccept": "Einladung annehmen",
+			"pageTitleError": "Einladungsfehler",
+			"pageTitleInvalid": "Ungültige Einladung",
+			"loadingTitle": "Einladung wird geladen...",
+			"errorTitle": "Einladungsfehler",
+			"invalidTitle": "Ungültige Einladung",
+			"invitationExpired": "Einladung abgelaufen",
+			"errorLoadDescription": "Die Einladungsdetails konnten nicht geladen werden. Die Einladung ist möglicherweise ungültig oder abgelaufen.",
+			"goToSignIn": "Zur Anmeldung",
+			"workspaceLabel": "Workspace: {{workspaceName}}",
+			"joinWorkspace": "{{workspaceName}} beitreten",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace beizutreten.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace auf Kaneo beizutreten.",
+			"signInToAccept": "Melde dich an, um die Einladung anzunehmen.",
+			"accepting": "Wird angenommen...",
+			"acceptInvitation": "Einladung annehmen",
+			"goToDashboard": "Zum Dashboard",
+			"signedInAs": "Angemeldet als <email>{{email}}</email>",
+			"youveBeenInvited": "Du wurdest eingeladen!",
+			"invitationFor": "Einladung für: <email>{{email}}</email>",
+			"signIn": "Anmelden",
+			"toast": {
+				"acceptFailed": "Einladung konnte nicht angenommen werden",
+				"acceptSuccess": "Einladung angenommen! Willkommen im Team."
+			}
+		},
+		"onboarding": {
+			"pageTitle": "Willkommen bei Kaneo",
+			"workspacePageTitle": "Workspace erstellen",
+			"createWorkspaceTitle": "Workspace erstellen",
+			"createWorkspaceSubtitle": "Richte deinen Workspace ein, um mit der Verwaltung von Projekten zu beginnen",
+			"workspaceName": "Workspace-Name",
+			"workspaceNamePlaceholder": "z. B. Acme Inc, Mein Team",
+			"descriptionOptional": "Beschreibung (optional)",
+			"descriptionPlaceholder": "Woran arbeitet dein Team?",
+			"creating": "Wird erstellt...",
+			"createWorkspace": "Workspace erstellen",
+			"workspaceCreatedTitle": "Workspace erstellt",
+			"redirectingToWorkspace": "Du wirst zu <name>{{name}}</name> weitergeleitet...",
+			"toast": {
+				"workspaceCreated": "Workspace erfolgreich erstellt",
+				"createFailed": "Workspace konnte nicht erstellt werden"
+			},
+			"validation": {
+				"workspaceNameRequired": "Workspace-Name ist erforderlich"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "Profil vervollständigen",
+			"completeTitle": "Vervollständige dein Profil",
+			"subtitle": "Bitte gib deinen Namen ein, um loszulegen",
+			"yourName": "Dein Name",
+			"namePlaceholder": "z. B. Max Mustermann",
+			"saving": "Wird gespeichert...",
+			"continue": "Weiter",
+			"welcome": "Willkommen, {{name}}!",
+			"redirecting": "Du wirst zu deinem Dashboard weitergeleitet...",
+			"toast": {
+				"updateSuccess": "Profil erfolgreich aktualisiert",
+				"updateFailed": "Profil konnte nicht aktualisiert werden"
+			},
+			"validation": {
+				"nameRequired": "Name ist erforderlich",
+				"nameShort": "Der Name muss mindestens 2 Zeichen lang sein"
+			}
+		}
+	},
+	"settings": {
+		"account": "Konto",
+		"developer": "Entwicklung",
+		"information": "Informationen",
+		"preferences": "Einstellungen",
+		"apiKeys": "API-Schlüssel",
+		"informationPage": {
+			"pageTitle": "Persönliche Informationen",
+			"title": "Persönliche Informationen",
+			"subtitle": "Verwalte deine persönlichen Daten und Kontoinformationen.",
+			"sectionTitle": "Kontoinformationen",
+			"sectionSubtitle": "Verwalte dein Profil und deine Kontodetails.",
+			"profilePicture": "Profilbild",
+			"fullName": "Vollständiger Name",
+			"fullNamePlaceholder": "Gib deinen Namen ein",
+			"email": "E-Mail",
+			"emailPlaceholder": "Gib deine E-Mail ein",
+			"updateSuccess": "Profil erfolgreich aktualisiert",
+			"updateError": "Profil konnte nicht aktualisiert werden",
+			"validation": {
+				"nameRequired": "Name ist erforderlich",
+				"nameShort": "Der Name muss mindestens 2 Zeichen lang sein",
+				"invalidEmail": "Ungültige E-Mail-Adresse"
+			}
+		},
+		"preferencesPage": {
+			"title": "Einstellungen",
+			"subtitle": "Passe dein Kaneo-Erlebnis an.",
+			"appearanceTitle": "Darstellung",
+			"appearanceSubtitle": "Visuelle Einstellungen und Layout-Präferenzen.",
+			"theme": "Design",
+			"themeDescription": "Wähle dein bevorzugtes Farbschema",
+			"selectTheme": "Design auswählen",
+			"themeLight": "Hell",
+			"themeDark": "Dunkel",
+			"themeSystem": "System",
+			"language": "Sprache",
+			"languageDescription": "Wähle deine bevorzugte Oberflächensprache",
+			"selectLanguage": "Sprache auswählen",
+			"defaultView": "Standardansicht",
+			"defaultViewDescription": "Wähle deine bevorzugte Aufgabenansicht",
+			"selectViewMode": "Ansicht auswählen",
+			"board": "Board",
+			"list": "Liste",
+			"gantt": "Gantt",
+			"sidebarDefault": "Standard-Sidebar",
+			"sidebarDefaultDescription": "Sidebar beim Start erweitert geöffnet halten",
+			"displayOptions": "Anzeigeoptionen",
+			"displayOptionsDescription": "Wähle, welche Informationen in Aufgabenansichten sichtbar sind",
+			"taskNumbers": "Aufgabennummern",
+			"taskNumbersDescription": "Aufgaben-IDs und -Nummern anzeigen",
+			"assignees": "Zugewiesene",
+			"assigneesDescription": "Anzeigen, wem Aufgaben zugewiesen sind",
+			"dueDates": "Fälligkeitsdaten",
+			"dueDatesDescription": "Aufgabenfristen anzeigen",
+			"labels": "Labels",
+			"labelsDescription": "Aufgabenlabels und Tags anzeigen",
+			"priority": "Priorität",
+			"priorityDescription": "Prioritätsindikatoren anzeigen"
+		},
+		"developerPage": {
+			"pageTitle": "Entwicklereinstellungen",
+			"title": "Entwicklereinstellungen",
+			"subtitle": "Verwalte deine API-Schlüssel und Entwicklerressourcen.",
+			"apiKeysCardTitle": "API-Schlüssel",
+			"apiKeysCardDescription": "Erstelle und verwalte API-Schlüssel für den programmgesteuerten Zugriff auf Kaneo.",
+			"createApiKey": "API-Schlüssel erstellen",
+			"unnamedKey": "Unbenannter Schlüssel"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "API-Schlüssel erstellt",
+				"description": "Dein API-Schlüssel \"{{keyName}}\" wurde erfolgreich erstellt.",
+				"yourApiKey": "Dein API-Schlüssel",
+				"copy": "Kopieren",
+				"copied": "Kopiert",
+				"toastCopied": "API-Schlüssel in die Zwischenablage kopiert",
+				"alertTitle": "Erfolg! Dein API-Schlüssel wurde erstellt",
+				"alertDescription": "Kopiere diesen Schlüssel jetzt. Du wirst ihn später nicht mehr sehen können.",
+				"done": "Fertig",
+				"copyToContinue": "Schlüssel kopieren, um fortzufahren"
+			},
+			"table": {
+				"loading": "API-Schlüssel werden geladen...",
+				"empty": "Noch keine API-Schlüssel. Erstelle einen, um loszulegen.",
+				"columnName": "Name",
+				"columnKey": "Schlüssel",
+				"columnCreated": "Erstellt",
+				"columnExpires": "Läuft ab",
+				"columnActions": "Aktionen",
+				"unnamedKey": "Unbenannter Schlüssel",
+				"expiredBadge": "Abgelaufen {{label}}",
+				"deleteConfirmTitle": "API-Schlüssel löschen?",
+				"deleteConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden. {{name}} wird dauerhaft gelöscht.",
+				"deleteFallbackName": "diesen API-Schlüssel",
+				"delete": "Löschen",
+				"deleting": "Wird gelöscht...",
+				"deleteAria": "{{name}} löschen",
+				"deleteAriaFallback": "API-Schlüssel",
+				"toastDeleted": "API-Schlüssel erfolgreich gelöscht",
+				"toastDeleteError": "API-Schlüssel konnte nicht gelöscht werden"
+			},
+			"createDialog": {
+				"title": "API-Schlüssel erstellen",
+				"description": "Erstelle einen neuen API-Schlüssel, um programmgesteuert auf die Kaneo-API zuzugreifen.",
+				"nameLabel": "Name",
+				"namePlaceholder": "Mein API-Schlüssel",
+				"nameDescription": "Ein beschreibender Name für diesen API-Schlüssel",
+				"expirationLabel": "Ablauf",
+				"expirationPlaceholder": "Ablauf auswählen",
+				"expirationDescription": "Wähle, wie lange dieser API-Schlüssel gültig bleiben soll. Nie erstellt einen Schlüssel ohne automatisches Ablaufdatum.",
+				"expiration1d": "1 Tag",
+				"expiration7d": "7 Tage",
+				"expiration30d": "30 Tage",
+				"expiration90d": "90 Tage",
+				"expirationNever": "Nie",
+				"create": "Erstellen",
+				"creating": "Wird erstellt...",
+				"failedCreate": "API-Schlüssel konnte nicht erstellt werden",
+				"validation": {
+					"nameRequired": "Name ist erforderlich",
+					"nameShort": "Der Name muss mindestens 3 Zeichen lang sein",
+					"expirationRequired": "Ablauf ist erforderlich"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "Allgemeine Einstellungen",
+			"title": "Allgemeine Einstellungen",
+			"subtitle": "Verwalte den Namen und die Beschreibung deines Workspaces.",
+			"workspaceInfoTitle": "Workspace-Informationen",
+			"workspaceInfoSubtitle": "Konfiguriere Details und Einstellungen deines Workspaces.",
+			"nameLabel": "Workspace-Name",
+			"nameHint": "Der Name deines Workspaces",
+			"namePlaceholder": "Workspace-Name eingeben",
+			"descriptionLabel": "Beschreibung",
+			"descriptionHint": "Eine kurze Beschreibung deines Workspaces",
+			"descriptionPlaceholder": "Workspace-Beschreibung eingeben",
+			"dangerZone": "Gefahrenbereich",
+			"dangerZoneSubtitle": "Unumkehrbare und destruktive Aktionen.",
+			"deleteWorkspace": "Workspace löschen",
+			"deleteWorkspaceDescription": "Plane die dauerhafte Löschung des Workspaces",
+			"deleteModalTitle": "Workspace löschen?",
+			"deleteModalDescription": "Dadurch wird der Workspace \"{{name}}\" und alle zugehörigen Daten dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+			"deleteModalConfirm": "Workspace löschen",
+			"toastUpdated": "Workspace erfolgreich aktualisiert",
+			"toastUpdateError": "Workspace konnte nicht aktualisiert werden",
+			"toastDeleted": "Workspace erfolgreich gelöscht",
+			"toastDeleteError": "Workspace konnte nicht gelöscht werden",
+			"validation": {
+				"nameRequired": "Workspace-Name ist erforderlich",
+				"nameShort": "Der Workspace-Name muss mindestens 2 Zeichen lang sein"
+			}
+		},
+		"projectGeneral": {
+			"pageTitle": "Projekteinstellungen",
+			"title": "Allgemeine Einstellungen",
+			"subtitle": "Verwalte deinen Projektnamen, Schlüssel, dein Symbol und die Beschreibung.",
+			"projectInfoTitle": "Projektinformationen",
+			"projectInfoSubtitle": "Konfiguriere deine Projektdetails und Einstellungen.",
+			"iconLabel": "Symbol",
+			"iconHint": "Wird in der Sidebar und auf Projektflächen angezeigt.",
+			"pickIconTitle": "Symbol auswählen",
+			"searchIconsPlaceholder": "Symbole suchen...",
+			"projectNameLabel": "Projektname",
+			"projectNameHint": "Der Name deines Projekts",
+			"projectNamePlaceholder": "Projektnamen eingeben",
+			"keyLabel": "Schlüssel",
+			"keyHint": "Wird für Ticket-IDs verwendet (z. B. {{slug}}-123)",
+			"keyPlaceholder": "PRO",
+			"descriptionLabel": "Beschreibung",
+			"descriptionHint": "Eine kurze Beschreibung deines Projekts",
+			"descriptionPlaceholder": "Projektbeschreibung eingeben",
+			"dangerZone": "Gefahrenbereich",
+			"dangerZoneSubtitle": "Unumkehrbare und destruktive Aktionen.",
+			"deleteProject": "Projekt löschen",
+			"deleteProjectDescription": "Plane die dauerhafte Löschung des Projekts",
+			"deleteModalTitle": "Projekt löschen?",
+			"deleteModalDescription": "Dadurch wird das Projekt \"{{name}}\" und alle zugehörigen Daten dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+			"deleteModalConfirm": "Projekt löschen",
+			"toastUpdated": "Projekt erfolgreich aktualisiert",
+			"toastUpdateError": "Projekt konnte nicht aktualisiert werden",
+			"toastDeleted": "Projekt erfolgreich gelöscht",
+			"toastDeleteError": "Projekt konnte nicht gelöscht werden",
+			"validation": {
+				"nameRequired": "Projektname ist erforderlich",
+				"nameShort": "Der Projektname muss mindestens 2 Zeichen lang sein",
+				"keyRequired": "Schlüssel ist erforderlich",
+				"keyShort": "Der Schlüssel muss mindestens 2 Zeichen lang sein",
+				"keyMax": "Der Schlüssel darf höchstens 8 Zeichen lang sein",
+				"iconRequired": "Symbol ist erforderlich"
+			}
+		},
+		"projectIntegrations": {
+			"pageTitle": "Projektintegrationen",
+			"title": "Projektintegrationen",
+			"subtitle": "Verbinde dein Projekt mit externen Tools und Diensten, um deinen Workflow zu optimieren.",
+			"githubSectionTitle": "GitHub-Integration",
+			"githubSectionSubtitle": "Synchronisiere Aufgaben mit GitHub-Issues und aktiviere die bidirektionale Synchronisierung."
+		},
+		"projectVisibility": {
+			"pageTitle": "Projektsichtbarkeit",
+			"title": "Sichtbarkeit",
+			"subtitle": "Steuere, wer dein Projekt sehen und darauf zugreifen kann.",
+			"sectionTitle": "Sichtbarkeit",
+			"sectionSubtitle": "Aktiviere öffentlichen Zugriff und teile die öffentliche URL.",
+			"publicAccess": "Öffentlicher Zugriff",
+			"publicAccessHint": "Erlaube allen mit der URL, dieses Projekt anzusehen",
+			"publicUrl": "Öffentliche URL",
+			"publicUrlHint": "Teile diesen Link, wenn das Projekt öffentlich ist",
+			"copy": "Kopieren",
+			"copiedToast": "Kopiert",
+			"toastUpdated": "Sichtbarkeit aktualisiert",
+			"toastUpdateError": "Sichtbarkeit konnte nicht aktualisiert werden"
+		},
+		"projectWorkflow": {
+			"pageTitle": "Workflow-Einstellungen",
+			"title": "Workflow",
+			"subtitle": "Konfiguriere Board-Spalten und Automatisierungsregeln für dieses Projekt.",
+			"columnsTitle": "Spalten",
+			"columnsDescription": "Verwalte die Spalten, die auf deinem Board erscheinen. Ziehe sie, um sie neu anzuordnen. Aktiviere „Fertige Spalte“ für Phasen, die abgeschlossene Arbeit darstellen.",
+			"automationTitle": "Automatisierungsregeln",
+			"automationDescription": "Ordne Integrationsereignisse Spalten zu. Wenn ein Ereignis eintritt, wird die verknüpfte Aufgabe in die angegebene Spalte verschoben."
+		},
+		"projectSwitcher": {
+			"selectProject": "Projekt auswählen",
+			"noProjects": "Keine Projekte"
+		},
+		"columnEditor": {
+			"toastCreated": "Spalte erstellt",
+			"toastCreateError": "Spalte konnte nicht erstellt werden",
+			"toastRenamed": "Spalte umbenannt",
+			"toastRenameError": "Spalte konnte nicht aktualisiert werden",
+			"toastFinalOn": "Spalte als final markiert",
+			"toastFinalOff": "Markierung der finalen Spalte entfernt",
+			"toastUpdateError": "Spalte konnte nicht aktualisiert werden",
+			"toastDeleted": "Spalte gelöscht",
+			"toastDeleteError": "Spalte konnte nicht gelöscht werden",
+			"loading": "Spalten werden geladen...",
+			"doneColumnTooltip": "Als fertige Spalte behandeln",
+			"doneColumn": "Fertige Spalte",
+			"markDoneAria": "{{name}} als fertige Spalte markieren",
+			"on": "Ein",
+			"off": "Aus",
+			"newColumnPlaceholder": "Neuer Spaltenname...",
+			"add": "Hinzufügen"
+		},
+		"githubIntegration": {
+			"validation": {
+				"ownerRequired": "Repository-Eigentümer ist erforderlich",
+				"ownerInvalid": "Ungültiges Format für den Repository-Eigentümer",
+				"nameRequired": "Repository-Name ist erforderlich",
+				"nameInvalid": "Ungültiges Format für den Repository-Namen"
+			},
+			"toast": {
+				"installedOk": "GitHub-App ist korrekt installiert!",
+				"installedMissingPerms": "GitHub-App ist installiert, aber erforderliche Berechtigungen fehlen",
+				"needsInstallOnRepo": "GitHub-App muss für dieses Repository installiert werden",
+				"repoNotFound": "Repository nicht gefunden oder nicht zugänglich",
+				"verifyError": "GitHub-Installation konnte nicht überprüft werden",
+				"installAppFirst": "Bitte installiere zuerst die GitHub-App für dieses Repository",
+				"missingPermsDetail": "Der GitHub-App fehlen erforderliche Berechtigungen: {{list}}. Bitte aktualisiere die App-Berechtigungen.",
+				"updated": "GitHub-Integration erfolgreich aktualisiert",
+				"updateError": "GitHub-Integration konnte nicht aktualisiert werden",
+				"removed": "GitHub-Integration erfolgreich entfernt",
+				"removeError": "GitHub-Integration konnte nicht entfernt werden",
+				"issuesImported": "Issues erfolgreich importiert",
+				"importError": "Issues konnten nicht importiert werden",
+				"commentOnEnabled": "Kaneo kommentiert bei neuen Issues mit einem Aufgabenlink",
+				"commentOnDisabled": "Aufgabenlink-Kommentare bei neuen Issues sind deaktiviert",
+				"settingsUpdateError": "GitHub-Integration konnte nicht aktualisiert werden"
+			},
+			"connectionStatus": "Verbindungsstatus",
+			"connectedActive": "Repository verbunden und aktiv",
+			"notConnectedHint": "Kein Repository verbunden",
+			"badgeConnected": "Verbunden",
+			"badgeNotConnected": "Nicht verbunden",
+			"repository": "Repository",
+			"repositoryHint": "Verbundenes GitHub-Repository",
+			"commentTaskLinkTitle": "Kaneo-Link bei neuen Issues kommentieren",
+			"commentTaskLinkHint": "Wenn aktiviert, veröffentlicht Kaneo bei jedem neuen GitHub-Issue einen Kommentar mit einem Link zur Aufgabe.",
+			"appStatusTitle": "GitHub-App-Status",
+			"appStatusHint": "Installations- und Berechtigungsstatus",
+			"statusProperlyConfigured": "Korrekt konfiguriert",
+			"statusMissingPermissions": "Fehlende Berechtigungen",
+			"statusNotInstalled": "Nicht installiert",
+			"ownerLabel": "Repository-Eigentümer",
+			"ownerHint": "GitHub-Benutzername oder Organisation",
+			"ownerPlaceholder": "z. B. octocat",
+			"repoNameLabel": "Repository-Name",
+			"repoNameHint": "Der Name des Repositorys",
+			"repoNamePlaceholder": "z. B. mein-projekt",
+			"actionsTitle": "Aktionen",
+			"actionsHint": "Verwalte deine Repository-Verbindung",
+			"browse": "Durchsuchen",
+			"verify": "Prüfen",
+			"update": "Aktualisieren",
+			"connect": "Verbinden",
+			"disconnect": "Trennen",
+			"missingPermissionsLabel": "Fehlende Berechtigungen:",
+			"updatePermissions": "Berechtigungen aktualisieren",
+			"installGithubApp": "GitHub-App installieren",
+			"importSectionTitle": "GitHub-Issues importieren",
+			"importSectionHint": "Importiere vorhandene Issues aus deinem GitHub-Repository als Aufgaben",
+			"importing": "Wird importiert...",
+			"importIssues": "Issues importieren",
+			"importDisabledHint": "Vervollständige die Repository-Konfiguration oben, um den Import zu aktivieren"
+		},
+		"repositoryBrowser": {
+			"title": "Repository auswählen",
+			"description": "Wähle ein Repository aus, in dem deine GitHub-App installiert ist, um die Issue-Synchronisierung zu aktivieren.",
+			"searchPlaceholder": "Repositories suchen...",
+			"loadError": "Repositories konnten nicht geladen werden",
+			"tryAgain": "Erneut versuchen",
+			"emptyTitle": "Keine Repositories gefunden",
+			"emptyHint": "Installiere die GitHub-App in deinen Repositories, damit sie hier angezeigt werden.",
+			"installGithubApp": "GitHub-App installieren",
+			"noSearchMatchTitle": "Keine Repositories entsprechen deiner Suche",
+			"noSearchMatchHint": "Passe deine Suchbegriffe an oder lösche die Suche, um alle Repositories zu sehen.",
+			"footerSummary": "{{repoCount}} Repositories über {{installationCount}} Installationen",
+			"manageInstallations": "Installationen verwalten",
+			"updatedPrefix": "Aktualisiert",
+			"relativeJustNow": "gerade eben",
+			"relativeMinutesAgo": "vor {{count}} Min.",
+			"relativeHoursAgo": "vor {{count}} Std.",
+			"relativeDaysAgo": "vor {{count}} Tg."
+		},
+		"tasksImportExport": {
+			"exportTasks": "Aufgaben exportieren",
+			"importTasks": "Aufgaben importieren",
+			"dialogTitle": "Aufgaben importieren",
+			"dialogDescription": "Lade eine JSON-Datei mit Aufgaben hoch, die in dieses Projekt importiert werden sollen.",
+			"expectedFormat": "Erwartetes Format:",
+			"dropHint": "Ziehe deine JSON-Datei hierher",
+			"selectFile": "Datei auswählen",
+			"exporting": "Aufgaben werden exportiert...",
+			"exportSuccess": "Aufgaben erfolgreich exportiert",
+			"exportError": "Aufgaben konnten nicht exportiert werden",
+			"importing": "Aufgaben werden importiert...",
+			"importSuccess": "{{count}} Aufgaben erfolgreich importiert",
+			"importPartialError": "{{count}} Aufgaben konnten nicht importiert werden",
+			"importError": "Aufgaben konnten nicht importiert werden",
+			"invalidFormat": "Ungültiges Importdateiformat",
+			"noFileDropped": "Keine Datei abgelegt",
+			"notJsonFile": "Bitte lade eine JSON-Datei hoch"
+		},
+		"workflowEditor": {
+			"loading": "Lädt...",
+			"createColumnsFirst": "Erstelle zuerst Spalten, um Automatisierungsregeln zu konfigurieren.",
+			"githubHeading": "GitHub",
+			"githubHint": "Wenn ein GitHub-Ereignis eintritt, verschiebe die verknüpfte Aufgabe in eine Spalte.",
+			"selectColumnPlaceholder": "Spalte auswählen...",
+			"toastUpdated": "Workflow-Regel aktualisiert",
+			"toastError": "Workflow-Regel konnte nicht aktualisiert werden",
+			"events": {
+				"branch_push": "Branch-Push",
+				"pr_opened": "PR geöffnet",
+				"pr_merged": "PR zusammengeführt",
+				"issue_opened": "Issue geöffnet",
+				"issue_closed": "Issue geschlossen"
+			}
+		},
+		"externalLinks": {
+			"resources": "Ressourcen",
+			"issue": "Issue",
+			"branch": "Branch",
+			"merged": "Zusammengeführt",
+			"draft": "Entwurf",
+			"open": "Offen"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "Vorschläge",
+			"commands": "Befehle",
+			"projects": "Projekte",
+			"search": "Suche",
+			"members": "Mitglieder",
+			"createTask": "Aufgabe erstellen",
+			"createProject": "Projekt erstellen",
+			"createWorkspace": "Workspace erstellen",
+			"lightTheme": "Helles Design",
+			"darkTheme": "Dunkles Design",
+			"systemTheme": "Systemdesign",
+			"keyboardShortcuts": "Tastenkürzel",
+			"inputPlaceholder": "Nach Apps und Befehlen suchen...",
+			"empty": "Keine Ergebnisse gefunden.",
+			"footer": {
+				"navigate": "Navigieren",
+				"open": "Öffnen",
+				"close": "Schließen"
+			}
+		},
+		"notifications": "Benachrichtigungen",
+		"sidebar": {
+			"overview": "Übersicht",
+			"projects": "Projekte",
+			"members": "Mitglieder",
+			"invitations": "Einladungen",
+			"more": "Mehr"
+		},
+		"projectList": {
+			"viewProject": "Projekt ansehen",
+			"shareProject": "Projekt teilen",
+			"linkCopied": "Projektlink in die Zwischenablage kopiert",
+			"addProject": "Projekt hinzufügen",
+			"deleteConfirmTitle": "Projekt löschen?",
+			"deleteConfirmDescription": "Dadurch wird das Projekt und alle zugehörigen Daten dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+			"deletedToast": "Projekt gelöscht",
+			"deleteProject": "Projekt löschen"
+		},
+		"search": {
+			"inputPlaceholder": "Aufgaben, Projekte, Kommentare suchen...",
+			"minCharsHint": "Gib mindestens 3 Zeichen ein, um zu suchen",
+			"groups": {
+				"task": "Aufgaben",
+				"project": "Projekte",
+				"workspace": "Workspaces",
+				"comment": "Kommentare",
+				"activity": "Aktivitäten",
+				"fallback": "Ergebnisse"
+			}
+		},
+		"settingsLayout": {
+			"toggleSidebar": "Sidebar umschalten",
+			"back": "Zurück"
+		},
+		"userMenu": {
+			"signedOutSuccess": "Erfolgreich abgemeldet",
+			"signOutFailed": "Abmeldung fehlgeschlagen",
+			"unnamedUser": "Benutzer",
+			"settings": "Einstellungen",
+			"signingOut": "Wird abgemeldet...",
+			"logOut": "Abmelden"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "Workspaces",
+			"switching": "Wechseln...",
+			"addWorkspace": "Workspace hinzufügen",
+			"selectWorkspace": "Workspace auswählen"
+		},
+		"page": {
+			"projectsTitle": "Projekte",
+			"settingsTitle": "Einstellungen",
+			"backToWorkspace": "Zurück zum Workspace",
+			"settingsWorkspaceTab": "Workspace"
+		},
+		"projectSettings": {
+			"projectLabel": "Projekt"
+		},
+		"keyboardShortcuts": {
+			"title": "Tastenkürzel",
+			"subtitle": "Beschleunige deinen Workflow mit Tastenkürzeln",
+			"searchPlaceholder": "Tastenkürzel suchen...",
+			"footer": "Drücke <kbd>Escape</kbd>, um zu schließen",
+			"categories": {
+				"general": "Allgemein",
+				"create": "Erstellen",
+				"views": "Ansichten",
+				"navigation": "Navigation",
+				"quickSelect": "Schnellauswahl (in Popovers)"
+			},
+			"items": {
+				"openCommandPalette": "Befehlspalette öffnen",
+				"globalSearch": "Globale Suche",
+				"toggleSidebar": "Sidebar umschalten",
+				"showShortcuts": "Tastenkürzel anzeigen",
+				"closeModal": "Modal/Popover schließen",
+				"createTask": "Aufgabe erstellen",
+				"createProject": "Projekt erstellen",
+				"createWorkspace": "Workspace erstellen",
+				"boardView": "Zur Board-Ansicht wechseln",
+				"listView": "Zur Listenansicht wechseln",
+				"backlogView": "Zur Backlog-Ansicht wechseln",
+				"nextTask": "Nächste Aufgabe",
+				"prevTask": "Vorherige Aufgabe",
+				"openTask": "Ausgewählte Aufgabe öffnen",
+				"quickSelectNumber": "Option per Nummer auswählen"
+			}
+		}
+	},
+	"notifications": {
+		"title": "Benachrichtigungen",
+		"newCount_one": "{{count}} neu",
+		"newCount_other": "{{count}} neu",
+		"emptyTitle": "Noch keine Benachrichtigungen",
+		"emptySubtitle": "Hier erscheinen Updates und Aktivitäten.",
+		"clearAll": "Alle Benachrichtigungen löschen",
+		"clearDialogTitle": "Alle Benachrichtigungen löschen?",
+		"clearDialogDescription": "Dadurch werden alle Benachrichtigungen dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+		"shortcuts": {
+			"open": "Benachrichtigungen öffnen"
+		},
+		"events": {
+			"task_created": {
+				"title": "Neue Aufgabe erstellt",
+				"content": "Die Aufgabe \"{{taskTitle}}\" wurde erstellt"
+			},
+			"workspace_created": {
+				"title": "Workspace erstellt",
+				"content": "Dein Workspace \"{{workspaceName}}\" wurde erfolgreich erstellt"
+			},
+			"task_status_changed": {
+				"title": "Aufgabenstatus geändert",
+				"content": "Der Status der Aufgabe \"{{taskTitle}}\" wurde von \"{{oldStatus}}\" zu \"{{newStatus}}\" geändert"
+			},
+			"task_assignee_changed": {
+				"title": "Aufgabe wurde dir zugewiesen",
+				"content": "Dir wurde die Aufgabe \"{{taskTitle}}\" zugewiesen"
+			},
+			"time_entry_created": {
+				"title": "Zeiterfassung gestartet",
+				"contentWithTask": "Die Zeiterfassung für die Aufgabe \"{{taskTitle}}\" wurde gestartet",
+				"contentWithoutTask": "Die Zeiterfassung für eine Aufgabe wurde gestartet"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "hat sich die Aufgabe selbst zugewiesen",
+		"unassigned": "hat die Zuweisung der Aufgabe entfernt",
+		"assignedTo": "hat die Aufgabe {{name}} zugewiesen",
+		"changedStatus": "hat den Status von {{from}} zu {{to}} geändert",
+		"changedPriority": "hat die Priorität von {{from}} zu {{to}} geändert",
+		"clearedDueDate": "hat das Fälligkeitsdatum entfernt",
+		"setDueDate": "hat das Fälligkeitsdatum auf {{date}} gesetzt",
+		"changedDueDate": "hat das Fälligkeitsdatum von {{from}} zu {{to}} geändert",
+		"changedTitle": "hat den Titel von \"{{from}}\" zu \"{{to}}\" geändert",
+		"githubUser": "GitHub-Benutzer",
+		"comment": {
+			"github": "GitHub",
+			"viewGithubProfile": "GitHub-Profil ansehen",
+			"commentedOnGithub": "hat auf GitHub kommentiert",
+			"cannotBeEmpty": "Kommentar darf nicht leer sein",
+			"mustBeLoggedInToEdit": "Du musst angemeldet sein, um Kommentare zu bearbeiten",
+			"updated": "Kommentar aktualisiert",
+			"failedToUpdate": "Kommentar konnte nicht aktualisiert werden",
+			"edit": "Kommentar bearbeiten",
+			"editPlaceholder": "Kommentar bearbeiten...",
+			"save": "Speichern",
+			"added": "Kommentar hinzugefügt",
+			"failedToAdd": "Kommentar konnte nicht hinzugefügt werden",
+			"leavePlaceholder": "Hinterlasse einen Kommentar...",
+			"attachFile": "Datei anhängen",
+			"submitShortcut": "Kommentar absenden",
+			"editor": {
+				"uploadsOnlyOnSavedTasks": "Datei-Uploads sind nur bei gespeicherten Aufgaben verfügbar.",
+				"uploadingFile": "Datei wird hochgeladen...",
+				"imageUploaded": "Bild hochgeladen",
+				"fileAttached": "Datei angehängt",
+				"failedToUploadFile": "Datei konnte nicht hochgeladen werden",
+				"enterUrl": "URL eingeben",
+				"plaintext": "Klartext",
+				"autoDetect": "Automatisch erkennen",
+				"slashGroupText": "Text",
+				"slashGroupLists": "Listen",
+				"slashGroupInsert": "Einfügen",
+				"slashParagraph": "Text",
+				"slashHeading": "Überschrift",
+				"slashBulletList": "Aufzählungsliste",
+				"slashTaskList": "To-do-Liste",
+				"slashOrderedList": "Nummerierte Liste",
+				"slashQuote": "Zitat",
+				"slashCodeBlock": "Codeblock",
+				"slashTable": "Tabelle",
+				"slashFile": "Datei",
+				"searchParagraph": "text absatz normal",
+				"searchHeading": "überschrift titel h2",
+				"searchBulletList": "liste aufzählung ungeordnet",
+				"searchTaskList": "todo to-do checkliste checkbox aufgabenliste",
+				"searchOrderedList": "liste geordnet nummeriert",
+				"searchQuote": "zitat blockquote",
+				"searchCodeBlock": "code snippet",
+				"searchTable": "tabelle raster",
+				"searchFile": "datei anhang bild foto upload",
+				"embedErrorInvalidUrl": "Gib eine gültige URL ein",
+				"embedErrorYoutubeOnly": "Nur YouTube-Links können eingebettet werden.",
+				"embedVideo": "Video einbetten",
+				"keepAsLink": "Als Link behalten",
+				"hintTab": "Tab",
+				"hintEsc": "Esc",
+				"pasteUrl": "URL einfügen",
+				"asLink": "Als Link",
+				"embed": "Einbetten",
+				"noCommands": "Keine Befehle",
+				"ariaCommentContent": "Kommentarinhalt",
+				"ariaCommentEditor": "Kommentar-Editor",
+				"ariaCopyCode": "Code kopieren",
+				"ariaCopied": "Kopiert",
+				"copy": "Kopieren",
+				"copied": "Kopiert",
+				"dropImageToUpload": "Bild zum Hochladen ablegen",
+				"previewImageAlt": "Bildvorschau",
+				"codeLang": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"markdown": "Markdown",
+					"plaintext": "Klartext",
+					"python": "Python",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"typescript": "TypeScript",
+					"yaml": "YAML"
+				}
+			}
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "Status",
+			"to-do": "Zu erledigen",
+			"in-progress": "In Bearbeitung",
+			"in-review": "In Prüfung",
+			"done": "Erledigt",
+			"archived": "Archiviert",
+			"planned": "Geplant"
+		},
+		"priority": {
+			"label": "Priorität",
+			"no-priority": "Keine Priorität",
+			"low": "Niedrig",
+			"medium": "Mittel",
+			"high": "Hoch",
+			"urgent": "Dringend"
+		},
+		"boardSearchPlaceholder": "Tickets suchen...",
+		"view": {
+			"board": "Board",
+			"list": "Liste"
+		},
+		"common": {
+			"selectTask": "Aufgabe auswählen",
+			"loadingTask": "Aufgabe wird geladen..."
+		},
+		"detail": {
+			"subtaskOf": "Teilaufgabe von",
+			"activity": "Aktivität",
+			"noActivity": "Keine Aktivität gefunden",
+			"openInFullPage": "Auf ganzer Seite öffnen",
+			"titlePlaceholder": "Klicken, um einen Titel hinzuzufügen",
+			"addDescription": "Beschreibung hinzufügen...",
+			"editor": {
+				"ariaLabel": "Editor für Aufgabenbeschreibung",
+				"placeholder": "Schreibe eine Beschreibung...",
+				"previewImage": "Bildvorschau",
+				"enterUrl": "URL eingeben",
+				"autoDetect": "Automatisch erkennen",
+				"copyCode": "Code kopieren",
+				"copy": "Kopieren",
+				"copied": "Kopiert",
+				"attachFile": "Datei anhängen",
+				"dropToUpload": "Bild zum Hochladen ablegen",
+				"checkbox": {
+					"markIncomplete": "Aufgabe als unvollständig markieren",
+					"markComplete": "Aufgabe als abgeschlossen markieren"
+				},
+				"upload": {
+					"loading": "Datei wird hochgeladen...",
+					"failed": "Datei konnte nicht hochgeladen werden",
+					"imageSuccess": "Bild hochgeladen",
+					"fileSuccess": "Datei angehängt"
+				},
+				"slash": {
+					"groups": {
+						"text": "Text",
+						"lists": "Listen",
+						"insert": "Einfügen"
+					},
+					"empty": "Keine Befehle",
+					"commands": {
+						"paragraph": "Text",
+						"heading-2": "Überschrift",
+						"bullet-list": "Aufzählungsliste",
+						"task-list": "To-do-Liste",
+						"ordered-list": "Nummerierte Liste",
+						"blockquote": "Zitat",
+						"code-block": "Codeblock",
+						"table": "Tabelle",
+						"file": "Datei"
+					}
+				},
+				"languages": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"clojure": "Clojure",
+					"cypher": "Cypher",
+					"dart": "Dart",
+					"diff": "Diff",
+					"elixir": "Elixir",
+					"excel": "Excel",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"haskell": "Haskell",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"kotlin": "Kotlin",
+					"makefile": "Makefile",
+					"markdown": "Markdown",
+					"ocaml": "OCaml",
+					"php": "PHP",
+					"perl": "Perl",
+					"plaintext": "Klartext",
+					"python": "Python",
+					"r": "R",
+					"reasonml": "ReasonML",
+					"ruby": "Ruby",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"toml": "TOML",
+					"terraform": "Terraform",
+					"typescript": "TypeScript",
+					"xml": "XML",
+					"yaml": "YAML"
+				},
+				"embed": {
+					"choice": {
+						"embedVideo": "Video einbetten",
+						"keepAsLink": "Als Link behalten"
+					},
+					"inputPlaceholder": "URL einfügen",
+					"embeddedContent": "Eingebetteter Inhalt",
+					"asLink": "Als Link",
+					"submit": "Einbetten",
+					"errors": {
+						"invalidUrl": "Gib eine gültige URL ein",
+						"onlyYoutube": "Nur YouTube-Links können eingebettet werden."
+					},
+					"onlyYoutubeInline": "Nur YouTube-URLs können eingebettet werden. Verwende stattdessen den Link-Modus."
+				}
+			}
+		},
+		"entity": {
+			"task": "Aufgabe"
+		},
+		"relations": {
+			"title": "Beziehungen",
+			"tasksInProject": "Aufgaben im Projekt",
+			"linkError": "Aufgabe konnte nicht verknüpft werden",
+			"empty": "Keine verknüpften Aufgaben",
+			"searchPlaceholder": "Aufgaben zum Verknüpfen suchen...",
+			"noTasksFound": "Keine Aufgaben gefunden",
+			"openTask": "Aufgabe öffnen",
+			"removeRelation": "Beziehung entfernen",
+			"related": "Verwandt",
+			"blocks": "Blockiert",
+			"selectTask": "Wähle eine Aufgabe zum Verknüpfen aus",
+			"types": {
+				"blocks": "blockiert",
+				"related": "steht in Beziehung zu"
+			}
+		},
+		"subtasks": {
+			"title": "Teilaufgaben",
+			"inputPlaceholder": "Titel der Teilaufgabe...",
+			"addAction": "Hinzufügen",
+			"empty": "Noch keine Teilaufgaben",
+			"createError": "Teilaufgabe konnte nicht erstellt werden",
+			"deleteSuccess": "Aufgabe erfolgreich gelöscht",
+			"deleteError": "Aufgabe konnte nicht gelöscht werden",
+			"deleteDialogTitle": "Aufgabe löschen?",
+			"deleteDialogDescription": "Dadurch wird die Aufgabe und alle zugehörigen Daten dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+			"deleteAction": "Aufgabe löschen"
+		},
+		"properties": {
+			"title": "Eigenschaften",
+			"labels": "Labels",
+			"copyTaskLink": "Aufgabenlink kopieren",
+			"copyTaskBranch": "Aufgaben-Branch kopieren",
+			"start": "Start",
+			"startDate": "Startdatum",
+			"noDate": "Kein Datum"
+		},
+		"popover": {
+			"assignee": {
+				"unassigned": "Nicht zugewiesen",
+				"updateError": "Aufgabenzuweisung konnte nicht aktualisiert werden"
+			},
+			"status": {
+				"updateError": "Aufgabenstatus konnte nicht aktualisiert werden"
+			},
+			"priority": {
+				"updateError": "Aufgabenpriorität konnte nicht aktualisiert werden"
+			},
+			"dueDate": {
+				"updateSuccess": "Fälligkeitsdatum erfolgreich aktualisiert",
+				"updateError": "Fälligkeitsdatum konnte nicht aktualisiert werden",
+				"clear": "Datum entfernen"
+			},
+			"startDate": {
+				"updateSuccess": "Startdatum erfolgreich aktualisiert",
+				"updateError": "Startdatum konnte nicht aktualisiert werden",
+				"clear": "Startdatum entfernen"
+			},
+			"labels": {
+				"searchPlaceholder": "Labels suchen...",
+				"empty": "Keine Labels gefunden",
+				"create": "\"{{name}}\" erstellen",
+				"chooseColor": "Farbe auswählen",
+				"addSuccess": "Label hinzugefügt",
+				"removeSuccess": "Label entfernt",
+				"updateError": "Label konnte nicht aktualisiert werden",
+				"createSuccess": "Label erstellt und hinzugefügt",
+				"createError": "Label konnte nicht erstellt werden",
+				"colors": {
+					"stone": "Stein",
+					"slate": "Schiefer",
+					"lavender": "Lavendel",
+					"sage": "Salbei",
+					"forest": "Wald",
+					"amber": "Bernstein",
+					"terracotta": "Terrakotta",
+					"rose": "Rosa",
+					"crimson": "Karmesinrot"
+				}
+			}
+		},
+		"backlog": {
+			"pageTitle": "{{name}}s Backlog",
+			"noTasksToMove": "Keine geplanten Aufgaben zum Verschieben",
+			"moveAllConfirm": "Alle {{count}} geplanten Aufgaben nach „Zu erledigen“ verschieben?",
+			"moveAllSuccess": "{{count}} Aufgaben nach „Zu erledigen“ verschoben",
+			"plan": "Planen",
+			"moveAllTooltip": "Alle geplanten Aufgaben nach „Zu erledigen“ verschieben",
+			"moveAll": "Alle verschieben",
+			"addTask": "Aufgabe hinzufügen",
+			"filter": "Filter",
+			"addFilter": "Filter hinzufügen...",
+			"sections": {
+				"planned": "Geplant",
+				"archived": "Archiviert"
+			},
+			"noTasksInSection": "Keine {{section}}-Aufgaben",
+			"filters": {
+				"priority": "Priorität: {{name}}",
+				"assignee": "Zugewiesen: {{name}}",
+				"due": "Fällig: {{date}}",
+				"label": "Label: {{name}}",
+				"dueThisWeek": "Diese Woche fällig",
+				"dueNextWeek": "Nächste Woche fällig",
+				"noDueDate": "Kein Fälligkeitsdatum"
+			}
+		},
+		"sort": {
+			"label": "Sortieren",
+			"by": "Sortieren nach",
+			"direction": "Richtung",
+			"ascending": "Aufsteigend",
+			"descending": "Absteigend",
+			"fields": {
+				"position": "Manuell (Position)",
+				"createdAt": "Erstellungsdatum",
+				"priority": "Priorität",
+				"dueDate": "Fälligkeitsdatum",
+				"title": "Titel",
+				"number": "Aufgabennummer"
+			}
+		},
+		"boardFilters": {
+			"filterBy": "Filtern nach",
+			"allStatuses": "Alle Status",
+			"allPriorities": "Alle Prioritäten",
+			"allAssignees": "Alle Zugewiesenen",
+			"allDueDates": "Alle Fälligkeitsdaten",
+			"allLabels": "Alle Labels",
+			"selectedCount": "{{count}} ausgewählt",
+			"subjects": {
+				"status": "Status",
+				"priority": "Priorität",
+				"assignee": "Zugewiesen",
+				"dueDate": "Fälligkeitsdatum",
+				"labels": "Labels"
+			},
+			"operators": {
+				"isAnyOf": "ist einer von",
+				"includeAnyOf": "enthält einen von"
+			}
+		},
+		"gantt": {
+			"pageTitle": "{{name}} — Gantt",
+			"title": "Gantt-Zeitachse",
+			"searchPlaceholder": "Geplante Tickets suchen...",
+			"hideTasks": "Aufgaben ausblenden",
+			"showTasks": "Aufgaben anzeigen",
+			"noTasks": "Keine geplanten Aufgaben",
+			"noTasksSubtitle": "Füge Aufgaben ein Startdatum, ein Fälligkeitsdatum oder beides hinzu, um sie auf der Projektzeitleiste zu platzieren.",
+			"noTasksFound": "Keine Aufgaben gefunden",
+			"noTasksMatch": "Keine geplanten Aufgaben entsprechen \"{{query}}\"",
+			"taskHeader": "Aufgabe",
+			"updateDatesError": "Aufgabendaten konnten nicht aktualisiert werden",
+			"resizeStart": "Startdatum anpassen",
+			"resizeDue": "Fälligkeitsdatum anpassen",
+			"taskAriaLabel": "{{title}} — öffnen oder ziehen zum Verschieben"
+		},
+		"delete": {
+			"title": "Aufgabe löschen?",
+			"description": "Dadurch wird die Aufgabe und alle zugehörigen Daten dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+			"action": "Aufgabe löschen",
+			"success": "Aufgabe erfolgreich gelöscht",
+			"error": "Aufgabe konnte nicht gelöscht werden"
+		},
+		"archive": {
+			"success": "{{count}} Aufgaben archiviert"
+		},
+		"listView": {
+			"addTask": "Aufgabe hinzufügen",
+			"archiveAllTooltip": "Alle abgeschlossenen Aufgaben archivieren",
+			"noTasks": "Keine Aufgaben"
+		},
+		"kanban": {
+			"addTask": "Aufgabe hinzufügen"
+		},
+		"pr": {
+			"merged": "Zusammengeführt",
+			"draft": "Entwurf",
+			"open": "Offen",
+			"label": "Pull Request",
+			"count_one": "{{count}} PR",
+			"count_other": "{{count}} PRs"
+		},
+		"assignee": {
+			"label": "Zugewiesen an",
+			"unassigned": "Nicht zugewiesen"
+		},
+		"dueDate": {
+			"label": "Fälligkeitsdatum",
+			"clear": "Datum entfernen",
+			"updateSuccess": "Fälligkeitsdatum erfolgreich aktualisiert",
+			"updateError": "Fälligkeitsdatum konnte nicht aktualisiert werden",
+			"clearSuccess": "Fälligkeitsdatum entfernt",
+			"clearError": "Fälligkeitsdatum konnte nicht entfernt werden"
+		},
+		"labels": {
+			"label": "Labels",
+			"empty": "Keine Labels verfügbar"
+		},
+		"update": {
+			"success": "Aufgabe erfolgreich aktualisiert",
+			"error": "Aufgabe konnte nicht aktualisiert werden"
+		},
+		"contextMenu": {
+			"copyLink": "Link kopieren",
+			"copyLinkSuccess": "Aufgabenlink kopiert!"
+		},
+		"actions": {
+			"archive": "Archivieren",
+			"markAsPlanned": "Als geplant markieren",
+			"delete": "Löschen..."
+		},
+		"bulk": {
+			"selectedCount": "{{count}} ausgewählt",
+			"moveToBacklog": "In Backlog verschieben",
+			"moveToBacklogSuccess": "{{count}} Aufgaben ins Backlog verschoben",
+			"moveToBacklogError": "Aufgaben konnten nicht ins Backlog verschoben werden",
+			"moveToBoard": "Aufs Board verschieben",
+			"moveToBoardSuccess": "{{count}} Aufgaben aufs Board verschoben",
+			"moveToBoardError": "Aufgaben konnten nicht aufs Board verschoben werden",
+			"delete": "Aufgaben löschen",
+			"deleteConfirm": "{{count}} Aufgaben löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+			"deleteSuccess": "{{count}} Aufgaben gelöscht",
+			"deleteError": "Aufgaben konnten nicht gelöscht werden",
+			"archive": "Aufgaben archivieren",
+			"archiveSuccess": "{{count}} Aufgaben archiviert",
+			"archiveError": "Aufgaben konnten nicht archiviert werden",
+			"updateSuccess": "{{count}} Aufgaben aktualisiert",
+			"updateError": "Aufgaben konnten nicht aktualisiert werden",
+			"assignTo": "Zuweisen an",
+			"assignSuccess": "{{count}} Aufgaben zugewiesen",
+			"assignError": "Aufgaben konnten nicht zugewiesen werden",
+			"setPriority": "Priorität festlegen",
+			"updatePriorityError": "Priorität konnte nicht aktualisiert werden",
+			"addLabel": "Label hinzufügen",
+			"addLabelSuccess": "Label zu {{count}} Aufgaben hinzugefügt",
+			"addLabelError": "Label konnte nicht hinzugefügt werden",
+			"setDueDate": "Fälligkeitsdatum festlegen",
+			"updateDueDateError": "Fälligkeitsdatum konnte nicht aktualisiert werden",
+			"actions": "Aktionen",
+			"searchActions": "Aktionen suchen...",
+			"noActionsFound": "Keine Aktionen gefunden.",
+			"changeStatus": "Status ändern"
+		}
+	},
+	"invitations": {
+		"pageTitle": "Einladungen",
+		"pendingInvitations": "Ausstehende Einladungen",
+		"acceptSubtitle": "Nimm Einladungen an, um Workspaces beizutreten",
+		"noPendingTitle": "Keine ausstehenden Einladungen",
+		"noPendingDescription": "Du hast derzeit keine ausstehenden Workspace-Einladungen.",
+		"continueToSetup": "Weiter zum Setup",
+		"skipForNow": "Vorerst überspringen",
+		"table": {
+			"workspace": "Workspace",
+			"invitedBy": "Eingeladen von",
+			"expires": "Läuft ab"
+		},
+		"toast": {
+			"acceptError": "Einladung konnte nicht angenommen werden",
+			"acceptSuccess": "Einladung angenommen! Willkommen im Team.",
+			"rejectError": "Einladung konnte nicht abgelehnt werden",
+			"rejectSuccess": "Einladung abgelehnt"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "Projekte",
+			"createProject": "Projekt erstellen",
+			"title": "Titel",
+			"progress": "Fortschritt",
+			"targetDate": "Zieldatum",
+			"dueDate": "Fälligkeitsdatum",
+			"status": "Status",
+			"emptyTitle": "Noch keine Projekte",
+			"emptyDescription": "Lege los, indem du dein erstes Projekt erstellst.",
+			"projectStatus": {
+				"notStarted": "Nicht begonnen",
+				"complete": "Abgeschlossen",
+				"inProgress": "In Bearbeitung"
+			},
+			"noDueDate": "Kein Fälligkeitsdatum"
+		},
+		"search": {
+			"pageTitle": "Suche",
+			"backToDashboard": "Zurück zum Dashboard",
+			"placeholder": "Suche nach Aufgaben nach Titel oder Kurz-ID (z. B. DEP-23)...",
+			"hint": "Suche über alle Projekte in diesem Workspace. Nutze Kurz-IDs wie DEP-23, um bestimmte Aufgaben zu finden.",
+			"searching": "Suche läuft...",
+			"resultsFound_one": "{{count}} Ergebnis gefunden",
+			"resultsFound_other": "{{count}} Ergebnisse gefunden",
+			"noResultsTitle": "Keine Ergebnisse gefunden",
+			"noResultsDescription": "Passe deine Suchbegriffe an oder suche nach etwas anderem",
+			"startTitle": "Suche starten",
+			"startDescription": "Gib einen Suchbegriff ein, um Aufgaben in allen Projekten zu finden",
+			"quickSearchesLabel": "Schnellsuchen:",
+			"suggestionHighPriority": "Hohe Priorität",
+			"suggestionBug": "Bug",
+			"suggestionFeature": "Feature",
+			"suggestionInProgress": "In Bearbeitung",
+			"suggestionCompleted": "Abgeschlossen"
+		},
+		"create": {
+			"pageTitle": "Workspace erstellen",
+			"heading": "Neuen Workspace erstellen",
+			"subtitle": "Workspaces sind gemeinsame Umgebungen, in denen Teams an Projekten, Zyklen und Issues arbeiten können.",
+			"nameLabel": "Workspace-Name",
+			"namePlaceholder": "Workspace-Namen eingeben",
+			"descriptionLabel": "Beschreibung (optional)",
+			"descriptionPlaceholder": "Füge eine Beschreibung für deinen Workspace hinzu",
+			"required": "Erforderlich",
+			"creating": "Wird erstellt...",
+			"submit": "Workspace erstellen",
+			"success": "Workspace erfolgreich erstellt",
+			"error": "Workspace konnte nicht erstellt werden"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "Eigentümer",
+			"admin": "Admin",
+			"member": "Mitglied"
+		},
+		"members": {
+			"pageTitle": "Mitglieder",
+			"inviteMember": "Mitglied einladen"
+		},
+		"inviteModal": {
+			"title": "Teammitglied einladen",
+			"emailLabel": "E-Mail",
+			"emailPlaceholder": "kollege@firma.com",
+			"sendInvitation": "Einladung senden",
+			"success": "Einladung erfolgreich gesendet",
+			"error": "Teammitglied konnte nicht eingeladen werden"
+		},
+		"membersTable": {
+			"emptyTitle": "Noch keine Teammitglieder",
+			"emptyDescription": "Lade dein erstes Teammitglied ein, um loszulegen.",
+			"columns": {
+				"name": "Name",
+				"role": "Rolle",
+				"joined": "Beigetreten",
+				"actions": "Aktionen"
+			},
+			"memberRolePending": "{{role}} (Ausstehend)",
+			"ariaCancelInvitation": "Einladung abbrechen",
+			"ariaRemoveMember": "Mitglied entfernen",
+			"removeDialogTitle": "Teammitglied entfernen?",
+			"removeDialogDescription": "Bist du sicher, dass du {{name}} aus dem Workspace entfernen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+			"cancelDialogTitle": "Einladung abbrechen?",
+			"cancelDialogDescription": "Bist du sicher, dass du die Einladung für {{email}} abbrechen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+			"removeMember": "Mitglied entfernen",
+			"cancelInvitation": "Einladung abbrechen",
+			"removeSuccess": "Teammitglied erfolgreich entfernt",
+			"removeError": "Teammitglied konnte nicht entfernt werden",
+			"cancelInviteSuccess": "Einladung erfolgreich abgebrochen",
+			"cancelInviteError": "Einladung konnte nicht abgebrochen werden"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "Öffentliche Ansicht",
+		"badge": "Öffentlich",
+		"readOnly": "Schreibgeschützt",
+		"error": {
+			"title": "Projekt nicht gefunden",
+			"description": "Dieses Projekt existiert nicht oder ist nicht öffentlich zugänglich."
+		},
+		"taskCard": {
+			"viewDetailsAria": "Details für Aufgabe {{title}} ansehen"
+		},
+		"taskDetail": {
+			"labels": "Labels",
+			"externalLinks": "Externe Links",
+			"pullRequestFallback": "Pull Request",
+			"issueFallback": "Issue",
+			"prStatusMerged": "Zusammengeführt",
+			"prStatusDraft": "Entwurf",
+			"prStatusOpen": "Offen",
+			"dueWithDate": "Fällig {{date}}",
+			"created": "Erstellt",
+			"dueDateLabel": "Fälligkeitsdatum"
+		},
+		"theme": {
+			"switchToLight": "Zu hellem Modus wechseln",
+			"switchToDark": "Zu dunklem Modus wechseln"
+		},
+		"copyUrl": {
+			"successToast": "URL kopiert",
+			"errorToast": "URL konnte nicht kopiert werden",
+			"copied": "Kopiert",
+			"share": "Teilen"
+		},
+		"branding": {
+			"poweredBy": "Bereitgestellt von"
+		}
+	}
+}

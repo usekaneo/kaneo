@@ -22,6 +22,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Archive, ChevronRight, Clock, Flag, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -43,6 +44,7 @@ function BacklogListView({
   project,
   disableDragDrop = false,
 }: BacklogListViewProps) {
+  const { t } = useTranslation();
   const { mutate: updateTask } = useUpdateTask();
   const { setProject } = useProjectStore();
   const {
@@ -330,7 +332,11 @@ function BacklogListView({
             <div className="flex items-center gap-2 h-4">
               <IconComponent className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
               <div className="flex items-center gap-1">
-                <span className="mt-1 mr-1">{title}</span>
+                <span className="mt-1 mr-1">
+                  {t(`tasks:backlog.sections.${sectionId}`, {
+                    defaultValue: title,
+                  })}
+                </span>
                 <span className="text-xs text-muted-foreground mt-0.5">
                   {tasks.length}
                 </span>
@@ -347,7 +353,7 @@ function BacklogListView({
                   setActiveColumn("planned");
                 }}
                 className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-                title="Add task"
+                title={t("tasks:backlog.addTask")}
               >
                 <Plus className="w-3 h-3" />
               </button>
@@ -368,7 +374,11 @@ function BacklogListView({
 
             {tasks.length === 0 && (
               <div className="py-6 px-4 text-center text-xs text-muted-foreground">
-                No {title.toLowerCase()} tasks
+                {t("tasks:backlog.noTasksInSection", {
+                  section: t(`tasks:backlog.sections.${sectionId}`, {
+                    defaultValue: title,
+                  }).toLowerCase(),
+                })}
               </div>
             )}
           </div>
@@ -401,7 +411,7 @@ function BacklogListView({
         <div className="divide-y divide-border/50">
           <BacklogSection
             sectionId="planned"
-            title="Planned"
+            title={t("tasks:backlog.sections.planned")}
             icon={Clock}
             tasks={plannedTasks}
             showAddButton={true}
@@ -409,7 +419,7 @@ function BacklogListView({
 
           <BacklogSection
             sectionId="archived"
-            title="Archived"
+            title={t("tasks:backlog.sections.archived")}
             icon={Archive}
             tasks={archivedTasks}
           />

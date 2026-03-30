@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import {
   Calendar,
   CalendarClock,
@@ -8,6 +7,7 @@ import {
   GitBranch,
   Plus,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,8 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { formatDateShort } from "@/lib/format";
+import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
@@ -57,15 +59,6 @@ function generateBranchName(
     .replace("{title}", slugify(taskTitle));
 }
 
-function toNormalCase(str: string | undefined) {
-  if (!str) return str;
-  return str
-    .replace(/[-_]/g, " ")
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-}
-
 type TaskPropertiesSidebarProps = {
   taskId: string | undefined;
   projectId: string;
@@ -81,6 +74,7 @@ export default function TaskPropertiesSidebar({
   className,
   compact = false,
 }: TaskPropertiesSidebarProps) {
+  const { t } = useTranslation();
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
@@ -99,7 +93,7 @@ export default function TaskPropertiesSidebar({
     navigator.clipboard.writeText(
       `${window.location.origin}/workspace/${workspaceId}/project/${projectId}/task/${taskId}`,
     );
-    toast.message("Task link copied to clipboard");
+    toast.message(t("tasks:properties.copyTaskLink"));
   };
 
   const handleCopyTaskBranch = () => {
@@ -110,7 +104,7 @@ export default function TaskPropertiesSidebar({
       task?.title,
     );
     navigator.clipboard.writeText(branchName);
-    toast.message("Task branch copied to clipboard");
+    toast.message(t("tasks:properties.copyTaskBranch"));
   };
 
   return (
@@ -134,7 +128,7 @@ export default function TaskPropertiesSidebar({
                 <TooltipContent>
                   <KbdSequence
                     keys={["Ctrl", "Shift", "C"]}
-                    description="Copy task link"
+                    description={t("tasks:properties.copyTaskLink")}
                     separator=""
                   />
                 </TooltipContent>
@@ -156,7 +150,7 @@ export default function TaskPropertiesSidebar({
                 <TooltipContent>
                   <KbdSequence
                     keys={["Ctrl", "Shift", "G"]}
-                    description="Copy task branch"
+                    description={t("tasks:properties.copyTaskBranch")}
                     separator=""
                   />
                 </TooltipContent>
@@ -174,7 +168,7 @@ export default function TaskPropertiesSidebar({
                 >
                   {getColumnIcon(task.status ?? "", false)}
                   <span className="text-xs font-semibold truncate">
-                    {toNormalCase(task.status)}
+                    {getStatusLabel(task.status ?? "")}
                   </span>
                 </Button>
               </TaskStatusPopover>
@@ -188,7 +182,7 @@ export default function TaskPropertiesSidebar({
                 >
                   {getPriorityIcon(task.priority ?? "")}
                   <span className="text-xs font-semibold truncate">
-                    {toNormalCase(task.priority ?? "")}
+                    {getPriorityLabel(task.priority ?? "")}
                   </span>
                 </Button>
               </TaskPriorityPopover>
@@ -213,13 +207,15 @@ export default function TaskPropertiesSidebar({
                   ) : (
                     <div
                       className="w-[16px] h-[16px] rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0"
-                      title="Unassigned"
+                      title={t("tasks:popover.assignee.unassigned")}
                     >
                       <span className="text-[8px] font-medium">?</span>
                     </div>
                   )}
                   <span className="text-xs font-semibold truncate max-w-[100px]">
-                    {assignee?.user?.name || task.assigneeName || "Unassigned"}
+                    {assignee?.user?.name ||
+                      task.assigneeName ||
+                      t("tasks:popover.assignee.unassigned")}
                   </span>
                 </Button>
               </TaskAssigneePopover>
@@ -236,8 +232,8 @@ export default function TaskPropertiesSidebar({
                     className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
                   >
                     {task.startDate
-                      ? format(new Date(task.startDate), "MMM d")
-                      : "Start"}
+                      ? formatDateShort(task.startDate)
+                      : t("tasks:properties.start")}
                   </span>
                 </Button>
               </TaskStartDatePopover>
@@ -268,14 +264,14 @@ export default function TaskPropertiesSidebar({
                         />
                       )}
                       <span className="text-xs font-semibold">
-                        {format(new Date(task.dueDate), "MMM d")}
+                        {formatDateShort(task.dueDate)}
                       </span>
                     </>
                   ) : (
                     <>
                       <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                       <span className="text-xs font-semibold text-muted-foreground">
-                        No date
+                        {t("tasks:properties.noDate")}
                       </span>
                     </>
                   )}
@@ -306,7 +302,7 @@ export default function TaskPropertiesSidebar({
                   <TooltipContent>
                     <KbdSequence
                       keys={["Ctrl", "Shift", "C"]}
-                      description="Copy task link"
+                      description={t("tasks:properties.copyTaskLink")}
                       separator=""
                     />
                   </TooltipContent>
@@ -328,7 +324,7 @@ export default function TaskPropertiesSidebar({
                   <TooltipContent>
                     <KbdSequence
                       keys={["Ctrl", "Shift", "G"]}
-                      description="Copy task branch"
+                      description={t("tasks:properties.copyTaskBranch")}
                       separator=""
                     />
                   </TooltipContent>
@@ -346,7 +342,7 @@ export default function TaskPropertiesSidebar({
                   >
                     {getColumnIcon(task.status ?? "", false)}
                     <span className="text-xs font-semibold truncate">
-                      {toNormalCase(task.status)}
+                      {getStatusLabel(task.status ?? "")}
                     </span>
                   </Button>
                 </TaskStatusPopover>
@@ -360,7 +356,7 @@ export default function TaskPropertiesSidebar({
                   >
                     {getPriorityIcon(task.priority ?? "")}
                     <span className="text-xs font-semibold truncate">
-                      {toNormalCase(task.priority ?? "")}
+                      {getPriorityLabel(task.priority ?? "")}
                     </span>
                   </Button>
                 </TaskPriorityPopover>
@@ -385,7 +381,7 @@ export default function TaskPropertiesSidebar({
                     ) : (
                       <div
                         className="w-[16px] h-[16px] rounded-full bg-muted border border-border flex items-center justify-center shrink-0"
-                        title="Unassigned"
+                        title={t("tasks:popover.assignee.unassigned")}
                       >
                         <span className="text-[8px] font-medium">?</span>
                       </div>
@@ -393,7 +389,7 @@ export default function TaskPropertiesSidebar({
                     <span className="text-xs font-semibold truncate max-w-[100px]">
                       {assignee?.user?.name ||
                         task.assigneeName ||
-                        "Unassigned"}
+                        t("tasks:popover.assignee.unassigned")}
                     </span>
                   </Button>
                 </TaskAssigneePopover>
@@ -410,8 +406,8 @@ export default function TaskPropertiesSidebar({
                       className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
                     >
                       {task.startDate
-                        ? format(new Date(task.startDate), "MMM d")
-                        : "Start"}
+                        ? formatDateShort(task.startDate)
+                        : t("tasks:properties.start")}
                     </span>
                   </Button>
                 </TaskStartDatePopover>
@@ -442,14 +438,14 @@ export default function TaskPropertiesSidebar({
                           />
                         )}
                         <span className="text-xs font-semibold">
-                          {format(new Date(task.dueDate), "MMM d")}
+                          {formatDateShort(task.dueDate)}
                         </span>
                       </>
                     ) : (
                       <>
                         <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                         <span className="text-xs font-semibold text-muted-foreground">
-                          No date
+                          {t("tasks:properties.noDate")}
                         </span>
                       </>
                     )}
@@ -463,7 +459,7 @@ export default function TaskPropertiesSidebar({
           <div className="hidden lg:block">
             <div className="flex items-center justify-between px-3 py-2 border-b border-border lg:border-none">
               <p className="text-sm font-medium text-foreground/70 flex-1">
-                Properties
+                {t("tasks:properties.title")}
               </p>
               <div className="flex">
                 <TooltipProvider>
@@ -481,7 +477,7 @@ export default function TaskPropertiesSidebar({
                     <TooltipContent>
                       <KbdSequence
                         keys={["Ctrl", "Shift", "C"]}
-                        description="Copy task link"
+                        description={t("tasks:properties.copyTaskLink")}
                         separator=""
                       />
                     </TooltipContent>
@@ -503,7 +499,7 @@ export default function TaskPropertiesSidebar({
                     <TooltipContent>
                       <KbdSequence
                         keys={["Ctrl", "Shift", "G"]}
-                        description="Copy task branch"
+                        description={t("tasks:properties.copyTaskBranch")}
                         separator=""
                       />
                     </TooltipContent>
@@ -522,7 +518,7 @@ export default function TaskPropertiesSidebar({
                   >
                     {getColumnIcon(task.status ?? "", false)}
                     <span className="text-xs font-semibold truncate">
-                      {toNormalCase(task.status)}
+                      {getStatusLabel(task.status ?? "")}
                     </span>
                   </Button>
                 </TaskStatusPopover>
@@ -536,7 +532,7 @@ export default function TaskPropertiesSidebar({
                   >
                     {getPriorityIcon(task.priority ?? "")}
                     <span className="text-xs font-semibold truncate">
-                      {toNormalCase(task.priority ?? "")}
+                      {getPriorityLabel(task.priority ?? "")}
                     </span>
                   </Button>
                 </TaskPriorityPopover>
@@ -561,7 +557,7 @@ export default function TaskPropertiesSidebar({
                     ) : (
                       <div
                         className="w-[16px] h-[16px] rounded-full bg-muted border border-border flex items-center justify-center shrink-0"
-                        title="Unassigned"
+                        title={t("tasks:popover.assignee.unassigned")}
                       >
                         <span className="text-[8px] font-medium">?</span>
                       </div>
@@ -569,7 +565,7 @@ export default function TaskPropertiesSidebar({
                     <span className="text-xs font-semibold truncate max-w-[100px]">
                       {assignee?.user?.name ||
                         task.assigneeName ||
-                        "Unassigned"}
+                        t("tasks:popover.assignee.unassigned")}
                     </span>
                   </Button>
                 </TaskAssigneePopover>
@@ -586,8 +582,8 @@ export default function TaskPropertiesSidebar({
                       className={`text-xs font-semibold ${task.startDate ? "" : "text-muted-foreground"}`}
                     >
                       {task.startDate
-                        ? format(new Date(task.startDate), "MMM d")
-                        : "Start date"}
+                        ? formatDateShort(task.startDate)
+                        : t("tasks:properties.startDate")}
                     </span>
                   </Button>
                 </TaskStartDatePopover>
@@ -618,14 +614,14 @@ export default function TaskPropertiesSidebar({
                           />
                         )}
                         <span className="text-xs font-semibold">
-                          {format(new Date(task.dueDate), "MMM d")}
+                          {formatDateShort(task.dueDate)}
                         </span>
                       </>
                     ) : (
                       <>
                         <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                         <span className="text-xs font-semibold text-muted-foreground">
-                          No date
+                          {t("tasks:properties.noDate")}
                         </span>
                       </>
                     )}
@@ -640,7 +636,7 @@ export default function TaskPropertiesSidebar({
       <div className="hidden lg:flex px-3 flex-col gap-3 p-2">
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-foreground/70 px-2">
-            Labels
+            {t("tasks:properties.labels")}
           </span>
           <div className="flex flex-wrap items-center gap-1.5 px-2">
             {task &&

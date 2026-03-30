@@ -22,6 +22,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -42,6 +43,7 @@ type ListViewProps = {
 };
 
 function ListView({ project, disableDragDrop = false }: ListViewProps) {
+  const { t } = useTranslation();
   const { setProject } = useProjectStore();
   const {
     setAvailableTasks,
@@ -265,7 +267,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     });
 
     setProject(updatedProject);
-    toast.success(`Archived ${columnToArchive.tasks.length} tasks`);
+    toast.success(
+      t("tasks:archive.success", { count: columnToArchive.tasks.length }),
+    );
 
     setIsArchiveModalOpen(false);
     setColumnToArchive(null);
@@ -324,7 +328,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
                 setActiveColumn(column.id);
               }}
               className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-              title="Add task"
+              title={t("tasks:listView.addTask")}
             >
               <Plus className="w-3 h-3" />
             </button>
@@ -332,9 +336,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
             {column.isFinal && column.tasks.length > 0 && (
               <button
                 type="button"
-                onClick={() => handleArchiveClick(column)} // Verander dit naar de nieuwe naam
+                onClick={() => handleArchiveClick(column)}
                 className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-                title="Archive all completed tasks"
+                title={t("tasks:listView.archiveAllTooltip")}
               >
                 <Archive className="w-3 h-3" />
               </button>
@@ -359,7 +363,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
             {column.tasks.length === 0 && (
               <div className="py-6 px-4 text-center text-xs text-muted-foreground">
-                No tasks
+                {t("tasks:listView.noTasks")}
               </div>
             )}
           </div>

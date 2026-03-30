@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -41,6 +42,7 @@ export default function TaskSubtasks({
   projectId,
   workspaceId,
 }: TaskSubtasksProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
@@ -239,7 +241,7 @@ export default function TaskSubtasks({
       setNewTitle("");
       setIsAdding(false);
     } catch {
-      toast.error("Failed to create subtask");
+      toast.error(t("tasks:subtasks.createError"));
     }
   };
 
@@ -254,10 +256,12 @@ export default function TaskSubtasks({
         next.delete(deleteTaskId);
         return next;
       });
-      toast.success("Task deleted successfully");
+      toast.success(t("tasks:subtasks.deleteSuccess"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete task",
+        error instanceof Error
+          ? error.message
+          : t("tasks:subtasks.deleteError"),
       );
     } finally {
       setDeleteTaskId(null);
@@ -279,7 +283,7 @@ export default function TaskSubtasks({
                 ) : (
                   <ChevronRight className="size-4" />
                 )}
-                <span>Sub-tasks</span>
+                <span>{t("tasks:subtasks.title")}</span>
               </button>
             </CollapsibleTrigger>
             {totalCount > 0 && (
@@ -353,7 +357,7 @@ export default function TaskSubtasks({
             <div className="flex items-center gap-2 mt-2">
               <Input
                 size="sm"
-                placeholder="Subtask title..."
+                placeholder={t("tasks:subtasks.inputPlaceholder")}
                 value={newTitle}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setNewTitle(e.target.value)
@@ -372,7 +376,7 @@ export default function TaskSubtasks({
                 onClick={handleAddSubtask}
                 disabled={!newTitle.trim() || createTask.isPending}
               >
-                Add
+                {t("tasks:subtasks.addAction")}
               </Button>
               <Button
                 variant="ghost"
@@ -382,14 +386,14 @@ export default function TaskSubtasks({
                   setNewTitle("");
                 }}
               >
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
             </div>
           )}
 
           {!isAdding && totalCount === 0 && (
             <p className="text-xs text-muted-foreground px-2 py-1">
-              No subtasks yet
+              {t("tasks:subtasks.empty")}
             </p>
           )}
         </CollapsibleContent>
@@ -401,21 +405,22 @@ export default function TaskSubtasks({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Task?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("tasks:subtasks.deleteDialogTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the task and all its data. You can't
-              undo this action.
+              {t("tasks:subtasks.deleteDialogDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogClose>
               <Button variant="outline" size="sm">
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
             </AlertDialogClose>
             <AlertDialogClose onClick={handleDeleteTask}>
               <Button variant="destructive" size="sm">
-                Delete Task
+                {t("tasks:subtasks.deleteAction")}
               </Button>
             </AlertDialogClose>
           </AlertDialogFooter>

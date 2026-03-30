@@ -9,6 +9,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Command,
   CommandCollection,
@@ -53,15 +54,8 @@ type SearchCommandMenuProps = {
   setOpen: (open: boolean) => void;
 };
 
-const GROUP_LABELS: Record<SearchResultItem["type"], string> = {
-  task: "Tasks",
-  project: "Projects",
-  workspace: "Workspaces",
-  comment: "Comments",
-  activity: "Activities",
-};
-
 function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
@@ -172,19 +166,36 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
       {} as Record<string, SearchResultItem[]>,
     );
 
+    const groupLabel = (type: string) => {
+      switch (type as SearchResultItem["type"]) {
+        case "task":
+          return t("navigation:search.groups.task");
+        case "project":
+          return t("navigation:search.groups.project");
+        case "workspace":
+          return t("navigation:search.groups.workspace");
+        case "comment":
+          return t("navigation:search.groups.comment");
+        case "activity":
+          return t("navigation:search.groups.activity");
+        default:
+          return t("navigation:search.groups.fallback");
+      }
+    };
+
     return Object.entries(grouped).map(([type, items]) => ({
       value: type,
-      label: GROUP_LABELS[type as SearchResultItem["type"]] ?? "Results",
+      label: groupLabel(type),
       items,
     }));
-  }, [searchEnabled, searchResults?.results]);
+  }, [searchEnabled, searchResults?.results, t]);
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandDialogPopup>
         <Command items={groupedItems}>
           <CommandInput
-            placeholder="Search tasks, projects, comments..."
+            placeholder={t("navigation:search.inputPlaceholder")}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
@@ -194,8 +205,8 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
                 <Search className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
                   {searchEnabled
-                    ? "No results found."
-                    : "Type at least 3 characters to search"}
+                    ? t("navigation:commandPalette.empty")
+                    : t("navigation:search.minCharsHint")}
                 </p>
               </div>
             </CommandEmpty>

@@ -1,8 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
 export default function WorkspaceCrumbSelect() {
+  const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
 
@@ -19,7 +21,7 @@ export default function WorkspaceCrumbSelect() {
       }}
     >
       <span className="truncate text-left">
-        {workspace?.name || "Select workspace"}
+        {workspace?.name || t("navigation:workspaceSwitcher.selectWorkspace")}
       </span>
     </Button>
   );

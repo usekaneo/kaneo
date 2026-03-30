@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -9,6 +10,7 @@ import {
 import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
+import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
@@ -19,17 +21,18 @@ type TaskPriorityPopoverProps = {
 };
 
 const priorityOptions = [
-  { value: "no-priority", label: "No Priority" },
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
-  { value: "urgent", label: "Urgent" },
+  { value: "no-priority" },
+  { value: "low" },
+  { value: "medium" },
+  { value: "high" },
+  { value: "urgent" },
 ];
 
 export default function TaskPriorityPopover({
   task,
   children,
 }: TaskPriorityPopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
 
@@ -45,11 +48,11 @@ export default function TaskPriorityPopover({
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to update task priority",
+            : t("tasks:popover.priority.updateError"),
         );
       }
     },
-    [task, updateTaskPriority],
+    [t, task, updateTaskPriority],
   );
 
   const shortcutOptions = useMemo(
@@ -76,7 +79,9 @@ export default function TaskPriorityPopover({
               onClick={() => handlePriorityChange(priority.value)}
             >
               {getPriorityIcon(priority.value)}
-              <span className="text-sm">{priority.label}</span>
+              <span className="text-sm">
+                {getPriorityLabel(priority.value)}
+              </span>
               {task.priority === priority.value ? (
                 <Check className="ml-auto h-4 w-4" />
               ) : (

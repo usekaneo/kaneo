@@ -9,6 +9,7 @@ import { KeyboardShortcutsHelp } from "./components/keyboard-shortcuts-help";
 import AuthProvider from "./components/providers/auth-provider";
 import { ThemeProvider } from "./components/providers/theme-provider";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
+import { AppI18nProvider } from "./lib/i18n/provider";
 import { routeTree } from "./routeTree.gen";
 
 console.log(`
@@ -56,10 +57,12 @@ if (!rootElement.innerHTML) {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AuthProvider>
-            <KeyboardShortcutsProvider>
-              <App />
-              <KeyboardShortcutsHelp />
-            </KeyboardShortcutsProvider>
+            <AppI18nProvider>
+              <KeyboardShortcutsProvider>
+                <App />
+                <KeyboardShortcutsHelp />
+              </KeyboardShortcutsProvider>
+            </AppI18nProvider>
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>

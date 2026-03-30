@@ -3,8 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, User } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import { Logo } from "@/components/common/logo";
 import PageTitle from "@/components/page-title";
@@ -28,13 +29,6 @@ export type ProfileFormValues = {
   name: string;
 };
 
-const profileSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .min(2, "Name must be at least 2 characters"),
-});
-
 const fadeTransition = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -42,12 +36,24 @@ const fadeTransition = {
 };
 
 export function ProfileSetupFlow() {
+  const { t } = useTranslation();
   const [step, setStep] = useState<ProfileSetupStep>("profile");
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile, isPending } = useUpdateUserProfile();
   const { user } = useAuth();
+
+  const profileSchema = useMemo(
+    () =>
+      z.object({
+        name: z
+          .string()
+          .min(1, t("auth:profileSetup.validation.nameRequired"))
+          .min(2, t("auth:profileSetup.validation.nameShort")),
+      }),
+    [t],
+  );
 
   const form = useForm<ProfileFormValues>({
     resolver: standardSchemaResolver(profileSchema),
@@ -64,7 +70,7 @@ export function ProfileSetupFlow() {
 
       await queryClient.invalidateQueries({ queryKey: ["session"] });
       setUserName(data.name);
-      toast.success("Profile updated successfully");
+      toast.success(t("auth:profileSetup.toast.updateSuccess"));
 
       setStep("success");
 
@@ -76,7 +82,9 @@ export function ProfileSetupFlow() {
       }, 1500);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update profile",
+        error instanceof Error
+          ? error.message
+          : t("auth:profileSetup.toast.updateFailed"),
       );
     }
   };
@@ -99,10 +107,10 @@ export function ProfileSetupFlow() {
             <User className="h-6 w-6 text-primary" />
           </div>
           <h1 className="text-xl font-semibold text-foreground mb-2">
-            Complete your profile
+            {t("auth:profileSetup.completeTitle")}
           </h1>
           <p className="text-muted-foreground text-sm">
-            Please enter your name to get started
+            {t("auth:profileSetup.subtitle")}
           </p>
         </div>
 
@@ -114,10 +122,14 @@ export function ProfileSetupFlow() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium">
-                    Your name
+                    {t("auth:profileSetup.yourName")}
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. John Doe" autoFocus {...field} />
+                    <Input
+                      placeholder={t("auth:profileSetup.namePlaceholder")}
+                      autoFocus
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,7 +137,9 @@ export function ProfileSetupFlow() {
             />
 
             <Button type="submit" disabled={isPending} className="w-full mt-6">
-              {isPending ? "Saving..." : "Continue"}
+              {isPending
+                ? t("auth:profileSetup.saving")
+                : t("auth:profileSetup.continue")}
             </Button>
           </form>
         </Form>
@@ -153,10 +167,10 @@ export function ProfileSetupFlow() {
 
           <div className="space-y-2">
             <h1 className="text-xl font-semibold text-foreground">
-              Welcome, {userName}!
+              {t("auth:profileSetup.welcome", { name: userName })}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Taking you to your dashboard...
+              {t("auth:profileSetup.redirecting")}
             </p>
           </div>
 
@@ -170,7 +184,7 @@ export function ProfileSetupFlow() {
 
   return (
     <>
-      <PageTitle title="Complete Profile" />
+      <PageTitle title={t("auth:profileSetup.pageTitle")} />
       <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4">
         <AnimatePresence mode="wait">
           {step === "profile" && renderProfileStep()}

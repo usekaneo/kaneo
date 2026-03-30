@@ -5,6 +5,7 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +19,7 @@ export const Route = createFileRoute(
 });
 
 function SettingsLayout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
@@ -43,7 +45,7 @@ function SettingsLayout() {
 
   return (
     <>
-      <PageTitle title="Settings" />
+      <PageTitle title={t("navigation:page.settingsTitle")} />
       <div className="flex flex-col gap-4 p-4 bg-sidebar w-full h-full">
         <div className="flex flex-col gap-4 bg-card h-full border border-border rounded-md p-4 relative overflow-hidden">
           <div>
@@ -58,10 +60,12 @@ function SettingsLayout() {
               }
             >
               <ChevronLeft className=" border border-border rounded-md p-1 size-6" />
-              Back to Workspace
+              {t("navigation:page.backToWorkspace")}
             </Button>
 
-            <h1 className="text-2xl font-semibold pl-2 mt-2">Settings</h1>
+            <h1 className="text-2xl font-semibold pl-2 mt-2">
+              {t("navigation:page.settingsTitle")}
+            </h1>
 
             <Tabs value={activeTab} className="w-[400px] pt-2">
               <TabsList className="bg-sidebar gap-2">
@@ -72,7 +76,7 @@ function SettingsLayout() {
                     navigate({ to: "/dashboard/settings/account/information" })
                   }
                 >
-                  Account
+                  {t("settings:account")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="workspace"
@@ -81,7 +85,7 @@ function SettingsLayout() {
                     navigate({ to: "/dashboard/settings/workspace/general" })
                   }
                 >
-                  Workspace
+                  {t("navigation:page.settingsWorkspaceTab")}
                 </TabsTrigger>
                 <TabsTrigger
                   disabled={projects?.length === 0}
@@ -91,7 +95,7 @@ function SettingsLayout() {
                     navigate({ to: "/dashboard/settings/projects" })
                   }
                 >
-                  Projects
+                  {t("navigation:sidebar.projects")}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
