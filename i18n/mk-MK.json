@@ -493,8 +493,8 @@
 			"subtitle": "Поврзи го твојот проект со надворешни алатки и сервиси за да го подобриш работниот тек.",
 			"githubSectionTitle": "GitHub интеграција",
 			"githubSectionSubtitle": "Синхронизирај задачи со GitHub issues и овозможи двонасочна синхронизација.",
-			"giteaSectionTitle": "Gitea Integration",
-			"giteaSectionSubtitle": "Synchronize tasks with a self-hosted Gitea instance (issues, PRs, webhooks)."
+			"giteaSectionTitle": "Gitea интеграција",
+			"giteaSectionSubtitle": "Синхронизирај задачи со само-хостирана Gitea инстанца (issues, PRs, webhooks)."
 		},
 		"projectVisibility": {
 			"pageTitle": "Видливост на проект",

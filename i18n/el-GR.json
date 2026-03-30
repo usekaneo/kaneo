@@ -493,8 +493,8 @@
 			"subtitle": "Συνδέστε το έργο σας με εξωτερικά εργαλεία και υπηρεσίες για πιο ομαλή ροή εργασίας.",
 			"githubSectionTitle": "Ενσωμάτωση GitHub",
 			"githubSectionSubtitle": "Συγχρονίστε εργασίες με GitHub issues και ενεργοποιήστε αμφίδρομο συγχρονισμό.",
-			"giteaSectionTitle": "Gitea Integration",
-			"giteaSectionSubtitle": "Synchronize tasks with a self-hosted Gitea instance (issues, PRs, webhooks)."
+			"giteaSectionTitle": "Ενσωμάτωση Gitea",
+			"giteaSectionSubtitle": "Συγχρονίστε εργασίες με μια αυτο-φιλοξενούμενη εγκατάσταση Gitea (issues, PRs, webhooks)."
 		},
 		"projectVisibility": {
 			"pageTitle": "Ορατότητα έργου",
