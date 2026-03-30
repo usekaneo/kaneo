@@ -75,3 +75,21 @@ Each POST has `Content-Type: application/json`. Top-level fields:
 - `data`: event-specific fields (for example `oldStatus` / `newStatus` for status changes, `comment` text for comments)
 
 Use these payloads to drive custom workflows, internal dashboards, or bridges to other tools.
+
+### Signature verification
+
+If you configure a secret for the generic webhook integration, Kaneo signs each request and sends the result in the `X-Kaneo-Signature` header.
+
+- Header: `X-Kaneo-Signature`
+- Algorithm: `HMAC-SHA256`
+- Signed input: the exact raw request body Kaneo sends
+- Encoding: lowercase hex digest
+
+To verify a request:
+
+1. Read the raw request body before parsing or re-serializing JSON.
+2. Compute an `HMAC-SHA256` using your integration secret and that raw body.
+3. Compare your computed lowercase hex digest with `X-Kaneo-Signature` using a constant-time comparison.
+4. Reject the request if the signatures do not match.
+
+Kaneo currently signs only the raw request body. It does not include a separate timestamp value in the signature input or send a dedicated timestamp header for replay protection. If you add replay defenses in front of your receiver, document that behavior separately so it does not drift from Kaneo's payload contract.
