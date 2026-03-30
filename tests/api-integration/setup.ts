@@ -80,6 +80,12 @@ process.env.DISCORD_CLIENT_ID = "";
 process.env.DISCORD_CLIENT_SECRET = "";
 process.env.CUSTOM_OAUTH_CLIENT_ID = "";
 process.env.CUSTOM_OAUTH_CLIENT_SECRET = "";
+process.env.CUSTOM_OAUTH_AUTHORIZATION_URL = "";
+process.env.CUSTOM_OAUTH_TOKEN_URL = "";
+process.env.CUSTOM_OAUTH_USER_INFO_URL = "";
+process.env.CUSTOM_OAUTH_SCOPES = "";
+process.env.CUSTOM_OAUTH_RESPONSE_TYPE = "";
+process.env.CUSTOM_OAUTH_DISCOVERY_URL = "";
 
 afterEach(() => {
   vi.restoreAllMocks();
