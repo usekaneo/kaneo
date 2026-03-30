@@ -1,5 +1,6 @@
 import db from "../../database";
 import { labelTable } from "../../database/schema";
+import { syncLabelToGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { syncLabelToGitHub } from "../../plugins/github/utils/sync-label-to-github";
 
 async function createLabel(
@@ -16,6 +17,9 @@ async function createLabel(
   if (taskId) {
     syncLabelToGitHub(taskId, name, color).catch((error) => {
       console.error("Failed to sync label to GitHub:", error);
+    });
+    syncLabelToGitea(taskId, name, color).catch((error) => {
+      console.error("Failed to sync label to Gitea:", error);
     });
   }
 

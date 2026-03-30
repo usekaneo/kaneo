@@ -3,6 +3,10 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
 import {
+  removeLabelFromGitea,
+  syncLabelToGitea,
+} from "../../plugins/gitea/utils/sync-label-to-gitea";
+import {
   removeLabelFromGitHub,
   syncLabelToGitHub,
 } from "../../plugins/github/utils/sync-label-to-github";
@@ -56,11 +60,19 @@ async function assignLabelToTask(id: string, taskId: string) {
     removeLabelFromGitHub(label.taskId, label.name).catch((error) => {
       console.error("Failed to remove label from GitHub:", error);
     });
+    removeLabelFromGitea(label.taskId, label.name).catch((error) => {
+      console.error("Failed to remove label from Gitea:", error);
+    });
   }
 
   syncLabelToGitHub(taskId, updatedLabel.name, updatedLabel.color).catch(
     (error) => {
       console.error("Failed to sync label to GitHub:", error);
+    },
+  );
+  syncLabelToGitea(taskId, updatedLabel.name, updatedLabel.color).catch(
+    (error) => {
+      console.error("Failed to sync label to Gitea:", error);
     },
   );
 
