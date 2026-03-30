@@ -66,12 +66,22 @@ describe("github labels helpers", () => {
     });
   });
 
-  it("swallows label removal errors", async () => {
+  it("ignores missing labels during removal", async () => {
     const octokit = createOctokitMock();
-    octokit.rest.issues.removeLabel.mockRejectedValue(new Error("gone"));
+    octokit.rest.issues.removeLabel.mockRejectedValue({ status: 404 });
 
     await expect(
       removeLabel(octokit as never, "usekaneo", "kaneo", 21, "status:done"),
     ).resolves.toBeUndefined();
+  });
+
+  it("rethrows unexpected label removal errors", async () => {
+    const octokit = createOctokitMock();
+    const error = new Error("gone");
+    octokit.rest.issues.removeLabel.mockRejectedValue(error);
+
+    await expect(
+      removeLabel(octokit as never, "usekaneo", "kaneo", 21, "status:done"),
+    ).rejects.toThrow("gone");
   });
 });
