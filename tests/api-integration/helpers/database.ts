@@ -32,6 +32,13 @@ async function ensureTestDatabaseExists() {
   }
 
   const databaseName = getDatabaseName(connectionString);
+
+  if (!databaseName.endsWith("_test")) {
+    throw new Error(
+      `Refusing to manage non-test database "${databaseName}". DATABASE_URL must point to a test database.`,
+    );
+  }
+
   const adminClient = new Client({
     connectionString: getAdminDatabaseUrl(connectionString),
   });
