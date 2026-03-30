@@ -68,9 +68,14 @@ export const defaultGenericWebhookEvents: Record<
 export function normalizeGenericWebhookConfig(
   config: GenericWebhookConfig,
 ): GenericWebhookConfig {
+  const secret =
+    typeof config.secret === "string"
+      ? config.secret.trim() || undefined
+      : undefined;
+
   return {
     ...config,
-    secret: config.secret?.trim() || undefined,
+    secret,
     health: config.health
       ? {
           ...config.health,
