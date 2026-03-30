@@ -14,29 +14,31 @@ async function createProject(
   icon: string,
   slug: string,
 ) {
-  const [createdProject] = await db
-    .insert(projectTable)
-    .values({
-      workspaceId,
-      name,
-      icon,
-      slug,
-    })
-    .returning();
+  return db.transaction(async (tx) => {
+    const [createdProject] = await tx
+      .insert(projectTable)
+      .values({
+        workspaceId,
+        name,
+        icon,
+        slug,
+      })
+      .returning();
 
-  if (createdProject) {
-    for (const col of DEFAULT_PROJECT_COLUMNS) {
-      await db.insert(columnTable).values({
-        projectId: createdProject.id,
-        name: col.name,
-        slug: col.slug,
-        position: col.position,
-        isFinal: col.isFinal,
-      });
+    if (createdProject) {
+      for (const col of DEFAULT_PROJECT_COLUMNS) {
+        await tx.insert(columnTable).values({
+          projectId: createdProject.id,
+          name: col.name,
+          slug: col.slug,
+          position: col.position,
+          isFinal: col.isFinal,
+        });
+      }
     }
-  }
 
-  return createdProject;
+    return createdProject;
+  });
 }
 
 export default createProject;
