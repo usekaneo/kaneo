@@ -66,7 +66,7 @@ async function getDiscordEventData(
   projectId: string,
   userId: string | null,
 ): Promise<DiscordEventData | null> {
-  const [taskRow] = await db
+  const taskPromise = db
     .select({
       title: taskTable.title,
       number: taskTable.number,
@@ -82,17 +82,19 @@ async function getDiscordEventData(
     .where(and(eq(taskTable.id, taskId), eq(projectTable.id, projectId)))
     .limit(1);
 
-  if (!taskRow) {
-    return null;
-  }
-
-  const [user] = userId
-    ? await db
+  const userPromise = userId
+    ? db
         .select({ name: userTable.name })
         .from(userTable)
         .where(eq(userTable.id, userId))
         .limit(1)
-    : [];
+    : Promise.resolve([]);
+
+  const [[taskRow], [user]] = await Promise.all([taskPromise, userPromise]);
+
+  if (!taskRow) {
+    return null;
+  }
 
   const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
   const taskUrl = `${clientUrl}/dashboard/workspace/${taskRow.workspaceId}/project/${taskRow.projectId}/task/${taskId}`;
@@ -169,12 +171,23 @@ async function sendDiscordMessage(
   }
 }
 
-export async function handleTaskCreated(
-  event: TaskCreatedEvent,
+type DiscordMessageContent = {
+  title: string;
+  body: string;
+};
+
+async function runDiscordHandler(
   context: PluginContext,
+  event: {
+    taskId: string;
+    projectId: string;
+    userId: string | null;
+  },
+  featureKey: DiscordEventKey,
+  buildMessage: () => DiscordMessageContent,
 ): Promise<void> {
   const config = normalizeDiscordConfig(context.config as DiscordConfig);
-  if (!isEnabled(config, "taskCreated")) return;
+  if (!isEnabled(config, featureKey)) return;
 
   const data = await getDiscordEventData(
     event.taskId,
@@ -183,120 +196,66 @@ export async function handleTaskCreated(
   );
   if (!data) return;
 
-  await sendDiscordMessage(
-    config,
-    "New task created",
-    `A new task was added: **${event.title}**`,
-    data,
-  );
+  const { title, body } = buildMessage();
+  await sendDiscordMessage(config, title, body, data);
+}
+
+export async function handleTaskCreated(
+  event: TaskCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  await runDiscordHandler(context, event, "taskCreated", () => ({
+    title: "New task created",
+    body: `A new task was added: **${event.title}**`,
+  }));
 }
 
 export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
-  const config = normalizeDiscordConfig(context.config as DiscordConfig);
-  if (!isEnabled(config, "taskStatusChanged")) return;
-
-  const data = await getDiscordEventData(
-    event.taskId,
-    event.projectId,
-    event.userId,
-  );
-  if (!data) return;
-
-  await sendDiscordMessage(
-    config,
-    "Task status changed",
-    `**${event.title}** moved from **${toSentenceCase(event.oldStatus)}** to **${toSentenceCase(event.newStatus)}**.`,
-    data,
-  );
+  await runDiscordHandler(context, event, "taskStatusChanged", () => ({
+    title: "Task status changed",
+    body: `**${event.title}** moved from **${toSentenceCase(event.oldStatus)}** to **${toSentenceCase(event.newStatus)}**.`,
+  }));
 }
 
 export async function handleTaskPriorityChanged(
   event: TaskPriorityChangedEvent,
   context: PluginContext,
 ): Promise<void> {
-  const config = normalizeDiscordConfig(context.config as DiscordConfig);
-  if (!isEnabled(config, "taskPriorityChanged")) return;
-
-  const data = await getDiscordEventData(
-    event.taskId,
-    event.projectId,
-    event.userId,
-  );
-  if (!data) return;
-
-  await sendDiscordMessage(
-    config,
-    "Task priority changed",
-    `**${event.title}** changed from **${toSentenceCase(event.oldPriority)}** to **${toSentenceCase(event.newPriority)}**.`,
-    data,
-  );
+  await runDiscordHandler(context, event, "taskPriorityChanged", () => ({
+    title: "Task priority changed",
+    body: `**${event.title}** changed from **${toSentenceCase(event.oldPriority)}** to **${toSentenceCase(event.newPriority)}**.`,
+  }));
 }
 
 export async function handleTaskTitleChanged(
   event: TaskTitleChangedEvent,
   context: PluginContext,
 ): Promise<void> {
-  const config = normalizeDiscordConfig(context.config as DiscordConfig);
-  if (!isEnabled(config, "taskTitleChanged")) return;
-
-  const data = await getDiscordEventData(
-    event.taskId,
-    event.projectId,
-    event.userId,
-  );
-  if (!data) return;
-
-  await sendDiscordMessage(
-    config,
-    "Task title changed",
-    `Task renamed from **${truncate(event.oldTitle, 120)}** to **${truncate(event.newTitle, 120)}**.`,
-    data,
-  );
+  await runDiscordHandler(context, event, "taskTitleChanged", () => ({
+    title: "Task title changed",
+    body: `Task renamed from **${truncate(event.oldTitle, 120)}** to **${truncate(event.newTitle, 120)}**.`,
+  }));
 }
 
 export async function handleTaskDescriptionChanged(
   event: TaskDescriptionChangedEvent,
   context: PluginContext,
 ): Promise<void> {
-  const config = normalizeDiscordConfig(context.config as DiscordConfig);
-  if (!isEnabled(config, "taskDescriptionChanged")) return;
-
-  const data = await getDiscordEventData(
-    event.taskId,
-    event.projectId,
-    event.userId,
-  );
-  if (!data) return;
-
-  await sendDiscordMessage(
-    config,
-    "Task description changed",
-    `The task description was updated${event.newDescription ? `: ${truncate(event.newDescription.replace(/\s+/g, " "), 160)}` : "."}`,
-    data,
-  );
+  await runDiscordHandler(context, event, "taskDescriptionChanged", () => ({
+    title: "Task description changed",
+    body: `The task description was updated${event.newDescription ? `: ${truncate(event.newDescription.replace(/\s+/g, " "), 160)}` : "."}`,
+  }));
 }
 
 export async function handleTaskCommentCreated(
   event: TaskCommentCreatedEvent,
   context: PluginContext,
 ): Promise<void> {
-  const config = normalizeDiscordConfig(context.config as DiscordConfig);
-  if (!isEnabled(config, "taskCommentCreated")) return;
-
-  const data = await getDiscordEventData(
-    event.taskId,
-    event.projectId,
-    event.userId,
-  );
-  if (!data) return;
-
-  await sendDiscordMessage(
-    config,
-    "New task comment",
-    truncate(event.comment.replace(/\s+/g, " "), 200),
-    data,
-  );
+  await runDiscordHandler(context, event, "taskCommentCreated", () => ({
+    title: "New task comment",
+    body: truncate(event.comment.replace(/\s+/g, " "), 200),
+  }));
 }

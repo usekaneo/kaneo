@@ -12,7 +12,14 @@ export const genericWebhookEventKeys = [
 export type GenericWebhookEventKey = (typeof genericWebhookEventKeys)[number];
 
 export const genericWebhookConfigSchema = v.object({
-  webhookUrl: v.pipe(v.string(), v.url()),
+  webhookUrl: v.pipe(
+    v.string(),
+    v.url(),
+    v.check((value) => {
+      const protocol = new URL(value).protocol;
+      return protocol === "http:" || protocol === "https:";
+    }, "Webhook URL must use http or https"),
+  ),
   secret: v.optional(v.string()),
   health: v.optional(
     v.object({
