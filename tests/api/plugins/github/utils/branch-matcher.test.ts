@@ -132,4 +132,16 @@ describe("extractTaskNumber", () => {
       ),
     ).toBe(21);
   });
+
+  it("accepts task number 0 from the branch before other matches", () => {
+    expect(
+      extractTaskNumber(
+        "kan-0-initial-setup",
+        "[99] Other task",
+        undefined,
+        baseConfig,
+        "KAN",
+      ),
+    ).toBe(0);
+  });
 });
