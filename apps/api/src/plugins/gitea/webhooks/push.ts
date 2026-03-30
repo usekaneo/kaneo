@@ -81,7 +81,16 @@ export async function handleGiteaPush(payload: PushPayload) {
       continue;
     }
 
-    const config = JSON.parse(integration.config) as GiteaConfig;
+    let config: GiteaConfig;
+    try {
+      config = JSON.parse(integration.config) as GiteaConfig;
+    } catch (error) {
+      console.error("Invalid Gitea integration config for push webhook", {
+        integrationId: integration.id,
+        error,
+      });
+      continue;
+    }
     const projectSlug = integration.project.slug;
 
     const taskNumber = extractTaskNumberFromBranchGitea(

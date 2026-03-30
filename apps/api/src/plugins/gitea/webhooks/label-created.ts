@@ -53,24 +53,15 @@ export async function handleGiteaLabelCreated(payload: LabelCreatePayload) {
       continue;
     }
 
-    const labelExists = await db.query.labelTable.findFirst({
-      where: (table, { and, eq: e }) =>
-        and(
-          e(table.workspaceId, project.workspaceId),
-          e(table.name, label.name),
-        ),
-    });
-
-    if (labelExists) {
-      continue;
-    }
-
     const color = label.color ? `#${label.color.replace(/^#/, "")}` : "#6B7280";
 
-    await db.insert(labelTable).values({
-      name: label.name,
-      color,
-      workspaceId: project.workspaceId,
-    });
+    await db
+      .insert(labelTable)
+      .values({
+        name: label.name,
+        color,
+        workspaceId: project.workspaceId,
+      })
+      .onConflictDoNothing();
   }
 }

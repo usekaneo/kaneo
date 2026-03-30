@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { columnTable, projectTable, taskTable } from "../../../database/schema";
+import { publishEvent } from "../../../events";
 import getNextTaskNumber from "../../../task/controllers/get-next-task-number";
 import {
   createExternalLink,
@@ -120,6 +121,17 @@ export async function handleGiteaIssueOpened(payload: IssueOpenedPayload) {
       console.error("Failed to create task from Gitea issue");
       continue;
     }
+
+    await publishEvent("task.created", {
+      ...createdTask,
+      taskId: createdTask.id,
+      userId: createdTask.userId ?? "",
+      type: "task",
+      content: null,
+      source: "gitea",
+      externalId: issue.number.toString(),
+      actor: issue.user?.login ?? issue.user?.username ?? "gitea-webhook",
+    });
 
     await createExternalLink({
       taskId: createdTask.id,

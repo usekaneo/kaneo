@@ -7,6 +7,19 @@ import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 
+type LinkSyncState = {
+  timestamp: string;
+  source: string;
+  value: string;
+};
+
+type LinkMetadata = {
+  lastSync?: {
+    description?: LinkSyncState;
+  };
+  [key: string]: unknown;
+};
+
 export async function handleTaskDescriptionChanged(
   event: TaskDescriptionChangedEvent,
   context: PluginContext,
@@ -30,7 +43,22 @@ export async function handleTaskDescriptionChanged(
       return;
     }
 
-    const metadata = issueLink.metadata ? JSON.parse(issueLink.metadata) : {};
+    let metadata: LinkMetadata = {};
+    if (issueLink.metadata) {
+      try {
+        metadata = JSON.parse(issueLink.metadata) as LinkMetadata;
+      } catch (error) {
+        console.warn(
+          "Failed to parse Gitea issue link metadata for description sync",
+          {
+            issueLinkId: issueLink.id,
+            taskId: issueLink.taskId,
+            metadata: issueLink.metadata,
+            error,
+          },
+        );
+      }
+    }
 
     const lastDescSync = metadata.lastSync?.description;
     const newDescNormalized = event.newDescription || "";
@@ -60,6 +88,14 @@ export async function handleTaskDescriptionChanged(
 
     const client = createGiteaClient(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
+    if (Number.isNaN(issueNumber)) {
+      console.warn("Skipping Gitea description sync for invalid issue number", {
+        issueLinkId: issueLink.id,
+        externalId: issueLink.externalId,
+        taskId: issueLink.taskId,
+      });
+      return;
+    }
 
     const formattedBody = formatIssueBody(event.newDescription, event.taskId);
 
@@ -71,7 +107,7 @@ export async function handleTaskDescriptionChanged(
       metadata: {
         ...metadata,
         lastSync: {
-          ...metadata.lastSync,
+          ...(metadata.lastSync ?? {}),
           description: {
             timestamp: new Date().toISOString(),
             source: "kaneo",

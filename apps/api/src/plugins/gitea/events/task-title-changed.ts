@@ -6,6 +6,19 @@ import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 
+type LinkSyncState = {
+  timestamp: string;
+  source: string;
+  value: string;
+};
+
+type LinkMetadata = {
+  lastSync?: {
+    title?: LinkSyncState;
+  };
+  [key: string]: unknown;
+};
+
 export async function handleTaskTitleChanged(
   event: TaskTitleChangedEvent,
   context: PluginContext,
@@ -29,7 +42,22 @@ export async function handleTaskTitleChanged(
       return;
     }
 
-    const metadata = issueLink.metadata ? JSON.parse(issueLink.metadata) : {};
+    let metadata: LinkMetadata = {};
+    if (issueLink.metadata) {
+      try {
+        metadata = JSON.parse(issueLink.metadata) as LinkMetadata;
+      } catch (error) {
+        console.warn(
+          "Failed to parse Gitea issue link metadata for title sync",
+          {
+            issueLinkId: issueLink.id,
+            taskId: issueLink.taskId,
+            metadata: issueLink.metadata,
+            error,
+          },
+        );
+      }
+    }
 
     const lastTitleSync = metadata.lastSync?.title;
     if (lastTitleSync) {
@@ -53,6 +81,14 @@ export async function handleTaskTitleChanged(
 
     const client = createGiteaClient(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
+    if (Number.isNaN(issueNumber)) {
+      console.warn("Skipping Gitea title sync for invalid issue number", {
+        issueLinkId: issueLink.id,
+        externalId: issueLink.externalId,
+        taskId: issueLink.taskId,
+      });
+      return;
+    }
 
     await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
       title: event.newTitle,
@@ -63,7 +99,7 @@ export async function handleTaskTitleChanged(
       metadata: {
         ...metadata,
         lastSync: {
-          ...metadata.lastSync,
+          ...(metadata.lastSync ?? {}),
           title: {
             timestamp: new Date().toISOString(),
             source: "kaneo",

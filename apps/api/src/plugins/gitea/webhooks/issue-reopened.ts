@@ -10,7 +10,7 @@ import {
 import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
-type IssueClosedPayload = {
+type IssueReopenedPayload = {
   action: string;
   issue: {
     number: number;
@@ -25,8 +25,8 @@ type IssueClosedPayload = {
   };
 };
 
-export async function handleGiteaIssueClosed(payload: IssueClosedPayload) {
-  if (payload.action !== "closed") {
+export async function handleGiteaIssueReopened(payload: IssueReopenedPayload) {
+  if (payload.action !== "reopened") {
     return;
   }
 
@@ -71,7 +71,7 @@ export async function handleGiteaIssueClosed(payload: IssueClosedPayload) {
           unknown
         >;
       } catch (error) {
-        console.warn("Failed to parse Gitea issue metadata for close sync", {
+        console.warn("Failed to parse Gitea issue metadata for reopen sync", {
           externalLinkId: externalLink.id,
           metadata: externalLink.metadata,
           error,
@@ -85,8 +85,8 @@ export async function handleGiteaIssueClosed(payload: IssueClosedPayload) {
 
     const targetStatus = await resolveTargetStatus(
       task.projectId,
-      "issue_closed",
-      "done",
+      "issue_reopened",
+      "to-do",
     );
 
     await updateTaskStatus(task.id, targetStatus);
@@ -94,7 +94,7 @@ export async function handleGiteaIssueClosed(payload: IssueClosedPayload) {
     await updateExternalLink(externalLink.id, {
       metadata: {
         ...existingMetadata,
-        state: "closed",
+        state: "open",
       },
     });
   }

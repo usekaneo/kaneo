@@ -8,10 +8,68 @@ import { handleGiteaIssueCommentCreated } from "./webhooks/issue-comment-created
 import { handleGiteaIssueEdited } from "./webhooks/issue-edited";
 import { handleGiteaIssueLabeled } from "./webhooks/issue-labeled";
 import { handleGiteaIssueOpened } from "./webhooks/issue-opened";
+import { handleGiteaIssueReopened } from "./webhooks/issue-reopened";
 import { handleGiteaLabelCreated } from "./webhooks/label-created";
 import { handleGiteaPullRequestClosed } from "./webhooks/pull-request-closed";
 import { handleGiteaPullRequestOpened } from "./webhooks/pull-request-opened";
 import { handleGiteaPush } from "./webhooks/push";
+
+type GiteaPushPayload = Parameters<typeof handleGiteaPush>[0];
+type GiteaPullRequestPayload = Parameters<
+  typeof handleGiteaPullRequestOpened
+>[0];
+type GiteaPullRequestClosedPayload = Parameters<
+  typeof handleGiteaPullRequestClosed
+>[0];
+type GiteaIssuePayload = Parameters<typeof handleGiteaIssueOpened>[0];
+type GiteaIssueClosedPayload = Parameters<typeof handleGiteaIssueClosed>[0];
+type GiteaIssueReopenedPayload = Parameters<typeof handleGiteaIssueReopened>[0];
+type GiteaIssueCommentPayload = Parameters<
+  typeof handleGiteaIssueCommentCreated
+>[0];
+type GiteaLabelPayload = Parameters<typeof handleGiteaLabelCreated>[0];
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function hasRepository(value: Record<string, unknown>) {
+  return isRecord(value.repository);
+}
+
+function isPushPayload(
+  payload: Record<string, unknown>,
+): payload is GiteaPushPayload {
+  return typeof payload.ref === "string" && hasRepository(payload);
+}
+
+function isPullRequestPayload(
+  payload: Record<string, unknown>,
+): payload is GiteaPullRequestPayload {
+  return hasRepository(payload) && isRecord(payload.pull_request);
+}
+
+function isIssuePayload(
+  payload: Record<string, unknown>,
+): payload is GiteaIssuePayload {
+  return hasRepository(payload) && isRecord(payload.issue);
+}
+
+function isIssueCommentPayload(
+  payload: Record<string, unknown>,
+): payload is GiteaIssueCommentPayload {
+  return (
+    hasRepository(payload) &&
+    isRecord(payload.issue) &&
+    isRecord(payload.comment)
+  );
+}
+
+function isLabelPayload(
+  payload: Record<string, unknown>,
+): payload is GiteaLabelPayload {
+  return hasRepository(payload);
+}
 
 export async function handleGiteaWebhookRequest(
   integrationId: string,
@@ -76,7 +134,9 @@ async function dispatchGiteaEvent(
 
   switch (event) {
     case "push":
-      await handleGiteaPush(payload as never);
+      if (isPushPayload(payload)) {
+        await handleGiteaPush(payload);
+      }
       return;
     case "pull_request": {
       const action = payload.action as string | undefined;
@@ -85,42 +145,58 @@ async function dispatchGiteaEvent(
         action === "reopened" ||
         action === "ready_for_review"
       ) {
-        await handleGiteaPullRequestOpened(payload as never);
-      } else if (action === "closed") {
-        await handleGiteaPullRequestClosed(payload as never);
+        if (isPullRequestPayload(payload)) {
+          await handleGiteaPullRequestOpened(payload);
+        }
+      } else if (action === "closed" && isPullRequestPayload(payload)) {
+        await handleGiteaPullRequestClosed(
+          payload as unknown as GiteaPullRequestClosedPayload,
+        );
       }
       return;
     }
     case "issues": {
       const action = payload.action as string | undefined;
       // Gitea uses "created" for new issues; GitHub-style is "opened"
-      if (action === "opened" || action === "created") {
-        await handleGiteaIssueOpened(payload as never);
-      } else if (action === "closed") {
-        await handleGiteaIssueClosed(payload as never);
-      } else if (action === "edited") {
-        await handleGiteaIssueEdited(payload as never);
+      if (
+        (action === "opened" || action === "created") &&
+        isIssuePayload(payload)
+      ) {
+        await handleGiteaIssueOpened(payload);
+      } else if (action === "reopened" && isIssuePayload(payload)) {
+        await handleGiteaIssueReopened(
+          payload as unknown as GiteaIssueReopenedPayload,
+        );
+      } else if (action === "closed" && isIssuePayload(payload)) {
+        await handleGiteaIssueClosed(
+          payload as unknown as GiteaIssueClosedPayload,
+        );
+      } else if (action === "edited" && isIssuePayload(payload)) {
+        await handleGiteaIssueEdited(payload);
       } else if (
-        action === "labeled" ||
-        action === "unlabeled" ||
-        action === "label_updated"
+        isIssuePayload(payload) &&
+        (action === "labeled" ||
+          action === "unlabeled" ||
+          action === "label_updated")
       ) {
         await handleGiteaIssueLabeled({
           ...payload,
           action: action ?? "",
-        } as never);
+        });
       }
       return;
     }
     case "issue_comment": {
       const action = payload.action as string | undefined;
-      if (action === "created") {
-        await handleGiteaIssueCommentCreated(payload as never);
+      if (action === "created" && isIssueCommentPayload(payload)) {
+        await handleGiteaIssueCommentCreated(payload);
       }
       return;
     }
     case "issue_label": {
-      await handleGiteaLabelCreated(payload as never);
+      if (isLabelPayload(payload)) {
+        await handleGiteaLabelCreated(payload);
+      }
       return;
     }
     default:

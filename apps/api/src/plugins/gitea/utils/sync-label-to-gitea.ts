@@ -79,6 +79,14 @@ async function getGiteaIssueContext(taskId: string) {
 
   const client = createGiteaClient(config);
   const issueNumber = Number.parseInt(externalLink.externalId, 10);
+  if (Number.isNaN(issueNumber)) {
+    console.warn("Invalid Gitea issue externalId for label sync", {
+      externalLinkId: externalLink.id,
+      externalId: externalLink.externalId,
+      taskId,
+    });
+    return null;
+  }
 
   return {
     client,

@@ -1,4 +1,3 @@
-import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { activityTable } from "../../../database/schema";
 import { findExternalLink } from "../../github/services/link-manager";
@@ -66,43 +65,26 @@ export async function handleGiteaIssueCommentCreated(
       continue;
     }
 
-    const existingActivities = await db.query.activityTable.findMany({
-      where: and(
-        eq(activityTable.taskId, existingLink.taskId),
-        eq(activityTable.externalSource, "gitea"),
-      ),
-    });
-
-    const alreadyExists = existingActivities.some((activity) => {
-      const eventData = activity.eventData;
-      const externalCommentId =
-        typeof eventData === "object" &&
-        eventData &&
-        "externalCommentId" in eventData
-          ? eventData.externalCommentId
-          : undefined;
-
-      return (
-        externalCommentId === comment.id ||
-        activity.externalUrl === comment.html_url
-      );
-    });
-
-    if (alreadyExists) {
-      continue;
-    }
-
-    await db.insert(activityTable).values({
-      taskId: existingLink.taskId,
-      type: "comment",
-      content: comment.body,
-      externalUserName: username || "Unknown",
-      externalUserAvatar: comment.user?.avatar_url ?? null,
-      externalSource: "gitea",
-      externalUrl: comment.html_url,
-      eventData: {
-        externalCommentId: comment.id,
-      },
-    });
+    await db
+      .insert(activityTable)
+      .values({
+        taskId: existingLink.taskId,
+        type: "comment",
+        content: comment.body,
+        externalUserName: username || "Unknown",
+        externalUserAvatar: comment.user?.avatar_url ?? null,
+        externalSource: "gitea",
+        externalUrl: comment.html_url,
+        eventData: {
+          externalCommentId: comment.id,
+        },
+      })
+      .onConflictDoNothing({
+        target: [
+          activityTable.taskId,
+          activityTable.externalSource,
+          activityTable.externalUrl,
+        ],
+      });
   }
 }

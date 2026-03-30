@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import db from "../../../database";
 import { labelTable, taskTable } from "../../../database/schema";
 import { findExternalLink } from "../../github/services/link-manager";
@@ -11,6 +11,7 @@ import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
 } from "../services/integration-lookup";
+import { isSystemLabelName } from "../utils/system-labels";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
 type IssueLabeledPayload = {
@@ -29,10 +30,6 @@ type IssueLabeledPayload = {
     html_url: string;
   };
 };
-
-function isSystemLabelName(name: string) {
-  return name.startsWith("priority:") || name.startsWith("status:");
-}
 
 /** Non-system labels from a Gitea issue (used when action is label_updated). */
 function giteaLabelsForSync(
@@ -60,23 +57,27 @@ async function syncGiteaLabelsToTask(
     where: eq(labelTable.taskId, taskId),
   });
 
-  for (const g of giteaLabels) {
-    const already = existingRows.some((row) => row.name === g.name);
-    if (!already) {
-      const color = g.color ? `#${g.color.replace(/^#/, "")}` : "#6B7280";
-      await db.insert(labelTable).values({
-        name: g.name,
-        color,
-        taskId,
-        workspaceId,
-      });
-    }
+  const labelsToInsert = giteaLabels
+    .filter((g) => !existingRows.some((row) => row.name === g.name))
+    .map((g) => ({
+      name: g.name,
+      color: g.color ? `#${g.color.replace(/^#/, "")}` : "#6B7280",
+      taskId,
+      workspaceId,
+    }));
+
+  if (labelsToInsert.length > 0) {
+    await db.insert(labelTable).values(labelsToInsert).onConflictDoNothing();
   }
 
-  for (const row of existingRows) {
-    if (!desiredNames.has(row.name) && !isSystemLabelName(row.name)) {
-      await db.delete(labelTable).where(eq(labelTable.id, row.id));
-    }
+  const labelsToDelete = existingRows
+    .filter(
+      (row) => !desiredNames.has(row.name) && !isSystemLabelName(row.name),
+    )
+    .map((row) => row.id);
+
+  if (labelsToDelete.length > 0) {
+    await db.delete(labelTable).where(inArray(labelTable.id, labelsToDelete));
   }
 }
 
@@ -143,11 +144,7 @@ export async function handleGiteaIssueLabeled(payload: IssueLabeledPayload) {
       continue;
     }
 
-    const isSystemLabel =
-      addedLabel.name.startsWith("priority:") ||
-      addedLabel.name.startsWith("status:");
-
-    if (isSystemLabel) {
+    if (isSystemLabelName(addedLabel.name)) {
       continue;
     }
 
