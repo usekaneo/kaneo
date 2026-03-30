@@ -1,3 +1,31 @@
+## [2.4.4](https://github.com/usekaneo/kaneo/compare/v2.4.3...v2.4.4) (2026-03-30)
+
+
+### Bug Fixes
+
+* **api:** tighten webhook URL validation and dedupe Discord event handling ([5e834c2](https://github.com/usekaneo/kaneo/commit/5e834c23f4d4f563aa01dcf448bdd38407038727))
+* **ci:** update Biome version to 2.4.8 and fix schema.json formatting ([e92c048](https://github.com/usekaneo/kaneo/commit/e92c048f8b5433f0d0fb4697677b47faea96bda6))
+* **ci:** use GITHUB_TOKEN for dependabot fetch-metadata ([30631b9](https://github.com/usekaneo/kaneo/commit/30631b98a9f7d65aaa3a40ba94bc427a73f6d6f5))
+* **discord:** hide webhook secrets and upsert integration ([27fe95a](https://github.com/usekaneo/kaneo/commit/27fe95aec5e239a5b44545d4afed38a470002d13))
+* **discord:** preserve dirty integration form state ([12af824](https://github.com/usekaneo/kaneo/commit/12af824df68fd5554b81b667e9ba45e231e5d478))
+* **discord:** redact webhook failures in logs ([ccc3f2e](https://github.com/usekaneo/kaneo/commit/ccc3f2e709fc02d65d308cca3d0bf73c38910ab7))
+* **docs:** refine docs for outgoing webhooks ([c4680f7](https://github.com/usekaneo/kaneo/commit/c4680f75af3786f05845415ad44c441c1f8dcde3))
+* guard generic webhook secret normalization ([95e166c](https://github.com/usekaneo/kaneo/commit/95e166ca9f3b544579f68841e7ae7838b5034c69))
+* integration security and quality issues, add Discord/Slack docs ([3953cb4](https://github.com/usekaneo/kaneo/commit/3953cb4a32e3b361ab255b40bc4516befa5c921e))
+* **integrations:** address review findings ([4189ece](https://github.com/usekaneo/kaneo/commit/4189ece3a4d3ce2b70919f9bdf7bac86a84468b1))
+* **slack:** keep webhook URLs write-only ([0ad74ae](https://github.com/usekaneo/kaneo/commit/0ad74ae6bbb14b07a53485e4d47b7f27262ff459))
+* **web:** normalize API base URLs ([d561804](https://github.com/usekaneo/kaneo/commit/d561804689e4ae392f73da379e2475cd53f7203d))
+
+
+### Features
+
+* add French locale (fr-FR) translations ([72a7cc1](https://github.com/usekaneo/kaneo/commit/72a7cc133873ae8d105d4cd1f5f6117b16732736))
+* add Macedonian language option to preferences ([bd1f5b0](https://github.com/usekaneo/kaneo/commit/bd1f5b09276e19eb8d98c7600408d729d2e1eed9))
+* **docs:** add outgoing webhooks ([d338bdd](https://github.com/usekaneo/kaneo/commit/d338bddddab7239e731ac67ba489df2f58d9f450))
+* **integrations:** add Discord integration ([3488022](https://github.com/usekaneo/kaneo/commit/348802202b97f91269369471e81d1c547d5ce6bf))
+* **integrations:** add generic outgoing webhooks ([89cce03](https://github.com/usekaneo/kaneo/commit/89cce03c0f141a7406683e843c4c639a2b017f84))
+* **integrations:** add Slack integration ([9d69f8b](https://github.com/usekaneo/kaneo/commit/9d69f8b2d3b665477d1707d2537551bb378c001e))
+* **webhooks:** persist generic webhook delivery health ([211280e](https://github.com/usekaneo/kaneo/commit/211280ea1e165dc01a41a49a71d6b63c6a1bf7e9))
 ## [2.4.3](https://github.com/usekaneo/kaneo/compare/v2.4.2...v2.4.3) (2026-03-29)
 
 

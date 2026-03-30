@@ -39,7 +39,8 @@
 			"english": "English",
 			"german": "German",
 			"greek": "Greek",
-			"macedonian": "Macedonian"
+			"macedonian": "Macedonian",
+			"french": "French"
 		},
 		"people": {
 			"someone": "Someone",
@@ -491,7 +492,13 @@
 			"title": "Project Integrations",
 			"subtitle": "Connect your project with external tools and services to streamline your workflow.",
 			"githubSectionTitle": "GitHub Integration",
-			"githubSectionSubtitle": "Synchronize tasks with GitHub issues and enable two-way sync."
+			"githubSectionSubtitle": "Synchronize tasks with GitHub issues and enable two-way sync.",
+			"discordSectionTitle": "Discord Integration",
+			"discordSectionSubtitle": "Send project task updates into a Discord channel with a webhook.",
+			"genericWebhookSectionTitle": "Generic Webhooks",
+			"genericWebhookSectionSubtitle": "Send project task events to any HTTP endpoint as JSON.",
+			"slackSectionTitle": "Slack Integration",
+			"slackSectionSubtitle": "Send project task updates into a Slack channel with an incoming webhook."
 		},
 		"projectVisibility": {
 			"pageTitle": "Project Visibility",
@@ -600,6 +607,120 @@
 			"importing": "Importing...",
 			"importIssues": "Import Issues",
 			"importDisabledHint": "Complete the repository configuration above to enable importing"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid Slack webhook URL"
+			},
+			"toast": {
+				"saved": "Slack integration saved successfully",
+				"saveError": "Failed to save Slack integration",
+				"enabled": "Slack notifications enabled",
+				"disabled": "Slack notifications paused",
+				"updateError": "Failed to update Slack integration",
+				"removed": "Slack integration removed successfully",
+				"removeError": "Failed to remove Slack integration"
+			},
+			"connectionTitle": "Slack webhook connection",
+			"connectionHint": "Paste a Slack incoming webhook URL and choose which task events should be posted.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Create an Incoming Webhook in Slack and paste the generated URL here.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optional label for your reference. Slack controls the actual destination channel from the webhook setup.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should post to Slack.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect Slack",
+			"saveChanges": "Save changes",
+			"update": "Update Slack",
+			"disconnect": "Disconnect"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid Discord webhook URL"
+			},
+			"toast": {
+				"saved": "Discord integration saved successfully",
+				"saveError": "Failed to save Discord integration",
+				"enabled": "Discord notifications enabled",
+				"disabled": "Discord notifications paused",
+				"updateError": "Failed to update Discord integration",
+				"removed": "Discord integration removed successfully",
+				"removeError": "Failed to remove Discord integration"
+			},
+			"connectionTitle": "Discord webhook connection",
+			"connectionHint": "Paste a Discord webhook URL and choose which task events should be posted.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Webhook URL",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Create a Discord channel webhook and paste the generated URL here.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optional label for your reference. Discord controls the actual destination channel from the webhook setup.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should post to Discord.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect Discord",
+			"saveChanges": "Save changes",
+			"update": "Update Discord",
+			"disconnect": "Disconnect"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid webhook URL"
+			},
+			"toast": {
+				"saved": "Generic webhook integration saved successfully",
+				"saveError": "Failed to save generic webhook integration",
+				"enabled": "Generic webhook notifications enabled",
+				"disabled": "Generic webhook notifications paused",
+				"updateError": "Failed to update generic webhook integration",
+				"removed": "Generic webhook integration removed successfully",
+				"removeError": "Failed to remove generic webhook integration"
+			},
+			"connectionTitle": "Outgoing webhook connection",
+			"connectionHint": "Send task events to your own endpoint as JSON. A signed X-Kaneo-Signature header is included when a secret is configured.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Endpoint URL",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo sends POST requests with a JSON payload for each enabled event.",
+			"secretLabel": "Signing secret",
+			"secretPlaceholder": "Optional shared secret",
+			"secretHint": "Optional. If provided, Kaneo signs the request body and sends the hex digest in the X-Kaneo-Signature header.",
+			"secretHintConfigured": "A signing secret is already configured ({{secret}}). Enter a new one to replace it.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should trigger outgoing webhooks.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect webhook",
+			"saveChanges": "Save changes",
+			"disconnect": "Disconnect"
 		},
 		"repositoryBrowser": {
 			"title": "Select Repository",

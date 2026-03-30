@@ -333,8 +333,7 @@ const githubIntegration = new Hono<{
         throw new HTTPException(401, { message: "Unauthorized" });
       }
 
-      const body = await c.req.json();
-      const projectId = body.projectId as string;
+      const { projectId } = c.req.valid("json");
 
       const [project] = await db
         .select({ workspaceId: projectTable.workspaceId })

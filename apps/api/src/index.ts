@@ -18,7 +18,9 @@ import column from "./column";
 import comment from "./comment";
 import config from "./config";
 import db, { schema } from "./database";
+import discordIntegration from "./discord-integration";
 import externalLink from "./external-link";
+import genericWebhookIntegration from "./generic-webhook-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -31,6 +33,7 @@ import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
+import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
 import taskRelation from "./task-relation";
@@ -395,6 +398,15 @@ const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
+const genericWebhookIntegrationApi = api.route(
+  "/generic-webhook-integration",
+  genericWebhookIntegration,
+);
+const discordIntegrationApi = api.route(
+  "/discord-integration",
+  discordIntegration,
+);
+const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
 const taskRelationApi = api.route("/task-relation", taskRelation);
 const externalLinkApi = api.route("/external-link", externalLink);
 const workflowRuleApi = api.route("/workflow-rule", workflowRule);
@@ -449,6 +461,9 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof genericWebhookIntegrationApi
+  | typeof discordIntegrationApi
+  | typeof slackIntegrationApi
   | typeof taskRelationApi
   | typeof externalLinkApi
   | typeof workflowRuleApi
