@@ -326,7 +326,7 @@ function RouteComponent() {
                   }}
                   modal={true}
                 >
-                  <PopoverTrigger>
+                  <PopoverTrigger asChild>
                     <Button
                       type="button"
                       variant="outline"

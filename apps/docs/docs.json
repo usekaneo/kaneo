@@ -80,6 +80,14 @@
 						]
 					},
 					{
+						"group": "Integrations",
+						"pages": [
+							"core/integrations/discord",
+							"core/integrations/slack",
+							"core/integrations/outgoing-webhooks"
+						]
+					},
+					{
 						"group": "Authentication Providers",
 						"pages": [
 							"core/social-providers/github",
