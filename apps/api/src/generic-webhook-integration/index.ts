@@ -26,7 +26,7 @@ const genericWebhookIntegration = new Hono<{
   };
 }>();
 
-function maskSecret(value: string | undefined): string | null {
+function maskValue(value: string | undefined): string | null {
   if (!value) return null;
   return value.length > 8 ? `${value.slice(0, 4)}…${value.slice(-4)}` : "••••";
 }
@@ -47,9 +47,9 @@ function toResponse(integration: {
     id: integration.id,
     projectId: integration.projectId,
     webhookConfigured: Boolean(config.webhookUrl),
-    webhookUrl: config.webhookUrl,
+    maskedWebhookUrl: maskValue(config.webhookUrl),
     secretConfigured: Boolean(config.secret),
-    maskedSecret: maskSecret(config.secret),
+    maskedSecret: maskValue(config.secret),
     events: {
       ...defaultGenericWebhookEvents,
       ...(config.events ?? {}),

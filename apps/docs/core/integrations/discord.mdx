@@ -1,0 +1,68 @@
+---
+title: Discord
+description: Send task notifications from Kaneo to a Discord channel using incoming webhooks.
+---
+
+Kaneo can post task activity to a Discord channel whenever events occur in a project. This uses Discord's incoming webhook feature — no bot or OAuth setup required.
+
+## Create a Discord webhook
+
+1. Open Discord and go to the channel you want notifications in.
+2. Click the gear icon to open **Channel Settings**.
+3. Go to **Integrations** then **Webhooks**.
+4. Click **New Webhook**.
+5. Give the webhook a name (e.g. "Kaneo") and optionally set an avatar.
+6. Click **Copy Webhook URL**. It will look like:
+
+```
+https://discord.com/api/webhooks/000000000000000000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+<Info>
+URLs using `discordapp.com` are also accepted.
+</Info>
+
+## Connect Discord in Kaneo
+
+1. Open **Settings** in the sidebar.
+2. Under **Projects**, select the project you want to connect.
+3. Open the **Integrations** tab.
+4. Expand the **Discord** section.
+5. Paste your webhook URL.
+6. Optionally add a channel name label for your own reference.
+7. Choose which events to subscribe to (see below).
+8. Click **Connect**.
+
+Once connected you can enable or disable the integration with the toggle, update event subscriptions, or disconnect entirely.
+
+## Supported events
+
+| Event | Default | Description |
+| --- | --- | --- |
+| Task created | On | A new task is created in the project |
+| Task status changed | On | A task moves to a different status column |
+| Task priority changed | Off | A task's priority is changed |
+| Task title changed | Off | A task's title is edited |
+| Task description changed | Off | A task's description is edited |
+| Task comment created | On | A new comment is added to a task |
+
+You can toggle any combination of these events in the integration settings at any time.
+
+## Message format
+
+Kaneo sends Discord embed messages with:
+
+- A title describing the event (e.g. "Task Status Changed")
+- Task name with a clickable link to the task in Kaneo
+- Fields for project, status, and priority
+- The name of the user who triggered the event
+
+Make sure [`KANEO_CLIENT_URL`](/core/installation/environment-variables) is set to your public Kaneo URL so task links work correctly.
+
+## Updating the webhook
+
+To change the webhook URL after connecting, paste the new URL in the webhook field and click **Save Changes**. If you leave the field empty, the existing URL is kept.
+
+## Disconnecting
+
+Click **Disconnect** to remove the integration. This deletes the stored webhook URL and all event settings for that project. You can reconnect at any time by pasting a new webhook URL.

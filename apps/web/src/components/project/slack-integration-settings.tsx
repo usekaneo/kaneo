@@ -70,6 +70,15 @@ function EventToggle({
   );
 }
 
+function isValidSlackWebhookUrl(value: string): boolean {
+  return (
+    z.url().safeParse(value).success &&
+    /^https:\/\/hooks\.slack\.com\/services\/[A-Za-z0-9]+\/[A-Za-z0-9]+\/[A-Za-z0-9]+$/i.test(
+      value,
+    )
+  );
+}
+
 export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
   const { t } = useTranslation();
   const schema = React.useMemo(
@@ -122,10 +131,18 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
       taskCommentCreated: true,
     },
   });
+  const { reset } = form;
+  const lastResetKeyRef = React.useRef<string | null>(null);
+  const resetKey = `${projectId}:${integration?.id ?? "none"}`;
 
   React.useEffect(() => {
-    form.reset(normalizedValues);
-  }, [form, normalizedValues]);
+    if (form.formState.isDirty && lastResetKeyRef.current === resetKey) {
+      return;
+    }
+
+    reset(normalizedValues);
+    lastResetKeyRef.current = resetKey;
+  }, [form.formState.isDirty, normalizedValues, reset, resetKey]);
 
   const isConnected = Boolean(integration?.webhookConfigured);
   const isBusy = isCreating || isUpdating || isDeleting;
@@ -143,10 +160,7 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
       };
 
       if (!isConnected) {
-        if (
-          !trimmedWebhookUrl ||
-          !z.url().safeParse(trimmedWebhookUrl).success
-        ) {
+        if (!trimmedWebhookUrl || !isValidSlackWebhookUrl(trimmedWebhookUrl)) {
           form.setError("webhookUrl", {
             message: t("settings:slackIntegration.validation.webhookInvalid"),
           });
@@ -162,10 +176,7 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
           },
         });
       } else {
-        if (
-          trimmedWebhookUrl &&
-          !z.url().safeParse(trimmedWebhookUrl).success
-        ) {
+        if (trimmedWebhookUrl && !isValidSlackWebhookUrl(trimmedWebhookUrl)) {
           form.setError("webhookUrl", {
             message: t("settings:slackIntegration.validation.webhookInvalid"),
           });
