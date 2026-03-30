@@ -80,6 +80,10 @@
 						]
 					},
 					{
+						"group": "Outgoing webhooks",
+						"pages": ["core/integrations/outgoing-webhooks"]
+					},
+					{
 						"group": "Authentication Providers",
 						"pages": [
 							"core/social-providers/github",

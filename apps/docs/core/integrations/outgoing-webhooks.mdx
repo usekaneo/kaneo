@@ -1,0 +1,77 @@
+---
+title: Outgoing webhooks
+description: Send task activity from a Kaneo project to Slack, Discord, or any HTTP endpoint. Configure per-project notifications and optional signing.
+---
+
+Kaneo can notify external systems when tasks change in a project. Each integration is per project and uses an incoming webhook URL from the service you connect (Slack, Discord) or your own HTTP listener (generic webhook).
+
+<Info>
+These integrations are outgoing only: Kaneo posts to your URL when events occur. They are separate from [GitHub integration](/core/integrations/github/setup), which syncs issues and repositories.
+</Info>
+
+## Where to configure
+
+1. Open **Settings** in the sidebar.
+2. Under **Projects**, select the project.
+3. Open the **Integrations** tab.
+
+You will see sections for **GitHub**, **Discord**, **Generic webhook**, and **Slack**. Configure Slack, Discord, or generic webhooks in their respective sections.
+
+## Task links in notifications
+
+Notification messages and generic webhook payloads include links to the task in the web app. Set [`KANEO_CLIENT_URL`](/core/installation/environment-variables) to your public Kaneo web URL so those links point to your instance (for example `https://kaneo.example.com`).
+
+## Events you can subscribe to
+
+For Slack, Discord, and generic webhooks you can toggle the same event types:
+
+| Event | Default on | Description |
+| --- | --- | --- |
+| Task created | Yes | New task in the project |
+| Task status changed | Yes | Status column changed |
+| Task priority changed | No | Priority changed |
+| Task title changed | No | Title edited |
+| Task description changed | No | Description edited |
+| Task comment created | Yes | New comment on a task |
+
+Defaults apply when you first connect; you can change toggles anytime in project settings.
+
+## Slack
+
+Use a [Slack incoming webhook](https://api.slack.com/messaging/webhooks) URL. It must match Slack’s format:
+
+`https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX`
+
+Paste the URL in the Slack section, optionally set a channel label for your own reference, choose events, and save.
+
+Kaneo sends formatted messages to Slack when enabled events occur.
+
+## Discord
+
+Create an incoming webhook for a Discord channel (Channel settings → Integrations → Webhooks). The URL must look like:
+
+`https://discord.com/api/webhooks/000000000000000000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+
+(or the `discordapp.com` hostname). Paste it into the Discord section, optionally add a channel name label, select events, and save.
+
+## Generic HTTP webhook
+
+Use a generic webhook when you want a JSON POST to your own service, automation, or middleware.
+
+### Delivery health
+
+After delivery attempts, Kaneo stores basic health metadata (for example last success, last failure message, failure count) so you can see whether recent posts succeeded. This does not replace monitoring on your endpoint.
+
+### Payload shape
+
+Each POST has `Content-Type: application/json`. Top-level fields:
+
+- `event`: string, one of: `task.created`, `task.status_changed`, `task.priority_changed`, `task.title_changed`, `task.description_changed`, `task.comment_created`
+- `timestamp`: ISO 8601 time when Kaneo sent the request
+- `integration`: `{ "type": "generic-webhook" }`
+- `project`: `id`, `name`, `workspaceId`
+- `task`: `id`, `number`, `title`, `status`, `priority`, `url` (link to the task in the web UI)
+- `actor`: `id` and `name` of the user when available, or nulls for automated actions
+- `data`: event-specific fields (for example `oldStatus` / `newStatus` for status changes, `comment` text for comments)
+
+Use these payloads to drive custom workflows, internal dashboards, or bridges to other tools.
