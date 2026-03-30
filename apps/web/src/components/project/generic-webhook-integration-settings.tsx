@@ -104,7 +104,7 @@ export function GenericWebhookIntegrationSettings({
 
   const normalizedValues = React.useMemo<GenericWebhookIntegrationFormValues>(
     () => ({
-      webhookUrl: integration?.webhookUrl ?? "",
+      webhookUrl: "",
       secret: "",
       taskCreated: integration?.events?.taskCreated ?? true,
       taskStatusChanged: integration?.events?.taskStatusChanged ?? true,

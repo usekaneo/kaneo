@@ -4,7 +4,7 @@ export type GenericWebhookIntegration = {
   id: string;
   projectId: string;
   webhookConfigured: boolean;
-  webhookUrl: string;
+  maskedWebhookUrl: string | null;
   secretConfigured: boolean;
   maskedSecret: string | null;
   events: {
