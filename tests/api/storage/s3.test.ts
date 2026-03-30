@@ -93,11 +93,9 @@ describe("S3 helpers", () => {
     expect(() => validateTaskAssetUploadInput("image/png", 0)).toThrow(
       "Upload size must be greater than zero.",
     );
-    expect(
-      () => validateTaskAssetUploadInput("image/png", 2 * 1024 * 1024),
-    ).toThrow(
-      "Upload exceeds the maximum upload size of 1MB.",
-    );
+    expect(() =>
+      validateTaskAssetUploadInput("image/png", 2 * 1024 * 1024),
+    ).toThrow("Upload exceeds the maximum upload size of 1MB.");
     expect(() => validateTaskAssetUploadInput("image/png", 512)).not.toThrow();
   });
 });
