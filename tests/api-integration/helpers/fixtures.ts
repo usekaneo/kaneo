@@ -86,10 +86,14 @@ export async function createProjectFixture({
     }
   }
 
-  const todo = insertedColumns[0];
-  const inProgress = insertedColumns[1];
-  const inReview = insertedColumns[2];
-  const done = insertedColumns[3];
+  const columnsBySlug = new Map(
+    insertedColumns.map((column) => [column.slug, column]),
+  );
+
+  const todo = columnsBySlug.get("to-do");
+  const inProgress = columnsBySlug.get("in-progress");
+  const inReview = columnsBySlug.get("in-review");
+  const done = columnsBySlug.get("done");
 
   if (!todo || !inProgress || !inReview || !done) {
     throw new Error("Failed to seed default project columns");
