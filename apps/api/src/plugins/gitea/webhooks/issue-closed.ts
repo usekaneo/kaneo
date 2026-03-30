@@ -81,7 +81,5 @@ export async function handleGiteaIssueClosed(payload: IssueClosedPayload) {
         state: "closed",
       },
     });
-
-    return;
   }
 }

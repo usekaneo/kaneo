@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -13,6 +13,7 @@ import { extractTaskNumberGitea } from "../../plugins/gitea/utils/branch-matcher
 import {
   createGiteaClient,
   type GiteaIssue,
+  type GiteaPullRequest,
 } from "../../plugins/gitea/utils/gitea-api";
 import {
   createExternalLink,
@@ -121,15 +122,7 @@ export async function importGiteaIssues(
     }
   }
 
-  const allPRs: Array<{
-    number: number;
-    title: string;
-    body: string | null;
-    html_url: string;
-    state: string;
-    head: { ref: string };
-    user?: { login?: string; username?: string; avatar_url?: string } | null;
-  }> = [];
+  const allPRs: GiteaPullRequest[] = [];
   page = 1;
 
   while (true) {
@@ -287,13 +280,35 @@ async function importLabelsForTask(
         !label.name.startsWith("status:"),
     ) as Array<{ name: string; color: string }>;
 
+  const expectedNames = nonSystemLabels.map((label) => label.name);
+
+  if (expectedNames.length > 0) {
+    await db
+      .delete(labelTable)
+      .where(
+        and(
+          eq(labelTable.taskId, taskId),
+          notInArray(labelTable.name, expectedNames),
+        ),
+      );
+  } else {
+    await db.delete(labelTable).where(eq(labelTable.taskId, taskId));
+  }
+
+  const existingLabelsOnTask = await db.query.labelTable.findMany({
+    where:
+      expectedNames.length > 0
+        ? and(
+            eq(labelTable.taskId, taskId),
+            inArray(labelTable.name, expectedNames),
+          )
+        : eq(labelTable.taskId, taskId),
+  });
+
   for (const labelData of nonSystemLabels) {
-    const existingLabelOnTask = await db.query.labelTable.findFirst({
-      where: and(
-        eq(labelTable.taskId, taskId),
-        eq(labelTable.name, labelData.name),
-      ),
-    });
+    const existingLabelOnTask = existingLabelsOnTask.find(
+      (label) => label.name === labelData.name,
+    );
 
     if (existingLabelOnTask) {
       continue;

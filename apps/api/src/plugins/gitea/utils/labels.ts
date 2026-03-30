@@ -107,7 +107,14 @@ export async function removeLabelGitea(
       config.repositoryOwner,
       config.repositoryName,
     );
-  } catch {
+  } catch (error) {
+    console.error("Failed to list Gitea labels for removal:", {
+      repositoryOwner: config.repositoryOwner,
+      repositoryName: config.repositoryName,
+      issueIndex,
+      labelName,
+      error,
+    });
     return;
   }
 
@@ -121,5 +128,14 @@ export async function removeLabelGitea(
       issueIndex,
       label.id,
     );
-  } catch {}
+  } catch (error) {
+    console.error("Failed to remove label from Gitea issue:", {
+      repositoryOwner: config.repositoryOwner,
+      repositoryName: config.repositoryName,
+      issueIndex,
+      labelName,
+      labelId: label.id,
+      error,
+    });
+  }
 }

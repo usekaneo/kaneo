@@ -130,16 +130,22 @@ async function createGiteaIntegration({
       )
       .returning();
 
+    if (!updated) {
+      throw new HTTPException(500, {
+        message: "Failed to update Gitea integration",
+      });
+    }
+
     return {
-      id: updated?.id,
-      projectId: updated?.projectId,
+      id: updated.id,
+      projectId: updated.projectId,
       baseUrl: normalizedBase,
       repositoryOwner,
       repositoryName,
       webhookSecret,
-      isActive: updated?.isActive,
-      createdAt: updated?.createdAt,
-      updatedAt: updated?.updatedAt,
+      isActive: updated.isActive,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
     };
   }
 
@@ -153,16 +159,22 @@ async function createGiteaIntegration({
     })
     .returning();
 
+  if (!newIntegration) {
+    throw new HTTPException(500, {
+      message: "Failed to create Gitea integration",
+    });
+  }
+
   return {
-    id: newIntegration?.id,
-    projectId: newIntegration?.projectId,
+    id: newIntegration.id,
+    projectId: newIntegration.projectId,
     baseUrl: normalizedBase,
     repositoryOwner,
     repositoryName,
     webhookSecret,
-    isActive: newIntegration?.isActive,
-    createdAt: newIntegration?.createdAt,
-    updatedAt: newIntegration?.updatedAt,
+    isActive: newIntegration.isActive,
+    createdAt: newIntegration.createdAt,
+    updatedAt: newIntegration.updatedAt,
   };
 }
 

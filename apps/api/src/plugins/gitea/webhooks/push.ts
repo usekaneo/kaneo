@@ -11,6 +11,7 @@ import {
 } from "../services/integration-lookup";
 import { extractTaskNumberFromBranchGitea } from "../utils/branch-matcher";
 import { resolveTargetStatus } from "../utils/resolve-column";
+import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
 type PushPayload = {
   ref: string;
@@ -44,7 +45,12 @@ const PROTECTED_BRANCHES = [
 export async function handleGiteaPush(payload: PushPayload) {
   const { ref, repository } = payload;
 
-  const branchName = ref.replace("refs/heads/", "");
+  if (!ref.startsWith("refs/heads/")) {
+    console.log(`[Gitea Push] Skipping non-branch ref: ${ref}`);
+    return;
+  }
+
+  const branchName = ref.slice("refs/heads/".length);
   console.log(`[Gitea Push] Processing branch: ${branchName}`);
 
   if (PROTECTED_BRANCHES.includes(branchName)) {
@@ -52,8 +58,10 @@ export async function handleGiteaPush(payload: PushPayload) {
     return;
   }
 
-  const baseUrl = new URL(repository.html_url);
-  const origin = `${baseUrl.protocol}//${baseUrl.host}`;
+  const origin = baseUrlFromRepositoryHtmlUrl(repository.html_url);
+  if (!origin) {
+    return;
+  }
   const owner = repoOwnerLogin(repository);
   const integrations = await findAllIntegrationsByGiteaRepo(
     origin,
@@ -125,7 +133,5 @@ export async function handleGiteaPush(payload: PushPayload) {
     if (task.status !== targetStatus && !isTaskFinal) {
       await updateTaskStatus(task.id, targetStatus);
     }
-
-    return;
   }
 }

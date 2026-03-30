@@ -26,7 +26,27 @@ export async function handleTaskCommentCreated(
 
   try {
     const client = createGiteaClient(config);
-    const issueNumber = Number.parseInt(existingLink.externalId, 10);
+    if (!/^\d+$/.test(existingLink.externalId)) {
+      console.error(
+        "Skipping Gitea comment sync for invalid external issue id",
+        {
+          taskId: event.taskId,
+          externalId: existingLink.externalId,
+        },
+      );
+      return;
+    }
+
+    const issueNumber = Number(existingLink.externalId);
+
+    if (!Number.isFinite(issueNumber) || issueNumber < 1) {
+      console.error("Skipping Gitea comment sync for invalid issue number", {
+        taskId: event.taskId,
+        externalId: existingLink.externalId,
+        issueNumber,
+      });
+      return;
+    }
 
     await client.createIssueComment(
       repositoryOwner,

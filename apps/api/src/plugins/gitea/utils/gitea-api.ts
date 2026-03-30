@@ -85,7 +85,11 @@ export async function giteaFetch<T>(
   try {
     return JSON.parse(text) as T;
   } catch {
-    return undefined as T;
+    throw new GiteaApiError(
+      "Gitea API returned invalid JSON",
+      res.status,
+      text,
+    );
   }
 }
 

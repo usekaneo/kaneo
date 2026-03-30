@@ -45,19 +45,24 @@ function toHexColor(color: string): string {
 }
 
 async function getGiteaIssueContext(taskId: string) {
-  const externalLink = await db.query.externalLinkTable.findFirst({
+  const externalLinks = await db.query.externalLinkTable.findMany({
     where: eq(externalLinkTable.taskId, taskId),
     with: {
       integration: true,
     },
   });
 
-  if (!externalLink || externalLink.resourceType !== "issue") {
+  const externalLink = externalLinks.find(
+    (link) =>
+      link.resourceType === "issue" && link.integration?.type === "gitea",
+  );
+
+  if (!externalLink) {
     return null;
   }
 
   const integration = externalLink.integration;
-  if (!integration || integration.type !== "gitea") {
+  if (!integration) {
     return null;
   }
 

@@ -119,6 +119,10 @@ export async function handleGiteaIssueLabeled(payload: IssueLabeledPayload) {
     }
 
     if (payload.action === "label_updated") {
+      if (issue.labels === undefined) {
+        continue;
+      }
+
       const task = await db.query.taskTable.findFirst({
         where: eq(taskTable.id, existingLink.taskId),
         with: {

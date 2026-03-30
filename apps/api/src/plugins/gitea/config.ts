@@ -4,10 +4,10 @@ import { branchPatterns } from "../github/config";
 export { branchPatterns };
 
 export const giteaConfigSchema = v.object({
-  baseUrl: v.string(),
-  accessToken: v.string(),
-  repositoryOwner: v.string(),
-  repositoryName: v.string(),
+  baseUrl: v.pipe(v.string(), v.url()),
+  accessToken: v.pipe(v.string(), v.trim(), v.nonEmpty()),
+  repositoryOwner: v.pipe(v.string(), v.trim(), v.nonEmpty()),
+  repositoryName: v.pipe(v.string(), v.trim(), v.nonEmpty()),
   webhookSecret: v.optional(v.string()),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),

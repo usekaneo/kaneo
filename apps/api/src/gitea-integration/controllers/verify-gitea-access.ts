@@ -28,10 +28,7 @@ async function verifyGiteaAccess({
     const repo = await client.getRepo(repositoryOwner, repositoryName);
 
     const perms = repo.permissions;
-    const hasIssuesWrite =
-      perms?.admin === true ||
-      perms?.push === true ||
-      (perms?.pull === true && perms?.push !== false);
+    const hasIssuesWrite = perms?.admin === true || perms?.push === true;
 
     return {
       isInstalled: true,

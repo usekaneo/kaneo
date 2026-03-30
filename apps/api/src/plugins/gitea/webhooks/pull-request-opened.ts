@@ -56,7 +56,16 @@ export async function handleGiteaPullRequestOpened(payload: PROpenedPayload) {
       continue;
     }
 
-    const config = JSON.parse(integration.config) as GiteaConfig;
+    let config: GiteaConfig;
+    try {
+      config = JSON.parse(integration.config) as GiteaConfig;
+    } catch (error) {
+      console.error("Invalid Gitea config for integration", {
+        integrationId: integration.id,
+        error,
+      });
+      continue;
+    }
     const projectSlug = integration.project.slug;
     const branchName = pull_request.head.ref;
 

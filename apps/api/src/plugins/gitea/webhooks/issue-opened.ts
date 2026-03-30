@@ -58,7 +58,16 @@ export async function handleGiteaIssueOpened(payload: IssueOpenedPayload) {
   }
 
   for (const integration of integrations) {
-    const config = JSON.parse(integration.config) as GiteaConfig;
+    let config: GiteaConfig;
+    try {
+      config = JSON.parse(integration.config) as GiteaConfig;
+    } catch (error) {
+      console.error("Invalid Gitea config for integration", {
+        integrationId: integration.id,
+        error,
+      });
+      continue;
+    }
     const projectId = integration.projectId;
 
     const priority = extractIssuePriority(issue.labels);

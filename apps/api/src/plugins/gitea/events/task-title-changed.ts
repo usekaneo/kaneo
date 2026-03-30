@@ -43,7 +43,7 @@ export async function handleTaskTitleChanged(
 
       const timeSinceLastSync =
         Date.now() - new Date(lastTitleSync.timestamp).getTime();
-      if (timeSinceLastSync < 2000) {
+      if (lastTitleSync.source === "gitea" && timeSinceLastSync < 2000) {
         console.log(
           `Skipping title sync - recent sync detected (${timeSinceLastSync}ms ago)`,
         );

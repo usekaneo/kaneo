@@ -7,7 +7,7 @@ import {
 } from "../services/integration-lookup";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
-/** Gitea sends `create` events with ref_type `label` for new labels */
+/** Gitea label events include the created label; older payloads may also set ref_type */
 type LabelCreatePayload = {
   ref?: string;
   ref_type?: string;
@@ -24,7 +24,7 @@ type LabelCreatePayload = {
 };
 
 export async function handleGiteaLabelCreated(payload: LabelCreatePayload) {
-  if (payload.ref_type !== "label" || !payload.label) {
+  if ((payload.ref_type && payload.ref_type !== "label") || !payload.label) {
     return;
   }
 

@@ -44,9 +44,6 @@ export async function handleTaskCreated(
       },
     );
 
-    const labels = getLabelsForIssue(event.priority, event.status);
-    await addLabelsToIssueGitea(config, createdIssue.number, labels);
-
     await createExternalLink({
       taskId: event.taskId,
       integrationId: context.integrationId,
@@ -59,6 +56,9 @@ export async function handleTaskCreated(
         createdFrom: "kaneo",
       },
     });
+
+    const labels = getLabelsForIssue(event.priority, event.status);
+    await addLabelsToIssueGitea(config, createdIssue.number, labels);
   } catch (error) {
     console.error("Failed to create Gitea issue:", error);
   }

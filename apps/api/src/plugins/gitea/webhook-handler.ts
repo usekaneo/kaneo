@@ -119,7 +119,7 @@ async function dispatchGiteaEvent(
       }
       return;
     }
-    case "create": {
+    case "issue_label": {
       await handleGiteaLabelCreated(payload as never);
       return;
     }

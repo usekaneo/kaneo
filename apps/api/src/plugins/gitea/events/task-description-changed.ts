@@ -46,7 +46,11 @@ export async function handleTaskDescriptionChanged(
 
       const timeSinceLastSync =
         Date.now() - new Date(lastDescSync.timestamp).getTime();
-      if (timeSinceLastSync < 2000) {
+      if (
+        timeSinceLastSync < 2000 &&
+        lastDescSync.source !== "kaneo" &&
+        newDescNormalized === lastDescSync.value
+      ) {
         console.log(
           `Skipping description sync - recent sync detected (${timeSinceLastSync}ms ago)`,
         );
