@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, Paperclip } from "lucide-react";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
@@ -20,6 +21,7 @@ type CommentInputProps = {
 };
 
 export default function CommentInput({ taskId }: CommentInputProps) {
+  const { t } = useTranslation();
   const [content, setContent] = useState("");
   const [attachAction, setAttachAction] = useState<(() => void) | null>(null);
   const { mutateAsync: createComment, isPending } = useCreateComment();
@@ -27,7 +29,7 @@ export default function CommentInput({ taskId }: CommentInputProps) {
 
   const handleSubmit = useCallback(async () => {
     if (!content.trim()) {
-      toast.error("Comment cannot be empty");
+      toast.error(t("activity:comment.cannotBeEmpty"));
       return;
     }
 
@@ -40,12 +42,12 @@ export default function CommentInput({ taskId }: CommentInputProps) {
       setContent("");
       await queryClient.invalidateQueries({ queryKey: ["activities", taskId] });
 
-      toast.success("Comment added");
+      toast.success(t("activity:comment.added"));
     } catch (error) {
       console.error("Failed to create comment:", error);
-      toast.error("Failed to add comment");
+      toast.error(t("activity:comment.failedToAdd"));
     }
-  }, [content, createComment, taskId, queryClient]);
+  }, [content, createComment, queryClient, t, taskId]);
 
   const handleAttachActionChange = useCallback(
     (nextAttachAction: (() => void) | null) => {
@@ -60,7 +62,7 @@ export default function CommentInput({ taskId }: CommentInputProps) {
         <CommentEditor
           value={content}
           onChange={setContent}
-          placeholder="Leave a comment..."
+          placeholder={t("activity:comment.leavePlaceholder")}
           taskId={taskId}
           uploadSurface="comment"
           showQuickAttachButton={false}
@@ -75,7 +77,7 @@ export default function CommentInput({ taskId }: CommentInputProps) {
             onClick={() => attachAction?.()}
             disabled={!attachAction}
             className="text-muted-foreground"
-            aria-label="Attach file"
+            aria-label={t("activity:comment.attachFile")}
           >
             <Paperclip className="size-3.5" />
           </Button>
@@ -100,7 +102,7 @@ export default function CommentInput({ taskId }: CommentInputProps) {
               <TooltipContent>
                 <KbdSequence
                   keys={[getModifierKeyText(), "Enter"]}
-                  description="Submit comment"
+                  description={t("activity:comment.submitShortcut")}
                 />
               </TooltipContent>
             </Tooltip>

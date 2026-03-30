@@ -1,6 +1,7 @@
 import { produce } from "immer";
 import { Archive } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
@@ -13,6 +14,7 @@ type ColumnHeaderProps = {
 };
 
 export function ColumnHeader({ column }: ColumnHeaderProps) {
+  const { t } = useTranslation();
   const { project, setProject } = useProjectStore();
   const { mutate: updateTask } = useUpdateTask();
 
@@ -38,7 +40,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
     });
 
     setProject(updatedProject);
-    toast.success(`Archived ${column.tasks.length} tasks`);
+    toast.success(t("tasks:archive.success", { count: column.tasks.length }));
     setIsArchiveModalOpen(false);
   };
 
@@ -62,7 +64,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
             type="button"
             onClick={() => setIsArchiveModalOpen(true)}
             className="flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-all hover:bg-accent/50"
-            title="Archive all completed tasks"
+            title={t("tasks:listView.archiveAllTooltip")}
           >
             <Archive className="w-4 h-4 text-muted-foreground" />
           </button>

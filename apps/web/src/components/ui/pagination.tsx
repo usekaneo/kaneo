@@ -8,13 +8,15 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react";
 import type * as React from "react";
+import { useTranslation } from "react-i18next";
 import { type Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
+  const { t } = useTranslation();
   return (
     <nav
-      aria-label="pagination"
+      aria-label={t("common:pagination.label")}
       className={cn("mx-auto flex w-full justify-center", className)}
       data-slot="pagination"
       {...props}
@@ -77,15 +79,16 @@ function PaginationPrevious({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const { t } = useTranslation();
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={t("common:pagination.previousPage")}
       className={cn("max-sm:aspect-square max-sm:p-0", className)}
       size="default"
       {...props}
     >
       <ChevronLeftIcon className="sm:-ms-1" />
-      <span className="max-sm:hidden">Previous</span>
+      <span className="max-sm:hidden">{t("common:pagination.previous")}</span>
     </PaginationLink>
   );
 }
@@ -94,14 +97,15 @@ function PaginationNext({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const { t } = useTranslation();
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={t("common:pagination.nextPage")}
       className={cn("max-sm:aspect-square max-sm:p-0", className)}
       size="default"
       {...props}
     >
-      <span className="max-sm:hidden">Next</span>
+      <span className="max-sm:hidden">{t("common:pagination.next")}</span>
       <ChevronRightIcon className="sm:-me-1" />
     </PaginationLink>
   );
@@ -111,6 +115,7 @@ function PaginationEllipsis({
   className,
   ...props
 }: React.ComponentProps<"span">) {
+  const { t } = useTranslation();
   return (
     <span
       aria-hidden
@@ -119,7 +124,7 @@ function PaginationEllipsis({
       {...props}
     >
       <MoreHorizontalIcon className="size-5 sm:size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{t("common:pagination.morePages")}</span>
     </span>
   );
 }

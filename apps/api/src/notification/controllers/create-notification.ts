@@ -8,13 +8,15 @@ async function createNotification({
   title,
   content,
   type,
+  eventData,
   resourceId,
   resourceType,
 }: {
   userId: string;
-  title: string;
-  content?: string;
+  title?: string | null;
+  content?: string | null;
   type?: string;
+  eventData?: Record<string, unknown> | null;
   resourceId?: string;
   resourceType?: string;
 }) {
@@ -23,9 +25,10 @@ async function createNotification({
     .values({
       id: createId(),
       userId,
-      title,
-      content: content || "",
+      title: title ?? null,
+      content: content ?? null,
       type: type || "info",
+      eventData: eventData ?? null,
       resourceId: resourceId || null,
       resourceType: resourceType || null,
     })

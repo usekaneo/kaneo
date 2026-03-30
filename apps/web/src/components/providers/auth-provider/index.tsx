@@ -21,7 +21,12 @@ function AuthProvider({ children }: PropsWithChildren) {
   }
 
   return (
-    <AuthContext.Provider value={{ user: data?.user, isLoading: isPending }}>
+    <AuthContext.Provider
+      value={{
+        user: (data?.user as User | null | undefined) ?? null,
+        isLoading: isPending,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

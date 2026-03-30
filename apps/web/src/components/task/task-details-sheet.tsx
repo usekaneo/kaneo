@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Maximize2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
@@ -27,6 +28,7 @@ export default function TaskDetailsSheet({
   workspaceId,
   onClose,
 }: TaskDetailsSheetProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [currentTaskId, setCurrentTaskId] = useState<string | undefined>(
     taskId,
@@ -85,7 +87,9 @@ export default function TaskDetailsSheet({
                     <Maximize2 className="size-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Open in full page</TooltipContent>
+                <TooltipContent>
+                  {t("tasks:detail.openInFullPage")}
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <Button

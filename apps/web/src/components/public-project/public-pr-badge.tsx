@@ -1,5 +1,6 @@
 import { GitMerge, GitPullRequest } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   HoverCard,
   HoverCardContent,
@@ -12,6 +13,7 @@ type PublicPRBadgeProps = {
 };
 
 export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
+  const { t } = useTranslation();
   const pullRequests = useMemo(() => {
     if (!externalLinks) return [];
     return externalLinks.filter((link) => link.resourceType === "pull_request");
@@ -26,7 +28,7 @@ export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
     if (isMerged) {
       return {
         icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
-        status: "Merged",
+        status: t("tasks:pr.merged"),
         statusClass: "text-info-foreground",
       };
     }
@@ -34,14 +36,14 @@ export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
     if (isDraft) {
       return {
         icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
-        status: "Draft",
+        status: t("tasks:pr.draft"),
         statusClass: "text-muted-foreground",
       };
     }
 
     return {
       icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
-      status: "Open",
+      status: t("tasks:pr.open"),
       statusClass: "text-success-foreground",
     };
   };
@@ -75,7 +77,7 @@ export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
               <span>#{pullRequests[0].externalId}</span>
             </div>
             <p className="text-sm font-medium leading-snug">
-              {pullRequests[0].title || "Pull Request"}
+              {pullRequests[0].title || t("tasks:pr.label")}
             </p>
           </div>
         </HoverCardContent>
@@ -103,7 +105,7 @@ export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
             className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
           >
             <GitPullRequest className={`h-3 w-3 ${iconColor}`} />
-            <span>{pullRequests.length} PRs</span>
+            <span>{t("tasks:pr.count", { count: pullRequests.length })}</span>
           </button>
         </HoverCardTrigger>
         <HoverCardContent
@@ -130,7 +132,7 @@ export function PublicPRBadge({ externalLinks }: PublicPRBadgeProps) {
                     </span>
                   </div>
                   <p className="text-xs leading-tight line-clamp-2 mt-0.5">
-                    {pr.title || "Pull Request"}
+                    {pr.title || t("tasks:pr.label")}
                   </p>
                   <span className="text-[10px] text-muted-foreground">
                     {prInfo.status}

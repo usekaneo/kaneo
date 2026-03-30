@@ -5,13 +5,15 @@ async function createActivity(
   taskId: string,
   type: string,
   userId: string,
-  content: string,
+  content: string | null,
+  eventData?: Record<string, unknown> | null,
 ) {
   const activity = await db.insert(activityTable).values({
     taskId,
     type,
     userId,
     content,
+    eventData: eventData ?? null,
   });
   return activity;
 }

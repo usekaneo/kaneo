@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function SignInFormSkeleton() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4 mt-6">
       <div className="flex flex-col gap-2">
@@ -10,7 +12,9 @@ export function SignInFormSkeleton() {
 
       <div className="flex items-center gap-4 my-4">
         <div className="flex-1 h-px bg-border" />
-        <span className="text-sm text-muted-foreground">or</span>
+        <span className="text-sm text-muted-foreground">
+          {t("auth:forms.or")}
+        </span>
         <div className="flex-1 h-px bg-border" />
       </div>
 

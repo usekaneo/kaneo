@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { bundledLanguages, type Highlighter } from "shiki";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogPopup } from "@/components/ui/dialog";
@@ -252,6 +253,7 @@ const SLASH_COMMANDS: SlashCommand[] = [
 ];
 
 export default function TaskDescription({ taskId }: TaskDescriptionProps) {
+  const { t } = useTranslation();
   const { data: task } = useGetTask(taskId);
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
 
@@ -308,8 +310,13 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     () =>
       CODE_LANGUAGE_OPTIONS.filter(({ value }) =>
         shikiSupportedLanguages.has(toShikiLanguage(value)),
-      ),
-    [shikiSupportedLanguages, toShikiLanguage],
+      ).map(({ value, label }) => ({
+        value,
+        label: t(`tasks:detail.editor.languages.${value}`, {
+          defaultValue: label,
+        }),
+      })),
+    [shikiSupportedLanguages, t, toShikiLanguage],
   );
   const getOverlayPosition = useCallback(
     (editorView: Editor["view"], pos: number) => {
@@ -375,11 +382,13 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       const activeEditor = targetEditor || lastEditorRef.current;
 
       if (!activeEditor) {
-        toast.error("File upload failed");
+        toast.error(t("tasks:detail.editor.upload.failed"));
         return;
       }
 
-      const loadingToast = toast.loading("Uploading file...");
+      const loadingToast = toast.loading(
+        t("tasks:detail.editor.upload.loading"),
+      );
 
       try {
         const uploadedAsset = await uploadTaskImage({
@@ -391,16 +400,20 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
         toast.dismiss(loadingToast);
         toast.success(
-          uploadedAsset.kind === "image" ? "Image uploaded" : "File attached",
+          uploadedAsset.kind === "image"
+            ? t("tasks:detail.editor.upload.imageSuccess")
+            : t("tasks:detail.editor.upload.fileSuccess"),
         );
       } catch (error) {
         toast.dismiss(loadingToast);
         toast.error(
-          error instanceof Error ? error.message : "Failed to upload file",
+          error instanceof Error
+            ? error.message
+            : t("tasks:detail.editor.upload.failed"),
         );
       }
     },
-    [insertUploadedAsset, taskId],
+    [insertUploadedAsset, t, taskId],
   );
 
   const openImagePicker = useCallback(
@@ -464,10 +477,15 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const slashCommands = useMemo(
     () => [
-      ...SLASH_COMMANDS,
+      ...SLASH_COMMANDS.map((command) => ({
+        ...command,
+        label: t(`tasks:detail.editor.slash.commands.${command.id}`, {
+          defaultValue: command.label,
+        }),
+      })),
       {
         id: "file",
-        label: "File",
+        label: t("tasks:detail.editor.slash.commands.file"),
         group: "insert" as const,
         search: "file attachment image photo picture upload",
         run: (activeEditor: Editor, range: SlashRange) => {
@@ -476,7 +494,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         },
       },
     ],
-    [openImagePicker],
+    [openImagePicker, t],
   );
 
   useEffect(() => {
@@ -559,7 +577,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           nested: true,
         }),
         Placeholder.configure({
-          placeholder: "Write a description…",
+          placeholder: t("tasks:detail.editor.placeholder"),
         }),
         Table.configure({
           resizable: true,
@@ -729,7 +747,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         debouncedUpdate(markdown);
       },
     },
-    [getOverlayPosition, handleAssetFileUpload, toShikiLanguage],
+    [getOverlayPosition, handleAssetFileUpload, t, toShikiLanguage],
   );
 
   useEffect(() => {
@@ -775,7 +793,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       event.preventDefault();
       setPreviewImage({
         src: target.currentSrc || target.src,
-        alt: target.alt || "Preview image",
+        alt: target.alt || t("tasks:detail.editor.previewImage"),
       });
     };
 
@@ -785,7 +803,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     return () => {
       dom.removeEventListener("click", handleImagePreviewClick);
     };
-  }, [editor]);
+  }, [editor, t]);
 
   useEffect(() => {
     slashMenuRef.current = slashMenu;
@@ -797,7 +815,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       const previousUrl = editor.getAttributes("link").href as
         | string
         | undefined;
-      const url = window.prompt("Enter URL", prefilledUrl || previousUrl || "");
+      const url = window.prompt(
+        t("tasks:detail.editor.enterUrl"),
+        prefilledUrl || previousUrl || "",
+      );
       if (url === null) return;
       if (url.trim() === "") {
         editor.chain().focus().extendMarkRange("link").unsetLink().run();
@@ -810,7 +831,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         .setLink({ href: url })
         .run();
     },
-    [editor],
+    [editor, t],
   );
 
   const filteredSlashCommands = useMemo(() => {
@@ -833,25 +854,25 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const groupedSlashCommands = useMemo(
     () => [
       {
-        title: "Text",
+        title: t("tasks:detail.editor.slash.groups.text"),
         items: filteredSlashCommands.filter(
           (command) => command.group === "text",
         ),
       },
       {
-        title: "Lists",
+        title: t("tasks:detail.editor.slash.groups.lists"),
         items: filteredSlashCommands.filter(
           (command) => command.group === "lists",
         ),
       },
       {
-        title: "Insert",
+        title: t("tasks:detail.editor.slash.groups.insert"),
         items: filteredSlashCommands.filter(
           (command) => command.group === "insert",
         ),
       },
     ],
-    [filteredSlashCommands],
+    [filteredSlashCommands, t],
   );
 
   const runSlashCommand = useCallback(
@@ -979,7 +1000,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       if (!editor || !embedComposer) return;
       const url = normalizeUrl(embedComposer.url);
       if (!url) {
-        setEmbedComposerError("Enter a valid URL");
+        setEmbedComposerError(t("tasks:detail.editor.embed.errors.invalidUrl"));
         return;
       }
 
@@ -1013,7 +1034,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           .run();
       } else {
         if (!isYouTubeUrl(url)) {
-          setEmbedComposerError("Only YouTube links can be embedded.");
+          setEmbedComposerError(
+            t("tasks:detail.editor.embed.errors.onlyYoutube"),
+          );
           return;
         }
         chain
@@ -1030,7 +1053,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       setEmbedComposer(null);
       setEmbedComposerError("");
     },
-    [editor, embedComposer],
+    [editor, embedComposer, t],
   );
 
   useEffect(() => {
@@ -1212,7 +1235,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const activeCodeLanguageLabel =
     codeLanguages.find(
       (language) => language.value === hoveredCodeBlock?.language,
-    )?.label || "Auto detect";
+    )?.label || t("tasks:detail.editor.autoDetect");
 
   useEffect(() => {
     return () => {
@@ -1294,7 +1317,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   return (
     <section
       ref={editorShellRef}
-      aria-label="Task description editor"
+      aria-label={t("tasks:detail.editor.ariaLabel")}
       className={cn(
         "kaneo-tiptap-shell group",
         isDragActive && "is-drag-active",
@@ -1335,7 +1358,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           <button
             type="button"
             className="kaneo-codeblock-language-trigger kaneo-codeblock-copy-trigger"
-            aria-label={isCodeCopied ? "Copied" : "Copy code"}
+            aria-label={
+              isCodeCopied
+                ? t("tasks:detail.editor.copied")
+                : t("tasks:detail.editor.copyCode")
+            }
             onMouseDown={(event) => {
               event.preventDefault();
             }}
@@ -1348,7 +1375,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
             ) : (
               <Copy className="size-3.5" />
             )}
-            <span>{isCodeCopied ? "Copied" : "Copy"}</span>
+            <span>
+              {isCodeCopied
+                ? t("tasks:detail.editor.copied")
+                : t("tasks:detail.editor.copy")}
+            </span>
           </button>
           <DropdownMenu
             open={isCodeLanguageMenuOpen}
@@ -1374,7 +1405,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                 onValueChange={setCodeLanguage}
               >
                 <DropdownMenuRadioItem value="auto">
-                  Auto detect
+                  {t("tasks:detail.editor.autoDetect")}
                 </DropdownMenuRadioItem>
                 <DropdownMenuSeparator />
                 {codeLanguages.map(({ value, label }) => (
@@ -1622,7 +1653,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
               );
             })
           ) : (
-            <div className="kaneo-tiptap-slash-empty">No commands</div>
+            <div className="kaneo-tiptap-slash-empty">
+              {t("tasks:detail.editor.slash.empty")}
+            </div>
           )}
         </div>
       )}
@@ -1646,7 +1679,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                   submitEmbedComposer("embed");
                 }}
               >
-                <span>Embed video</span>
+                <span>{t("tasks:detail.editor.embed.choice.embedVideo")}</span>
                 <span className="kaneo-embed-choice-hint">Tab</span>
               </button>
               <button
@@ -1658,7 +1691,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                   setEmbedComposerError("");
                 }}
               >
-                <span>Keep as link</span>
+                <span>{t("tasks:detail.editor.embed.choice.keepAsLink")}</span>
                 <span className="kaneo-embed-choice-hint">Esc</span>
               </button>
             </div>
@@ -1679,7 +1712,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                   );
                   if (embedComposerError) setEmbedComposerError("");
                 }}
-                placeholder="Paste URL"
+                placeholder={t("tasks:detail.editor.embed.inputPlaceholder")}
                 autoFocus
               />
               <div className="kaneo-embed-composer-actions">
@@ -1689,10 +1722,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                   variant="ghost"
                   onClick={() => submitEmbedComposer("link")}
                 >
-                  As link
+                  {t("tasks:detail.editor.embed.asLink")}
                 </Button>
                 <Button type="submit" size="xs">
-                  Embed
+                  {t("tasks:detail.editor.embed.submit")}
                 </Button>
                 <Button
                   type="button"
@@ -1703,7 +1736,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                     setEmbedComposerError("");
                   }}
                 >
-                  Cancel
+                  {t("common:actions.cancel")}
                 </Button>
               </div>
               {embedComposerError && (
@@ -1729,13 +1762,13 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           event.preventDefault();
         }}
         onClick={() => openImagePicker(editor)}
-        aria-label="Attach file"
+        aria-label={t("tasks:detail.editor.attachFile")}
       >
         <Paperclip className="size-3.5" />
       </button>
       {isDragActive && (
         <div className="kaneo-editor-drop-indicator">
-          <span>Drop image to upload</span>
+          <span>{t("tasks:detail.editor.dropToUpload")}</span>
         </div>
       )}
       <Dialog

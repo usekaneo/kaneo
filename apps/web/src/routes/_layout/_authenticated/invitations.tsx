@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle, Loader2, Mail, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ import {
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
+import { formatDateMedium } from "@/lib/format";
 import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute("/_layout/_authenticated/invitations")({
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/_layout/_authenticated/invitations")({
 });
 
 function InvitationsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: invitations = [], isLoading } = usePendingInvitations();
@@ -50,7 +53,7 @@ function InvitationsPage() {
       });
 
       if (error) {
-        toast.error(error.message || "Failed to accept invitation");
+        toast.error(error.message || t("invitations:toast.acceptError"));
         return;
       }
 
@@ -58,7 +61,7 @@ function InvitationsPage() {
         organizationId: data?.invitation.organizationId || organizationId,
       });
 
-      toast.success("Invitation accepted! Welcome to the team.");
+      toast.success(t("invitations:toast.acceptSuccess"));
 
       await queryClient.invalidateQueries({
         queryKey: ["invitations", "pending"],
@@ -72,7 +75,9 @@ function InvitationsPage() {
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to accept invitation",
+        error instanceof Error
+          ? error.message
+          : t("invitations:toast.acceptError"),
       );
     } finally {
       setAcceptingId(null);
@@ -87,31 +92,24 @@ function InvitationsPage() {
       });
 
       if (error) {
-        toast.error(error.message || "Failed to reject invitation");
+        toast.error(error.message || t("invitations:toast.rejectError"));
         return;
       }
 
-      toast.success("Invitation rejected");
+      toast.success(t("invitations:toast.rejectSuccess"));
 
       await queryClient.invalidateQueries({
         queryKey: ["invitations", "pending"],
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to reject invitation",
+        error instanceof Error
+          ? error.message
+          : t("invitations:toast.rejectError"),
       );
     } finally {
       setRejectingId(null);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
   };
 
   const getExpiryStatus = (expiresAt: string) => {
@@ -121,7 +119,7 @@ function InvitationsPage() {
       (expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
     );
 
-    const formattedDate = formatDate(expiresAt);
+    const formattedDate = formatDateMedium(expiresAt);
 
     if (daysDiff <= 1) {
       return {
@@ -146,13 +144,15 @@ function InvitationsPage() {
 
   return (
     <>
-      <PageTitle title="Invitations" />
+      <PageTitle title={t("invitations:pageTitle")} />
       <div className="flex w-full min-h-screen items-center justify-center p-6 bg-background">
         <div className="w-full max-w-2xl space-y-8">
           <div className="space-y-3 text-center">
-            <h1 className="text-3xl font-semibold">Pending Invitations</h1>
+            <h1 className="text-3xl font-semibold">
+              {t("invitations:pendingInvitations")}
+            </h1>
             <p className="text-sm text-muted-foreground">
-              Accept invitations to join workspaces
+              {t("invitations:acceptSubtitle")}
             </p>
           </div>
 
@@ -166,13 +166,13 @@ function InvitationsPage() {
                 <Mail className="h-8 w-8 text-muted-foreground/60" />
               </div>
               <h3 className="text-base font-semibold mb-2">
-                No pending invitations
+                {t("invitations:noPendingTitle")}
               </h3>
               <p className="text-sm text-muted-foreground max-w-md mb-6">
-                You don't have any pending workspace invitations at the moment.
+                {t("invitations:noPendingDescription")}
               </p>
               <Button onClick={handleSkip} variant="default">
-                Continue to Setup
+                {t("invitations:continueToSetup")}
               </Button>
             </div>
           ) : (
@@ -181,11 +181,15 @@ function InvitationsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-b">
-                      <TableHead className="font-semibold">Workspace</TableHead>
                       <TableHead className="font-semibold">
-                        Invited By
+                        {t("invitations:table.workspace")}
                       </TableHead>
-                      <TableHead className="font-semibold">Expires</TableHead>
+                      <TableHead className="font-semibold">
+                        {t("invitations:table.invitedBy")}
+                      </TableHead>
+                      <TableHead className="font-semibold">
+                        {t("invitations:table.expires")}
+                      </TableHead>
                       <TableHead className="w-[100px]" />
                     </TableRow>
                   </TableHeader>
@@ -276,7 +280,7 @@ function InvitationsPage() {
                   onClick={handleSkip}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Skip for now
+                  {t("invitations:skipForNow")}
                 </Button>
               </div>
             </div>

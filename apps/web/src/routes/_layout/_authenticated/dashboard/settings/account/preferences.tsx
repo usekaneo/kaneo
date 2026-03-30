@@ -1,5 +1,7 @@
+import type { AppLocale } from "@i18n/resources";
 import { createFileRoute } from "@tanstack/react-router";
-import { LayoutGrid, List, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -11,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { useLocale } from "@/hooks/use-locale";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 export const Route = createFileRoute(
@@ -20,13 +23,13 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
+  const { locale, setLocale } = useLocale();
   const {
     theme,
     setTheme,
     viewMode,
     setViewMode,
-    compactMode,
-    setCompactMode,
     showTaskNumbers,
     setShowTaskNumbers,
     showAssignees,
@@ -42,60 +45,75 @@ function RouteComponent() {
     setSidebarDefaultOpen,
   } = useUserPreferencesStore();
 
+  const themeLabels: Record<string, string> = {
+    light: t("settings:preferencesPage.themeLight"),
+    dark: t("settings:preferencesPage.themeDark"),
+    system: t("settings:preferencesPage.themeSystem"),
+  };
+
+  const viewLabels: Record<string, string> = {
+    board: t("settings:preferencesPage.board"),
+    list: t("settings:preferencesPage.list"),
+  };
+
+  const localeLabels: Record<string, string> = {
+    "en-US": t("common:language.english"),
+    "de-DE": t("common:language.german"),
+    "el-GR": t("common:language.greek"),
+    "mk-MK": t("common:language.macedonian"),
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold">Preferences</h1>
+        <h1 className="text-2xl font-semibold">
+          {t("settings:preferencesPage.title")}
+        </h1>
         <p className="text-muted-foreground">
-          Customize your Kaneo experience.
+          {t("settings:preferencesPage.subtitle")}
         </p>
       </div>
 
       <div className="space-y-6">
         <div className="space-y-1">
-          <h2 className="text-md font-medium">Appearance</h2>
+          <h2 className="text-md font-medium">
+            {t("settings:preferencesPage.appearanceTitle")}
+          </h2>
           <p className="text-xs text-muted-foreground">
-            Visual settings and layout preferences.
+            {t("settings:preferencesPage.appearanceSubtitle")}
           </p>
         </div>
 
         <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Theme</Label>
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.theme")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Choose your preferred color scheme
+                {t("settings:preferencesPage.themeDescription")}
               </p>
             </div>
             <Select
               value={theme}
               onValueChange={(value) => value && setTheme(value)}
             >
-              <SelectTrigger className="!py-4">
-                <SelectValue placeholder="Select a theme" />
+              <SelectTrigger size="sm" className="w-40">
+                <SelectValue
+                  placeholder={t("settings:preferencesPage.selectTheme")}
+                >
+                  {themeLabels[theme]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="light">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 rounded-md border border-border bg-muted p-1">
-                      <span className="rounded-full size-2 bg-primary" />
-                      <span className="text-xs font-normal text-foreground">
-                        Aa
-                      </span>
-                    </div>
-                    <span className="text-xs font-normal">Light</span>
-                  </div>
+                  {t("settings:preferencesPage.themeLight")}
                 </SelectItem>
                 <SelectItem value="dark">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 rounded-md border border-border bg-card p-1">
-                      <span className="rounded-full size-2 bg-primary" />
-                      <span className="text-xs font-normal text-foreground">
-                        Aa
-                      </span>
-                    </div>
-                    <span className="text-xs font-normal">Dark</span>
-                  </div>
+                  {t("settings:preferencesPage.themeDark")}
+                </SelectItem>
+                <SelectItem value="system">
+                  {t("settings:preferencesPage.themeSystem")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -105,30 +123,73 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Default View</Label>
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.language")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Choose your preferred task view mode
+                {t("settings:preferencesPage.languageDescription")}
+              </p>
+            </div>
+            <Select
+              value={locale ?? "en-US"}
+              onValueChange={(value) => {
+                if (value) {
+                  void setLocale(value as AppLocale);
+                }
+              }}
+            >
+              <SelectTrigger size="sm" className="w-40">
+                <SelectValue
+                  placeholder={t("settings:preferencesPage.selectLanguage")}
+                >
+                  {localeLabels[locale ?? "en-US"]}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mk-MK">
+                  {t("common:language.macedonian")}
+                </SelectItem>
+                <SelectItem value="en-US">
+                  {t("common:language.english")}
+                </SelectItem>
+                <SelectItem value="de-DE">
+                  {t("common:language.german")}
+                </SelectItem>
+                <SelectItem value="el-GR">
+                  {t("common:language.greek")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.defaultView")}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:preferencesPage.defaultViewDescription")}
               </p>
             </div>
             <Select
               value={viewMode}
               onValueChange={(value) => value && setViewMode(value)}
             >
-              <SelectTrigger className="!py-4">
-                <SelectValue placeholder="Select a view mode" />
+              <SelectTrigger size="sm" className="w-40">
+                <SelectValue
+                  placeholder={t("settings:preferencesPage.selectViewMode")}
+                >
+                  {viewLabels[viewMode]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="board">
-                  <div className="flex items-center gap-3">
-                    <LayoutGrid className="h-4 w-4 mr-1" />
-                    <span className="text-xs font-normal">Board</span>
-                  </div>
+                  {t("settings:preferencesPage.board")}
                 </SelectItem>
                 <SelectItem value="list">
-                  <div className="flex items-center gap-3">
-                    <List className="h-4 w-4 mr-1" />
-                    <span className="text-xs font-normal">List</span>
-                  </div>
+                  {t("settings:preferencesPage.list")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -138,21 +199,11 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Compact Mode</Label>
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.sidebarDefault")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Use reduced spacing for more content
-              </p>
-            </div>
-            <Switch checked={compactMode} onCheckedChange={setCompactMode} />
-          </div>
-
-          <Separator />
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Sidebar Default</Label>
-              <p className="text-xs text-muted-foreground">
-                Keep sidebar expanded on startup
+                {t("settings:preferencesPage.sidebarDefaultDescription")}
               </p>
             </div>
             <Switch
@@ -166,9 +217,11 @@ function RouteComponent() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h2 className="text-md font-medium">Display options</h2>
+            <h2 className="text-md font-medium">
+              {t("settings:preferencesPage.displayOptions")}
+            </h2>
             <p className="text-xs text-muted-foreground">
-              Choose which information to show in task views
+              {t("settings:preferencesPage.displayOptionsDescription")}
             </p>
           </div>
           <Button
@@ -178,16 +231,18 @@ function RouteComponent() {
             className="flex items-center gap-2"
           >
             <RotateCcw className="h-4 w-4" />
-            Reset
+            {t("common:actions.reset")}
           </Button>
         </div>
 
         <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Task Numbers</Label>
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.taskNumbers")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Show task IDs and numbers
+                {t("settings:preferencesPage.taskNumbersDescription")}
               </p>
             </div>
             <Switch
@@ -200,9 +255,11 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Assignees</Label>
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.assignees")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Show who's assigned to tasks
+                {t("settings:preferencesPage.assigneesDescription")}
               </p>
             </div>
             <Switch
@@ -215,9 +272,11 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Due Dates</Label>
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.dueDates")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Display task deadlines
+                {t("settings:preferencesPage.dueDatesDescription")}
               </p>
             </div>
             <Switch checked={showDueDates} onCheckedChange={setShowDueDates} />
@@ -227,9 +286,11 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Labels</Label>
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.labels")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Show task labels and tags
+                {t("settings:preferencesPage.labelsDescription")}
               </p>
             </div>
             <Switch checked={showLabels} onCheckedChange={setShowLabels} />
@@ -239,9 +300,11 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Priority</Label>
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.priority")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                Display priority indicators
+                {t("settings:preferencesPage.priorityDescription")}
               </p>
             </div>
             <Switch checked={showPriority} onCheckedChange={setShowPriority} />

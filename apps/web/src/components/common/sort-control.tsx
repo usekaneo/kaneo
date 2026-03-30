@@ -1,4 +1,5 @@
 import { ArrowDownAZ, ArrowUpAZ } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,15 +16,6 @@ type SortControlProps = {
   onSortChange: (sort: SortConfig) => void;
 };
 
-const sortFields: { field: SortField; label: string }[] = [
-  { field: "position", label: "Manual (position)" },
-  { field: "createdAt", label: "Created date" },
-  { field: "priority", label: "Priority" },
-  { field: "dueDate", label: "Due date" },
-  { field: "title", label: "Title" },
-  { field: "number", label: "Task number" },
-];
-
 function CheckSlot({ checked }: { checked: boolean }) {
   return (
     <span
@@ -39,6 +31,15 @@ function CheckSlot({ checked }: { checked: boolean }) {
 }
 
 export default function SortControl({ sort, onSortChange }: SortControlProps) {
+  const { t } = useTranslation();
+  const sortFields: { field: SortField; label: string }[] = [
+    { field: "position", label: t("tasks:sort.fields.position") },
+    { field: "createdAt", label: t("tasks:sort.fields.createdAt") },
+    { field: "priority", label: t("tasks:sort.fields.priority") },
+    { field: "dueDate", label: t("tasks:sort.fields.dueDate") },
+    { field: "title", label: t("tasks:sort.fields.title") },
+    { field: "number", label: t("tasks:sort.fields.number") },
+  ];
   const isActive = sort.field !== "position";
   const activeLabel = sortFields.find((f) => f.field === sort.field)?.label;
 
@@ -79,12 +80,12 @@ export default function SortControl({ sort, onSortChange }: SortControlProps) {
           ) : (
             <ArrowDownAZ className="h-3 w-3" />
           )}
-          {isActive ? activeLabel : "Sort"}
+          {isActive ? activeLabel : t("tasks:sort.label")}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-48" align="start">
           <DropdownMenuGroup>
             <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-              Sort By
+              {t("tasks:sort.by")}
             </DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
@@ -104,7 +105,7 @@ export default function SortControl({ sort, onSortChange }: SortControlProps) {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-                  Direction
+                  {t("tasks:sort.direction")}
                 </DropdownMenuLabel>
               </DropdownMenuGroup>
               <DropdownMenuItem
@@ -112,14 +113,14 @@ export default function SortControl({ sort, onSortChange }: SortControlProps) {
                 className="h-8 rounded-md text-sm"
               >
                 <CheckSlot checked={sort.direction === "asc"} />
-                Ascending
+                {t("tasks:sort.ascending")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => onSortChange({ ...sort, direction: "desc" })}
                 className="h-8 rounded-md text-sm"
               >
                 <CheckSlot checked={sort.direction === "desc"} />
-                Descending
+                {t("tasks:sort.descending")}
               </DropdownMenuItem>
             </>
           )}
@@ -131,7 +132,11 @@ export default function SortControl({ sort, onSortChange }: SortControlProps) {
           type="button"
           onClick={toggleDirection}
           className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent/60"
-          title={sort.direction === "asc" ? "Ascending" : "Descending"}
+          title={
+            sort.direction === "asc"
+              ? t("tasks:sort.ascending")
+              : t("tasks:sort.descending")
+          }
         >
           {sort.direction === "asc" ? (
             <ArrowUpAZ className="h-3 w-3" />

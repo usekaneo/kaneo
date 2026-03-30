@@ -86,7 +86,7 @@ async function createTask({
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
     type: "task",
-    content: "created the task",
+    content: null,
   });
 
   return {

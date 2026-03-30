@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Building2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +18,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,7 +40,7 @@ function RouteComponent() {
 
     try {
       const createdWorkspace = await mutateAsync({ name, description });
-      toast.success("Workspace created successfully");
+      toast.success(t("workspace:create.success"));
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
 
       await authClient.organization.setActive({
@@ -54,14 +56,14 @@ function RouteComponent() {
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create workspace",
+        error instanceof Error ? error.message : t("workspace:create.error"),
       );
     }
   };
 
   return (
     <>
-      <PageTitle title="Create Workspace" />
+      <PageTitle title={t("workspace:create.pageTitle")} />
       <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 overflow-y-auto">
         <div className="w-full max-w-md">
           <Card className="shadow-sm">
@@ -74,11 +76,10 @@ function RouteComponent() {
                 </div>
 
                 <h1 className="text-2xl font-semibold text-foreground mb-2">
-                  Create a new workspace
+                  {t("workspace:create.heading")}
                 </h1>
                 <p className="text-muted-foreground text-sm">
-                  Workspaces are shared environments where teams can work on
-                  projects, cycles and issues.
+                  {t("workspace:create.subtitle")}
                 </p>
               </div>
 
@@ -96,13 +97,13 @@ function RouteComponent() {
                       id="workspace-name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Enter workspace name"
+                      placeholder={t("workspace:create.namePlaceholder")}
                       className="h-12 text-lg font-medium"
                       required
                     />
                     {!name.trim() && (
                       <p className="mt-1 text-destructive-foreground text-sm">
-                        Required
+                        {t("workspace:create.required")}
                       </p>
                     )}
                   </div>
@@ -112,13 +113,13 @@ function RouteComponent() {
                       htmlFor="workspace-description"
                       className="block text-sm font-medium text-foreground mb-2"
                     >
-                      Description (optional)
+                      {t("workspace:create.descriptionLabel")}
                     </label>
                     <Input
                       id="workspace-description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Add a description for your workspace"
+                      placeholder={t("workspace:create.descriptionPlaceholder")}
                       className="h-10"
                     />
                   </div>
@@ -130,7 +131,9 @@ function RouteComponent() {
                     disabled={!name.trim() || isPending}
                     className="w-full h-12 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isPending ? "Creating..." : "Create workspace"}
+                    {isPending
+                      ? t("workspace:create.creating")
+                      : t("workspace:create.submit")}
                   </Button>
                 </div>
               </form>

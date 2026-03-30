@@ -127,6 +127,13 @@
 			"when": 1774269662424,
 			"tag": "0017_white_omega_flight",
 			"breakpoints": true
+		},
+		{
+			"idx": 18,
+			"version": "7",
+			"when": 1774726270729,
+			"tag": "0018_motionless_luckman",
+			"breakpoints": true
 		}
 	]
 }

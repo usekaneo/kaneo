@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -10,6 +11,7 @@ import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { getColumnIcon } from "@/lib/column";
+import { getStatusLabel } from "@/lib/i18n/domain";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
@@ -23,6 +25,7 @@ export default function TaskStatusPopover({
   task,
   children,
 }: TaskStatusPopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { project } = useProjectStore();
   const statusOptions =
@@ -45,11 +48,11 @@ export default function TaskStatusPopover({
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to update task status",
+            : t("tasks:popover.status.updateError"),
         );
       }
     },
-    [task, updateTaskStatus],
+    [t, task, updateTaskStatus],
   );
 
   const shortcutOptions = useMemo(
@@ -76,7 +79,9 @@ export default function TaskStatusPopover({
               onClick={() => handleStatusChange(status.value)}
             >
               {getColumnIcon(status.value, status.isFinal)}
-              <span className="text-sm">{status.label}</span>
+              <span className="text-sm">
+                {getStatusLabel(status.value) || status.label}
+              </span>
               {task.status === status.value ? (
                 <Check className="ml-auto h-4 w-4" />
               ) : (

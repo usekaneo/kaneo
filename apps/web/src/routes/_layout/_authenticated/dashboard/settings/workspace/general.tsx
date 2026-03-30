@@ -1,8 +1,9 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
 import {
@@ -46,14 +47,6 @@ type NormalizedWorkspaceValues = {
   description: string;
 };
 
-const workspaceSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Workspace name is required")
-    .min(2, "Workspace name must be at least 2 characters"),
-  description: z.string().optional(),
-});
-
 function normalizeWorkspaceValues(
   data: WorkspaceFormValues,
 ): NormalizedWorkspaceValues {
@@ -64,6 +57,19 @@ function normalizeWorkspaceValues(
 }
 
 function RouteComponent() {
+  const { t } = useTranslation();
+  const workspaceSchema = useMemo(
+    () =>
+      z.object({
+        name: z
+          .string()
+          .min(1, t("settings:workspaceGeneral.validation.nameRequired"))
+          .min(2, t("settings:workspaceGeneral.validation.nameShort")),
+        description: z.string().optional(),
+      }),
+    [t],
+  );
+
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -151,10 +157,12 @@ function RouteComponent() {
         await queryClient.invalidateQueries({
           queryKey: ["active-organization"],
         });
-        toast.success("Workspace updated successfully");
+        toast.success(t("settings:workspaceGeneral.toastUpdated"));
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to update workspace",
+          error instanceof Error
+            ? error.message
+            : t("settings:workspaceGeneral.toastUpdateError"),
         );
       } finally {
         isSavingRef.current = false;
@@ -166,7 +174,7 @@ function RouteComponent() {
         }
       }
     },
-    [workspace, updateWorkspace, queryClient, workspaceForm],
+    [workspace, updateWorkspace, queryClient, workspaceForm, t],
   );
 
   const handleDeleteWorkspace = useCallback(async () => {
@@ -174,7 +182,7 @@ function RouteComponent() {
 
     try {
       await deleteWorkspace({ workspaceId: workspace.id });
-      toast.success("Workspace deleted successfully");
+      toast.success(t("settings:workspaceGeneral.toastDeleted"));
 
       // Invalidate all workspace-related queries
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
@@ -185,10 +193,12 @@ function RouteComponent() {
       navigate({ to: "/dashboard" });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete workspace",
+        error instanceof Error
+          ? error.message
+          : t("settings:workspaceGeneral.toastDeleteError"),
       );
     }
-  }, [workspace?.id, deleteWorkspace, queryClient, navigate]);
+  }, [workspace?.id, deleteWorkspace, queryClient, navigate, t]);
 
   const debouncedSave = useCallback(
     (data: WorkspaceFormValues) => {
@@ -223,20 +233,24 @@ function RouteComponent() {
 
   return (
     <>
-      <PageTitle title="General Settings" />
+      <PageTitle title={t("settings:workspaceGeneral.pageTitle")} />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">General Settings</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("settings:workspaceGeneral.title")}
+          </h1>
           <p className="text-muted-foreground">
-            Manage your workspace name and description.
+            {t("settings:workspaceGeneral.subtitle")}
           </p>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-1">
-            <h2 className="text-md font-medium">Workspace Information</h2>
+            <h2 className="text-md font-medium">
+              {t("settings:workspaceGeneral.workspaceInfoTitle")}
+            </h2>
             <p className="text-xs text-muted-foreground">
-              Configure your workspace details and preferences.
+              {t("settings:workspaceGeneral.workspaceInfoSubtitle")}
             </p>
           </div>
 
@@ -251,16 +265,18 @@ function RouteComponent() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
-                            Workspace name
+                            {t("settings:workspaceGeneral.nameLabel")}
                           </FormLabel>
                           <p className="text-xs text-muted-foreground">
-                            The name of your workspace
+                            {t("settings:workspaceGeneral.nameHint")}
                           </p>
                         </div>
                         <FormControl>
                           <Input
                             className="w-64"
-                            placeholder="Enter workspace name"
+                            placeholder={t(
+                              "settings:workspaceGeneral.namePlaceholder",
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -280,16 +296,18 @@ function RouteComponent() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
-                            Description
+                            {t("settings:workspaceGeneral.descriptionLabel")}
                           </FormLabel>
                           <p className="text-xs text-muted-foreground">
-                            A brief description of your workspace
+                            {t("settings:workspaceGeneral.descriptionHint")}
                           </p>
                         </div>
                         <FormControl>
                           <Input
                             className="w-64"
-                            placeholder="Enter workspace description"
+                            placeholder={t(
+                              "settings:workspaceGeneral.descriptionPlaceholder",
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -305,18 +323,22 @@ function RouteComponent() {
 
         <div className="space-y-6">
           <div className="space-y-1">
-            <h2 className="text-md font-medium">Danger zone</h2>
+            <h2 className="text-md font-medium">
+              {t("settings:workspaceGeneral.dangerZone")}
+            </h2>
             <p className="text-xs text-muted-foreground">
-              Irreversible and destructive actions.
+              {t("settings:workspaceGeneral.dangerZoneSubtitle")}
             </p>
           </div>
 
           <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">Delete workspace</p>
+                <p className="text-sm font-medium">
+                  {t("settings:workspaceGeneral.deleteWorkspace")}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Schedule workspace to be permanently deleted
+                  {t("settings:workspaceGeneral.deleteWorkspaceDescription")}
                 </p>
               </div>
               <Button
@@ -326,7 +348,7 @@ function RouteComponent() {
                 type="button"
                 onClick={() => setIsDeleteModalOpen(true)}
               >
-                Delete workspace
+                {t("settings:workspaceGeneral.deleteWorkspace")}
               </Button>
             </div>
           </div>
@@ -338,16 +360,19 @@ function RouteComponent() {
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Workspace?</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("settings:workspaceGeneral.deleteModalTitle")}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete the workspace "{workspace?.name}"
-                and all its data. This action cannot be undone.
+                {t("settings:workspaceGeneral.deleteModalDescription", {
+                  name: workspace?.name ?? "",
+                })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogClose>
                 <Button variant="outline" size="sm">
-                  Cancel
+                  {t("common:actions.cancel")}
                 </Button>
               </AlertDialogClose>
               <AlertDialogClose
@@ -355,7 +380,9 @@ function RouteComponent() {
                 disabled={isDeleting}
               >
                 <Button variant="destructive" size="sm" disabled={isDeleting}>
-                  {isDeleting ? "Deleting..." : "Delete Workspace"}
+                  {isDeleting
+                    ? t("common:actions.deleting")
+                    : t("settings:workspaceGeneral.deleteModalConfirm")}
                 </Button>
               </AlertDialogClose>
             </AlertDialogFooter>

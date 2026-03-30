@@ -4,6 +4,7 @@ import {
   boolean,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -19,6 +20,7 @@ export const userTable = pgTable("user", {
     .$defaultFn(() => false)
     .notNull(),
   image: text("image"),
+  locale: text("locale"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" })
     .defaultNow()
@@ -334,6 +336,7 @@ export const activityTable = pgTable("activity", {
     onUpdate: "cascade",
   }),
   content: text("content"),
+  eventData: jsonb("event_data"),
   externalUserName: text("external_user_name"),
   externalUserAvatar: text("external_user_avatar"),
   externalSource: text("external_source"),
@@ -413,9 +416,10 @@ export const notificationTable = pgTable("notification", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  title: text("title").notNull(),
+  title: text("title"),
   content: text("content"),
   type: text("type").notNull().default("info"),
+  eventData: jsonb("event_data"),
   isRead: boolean("is_read").default(false),
   resourceId: text("resource_id"),
   resourceType: text("resource_type"),

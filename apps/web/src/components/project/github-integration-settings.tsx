@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import { Badge } from "@/components/ui/badge";
@@ -40,24 +41,38 @@ import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 
-const githubIntegrationSchema = z.object({
-  repositoryOwner: z
-    .string()
-    .min(1, "Repository owner is required")
-    .regex(/^[a-zA-Z0-9-]+$/, "Invalid repository owner format"),
-  repositoryName: z
-    .string()
-    .min(1, "Repository name is required")
-    .regex(/^[a-zA-Z0-9._-]+$/, "Invalid repository name format"),
-});
-
-type GithubIntegrationFormValues = z.infer<typeof githubIntegrationSchema>;
+type GithubIntegrationFormValues = {
+  repositoryOwner: string;
+  repositoryName: string;
+};
 
 export function GitHubIntegrationSettings({
   projectId,
 }: {
   projectId: string;
 }) {
+  const { t } = useTranslation();
+  const githubIntegrationSchema = React.useMemo(
+    () =>
+      z.object({
+        repositoryOwner: z
+          .string()
+          .min(1, t("settings:githubIntegration.validation.ownerRequired"))
+          .regex(
+            /^[a-zA-Z0-9-]+$/,
+            t("settings:githubIntegration.validation.ownerInvalid"),
+          ),
+        repositoryName: z
+          .string()
+          .min(1, t("settings:githubIntegration.validation.nameRequired"))
+          .regex(
+            /^[a-zA-Z0-9._-]+$/,
+            t("settings:githubIntegration.validation.nameInvalid"),
+          ),
+      }),
+    [t],
+  );
+
   const { data: integration, isLoading } = useGetGithubIntegration(projectId);
   const { mutateAsync: createIntegration, isPending: isCreating } =
     useCreateGithubIntegration();
@@ -103,17 +118,17 @@ export function GitHubIntegrationSettings({
 
         if (showToast) {
           if (result.isInstalled && result.hasRequiredPermissions) {
-            toast.success("GitHub App is properly installed!");
+            toast.success(t("settings:githubIntegration.toast.installedOk"));
           } else if (result.isInstalled) {
             toast.warning(
-              "GitHub App is installed but missing required permissions",
+              t("settings:githubIntegration.toast.installedMissingPerms"),
             );
           } else if (result.repositoryExists) {
             toast.warning(
-              "GitHub App needs to be installed on this repository",
+              t("settings:githubIntegration.toast.needsInstallOnRepo"),
             );
           } else {
-            toast.error("Repository not found or not accessible");
+            toast.error(t("settings:githubIntegration.toast.repoNotFound"));
           }
         }
       } catch (error) {
@@ -121,13 +136,13 @@ export function GitHubIntegrationSettings({
           toast.error(
             error instanceof Error
               ? error.message
-              : "Failed to verify GitHub installation",
+              : t("settings:githubIntegration.toast.verifyError"),
           );
         }
         setVerificationResult(null);
       }
     },
-    [verifyInstallation],
+    [verifyInstallation, t],
   );
 
   React.useEffect(() => {
@@ -165,13 +180,15 @@ export function GitHubIntegrationSettings({
       const verification = await verifyInstallation(data);
 
       if (!verification.isInstalled) {
-        toast.error("Please install the GitHub App on this repository first");
+        toast.error(t("settings:githubIntegration.toast.installAppFirst"));
         return;
       }
 
       if (!verification.hasRequiredPermissions) {
         toast.error(
-          `GitHub App is missing required permissions: ${verification.missingPermissions?.join(", ") || "issues"}. Please update the app permissions.`,
+          t("settings:githubIntegration.toast.missingPermsDetail", {
+            list: verification.missingPermissions?.join(", ") || "issues",
+          }),
         );
         return;
       }
@@ -180,12 +197,12 @@ export function GitHubIntegrationSettings({
         projectId,
         data,
       });
-      toast.success("GitHub integration updated successfully");
+      toast.success(t("settings:githubIntegration.toast.updated"));
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to update GitHub integration",
+          : t("settings:githubIntegration.toast.updateError"),
       );
     }
   };
@@ -195,12 +212,12 @@ export function GitHubIntegrationSettings({
       await deleteIntegration(projectId);
       form.reset({ repositoryOwner: "", repositoryName: "" });
       setVerificationResult(null);
-      toast.success("GitHub integration removed successfully");
+      toast.success(t("settings:githubIntegration.toast.removed"));
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to remove GitHub integration",
+          : t("settings:githubIntegration.toast.removeError"),
       );
     }
   };
@@ -208,10 +225,12 @@ export function GitHubIntegrationSettings({
   const handleImportIssues = async () => {
     try {
       await importIssues({ projectId });
-      toast.success("Issues imported successfully");
+      toast.success(t("settings:githubIntegration.toast.issuesImported"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to import issues",
+        error instanceof Error
+          ? error.message
+          : t("settings:githubIntegration.toast.importError"),
       );
     }
   };
@@ -248,14 +267,16 @@ export function GitHubIntegrationSettings({
       <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <p className="text-sm font-medium">Connection Status</p>
+            <p className="text-sm font-medium">
+              {t("settings:githubIntegration.connectionStatus")}
+            </p>
             {isConnected ? (
               <p className="text-xs text-muted-foreground">
-                Repository connected and active
+                {t("settings:githubIntegration.connectedActive")}
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                No repository connected
+                {t("settings:githubIntegration.notConnectedHint")}
               </p>
             )}
           </div>
@@ -264,13 +285,13 @@ export function GitHubIntegrationSettings({
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="gap-1">
                   <CheckCircle className="w-3 h-3" />
-                  Connected
+                  {t("settings:githubIntegration.badgeConnected")}
                 </Badge>
               </div>
             ) : (
               <Badge variant="outline" className="gap-1">
                 <XCircle className="w-3 h-3" />
-                Not Connected
+                {t("settings:githubIntegration.badgeNotConnected")}
               </Badge>
             )}
           </div>
@@ -281,9 +302,11 @@ export function GitHubIntegrationSettings({
             <Separator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">Repository</p>
+                <p className="text-sm font-medium">
+                  {t("settings:githubIntegration.repository")}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Connected GitHub repository
+                  {t("settings:githubIntegration.repositoryHint")}
                 </p>
               </div>
               <div className="flex items-center gap-2 text-sm">
@@ -306,11 +329,10 @@ export function GitHubIntegrationSettings({
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0 flex-1 space-y-0.5">
                 <p className="text-sm font-medium">
-                  Comment Kaneo link on new issues
+                  {t("settings:githubIntegration.commentTaskLinkTitle")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  When enabled, Kaneo posts a comment on each new GitHub issue
-                  with a link to the task.
+                  {t("settings:githubIntegration.commentTaskLinkHint")}
                 </p>
               </div>
               <Switch
@@ -323,14 +345,18 @@ export function GitHubIntegrationSettings({
                     });
                     toast.success(
                       checked
-                        ? "Kaneo will comment with a task link on new issues"
-                        : "Task link comments on new issues are turned off",
+                        ? t("settings:githubIntegration.toast.commentOnEnabled")
+                        : t(
+                            "settings:githubIntegration.toast.commentOnDisabled",
+                          ),
                     );
                   } catch (error) {
                     toast.error(
                       error instanceof Error
                         ? error.message
-                        : "Failed to update GitHub integration",
+                        : t(
+                            "settings:githubIntegration.toast.settingsUpdateError",
+                          ),
                     );
                   }
                 }}
@@ -345,9 +371,11 @@ export function GitHubIntegrationSettings({
             <Separator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">GitHub App Status</p>
+                <p className="text-sm font-medium">
+                  {t("settings:githubIntegration.appStatusTitle")}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Installation and permissions status
+                  {t("settings:githubIntegration.appStatusHint")}
                 </p>
               </div>
               <div className="flex items-center gap-2 text-sm">
@@ -356,21 +384,21 @@ export function GitHubIntegrationSettings({
                   <>
                     <CheckCircle className="h-4 w-4 text-success-foreground" />
                     <span className="font-medium text-success-foreground">
-                      Properly configured
+                      {t("settings:githubIntegration.statusProperlyConfigured")}
                     </span>
                   </>
                 ) : verificationResult.isInstalled ? (
                   <>
                     <AlertTriangle className="h-4 w-4 text-warning-foreground" />
                     <span className="font-medium text-warning-foreground">
-                      Missing permissions
+                      {t("settings:githubIntegration.statusMissingPermissions")}
                     </span>
                   </>
                 ) : (
                   <>
                     <XCircle className="h-4 w-4 text-destructive-foreground" />
                     <span className="font-medium text-destructive-foreground">
-                      Not installed
+                      {t("settings:githubIntegration.statusNotInstalled")}
                     </span>
                   </>
                 )}
@@ -390,16 +418,18 @@ export function GitHubIntegrationSettings({
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <FormLabel className="text-sm font-medium">
-                        Repository Owner
+                        {t("settings:githubIntegration.ownerLabel")}
                       </FormLabel>
                       <p className="text-xs text-muted-foreground">
-                        GitHub username or organization
+                        {t("settings:githubIntegration.ownerHint")}
                       </p>
                     </div>
                     <FormControl>
                       <Input
                         className="w-64"
-                        placeholder="e.g., octocat"
+                        placeholder={t(
+                          "settings:githubIntegration.ownerPlaceholder",
+                        )}
                         {...field}
                         disabled={isCreating || isDeleting}
                       />
@@ -420,16 +450,18 @@ export function GitHubIntegrationSettings({
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <FormLabel className="text-sm font-medium">
-                        Repository Name
+                        {t("settings:githubIntegration.repoNameLabel")}
                       </FormLabel>
                       <p className="text-xs text-muted-foreground">
-                        The repository name
+                        {t("settings:githubIntegration.repoNameHint")}
                       </p>
                     </div>
                     <FormControl>
                       <Input
                         className="w-64"
-                        placeholder="e.g., my-project"
+                        placeholder={t(
+                          "settings:githubIntegration.repoNamePlaceholder",
+                        )}
                         {...field}
                         disabled={isCreating || isDeleting}
                       />
@@ -444,9 +476,11 @@ export function GitHubIntegrationSettings({
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <p className="text-sm font-medium">Actions</p>
+                <p className="text-sm font-medium">
+                  {t("settings:githubIntegration.actionsTitle")}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Manage your repository connection
+                  {t("settings:githubIntegration.actionsHint")}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -458,7 +492,7 @@ export function GitHubIntegrationSettings({
                   className="gap-2"
                 >
                   <GitBranch className="size-3" />
-                  Browse
+                  {t("settings:githubIntegration.browse")}
                 </Button>
 
                 <Button
@@ -472,7 +506,7 @@ export function GitHubIntegrationSettings({
                   <RefreshCw
                     className={cn("size-3", isVerifying && "animate-spin")}
                   />
-                  Verify
+                  {t("settings:githubIntegration.verify")}
                 </Button>
 
                 <Button
@@ -490,7 +524,9 @@ export function GitHubIntegrationSettings({
                   className="gap-2"
                 >
                   <Link className="size-3" />
-                  {isConnected ? "Update" : "Connect"}
+                  {isConnected
+                    ? t("settings:githubIntegration.update")
+                    : t("settings:githubIntegration.connect")}
                 </Button>
 
                 {isConnected && (
@@ -503,7 +539,7 @@ export function GitHubIntegrationSettings({
                     className="gap-2"
                   >
                     <Unlink className="size-3" />
-                    Disconnect
+                    {t("settings:githubIntegration.disconnect")}
                   </Button>
                 )}
               </div>
@@ -545,7 +581,9 @@ export function GitHubIntegrationSettings({
                     verificationResult.missingPermissions && (
                       <div className="mt-2">
                         <p className="text-xs mb-2">
-                          Missing permissions:{" "}
+                          {t(
+                            "settings:githubIntegration.missingPermissionsLabel",
+                          )}{" "}
                           <strong>
                             {verificationResult.missingPermissions.join(", ")}
                           </strong>
@@ -564,7 +602,9 @@ export function GitHubIntegrationSettings({
                               className="gap-2"
                             >
                               <ExternalLink className="w-3 h-3" />
-                              Update Permissions
+                              {t(
+                                "settings:githubIntegration.updatePermissions",
+                              )}
                             </Button>
                           )}
                         </div>
@@ -587,7 +627,7 @@ export function GitHubIntegrationSettings({
                             className="gap-2"
                           >
                             <ExternalLink className="w-3 h-3" />
-                            Install GitHub App
+                            {t("settings:githubIntegration.installGithubApp")}
                           </Button>
                         )}
                       </div>
@@ -603,9 +643,11 @@ export function GitHubIntegrationSettings({
         <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <p className="text-sm font-medium">Import GitHub Issues</p>
+              <p className="text-sm font-medium">
+                {t("settings:githubIntegration.importSectionTitle")}
+              </p>
               <p className="text-xs text-muted-foreground">
-                Import existing issues from your GitHub repository as tasks
+                {t("settings:githubIntegration.importSectionHint")}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -621,7 +663,9 @@ export function GitHubIntegrationSettings({
                 ) : (
                   <Import className="size-3" />
                 )}
-                {isImporting ? "Importing..." : "Import Issues"}
+                {isImporting
+                  ? t("settings:githubIntegration.importing")
+                  : t("settings:githubIntegration.importIssues")}
               </Button>
             </div>
           </div>
@@ -629,7 +673,7 @@ export function GitHubIntegrationSettings({
             <>
               <Separator />
               <p className="text-xs text-muted-foreground">
-                Complete the repository configuration above to enable importing
+                {t("settings:githubIntegration.importDisabledHint")}
               </p>
             </>
           )}
