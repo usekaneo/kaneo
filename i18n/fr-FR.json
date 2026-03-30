@@ -492,7 +492,9 @@
 			"title": "Intégrations du projet",
 			"subtitle": "Connectez votre projet avec des outils et services externes pour rationaliser votre flux de travail.",
 			"githubSectionTitle": "Intégration GitHub",
-			"githubSectionSubtitle": "Synchronisez les tâches avec les problèmes GitHub et activez la synchronisation bidirectionnelle."
+			"githubSectionSubtitle": "Synchronisez les tâches avec les problèmes GitHub et activez la synchronisation bidirectionnelle.",
+			"giteaSectionTitle": "Gitea Integration",
+			"giteaSectionSubtitle": "Synchronize tasks with a self-hosted Gitea instance (issues, PRs, webhooks)."
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilité du projet",
