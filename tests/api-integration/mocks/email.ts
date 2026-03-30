@@ -1,11 +1,25 @@
-export async function sendMagicLinkEmail() {
-  return { success: true };
+import type { EmailResult } from "../../../packages/email/src/send-email";
+
+export async function sendMagicLinkEmail(
+  _to: string,
+  _subject: string,
+  _data: unknown,
+): Promise<void> {
+  return undefined;
 }
 
-export async function sendOtpEmail() {
-  return { success: true };
+export async function sendOtpEmail(
+  _to: string,
+  _subject: string,
+  _data: unknown,
+): Promise<void> {
+  return undefined;
 }
 
-export async function sendWorkspaceInvitationEmail() {
+export async function sendWorkspaceInvitationEmail(
+  _to: string,
+  _subject: string,
+  _data: unknown,
+): Promise<EmailResult> {
   return { success: true };
 }
