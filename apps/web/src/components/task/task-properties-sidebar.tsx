@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import labelColors from "@/constants/label-colors";
+import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetProject from "@/hooks/queries/project/use-get-project";
@@ -80,10 +81,14 @@ export default function TaskPropertiesSidebar({
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId ?? "");
   const { data: githubIntegration } = useGetGithubIntegration(projectId);
+  const { data: giteaIntegration } = useGetGiteaIntegration(projectId);
 
   const projectSlug = project?.slug;
   const taskNumber = task?.number;
-  const branchPattern = githubIntegration?.branchPattern || "{slug}-{number}";
+  const branchPattern =
+    githubIntegration?.branchPattern ||
+    giteaIntegration?.branchPattern ||
+    "{slug}-{number}";
 
   const assignee = workspaceUsers?.members?.find(
     (member) => member.userId === task?.userId,
