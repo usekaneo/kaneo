@@ -1,4 +1,4 @@
-import type { AppLocale } from "@i18n/resources";
+import { type AppLocale, supportedLocales } from "@i18n/resources";
 import { createFileRoute } from "@tanstack/react-router";
 import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -21,6 +21,16 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
 });
+
+function getLocaleLabel(locale: AppLocale) {
+  try {
+    const languageCode = new Intl.Locale(locale).language;
+    const displayNames = new Intl.DisplayNames([locale], { type: "language" });
+    return displayNames.of(languageCode) ?? locale;
+  } catch {
+    return locale;
+  }
+}
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -56,12 +66,7 @@ function RouteComponent() {
     list: t("settings:preferencesPage.list"),
   };
 
-  const localeLabels: Record<string, string> = {
-    "en-US": t("common:language.english"),
-    "de-DE": t("common:language.german"),
-    "el-GR": t("common:language.greek"),
-    "mk-MK": t("common:language.macedonian"),
-  };
+  const selectedLocale = locale ?? "en-US";
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -131,7 +136,7 @@ function RouteComponent() {
               </p>
             </div>
             <Select
-              value={locale ?? "en-US"}
+              value={selectedLocale}
               onValueChange={(value) => {
                 if (value) {
                   void setLocale(value as AppLocale);
@@ -142,22 +147,15 @@ function RouteComponent() {
                 <SelectValue
                   placeholder={t("settings:preferencesPage.selectLanguage")}
                 >
-                  {localeLabels[locale ?? "en-US"]}
+                  {getLocaleLabel(selectedLocale)}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="mk-MK">
-                  {t("common:language.macedonian")}
-                </SelectItem>
-                <SelectItem value="en-US">
-                  {t("common:language.english")}
-                </SelectItem>
-                <SelectItem value="de-DE">
-                  {t("common:language.german")}
-                </SelectItem>
-                <SelectItem value="el-GR">
-                  {t("common:language.greek")}
-                </SelectItem>
+                {supportedLocales.map((supportedLocale) => (
+                  <SelectItem key={supportedLocale} value={supportedLocale}>
+                    {getLocaleLabel(supportedLocale)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
