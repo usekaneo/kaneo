@@ -85,7 +85,7 @@ describe("S3 helpers", () => {
   });
 
   it("validates upload size against the configured maximum", () => {
-    process.env.S3_MAX_IMAGE_UPLOAD_BYTES = "1024";
+    process.env.S3_MAX_IMAGE_UPLOAD_BYTES = "1048576";
 
     expect(() => validateTaskAssetUploadInput("", 10)).toThrow(
       "A valid content type is required.",
@@ -94,7 +94,7 @@ describe("S3 helpers", () => {
       "Upload size must be greater than zero.",
     );
     expect(() => validateTaskAssetUploadInput("image/png", 2048)).toThrow(
-      "Upload exceeds the maximum upload size of 0MB.",
+      "Upload exceeds the maximum upload size of 1MB.",
     );
     expect(() => validateTaskAssetUploadInput("image/png", 512)).not.toThrow();
   });
