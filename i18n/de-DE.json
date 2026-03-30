@@ -491,7 +491,13 @@
 			"title": "Projektintegrationen",
 			"subtitle": "Verbinde dein Projekt mit externen Tools und Diensten, um deinen Workflow zu optimieren.",
 			"githubSectionTitle": "GitHub-Integration",
-			"githubSectionSubtitle": "Synchronisiere Aufgaben mit GitHub-Issues und aktiviere die bidirektionale Synchronisierung."
+			"githubSectionSubtitle": "Synchronisiere Aufgaben mit GitHub-Issues und aktiviere die bidirektionale Synchronisierung.",
+			"discordSectionTitle": "Discord-Integration",
+			"discordSectionSubtitle": "Sende Projektaktualisierungen per Webhook in einen Discord-Kanal.",
+			"genericWebhookSectionTitle": "Generische Webhooks",
+			"genericWebhookSectionSubtitle": "Sende Projektaufgabenereignisse als JSON an einen beliebigen HTTP-Endpunkt.",
+			"slackSectionTitle": "Slack-Integration",
+			"slackSectionSubtitle": "Sende Projektaktualisierungen per Incoming Webhook in einen Slack-Kanal."
 		},
 		"projectVisibility": {
 			"pageTitle": "Projektsichtbarkeit",
@@ -600,6 +606,120 @@
 			"importing": "Wird importiert...",
 			"importIssues": "Issues importieren",
 			"importDisabledHint": "Vervollständige die Repository-Konfiguration oben, um den Import zu aktivieren"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "Gib eine gültige Slack-Webhook-URL ein"
+			},
+			"toast": {
+				"saved": "Slack-Integration erfolgreich gespeichert",
+				"saveError": "Slack-Integration konnte nicht gespeichert werden",
+				"enabled": "Slack-Benachrichtigungen aktiviert",
+				"disabled": "Slack-Benachrichtigungen pausiert",
+				"updateError": "Slack-Integration konnte nicht aktualisiert werden",
+				"removed": "Slack-Integration erfolgreich entfernt",
+				"removeError": "Slack-Integration konnte nicht entfernt werden"
+			},
+			"connectionTitle": "Slack-Webhook-Verbindung",
+			"connectionHint": "Füge eine Slack-Incoming-Webhook-URL ein und wähle aus, welche Aufgabenereignisse gesendet werden sollen.",
+			"connected": "Verbunden",
+			"paused": "Pausiert",
+			"webhookLabel": "Incoming-Webhook-URL",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Erstelle in Slack einen Incoming Webhook und füge die erzeugte URL hier ein.",
+			"channelLabel": "Kanalname",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optionales Label für dich. Der tatsächliche Zielkanal wird in Slack über den Webhook festgelegt.",
+			"eventsTitle": "Ereignisbenachrichtigungen",
+			"eventsHint": "Wähle aus, welche Projektänderungen an Slack gesendet werden sollen.",
+			"events": {
+				"taskCreated": "Neue Aufgaben",
+				"taskStatusChanged": "Statusänderungen",
+				"taskPriorityChanged": "Prioritätsänderungen",
+				"taskTitleChanged": "Titeländerungen",
+				"taskDescriptionChanged": "Beschreibungsänderungen",
+				"taskCommentCreated": "Neue Kommentare"
+			},
+			"connect": "Slack verbinden",
+			"saveChanges": "Änderungen speichern",
+			"update": "Slack aktualisieren",
+			"disconnect": "Trennen"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "Gib eine gültige Discord-Webhook-URL ein"
+			},
+			"toast": {
+				"saved": "Discord-Integration erfolgreich gespeichert",
+				"saveError": "Discord-Integration konnte nicht gespeichert werden",
+				"enabled": "Discord-Benachrichtigungen aktiviert",
+				"disabled": "Discord-Benachrichtigungen pausiert",
+				"updateError": "Discord-Integration konnte nicht aktualisiert werden",
+				"removed": "Discord-Integration erfolgreich entfernt",
+				"removeError": "Discord-Integration konnte nicht entfernt werden"
+			},
+			"connectionTitle": "Discord-Webhook-Verbindung",
+			"connectionHint": "Füge eine Discord-Webhook-URL ein und wähle aus, welche Aufgabenereignisse gesendet werden sollen.",
+			"connected": "Verbunden",
+			"paused": "Pausiert",
+			"webhookLabel": "Webhook-URL",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Erstelle in Discord einen Kanal-Webhook und füge die erzeugte URL hier ein.",
+			"channelLabel": "Kanalname",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optionales Label für dich. Der tatsächliche Zielkanal wird in Discord über den Webhook festgelegt.",
+			"eventsTitle": "Ereignisbenachrichtigungen",
+			"eventsHint": "Wähle aus, welche Projektänderungen an Discord gesendet werden sollen.",
+			"events": {
+				"taskCreated": "Neue Aufgaben",
+				"taskStatusChanged": "Statusänderungen",
+				"taskPriorityChanged": "Prioritätsänderungen",
+				"taskTitleChanged": "Titeländerungen",
+				"taskDescriptionChanged": "Beschreibungsänderungen",
+				"taskCommentCreated": "Neue Kommentare"
+			},
+			"connect": "Discord verbinden",
+			"saveChanges": "Änderungen speichern",
+			"update": "Discord aktualisieren",
+			"disconnect": "Trennen"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Gib eine gültige Webhook-URL ein"
+			},
+			"toast": {
+				"saved": "Generische Webhook-Integration erfolgreich gespeichert",
+				"saveError": "Generische Webhook-Integration konnte nicht gespeichert werden",
+				"enabled": "Generische Webhook-Benachrichtigungen aktiviert",
+				"disabled": "Generische Webhook-Benachrichtigungen pausiert",
+				"updateError": "Generische Webhook-Integration konnte nicht aktualisiert werden",
+				"removed": "Generische Webhook-Integration erfolgreich entfernt",
+				"removeError": "Generische Webhook-Integration konnte nicht entfernt werden"
+			},
+			"connectionTitle": "Ausgehende Webhook-Verbindung",
+			"connectionHint": "Sende Aufgabenereignisse als JSON an deinen eigenen Endpunkt. Wenn ein Secret konfiguriert ist, wird ein signierter X-Kaneo-Signature-Header mitgesendet.",
+			"connected": "Verbunden",
+			"paused": "Pausiert",
+			"webhookLabel": "Endpunkt-URL",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo sendet POST-Anfragen mit einer JSON-Nutzlast für jedes aktivierte Ereignis.",
+			"secretLabel": "Signatur-Secret",
+			"secretPlaceholder": "Optionales gemeinsames Secret",
+			"secretHint": "Optional. Wenn gesetzt, signiert Kaneo den Request-Body und sendet den Hex-Digest im Header X-Kaneo-Signature.",
+			"secretHintConfigured": "Ein Signatur-Secret ist bereits konfiguriert ({{secret}}). Gib ein neues ein, um es zu ersetzen.",
+			"eventsTitle": "Ereignisbenachrichtigungen",
+			"eventsHint": "Wähle aus, welche Projektänderungen ausgehende Webhooks auslösen sollen.",
+			"events": {
+				"taskCreated": "Neue Aufgaben",
+				"taskStatusChanged": "Statusänderungen",
+				"taskPriorityChanged": "Prioritätsänderungen",
+				"taskTitleChanged": "Titeländerungen",
+				"taskDescriptionChanged": "Beschreibungsänderungen",
+				"taskCommentCreated": "Neue Kommentare"
+			},
+			"connect": "Webhook verbinden",
+			"saveChanges": "Änderungen speichern",
+			"disconnect": "Trennen"
 		},
 		"repositoryBrowser": {
 			"title": "Repository auswählen",

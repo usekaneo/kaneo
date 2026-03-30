@@ -8,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
@@ -471,6 +472,7 @@ export const integrationTable = pgTable(
   (table) => [
     index("integration_projectId_idx").on(table.projectId),
     index("integration_type_idx").on(table.type),
+    unique("integration_project_type_unique").on(table.projectId, table.type),
   ],
 );
 

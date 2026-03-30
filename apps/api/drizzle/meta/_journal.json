@@ -134,6 +134,13 @@
 			"when": 1774726270729,
 			"tag": "0018_motionless_luckman",
 			"breakpoints": true
+		},
+		{
+			"idx": 19,
+			"version": "7",
+			"when": 1774823200346,
+			"tag": "0019_sloppy_meteorite",
+			"breakpoints": true
 		}
 	]
 }
