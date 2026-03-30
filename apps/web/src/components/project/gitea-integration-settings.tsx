@@ -127,6 +127,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     React.useState<GiteaVerificationState | null>(null);
   const [showRepositoryBrowser, setShowRepositoryBrowser] =
     React.useState(false);
+  const [showWebhookSecret, setShowWebhookSecret] = React.useState(false);
 
   const form = useForm<GiteaIntegrationFormValues>({
     resolver: standardSchemaResolver(giteaIntegrationSchema),
@@ -138,17 +139,29 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     },
   });
 
-  React.useEffect(() => {
-    if (integration?.baseUrl) {
-      form.reset({
-        baseUrl: integration.baseUrl,
-        accessToken: "",
-        repositoryOwner: integration.repositoryOwner,
-        repositoryName: integration.repositoryName,
-      });
-      setVerificationResult(null);
+  const resetIntegrationForm = React.useCallback(() => {
+    if (!integration?.baseUrl) {
+      return;
     }
-  }, [integration, form]);
+
+    form.reset({
+      baseUrl: integration.baseUrl,
+      accessToken: "",
+      repositoryOwner: integration.repositoryOwner,
+      repositoryName: integration.repositoryName,
+    });
+    setVerificationResult(null);
+    setShowWebhookSecret(false);
+  }, [
+    form.reset,
+    integration?.baseUrl,
+    integration?.repositoryOwner,
+    integration?.repositoryName,
+  ]);
+
+  React.useEffect(() => {
+    resetIntegrationForm();
+  }, [resetIntegrationForm]);
 
   const runVerify = React.useCallback(
     async (data: GiteaIntegrationFormValues, showToast = true) => {
@@ -244,7 +257,13 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     if (!accessToken.trim()) {
       return;
     }
-    runVerify(form.getValues(), false);
+    const timeoutId = window.setTimeout(() => {
+      runVerify(form.getValues(), false);
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [
     baseUrl,
     repositoryOwner,
@@ -252,7 +271,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     accessToken,
     form.formState.isValid,
     runVerify,
-    form,
+    form.getValues,
   ]);
 
   const onSubmit = async (data: GiteaIntegrationFormValues) => {
@@ -358,6 +377,21 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     setShowRepositoryBrowser(false);
     setVerificationResult(null);
   };
+
+  const handleCopyWebhookSecret = React.useCallback(async () => {
+    if (!integration?.webhookSecret) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(integration.webhookSecret);
+      toast.success("Copied");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to copy secret",
+      );
+    }
+  }, [integration?.webhookSecret]);
 
   if (isLoading) {
     return (
@@ -528,9 +562,31 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                   <p className="text-muted-foreground mt-2">
                     {t("settings:giteaIntegration.webhookSecretLabel")}
                   </p>
-                  <code className="block break-all rounded bg-muted px-2 py-1 text-[11px]">
-                    {integration.webhookSecret}
-                  </code>
+                  <div className="flex items-start gap-2">
+                    <code className="block flex-1 break-all rounded bg-muted px-2 py-1 text-[11px]">
+                      {showWebhookSecret
+                        ? integration.webhookSecret
+                        : "••••••••••••••••••••••••••••••••"}
+                    </code>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setShowWebhookSecret((current) => !current)
+                      }
+                    >
+                      {showWebhookSecret ? "Hide" : "Show"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyWebhookSecret}
+                    >
+                      Copy
+                    </Button>
+                  </div>
                 </div>
               </>
             )}
