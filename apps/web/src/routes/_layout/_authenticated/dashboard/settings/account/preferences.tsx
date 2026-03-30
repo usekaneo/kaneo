@@ -62,6 +62,7 @@ function RouteComponent() {
     "el-GR": t("common:language.greek"),
     "mk-MK": t("common:language.macedonian"),
     "fr-FR": t("common:language.french"),
+    "es-ES": t("common:language.spanish"),
   };
 
   return (
@@ -161,6 +162,9 @@ function RouteComponent() {
                 </SelectItem>
                 <SelectItem value="fr-FR">
                   {t("common:language.french")}
+                </SelectItem>
+                <SelectItem value="es-ES">
+                  {t("common:language.spanish")}
                 </SelectItem>
               </SelectContent>
             </Select>
