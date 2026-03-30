@@ -128,80 +128,24 @@ export function createApp() {
 
   const api = new Hono<ApiVariables>();
 
-  api.get(
-    "/health",
-    describeRoute({
-      operationId: "getHealth",
-      tags: ["System"],
-      summary: "Health check",
-      security: [],
-      responses: {
-        200: {
-          description: "API health status",
-          content: {
-            "application/json": {
-              schema: resolver(v.object({ status: v.literal("ok") })),
-            },
-          },
-        },
-      },
-    }),
-    (c) => {
-      return c.json({ status: "ok" });
-    },
-  );
+  api.get("/health", (c) => {
+    return c.json({ status: "ok" });
+  });
 
-  const publicProjectApi = api.get(
-    "/public-project/:id",
-    describeRoute({
-      operationId: "getPublicProject",
-      tags: ["Projects"],
-      description: "Get a public project by ID (no authentication required)",
-      security: [],
-      responses: {
-        200: {
-          description: "Public project details",
-          content: {
-            "application/json": { schema: resolver(v.any()) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const project = await getPublicProject(id);
+  const publicProjectApi = api.get("/public-project/:id", async (c) => {
+    const { id } = c.req.param();
+    const project = await getPublicProject(id);
 
-      return c.json(project);
-    },
-  );
+    return c.json(project);
+  });
 
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
-  const invitationPublicApi = api.get(
-    "/invitation/public/:id",
-    describeRoute({
-      operationId: "getPublicInvitationDetails",
-      tags: ["Invitations"],
-      description:
-        "Get invitation details by token ID (no authentication required)",
-      security: [],
-      responses: {
-        200: {
-          description: "Invitation details for the public link",
-          content: {
-            "application/json": { schema: resolver(v.any()) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const result = await getInvitationDetails(id);
-      return c.json(result);
-    },
-  );
+  const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
+    const { id } = c.req.param();
+    const result = await getInvitationDetails(id);
+    return c.json(result);
+  });
 
   api.get(
     "/auth/get-session",
@@ -297,51 +241,22 @@ export function createApp() {
 
       try {
         const object = await getPrivateObject(asset.objectKey);
-        const headers: Record<string, string> = {
-          "Cache-Control": asset.isPublic
-            ? "public, max-age=300"
-            : "private, max-age=120",
-          "Content-Disposition": buildContentDisposition(asset.filename),
-          "Content-Type": object.contentType || asset.mimeType,
-        };
-
-        if (object.contentLength !== undefined) {
-          headers["Content-Length"] = object.contentLength.toString();
-        }
-
-        if (object.etag) {
-          headers.ETag = object.etag;
-        }
-
-        if (object.lastModified) {
-          headers["Last-Modified"] = object.lastModified.toUTCString();
-        }
 
         return new Response(object.body as BodyInit, {
-          headers,
+          headers: {
+            "Cache-Control": asset.isPublic
+              ? "public, max-age=300"
+              : "private, max-age=120",
+            "Content-Disposition": buildContentDisposition(asset.filename),
+            "Content-Length": object.contentLength?.toString() || "",
+            "Content-Type": object.contentType || asset.mimeType,
+            ETag: object.etag || "",
+            "Last-Modified": object.lastModified?.toUTCString() || "",
+          },
         });
       } catch (error) {
         console.error("Failed to stream asset:", error);
-        if (
-          (typeof error === "object" &&
-            error !== null &&
-            "statusCode" in error &&
-            error.statusCode === 404) ||
-          (typeof error === "object" &&
-            error !== null &&
-            "code" in error &&
-            (error.code === "NoSuchKey" || error.code === "NotFound")) ||
-          (typeof error === "object" &&
-            error !== null &&
-            "name" in error &&
-            error.name === "NoSuchKey")
-        ) {
-          throw new HTTPException(404, { message: "Asset object not found" });
-        }
-
-        throw new HTTPException(502, {
-          message: "Failed to fetch asset from storage",
-        });
+        throw new HTTPException(404, { message: "Asset object not found" });
       }
     },
   );
@@ -440,8 +355,7 @@ export function createApp() {
         const result = await verifyApiKey(apiKey);
 
         if (result?.valid && result.key) {
-          const userId = result.key.userId;
-          c.set("userId", userId);
+          c.set("userId", result.key.userId);
           c.set("user", null);
           c.set("session", null);
           c.set("apiKey", {
@@ -449,14 +363,6 @@ export function createApp() {
             userId: result.key.userId,
             enabled: result.key.enabled,
           });
-
-          const [userRow] = await db
-            .select({ email: schema.userTable.email })
-            .from(schema.userTable)
-            .where(eq(schema.userTable.id, userId))
-            .limit(1);
-          c.set("userEmail", userRow?.email ?? "");
-
           return next();
         }
 
@@ -465,19 +371,9 @@ export function createApp() {
         if (error instanceof HTTPException) {
           throw error;
         }
-
-        if (
-          error instanceof Error &&
-          (error.name === "APIError" || error.name === "AuthError")
-        ) {
-          throw new HTTPException(401, {
-            message: "API key verification failed",
-          });
-        }
-
         console.error("API key verification failed:", error);
-        throw new HTTPException(500, {
-          message: "Internal Server Error",
+        throw new HTTPException(401, {
+          message: "API key verification failed",
         });
       }
     }
