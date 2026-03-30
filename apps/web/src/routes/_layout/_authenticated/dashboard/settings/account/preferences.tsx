@@ -1,4 +1,8 @@
-import { type AppLocale, supportedLocales } from "@i18n/resources";
+import {
+  type AppLocale,
+  defaultLocale,
+  supportedLocales,
+} from "@i18n/resources";
 import { createFileRoute } from "@tanstack/react-router";
 import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -24,9 +28,23 @@ export const Route = createFileRoute(
 
 function getLocaleLabel(locale: AppLocale) {
   try {
-    const languageCode = new Intl.Locale(locale).language;
-    const displayNames = new Intl.DisplayNames([locale], { type: "language" });
-    return displayNames.of(languageCode) ?? locale;
+    const localeObj = new Intl.Locale(locale);
+    const languageDisplayNames = new Intl.DisplayNames([locale], {
+      type: "language",
+    });
+    const regionDisplayNames = new Intl.DisplayNames([locale], {
+      type: "region",
+    });
+    const languageLabel = languageDisplayNames.of(localeObj.language) ?? locale;
+
+    if (!localeObj.region) {
+      return languageLabel;
+    }
+
+    const regionLabel =
+      regionDisplayNames.of(localeObj.region) ?? localeObj.region;
+
+    return `${languageLabel} (${regionLabel})`;
   } catch {
     return locale;
   }
@@ -66,7 +84,7 @@ function RouteComponent() {
     list: t("settings:preferencesPage.list"),
   };
 
-  const selectedLocale = locale ?? "en-US";
+  const selectedLocale: AppLocale = locale ?? defaultLocale;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
