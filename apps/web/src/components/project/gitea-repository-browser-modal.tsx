@@ -41,7 +41,7 @@ export function GiteaRepositoryBrowserModal({
     open && baseUrl.trim().length > 0 && accessToken.trim().length > 0;
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["gitea-repositories", baseUrl, accessToken],
+    queryKey: ["gitea-repositories", baseUrl],
     queryFn: () => listGiteaRepositories({ baseUrl, accessToken }),
     enabled: canFetch,
   });
@@ -64,7 +64,7 @@ export function GiteaRepositoryBrowserModal({
       owner: repository.owner.login,
       name: repository.name,
     });
-    onOpenChange(false);
+    resetAndCloseModal(false);
   };
 
   const resetAndCloseModal = (next: boolean) => {
@@ -129,35 +129,36 @@ export function GiteaRepositoryBrowserModal({
             <ul className="space-y-1">
               {filteredRepositories.map((repo) => (
                 <li key={repo.id}>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectRepository(repo)}
-                    className={cn(
-                      "w-full flex items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-muted/80 transition-colors",
-                      selectedRepository === repo.full_name && "bg-muted",
-                    )}
-                  >
-                    <span className="font-medium truncate">
-                      {repo.full_name}
-                    </span>
-                    <div className="flex items-center gap-2 shrink-0">
-                      {repo.private ? (
-                        <Lock className="size-3.5 text-muted-foreground" />
-                      ) : null}
-                      <Badge variant="secondary" className="text-xs">
-                        {repo.owner.login}
-                      </Badge>
-                      <a
-                        href={repo.html_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink className="size-3.5" />
-                      </a>
-                    </div>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectRepository(repo)}
+                      className={cn(
+                        "flex-1 flex items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-muted/80 transition-colors",
+                        selectedRepository === repo.full_name && "bg-muted",
+                      )}
+                    >
+                      <span className="font-medium truncate">
+                        {repo.full_name}
+                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {repo.private ? (
+                          <Lock className="size-3.5 text-muted-foreground" />
+                        ) : null}
+                        <Badge variant="secondary" className="text-xs">
+                          {repo.owner.login}
+                        </Badge>
+                      </div>
+                    </button>
+                    <a
+                      href={repo.html_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-md p-2 text-primary hover:bg-muted/80 transition-colors"
+                    >
+                      <ExternalLink className="size-3.5" />
+                    </a>
+                  </div>
                 </li>
               ))}
             </ul>

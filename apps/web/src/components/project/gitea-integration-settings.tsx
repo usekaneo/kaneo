@@ -47,6 +47,29 @@ type GiteaIntegrationFormValues = {
   repositoryName: string;
 };
 
+type GiteaVerificationSnapshot = {
+  baseUrl: string;
+  accessToken: string;
+  repositoryOwner: string;
+  repositoryName: string;
+};
+
+type GiteaVerificationState = {
+  result: VerifyGiteaAccessResponse;
+  verified: GiteaVerificationSnapshot;
+};
+
+function createVerificationSnapshot(
+  values: GiteaIntegrationFormValues,
+): GiteaVerificationSnapshot {
+  return {
+    baseUrl: values.baseUrl.trim(),
+    accessToken: values.accessToken.trim(),
+    repositoryOwner: values.repositoryOwner.trim(),
+    repositoryName: values.repositoryName.trim(),
+  };
+}
+
 export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const { t } = useTranslation();
 
@@ -83,7 +106,12 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     [t],
   );
 
-  const { data: integration, isLoading } = useGetGiteaIntegration(projectId);
+  const {
+    data: integration,
+    isLoading,
+    error: integrationError,
+    refetch: refetchIntegration,
+  } = useGetGiteaIntegration(projectId);
   const { mutateAsync: createIntegration, isPending: isCreating } =
     useCreateGiteaIntegration();
   const { mutateAsync: deleteIntegration, isPending: isDeleting } =
@@ -96,7 +124,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     useUpdateGiteaIntegration();
 
   const [verificationResult, setVerificationResult] =
-    React.useState<VerifyGiteaAccessResponse | null>(null);
+    React.useState<GiteaVerificationState | null>(null);
   const [showRepositoryBrowser, setShowRepositoryBrowser] =
     React.useState(false);
 
@@ -118,6 +146,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         repositoryOwner: integration.repositoryOwner,
         repositoryName: integration.repositoryName,
       });
+      setVerificationResult(null);
     }
   }, [integration, form]);
 
@@ -135,13 +164,17 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         return;
       }
       try {
+        const snapshot = createVerificationSnapshot(data);
         const result = await verifyAccess({
-          baseUrl: data.baseUrl,
-          accessToken: token,
-          repositoryOwner: data.repositoryOwner,
-          repositoryName: data.repositoryName,
+          baseUrl: snapshot.baseUrl,
+          accessToken: snapshot.accessToken,
+          repositoryOwner: snapshot.repositoryOwner,
+          repositoryName: snapshot.repositoryName,
         });
-        setVerificationResult(result);
+        setVerificationResult({
+          result,
+          verified: snapshot,
+        });
         if (showToast) {
           if (result.isInstalled && result.hasRequiredPermissions) {
             toast.success(t("settings:giteaIntegration.toast.verifyOk"));
@@ -169,6 +202,35 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const accessToken = form.watch("accessToken");
   const repositoryOwner = form.watch("repositoryOwner");
   const repositoryName = form.watch("repositoryName");
+  const currentVerificationSnapshot = React.useMemo(
+    () =>
+      createVerificationSnapshot({
+        baseUrl,
+        accessToken,
+        repositoryOwner,
+        repositoryName,
+      }),
+    [baseUrl, accessToken, repositoryOwner, repositoryName],
+  );
+
+  React.useEffect(() => {
+    setVerificationResult((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const stillMatches =
+        current.verified.baseUrl === currentVerificationSnapshot.baseUrl &&
+        current.verified.accessToken ===
+          currentVerificationSnapshot.accessToken &&
+        current.verified.repositoryOwner ===
+          currentVerificationSnapshot.repositoryOwner &&
+        current.verified.repositoryName ===
+          currentVerificationSnapshot.repositoryName;
+
+      return stillMatches ? current : null;
+    });
+  }, [currentVerificationSnapshot]);
 
   React.useEffect(() => {
     if (
@@ -200,12 +262,22 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         return;
       }
 
-      if (data.accessToken.trim()) {
+      const snapshot = createVerificationSnapshot(data);
+      const hasMatchingVerification =
+        verificationResult?.result.isInstalled &&
+        verificationResult.result.hasRequiredPermissions &&
+        verificationResult.verified.baseUrl === snapshot.baseUrl &&
+        verificationResult.verified.accessToken === snapshot.accessToken &&
+        verificationResult.verified.repositoryOwner ===
+          snapshot.repositoryOwner &&
+        verificationResult.verified.repositoryName === snapshot.repositoryName;
+
+      if (data.accessToken.trim() && !hasMatchingVerification) {
         const verification = await verifyAccess({
-          baseUrl: data.baseUrl,
-          accessToken: data.accessToken.trim(),
-          repositoryOwner: data.repositoryOwner,
-          repositoryName: data.repositoryName,
+          baseUrl: snapshot.baseUrl,
+          accessToken: snapshot.accessToken,
+          repositoryOwner: snapshot.repositoryOwner,
+          repositoryName: snapshot.repositoryName,
         });
 
         if (!verification.isInstalled || !verification.hasRequiredPermissions) {
@@ -295,11 +367,46 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     );
   }
 
+  if (integrationError) {
+    return (
+      <div className="space-y-4 border border-destructive/25 rounded-md p-4 bg-sidebar">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-destructive">
+              {t("common:error.title")}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {integrationError instanceof Error
+                ? integrationError.message
+                : t("settings:giteaIntegration.toast.updateError")}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => refetchIntegration()}
+          >
+            {t("settings:giteaIntegration.retry")}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const isConnected = !!integration && integration.isActive;
-  const canImport =
-    isConnected &&
-    verificationResult?.isInstalled &&
-    verificationResult?.hasRequiredPermissions;
+  const hasVerifiedCurrentValues =
+    verificationResult?.result.isInstalled &&
+    verificationResult.result.hasRequiredPermissions &&
+    verificationResult.verified.baseUrl ===
+      currentVerificationSnapshot.baseUrl &&
+    verificationResult.verified.accessToken ===
+      currentVerificationSnapshot.accessToken &&
+    verificationResult.verified.repositoryOwner ===
+      currentVerificationSnapshot.repositoryOwner &&
+    verificationResult.verified.repositoryName ===
+      currentVerificationSnapshot.repositoryName;
+  const canImport = isConnected && Boolean(hasVerifiedCurrentValues);
 
   const repoUrl =
     integration?.baseUrl && integration.repositoryOwner
@@ -610,10 +717,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                     isCreating ||
                     isDeleting ||
                     !form.formState.isValid ||
-                    (verificationResult
-                      ? !verificationResult.isInstalled ||
-                        !verificationResult.hasRequiredPermissions
-                      : false)
+                    (verificationResult ? !hasVerifiedCurrentValues : false)
                   }
                   className="gap-2"
                 >
@@ -647,24 +751,26 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
             <div
               className={cn(
                 "flex items-start gap-3 p-3 border rounded-md text-sm",
-                verificationResult.isInstalled &&
-                  verificationResult.hasRequiredPermissions
+                verificationResult.result.isInstalled &&
+                  verificationResult.result.hasRequiredPermissions
                   ? "border-success/25 bg-success/10"
-                  : verificationResult.repositoryExists
+                  : verificationResult.result.repositoryExists
                     ? "border-warning/25 bg-warning/10"
                     : "border-destructive/25 bg-destructive/10",
               )}
             >
-              {verificationResult.isInstalled &&
-              verificationResult.hasRequiredPermissions ? (
+              {verificationResult.result.isInstalled &&
+              verificationResult.result.hasRequiredPermissions ? (
                 <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-success-foreground" />
-              ) : verificationResult.repositoryExists ? (
+              ) : verificationResult.result.repositoryExists ? (
                 <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-foreground" />
               ) : (
                 <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive-foreground" />
               )}
               <div className="flex-1">
-                <p className="font-medium">{verificationResult.message}</p>
+                <p className="font-medium">
+                  {verificationResult.result.message}
+                </p>
               </div>
             </div>
           </>
