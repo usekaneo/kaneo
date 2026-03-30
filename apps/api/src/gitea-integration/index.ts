@@ -45,6 +45,8 @@ const importResultSchema = v.object({
   errors: v.optional(v.array(v.string())),
 });
 
+const nullableGiteaIntegrationSchema = v.nullable(giteaIntegrationSchema);
+
 const giteaIntegration = new Hono<{
   Variables: {
     userId: string;
@@ -133,7 +135,7 @@ const giteaIntegration = new Hono<{
           description: "Gitea integration details",
           content: {
             "application/json": {
-              schema: resolver(giteaIntegrationSchema),
+              schema: resolver(nullableGiteaIntegrationSchema),
             },
           },
         },

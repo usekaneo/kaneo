@@ -164,7 +164,7 @@ export const genericWebhookIntegrationSchema = v.object({
   id: v.string(),
   projectId: v.string(),
   webhookConfigured: v.boolean(),
-  webhookUrl: v.string(),
+  maskedWebhookUrl: v.nullable(v.string()),
   secretConfigured: v.boolean(),
   maskedSecret: v.nullable(v.string()),
   events: integrationEventsSchema,
