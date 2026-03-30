@@ -24,12 +24,7 @@ async function getOrCreateLabelId(
   name: string,
 ): Promise<number> {
   const { repositoryOwner, repositoryName } = config;
-  let labels: GiteaLabel[];
-  try {
-    labels = await client.listLabels(repositoryOwner, repositoryName);
-  } catch {
-    labels = [];
-  }
+  const labels = await client.listLabels(repositoryOwner, repositoryName);
 
   const found = labels.find((l) => l.name === name);
   if (found) {

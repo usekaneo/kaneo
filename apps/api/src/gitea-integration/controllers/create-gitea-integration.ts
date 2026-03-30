@@ -46,8 +46,15 @@ async function createGiteaIntegration({
 
   let resolvedToken = accessToken?.trim() ?? "";
   if (!resolvedToken && existingIntegration) {
-    const prev = JSON.parse(existingIntegration.config) as GiteaConfig;
-    resolvedToken = prev.accessToken;
+    try {
+      const prev = JSON.parse(existingIntegration.config) as GiteaConfig;
+      resolvedToken = prev.accessToken;
+    } catch (error) {
+      console.warn("Failed to parse existing Gitea integration config", {
+        integrationId: existingIntegration.id,
+        error,
+      });
+    }
   }
 
   if (!resolvedToken) {
@@ -91,13 +98,31 @@ async function createGiteaIntegration({
       if (error instanceof HTTPException) {
         throw error;
       }
+      console.warn(
+        "Skipping invalid Gitea integration config during conflict check",
+        {
+          integrationId: integration.id,
+          error,
+        },
+      );
+      throw error;
     }
   }
 
-  const webhookSecret = existingIntegration
-    ? ((JSON.parse(existingIntegration.config) as GiteaConfig).webhookSecret ??
-      randomBytes(24).toString("hex"))
-    : randomBytes(24).toString("hex");
+  let webhookSecret = randomBytes(24).toString("hex");
+  if (existingIntegration) {
+    try {
+      const previousConfig = JSON.parse(
+        existingIntegration.config,
+      ) as GiteaConfig;
+      webhookSecret = previousConfig.webhookSecret ?? webhookSecret;
+    } catch (error) {
+      console.warn("Failed to parse existing Gitea config for webhook secret", {
+        integrationId: existingIntegration.id,
+        error,
+      });
+    }
+  }
 
   const config: GiteaConfig = getDefaultGiteaConfig(
     normalizedBase,

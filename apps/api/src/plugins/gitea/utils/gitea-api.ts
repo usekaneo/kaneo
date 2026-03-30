@@ -62,7 +62,7 @@ export async function giteaFetch<T>(
   token: string,
   path: string,
   init?: RequestInit,
-): Promise<T> {
+): Promise<T | undefined> {
   const root = normalizeGiteaBaseUrl(baseUrl);
   const url = `${root}/api/v1${path.startsWith("/") ? path : `/${path}`}`;
   const res = await fetch(url, {
@@ -79,7 +79,7 @@ export async function giteaFetch<T>(
   }
 
   if (res.status === 204 || text === "") {
-    return undefined as T;
+    return undefined;
   }
 
   try {
@@ -101,18 +101,43 @@ export function createGiteaClient(
     `/repos/${encodeURIComponent(o)}/${encodeURIComponent(r)}`;
 
   return {
-    async getRepo(repositoryOwner: string, repositoryName: string) {
-      return giteaFetch<{
+    async getRepo(
+      repositoryOwner: string,
+      repositoryName: string,
+    ): Promise<{
+      name: string;
+      owner: { login?: string; username?: string };
+      html_url: string;
+      private: boolean;
+      permissions?: { admin?: boolean; push?: boolean; pull?: boolean };
+    }> {
+      const repo = await giteaFetch<{
         name: string;
         owner: { login?: string; username?: string };
         html_url: string;
         private: boolean;
         permissions?: { admin?: boolean; push?: boolean; pull?: boolean };
       }>(baseUrl, accessToken, owner(repositoryOwner, repositoryName));
+      if (!repo) {
+        throw new GiteaApiError("Gitea repository response was empty", 500);
+      }
+      return repo;
     },
 
-    async listUserRepos(page = 1, limit = 50) {
-      return giteaFetch<
+    async listUserRepos(
+      page = 1,
+      limit = 50,
+    ): Promise<
+      Array<{
+        id: number;
+        name: string;
+        full_name: string;
+        owner: { login?: string; username?: string };
+        private: boolean;
+        html_url: string;
+      }>
+    > {
+      const repos = await giteaFetch<
         Array<{
           id: number;
           name: string;
@@ -122,14 +147,18 @@ export function createGiteaClient(
           html_url: string;
         }>
       >(baseUrl, accessToken, `/user/repos?page=${page}&limit=${limit}`);
+      if (!repos) {
+        throw new GiteaApiError("Gitea repositories response was empty", 500);
+      }
+      return repos;
     },
 
     async createIssue(
       repositoryOwner: string,
       repositoryName: string,
       body: { title: string; body?: string | null; closed?: boolean },
-    ) {
-      return giteaFetch<GiteaIssue>(
+    ): Promise<GiteaIssue> {
+      const issue = await giteaFetch<GiteaIssue>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/issues`,
@@ -138,6 +167,10 @@ export function createGiteaClient(
           body: JSON.stringify(body),
         },
       );
+      if (!issue) {
+        throw new GiteaApiError("Gitea create issue response was empty", 500);
+      }
+      return issue;
     },
 
     async updateIssue(
@@ -145,8 +178,8 @@ export function createGiteaClient(
       repositoryName: string,
       index: number,
       body: Record<string, unknown>,
-    ) {
-      return giteaFetch<GiteaIssue>(
+    ): Promise<GiteaIssue> {
+      const issue = await giteaFetch<GiteaIssue>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/issues/${index}`,
@@ -155,6 +188,10 @@ export function createGiteaClient(
           body: JSON.stringify(body),
         },
       );
+      if (!issue) {
+        throw new GiteaApiError("Gitea update issue response was empty", 500);
+      }
+      return issue;
     },
 
     async listIssueComments(
@@ -163,12 +200,16 @@ export function createGiteaClient(
       index: number,
       page: number,
       limit: number,
-    ) {
-      return giteaFetch<GiteaComment[]>(
+    ): Promise<GiteaComment[]> {
+      const comments = await giteaFetch<GiteaComment[]>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/issues/${index}/comments?page=${page}&limit=${limit}`,
       );
+      if (!comments) {
+        throw new GiteaApiError("Gitea comments response was empty", 500);
+      }
+      return comments;
     },
 
     async createIssueComment(
@@ -176,8 +217,8 @@ export function createGiteaClient(
       repositoryName: string,
       index: number,
       body: string,
-    ) {
-      return giteaFetch<GiteaComment>(
+    ): Promise<GiteaComment> {
+      const comment = await giteaFetch<GiteaComment>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/issues/${index}/comments`,
@@ -186,14 +227,25 @@ export function createGiteaClient(
           body: JSON.stringify({ body }),
         },
       );
+      if (!comment) {
+        throw new GiteaApiError("Gitea create comment response was empty", 500);
+      }
+      return comment;
     },
 
-    async listLabels(repositoryOwner: string, repositoryName: string) {
-      return giteaFetch<GiteaLabel[]>(
+    async listLabels(
+      repositoryOwner: string,
+      repositoryName: string,
+    ): Promise<GiteaLabel[]> {
+      const labels = await giteaFetch<GiteaLabel[]>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/labels`,
       );
+      if (!labels) {
+        throw new GiteaApiError("Gitea labels response was empty", 500);
+      }
+      return labels;
     },
 
     async createLabel(
@@ -201,8 +253,8 @@ export function createGiteaClient(
       repositoryName: string,
       name: string,
       color: string,
-    ) {
-      return giteaFetch<GiteaLabel>(
+    ): Promise<GiteaLabel> {
+      const label = await giteaFetch<GiteaLabel>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/labels`,
@@ -214,6 +266,10 @@ export function createGiteaClient(
           }),
         },
       );
+      if (!label) {
+        throw new GiteaApiError("Gitea create label response was empty", 500);
+      }
+      return label;
     },
 
     async addLabelsToIssue(
@@ -271,12 +327,16 @@ export function createGiteaClient(
       repositoryOwner: string,
       repositoryName: string,
       index: number,
-    ) {
-      return giteaFetch<GiteaIssue>(
+    ): Promise<GiteaIssue> {
+      const issue = await giteaFetch<GiteaIssue>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/issues/${index}`,
       );
+      if (!issue) {
+        throw new GiteaApiError("Gitea issue response was empty", 500);
+      }
+      return issue;
     },
 
     async listIssues(
@@ -284,32 +344,44 @@ export function createGiteaClient(
       repositoryName: string,
       page: number,
       state: "open" | "closed" | "all",
-    ) {
-      return giteaFetch<GiteaIssue[]>(
+    ): Promise<GiteaIssue[]> {
+      const issues = await giteaFetch<GiteaIssue[]>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/issues?state=${state}&page=${page}&limit=100`,
       );
+      if (!issues) {
+        throw new GiteaApiError("Gitea issues response was empty", 500);
+      }
+      return issues;
     },
 
     async listPulls(
       repositoryOwner: string,
       repositoryName: string,
       page: number,
-    ) {
-      return giteaFetch<GiteaPullRequest[]>(
+    ): Promise<GiteaPullRequest[]> {
+      const pulls = await giteaFetch<GiteaPullRequest[]>(
         baseUrl,
         accessToken,
         `${owner(repositoryOwner, repositoryName)}/pulls?state=open&page=${page}&limit=100`,
       );
+      if (!pulls) {
+        throw new GiteaApiError("Gitea pull requests response was empty", 500);
+      }
+      return pulls;
     },
   };
 }
 
 export async function verifyGiteaToken(baseUrl: string, token: string) {
-  return giteaFetch<{ id: number; login: string }>(
+  const user = await giteaFetch<{ id: number; login: string }>(
     normalizeGiteaBaseUrl(baseUrl),
     token,
     "/user",
   );
+  if (!user) {
+    throw new GiteaApiError("Gitea user response was empty", 500);
+  }
+  return user;
 }

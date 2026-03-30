@@ -8,11 +8,13 @@ import {
   projectTable,
   taskTable,
 } from "../../database/schema";
+import { publishEvent } from "../../events";
 import type { GiteaConfig } from "../../plugins/gitea/config";
 import { extractTaskNumberGitea } from "../../plugins/gitea/utils/branch-matcher";
 import {
   createGiteaClient,
   type GiteaIssue,
+  type GiteaLabel,
   type GiteaPullRequest,
 } from "../../plugins/gitea/utils/gitea-api";
 import {
@@ -33,6 +35,12 @@ type ImportResult = {
   skipped: number;
   errors?: string[];
 };
+
+type LabelLike = { name?: string };
+
+function toPriorityLabels(labels: GiteaLabel[]): LabelLike[] {
+  return labels.map((label) => ({ name: label.name }));
+}
 
 export async function importGiteaIssues(
   projectId: string,
@@ -185,8 +193,9 @@ async function importSingleIssue(
   );
 
   const labels = issue.labels ?? [];
-  const priority = extractIssuePriority(labels as never);
-  const status = extractIssueStatus(labels as never);
+  const adaptedLabels = toPriorityLabels(labels);
+  const priority = extractIssuePriority(adaptedLabels);
+  const status = extractIssueStatus(adaptedLabels);
 
   if (existingLink) {
     const updateData: Record<string, unknown> = {
@@ -252,6 +261,17 @@ async function importSingleIssue(
   await importLabelsForTask(labels, createdTask.id, workspaceId);
 
   await importCommentsForTask(issue.number, createdTask.id, config, client);
+
+  await publishEvent("task.created", {
+    ...createdTask,
+    taskId: createdTask.id,
+    userId: createdTask.userId ?? "",
+    type: "task",
+    content: null,
+    source: "gitea-import",
+    integrationId,
+    externalId: issue.number.toString(),
+  });
 
   return "imported";
 }
@@ -339,6 +359,7 @@ async function importCommentsForTask(
   client: ReturnType<typeof createGiteaClient>,
 ): Promise<void> {
   const allComments: Array<{
+    id: number;
     body: string;
     html_url: string;
     user?: { login?: string; username?: string; avatar_url?: string } | null;
@@ -362,36 +383,33 @@ async function importCommentsForTask(
     page++;
   }
 
-  const existingActivities = await db.query.activityTable.findMany({
-    where: and(
-      eq(activityTable.taskId, taskId),
-      eq(activityTable.externalSource, "gitea"),
-    ),
-  });
-
-  const existingExternalUrls = new Set(
-    existingActivities.filter((a) => a.externalUrl).map((a) => a.externalUrl),
-  );
-
   for (const comment of allComments) {
     const username = comment.user?.login ?? comment.user?.username ?? "";
     if (username.endsWith("[bot]")) {
       continue;
     }
 
-    if (existingExternalUrls.has(comment.html_url)) {
-      continue;
-    }
-
-    await db.insert(activityTable).values({
-      taskId,
-      type: "comment",
-      content: comment.body,
-      externalUserName: username || "Unknown",
-      externalUserAvatar: comment.user?.avatar_url ?? null,
-      externalSource: "gitea",
-      externalUrl: comment.html_url,
-    });
+    await db
+      .insert(activityTable)
+      .values({
+        taskId,
+        type: "comment",
+        content: comment.body,
+        externalUserName: username || "Unknown",
+        externalUserAvatar: comment.user?.avatar_url ?? null,
+        externalSource: "gitea",
+        externalUrl: comment.html_url,
+        eventData: {
+          externalCommentId: comment.id,
+        },
+      })
+      .onConflictDoNothing({
+        target: [
+          activityTable.taskId,
+          activityTable.externalSource,
+          activityTable.externalUrl,
+        ],
+      });
   }
 }
 

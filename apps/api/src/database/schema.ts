@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -9,6 +9,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
@@ -320,29 +321,39 @@ export const timeEntryTable = pgTable("time_entry", {
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
-export const activityTable = pgTable("activity", {
-  id: text("id")
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  taskId: text("task_id")
-    .notNull()
-    .references(() => taskTable.id, {
+export const activityTable = pgTable(
+  "activity",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    type: text("type").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    userId: text("user_id").references(() => userTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  type: text("type").notNull(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  userId: text("user_id").references(() => userTable.id, {
-    onDelete: "cascade",
-    onUpdate: "cascade",
-  }),
-  content: text("content"),
-  eventData: jsonb("event_data"),
-  externalUserName: text("external_user_name"),
-  externalUserAvatar: text("external_user_avatar"),
-  externalSource: text("external_source"),
-  externalUrl: text("external_url"),
-});
+    content: text("content"),
+    eventData: jsonb("event_data"),
+    externalUserName: text("external_user_name"),
+    externalUserAvatar: text("external_user_avatar"),
+    externalSource: text("external_source"),
+    externalUrl: text("external_url"),
+  },
+  (table) => [
+    unique("activity_task_external_source_external_url_unique").on(
+      table.taskId,
+      table.externalSource,
+      table.externalUrl,
+    ),
+  ],
+);
 
 export const assetTable = pgTable(
   "asset",
@@ -390,22 +401,31 @@ export const assetTable = pgTable(
   ],
 );
 
-export const labelTable = pgTable("label", {
-  id: text("id")
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  name: text("name").notNull(),
-  color: text("color").notNull(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  taskId: text("task_id").references(() => taskTable.id, {
-    onDelete: "cascade",
-    onUpdate: "cascade",
-  }),
-  workspaceId: text("workspace_id").references(() => workspaceTable.id, {
-    onDelete: "cascade",
-    onUpdate: "cascade",
-  }),
-});
+export const labelTable = pgTable(
+  "label",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    name: text("name").notNull(),
+    color: text("color").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    taskId: text("task_id").references(() => taskTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    workspaceId: text("workspace_id").references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  },
+  (table) => [
+    unique("label_task_name_unique").on(table.taskId, table.name),
+    uniqueIndex("label_workspace_name_unique")
+      .on(table.workspaceId, table.name)
+      .where(sql`${table.taskId} is null`),
+  ],
+);
 
 export const notificationTable = pgTable("notification", {
   id: text("id")
