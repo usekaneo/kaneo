@@ -18,39 +18,45 @@ function getLabelColor(labelName: string): string {
   return labelColors[labelName] || "6B7280";
 }
 
-async function getOrCreateLabelId(
-  client: ReturnType<typeof createGiteaClient>,
-  config: Pick<GiteaConfig, "repositoryOwner" | "repositoryName">,
-  name: string,
-): Promise<number> {
-  const { repositoryOwner, repositoryName } = config;
-  const labels = await client.listLabels(repositoryOwner, repositoryName);
-
-  const found = labels.find((l) => l.name === name);
-  if (found) {
-    return found.id;
-  }
-
-  const color = getLabelColor(name);
-  const created = await client.createLabel(
-    repositoryOwner,
-    repositoryName,
-    name,
-    color,
-  );
-  return created.id;
-}
-
 export async function ensureLabelsExistGitea(
   config: GiteaConfig,
   labels: string[],
 ): Promise<Map<string, number>> {
   const client = createGiteaClient(config);
   const map = new Map<string, number>();
+  const { repositoryOwner, repositoryName } = config;
+
+  let existingLabels: GiteaLabel[];
+  try {
+    existingLabels = await client.listLabels(repositoryOwner, repositoryName);
+  } catch (error) {
+    console.error("Failed to list Gitea labels for ensureLabelsExistGitea", {
+      repositoryOwner,
+      repositoryName,
+      error,
+    });
+    return map;
+  }
+
+  const nameToId = new Map(existingLabels.map((l) => [l.name, l.id]));
+
   for (const name of labels) {
     try {
-      const id = await getOrCreateLabelId(client, config, name);
-      map.set(name, id);
+      const existingId = nameToId.get(name);
+      if (existingId !== undefined) {
+        map.set(name, existingId);
+        continue;
+      }
+
+      const color = getLabelColor(name);
+      const created = await client.createLabel(
+        repositoryOwner,
+        repositoryName,
+        name,
+        color,
+      );
+      nameToId.set(name, created.id);
+      map.set(name, created.id);
     } catch (error) {
       console.error(`Failed to ensure Gitea label "${name}":`, error);
     }
@@ -65,14 +71,12 @@ export async function addLabelsToIssueGitea(
 ) {
   if (labelNames.length === 0) return;
 
-  const client = createGiteaClient(config);
+  const nameToId = await ensureLabelsExistGitea(config, labelNames);
   const ids: number[] = [];
   for (const name of labelNames) {
-    try {
-      const id = await getOrCreateLabelId(client, config, name);
+    const id = nameToId.get(name);
+    if (id !== undefined) {
       ids.push(id);
-    } catch (error) {
-      console.error(`Failed to add Gitea label "${name}":`, error);
     }
   }
 

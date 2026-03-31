@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import db from "../../../database";
-import { labelTable, projectTable } from "../../../database/schema";
+import { labelTable } from "../../../database/schema";
 import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
@@ -45,11 +45,8 @@ export async function handleGiteaLabelCreated(payload: LabelCreatePayload) {
       continue;
     }
 
-    const project = await db.query.projectTable.findFirst({
-      where: eq(projectTable.id, integration.project.id),
-    });
-
-    if (!project?.workspaceId) {
+    const workspaceId = integration.project.workspaceId;
+    if (!workspaceId) {
       continue;
     }
 
@@ -60,8 +57,11 @@ export async function handleGiteaLabelCreated(payload: LabelCreatePayload) {
       .values({
         name: label.name,
         color,
-        workspaceId: project.workspaceId,
+        workspaceId,
       })
-      .onConflictDoNothing();
+      .onConflictDoNothing({
+        target: [labelTable.workspaceId, labelTable.name],
+        where: sql`${labelTable.taskId} is null`,
+      });
   }
 }

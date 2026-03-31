@@ -57,6 +57,8 @@ function authHeaders(token: string): HeadersInit {
   };
 }
 
+const GITEA_FETCH_TIMEOUT_MS = 10_000;
+
 export async function giteaFetch<T>(
   baseUrl: string,
   token: string,
@@ -65,13 +67,43 @@ export async function giteaFetch<T>(
 ): Promise<T | undefined> {
   const root = normalizeGiteaBaseUrl(baseUrl);
   const url = `${root}/api/v1${path.startsWith("/") ? path : `/${path}`}`;
-  const res = await fetch(url, {
-    ...init,
-    headers: {
-      ...authHeaders(token),
-      ...init?.headers,
-    },
-  });
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    GITEA_FETCH_TIMEOUT_MS,
+  );
+  if (init?.signal) {
+    if (init.signal.aborted) {
+      controller.abort();
+    } else {
+      init.signal.addEventListener("abort", () => controller.abort(), {
+        once: true,
+      });
+    }
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...init,
+      signal: controller.signal,
+      headers: {
+        ...authHeaders(token),
+        ...init?.headers,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new GiteaApiError(
+        `Gitea request timed out after ${GITEA_FETCH_TIMEOUT_MS}ms`,
+        408,
+      );
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   const text = await res.text();
   if (!res.ok) {
@@ -279,15 +311,15 @@ export function createGiteaClient(
       labelIds: number[],
     ) {
       if (labelIds.length === 0) return;
-      await giteaFetch<unknown>(
-        baseUrl,
-        accessToken,
-        `${owner(repositoryOwner, repositoryName)}/issues/${index}/labels`,
-        {
+      const MAX_LABELS_PER_REQUEST = 50;
+      const path = `${owner(repositoryOwner, repositoryName)}/issues/${index}/labels`;
+      for (let i = 0; i < labelIds.length; i += MAX_LABELS_PER_REQUEST) {
+        const chunk = labelIds.slice(i, i + MAX_LABELS_PER_REQUEST);
+        await giteaFetch<unknown>(baseUrl, accessToken, path, {
           method: "POST",
-          body: JSON.stringify(labelIds),
-        },
-      );
+          body: JSON.stringify(chunk),
+        });
+      }
     },
 
     async replaceIssueLabels(

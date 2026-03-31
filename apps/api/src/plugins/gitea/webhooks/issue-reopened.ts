@@ -43,59 +43,66 @@ export async function handleGiteaIssueReopened(payload: IssueReopenedPayload) {
   );
 
   for (const integration of integrations) {
-    const externalLink = await db.query.externalLinkTable.findFirst({
-      where: and(
-        eq(externalLinkTable.integrationId, integration.id),
-        eq(externalLinkTable.resourceType, "issue"),
-        eq(externalLinkTable.externalId, issue.number.toString()),
-      ),
-    });
+    try {
+      const externalLink = await db.query.externalLinkTable.findFirst({
+        where: and(
+          eq(externalLinkTable.integrationId, integration.id),
+          eq(externalLinkTable.resourceType, "issue"),
+          eq(externalLinkTable.externalId, issue.number.toString()),
+        ),
+      });
 
-    if (!externalLink) {
-      continue;
-    }
-
-    const task = await db.query.taskTable.findFirst({
-      where: eq(taskTable.id, externalLink.taskId),
-    });
-
-    if (!task) {
-      continue;
-    }
-
-    let existingMetadata: Record<string, unknown> = {};
-    if (externalLink.metadata) {
-      try {
-        existingMetadata = JSON.parse(externalLink.metadata) as Record<
-          string,
-          unknown
-        >;
-      } catch (error) {
-        console.warn("Failed to parse Gitea issue metadata for reopen sync", {
-          externalLinkId: externalLink.id,
-          metadata: externalLink.metadata,
-          error,
-        });
+      if (!externalLink) {
+        continue;
       }
+
+      const task = await db.query.taskTable.findFirst({
+        where: eq(taskTable.id, externalLink.taskId),
+      });
+
+      if (!task) {
+        continue;
+      }
+
+      let existingMetadata: Record<string, unknown> = {};
+      if (externalLink.metadata) {
+        try {
+          existingMetadata = JSON.parse(externalLink.metadata) as Record<
+            string,
+            unknown
+          >;
+        } catch (error) {
+          console.warn("Failed to parse Gitea issue metadata for reopen sync", {
+            externalLinkId: externalLink.id,
+            metadata: externalLink.metadata,
+            error,
+          });
+        }
+      }
+
+      if (existingMetadata.createdFrom === "kaneo") {
+        continue;
+      }
+
+      const targetStatus = await resolveTargetStatus(
+        task.projectId,
+        "issue_reopened",
+        "to-do",
+      );
+
+      await updateTaskStatus(task.id, targetStatus);
+
+      await updateExternalLink(externalLink.id, {
+        metadata: {
+          ...existingMetadata,
+          state: "open",
+        },
+      });
+    } catch (error) {
+      console.error("Gitea issue_reopened handler failed for integration", {
+        integrationId: integration.id,
+        error,
+      });
     }
-
-    if (existingMetadata.createdFrom === "kaneo") {
-      continue;
-    }
-
-    const targetStatus = await resolveTargetStatus(
-      task.projectId,
-      "issue_reopened",
-      "to-do",
-    );
-
-    await updateTaskStatus(task.id, targetStatus);
-
-    await updateExternalLink(externalLink.id, {
-      metadata: {
-        ...existingMetadata,
-        state: "open",
-      },
-    });
   }
 }

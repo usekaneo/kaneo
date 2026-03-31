@@ -1,4 +1,4 @@
-import { and, eq, inArray, notInArray } from "drizzle-orm";
+import { and, eq, inArray, max, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -27,7 +27,6 @@ import {
   extractIssueStatus,
 } from "../../plugins/github/utils/extract-priority";
 import { formatTaskDescriptionFromIssue } from "../../plugins/github/utils/format";
-import getNextTaskNumber from "../../task/controllers/get-next-task-number";
 
 type ImportResult = {
   imported: number;
@@ -75,7 +74,19 @@ export async function importGiteaIssues(
     });
   }
 
-  const config = JSON.parse(integration.config) as GiteaConfig;
+  let config: GiteaConfig;
+  try {
+    config = JSON.parse(integration.config) as GiteaConfig;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("Invalid Gitea integration config JSON", {
+      integrationId: integration.id,
+      error,
+    });
+    throw new HTTPException(400, {
+      message: `Invalid Gitea integration config: ${message}`,
+    });
+  }
 
   if (!config.accessToken || !config.baseUrl) {
     throw new HTTPException(400, {
@@ -223,26 +234,42 @@ async function importSingleIssue(
     return "updated";
   }
 
-  const nextTaskNumber = await getNextTaskNumber(projectId);
+  const createdTask = await db.transaction(async (tx) => {
+    const [lockedProject] = await tx
+      .select()
+      .from(projectTable)
+      .where(eq(projectTable.id, projectId))
+      .for("update");
 
-  const taskValues: typeof taskTable.$inferInsert = {
-    projectId,
-    userId: null,
-    title: issue.title,
-    description: formatTaskDescriptionFromIssue(issue.body),
-    status: status || "to-do",
-    priority: priority || null,
-    number: nextTaskNumber + 1,
-  };
+    if (!lockedProject) {
+      throw new Error("Project not found");
+    }
 
-  const [createdTask] = await db
-    .insert(taskTable)
-    .values(taskValues)
-    .returning();
+    const [result] = await tx
+      .select({ maxNumber: max(taskTable.number) })
+      .from(taskTable)
+      .where(eq(taskTable.projectId, projectId));
 
-  if (!createdTask) {
-    throw new Error("Failed to create task");
-  }
+    const nextNumber = (result?.maxNumber ?? 0) + 1;
+
+    const taskValues: typeof taskTable.$inferInsert = {
+      projectId,
+      userId: null,
+      title: issue.title,
+      description: formatTaskDescriptionFromIssue(issue.body),
+      status: status || "to-do",
+      priority: priority || null,
+      number: nextNumber,
+    };
+
+    const [created] = await tx.insert(taskTable).values(taskValues).returning();
+
+    if (!created) {
+      throw new Error("Failed to create task");
+    }
+
+    return created;
+  });
 
   await createExternalLink({
     taskId: createdTask.id,
@@ -343,12 +370,17 @@ async function importLabelsForTask(
 
     const colorToUse = existingWorkspaceLabel?.color || labelData.color;
 
-    await db.insert(labelTable).values({
-      name: labelData.name,
-      color: colorToUse,
-      taskId,
-      workspaceId,
-    });
+    await db
+      .insert(labelTable)
+      .values({
+        name: labelData.name,
+        color: colorToUse,
+        taskId,
+        workspaceId,
+      })
+      .onConflictDoNothing({
+        target: [labelTable.taskId, labelTable.name],
+      });
   }
 }
 

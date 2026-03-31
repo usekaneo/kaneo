@@ -76,7 +76,7 @@ export async function handleTaskDescriptionChanged(
         Date.now() - new Date(lastDescSync.timestamp).getTime();
       if (
         timeSinceLastSync < 2000 &&
-        lastDescSync.source !== "kaneo" &&
+        lastDescSync.source === "gitea" &&
         newDescNormalized === lastDescSync.value
       ) {
         console.log(

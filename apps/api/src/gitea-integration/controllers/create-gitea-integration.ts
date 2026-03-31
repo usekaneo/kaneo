@@ -105,7 +105,6 @@ async function createGiteaIntegration({
           error,
         },
       );
-      throw error;
     }
   }
 
