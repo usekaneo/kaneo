@@ -495,9 +495,9 @@
 			"githubSectionTitle": "GitHub Integratie",
 			"githubSectionSubtitle": "Synchroniseer taken met GitHub issues en activeer tweerichtings-synchronisatie."
 			"discordSectionTitle": "Discord Integratie",
-			"discordSectionSubtitle": "Send project task updates into a Discord channel with a webhook.",
+			"discordSectionSubtitle": "Verstuur updates van projecttaken naar een Discord-kanaal met een webhook.",
 			"genericWebhookSectionTitle": "Generieke Webhooks",
-			"genericWebhookSectionSubtitle": "Verstuur gebeurtenissen van projecttaken als JSON naar elk gewenst HTTP-eindpunt.",
+			"genericWebhookSectionSubtitle": "Verstuur updates van projecttaken als JSON naar elk gewenst HTTP-eindpunt.",
 			"slackSectionTitle": "Slack Integratie",
 			"slackSectionSubtitle": "Verstuur updates van projecttaken naar een Slack-kanaal met een binnenkomende webhook."
 		},
