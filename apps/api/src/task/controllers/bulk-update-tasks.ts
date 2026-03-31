@@ -167,7 +167,6 @@ async function bulkUpdateTasks({
         const existingAssignment = await db.query.labelTable.findFirst({
           where: and(
             eq(labelTable.name, label.name),
-            eq(labelTable.color, label.color),
             eq(labelTable.taskId, task.id),
           ),
         });

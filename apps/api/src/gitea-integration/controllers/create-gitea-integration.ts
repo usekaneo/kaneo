@@ -11,6 +11,7 @@ import {
 } from "../../plugins/gitea/config";
 import {
   createGiteaClient,
+  GiteaApiError,
   verifyGiteaToken,
 } from "../../plugins/gitea/utils/gitea-api";
 
@@ -63,13 +64,20 @@ async function createGiteaIntegration({
     });
   }
 
-  await verifyGiteaToken(normalizedBase, resolvedToken);
+  try {
+    await verifyGiteaToken(normalizedBase, resolvedToken);
 
-  const client = createGiteaClient({
-    baseUrl: normalizedBase,
-    accessToken: resolvedToken,
-  });
-  await client.getRepo(repositoryOwner, repositoryName);
+    const client = createGiteaClient({
+      baseUrl: normalizedBase,
+      accessToken: resolvedToken,
+    });
+    await client.getRepo(repositoryOwner, repositoryName);
+  } catch (error) {
+    if (error instanceof GiteaApiError) {
+      throw new HTTPException(error.status || 400, { message: error.message });
+    }
+    throw error;
+  }
 
   const allGitea = await db.query.integrationTable.findMany({
     where: eq(integrationTable.type, "gitea"),
@@ -77,6 +85,9 @@ async function createGiteaIntegration({
 
   for (const integration of allGitea) {
     if (integration.projectId === projectId) {
+      continue;
+    }
+    if (!integration.isActive) {
       continue;
     }
     try {

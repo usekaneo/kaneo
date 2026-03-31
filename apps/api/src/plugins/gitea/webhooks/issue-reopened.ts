@@ -10,6 +10,16 @@ import {
 import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
+/** Skip reopen sync when it likely echoes our own outbound state update (webhook vs API). */
+const OUTBOUND_STATE_ECHO_WINDOW_MS = 5000;
+
+function parseIssueUpdatedAtMs(issue: { updated_at?: string }): number | null {
+  const raw = issue.updated_at;
+  if (!raw || typeof raw !== "string") return null;
+  const t = Date.parse(raw);
+  return Number.isNaN(t) ? null : t;
+}
+
 type IssueReopenedPayload = {
   action: string;
   issue: {
@@ -17,6 +27,7 @@ type IssueReopenedPayload = {
     title: string;
     html_url: string;
     state: string;
+    updated_at?: string;
   };
   repository: {
     owner: { login?: string; username?: string };
@@ -80,8 +91,15 @@ export async function handleGiteaIssueReopened(payload: IssueReopenedPayload) {
         }
       }
 
-      if (existingMetadata.createdFrom === "kaneo") {
-        continue;
+      const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
+      if (typeof lastOutbound === "number" && Number.isFinite(lastOutbound)) {
+        const eventMs = parseIssueUpdatedAtMs(issue);
+        if (
+          eventMs !== null &&
+          Math.abs(eventMs - lastOutbound) <= OUTBOUND_STATE_ECHO_WINDOW_MS
+        ) {
+          continue;
+        }
       }
 
       const targetStatus = await resolveTargetStatus(

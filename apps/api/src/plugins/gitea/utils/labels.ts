@@ -82,6 +82,8 @@ export async function addLabelsToIssueGitea(
 
   if (ids.length === 0) return;
 
+  const client = createGiteaClient(config);
+
   try {
     await client.addLabelsToIssue(
       config.repositoryOwner,
