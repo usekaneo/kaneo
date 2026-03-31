@@ -20,7 +20,7 @@ export const defaultLocale: AppLocale = "en-US";
 
 export const resources = {
   "mk-MK": mkMK,
-  "nl-NL",
+  "nl-NL": nlNL,
   "en-US": enUS,
   "de-DE": deDE,
   "el-GR": elGR,
