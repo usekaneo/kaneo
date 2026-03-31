@@ -173,12 +173,17 @@ async function bulkUpdateTasks({
         });
 
         if (!existingAssignment) {
-          await db.insert(labelTable).values({
-            name: label.name,
-            color: label.color,
-            workspaceId: workspaceId,
-            taskId: task.id,
-          });
+          await db
+            .insert(labelTable)
+            .values({
+              name: label.name,
+              color: label.color,
+              workspaceId: workspaceId,
+              taskId: task.id,
+            })
+            .onConflictDoNothing({
+              target: [labelTable.taskId, labelTable.name],
+            });
           updatedCount++;
         }
       }

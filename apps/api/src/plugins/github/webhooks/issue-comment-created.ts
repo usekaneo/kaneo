@@ -54,15 +54,24 @@ export async function handleIssueCommentCreated(
       continue;
     }
 
-    await db.insert(activityTable).values({
-      taskId: existingLink.taskId,
-      type: "comment",
-      content: comment.body,
-      externalUserName: comment.user?.login ?? "Unknown",
-      externalUserAvatar: comment.user?.avatar_url ?? null,
-      externalSource: "github",
-      externalUrl: comment.html_url,
-    });
+    await db
+      .insert(activityTable)
+      .values({
+        taskId: existingLink.taskId,
+        type: "comment",
+        content: comment.body,
+        externalUserName: comment.user?.login ?? "Unknown",
+        externalUserAvatar: comment.user?.avatar_url ?? null,
+        externalSource: "github",
+        externalUrl: comment.html_url,
+      })
+      .onConflictDoNothing({
+        target: [
+          activityTable.taskId,
+          activityTable.externalSource,
+          activityTable.externalUrl,
+        ],
+      });
 
     return;
   }

@@ -67,7 +67,12 @@ async function syncGiteaLabelsToTask(
     }));
 
   if (labelsToInsert.length > 0) {
-    await db.insert(labelTable).values(labelsToInsert).onConflictDoNothing();
+    await db
+      .insert(labelTable)
+      .values(labelsToInsert)
+      .onConflictDoNothing({
+        target: [labelTable.taskId, labelTable.name],
+      });
   }
 
   const labelsToDelete = existingRows
@@ -170,12 +175,17 @@ export async function handleGiteaIssueLabeled(payload: IssueLabeledPayload) {
           const color = addedLabel.color
             ? `#${addedLabel.color.replace(/^#/, "")}`
             : "#6B7280";
-          await db.insert(labelTable).values({
-            name: addedLabel.name,
-            color,
-            taskId: task.id,
-            workspaceId: task.project.workspaceId,
-          });
+          await db
+            .insert(labelTable)
+            .values({
+              name: addedLabel.name,
+              color,
+              taskId: task.id,
+              workspaceId: task.project.workspaceId,
+            })
+            .onConflictDoNothing({
+              target: [labelTable.taskId, labelTable.name],
+            });
         }
       }
     }
