@@ -1,24 +1,19 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable, taskTable } from "../../../database/schema";
+import { publishEvent } from "../../../events";
 import { updateExternalLink } from "../../github/services/link-manager";
 import { updateTaskStatus } from "../../github/services/task-service";
 import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
 } from "../services/integration-lookup";
+import {
+  OUTBOUND_STATE_ECHO_WINDOW_MS,
+  parseIssueUpdatedAtMs,
+} from "../utils/outbound-echo";
 import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
-
-/** Skip reopen sync when it likely echoes our own outbound state update (webhook vs API). */
-const OUTBOUND_STATE_ECHO_WINDOW_MS = 5000;
-
-function parseIssueUpdatedAtMs(issue: { updated_at?: string }): number | null {
-  const raw = issue.updated_at;
-  if (!raw || typeof raw !== "string") return null;
-  const t = Date.parse(raw);
-  return Number.isNaN(t) ? null : t;
-}
 
 type IssueReopenedPayload = {
   action: string;
@@ -108,7 +103,22 @@ export async function handleGiteaIssueReopened(payload: IssueReopenedPayload) {
         "to-do",
       );
 
-      await updateTaskStatus(task.id, targetStatus);
+      const statusResult = await updateTaskStatus(task.id, targetStatus);
+      if (
+        statusResult.applied &&
+        statusResult.before.status !== statusResult.after.status
+      ) {
+        await publishEvent("task.status_changed", {
+          taskId: statusResult.after.id,
+          projectId: statusResult.after.projectId,
+          userId: null,
+          oldStatus: statusResult.before.status,
+          newStatus: statusResult.after.status,
+          title: statusResult.after.title,
+          assigneeId: statusResult.after.userId,
+          type: "status_changed",
+        });
+      }
 
       await updateExternalLink(externalLink.id, {
         metadata: {
@@ -119,6 +129,8 @@ export async function handleGiteaIssueReopened(payload: IssueReopenedPayload) {
     } catch (error) {
       console.error("Gitea issue_reopened handler failed for integration", {
         integrationId: integration.id,
+        issueNumber: issue.number,
+        repository: `${owner}/${repository.name}`,
         error,
       });
     }

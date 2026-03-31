@@ -84,9 +84,8 @@ export async function giteaFetch<T>(
     }
   }
 
-  let res: Response;
   try {
-    res = await fetch(url, {
+    const res = await fetch(url, {
       ...init,
       signal: controller.signal,
       headers: {
@@ -94,7 +93,36 @@ export async function giteaFetch<T>(
         ...init?.headers,
       },
     });
+
+    const text = await res.text();
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new GiteaApiError(
+        `Gitea API error ${res.status}`,
+        res.status,
+        text,
+      );
+    }
+
+    if (res.status === 204 || text === "") {
+      return undefined;
+    }
+
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      throw new GiteaApiError(
+        "Gitea API returned invalid JSON",
+        res.status,
+        text,
+      );
+    }
   } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof GiteaApiError) {
+      throw error;
+    }
     if (error instanceof Error && error.name === "AbortError") {
       if (timedOut) {
         throw new GiteaApiError(
@@ -105,27 +133,6 @@ export async function giteaFetch<T>(
       throw error;
     }
     throw error;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-
-  const text = await res.text();
-  if (!res.ok) {
-    throw new GiteaApiError(`Gitea API error ${res.status}`, res.status, text);
-  }
-
-  if (res.status === 204 || text === "") {
-    return undefined;
-  }
-
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    throw new GiteaApiError(
-      "Gitea API returned invalid JSON",
-      res.status,
-      text,
-    );
   }
 }
 
@@ -321,7 +328,7 @@ export function createGiteaClient(
         const chunk = labelIds.slice(i, i + MAX_LABELS_PER_REQUEST);
         await giteaFetch<unknown>(baseUrl, accessToken, path, {
           method: "POST",
-          body: JSON.stringify(chunk),
+          body: JSON.stringify({ labels: chunk }),
         });
       }
     },
@@ -338,7 +345,7 @@ export function createGiteaClient(
         `${owner(repositoryOwner, repositoryName)}/issues/${index}/labels`,
         {
           method: "PUT",
-          body: JSON.stringify(labelIds),
+          body: JSON.stringify({ labels: labelIds }),
         },
       );
     },
