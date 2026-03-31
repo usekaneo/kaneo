@@ -4,12 +4,12 @@
 		"actions": {
 			"cancel": "Cancelar",
 			"close": "Cerrar",
-			"clearAll": "Clear all",
+			"clearAll": "Limpiar todo",
 			"delete": "Borrar",
 			"deleting": "Borrando...",
 			"markAllRead": "Marcar todos como leídos",
 			"remove": "Borrar",
-			"reset": "Reset",
+			"reset": "Restablecer",
 			"filter": "Filtrar",
 			"clearAllFilters": "Eliminar todos los filtros"
 		},
@@ -24,7 +24,7 @@
 			"loading": "Cargando..."
 		},
 		"pagination": {
-			"label": "Pagination",
+			"label": "Paginación",
 			"previous": "Anterior",
 			"next": "Siguiente",
 			"previousPage": "Ir a la página anterior",
@@ -32,7 +32,7 @@
 			"morePages": "Más páginas"
 		},
 		"breadcrumb": {
-			"label": "Breadcrumb",
+			"label": "Ruta de navegación",
 			"more": "Más"
 		},
 		"language": {
@@ -199,7 +199,7 @@
 				"codeLength": "El código debe contener 6 dígitos"
 			},
 			"toast": {
-				"invalidCode": "Códgido de verificación inválido",
+				"invalidCode": "El código de verificación no es válido",
 				"signedInSuccess": "¡Has iniciado sesión correctamente!",
 				"verifyFailed": "Fallo al verificar el código",
 				"resendFailed": "Error al reenviar el código",
@@ -413,7 +413,7 @@
 				"expirationNever": "Nunca",
 				"create": "Crear",
 				"creating": "Creando...",
-				"failedCreate": "Error al cread clave de API",
+				"failedCreate": "Error al crear clave de API",
 				"validation": {
 					"nameRequired": "El nombre es obligatorio",
 					"nameShort": "El nombre debe tener al menos 3 caracteres",
@@ -1038,7 +1038,7 @@
 			"in-review": "En revisión",
 			"done": "Hecho",
 			"archived": "Archivado",
-			"planned": "Planeadi"
+			"planned": "Planeado"
 		},
 		"priority": {
 			"label": "Prioridad",
@@ -1144,7 +1144,7 @@
 				},
 				"embed": {
 					"choice": {
-						"embedVideo": "Incrustar cídeo",
+						"embedVideo": "Incrustar vídeo",
 						"keepAsLink": "Mantener como enlace"
 					},
 					"inputPlaceholder": "Pegar URL",
