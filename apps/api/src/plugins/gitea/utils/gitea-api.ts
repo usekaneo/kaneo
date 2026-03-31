@@ -69,10 +69,11 @@ export async function giteaFetch<T>(
   const url = `${root}/api/v1${path.startsWith("/") ? path : `/${path}`}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    GITEA_FETCH_TIMEOUT_MS,
-  );
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, GITEA_FETCH_TIMEOUT_MS);
   if (init?.signal) {
     if (init.signal.aborted) {
       controller.abort();
@@ -95,10 +96,13 @@ export async function giteaFetch<T>(
     });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new GiteaApiError(
-        `Gitea request timed out after ${GITEA_FETCH_TIMEOUT_MS}ms`,
-        408,
-      );
+      if (timedOut) {
+        throw new GiteaApiError(
+          `Gitea request timed out after ${GITEA_FETCH_TIMEOUT_MS}ms`,
+          408,
+        );
+      }
+      throw error;
     }
     throw error;
   } finally {

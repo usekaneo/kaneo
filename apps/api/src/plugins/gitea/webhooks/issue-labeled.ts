@@ -47,6 +47,10 @@ function giteaLabelsForSync(
   return out;
 }
 
+function normalizedGiteaLabelColor(g: { color?: string }): string {
+  return g.color ? `#${g.color.replace(/^#/, "")}` : "#6B7280";
+}
+
 async function syncGiteaLabelsToTask(
   taskId: string,
   workspaceId: string,
@@ -61,10 +65,31 @@ async function syncGiteaLabelsToTask(
     .filter((g) => !existingRows.some((row) => row.name === g.name))
     .map((g) => ({
       name: g.name,
-      color: g.color ? `#${g.color.replace(/^#/, "")}` : "#6B7280",
+      color: normalizedGiteaLabelColor(g),
       taskId,
       workspaceId,
     }));
+
+  const colorToIds = new Map<string, string[]>();
+  for (const g of giteaLabels) {
+    if (isSystemLabelName(g.name)) continue;
+    const row = existingRows.find((r) => r.name === g.name);
+    if (!row) continue;
+    const want = normalizedGiteaLabelColor(g);
+    const have = row.color ? `#${row.color.replace(/^#/, "")}` : "#6B7280";
+    if (have === want) continue;
+    const list = colorToIds.get(want) ?? [];
+    list.push(row.id);
+    colorToIds.set(want, list);
+  }
+
+  for (const [color, ids] of colorToIds) {
+    if (ids.length === 0) continue;
+    await db
+      .update(labelTable)
+      .set({ color })
+      .where(inArray(labelTable.id, ids));
+  }
 
   if (labelsToInsert.length > 0) {
     await db
