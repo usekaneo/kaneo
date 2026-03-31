@@ -635,8 +635,13 @@
 				"importError": "Failed to import issues",
 				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
 				"commentOnDisabled": "Task link comments on new issues are turned off",
-				"settingsUpdateError": "Failed to update Gitea integration"
+				"settingsUpdateError": "Failed to update Gitea integration",
+				"secretCopied": "Kopiert",
+				"unableToCopySecret": "Geheimnis konnte nicht kopiert werden"
 			},
+			"webhookShow": "Anzeigen",
+			"webhookHide": "Ausblenden",
+			"webhookCopy": "Kopieren",
 			"connectionStatus": "Connection status",
 			"connectedActive": "Repository connected and active",
 			"notConnectedHint": "No Gitea repository connected",

@@ -150,6 +150,8 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       repositoryOwner: integration.repositoryOwner,
       repositoryName: integration.repositoryName,
     });
+    // Intentionally clear verify state after reload: import must not run until the user re-verifies (token/URL may have changed).
+    // Clear verify state when the form reloads so import cannot run against stale credentials.
     setVerificationResult(null);
     setShowWebhookSecret(false);
   }, [
@@ -385,13 +387,15 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
 
     try {
       await navigator.clipboard.writeText(integration.webhookSecret);
-      toast.success("Copied");
+      toast.success(t("settings:giteaIntegration.toast.secretCopied"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Unable to copy secret",
+        error instanceof Error
+          ? error.message
+          : t("settings:giteaIntegration.toast.unableToCopySecret"),
       );
     }
-  }, [integration?.webhookSecret]);
+  }, [integration?.webhookSecret, t]);
 
   if (isLoading) {
     return (
@@ -429,6 +433,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   }
 
   const isConnected = !!integration && integration.isActive;
+  // Import stays disabled until the user verifies again after changing connection details (avoids importing with an unverified token).
   const hasVerifiedCurrentValues =
     verificationResult?.result.isInstalled &&
     verificationResult.result.hasRequiredPermissions &&
@@ -518,7 +523,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                 </p>
               </div>
               <Switch
-                checked={integration.commentTaskLinkOnGiteaIssue !== false}
+                checked={integration.commentTaskLinkOnGiteaIssue ?? true}
                 onCheckedChange={async (checked) => {
                   try {
                     await updateGiteaSettings({
@@ -576,7 +581,9 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                         setShowWebhookSecret((current) => !current)
                       }
                     >
-                      {showWebhookSecret ? "Hide" : "Show"}
+                      {showWebhookSecret
+                        ? t("settings:giteaIntegration.webhookHide")
+                        : t("settings:giteaIntegration.webhookShow")}
                     </Button>
                     <Button
                       type="button"
@@ -584,7 +591,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                       size="sm"
                       onClick={handleCopyWebhookSecret}
                     >
-                      Copy
+                      {t("settings:giteaIntegration.webhookCopy")}
                     </Button>
                   </div>
                 </div>
