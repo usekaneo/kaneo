@@ -18,13 +18,14 @@ const telegramBotTokenSchema = v.pipe(
 
 const telegramChatIdSchema = v.pipe(
   v.string(),
+  v.trim(),
   v.minLength(1, "Chat ID is required"),
 );
 
 export const telegramConfigSchema = v.object({
   botToken: telegramBotTokenSchema,
   chatId: telegramChatIdSchema,
-  threadId: v.optional(v.number()),
+  threadId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   chatLabel: v.optional(v.string()),
   events: v.optional(
     v.object({
@@ -54,7 +55,7 @@ export function normalizeTelegramConfig(
 ): TelegramConfig {
   return {
     ...config,
-    chatId: config.chatId.trim(),
+    chatId: config.chatId,
     threadId:
       typeof config.threadId === "number" && Number.isFinite(config.threadId)
         ? config.threadId

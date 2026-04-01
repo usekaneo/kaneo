@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
@@ -66,6 +67,36 @@ function redactBotToken(botToken: string): string {
   }`;
 }
 
+function getSafeTelegramTargetIdentifier(config: TelegramConfig): string {
+  const hash = createHash("sha256")
+    .update(`${config.chatId}:${config.threadId ?? "none"}`)
+    .digest("hex")
+    .slice(0, 12);
+
+  return `tg:${hash}`;
+}
+
+function getTaskUrl(
+  clientUrl: string | undefined,
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+): string | null {
+  const normalizedClientUrl = clientUrl?.trim();
+  if (!normalizedClientUrl) {
+    return null;
+  }
+
+  try {
+    return new URL(
+      `/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`,
+      normalizedClientUrl,
+    ).toString();
+  } catch {
+    return null;
+  }
+}
+
 async function getTelegramEventData(
   taskId: string,
   projectId: string,
@@ -101,14 +132,16 @@ async function getTelegramEventData(
     return null;
   }
 
-  const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
-  const taskUrl = `${clientUrl}/dashboard/workspace/${taskRow.workspaceId}/project/${taskRow.projectId}/task/${taskId}`;
-
   return {
     taskTitle: taskRow.title,
     taskNumber: taskRow.number,
     projectName: taskRow.projectName,
-    taskUrl,
+    taskUrl: getTaskUrl(
+      process.env.KANEO_CLIENT_URL,
+      taskRow.workspaceId,
+      taskRow.projectId,
+      taskId,
+    ),
     actorName: user?.name ?? null,
     status: taskRow.status,
     priority: taskRow.priority,
@@ -152,8 +185,7 @@ async function sendTelegramMessage(
     console.error("sendTelegramMessage postToTelegram failed", {
       error,
       botToken: redactBotToken(config.botToken),
-      chatId: config.chatId,
-      threadId: config.threadId ?? null,
+      telegramTarget: getSafeTelegramTargetIdentifier(config),
       taskUrl: data.taskUrl,
     });
   }

@@ -103,7 +103,11 @@ export function TelegramIntegrationSettings({
     [],
   );
 
-  const { data: integration, isLoading } = useGetTelegramIntegration(projectId);
+  const {
+    data: integration,
+    isLoading,
+    error,
+  } = useGetTelegramIntegration(projectId);
   const { mutateAsync: createIntegration, isPending: isCreating } =
     useCreateTelegramIntegration();
   const { mutateAsync: updateIntegration, isPending: isUpdating } =
@@ -154,6 +158,20 @@ export function TelegramIntegrationSettings({
     reset(normalizedValues);
     lastResetKeyRef.current = resetKey;
   }, [form.formState.isDirty, normalizedValues, reset, resetKey]);
+
+  React.useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    const detail =
+      error instanceof Error
+        ? error.message
+        : t("settings:telegramIntegration.toast.saveError");
+    toast.error(
+      `${t("settings:telegramIntegration.toast.saveError")}: ${detail}`,
+    );
+  }, [error, t]);
 
   const isConnected = Boolean(integration?.botTokenConfigured);
   const isBusy = isCreating || isUpdating || isDeleting;
@@ -307,6 +325,10 @@ export function TelegramIntegrationSettings({
         </div>
       </div>
     );
+  }
+
+  if (error) {
+    return null;
   }
 
   return (

@@ -6,13 +6,13 @@ import * as v from "valibot";
 import db from "../database";
 import { integrationTable } from "../database/schema";
 import {
-  defaultTelegramEvents,
   normalizeTelegramConfig,
   type TelegramConfig,
   validateTelegramConfig,
 } from "../plugins/telegram/config";
 import { telegramIntegrationSchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import { getTelegramIntegration } from "./controllers/telegram-controller";
 
 const telegramIntegration = new Hono<{
   Variables: {
@@ -25,62 +25,6 @@ const telegramIntegration = new Hono<{
     };
   };
 }>();
-
-function maskBotToken(value: string): string {
-  const [prefix, suffix = ""] = value.split(":", 2);
-  if (!suffix) {
-    return "Configured";
-  }
-
-  const maskedSuffix =
-    suffix.length > 8 ? `${suffix.slice(0, 4)}…${suffix.slice(-4)}` : "••••";
-  return `${prefix}:${maskedSuffix}`;
-}
-
-function toResponse(integration: {
-  id: string;
-  projectId: string;
-  config: string;
-  isActive: boolean | null;
-  createdAt: Date;
-  updatedAt: Date;
-}) {
-  const config = normalizeTelegramConfig(
-    JSON.parse(integration.config) as TelegramConfig,
-  );
-
-  return {
-    id: integration.id,
-    projectId: integration.projectId,
-    chatId: config.chatId,
-    threadId: config.threadId ?? null,
-    chatLabel: config.chatLabel ?? null,
-    botTokenConfigured: Boolean(config.botToken),
-    maskedBotToken: config.botToken ? maskBotToken(config.botToken) : "",
-    events: {
-      ...defaultTelegramEvents,
-      ...(config.events ?? {}),
-    },
-    isActive: integration.isActive,
-    createdAt: integration.createdAt,
-    updatedAt: integration.updatedAt,
-  };
-}
-
-async function getTelegramIntegration(projectId: string) {
-  const integration = await db.query.integrationTable.findFirst({
-    where: and(
-      eq(integrationTable.projectId, projectId),
-      eq(integrationTable.type, "telegram"),
-    ),
-  });
-
-  if (!integration) {
-    return null;
-  }
-
-  return toResponse(integration);
-}
 
 const telegramEventsSchema = v.object({
   taskCreated: v.optional(v.boolean()),
