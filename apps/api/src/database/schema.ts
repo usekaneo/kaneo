@@ -429,27 +429,30 @@ export const notificationTable = pgTable("notification", {
     .notNull(),
 });
 
-export const userNotificationPreferenceTable = pgTable("user_notification_preference", {
-  userId: text("user_id")
-    .primaryKey()
-    .references(() => userTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-  emailEnabled: boolean("email_enabled").default(false).notNull(),
-  ntfyEnabled: boolean("ntfy_enabled").default(false).notNull(),
-  ntfyServerUrl: text("ntfy_server_url"),
-  ntfyTopic: text("ntfy_topic"),
-  ntfyToken: text("ntfy_token"),
-  webhookEnabled: boolean("webhook_enabled").default(false).notNull(),
-  webhookUrl: text("webhook_url"),
-  webhookSecret: text("webhook_secret"),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "date" })
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+export const userNotificationPreferenceTable = pgTable(
+  "user_notification_preference",
+  {
+    userId: text("user_id")
+      .primaryKey()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    emailEnabled: boolean("email_enabled").default(false).notNull(),
+    ntfyEnabled: boolean("ntfy_enabled").default(false).notNull(),
+    ntfyServerUrl: text("ntfy_server_url"),
+    ntfyTopic: text("ntfy_topic"),
+    ntfyToken: text("ntfy_token"),
+    webhookEnabled: boolean("webhook_enabled").default(false).notNull(),
+    webhookUrl: text("webhook_url"),
+    webhookSecret: text("webhook_secret"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+);
 
 export const userNotificationWorkspaceRuleTable = pgTable(
   "user_notification_workspace_rule",
