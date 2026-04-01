@@ -493,7 +493,7 @@
 			"title": "Projectintegraties",
 			"subtitle": "Verbind je project met externe tools om je workflow te stroomlijnen.",
 			"githubSectionTitle": "GitHub Integratie",
-			"githubSectionSubtitle": "Synchroniseer taken met GitHub issues en activeer tweerichtings-synchronisatie."
+			"githubSectionSubtitle": "Synchroniseer taken met GitHub issues en activeer tweerichtings-synchronisatie.",
 			"discordSectionTitle": "Discord Integratie",
 			"discordSectionSubtitle": "Verstuur updates van projecttaken naar een Discord-kanaal met een webhook.",
 			"genericWebhookSectionTitle": "Generieke Webhooks",
@@ -610,119 +610,119 @@
 			"importDisabledHint": "Voltooi de configuratie hierboven om importeren mogelijk te maken"
 		},
 		"slackIntegration": {
-            "validation": {
-                "webhookInvalid": "Voer een geldige Slack webhook-URL in"
+			"validation": {
+				"webhookInvalid": "Voer een geldige Slack webhook-URL in"
 			},
 			"toast": {
-                "saved": "Slack-integratie succesvol opgeslagen",
-                "saveError": "Opslaan Slack-integratie mislukt",
-                "enabled": "Slack-meldingen ingeschakeld",
-                "disabled": "Slack-meldingen gepauzeerd",
-                "updateError": "Bijwerken Slack-integratie mislukt",
-                "removed": "Slack-integratie succesvol verwijderd",
-                "removeError": "Verwijderen Slack-integratie mislukt"
-            },
-            "connectionTitle": "Slack webhook-verbinding",
-            "connectionHint": "Plak een Slack 'incoming webhook'-URL en kies welke taakgebeurtenissen gepost moeten worden.",
-            "connected": "Verbonden",
-            "paused": "Gepauzeerd",
-            "webhookLabel": "Incoming webhook-URL",
-            "webhookPlaceholder": "https://hooks.slack.com/services/...",
-            "webhookHint": "Maak een 'Incoming Webhook' aan in Slack en plak de gegenereerde URL hier.",
-            "channelLabel": "Kanaalnaam",
-            "channelPlaceholder": "#team-updates",
-            "channelHint": "Optioneel label voor eigen referentie. Slack bepaalt het daadwerkelijke doelkanaal via de webhook-instellingen.",
-            "eventsTitle": "Gebeurtenis-meldingen",
-            "eventsHint": "Kies welke projectwijzigingen naar Slack gepost moeten worden.",
-            "events": {
-                "taskCreated": "Nieuwe taken",
-                "taskStatusChanged": "Statuswijzigingen",
-                "taskPriorityChanged": "Prioriteitswijzigingen",
-                "taskTitleChanged": "Titelwijzigingen",
-                "taskDescriptionChanged": "Beschrijvingswijzigingen",
-                "taskCommentCreated": "Nieuwe reacties"
-            },
-            "connect": "Verbind Slack",
-            "saveChanges": "Wijzigingen opslaan",
-            "update": "Slack bijwerken",
-            "disconnect": "Ontkoppelen"
-        },
-        "discordIntegration": {
-            "validation": {
-                "webhookInvalid": "Voer een geldige Discord webhook-URL in"
-            },
-            "toast": {
-                "saved": "Discord-integratie succesvol opgeslagen",
-                "saveError": "Opslaan Discord-integratie mislukt",
-                "enabled": "Discord-meldingen ingeschakeld",
-                "disabled": "Discord-meldingen gepauzeerd",
-                "updateError": "Bijwerken Discord-integratie mislukt",
-                "removed": "Discord-integratie succesvol verwijderd",
-                "removeError": "Verwijderen Discord-integratie mislukt"
-            },
-            "connectionTitle": "Discord webhook-verbinding",
-            "connectionHint": "Plak een Discord webhook-URL en kies welke taakgebeurtenissen gepost moeten worden.",
-            "connected": "Verbonden",
-            "paused": "Gepauzeerd",
-            "webhookLabel": "Webhook-URL",
-            "webhookPlaceholder": "https://discord.com/api/webhooks/...",
-            "webhookHint": "Maak een webhook aan in een Discord-kanaal en plak de gegenereerde URL hier.",
-            "channelLabel": "Kanaalnaam",
-            "channelPlaceholder": "#team-updates",
-            "channelHint": "Optioneel label voor eigen referentie. Discord bepaalt het daadwerkelijke doelkanaal via de webhook-instellingen.",
-            "eventsTitle": "Gebeurtenis-meldingen",
-            "eventsHint": "Kies welke projectwijzigingen naar Discord gepost moeten worden.",
-            "events": {
-                "taskCreated": "Nieuwe taken",
-                "taskStatusChanged": "Statuswijzigingen",
-                "taskPriorityChanged": "Prioriteitswijzigingen",
-                "taskTitleChanged": "Titelwijzigingen",
-                "taskDescriptionChanged": "Beschrijvingswijzigingen",
-                "taskCommentCreated": "Nieuwe reacties"
-            },
-            "connect": "Verbind Discord",
-            "saveChanges": "Wijzigingen opslaan",
-            "update": "Discord bijwerken",
-            "disconnect": "Ontkoppelen"
-        },
-        "genericWebhookIntegration": {
-            "validation": {
-                "webhookInvalid": "Voer een geldige webhook-URL in"
-            },
-            "toast": {
-                "saved": "Generieke webhook-integratie succesvol opgeslagen",
-                "saveError": "Opslaan generieke webhook-integratie mislukt",
-                "enabled": "Generieke webhook-meldingen ingeschakeld",
-                "disabled": "Generieke webhook-meldingen gepauzeerd",
-                "updateError": "Bijwerken generieke webhook-integratie mislukt",
-                "removed": "Generieke webhook-integratie succesvol verwijderd",
-                "removeError": "Verwijderen generieke webhook-integratie mislukt"
-            },
-            "connectionTitle": "Uitgaande webhook-verbinding",
-            "connectionHint": "Stuur taakgebeurtenissen naar je eigen eindpunt als JSON. Een ondertekende 'X-Kaneo-Signature' header wordt meegezonden wanneer er een geheim is geconfigureerd.",
-            "connected": "Verbonden",
-            "paused": "Gepauzeerd",
-            "webhookLabel": "Eindpunt-URL (Endpoint URL)",
-            "webhookPlaceholder": "https://voorbeeld.nl/webhooks/kaneo",
-            "webhookHint": "Kaneo verzendt POST-verzoeken met een JSON-payload voor elke ingeschakelde gebeurtenis.",
-            "secretLabel": "Ondertekeningsgeheim (Signing secret)",
-            "secretPlaceholder": "Optioneel gedeeld geheim",
-            "secretHint": "Optioneel. Indien opgegeven, ondertekent Kaneo de verzoektekst en verzendt de hex-digest in de 'X-Kaneo-Signature' header.",
-            "secretHintConfigured": "Er is al een ondertekeningsgeheim geconfigureerd ({{secret}}). Voer een nieuwe in om deze te vervangen.",
-            "eventsTitle": "Gebeurtenis-meldingen",
-            "eventsHint": "Kies welke projectwijzigingen uitgaande webhooks moeten activeren.",
-            "events": {
-                "taskCreated": "Nieuwe taken",
-                "taskStatusChanged": "Statuswijzigingen",
-                "taskPriorityChanged": "Prioriteitswijzigingen",
-                "taskTitleChanged": "Titelwijzigingen",
-                "taskDescriptionChanged": "Beschrijvingswijzigingen",
-                "taskCommentCreated": "Nieuwe reacties"
-            },
-            "connect": "Webhook verbinden",
-            "saveChanges": "Wijzigingen opslaan",
-            "disconnect": "Ontkoppelen"
-        },
+				"saved": "Slack-integratie succesvol opgeslagen",
+				"saveError": "Opslaan Slack-integratie mislukt",
+				"enabled": "Slack-meldingen ingeschakeld",
+				"disabled": "Slack-meldingen gepauzeerd",
+				"updateError": "Bijwerken Slack-integratie mislukt",
+				"removed": "Slack-integratie succesvol verwijderd",
+				"removeError": "Verwijderen Slack-integratie mislukt"
+			},
+			"connectionTitle": "Slack webhook-verbinding",
+			"connectionHint": "Plak een Slack 'incoming webhook'-URL en kies welke taakgebeurtenissen gepost moeten worden.",
+			"connected": "Verbonden",
+			"paused": "Gepauzeerd",
+			"webhookLabel": "Incoming webhook-URL",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Maak een 'Incoming Webhook' aan in Slack en plak de gegenereerde URL hier.",
+			"channelLabel": "Kanaalnaam",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optioneel label voor eigen referentie. Slack bepaalt het daadwerkelijke doelkanaal via de webhook-instellingen.",
+			"eventsTitle": "Gebeurtenis-meldingen",
+			"eventsHint": "Kies welke projectwijzigingen naar Slack gepost moeten worden.",
+			"events": {
+				"taskCreated": "Nieuwe taken",
+				"taskStatusChanged": "Statuswijzigingen",
+				"taskPriorityChanged": "Prioriteitswijzigingen",
+				"taskTitleChanged": "Titelwijzigingen",
+				"taskDescriptionChanged": "Beschrijvingswijzigingen",
+				"taskCommentCreated": "Nieuwe reacties"
+			},
+			"connect": "Verbind Slack",
+			"saveChanges": "Wijzigingen opslaan",
+			"update": "Slack bijwerken",
+			"disconnect": "Ontkoppelen"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "Voer een geldige Discord webhook-URL in"
+			},
+			"toast": {
+				"saved": "Discord-integratie succesvol opgeslagen",
+				"saveError": "Opslaan Discord-integratie mislukt",
+				"enabled": "Discord-meldingen ingeschakeld",
+				"disabled": "Discord-meldingen gepauzeerd",
+				"updateError": "Bijwerken Discord-integratie mislukt",
+				"removed": "Discord-integratie succesvol verwijderd",
+				"removeError": "Verwijderen Discord-integratie mislukt"
+			},
+			"connectionTitle": "Discord webhook-verbinding",
+			"connectionHint": "Plak een Discord webhook-URL en kies welke taakgebeurtenissen gepost moeten worden.",
+			"connected": "Verbonden",
+			"paused": "Gepauzeerd",
+			"webhookLabel": "Webhook-URL",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Maak een webhook aan in een Discord-kanaal en plak de gegenereerde URL hier.",
+			"channelLabel": "Kanaalnaam",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optioneel label voor eigen referentie. Discord bepaalt het daadwerkelijke doelkanaal via de webhook-instellingen.",
+			"eventsTitle": "Gebeurtenis-meldingen",
+			"eventsHint": "Kies welke projectwijzigingen naar Discord gepost moeten worden.",
+			"events": {
+				"taskCreated": "Nieuwe taken",
+				"taskStatusChanged": "Statuswijzigingen",
+				"taskPriorityChanged": "Prioriteitswijzigingen",
+				"taskTitleChanged": "Titelwijzigingen",
+				"taskDescriptionChanged": "Beschrijvingswijzigingen",
+				"taskCommentCreated": "Nieuwe reacties"
+			},
+			"connect": "Verbind Discord",
+			"saveChanges": "Wijzigingen opslaan",
+			"update": "Discord bijwerken",
+			"disconnect": "Ontkoppelen"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Voer een geldige webhook-URL in"
+			},
+			"toast": {
+				"saved": "Generieke webhook-integratie succesvol opgeslagen",
+				"saveError": "Opslaan generieke webhook-integratie mislukt",
+				"enabled": "Generieke webhook-meldingen ingeschakeld",
+				"disabled": "Generieke webhook-meldingen gepauzeerd",
+				"updateError": "Bijwerken generieke webhook-integratie mislukt",
+				"removed": "Generieke webhook-integratie succesvol verwijderd",
+				"removeError": "Verwijderen generieke webhook-integratie mislukt"
+			},
+			"connectionTitle": "Uitgaande webhook-verbinding",
+			"connectionHint": "Stuur taakgebeurtenissen naar je eigen eindpunt als JSON. Een ondertekende 'X-Kaneo-Signature' header wordt meegezonden wanneer er een geheim is geconfigureerd.",
+			"connected": "Verbonden",
+			"paused": "Gepauzeerd",
+			"webhookLabel": "Eindpunt-URL (Endpoint URL)",
+			"webhookPlaceholder": "https://voorbeeld.nl/webhooks/kaneo",
+			"webhookHint": "Kaneo verzendt POST-verzoeken met een JSON-payload voor elke ingeschakelde gebeurtenis.",
+			"secretLabel": "Ondertekeningsgeheim (Signing secret)",
+			"secretPlaceholder": "Optioneel gedeeld geheim",
+			"secretHint": "Optioneel. Indien opgegeven, ondertekent Kaneo de verzoektekst en verzendt de hex-digest in de 'X-Kaneo-Signature' header.",
+			"secretHintConfigured": "Er is al een ondertekeningsgeheim geconfigureerd ({{secret}}). Voer een nieuwe in om deze te vervangen.",
+			"eventsTitle": "Gebeurtenis-meldingen",
+			"eventsHint": "Kies welke projectwijzigingen uitgaande webhooks moeten activeren.",
+			"events": {
+				"taskCreated": "Nieuwe taken",
+				"taskStatusChanged": "Statuswijzigingen",
+				"taskPriorityChanged": "Prioriteitswijzigingen",
+				"taskTitleChanged": "Titelwijzigingen",
+				"taskDescriptionChanged": "Beschrijvingswijzigingen",
+				"taskCommentCreated": "Nieuwe reacties"
+			},
+			"connect": "Webhook verbinden",
+			"saveChanges": "Wijzigingen opslaan",
+			"disconnect": "Ontkoppelen"
+		},
 		"repositoryBrowser": {
 			"title": "Selecteer Repository",
 			"description": "Kies een repository waar de GitHub App is geïnstalleerd om synchronisatie mogelijk te maken.",

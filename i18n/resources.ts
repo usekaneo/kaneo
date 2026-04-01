@@ -1,9 +1,9 @@
-import nlNL from "./nl-NL.json";
 import deDE from "./de-DE.json";
 import elGR from "./el-GR.json";
 import enUS from "./en-US.json";
 import frFR from "./fr-FR.json";
 import mkMK from "./mk-MK.json";
+import nlNL from "./nl-NL.json";
 
 export const supportedLocales = [
   "mk-MK",
