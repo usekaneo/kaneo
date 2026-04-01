@@ -146,7 +146,7 @@ export default function TaskMovePopover({
               {t("tasks:move.projectLabel")}
             </Label>
             <Select
-              value={selectedProjectId || null}
+              value={selectedProjectId || undefined}
               onValueChange={(value) =>
                 setSelectedProjectId(String(value ?? ""))
               }
