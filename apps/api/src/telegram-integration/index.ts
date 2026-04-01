@@ -7,12 +7,14 @@ import db from "../database";
 import { integrationTable } from "../database/schema";
 import {
   normalizeTelegramConfig,
-  type TelegramConfig,
   validateTelegramConfig,
 } from "../plugins/telegram/config";
 import { telegramIntegrationSchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
-import { getTelegramIntegration } from "./controllers/telegram-controller";
+import {
+  getTelegramIntegration,
+  parseTelegramIntegrationConfig,
+} from "./controllers/telegram-controller";
 
 const telegramIntegration = new Hono<{
   Variables: {
@@ -49,6 +51,9 @@ telegramIntegration
             "application/json": { schema: resolver(telegramIntegrationSchema) },
           },
         },
+        404: {
+          description: "Telegram integration not found",
+        },
       },
     }),
     validator("param", v.object({ projectId: v.string() })),
@@ -56,6 +61,11 @@ telegramIntegration
     async (c) => {
       const { projectId } = c.req.valid("param");
       const integration = await getTelegramIntegration(projectId);
+      if (!integration) {
+        throw new HTTPException(404, {
+          message: "Telegram integration not found",
+        });
+      }
       return c.json(integration);
     },
   )
@@ -171,12 +181,16 @@ telegramIntegration
         });
       }
 
-      const currentConfig = normalizeTelegramConfig(
-        JSON.parse(existing.config) as TelegramConfig,
-      );
+      const currentConfig = parseTelegramIntegrationConfig(existing);
+      const nextBotToken =
+        "botToken" in body
+          ? (body.botToken?.trim() ?? "")
+          : currentConfig.botToken;
+      const nextChatId =
+        "chatId" in body ? (body.chatId?.trim() ?? "") : currentConfig.chatId;
       const nextConfig = normalizeTelegramConfig({
-        botToken: body.botToken?.trim() || currentConfig.botToken,
-        chatId: body.chatId?.trim() || currentConfig.chatId,
+        botToken: nextBotToken,
+        chatId: nextChatId,
         threadId:
           body.threadId === undefined
             ? currentConfig.threadId

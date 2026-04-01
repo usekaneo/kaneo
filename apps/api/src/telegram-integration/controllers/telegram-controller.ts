@@ -1,10 +1,13 @@
 import { and, eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
+import * as v from "valibot";
 import db from "../../database";
 import { integrationTable } from "../../database/schema";
 import {
   defaultTelegramEvents,
   normalizeTelegramConfig,
   type TelegramConfig,
+  telegramConfigSchema,
 } from "../../plugins/telegram/config";
 
 function maskBotToken(value: string): string {
@@ -18,17 +21,39 @@ function maskBotToken(value: string): string {
   return `${prefix}:${maskedSuffix}`;
 }
 
-export function toResponse(integration: {
+type TelegramIntegrationRecord = {
   id: string;
   projectId: string;
   config: string;
   isActive: boolean | null;
   createdAt: Date;
   updatedAt: Date;
-}) {
-  const config = normalizeTelegramConfig(
-    JSON.parse(integration.config) as TelegramConfig,
-  );
+};
+
+export function parseTelegramIntegrationConfig(
+  integration: Pick<TelegramIntegrationRecord, "config" | "id" | "projectId">,
+): TelegramConfig {
+  try {
+    const parsed = v.parse(
+      telegramConfigSchema,
+      JSON.parse(integration.config),
+    );
+    return normalizeTelegramConfig(parsed);
+  } catch (error) {
+    console.error("Failed to parse Telegram integration config", {
+      error,
+      integrationId: integration.id,
+      projectId: integration.projectId,
+      rawConfig: integration.config,
+    });
+    throw new HTTPException(500, {
+      message: "Stored Telegram integration configuration is invalid",
+    });
+  }
+}
+
+export function toResponse(integration: TelegramIntegrationRecord) {
+  const config = parseTelegramIntegrationConfig(integration);
 
   return {
     id: integration.id,

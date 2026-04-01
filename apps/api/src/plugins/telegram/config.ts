@@ -13,7 +13,7 @@ export type TelegramEventKey = (typeof telegramEventKeys)[number];
 
 const telegramBotTokenSchema = v.pipe(
   v.string(),
-  v.regex(/^\d+:[A-Za-z0-9_-]{20,}$/, "Enter a valid Telegram bot token"),
+  v.regex(/^\d{8,10}:[A-Za-z0-9_-]{35}$/, "Enter a valid Telegram bot token"),
 );
 
 const telegramChatIdSchema = v.pipe(
@@ -55,7 +55,6 @@ export function normalizeTelegramConfig(
 ): TelegramConfig {
   return {
     ...config,
-    chatId: config.chatId,
     threadId:
       typeof config.threadId === "number" && Number.isFinite(config.threadId)
         ? config.threadId

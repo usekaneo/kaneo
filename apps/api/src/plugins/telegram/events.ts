@@ -18,7 +18,7 @@ import type {
 } from "../types";
 import { postToTelegram } from "./client";
 import type { TelegramConfig, TelegramEventKey } from "./config";
-import { normalizeTelegramConfig } from "./config";
+import { normalizeTelegramConfig, validateTelegramConfig } from "./config";
 
 type TelegramEventData = {
   taskTitle: string;
@@ -206,6 +206,18 @@ async function runTelegramHandler(
   featureKey: TelegramEventKey,
   buildMessage: () => TelegramMessageContent,
 ): Promise<void> {
+  const validation = await validateTelegramConfig(context.config);
+  if (!validation.valid) {
+    console.error("Invalid Telegram plugin config; skipping event dispatch", {
+      errors: validation.errors,
+      config: context.config,
+      featureKey,
+      projectId: event.projectId,
+      taskId: event.taskId,
+    });
+    return;
+  }
+
   const config = normalizeTelegramConfig(context.config as TelegramConfig);
   if (!isEnabled(config, featureKey)) return;
 
