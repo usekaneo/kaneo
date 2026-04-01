@@ -26,7 +26,9 @@ async function moveTask({
         (json as { error?: string }).error ||
         JSON.stringify(json);
     } catch {
-      message = (await response.text().catch(() => "")) || `API error ${response.status}`;
+      message =
+        (await response.text().catch(() => "")) ||
+        `API error ${response.status}`;
     }
     throw new Error(message);
   }

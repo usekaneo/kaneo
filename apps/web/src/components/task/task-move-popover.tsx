@@ -43,7 +43,11 @@ export default function TaskMovePopover({
   const { data: projects = [] } = useGetProjects({ workspaceId });
   const { mutateAsync: moveTask, isPending: isMovePending } = useMoveTask();
   const destinationProjectId = selectedProjectId || "";
-  const { data: destinationProject, isLoading: isProjectLoading, isError: isProjectError } = useGetTasks(destinationProjectId);
+  const {
+    data: destinationProject,
+    isLoading: isProjectLoading,
+    isError: isProjectError,
+  } = useGetTasks(destinationProjectId);
 
   const destinationProjects = useMemo(
     () => projects.filter((project) => project.id !== task.projectId),
@@ -175,41 +179,42 @@ export default function TaskMovePopover({
           )}
 
           {selectedProjectId && isProjectError && (
-            <p className="text-xs text-destructive">
-              {t("tasks:move.error")}
-            </p>
+            <p className="text-xs text-destructive">{t("tasks:move.error")}</p>
           )}
 
-          {selectedProjectId && !isProjectLoading && !isProjectError && destinationColumns.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-muted-foreground">
+          {selectedProjectId &&
+            !isProjectLoading &&
+            !isProjectError &&
+            destinationColumns.length > 0 && (
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-xs text-muted-foreground">
                 {t("tasks:move.statusLabel")}
-              </Label>
-              <Select
-                value={effectiveStatus || undefined}
-                onValueChange={(value) =>
-                  setSelectedStatus(String(value ?? ""))
-                }
-                disabled={canKeepCurrentStatus}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue>{selectedStatusLabel}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {destinationColumns.map((column) => (
-                    <SelectItem key={column.id} value={column.slug}>
-                      {getStatusLabel(column.slug) || column.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                {canKeepCurrentStatus
-                  ? t("tasks:move.statusHintKeep")
-                  : t("tasks:move.statusHintAdjust")}
-              </p>
-            </div>
-          )}
+                </Label>
+                <Select
+                  value={effectiveStatus || undefined}
+                  onValueChange={(value) =>
+                    setSelectedStatus(String(value ?? ""))
+                  }
+                  disabled={canKeepCurrentStatus}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue>{selectedStatusLabel}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {destinationColumns.map((column) => (
+                      <SelectItem key={column.id} value={column.slug}>
+                        {getStatusLabel(column.slug) || column.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {canKeepCurrentStatus
+                    ? t("tasks:move.statusHintKeep")
+                    : t("tasks:move.statusHintAdjust")}
+                </p>
+              </div>
+            )}
 
           <Button
             variant="outline"
