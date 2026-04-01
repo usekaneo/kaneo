@@ -186,7 +186,7 @@ export default function TaskMovePopover({
                 {t("tasks:move.statusLabel")}
               </Label>
               <Select
-                value={effectiveStatus || null}
+                value={effectiveStatus || undefined}
                 onValueChange={(value) =>
                   setSelectedStatus(String(value ?? ""))
                 }
