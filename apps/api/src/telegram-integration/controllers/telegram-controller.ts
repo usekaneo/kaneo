@@ -8,7 +8,47 @@ import {
   normalizeTelegramConfig,
   type TelegramConfig,
   telegramConfigSchema,
+  telegramEventsSchema,
 } from "../../plugins/telegram/config";
+
+export const telegramIntegrationPatchBodySchema = v.object({
+  botToken: v.optional(v.string()),
+  chatId: v.optional(v.string()),
+  threadId: v.optional(v.nullable(v.number())),
+  chatLabel: v.optional(v.nullable(v.string())),
+  isActive: v.optional(v.boolean()),
+  events: v.optional(telegramEventsSchema),
+});
+
+export type TelegramIntegrationPatchBody = v.InferOutput<
+  typeof telegramIntegrationPatchBodySchema
+>;
+
+export function buildNextTelegramConfigFromPatch(
+  body: TelegramIntegrationPatchBody,
+  currentConfig: TelegramConfig,
+): TelegramConfig {
+  const nextBotToken =
+    "botToken" in body ? (body.botToken?.trim() ?? "") : currentConfig.botToken;
+  const nextChatId =
+    "chatId" in body ? (body.chatId?.trim() ?? "") : currentConfig.chatId;
+  return {
+    botToken: nextBotToken,
+    chatId: nextChatId,
+    threadId:
+      body.threadId === undefined
+        ? currentConfig.threadId
+        : (body.threadId ?? undefined),
+    chatLabel:
+      body.chatLabel === undefined
+        ? currentConfig.chatLabel
+        : (body.chatLabel ?? undefined),
+    events: {
+      ...(currentConfig.events ?? {}),
+      ...(body.events ?? {}),
+    },
+  };
+}
 
 function maskBotToken(value: string): string {
   const [prefix, suffix = ""] = value.split(":", 2);

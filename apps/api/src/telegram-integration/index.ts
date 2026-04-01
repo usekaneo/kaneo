@@ -5,6 +5,7 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
 import { integrationTable } from "../database/schema";
+import { publishEvent } from "../events";
 import {
   normalizeTelegramConfig,
   telegramEventsSchema,
@@ -13,9 +14,29 @@ import {
 import { telegramIntegrationSchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import {
+  buildNextTelegramConfigFromPatch,
   getTelegramIntegration,
   parseTelegramIntegrationConfig,
+  telegramIntegrationPatchBodySchema,
 } from "./controllers/telegram-controller";
+
+function safePublishIntegrationEvent(
+  eventName:
+    | "integration.created"
+    | "integration.updated"
+    | "integration.deleted",
+  data: {
+    projectId: string;
+    userId: string;
+    integrationType: "telegram";
+    integrationId: string;
+    apiKeyId?: string;
+  },
+) {
+  void publishEvent(eventName, data).catch((error) => {
+    console.error(`Failed to publish ${eventName}:`, error);
+  });
+}
 
 const telegramIntegration = new Hono<{
   Variables: {
@@ -107,6 +128,13 @@ telegramIntegration
         });
       }
 
+      const priorIntegration = await db.query.integrationTable.findFirst({
+        where: and(
+          eq(integrationTable.projectId, projectId),
+          eq(integrationTable.type, "telegram"),
+        ),
+      });
+
       await db
         .insert(integrationTable)
         .values({
@@ -125,6 +153,24 @@ telegramIntegration
         });
 
       const integration = await getTelegramIntegration(projectId);
+      if (!integration) {
+        throw new HTTPException(500, {
+          message: "Failed to load Telegram integration after save",
+        });
+      }
+
+      const apiKey = c.get("apiKey");
+      safePublishIntegrationEvent(
+        priorIntegration ? "integration.updated" : "integration.created",
+        {
+          projectId,
+          userId: c.get("userId"),
+          integrationType: "telegram",
+          integrationId: integration.id,
+          ...(apiKey?.id ? { apiKeyId: apiKey.id } : {}),
+        },
+      );
+
       return c.json(integration);
     },
   )
@@ -144,17 +190,7 @@ telegramIntegration
       },
     }),
     validator("param", v.object({ projectId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        botToken: v.optional(v.string()),
-        chatId: v.optional(v.string()),
-        threadId: v.optional(v.nullable(v.number())),
-        chatLabel: v.optional(v.nullable(v.string())),
-        isActive: v.optional(v.boolean()),
-        events: v.optional(telegramEventsSchema),
-      }),
-    ),
+    validator("json", telegramIntegrationPatchBodySchema),
     workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
@@ -174,28 +210,9 @@ telegramIntegration
       }
 
       const currentConfig = parseTelegramIntegrationConfig(existing);
-      const nextBotToken =
-        "botToken" in body
-          ? (body.botToken?.trim() ?? "")
-          : currentConfig.botToken;
-      const nextChatId =
-        "chatId" in body ? (body.chatId?.trim() ?? "") : currentConfig.chatId;
-      const nextConfig = normalizeTelegramConfig({
-        botToken: nextBotToken,
-        chatId: nextChatId,
-        threadId:
-          body.threadId === undefined
-            ? currentConfig.threadId
-            : (body.threadId ?? undefined),
-        chatLabel:
-          body.chatLabel === undefined
-            ? currentConfig.chatLabel
-            : (body.chatLabel ?? undefined),
-        events: {
-          ...(currentConfig.events ?? {}),
-          ...(body.events ?? {}),
-        },
-      });
+      const nextConfig = normalizeTelegramConfig(
+        buildNextTelegramConfigFromPatch(body, currentConfig),
+      );
 
       const validation = validateTelegramConfig(nextConfig);
       if (!validation.valid) {
@@ -217,6 +234,21 @@ telegramIntegration
         .where(eq(integrationTable.id, existing.id));
 
       const integration = await getTelegramIntegration(projectId);
+      if (!integration) {
+        throw new HTTPException(500, {
+          message: "Failed to load Telegram integration after update",
+        });
+      }
+
+      const apiKey = c.get("apiKey");
+      safePublishIntegrationEvent("integration.updated", {
+        projectId,
+        userId: c.get("userId"),
+        integrationType: "telegram",
+        integrationId: integration.id,
+        ...(apiKey?.id ? { apiKeyId: apiKey.id } : {}),
+      });
+
       return c.json(integration);
     },
   )
@@ -258,6 +290,16 @@ telegramIntegration
       await db
         .delete(integrationTable)
         .where(eq(integrationTable.id, existing.id));
+
+      const apiKey = c.get("apiKey");
+      safePublishIntegrationEvent("integration.deleted", {
+        projectId,
+        userId: c.get("userId"),
+        integrationType: "telegram",
+        integrationId: existing.id,
+        ...(apiKey?.id ? { apiKeyId: apiKey.id } : {}),
+      });
+
       return c.json({ success: true });
     },
   );
