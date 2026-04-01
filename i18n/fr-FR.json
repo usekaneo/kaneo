@@ -1135,7 +1135,7 @@
 			"projectLabel": "Projet de destination",
 			"projectPlaceholder": "Sélectionner un projet",
 			"statusLabel": "Statut de destination",
-			"statusHintKeep": "Le statut actuel est déjà disponible dans ce projet.",
+			"statusHintKeep": "Le workflow du projet de destination supporte déjà le statut actuel.",
 			"statusHintAdjust": "Choisissez le statut à utiliser dans le projet de destination.",
 			"action": "Déplacer la tâche",
 			"success": "Tâche déplacée avec succès",

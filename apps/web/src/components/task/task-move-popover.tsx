@@ -21,7 +21,6 @@ import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { cn } from "@/lib/cn";
 import { getStatusLabel } from "@/lib/i18n/domain";
-import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
 type TaskMovePopoverProps = {
@@ -44,7 +43,7 @@ export default function TaskMovePopover({
   const { data: projects = [] } = useGetProjects({ workspaceId });
   const { mutateAsync: moveTask, isPending: isMovePending } = useMoveTask();
   const destinationProjectId = selectedProjectId || "";
-  const { data: destinationProject } = useGetTasks(destinationProjectId);
+  const { data: destinationProject, isLoading: isProjectLoading, isError: isProjectError } = useGetTasks(destinationProjectId);
 
   const destinationProjects = useMemo(
     () => projects.filter((project) => project.id !== task.projectId),
@@ -58,16 +57,16 @@ export default function TaskMovePopover({
 
   const destinationColumns = destinationProject?.columns ?? [];
   const canKeepCurrentStatus = destinationColumns.some(
-    (column) => column.id === task.status,
+    (column) => column.slug === task.status,
   );
-  const fallbackStatus = destinationColumns[0]?.id ?? "";
+  const fallbackStatus = destinationColumns[0]?.slug ?? "";
   const effectiveStatus = canKeepCurrentStatus
     ? task.status
     : selectedStatus || fallbackStatus;
 
   const selectedStatusLabel = useMemo(() => {
     if (!effectiveStatus || destinationColumns.length === 0) return null;
-    const column = destinationColumns.find((c) => c.id === effectiveStatus);
+    const column = destinationColumns.find((c) => c.slug === effectiveStatus);
     return getStatusLabel(effectiveStatus) || column?.name || null;
   }, [destinationColumns, effectiveStatus]);
 
@@ -102,7 +101,6 @@ export default function TaskMovePopover({
         destinationStatus: effectiveStatus,
       });
 
-      toast.success(t("tasks:move.success"));
       setOpen(false);
       startTransition(() => {
         navigate({
@@ -114,10 +112,8 @@ export default function TaskMovePopover({
           },
         });
       });
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("tasks:move.error"),
-      );
+    } catch {
+      // toast is handled by useMoveTask's onError
     }
   };
 
@@ -170,7 +166,21 @@ export default function TaskMovePopover({
             </Select>
           </div>
 
-          {selectedProjectId && destinationColumns.length > 0 && (
+          {selectedProjectId && isProjectLoading && (
+            <div className="flex items-center justify-center py-2">
+              <span className="text-xs text-muted-foreground">
+                {t("tasks:move.statusLabel")}…
+              </span>
+            </div>
+          )}
+
+          {selectedProjectId && isProjectError && (
+            <p className="text-xs text-destructive">
+              {t("tasks:move.error")}
+            </p>
+          )}
+
+          {selectedProjectId && !isProjectLoading && !isProjectError && destinationColumns.length > 0 && (
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-muted-foreground">
                 {t("tasks:move.statusLabel")}
@@ -187,8 +197,8 @@ export default function TaskMovePopover({
                 </SelectTrigger>
                 <SelectContent>
                   {destinationColumns.map((column) => (
-                    <SelectItem key={column.id} value={column.id}>
-                      {getStatusLabel(column.id) || column.name}
+                    <SelectItem key={column.id} value={column.slug}>
+                      {getStatusLabel(column.slug) || column.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -209,7 +219,9 @@ export default function TaskMovePopover({
               !selectedProjectId ||
               !effectiveStatus ||
               isMovePending ||
-              isPending
+              isPending ||
+              isProjectLoading ||
+              isProjectError
             }
             className="w-full font-medium"
           >

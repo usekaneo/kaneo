@@ -2,13 +2,15 @@ import { and, asc, eq, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
-  activityTable,
   assetTable,
   columnTable,
   projectTable,
   taskTable,
 } from "../../database/schema";
+import { publishEvent } from "../../events";
 import getNextTaskNumber from "./get-next-task-number";
+
+type DbOrTx = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 function isSameProjectMove(
   sourceProjectId: string,
@@ -56,11 +58,12 @@ async function resolveDestinationStatus(
 }
 
 async function getNextTaskPosition(
+  dbOrTx: DbOrTx,
   projectId: string,
   status: string,
   columnId: string,
 ) {
-  const [maxPositionResult] = await db
+  const [maxPositionResult] = await dbOrTx
     .select({ maxPosition: max(taskTable.position) })
     .from(taskTable)
     .where(
@@ -128,16 +131,17 @@ async function moveTask({
     destinationStatus,
   );
 
-  const [nextTaskNumber, nextPosition] = await Promise.all([
-    getNextTaskNumber(destinationProjectId),
-    getNextTaskPosition(
-      destinationProjectId,
-      resolvedColumn.slug,
-      resolvedColumn.id,
-    ),
-  ]);
-
   const movedTask = await db.transaction(async (tx) => {
+    const [nextTaskNumber, nextPosition] = await Promise.all([
+      getNextTaskNumber(destinationProjectId, tx),
+      getNextTaskPosition(
+        tx,
+        destinationProjectId,
+        resolvedColumn.slug,
+        resolvedColumn.id,
+      ),
+    ]);
+
     const [updatedTask] = await tx
       .update(taskTable)
       .set({
@@ -161,22 +165,22 @@ async function moveTask({
       .set({ projectId: destinationProjectId })
       .where(eq(assetTable.taskId, taskId));
 
-    await tx.insert(activityTable).values({
-      taskId,
-      type: "task",
-      userId,
-      content: `Moved task from ${sourceProject.name} to ${destinationProject.name}`,
-      eventData: {
-        fromProjectId: sourceProject.id,
-        fromProjectName: sourceProject.name,
-        toProjectId: destinationProject.id,
-        toProjectName: destinationProject.name,
-        oldStatus: existingTask.status,
-        newStatus: resolvedColumn.slug,
-      },
-    });
-
     return updatedTask;
+  });
+
+  await publishEvent("task.moved", {
+    taskId,
+    type: "task",
+    userId,
+    content: `Moved task from ${sourceProject.name} to ${destinationProject.name}`,
+    eventData: {
+      fromProjectId: sourceProject.id,
+      fromProjectName: sourceProject.name,
+      toProjectId: destinationProject.id,
+      toProjectName: destinationProject.name,
+      oldStatus: existingTask.status,
+      newStatus: resolvedColumn.slug,
+    },
   });
 
   return {

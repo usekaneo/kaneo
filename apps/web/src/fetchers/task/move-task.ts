@@ -18,8 +18,17 @@ async function moveTask({
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    let message: string;
+    try {
+      const json = await response.json();
+      message =
+        (json as { message?: string; error?: string }).message ||
+        (json as { error?: string }).error ||
+        JSON.stringify(json);
+    } catch {
+      message = (await response.text().catch(() => "")) || `API error ${response.status}`;
+    }
+    throw new Error(message);
   }
 
   return response.json();
