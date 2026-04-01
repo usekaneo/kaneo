@@ -7,6 +7,7 @@ export type NotificationPreferenceWorkspaceRule = {
   isActive: boolean;
   emailEnabled: boolean;
   ntfyEnabled: boolean;
+  gotifyEnabled: boolean;
   webhookEnabled: boolean;
   projectMode: "all" | "selected";
   selectedProjectIds: string[];
@@ -23,6 +24,11 @@ export type NotificationPreferences = {
   ntfyTopic: string | null;
   ntfyTokenConfigured: boolean;
   maskedNtfyToken: string | null;
+  gotifyEnabled: boolean;
+  gotifyConfigured: boolean;
+  gotifyServerUrl: string | null;
+  gotifyTokenConfigured: boolean;
+  maskedGotifyToken: string | null;
   webhookEnabled: boolean;
   webhookConfigured: boolean;
   webhookUrl: string | null;

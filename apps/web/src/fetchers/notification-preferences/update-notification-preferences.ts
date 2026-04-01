@@ -7,6 +7,9 @@ export type UpdateNotificationPreferencesRequest = {
   ntfyServerUrl?: string | null;
   ntfyTopic?: string | null;
   ntfyToken?: string | null;
+  gotifyEnabled?: boolean;
+  gotifyServerUrl?: string | null;
+  gotifyToken?: string | null;
   webhookEnabled?: boolean;
   webhookUrl?: string | null;
   webhookSecret?: string | null;

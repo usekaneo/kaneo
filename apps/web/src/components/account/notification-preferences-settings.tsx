@@ -27,6 +27,7 @@ type WorkspaceRuleState = {
   isActive: boolean;
   emailEnabled: boolean;
   ntfyEnabled: boolean;
+  gotifyEnabled: boolean;
   webhookEnabled: boolean;
   projectMode: "all" | "selected";
   selectedProjectIds: string[];
@@ -62,6 +63,7 @@ function ChannelToggle({
 
 function WorkspaceRuleCard({
   hasEmailChannel,
+  hasGotifyChannel,
   hasNtfyChannel,
   hasWebhookChannel,
   onDelete,
@@ -70,6 +72,7 @@ function WorkspaceRuleCard({
   workspace,
 }: {
   hasEmailChannel: boolean;
+  hasGotifyChannel: boolean;
   hasNtfyChannel: boolean;
   hasWebhookChannel: boolean;
   onDelete: (workspaceId: string) => Promise<unknown>;
@@ -78,6 +81,7 @@ function WorkspaceRuleCard({
     isActive: boolean;
     emailEnabled: boolean;
     ntfyEnabled: boolean;
+    gotifyEnabled: boolean;
     webhookEnabled: boolean;
     projectMode: "all" | "selected";
     selectedProjectIds: string[];
@@ -89,6 +93,7 @@ function WorkspaceRuleCard({
     isActive: rule?.isActive ?? false,
     emailEnabled: rule?.emailEnabled ?? false,
     ntfyEnabled: rule?.ntfyEnabled ?? false,
+    gotifyEnabled: rule?.gotifyEnabled ?? false,
     webhookEnabled: rule?.webhookEnabled ?? false,
     projectMode: rule?.projectMode ?? "all",
     selectedProjectIds: rule?.selectedProjectIds ?? [],
@@ -108,6 +113,7 @@ function WorkspaceRuleCard({
       isActive: rule?.isActive ?? false,
       emailEnabled: rule?.emailEnabled ?? false,
       ntfyEnabled: rule?.ntfyEnabled ?? false,
+      gotifyEnabled: rule?.gotifyEnabled ?? false,
       webhookEnabled: rule?.webhookEnabled ?? false,
       projectMode: rule?.projectMode ?? "all",
       selectedProjectIds: rule?.selectedProjectIds ?? [],
@@ -184,6 +190,19 @@ function WorkspaceRuleCard({
           label={t("settings:notificationsPage.workspaceCardLabelNtfy")}
           onCheckedChange={(checked) =>
             setState((current) => ({ ...current, ntfyEnabled: checked }))
+          }
+        />
+        <ChannelToggle
+          checked={state.gotifyEnabled}
+          disabled={!hasGotifyChannel || isBusy}
+          hint={
+            hasGotifyChannel
+              ? t("settings:notificationsPage.gotifyChannelHintEnabled")
+              : t("settings:notificationsPage.gotifyChannelHintDisabled")
+          }
+          label={t("settings:notificationsPage.workspaceCardLabelGotify")}
+          onCheckedChange={(checked) =>
+            setState((current) => ({ ...current, gotifyEnabled: checked }))
           }
         />
         <ChannelToggle
@@ -383,6 +402,9 @@ export function NotificationPreferencesSettings() {
   const [ntfyServerUrl, setNtfyServerUrl] = React.useState("");
   const [ntfyTopic, setNtfyTopic] = React.useState("");
   const [ntfyToken, setNtfyToken] = React.useState("");
+  const [gotifyEnabled, setGotifyEnabled] = React.useState(false);
+  const [gotifyServerUrl, setGotifyServerUrl] = React.useState("");
+  const [gotifyToken, setGotifyToken] = React.useState("");
   const [webhookEnabled, setWebhookEnabled] = React.useState(false);
   const [webhookUrl, setWebhookUrl] = React.useState("");
   const [webhookSecret, setWebhookSecret] = React.useState("");
@@ -394,6 +416,9 @@ export function NotificationPreferencesSettings() {
     setNtfyServerUrl(preferences.ntfyServerUrl ?? "");
     setNtfyTopic(preferences.ntfyTopic ?? "");
     setNtfyToken("");
+    setGotifyEnabled(preferences.gotifyEnabled);
+    setGotifyServerUrl(preferences.gotifyServerUrl ?? "");
+    setGotifyToken("");
     setWebhookEnabled(preferences.webhookEnabled);
     setWebhookUrl(preferences.webhookUrl ?? "");
     setWebhookSecret("");
@@ -483,6 +508,134 @@ export function NotificationPreferencesSettings() {
           >
             {t("settings:notificationsPage.saveChanges")}
           </Button>
+        </div>
+      </div>
+
+      <div className="space-y-4 rounded-md border border-border bg-sidebar p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h3 className="font-medium">
+              {t("settings:notificationsPage.gotifyTitle")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {t("settings:notificationsPage.gotifyDescription")}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {preferences?.gotifyConfigured ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle className="size-4 text-green-600" />
+                <span>
+                  {preferences.gotifyEnabled
+                    ? t("settings:notificationsPage.statusConnected")
+                    : t("settings:notificationsPage.statusPaused")}
+                </span>
+              </div>
+            ) : null}
+            <Switch
+              checked={gotifyEnabled}
+              disabled={isSavingPreferences}
+              onCheckedChange={setGotifyEnabled}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <Label className="text-sm font-medium">
+              {t("settings:notificationsPage.serverUrl")}
+            </Label>
+            <Input
+              autoComplete="off"
+              placeholder={t(
+                "settings:notificationsPage.gotifyServerPlaceholder",
+              )}
+              value={gotifyServerUrl}
+              onChange={(event) => setGotifyServerUrl(event.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-sm font-medium">
+              {t("settings:notificationsPage.gotifyTokenLabel")}
+            </Label>
+            <Input
+              autoComplete="off"
+              placeholder={t(
+                "settings:notificationsPage.gotifyTokenPlaceholder",
+              )}
+              type="password"
+              value={gotifyToken}
+              onChange={(event) => setGotifyToken(event.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              {preferences?.gotifyTokenConfigured
+                ? t("settings:notificationsPage.gotifyTokenHintConfigured", {
+                    masked: preferences.maskedGotifyToken ?? "••••",
+                  })
+                : t("settings:notificationsPage.gotifyTokenHintRequired")}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            disabled={isSavingPreferences}
+            onClick={async () => {
+              try {
+                await updatePreferences({
+                  gotifyEnabled,
+                  gotifyServerUrl,
+                  gotifyToken: gotifyToken.trim() ? gotifyToken : undefined,
+                });
+                setGotifyToken("");
+                toast.success(t("settings:notificationsPage.toastGotifySaved"));
+              } catch (error) {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : t("settings:notificationsPage.toastGotifySaveFailed"),
+                );
+              }
+            }}
+            type="button"
+          >
+            {preferences?.gotifyConfigured
+              ? t("settings:notificationsPage.saveChanges")
+              : t("settings:notificationsPage.connectGotify")}
+          </Button>
+          {preferences?.gotifyConfigured ? (
+            <Button
+              disabled={isSavingPreferences}
+              onClick={async () => {
+                try {
+                  await updatePreferences({
+                    gotifyEnabled: false,
+                    gotifyServerUrl: null,
+                    gotifyToken: null,
+                  });
+                  setGotifyEnabled(false);
+                  setGotifyServerUrl("");
+                  setGotifyToken("");
+                  toast.success(
+                    t("settings:notificationsPage.toastGotifyDisconnected"),
+                  );
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error
+                      ? error.message
+                      : t(
+                          "settings:notificationsPage.toastGotifyDisconnectFailed",
+                        ),
+                  );
+                }
+              }}
+              type="button"
+              variant="outline"
+            >
+              <Trash2 className="size-4" />
+              {t("settings:notificationsPage.disconnect")}
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -777,6 +930,9 @@ export function NotificationPreferencesSettings() {
               <WorkspaceRuleCard
                 key={workspace.id}
                 hasEmailChannel={Boolean(preferences?.emailEnabled)}
+                hasGotifyChannel={Boolean(
+                  preferences?.gotifyEnabled && preferences?.gotifyConfigured,
+                )}
                 hasNtfyChannel={Boolean(
                   preferences?.ntfyEnabled && preferences?.ntfyConfigured,
                 )}

@@ -215,6 +215,51 @@ async function sendNtfyNotification(input: {
   }
 }
 
+async function sendGotifyNotification(input: {
+  serverUrl: string;
+  token: string;
+  title: string;
+  body: string;
+  clickUrl?: string | null;
+}) {
+  await assertPublicWebhookDestination(input.serverUrl);
+
+  const response = await fetch(
+    `${input.serverUrl.replace(/\/+$/, "")}/message?token=${encodeURIComponent(
+      input.token,
+    )}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: input.title,
+        message: input.body,
+        priority: 5,
+        extras: input.clickUrl
+          ? {
+              "client::notification": {
+                click: {
+                  url: input.clickUrl,
+                },
+              },
+              "client::display": {
+                contentType: "text/plain",
+              },
+            }
+          : undefined,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Gotify delivery failed (${response.status}): ${await response.text()}`,
+    );
+  }
+}
+
 async function sendWebhookNotification(input: {
   webhookUrl: string;
   secret?: string | null;
@@ -378,6 +423,23 @@ export async function deliverNotification(
         serverUrl: preference.ntfyServerUrl,
         topic: preference.ntfyTopic,
         token: preference.ntfyToken,
+        title: content.title,
+        body: content.body,
+        clickUrl: context.taskUrl,
+      }),
+    );
+  }
+
+  if (
+    preference.gotifyEnabled &&
+    preference.gotifyServerUrl &&
+    preference.gotifyToken &&
+    rule.gotifyEnabled
+  ) {
+    deliveries.push(
+      sendGotifyNotification({
+        serverUrl: preference.gotifyServerUrl,
+        token: preference.gotifyToken,
         title: content.title,
         body: content.body,
         clickUrl: context.taskUrl,

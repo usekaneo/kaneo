@@ -21,6 +21,11 @@ export type NotificationPreferenceResponse = {
   ntfyTopic: string | null;
   ntfyTokenConfigured: boolean;
   maskedNtfyToken: string | null;
+  gotifyEnabled: boolean;
+  gotifyConfigured: boolean;
+  gotifyServerUrl: string | null;
+  gotifyTokenConfigured: boolean;
+  maskedGotifyToken: string | null;
   webhookEnabled: boolean;
   webhookConfigured: boolean;
   webhookUrl: string | null;
@@ -33,6 +38,7 @@ export type NotificationPreferenceResponse = {
     isActive: boolean;
     emailEnabled: boolean;
     ntfyEnabled: boolean;
+    gotifyEnabled: boolean;
     webhookEnabled: boolean;
     projectMode: NotificationPreferenceProjectMode;
     selectedProjectIds: string[];
@@ -49,6 +55,9 @@ export type UpdateNotificationPreferenceInput = {
   ntfyServerUrl?: string | null;
   ntfyTopic?: string | null;
   ntfyToken?: string | null;
+  gotifyEnabled?: boolean;
+  gotifyServerUrl?: string | null;
+  gotifyToken?: string | null;
   webhookEnabled?: boolean;
   webhookUrl?: string | null;
   webhookSecret?: string | null;
@@ -58,6 +67,7 @@ export type UpsertWorkspaceRuleInput = {
   isActive: boolean;
   emailEnabled: boolean;
   ntfyEnabled: boolean;
+  gotifyEnabled: boolean;
   webhookEnabled: boolean;
   projectMode: NotificationPreferenceProjectMode;
   selectedProjectIds?: string[];
@@ -149,6 +159,13 @@ export async function getNotificationPreferences(
     ntfyTopic: preference?.ntfyTopic ?? null,
     ntfyTokenConfigured: Boolean(preference?.ntfyToken),
     maskedNtfyToken: maskValue(preference?.ntfyToken),
+    gotifyEnabled: preference?.gotifyEnabled ?? false,
+    gotifyConfigured: Boolean(
+      preference?.gotifyServerUrl && preference?.gotifyToken,
+    ),
+    gotifyServerUrl: preference?.gotifyServerUrl ?? null,
+    gotifyTokenConfigured: Boolean(preference?.gotifyToken),
+    maskedGotifyToken: maskValue(preference?.gotifyToken),
     webhookEnabled: preference?.webhookEnabled ?? false,
     webhookConfigured: Boolean(preference?.webhookUrl),
     webhookUrl: preference?.webhookUrl ?? null,
@@ -161,6 +178,7 @@ export async function getNotificationPreferences(
       isActive: rule.isActive ?? true,
       emailEnabled: rule.emailEnabled ?? false,
       ntfyEnabled: rule.ntfyEnabled ?? false,
+      gotifyEnabled: rule.gotifyEnabled ?? false,
       webhookEnabled: rule.webhookEnabled ?? false,
       projectMode:
         rule.projectMode === "selected" ? "selected" : ("all" as const),
@@ -191,6 +209,10 @@ export async function updateNotificationPreferences(
     input.ntfyTopic ?? existing?.ntfyTopic,
   );
   const ntfyToken = normalizeOptionalString(input.ntfyToken ?? undefined);
+  const gotifyServerUrl = normalizeOptionalString(
+    input.gotifyServerUrl ?? existing?.gotifyServerUrl,
+  );
+  const gotifyToken = normalizeOptionalString(input.gotifyToken ?? undefined);
   const webhookUrl = normalizeOptionalString(
     input.webhookUrl ?? existing?.webhookUrl,
   );
@@ -200,6 +222,7 @@ export async function updateNotificationPreferences(
 
   const emailEnabled = input.emailEnabled ?? existing?.emailEnabled ?? false;
   const ntfyEnabled = input.ntfyEnabled ?? existing?.ntfyEnabled ?? false;
+  const gotifyEnabled = input.gotifyEnabled ?? existing?.gotifyEnabled ?? false;
   const webhookEnabled =
     input.webhookEnabled ?? existing?.webhookEnabled ?? false;
 
@@ -223,6 +246,24 @@ export async function updateNotificationPreferences(
       throw new HTTPException(400, {
         message:
           error instanceof Error ? error.message : "Invalid ntfy server URL",
+      });
+    }
+  }
+
+  if (gotifyEnabled || gotifyServerUrl || gotifyToken !== undefined) {
+    if (!gotifyServerUrl || !gotifyToken) {
+      throw new HTTPException(400, {
+        message: "Gotify requires a server URL and app token",
+      });
+    }
+
+    try {
+      new URL(gotifyServerUrl);
+      await assertPublicWebhookDestination(gotifyServerUrl);
+    } catch (error) {
+      throw new HTTPException(400, {
+        message:
+          error instanceof Error ? error.message : "Invalid Gotify server URL",
       });
     }
   }
@@ -252,6 +293,10 @@ export async function updateNotificationPreferences(
     ntfyTopic,
     ntfyToken:
       ntfyToken === undefined ? (existing?.ntfyToken ?? null) : ntfyToken,
+    gotifyEnabled,
+    gotifyServerUrl,
+    gotifyToken:
+      gotifyToken === undefined ? (existing?.gotifyToken ?? null) : gotifyToken,
     webhookEnabled,
     webhookUrl,
     webhookSecret:
@@ -283,6 +328,13 @@ export async function updateNotificationPreferences(
     await db
       .update(userNotificationWorkspaceRuleTable)
       .set({ ntfyEnabled: false, updatedAt: new Date() })
+      .where(eq(userNotificationWorkspaceRuleTable.userId, userId));
+  }
+
+  if (!gotifyEnabled || !gotifyServerUrl || !data.gotifyToken) {
+    await db
+      .update(userNotificationWorkspaceRuleTable)
+      .set({ gotifyEnabled: false, updatedAt: new Date() })
       .where(eq(userNotificationWorkspaceRuleTable.userId, userId));
   }
 
@@ -338,6 +390,17 @@ export async function upsertWorkspaceRule(
     });
   }
 
+  if (
+    input.gotifyEnabled &&
+    (!preference?.gotifyEnabled ||
+      !preference.gotifyServerUrl ||
+      !preference.gotifyToken)
+  ) {
+    throw new HTTPException(400, {
+      message: "Enable Gotify notifications globally before using them here",
+    });
+  }
+
   const existing = await db.query.userNotificationWorkspaceRuleTable.findFirst({
     where: and(
       eq(userNotificationWorkspaceRuleTable.userId, userId),
@@ -354,6 +417,7 @@ export async function upsertWorkspaceRule(
         isActive: input.isActive,
         emailEnabled: input.emailEnabled,
         ntfyEnabled: input.ntfyEnabled,
+        gotifyEnabled: input.gotifyEnabled,
         webhookEnabled: input.webhookEnabled,
         projectMode: input.projectMode,
         updatedAt: new Date(),
@@ -368,6 +432,7 @@ export async function upsertWorkspaceRule(
         isActive: input.isActive,
         emailEnabled: input.emailEnabled,
         ntfyEnabled: input.ntfyEnabled,
+        gotifyEnabled: input.gotifyEnabled,
         webhookEnabled: input.webhookEnabled,
         projectMode: input.projectMode,
       })
