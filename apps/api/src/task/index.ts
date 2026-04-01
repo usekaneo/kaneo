@@ -14,7 +14,6 @@ import {
 import { publishEvent } from "../events";
 import { taskSchema } from "../schemas";
 import {
-  assertObjectExists,
   assertTaskImageKeyMatchesContext,
   createTaskImageUploadUrl,
   isImageContentType,
@@ -807,8 +806,9 @@ const task = new Hono<{
         throw new HTTPException(404, { message: "Task not found" });
       }
 
+      const normalizedKey = key.trim();
       if (
-        !assertTaskImageKeyMatchesContext(key, {
+        !assertTaskImageKeyMatchesContext(normalizedKey, {
           workspaceId: taskContext.workspaceId,
           projectId: taskContext.projectId,
           taskId: taskContext.taskId,
@@ -820,18 +820,10 @@ const task = new Hono<{
         });
       }
 
-      try {
-        await assertObjectExists(key);
-      } catch {
-        throw new HTTPException(404, {
-          message: "Uploaded object could not be found in storage.",
-        });
-      }
-
       const [existingAsset] = await db
         .select({ id: assetTable.id })
         .from(assetTable)
-        .where(eq(assetTable.objectKey, key))
+        .where(eq(assetTable.objectKey, normalizedKey))
         .limit(1);
 
       const [asset] = existingAsset
@@ -858,7 +850,7 @@ const task = new Hono<{
               workspaceId: taskContext.workspaceId,
               projectId: taskContext.projectId,
               taskId: taskContext.taskId,
-              objectKey: key,
+              objectKey: normalizedKey,
               filename,
               mimeType: contentType,
               size,
