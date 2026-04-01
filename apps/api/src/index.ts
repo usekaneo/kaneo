@@ -38,6 +38,7 @@ import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
 import taskRelation from "./task-relation";
+import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
@@ -411,6 +412,10 @@ const discordIntegrationApi = api.route(
   discordIntegration,
 );
 const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
+const telegramIntegrationApi = api.route(
+  "/telegram-integration",
+  telegramIntegration,
+);
 const taskRelationApi = api.route("/task-relation", taskRelation);
 const externalLinkApi = api.route("/external-link", externalLink);
 const workflowRuleApi = api.route("/workflow-rule", workflowRule);
@@ -469,6 +474,7 @@ export type AppType =
   | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
   | typeof slackIntegrationApi
+  | typeof telegramIntegrationApi
   | typeof taskRelationApi
   | typeof externalLinkApi
   | typeof workflowRuleApi

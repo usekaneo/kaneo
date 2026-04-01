@@ -40,7 +40,8 @@
 			"german": "German",
 			"greek": "Greek",
 			"macedonian": "Macedonian",
-			"french": "French"
+			"french": "French",
+			"dutch": "Dutch"
 		},
 		"people": {
 			"someone": "Someone",
@@ -500,7 +501,9 @@
 			"genericWebhookSectionTitle": "Generic Webhooks",
 			"genericWebhookSectionSubtitle": "Send project task events to any HTTP endpoint as JSON.",
 			"slackSectionTitle": "Slack Integration",
-			"slackSectionSubtitle": "Send project task updates into a Slack channel with an incoming webhook."
+			"slackSectionSubtitle": "Send project task updates into a Slack channel with an incoming webhook.",
+			"telegramSectionTitle": "Telegram Integration",
+			"telegramSectionSubtitle": "Send project task updates into a Telegram chat or topic with a bot."
 		},
 		"projectVisibility": {
 			"pageTitle": "Project Visibility",
@@ -795,6 +798,52 @@
 				"taskCommentCreated": "New comments"
 			},
 			"connect": "Connect webhook",
+			"saveChanges": "Save changes",
+			"disconnect": "Disconnect"
+		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "Enter a valid Telegram bot token",
+				"chatIdRequired": "Chat ID is required",
+				"threadIdInvalid": "Enter a valid Telegram topic thread ID"
+			},
+			"toast": {
+				"saved": "Telegram integration saved successfully",
+				"saveError": "Failed to save Telegram integration",
+				"enabled": "Telegram notifications enabled",
+				"disabled": "Telegram notifications paused",
+				"updateError": "Failed to update Telegram integration",
+				"removed": "Telegram integration removed successfully",
+				"removeError": "Failed to remove Telegram integration"
+			},
+			"connectionTitle": "Telegram bot connection",
+			"connectionHint": "Use a Telegram bot token and chat ID to send project task updates into a chat or topic.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"botTokenLabel": "Bot token",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "Create a bot with BotFather and paste its token here.",
+			"botTokenHintConfigured": "A bot token is already configured ({{token}}). Enter a new one to replace it.",
+			"chatIdLabel": "Chat ID",
+			"chatIdPlaceholder": "-1001234567890 or @team_updates",
+			"chatIdHint": "Enter the Telegram chat ID or channel username where updates should be posted.",
+			"threadIdLabel": "Topic thread ID",
+			"threadIdPlaceholder": "Optional topic ID",
+			"threadIdHint": "Optional. Use this for forum topics inside Telegram groups.",
+			"chatLabelLabel": "Chat label",
+			"chatLabelPlaceholder": "Engineering Updates",
+			"chatLabelHint": "Optional label for your reference inside Kaneo.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should post to Telegram.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect Telegram",
 			"saveChanges": "Save changes",
 			"disconnect": "Disconnect"
 		},

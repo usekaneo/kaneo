@@ -40,7 +40,8 @@
 			"german": "Allemand",
 			"greek": "Grec",
 			"macedonian": "Macédonien",
-			"french": "Français"
+			"french": "Français",
+			"dutch": "Néerlandais"
 		},
 		"people": {
 			"someone": "Quelqu'un",
@@ -494,7 +495,9 @@
 			"githubSectionTitle": "Intégration GitHub",
 			"githubSectionSubtitle": "Synchronisez les tâches avec les problèmes GitHub et activez la synchronisation bidirectionnelle.",
 			"giteaSectionTitle": "Intégration Gitea",
-			"giteaSectionSubtitle": "Synchronisez les tâches avec une instance Gitea auto-hébergée (issues, PRs, webhooks)."
+			"giteaSectionSubtitle": "Synchronisez les tâches avec une instance Gitea auto-hébergée (issues, PRs, webhooks).",
+			"telegramSectionTitle": "Intégration Telegram",
+			"telegramSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un chat ou un sujet Telegram avec un bot."
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilité du projet",
@@ -603,6 +606,52 @@
 			"importing": "Importation...",
 			"importIssues": "Importer les problèmes",
 			"importDisabledHint": "Complétez la configuration du dépôt ci-dessus pour activer l'importation"
+		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "Entrez un jeton de bot Telegram valide",
+				"chatIdRequired": "L'identifiant du chat est requis",
+				"threadIdInvalid": "Entrez un identifiant de sujet Telegram valide"
+			},
+			"toast": {
+				"saved": "Intégration Telegram enregistrée avec succès",
+				"saveError": "Échec de l'enregistrement de l'intégration Telegram",
+				"enabled": "Notifications Telegram activées",
+				"disabled": "Notifications Telegram mises en pause",
+				"updateError": "Échec de la mise à jour de l'intégration Telegram",
+				"removed": "Intégration Telegram supprimée avec succès",
+				"removeError": "Échec de la suppression de l'intégration Telegram"
+			},
+			"connectionTitle": "Connexion du bot Telegram",
+			"connectionHint": "Utilisez un jeton de bot Telegram et un identifiant de chat pour envoyer les mises à jour du projet dans un chat ou un sujet.",
+			"connected": "Connecté",
+			"paused": "En pause",
+			"botTokenLabel": "Jeton du bot",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "Créez un bot avec BotFather et collez son jeton ici.",
+			"botTokenHintConfigured": "Un jeton de bot est déjà configuré ({{token}}). Entrez-en un nouveau pour le remplacer.",
+			"chatIdLabel": "Identifiant du chat",
+			"chatIdPlaceholder": "-1001234567890 ou @team_updates",
+			"chatIdHint": "Entrez l'identifiant du chat Telegram ou le nom d'utilisateur du canal où publier les mises à jour.",
+			"threadIdLabel": "Identifiant du sujet",
+			"threadIdPlaceholder": "Identifiant de sujet facultatif",
+			"threadIdHint": "Facultatif. Utilisez-le pour les sujets de forum dans les groupes Telegram.",
+			"chatLabelLabel": "Libellé du chat",
+			"chatLabelPlaceholder": "Mises à jour engineering",
+			"chatLabelHint": "Libellé facultatif pour votre référence dans Kaneo.",
+			"eventsTitle": "Notifications d'événements",
+			"eventsHint": "Choisissez les changements du projet à publier dans Telegram.",
+			"events": {
+				"taskCreated": "Nouvelles tâches",
+				"taskStatusChanged": "Changements de statut",
+				"taskPriorityChanged": "Changements de priorité",
+				"taskTitleChanged": "Changements de titre",
+				"taskDescriptionChanged": "Changements de description",
+				"taskCommentCreated": "Nouveaux commentaires"
+			},
+			"connect": "Connecter Telegram",
+			"saveChanges": "Enregistrer les modifications",
+			"disconnect": "Déconnecter"
 		},
 		"repositoryBrowser": {
 			"title": "Sélectionner un dépôt",

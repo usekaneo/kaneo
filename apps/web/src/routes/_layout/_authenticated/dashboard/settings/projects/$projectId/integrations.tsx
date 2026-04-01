@@ -5,6 +5,7 @@ import {
   Github,
   MessageCircle,
   Radio,
+  Send,
   Webhook,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -15,6 +16,7 @@ import { GenericWebhookIntegrationSettings } from "@/components/project/generic-
 import { GiteaIntegrationSettings } from "@/components/project/gitea-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
+import { TelegramIntegrationSettings } from "@/components/project/telegram-integration-settings";
 import {
   Collapsible,
   CollapsibleContent,
@@ -46,7 +48,6 @@ function RouteComponent() {
 
         <div className="space-y-6">
           <IntegrationSection
-            defaultOpen
             icon={<Github className="size-4" />}
             subtitle={t("settings:projectIntegrations.githubSectionSubtitle")}
             title={t("settings:projectIntegrations.githubSectionTitle")}
@@ -86,6 +87,14 @@ function RouteComponent() {
             title={t("settings:projectIntegrations.slackSectionTitle")}
           >
             <SlackIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<Send className="size-4" />}
+            subtitle={t("settings:projectIntegrations.telegramSectionSubtitle")}
+            title={t("settings:projectIntegrations.telegramSectionTitle")}
+          >
+            <TelegramIntegrationSettings projectId={projectId} />
           </IntegrationSection>
         </div>
       </div>
