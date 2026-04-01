@@ -1326,6 +1326,17 @@
 			"startDate": "Start date",
 			"noDate": "No date"
 		},
+		"move": {
+			"title": "Move task",
+			"projectLabel": "Destination project",
+			"projectPlaceholder": "Select a project",
+			"statusLabel": "Destination status",
+			"statusHintKeep": "This project's workflow already supports the current status.",
+			"statusHintAdjust": "Choose the status to use in the destination project.",
+			"action": "Move task",
+			"success": "Task moved successfully",
+			"error": "Failed to move task"
+		},
 		"popover": {
 			"assignee": {
 				"unassigned": "Unassigned",
