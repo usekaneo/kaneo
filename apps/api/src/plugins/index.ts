@@ -3,6 +3,7 @@ import { genericWebhookPlugin } from "./generic-webhook";
 import { githubPlugin, initializeGitHubPlugin } from "./github";
 import { initializeEventSubscriptions, registerPlugin } from "./registry";
 import { slackPlugin } from "./slack";
+import { telegramPlugin } from "./telegram";
 
 export function initializePlugins() {
   console.log("Initializing plugins...");
@@ -11,6 +12,7 @@ export function initializePlugins() {
   registerPlugin(slackPlugin);
   registerPlugin(discordPlugin);
   registerPlugin(genericWebhookPlugin);
+  registerPlugin(telegramPlugin);
   initializeGitHubPlugin();
   initializeEventSubscriptions();
 

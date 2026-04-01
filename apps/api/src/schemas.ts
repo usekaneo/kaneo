@@ -157,6 +157,20 @@ export const genericWebhookIntegrationSchema = v.object({
   updatedAt: v.date(),
 });
 
+export const telegramIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  chatId: v.string(),
+  threadId: v.nullable(v.number()),
+  chatLabel: v.nullable(v.string()),
+  botTokenConfigured: v.boolean(),
+  maskedBotToken: v.string(),
+  events: integrationEventsSchema,
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
 export const commentSchema = v.object({
   id: v.string(),
   taskId: v.string(),
