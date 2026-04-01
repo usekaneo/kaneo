@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "IPSTUDIO",
 		"actions": {
 			"cancel": "Annuler",
 			"close": "Fermer",
@@ -73,7 +73,7 @@
 				"errorToast": "Échec de la création du projet"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "IPSTUDIO",
 				"title": "Créer un nouvel espace de travail",
 				"description": "Créez un nouvel espace de travail en lui donnant un nom.",
 				"namePlaceholder": "Nom de l'espace de travail",
@@ -240,7 +240,7 @@
 			"workspaceLabel": "Espace de travail: {{workspaceName}}",
 			"joinWorkspace": "Rejoindre {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> vous a invité à rejoindre son espace de travail.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> vous a invité à rejoindre son espace de travail sur Kaneo.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> vous a invité à rejoindre son espace de travail sur IPSTUDIO.",
 			"signInToAccept": "Connectez-vous pour accepter cette invitation.",
 			"accepting": "Acceptation...",
 			"acceptInvitation": "Accepter l'invitation",
@@ -255,7 +255,7 @@
 			}
 		},
 		"onboarding": {
-			"pageTitle": "Bienvenue sur Kaneo",
+			"pageTitle": "Bienvenue sur IPSTUDIO",
 			"workspacePageTitle": "Créer un espace de travail",
 			"createWorkspaceTitle": "Créer un espace de travail",
 			"createWorkspaceSubtitle": "Configurez votre espace de travail pour commencer à gérer des projets",
@@ -322,7 +322,7 @@
 		},
 		"preferencesPage": {
 			"title": "Préférences",
-			"subtitle": "Personnalisez votre expérience Kaneo.",
+			"subtitle": "Personnalisez votre expérience IPSTUDIO.",
 			"appearanceTitle": "Apparence",
 			"appearanceSubtitle": "Paramètres visuels et préférences de mise en page.",
 			"theme": "Thème",
@@ -360,7 +360,7 @@
 			"title": "Paramètres développeur",
 			"subtitle": "Gérez vos clés API et vos ressources développeur.",
 			"apiKeysCardTitle": "Clés API",
-			"apiKeysCardDescription": "Créez et gérez des clés API pour un accès programmatique à Kaneo.",
+			"apiKeysCardDescription": "Créez et gérez des clés API pour un accès programmatique à IPSTUDIO.",
 			"createApiKey": "Créer une clé API",
 			"unnamedKey": "Clé sans nom"
 		},
@@ -399,7 +399,7 @@
 			},
 			"createDialog": {
 				"title": "Créer une clé API",
-				"description": "Créez une nouvelle clé API pour accéder à l'API Kaneo par programme.",
+				"description": "Créez une nouvelle clé API pour accéder à l'API IPSTUDIO par programme.",
 				"nameLabel": "Nom",
 				"namePlaceholder": "Ma clé API",
 				"nameDescription": "Un nom descriptif pour cette clé API",
@@ -567,7 +567,7 @@
 				"removeError": "Échec de la suppression de l'intégration GitHub",
 				"issuesImported": "Problèmes importés avec succès",
 				"importError": "Échec de l'importation des problèmes",
-				"commentOnEnabled": "Kaneo laissera un commentaire avec un lien de tâche sur les nouveaux problèmes",
+				"commentOnEnabled": "IPSTUDIO laissera un commentaire avec un lien de tâche sur les nouveaux problèmes",
 				"commentOnDisabled": "Les commentaires de lien de tâche sur les nouveaux problèmes sont désactivés",
 				"settingsUpdateError": "Échec de la mise à jour de l'intégration GitHub"
 			},
@@ -578,8 +578,8 @@
 			"badgeNotConnected": "Non connecté",
 			"repository": "Dépôt",
 			"repositoryHint": "Dépôt GitHub connecté",
-			"commentTaskLinkTitle": "Commenter le lien Kaneo sur les nouveaux problèmes",
-			"commentTaskLinkHint": "Lorsque cette option est activée, Kaneo publie un commentaire avec un lien de tâche sur chaque nouveau problème GitHub.",
+			"commentTaskLinkTitle": "Commenter le lien IPSTUDIO sur les nouveaux problèmes",
+			"commentTaskLinkHint": "Lorsque cette option est activée, IPSTUDIO publie un commentaire avec un lien de tâche sur chaque nouveau problème GitHub.",
 			"appStatusTitle": "Statut de l'application GitHub",
 			"appStatusHint": "Statut d'installation et de permissions",
 			"statusProperlyConfigured": "Correctement configuré",
@@ -638,7 +638,7 @@
 			"threadIdHint": "Facultatif. Utilisez-le pour les sujets de forum dans les groupes Telegram.",
 			"chatLabelLabel": "Libellé du chat",
 			"chatLabelPlaceholder": "Mises à jour engineering",
-			"chatLabelHint": "Libellé facultatif pour votre référence dans Kaneo.",
+			"chatLabelHint": "Libellé facultatif pour votre référence dans IPSTUDIO.",
 			"eventsTitle": "Notifications d'événements",
 			"eventsHint": "Choisissez les changements du projet à publier dans Telegram.",
 			"events": {

@@ -5,13 +5,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://kaneo.app"),
   title: {
-    default: "Kaneo — All you need. Nothing you don't.",
-    template: "%s | Kaneo",
+    default: "IPSTUDIO — All you need. Nothing you don't.",
+    template: "%s | IPSTUDIO",
   },
   description:
     "All you need. Nothing you don't. Open source project management that works for you, not against you.",
   keywords: [
-    "kaneo",
+    "ipstudio",
     "project management",
     "open source",
     "kanban",
@@ -19,15 +19,15 @@ export const metadata: Metadata = {
     "self-hosted",
     "team collaboration",
   ],
-  applicationName: "Kaneo",
+  applicationName: "IPSTUDIO",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     url: "https://kaneo.app",
-    siteName: "Kaneo",
-    title: "Kaneo — All you need. Nothing you don't.",
+    siteName: "IPSTUDIO",
+    title: "IPSTUDIO — All you need. Nothing you don't.",
     description:
       "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
     images: [
@@ -35,13 +35,13 @@ export const metadata: Metadata = {
         url: "/images/hero.png",
         width: 1200,
         height: 630,
-        alt: "Kaneo",
+        alt: "IPSTUDIO",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kaneo — All you need. Nothing you don't.",
+    title: "IPSTUDIO — All you need. Nothing you don't.",
     description:
       "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
     images: ["/images/hero.png"],

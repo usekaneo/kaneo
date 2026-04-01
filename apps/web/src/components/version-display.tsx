@@ -1,7 +1,7 @@
 export function VersionDisplay() {
   const version = __APP_VERSION__;
   const changelogUrl =
-    "https://github.com/usekaneo/kaneo/blob/main/CHANGELOG.md";
+    "https://github.com/ashipstudio/tasks-by-ipstudio/blob/main/CHANGELOG.md";
 
   return (
     <div className="flex items-center justify-center px-2 py-1.5">

@@ -5,7 +5,7 @@ export function KaneoBranding() {
 
   return (
     <a
-      href="https://kaneo.app"
+      href="https://github.com/ashipstudio/tasks-by-ipstudio"
       target="_blank"
       rel="noopener noreferrer"
       className="hover:text-foreground transition-colors"

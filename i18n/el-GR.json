@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "IPSTUDIO",
 		"actions": {
 			"cancel": "Ακύρωση",
 			"close": "Κλείσιμο",
@@ -73,7 +73,7 @@
 				"errorToast": "Αποτυχία δημιουργίας έργου"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "IPSTUDIO",
 				"title": "Δημιουργία νέου χώρου εργασίας",
 				"description": "Δημιουργήστε έναν νέο χώρο εργασίας ορίζοντας ένα όνομα.",
 				"namePlaceholder": "Όνομα χώρου εργασίας",
@@ -240,7 +240,7 @@
 			"workspaceLabel": "Χώρος εργασίας: {{workspaceName}}",
 			"joinWorkspace": "Συμμετοχή στο {{workspaceName}}",
 			"inviteBodySignedIn": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της.",
-			"inviteBodySignedOut": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της στο Kaneo.",
+			"inviteBodySignedOut": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της στο IPSTUDIO.",
 			"signInToAccept": "Συνδεθείτε για να αποδεχτείτε αυτήν την πρόσκληση.",
 			"accepting": "Γίνεται αποδοχή...",
 			"acceptInvitation": "Αποδοχή πρόσκλησης",
@@ -255,7 +255,7 @@
 			}
 		},
 		"onboarding": {
-			"pageTitle": "Καλώς ήρθατε στο Kaneo",
+			"pageTitle": "Καλώς ήρθατε στο IPSTUDIO",
 			"workspacePageTitle": "Δημιουργία χώρου εργασίας",
 			"createWorkspaceTitle": "Δημιουργία χώρου εργασίας",
 			"createWorkspaceSubtitle": "Ρυθμίστε τον χώρο εργασίας σας για να ξεκινήσετε τη διαχείριση έργων",
@@ -322,7 +322,7 @@
 		},
 		"preferencesPage": {
 			"title": "Προτιμήσεις",
-			"subtitle": "Προσαρμόστε την εμπειρία σας στο Kaneo.",
+			"subtitle": "Προσαρμόστε την εμπειρία σας στο IPSTUDIO.",
 			"appearanceTitle": "Εμφάνιση",
 			"appearanceSubtitle": "Οπτικές ρυθμίσεις και προτιμήσεις διάταξης.",
 			"theme": "Θέμα",
@@ -360,7 +360,7 @@
 			"title": "Ρυθμίσεις προγραμματιστή",
 			"subtitle": "Διαχειριστείτε τα API keys και τους πόρους προγραμματιστή.",
 			"apiKeysCardTitle": "Κλειδιά API",
-			"apiKeysCardDescription": "Δημιουργήστε και διαχειριστείτε κλειδιά API για προγραμματιστική πρόσβαση στο Kaneo.",
+			"apiKeysCardDescription": "Δημιουργήστε και διαχειριστείτε κλειδιά API για προγραμματιστική πρόσβαση στο IPSTUDIO.",
 			"createApiKey": "Δημιουργία κλειδιού API",
 			"unnamedKey": "Κλειδί χωρίς όνομα"
 		},
@@ -399,7 +399,7 @@
 			},
 			"createDialog": {
 				"title": "Δημιουργία κλειδιού API",
-				"description": "Δημιουργήστε ένα νέο κλειδί API για πρόσβαση στο Kaneo API προγραμματιστικά.",
+				"description": "Δημιουργήστε ένα νέο κλειδί API για πρόσβαση στο IPSTUDIO API προγραμματιστικά.",
 				"nameLabel": "Όνομα",
 				"namePlaceholder": "Το κλειδί API μου",
 				"nameDescription": "Ένα περιγραφικό όνομα για αυτό το κλειδί API",
@@ -567,7 +567,7 @@
 				"removeError": "Αποτυχία αφαίρεσης ενσωμάτωσης GitHub",
 				"issuesImported": "Τα issues εισήχθησαν με επιτυχία",
 				"importError": "Αποτυχία εισαγωγής issues",
-				"commentOnEnabled": "Το Kaneo θα δημοσιεύει σχόλιο με σύνδεσμο εργασίας στα νέα issues",
+				"commentOnEnabled": "Το IPSTUDIO θα δημοσιεύει σχόλιο με σύνδεσμο εργασίας στα νέα issues",
 				"commentOnDisabled": "Τα σχόλια με σύνδεσμο εργασίας στα νέα issues είναι απενεργοποιημένα",
 				"settingsUpdateError": "Αποτυχία ενημέρωσης ενσωμάτωσης GitHub"
 			},
@@ -578,8 +578,8 @@
 			"badgeNotConnected": "Μη συνδεδεμένο",
 			"repository": "Αποθετήριο",
 			"repositoryHint": "Συνδεδεμένο αποθετήριο GitHub",
-			"commentTaskLinkTitle": "Σχολιασμός με σύνδεσμο Kaneo σε νέα issues",
-			"commentTaskLinkHint": "Όταν είναι ενεργό, το Kaneo δημοσιεύει σχόλιο σε κάθε νέο GitHub issue με σύνδεσμο προς την εργασία.",
+			"commentTaskLinkTitle": "Σχολιασμός με σύνδεσμο IPSTUDIO σε νέα issues",
+			"commentTaskLinkHint": "Όταν είναι ενεργό, το IPSTUDIO δημοσιεύει σχόλιο σε κάθε νέο GitHub issue με σύνδεσμο προς την εργασία.",
 			"appStatusTitle": "Κατάσταση εφαρμογής GitHub",
 			"appStatusHint": "Κατάσταση εγκατάστασης και δικαιωμάτων",
 			"statusProperlyConfigured": "Σωστά ρυθμισμένο",
@@ -638,7 +638,7 @@
 			"threadIdHint": "Προαιρετικό. Χρησιμοποιήστε το για θέματα forum μέσα σε ομάδες Telegram.",
 			"chatLabelLabel": "Ετικέτα συνομιλίας",
 			"chatLabelPlaceholder": "Engineering Updates",
-			"chatLabelHint": "Προαιρετική ετικέτα για δική σας αναφορά μέσα στο Kaneo.",
+			"chatLabelHint": "Προαιρετική ετικέτα για δική σας αναφορά μέσα στο IPSTUDIO.",
 			"eventsTitle": "Ειδοποιήσεις συμβάντων",
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα δημοσιεύονται στο Telegram.",
 			"events": {

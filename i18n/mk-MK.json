@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "IPSTUDIO",
 		"actions": {
 			"cancel": "Откажи",
 			"close": "Затвори",
@@ -73,7 +73,7 @@
 				"errorToast": "Неуспешно креирање на проект"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "IPSTUDIO",
 				"title": "Креирај нов работен простор",
 				"description": "Креирај нов работен простор со внесување на име.",
 				"namePlaceholder": "Име на работен простор",
@@ -240,7 +240,7 @@
 			"workspaceLabel": "Работен простор: {{workspaceName}}",
 			"joinWorkspace": "Приклучи се на {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор на Kaneo.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор на IPSTUDIO.",
 			"signInToAccept": "Најави се за да ја прифатиш поканата.",
 			"accepting": "Се прифаќа...",
 			"acceptInvitation": "Прифати покана",
@@ -255,7 +255,7 @@
 			}
 		},
 		"onboarding": {
-			"pageTitle": "Добредојде на Kaneo",
+			"pageTitle": "Добредојде на IPSTUDIO",
 			"workspacePageTitle": "Креирај работен простор",
 			"createWorkspaceTitle": "Креирај работен простор",
 			"createWorkspaceSubtitle": "Постави го твојот работен простор за да почнеш со управување на проекти",
@@ -322,7 +322,7 @@
 		},
 		"preferencesPage": {
 			"title": "Преференции",
-			"subtitle": "Прилагоди го твоето Kaneo искуство.",
+			"subtitle": "Прилагоди го твоето IPSTUDIO искуство.",
 			"appearanceTitle": "Изглед",
 			"appearanceSubtitle": "Визуелни поставки и преференции за распоред.",
 			"theme": "Тема",
@@ -360,7 +360,7 @@
 			"title": "Програмерски поставки",
 			"subtitle": "Управувај со твоите API клучеви и програмерски ресурси.",
 			"apiKeysCardTitle": "API клучеви",
-			"apiKeysCardDescription": "Креирај и управувај со API клучеви за програмски пристап до Kaneo.",
+			"apiKeysCardDescription": "Креирај и управувај со API клучеви за програмски пристап до IPSTUDIO.",
 			"createApiKey": "Креирај API клуч",
 			"unnamedKey": "Неименуван клуч"
 		},
@@ -399,7 +399,7 @@
 			},
 			"createDialog": {
 				"title": "Креирај API клуч",
-				"description": "Креирај нов API клуч за програмски пристап до Kaneo API.",
+				"description": "Креирај нов API клуч за програмски пристап до IPSTUDIO API.",
 				"nameLabel": "Име",
 				"namePlaceholder": "Мојот API клуч",
 				"nameDescription": "Описно име за овој API клуч",
@@ -567,7 +567,7 @@
 				"removeError": "Неуспешно отстранување на GitHub интеграцијата",
 				"issuesImported": "Issues се успешно увезени",
 				"importError": "Неуспешен увоз на issues",
-				"commentOnEnabled": "Kaneo ќе коментира со линк до задачата на новите issues",
+				"commentOnEnabled": "IPSTUDIO ќе коментира со линк до задачата на новите issues",
 				"commentOnDisabled": "Коментарите со линк до задачата на новите issues се исклучени",
 				"settingsUpdateError": "Неуспешно ажурирање на GitHub интеграцијата"
 			},
@@ -578,8 +578,8 @@
 			"badgeNotConnected": "Неповрзан",
 			"repository": "Репозиториум",
 			"repositoryHint": "Поврзан GitHub репозиториум",
-			"commentTaskLinkTitle": "Коментирај Kaneo линк на нови issues",
-			"commentTaskLinkHint": "Кога е вклучено, Kaneo објавува коментар на секој нов GitHub issue со линк до задачата.",
+			"commentTaskLinkTitle": "Коментирај IPSTUDIO линк на нови issues",
+			"commentTaskLinkHint": "Кога е вклучено, IPSTUDIO објавува коментар на секој нов GitHub issue со линк до задачата.",
 			"appStatusTitle": "Статус на GitHub апликација",
 			"appStatusHint": "Статус на инсталација и дозволи",
 			"statusProperlyConfigured": "Правилно конфигуриран",
@@ -638,7 +638,7 @@
 			"threadIdHint": "Опционално. Користи го ова за forum теми во Telegram групи.",
 			"chatLabelLabel": "Ознака за разговор",
 			"chatLabelPlaceholder": "Engineering Updates",
-			"chatLabelHint": "Опционална ознака за твоја референца во Kaneo.",
+			"chatLabelHint": "Опционална ознака за твоја референца во IPSTUDIO.",
 			"eventsTitle": "Известувања за настани",
 			"eventsHint": "Избери кои промени во проектот треба да се објавуваат во Telegram.",
 			"events": {

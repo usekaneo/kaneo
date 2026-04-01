@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "IPSTUDIO",
 		"actions": {
 			"cancel": "Annuleren",
 			"close": "Sluiten",
@@ -73,7 +73,7 @@
 				"errorToast": "Aanmaken van project mislukt"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "IPSTUDIO",
 				"title": "Een nieuwe werkruimte aanmaken",
 				"description": "Maak een nieuwe werkruimte aan door een naam op te geven.",
 				"namePlaceholder": "Naam werkruimte",
@@ -240,7 +240,7 @@
 			"workspaceLabel": "Werkruimte: {{workspaceName}}",
 			"joinWorkspace": "Deelnemen aan {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd voor hun werkruimte.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd om deel te nemen aan hun werkruimte op Kaneo.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd om deel te nemen aan hun werkruimte op IPSTUDIO.",
 			"signInToAccept": "Log in om deze uitnodiging te accepteren.",
 			"accepting": "Accepteren...",
 			"acceptInvitation": "Uitnodiging accepteren",
@@ -255,7 +255,7 @@
 			}
 		},
 		"onboarding": {
-			"pageTitle": "Welkom bij Kaneo",
+			"pageTitle": "Welkom bij IPSTUDIO",
 			"workspacePageTitle": "Werkruimte maken",
 			"createWorkspaceTitle": "Werkruimte maken",
 			"createWorkspaceSubtitle": "Stel je werkruimte in om projecten te beheren",
@@ -322,7 +322,7 @@
 		},
 		"preferencesPage": {
 			"title": "Voorkeuren",
-			"subtitle": "Pas je Kaneo-ervaring aan.",
+			"subtitle": "Pas je IPSTUDIO-ervaring aan.",
 			"appearanceTitle": "Uiterlijk",
 			"appearanceSubtitle": "Visuele instellingen en lay-outvoorkeuren.",
 			"theme": "Thema",
@@ -360,7 +360,7 @@
 			"title": "Ontwikkelaarsinstellingen",
 			"subtitle": "Beheer je API-sleutels en ontwikkelaarsbronnen.",
 			"apiKeysCardTitle": "API-sleutels",
-			"apiKeysCardDescription": "Maak en beheer API-sleutels voor programmatische toegang tot Kaneo.",
+			"apiKeysCardDescription": "Maak en beheer API-sleutels voor programmatische toegang tot IPSTUDIO.",
 			"createApiKey": "API-sleutel maken",
 			"unnamedKey": "Naamloze sleutel"
 		},
@@ -399,7 +399,7 @@
 			},
 			"createDialog": {
 				"title": "API-sleutel maken",
-				"description": "Maak een nieuwe API-sleutel aan om programmatisch toegang te krijgen tot de Kaneo API.",
+				"description": "Maak een nieuwe API-sleutel aan om programmatisch toegang te krijgen tot de IPSTUDIO API.",
 				"nameLabel": "Naam",
 				"namePlaceholder": "Mijn API-sleutel",
 				"nameDescription": "Een beschrijvende naam voor deze API-sleutel",
@@ -569,7 +569,7 @@
 				"removeError": "Verwijderen GitHub integratie mislukt",
 				"issuesImported": "Issues succesvol geïmporteerd",
 				"importError": "Importeren issues mislukt",
-				"commentOnEnabled": "Kaneo zal reageren met een taaklink op nieuwe issues",
+				"commentOnEnabled": "IPSTUDIO zal reageren met een taaklink op nieuwe issues",
 				"commentOnDisabled": "Reacties met taaklinks op nieuwe issues staan uit",
 				"settingsUpdateError": "Bijwerken GitHub integratie mislukt"
 			},
@@ -580,8 +580,8 @@
 			"badgeNotConnected": "Niet verbonden",
 			"repository": "Repository",
 			"repositoryHint": "Verbonden GitHub repository",
-			"commentTaskLinkTitle": "Reageer met Kaneo-link op nieuwe issues",
-			"commentTaskLinkHint": "Wanneer ingeschakeld, plaatst Kaneo een reactie op elke nieuwe GitHub issue met een link naar de taak.",
+			"commentTaskLinkTitle": "Reageer met IPSTUDIO-link op nieuwe issues",
+			"commentTaskLinkHint": "Wanneer ingeschakeld, plaatst IPSTUDIO een reactie op elke nieuwe GitHub issue met een link naar de taak.",
 			"appStatusTitle": "GitHub App Status",
 			"appStatusHint": "Installatie- en permissiestatus",
 			"statusProperlyConfigured": "Correct geconfigureerd",
@@ -704,10 +704,10 @@
 			"paused": "Gepauzeerd",
 			"webhookLabel": "Eindpunt-URL (Endpoint URL)",
 			"webhookPlaceholder": "https://voorbeeld.nl/webhooks/kaneo",
-			"webhookHint": "Kaneo verzendt POST-verzoeken met een JSON-payload voor elke ingeschakelde gebeurtenis.",
+			"webhookHint": "IPSTUDIO verzendt POST-verzoeken met een JSON-payload voor elke ingeschakelde gebeurtenis.",
 			"secretLabel": "Ondertekeningsgeheim (Signing secret)",
 			"secretPlaceholder": "Optioneel gedeeld geheim",
-			"secretHint": "Optioneel. Indien opgegeven, ondertekent Kaneo de verzoektekst en verzendt de hex-digest in de 'X-Kaneo-Signature' header.",
+			"secretHint": "Optioneel. Indien opgegeven, ondertekent IPSTUDIO de verzoektekst en verzendt de hex-digest in de 'X-Kaneo-Signature' header.",
 			"secretHintConfigured": "Er is al een ondertekeningsgeheim geconfigureerd ({{secret}}). Voer een nieuwe in om deze te vervangen.",
 			"eventsTitle": "Gebeurtenis-meldingen",
 			"eventsHint": "Kies welke projectwijzigingen uitgaande webhooks moeten activeren.",

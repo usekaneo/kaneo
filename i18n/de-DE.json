@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "IPSTUDIO",
 		"actions": {
 			"cancel": "Abbrechen",
 			"close": "Schließen",
@@ -73,7 +73,7 @@
 				"errorToast": "Projekt konnte nicht erstellt werden"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "IPSTUDIO",
 				"title": "Neuen Workspace erstellen",
 				"description": "Erstelle einen neuen Workspace, indem du einen Namen dafür angibst.",
 				"namePlaceholder": "Workspace-Name",
@@ -240,7 +240,7 @@
 			"workspaceLabel": "Workspace: {{workspaceName}}",
 			"joinWorkspace": "{{workspaceName}} beitreten",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace beizutreten.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace auf Kaneo beizutreten.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace auf IPSTUDIO beizutreten.",
 			"signInToAccept": "Melde dich an, um die Einladung anzunehmen.",
 			"accepting": "Wird angenommen...",
 			"acceptInvitation": "Einladung annehmen",
@@ -255,7 +255,7 @@
 			}
 		},
 		"onboarding": {
-			"pageTitle": "Willkommen bei Kaneo",
+			"pageTitle": "Willkommen bei IPSTUDIO",
 			"workspacePageTitle": "Workspace erstellen",
 			"createWorkspaceTitle": "Workspace erstellen",
 			"createWorkspaceSubtitle": "Richte deinen Workspace ein, um mit der Verwaltung von Projekten zu beginnen",
@@ -322,7 +322,7 @@
 		},
 		"preferencesPage": {
 			"title": "Einstellungen",
-			"subtitle": "Passe dein Kaneo-Erlebnis an.",
+			"subtitle": "Passe dein IPSTUDIO-Erlebnis an.",
 			"appearanceTitle": "Darstellung",
 			"appearanceSubtitle": "Visuelle Einstellungen und Layout-Präferenzen.",
 			"theme": "Design",
@@ -360,7 +360,7 @@
 			"title": "Entwicklereinstellungen",
 			"subtitle": "Verwalte deine API-Schlüssel und Entwicklerressourcen.",
 			"apiKeysCardTitle": "API-Schlüssel",
-			"apiKeysCardDescription": "Erstelle und verwalte API-Schlüssel für den programmgesteuerten Zugriff auf Kaneo.",
+			"apiKeysCardDescription": "Erstelle und verwalte API-Schlüssel für den programmgesteuerten Zugriff auf IPSTUDIO.",
 			"createApiKey": "API-Schlüssel erstellen",
 			"unnamedKey": "Unbenannter Schlüssel"
 		},
@@ -399,7 +399,7 @@
 			},
 			"createDialog": {
 				"title": "API-Schlüssel erstellen",
-				"description": "Erstelle einen neuen API-Schlüssel, um programmgesteuert auf die Kaneo-API zuzugreifen.",
+				"description": "Erstelle einen neuen API-Schlüssel, um programmgesteuert auf die IPSTUDIO-API zuzugreifen.",
 				"nameLabel": "Name",
 				"namePlaceholder": "Mein API-Schlüssel",
 				"nameDescription": "Ein beschreibender Name für diesen API-Schlüssel",
@@ -573,7 +573,7 @@
 				"removeError": "GitHub-Integration konnte nicht entfernt werden",
 				"issuesImported": "Issues erfolgreich importiert",
 				"importError": "Issues konnten nicht importiert werden",
-				"commentOnEnabled": "Kaneo kommentiert bei neuen Issues mit einem Aufgabenlink",
+				"commentOnEnabled": "IPSTUDIO kommentiert bei neuen Issues mit einem Aufgabenlink",
 				"commentOnDisabled": "Aufgabenlink-Kommentare bei neuen Issues sind deaktiviert",
 				"settingsUpdateError": "GitHub-Integration konnte nicht aktualisiert werden"
 			},
@@ -584,8 +584,8 @@
 			"badgeNotConnected": "Nicht verbunden",
 			"repository": "Repository",
 			"repositoryHint": "Verbundenes GitHub-Repository",
-			"commentTaskLinkTitle": "Kaneo-Link bei neuen Issues kommentieren",
-			"commentTaskLinkHint": "Wenn aktiviert, veröffentlicht Kaneo bei jedem neuen GitHub-Issue einen Kommentar mit einem Link zur Aufgabe.",
+			"commentTaskLinkTitle": "IPSTUDIO-Link bei neuen Issues kommentieren",
+			"commentTaskLinkHint": "Wenn aktiviert, veröffentlicht IPSTUDIO bei jedem neuen GitHub-Issue einen Kommentar mit einem Link zur Aufgabe.",
 			"appStatusTitle": "GitHub-App-Status",
 			"appStatusHint": "Installations- und Berechtigungsstatus",
 			"statusProperlyConfigured": "Korrekt konfiguriert",
@@ -636,7 +636,7 @@
 				"removeError": "Failed to remove Gitea integration",
 				"issuesImported": "Issues imported successfully",
 				"importError": "Failed to import issues",
-				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
+				"commentOnEnabled": "IPSTUDIO will comment with a task link on new issues",
 				"commentOnDisabled": "Task link comments on new issues are turned off",
 				"settingsUpdateError": "Failed to update Gitea integration",
 				"secretCopied": "Kopiert",
@@ -652,8 +652,8 @@
 			"badgeNotConnected": "Not connected",
 			"repository": "Repository",
 			"repositoryHint": "Linked Gitea repository",
-			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
-			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"commentTaskLinkTitle": "Comment IPSTUDIO link on new issues",
+			"commentTaskLinkHint": "When enabled, IPSTUDIO posts a comment on each new issue with a link to the task.",
 			"webhookTitle": "Webhook",
 			"webhookHint": "In your Gitea repository, add a webhook with this URL and secret. Enable push, pull request, issues, issue comments, and create (for labels).",
 			"webhookSecretLabel": "Secret (must match the webhook secret in Gitea)",
@@ -782,10 +782,10 @@
 			"paused": "Pausiert",
 			"webhookLabel": "Endpunkt-URL",
 			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
-			"webhookHint": "Kaneo sendet POST-Anfragen mit einer JSON-Nutzlast für jedes aktivierte Ereignis.",
+			"webhookHint": "IPSTUDIO sendet POST-Anfragen mit einer JSON-Nutzlast für jedes aktivierte Ereignis.",
 			"secretLabel": "Signatur-Secret",
 			"secretPlaceholder": "Optionales gemeinsames Secret",
-			"secretHint": "Optional. Wenn gesetzt, signiert Kaneo den Request-Body und sendet den Hex-Digest im Header X-Kaneo-Signature.",
+			"secretHint": "Optional. Wenn gesetzt, signiert IPSTUDIO den Request-Body und sendet den Hex-Digest im Header X-Kaneo-Signature.",
 			"secretHintConfigured": "Ein Signatur-Secret ist bereits konfiguriert ({{secret}}). Gib ein neues ein, um es zu ersetzen.",
 			"eventsTitle": "Ereignisbenachrichtigungen",
 			"eventsHint": "Wähle aus, welche Projektänderungen ausgehende Webhooks auslösen sollen.",
@@ -832,7 +832,7 @@
 			"threadIdHint": "Optional. Verwende dies für Forenthemen in Telegram-Gruppen.",
 			"chatLabelLabel": "Chat-Label",
 			"chatLabelPlaceholder": "Engineering Updates",
-			"chatLabelHint": "Optionales Label für deine Referenz in Kaneo.",
+			"chatLabelHint": "Optionales Label für deine Referenz in IPSTUDIO.",
 			"eventsTitle": "Ereignisbenachrichtigungen",
 			"eventsHint": "Wähle aus, welche Projektänderungen an Telegram gesendet werden sollen.",
 			"events": {
