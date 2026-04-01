@@ -75,11 +75,6 @@ telegramIntegration
     async (c) => {
       const { projectId } = c.req.valid("param");
       const integration = await getTelegramIntegration(projectId);
-      if (!integration) {
-        throw new HTTPException(404, {
-          message: "Telegram integration not found",
-        });
-      }
       return c.json(integration);
     },
   )

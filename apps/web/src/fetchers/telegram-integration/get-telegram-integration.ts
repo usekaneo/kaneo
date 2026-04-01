@@ -29,6 +29,10 @@ async function getTelegramIntegration(projectId: string) {
     },
   );
 
+  if (response.status === 404) {
+    return null;
+  }
+
   if (!response.ok) {
     const error = await response.text();
     throw new Error(error);
