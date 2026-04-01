@@ -663,7 +663,9 @@ function RouteComponent() {
                                   )?.color || "var(--color-neutral-400)",
                               }}
                             />
-                            <span>{label.name}</span>
+                            <span className="relative max-w-20 truncate" style={{ top: "-2px" }}>
+                              {label.name}
+                            </span>
                           </DropdownMenuCheckboxItem>
                         ),
                       )
