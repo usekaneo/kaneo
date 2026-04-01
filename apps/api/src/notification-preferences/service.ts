@@ -9,6 +9,7 @@ import {
   workspaceUserTable,
 } from "../database/schema";
 import { assertPublicWebhookDestination } from "../plugins/generic-webhook/config";
+import { decryptSecret, encryptSecret } from "./secrets";
 
 export type NotificationPreferenceProjectMode = "all" | "selected";
 
@@ -87,6 +88,17 @@ function maskValue(value: string | undefined | null): string | null {
   return value.length > 8 ? `${value.slice(0, 4)}…${value.slice(-4)}` : "••••";
 }
 
+function normalizeSecretInput(
+  inputValue: string | null | undefined,
+  existingValue: string | null | undefined,
+) {
+  if (inputValue === undefined) {
+    return normalizeOptionalString(existingValue ?? undefined);
+  }
+
+  return normalizeOptionalString(inputValue);
+}
+
 async function assertWorkspaceMembership(userId: string, workspaceId: string) {
   const [membership] = await db
     .select({ workspaceId: workspaceUserTable.workspaceId })
@@ -141,6 +153,15 @@ export async function getNotificationPreferences(
     where: eq(userNotificationPreferenceTable.userId, userId),
   });
 
+  const decryptedPreference = preference
+    ? {
+        ...preference,
+        ntfyToken: decryptSecret(preference.ntfyToken),
+        gotifyToken: decryptSecret(preference.gotifyToken),
+        webhookSecret: decryptSecret(preference.webhookSecret),
+      }
+    : null;
+
   const rules = await db.query.userNotificationWorkspaceRuleTable.findMany({
     where: eq(userNotificationWorkspaceRuleTable.userId, userId),
     with: {
@@ -152,25 +173,27 @@ export async function getNotificationPreferences(
 
   return {
     emailAddress,
-    emailEnabled: preference?.emailEnabled ?? false,
-    ntfyEnabled: preference?.ntfyEnabled ?? false,
-    ntfyConfigured: Boolean(preference?.ntfyServerUrl && preference?.ntfyTopic),
-    ntfyServerUrl: preference?.ntfyServerUrl ?? null,
-    ntfyTopic: preference?.ntfyTopic ?? null,
-    ntfyTokenConfigured: Boolean(preference?.ntfyToken),
-    maskedNtfyToken: maskValue(preference?.ntfyToken),
-    gotifyEnabled: preference?.gotifyEnabled ?? false,
-    gotifyConfigured: Boolean(
-      preference?.gotifyServerUrl && preference?.gotifyToken,
+    emailEnabled: decryptedPreference?.emailEnabled ?? false,
+    ntfyEnabled: decryptedPreference?.ntfyEnabled ?? false,
+    ntfyConfigured: Boolean(
+      decryptedPreference?.ntfyServerUrl && decryptedPreference?.ntfyTopic,
     ),
-    gotifyServerUrl: preference?.gotifyServerUrl ?? null,
-    gotifyTokenConfigured: Boolean(preference?.gotifyToken),
-    maskedGotifyToken: maskValue(preference?.gotifyToken),
-    webhookEnabled: preference?.webhookEnabled ?? false,
-    webhookConfigured: Boolean(preference?.webhookUrl),
-    webhookUrl: preference?.webhookUrl ?? null,
-    webhookSecretConfigured: Boolean(preference?.webhookSecret),
-    maskedWebhookSecret: maskValue(preference?.webhookSecret),
+    ntfyServerUrl: decryptedPreference?.ntfyServerUrl ?? null,
+    ntfyTopic: decryptedPreference?.ntfyTopic ?? null,
+    ntfyTokenConfigured: Boolean(decryptedPreference?.ntfyToken),
+    maskedNtfyToken: maskValue(decryptedPreference?.ntfyToken),
+    gotifyEnabled: decryptedPreference?.gotifyEnabled ?? false,
+    gotifyConfigured: Boolean(
+      decryptedPreference?.gotifyServerUrl && decryptedPreference?.gotifyToken,
+    ),
+    gotifyServerUrl: decryptedPreference?.gotifyServerUrl ?? null,
+    gotifyTokenConfigured: Boolean(decryptedPreference?.gotifyToken),
+    maskedGotifyToken: maskValue(decryptedPreference?.gotifyToken),
+    webhookEnabled: decryptedPreference?.webhookEnabled ?? false,
+    webhookConfigured: Boolean(decryptedPreference?.webhookUrl),
+    webhookUrl: decryptedPreference?.webhookUrl ?? null,
+    webhookSecretConfigured: Boolean(decryptedPreference?.webhookSecret),
+    maskedWebhookSecret: maskValue(decryptedPreference?.webhookSecret),
     workspaces: rules.map((rule) => ({
       id: rule.id,
       workspaceId: rule.workspaceId,
@@ -202,29 +225,64 @@ export async function updateNotificationPreferences(
     where: eq(userNotificationPreferenceTable.userId, userId),
   });
 
+  const decryptedExisting = existing
+    ? {
+        ...existing,
+        ntfyToken: decryptSecret(existing.ntfyToken),
+        gotifyToken: decryptSecret(existing.gotifyToken),
+        webhookSecret: decryptSecret(existing.webhookSecret),
+      }
+    : null;
+
   const ntfyServerUrl = normalizeOptionalString(
-    input.ntfyServerUrl ?? existing?.ntfyServerUrl,
+    input.ntfyServerUrl ?? decryptedExisting?.ntfyServerUrl,
   );
   const ntfyTopic = normalizeOptionalString(
-    input.ntfyTopic ?? existing?.ntfyTopic,
+    input.ntfyTopic ?? decryptedExisting?.ntfyTopic,
   );
-  const ntfyToken = normalizeOptionalString(input.ntfyToken ?? undefined);
+  const ntfyToken = normalizeSecretInput(
+    input.ntfyToken,
+    decryptedExisting?.ntfyToken,
+  );
   const gotifyServerUrl = normalizeOptionalString(
-    input.gotifyServerUrl ?? existing?.gotifyServerUrl,
+    input.gotifyServerUrl ?? decryptedExisting?.gotifyServerUrl,
   );
-  const gotifyToken = normalizeOptionalString(input.gotifyToken ?? undefined);
+  const gotifyToken = normalizeSecretInput(
+    input.gotifyToken,
+    decryptedExisting?.gotifyToken,
+  );
   const webhookUrl = normalizeOptionalString(
-    input.webhookUrl ?? existing?.webhookUrl,
+    input.webhookUrl ?? decryptedExisting?.webhookUrl,
   );
-  const webhookSecret = normalizeOptionalString(
-    input.webhookSecret ?? undefined,
+  const webhookSecret = normalizeSecretInput(
+    input.webhookSecret,
+    decryptedExisting?.webhookSecret,
   );
 
-  const emailEnabled = input.emailEnabled ?? existing?.emailEnabled ?? false;
-  const ntfyEnabled = input.ntfyEnabled ?? existing?.ntfyEnabled ?? false;
-  const gotifyEnabled = input.gotifyEnabled ?? existing?.gotifyEnabled ?? false;
+  const emailEnabled =
+    input.emailEnabled ?? decryptedExisting?.emailEnabled ?? false;
+  const ntfyEnabled =
+    input.ntfyEnabled ?? decryptedExisting?.ntfyEnabled ?? false;
+  const gotifyEnabled =
+    input.gotifyEnabled ?? decryptedExisting?.gotifyEnabled ?? false;
   const webhookEnabled =
-    input.webhookEnabled ?? existing?.webhookEnabled ?? false;
+    input.webhookEnabled ?? decryptedExisting?.webhookEnabled ?? false;
+
+  const shouldValidateNtfy =
+    ntfyEnabled ||
+    input.ntfyServerUrl !== undefined ||
+    input.ntfyTopic !== undefined ||
+    input.ntfyToken !== undefined;
+
+  const shouldValidateGotify =
+    gotifyEnabled ||
+    input.gotifyServerUrl !== undefined ||
+    input.gotifyToken !== undefined;
+
+  const shouldValidateWebhook =
+    webhookEnabled ||
+    input.webhookUrl !== undefined ||
+    input.webhookSecret !== undefined;
 
   if (emailEnabled && !emailAddress) {
     throw new HTTPException(400, {
@@ -232,7 +290,7 @@ export async function updateNotificationPreferences(
     });
   }
 
-  if (ntfyEnabled || ntfyServerUrl || ntfyTopic || ntfyToken !== undefined) {
+  if (shouldValidateNtfy) {
     if (!ntfyServerUrl || !ntfyTopic) {
       throw new HTTPException(400, {
         message: "ntfy requires a server URL and topic",
@@ -250,7 +308,7 @@ export async function updateNotificationPreferences(
     }
   }
 
-  if (gotifyEnabled || gotifyServerUrl || gotifyToken !== undefined) {
+  if (shouldValidateGotify) {
     if (!gotifyServerUrl || !gotifyToken) {
       throw new HTTPException(400, {
         message: "Gotify requires a server URL and app token",
@@ -268,7 +326,7 @@ export async function updateNotificationPreferences(
     }
   }
 
-  if (webhookEnabled || webhookUrl || webhookSecret !== undefined) {
+  if (shouldValidateWebhook) {
     if (!webhookUrl) {
       throw new HTTPException(400, {
         message: "Webhook notifications require an endpoint URL",
@@ -292,17 +350,21 @@ export async function updateNotificationPreferences(
     ntfyServerUrl,
     ntfyTopic,
     ntfyToken:
-      ntfyToken === undefined ? (existing?.ntfyToken ?? null) : ntfyToken,
+      input.ntfyToken === undefined
+        ? (existing?.ntfyToken ?? null)
+        : (encryptSecret(ntfyToken) ?? null),
     gotifyEnabled,
     gotifyServerUrl,
     gotifyToken:
-      gotifyToken === undefined ? (existing?.gotifyToken ?? null) : gotifyToken,
+      input.gotifyToken === undefined
+        ? (existing?.gotifyToken ?? null)
+        : (encryptSecret(gotifyToken) ?? null),
     webhookEnabled,
     webhookUrl,
     webhookSecret:
-      webhookSecret === undefined
+      input.webhookSecret === undefined
         ? (existing?.webhookSecret ?? null)
-        : webhookSecret,
+        : (encryptSecret(webhookSecret) ?? null),
   };
 
   if (existing) {

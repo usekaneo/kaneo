@@ -162,6 +162,13 @@
 			"when": 1775039833883,
 			"tag": "0022_real_deathstrike",
 			"breakpoints": true
+		},
+		{
+			"idx": 23,
+			"version": "7",
+			"when": 1775102400000,
+			"tag": "0023_encrypt_notification_preference_secrets",
+			"breakpoints": true
 		}
 	]
 }

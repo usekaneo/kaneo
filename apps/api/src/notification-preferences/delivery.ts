@@ -12,6 +12,7 @@ import {
   workspaceTable,
 } from "../database/schema";
 import { assertPublicWebhookDestination } from "../plugins/generic-webhook/config";
+import { decryptSecret } from "./secrets";
 
 const DEFAULT_OUTBOUND_FETCH_TIMEOUT_MS = 15_000;
 
@@ -354,6 +355,13 @@ export async function deliverNotification(
     return;
   }
 
+  const decryptedPreference = {
+    ...preference,
+    ntfyToken: decryptSecret(preference.ntfyToken),
+    gotifyToken: decryptSecret(preference.gotifyToken),
+    webhookSecret: decryptSecret(preference.webhookSecret),
+  };
+
   const rule = await db.query.userNotificationWorkspaceRuleTable.findFirst({
     where: and(
       eq(userNotificationWorkspaceRuleTable.userId, notification.userId),
@@ -369,11 +377,11 @@ export async function deliverNotification(
   }
 
   if (
-    context.projectId &&
     rule.projectMode === "selected" &&
-    !rule.selectedProjects.some(
-      (project) => project.projectId === context.projectId,
-    )
+    (!context.projectId ||
+      !rule.selectedProjects.some(
+        (project) => project.projectId === context.projectId,
+      ))
   ) {
     return;
   }
@@ -425,7 +433,7 @@ export async function deliverNotification(
 
   const deliveries: Array<Promise<void>> = [];
 
-  if (preference.emailEnabled && rule.emailEnabled && user.email) {
+  if (decryptedPreference.emailEnabled && rule.emailEnabled && user.email) {
     deliveries.push(
       sendNotificationEmail(user.email, content.title, {
         title: content.title,
@@ -438,16 +446,16 @@ export async function deliverNotification(
   }
 
   if (
-    preference.ntfyEnabled &&
-    preference.ntfyServerUrl &&
-    preference.ntfyTopic &&
+    decryptedPreference.ntfyEnabled &&
+    decryptedPreference.ntfyServerUrl &&
+    decryptedPreference.ntfyTopic &&
     rule.ntfyEnabled
   ) {
     deliveries.push(
       sendNtfyNotification({
-        serverUrl: preference.ntfyServerUrl,
-        topic: preference.ntfyTopic,
-        token: preference.ntfyToken,
+        serverUrl: decryptedPreference.ntfyServerUrl,
+        topic: decryptedPreference.ntfyTopic,
+        token: decryptedPreference.ntfyToken,
         title: content.title,
         body: content.body,
         clickUrl: context.taskUrl,
@@ -456,15 +464,15 @@ export async function deliverNotification(
   }
 
   if (
-    preference.gotifyEnabled &&
-    preference.gotifyServerUrl &&
-    preference.gotifyToken &&
+    decryptedPreference.gotifyEnabled &&
+    decryptedPreference.gotifyServerUrl &&
+    decryptedPreference.gotifyToken &&
     rule.gotifyEnabled
   ) {
     deliveries.push(
       sendGotifyNotification({
-        serverUrl: preference.gotifyServerUrl,
-        token: preference.gotifyToken,
+        serverUrl: decryptedPreference.gotifyServerUrl,
+        token: decryptedPreference.gotifyToken,
         title: content.title,
         body: content.body,
         clickUrl: context.taskUrl,
@@ -473,14 +481,14 @@ export async function deliverNotification(
   }
 
   if (
-    preference.webhookEnabled &&
-    preference.webhookUrl &&
+    decryptedPreference.webhookEnabled &&
+    decryptedPreference.webhookUrl &&
     rule.webhookEnabled
   ) {
     deliveries.push(
       sendWebhookNotification({
-        webhookUrl: preference.webhookUrl,
-        secret: preference.webhookSecret,
+        webhookUrl: decryptedPreference.webhookUrl,
+        secret: decryptedPreference.webhookSecret,
         payload: webhookPayload,
       }),
     );

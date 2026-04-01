@@ -62,6 +62,20 @@ ntfy requires:
 - a topic
 - optionally, a bearer token
 
+### Gotify
+
+Gotify requires:
+
+- a server URL
+- an application token (bearer token)
+
+Setup notes:
+
+- create an application in your Gotify server before connecting Kaneo
+- paste the base server URL, for example `https://gotify.example.com`
+- no extra topic or path is required because Kaneo sends directly to the Gotify message API using the application token
+- if your Gotify server uses a custom port or TLS, include that in the server URL
+
 ### Custom webhook
 
 Custom webhook requires:

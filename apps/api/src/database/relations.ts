@@ -29,7 +29,7 @@ import {
   workspaceUserTable,
 } from "./schema";
 
-export const userTableRelations = relations(userTable, ({ many }) => ({
+export const userTableRelations = relations(userTable, ({ many, one }) => ({
   sessions: many(sessionTable),
   accounts: many(accountTable),
   teamMembers: many(teamMemberTable),
@@ -41,7 +41,7 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
   comments: many(commentTable),
   assets: many(assetTable),
   notifications: many(notificationTable),
-  notificationPreference: many(userNotificationPreferenceTable),
+  notificationPreference: one(userNotificationPreferenceTable),
   notificationWorkspaceRules: many(userNotificationWorkspaceRuleTable),
   sentInvitations: many(invitationTable),
   apikeys: many(apikeyTable),
