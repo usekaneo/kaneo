@@ -28,6 +28,7 @@ import invitation from "./invitation";
 import label from "./label";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
+import notificationPreferences from "./notification-preferences";
 import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
@@ -393,6 +394,10 @@ const commentApi = api.route("/comment", comment);
 const timeEntryApi = api.route("/time-entry", timeEntry);
 const labelApi = api.route("/label", label);
 const notificationApi = api.route("/notification", notification);
+const notificationPreferencesApi = api.route(
+  "/notification-preferences",
+  notificationPreferences,
+);
 const searchApi = api.route("/search", search);
 const githubIntegrationApi = api.route(
   "/github-integration",
@@ -459,6 +464,7 @@ export type AppType =
   | typeof timeEntryApi
   | typeof labelApi
   | typeof notificationApi
+  | typeof notificationPreferencesApi
   | typeof searchApi
   | typeof githubIntegrationApi
   | typeof genericWebhookIntegrationApi
