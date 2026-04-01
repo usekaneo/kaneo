@@ -18,6 +18,7 @@ import {
   getTelegramIntegration,
   parseTelegramIntegrationConfig,
   telegramIntegrationPatchBodySchema,
+  toResponse,
 } from "./controllers/telegram-controller";
 
 function safePublishIntegrationEvent(
@@ -133,6 +134,7 @@ telegramIntegration
           eq(integrationTable.projectId, projectId),
           eq(integrationTable.type, "telegram"),
         ),
+        columns: { id: true },
       });
 
       await db
@@ -147,7 +149,6 @@ telegramIntegration
           target: [integrationTable.projectId, integrationTable.type],
           set: {
             config: JSON.stringify(config),
-            isActive: true,
             updatedAt: new Date(),
           },
         });
@@ -214,6 +215,18 @@ telegramIntegration
         buildNextTelegramConfigFromPatch(body, currentConfig),
       );
 
+      const resolvedIsActive =
+        body.isActive !== undefined
+          ? body.isActive
+          : (existing.isActive ?? true);
+
+      if (
+        JSON.stringify(currentConfig) === JSON.stringify(nextConfig) &&
+        resolvedIsActive === (existing.isActive ?? true)
+      ) {
+        return c.json(toResponse(existing));
+      }
+
       const validation = validateTelegramConfig(nextConfig);
       if (!validation.valid) {
         throw new HTTPException(400, {
@@ -225,10 +238,7 @@ telegramIntegration
         .update(integrationTable)
         .set({
           config: JSON.stringify(nextConfig),
-          isActive:
-            body.isActive !== undefined
-              ? body.isActive
-              : (existing.isActive ?? true),
+          isActive: resolvedIsActive,
           updatedAt: new Date(),
         })
         .where(eq(integrationTable.id, existing.id));

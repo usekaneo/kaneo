@@ -64,8 +64,15 @@ function maskBotToken(value: string): string {
 function sanitizeTelegramConfigForLog(rawConfig: string): string {
   try {
     const parsed = JSON.parse(rawConfig) as Record<string, unknown>;
-    if ("botToken" in parsed) {
-      parsed.botToken = "[REDACTED]";
+    for (const key of [
+      "botToken",
+      "chatId",
+      "threadId",
+      "chatLabel",
+    ] as const) {
+      if (key in parsed) {
+        parsed[key] = "[REDACTED]";
+      }
     }
     return JSON.stringify(parsed);
   } catch {
