@@ -317,31 +317,36 @@ export async function updateNotificationPreferences(
     await db.insert(userNotificationPreferenceTable).values(data);
   }
 
+  const ruleCascade: {
+    emailEnabled?: boolean;
+    ntfyEnabled?: boolean;
+    gotifyEnabled?: boolean;
+    webhookEnabled?: boolean;
+  } = {};
+
   if (!emailEnabled) {
-    await db
-      .update(userNotificationWorkspaceRuleTable)
-      .set({ emailEnabled: false, updatedAt: new Date() })
-      .where(eq(userNotificationWorkspaceRuleTable.userId, userId));
+    ruleCascade.emailEnabled = false;
   }
 
   if (!ntfyEnabled || !ntfyServerUrl || !ntfyTopic) {
-    await db
-      .update(userNotificationWorkspaceRuleTable)
-      .set({ ntfyEnabled: false, updatedAt: new Date() })
-      .where(eq(userNotificationWorkspaceRuleTable.userId, userId));
+    ruleCascade.ntfyEnabled = false;
   }
 
   if (!gotifyEnabled || !gotifyServerUrl || !data.gotifyToken) {
-    await db
-      .update(userNotificationWorkspaceRuleTable)
-      .set({ gotifyEnabled: false, updatedAt: new Date() })
-      .where(eq(userNotificationWorkspaceRuleTable.userId, userId));
+    ruleCascade.gotifyEnabled = false;
   }
 
   if (!webhookEnabled || !webhookUrl) {
+    ruleCascade.webhookEnabled = false;
+  }
+
+  if (Object.keys(ruleCascade).length > 0) {
     await db
       .update(userNotificationWorkspaceRuleTable)
-      .set({ webhookEnabled: false, updatedAt: new Date() })
+      .set({
+        ...ruleCascade,
+        updatedAt: new Date(),
+      })
       .where(eq(userNotificationWorkspaceRuleTable.userId, userId));
   }
 
@@ -460,6 +465,7 @@ export async function upsertWorkspaceRule(
   if (input.projectMode === "selected") {
     await db.insert(userNotificationWorkspaceProjectTable).values(
       (input.selectedProjectIds ?? []).map((projectId) => ({
+        workspaceId,
         workspaceRuleId,
         projectId,
       })),
@@ -494,20 +500,4 @@ export async function deleteWorkspaceRule(
     .where(eq(userNotificationWorkspaceRuleTable.id, existing.id));
 
   return getNotificationPreferences(userId, emailAddress);
-}
-
-export async function listWorkspaceProjects(
-  workspaceId: string,
-  userId: string,
-) {
-  await assertWorkspaceMembership(userId, workspaceId);
-
-  return db
-    .select({
-      id: projectTable.id,
-      name: projectTable.name,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(projectTable)
-    .where(eq(projectTable.workspaceId, workspaceId));
 }

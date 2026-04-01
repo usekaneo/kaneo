@@ -9,6 +9,8 @@ import {
   upsertWorkspaceRule,
 } from "./service";
 
+const httpErrorSchema = v.object({ message: v.string() });
+
 const workspaceRuleSchema = v.object({
   isActive: v.boolean(),
   emailEnabled: v.boolean(),
@@ -42,6 +44,24 @@ notificationPreferences
             },
           },
         },
+        400: {
+          description: "Validation error",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        401: {
+          description: "Unauthorized",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        403: {
+          description: "Forbidden",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
       },
     }),
     async (c) => {
@@ -65,6 +85,24 @@ notificationPreferences
             "application/json": {
               schema: resolver(notificationPreferenceSchema),
             },
+          },
+        },
+        400: {
+          description: "Validation error",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        401: {
+          description: "Unauthorized",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        403: {
+          description: "Forbidden",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
           },
         },
       },
@@ -110,6 +148,24 @@ notificationPreferences
             },
           },
         },
+        400: {
+          description: "Validation error",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        401: {
+          description: "Unauthorized",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        403: {
+          description: "Forbidden",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
       },
     }),
     validator("param", v.object({ workspaceId: v.string() })),
@@ -138,6 +194,30 @@ notificationPreferences
             "application/json": {
               schema: resolver(notificationPreferenceSchema),
             },
+          },
+        },
+        400: {
+          description: "Validation error",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        401: {
+          description: "Unauthorized",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        403: {
+          description: "Forbidden",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
+          },
+        },
+        404: {
+          description: "Workspace rule not found",
+          content: {
+            "application/json": { schema: resolver(httpErrorSchema) },
           },
         },
       },

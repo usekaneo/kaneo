@@ -109,8 +109,8 @@ export const notificationPreferenceWorkspaceRuleSchema = v.object({
   webhookEnabled: v.boolean(),
   projectMode: v.picklist(["all", "selected"] as const),
   selectedProjectIds: v.array(v.string()),
-  createdAt: v.date(),
-  updatedAt: v.date(),
+  createdAt: v.string(),
+  updatedAt: v.string(),
 });
 
 export const notificationPreferenceSchema = v.object({
@@ -133,8 +133,8 @@ export const notificationPreferenceSchema = v.object({
   webhookSecretConfigured: v.boolean(),
   maskedWebhookSecret: v.nullable(v.string()),
   workspaces: v.array(notificationPreferenceWorkspaceRuleSchema),
-  createdAt: v.nullable(v.date()),
-  updatedAt: v.nullable(v.date()),
+  createdAt: v.nullable(v.string()),
+  updatedAt: v.nullable(v.string()),
 });
 
 export const githubIntegrationSchema = v.object({

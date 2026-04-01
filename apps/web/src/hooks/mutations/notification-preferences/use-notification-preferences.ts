@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import i18n from "i18next";
 import deleteNotificationWorkspaceRule from "@/fetchers/notification-preferences/delete-notification-workspace-rule";
 import updateNotificationPreferences, {
   type UpdateNotificationPreferencesRequest,
@@ -6,6 +7,7 @@ import updateNotificationPreferences, {
 import upsertNotificationWorkspaceRule, {
   type UpsertNotificationWorkspaceRuleRequest,
 } from "@/fetchers/notification-preferences/upsert-notification-workspace-rule";
+import { toast } from "@/lib/toast";
 
 export function useUpdateNotificationPreferences() {
   const queryClient = useQueryClient();
@@ -17,6 +19,14 @@ export function useUpdateNotificationPreferences() {
       void queryClient.invalidateQueries({
         queryKey: ["notification-preferences"],
       });
+      toast.success(i18n.t("settings:notificationsPage.toastPreferencesSaved"));
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : i18n.t("settings:notificationsPage.toastPreferencesSaveFailed"),
+      );
     },
   });
 }
@@ -36,6 +46,14 @@ export function useUpsertNotificationWorkspaceRule() {
       void queryClient.invalidateQueries({
         queryKey: ["notification-preferences"],
       });
+      toast.success(i18n.t("settings:notificationsPage.toastRuleSavedGeneric"));
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : i18n.t("settings:notificationsPage.toastRuleSaveFailed", {}),
+      );
     },
   });
 }
@@ -50,6 +68,16 @@ export function useDeleteNotificationWorkspaceRule() {
       void queryClient.invalidateQueries({
         queryKey: ["notification-preferences"],
       });
+      toast.success(
+        i18n.t("settings:notificationsPage.toastRuleRemovedGeneric"),
+      );
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : i18n.t("settings:notificationsPage.toastRuleRemoveFailed", {}),
+      );
     },
   });
 }

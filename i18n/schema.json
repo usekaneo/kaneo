@@ -1338,6 +1338,30 @@
 						"connectNtfy": {
 							"type": "string"
 						},
+						"gotifyTitle": {
+							"type": "string"
+						},
+						"gotifyDescription": {
+							"type": "string"
+						},
+						"gotifyTokenLabel": {
+							"type": "string"
+						},
+						"gotifyServerPlaceholder": {
+							"type": "string"
+						},
+						"gotifyTokenPlaceholder": {
+							"type": "string"
+						},
+						"gotifyTokenHintConfigured": {
+							"type": "string"
+						},
+						"gotifyTokenHintRequired": {
+							"type": "string"
+						},
+						"connectGotify": {
+							"type": "string"
+						},
 						"webhookTitle": {
 							"type": "string"
 						},
@@ -1380,6 +1404,9 @@
 						"workspaceCardLabelNtfy": {
 							"type": "string"
 						},
+						"workspaceCardLabelGotify": {
+							"type": "string"
+						},
 						"workspaceCardLabelWebhook": {
 							"type": "string"
 						},
@@ -1393,6 +1420,12 @@
 							"type": "string"
 						},
 						"ntfyChannelHintDisabled": {
+							"type": "string"
+						},
+						"gotifyChannelHintEnabled": {
+							"type": "string"
+						},
+						"gotifyChannelHintDisabled": {
 							"type": "string"
 						},
 						"webhookChannelHintEnabled": {
@@ -1446,6 +1479,18 @@
 						"toastNtfyDisconnectFailed": {
 							"type": "string"
 						},
+						"toastGotifySaved": {
+							"type": "string"
+						},
+						"toastGotifySaveFailed": {
+							"type": "string"
+						},
+						"toastGotifyDisconnected": {
+							"type": "string"
+						},
+						"toastGotifyDisconnectFailed": {
+							"type": "string"
+						},
 						"toastWebhookSaved": {
 							"type": "string"
 						},
@@ -1468,6 +1513,18 @@
 							"type": "string"
 						},
 						"toastRuleRemoveFailed": {
+							"type": "string"
+						},
+						"toastPreferencesSaved": {
+							"type": "string"
+						},
+						"toastPreferencesSaveFailed": {
+							"type": "string"
+						},
+						"toastRuleSavedGeneric": {
+							"type": "string"
+						},
+						"toastRuleRemovedGeneric": {
 							"type": "string"
 						}
 					},
@@ -1495,6 +1552,14 @@
 						"ntfyTokenHintConfigured",
 						"ntfyTokenHintOptional",
 						"connectNtfy",
+						"gotifyTitle",
+						"gotifyDescription",
+						"gotifyTokenLabel",
+						"gotifyServerPlaceholder",
+						"gotifyTokenPlaceholder",
+						"gotifyTokenHintConfigured",
+						"gotifyTokenHintRequired",
+						"connectGotify",
 						"webhookTitle",
 						"webhookDescription",
 						"endpointUrl",
@@ -1509,11 +1574,14 @@
 						"workspaceCardHint",
 						"workspaceCardLabelEmail",
 						"workspaceCardLabelNtfy",
+						"workspaceCardLabelGotify",
 						"workspaceCardLabelWebhook",
 						"emailChannelHintEnabled",
 						"emailChannelHintDisabled",
 						"ntfyChannelHintEnabled",
 						"ntfyChannelHintDisabled",
+						"gotifyChannelHintEnabled",
+						"gotifyChannelHintDisabled",
 						"webhookChannelHintEnabled",
 						"webhookChannelHintDisabled",
 						"projectScope",
@@ -1531,6 +1599,10 @@
 						"toastNtfySaveFailed",
 						"toastNtfyDisconnected",
 						"toastNtfyDisconnectFailed",
+						"toastGotifySaved",
+						"toastGotifySaveFailed",
+						"toastGotifyDisconnected",
+						"toastGotifyDisconnectFailed",
 						"toastWebhookSaved",
 						"toastWebhookSaveFailed",
 						"toastWebhookDisconnected",
@@ -1538,7 +1610,11 @@
 						"toastRuleSaved",
 						"toastRuleSaveFailed",
 						"toastRuleRemoved",
-						"toastRuleRemoveFailed"
+						"toastRuleRemoveFailed",
+						"toastPreferencesSaved",
+						"toastPreferencesSaveFailed",
+						"toastRuleSavedGeneric",
+						"toastRuleRemovedGeneric"
 					]
 				},
 				"preferencesPage": {

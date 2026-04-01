@@ -155,6 +155,13 @@
 			"when": 1775037521104,
 			"tag": "0021_tiny_bill_hollister",
 			"breakpoints": true
+		},
+		{
+			"idx": 22,
+			"version": "7",
+			"when": 1775039833883,
+			"tag": "0022_real_deathstrike",
+			"breakpoints": true
 		}
 	]
 }

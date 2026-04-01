@@ -402,7 +402,11 @@
 			"toastRuleSaved": "Saved notification rule for {{workspaceName}}",
 			"toastRuleSaveFailed": "Failed to save workspace notification rule",
 			"toastRuleRemoved": "Removed notification rule for {{workspaceName}}",
-			"toastRuleRemoveFailed": "Failed to remove workspace notification rule"
+			"toastRuleRemoveFailed": "Failed to remove workspace notification rule",
+			"toastPreferencesSaved": "Notification preferences saved",
+			"toastPreferencesSaveFailed": "Failed to save notification preferences",
+			"toastRuleSavedGeneric": "Workspace notification rule saved",
+			"toastRuleRemovedGeneric": "Workspace notification rule removed"
 		},
 		"preferencesPage": {
 			"title": "Preferences",

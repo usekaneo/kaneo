@@ -402,7 +402,11 @@
 			"toastRuleSaved": "Règle de notification enregistrée pour {{workspaceName}}",
 			"toastRuleSaveFailed": "Échec de l’enregistrement de la règle de notification de l’espace de travail",
 			"toastRuleRemoved": "Règle de notification supprimée pour {{workspaceName}}",
-			"toastRuleRemoveFailed": "Échec de la suppression de la règle de notification de l’espace de travail"
+			"toastRuleRemoveFailed": "Échec de la suppression de la règle de notification de l’espace de travail",
+			"toastPreferencesSaved": "Préférences de notification enregistrées",
+			"toastPreferencesSaveFailed": "Échec de l'enregistrement des préférences de notification",
+			"toastRuleSavedGeneric": "Règle de notification de l'espace de travail enregistrée",
+			"toastRuleRemovedGeneric": "Règle de notification de l'espace de travail supprimée"
 		},
 		"preferencesPage": {
 			"title": "Préférences",
@@ -577,7 +581,13 @@
 			"title": "Intégrations du projet",
 			"subtitle": "Connectez votre projet avec des outils et services externes pour rationaliser votre flux de travail.",
 			"githubSectionTitle": "Intégration GitHub",
-			"githubSectionSubtitle": "Synchronisez les tâches avec les problèmes GitHub et activez la synchronisation bidirectionnelle."
+			"githubSectionSubtitle": "Synchronisez les tâches avec les problèmes GitHub et activez la synchronisation bidirectionnelle.",
+			"discordSectionTitle": "Intégration Discord",
+			"discordSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un canal Discord via un webhook.",
+			"genericWebhookSectionTitle": "Webhooks génériques",
+			"genericWebhookSectionSubtitle": "Envoyez les événements des tâches du projet vers n'importe quel point de terminaison HTTP au format JSON.",
+			"slackSectionTitle": "Intégration Slack",
+			"slackSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un canal Slack via un webhook entrant."
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilité du projet",
@@ -686,6 +696,120 @@
 			"importing": "Importation...",
 			"importIssues": "Importer les problèmes",
 			"importDisabledHint": "Complétez la configuration du dépôt ci-dessus pour activer l'importation"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "Entrez une URL de webhook Slack valide"
+			},
+			"toast": {
+				"saved": "Intégration Slack enregistrée avec succès",
+				"saveError": "Échec de l'enregistrement de l'intégration Slack",
+				"enabled": "Notifications Slack activées",
+				"disabled": "Notifications Slack en pause",
+				"updateError": "Échec de la mise à jour de l'intégration Slack",
+				"removed": "Intégration Slack supprimée avec succès",
+				"removeError": "Échec de la suppression de l'intégration Slack"
+			},
+			"connectionTitle": "Connexion webhook Slack",
+			"connectionHint": "Collez une URL de webhook entrant Slack et choisissez les événements de tâche à publier.",
+			"connected": "Connecté",
+			"paused": "En pause",
+			"webhookLabel": "URL du webhook entrant",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Créez un webhook entrant dans Slack et collez l'URL générée ici.",
+			"channelLabel": "Nom du canal",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Libellé facultatif pour votre référence. Slack contrôle le canal réel via la configuration du webhook.",
+			"eventsTitle": "Notifications d'événements",
+			"eventsHint": "Choisissez les changements de projet à envoyer vers Slack.",
+			"events": {
+				"taskCreated": "Nouvelles tâches",
+				"taskStatusChanged": "Changements de statut",
+				"taskPriorityChanged": "Changements de priorité",
+				"taskTitleChanged": "Changements de titre",
+				"taskDescriptionChanged": "Changements de description",
+				"taskCommentCreated": "Nouveaux commentaires"
+			},
+			"connect": "Connecter Slack",
+			"saveChanges": "Enregistrer les modifications",
+			"update": "Mettre à jour Slack",
+			"disconnect": "Déconnecter"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "Entrez une URL de webhook Discord valide"
+			},
+			"toast": {
+				"saved": "Intégration Discord enregistrée avec succès",
+				"saveError": "Échec de l'enregistrement de l'intégration Discord",
+				"enabled": "Notifications Discord activées",
+				"disabled": "Notifications Discord en pause",
+				"updateError": "Échec de la mise à jour de l'intégration Discord",
+				"removed": "Intégration Discord supprimée avec succès",
+				"removeError": "Échec de la suppression de l'intégration Discord"
+			},
+			"connectionTitle": "Connexion webhook Discord",
+			"connectionHint": "Collez une URL de webhook Discord et choisissez les événements de tâche à publier.",
+			"connected": "Connecté",
+			"paused": "En pause",
+			"webhookLabel": "URL du webhook",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Créez un webhook de canal dans Discord et collez l'URL générée ici.",
+			"channelLabel": "Nom du canal",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Libellé facultatif pour votre référence. Discord contrôle le canal réel via la configuration du webhook.",
+			"eventsTitle": "Notifications d'événements",
+			"eventsHint": "Choisissez les changements de projet à envoyer vers Discord.",
+			"events": {
+				"taskCreated": "Nouvelles tâches",
+				"taskStatusChanged": "Changements de statut",
+				"taskPriorityChanged": "Changements de priorité",
+				"taskTitleChanged": "Changements de titre",
+				"taskDescriptionChanged": "Changements de description",
+				"taskCommentCreated": "Nouveaux commentaires"
+			},
+			"connect": "Connecter Discord",
+			"saveChanges": "Enregistrer les modifications",
+			"update": "Mettre à jour Discord",
+			"disconnect": "Déconnecter"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Entrez une URL de webhook valide"
+			},
+			"toast": {
+				"saved": "Intégration webhook générique enregistrée avec succès",
+				"saveError": "Échec de l'enregistrement de l'intégration webhook générique",
+				"enabled": "Notifications webhook génériques activées",
+				"disabled": "Notifications webhook génériques en pause",
+				"updateError": "Échec de la mise à jour de l'intégration webhook générique",
+				"removed": "Intégration webhook générique supprimée avec succès",
+				"removeError": "Échec de la suppression de l'intégration webhook générique"
+			},
+			"connectionTitle": "Connexion webhook sortant",
+			"connectionHint": "Envoyez les événements de tâche en JSON vers votre propre point de terminaison. Un en-tête signé X-Kaneo-Signature est inclus lorsqu'un secret est configuré.",
+			"connected": "Connecté",
+			"paused": "En pause",
+			"webhookLabel": "URL du point de terminaison",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo envoie des requêtes POST avec une charge JSON pour chaque événement activé.",
+			"secretLabel": "Secret de signature",
+			"secretPlaceholder": "Secret partagé facultatif",
+			"secretHint": "Facultatif. Si défini, Kaneo signe le corps de la requête et envoie le digest hexadécimal dans l'en-tête X-Kaneo-Signature.",
+			"secretHintConfigured": "Un secret de signature est déjà configuré ({{secret}}). Entrez-en un nouveau pour le remplacer.",
+			"eventsTitle": "Notifications d'événements",
+			"eventsHint": "Choisissez les changements de projet qui déclenchent les webhooks sortants.",
+			"events": {
+				"taskCreated": "Nouvelles tâches",
+				"taskStatusChanged": "Changements de statut",
+				"taskPriorityChanged": "Changements de priorité",
+				"taskTitleChanged": "Changements de titre",
+				"taskDescriptionChanged": "Changements de description",
+				"taskCommentCreated": "Nouveaux commentaires"
+			},
+			"connect": "Connecter le webhook",
+			"saveChanges": "Enregistrer les modifications",
+			"disconnect": "Déconnecter"
 		},
 		"repositoryBrowser": {
 			"title": "Sélectionner un dépôt",

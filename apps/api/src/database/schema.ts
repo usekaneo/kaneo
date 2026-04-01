@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -195,24 +196,30 @@ export const invitationTable = pgTable(
   ],
 );
 
-export const projectTable = pgTable("project", {
-  id: text("id")
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  workspaceId: text("workspace_id")
-    .notNull()
-    .references(() => workspaceTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-  slug: text("slug").notNull(),
-  icon: text("icon").default("Layout"),
-  name: text("name").notNull(),
-  description: text("description"),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  isPublic: boolean("is_public").default(false),
-  archivedAt: timestamp("archived_at", { mode: "date" }),
-});
+export const projectTable = pgTable(
+  "project",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    slug: text("slug").notNull(),
+    icon: text("icon").default("Layout"),
+    name: text("name").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    isPublic: boolean("is_public").default(false),
+    archivedAt: timestamp("archived_at", { mode: "date" }),
+  },
+  (table) => [
+    unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
+  ],
+);
 
 export const columnTable = pgTable(
   "column",
@@ -432,8 +439,12 @@ export const notificationTable = pgTable("notification", {
 export const userNotificationPreferenceTable = pgTable(
   "user_notification_preference",
   {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
     userId: text("user_id")
-      .primaryKey()
+      .notNull()
+      .unique()
       .references(() => userTable.id, {
         onDelete: "cascade",
         onUpdate: "cascade",
@@ -496,6 +507,10 @@ export const userNotificationWorkspaceRuleTable = pgTable(
       table.userId,
       table.workspaceId,
     ),
+    unique("user_notification_workspace_rule_workspace_id_id_unique").on(
+      table.workspaceId,
+      table.id,
+    ),
   ],
 );
 
@@ -505,21 +520,36 @@ export const userNotificationWorkspaceProjectTable = pgTable(
     id: text("id")
       .$defaultFn(() => createId())
       .primaryKey(),
-    workspaceRuleId: text("workspace_rule_id")
+    workspaceId: text("workspace_id")
       .notNull()
-      .references(() => userNotificationWorkspaceRuleTable.id, {
+      .references(() => workspaceTable.id, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    projectId: text("project_id")
-      .notNull()
-      .references(() => projectTable.id, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      }),
+    workspaceRuleId: text("workspace_rule_id").notNull(),
+    projectId: text("project_id").notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   (table) => [
+    foreignKey({
+      columns: [table.workspaceId, table.workspaceRuleId],
+      foreignColumns: [
+        userNotificationWorkspaceRuleTable.workspaceId,
+        userNotificationWorkspaceRuleTable.id,
+      ],
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
+    foreignKey({
+      columns: [table.workspaceId, table.projectId],
+      foreignColumns: [projectTable.workspaceId, projectTable.id],
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
     index("user_notification_workspace_project_ruleId_idx").on(
       table.workspaceRuleId,
     ),

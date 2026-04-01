@@ -402,7 +402,11 @@
 			"toastRuleSaved": "Benachrichtigungsregel für {{workspaceName}} gespeichert",
 			"toastRuleSaveFailed": "Arbeitsbereichs-Benachrichtigungsregel konnte nicht gespeichert werden",
 			"toastRuleRemoved": "Benachrichtigungsregel für {{workspaceName}} entfernt",
-			"toastRuleRemoveFailed": "Arbeitsbereichs-Benachrichtigungsregel konnte nicht entfernt werden"
+			"toastRuleRemoveFailed": "Arbeitsbereichs-Benachrichtigungsregel konnte nicht entfernt werden",
+			"toastPreferencesSaved": "Benachrichtigungseinstellungen gespeichert",
+			"toastPreferencesSaveFailed": "Benachrichtigungseinstellungen konnten nicht gespeichert werden",
+			"toastRuleSavedGeneric": "Arbeitsbereichs-Benachrichtigungsregel gespeichert",
+			"toastRuleRemovedGeneric": "Arbeitsbereichs-Benachrichtigungsregel entfernt"
 		},
 		"preferencesPage": {
 			"title": "Einstellungen",

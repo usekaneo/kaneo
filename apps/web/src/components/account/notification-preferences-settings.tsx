@@ -16,7 +16,6 @@ import {
 import useGetNotificationPreferences from "@/hooks/queries/notification-preferences/use-get-notification-preferences";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
-import { toast } from "@/lib/toast";
 
 type WorkspaceSummary = {
   id: string;
@@ -32,6 +31,55 @@ type WorkspaceRuleState = {
   projectMode: "all" | "selected";
   selectedProjectIds: string[];
 };
+
+type GlobalChannelPrefsState = {
+  emailEnabled: boolean;
+  ntfy: { enabled: boolean; serverUrl: string; topic: string; token: string };
+  gotify: { enabled: boolean; serverUrl: string; token: string };
+  webhook: { enabled: boolean; url: string; secret: string };
+};
+
+function createDefaultGlobalChannelPrefs(): GlobalChannelPrefsState {
+  return {
+    emailEnabled: false,
+    ntfy: { enabled: false, serverUrl: "", topic: "", token: "" },
+    gotify: { enabled: false, serverUrl: "", token: "" },
+    webhook: { enabled: false, url: "", secret: "" },
+  };
+}
+
+function ChannelCard({
+  actions,
+  channel,
+  children,
+  description,
+  headerRight,
+  title,
+}: {
+  channel: "email" | "gotify" | "ntfy" | "webhook";
+  title: React.ReactNode;
+  description: React.ReactNode;
+  headerRight: React.ReactNode;
+  children: React.ReactNode;
+  actions: React.ReactNode;
+}) {
+  return (
+    <div
+      className="space-y-4 rounded-md border border-border bg-sidebar p-4"
+      data-channel={channel}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h3 className="font-medium">{title}</h3>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+        {headerRight}
+      </div>
+      {children}
+      {actions}
+    </div>
+  );
+}
 
 function ChannelToggle({
   checked,
@@ -319,20 +367,9 @@ function WorkspaceRuleCard({
         <Button
           disabled={isBusy}
           onClick={async () => {
+            setIsSaving(true);
             try {
-              setIsSaving(true);
               await onSave(workspace.id, state);
-              toast.success(
-                t("settings:notificationsPage.toastRuleSaved", {
-                  workspaceName: workspace.name,
-                }),
-              );
-            } catch (error) {
-              toast.error(
-                error instanceof Error
-                  ? error.message
-                  : t("settings:notificationsPage.toastRuleSaveFailed"),
-              );
             } finally {
               setIsSaving(false);
             }
@@ -347,20 +384,9 @@ function WorkspaceRuleCard({
           <Button
             disabled={isBusy}
             onClick={async () => {
+              setIsDeleting(true);
               try {
-                setIsDeleting(true);
                 await onDelete(workspace.id);
-                toast.success(
-                  t("settings:notificationsPage.toastRuleRemoved", {
-                    workspaceName: workspace.name,
-                  }),
-                );
-              } catch (error) {
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : t("settings:notificationsPage.toastRuleRemoveFailed"),
-                );
               } finally {
                 setIsDeleting(false);
               }
@@ -397,31 +423,31 @@ export function NotificationPreferencesSettings() {
     [workspacesData],
   );
 
-  const [emailEnabled, setEmailEnabled] = React.useState(false);
-  const [ntfyEnabled, setNtfyEnabled] = React.useState(false);
-  const [ntfyServerUrl, setNtfyServerUrl] = React.useState("");
-  const [ntfyTopic, setNtfyTopic] = React.useState("");
-  const [ntfyToken, setNtfyToken] = React.useState("");
-  const [gotifyEnabled, setGotifyEnabled] = React.useState(false);
-  const [gotifyServerUrl, setGotifyServerUrl] = React.useState("");
-  const [gotifyToken, setGotifyToken] = React.useState("");
-  const [webhookEnabled, setWebhookEnabled] = React.useState(false);
-  const [webhookUrl, setWebhookUrl] = React.useState("");
-  const [webhookSecret, setWebhookSecret] = React.useState("");
+  const [globalPrefs, setGlobalPrefs] = React.useState<GlobalChannelPrefsState>(
+    createDefaultGlobalChannelPrefs,
+  );
 
   React.useEffect(() => {
     if (!preferences) return;
-    setEmailEnabled(preferences.emailEnabled);
-    setNtfyEnabled(preferences.ntfyEnabled);
-    setNtfyServerUrl(preferences.ntfyServerUrl ?? "");
-    setNtfyTopic(preferences.ntfyTopic ?? "");
-    setNtfyToken("");
-    setGotifyEnabled(preferences.gotifyEnabled);
-    setGotifyServerUrl(preferences.gotifyServerUrl ?? "");
-    setGotifyToken("");
-    setWebhookEnabled(preferences.webhookEnabled);
-    setWebhookUrl(preferences.webhookUrl ?? "");
-    setWebhookSecret("");
+    setGlobalPrefs({
+      emailEnabled: preferences.emailEnabled,
+      ntfy: {
+        enabled: preferences.ntfyEnabled,
+        serverUrl: preferences.ntfyServerUrl ?? "",
+        topic: preferences.ntfyTopic ?? "",
+        token: "",
+      },
+      gotify: {
+        enabled: preferences.gotifyEnabled,
+        serverUrl: preferences.gotifyServerUrl ?? "",
+        token: "",
+      },
+      webhook: {
+        enabled: preferences.webhookEnabled,
+        url: preferences.webhookUrl ?? "",
+        secret: "",
+      },
+    });
   }, [preferences]);
 
   const workspaceRuleMap = React.useMemo(
@@ -447,16 +473,25 @@ export function NotificationPreferencesSettings() {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4 rounded-md border border-border bg-sidebar p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="font-medium">
-              {t("settings:notificationsPage.emailTitle")}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {t("settings:notificationsPage.emailDescription")}
-            </p>
+      <ChannelCard
+        actions={
+          <div className="flex gap-2">
+            <Button
+              disabled={isSavingPreferences || !preferences?.emailAddress}
+              onClick={async () => {
+                await updatePreferences({
+                  emailEnabled: globalPrefs.emailEnabled,
+                });
+              }}
+              type="button"
+            >
+              {t("settings:notificationsPage.saveChanges")}
+            </Button>
           </div>
+        }
+        channel="email"
+        description={t("settings:notificationsPage.emailDescription")}
+        headerRight={
           <div className="flex items-center gap-3">
             {preferences?.emailEnabled ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -465,13 +500,16 @@ export function NotificationPreferencesSettings() {
               </div>
             ) : null}
             <Switch
-              checked={emailEnabled}
+              checked={globalPrefs.emailEnabled}
               disabled={isSavingPreferences || !preferences?.emailAddress}
-              onCheckedChange={setEmailEnabled}
+              onCheckedChange={(checked) =>
+                setGlobalPrefs((prev) => ({ ...prev, emailEnabled: checked }))
+              }
             />
           </div>
-        </div>
-
+        }
+        title={t("settings:notificationsPage.emailTitle")}
+      >
         <div className="space-y-1">
           <Label className="text-sm font-medium">
             {t("settings:notificationsPage.accountEmailLabel")}
@@ -488,39 +526,62 @@ export function NotificationPreferencesSettings() {
             {t("settings:notificationsPage.accountEmailHint")}
           </p>
         </div>
+      </ChannelCard>
 
-        <div className="flex gap-2">
-          <Button
-            disabled={isSavingPreferences || !preferences?.emailAddress}
-            onClick={async () => {
-              try {
-                await updatePreferences({ emailEnabled });
-                toast.success(t("settings:notificationsPage.toastEmailSaved"));
-              } catch (error) {
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : t("settings:notificationsPage.toastEmailSaveFailed"),
-                );
-              }
-            }}
-            type="button"
-          >
-            {t("settings:notificationsPage.saveChanges")}
-          </Button>
-        </div>
-      </div>
-
-      <div className="space-y-4 rounded-md border border-border bg-sidebar p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="font-medium">
-              {t("settings:notificationsPage.gotifyTitle")}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {t("settings:notificationsPage.gotifyDescription")}
-            </p>
+      <ChannelCard
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Button
+              disabled={isSavingPreferences}
+              onClick={async () => {
+                await updatePreferences({
+                  gotifyEnabled: globalPrefs.gotify.enabled,
+                  gotifyServerUrl: globalPrefs.gotify.serverUrl,
+                  gotifyToken: globalPrefs.gotify.token.trim()
+                    ? globalPrefs.gotify.token
+                    : undefined,
+                });
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  gotify: { ...prev.gotify, token: "" },
+                }));
+              }}
+              type="button"
+            >
+              {preferences?.gotifyConfigured
+                ? t("settings:notificationsPage.saveChanges")
+                : t("settings:notificationsPage.connectGotify")}
+            </Button>
+            {preferences?.gotifyConfigured ? (
+              <Button
+                disabled={isSavingPreferences}
+                onClick={async () => {
+                  await updatePreferences({
+                    gotifyEnabled: false,
+                    gotifyServerUrl: null,
+                    gotifyToken: null,
+                  });
+                  setGlobalPrefs((prev) => ({
+                    ...prev,
+                    gotify: {
+                      enabled: false,
+                      serverUrl: "",
+                      token: "",
+                    },
+                  }));
+                }}
+                type="button"
+                variant="outline"
+              >
+                <Trash2 className="size-4" />
+                {t("settings:notificationsPage.disconnect")}
+              </Button>
+            ) : null}
           </div>
+        }
+        channel="gotify"
+        description={t("settings:notificationsPage.gotifyDescription")}
+        headerRight={
           <div className="flex items-center gap-3">
             {preferences?.gotifyConfigured ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -533,13 +594,19 @@ export function NotificationPreferencesSettings() {
               </div>
             ) : null}
             <Switch
-              checked={gotifyEnabled}
+              checked={globalPrefs.gotify.enabled}
               disabled={isSavingPreferences}
-              onCheckedChange={setGotifyEnabled}
+              onCheckedChange={(checked) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  gotify: { ...prev.gotify, enabled: checked },
+                }))
+              }
             />
           </div>
-        </div>
-
+        }
+        title={t("settings:notificationsPage.gotifyTitle")}
+      >
         <div className="space-y-4">
           <div className="space-y-1">
             <Label className="text-sm font-medium">
@@ -550,8 +617,13 @@ export function NotificationPreferencesSettings() {
               placeholder={t(
                 "settings:notificationsPage.gotifyServerPlaceholder",
               )}
-              value={gotifyServerUrl}
-              onChange={(event) => setGotifyServerUrl(event.target.value)}
+              value={globalPrefs.gotify.serverUrl}
+              onChange={(event) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  gotify: { ...prev.gotify, serverUrl: event.target.value },
+                }))
+              }
             />
           </div>
           <div className="space-y-1">
@@ -564,8 +636,13 @@ export function NotificationPreferencesSettings() {
                 "settings:notificationsPage.gotifyTokenPlaceholder",
               )}
               type="password"
-              value={gotifyToken}
-              onChange={(event) => setGotifyToken(event.target.value)}
+              value={globalPrefs.gotify.token}
+              onChange={(event) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  gotify: { ...prev.gotify, token: event.target.value },
+                }))
+              }
             />
             <p className="text-xs text-muted-foreground">
               {preferences?.gotifyTokenConfigured
@@ -576,79 +653,65 @@ export function NotificationPreferencesSettings() {
             </p>
           </div>
         </div>
+      </ChannelCard>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            disabled={isSavingPreferences}
-            onClick={async () => {
-              try {
-                await updatePreferences({
-                  gotifyEnabled,
-                  gotifyServerUrl,
-                  gotifyToken: gotifyToken.trim() ? gotifyToken : undefined,
-                });
-                setGotifyToken("");
-                toast.success(t("settings:notificationsPage.toastGotifySaved"));
-              } catch (error) {
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : t("settings:notificationsPage.toastGotifySaveFailed"),
-                );
-              }
-            }}
-            type="button"
-          >
-            {preferences?.gotifyConfigured
-              ? t("settings:notificationsPage.saveChanges")
-              : t("settings:notificationsPage.connectGotify")}
-          </Button>
-          {preferences?.gotifyConfigured ? (
+      <ChannelCard
+        actions={
+          <div className="flex flex-wrap gap-2">
             <Button
               disabled={isSavingPreferences}
               onClick={async () => {
-                try {
-                  await updatePreferences({
-                    gotifyEnabled: false,
-                    gotifyServerUrl: null,
-                    gotifyToken: null,
-                  });
-                  setGotifyEnabled(false);
-                  setGotifyServerUrl("");
-                  setGotifyToken("");
-                  toast.success(
-                    t("settings:notificationsPage.toastGotifyDisconnected"),
-                  );
-                } catch (error) {
-                  toast.error(
-                    error instanceof Error
-                      ? error.message
-                      : t(
-                          "settings:notificationsPage.toastGotifyDisconnectFailed",
-                        ),
-                  );
-                }
+                await updatePreferences({
+                  ntfyEnabled: globalPrefs.ntfy.enabled,
+                  ntfyServerUrl: globalPrefs.ntfy.serverUrl,
+                  ntfyTopic: globalPrefs.ntfy.topic,
+                  ntfyToken: globalPrefs.ntfy.token.trim()
+                    ? globalPrefs.ntfy.token
+                    : undefined,
+                });
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  ntfy: { ...prev.ntfy, token: "" },
+                }));
               }}
               type="button"
-              variant="outline"
             >
-              <Trash2 className="size-4" />
-              {t("settings:notificationsPage.disconnect")}
+              {preferences?.ntfyConfigured
+                ? t("settings:notificationsPage.saveChanges")
+                : t("settings:notificationsPage.connectNtfy")}
             </Button>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="space-y-4 rounded-md border border-border bg-sidebar p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="font-medium">
-              {t("settings:notificationsPage.ntfyTitle")}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {t("settings:notificationsPage.ntfyDescription")}
-            </p>
+            {preferences?.ntfyConfigured ? (
+              <Button
+                disabled={isSavingPreferences}
+                onClick={async () => {
+                  await updatePreferences({
+                    ntfyEnabled: false,
+                    ntfyServerUrl: null,
+                    ntfyTopic: null,
+                    ntfyToken: null,
+                  });
+                  setGlobalPrefs((prev) => ({
+                    ...prev,
+                    ntfy: {
+                      enabled: false,
+                      serverUrl: "",
+                      topic: "",
+                      token: "",
+                    },
+                  }));
+                }}
+                type="button"
+                variant="outline"
+              >
+                <Trash2 className="size-4" />
+                {t("settings:notificationsPage.disconnect")}
+              </Button>
+            ) : null}
           </div>
+        }
+        channel="ntfy"
+        description={t("settings:notificationsPage.ntfyDescription")}
+        headerRight={
           <div className="flex items-center gap-3">
             {preferences?.ntfyConfigured ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -661,13 +724,19 @@ export function NotificationPreferencesSettings() {
               </div>
             ) : null}
             <Switch
-              checked={ntfyEnabled}
+              checked={globalPrefs.ntfy.enabled}
               disabled={isSavingPreferences}
-              onCheckedChange={setNtfyEnabled}
+              onCheckedChange={(checked) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  ntfy: { ...prev.ntfy, enabled: checked },
+                }))
+              }
             />
           </div>
-        </div>
-
+        }
+        title={t("settings:notificationsPage.ntfyTitle")}
+      >
         <div className="space-y-4">
           <div className="space-y-1">
             <Label className="text-sm font-medium">
@@ -678,8 +747,13 @@ export function NotificationPreferencesSettings() {
               placeholder={t(
                 "settings:notificationsPage.ntfyServerPlaceholder",
               )}
-              value={ntfyServerUrl}
-              onChange={(event) => setNtfyServerUrl(event.target.value)}
+              value={globalPrefs.ntfy.serverUrl}
+              onChange={(event) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  ntfy: { ...prev.ntfy, serverUrl: event.target.value },
+                }))
+              }
             />
           </div>
           <div className="space-y-1">
@@ -689,8 +763,13 @@ export function NotificationPreferencesSettings() {
             <Input
               autoComplete="off"
               placeholder={t("settings:notificationsPage.ntfyTopicPlaceholder")}
-              value={ntfyTopic}
-              onChange={(event) => setNtfyTopic(event.target.value)}
+              value={globalPrefs.ntfy.topic}
+              onChange={(event) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  ntfy: { ...prev.ntfy, topic: event.target.value },
+                }))
+              }
             />
           </div>
           <div className="space-y-1">
@@ -701,8 +780,13 @@ export function NotificationPreferencesSettings() {
               autoComplete="off"
               placeholder={t("settings:notificationsPage.ntfyTokenPlaceholder")}
               type="password"
-              value={ntfyToken}
-              onChange={(event) => setNtfyToken(event.target.value)}
+              value={globalPrefs.ntfy.token}
+              onChange={(event) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  ntfy: { ...prev.ntfy, token: event.target.value },
+                }))
+              }
             />
             <p className="text-xs text-muted-foreground">
               {preferences?.ntfyTokenConfigured
@@ -713,82 +797,62 @@ export function NotificationPreferencesSettings() {
             </p>
           </div>
         </div>
+      </ChannelCard>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            disabled={isSavingPreferences}
-            onClick={async () => {
-              try {
-                await updatePreferences({
-                  ntfyEnabled,
-                  ntfyServerUrl,
-                  ntfyTopic,
-                  ntfyToken: ntfyToken.trim() ? ntfyToken : undefined,
-                });
-                setNtfyToken("");
-                toast.success(t("settings:notificationsPage.toastNtfySaved"));
-              } catch (error) {
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : t("settings:notificationsPage.toastNtfySaveFailed"),
-                );
-              }
-            }}
-            type="button"
-          >
-            {preferences?.ntfyConfigured
-              ? t("settings:notificationsPage.saveChanges")
-              : t("settings:notificationsPage.connectNtfy")}
-          </Button>
-          {preferences?.ntfyConfigured ? (
+      <ChannelCard
+        actions={
+          <div className="flex flex-wrap gap-2">
             <Button
               disabled={isSavingPreferences}
               onClick={async () => {
-                try {
-                  await updatePreferences({
-                    ntfyEnabled: false,
-                    ntfyServerUrl: null,
-                    ntfyTopic: null,
-                    ntfyToken: null,
-                  });
-                  setNtfyEnabled(false);
-                  setNtfyServerUrl("");
-                  setNtfyTopic("");
-                  setNtfyToken("");
-                  toast.success(
-                    t("settings:notificationsPage.toastNtfyDisconnected"),
-                  );
-                } catch (error) {
-                  toast.error(
-                    error instanceof Error
-                      ? error.message
-                      : t(
-                          "settings:notificationsPage.toastNtfyDisconnectFailed",
-                        ),
-                  );
-                }
+                await updatePreferences({
+                  webhookEnabled: globalPrefs.webhook.enabled,
+                  webhookUrl: globalPrefs.webhook.url,
+                  webhookSecret: globalPrefs.webhook.secret.trim()
+                    ? globalPrefs.webhook.secret
+                    : undefined,
+                });
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  webhook: { ...prev.webhook, secret: "" },
+                }));
               }}
               type="button"
-              variant="outline"
             >
-              <Trash2 className="size-4" />
-              {t("settings:notificationsPage.disconnect")}
+              {preferences?.webhookConfigured
+                ? t("settings:notificationsPage.saveChanges")
+                : t("settings:notificationsPage.connectWebhook")}
             </Button>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="space-y-4 rounded-md border border-border bg-sidebar p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="font-medium">
-              {t("settings:notificationsPage.webhookTitle")}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {t("settings:notificationsPage.webhookDescription")}
-            </p>
+            {preferences?.webhookConfigured ? (
+              <Button
+                disabled={isSavingPreferences}
+                onClick={async () => {
+                  await updatePreferences({
+                    webhookEnabled: false,
+                    webhookUrl: null,
+                    webhookSecret: null,
+                  });
+                  setGlobalPrefs((prev) => ({
+                    ...prev,
+                    webhook: {
+                      enabled: false,
+                      url: "",
+                      secret: "",
+                    },
+                  }));
+                }}
+                type="button"
+                variant="outline"
+              >
+                <Trash2 className="size-4" />
+                {t("settings:notificationsPage.disconnect")}
+              </Button>
+            ) : null}
           </div>
+        }
+        channel="webhook"
+        description={t("settings:notificationsPage.webhookDescription")}
+        headerRight={
           <div className="flex items-center gap-3">
             {preferences?.webhookConfigured ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -801,13 +865,19 @@ export function NotificationPreferencesSettings() {
               </div>
             ) : null}
             <Switch
-              checked={webhookEnabled}
+              checked={globalPrefs.webhook.enabled}
               disabled={isSavingPreferences}
-              onCheckedChange={setWebhookEnabled}
+              onCheckedChange={(checked) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  webhook: { ...prev.webhook, enabled: checked },
+                }))
+              }
             />
           </div>
-        </div>
-
+        }
+        title={t("settings:notificationsPage.webhookTitle")}
+      >
         <div className="space-y-4">
           <div className="space-y-1">
             <Label className="text-sm font-medium">
@@ -819,8 +889,13 @@ export function NotificationPreferencesSettings() {
                 "settings:notificationsPage.webhookUrlPlaceholder",
               )}
               type="url"
-              value={webhookUrl}
-              onChange={(event) => setWebhookUrl(event.target.value)}
+              value={globalPrefs.webhook.url}
+              onChange={(event) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  webhook: { ...prev.webhook, url: event.target.value },
+                }))
+              }
             />
           </div>
           <div className="space-y-1">
@@ -833,8 +908,13 @@ export function NotificationPreferencesSettings() {
                 "settings:notificationsPage.webhookSecretPlaceholder",
               )}
               type="password"
-              value={webhookSecret}
-              onChange={(event) => setWebhookSecret(event.target.value)}
+              value={globalPrefs.webhook.secret}
+              onChange={(event) =>
+                setGlobalPrefs((prev) => ({
+                  ...prev,
+                  webhook: { ...prev.webhook, secret: event.target.value },
+                }))
+              }
             />
             <p className="text-xs text-muted-foreground">
               {preferences?.webhookSecretConfigured
@@ -845,72 +925,7 @@ export function NotificationPreferencesSettings() {
             </p>
           </div>
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Button
-            disabled={isSavingPreferences}
-            onClick={async () => {
-              try {
-                await updatePreferences({
-                  webhookEnabled,
-                  webhookUrl,
-                  webhookSecret: webhookSecret.trim()
-                    ? webhookSecret
-                    : undefined,
-                });
-                setWebhookSecret("");
-                toast.success(
-                  t("settings:notificationsPage.toastWebhookSaved"),
-                );
-              } catch (error) {
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : t("settings:notificationsPage.toastWebhookSaveFailed"),
-                );
-              }
-            }}
-            type="button"
-          >
-            {preferences?.webhookConfigured
-              ? t("settings:notificationsPage.saveChanges")
-              : t("settings:notificationsPage.connectWebhook")}
-          </Button>
-          {preferences?.webhookConfigured ? (
-            <Button
-              disabled={isSavingPreferences}
-              onClick={async () => {
-                try {
-                  await updatePreferences({
-                    webhookEnabled: false,
-                    webhookUrl: null,
-                    webhookSecret: null,
-                  });
-                  setWebhookEnabled(false);
-                  setWebhookUrl("");
-                  setWebhookSecret("");
-                  toast.success(
-                    t("settings:notificationsPage.toastWebhookDisconnected"),
-                  );
-                } catch (error) {
-                  toast.error(
-                    error instanceof Error
-                      ? error.message
-                      : t(
-                          "settings:notificationsPage.toastWebhookDisconnectFailed",
-                        ),
-                  );
-                }
-              }}
-              type="button"
-              variant="outline"
-            >
-              <Trash2 className="size-4" />
-              {t("settings:notificationsPage.disconnect")}
-            </Button>
-          ) : null}
-        </div>
-      </div>
+      </ChannelCard>
 
       <div className="space-y-4">
         <div className="space-y-1">

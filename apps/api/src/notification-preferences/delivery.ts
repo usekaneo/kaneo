@@ -1,18 +1,34 @@
 import { createHmac } from "node:crypto";
 import { sendNotificationEmail } from "@kaneo/email";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import db from "../database";
 import {
   notificationTable,
   projectTable,
   taskTable,
   userNotificationPreferenceTable,
-  userNotificationWorkspaceProjectTable,
   userNotificationWorkspaceRuleTable,
   userTable,
   workspaceTable,
 } from "../database/schema";
 import { assertPublicWebhookDestination } from "../plugins/generic-webhook/config";
+
+const DEFAULT_OUTBOUND_FETCH_TIMEOUT_MS = 15_000;
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit & { timeoutMs?: number },
+): Promise<Response> {
+  const timeoutMs = init.timeoutMs ?? DEFAULT_OUTBOUND_FETCH_TIMEOUT_MS;
+  const { timeoutMs: _timeout, ...rest } = init;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...rest, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 type ResolvedNotificationContext = {
   workspaceId: string;
@@ -195,7 +211,7 @@ async function sendNtfyNotification(input: {
 }) {
   await assertPublicWebhookDestination(input.serverUrl);
 
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${input.serverUrl.replace(/\/+$/, "")}/${encodeURIComponent(input.topic)}`,
     {
       method: "POST",
@@ -224,7 +240,8 @@ async function sendGotifyNotification(input: {
 }) {
   await assertPublicWebhookDestination(input.serverUrl);
 
-  const response = await fetch(
+  // Gotify expects the app token in the query string; that can surface in logs, proxies, and browser history — factor this into Gotify placement and log handling.
+  const response = await fetchWithTimeout(
     `${input.serverUrl.replace(/\/+$/, "")}/message?token=${encodeURIComponent(
       input.token,
     )}`,
@@ -278,7 +295,7 @@ async function sendWebhookNotification(input: {
       .digest("hex");
   }
 
-  const response = await fetch(input.webhookUrl, {
+  const response = await fetchWithTimeout(input.webhookUrl, {
     method: "POST",
     headers,
     body,
@@ -304,6 +321,14 @@ export async function deliverNotification(
 
   const context = await resolveNotificationContext(notification);
   if (!context) {
+    console.info("Notification delivery skipped: unresolved context", {
+      notificationId,
+      notificationTableId: notification.id,
+      resourceType: notification.resourceType,
+      resourceId: notification.resourceId,
+      reason:
+        "resolveNotificationContext returned null (missing resource, deleted task, or unsupported resource type)",
+    });
     return;
   }
 
@@ -470,30 +495,4 @@ export async function deliverNotification(
       });
     }
   }
-}
-
-export async function hasSelectedProjects(
-  userId: string,
-  workspaceId: string,
-  projectIds: string[],
-) {
-  const rows = await db
-    .select({ projectId: userNotificationWorkspaceProjectTable.projectId })
-    .from(userNotificationWorkspaceProjectTable)
-    .innerJoin(
-      userNotificationWorkspaceRuleTable,
-      eq(
-        userNotificationWorkspaceProjectTable.workspaceRuleId,
-        userNotificationWorkspaceRuleTable.id,
-      ),
-    )
-    .where(
-      and(
-        eq(userNotificationWorkspaceRuleTable.userId, userId),
-        eq(userNotificationWorkspaceRuleTable.workspaceId, workspaceId),
-        inArray(userNotificationWorkspaceProjectTable.projectId, projectIds),
-      ),
-    );
-
-  return rows.length > 0;
 }

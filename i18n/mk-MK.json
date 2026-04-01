@@ -402,7 +402,11 @@
 			"toastRuleSaved": "Зачувано е правилото за известување за {{workspaceName}}",
 			"toastRuleSaveFailed": "Не успеа зачувувањето на правилото за известување за работниот простор",
 			"toastRuleRemoved": "Отстрането е правилото за известување за {{workspaceName}}",
-			"toastRuleRemoveFailed": "Не успеа отстранувањето на правилото за известување за работниот простор"
+			"toastRuleRemoveFailed": "Не успеа отстранувањето на правилото за известување за работниот простор",
+			"toastPreferencesSaved": "Зачувани се поставките за известувања",
+			"toastPreferencesSaveFailed": "Не успеа зачувувањето на поставките за известувања",
+			"toastRuleSavedGeneric": "Зачувано е правилото за известување за работниот простор",
+			"toastRuleRemovedGeneric": "Отстрането е правилото за известување за работниот простор"
 		},
 		"preferencesPage": {
 			"title": "Преференции",
@@ -577,7 +581,13 @@
 			"title": "Интеграции на проект",
 			"subtitle": "Поврзи го твојот проект со надворешни алатки и сервиси за да го подобриш работниот тек.",
 			"githubSectionTitle": "GitHub интеграција",
-			"githubSectionSubtitle": "Синхронизирај задачи со GitHub issues и овозможи двонасочна синхронизација."
+			"githubSectionSubtitle": "Синхронизирај задачи со GitHub issues и овозможи двонасочна синхронизација.",
+			"discordSectionTitle": "Discord интеграција",
+			"discordSectionSubtitle": "Испрати ажурирања за задачи на проектот во Discord канал преку webhook.",
+			"genericWebhookSectionTitle": "Општи webhooks",
+			"genericWebhookSectionSubtitle": "Испрати настани за задачи на проектот до кој било HTTP endpoint како JSON.",
+			"slackSectionTitle": "Slack интеграција",
+			"slackSectionSubtitle": "Испрати ажурирања за задачи на проектот во Slack канал преку дојдовен webhook."
 		},
 		"projectVisibility": {
 			"pageTitle": "Видливост на проект",
@@ -686,6 +696,120 @@
 			"importing": "Се увезува...",
 			"importIssues": "Увези Issues",
 			"importDisabledHint": "Заврши ја конфигурацијата на репозиториумот погоре за да овозможиш увоз"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "Внеси валидна Slack webhook URL"
+			},
+			"toast": {
+				"saved": "Slack интеграцијата е успешно зачувана",
+				"saveError": "Не успеа зачувувањето на Slack интеграцијата",
+				"enabled": "Slack известувањата се вклучени",
+				"disabled": "Slack известувањата се паузирани",
+				"updateError": "Не успеа ажурирањето на Slack интеграцијата",
+				"removed": "Slack интеграцијата е успешно отстранета",
+				"removeError": "Не успеа отстранувањето на Slack интеграцијата"
+			},
+			"connectionTitle": "Slack webhook конекција",
+			"connectionHint": "Залепи Slack incoming webhook URL и избери кои настани за задачи да се испраќаат.",
+			"connected": "Поврзано",
+			"paused": "Паузирано",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Креирај Incoming Webhook во Slack и залепи ја генерираната URL тука.",
+			"channelLabel": "Име на канал",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Опционална ознака за тебе. Slack го одредува каналот преку webhook поставките.",
+			"eventsTitle": "Известувања за настани",
+			"eventsHint": "Избери кои промени на проектот да се испраќаат во Slack.",
+			"events": {
+				"taskCreated": "Нови задачи",
+				"taskStatusChanged": "Промени на статус",
+				"taskPriorityChanged": "Промени на приоритет",
+				"taskTitleChanged": "Промени на наслов",
+				"taskDescriptionChanged": "Промени на опис",
+				"taskCommentCreated": "Нови коментари"
+			},
+			"connect": "Поврзи Slack",
+			"saveChanges": "Зачувај промени",
+			"update": "Ажурирај Slack",
+			"disconnect": "Откачи"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "Внеси валидна Discord webhook URL"
+			},
+			"toast": {
+				"saved": "Discord интеграцијата е успешно зачувана",
+				"saveError": "Не успеа зачувувањето на Discord интеграцијата",
+				"enabled": "Discord известувањата се вклучени",
+				"disabled": "Discord известувањата се паузирани",
+				"updateError": "Не успеа ажурирањето на Discord интеграцијата",
+				"removed": "Discord интеграцијата е успешно отстранета",
+				"removeError": "Не успеа отстранувањето на Discord интеграцијата"
+			},
+			"connectionTitle": "Discord webhook конекција",
+			"connectionHint": "Залепи Discord webhook URL и избери кои настани за задачи да се испраќаат.",
+			"connected": "Поврзано",
+			"paused": "Паузирано",
+			"webhookLabel": "Webhook URL",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Креирај webhook за канал во Discord и залепи ја генерираната URL тука.",
+			"channelLabel": "Име на канал",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Опционална ознака за тебе. Discord го одредува каналот преку webhook поставките.",
+			"eventsTitle": "Известувања за настани",
+			"eventsHint": "Избери кои промени на проектот да се испраќаат во Discord.",
+			"events": {
+				"taskCreated": "Нови задачи",
+				"taskStatusChanged": "Промени на статус",
+				"taskPriorityChanged": "Промени на приоритет",
+				"taskTitleChanged": "Промени на наслов",
+				"taskDescriptionChanged": "Промени на опис",
+				"taskCommentCreated": "Нови коментари"
+			},
+			"connect": "Поврзи Discord",
+			"saveChanges": "Зачувај промени",
+			"update": "Ажурирај Discord",
+			"disconnect": "Откачи"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Внеси валидна webhook URL"
+			},
+			"toast": {
+				"saved": "Општиот webhook е успешно зачуван",
+				"saveError": "Не успеа зачувувањето на општиот webhook",
+				"enabled": "Општите webhook известувања се вклучени",
+				"disabled": "Општите webhook известувања се паузирани",
+				"updateError": "Не успеа ажурирањето на општиот webhook",
+				"removed": "Општиот webhook е успешно отстранет",
+				"removeError": "Не успеа отстранувањето на општиот webhook"
+			},
+			"connectionTitle": "Излезен webhook",
+			"connectionHint": "Испрати настани за задачи како JSON до твојот endpoint. Кога е поставена тајна, се испраќа потпис X-Kaneo-Signature.",
+			"connected": "Поврзано",
+			"paused": "Паузирано",
+			"webhookLabel": "URL на endpoint",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo испраќа POST барања со JSON за секој овозможен настан.",
+			"secretLabel": "Тајна за потпис",
+			"secretPlaceholder": "Опционална заедничка тајна",
+			"secretHint": "Опционално. Ако е поставена, Kaneo го потпишува телото на барањето и го испраќа hex-от во X-Kaneo-Signature.",
+			"secretHintConfigured": "Тајна за потпис веќе е конфигурирана ({{secret}}). Внеси нова за да ја замениш.",
+			"eventsTitle": "Известувања за настани",
+			"eventsHint": "Избери кои промени на проектот да го активираат излезниот webhook.",
+			"events": {
+				"taskCreated": "Нови задачи",
+				"taskStatusChanged": "Промени на статус",
+				"taskPriorityChanged": "Промени на приоритет",
+				"taskTitleChanged": "Промени на наслов",
+				"taskDescriptionChanged": "Промени на опис",
+				"taskCommentCreated": "Нови коментари"
+			},
+			"connect": "Поврзи webhook",
+			"saveChanges": "Зачувај промени",
+			"disconnect": "Откачи"
 		},
 		"repositoryBrowser": {
 			"title": "Избери репозиториум",

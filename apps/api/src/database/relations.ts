@@ -246,12 +246,21 @@ export const userNotificationWorkspaceProjectTableRelations = relations(
   userNotificationWorkspaceProjectTable,
   ({ one }) => ({
     workspaceRule: one(userNotificationWorkspaceRuleTable, {
-      fields: [userNotificationWorkspaceProjectTable.workspaceRuleId],
-      references: [userNotificationWorkspaceRuleTable.id],
+      fields: [
+        userNotificationWorkspaceProjectTable.workspaceId,
+        userNotificationWorkspaceProjectTable.workspaceRuleId,
+      ],
+      references: [
+        userNotificationWorkspaceRuleTable.workspaceId,
+        userNotificationWorkspaceRuleTable.id,
+      ],
     }),
     project: one(projectTable, {
-      fields: [userNotificationWorkspaceProjectTable.projectId],
-      references: [projectTable.id],
+      fields: [
+        userNotificationWorkspaceProjectTable.workspaceId,
+        userNotificationWorkspaceProjectTable.projectId,
+      ],
+      references: [projectTable.workspaceId, projectTable.id],
     }),
   }),
 );
