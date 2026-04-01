@@ -82,6 +82,8 @@ async function getSlackIntegration(projectId: string) {
   return toResponse(integration);
 }
 
+const nullableSlackIntegrationSchema = v.nullable(slackIntegrationSchema);
+
 slackIntegration
   .get(
     "/project/:projectId",
@@ -93,7 +95,9 @@ slackIntegration
         200: {
           description: "Slack integration details",
           content: {
-            "application/json": { schema: resolver(slackIntegrationSchema) },
+            "application/json": {
+              schema: resolver(nullableSlackIntegrationSchema),
+            },
           },
         },
       },

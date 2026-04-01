@@ -321,12 +321,17 @@ async function importLabelsForTask(
 
     const colorToUse = existingWorkspaceLabel?.color || labelData.color;
 
-    await db.insert(labelTable).values({
-      name: labelData.name,
-      color: colorToUse,
-      taskId,
-      workspaceId,
-    });
+    await db
+      .insert(labelTable)
+      .values({
+        name: labelData.name,
+        color: colorToUse,
+        taskId,
+        workspaceId,
+      })
+      .onConflictDoNothing({
+        target: [labelTable.taskId, labelTable.name],
+      });
   }
 }
 
@@ -378,15 +383,24 @@ async function importCommentsForTask(
       continue;
     }
 
-    await db.insert(activityTable).values({
-      taskId,
-      type: "comment",
-      content: comment.body,
-      externalUserName: comment.user?.login ?? "Unknown",
-      externalUserAvatar: comment.user?.avatar_url ?? null,
-      externalSource: "github",
-      externalUrl: comment.html_url,
-    });
+    await db
+      .insert(activityTable)
+      .values({
+        taskId,
+        type: "comment",
+        content: comment.body,
+        externalUserName: comment.user?.login ?? "Unknown",
+        externalUserAvatar: comment.user?.avatar_url ?? null,
+        externalSource: "github",
+        externalUrl: comment.html_url,
+      })
+      .onConflictDoNothing({
+        target: [
+          activityTable.taskId,
+          activityTable.externalSource,
+          activityTable.externalUrl,
+        ],
+      });
   }
 }
 

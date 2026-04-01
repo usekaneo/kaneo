@@ -494,6 +494,8 @@
 			"subtitle": "Συνδέστε το έργο σας με εξωτερικά εργαλεία και υπηρεσίες για πιο ομαλή ροή εργασίας.",
 			"githubSectionTitle": "Ενσωμάτωση GitHub",
 			"githubSectionSubtitle": "Συγχρονίστε εργασίες με GitHub issues και ενεργοποιήστε αμφίδρομο συγχρονισμό.",
+			"giteaSectionTitle": "Ενσωμάτωση Gitea",
+			"giteaSectionSubtitle": "Συγχρονίστε εργασίες με μια αυτο-φιλοξενούμενη εγκατάσταση Gitea (issues, PRs, webhooks).",
 			"telegramSectionTitle": "Ενσωμάτωση Telegram",
 			"telegramSectionSubtitle": "Στείλτε ενημερώσεις εργασιών έργου σε συνομιλία ή θέμα Telegram με bot."
 		},

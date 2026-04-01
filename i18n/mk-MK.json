@@ -494,6 +494,8 @@
 			"subtitle": "Поврзи го твојот проект со надворешни алатки и сервиси за да го подобриш работниот тек.",
 			"githubSectionTitle": "GitHub интеграција",
 			"githubSectionSubtitle": "Синхронизирај задачи со GitHub issues и овозможи двонасочна синхронизација.",
+			"giteaSectionTitle": "Gitea интеграција",
+			"giteaSectionSubtitle": "Синхронизирај задачи со само-хостирана Gitea инстанца (issues, PRs, webhooks).",
 			"telegramSectionTitle": "Telegram интеграција",
 			"telegramSectionSubtitle": "Испраќај ажурирања за задачи од проектот во Telegram разговор или тема со бот."
 		},

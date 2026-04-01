@@ -494,6 +494,8 @@
 			"subtitle": "Connectez votre projet avec des outils et services externes pour rationaliser votre flux de travail.",
 			"githubSectionTitle": "Intégration GitHub",
 			"githubSectionSubtitle": "Synchronisez les tâches avec les problèmes GitHub et activez la synchronisation bidirectionnelle.",
+			"giteaSectionTitle": "Intégration Gitea",
+			"giteaSectionSubtitle": "Synchronisez les tâches avec une instance Gitea auto-hébergée (issues, PRs, webhooks).",
 			"telegramSectionTitle": "Intégration Telegram",
 			"telegramSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un chat ou un sujet Telegram avec un bot."
 		},

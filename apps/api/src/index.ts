@@ -21,6 +21,7 @@ import db, { schema } from "./database";
 import discordIntegration from "./discord-integration";
 import externalLink from "./external-link";
 import genericWebhookIntegration from "./generic-webhook-integration";
+import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -139,6 +140,8 @@ const publicProjectApi = api.get("/public-project/:id", async (c) => {
 });
 
 api.post("/github-integration/webhook", handleGithubWebhookRoute);
+
+api.post("/gitea-integration/webhook/:integrationId", handleGiteaWebhookRoute);
 
 const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
   const { id } = c.req.param();
@@ -399,6 +402,7 @@ const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
+const giteaIntegrationApi = api.route("/gitea-integration", giteaIntegration);
 const genericWebhookIntegrationApi = api.route(
   "/generic-webhook-integration",
   genericWebhookIntegration,
@@ -466,6 +470,7 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof giteaIntegrationApi
   | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
   | typeof slackIntegrationApi

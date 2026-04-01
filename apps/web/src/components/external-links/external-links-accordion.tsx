@@ -1,6 +1,7 @@
 import {
   ChevronDown,
   ChevronRight,
+  FolderGit,
   Github,
   GitMerge,
   GitPullRequest,
@@ -18,6 +19,14 @@ import type { ExternalLink } from "@/types/external-link";
 interface ExternalLinksAccordionProps {
   externalLinks: ExternalLink[];
   isLoading?: boolean;
+}
+
+function isGiteaResourceLink(link: ExternalLink) {
+  if (link.integration?.type === "gitea") {
+    return true;
+  }
+  const from = link.metadata?.createdFrom;
+  return from === "gitea" || from === "gitea-import";
 }
 
 export function ExternalLinksAccordion({
@@ -120,7 +129,11 @@ export function ExternalLinksAccordion({
               rel="noopener noreferrer"
               className="group flex items-center gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors"
             >
-              <Github className="size-4 flex-shrink-0 text-muted-foreground" />
+              {isGiteaResourceLink(link) ? (
+                <FolderGit className="size-4 flex-shrink-0 text-muted-foreground" />
+              ) : (
+                <Github className="size-4 flex-shrink-0 text-muted-foreground" />
+              )}
               <span className="text-sm truncate flex-1 text-foreground/90 group-hover:text-foreground">
                 {link.title || link.externalId}
                 {link.resourceType !== "branch" && (

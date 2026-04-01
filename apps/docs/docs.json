@@ -80,6 +80,10 @@
 						]
 					},
 					{
+						"group": "Gitea Integration",
+						"pages": ["core/integrations/gitea/setup"]
+					},
+					{
 						"group": "Integrations",
 						"pages": [
 							"core/integrations/discord",

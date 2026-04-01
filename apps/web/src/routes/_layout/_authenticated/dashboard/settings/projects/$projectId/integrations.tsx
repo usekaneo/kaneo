@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ChevronDown,
+  FolderGit,
   Github,
   MessageCircle,
   Radio,
@@ -12,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { DiscordIntegrationSettings } from "@/components/project/discord-integration-settings";
 import { GenericWebhookIntegrationSettings } from "@/components/project/generic-webhook-integration-settings";
+import { GiteaIntegrationSettings } from "@/components/project/gitea-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
 import { TelegramIntegrationSettings } from "@/components/project/telegram-integration-settings";
@@ -51,6 +53,14 @@ function RouteComponent() {
             title={t("settings:projectIntegrations.githubSectionTitle")}
           >
             <GitHubIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<FolderGit className="size-4" />}
+            subtitle={t("settings:projectIntegrations.giteaSectionSubtitle")}
+            title={t("settings:projectIntegrations.giteaSectionTitle")}
+          >
+            <GiteaIntegrationSettings projectId={projectId} />
           </IntegrationSection>
 
           <IntegrationSection
