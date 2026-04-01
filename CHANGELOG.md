@@ -1,3 +1,9 @@
+## [2.5.1](https://github.com/usekaneo/kaneo/compare/v2.5.0...v2.5.1) (2026-04-01)
+
+
+### Bug Fixes
+
+* **api:** dedupe task numbers before unique constraint in migration 0021 ([c9bc61b](https://github.com/usekaneo/kaneo/commit/c9bc61b750c955fb349ccfe6b35b7f9982d8ef9d))
 # [2.5.0](https://github.com/usekaneo/kaneo/compare/v2.4.4...v2.5.0) (2026-04-01)
 
 
