@@ -11,8 +11,18 @@ function useSignUp() {
       email: string;
       password: string;
       name: string;
+      registrationToken: string;
     }) => {
-      const result = await authClient.signUp.email({ email, password, name });
+      const result = await authClient.signUp.email({
+        email,
+        password,
+        name,
+        fetchOptions: {
+          headers: {
+            "x-registration-token": registrationToken,
+          },
+        },
+      });
       if (result.error) {
         throw new Error(result.error.message);
       }

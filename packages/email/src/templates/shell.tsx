@@ -32,7 +32,7 @@ export function EmailShell({
       <Body style={main}>
         <Container style={container}>
           <Section style={content}>
-            <Text style={badge}>Kaneo</Text>
+            <Text style={badge}>Tasks by IPSTUDIO</Text>
             <Heading style={heading}>{title}</Heading>
             {subtitle ? <Text style={subtitleText}>{subtitle}</Text> : null}
             <Section style={body}>{children}</Section>

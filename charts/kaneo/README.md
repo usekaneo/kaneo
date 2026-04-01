@@ -449,3 +449,13 @@ api:
 ```
 
 This will prevent new users from registering while still allowing existing users to log in. The registration option will be hidden from the login page.
+
+To require a private registration URL instead of the public sign-up page:
+
+```yaml
+api:
+  env:
+    registrationUrlUuid: "your-uuid-here"
+```
+
+Users will then need to visit `/auth/register/your-uuid-here` to create an account.

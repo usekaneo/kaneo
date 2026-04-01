@@ -2,6 +2,11 @@ import { and, eq, gt } from "drizzle-orm";
 import db from "../database";
 import { invitationTable, userTable, workspaceTable } from "../database/schema";
 
+const allowedSignupEmailDomain = (
+  process.env.ALLOWED_SIGNUP_EMAIL_DOMAIN || "ipstudio.co"
+).toLowerCase();
+const registrationUrlUuid = process.env.REGISTRATION_URL_UUID?.trim();
+
 type RegistrationCheckResult = {
   allowed: boolean;
   reason: string;
@@ -20,6 +25,13 @@ export async function checkRegistrationAllowed(
   email?: string,
   invitationId?: string,
 ): Promise<RegistrationCheckResult> {
+  if (email && !isAllowedSignupEmail(email)) {
+    return {
+      allowed: false,
+      reason: `Only @${allowedSignupEmailDomain} email addresses can sign up.`,
+    };
+  }
+
   const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 
   if (!isRegistrationDisabled) {
@@ -52,6 +64,18 @@ export async function checkRegistrationAllowed(
     reason: "Valid invitation found",
     invitation,
   };
+}
+
+export function isRegistrationUrlProtected() {
+  return Boolean(registrationUrlUuid);
+}
+
+export function hasValidRegistrationUrlToken(token?: string | null) {
+  if (!registrationUrlUuid) {
+    return true;
+  }
+
+  return token === registrationUrlUuid;
 }
 
 async function findValidInvitation(
@@ -102,6 +126,10 @@ async function findValidInvitation(
   }
 
   return row;
+}
+
+function isAllowedSignupEmail(email: string) {
+  return email.toLowerCase().endsWith(`@${allowedSignupEmailDomain}`);
 }
 
 type InvitationDetails = {

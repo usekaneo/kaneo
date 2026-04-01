@@ -3,7 +3,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { Github, KeyRound, UserCheck } from "lucide-react";
+import { Github, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
@@ -13,12 +13,10 @@ import { Button } from "@/components/ui/button";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
-import { toast } from "@/lib/toast";
 import { AuthLayout } from "../../components/auth/layout";
 import { OtpSignInForm } from "../../components/auth/otp-sign-in-form";
 import { SignInForm } from "../../components/auth/sign-in-form";
 import { SignInFormSkeleton } from "../../components/auth/sign-in-form-skeleton";
-import { AuthToggle } from "../../components/auth/toggle";
 
 const signInSearchSchema = z.object({
   invitationId: z.string().optional(),
@@ -38,7 +36,6 @@ function SignIn() {
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDiscordLoading, setIsDiscordLoading] = useState(false);
-  const [isGuestLoading, setIsGuestLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
 
@@ -51,24 +48,6 @@ function SignIn() {
       return `${baseUrl}/invitation/accept/${invitationId}`;
     }
     return `${baseUrl}/dashboard`;
-  };
-
-  const handleGuestAccess = async () => {
-    setIsGuestLoading(true);
-    try {
-      const result = await authClient.signIn.anonymous();
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-      toast.success(t("auth:signIn.guestSuccess"));
-      navigate({ to: "/dashboard" });
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("auth:signIn.guestError"),
-      );
-    } finally {
-      setIsGuestLoading(false);
-    }
   };
 
   const handleCustomOAuth = async () => {
@@ -314,20 +293,6 @@ function SignIn() {
                     )}
                   </div>
                 )}
-
-                {config?.hasGuestAccess && !invitationId && (
-                  <Button
-                    variant="outline"
-                    onClick={handleGuestAccess}
-                    disabled={isGuestLoading}
-                    className="w-full"
-                  >
-                    <UserCheck className="w-4 h-4 mr-2" />
-                    {isGuestLoading
-                      ? t("auth:signIn.signingIn")
-                      : t("auth:signUp.continueAsGuest")}
-                  </Button>
-                )}
               </div>
 
               <div className="relative my-6">
@@ -355,21 +320,18 @@ function SignIn() {
             />
           )}
           {config?.disableRegistration ||
-          config?.disablePasswordRegistration ? (
+          config?.disablePasswordRegistration ||
+          config?.isRegistrationUrlProtected ? (
             <div className="text-center pt-4">
               <p className="text-sm text-muted-foreground">
                 {config?.disableRegistration
                   ? t("auth:signIn.registrationDisabled")
-                  : t("auth:signIn.passwordRegistrationDisabled")}
+                  : config?.disablePasswordRegistration
+                    ? t("auth:signIn.passwordRegistrationDisabled")
+                    : t("auth:signIn.registrationDisabled")}
               </p>
             </div>
-          ) : (
-            <AuthToggle
-              message={t("auth:signIn.toggleMessage")}
-              linkText={t("auth:signIn.toggleLink")}
-              linkTo="/auth/sign-up"
-            />
-          )}
+          ) : null}
         </div>
       </AuthLayout>
     </>

@@ -90,6 +90,8 @@ spec:
               value: {{ .Values.api.env.disableRegistration | quote }}
             - name: DISABLE_PASSWORD_REGISTRATION
               value: {{ .Values.api.env.disablePasswordRegistration | quote }}
+            - name: REGISTRATION_URL_UUID
+              value: {{ .Values.api.env.registrationUrlUuid | quote }}
           livenessProbe:
             {{- toYaml .Values.api.livenessProbe | nindent 12 }}
           readinessProbe:

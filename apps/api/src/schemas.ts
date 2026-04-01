@@ -205,11 +205,11 @@ export const commentSchema = v.object({
 export const configSchema = v.object({
   disableRegistration: v.nullable(v.boolean()),
   disablePasswordRegistration: v.nullable(v.boolean()),
+  isRegistrationUrlProtected: v.boolean(),
   isDemoMode: v.boolean(),
   hasSmtp: v.boolean(),
   hasGithubSignIn: v.nullable(v.boolean()),
   hasGoogleSignIn: v.nullable(v.boolean()),
   hasDiscordSignIn: v.nullable(v.boolean()),
   hasCustomOAuth: v.nullable(v.boolean()),
-  hasGuestAccess: v.nullable(v.boolean()),
 });

@@ -14,7 +14,7 @@ const PasswordResetEmail = ({
   userName,
 }: PasswordResetEmailProps) => (
   <EmailShell
-    preview="Reset your Kaneo password"
+    preview="Reset your Tasks by IPSTUDIO password"
     title="Reset your password"
     subtitle={
       userName
@@ -31,13 +31,13 @@ const PasswordResetEmail = ({
         If you didn't request this, no changes will be made.
       </Text>
       <Section style={styles.divider} />
-      <Text style={styles.footer}>Kaneo security email</Text>
+      <Text style={styles.footer}>Tasks by IPSTUDIO security email</Text>
     </Section>
   </EmailShell>
 );
 
 PasswordResetEmail.PreviewProps = {
-  resetLink: "https://kaneo.app/auth/reset-password?token=example",
+  resetLink: "https://tasks.ipstudio.co/auth/reset-password?token=example",
   userName: "Jane",
 } as PasswordResetEmailProps;
 

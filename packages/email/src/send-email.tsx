@@ -83,6 +83,7 @@ export const sendPasswordResetEmail = async (
 export type EmailResult = {
   success: boolean;
   reason?: "SMTP_NOT_CONFIGURED";
+  messageId?: string;
 };
 
 export const sendWorkspaceInvitationEmail = async (
@@ -91,6 +92,11 @@ export const sendWorkspaceInvitationEmail = async (
   data: WorkspaceInvitationEmailProps,
 ): Promise<EmailResult> => {
   if (!process.env.SMTP_HOST || !process.env.SMTP_FROM) {
+    console.warn("Workspace invitation email skipped: SMTP not configured", {
+      to,
+      hasSmtpHost: Boolean(process.env.SMTP_HOST),
+      hasSmtpFrom: Boolean(process.env.SMTP_FROM),
+    });
     return { success: false, reason: "SMTP_NOT_CONFIGURED" };
   }
 
@@ -98,13 +104,21 @@ export const sendWorkspaceInvitationEmail = async (
     const emailTemplate = await render(
       WorkspaceInvitationEmail({ ...data, to }),
     );
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
       subject,
       html: emailTemplate,
     });
-    return { success: true };
+    console.info("Workspace invitation email queued", {
+      to,
+      subject,
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+      response: info.response,
+    });
+    return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Error sending workspace invitation email", error);
     throw error;

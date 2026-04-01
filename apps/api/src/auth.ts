@@ -9,7 +9,6 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import {
-  anonymous,
   emailOTP,
   genericOAuth,
   lastLoginMethod,
@@ -21,8 +20,11 @@ import { config } from "dotenv-mono";
 import { eq } from "drizzle-orm";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
-import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
-import { generateDemoName } from "./utils/generate-demo-name";
+import {
+  checkRegistrationAllowed,
+  hasValidRegistrationUrlToken,
+  isRegistrationUrlProtected,
+} from "./utils/check-registration-allowed";
 
 config();
 
@@ -32,6 +34,9 @@ const isPasswordRegistrationDisabled =
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
+const configuredCorsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
+  : [];
 const isHttps = apiUrl.startsWith("https://");
 const isCrossSubdomain = (() => {
   try {
@@ -47,7 +52,9 @@ const isCrossSubdomain = (() => {
   }
 })();
 
-const trustedOrigins = [clientUrl];
+const trustedOrigins = Array.from(
+  new Set([clientUrl, ...configuredCorsOrigins].filter(Boolean)),
+);
 try {
   const apiOrigin = new URL(apiUrl);
   const apiOriginString = `${apiOrigin.protocol}//${apiOrigin.host}`;
@@ -89,12 +96,12 @@ function getLocaleKey(locale?: string | null) {
 function getAuthEmailCopy(locale?: string | null) {
   return getLocaleKey(locale) === "de"
     ? {
-        magicLinkSubject: "Anmeldelink fuer Kaneo",
-        otpSubject: "Bestaetigungscode fuer Kaneo",
+        magicLinkSubject: "Anmeldelink fuer Tasks by IPSTUDIO",
+        otpSubject: "Bestaetigungscode fuer Tasks by IPSTUDIO",
       }
     : {
-        magicLinkSubject: "Login for Kaneo",
-        otpSubject: "Authentication code for Kaneo",
+        magicLinkSubject: "Login for Tasks by IPSTUDIO",
+        otpSubject: "Authentication code for Tasks by IPSTUDIO",
       };
 }
 
@@ -104,8 +111,8 @@ function getInvitationEmailSubject(
   workspaceName: string,
 ) {
   return getLocaleKey(locale) === "de"
-    ? `${inviterName} hat dich eingeladen, ${workspaceName} auf Kaneo beizutreten`
-    : `${inviterName} invited you to join ${workspaceName} on Kaneo`;
+    ? `${inviterName} hat dich eingeladen, ${workspaceName} auf Tasks by IPSTUDIO beizutreten`
+    : `${inviterName} invited you to join ${workspaceName} on Tasks by IPSTUDIO`;
 }
 
 export const auth = betterAuth({
@@ -166,14 +173,6 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    ...(process.env.DISABLE_GUEST_ACCESS !== "true"
-      ? [
-          anonymous({
-            generateName: async () => generateDemoName(),
-            emailDomainName: "kaneo.app",
-          }),
-        ]
-      : []),
     lastLoginMethod(),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
@@ -255,6 +254,14 @@ export const auth = betterAuth({
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.KANEO_CLIENT_URL}/invitation/accept/${data.id}`;
         const locale = await getUserLocale(data.email);
+        console.info("Sending workspace invitation email", {
+          invitationId: data.id,
+          to: data.email,
+          workspaceId: data.organization.id,
+          workspaceName: data.organization.name,
+          inviterId: data.inviter.user.id,
+          inviterEmail: data.inviter.user.email,
+        });
 
         const result = await sendWorkspaceInvitationEmail(
           data.email,
@@ -281,6 +288,14 @@ export const auth = betterAuth({
             "Invitation created but email not sent due to SMTP not being configured",
           );
           return;
+        }
+
+        if (result?.success) {
+          console.info("Workspace invitation email send completed", {
+            invitationId: data.id,
+            to: data.email,
+            messageId: result.messageId,
+          });
         }
       },
     }),
@@ -345,6 +360,21 @@ export const auth = betterAuth({
       }
 
       if (ctx.path === "/sign-up/email") {
+        const registrationToken =
+          ctx.headers?.get("x-registration-token") ||
+          ctx.body?.registrationToken ||
+          ctx.query?.registrationToken;
+
+        if (
+          isRegistrationUrlProtected() &&
+          !hasValidRegistrationUrlToken(registrationToken)
+        ) {
+          throw new APIError("FORBIDDEN", {
+            message:
+              "Registration is only available through the private registration URL.",
+          });
+        }
+
         if (isPasswordRegistrationDisabled) {
           throw new APIError("FORBIDDEN", {
             message:

@@ -86,6 +86,7 @@ api:
       enabled: false
       name: ""
       key: auth-secret
+    registrationUrlUuid: ""
     disableRegistration: false
     disablePasswordRegistration: false
     # Database configuration

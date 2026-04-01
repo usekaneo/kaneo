@@ -20,6 +20,7 @@ import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as LayoutAuthenticatedRouteImport } from './routes/_layout/_authenticated'
 import { Route as InvitationAcceptInviteIdRouteImport } from './routes/invitation/accept.$inviteId'
+import { Route as AuthRegisterRegistrationTokenRouteImport } from './routes/auth/register.$registrationToken'
 import { Route as LayoutAuthenticatedProfileSetupRouteImport } from './routes/_layout/_authenticated/profile-setup'
 import { Route as LayoutAuthenticatedOnboardingRouteImport } from './routes/_layout/_authenticated/onboarding'
 import { Route as LayoutAuthenticatedInvitationsRouteImport } from './routes/_layout/_authenticated/invitations'
@@ -102,6 +103,12 @@ const InvitationAcceptInviteIdRoute =
     id: '/invitation/accept/$inviteId',
     path: '/invitation/accept/$inviteId',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthRegisterRegistrationTokenRoute =
+  AuthRegisterRegistrationTokenRouteImport.update({
+    id: '/register/$registrationToken',
+    path: '/register/$registrationToken',
+    getParentRoute: () => AuthRoute,
   } as any)
 const LayoutAuthenticatedProfileSetupRoute =
   LayoutAuthenticatedProfileSetupRouteImport.update({
@@ -308,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/invitations': typeof LayoutAuthenticatedInvitationsRoute
   '/onboarding': typeof LayoutAuthenticatedOnboardingRoute
   '/profile-setup': typeof LayoutAuthenticatedProfileSetupRoute
+  '/auth/register/$registrationToken': typeof AuthRegisterRegistrationTokenRoute
   '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/dashboard/invitations': typeof LayoutAuthenticatedDashboardInvitationsRoute
   '/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
@@ -346,6 +354,7 @@ export interface FileRoutesByTo {
   '/invitations': typeof LayoutAuthenticatedInvitationsRoute
   '/onboarding': typeof LayoutAuthenticatedOnboardingRoute
   '/profile-setup': typeof LayoutAuthenticatedProfileSetupRoute
+  '/auth/register/$registrationToken': typeof AuthRegisterRegistrationTokenRoute
   '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/dashboard/invitations': typeof LayoutAuthenticatedDashboardInvitationsRoute
   '/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
@@ -387,6 +396,7 @@ export interface FileRoutesById {
   '/_layout/_authenticated/invitations': typeof LayoutAuthenticatedInvitationsRoute
   '/_layout/_authenticated/onboarding': typeof LayoutAuthenticatedOnboardingRoute
   '/_layout/_authenticated/profile-setup': typeof LayoutAuthenticatedProfileSetupRoute
+  '/auth/register/$registrationToken': typeof AuthRegisterRegistrationTokenRoute
   '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/_layout/_authenticated/dashboard/invitations': typeof LayoutAuthenticatedDashboardInvitationsRoute
   '/_layout/_authenticated/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
@@ -428,6 +438,7 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/onboarding'
     | '/profile-setup'
+    | '/auth/register/$registrationToken'
     | '/invitation/accept/$inviteId'
     | '/dashboard/invitations'
     | '/dashboard/settings'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/onboarding'
     | '/profile-setup'
+    | '/auth/register/$registrationToken'
     | '/invitation/accept/$inviteId'
     | '/dashboard/invitations'
     | '/dashboard/settings'
@@ -506,6 +518,7 @@ export interface FileRouteTypes {
     | '/_layout/_authenticated/invitations'
     | '/_layout/_authenticated/onboarding'
     | '/_layout/_authenticated/profile-setup'
+    | '/auth/register/$registrationToken'
     | '/invitation/accept/$inviteId'
     | '/_layout/_authenticated/dashboard/invitations'
     | '/_layout/_authenticated/dashboard/settings'
@@ -620,6 +633,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/invitation/accept/$inviteId'
       preLoaderRoute: typeof InvitationAcceptInviteIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/auth/register/$registrationToken': {
+      id: '/auth/register/$registrationToken'
+      path: '/register/$registrationToken'
+      fullPath: '/auth/register/$registrationToken'
+      preLoaderRoute: typeof AuthRegisterRegistrationTokenRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_layout/_authenticated/profile-setup': {
       id: '/_layout/_authenticated/profile-setup'
@@ -998,6 +1018,7 @@ interface AuthRouteChildren {
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
   AuthVerifyOtpRoute: typeof AuthVerifyOtpRoute
+  AuthRegisterRegistrationTokenRoute: typeof AuthRegisterRegistrationTokenRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
@@ -1005,6 +1026,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
   AuthVerifyOtpRoute: AuthVerifyOtpRoute,
+  AuthRegisterRegistrationTokenRoute: AuthRegisterRegistrationTokenRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)

@@ -24,12 +24,19 @@ export type SignUpFormValues = {
   name: string;
 };
 
+const allowedSignupEmailDomain = "ipstudio.co";
+
 type SignUpFormProps = {
   invitationId?: string;
   defaultEmail?: string;
+  registrationToken: string;
 };
 
-export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
+export function SignUpForm({
+  invitationId,
+  defaultEmail,
+  registrationToken,
+}: SignUpFormProps) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -38,7 +45,15 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
   const signUpSchema = useMemo(
     () =>
       z.object({
-        email: z.email(),
+        email: z
+          .email()
+          .refine(
+            (email) =>
+              email.toLowerCase().endsWith(`@${allowedSignupEmailDomain}`),
+            {
+              message: `Use your @${allowedSignupEmailDomain} email address.`,
+            },
+          ),
         password: z.string().min(8, {
           message: t("auth:signUpForm.passwordTooShort"),
         }),
@@ -63,6 +78,11 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
         email: data.email,
         name: data.name,
         password: data.password,
+        fetchOptions: {
+          headers: {
+            "x-registration-token": registrationToken,
+          },
+        },
       });
 
       if (result.error) {

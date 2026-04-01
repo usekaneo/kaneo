@@ -8,21 +8,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
 
+    let resolvedTheme: "light" | "dark";
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
+      resolvedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
-      root.classList.add(systemTheme);
     } else {
-      root.classList.add(theme);
+      resolvedTheme = theme;
     }
+    root.classList.add(resolvedTheme);
+    root.style.colorScheme = resolvedTheme;
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
       if (theme === "system") {
         root.classList.remove("light", "dark");
-        root.classList.add(e.matches ? "dark" : "light");
+        const nextTheme = e.matches ? "dark" : "light";
+        root.classList.add(nextTheme);
+        root.style.colorScheme = nextTheme;
       }
     };
 

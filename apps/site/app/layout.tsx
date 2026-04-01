@@ -64,22 +64,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <script
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: This is necessary to apply the user's preferred color scheme before React hydration to prevent a flash of incorrect theme.
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: This is necessary to apply the default color scheme before React hydration to prevent a flash of incorrect theme.
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  var media = window.matchMedia('(prefers-color-scheme: dark)');
-                  function applyTheme(isDark) {
-                    document.documentElement.classList.toggle('dark', isDark);
-                    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-                  }
-                  applyTheme(media.matches);
-                  if (media.addEventListener) {
-                    media.addEventListener('change', function(e) { applyTheme(e.matches); });
-                  } else if (media.addListener) {
-                    media.addListener(function(e) { applyTheme(e.matches); });
-                  }
+                  document.documentElement.classList.remove('dark');
+                  document.documentElement.classList.add('light');
+                  document.documentElement.style.colorScheme = 'light';
                 } catch (e) {}
               })();
             `,
