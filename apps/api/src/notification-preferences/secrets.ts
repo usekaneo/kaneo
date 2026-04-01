@@ -4,6 +4,7 @@ import {
   createHash,
   randomBytes,
 } from "node:crypto";
+import { HTTPException } from "hono/http-exception";
 
 const SECRET_PREFIX = "enc:v1:";
 const SECRET_ALGORITHM = "aes-256-gcm";
@@ -21,9 +22,10 @@ function getSecretEncryptionKey() {
 function requireSecretEncryptionKey() {
   const key = getSecretEncryptionKey();
   if (!key) {
-    throw new Error(
-      "NOTIFICATION_SECRET_ENCRYPTION_KEY is required to store encrypted notification secrets",
-    );
+    throw new HTTPException(500, {
+      message:
+        "NOTIFICATION_SECRET_ENCRYPTION_KEY is required to store encrypted notification secrets",
+    });
   }
 
   return key;
@@ -41,6 +43,15 @@ export function isEncryptedSecret(value: string | null | undefined): boolean {
   return typeof value === "string" && value.startsWith(SECRET_PREFIX);
 }
 
+function isValidEncryptedSecret(value: string): boolean {
+  try {
+    decryptSecret(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function encryptSecret(
   value: string | null | undefined,
 ): string | null | undefined {
@@ -48,7 +59,7 @@ export function encryptSecret(
     return value;
   }
 
-  if (isEncryptedSecret(value)) {
+  if (isEncryptedSecret(value) && isValidEncryptedSecret(value)) {
     return value;
   }
 
@@ -78,18 +89,29 @@ export function decryptSecret(
   const [iv, authTag, encrypted] = payload.split(".");
 
   if (!iv || !authTag || !encrypted) {
-    throw new Error("Invalid encrypted notification secret payload");
+    throw new HTTPException(500, {
+      message: "Invalid encrypted notification secret payload",
+    });
   }
 
-  const decipher = createDecipheriv(
-    SECRET_ALGORITHM,
-    requireSecretEncryptionKey(),
-    decodePart(iv),
-  );
-  decipher.setAuthTag(decodePart(authTag));
+  try {
+    const decipher = createDecipheriv(
+      SECRET_ALGORITHM,
+      requireSecretEncryptionKey(),
+      decodePart(iv),
+    );
+    decipher.setAuthTag(decodePart(authTag));
 
-  return Buffer.concat([
-    decipher.update(decodePart(encrypted)),
-    decipher.final(),
-  ]).toString("utf8");
+    return Buffer.concat([
+      decipher.update(decodePart(encrypted)),
+      decipher.final(),
+    ]).toString("utf8");
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    throw new HTTPException(500, {
+      message: "Failed to decrypt notification secret",
+    });
+  }
 }
