@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${KANEO_DB}
+      POSTGRES_USER: ${KANEO_DB_USER}
+      POSTGRES_PASSWORD: ${KANEO_DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://${KANEO_DB_USER}:${KANEO_DB_PASSWORD}@postgres:5432/${KANEO_DB}"
+      JWT_ACCESS: ${KANEO_JWT_ACCESS}
+      AUTH_SECRET: ${AUTH_SECRET}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      KANEO_CLIENT_URL: ${KANEO_CLIENT_URL}
+      KANEO_API_URL: ${KANEO_API_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      KANEO_API_URL: ${KANEO_API_URL}
+      VITE_API_URL: ${KANEO_API_URL}
+      VITE_APP_URL: ${KANEO_CLIENT_URL}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
