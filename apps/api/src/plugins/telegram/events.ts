@@ -206,7 +206,7 @@ async function runTelegramHandler(
   featureKey: TelegramEventKey,
   buildMessage: () => TelegramMessageContent,
 ): Promise<void> {
-  const validation = await validateTelegramConfig(context.config);
+  const validation = validateTelegramConfig(context.config);
   if (!validation.valid) {
     console.error("Invalid Telegram plugin config; skipping event dispatch", {
       errors: validation.errors,

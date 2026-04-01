@@ -21,6 +21,18 @@ function maskBotToken(value: string): string {
   return `${prefix}:${maskedSuffix}`;
 }
 
+function sanitizeTelegramConfigForLog(rawConfig: string): string {
+  try {
+    const parsed = JSON.parse(rawConfig) as Record<string, unknown>;
+    if ("botToken" in parsed) {
+      parsed.botToken = "[REDACTED]";
+    }
+    return JSON.stringify(parsed);
+  } catch {
+    return "[UNPARSEABLE]";
+  }
+}
+
 type TelegramIntegrationRecord = {
   id: string;
   projectId: string;
@@ -44,7 +56,7 @@ export function parseTelegramIntegrationConfig(
       error,
       integrationId: integration.id,
       projectId: integration.projectId,
-      rawConfig: integration.config,
+      sanitizedConfig: sanitizeTelegramConfigForLog(integration.config),
     });
     throw new HTTPException(500, {
       message: "Stored Telegram integration configuration is invalid",

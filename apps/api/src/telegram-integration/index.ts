@@ -7,6 +7,7 @@ import db from "../database";
 import { integrationTable } from "../database/schema";
 import {
   normalizeTelegramConfig,
+  telegramEventsSchema,
   validateTelegramConfig,
 } from "../plugins/telegram/config";
 import { telegramIntegrationSchema } from "../schemas";
@@ -27,15 +28,6 @@ const telegramIntegration = new Hono<{
     };
   };
 }>();
-
-const telegramEventsSchema = v.object({
-  taskCreated: v.optional(v.boolean()),
-  taskStatusChanged: v.optional(v.boolean()),
-  taskPriorityChanged: v.optional(v.boolean()),
-  taskTitleChanged: v.optional(v.boolean()),
-  taskDescriptionChanged: v.optional(v.boolean()),
-  taskCommentCreated: v.optional(v.boolean()),
-});
 
 telegramIntegration
   .get(
@@ -108,7 +100,7 @@ telegramIntegration
         events: body.events,
       });
 
-      const validation = await validateTelegramConfig(config);
+      const validation = validateTelegramConfig(config);
       if (!validation.valid) {
         throw new HTTPException(400, {
           message: validation.errors?.join(", ") ?? "Invalid config",
@@ -205,7 +197,7 @@ telegramIntegration
         },
       });
 
-      const validation = await validateTelegramConfig(nextConfig);
+      const validation = validateTelegramConfig(nextConfig);
       if (!validation.valid) {
         throw new HTTPException(400, {
           message: validation.errors?.join(", ") ?? "Invalid config",

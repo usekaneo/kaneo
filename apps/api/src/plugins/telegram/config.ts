@@ -11,6 +11,15 @@ export const telegramEventKeys = [
 
 export type TelegramEventKey = (typeof telegramEventKeys)[number];
 
+export const telegramEventsSchema = v.object(
+  Object.fromEntries(
+    telegramEventKeys.map((key) => [key, v.optional(v.boolean())]),
+  ) as Record<
+    TelegramEventKey,
+    v.OptionalSchema<v.BooleanSchema<undefined>, never>
+  >,
+);
+
 const telegramBotTokenSchema = v.pipe(
   v.string(),
   v.regex(/^\d{8,10}:[A-Za-z0-9_-]{35}$/, "Enter a valid Telegram bot token"),
@@ -27,16 +36,7 @@ export const telegramConfigSchema = v.object({
   chatId: telegramChatIdSchema,
   threadId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   chatLabel: v.optional(v.string()),
-  events: v.optional(
-    v.object({
-      taskCreated: v.optional(v.boolean()),
-      taskStatusChanged: v.optional(v.boolean()),
-      taskPriorityChanged: v.optional(v.boolean()),
-      taskTitleChanged: v.optional(v.boolean()),
-      taskDescriptionChanged: v.optional(v.boolean()),
-      taskCommentCreated: v.optional(v.boolean()),
-    }),
-  ),
+  events: v.optional(telegramEventsSchema),
 });
 
 export type TelegramConfig = v.InferOutput<typeof telegramConfigSchema>;
@@ -67,9 +67,10 @@ export function normalizeTelegramConfig(
   };
 }
 
-export async function validateTelegramConfig(
-  config: unknown,
-): Promise<{ valid: boolean; errors?: string[] }> {
+export function validateTelegramConfig(config: unknown): {
+  valid: boolean;
+  errors?: string[];
+} {
   try {
     const parsed = v.parse(telegramConfigSchema, config);
     normalizeTelegramConfig(parsed);
