@@ -661,7 +661,7 @@ export default function TaskPropertiesSidebar({
                               ?.color || "var(--color-neutral-400)",
                         }}
                       />
-                      <span className="truncate max-w-[60px]">
+                      <span className="relative max-w-20 truncate -top-0.5">
                         {label.name}
                       </span>
                     </Badge>
