@@ -168,4 +168,112 @@ describe("API integration: task creation", () => {
 
     expect(persistedTask).toBeUndefined();
   });
+
+  it("creates an unassigned task with parsed dates when optional fields are provided", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "Plan release cut",
+        description: "Track optional fields too",
+        priority: "medium",
+        status: "in-progress",
+        startDate: "2026-04-01T09:00:00.000Z",
+        dueDate: "2026-04-05T17:00:00.000Z",
+      }),
+    });
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      id: string;
+      userId: string | null;
+      columnId: string | null;
+      startDate: string | null;
+      dueDate: string | null;
+      assigneeName?: string;
+    };
+
+    expect(payload).toMatchObject({
+      userId: null,
+      columnId: columns.inProgress.id,
+      startDate: "2026-04-01T09:00:00.000Z",
+      dueDate: "2026-04-05T17:00:00.000Z",
+    });
+    expect(payload.assigneeName).toBeUndefined();
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, payload.id),
+    });
+
+    expect(persistedTask).toMatchObject({
+      id: payload.id,
+      userId: null,
+      columnId: columns.inProgress.id,
+      status: "in-progress",
+    });
+    expect(persistedTask?.startDate?.toISOString()).toBe(
+      "2026-04-01T09:00:00.000Z",
+    );
+    expect(persistedTask?.dueDate?.toISOString()).toBe(
+      "2026-04-05T17:00:00.000Z",
+    );
+  });
+
+  it("creates tasks without a column when the status has no matching project column", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "Future status task",
+        description: "Status does not map to a seeded column",
+        priority: "low",
+        status: "planned",
+      }),
+    });
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      id: string;
+      status: string;
+      columnId: string | null;
+      position: number | null;
+    };
+
+    expect(payload).toMatchObject({
+      status: "planned",
+      columnId: null,
+      position: 1,
+    });
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, payload.id),
+    });
+
+    expect(persistedTask).toMatchObject({
+      id: payload.id,
+      status: "planned",
+      columnId: null,
+      position: 1,
+    });
+  });
 });

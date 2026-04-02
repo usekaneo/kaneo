@@ -69,4 +69,45 @@ describe("API integration: labels", () => {
       color: "#ef4444",
     });
   });
+
+  it("rejects label creation for users outside the workspace", async () => {
+    const member = await createWorkspaceMember();
+    const outsiderId = "user-label-outsider";
+
+    const [outsider] = await db
+      .insert(schema.userTable)
+      .values({
+        id: outsiderId,
+        email: `${outsiderId}@example.com`,
+        emailVerified: true,
+        name: "Label Outsider",
+      })
+      .returning();
+
+    mockAuthenticatedSession(outsider);
+    const { app } = createApp();
+
+    const response = await app.request("/api/label", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Blocked",
+        color: "#6b7280",
+        workspaceId: member.workspace.id,
+      }),
+    });
+
+    expect(response.status).toBe(403);
+    await expect(response.text()).resolves.toBe(
+      "You don't have access to this workspace",
+    );
+
+    const persisted = await db.query.labelTable.findFirst({
+      where: eq(schema.labelTable.name, "Blocked"),
+    });
+
+    expect(persisted).toBeUndefined();
+  });
 });
