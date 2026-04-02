@@ -3,6 +3,7 @@ import { produce } from "immer";
 import {
   CalendarIcon,
   Check,
+  Loader2,
   Plus,
   Search,
   Tag,
@@ -42,6 +43,7 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getPriorityIcon } from "@/lib/priority";
@@ -166,6 +168,9 @@ function CreateTaskModal({
   );
   const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    workspace?.id ?? "",
+  );
   const { mutateAsync: createLabel } = useCreateLabel();
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id || "",
@@ -180,6 +185,7 @@ function CreateTaskModal({
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
   const [labelsStep, setLabelsStep] = useState<PopoverStep>("select");
@@ -283,13 +289,15 @@ function CreateTaskModal({
           ...task,
           assigneeId: task.userId,
           assigneeName:
-            workspace?.members?.find((member) => member.userId === task.userId)
-              ?.user?.name ??
+            workspaceUsers?.members?.find(
+              (member) => member.userId === task.userId,
+            )?.user?.name ??
             existingTask?.assigneeName ??
             null,
           assigneeImage:
-            workspace?.members?.find((member) => member.userId === task.userId)
-              ?.user?.image ??
+            workspaceUsers?.members?.find(
+              (member) => member.userId === task.userId,
+            )?.user?.image ??
             existingTask?.assigneeImage ??
             null,
           position: task.position ?? 0,
@@ -298,7 +306,7 @@ function CreateTaskModal({
 
       setProject(updatedProject);
     },
-    [project, setProject, workspace?.members],
+    [project, setProject, workspaceUsers?.members],
   );
 
   const ensureDraftTask = useCallback(async () => {
@@ -359,8 +367,11 @@ function CreateTaskModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !resolvedProjectId || !workspace?.id) return;
+    if (isSubmitting || !title.trim() || !resolvedProjectId || !workspace?.id) {
+      return;
+    }
 
+    setIsSubmitting(true);
     try {
       const taskStatus = status ?? "to-do";
       didSubmitRef.current = true;
@@ -438,6 +449,8 @@ function CreateTaskModal({
           ? error.message
           : t("common:modals.createTask.createError"),
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -460,7 +473,9 @@ function CreateTaskModal({
     }
     return t("tasks:status.in-progress");
   }, [status, t]);
-  const selectedUser = workspace?.members?.find((u) => u.userId === assigneeId);
+  const selectedUser = workspaceUsers?.members?.find(
+    (member) => member.userId === assigneeId,
+  );
 
   useEffect(() => {
     if (labelsOpen && labelsStep === "select" && searchInputRef.current) {
@@ -790,7 +805,7 @@ function CreateTaskModal({
                       </span>
                       {!assigneeId && <Check className="ml-auto h-4 w-4" />}
                     </button>
-                    {workspace?.members?.map((member) => (
+                    {workspaceUsers?.members?.map((member) => (
                       <button
                         key={member.userId}
                         type="button"
@@ -1019,15 +1034,17 @@ function CreateTaskModal({
               variant="outline"
               size="sm"
               className="border-border text-foreground hover:bg-accent"
+              disabled={isSubmitting}
             >
               {t("common:actions.cancel")}
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim()}
+              disabled={!title.trim() || isSubmitting}
               size="sm"
-              className="disabled:opacity-50"
+              className="gap-2 disabled:opacity-50"
             >
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {t("common:modals.createTask.createButton")}
             </Button>
           </DialogFooter>

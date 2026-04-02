@@ -1,7 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { notificationMatchesWorkspace } from "@/components/notification/notification-utils";
 import {
   Collapsible,
   CollapsiblePanel,
@@ -18,8 +19,19 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
+import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
+import useGetMyTasks from "@/hooks/queries/task/use-get-my-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
+import { setDocumentAttentionCount } from "@/lib/document-title";
+
+function formatSidebarBadgeCount(count: number) {
+  if (count > 99) {
+    return "99+";
+  }
+
+  return String(count);
+}
 
 export function NavMain() {
   const { t } = useTranslation();
@@ -27,8 +39,17 @@ export function NavMain() {
   const navigate = useNavigate();
   const { data: invitations = [] } = usePendingInvitations();
   const workspaceId = workspace?.id ?? "";
+  const { data: myTasks } = useGetMyTasks(workspaceId);
+  const { data: notifications = [] } = useGetNotifications();
 
   const pendingCount = invitations.length;
+  const pendingTaskCount = myTasks?.summary.pending ?? 0;
+  const unreadNotificationCount = notifications.filter(
+    (notification) =>
+      !notification.isRead &&
+      notificationMatchesWorkspace(notification, workspaceId),
+  ).length;
+  const totalAttentionCount = pendingTaskCount + unreadNotificationCount;
 
   const forYouItems = [
     {
@@ -37,6 +58,7 @@ export function NavMain() {
       isActive:
         window.location.pathname ===
         `/dashboard/workspace/${workspaceId}/my-tasks`,
+      badge: pendingTaskCount > 0 ? pendingTaskCount : null,
     },
     {
       title: t("navigation:sidebar.notifications"),
@@ -44,6 +66,7 @@ export function NavMain() {
       isActive:
         window.location.pathname ===
         `/dashboard/workspace/${workspaceId}/notifications`,
+      badge: unreadNotificationCount > 0 ? unreadNotificationCount : null,
     },
   ];
 
@@ -72,6 +95,14 @@ export function NavMain() {
   const isForYouActive = forYouItems.some((item) => item.isActive);
   const isOverviewActive = overviewItems.some((item) => item.isActive);
   const [isOverviewOpen, setIsOverviewOpen] = useState(true);
+
+  useEffect(() => {
+    setDocumentAttentionCount(totalAttentionCount);
+
+    return () => {
+      setDocumentAttentionCount(0);
+    };
+  }, [totalAttentionCount]);
 
   if (!workspace) return null;
 
@@ -105,6 +136,11 @@ export function NavMain() {
                         onClick={() => navigate({ to: item.url })}
                       >
                         <span>{item.title}</span>
+                        {item.badge && (
+                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-semibold text-white">
+                            {formatSidebarBadgeCount(item.badge)}
+                          </span>
+                        )}
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}
@@ -144,8 +180,8 @@ export function NavMain() {
                       >
                         <span>{item.title}</span>
                         {item.badge && (
-                          <span className="ml-auto flex h-4.5 min-w-4.5 items-center justify-center rounded-md bg-muted px-1.5 text-[10px] font-medium text-foreground/60">
-                            {item.badge}
+                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-semibold text-white">
+                            {formatSidebarBadgeCount(item.badge)}
                           </span>
                         )}
                       </SidebarMenuSubButton>

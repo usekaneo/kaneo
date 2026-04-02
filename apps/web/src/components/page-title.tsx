@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { setDocumentBaseTitle } from "@/lib/document-title";
 
 type PageTitleProps = {
   title: string;
@@ -17,7 +18,7 @@ export default function PageTitle({
       : suffix
         ? `${title} — ${suffix}`
         : title;
-    document.title = formattedTitle;
+    setDocumentBaseTitle(formattedTitle);
   }, [title, suffix, hideAppName]);
 
   return null;
