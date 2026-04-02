@@ -109,8 +109,11 @@ export const notificationPreferenceWorkspaceRuleSchema = v.object({
   webhookEnabled: v.boolean(),
   projectMode: v.picklist(["all", "selected"] as const),
   selectedProjectIds: v.array(v.string()),
-  createdAt: v.string(),
-  updatedAt: v.string(),
+	projectMode: v.picklist(["all", "selected"] as const),
+	selectedProjectIds: v.array(v.string()),
+	createdAt: v.date(),
+	updatedAt: v.date(),
+});
 });
 
 export const notificationPreferenceSchema = v.object({
