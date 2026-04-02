@@ -1326,6 +1326,17 @@
 			"startDate": "Startdatum",
 			"noDate": "Kein Datum"
 		},
+		"move": {
+			"title": "Aufgabe verschieben",
+			"projectLabel": "Zielprojekt",
+			"projectPlaceholder": "Projekt auswählen",
+			"statusLabel": "Zielstatus",
+			"statusHintKeep": "Der aktuelle Status wird im Zielprojekt bereits unterstützt.",
+			"statusHintAdjust": "Wähle den Status für das Zielprojekt aus.",
+			"action": "Aufgabe verschieben",
+			"success": "Aufgabe erfolgreich verschoben",
+			"error": "Aufgabe konnte nicht verschoben werden"
+		},
 		"popover": {
 			"assignee": {
 				"unassigned": "Nicht zugewiesen",
