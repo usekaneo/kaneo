@@ -3,7 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kaneo.app"),
+  metadataBase: new URL("https://ipstudio.co"),
   title: {
     default: "IPSTUDIO — All you need. Nothing you don't.",
     template: "%s | IPSTUDIO",
@@ -25,35 +25,26 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: "https://kaneo.app",
+    url: "https://ipstudio.co",
     siteName: "IPSTUDIO",
     title: "IPSTUDIO — All you need. Nothing you don't.",
     description:
       "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
-    images: [
-      {
-        url: "/images/hero.png",
-        width: 1200,
-        height: 630,
-        alt: "IPSTUDIO",
-      },
-    ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "IPSTUDIO — All you need. Nothing you don't.",
     description:
       "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
-    images: ["/images/hero.png"],
   },
   robots: {
     index: true,
     follow: true,
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 

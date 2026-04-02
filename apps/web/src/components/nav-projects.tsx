@@ -24,15 +24,18 @@ import {
 import {
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import type { ProjectWithTasks } from "@/types/project";
 import CreateProjectModal from "./shared/modals/create-project-modal";
@@ -90,109 +93,116 @@ export function NavProjects() {
 
   return (
     <>
-      <Collapsible defaultOpen className="group/collapsible">
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden gap-1 p-2 pt-1">
-          <CollapsibleTrigger
-            className="data-panel-open:[&_svg]:rotate-90"
-            render={
-              <SidebarGroupLabel className="h-7 cursor-pointer justify-between px-0 text-sidebar-accent-foreground" />
-            }
-          >
-            <span>{t("navigation:sidebar.projects")}</span>
-            <ChevronRight className="h-3.5 w-3.5 text-sidebar-foreground/60 transition-transform duration-200" />
-          </CollapsibleTrigger>
-          <CollapsiblePanel>
-            <SidebarGroupContent>
-              <SidebarMenu className="gap-0.5">
-                {projects?.map((project) => {
-                  return (
-                    <SidebarMenuItem key={project.id}>
-                      <SidebarMenuButton
-                        isActive={isCurrentProject(project.id)}
-                        size="default"
-                        className="h-8 gap-0 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
-                        onClick={() => handleProjectClick(project)}
-                      >
-                        <span>{project.name}</span>
-                      </SidebarMenuButton>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          render={
-                            <button
-                              type="button"
-                              className="absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
-                            />
-                          }
-                        >
-                          <MoreHorizontal />
-                          <span className="sr-only">
-                            {t("navigation:sidebar.more")}
-                          </span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          className="w-44 rounded-lg"
-                          side={isMobile ? "bottom" : "right"}
-                          align={isMobile ? "end" : "start"}
-                        >
-                          <DropdownMenuItem
-                            className="h-7 items-start cursor-pointer text-sm"
+      <SidebarGroup className="px-4 py-0">
+        <SidebarGroupContent>
+          <SidebarMenu className="gap-2">
+            <SidebarMenuItem>
+              <Collapsible defaultOpen={true} className="group/collapsible">
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton className="h-9 px-2 text-[14px] font-semibold text-foreground/90 hover:text-foreground hover:bg-transparent transition-all">
+                    <span>{t("navigation:sidebar.projects")}</span>
+                    <ChevronRight className="ml-auto h-3.5 w-3.5 text-muted-foreground/40 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsiblePanel>
+                  <SidebarMenuSub className="mt-0.5 gap-0.5 border-none ml-0 p-0">
+                    {projects?.map((project) => {
+                      const isActive = isCurrentProject(project.id);
+                      return (
+                        <SidebarMenuSubItem key={project.id}>
+                          <SidebarMenuSubButton
+                            isActive={isActive}
+                            className={cn(
+                              "h-9 px-3 text-[14px] transition-all duration-200 rounded-lg border-none",
+                              isActive
+                                ? "bg-muted font-semibold text-foreground"
+                                : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/40",
+                            )}
                             onClick={() => handleProjectClick(project)}
                           >
-                            <Folder className="text-muted-foreground" />
-                            <span>
-                              {t("navigation:projectList.viewProject")}
-                            </span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="h-7 items-start cursor-pointer text-sm"
-                            onClick={() => {
-                              navigator.clipboard.writeText(
-                                `${window.location.origin}/dashboard/workspace/${workspace?.id}/project/${project.id}`,
-                              );
-                              toast.success(
-                                t("navigation:projectList.linkCopied"),
-                              );
-                            }}
-                          >
-                            <Forward className="text-muted-foreground" />
-                            <span>
-                              {t("navigation:projectList.shareProject")}
-                            </span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="h-7 items-start text-destructive cursor-pointer text-sm"
-                            onClick={() => {
-                              setProjectToDeleteID(project.id);
-                              setIsDeleteProjectModalOpen(true);
-                            }}
-                          >
-                            <Trash2 className="text-destructive" />
-                            <span>
-                              {t("navigation:projectList.deleteProject")}
-                            </span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </SidebarMenuItem>
-                  );
-                })}
+                            <span>{project.name}</span>
+                          </SidebarMenuSubButton>
 
-                <SidebarMenuItem className="mt-1">
-                  <SidebarMenuButton
-                    size="default"
-                    className="h-8 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
-                    onClick={() => setIsCreateProjectModalOpen(true)}
-                  >
-                    <span>{t("navigation:projectList.addProject")}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </CollapsiblePanel>
-        </SidebarGroup>
-      </Collapsible>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={
+                                <button
+                                  type="button"
+                                  className="absolute top-1.5 right-1.5 flex aspect-square w-6 items-center justify-center rounded-lg p-0 text-sidebar-foreground/40 outline-hidden ring-sidebar-ring transition-all hover:bg-muted hover:text-sidebar-foreground focus-visible:ring-2 peer-hover/menu-sub-button:text-sidebar-foreground group-focus-within/menu-sub-item:opacity-100 group-hover/menu-sub-item:opacity-100 data-[state=open]:opacity-100 opacity-0"
+                                />
+                              }
+                            >
+                              <MoreHorizontal className="h-3.5 w-3.5" />
+                              <span className="sr-only">
+                                {t("navigation:sidebar.more")}
+                              </span>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              className="w-48 rounded-xl"
+                              side={isMobile ? "bottom" : "right"}
+                              align={isMobile ? "end" : "start"}
+                            >
+                              <DropdownMenuItem
+                                className="h-9 items-center cursor-pointer text-sm rounded-lg"
+                                onClick={() => handleProjectClick(project)}
+                              >
+                                <Folder className="h-4 w-4 text-muted-foreground" />
+                                <span>
+                                  {t("navigation:projectList.viewProject")}
+                                </span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="h-9 items-center cursor-pointer text-sm rounded-lg"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(
+                                    `${window.location.origin}/dashboard/workspace/${workspace?.id}/project/${project.id}`,
+                                  );
+                                  toast.success(
+                                    t("navigation:projectList.linkCopied"),
+                                  );
+                                }}
+                              >
+                                <Forward className="h-4 w-4 text-muted-foreground" />
+                                <span>
+                                  {t("navigation:projectList.shareProject")}
+                                </span>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="h-9 items-center text-destructive cursor-pointer text-sm hover:bg-destructive/10 rounded-lg"
+                                onClick={() => {
+                                  setProjectToDeleteID(project.id);
+                                  setIsDeleteProjectModalOpen(true);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <span>
+                                  {t("navigation:projectList.deleteProject")}
+                                </span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </SidebarMenuSubItem>
+                      );
+                    })}
+
+                    <SidebarMenuSubItem className="mt-1">
+                      <SidebarMenuSubButton
+                        size="md"
+                        render={<button type="button" />}
+                        className="h-9 px-3 text-[14px] text-muted-foreground/60 transition-all duration-200 rounded-lg hover:text-foreground hover:bg-muted/40"
+                        onClick={() => setIsCreateProjectModalOpen(true)}
+                      >
+                        <span>{t("navigation:projectList.addProject")}</span>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </CollapsiblePanel>
+              </Collapsible>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
 
       <CreateProjectModal
         open={isCreateProjectModalOpen}

@@ -936,8 +936,11 @@
 		},
 		"notifications": "Notifications",
 		"sidebar": {
+			"forYou": "For you",
 			"overview": "Overview",
 			"projects": "Projects",
+			"myTasks": "My Tasks",
+			"notifications": "Notifications",
 			"members": "Members",
 			"invitations": "Invitations",
 			"more": "More"
@@ -1024,6 +1027,8 @@
 	},
 	"notifications": {
 		"title": "Notifications",
+		"viewAll": "Open inbox",
+		"markRead": "Mark read",
 		"newCount_one": "{{count}} new",
 		"newCount_other": "{{count}} new",
 		"emptyTitle": "No notifications yet",
@@ -1050,6 +1055,10 @@
 			"task_assignee_changed": {
 				"title": "Task assigned to you",
 				"content": "You have been assigned to task: {{taskTitle}}"
+			},
+			"task_comment_created": {
+				"title": "New comment on {{taskTitle}}",
+				"content": "{{actorName}} commented on a task you're involved in"
 			},
 			"time_entry_created": {
 				"title": "Time tracking started",
@@ -1591,6 +1600,52 @@
 			"suggestionFeature": "Feature",
 			"suggestionInProgress": "In progress",
 			"suggestionCompleted": "Completed"
+		},
+		"myTasks": {
+			"pageTitle": "My Tasks",
+			"heading": "Assigned to you",
+			"subtitle": "Track your work across every active project in this workspace.",
+			"emptyTitle": "No assigned tasks",
+			"emptyDescription": "When tasks are assigned to you, they’ll show up here automatically.",
+			"noActiveTasksTitle": "No active tasks right now",
+			"noActiveTasksDescription": "Your remaining assigned work is already finished.",
+			"filteredEmptyTitle": "Nothing matches this view",
+			"filteredEmptyDescription": "There’s nothing in {{filter}} right now. Try another filter to scan the rest of your work.",
+			"taskCount_one": "{{count}} task",
+			"taskCount_other": "{{count}} tasks",
+			"dueTodayBadge": "Due today",
+			"overdueBadge": "Overdue · {{date}}",
+			"filters": {
+				"all": "All",
+				"overdue": "Overdue",
+				"dueToday": "Due today",
+				"pending": "Pending"
+			},
+			"summary": {
+				"assigned": "Assigned",
+				"pending": "Pending",
+				"inProgress": "In Progress",
+				"dueToday": "Due Today",
+				"overdue": "Overdue",
+				"done": "Done"
+			},
+			"groups": {
+				"overdue": "Overdue",
+				"pending": "Pending",
+				"inProgress": "In Progress",
+				"done": "Done"
+			}
+		},
+		"notifications": {
+			"pageTitle": "Notifications",
+			"heading": "Activity for you",
+			"subtitle": "Catch up on assignments and fresh discussion from across this workspace.",
+			"emptyTitle": "Nothing new here",
+			"emptyDescription": "When work is assigned to you or someone comments on tasks you’re involved in, it will show up here.",
+			"summary": {
+				"unread": "Unread",
+				"total": "Total"
+			}
 		},
 		"create": {
 			"pageTitle": "Create Workspace",

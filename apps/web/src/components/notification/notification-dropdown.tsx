@@ -1,6 +1,8 @@
+import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { useTranslation } from "react-i18next";
+import NotificationItem from "@/components/notification/notification-item";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -28,117 +30,18 @@ import { shortcuts } from "@/constants/shortcuts";
 import useClearNotifications from "@/hooks/mutations/notification/use-clear-notifications";
 import useMarkAllNotificationsAsRead from "@/hooks/mutations/notification/use-mark-all-notifications-as-read";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { cn } from "@/lib/cn";
-import { formatRelativeTime } from "@/lib/format";
-import { getStatusLabel } from "@/lib/i18n/domain";
-import type { Notification } from "@/types/notification";
 
 export type NotificationDropdownRef = {
   toggle: () => void;
 };
 
-function getEventDataRecord(
-  eventData: unknown,
-): Record<string, unknown> | null {
-  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) {
-    return null;
-  }
-
-  return eventData as Record<string, unknown>;
-}
-
-function getNotificationTitle(
-  notification: Notification,
-  t: (key: string, options?: Record<string, unknown>) => string,
-) {
-  const eventData = getEventDataRecord(notification.eventData);
-  if (eventData) {
-    switch (notification.type) {
-      case "task_created":
-        return t("notifications:events.task_created.title", {
-          ...eventData,
-          defaultValue: notification.title ?? notification.type,
-        });
-      case "workspace_created":
-        return t("notifications:events.workspace_created.title", {
-          ...eventData,
-          defaultValue: notification.title ?? notification.type,
-        });
-      case "task_status_changed":
-        return t("notifications:events.task_status_changed.title", {
-          ...eventData,
-          defaultValue: notification.title ?? notification.type,
-        });
-      case "task_assignee_changed":
-        return t("notifications:events.task_assignee_changed.title", {
-          ...eventData,
-          defaultValue: notification.title ?? notification.type,
-        });
-      case "time_entry_created":
-        return t("notifications:events.time_entry_created.title", {
-          ...eventData,
-          defaultValue: notification.title ?? notification.type,
-        });
-      default:
-        break;
-    }
-  }
-
-  return notification.title ?? notification.type;
-}
-
-function getNotificationContent(
-  notification: Notification,
-  t: (key: string, options?: Record<string, unknown>) => string,
-) {
-  const eventData = getEventDataRecord(notification.eventData);
-  if (eventData) {
-    switch (notification.type) {
-      case "task_created":
-        return t("notifications:events.task_created.content", {
-          ...eventData,
-          defaultValue: notification.content ?? "",
-        });
-      case "workspace_created":
-        return t("notifications:events.workspace_created.content", {
-          ...eventData,
-          defaultValue: notification.content ?? "",
-        });
-      case "task_status_changed":
-        return t("notifications:events.task_status_changed.content", {
-          ...eventData,
-          oldStatus: getStatusLabel(String(eventData.oldStatus ?? "")),
-          newStatus: getStatusLabel(String(eventData.newStatus ?? "")),
-          defaultValue: notification.content ?? "",
-        });
-      case "task_assignee_changed":
-        return t("notifications:events.task_assignee_changed.content", {
-          ...eventData,
-          defaultValue: notification.content ?? "",
-        });
-      case "time_entry_created":
-        return eventData.taskTitle
-          ? t("notifications:events.time_entry_created.contentWithTask", {
-              ...eventData,
-              defaultValue: notification.content ?? "",
-            })
-          : t("notifications:events.time_entry_created.contentWithoutTask", {
-              ...eventData,
-              defaultValue: notification.content ?? "",
-            });
-      default:
-        break;
-    }
-  }
-
-  return notification.content ?? "";
-}
-
 const NotificationDropdown = forwardRef<NotificationDropdownRef>(
   (_props, ref) => {
     const { t } = useTranslation();
     const { data: notifications } = useGetNotifications();
+    const { data: workspace } = useActiveWorkspace();
     const [isOpen, setIsOpen] = useState(false);
     const [showClearDialog, setShowClearDialog] = useState(false);
 
@@ -202,13 +105,16 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
           </TooltipProvider>
 
           <DropdownMenuContent align="end" className="w-80 p-0">
-            <div className="flex items-center justify-between px-3 py-2 border-b">
-              <h3 className="font-medium text-sm">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-muted/10">
+              <h3 className="font-semibold text-sm tracking-tight">
                 {t("notifications:title")}
               </h3>
               {unreadNotifications.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-primary/10 text-primary hover:bg-primary/20"
+                  >
                     {t("notifications:newCount", {
                       count: unreadNotifications.length,
                     })}
@@ -217,7 +123,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                     variant="ghost"
                     size="sm"
                     onClick={() => markAllAsRead()}
-                    className="text-xs h-6 px-2"
+                    className="text-xs h-6 px-2 text-muted-foreground hover:text-foreground"
                   >
                     {t("common:actions.markAllRead")}
                   </Button>
@@ -227,56 +133,57 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
 
             <div className="relative max-h-96 overflow-y-auto">
               {!hasNotifications ? (
-                <div className="p-6 text-center text-sm text-muted-foreground">
-                  <Bell className="mx-auto h-12 w-12 opacity-50 mb-2" />
-                  <p>{t("notifications:emptyTitle")}</p>
+                <div className="flex flex-col items-center justify-center p-8 text-center text-sm text-muted-foreground">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 border border-border/40">
+                    <Bell className="h-6 w-6 opacity-40" />
+                  </div>
+                  <p className="font-medium text-foreground">
+                    {t("notifications:emptyTitle")}
+                  </p>
                   <p className="text-xs mt-1">
                     {t("notifications:emptySubtitle")}
                   </p>
                 </div>
               ) : (
                 notifications.map((notification) => (
-                  <div
+                  <NotificationItem
                     key={notification.id}
-                    className={cn(
-                      "px-3 py-3 border-b border-border/50 hover:bg-accent/50 transition-colors",
-                      !notification.isRead && "bg-accent/20",
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="text-sm font-medium text-foreground">
-                            {getNotificationTitle(notification, t)}
-                          </h4>
-                          {!notification.isRead && (
-                            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-                          )}
-                        </div>
-                        {getNotificationContent(notification, t) && (
-                          <p className="text-xs text-muted-foreground line-clamp-2">
-                            {getNotificationContent(notification, t)}
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {formatRelativeTime(notification.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                    compact
+                    notification={notification}
+                    onSelect={() => setIsOpen(false)}
+                    workspaceId={workspace?.id}
+                  />
                 ))
               )}
             </div>
             {hasNotifications && (
-              <div className="border-t border-border p-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowClearDialog(true)}
-                  className="w-full text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  {t("notifications:clearAll")}
-                </Button>
+              <div className="border-t border-border/40 p-2 bg-muted/10">
+                <div className="flex items-center gap-2">
+                  {workspace && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      render={
+                        <Link
+                          to="/dashboard/workspace/$workspaceId/notifications"
+                          params={{ workspaceId: workspace.id }}
+                          onClick={() => setIsOpen(false)}
+                        />
+                      }
+                    >
+                      {t("notifications:viewAll")}
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowClearDialog(true)}
+                    className="flex-1 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    {t("notifications:clearAll")}
+                  </Button>
+                </div>
               </div>
             )}
           </DropdownMenuContent>

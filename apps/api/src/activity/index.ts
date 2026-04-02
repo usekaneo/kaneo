@@ -119,6 +119,7 @@ const activity = new Hono<{
 
       if (task) {
         await publishEvent("task.comment_created", {
+          commentId: newComment?.id,
           taskId,
           userId,
           comment: `"${user?.name}" commented: ${comment}`,

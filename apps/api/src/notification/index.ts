@@ -1,6 +1,14 @@
+import { and, eq, ne } from "drizzle-orm";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import db from "../database";
+import {
+  activityTable,
+  projectTable,
+  taskTable,
+  userTable,
+} from "../database/schema";
 import { subscribeToEvent } from "../events";
 import { notificationSchema } from "../schemas";
 import clearNotifications from "./controllers/clear-notifications";
@@ -13,6 +21,76 @@ const bulkResultSchema = v.object({
   success: v.boolean(),
   count: v.optional(v.number()),
 });
+
+type TaskNotificationContext = {
+  assigneeId: string | null;
+  projectIcon: string | null;
+  projectId: string;
+  projectName: string;
+  projectSlug: string;
+  taskId: string;
+  taskTitle: string;
+  workspaceId: string;
+};
+
+async function getTaskNotificationContext(
+  taskId: string,
+): Promise<TaskNotificationContext | null> {
+  const [context] = await db
+    .select({
+      assigneeId: taskTable.userId,
+      projectIcon: projectTable.icon,
+      projectId: projectTable.id,
+      projectName: projectTable.name,
+      projectSlug: projectTable.slug,
+      taskId: taskTable.id,
+      taskTitle: taskTable.title,
+      workspaceId: projectTable.workspaceId,
+    })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(eq(taskTable.id, taskId))
+    .limit(1);
+
+  return context ?? null;
+}
+
+async function getPriorCommenterIds(taskId: string, actorUserId: string) {
+  const commenters = await db
+    .select({ userId: activityTable.userId })
+    .from(activityTable)
+    .where(
+      and(
+        eq(activityTable.taskId, taskId),
+        eq(activityTable.type, "comment"),
+        ne(activityTable.userId, actorUserId),
+      ),
+    );
+
+  return [
+    ...new Set(
+      commenters
+        .map((commenter) => commenter.userId)
+        .filter((userId): userId is string => Boolean(userId)),
+    ),
+  ];
+}
+
+function buildTaskEventData(
+  context: TaskNotificationContext,
+  extras?: Record<string, unknown>,
+) {
+  return {
+    projectIcon: context.projectIcon,
+    projectId: context.projectId,
+    projectName: context.projectName,
+    projectSlug: context.projectSlug,
+    taskId: context.taskId,
+    taskTitle: context.taskTitle,
+    workspaceId: context.workspaceId,
+    ...extras,
+  };
+}
 
 const notification = new Hono<{
   Variables: {
@@ -159,20 +237,24 @@ const notification = new Hono<{
 subscribeToEvent<{
   taskId: string;
   userId: string;
-  title: string;
-  projectId: string;
 }>("task.created", async (data) => {
-  if (data.userId) {
-    await createNotification({
-      userId: data.userId,
-      type: "task_created",
-      eventData: {
-        taskTitle: data.title,
-      },
-      resourceId: data.taskId,
-      resourceType: "task",
-    });
+  if (!data.userId) {
+    return;
   }
+
+  const context = await getTaskNotificationContext(data.taskId);
+
+  if (!context) {
+    return;
+  }
+
+  await createNotification({
+    userId: data.userId,
+    type: "task_created",
+    eventData: buildTaskEventData(context),
+    resourceId: data.taskId,
+    resourceType: "task",
+  });
 });
 
 subscribeToEvent<{
@@ -181,17 +263,20 @@ subscribeToEvent<{
   ownerEmail: string;
   ownerId?: string;
 }>("workspace.created", async (data) => {
-  if (data.ownerId) {
-    await createNotification({
-      userId: data.ownerId,
-      type: "workspace_created",
-      eventData: {
-        workspaceName: data.workspaceName,
-      },
-      resourceId: data.workspaceId,
-      resourceType: "workspace",
-    });
+  if (!data.ownerId) {
+    return;
   }
+
+  await createNotification({
+    userId: data.ownerId,
+    type: "workspace_created",
+    eventData: {
+      workspaceId: data.workspaceId,
+      workspaceName: data.workspaceName,
+    },
+    resourceId: data.workspaceId,
+    resourceType: "workspace",
+  });
 });
 
 subscribeToEvent<{
@@ -202,19 +287,26 @@ subscribeToEvent<{
   title: string;
   assigneeId?: string;
 }>("task.status_changed", async (data) => {
-  if (data.assigneeId && data.assigneeId !== data.userId) {
-    await createNotification({
-      userId: data.assigneeId,
-      type: "task_status_changed",
-      eventData: {
-        taskTitle: data.title,
-        oldStatus: data.oldStatus,
-        newStatus: data.newStatus,
-      },
-      resourceId: data.taskId,
-      resourceType: "task",
-    });
+  if (!data.assigneeId || data.assigneeId === data.userId) {
+    return;
   }
+
+  const context = await getTaskNotificationContext(data.taskId);
+
+  if (!context) {
+    return;
+  }
+
+  await createNotification({
+    userId: data.assigneeId,
+    type: "task_status_changed",
+    eventData: buildTaskEventData(context, {
+      oldStatus: data.oldStatus,
+      newStatus: data.newStatus,
+    }),
+    resourceId: data.taskId,
+    resourceType: "task",
+  });
 });
 
 subscribeToEvent<{
@@ -225,13 +317,71 @@ subscribeToEvent<{
   newAssigneeId: string;
   title: string;
 }>("task.assignee_changed", async (data) => {
-  if (data.newAssigneeId) {
+  if (!data.newAssigneeId) {
+    return;
+  }
+
+  const context = await getTaskNotificationContext(data.taskId);
+
+  if (!context) {
+    return;
+  }
+
+  await createNotification({
+    userId: data.newAssigneeId,
+    type: "task_assignee_changed",
+    eventData: buildTaskEventData(context),
+    resourceId: data.taskId,
+    resourceType: "task",
+  });
+});
+
+subscribeToEvent<{
+  comment?: string;
+  commentId?: string;
+  projectId?: string;
+  taskId: string;
+  userId: string;
+}>("task.comment_created", async (data) => {
+  const context = await getTaskNotificationContext(data.taskId);
+
+  if (!context) {
+    return;
+  }
+
+  const [actor] = await db
+    .select({
+      id: userTable.id,
+      name: userTable.name,
+    })
+    .from(userTable)
+    .where(eq(userTable.id, data.userId))
+    .limit(1);
+
+  const recipientIds = new Set<string>();
+
+  if (context.assigneeId && context.assigneeId !== data.userId) {
+    recipientIds.add(context.assigneeId);
+  }
+
+  const priorCommenterIds = await getPriorCommenterIds(
+    data.taskId,
+    data.userId,
+  );
+
+  for (const commenterId of priorCommenterIds) {
+    recipientIds.add(commenterId);
+  }
+
+  for (const recipientId of recipientIds) {
     await createNotification({
-      userId: data.newAssigneeId,
-      type: "task_assignee_changed",
-      eventData: {
-        taskTitle: data.title,
-      },
+      userId: recipientId,
+      type: "task_comment_created",
+      eventData: buildTaskEventData(context, {
+        actorName: actor?.name ?? "Someone",
+        actorUserId: data.userId,
+        commentId: data.commentId ?? null,
+      }),
       resourceId: data.taskId,
       resourceType: "task",
     });
@@ -245,17 +395,23 @@ subscribeToEvent<{
   taskOwnerId?: string;
   taskTitle?: string;
 }>("time-entry.created", async (data) => {
-  if (data.taskOwnerId && data.taskOwnerId !== data.userId) {
-    await createNotification({
-      userId: data.taskOwnerId,
-      type: "time_entry_created",
-      eventData: {
-        taskTitle: data.taskTitle ?? null,
-      },
-      resourceId: data.taskId,
-      resourceType: "task",
-    });
+  if (!data.taskOwnerId || data.taskOwnerId === data.userId) {
+    return;
   }
+
+  const context = await getTaskNotificationContext(data.taskId);
+
+  if (!context) {
+    return;
+  }
+
+  await createNotification({
+    userId: data.taskOwnerId,
+    type: "time_entry_created",
+    eventData: buildTaskEventData(context),
+    resourceId: data.taskId,
+    resourceType: "task",
+  });
 });
 
 export default notification;

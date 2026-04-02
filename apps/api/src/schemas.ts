@@ -89,6 +89,7 @@ export const notificationSchema = v.object({
     "workspace_created",
     "task_status_changed",
     "task_assignee_changed",
+    "task_comment_created",
     "time_entry_created",
   ] as const),
   eventData: v.nullable(v.record(v.string(), v.unknown())),

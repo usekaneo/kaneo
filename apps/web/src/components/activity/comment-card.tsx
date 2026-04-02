@@ -103,7 +103,10 @@ export default function CommentCard({
   ]);
 
   return (
-    <div className="group relative w-full rounded-xl border border-border/80 bg-card/60">
+    <div
+      id={`comment-${commentId}`}
+      className="group relative w-full scroll-mt-24 rounded-xl border border-border/80 bg-card/60"
+    >
       <div className="flex items-center gap-2 px-3 pt-2.5">
         <HoverCard>
           <HoverCardTrigger>
