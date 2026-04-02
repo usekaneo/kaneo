@@ -19,7 +19,10 @@ import column from "./column";
 import comment from "./comment";
 import config from "./config";
 import db, { schema } from "./database";
+import discordIntegration from "./discord-integration";
 import externalLink from "./external-link";
+import genericWebhookIntegration from "./generic-webhook-integration";
+import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -32,9 +35,11 @@ import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
 import search from "./search";
+import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
 import taskRelation from "./task-relation";
+import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
@@ -91,7 +96,7 @@ function buildContentDisposition(filename: string) {
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[\\/]/g, "-")
-      .replace(/[^\x20-\x7E]+/g, "_")
+      .replace(/[^\x20-\u7E]+/g, "_")
       .replace(/\s+/g, " ")
       .trim() || "file";
   const encodedFilename = encodeURIComponent(safeFilename).replace(
@@ -140,6 +145,11 @@ export function createApp() {
   });
 
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
+
+  api.post(
+    "/gitea-integration/webhook/:integrationId",
+    handleGiteaWebhookRoute,
+  );
 
   const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
     const { id } = c.req.param();
@@ -404,6 +414,20 @@ export function createApp() {
     "/github-integration",
     githubIntegration,
   );
+  const giteaIntegrationApi = api.route("/gitea-integration", giteaIntegration);
+  const genericWebhookIntegrationApi = api.route(
+    "/generic-webhook-integration",
+    genericWebhookIntegration,
+  );
+  const discordIntegrationApi = api.route(
+    "/discord-integration",
+    discordIntegration,
+  );
+  const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
+  const telegramIntegrationApi = api.route(
+    "/telegram-integration",
+    telegramIntegration,
+  );
   const taskRelationApi = api.route("/task-relation", taskRelation);
   const externalLinkApi = api.route("/external-link", externalLink);
   const workflowRuleApi = api.route("/workflow-rule", workflowRule);
@@ -419,8 +443,11 @@ export function createApp() {
     columnApi,
     commentApi,
     configApi,
+    discordIntegrationApi,
     externalLinkApi,
+    genericWebhookIntegrationApi,
     githubIntegrationApi,
+    giteaIntegrationApi,
     invitationApi,
     invitationPublicApi,
     labelApi,
@@ -428,8 +455,10 @@ export function createApp() {
     projectApi,
     publicProjectApi,
     searchApi,
+    slackIntegrationApi,
     taskApi,
     taskRelationApi,
+    telegramIntegrationApi,
     timeEntryApi,
     workflowRuleApi,
     workspaceApi,
@@ -481,8 +510,11 @@ const {
   columnApi,
   commentApi,
   configApi,
+  discordIntegrationApi,
   externalLinkApi,
+  genericWebhookIntegrationApi,
   githubIntegrationApi,
+  giteaIntegrationApi,
   invitationApi,
   invitationPublicApi,
   labelApi,
@@ -490,8 +522,10 @@ const {
   projectApi,
   publicProjectApi,
   searchApi,
+  slackIntegrationApi,
   taskApi,
   taskRelationApi,
+  telegramIntegrationApi,
   timeEntryApi,
   workflowRuleApi,
   workspaceApi,
@@ -517,6 +551,11 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof giteaIntegrationApi
+  | typeof genericWebhookIntegrationApi
+  | typeof discordIntegrationApi
+  | typeof slackIntegrationApi
+  | typeof telegramIntegrationApi
   | typeof taskRelationApi
   | typeof externalLinkApi
   | typeof workflowRuleApi

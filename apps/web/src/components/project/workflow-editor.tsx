@@ -30,28 +30,6 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
     useGetWorkflowRules(projectId);
   const { mutateAsync: upsertRule } = useUpsertWorkflowRule();
 
-  const handleChange = async (eventType: string, columnId: string | null) => {
-    if (!columnId) return;
-
-    try {
-      await upsertRule({
-        projectId,
-        data: {
-          integrationType: "github",
-          eventType,
-          columnId,
-        },
-      });
-      toast.success(t("settings:workflowEditor.toastUpdated"));
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("settings:workflowEditor.toastError"),
-      );
-    }
-  };
-
   if (columnsLoading || rulesLoading) {
     return (
       <div className="text-sm text-muted-foreground">
@@ -68,28 +46,32 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
     );
   }
 
-  const githubRules = rules?.filter((r) => r.integrationType === "github");
-
-  return (
+  const renderRuleSection = (
+    integrationType: "github" | "gitea",
+    headingKey: "githubHeading" | "giteaHeading",
+    hintKey: "githubHint" | "giteaHint",
+  ) => (
     <div className="space-y-4">
       <div className="space-y-1">
         <h3 className="text-sm font-medium">
-          {t("settings:workflowEditor.githubHeading")}
+          {t(`settings:workflowEditor.${headingKey}`)}
         </h3>
         <p className="text-xs text-muted-foreground">
-          {t("settings:workflowEditor.githubHint")}
+          {t(`settings:workflowEditor.${hintKey}`)}
         </p>
       </div>
 
       <div className="space-y-2">
         {GITHUB_EVENT_TYPES.map((eventType) => {
-          const currentRule = githubRules?.find(
-            (r) => r.eventType === eventType,
+          const currentRule = rules?.find(
+            (r) =>
+              r.integrationType === integrationType &&
+              r.eventType === eventType,
           );
 
           return (
             <div
-              key={eventType}
+              key={`${integrationType}-${eventType}`}
               className="flex items-center justify-between gap-4 p-3 border border-border rounded-md bg-sidebar"
             >
               <span className="text-sm">
@@ -97,7 +79,26 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
               </span>
               <Select
                 value={currentRule?.columnId ?? ""}
-                onValueChange={(value) => handleChange(eventType, value)}
+                onValueChange={async (value) => {
+                  if (!value) return;
+                  try {
+                    await upsertRule({
+                      projectId,
+                      data: {
+                        integrationType,
+                        eventType,
+                        columnId: value,
+                      },
+                    });
+                    toast.success(t("settings:workflowEditor.toastUpdated"));
+                  } catch (error) {
+                    toast.error(
+                      error instanceof Error
+                        ? error.message
+                        : t("settings:workflowEditor.toastError"),
+                    );
+                  }
+                }}
               >
                 <SelectTrigger className="w-48 h-8 text-sm">
                   <SelectValue
@@ -122,6 +123,13 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
           );
         })}
       </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-10">
+      {renderRuleSection("github", "githubHeading", "githubHint")}
+      {renderRuleSection("gitea", "giteaHeading", "giteaHint")}
     </div>
   );
 }

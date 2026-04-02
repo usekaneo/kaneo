@@ -1,0 +1,109 @@
+---
+title: Outgoing webhooks
+description: Send task activity from a Kaneo project to Slack, Discord, Telegram, or any HTTP endpoint. Configure per-project notifications and optional signing.
+---
+
+Kaneo can notify external systems when tasks change in a project. Each integration is per project and uses either an incoming webhook URL from the service you connect (Slack, Discord), a bot token plus chat ID (Telegram), or your own HTTP listener (generic webhook).
+
+<Info>
+These integrations are outgoing only: Kaneo posts to your URL when events occur. They are separate from [GitHub integration](/core/integrations/github/setup), which syncs issues and repositories.
+</Info>
+
+## Where to configure
+
+1. Open **Settings** in the sidebar.
+2. Under **Projects**, select the project.
+3. Open the **Integrations** tab.
+
+## Task links in notifications
+
+Notification messages and generic webhook payloads include links to the task in the web app. Set [`KANEO_CLIENT_URL`](/core/installation/environment-variables) to your public Kaneo web URL so those links point to your instance (for example `https://kaneo.example.com`).
+
+## Events you can subscribe to
+
+For Slack, Discord, Telegram, and generic webhooks you can toggle the same event types:
+
+| Event | Default on | Description |
+| --- | --- | --- |
+| Task created | Yes | New task in the project |
+| Task status changed | Yes | Status column changed |
+| Task priority changed | No | Priority changed |
+| Task title changed | No | Title edited |
+| Task description changed | No | Description edited |
+| Task comment created | Yes | New comment on a task |
+
+Defaults apply when you first connect; you can change toggles anytime in project settings.
+
+## Slack
+
+Use a [Slack incoming webhook](https://api.slack.com/messaging/webhooks) URL. It must match Slack’s format:
+
+`https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX`
+
+Paste the URL in the Slack section, optionally set a channel label for your own reference, choose events, and save.
+
+Kaneo sends formatted messages to Slack when enabled events occur.
+
+## Discord
+
+Create an incoming webhook for a Discord channel (Channel settings → Integrations → Webhooks). The URL must look like:
+
+`https://discord.com/api/webhooks/000000000000000000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+
+(or the `discordapp.com` hostname). Paste it into the Discord section, optionally add a channel name label, select events, and save.
+
+## Telegram
+
+Create a Telegram bot with [`@BotFather`](https://t.me/BotFather), then add that bot to the destination chat, group, channel, or topic. Telegram requires:
+
+- A bot token
+- A chat ID
+- Optionally a topic thread ID for forum-style group topics
+
+To find the chat ID, send a message in the destination and open:
+
+`https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`
+
+Look for `message.chat.id` or `channel_post.chat.id`. If you are posting into a forum topic, also copy `message.message_thread_id`.
+
+Paste those values into the Telegram section, optionally add a chat label, choose events, and save.
+
+## Generic HTTP webhook
+
+Use a generic webhook when you want a JSON POST to your own service, automation, or middleware.
+
+### Delivery health
+
+After delivery attempts, Kaneo stores basic health metadata (for example last success, last failure message, failure count) so you can see whether recent posts succeeded. This does not replace monitoring on your endpoint.
+
+### Payload shape
+
+Each POST has `Content-Type: application/json`. Top-level fields:
+
+- `event`: string, one of: `task.created`, `task.status_changed`, `task.priority_changed`, `task.title_changed`, `task.description_changed`, `task.comment_created`
+- `timestamp`: ISO 8601 time when Kaneo sent the request
+- `integration`: `{ "type": "generic-webhook" }`
+- `project`: `id`, `name`, `workspaceId`
+- `task`: `id`, `number`, `title`, `status`, `priority`, `url` (link to the task in the web UI)
+- `actor`: `id` and `name` of the user when available, or nulls for automated actions
+- `data`: event-specific fields (for example `oldStatus` / `newStatus` for status changes, `comment` text for comments)
+
+Use these payloads to drive custom workflows, internal dashboards, or bridges to other tools.
+
+### Signature verification
+
+If you configure a secret for the generic webhook integration, Kaneo signs each request and sends the result in the `X-Kaneo-Signature` header.
+
+- Header: `X-Kaneo-Signature`
+- Algorithm: `HMAC-SHA256`
+- Signed input: the exact raw request body Kaneo sends
+- Encoding: lowercase hex digest
+
+To verify a request:
+
+1. Read the raw request body before parsing or re-serializing JSON.
+2. Compute an `HMAC-SHA256` using your integration secret and that raw body.
+3. Compare your computed lowercase hex digest with `X-Kaneo-Signature` using a constant-time comparison.
+4. Reject the request if the signatures do not match.
+
+Kaneo currently signs only the raw request body. It does not include a separate timestamp value in the signature input or send a dedicated timestamp header for replay protection. If you add replay defenses in front of your receiver, document that behavior separately so it does not drift from Kaneo's payload contract.

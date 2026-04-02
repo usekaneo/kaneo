@@ -1,7 +1,6 @@
 import { Readable } from "node:stream";
 import {
   GetObjectCommand,
-  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
   type S3ClientConfig,
@@ -267,18 +266,6 @@ export function assertTaskImageKeyMatchesContext(
 ) {
   const prefix = `${buildObjectKeyPrefix(context)}/`;
   return key.startsWith(prefix);
-}
-
-export async function assertObjectExists(key: string) {
-  const config = getStorageConfig();
-  const client = getClient(config);
-
-  await client.send(
-    new HeadObjectCommand({
-      Bucket: config.bucket,
-      Key: key,
-    }),
-  );
 }
 
 export async function getPrivateObject(key: string): Promise<AssetObject> {

@@ -150,9 +150,15 @@
 						},
 						"greek": {
 							"type": "string"
+						},
+						"macedonian": {
+							"type": "string"
+						},
+						"french": {
+							"type": "string"
 						}
 					},
-					"required": ["english", "german", "greek"]
+					"required": ["english", "german", "greek", "macedonian", "french"]
 				},
 				"people": {
 					"type": "object",
@@ -1314,10 +1320,7 @@
 						"list": {
 							"type": "string"
 						},
-						"compactMode": {
-							"type": "string"
-						},
-						"compactModeDescription": {
+						"gantt": {
 							"type": "string"
 						},
 						"sidebarDefault": {
@@ -1382,8 +1385,7 @@
 						"selectViewMode",
 						"board",
 						"list",
-						"compactMode",
-						"compactModeDescription",
+						"gantt",
 						"sidebarDefault",
 						"sidebarDefaultDescription",
 						"displayOptions",

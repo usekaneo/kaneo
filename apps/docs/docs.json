@@ -80,6 +80,19 @@
 						]
 					},
 					{
+						"group": "Gitea Integration",
+						"pages": ["core/integrations/gitea/setup"]
+					},
+					{
+						"group": "Integrations",
+						"pages": [
+							"core/integrations/discord",
+							"core/integrations/slack",
+							"core/integrations/telegram",
+							"core/integrations/outgoing-webhooks"
+						]
+					},
+					{
 						"group": "Authentication Providers",
 						"pages": [
 							"core/social-providers/github",

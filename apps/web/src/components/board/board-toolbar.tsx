@@ -497,7 +497,9 @@ export default function BoardToolbar({
                                   ?.color || "var(--color-neutral-400)",
                             }}
                           />
-                          <span className="flex-1">{label.name}</span>
+                          <span className="relative max-w-20 truncate -top-0.5">
+                            {label.name}
+                          </span>
                         </DropdownMenuItem>
                       ))
                     ) : (

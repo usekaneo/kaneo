@@ -111,6 +111,82 @@ export const githubIntegrationSchema = v.object({
   updatedAt: v.date(),
 });
 
+export const giteaIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  baseUrl: v.string(),
+  repositoryOwner: v.string(),
+  repositoryName: v.string(),
+  maskedAccessToken: v.string(),
+  webhookUrl: v.optional(v.string()),
+  webhookSecret: v.optional(v.string()),
+  branchPattern: v.optional(v.string()),
+  commentTaskLinkOnGiteaIssue: v.optional(v.boolean()),
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
+export const integrationEventsSchema = v.object({
+  taskCreated: v.boolean(),
+  taskStatusChanged: v.boolean(),
+  taskPriorityChanged: v.boolean(),
+  taskTitleChanged: v.boolean(),
+  taskDescriptionChanged: v.boolean(),
+  taskCommentCreated: v.boolean(),
+});
+
+export const slackIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  channelName: v.nullable(v.string()),
+  webhookConfigured: v.boolean(),
+  maskedWebhookUrl: v.string(),
+  events: integrationEventsSchema,
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
+export const discordIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  channelName: v.nullable(v.string()),
+  webhookConfigured: v.boolean(),
+  maskedWebhookUrl: v.string(),
+  events: integrationEventsSchema,
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
+export const genericWebhookIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  webhookConfigured: v.boolean(),
+  maskedWebhookUrl: v.nullable(v.string()),
+  secretConfigured: v.boolean(),
+  maskedSecret: v.nullable(v.string()),
+  events: integrationEventsSchema,
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
+export const telegramIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  chatId: v.string(),
+  threadId: v.nullable(v.number()),
+  chatLabel: v.nullable(v.string()),
+  botTokenConfigured: v.boolean(),
+  maskedBotToken: v.string(),
+  events: integrationEventsSchema,
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
 export const commentSchema = v.object({
   id: v.string(),
   taskId: v.string(),

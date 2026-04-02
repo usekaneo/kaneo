@@ -1,3 +1,4 @@
+import type { InferSelectModel } from "drizzle-orm";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import {
@@ -5,6 +6,12 @@ import {
   integrationTable,
   taskTable,
 } from "../../../database/schema";
+
+export type TaskRow = InferSelectModel<typeof taskTable>;
+
+export type UpdateTaskStatusResult =
+  | { applied: false }
+  | { applied: true; before: TaskRow; after: TaskRow };
 
 const NON_COLUMN_STATUSES = new Set(["planned", "archived"]);
 
@@ -23,13 +30,16 @@ export async function findTaskById(taskId: string) {
   });
 }
 
-export async function updateTaskStatus(taskId: string, newStatus: string) {
+export async function updateTaskStatus(
+  taskId: string,
+  newStatus: string,
+): Promise<UpdateTaskStatusResult> {
   const task = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, taskId),
   });
 
   if (!task) {
-    return;
+    return { applied: false };
   }
 
   let columnId: string | null = null;
@@ -47,13 +57,23 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
     console.warn(
       `[GitHub] Skipping status update for task ${taskId}: column "${newStatus}" not found in project ${task.projectId}`,
     );
-    return;
+    return { applied: false };
   }
 
   await db
     .update(taskTable)
     .set({ status: newStatus, columnId })
     .where(eq(taskTable.id, taskId));
+
+  const after = await db.query.taskTable.findFirst({
+    where: eq(taskTable.id, taskId),
+  });
+
+  if (!after) {
+    return { applied: false };
+  }
+
+  return { applied: true, before: task, after };
 }
 
 export async function isTaskInFinalState(task: {

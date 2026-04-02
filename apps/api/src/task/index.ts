@@ -14,7 +14,6 @@ import {
 import { publishEvent } from "../events";
 import { taskSchema } from "../schemas";
 import {
-  assertObjectExists,
   assertTaskImageKeyMatchesContext,
   createTaskImageUploadUrl,
   isImageContentType,
@@ -28,6 +27,7 @@ import exportTasks from "./controllers/export-tasks";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
+import moveTask from "./controllers/move-task";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
@@ -236,6 +236,53 @@ const task = new Hono<{
       const task = await getTask(id);
 
       return c.json(task);
+    },
+  )
+  .put(
+    "/move/:id",
+    describeRoute({
+      operationId: "moveTask",
+      tags: ["Tasks"],
+      description: "Move a task to another project",
+      responses: {
+        200: {
+          description: "Task moved successfully",
+          content: {
+            "application/json": {
+              schema: resolver(
+                v.object({
+                  task: taskSchema,
+                  sourceProjectId: v.string(),
+                  destinationProjectId: v.string(),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator(
+      "json",
+      v.object({
+        destinationProjectId: v.string(),
+        destinationStatus: v.optional(v.string()),
+      }),
+    ),
+    workspaceAccess.fromTask(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { destinationProjectId, destinationStatus } = c.req.valid("json");
+      const userId = c.get("userId");
+
+      const result = await moveTask({
+        taskId: id,
+        destinationProjectId,
+        destinationStatus,
+        userId,
+      });
+
+      return c.json(result);
     },
   )
   .put(
@@ -807,8 +854,9 @@ const task = new Hono<{
         throw new HTTPException(404, { message: "Task not found" });
       }
 
+      const normalizedKey = key.trim();
       if (
-        !assertTaskImageKeyMatchesContext(key, {
+        !assertTaskImageKeyMatchesContext(normalizedKey, {
           workspaceId: taskContext.workspaceId,
           projectId: taskContext.projectId,
           taskId: taskContext.taskId,
@@ -820,18 +868,10 @@ const task = new Hono<{
         });
       }
 
-      try {
-        await assertObjectExists(key);
-      } catch {
-        throw new HTTPException(404, {
-          message: "Uploaded object could not be found in storage.",
-        });
-      }
-
       const [existingAsset] = await db
         .select({ id: assetTable.id })
         .from(assetTable)
-        .where(eq(assetTable.objectKey, key))
+        .where(eq(assetTable.objectKey, normalizedKey))
         .limit(1);
 
       const [asset] = existingAsset
@@ -858,7 +898,7 @@ const task = new Hono<{
               workspaceId: taskContext.workspaceId,
               projectId: taskContext.projectId,
               taskId: taskContext.taskId,
-              objectKey: key,
+              objectKey: normalizedKey,
               filename,
               mimeType: contentType,
               size,
