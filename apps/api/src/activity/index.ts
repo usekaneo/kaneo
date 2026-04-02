@@ -204,6 +204,30 @@ subscribeToEvent<{
 subscribeToEvent<{
   taskId: string;
   userId: string;
+  type: string;
+  content: string;
+  eventData: {
+    fromProjectId: string;
+    fromProjectName: string;
+    toProjectId: string;
+    toProjectName: string;
+    oldStatus: string;
+    newStatus: string;
+  };
+}>("task.moved", async (data) => {
+  await createActivity(data.taskId, data.type, data.userId, data.content, {
+    fromProjectId: data.eventData.fromProjectId,
+    fromProjectName: data.eventData.fromProjectName,
+    toProjectId: data.eventData.toProjectId,
+    toProjectName: data.eventData.toProjectName,
+    oldStatus: data.eventData.oldStatus,
+    newStatus: data.eventData.newStatus,
+  });
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
   oldStatus: string;
   newStatus: string;
   title: string;

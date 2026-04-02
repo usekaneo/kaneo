@@ -84,6 +84,10 @@ const genericWebhookEventsSchema = v.object({
   taskCommentCreated: v.optional(v.boolean()),
 });
 
+const nullableGenericWebhookIntegrationSchema = v.nullable(
+  genericWebhookIntegrationSchema,
+);
+
 genericWebhookIntegration
   .get(
     "/project/:projectId",
@@ -96,7 +100,7 @@ genericWebhookIntegration
           description: "Generic webhook integration details",
           content: {
             "application/json": {
-              schema: resolver(genericWebhookIntegrationSchema),
+              schema: resolver(nullableGenericWebhookIntegrationSchema),
             },
           },
         },

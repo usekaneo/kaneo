@@ -81,7 +81,14 @@ export async function migrateColumns() {
     });
 
     for (const integration of integrations) {
-      if (integration.type !== "github" || !integration.isActive) continue;
+      if (
+        (integration.type !== "github" && integration.type !== "gitea") ||
+        !integration.isActive
+      ) {
+        continue;
+      }
+
+      const forgeType = integration.type as "github" | "gitea";
 
       try {
         const config = JSON.parse(integration.config);
@@ -96,6 +103,7 @@ export async function migrateColumns() {
 
           await ensureMigrationWorkflowRule(
             project.id,
+            forgeType,
             eventType as string,
             targetColumnId,
           );
@@ -108,6 +116,7 @@ export async function migrateColumns() {
         if (todoColumnId) {
           await ensureMigrationWorkflowRule(
             project.id,
+            forgeType,
             "issue_opened",
             todoColumnId,
           );
@@ -116,6 +125,7 @@ export async function migrateColumns() {
         if (doneColumnId) {
           await ensureMigrationWorkflowRule(
             project.id,
+            forgeType,
             "issue_closed",
             doneColumnId,
           );
@@ -135,13 +145,14 @@ export async function migrateColumns() {
 
 async function ensureMigrationWorkflowRule(
   projectId: string,
+  integrationType: "github" | "gitea",
   eventType: string,
   columnId: string,
 ) {
   const existing = await db.query.workflowRuleTable.findFirst({
     where: and(
       eq(workflowRuleTable.projectId, projectId),
-      eq(workflowRuleTable.integrationType, "github"),
+      eq(workflowRuleTable.integrationType, integrationType),
       eq(workflowRuleTable.eventType, eventType),
     ),
   });
@@ -152,7 +163,7 @@ async function ensureMigrationWorkflowRule(
 
   await db.insert(workflowRuleTable).values({
     projectId,
-    integrationType: "github",
+    integrationType,
     eventType,
     columnId,
   });

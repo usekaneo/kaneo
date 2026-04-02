@@ -145,29 +145,36 @@
 		{
 			"idx": 20,
 			"version": "7",
-			"when": 1775035770523,
-			"tag": "0020_careful_shiver_man",
+			"when": 1774908000000,
+			"tag": "0020_gitea_dedup_guards",
 			"breakpoints": true
 		},
 		{
 			"idx": 21,
 			"version": "7",
-			"when": 1775037521104,
-			"tag": "0021_tiny_bill_hollister",
+			"when": 1774942282393,
+			"tag": "0021_pretty_smiling_tiger",
 			"breakpoints": true
 		},
 		{
 			"idx": 22,
 			"version": "7",
-			"when": 1775039833883,
-			"tag": "0022_real_deathstrike",
+			"when": 1774944216644,
+			"tag": "0022_material_electro",
 			"breakpoints": true
 		},
 		{
 			"idx": 23,
 			"version": "7",
+			"when": 1775156843372,
+			"tag": "0023_early_owl",
+			"breakpoints": true
+		},
+		{
+			"idx": 24,
+			"version": "7",
 			"when": 1775102400000,
-			"tag": "0023_encrypt_notification_preference_secrets",
+			"tag": "0024_encrypt_notification_preference_secrets",
 			"breakpoints": true
 		}
 	]

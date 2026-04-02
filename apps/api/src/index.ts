@@ -21,6 +21,7 @@ import db, { schema } from "./database";
 import discordIntegration from "./discord-integration";
 import externalLink from "./external-link";
 import genericWebhookIntegration from "./generic-webhook-integration";
+import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -38,6 +39,7 @@ import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
 import taskRelation from "./task-relation";
+import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
@@ -139,6 +141,8 @@ const publicProjectApi = api.get("/public-project/:id", async (c) => {
 });
 
 api.post("/github-integration/webhook", handleGithubWebhookRoute);
+
+api.post("/gitea-integration/webhook/:integrationId", handleGiteaWebhookRoute);
 
 const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
   const { id } = c.req.param();
@@ -403,6 +407,7 @@ const githubIntegrationApi = api.route(
   "/github-integration",
   githubIntegration,
 );
+const giteaIntegrationApi = api.route("/gitea-integration", giteaIntegration);
 const genericWebhookIntegrationApi = api.route(
   "/generic-webhook-integration",
   genericWebhookIntegration,
@@ -412,6 +417,10 @@ const discordIntegrationApi = api.route(
   discordIntegration,
 );
 const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
+const telegramIntegrationApi = api.route(
+  "/telegram-integration",
+  telegramIntegration,
+);
 const taskRelationApi = api.route("/task-relation", taskRelation);
 const externalLinkApi = api.route("/external-link", externalLink);
 const workflowRuleApi = api.route("/workflow-rule", workflowRule);
@@ -467,9 +476,11 @@ export type AppType =
   | typeof notificationPreferencesApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof giteaIntegrationApi
   | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
   | typeof slackIntegrationApi
+  | typeof telegramIntegrationApi
   | typeof taskRelationApi
   | typeof externalLinkApi
   | typeof workflowRuleApi

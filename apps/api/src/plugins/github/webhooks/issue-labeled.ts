@@ -92,12 +92,17 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
 
         if (!existingLabel) {
           const color = addedLabel.color ? `#${addedLabel.color}` : "#6B7280";
-          await db.insert(labelTable).values({
-            name: addedLabel.name,
-            color,
-            taskId: task.id,
-            workspaceId: task.project.workspaceId,
-          });
+          await db
+            .insert(labelTable)
+            .values({
+              name: addedLabel.name,
+              color,
+              taskId: task.id,
+              workspaceId: task.project.workspaceId,
+            })
+            .onConflictDoNothing({
+              target: [labelTable.taskId, labelTable.name],
+            });
         }
       }
     }
