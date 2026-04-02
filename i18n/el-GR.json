@@ -749,6 +749,7 @@
 		"projectList": {
 			"viewProject": "Προβολή έργου",
 			"shareProject": "Κοινοποίηση έργου",
+			"projectSettings": "Ρυθμίσεις έργου",
 			"linkCopied": "Ο σύνδεσμος του έργου αντιγράφηκε στο πρόχειρο",
 			"addProject": "Προσθήκη έργου",
 			"deleteConfirmTitle": "Διαγραφή έργου;",

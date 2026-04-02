@@ -945,6 +945,7 @@
 		"projectList": {
 			"viewProject": "View Project",
 			"shareProject": "Share Project",
+			"projectSettings": "Project settings",
 			"linkCopied": "Project link copied to clipboard",
 			"addProject": "Add project",
 			"deleteConfirmTitle": "Delete Project?",
