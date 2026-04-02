@@ -188,7 +188,7 @@ export default function TaskMovePopover({
             destinationColumns.length > 0 && (
               <div className="flex flex-col gap-1.5">
                 <Label className="text-xs text-muted-foreground">
-                {t("tasks:move.statusLabel")}
+                  {t("tasks:move.statusLabel")}
                 </Label>
                 <Select
                   value={effectiveStatus || undefined}

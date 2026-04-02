@@ -11,6 +11,8 @@
     "i18n:report:fix": "node ./scripts/i18n/report.mjs --fix",
     "i18n:schema": "node ./scripts/i18n/schema.mjs",
     "lint": "turbo lint",
+    "test": "turbo test",
+    "test:integration": "pnpm --filter @kaneo/api test:integration",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -25,7 +27,7 @@
     "typescript": "5.8.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19.0"
   },
   "pnpm": {
     "overrides": {

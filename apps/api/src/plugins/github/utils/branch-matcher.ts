@@ -117,16 +117,16 @@ export function extractTaskNumber(
     config,
     projectSlug,
   );
-  if (fromBranch) return fromBranch;
+  if (fromBranch !== null) return fromBranch;
 
   if (prTitle) {
     const fromTitle = extractTaskNumberFromPRTitle(prTitle);
-    if (fromTitle) return fromTitle;
+    if (fromTitle !== null) return fromTitle;
   }
 
   if (prBody) {
     const fromBody = extractTaskNumberFromPRBody(prBody);
-    if (fromBody) return fromBody;
+    if (fromBody !== null) return fromBody;
   }
 
   return null;

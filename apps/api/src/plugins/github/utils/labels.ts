@@ -81,5 +81,17 @@ export async function removeLabel(
       issue_number: issueNumber,
       name: labelName,
     });
-  } catch {}
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      error.status === 404
+    ) {
+      return;
+    }
+
+    console.error(`Failed to remove label "${labelName}" from issue:`, error);
+    throw error;
+  }
 }
