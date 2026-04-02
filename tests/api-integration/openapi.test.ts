@@ -21,7 +21,9 @@ describe("API integration: openapi", () => {
     expect(payload.info?.title).toBe("Kaneo API");
     expect(payload.paths?.["/config"]).toBeTruthy();
     expect(
-      Object.keys(payload.paths || {}).some((path) => path.startsWith("/auth/")),
+      Object.keys(payload.paths || {}).some((path) =>
+        path.startsWith("/auth/"),
+      ),
     ).toBe(true);
     expect(payload.components?.securitySchemes).toMatchObject({
       bearerAuth: expect.any(Object),
