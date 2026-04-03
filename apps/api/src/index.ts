@@ -1,4 +1,5 @@
-import { pathToFileURL } from "node:url";
+import { dirname } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import type { Session, User } from "better-auth/types";
 import { eq } from "drizzle-orm";
@@ -48,6 +49,7 @@ import {
 } from "./utils/authenticate-api-request";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
+import { migrateNotificationPreferencesSchema } from "./utils/migrate-notification-preferences-schema";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import {
@@ -498,16 +500,19 @@ export function createApp() {
 }
 
 export async function runStartupTasks() {
+  const currentDir = dirname(fileURLToPath(import.meta.url));
+
   await migrateWorkspaceUserEmail();
   await migrateSessionColumn();
   await migrateApiKeyReferenceId();
 
   console.log("🔄 Migrating database...");
   await migrate(db, {
-    migrationsFolder: `${process.cwd()}/drizzle`,
+    migrationsFolder: `${currentDir}/../drizzle`,
   });
   console.log("✅ Database migrated successfully!");
 
+  await migrateNotificationPreferencesSchema();
   await migrateGitHubIntegration();
   await migrateColumns();
 
