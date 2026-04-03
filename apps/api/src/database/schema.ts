@@ -669,6 +669,11 @@ export const deviceCodeTable = pgTable(
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
     expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
     status: text("status").notNull(),
     lastPolledAt: timestamp("last_polled_at", { mode: "date" }),

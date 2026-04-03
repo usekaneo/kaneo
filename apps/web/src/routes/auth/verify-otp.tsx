@@ -65,6 +65,14 @@ function VerifyOtp() {
     return undefined;
   }, [redirect]);
 
+  const signInPath = useMemo(() => {
+    if (!redirect) {
+      return "/auth/sign-in";
+    }
+
+    return `/auth/sign-in?redirect=${encodeURIComponent(redirect)}`;
+  }, [redirect]);
+
   const onSubmit = useCallback(
     async (data: VerifyOtpFormValues) => {
       setIsPending(true);
@@ -199,7 +207,7 @@ function VerifyOtp() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => history.push("/auth/sign-in")}
+                  onClick={() => history.push(signInPath)}
                   className="w-full"
                 >
                   <ArrowLeft className="size-4" />

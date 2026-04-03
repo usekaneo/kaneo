@@ -10,10 +10,22 @@ async function getSessionFromBearerOnlyHeaders(c: Context) {
   return auth.api.getSession({ headers });
 }
 
+function parseBearerToken(authHeader: string | undefined) {
+  if (!authHeader) {
+    return null;
+  }
+
+  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!match) {
+    return null;
+  }
+
+  return match[1].replace(/\s+/g, "").trim();
+}
+
 export async function authenticateApiRequest(c: Context): Promise<void> {
-  const authHeader = c.req.header("Authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const token = authHeader.substring(7).replace(/\s+/g, "").trim();
+  const token = parseBearerToken(c.req.header("Authorization"));
+  if (token) {
     const apiKeyResult = await verifyApiKey(token);
     if (apiKeyResult?.valid && apiKeyResult.key) {
       const key = apiKeyResult.key;
@@ -55,9 +67,8 @@ export async function resolveAssetBearerOrCookie(c: Context): Promise<{
   userId: string;
   apiKeyId?: string;
 }> {
-  const authHeader = c.req.header("Authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const token = authHeader.substring(7).replace(/\s+/g, "").trim();
+  const token = parseBearerToken(c.req.header("Authorization"));
+  if (token) {
     const apiKeyResult = await verifyApiKey(token);
     if (apiKeyResult?.valid && apiKeyResult.key) {
       return {

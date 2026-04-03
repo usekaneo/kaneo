@@ -334,5 +334,18 @@ describe("API integration: device authorization (RFC 8628)", () => {
     );
 
     expect(res.status).toBe(401);
+
+    const lowercaseSchemeRes = await app.request(
+      `/api/project?workspaceId=${encodeURIComponent(workspaceId)}`,
+      {
+        headers: {
+          authorization: "bearer definitely-not-a-real-token",
+          Cookie: cookieJar,
+          Origin: origin,
+        },
+      },
+    );
+
+    expect(lowercaseSchemeRes.status).toBe(401);
   });
 });
