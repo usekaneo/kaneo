@@ -1,4 +1,5 @@
-import { pathToFileURL } from "node:url";
+import { dirname } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import type { Session, User } from "better-auth/types";
 import { eq } from "drizzle-orm";
@@ -30,10 +31,12 @@ import invitation from "./invitation";
 import label from "./label";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
+import notificationPreferences from "./notification-preferences";
 import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
+import { initializeScheduler, shutdownScheduler } from "./scheduler";
 import search from "./search";
 import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
@@ -47,6 +50,7 @@ import {
 } from "./utils/authenticate-api-request";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
+import { migrateNotificationPreferencesSchema } from "./utils/migrate-notification-preferences-schema";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import {
@@ -435,6 +439,10 @@ export function createApp() {
   const timeEntryApi = api.route("/time-entry", timeEntry);
   const labelApi = api.route("/label", label);
   const notificationApi = api.route("/notification", notification);
+  const notificationPreferencesApi = api.route(
+    "/notification-preferences",
+    notificationPreferences,
+  );
   const searchApi = api.route("/search", search);
   const githubIntegrationApi = api.route(
     "/github-integration",
@@ -478,6 +486,7 @@ export function createApp() {
     invitationPublicApi,
     labelApi,
     notificationApi,
+    notificationPreferencesApi,
     projectApi,
     publicProjectApi,
     searchApi,
@@ -492,20 +501,24 @@ export function createApp() {
 }
 
 export async function runStartupTasks() {
+  const currentDir = dirname(fileURLToPath(import.meta.url));
+
   await migrateWorkspaceUserEmail();
   await migrateSessionColumn();
   await migrateApiKeyReferenceId();
 
   console.log("🔄 Migrating database...");
   await migrate(db, {
-    migrationsFolder: `${process.cwd()}/drizzle`,
+    migrationsFolder: `${currentDir}/../drizzle`,
   });
   console.log("✅ Database migrated successfully!");
 
+  await migrateNotificationPreferencesSchema();
   await migrateGitHubIntegration();
   await migrateColumns();
 
   initializePlugins();
+  initializeScheduler();
 }
 
 export async function startServer(port = 1337) {
@@ -515,6 +528,10 @@ export async function startServer(port = 1337) {
     console.error("❌ Database migration failed!", error);
     process.exit(1);
   }
+
+  process.on("SIGTERM", () => {
+    shutdownScheduler();
+  });
 
   serve(
     {
@@ -545,6 +562,7 @@ const {
   invitationPublicApi,
   labelApi,
   notificationApi,
+  notificationPreferencesApi,
   projectApi,
   publicProjectApi,
   searchApi,
@@ -575,6 +593,7 @@ export type AppType =
   | typeof timeEntryApi
   | typeof labelApi
   | typeof notificationApi
+  | typeof notificationPreferencesApi
   | typeof searchApi
   | typeof githubIntegrationApi
   | typeof giteaIntegrationApi

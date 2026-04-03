@@ -1183,6 +1183,9 @@
 				"information": {
 					"type": "string"
 				},
+				"notifications": {
+					"type": "string"
+				},
 				"preferences": {
 					"type": "string"
 				},
@@ -1260,6 +1263,358 @@
 						"updateSuccess",
 						"updateError",
 						"validation"
+					]
+				},
+				"notificationsPage": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"statusConnected": {
+							"type": "string"
+						},
+						"statusPaused": {
+							"type": "string"
+						},
+						"emailTitle": {
+							"type": "string"
+						},
+						"emailDescription": {
+							"type": "string"
+						},
+						"accountEmailLabel": {
+							"type": "string"
+						},
+						"accountEmailNoAddress": {
+							"type": "string"
+						},
+						"accountEmailHint": {
+							"type": "string"
+						},
+						"saveChanges": {
+							"type": "string"
+						},
+						"disconnect": {
+							"type": "string"
+						},
+						"ntfyTitle": {
+							"type": "string"
+						},
+						"ntfyDescription": {
+							"type": "string"
+						},
+						"serverUrl": {
+							"type": "string"
+						},
+						"topic": {
+							"type": "string"
+						},
+						"token": {
+							"type": "string"
+						},
+						"ntfyServerPlaceholder": {
+							"type": "string"
+						},
+						"ntfyTopicPlaceholder": {
+							"type": "string"
+						},
+						"ntfyTokenPlaceholder": {
+							"type": "string"
+						},
+						"ntfyTokenHintConfigured": {
+							"type": "string"
+						},
+						"ntfyTokenHintOptional": {
+							"type": "string"
+						},
+						"connectNtfy": {
+							"type": "string"
+						},
+						"gotifyTitle": {
+							"type": "string"
+						},
+						"gotifyDescription": {
+							"type": "string"
+						},
+						"gotifyTokenLabel": {
+							"type": "string"
+						},
+						"gotifyServerPlaceholder": {
+							"type": "string"
+						},
+						"gotifyTokenPlaceholder": {
+							"type": "string"
+						},
+						"gotifyTokenHintConfigured": {
+							"type": "string"
+						},
+						"gotifyTokenHintRequired": {
+							"type": "string"
+						},
+						"connectGotify": {
+							"type": "string"
+						},
+						"webhookTitle": {
+							"type": "string"
+						},
+						"webhookDescription": {
+							"type": "string"
+						},
+						"endpointUrl": {
+							"type": "string"
+						},
+						"signingSecret": {
+							"type": "string"
+						},
+						"webhookUrlPlaceholder": {
+							"type": "string"
+						},
+						"webhookSecretPlaceholder": {
+							"type": "string"
+						},
+						"webhookSecretHintConfigured": {
+							"type": "string"
+						},
+						"webhookSecretHintOptional": {
+							"type": "string"
+						},
+						"connectWebhook": {
+							"type": "string"
+						},
+						"workspaceRulesTitle": {
+							"type": "string"
+						},
+						"workspaceRulesDescription": {
+							"type": "string"
+						},
+						"workspaceCardHint": {
+							"type": "string"
+						},
+						"workspaceCardLabelEmail": {
+							"type": "string"
+						},
+						"workspaceCardLabelNtfy": {
+							"type": "string"
+						},
+						"workspaceCardLabelGotify": {
+							"type": "string"
+						},
+						"workspaceCardLabelWebhook": {
+							"type": "string"
+						},
+						"emailChannelHintEnabled": {
+							"type": "string"
+						},
+						"emailChannelHintDisabled": {
+							"type": "string"
+						},
+						"ntfyChannelHintEnabled": {
+							"type": "string"
+						},
+						"ntfyChannelHintDisabled": {
+							"type": "string"
+						},
+						"gotifyChannelHintEnabled": {
+							"type": "string"
+						},
+						"gotifyChannelHintDisabled": {
+							"type": "string"
+						},
+						"webhookChannelHintEnabled": {
+							"type": "string"
+						},
+						"webhookChannelHintDisabled": {
+							"type": "string"
+						},
+						"projectScope": {
+							"type": "string"
+						},
+						"projectScopeDescription": {
+							"type": "string"
+						},
+						"allProjects": {
+							"type": "string"
+						},
+						"allProjectsDescription": {
+							"type": "string"
+						},
+						"selectedProjects": {
+							"type": "string"
+						},
+						"selectedProjectsDescription": {
+							"type": "string"
+						},
+						"noProjectsInWorkspace": {
+							"type": "string"
+						},
+						"createRule": {
+							"type": "string"
+						},
+						"removeRule": {
+							"type": "string"
+						},
+						"toastEmailSaved": {
+							"type": "string"
+						},
+						"toastEmailSaveFailed": {
+							"type": "string"
+						},
+						"toastNtfySaved": {
+							"type": "string"
+						},
+						"toastNtfySaveFailed": {
+							"type": "string"
+						},
+						"toastNtfyDisconnected": {
+							"type": "string"
+						},
+						"toastNtfyDisconnectFailed": {
+							"type": "string"
+						},
+						"toastGotifySaved": {
+							"type": "string"
+						},
+						"toastGotifySaveFailed": {
+							"type": "string"
+						},
+						"toastGotifyDisconnected": {
+							"type": "string"
+						},
+						"toastGotifyDisconnectFailed": {
+							"type": "string"
+						},
+						"toastWebhookSaved": {
+							"type": "string"
+						},
+						"toastWebhookSaveFailed": {
+							"type": "string"
+						},
+						"toastWebhookDisconnected": {
+							"type": "string"
+						},
+						"toastWebhookDisconnectFailed": {
+							"type": "string"
+						},
+						"toastRuleSaved": {
+							"type": "string"
+						},
+						"toastRuleSaveFailed": {
+							"type": "string"
+						},
+						"toastRuleRemoved": {
+							"type": "string"
+						},
+						"toastRuleRemoveFailed": {
+							"type": "string"
+						},
+						"toastPreferencesSaved": {
+							"type": "string"
+						},
+						"toastPreferencesSaveFailed": {
+							"type": "string"
+						},
+						"toastRuleSavedGeneric": {
+							"type": "string"
+						},
+						"toastRuleRemovedGeneric": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"pageTitle",
+						"title",
+						"subtitle",
+						"statusConnected",
+						"statusPaused",
+						"emailTitle",
+						"emailDescription",
+						"accountEmailLabel",
+						"accountEmailNoAddress",
+						"accountEmailHint",
+						"saveChanges",
+						"disconnect",
+						"ntfyTitle",
+						"ntfyDescription",
+						"serverUrl",
+						"topic",
+						"token",
+						"ntfyServerPlaceholder",
+						"ntfyTopicPlaceholder",
+						"ntfyTokenPlaceholder",
+						"ntfyTokenHintConfigured",
+						"ntfyTokenHintOptional",
+						"connectNtfy",
+						"gotifyTitle",
+						"gotifyDescription",
+						"gotifyTokenLabel",
+						"gotifyServerPlaceholder",
+						"gotifyTokenPlaceholder",
+						"gotifyTokenHintConfigured",
+						"gotifyTokenHintRequired",
+						"connectGotify",
+						"webhookTitle",
+						"webhookDescription",
+						"endpointUrl",
+						"signingSecret",
+						"webhookUrlPlaceholder",
+						"webhookSecretPlaceholder",
+						"webhookSecretHintConfigured",
+						"webhookSecretHintOptional",
+						"connectWebhook",
+						"workspaceRulesTitle",
+						"workspaceRulesDescription",
+						"workspaceCardHint",
+						"workspaceCardLabelEmail",
+						"workspaceCardLabelNtfy",
+						"workspaceCardLabelGotify",
+						"workspaceCardLabelWebhook",
+						"emailChannelHintEnabled",
+						"emailChannelHintDisabled",
+						"ntfyChannelHintEnabled",
+						"ntfyChannelHintDisabled",
+						"gotifyChannelHintEnabled",
+						"gotifyChannelHintDisabled",
+						"webhookChannelHintEnabled",
+						"webhookChannelHintDisabled",
+						"projectScope",
+						"projectScopeDescription",
+						"allProjects",
+						"allProjectsDescription",
+						"selectedProjects",
+						"selectedProjectsDescription",
+						"noProjectsInWorkspace",
+						"createRule",
+						"removeRule",
+						"toastEmailSaved",
+						"toastEmailSaveFailed",
+						"toastNtfySaved",
+						"toastNtfySaveFailed",
+						"toastNtfyDisconnected",
+						"toastNtfyDisconnectFailed",
+						"toastGotifySaved",
+						"toastGotifySaveFailed",
+						"toastGotifyDisconnected",
+						"toastGotifyDisconnectFailed",
+						"toastWebhookSaved",
+						"toastWebhookSaveFailed",
+						"toastWebhookDisconnected",
+						"toastWebhookDisconnectFailed",
+						"toastRuleSaved",
+						"toastRuleSaveFailed",
+						"toastRuleRemoved",
+						"toastRuleRemoveFailed",
+						"toastPreferencesSaved",
+						"toastPreferencesSaveFailed",
+						"toastRuleSavedGeneric",
+						"toastRuleRemovedGeneric"
 					]
 				},
 				"preferencesPage": {
@@ -1951,6 +2306,24 @@
 						},
 						"githubSectionSubtitle": {
 							"type": "string"
+						},
+						"discordSectionTitle": {
+							"type": "string"
+						},
+						"discordSectionSubtitle": {
+							"type": "string"
+						},
+						"genericWebhookSectionTitle": {
+							"type": "string"
+						},
+						"genericWebhookSectionSubtitle": {
+							"type": "string"
+						},
+						"slackSectionTitle": {
+							"type": "string"
+						},
+						"slackSectionSubtitle": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -1958,7 +2331,13 @@
 						"title",
 						"subtitle",
 						"githubSectionTitle",
-						"githubSectionSubtitle"
+						"githubSectionSubtitle",
+						"discordSectionTitle",
+						"discordSectionSubtitle",
+						"genericWebhookSectionTitle",
+						"genericWebhookSectionSubtitle",
+						"slackSectionTitle",
+						"slackSectionSubtitle"
 					]
 				},
 				"projectVisibility": {
@@ -2392,6 +2771,465 @@
 						"importDisabledHint"
 					]
 				},
+				"slackIntegration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"validation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"webhookInvalid": {
+									"type": "string"
+								}
+							},
+							"required": ["webhookInvalid"]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"saved": {
+									"type": "string"
+								},
+								"saveError": {
+									"type": "string"
+								},
+								"enabled": {
+									"type": "string"
+								},
+								"disabled": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"removed": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"saved",
+								"saveError",
+								"enabled",
+								"disabled",
+								"updateError",
+								"removed",
+								"removeError"
+							]
+						},
+						"connectionTitle": {
+							"type": "string"
+						},
+						"connectionHint": {
+							"type": "string"
+						},
+						"connected": {
+							"type": "string"
+						},
+						"paused": {
+							"type": "string"
+						},
+						"webhookLabel": {
+							"type": "string"
+						},
+						"webhookPlaceholder": {
+							"type": "string"
+						},
+						"webhookHint": {
+							"type": "string"
+						},
+						"channelLabel": {
+							"type": "string"
+						},
+						"channelPlaceholder": {
+							"type": "string"
+						},
+						"channelHint": {
+							"type": "string"
+						},
+						"eventsTitle": {
+							"type": "string"
+						},
+						"eventsHint": {
+							"type": "string"
+						},
+						"events": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"taskCreated": {
+									"type": "string"
+								},
+								"taskStatusChanged": {
+									"type": "string"
+								},
+								"taskPriorityChanged": {
+									"type": "string"
+								},
+								"taskTitleChanged": {
+									"type": "string"
+								},
+								"taskDescriptionChanged": {
+									"type": "string"
+								},
+								"taskCommentCreated": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"taskCreated",
+								"taskStatusChanged",
+								"taskPriorityChanged",
+								"taskTitleChanged",
+								"taskDescriptionChanged",
+								"taskCommentCreated"
+							]
+						},
+						"connect": {
+							"type": "string"
+						},
+						"saveChanges": {
+							"type": "string"
+						},
+						"update": {
+							"type": "string"
+						},
+						"disconnect": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"validation",
+						"toast",
+						"connectionTitle",
+						"connectionHint",
+						"connected",
+						"paused",
+						"webhookLabel",
+						"webhookPlaceholder",
+						"webhookHint",
+						"channelLabel",
+						"channelPlaceholder",
+						"channelHint",
+						"eventsTitle",
+						"eventsHint",
+						"events",
+						"connect",
+						"saveChanges",
+						"update",
+						"disconnect"
+					]
+				},
+				"discordIntegration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"validation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"webhookInvalid": {
+									"type": "string"
+								}
+							},
+							"required": ["webhookInvalid"]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"saved": {
+									"type": "string"
+								},
+								"saveError": {
+									"type": "string"
+								},
+								"enabled": {
+									"type": "string"
+								},
+								"disabled": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"removed": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"saved",
+								"saveError",
+								"enabled",
+								"disabled",
+								"updateError",
+								"removed",
+								"removeError"
+							]
+						},
+						"connectionTitle": {
+							"type": "string"
+						},
+						"connectionHint": {
+							"type": "string"
+						},
+						"connected": {
+							"type": "string"
+						},
+						"paused": {
+							"type": "string"
+						},
+						"webhookLabel": {
+							"type": "string"
+						},
+						"webhookPlaceholder": {
+							"type": "string"
+						},
+						"webhookHint": {
+							"type": "string"
+						},
+						"channelLabel": {
+							"type": "string"
+						},
+						"channelPlaceholder": {
+							"type": "string"
+						},
+						"channelHint": {
+							"type": "string"
+						},
+						"eventsTitle": {
+							"type": "string"
+						},
+						"eventsHint": {
+							"type": "string"
+						},
+						"events": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"taskCreated": {
+									"type": "string"
+								},
+								"taskStatusChanged": {
+									"type": "string"
+								},
+								"taskPriorityChanged": {
+									"type": "string"
+								},
+								"taskTitleChanged": {
+									"type": "string"
+								},
+								"taskDescriptionChanged": {
+									"type": "string"
+								},
+								"taskCommentCreated": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"taskCreated",
+								"taskStatusChanged",
+								"taskPriorityChanged",
+								"taskTitleChanged",
+								"taskDescriptionChanged",
+								"taskCommentCreated"
+							]
+						},
+						"connect": {
+							"type": "string"
+						},
+						"saveChanges": {
+							"type": "string"
+						},
+						"update": {
+							"type": "string"
+						},
+						"disconnect": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"validation",
+						"toast",
+						"connectionTitle",
+						"connectionHint",
+						"connected",
+						"paused",
+						"webhookLabel",
+						"webhookPlaceholder",
+						"webhookHint",
+						"channelLabel",
+						"channelPlaceholder",
+						"channelHint",
+						"eventsTitle",
+						"eventsHint",
+						"events",
+						"connect",
+						"saveChanges",
+						"update",
+						"disconnect"
+					]
+				},
+				"genericWebhookIntegration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"validation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"webhookInvalid": {
+									"type": "string"
+								}
+							},
+							"required": ["webhookInvalid"]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"saved": {
+									"type": "string"
+								},
+								"saveError": {
+									"type": "string"
+								},
+								"enabled": {
+									"type": "string"
+								},
+								"disabled": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"removed": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"saved",
+								"saveError",
+								"enabled",
+								"disabled",
+								"updateError",
+								"removed",
+								"removeError"
+							]
+						},
+						"connectionTitle": {
+							"type": "string"
+						},
+						"connectionHint": {
+							"type": "string"
+						},
+						"connected": {
+							"type": "string"
+						},
+						"paused": {
+							"type": "string"
+						},
+						"webhookLabel": {
+							"type": "string"
+						},
+						"webhookPlaceholder": {
+							"type": "string"
+						},
+						"webhookHint": {
+							"type": "string"
+						},
+						"secretLabel": {
+							"type": "string"
+						},
+						"secretPlaceholder": {
+							"type": "string"
+						},
+						"secretHint": {
+							"type": "string"
+						},
+						"secretHintConfigured": {
+							"type": "string"
+						},
+						"eventsTitle": {
+							"type": "string"
+						},
+						"eventsHint": {
+							"type": "string"
+						},
+						"events": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"taskCreated": {
+									"type": "string"
+								},
+								"taskStatusChanged": {
+									"type": "string"
+								},
+								"taskPriorityChanged": {
+									"type": "string"
+								},
+								"taskTitleChanged": {
+									"type": "string"
+								},
+								"taskDescriptionChanged": {
+									"type": "string"
+								},
+								"taskCommentCreated": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"taskCreated",
+								"taskStatusChanged",
+								"taskPriorityChanged",
+								"taskTitleChanged",
+								"taskDescriptionChanged",
+								"taskCommentCreated"
+							]
+						},
+						"connect": {
+							"type": "string"
+						},
+						"saveChanges": {
+							"type": "string"
+						},
+						"disconnect": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"validation",
+						"toast",
+						"connectionTitle",
+						"connectionHint",
+						"connected",
+						"paused",
+						"webhookLabel",
+						"webhookPlaceholder",
+						"webhookHint",
+						"secretLabel",
+						"secretPlaceholder",
+						"secretHint",
+						"secretHintConfigured",
+						"eventsTitle",
+						"eventsHint",
+						"events",
+						"connect",
+						"saveChanges",
+						"disconnect"
+					]
+				},
 				"repositoryBrowser": {
 					"type": "object",
 					"additionalProperties": false,
@@ -2646,9 +3484,11 @@
 				"account",
 				"developer",
 				"information",
+				"notifications",
 				"preferences",
 				"apiKeys",
 				"informationPage",
+				"notificationsPage",
 				"preferencesPage",
 				"developerPage",
 				"apiKey",
@@ -2660,6 +3500,9 @@
 				"projectSwitcher",
 				"columnEditor",
 				"githubIntegration",
+				"slackIntegration",
+				"discordIntegration",
+				"genericWebhookIntegration",
 				"repositoryBrowser",
 				"tasksImportExport",
 				"workflowEditor",

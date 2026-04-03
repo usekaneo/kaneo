@@ -1,0 +1,10 @@
+{
+	"version": 1,
+	"skills": {
+		"coss": {
+			"source": "cosscom/coss",
+			"sourceType": "github",
+			"computedHash": "7fc8b04e73c445d9463ce27d0719832ed5ca3cbe70c3ac20fe15848aae24180e"
+		}
+	}
+}

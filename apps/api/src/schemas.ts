@@ -90,12 +90,53 @@ export const notificationSchema = v.object({
     "task_status_changed",
     "task_assignee_changed",
     "time_entry_created",
+    "due_date_reminder",
+    "task_overdue",
   ] as const),
   eventData: v.nullable(v.record(v.string(), v.unknown())),
   isRead: v.optional(v.boolean()),
   resourceId: v.optional(v.string()),
   resourceType: v.optional(v.picklist(["task", "workspace"] as const)),
   createdAt: v.date(),
+});
+
+export const notificationPreferenceWorkspaceRuleSchema = v.object({
+  id: v.string(),
+  workspaceId: v.string(),
+  workspaceName: v.string(),
+  isActive: v.boolean(),
+  emailEnabled: v.boolean(),
+  ntfyEnabled: v.boolean(),
+  gotifyEnabled: v.boolean(),
+  webhookEnabled: v.boolean(),
+  projectMode: v.picklist(["all", "selected"] as const),
+  selectedProjectIds: v.array(v.string()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
+export const notificationPreferenceSchema = v.object({
+  emailAddress: v.nullable(v.string()),
+  emailEnabled: v.boolean(),
+  ntfyEnabled: v.boolean(),
+  ntfyConfigured: v.boolean(),
+  ntfyServerUrl: v.nullable(v.string()),
+  ntfyTopic: v.nullable(v.string()),
+  ntfyTokenConfigured: v.boolean(),
+  maskedNtfyToken: v.nullable(v.string()),
+  gotifyEnabled: v.boolean(),
+  gotifyConfigured: v.boolean(),
+  gotifyServerUrl: v.nullable(v.string()),
+  gotifyTokenConfigured: v.boolean(),
+  maskedGotifyToken: v.nullable(v.string()),
+  webhookEnabled: v.boolean(),
+  webhookConfigured: v.boolean(),
+  webhookUrl: v.nullable(v.string()),
+  webhookSecretConfigured: v.boolean(),
+  maskedWebhookSecret: v.nullable(v.string()),
+  workspaces: v.array(notificationPreferenceWorkspaceRuleSchema),
+  createdAt: v.nullable(v.date()),
+  updatedAt: v.nullable(v.date()),
 });
 
 export const githubIntegrationSchema = v.object({

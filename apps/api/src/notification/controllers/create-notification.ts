@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import db from "../../database";
 import { notificationTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { deliverNotification } from "../../notification-preferences/delivery";
 
 async function createNotification({
   userId,
@@ -38,6 +39,12 @@ async function createNotification({
     await publishEvent("notification.created", {
       notificationId: notification.id,
       userId,
+    });
+    void deliverNotification(notification.id).catch((error) => {
+      console.error("Failed to deliver notification", {
+        notificationId: notification.id,
+        error,
+      });
     });
   }
 

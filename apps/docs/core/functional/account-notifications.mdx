@@ -1,0 +1,166 @@
+---
+title: Account Notifications
+description: Deliver your personal Kaneo notifications by email, ntfy, Gotify, or a custom webhook with workspace and project scoping
+---
+
+Kaneo can keep the normal in-app notification inbox and also forward matching notifications to external channels for the signed-in user.
+
+You can configure this under:
+
+1. Open **Settings**
+2. Open **Account**
+3. Open **Notifications**
+
+## Available channels
+
+Users can forward matching notifications through:
+
+- `Email`
+- `ntfy`
+- `Gotify`
+- `Custom webhook`
+
+These settings are personal to the signed-in account. They do not change notification routing for other users in the workspace.
+
+## How it works
+
+Kaneo already stores in-app notifications in the notification inbox. Account notification delivery adds a separate preference layer on top of that behavior.
+
+Important rules:
+
+- the in-app inbox remains the source of truth
+- outbound delivery only applies to newly created notifications
+- historical notifications are not replayed
+- delivery failures do not block notification creation
+- delivery can be scoped by workspace and, optionally, by selected projects
+
+## Global channels
+
+The Notifications page includes separate connection cards for:
+
+- `Email`
+- `Gotify`
+- `ntfy`
+- `Custom webhook`
+
+Configure each channel once at the account level, then decide which workspaces are allowed to use it.
+
+### Email
+
+Email delivery uses the signed-in account email address.
+
+Requirements:
+
+- the user must have an email on the account
+- SMTP must be configured on the server
+
+### ntfy
+
+ntfy requires:
+
+- a server URL
+- a topic
+- optionally, a bearer token
+
+### Gotify
+
+Gotify requires:
+
+- a server URL
+- an application token (bearer token)
+
+Setup notes:
+
+- create an application in your Gotify server before connecting Kaneo
+- paste the base server URL, for example `https://gotify.example.com`
+- no extra topic or path is required because Kaneo sends directly to the Gotify message API using the application token
+- if your Gotify server uses a custom port or TLS, include that in the server URL
+
+### Custom webhook
+
+Custom webhook requires:
+
+- a destination URL
+- optionally, a signing secret
+
+When a signing secret is configured, Kaneo sends an `X-Kaneo-Signature` header containing the `HMAC-SHA256` hex digest of the raw JSON body.
+
+## Workspace delivery rules
+
+Below the global channel cards, Kaneo shows workspace delivery rules.
+
+Each workspace rule can:
+
+- be active or paused
+- enable or disable `Email`, `Gotify`, `ntfy`, and `Custom webhook`
+- apply to `All projects`
+- or apply to `Selected projects` only
+
+This lets a user receive notifications from one workspace in ntfy, another by email, and ignore the rest.
+
+## Supported notification sources
+
+V1 forwards the same notification types that currently create inbox notifications in Kaneo.
+
+That includes:
+
+- `task_created`
+- `workspace_created`
+- `task_status_changed`
+- `task_assignee_changed`
+- `time_entry_created`
+
+If Kaneo cannot resolve a notification to a workspace or project context, that notification stays inbox-only.
+
+## Reachability and security
+
+For security, Kaneo validates outbound HTTP destinations before saving or sending.
+
+Private or non-routable destinations are rejected, including examples like:
+
+- `localhost`
+- `127.0.0.1`
+- `10.x.x.x`
+- `172.16.x.x` to `172.31.x.x`
+- `192.168.x.x`
+
+This applies to:
+
+- `ntfy` server URLs
+- `Gotify` server URLs
+- custom webhook URLs
+
+If you are using a self-hosted ntfy instance, Gotify instance, or webhook receiver, it must be reachable from the API with an accepted public or routable hostname.
+
+## Troubleshooting
+
+### Notifications show in Kaneo but are not delivered
+
+Check that:
+
+- the global channel is configured and enabled
+- a workspace rule exists for the notification workspace
+- the workspace rule is active
+- the channel is enabled on that workspace rule
+- the project is included when using `Selected projects`
+
+### Email is enabled but nothing is sent
+
+Check that:
+
+- SMTP is configured correctly
+- the signed-in user has an email address
+- the server can reach the SMTP provider
+
+### ntfy, Gotify, or webhook save fails
+
+Check that:
+
+- the URL is valid
+- the destination is reachable from the API server
+- the hostname does not resolve to a blocked local or private address
+
+## Next
+
+- [Personalize Your Workspace](/core/functional/personalize-your-workspace)
+- [Outgoing webhooks](/core/integrations/outgoing-webhooks)
