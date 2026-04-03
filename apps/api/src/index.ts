@@ -384,17 +384,25 @@ export function createApp() {
     },
   );
 
-  api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
+  api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", async (c) => {
     const authHeader = c.req.header("Authorization");
+    const apiKeyHeader = c.req.header("x-api-key");
+    const bearerMatch = authHeader?.match(/^Bearer\s+(\S+)$/i);
 
-    if (authHeader?.startsWith("Bearer ")) {
-      const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
+    if (bearerMatch && !apiKeyHeader) {
+      const session = await auth.api.getSession({
+        headers: c.req.raw.headers,
+      });
+
+      // Preserve Better Auth bearer session tokens on auth routes.
+      if (session?.session && session.user) {
+        return auth.handler(c.req.raw);
+      }
+
       const headers = new Headers(c.req.raw.headers);
 
       // Better Auth API key plugin validates from x-api-key by default.
-      if (!headers.get("x-api-key")) {
-        headers.set("x-api-key", apiKey);
-      }
+      headers.set("x-api-key", bearerMatch[1]);
 
       return auth.handler(
         new Request(c.req.raw, {

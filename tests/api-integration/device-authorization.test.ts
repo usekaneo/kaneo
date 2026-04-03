@@ -236,6 +236,15 @@ describe("API integration: device authorization (RFC 8628)", () => {
 
     expect(accessToken).toBeTruthy();
 
+    const organizationsRes = await app.request("/api/auth/organization/list", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    expect(organizationsRes.status).toBe(200);
+    const organizations = (await organizationsRes.json()) as unknown[];
+    expect(Array.isArray(organizations)).toBe(true);
+
     const projectsRes = await app.request(
       `/api/project?workspaceId=${encodeURIComponent(workspaceId)}`,
       {
@@ -279,11 +288,40 @@ describe("API integration: device authorization (RFC 8628)", () => {
     );
 
     expect(res.status).toBe(200);
+
     const rows = await db
       .select()
       .from(schema.apikeyTable)
       .where(eq(schema.apikeyTable.key, hashed));
     expect(rows.length).toBe(1);
+  });
+
+  it("accepts a created API key Bearer on auth routes", async () => {
+    const member = await createWorkspaceMember();
+    const rawKey =
+      randomUUID().replace(/-/g, "") + randomUUID().replace(/-/g, "");
+    const hashed = await hashApiKeyForTest(rawKey);
+    const now = new Date();
+
+    await db.insert(schema.apikeyTable).values({
+      referenceId: member.user.id,
+      userId: member.user.id,
+      key: hashed,
+      name: "auth route api key",
+      start: rawKey.slice(0, 12),
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const { app } = createApp();
+
+    const authRouteRes = await app.request("/api/auth/organization/list", {
+      headers: {
+        Authorization: `Bearer ${rawKey}`,
+      },
+    });
+
+    expect(authRouteRes.status).toBe(200);
   });
 
   it("rejects an invalid Bearer token even when a valid session cookie is present", async () => {
