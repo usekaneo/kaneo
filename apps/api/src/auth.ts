@@ -10,6 +10,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import {
   anonymous,
+  bearer,
+  deviceAuthorization,
   emailOTP,
   genericOAuth,
   lastLoginMethod,
@@ -98,6 +100,24 @@ function getAuthEmailCopy(locale?: string | null) {
       };
 }
 
+function getDeviceAuthClientIds(): Set<string> {
+  const raw = process.env.DEVICE_AUTH_CLIENT_IDS?.trim();
+  if (raw) {
+    return new Set(
+      raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
+  }
+  return new Set(["kaneo-cli"]);
+}
+
+function getDeviceAuthVerificationUri(): string {
+  const base = clientUrl.replace(/\/$/, "");
+  return `${base}/device`;
+}
+
 function getInvitationEmailSubject(
   locale: string | null,
   inviterName: string,
@@ -127,6 +147,7 @@ export const auth = betterAuth({
       team: schema.teamTable,
       teamMember: schema.teamMemberTable,
       apikey: schema.apikeyTable,
+      deviceCode: schema.deviceCodeTable,
     },
   }),
   user: {
@@ -302,6 +323,7 @@ export const auth = betterAuth({
         },
       ],
     }),
+    bearer(),
     apiKey({
       enableSessionForAPIKeys: true,
       apiKeyHeaders: "x-api-key",
@@ -310,6 +332,11 @@ export const auth = betterAuth({
         maxRequests: 100,
         timeWindow: 60 * 1000,
       },
+    }),
+    deviceAuthorization({
+      verificationUri: getDeviceAuthVerificationUri(),
+      validateClient: async (clientId) =>
+        getDeviceAuthClientIds().has(clientId),
     }),
     openAPI(),
   ],

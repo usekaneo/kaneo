@@ -23,6 +23,7 @@ import { AuthToggle } from "../../components/auth/toggle";
 const signInSearchSchema = z.object({
   invitationId: z.string().optional(),
   email: z.string().optional(),
+  redirect: z.string().optional(),
 });
 
 export const Route = createFileRoute("/auth/sign-in")({
@@ -45,8 +46,20 @@ function SignIn() {
   const invitationId = search.invitationId;
   const defaultEmail = search.email;
 
+  const getSafeRedirectPath = () => {
+    const redirectPath = search.redirect;
+    if (redirectPath?.startsWith("/") && !redirectPath.includes("//")) {
+      return redirectPath;
+    }
+    return undefined;
+  };
+
   const getCallbackUrl = () => {
     const baseUrl = import.meta.env.VITE_CLIENT_URL;
+    const redirectPath = getSafeRedirectPath();
+    if (redirectPath) {
+      return `${baseUrl}${redirectPath}`;
+    }
     if (invitationId) {
       return `${baseUrl}/invitation/accept/${invitationId}`;
     }
@@ -152,7 +165,10 @@ function SignIn() {
   };
 
   const handleSignInSuccess = () => {
-    if (invitationId) {
+    const redirectPath = getSafeRedirectPath();
+    if (redirectPath) {
+      navigate({ to: redirectPath });
+    } else if (invitationId) {
       navigate({ to: `/invitation/accept/${invitationId}` });
     } else {
       navigate({ to: "/dashboard" });
@@ -346,6 +362,7 @@ function SignIn() {
             <OtpSignInForm
               invitationId={invitationId}
               defaultEmail={defaultEmail}
+              redirect={getSafeRedirectPath()}
               onSuccess={handleSignInSuccess}
             />
           ) : (

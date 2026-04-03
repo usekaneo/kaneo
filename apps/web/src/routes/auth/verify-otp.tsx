@@ -31,13 +31,16 @@ export const Route = createFileRoute("/auth/verify-otp")({
   validateSearch: (search: Record<string, unknown>) => ({
     email: search.email as string,
     invitationId: search.invitationId as string | undefined,
+    redirect: search.redirect as string | undefined,
   }),
 });
 
 function VerifyOtp() {
   const { t } = useTranslation();
   const { history } = useRouter();
-  const { email, invitationId } = useSearch({ from: "/auth/verify-otp" });
+  const { email, invitationId, redirect } = useSearch({
+    from: "/auth/verify-otp",
+  });
   const [isPending, setIsPending] = useState(false);
 
   const verifyOtpSchema = useMemo(
@@ -54,6 +57,13 @@ function VerifyOtp() {
     resolver: standardSchemaResolver(verifyOtpSchema),
     defaultValues: { otp: "" },
   });
+
+  const safeRedirect = useMemo(() => {
+    if (redirect?.startsWith("/") && !redirect.includes("//")) {
+      return redirect;
+    }
+    return undefined;
+  }, [redirect]);
 
   const onSubmit = useCallback(
     async (data: VerifyOtpFormValues) => {
@@ -72,7 +82,9 @@ function VerifyOtp() {
         }
 
         toast.success(t("auth:verifyOtp.toast.signedInSuccess"));
-        if (invitationId) {
+        if (safeRedirect) {
+          history.push(safeRedirect);
+        } else if (invitationId) {
           history.push(`/invitation/accept/${invitationId}`);
         } else {
           history.push("/dashboard");
@@ -87,7 +99,7 @@ function VerifyOtp() {
         setIsPending(false);
       }
     },
-    [email, invitationId, history, t],
+    [email, invitationId, history, safeRedirect, t],
   );
 
   useEffect(() => {

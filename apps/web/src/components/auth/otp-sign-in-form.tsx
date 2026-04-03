@@ -20,6 +20,7 @@ import { toast } from "@/lib/toast";
 type OtpSignInFormProps = {
   invitationId?: string;
   defaultEmail?: string;
+  redirect?: string;
   onSuccess?: () => void;
 };
 
@@ -32,6 +33,7 @@ type EmailFormValues = z.infer<typeof emailSchema>;
 export function OtpSignInForm({
   invitationId,
   defaultEmail,
+  redirect,
 }: OtpSignInFormProps) {
   const { t } = useTranslation();
   const [isPending, setIsPending] = useState(false);
@@ -60,6 +62,7 @@ export function OtpSignInForm({
       const searchParams = new URLSearchParams({
         email: data.email,
         ...(invitationId && { invitationId }),
+        ...(redirect && { redirect }),
       });
       history.push(`/auth/verify-otp?${searchParams.toString()}`);
     } finally {

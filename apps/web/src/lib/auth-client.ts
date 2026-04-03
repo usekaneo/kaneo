@@ -1,6 +1,7 @@
 import { apiKeyClient } from "@better-auth/api-key/client";
 import {
   anonymousClient,
+  deviceAuthorizationClient,
   emailOTPClient,
   genericOAuthClient,
   inferAdditionalFields,
@@ -38,6 +39,7 @@ export const authClient = createAuthClient({
       },
     }),
     genericOAuthClient(),
+    deviceAuthorizationClient(),
     apiKeyClient(),
     inferAdditionalFields({
       user: {

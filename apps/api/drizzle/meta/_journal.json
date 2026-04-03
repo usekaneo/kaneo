@@ -162,6 +162,13 @@
 			"when": 1774944216644,
 			"tag": "0022_material_electro",
 			"breakpoints": true
+		},
+		{
+			"idx": 23,
+			"version": "7",
+			"when": 1775215568801,
+			"tag": "0023_cold_omega_red",
+			"breakpoints": true
 		}
 	]
 }
