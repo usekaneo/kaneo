@@ -42,6 +42,7 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getPriorityIcon } from "@/lib/priority";
@@ -166,6 +167,9 @@ function CreateTaskModal({
   );
   const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    workspace?.id || "",
+  );
   const { mutateAsync: createLabel } = useCreateLabel();
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id || "",
@@ -283,13 +287,15 @@ function CreateTaskModal({
           ...task,
           assigneeId: task.userId,
           assigneeName:
-            workspace?.members?.find((member) => member.userId === task.userId)
-              ?.user?.name ??
+            workspaceUsers?.members?.find(
+              (member) => member.userId === task.userId,
+            )?.user?.name ??
             existingTask?.assigneeName ??
             null,
           assigneeImage:
-            workspace?.members?.find((member) => member.userId === task.userId)
-              ?.user?.image ??
+            workspaceUsers?.members?.find(
+              (member) => member.userId === task.userId,
+            )?.user?.image ??
             existingTask?.assigneeImage ??
             null,
           position: task.position ?? 0,
@@ -298,7 +304,7 @@ function CreateTaskModal({
 
       setProject(updatedProject);
     },
-    [project, setProject, workspace?.members],
+    [project, setProject, workspaceUsers?.members],
   );
 
   const ensureDraftTask = useCallback(async () => {
@@ -460,7 +466,9 @@ function CreateTaskModal({
     }
     return t("tasks:status.in-progress");
   }, [status, t]);
-  const selectedUser = workspace?.members?.find((u) => u.userId === assigneeId);
+  const selectedUser = workspaceUsers?.members?.find(
+    (u) => u.userId === assigneeId,
+  );
 
   useEffect(() => {
     if (labelsOpen && labelsStep === "select" && searchInputRef.current) {
@@ -790,7 +798,7 @@ function CreateTaskModal({
                       </span>
                       {!assigneeId && <Check className="ml-auto h-4 w-4" />}
                     </button>
-                    {workspace?.members?.map((member) => (
+                    {workspaceUsers?.members?.map((member) => (
                       <button
                         key={member.userId}
                         type="button"

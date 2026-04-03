@@ -90,6 +90,8 @@ export const notificationSchema = v.object({
     "task_status_changed",
     "task_assignee_changed",
     "time_entry_created",
+    "due_date_reminder",
+    "task_overdue",
   ] as const),
   eventData: v.nullable(v.record(v.string(), v.unknown())),
   isRead: v.optional(v.boolean()),

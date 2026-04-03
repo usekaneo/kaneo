@@ -314,7 +314,36 @@ export const taskTable = pgTable(
   },
   (table) => [
     index("task_projectId_idx").on(table.projectId),
+    index("task_dueDate_idx").on(table.dueDate),
     unique("task_project_number_unique").on(table.projectId, table.number),
+  ],
+);
+
+export const taskReminderSentTable = pgTable(
+  "task_reminder_sent",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    reminderType: text("reminder_type").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("task_reminder_sent_taskId_idx").on(table.taskId),
+    unique("task_reminder_sent_task_type_unique").on(
+      table.taskId,
+      table.reminderType,
+    ),
   ],
 );
 

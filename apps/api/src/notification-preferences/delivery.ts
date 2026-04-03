@@ -124,6 +124,30 @@ function buildDeliveryContent(notification: {
           : "A time entry was created in Kaneo.",
       };
     }
+    case "due_date_reminder": {
+      const taskTitle = getStringValue(notification.eventData, "taskTitle");
+      const reminderType = getStringValue(
+        notification.eventData,
+        "reminderType",
+      );
+      const label =
+        reminderType === "one_hour_before" ? "in 1 hour" : "in 1 day";
+      return {
+        title: "Task due soon",
+        body: taskTitle
+          ? `"${taskTitle}" is due ${label}.`
+          : `A task is due ${label}.`,
+      };
+    }
+    case "task_overdue": {
+      const taskTitle = getStringValue(notification.eventData, "taskTitle");
+      return {
+        title: "Task overdue",
+        body: taskTitle
+          ? `"${taskTitle}" is past its due date.`
+          : "A task is past its due date.",
+      };
+    }
     default:
       return {
         title: notification.title ?? "New Kaneo notification",

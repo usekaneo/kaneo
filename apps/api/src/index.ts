@@ -36,6 +36,7 @@ import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
+import { initializeScheduler, shutdownScheduler } from "./scheduler";
 import search from "./search";
 import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
@@ -517,6 +518,7 @@ export async function runStartupTasks() {
   await migrateColumns();
 
   initializePlugins();
+  initializeScheduler();
 }
 
 export async function startServer(port = 1337) {
@@ -526,6 +528,10 @@ export async function startServer(port = 1337) {
     console.error("❌ Database migration failed!", error);
     process.exit(1);
   }
+
+  process.on("SIGTERM", () => {
+    shutdownScheduler();
+  });
 
   serve(
     {

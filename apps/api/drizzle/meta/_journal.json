@@ -190,6 +190,13 @@
 			"when": 1775102400000,
 			"tag": "0026_encrypt_notification_preference_secrets",
 			"breakpoints": true
+		},
+		{
+			"idx": 27,
+			"version": "7",
+			"when": 1775245262351,
+			"tag": "0027_chilly_namorita",
+			"breakpoints": true
 		}
 	]
 }

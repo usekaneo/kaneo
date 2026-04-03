@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskTable } from "../../database/schema";
+import { taskReminderSentTable, taskTable } from "../../database/schema";
 
 async function updateTaskDueDate({
   id,
@@ -19,6 +19,11 @@ async function updateTaskDueDate({
       message: "Task not found",
     });
   }
+
+  // Clear sent reminders so new due date triggers fresh notifications
+  await db
+    .delete(taskReminderSentTable)
+    .where(eq(taskReminderSentTable.taskId, id));
 
   const [updatedTask] = await db
     .update(taskTable)
