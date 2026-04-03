@@ -318,7 +318,7 @@ export function createApp() {
   // Better Auth serves GET /auth/device as JSON. Browsers that open the API URL
   // directly expect a page — redirect full document navigations to the web app.
   const authDeviceQuerySchema = v.object({
-    user_code: v.string(),
+    user_code: v.optional(v.string()),
     ui: v.optional(v.picklist(["1"])),
   });
 
@@ -334,7 +334,7 @@ export function createApp() {
         {
           name: "user_code",
           in: "query",
-          required: true,
+          required: false,
           schema: {
             type: "string",
           },
@@ -374,10 +374,11 @@ export function createApp() {
         const clientUrl = (
           process.env.KANEO_CLIENT_URL || "http://localhost:5173"
         ).replace(/\/$/, "");
-        return c.redirect(
-          `${clientUrl}/device?user_code=${encodeURIComponent(userCode)}`,
-          302,
-        );
+        const deviceUrl = new URL(`${clientUrl}/device`);
+        if (userCode) {
+          deviceUrl.searchParams.set("user_code", userCode);
+        }
+        return c.redirect(deviceUrl.toString(), 302);
       }
       return auth.handler(c.req.raw);
     },
@@ -413,7 +414,7 @@ export function createApp() {
         throw error;
       }
       console.error("API authentication failed:", error);
-      throw new HTTPException(401, { message: "Unauthorized" });
+      throw new HTTPException(500, { message: "Internal Server Error" });
     }
     return next();
   });

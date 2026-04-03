@@ -10,21 +10,36 @@ async function getSessionFromBearerOnlyHeaders(c: Context) {
   return auth.api.getSession({ headers });
 }
 
-function parseBearerToken(authHeader: string | undefined) {
+function parseBearerToken(authHeader: string | undefined): {
+  token: string | null;
+  malformed: boolean;
+} {
   if (!authHeader) {
-    return null;
+    return { token: null, malformed: false };
   }
 
   const match = authHeader.match(/^Bearer\s+(.+)$/i);
   if (!match) {
-    return null;
+    return { token: null, malformed: true };
   }
 
-  return match[1].replace(/\s+/g, "").trim();
+  const token = match[1]?.replace(/\s+/g, "").trim();
+  if (!token) {
+    return { token: null, malformed: true };
+  }
+
+  return {
+    token,
+    malformed: false,
+  };
 }
 
 export async function authenticateApiRequest(c: Context): Promise<void> {
-  const token = parseBearerToken(c.req.header("Authorization"));
+  const { token, malformed } = parseBearerToken(c.req.header("Authorization"));
+  if (malformed) {
+    throw new HTTPException(401, { message: "Unauthorized" });
+  }
+
   if (token) {
     const apiKeyResult = await verifyApiKey(token);
     if (apiKeyResult?.valid && apiKeyResult.key) {
@@ -67,7 +82,11 @@ export async function resolveAssetBearerOrCookie(c: Context): Promise<{
   userId: string;
   apiKeyId?: string;
 }> {
-  const token = parseBearerToken(c.req.header("Authorization"));
+  const { token, malformed } = parseBearerToken(c.req.header("Authorization"));
+  if (malformed) {
+    throw new HTTPException(401, { message: "Unauthorized" });
+  }
+
   if (token) {
     const apiKeyResult = await verifyApiKey(token);
     if (apiKeyResult?.valid && apiKeyResult.key) {
