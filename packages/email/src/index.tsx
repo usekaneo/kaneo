@@ -1,5 +1,6 @@
 export {
   sendMagicLinkEmail,
+  sendNotificationEmail,
   sendOtpEmail,
   sendPasswordResetEmail,
   sendWorkspaceInvitationEmail,

@@ -19,6 +19,9 @@ import {
   teamMemberTable,
   teamTable,
   timeEntryTable,
+  userNotificationPreferenceTable,
+  userNotificationWorkspaceProjectTable,
+  userNotificationWorkspaceRuleTable,
   userTable,
   verificationTable,
   workflowRuleTable,
@@ -26,7 +29,7 @@ import {
   workspaceUserTable,
 } from "./schema";
 
-export const userTableRelations = relations(userTable, ({ many }) => ({
+export const userTableRelations = relations(userTable, ({ many, one }) => ({
   sessions: many(sessionTable),
   accounts: many(accountTable),
   teamMembers: many(teamMemberTable),
@@ -38,6 +41,8 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
   comments: many(commentTable),
   assets: many(assetTable),
   notifications: many(notificationTable),
+  notificationPreference: one(userNotificationPreferenceTable),
+  notificationWorkspaceRules: many(userNotificationWorkspaceRuleTable),
   sentInvitations: many(invitationTable),
   apikeys: many(apikeyTable),
 }));
@@ -69,6 +74,7 @@ export const workspaceTableRelations = relations(
     projects: many(projectTable),
     assets: many(assetTable),
     invitations: many(invitationTable),
+    notificationWorkspaceRules: many(userNotificationWorkspaceRuleTable),
   }),
 );
 
@@ -99,6 +105,7 @@ export const projectTableRelations = relations(
     workflowRules: many(workflowRuleTable),
     githubIntegration: many(githubIntegrationTable),
     integrations: many(integrationTable),
+    notificationWorkspaceProjects: many(userNotificationWorkspaceProjectTable),
   }),
 );
 
@@ -206,6 +213,54 @@ export const notificationTableRelations = relations(
     user: one(userTable, {
       fields: [notificationTable.userId],
       references: [userTable.id],
+    }),
+  }),
+);
+
+export const userNotificationPreferenceTableRelations = relations(
+  userNotificationPreferenceTable,
+  ({ one }) => ({
+    user: one(userTable, {
+      fields: [userNotificationPreferenceTable.userId],
+      references: [userTable.id],
+    }),
+  }),
+);
+
+export const userNotificationWorkspaceRuleTableRelations = relations(
+  userNotificationWorkspaceRuleTable,
+  ({ one, many }) => ({
+    user: one(userTable, {
+      fields: [userNotificationWorkspaceRuleTable.userId],
+      references: [userTable.id],
+    }),
+    workspace: one(workspaceTable, {
+      fields: [userNotificationWorkspaceRuleTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
+    selectedProjects: many(userNotificationWorkspaceProjectTable),
+  }),
+);
+
+export const userNotificationWorkspaceProjectTableRelations = relations(
+  userNotificationWorkspaceProjectTable,
+  ({ one }) => ({
+    workspaceRule: one(userNotificationWorkspaceRuleTable, {
+      fields: [
+        userNotificationWorkspaceProjectTable.workspaceId,
+        userNotificationWorkspaceProjectTable.workspaceRuleId,
+      ],
+      references: [
+        userNotificationWorkspaceRuleTable.workspaceId,
+        userNotificationWorkspaceRuleTable.id,
+      ],
+    }),
+    project: one(projectTable, {
+      fields: [
+        userNotificationWorkspaceProjectTable.workspaceId,
+        userNotificationWorkspaceProjectTable.projectId,
+      ],
+      references: [projectTable.workspaceId, projectTable.id],
     }),
   }),
 );

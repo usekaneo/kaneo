@@ -176,6 +176,20 @@
 			"when": 1775215568802,
 			"tag": "0024_device_code_timestamps",
 			"breakpoints": true
+		},
+		{
+			"idx": 25,
+			"version": "7",
+			"when": 1775156843372,
+			"tag": "0025_early_owl",
+			"breakpoints": true
+		},
+		{
+			"idx": 26,
+			"version": "7",
+			"when": 1775102400000,
+			"tag": "0026_encrypt_notification_preference_secrets",
+			"breakpoints": true
 		}
 	]
 }

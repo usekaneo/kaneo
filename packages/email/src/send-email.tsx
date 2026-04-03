@@ -3,6 +3,9 @@ import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
 import type { MagicLinkEmailProps } from "./templates/magic-link";
 import MagicLinkEmail from "./templates/magic-link";
+import NotificationEmail, {
+  type NotificationEmailProps,
+} from "./templates/notification";
 import type { OtpEmailProps } from "./templates/otp";
 import OtpEmail from "./templates/otp";
 import PasswordResetEmail, {
@@ -107,6 +110,30 @@ export const sendWorkspaceInvitationEmail = async (
     return { success: true };
   } catch (error) {
     console.error("Error sending workspace invitation email", error);
+    throw error;
+  }
+};
+
+export const sendNotificationEmail = async (
+  to: string,
+  subject: string,
+  data: NotificationEmailProps,
+): Promise<EmailResult> => {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_FROM) {
+    return { success: false, reason: "SMTP_NOT_CONFIGURED" };
+  }
+
+  try {
+    const emailTemplate = await render(NotificationEmail(data));
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error sending notification email", error);
     throw error;
   }
 };
