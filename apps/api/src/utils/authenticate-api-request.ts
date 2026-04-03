@@ -27,13 +27,8 @@ function parseBearerToken(authHeader: string | undefined): {
     return { token: null, malformed: true };
   }
 
-  const token = match[1]?.trim();
-  if (!token) {
-    return { token: null, malformed: true };
-  }
-
   return {
-    token,
+    token: match[1],
     malformed: false,
   };
 }
@@ -110,5 +105,9 @@ export async function resolveAssetBearerOrCookie(c: Context): Promise<{
   const sessionResult = await auth.api.getSession({
     headers: c.req.raw.headers,
   });
-  return { userId: sessionResult?.user?.id ?? "" };
+  if (!sessionResult?.user) {
+    throw new HTTPException(401, { message: "Unauthorized" });
+  }
+
+  return { userId: sessionResult.user.id };
 }
