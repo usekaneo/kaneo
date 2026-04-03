@@ -86,6 +86,7 @@ process.env.CUSTOM_OAUTH_USER_INFO_URL = "";
 process.env.CUSTOM_OAUTH_SCOPES = "";
 process.env.CUSTOM_OAUTH_RESPONSE_TYPE = "";
 process.env.CUSTOM_OAUTH_DISCOVERY_URL = "";
+process.env.DEVICE_AUTH_CLIENT_IDS = "kaneo-cli";
 
 afterEach(() => {
   vi.restoreAllMocks();

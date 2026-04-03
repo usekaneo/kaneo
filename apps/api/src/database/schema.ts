@@ -791,6 +791,37 @@ export const apikeyTable = pgTable(
   ],
 );
 
+export const deviceCodeTable = pgTable(
+  "device_code",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    deviceCode: text("device_code").notNull(),
+    userCode: text("user_code").notNull(),
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+    status: text("status").notNull(),
+    lastPolledAt: timestamp("last_polled_at", { mode: "date" }),
+    pollingInterval: integer("polling_interval"),
+    clientId: text("client_id"),
+    scope: text("scope"),
+  },
+  (table) => [
+    uniqueIndex("device_code_device_code_uidx").on(table.deviceCode),
+    uniqueIndex("device_code_user_code_uidx").on(table.userCode),
+    index("device_code_user_id_idx").on(table.userId),
+  ],
+);
+
 // Auth-schema compatible aliases in schema.ts
 export const user = userTable;
 export const session = sessionTable;
@@ -802,6 +833,7 @@ export const teamMember = teamMemberTable;
 export const workspace_member = workspaceUserTable;
 export const invitation = invitationTable;
 export const apikey = apikeyTable;
+export const deviceCode = deviceCodeTable;
 
 // Auth-schema compatible relation exports in schema.ts
 export const userRelations = relations(user, ({ many }) => ({

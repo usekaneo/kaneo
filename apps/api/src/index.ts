@@ -42,6 +42,10 @@ import task from "./task";
 import taskRelation from "./task-relation";
 import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
+import {
+  authenticateApiRequest,
+  resolveAssetBearerOrCookie,
+} from "./utils/authenticate-api-request";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
@@ -57,7 +61,6 @@ import {
   normalizeOrganizationAuthOperations,
 } from "./utils/openapi-spec";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
-import { verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 
@@ -220,29 +223,7 @@ export function createApp() {
         throw new HTTPException(404, { message: "Asset not found" });
       }
 
-      const authHeader = c.req.header("Authorization");
-      const bearerToken = authHeader?.startsWith("Bearer ")
-        ? authHeader.substring(7).replace(/\s+/g, "").trim()
-        : null;
-
-      let userId = "";
-      let apiKeyId: string | undefined;
-
-      if (bearerToken) {
-        const result = await verifyApiKey(bearerToken);
-
-        if (result?.valid && result.key) {
-          userId = result.key.userId;
-          apiKeyId = result.key.id;
-        } else {
-          throw new HTTPException(401, { message: "Invalid API key" });
-        }
-      } else {
-        const session = await auth.api.getSession({
-          headers: c.req.raw.headers,
-        });
-        userId = session?.user?.id || "";
-      }
+      const { userId, apiKeyId } = await resolveAssetBearerOrCookie(c);
 
       if (userId) {
         await validateWorkspaceAccess(userId, asset.workspaceId, apiKeyId);
@@ -296,7 +277,7 @@ export function createApp() {
           bearerAuth: {
             type: "http",
             scheme: "bearer",
-            description: "API Key authentication",
+            description: "API key or session token (Bearer)",
           },
         },
       },
@@ -335,17 +316,94 @@ export function createApp() {
     );
   });
 
-  api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
-    const authHeader = c.req.header("Authorization");
+  // Better Auth serves GET /auth/device as JSON. Browsers that open the API URL
+  // directly expect a page — redirect full document navigations to the web app.
+  const authDeviceQuerySchema = v.object({
+    user_code: v.optional(v.string()),
+    ui: v.optional(v.picklist(["1"])),
+  });
 
-    if (authHeader?.startsWith("Bearer ")) {
-      const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
+  api.get(
+    "/auth/device",
+    describeRoute({
+      operationId: "getDeviceAuthorizationPage",
+      tags: ["Authentication"],
+      description:
+        "Redirect browser-based device authorization requests to the web UI",
+      security: [],
+      parameters: [
+        {
+          name: "user_code",
+          in: "query",
+          required: false,
+          schema: {
+            type: "string",
+          },
+          description: "The device authorization user code.",
+        },
+        {
+          name: "ui",
+          in: "query",
+          required: false,
+          schema: {
+            type: "string",
+            enum: ["1"],
+          },
+          description: "Force a redirect to the web UI.",
+        },
+      ],
+      responses: {
+        302: {
+          description: "Redirects the browser to the web app device screen",
+        },
+        200: {
+          description: "Device authorization payload from Better Auth",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("query", authDeviceQuerySchema),
+    async (c) => {
+      const { user_code: userCode, ui } = c.req.valid("query");
+      const secFetchDest = c.req.header("Sec-Fetch-Dest");
+      const forceUiRedirect = ui === "1";
+      // Top-level browser tab / address bar (not `fetch()` / XHR from the SPA).
+      // Optional `ui=1` forces redirect when Sec-Fetch-* headers are missing (e.g. some clients).
+      if (forceUiRedirect || secFetchDest === "document") {
+        const clientUrl = (
+          process.env.KANEO_CLIENT_URL || "http://localhost:5173"
+        ).replace(/\/$/, "");
+        const deviceUrl = new URL(`${clientUrl}/device`);
+        if (userCode) {
+          deviceUrl.searchParams.set("user_code", userCode);
+        }
+        return c.redirect(deviceUrl.toString(), 302);
+      }
+      return auth.handler(c.req.raw);
+    },
+  );
+
+  api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", async (c) => {
+    const authHeader = c.req.header("Authorization");
+    const apiKeyHeader = c.req.header("x-api-key");
+    const bearerMatch = authHeader?.match(/^Bearer\s+(\S+)$/i);
+
+    if (bearerMatch && !apiKeyHeader) {
+      const session = await auth.api.getSession({
+        headers: c.req.raw.headers,
+      });
+
+      // Preserve Better Auth bearer session tokens on auth routes.
+      if (session?.session && session.user) {
+        return auth.handler(c.req.raw);
+      }
+
       const headers = new Headers(c.req.raw.headers);
 
       // Better Auth API key plugin validates from x-api-key by default.
-      if (!headers.get("x-api-key")) {
-        headers.set("x-api-key", apiKey);
-      }
+      headers.set("x-api-key", bearerMatch[1]);
 
       return auth.handler(
         new Request(c.req.raw, {
@@ -358,46 +416,15 @@ export function createApp() {
   });
 
   api.use("*", async (c, next) => {
-    const authHeader = c.req.header("Authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
-
-      try {
-        const result = await verifyApiKey(apiKey);
-        if (result?.valid && result.key) {
-          c.set("userId", result.key.userId);
-          c.set("user", null);
-          c.set("session", null);
-          c.set("apiKey", {
-            id: result.key.id,
-            userId: result.key.userId,
-            enabled: result.key.enabled,
-          });
-          return next();
-        }
-
-        throw new HTTPException(401, { message: "Invalid API key" });
-      } catch (error) {
-        if (error instanceof HTTPException) {
-          throw error;
-        }
-        console.error("API key verification failed:", error);
-        throw new HTTPException(401, {
-          message: "API key verification failed",
-        });
+    try {
+      await authenticateApiRequest(c);
+    } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
       }
+      console.error("API authentication failed:", error);
+      throw new HTTPException(500, { message: "Internal Server Error" });
     }
-
-    const session = await auth.api.getSession({ headers: c.req.raw.headers });
-    c.set("user", session?.user || null);
-    c.set("session", session?.session || null);
-    c.set("userId", session?.user?.id || "");
-    c.set("userEmail", session?.user?.email || "");
-
-    if (!session?.user) {
-      throw new HTTPException(401, { message: "Unauthorized" });
-    }
-
     return next();
   });
 
