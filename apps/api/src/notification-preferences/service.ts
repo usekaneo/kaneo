@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import {
@@ -72,6 +72,13 @@ export type UpsertWorkspaceRuleInput = {
   webhookEnabled: boolean;
   projectMode: NotificationPreferenceProjectMode;
   selectedProjectIds?: string[];
+};
+
+type WorkspaceRuleChannelState = {
+  emailEnabled: boolean;
+  ntfyEnabled: boolean;
+  gotifyEnabled: boolean;
+  webhookEnabled: boolean;
 };
 
 function normalizeOptionalString(value: string | null | undefined) {
@@ -268,6 +275,13 @@ export async function updateNotificationPreferences(
   const webhookEnabled =
     input.webhookEnabled ?? decryptedExisting?.webhookEnabled ?? false;
 
+  const enabledRuleCascade: WorkspaceRuleChannelState = {
+    emailEnabled: false,
+    ntfyEnabled: false,
+    gotifyEnabled: false,
+    webhookEnabled: false,
+  };
+
   const shouldValidateNtfy =
     ntfyEnabled ||
     input.ntfyServerUrl !== undefined ||
@@ -386,6 +400,11 @@ export async function updateNotificationPreferences(
     webhookEnabled?: boolean;
   } = {};
 
+  const hadEmailEnabled = decryptedExisting?.emailEnabled ?? false;
+  const hadNtfyEnabled = decryptedExisting?.ntfyEnabled ?? false;
+  const hadGotifyEnabled = decryptedExisting?.gotifyEnabled ?? false;
+  const hadWebhookEnabled = decryptedExisting?.webhookEnabled ?? false;
+
   if (!emailEnabled) {
     ruleCascade.emailEnabled = false;
   }
@@ -402,14 +421,54 @@ export async function updateNotificationPreferences(
     ruleCascade.webhookEnabled = false;
   }
 
-  if (Object.keys(ruleCascade).length > 0) {
+  if (emailEnabled && !hadEmailEnabled && emailAddress) {
+    enabledRuleCascade.emailEnabled = true;
+  }
+
+  if (ntfyEnabled && !hadNtfyEnabled && ntfyServerUrl && ntfyTopic) {
+    enabledRuleCascade.ntfyEnabled = true;
+  }
+
+  if (
+    gotifyEnabled &&
+    !hadGotifyEnabled &&
+    gotifyServerUrl &&
+    data.gotifyToken
+  ) {
+    enabledRuleCascade.gotifyEnabled = true;
+  }
+
+  if (webhookEnabled && !hadWebhookEnabled && webhookUrl) {
+    enabledRuleCascade.webhookEnabled = true;
+  }
+
+  const ruleEnableCascade = Object.fromEntries(
+    Object.entries(enabledRuleCascade).filter(([, value]) => value),
+  ) as Partial<WorkspaceRuleChannelState>;
+
+  if (
+    Object.keys(ruleCascade).length > 0 ||
+    Object.keys(ruleEnableCascade).length > 0
+  ) {
     await db
       .update(userNotificationWorkspaceRuleTable)
       .set({
+        ...ruleEnableCascade,
         ...ruleCascade,
         updatedAt: new Date(),
       })
-      .where(eq(userNotificationWorkspaceRuleTable.userId, userId));
+      .where(
+        and(
+          eq(userNotificationWorkspaceRuleTable.userId, userId),
+          eq(userNotificationWorkspaceRuleTable.isActive, true),
+          or(
+            eq(userNotificationWorkspaceRuleTable.emailEnabled, true),
+            eq(userNotificationWorkspaceRuleTable.ntfyEnabled, true),
+            eq(userNotificationWorkspaceRuleTable.gotifyEnabled, true),
+            eq(userNotificationWorkspaceRuleTable.webhookEnabled, true),
+          ),
+        ),
+      );
   }
 
   return getNotificationPreferences(userId, emailAddress);

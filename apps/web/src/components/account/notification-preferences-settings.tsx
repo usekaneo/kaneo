@@ -39,6 +39,36 @@ type GlobalChannelPrefsState = {
   webhook: { enabled: boolean; url: string; secret: string };
 };
 
+function createWorkspaceRuleState(input: {
+  hasEmailChannel: boolean;
+  hasGotifyChannel: boolean;
+  hasNtfyChannel: boolean;
+  hasWebhookChannel: boolean;
+  rule?: WorkspaceRuleState;
+}): WorkspaceRuleState {
+  if (input.rule) {
+    return {
+      isActive: input.rule.isActive,
+      emailEnabled: input.rule.emailEnabled,
+      ntfyEnabled: input.rule.ntfyEnabled,
+      gotifyEnabled: input.rule.gotifyEnabled,
+      webhookEnabled: input.rule.webhookEnabled,
+      projectMode: input.rule.projectMode,
+      selectedProjectIds: input.rule.selectedProjectIds,
+    };
+  }
+
+  return {
+    isActive: false,
+    emailEnabled: input.hasEmailChannel,
+    ntfyEnabled: input.hasNtfyChannel,
+    gotifyEnabled: input.hasGotifyChannel,
+    webhookEnabled: input.hasWebhookChannel,
+    projectMode: "all",
+    selectedProjectIds: [],
+  };
+}
+
 function createDefaultGlobalChannelPrefs(): GlobalChannelPrefsState {
   return {
     emailEnabled: false,
@@ -137,15 +167,15 @@ function WorkspaceRuleCard({
   workspace: WorkspaceSummary;
 }) {
   const { t } = useTranslation();
-  const [state, setState] = React.useState<WorkspaceRuleState>({
-    isActive: rule?.isActive ?? false,
-    emailEnabled: rule?.emailEnabled ?? false,
-    ntfyEnabled: rule?.ntfyEnabled ?? false,
-    gotifyEnabled: rule?.gotifyEnabled ?? false,
-    webhookEnabled: rule?.webhookEnabled ?? false,
-    projectMode: rule?.projectMode ?? "all",
-    selectedProjectIds: rule?.selectedProjectIds ?? [],
-  });
+  const [state, setState] = React.useState<WorkspaceRuleState>(() =>
+    createWorkspaceRuleState({
+      hasEmailChannel,
+      hasGotifyChannel,
+      hasNtfyChannel,
+      hasWebhookChannel,
+      rule,
+    }),
+  );
   const [isSaving, setIsSaving] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const { data: projects } = useGetProjects({
@@ -157,16 +187,22 @@ function WorkspaceRuleCard({
   });
 
   React.useEffect(() => {
-    setState({
-      isActive: rule?.isActive ?? false,
-      emailEnabled: rule?.emailEnabled ?? false,
-      ntfyEnabled: rule?.ntfyEnabled ?? false,
-      gotifyEnabled: rule?.gotifyEnabled ?? false,
-      webhookEnabled: rule?.webhookEnabled ?? false,
-      projectMode: rule?.projectMode ?? "all",
-      selectedProjectIds: rule?.selectedProjectIds ?? [],
-    });
-  }, [rule]);
+    setState(
+      createWorkspaceRuleState({
+        hasEmailChannel,
+        hasGotifyChannel,
+        hasNtfyChannel,
+        hasWebhookChannel,
+        rule,
+      }),
+    );
+  }, [
+    hasEmailChannel,
+    hasGotifyChannel,
+    hasNtfyChannel,
+    hasWebhookChannel,
+    rule,
+  ]);
 
   const isConnected = Boolean(rule);
   const isBusy = isSaving || isDeleting;
