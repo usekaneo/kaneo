@@ -41,6 +41,7 @@
 			"greek": "Ελληνικά",
 			"macedonian": "Μακεδονικά",
 			"french": "Γαλλικά",
+			"spanish": "Ισπανικά",
 			"dutch": "Ολλανδικά"
 		},
 		"people": {
@@ -749,6 +750,7 @@
 		"projectList": {
 			"viewProject": "Προβολή έργου",
 			"shareProject": "Κοινοποίηση έργου",
+			"projectSettings": "Ρυθμίσεις έργου",
 			"linkCopied": "Ο σύνδεσμος του έργου αντιγράφηκε στο πρόχειρο",
 			"addProject": "Προσθήκη έργου",
 			"deleteConfirmTitle": "Διαγραφή έργου;",

@@ -41,6 +41,7 @@
 			"greek": "Griechisch",
 			"macedonian": "Mazedonisch",
 			"french": "Französisch",
+			"spanish": "Spanisch",
 			"dutch": "Niederländisch"
 		},
 		"people": {
@@ -945,6 +946,7 @@
 		"projectList": {
 			"viewProject": "Projekt ansehen",
 			"shareProject": "Projekt teilen",
+			"projectSettings": "Projekteinstellungen",
 			"linkCopied": "Projektlink in die Zwischenablage kopiert",
 			"addProject": "Projekt hinzufügen",
 			"deleteConfirmTitle": "Projekt löschen?",
