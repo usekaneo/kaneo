@@ -18,12 +18,16 @@ function parseBearerToken(authHeader: string | undefined): {
     return { token: null, malformed: false };
   }
 
-  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!authHeader.match(/^Bearer\b/i)) {
+    return { token: null, malformed: false };
+  }
+
+  const match = authHeader.match(/^Bearer\s+(\S+)$/i);
   if (!match) {
     return { token: null, malformed: true };
   }
 
-  const token = match[1]?.replace(/\s+/g, "").trim();
+  const token = match[1]?.trim();
   if (!token) {
     return { token: null, malformed: true };
   }
@@ -45,6 +49,7 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
     if (apiKeyResult?.valid && apiKeyResult.key) {
       const key = apiKeyResult.key;
       c.set("userId", key.userId);
+      c.set("userEmail", "");
       c.set("user", null);
       c.set("session", null);
       c.set("apiKey", {
