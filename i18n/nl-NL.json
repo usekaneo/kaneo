@@ -819,6 +819,7 @@
 		"projectList": {
 			"viewProject": "Project bekijken",
 			"shareProject": "Project delen",
+			"projectSettings": "Projectinstellingen",
 			"linkCopied": "Projectlink gekopieerd naar klembord",
 			"addProject": "Project toevoegen",
 			"deleteConfirmTitle": "Project verwijderen?",

@@ -1032,6 +1032,7 @@
 		"projectList": {
 			"viewProject": "Voir le projet",
 			"shareProject": "Partager le projet",
+			"projectSettings": "Paramètres du projet",
 			"linkCopied": "Lien du projet copié dans le presse-papiers",
 			"addProject": "Ajouter un projet",
 			"deleteConfirmTitle": "Supprimer le projet?",

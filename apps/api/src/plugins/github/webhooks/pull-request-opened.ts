@@ -55,7 +55,7 @@ export async function handlePullRequestOpened(payload: PROpenedPayload) {
       projectSlug,
     );
 
-    if (!taskNumber) {
+    if (taskNumber === null) {
       continue;
     }
 

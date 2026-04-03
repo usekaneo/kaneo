@@ -1032,6 +1032,7 @@
 		"projectList": {
 			"viewProject": "Погледни проект",
 			"shareProject": "Сподели проект",
+			"projectSettings": "Поставки на проектот",
 			"linkCopied": "Линкот на проектот е копиран во клипборд",
 			"addProject": "Додади проект",
 			"deleteConfirmTitle": "Избриши проект?",

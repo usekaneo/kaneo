@@ -1,3 +1,35 @@
+## [2.5.2](https://github.com/usekaneo/kaneo/compare/v2.5.1...v2.5.2) (2026-04-02)
+
+
+### Bug Fixes
+
+* accept dbOrTx, add subscribeToEvent, fix status lookup,error handling, error toast, french ([2ce9f59](https://github.com/usekaneo/kaneo/commit/2ce9f590523b8cdd910e638faeff25add6109e4c))
+* **api:** create projects transactionally ([f15d34c](https://github.com/usekaneo/kaneo/commit/f15d34c6f2219c43a167043e677f9a6adf718e40))
+* **api:** document health route and harden asset auth handling ([704376e](https://github.com/usekaneo/kaneo/commit/704376e440b8822b20fb18787dfa7f033ab723da))
+* **ci,github:** tighten workflow token scope and preserve zero task numbers ([a56e8cd](https://github.com/usekaneo/kaneo/commit/a56e8cdd66d163365b79f7374ba46d384a676ded))
+* **ci:** exclude coverage output from biome checks ([940f00f](https://github.com/usekaneo/kaneo/commit/940f00f34534746f8d3dd23ab4bcdc2e5c22bdd9))
+* **ci:** mock email package in integration tests ([77646fc](https://github.com/usekaneo/kaneo/commit/77646fc456044a87731aac6cdddcf985cb636d9d))
+* **ci:** use postgres admin db for tests ([be216d6](https://github.com/usekaneo/kaneo/commit/be216d6092f2f8e580bca5a516ad523ec35b6f61))
+* **github:** only ignore missing label removals ([399c797](https://github.com/usekaneo/kaneo/commit/399c7977d72326955ed1f149d45c58991c374a2b))
+* **github:** preserve zero-valued task numbers ([4f370aa](https://github.com/usekaneo/kaneo/commit/4f370aaca4eb4b339059408ffa78fe1c624f2600))
+* **libs:** strip trailing slash before appending /api in resolveApiBaseUrl ([6edf7cf](https://github.com/usekaneo/kaneo/commit/6edf7cfaf1177dfcda2f8924fedb5f6913ec4283))
+
+
+### Features
+
+* **api:** set userEmail for API key auth and document public routes ([fedd40a](https://github.com/usekaneo/kaneo/commit/fedd40a0657313451042471e1dcd03943b45f2e0))
+* **ci:** add api integration scaffolding ([9665488](https://github.com/usekaneo/kaneo/commit/9665488a1d55c080dcd09af56c97a2338ae99e18))
+* **ci:** add api project integration harness ([8559555](https://github.com/usekaneo/kaneo/commit/8559555e5542c43c00599c085c07797b2a9e2bc0))
+* **ci:** add api task integration tests ([831effd](https://github.com/usekaneo/kaneo/commit/831effdcc9f60d57e2bee6428139dd66272fa9b6))
+* **ci:** add api vitest suite ([621c861](https://github.com/usekaneo/kaneo/commit/621c8613dbbb54233af0c8801418aef5cf5b2c7a))
+* **ci:** add lint and unit workflow ([d83e642](https://github.com/usekaneo/kaneo/commit/d83e6428129eb388a333e577645dc48fdd134ee3))
+* **ci:** disable default api unit coverage and add test:coverage script ([b773513](https://github.com/usekaneo/kaneo/commit/b773513cb89f71ddf7011399e8d81064da274fa8))
+* **ci:** extract api app startup ([95b8c47](https://github.com/usekaneo/kaneo/commit/95b8c4730ee840d6bd9ec83f61f9efd921286cb3))
+* **test:** add label api integration tests and readme ([528afc3](https://github.com/usekaneo/kaneo/commit/528afc3d16dceb611b7712defc5fb0eb767b23df))
+* **test:** add otp email template render smoke test ([ec05672](https://github.com/usekaneo/kaneo/commit/ec05672ac9532133ce19245ce57484c0095b3d26))
+* **test:** add vitest config and initial web unit tests ([05fe0fb](https://github.com/usekaneo/kaneo/commit/05fe0fb340cf0e1eafa2352f1c449438ea9109cf))
+* **test:** extract resolveApiBaseUrl and add libs unit tests ([2476481](https://github.com/usekaneo/kaneo/commit/2476481f97f6b959cf87d9fb5f5ed4af6fe848bf))
+* **web:** move-task popover on task toolbar with readable select labels ([7b747eb](https://github.com/usekaneo/kaneo/commit/7b747eb97b734c6330bc4c3c16164cff069fd0ff))
 ## [2.5.1](https://github.com/usekaneo/kaneo/compare/v2.5.0...v2.5.1) (2026-04-01)
 
 

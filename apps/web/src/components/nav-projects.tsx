@@ -5,6 +5,7 @@ import {
   Folder,
   Forward,
   MoreHorizontal,
+  Settings,
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
@@ -158,6 +159,20 @@ export function NavProjects() {
                             <Forward className="text-muted-foreground" />
                             <span>
                               {t("navigation:projectList.shareProject")}
+                            </span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="h-7 items-start cursor-pointer text-sm"
+                            onClick={() => {
+                              navigate({
+                                to: "/dashboard/settings/projects/$projectId/general",
+                                params: { projectId: project.id },
+                              });
+                            }}
+                          >
+                            <Settings className="text-muted-foreground" />
+                            <span>
+                              {t("navigation:projectList.projectSettings")}
                             </span>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
