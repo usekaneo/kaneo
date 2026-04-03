@@ -41,7 +41,8 @@
 			"greek": "Ελληνικά",
 			"macedonian": "Μακεδονικά",
 			"french": "Γαλλικά",
-			"spanish": "Ισπανικά"
+			"spanish": "Ισπανικά",
+			"dutch": "Ολλανδικά"
 		},
 		"people": {
 			"someone": "Κάποιος",
@@ -493,7 +494,11 @@
 			"title": "Ενσωματώσεις έργου",
 			"subtitle": "Συνδέστε το έργο σας με εξωτερικά εργαλεία και υπηρεσίες για πιο ομαλή ροή εργασίας.",
 			"githubSectionTitle": "Ενσωμάτωση GitHub",
-			"githubSectionSubtitle": "Συγχρονίστε εργασίες με GitHub issues και ενεργοποιήστε αμφίδρομο συγχρονισμό."
+			"githubSectionSubtitle": "Συγχρονίστε εργασίες με GitHub issues και ενεργοποιήστε αμφίδρομο συγχρονισμό.",
+			"giteaSectionTitle": "Ενσωμάτωση Gitea",
+			"giteaSectionSubtitle": "Συγχρονίστε εργασίες με μια αυτο-φιλοξενούμενη εγκατάσταση Gitea (issues, PRs, webhooks).",
+			"telegramSectionTitle": "Ενσωμάτωση Telegram",
+			"telegramSectionSubtitle": "Στείλτε ενημερώσεις εργασιών έργου σε συνομιλία ή θέμα Telegram με bot."
 		},
 		"projectVisibility": {
 			"pageTitle": "Ορατότητα έργου",
@@ -603,6 +608,52 @@
 			"importIssues": "Εισαγωγή issues",
 			"importDisabledHint": "Ολοκληρώστε τη ρύθμιση του αποθετηρίου παραπάνω για να ενεργοποιήσετε την εισαγωγή"
 		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "Εισαγάγετε έγκυρο token bot Telegram",
+				"chatIdRequired": "Το αναγνωριστικό συνομιλίας είναι υποχρεωτικό",
+				"threadIdInvalid": "Εισαγάγετε έγκυρο αναγνωριστικό θέματος Telegram"
+			},
+			"toast": {
+				"saved": "Η ενσωμάτωση Telegram αποθηκεύτηκε με επιτυχία",
+				"saveError": "Αποτυχία αποθήκευσης της ενσωμάτωσης Telegram",
+				"enabled": "Οι ειδοποιήσεις Telegram ενεργοποιήθηκαν",
+				"disabled": "Οι ειδοποιήσεις Telegram μπήκαν σε παύση",
+				"updateError": "Αποτυχία ενημέρωσης της ενσωμάτωσης Telegram",
+				"removed": "Η ενσωμάτωση Telegram αφαιρέθηκε με επιτυχία",
+				"removeError": "Αποτυχία αφαίρεσης της ενσωμάτωσης Telegram"
+			},
+			"connectionTitle": "Σύνδεση bot Telegram",
+			"connectionHint": "Χρησιμοποιήστε token bot Telegram και αναγνωριστικό συνομιλίας για να στέλνετε ενημερώσεις έργου σε συνομιλία ή θέμα.",
+			"connected": "Συνδεδεμένο",
+			"paused": "Σε παύση",
+			"botTokenLabel": "Token bot",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "Δημιουργήστε bot με το BotFather και επικολλήστε εδώ το token του.",
+			"botTokenHintConfigured": "Ένα token bot έχει ήδη ρυθμιστεί ({{token}}). Εισαγάγετε νέο για να το αντικαταστήσετε.",
+			"chatIdLabel": "Αναγνωριστικό συνομιλίας",
+			"chatIdPlaceholder": "-1001234567890 ή @team_updates",
+			"chatIdHint": "Εισαγάγετε το αναγνωριστικό συνομιλίας Telegram ή το όνομα καναλιού όπου θα δημοσιεύονται οι ενημερώσεις.",
+			"threadIdLabel": "Αναγνωριστικό θέματος",
+			"threadIdPlaceholder": "Προαιρετικό αναγνωριστικό θέματος",
+			"threadIdHint": "Προαιρετικό. Χρησιμοποιήστε το για θέματα forum μέσα σε ομάδες Telegram.",
+			"chatLabelLabel": "Ετικέτα συνομιλίας",
+			"chatLabelPlaceholder": "Engineering Updates",
+			"chatLabelHint": "Προαιρετική ετικέτα για δική σας αναφορά μέσα στο Kaneo.",
+			"eventsTitle": "Ειδοποιήσεις συμβάντων",
+			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα δημοσιεύονται στο Telegram.",
+			"events": {
+				"taskCreated": "Νέες εργασίες",
+				"taskStatusChanged": "Αλλαγές κατάστασης",
+				"taskPriorityChanged": "Αλλαγές προτεραιότητας",
+				"taskTitleChanged": "Αλλαγές τίτλου",
+				"taskDescriptionChanged": "Αλλαγές περιγραφής",
+				"taskCommentCreated": "Νέα σχόλια"
+			},
+			"connect": "Σύνδεση Telegram",
+			"saveChanges": "Αποθήκευση αλλαγών",
+			"disconnect": "Αποσύνδεση"
+		},
 		"repositoryBrowser": {
 			"title": "Επιλογή αποθετηρίου",
 			"description": "Επιλέξτε ένα αποθετήριο στο οποίο είναι εγκατεστημένη η εφαρμογή GitHub για να ενεργοποιήσετε τον συγχρονισμό issues.",
@@ -699,6 +750,7 @@
 		"projectList": {
 			"viewProject": "Προβολή έργου",
 			"shareProject": "Κοινοποίηση έργου",
+			"projectSettings": "Ρυθμίσεις έργου",
 			"linkCopied": "Ο σύνδεσμος του έργου αντιγράφηκε στο πρόχειρο",
 			"addProject": "Προσθήκη έργου",
 			"deleteConfirmTitle": "Διαγραφή έργου;",
@@ -1079,6 +1131,17 @@
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
 			"noDate": "Χωρίς ημερομηνία"
+		},
+		"move": {
+			"title": "Μετακίνηση εργασίας",
+			"projectLabel": "Έργο προορισμού",
+			"projectPlaceholder": "Επιλέξτε έργο",
+			"statusLabel": "Κατάσταση προορισμού",
+			"statusHintKeep": "Η τρέχουσα κατάσταση υποστηρίζεται ήδη στο έργο προορισμού.",
+			"statusHintAdjust": "Επιλέξτε την κατάσταση που θα χρησιμοποιηθεί στο έργο προορισμού.",
+			"action": "Μετακίνηση εργασίας",
+			"success": "Η εργασία μετακινήθηκε με επιτυχία",
+			"error": "Αποτυχία μετακίνησης εργασίας"
 		},
 		"popover": {
 			"assignee": {

@@ -229,7 +229,7 @@ See `ENVIRONMENT_SETUP.md` for detailed configuration and troubleshooting.
 - **Development Ports**: API runs on 1337, web runs on 5173
 - **Hot Reload**: Both API and web have watch mode via `pnpm dev`
 - **CORS**: Configured in API index.ts, controlled by `CORS_ORIGINS` env var
-- **No Tests Yet**: Test infrastructure not currently set up in this codebase
+- **Testing**: Run `pnpm test` at the repo root (Turbo runs `test` in packages that define it: API unit tests, web unit/component tests, shared packages). API integration tests: `pnpm test:integration` (requires PostgreSQL; env is set in `tests/api-integration/setup.ts`; CI uses `.github/workflows/ci.yml`). Vitest configs: `apps/api/vitest.config.ts` (unit), `apps/api/vitest.integration.config.ts` (integration), `apps/web/vitest.config.ts` (web). Integration tests live under `tests/api-integration/`; API unit tests under `tests/api/`.
 - **Security**: Never commit secrets, always validate inputs, sanitize outputs
 
 ## Common Patterns

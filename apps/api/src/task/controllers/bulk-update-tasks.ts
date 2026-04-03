@@ -167,18 +167,22 @@ async function bulkUpdateTasks({
         const existingAssignment = await db.query.labelTable.findFirst({
           where: and(
             eq(labelTable.name, label.name),
-            eq(labelTable.color, label.color),
             eq(labelTable.taskId, task.id),
           ),
         });
 
         if (!existingAssignment) {
-          await db.insert(labelTable).values({
-            name: label.name,
-            color: label.color,
-            workspaceId: workspaceId,
-            taskId: task.id,
-          });
+          await db
+            .insert(labelTable)
+            .values({
+              name: label.name,
+              color: label.color,
+              workspaceId: workspaceId,
+              taskId: task.id,
+            })
+            .onConflictDoNothing({
+              target: [labelTable.taskId, labelTable.name],
+            });
           updatedCount++;
         }
       }

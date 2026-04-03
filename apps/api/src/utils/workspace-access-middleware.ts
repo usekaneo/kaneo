@@ -26,6 +26,16 @@ type WorkspaceAccessMiddlewareConfig = {
   sources: WorkspaceIdSource[];
 };
 
+async function readJsonObjectBody(
+  c: Context,
+): Promise<Record<string, unknown>> {
+  const raw = (await c.req.json().catch(() => ({}))) || {};
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return {};
+  }
+  return raw as Record<string, unknown>;
+}
+
 export function workspaceAccessMiddleware(
   config: WorkspaceAccessMiddlewareConfig,
 ) {
@@ -42,16 +52,17 @@ export function workspaceAccessMiddleware(
       if (source.type === "query") {
         workspaceId = c.req.query(source.key) || null;
       } else if (source.type === "body") {
-        const body = await c.req.json().catch(() => ({}));
-        workspaceId = body[source.key] || null;
+        const body = await readJsonObjectBody(c);
+        workspaceId =
+          typeof body[source.key] === "string" ? body[source.key] : null;
       } else if (source.type === "param") {
         workspaceId = c.req.param(source.key) || null;
       } else if (source.type === "lookup") {
-        const body = await c.req.json().catch(() => ({}));
+        const body = await readJsonObjectBody(c);
+        const idFromBody =
+          typeof body[source.idKey] === "string" ? body[source.idKey] : null;
         const id =
-          c.req.param(source.idKey) ||
-          c.req.query(source.idKey) ||
-          body[source.idKey];
+          c.req.param(source.idKey) || c.req.query(source.idKey) || idFromBody;
         if (id) {
           workspaceId = await lookupWorkspaceId(source.resource, id);
         }

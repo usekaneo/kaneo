@@ -1,3 +1,4 @@
+import { pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import type { Session, User } from "better-auth/types";
 import { eq } from "drizzle-orm";
@@ -21,6 +22,7 @@ import db, { schema } from "./database";
 import discordIntegration from "./discord-integration";
 import externalLink from "./external-link";
 import genericWebhookIntegration from "./generic-webhook-integration";
+import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -37,6 +39,7 @@ import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
 import taskRelation from "./task-relation";
+import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
@@ -63,6 +66,25 @@ type ApiKey = {
   enabled: boolean;
 };
 
+type AppVariables = {
+  Variables: {
+    user: User | null;
+    session: Session | null;
+    userId: string;
+    apiKey?: ApiKey;
+  };
+};
+
+type ApiVariables = {
+  Variables: {
+    user: User | null;
+    session: Session | null;
+    userId: string;
+    userEmail: string;
+    apiKey?: ApiKey;
+  };
+};
+
 function buildContentDisposition(filename: string) {
   const normalized = filename
     .normalize("NFC")
@@ -74,7 +96,7 @@ function buildContentDisposition(filename: string) {
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[\\/]/g, "-")
-      .replace(/[^\x20-\x7E]+/g, "_")
+      .replace(/[^\x20-\u7E]+/g, "_")
       .replace(/\s+/g, " ")
       .trim() || "file";
   const encodedFilename = encodeURIComponent(safeFilename).replace(
@@ -85,369 +107,437 @@ function buildContentDisposition(filename: string) {
   return `inline; filename="${asciiFallback}"; filename*=UTF-8''${encodedFilename}`;
 }
 
-const app = new Hono<{
-  Variables: {
-    user: User | null;
-    session: Session | null;
-    userId: string;
-    apiKey?: ApiKey;
-  };
-}>();
+export function createApp() {
+  const app = new Hono<AppVariables>();
+  const corsOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
+    : undefined;
 
-const corsOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
-  : undefined;
+  app.use(
+    "*",
+    cors({
+      credentials: true,
+      origin: (origin) => {
+        if (!corsOrigins) {
+          return origin || "*";
+        }
 
-app.use(
-  "*",
-  cors({
-    credentials: true,
-    origin: (origin) => {
-      if (!corsOrigins) {
-        return origin || "*";
-      }
+        if (!origin) {
+          return null;
+        }
 
-      if (!origin) {
-        return null;
-      }
-
-      return corsOrigins.includes(origin) ? origin : null;
-    },
-  }),
-);
-
-const api = new Hono<{
-  Variables: {
-    user: User | null;
-    session: Session | null;
-    userId: string;
-    userEmail: string;
-    apiKey?: ApiKey;
-  };
-}>();
-
-api.get("/health", (c) => {
-  return c.json({ status: "ok" });
-});
-
-const publicProjectApi = api.get("/public-project/:id", async (c) => {
-  const { id } = c.req.param();
-  const project = await getPublicProject(id);
-
-  return c.json(project);
-});
-
-api.post("/github-integration/webhook", handleGithubWebhookRoute);
-
-const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
-  const { id } = c.req.param();
-  const result = await getInvitationDetails(id);
-  return c.json(result);
-});
-
-api.get(
-  "/auth/get-session",
-  describeRoute({
-    operationId: "getSession",
-    tags: ["Authentication"],
-    description: "Get the current authenticated session",
-    security: [],
-    responses: {
-      200: {
-        description: "Current session details or null when unauthenticated",
-        content: {
-          "application/json": { schema: resolver(v.any()) },
-        },
+        return corsOrigins.includes(origin) ? origin : null;
       },
-    },
-  }),
-  async (c) => {
-    const session = await auth.api.getSession({ headers: c.req.raw.headers });
-    return c.json(session ?? null);
-  },
-);
+    }),
+  );
 
-api.get(
-  "/asset/:id",
-  describeRoute({
-    operationId: "getAsset",
-    tags: ["Assets"],
-    description: "Download an uploaded asset by ID",
-    security: [],
-    responses: {
-      200: {
-        description: "The requested asset binary stream",
-        content: {
-          "*/*": { schema: resolver(v.any()) },
-        },
-      },
-    },
-  }),
-  validator("param", v.object({ id: v.string() })),
-  async (c) => {
+  const api = new Hono<ApiVariables>();
+
+  api.get("/health", (c) => {
+    return c.json({ status: "ok" });
+  });
+
+  const publicProjectApi = api.get("/public-project/:id", async (c) => {
     const { id } = c.req.param();
-    const [asset] = await db
-      .select({
-        id: schema.assetTable.id,
-        objectKey: schema.assetTable.objectKey,
-        mimeType: schema.assetTable.mimeType,
-        filename: schema.assetTable.filename,
-        workspaceId: schema.assetTable.workspaceId,
-        isPublic: schema.projectTable.isPublic,
-      })
-      .from(schema.assetTable)
-      .innerJoin(
-        schema.projectTable,
-        eq(schema.assetTable.projectId, schema.projectTable.id),
-      )
-      .where(eq(schema.assetTable.id, id))
-      .limit(1);
+    const project = await getPublicProject(id);
 
-    if (!asset) {
-      throw new HTTPException(404, { message: "Asset not found" });
-    }
+    return c.json(project);
+  });
 
-    const authHeader = c.req.header("Authorization");
-    const bearerToken = authHeader?.startsWith("Bearer ")
-      ? authHeader.substring(7).replace(/\s+/g, "").trim()
-      : null;
+  api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
-    let userId = "";
-    let apiKeyId: string | undefined;
+  api.post(
+    "/gitea-integration/webhook/:integrationId",
+    handleGiteaWebhookRoute,
+  );
 
-    if (bearerToken) {
-      const result = await verifyApiKey(bearerToken);
+  const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
+    const { id } = c.req.param();
+    const result = await getInvitationDetails(id);
+    return c.json(result);
+  });
 
-      if (result?.valid && result.key) {
-        userId = result.key.userId;
-        apiKeyId = result.key.id;
-      } else {
-        throw new HTTPException(401, { message: "Invalid API key" });
-      }
-    } else {
+  api.get(
+    "/auth/get-session",
+    describeRoute({
+      operationId: "getSession",
+      tags: ["Authentication"],
+      description: "Get the current authenticated session",
+      security: [],
+      responses: {
+        200: {
+          description: "Current session details or null when unauthenticated",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    async (c) => {
       const session = await auth.api.getSession({ headers: c.req.raw.headers });
-      userId = session?.user?.id || "";
-    }
+      return c.json(session ?? null);
+    },
+  );
 
-    if (userId) {
-      await validateWorkspaceAccess(userId, asset.workspaceId, apiKeyId);
-    } else if (!asset.isPublic) {
-      throw new HTTPException(401, { message: "Unauthorized" });
-    }
+  api.get(
+    "/asset/:id",
+    describeRoute({
+      operationId: "getAsset",
+      tags: ["Assets"],
+      description: "Download an uploaded asset by ID",
+      security: [],
+      responses: {
+        200: {
+          description: "The requested asset binary stream",
+          content: {
+            "*/*": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    async (c) => {
+      const { id } = c.req.param();
+      const [asset] = await db
+        .select({
+          id: schema.assetTable.id,
+          objectKey: schema.assetTable.objectKey,
+          mimeType: schema.assetTable.mimeType,
+          filename: schema.assetTable.filename,
+          workspaceId: schema.assetTable.workspaceId,
+          isPublic: schema.projectTable.isPublic,
+        })
+        .from(schema.assetTable)
+        .innerJoin(
+          schema.projectTable,
+          eq(schema.assetTable.projectId, schema.projectTable.id),
+        )
+        .where(eq(schema.assetTable.id, id))
+        .limit(1);
 
+      if (!asset) {
+        throw new HTTPException(404, { message: "Asset not found" });
+      }
+
+      const authHeader = c.req.header("Authorization");
+      const bearerToken = authHeader?.startsWith("Bearer ")
+        ? authHeader.substring(7).replace(/\s+/g, "").trim()
+        : null;
+
+      let userId = "";
+      let apiKeyId: string | undefined;
+
+      if (bearerToken) {
+        const result = await verifyApiKey(bearerToken);
+
+        if (result?.valid && result.key) {
+          userId = result.key.userId;
+          apiKeyId = result.key.id;
+        } else {
+          throw new HTTPException(401, { message: "Invalid API key" });
+        }
+      } else {
+        const session = await auth.api.getSession({
+          headers: c.req.raw.headers,
+        });
+        userId = session?.user?.id || "";
+      }
+
+      if (userId) {
+        await validateWorkspaceAccess(userId, asset.workspaceId, apiKeyId);
+      } else if (!asset.isPublic) {
+        throw new HTTPException(401, { message: "Unauthorized" });
+      }
+
+      try {
+        const object = await getPrivateObject(asset.objectKey);
+
+        return new Response(object.body as BodyInit, {
+          headers: {
+            "Cache-Control": asset.isPublic
+              ? "public, max-age=300"
+              : "private, max-age=120",
+            "Content-Disposition": buildContentDisposition(asset.filename),
+            "Content-Length": object.contentLength?.toString() || "",
+            "Content-Type": object.contentType || asset.mimeType,
+            ETag: object.etag || "",
+            "Last-Modified": object.lastModified?.toUTCString() || "",
+          },
+        });
+      } catch (error) {
+        console.error("Failed to stream asset:", error);
+        throw new HTTPException(404, { message: "Asset object not found" });
+      }
+    },
+  );
+
+  const configApi = api.route("/config", config);
+
+  const honoOpenApiHandler = openAPIRouteHandler(api, {
+    documentation: {
+      openapi: "3.0.3",
+      info: {
+        title: "Kaneo API",
+        version: "1.0.0",
+        description:
+          "Kaneo Project Management API - Manage projects, tasks, labels, and more",
+      },
+      servers: [
+        {
+          url: normalizeApiServerUrl(
+            process.env.KANEO_API_URL || "https://cloud.kaneo.app",
+          ),
+          description: "Kaneo API Server",
+        },
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            description: "API Key authentication",
+          },
+        },
+      },
+      security: [{ bearerAuth: [] }],
+    },
+  });
+
+  api.get("/openapi", async (c) => {
+    const maybeResponse = await honoOpenApiHandler(c, async () => {});
+    const honoSpecResponse = maybeResponse ?? c.res;
+    const honoSpec = (await honoSpecResponse.json()) as Record<string, unknown>;
+
+    let authSpec: Record<string, unknown> = {};
     try {
-      const object = await getPrivateObject(asset.objectKey);
-
-      return new Response(object.body as BodyInit, {
-        headers: {
-          "Cache-Control": asset.isPublic
-            ? "public, max-age=300"
-            : "private, max-age=120",
-          "Content-Disposition": buildContentDisposition(asset.filename),
-          "Content-Length": object.contentLength?.toString() || "",
-          "Content-Type": object.contentType || asset.mimeType,
-          ETag: object.etag || "",
-          "Last-Modified": object.lastModified?.toUTCString() || "",
-        },
-      });
+      authSpec = (await auth.api.generateOpenAPISchema()) as Record<
+        string,
+        unknown
+      >;
     } catch (error) {
-      console.error("Failed to stream asset:", error);
-      throw new HTTPException(404, { message: "Asset object not found" });
+      console.error("Failed to generate Better Auth OpenAPI schema:", error);
     }
-  },
-);
 
-const configApi = api.route("/config", config);
-
-const honoOpenApiHandler = openAPIRouteHandler(api, {
-  documentation: {
-    openapi: "3.0.3",
-    info: {
-      title: "Kaneo API",
-      version: "1.0.0",
-      description:
-        "Kaneo Project Management API - Manage projects, tasks, labels, and more",
-    },
-    servers: [
-      {
-        url: normalizeApiServerUrl(
-          process.env.KANEO_API_URL || "https://cloud.kaneo.app",
-        ),
-        description: "Kaneo API Server",
-      },
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          description: "API Key authentication",
-        },
-      },
-    },
-    security: [{ bearerAuth: [] }],
-  },
-});
-
-api.get("/openapi", async (c) => {
-  const maybeResponse = await honoOpenApiHandler(c, async () => {});
-  const honoSpecResponse = maybeResponse ?? c.res;
-  const honoSpec = (await honoSpecResponse.json()) as Record<string, unknown>;
-
-  let authSpec: Record<string, unknown> = {};
-  try {
-    authSpec = (await auth.api.generateOpenAPISchema()) as Record<
-      string,
-      unknown
-    >;
-  } catch (error) {
-    console.error("Failed to generate Better Auth OpenAPI schema:", error);
-  }
-
-  const normalizedAuthSpec = normalizeOrganizationAuthOperations(authSpec);
-  return c.json(
-    ensureOperationSummaries(
-      dedupeOperationIds(
-        markOptionalSchemaFieldsNullable(
-          normalizeNullableSchemasForOpenApi30(
-            normalizeEmptyRequiredArrays(
-              mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+    const normalizedAuthSpec = normalizeOrganizationAuthOperations(authSpec);
+    return c.json(
+      ensureOperationSummaries(
+        dedupeOperationIds(
+          markOptionalSchemaFieldsNullable(
+            normalizeNullableSchemasForOpenApi30(
+              normalizeEmptyRequiredArrays(
+                mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-});
-
-api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
-  const authHeader = c.req.header("Authorization");
-
-  if (authHeader?.startsWith("Bearer ")) {
-    const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
-    const headers = new Headers(c.req.raw.headers);
-
-    // Better Auth API key plugin validates from x-api-key by default.
-    if (!headers.get("x-api-key")) {
-      headers.set("x-api-key", apiKey);
-    }
-
-    return auth.handler(
-      new Request(c.req.raw, {
-        headers,
-      }),
     );
-  }
+  });
 
-  return auth.handler(c.req.raw);
-});
+  api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", (c) => {
+    const authHeader = c.req.header("Authorization");
 
-api.use("*", async (c, next) => {
-  const authHeader = c.req.header("Authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
+    if (authHeader?.startsWith("Bearer ")) {
+      const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
+      const headers = new Headers(c.req.raw.headers);
 
-    try {
-      const result = await verifyApiKey(apiKey);
-
-      if (result?.valid && result.key) {
-        c.set("userId", result.key.userId);
-        c.set("user", null);
-        c.set("session", null);
-        c.set("apiKey", {
-          id: result.key.id,
-          userId: result.key.userId,
-          enabled: result.key.enabled,
-        });
-        return next();
+      // Better Auth API key plugin validates from x-api-key by default.
+      if (!headers.get("x-api-key")) {
+        headers.set("x-api-key", apiKey);
       }
 
-      throw new HTTPException(401, { message: "Invalid API key" });
-    } catch (error) {
-      if (error instanceof HTTPException) {
-        throw error;
-      }
-      console.error("API key verification failed:", error);
-      throw new HTTPException(401, { message: "API key verification failed" });
+      return auth.handler(
+        new Request(c.req.raw, {
+          headers,
+        }),
+      );
     }
-  }
 
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  c.set("user", session?.user || null);
-  c.set("session", session?.session || null);
-  c.set("userId", session?.user?.id || "");
-  c.set("userEmail", session?.user?.email || "");
+    return auth.handler(c.req.raw);
+  });
 
-  if (!session?.user) {
-    throw new HTTPException(401, { message: "Unauthorized" });
-  }
+  api.use("*", async (c, next) => {
+    const authHeader = c.req.header("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const apiKey = authHeader.substring(7).replace(/\s+/g, "").trim();
 
-  return next();
-});
+      try {
+        const result = await verifyApiKey(apiKey);
 
-const projectApi = api.route("/project", project);
-const taskApi = api.route("/task", task);
-const columnApi = api.route("/column", column);
-const activityApi = api.route("/activity", activity);
-const commentApi = api.route("/comment", comment);
-const timeEntryApi = api.route("/time-entry", timeEntry);
-const labelApi = api.route("/label", label);
-const notificationApi = api.route("/notification", notification);
-const searchApi = api.route("/search", search);
-const githubIntegrationApi = api.route(
-  "/github-integration",
-  githubIntegration,
-);
-const genericWebhookIntegrationApi = api.route(
-  "/generic-webhook-integration",
-  genericWebhookIntegration,
-);
-const discordIntegrationApi = api.route(
-  "/discord-integration",
-  discordIntegration,
-);
-const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
-const taskRelationApi = api.route("/task-relation", taskRelation);
-const externalLinkApi = api.route("/external-link", externalLink);
-const workflowRuleApi = api.route("/workflow-rule", workflowRule);
-const invitationApi = api.route("/invitation", invitation);
-const workspaceApi = api.route("/workspace", workspace);
+        if (result?.valid && result.key) {
+          c.set("userId", result.key.userId);
+          c.set("user", null);
+          c.set("session", null);
+          c.set("apiKey", {
+            id: result.key.id,
+            userId: result.key.userId,
+            enabled: result.key.enabled,
+          });
+          return next();
+        }
 
-app.route("/api", api);
+        throw new HTTPException(401, { message: "Invalid API key" });
+      } catch (error) {
+        if (error instanceof HTTPException) {
+          throw error;
+        }
+        console.error("API key verification failed:", error);
+        throw new HTTPException(401, {
+          message: "API key verification failed",
+        });
+      }
+    }
 
-(async () => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers });
+    c.set("user", session?.user || null);
+    c.set("session", session?.session || null);
+    c.set("userId", session?.user?.id || "");
+    c.set("userEmail", session?.user?.email || "");
+
+    if (!session?.user) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+
+    return next();
+  });
+
+  const projectApi = api.route("/project", project);
+  const taskApi = api.route("/task", task);
+  const columnApi = api.route("/column", column);
+  const activityApi = api.route("/activity", activity);
+  const commentApi = api.route("/comment", comment);
+  const timeEntryApi = api.route("/time-entry", timeEntry);
+  const labelApi = api.route("/label", label);
+  const notificationApi = api.route("/notification", notification);
+  const searchApi = api.route("/search", search);
+  const githubIntegrationApi = api.route(
+    "/github-integration",
+    githubIntegration,
+  );
+  const giteaIntegrationApi = api.route("/gitea-integration", giteaIntegration);
+  const genericWebhookIntegrationApi = api.route(
+    "/generic-webhook-integration",
+    genericWebhookIntegration,
+  );
+  const discordIntegrationApi = api.route(
+    "/discord-integration",
+    discordIntegration,
+  );
+  const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
+  const telegramIntegrationApi = api.route(
+    "/telegram-integration",
+    telegramIntegration,
+  );
+  const taskRelationApi = api.route("/task-relation", taskRelation);
+  const externalLinkApi = api.route("/external-link", externalLink);
+  const workflowRuleApi = api.route("/workflow-rule", workflowRule);
+  const invitationApi = api.route("/invitation", invitation);
+  const workspaceApi = api.route("/workspace", workspace);
+
+  app.route("/api", api);
+
+  return {
+    app,
+    api,
+    activityApi,
+    columnApi,
+    commentApi,
+    configApi,
+    discordIntegrationApi,
+    externalLinkApi,
+    genericWebhookIntegrationApi,
+    githubIntegrationApi,
+    giteaIntegrationApi,
+    invitationApi,
+    invitationPublicApi,
+    labelApi,
+    notificationApi,
+    projectApi,
+    publicProjectApi,
+    searchApi,
+    slackIntegrationApi,
+    taskApi,
+    taskRelationApi,
+    telegramIntegrationApi,
+    timeEntryApi,
+    workflowRuleApi,
+    workspaceApi,
+  };
+}
+
+export async function runStartupTasks() {
+  await migrateWorkspaceUserEmail();
+  await migrateSessionColumn();
+  await migrateApiKeyReferenceId();
+
+  console.log("🔄 Migrating database...");
+  await migrate(db, {
+    migrationsFolder: `${process.cwd()}/drizzle`,
+  });
+  console.log("✅ Database migrated successfully!");
+
+  await migrateGitHubIntegration();
+  await migrateColumns();
+
+  initializePlugins();
+}
+
+export async function startServer(port = 1337) {
   try {
-    await migrateWorkspaceUserEmail();
-    await migrateSessionColumn();
-    await migrateApiKeyReferenceId();
-
-    console.log("🔄 Migrating database...");
-    await migrate(db, {
-      migrationsFolder: `${process.cwd()}/drizzle`,
-    });
-    console.log("✅ Database migrated successfully!");
-
-    await migrateGitHubIntegration();
-    await migrateColumns();
-
-    initializePlugins();
+    await runStartupTasks();
   } catch (error) {
     console.error("❌ Database migration failed!", error);
     process.exit(1);
   }
-})();
 
-serve(
-  {
-    fetch: app.fetch,
-    port: 1337,
-  },
-  () => {
-    console.log(
-      `⚡ API is running at ${process.env.KANEO_API_URL || "http://localhost:1337"}`,
-    );
-  },
-);
+  serve(
+    {
+      fetch: app.fetch,
+      port,
+    },
+    () => {
+      console.log(
+        `⚡ API is running at ${process.env.KANEO_API_URL || "http://localhost:1337"}`,
+      );
+    },
+  );
+}
+
+const createdApp = createApp();
+const {
+  app,
+  activityApi,
+  columnApi,
+  commentApi,
+  configApi,
+  discordIntegrationApi,
+  externalLinkApi,
+  genericWebhookIntegrationApi,
+  githubIntegrationApi,
+  giteaIntegrationApi,
+  invitationApi,
+  invitationPublicApi,
+  labelApi,
+  notificationApi,
+  projectApi,
+  publicProjectApi,
+  searchApi,
+  slackIntegrationApi,
+  taskApi,
+  taskRelationApi,
+  telegramIntegrationApi,
+  timeEntryApi,
+  workflowRuleApi,
+  workspaceApi,
+} = createdApp;
+
+const isMainModule =
+  Boolean(process.argv[1]) &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isMainModule) {
+  void startServer();
+}
 
 export type AppType =
   | typeof configApi
@@ -461,9 +551,11 @@ export type AppType =
   | typeof notificationApi
   | typeof searchApi
   | typeof githubIntegrationApi
+  | typeof giteaIntegrationApi
   | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
   | typeof slackIntegrationApi
+  | typeof telegramIntegrationApi
   | typeof taskRelationApi
   | typeof externalLinkApi
   | typeof workflowRuleApi

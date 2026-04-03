@@ -93,6 +93,8 @@ const discordEventsSchema = v.object({
   taskCommentCreated: v.optional(v.boolean()),
 });
 
+const nullableDiscordIntegrationSchema = v.nullable(discordIntegrationSchema);
+
 discordIntegration
   .get(
     "/project/:projectId",
@@ -104,7 +106,9 @@ discordIntegration
         200: {
           description: "Discord integration details",
           content: {
-            "application/json": { schema: resolver(discordIntegrationSchema) },
+            "application/json": {
+              schema: resolver(nullableDiscordIntegrationSchema),
+            },
           },
         },
       },
@@ -127,7 +131,9 @@ discordIntegration
         200: {
           description: "Discord integration created successfully",
           content: {
-            "application/json": { schema: resolver(discordIntegrationSchema) },
+            "application/json": {
+              schema: resolver(discordIntegrationSchema),
+            },
           },
         },
       },

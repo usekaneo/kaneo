@@ -1,0 +1,60 @@
+---
+title: Gitea Setup
+description: Connect Kaneo to a Gitea instance (issues, pull requests, webhooks).
+---
+
+## Overview
+
+The Gitea integration links a Kaneo project to a repository on your Gitea instance. Tasks sync with issues, and webhooks keep Kaneo updated when issues, pull requests, or pushes change.
+
+You need:
+
+- **Gitea base URL**: e.g. `https://git.example.com`.
+- **Personal access token** with permission to read/write issues and repository contents for the target repo.
+- **Repository owner and name**: same as in the Gitea UI.
+
+## Personal access token
+
+1. In Gitea, open **Settings → Applications → Generate New Token** (paths may vary slightly by version).
+2. Enable scopes for **repository** and **issues** (write access where needed).
+3. Copy the token and store it securely; paste it into Kaneo’s Gitea integration settings.
+
+## Webhook in Gitea
+
+Kaneo verifies incoming webhooks with a **HMAC SHA256** secret stored per integration.
+
+### Where to create the webhook in Gitea
+
+1. Log in to Gitea and **open the same repository** you linked in Kaneo (`owner/repo`).
+2. Open the repository **Settings**.
+3. In the **left sidebar**, open **Webhooks** (sometimes grouped under a “Repository” section).  
+   - If you do not see it, you need **admin** access to that repository (owner or collaborator with admin).
+4. Click **Add Webhook** and choose **Gitea**.
+
+**Direct URL pattern** (replace host, owner, and repo):
+
+`https://<your-gitea-host>/<owner>/<repo>/settings/hooks`
+
+Example: `https://git.example.com/acme/my-app/settings/hooks`
+
+### Configure the webhook
+
+1. Connect the repository in Kaneo **Project → Integrations → Gitea** and save.
+2. Copy the **Webhook URL** and **Secret** shown in Kaneo (after saving).
+3. In Gitea: **Add Webhook → Gitea**.
+4. Set **Payload URL** to the Kaneo webhook URL.
+5. Set **Secret** to the exact value from Kaneo.
+6. Enable **Content type**: `application/json`.
+7. Enable events:
+
+   - **Push**
+   - **Pull requests**
+   - **Issues** (open, close, label, edit, etc.)
+   - **Issue comments**
+   - **Create** (used for label creation events on some Gitea versions)
+
+8. Save and use **Test Delivery** to confirm a `200` response from Kaneo.
+
+The webhook URL includes your integration id, for example:
+
+`https://your-kaneo-host/api/gitea-integration/webhook/<integrationId>`

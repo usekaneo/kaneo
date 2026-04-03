@@ -75,7 +75,7 @@ git checkout -b fix/whatever-youre-fixing
 git checkout -b feat/cool-new-feature
 ```
 
-2. **Make your changes** and test them locally
+2. **Make your changes** and test them locally (`pnpm test` for unit tests; `pnpm test:integration` for API integration tests with PostgreSQL)
 
 3. **Commit using conventional commits**:
 ```bash

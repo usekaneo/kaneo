@@ -2786,6 +2786,9 @@
 						"shareProject": {
 							"type": "string"
 						},
+						"projectSettings": {
+							"type": "string"
+						},
 						"linkCopied": {
 							"type": "string"
 						},
@@ -2808,6 +2811,7 @@
 					"required": [
 						"viewProject",
 						"shareProject",
+						"projectSettings",
 						"linkCopied",
 						"addProject",
 						"deleteConfirmTitle",

@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ChevronDown,
+  FolderGit,
   Github,
   MessageCircle,
   Radio,
+  Send,
   Webhook,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -11,8 +13,10 @@ import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { DiscordIntegrationSettings } from "@/components/project/discord-integration-settings";
 import { GenericWebhookIntegrationSettings } from "@/components/project/generic-webhook-integration-settings";
+import { GiteaIntegrationSettings } from "@/components/project/gitea-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
+import { TelegramIntegrationSettings } from "@/components/project/telegram-integration-settings";
 import {
   Collapsible,
   CollapsibleContent,
@@ -44,12 +48,19 @@ function RouteComponent() {
 
         <div className="space-y-6">
           <IntegrationSection
-            defaultOpen
             icon={<Github className="size-4" />}
             subtitle={t("settings:projectIntegrations.githubSectionSubtitle")}
             title={t("settings:projectIntegrations.githubSectionTitle")}
           >
             <GitHubIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<FolderGit className="size-4" />}
+            subtitle={t("settings:projectIntegrations.giteaSectionSubtitle")}
+            title={t("settings:projectIntegrations.giteaSectionTitle")}
+          >
+            <GiteaIntegrationSettings projectId={projectId} />
           </IntegrationSection>
 
           <IntegrationSection
@@ -76,6 +87,14 @@ function RouteComponent() {
             title={t("settings:projectIntegrations.slackSectionTitle")}
           >
             <SlackIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<Send className="size-4" />}
+            subtitle={t("settings:projectIntegrations.telegramSectionSubtitle")}
+            title={t("settings:projectIntegrations.telegramSectionTitle")}
+          >
+            <TelegramIntegrationSettings projectId={projectId} />
           </IntegrationSection>
         </div>
       </div>

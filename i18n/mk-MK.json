@@ -41,7 +41,8 @@
 			"greek": "Грчки",
 			"macedonian": "Македонски",
 			"french": "Француски",
-			"spanish": "Шпански"
+			"spanish": "Шпански",
+			"dutch": "Холандски"
 		},
 		"people": {
 			"someone": "Некој",
@@ -493,7 +494,11 @@
 			"title": "Интеграции на проект",
 			"subtitle": "Поврзи го твојот проект со надворешни алатки и сервиси за да го подобриш работниот тек.",
 			"githubSectionTitle": "GitHub интеграција",
-			"githubSectionSubtitle": "Синхронизирај задачи со GitHub issues и овозможи двонасочна синхронизација."
+			"githubSectionSubtitle": "Синхронизирај задачи со GitHub issues и овозможи двонасочна синхронизација.",
+			"giteaSectionTitle": "Gitea интеграција",
+			"giteaSectionSubtitle": "Синхронизирај задачи со само-хостирана Gitea инстанца (issues, PRs, webhooks).",
+			"telegramSectionTitle": "Telegram интеграција",
+			"telegramSectionSubtitle": "Испраќај ажурирања за задачи од проектот во Telegram разговор или тема со бот."
 		},
 		"projectVisibility": {
 			"pageTitle": "Видливост на проект",
@@ -603,6 +608,52 @@
 			"importIssues": "Увези Issues",
 			"importDisabledHint": "Заврши ја конфигурацијата на репозиториумот погоре за да овозможиш увоз"
 		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "Внеси валиден Telegram bot token",
+				"chatIdRequired": "Chat ID е задолжително",
+				"threadIdInvalid": "Внеси валиден Telegram ID за тема"
+			},
+			"toast": {
+				"saved": "Telegram интеграцијата е успешно зачувана",
+				"saveError": "Неуспешно зачувување на Telegram интеграцијата",
+				"enabled": "Telegram известувањата се вклучени",
+				"disabled": "Telegram известувањата се паузирани",
+				"updateError": "Неуспешно ажурирање на Telegram интеграцијата",
+				"removed": "Telegram интеграцијата е успешно отстранета",
+				"removeError": "Неуспешно отстранување на Telegram интеграцијата"
+			},
+			"connectionTitle": "Конекција со Telegram бот",
+			"connectionHint": "Користи Telegram bot token и chat ID за да испраќаш ажурирања за проектот во разговор или тема.",
+			"connected": "Поврзан",
+			"paused": "Паузирано",
+			"botTokenLabel": "Bot token",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "Креирај бот со BotFather и залепи го неговиот token тука.",
+			"botTokenHintConfigured": "Bot token веќе е конфигуриран ({{token}}). Внеси нов за да го замениш.",
+			"chatIdLabel": "Chat ID",
+			"chatIdPlaceholder": "-1001234567890 или @team_updates",
+			"chatIdHint": "Внеси Telegram chat ID или корисничко име на канал каде што треба да се објавуваат ажурирањата.",
+			"threadIdLabel": "ID на тема",
+			"threadIdPlaceholder": "Опционален ID на тема",
+			"threadIdHint": "Опционално. Користи го ова за forum теми во Telegram групи.",
+			"chatLabelLabel": "Ознака за разговор",
+			"chatLabelPlaceholder": "Engineering Updates",
+			"chatLabelHint": "Опционална ознака за твоја референца во Kaneo.",
+			"eventsTitle": "Известувања за настани",
+			"eventsHint": "Избери кои промени во проектот треба да се објавуваат во Telegram.",
+			"events": {
+				"taskCreated": "Нови задачи",
+				"taskStatusChanged": "Промени на статус",
+				"taskPriorityChanged": "Промени на приоритет",
+				"taskTitleChanged": "Промени на наслов",
+				"taskDescriptionChanged": "Промени на опис",
+				"taskCommentCreated": "Нови коментари"
+			},
+			"connect": "Поврзи Telegram",
+			"saveChanges": "Зачувај промени",
+			"disconnect": "Откачи"
+		},
 		"repositoryBrowser": {
 			"title": "Избери репозиториум",
 			"description": "Избери репозиториум каде е инсталирана твојата GitHub апликација за да овозможиш синхронизација на issues.",
@@ -699,6 +750,7 @@
 		"projectList": {
 			"viewProject": "Погледни проект",
 			"shareProject": "Сподели проект",
+			"projectSettings": "Поставки на проектот",
 			"linkCopied": "Линкот на проектот е копиран во клипборд",
 			"addProject": "Додади проект",
 			"deleteConfirmTitle": "Избриши проект?",
@@ -1079,6 +1131,17 @@
 			"start": "Почеток",
 			"startDate": "Почетен датум",
 			"noDate": "Без датум"
+		},
+		"move": {
+			"title": "Премести задача",
+			"projectLabel": "Целен проект",
+			"projectPlaceholder": "Избери проект",
+			"statusLabel": "Целен статус",
+			"statusHintKeep": "Тековниот статус веќе е поддржан во целниот проект.",
+			"statusHintAdjust": "Избери статус што ќе се користи во целниот проект.",
+			"action": "Премести задача",
+			"success": "Задачата е успешно преместена",
+			"error": "Неуспешно преместување на задача"
 		},
 		"popover": {
 			"assignee": {
