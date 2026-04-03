@@ -38,7 +38,7 @@
       "esbuild": "0.27.3",
       "express-rate-limit": "8.2.2",
       "hono": "4.12.7",
-      "lodash": "4.17.23",
+      "lodash": "4.18.0",
       "markdown-it": "14.1.1",
       "minimatch": "10.2.3",
       "rollup": "4.59.0",
