@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"type": "module",
 	"bin": {
-		"kaneo-mcp": "./dist/index.js"
+		"kaneo-mcp": "dist/index.js"
 	},
 	"files": [
 		"dist",
