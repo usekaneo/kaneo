@@ -12,6 +12,8 @@ export type AuthServiceOptions = {
   clientId: string;
 };
 
+type TokenValidationResult = "valid" | "invalid" | "unknown";
+
 export class AuthService {
   readonly baseUrl: string;
   readonly clientId: string;
@@ -25,20 +27,26 @@ export class AuthService {
     await clearCredentials();
   }
 
-  private async validateAccessToken(token: string): Promise<boolean> {
-    const res = await fetch(`${this.baseUrl}/api/auth/get-session`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.status === 401) {
-      return false;
+  private async validateAccessToken(
+    token: string,
+  ): Promise<TokenValidationResult> {
+    try {
+      const res = await fetch(`${this.baseUrl}/api/auth/get-session`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        return "invalid";
+      }
+      if (!res.ok) {
+        return "unknown";
+      }
+      const data = (await res.json().catch(() => null)) as {
+        user?: { id?: string };
+      } | null;
+      return data?.user?.id ? "valid" : "unknown";
+    } catch {
+      return "unknown";
     }
-    if (!res.ok) {
-      return false;
-    }
-    const data = (await res.json().catch(() => null)) as {
-      user?: { id?: string };
-    } | null;
-    return Boolean(data?.user?.id);
   }
 
   private log(msg: string): void {
@@ -56,8 +64,8 @@ export class AuthService {
       cached.clientId === this.clientId &&
       cached.accessToken
     ) {
-      const ok = await this.validateAccessToken(cached.accessToken);
-      if (ok) {
+      const validation = await this.validateAccessToken(cached.accessToken);
+      if (validation === "valid" || validation === "unknown") {
         return cached.accessToken;
       }
       await this.clearToken();

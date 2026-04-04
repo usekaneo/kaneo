@@ -3,6 +3,7 @@ import { registerTools } from "./register.js";
 
 type RegisteredTool = {
   name: string;
+  config: { inputSchema?: { parse: (args: unknown) => unknown } };
   handler: (args: Record<string, unknown>) => Promise<{
     content: Array<{ type: string; text: string }>;
     isError?: boolean;
@@ -10,17 +11,17 @@ type RegisteredTool = {
 };
 
 function createServerMock() {
-  const tools = new Map<string, RegisteredTool["handler"]>();
+  const tools = new Map<string, RegisteredTool>();
 
   return {
     server: {
       registerTool: vi.fn(
         (
           name: string,
-          _config: unknown,
+          config: RegisteredTool["config"],
           handler: RegisteredTool["handler"],
         ) => {
-          tools.set(name, handler);
+          tools.set(name, { name, config, handler });
         },
       ),
     },
@@ -56,7 +57,7 @@ describe("registerTools", () => {
 
     registerTools(server as never, { client: client as never });
 
-    const result = await tools.get("list_tasks")?.({
+    const result = await tools.get("list_tasks")?.handler({
       projectId: "project 1",
       status: "open",
       page: 2,
@@ -96,7 +97,7 @@ describe("registerTools", () => {
 
     registerTools(server as never, { client: client as never });
 
-    const result = await tools.get("update_task")?.({
+    const result = await tools.get("update_task")?.handler({
       taskId: "task-1",
       status: "done",
     });
@@ -126,7 +127,7 @@ describe("registerTools", () => {
 
     registerTools(server as never, { client: client as never });
 
-    const result = await tools.get("whoami")?.({});
+    const result = await tools.get("whoami")?.handler({});
 
     expect(result).toEqual({
       content: [
@@ -137,5 +138,38 @@ describe("registerTools", () => {
       ],
       isError: true,
     });
+  });
+
+  it("validates label colors as hex values", () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn() };
+
+    registerTools(server as never, { client: client as never });
+
+    const schema = tools.get("create_label")?.config.inputSchema;
+    expect(schema).toBeDefined();
+    expect(() =>
+      schema?.parse({
+        name: "Bug",
+        color: "red",
+        workspaceId: "workspace-1",
+      }),
+    ).toThrow(/hex color/i);
+  });
+
+  it("validates task date filters as ISO datetimes with timezone", () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn() };
+
+    registerTools(server as never, { client: client as never });
+
+    const schema = tools.get("list_tasks")?.config.inputSchema;
+    expect(schema).toBeDefined();
+    expect(() =>
+      schema?.parse({
+        projectId: "project-1",
+        dueBefore: "2026-04-04",
+      }),
+    ).toThrow();
   });
 });

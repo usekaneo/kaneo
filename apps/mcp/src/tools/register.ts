@@ -13,6 +13,21 @@ const prioritySchema = z.enum([
   "urgent",
 ]);
 
+const nonEmptyString = z.string().trim().min(1);
+const optionalNonEmptyString = nonEmptyString.optional();
+const nullableOptionalNonEmptyString = nonEmptyString.nullable().optional();
+const isoDateTimeSchema = z.string().datetime({ offset: true });
+const optionalIsoDateTimeSchema = isoDateTimeSchema.optional();
+const nullableOptionalIsoDateTimeSchema = isoDateTimeSchema
+  .nullable()
+  .optional();
+const hexColorSchema = z
+  .string()
+  .regex(
+    /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/,
+    "Expected a hex color like #FF6600",
+  );
+
 function run(fn: () => Promise<unknown>): Promise<CallToolResult> {
   return fn()
     .then((data) => textResult(data))
@@ -54,7 +69,7 @@ export function registerTools(
     {
       description: "List projects in a workspace.",
       inputSchema: z.object({
-        workspaceId: z.string().describe("Workspace ID"),
+        workspaceId: nonEmptyString.describe("Workspace ID"),
         includeArchived: z
           .boolean()
           .optional()
@@ -77,7 +92,7 @@ export function registerTools(
     "get_project",
     {
       description: "Get a single project by ID.",
-      inputSchema: z.object({ id: z.string() }),
+      inputSchema: z.object({ id: nonEmptyString }),
     },
     async (args) =>
       run(() => client.json(`/api/project/${encodeURIComponent(args.id)}`)),
@@ -88,10 +103,10 @@ export function registerTools(
     {
       description: "Create a project in a workspace.",
       inputSchema: z.object({
-        name: z.string(),
-        workspaceId: z.string(),
-        icon: z.string(),
-        slug: z.string(),
+        name: nonEmptyString,
+        workspaceId: nonEmptyString,
+        icon: nonEmptyString,
+        slug: nonEmptyString,
       }),
     },
     async (args) =>
@@ -113,10 +128,10 @@ export function registerTools(
     {
       description: "Update project metadata.",
       inputSchema: z.object({
-        id: z.string(),
-        name: z.string(),
-        icon: z.string(),
-        slug: z.string(),
+        id: nonEmptyString,
+        name: nonEmptyString,
+        icon: nonEmptyString,
+        slug: nonEmptyString,
         description: z.string(),
         isPublic: z.boolean(),
       }),
@@ -137,18 +152,18 @@ export function registerTools(
   );
 
   const listTasksSchema = z.object({
-    projectId: z.string(),
-    status: z.string().optional(),
-    priority: z.string().optional(),
-    assigneeId: z.string().optional(),
+    projectId: nonEmptyString,
+    status: optionalNonEmptyString,
+    priority: prioritySchema.optional(),
+    assigneeId: optionalNonEmptyString,
     page: z.number().int().positive().optional(),
     limit: z.number().int().positive().optional(),
     sortBy: z
       .enum(["createdAt", "priority", "dueDate", "position", "title", "number"])
       .optional(),
     sortOrder: z.enum(["asc", "desc"]).optional(),
-    dueBefore: z.string().optional(),
-    dueAfter: z.string().optional(),
+    dueBefore: optionalIsoDateTimeSchema,
+    dueAfter: optionalIsoDateTimeSchema,
   });
 
   server.registerTool(
@@ -176,7 +191,7 @@ export function registerTools(
     "get_task",
     {
       description: "Get a task by ID.",
-      inputSchema: z.object({ taskId: z.string() }),
+      inputSchema: z.object({ taskId: nonEmptyString }),
     },
     async (args) =>
       run(() =>
@@ -191,14 +206,14 @@ export function registerTools(
     {
       description: "Create a task in a project.",
       inputSchema: z.object({
-        projectId: z.string(),
-        title: z.string(),
+        projectId: nonEmptyString,
+        title: nonEmptyString,
         description: z.string(),
         priority: prioritySchema,
-        status: z.string(),
-        startDate: z.string().optional(),
-        dueDate: z.string().optional(),
-        userId: z.string().optional(),
+        status: nonEmptyString,
+        startDate: optionalIsoDateTimeSchema,
+        dueDate: optionalIsoDateTimeSchema,
+        userId: optionalNonEmptyString,
       }),
     },
     async (args) => {
@@ -227,16 +242,16 @@ export function registerTools(
   );
 
   const updateTaskSchema = z.object({
-    taskId: z.string(),
-    title: z.string().optional(),
+    taskId: nonEmptyString,
+    title: optionalNonEmptyString,
     description: z.string().nullable().optional(),
-    status: z.string().optional(),
+    status: optionalNonEmptyString,
     priority: prioritySchema.optional(),
-    projectId: z.string().optional(),
+    projectId: optionalNonEmptyString,
     position: z.number().optional(),
-    startDate: z.string().nullable().optional(),
-    dueDate: z.string().nullable().optional(),
-    userId: z.string().nullable().optional(),
+    startDate: nullableOptionalIsoDateTimeSchema,
+    dueDate: nullableOptionalIsoDateTimeSchema,
+    userId: nullableOptionalNonEmptyString,
   });
 
   server.registerTool(
@@ -268,9 +283,9 @@ export function registerTools(
       description:
         "Move a task to another project (and optional column status).",
       inputSchema: z.object({
-        taskId: z.string(),
-        destinationProjectId: z.string(),
-        destinationStatus: z.string().optional(),
+        taskId: nonEmptyString,
+        destinationProjectId: nonEmptyString,
+        destinationStatus: optionalNonEmptyString,
       }),
     },
     async (args) =>
@@ -292,8 +307,8 @@ export function registerTools(
     {
       description: "Update only the status (column) of a task.",
       inputSchema: z.object({
-        taskId: z.string(),
-        status: z.string(),
+        taskId: nonEmptyString,
+        status: nonEmptyString,
       }),
     },
     async (args) =>
@@ -309,7 +324,7 @@ export function registerTools(
     "list_task_comments",
     {
       description: "List comments on a task.",
-      inputSchema: z.object({ taskId: z.string() }),
+      inputSchema: z.object({ taskId: nonEmptyString }),
     },
     async (args) =>
       run(() =>
@@ -324,8 +339,8 @@ export function registerTools(
     {
       description: "Add a comment to a task.",
       inputSchema: z.object({
-        taskId: z.string(),
-        content: z.string().min(1),
+        taskId: nonEmptyString,
+        content: nonEmptyString,
       }),
     },
     async (args) =>
@@ -341,7 +356,7 @@ export function registerTools(
     "list_workspace_labels",
     {
       description: "List labels defined in a workspace.",
-      inputSchema: z.object({ workspaceId: z.string() }),
+      inputSchema: z.object({ workspaceId: nonEmptyString }),
     },
     async (args) =>
       run(() =>
@@ -358,10 +373,10 @@ export function registerTools(
       description:
         "Create a label in a workspace (optionally attach to a task).",
       inputSchema: z.object({
-        name: z.string(),
-        color: z.string(),
-        workspaceId: z.string(),
-        taskId: z.string().optional(),
+        name: nonEmptyString,
+        color: hexColorSchema,
+        workspaceId: nonEmptyString,
+        taskId: optionalNonEmptyString,
       }),
     },
     async (args) =>
@@ -383,8 +398,8 @@ export function registerTools(
     {
       description: "Attach an existing label to a task.",
       inputSchema: z.object({
-        labelId: z.string(),
-        taskId: z.string(),
+        labelId: nonEmptyString,
+        taskId: nonEmptyString,
       }),
     },
     async (args) =>
@@ -400,7 +415,7 @@ export function registerTools(
     "detach_label_from_task",
     {
       description: "Detach a label from its current task.",
-      inputSchema: z.object({ labelId: z.string() }),
+      inputSchema: z.object({ labelId: nonEmptyString }),
     },
     async (args) =>
       run(() =>
