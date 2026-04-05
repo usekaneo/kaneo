@@ -43,7 +43,7 @@
     "better-auth": "^1.5.5",
     "croner": "^10.0.1",
     "drizzle-kit": "^0.31.9",
-    "drizzle-orm": "^0.45.1",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.12.7",
     "hono-openapi": "^1.3.0",
     "octokit": "^5.0.5",
