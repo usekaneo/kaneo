@@ -223,6 +223,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
 
   const columns = projectColumns.map((column) => ({
     id: column.slug,
+    slug: column.slug,
     name: column.name,
     isFinal: column.isFinal,
     tasks: paginatedTasks
