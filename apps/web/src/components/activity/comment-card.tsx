@@ -57,6 +57,7 @@ export default function CommentCard({
   const githubProfileUrl =
     isFromGitHub && user?.name ? `https://github.com/${user.name}` : null;
   const commentUrl = externalUrl || null;
+  const fullTimestamp = formatDateTime(createdAt);
 
   const handleEdit = useCallback(() => {
     setEditedContent(content);
@@ -163,17 +164,19 @@ export default function CommentCard({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <time
-                dateTime={new Date(createdAt).toISOString()}
-                tabIndex={0}
-                className="cursor-default text-xs text-muted-foreground/62 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              <button
+                type="button"
+                className="cursor-default text-xs text-muted-foreground/62 outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label={fullTimestamp}
+                title={fullTimestamp}
               >
-                {formatRelativeTime(createdAt)}
-              </time>
-            </TooltipTrigger>
+                <time dateTime={createdAt}>
+                  {formatRelativeTime(createdAt)}
+                </time>
+              </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p className="text-xs">{formatDateTime(createdAt)}</p>
+              <p className="text-xs">{fullTimestamp}</p>
             </TooltipContent>
           </Tooltip>
 
