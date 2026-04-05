@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
-import { formatRelativeTime } from "@/lib/format";
+import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import { toast } from "@/lib/toast";
 
 type CommentCardProps = {
@@ -103,85 +103,92 @@ export default function CommentCard({
   ]);
 
   return (
-    <div className="group relative w-full rounded-xl border border-border/80 bg-card/60">
-      <div className="flex items-center gap-2 px-3 pt-2.5">
-        <HoverCard>
-          <HoverCardTrigger>
-            <div className="flex cursor-pointer items-center gap-2">
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
-                <AvatarFallback className="bg-muted text-xs font-medium">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium text-foreground/92 hover:text-foreground transition-colors">
-                {user?.name}
-              </span>
-            </div>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-64 p-3">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
-                <AvatarFallback className="bg-muted text-xs font-medium">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground leading-none">
+    <TooltipProvider>
+      <div className="group relative w-full rounded-xl border border-border/80 bg-card/60">
+        <div className="flex items-center gap-2 px-3 pt-2.5">
+          <HoverCard>
+            <HoverCardTrigger>
+              <div className="flex cursor-pointer items-center gap-2">
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
+                  <AvatarFallback className="bg-muted text-xs font-medium">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium text-foreground/92 hover:text-foreground transition-colors">
                   {user?.name}
-                </p>
-                {user?.email && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {user.email}
-                  </p>
-                )}
-                {isFromGitHub && (
-                  <div className="mt-1.5 flex items-center gap-1">
-                    <Github className="size-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {t("activity:comment.github")}
-                    </span>
-                  </div>
-                )}
+                </span>
               </div>
-            </div>
-            {githubProfileUrl && (
+            </HoverCardTrigger>
+            <HoverCardContent className="w-64 p-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
+                  <AvatarFallback className="bg-muted text-xs font-medium">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground leading-none">
+                    {user?.name}
+                  </p>
+                  {user?.email && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {user.email}
+                    </p>
+                  )}
+                  {isFromGitHub && (
+                    <div className="mt-1.5 flex items-center gap-1">
+                      <Github className="size-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {t("activity:comment.github")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {githubProfileUrl && (
+                <a
+                  href={githubProfileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 flex items-center gap-1.5 border-t border-border pt-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <ExternalLink className="size-3" />
+                  {t("activity:comment.viewGithubProfile")}
+                </a>
+              )}
+            </HoverCardContent>
+          </HoverCard>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="cursor-default text-xs text-muted-foreground/62">
+                {formatRelativeTime(createdAt)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">{formatDateTime(createdAt)}</p>
+            </TooltipContent>
+          </Tooltip>
+
+          {commentUrl && (
+            <>
+              <span className="text-xs text-muted-foreground/40">·</span>
               <a
-                href={githubProfileUrl}
+                href={commentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 flex items-center gap-1.5 border-t border-border pt-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                <ExternalLink className="size-3" />
-                {t("activity:comment.viewGithubProfile")}
+                <Github className="size-3" />
+                {t("activity:comment.commentedOnGithub")}
               </a>
-            )}
-          </HoverCardContent>
-        </HoverCard>
+            </>
+          )}
+        </div>
 
-        <span className="text-xs text-muted-foreground/62">
-          {formatRelativeTime(createdAt)}
-        </span>
-
-        {commentUrl && (
-          <>
-            <span className="text-xs text-muted-foreground/40">·</span>
-            <a
-              href={commentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <Github className="size-3" />
-              {t("activity:comment.commentedOnGithub")}
-            </a>
-          </>
-        )}
-      </div>
-
-      {canEdit && !isEditing && (
-        <TooltipProvider>
+        {canEdit && !isEditing && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -197,50 +204,50 @@ export default function CommentCard({
               <p className="text-xs">{t("activity:comment.edit")}</p>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-      )}
+        )}
 
-      <div className="pt-0.5">
-        <CommentEditor
-          value={isEditing ? editedContent : content}
-          onChange={isEditing ? setEditedContent : undefined}
-          placeholder={t("activity:comment.editPlaceholder")}
-          taskId={taskId}
-          uploadSurface="comment"
-          className={
-            isEditing
-              ? "[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[3rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-2.5 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"
-              : "kaneo-comment-viewer [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-2 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-3"
-          }
-          autoFocus={isEditing}
-          readOnly={!isEditing}
-          onSubmitShortcut={isEditing ? handleSave : undefined}
-          onCancelShortcut={isEditing ? handleCancel : undefined}
-        />
-      </div>
-
-      {isEditing && (
-        <div className="flex items-center justify-end gap-2 border-border/70 border-t bg-card/60 px-3 py-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleCancel}
-            disabled={isPending}
-            className="h-7 px-2.5 text-xs"
-          >
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleSave}
-            disabled={isPending || !editedContent.trim()}
-            className="h-7 px-2.5 text-xs"
-          >
-            {t("activity:comment.save")}
-          </Button>
+        <div className="pt-0.5">
+          <CommentEditor
+            value={isEditing ? editedContent : content}
+            onChange={isEditing ? setEditedContent : undefined}
+            placeholder={t("activity:comment.editPlaceholder")}
+            taskId={taskId}
+            uploadSurface="comment"
+            className={
+              isEditing
+                ? "[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[3rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-2.5 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"
+                : "kaneo-comment-viewer [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-2 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-3"
+            }
+            autoFocus={isEditing}
+            readOnly={!isEditing}
+            onSubmitShortcut={isEditing ? handleSave : undefined}
+            onCancelShortcut={isEditing ? handleCancel : undefined}
+          />
         </div>
-      )}
-    </div>
+
+        {isEditing && (
+          <div className="flex items-center justify-end gap-2 border-border/70 border-t bg-card/60 px-3 py-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleCancel}
+              disabled={isPending}
+              className="h-7 px-2.5 text-xs"
+            >
+              {t("common:actions.cancel")}
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleSave}
+              disabled={isPending || !editedContent.trim()}
+              className="h-7 px-2.5 text-xs"
+            >
+              {t("activity:comment.save")}
+            </Button>
+          </div>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }
