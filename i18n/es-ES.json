@@ -816,7 +816,8 @@
 			"projects": "Proyectos",
 			"members": "Miembros",
 			"invitations": "Invitaciones",
-			"more": "Más"
+			"more": "Más",
+			"backToBoard": "Volver al tablero"
 		},
 		"projectList": {
 			"viewProject": "Ver Proyecto",

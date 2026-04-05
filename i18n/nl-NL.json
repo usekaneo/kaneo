@@ -816,7 +816,8 @@
 			"projects": "Projecten",
 			"members": "Leden",
 			"invitations": "Uitnodigingen",
-			"more": "Meer"
+			"more": "Meer",
+			"backToBoard": "Terug naar bord"
 		},
 		"projectList": {
 			"viewProject": "Project bekijken",

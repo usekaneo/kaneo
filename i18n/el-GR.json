@@ -1030,7 +1030,8 @@
 			"projects": "Έργα",
 			"members": "Μέλη",
 			"invitations": "Προσκλήσεις",
-			"more": "Περισσότερα"
+			"more": "Περισσότερα",
+			"backToBoard": "Επιστροφή στον πίνακα"
 		},
 		"projectList": {
 			"viewProject": "Προβολή έργου",

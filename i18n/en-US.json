@@ -1032,7 +1032,8 @@
 			"projects": "Projects",
 			"members": "Members",
 			"invitations": "Invitations",
-			"more": "More"
+			"more": "More",
+			"backToBoard": "Back to board"
 		},
 		"projectList": {
 			"viewProject": "View Project",

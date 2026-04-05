@@ -1030,7 +1030,8 @@
 			"projects": "Projets",
 			"members": "Membres",
 			"invitations": "Invitations",
-			"more": "Plus"
+			"more": "Plus",
+			"backToBoard": "Retour au tableau"
 		},
 		"projectList": {
 			"viewProject": "Voir le projet",

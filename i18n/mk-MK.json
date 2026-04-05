@@ -1030,7 +1030,8 @@
 			"projects": "Проекти",
 			"members": "Членови",
 			"invitations": "Покани",
-			"more": "Повеќе"
+			"more": "Повеќе",
+			"backToBoard": "Назад на табла"
 		},
 		"projectList": {
 			"viewProject": "Погледни проект",
