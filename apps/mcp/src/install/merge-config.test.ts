@@ -17,6 +17,15 @@ describe("mergeMcpServerEntry", () => {
     });
   });
 
+  it("rejects empty string existing config as invalid JSON", () => {
+    expect(() =>
+      mergeMcpServerEntry("", "kaneo", {
+        command: "/usr/bin/node",
+        args: ["/app/index.js"],
+      }),
+    ).toThrow("Existing MCP config is not valid JSON");
+  });
+
   it("merges without removing other servers or top-level keys", () => {
     const existing = JSON.stringify({
       other: true,

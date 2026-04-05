@@ -3,7 +3,12 @@ import { dirname } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { type McpServerEntry, mergeMcpServerEntry } from "./merge-config.js";
 import { resolvePackageEntryPath } from "./resolve-entry.js";
-import { type InstallTargetId, resolveTargetConfigPath } from "./targets.js";
+import {
+  INSTALL_TARGETS,
+  type InstallTargetId,
+  resolveTargetConfigPath,
+  validateCustomConfigPathInput,
+} from "./targets.js";
 import {
   promptConfirmOverwrite,
   promptCustomConfigPath,
@@ -143,12 +148,9 @@ function hasExistingServerEntry(
   }
 }
 
-const VALID_TARGETS: readonly InstallTargetId[] = [
-  "cursor-user",
-  "cursor-project",
-  "claude-desktop",
-  "custom",
-];
+const VALID_TARGETS: readonly InstallTargetId[] = INSTALL_TARGETS.map(
+  (t) => t.id,
+);
 
 function isInstallTargetId(s: string): s is InstallTargetId {
   return (VALID_TARGETS as readonly string[]).includes(s);
@@ -199,7 +201,7 @@ export async function runInstall(argv: string[]): Promise<void> {
     return;
   }
 
-  let customPath = parsed.output;
+  let customPath = parsed.output?.trim();
   if (targetIds.includes("custom")) {
     if (!customPath) {
       if (input.isTTY && output.isTTY) {
@@ -209,6 +211,14 @@ export async function runInstall(argv: string[]): Promise<void> {
         process.exitCode = 1;
         return;
       }
+    } else {
+      const validation = validateCustomConfigPathInput(customPath);
+      if (!validation.ok) {
+        console.error(`Invalid --output: ${validation.message}`);
+        process.exitCode = 1;
+        return;
+      }
+      customPath = validation.path;
     }
   }
 
@@ -278,9 +288,11 @@ export async function runInstall(argv: string[]): Promise<void> {
     let merged: string;
     try {
       merged = mergeMcpServerEntry(p.existingText, parsed.name, serverConfig);
-    } catch {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      const stack = err instanceof Error ? err.stack : undefined;
       console.error(
-        `Cannot update config (invalid JSON or merge error): ${p.configPath}`,
+        `Cannot update config at ${p.configPath}: ${message}${stack ? `\n${stack}` : ""}`,
       );
       process.exitCode = 1;
       return;
@@ -315,7 +327,7 @@ Usage:
 Without options, runs interactively (pick Cursor / Claude / custom path).
 
 Options:
-  --target <id>       cursor-user | cursor-project | claude-desktop | custom
+  --target <id>       ${VALID_TARGETS.join(" | ")}
   --output <path>     Required for --target custom (absolute path to JSON file)
   --project-dir <dir> Base directory for cursor-project (default: current dir)
   --name <string>     MCP server key under mcpServers (default: kaneo)

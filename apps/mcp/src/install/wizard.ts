@@ -1,6 +1,9 @@
-import path from "node:path";
 import prompts from "prompts";
-import { INSTALL_TARGETS, type InstallTargetId } from "./targets.js";
+import {
+  INSTALL_TARGETS,
+  type InstallTargetId,
+  validateCustomConfigPathInput,
+} from "./targets.js";
 
 function onCancel(): void {
   console.log("\nCancelled.");
@@ -46,17 +49,8 @@ export async function promptCustomConfigPath(): Promise<string> {
         if (typeof v !== "string") {
           return "Path is required";
         }
-        const trimmed = v.trim();
-        if (trimmed.length === 0) {
-          return "Path is required";
-        }
-        if (!path.isAbsolute(trimmed)) {
-          return "Path must be absolute";
-        }
-        if (!trimmed.toLowerCase().endsWith(".json")) {
-          return "Path must end with .json";
-        }
-        return true;
+        const result = validateCustomConfigPathInput(v);
+        return result.ok ? true : result.message;
       },
     },
     { onCancel },

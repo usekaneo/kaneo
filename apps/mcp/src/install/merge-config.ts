@@ -30,7 +30,7 @@ export function mergeMcpServerEntry(
   }
 
   let root: Record<string, unknown> = {};
-  if (existingJson) {
+  if (existingJson !== null) {
     let parsed: unknown;
     try {
       parsed = JSON.parse(existingJson);

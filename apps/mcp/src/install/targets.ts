@@ -1,5 +1,5 @@
 import { homedir } from "node:os";
-import { join } from "node:path";
+import path, { join } from "node:path";
 
 export type InstallTargetId =
   | "cursor-user"
@@ -12,6 +12,26 @@ export type InstallTarget = {
   label: string;
   description: string;
 };
+
+/**
+ * Validates a non-interactive custom MCP config path (same rules as the install wizard).
+ * Returns the trimmed absolute path on success.
+ */
+export function validateCustomConfigPathInput(
+  raw: string,
+): { ok: true; path: string } | { ok: false; message: string } {
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) {
+    return { ok: false, message: "Path is required" };
+  }
+  if (!path.isAbsolute(trimmed)) {
+    return { ok: false, message: "Path must be absolute" };
+  }
+  if (!trimmed.toLowerCase().endsWith(".json")) {
+    return { ok: false, message: "Path must end with .json" };
+  }
+  return { ok: true, path: trimmed };
+}
 
 export const INSTALL_TARGETS: readonly InstallTarget[] = [
   {
