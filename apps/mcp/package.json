@@ -3,9 +3,17 @@
 	"version": "0.1.2",
 	"description": "Model Context Protocol (stdio) server for Kaneo — tasks, projects, labels, and device authorization",
 	"license": "MIT",
+	"homepage": "https://github.com/usekaneo/kaneo/",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usekaneo/kaneo/"
+	},
 	"type": "module",
 	"bin": {
 		"kaneo-mcp": "dist/index.js"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"files": [
 		"dist",
