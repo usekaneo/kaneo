@@ -2,7 +2,7 @@ import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import type { Session, User } from "better-auth/types";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -431,6 +431,40 @@ export function createApp() {
     return next();
   });
 
+  const oauthIdTokenApi = api.get(
+    "/oauth/id-token",
+    describeRoute({
+      operationId: "getOAuthIdToken",
+      tags: ["Authentication"],
+      description:
+        "Get the id_token for the current user's custom OAuth account",
+      responses: {
+        200: {
+          description: "The id_token if available",
+          content: {
+            "application/json": {
+              schema: resolver(v.object({ idToken: v.nullable(v.string()) })),
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const userId = c.get("userId");
+      const [account] = await db
+        .select({ idToken: schema.accountTable.idToken })
+        .from(schema.accountTable)
+        .where(
+          and(
+            eq(schema.accountTable.userId, userId),
+            eq(schema.accountTable.providerId, "custom"),
+          ),
+        )
+        .limit(1);
+      return c.json({ idToken: account?.idToken ?? null });
+    },
+  );
+
   const projectApi = api.route("/project", project);
   const taskApi = api.route("/task", task);
   const columnApi = api.route("/column", column);
@@ -497,6 +531,7 @@ export function createApp() {
     timeEntryApi,
     workflowRuleApi,
     workspaceApi,
+    oauthIdTokenApi,
   };
 }
 
@@ -573,6 +608,7 @@ const {
   timeEntryApi,
   workflowRuleApi,
   workspaceApi,
+  oauthIdTokenApi,
 } = createdApp;
 
 const isMainModule =
@@ -607,6 +643,7 @@ export type AppType =
   | typeof invitationApi
   | typeof workspaceApi
   | typeof publicProjectApi
-  | typeof invitationPublicApi;
+  | typeof invitationPublicApi
+  | typeof oauthIdTokenApi;
 
 export default app;

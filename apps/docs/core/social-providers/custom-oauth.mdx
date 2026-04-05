@@ -29,6 +29,7 @@ To configure a custom OAuth/OIDC provider, you need to set the following environ
 | `CUSTOM_OAUTH_SCOPES` | Comma-separated list of OAuth scopes | `profile,email` |
 | `CUSTOM_OAUTH_RESPONSE_TYPE` | OAuth response type | `code` |
 | `CUSTOM_AUTH_PKCE` | Enable/disable PKCE (Proof Key for Code Exchange) | `true` |
+| `CUSTOM_OAUTH_LOGOUT_URL` | Logout endpoint URL (optional) | `https://id.example.com/api/oidc/logout` |
 
 ## Setup Steps
 
@@ -54,6 +55,7 @@ CUSTOM_OAUTH_CLIENT_SECRET=your-client-secret
 CUSTOM_OAUTH_AUTHORIZATION_URL=https://your-idp.com/authorize
 CUSTOM_OAUTH_TOKEN_URL=https://your-idp.com/oauth/token
 CUSTOM_OAUTH_USER_INFO_URL=https://your-idp.com/oauth/userinfo
+CUSTOM_OAUTH_LOGOUT_URL=https://your-idp.com/oauth/logout
 
 # Optional: Use discovery URL for automatic configuration
 CUSTOM_OAUTH_DISCOVERY_URL=https://your-idp.com/.well-known/openid-configuration
@@ -94,6 +96,7 @@ CUSTOM_OAUTH_SCOPES=profile,email
 CUSTOM_OAUTH_CLIENT_ID=kaneo-client
 CUSTOM_OAUTH_CLIENT_SECRET=your-secret-here
 CUSTOM_OAUTH_DISCOVERY_URL=https://keycloak.example.com/realms/your-realm/.well-known/openid-configuration
+CUSTOM_OAUTH_LOGOUT_URL=https://keycloak.example.com/realms/your-realm/protocol/openid-connect/logout
 CUSTOM_OAUTH_SCOPES=openid,profile,email
 ```
 
