@@ -163,9 +163,14 @@ export default function CommentCard({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="cursor-default text-xs text-muted-foreground/62">
+              <time
+                dateTime={new Date(createdAt).toISOString()}
+                tabIndex={0}
+                className="cursor-default text-xs text-muted-foreground/62 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
                 {formatRelativeTime(createdAt)}
-              </span>
+              </time>
+            </TooltipTrigger>
             </TooltipTrigger>
             <TooltipContent>
               <p className="text-xs">{formatDateTime(createdAt)}</p>
