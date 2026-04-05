@@ -10,7 +10,7 @@ type ProjectConnection = {
 const projectConnections = new Map<string, Set<ProjectConnection>>();
 const projectBroadcastQueues = new Map<
   string,
-  Map<string, { message: Record<string, unknown>; excludeInitiatorId?: string }>
+  Map<string, { message: ProjectBroadcastMessage; excludeInitiatorId?: string }>
 >();
 const projectBroadcastTimeouts = new Map<
   string,
@@ -41,16 +41,24 @@ export function removeConnection(projectId: string, conn: ProjectConnection) {
   }
 }
 
+type ProjectBroadcastMessage = {
+  type: string;
+  projectId: string;
+  taskId?: string;
+  sourceTaskId?: string;
+  targetTaskId?: string;
+};
+
 export function broadcastToProject(
   projectId: string,
-  message: Record<string, unknown>,
+  message: ProjectBroadcastMessage,
   excludeInitiatorId?: string,
 ) {
   if (!projectBroadcastQueues.has(projectId)) {
     projectBroadcastQueues.set(projectId, new Map());
   }
 
-  const messageKey = `${message.type}:${message.taskId || ""}:${message.sourceTaskId || ""}:${message.targetTaskId || ""}`;
+  const messageKey = `${message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`;
   projectBroadcastQueues
     .get(projectId)
     ?.set(messageKey, { message, excludeInitiatorId });
