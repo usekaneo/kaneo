@@ -117,13 +117,10 @@ function buildContentDisposition(filename: string) {
   return `inline; filename="${asciiFallback}"; filename*=UTF-8''${encodedFilename}`;
 }
 
-let injectWebSocket: ReturnType<typeof createNodeWebSocket>["injectWebSocket"];
-
 export function createApp() {
   const app = new Hono<AppVariables>();
   const nodeWs = createNodeWebSocket({ app });
-  const upgradeWebSocket = nodeWs.upgradeWebSocket;
-  injectWebSocket = nodeWs.injectWebSocket;
+  const { upgradeWebSocket, injectWebSocket } = nodeWs;
   const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
     : undefined;
@@ -556,6 +553,7 @@ export function createApp() {
   return {
     app,
     api,
+    injectWebSocket,
     activityApi,
     columnApi,
     commentApi,
@@ -605,7 +603,10 @@ export async function runStartupTasks() {
   initializeScheduler();
 }
 
-export async function startServer(port = 1337) {
+export async function startServer(
+  injectWebSocket: ReturnType<typeof createNodeWebSocket>["injectWebSocket"],
+  port = 1337,
+) {
   try {
     await runStartupTasks();
   } catch (error) {
@@ -635,6 +636,7 @@ export async function startServer(port = 1337) {
 const createdApp = createApp();
 const {
   app,
+  injectWebSocket,
   activityApi,
   columnApi,
   commentApi,
@@ -667,7 +669,7 @@ const isMainModule =
   import.meta.url === pathToFileURL(process.argv[1]).href;
 
 if (isMainModule) {
-  void startServer();
+  void startServer(injectWebSocket);
 }
 
 export type AppType =

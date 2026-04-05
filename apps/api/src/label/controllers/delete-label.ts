@@ -59,8 +59,10 @@ async function deleteLabel(id: string, userId: string) {
   }
 
   await publishEvent("task.label_deleted", {
-    ...deletedLabel,
-    ...task,
+    label: deletedLabel,
+    task,
+    projectId: task.projectId,
+    taskId: task,
     userId: userId,
     type: "label_deleted",
   });

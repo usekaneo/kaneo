@@ -58,8 +58,8 @@ async function createLabel(
       });
 
       await publishEvent("task.label_created", {
-        ...label,
-        ...task,
+        projectId: task.projectId,
+        taskId: task.id,
         userId: userId,
         type: "label_created",
       });

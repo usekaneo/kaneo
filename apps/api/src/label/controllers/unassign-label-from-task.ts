@@ -58,8 +58,9 @@ async function unassignLabelFromTask(id: string, userId: string) {
   }
 
   await publishEvent("task.label_unassigned", {
-    ...updatedLabel,
-    ...task,
+    label: updatedLabel,
+    task,
+    projectId: task.projectId,
     taskId: label.taskId,
     userId,
     type: "label_unassigned",
