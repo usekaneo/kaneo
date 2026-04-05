@@ -10,6 +10,14 @@ import {
   promptTargetSelect,
 } from "./wizard.js";
 
+/** True if `v` looks like a CLI flag (`--long` or single-letter `-y`), not a value like `-my-server`. */
+function isFlagLikeToken(v: string): boolean {
+  if (v.startsWith("--")) {
+    return true;
+  }
+  return /^-[A-Za-z]$/.test(v);
+}
+
 export type ParsedInstallArgs = {
   target?: string;
   output?: string;
@@ -44,7 +52,7 @@ export function parseInstallArgs(argv: string[]): ParsedInstallArgs {
     }
     if (a === "--target") {
       const v = argv[i + 1];
-      if (!v || v.startsWith("-")) {
+      if (!v || isFlagLikeToken(v)) {
         throw new Error("--target requires a value");
       }
       target = v;
@@ -57,7 +65,7 @@ export function parseInstallArgs(argv: string[]): ParsedInstallArgs {
     }
     if (a === "--output") {
       const v = argv[i + 1];
-      if (!v || v.startsWith("-")) {
+      if (!v || isFlagLikeToken(v)) {
         throw new Error("--output requires a value");
       }
       output = v;
@@ -70,7 +78,7 @@ export function parseInstallArgs(argv: string[]): ParsedInstallArgs {
     }
     if (a === "--name") {
       const v = argv[i + 1];
-      if (!v || v.startsWith("-")) {
+      if (!v || isFlagLikeToken(v)) {
         throw new Error("--name requires a value");
       }
       name = v;
@@ -83,7 +91,7 @@ export function parseInstallArgs(argv: string[]): ParsedInstallArgs {
     }
     if (a === "--api-url") {
       const v = argv[i + 1];
-      if (!v || v.startsWith("-")) {
+      if (!v || isFlagLikeToken(v)) {
         throw new Error("--api-url requires a value");
       }
       apiUrl = v;
@@ -96,7 +104,7 @@ export function parseInstallArgs(argv: string[]): ParsedInstallArgs {
     }
     if (a === "--project-dir") {
       const v = argv[i + 1];
-      if (!v || v.startsWith("-")) {
+      if (!v || isFlagLikeToken(v)) {
         throw new Error("--project-dir requires a value");
       }
       projectDir = v;
@@ -217,6 +225,8 @@ export async function runInstall(argv: string[]): Promise<void> {
   };
 
   const writtenPaths: string[] = [];
+  const pending: Array<{ configPath: string; existingText: string | null }> =
+    [];
 
   for (const targetId of targetIds) {
     const configPath = resolveTargetConfigPath(targetId, {
@@ -249,20 +259,28 @@ export async function runInstall(argv: string[]): Promise<void> {
       }
     }
 
+    pending.push({ configPath, existingText });
+  }
+
+  const mergedWrites: Array<{ configPath: string; merged: string }> = [];
+  for (const p of pending) {
     let merged: string;
     try {
-      merged = mergeMcpServerEntry(existingText, parsed.name, serverConfig);
+      merged = mergeMcpServerEntry(p.existingText, parsed.name, serverConfig);
     } catch {
       console.error(
-        `Cannot update config (invalid JSON or merge error): ${configPath}`,
+        `Cannot update config (invalid JSON or merge error): ${p.configPath}`,
       );
       process.exitCode = 1;
       return;
     }
+    mergedWrites.push({ configPath: p.configPath, merged });
+  }
 
-    await mkdir(dirname(configPath), { recursive: true });
-    await writeFile(configPath, merged, { encoding: "utf8", mode: 0o600 });
-    writtenPaths.push(configPath);
+  for (const w of mergedWrites) {
+    await mkdir(dirname(w.configPath), { recursive: true });
+    await writeFile(w.configPath, w.merged, { encoding: "utf8", mode: 0o600 });
+    writtenPaths.push(w.configPath);
   }
 
   if (writtenPaths.length === 0) {

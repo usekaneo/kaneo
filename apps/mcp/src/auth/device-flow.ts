@@ -70,6 +70,10 @@ export async function pollDeviceAccessToken(
       }),
     });
 
+    if (Date.now() - started > maxWait) {
+      throw new Error("Device authorization timed out waiting for approval.");
+    }
+
     const body = (await res.json().catch(() => ({}))) as {
       access_token?: string;
       error?: string;

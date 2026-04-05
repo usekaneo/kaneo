@@ -126,29 +126,65 @@ export function registerTools(
   server.registerTool(
     "update_project",
     {
-      description: "Update project metadata.",
+      description:
+        "Update project metadata (PATCH-style: only provided fields are changed).",
       inputSchema: z.object({
         id: nonEmptyString,
-        name: nonEmptyString,
-        icon: nonEmptyString,
-        slug: nonEmptyString,
-        description: z.string(),
-        isPublic: z.boolean(),
+        name: optionalNonEmptyString,
+        icon: z.string().optional(),
+        slug: optionalNonEmptyString,
+        description: z.string().optional(),
+        isPublic: z.boolean().optional(),
       }),
     },
-    async (args) =>
-      run(() =>
-        client.json(`/api/project/${encodeURIComponent(args.id)}`, {
+    async (args) => {
+      const { id, ...patch } = args;
+      return run(async () => {
+        const existing = (await client.json(
+          `/api/project/${encodeURIComponent(id)}`,
+          { method: "GET" },
+        )) as Record<string, unknown>;
+        const name =
+          patch.name ??
+          (typeof existing.name === "string" ? existing.name : "");
+        if (!name) {
+          throw new Error("Cannot update project: missing name.");
+        }
+        const icon =
+          patch.icon !== undefined
+            ? patch.icon
+            : existing.icon != null
+              ? String(existing.icon)
+              : "";
+        const slug =
+          patch.slug ??
+          (typeof existing.slug === "string" ? existing.slug : "");
+        if (!slug) {
+          throw new Error("Cannot update project: missing slug.");
+        }
+        const description =
+          patch.description !== undefined
+            ? patch.description
+            : typeof existing.description === "string"
+              ? existing.description
+              : "";
+        const isPublic =
+          patch.isPublic !== undefined
+            ? patch.isPublic
+            : Boolean(existing.isPublic);
+
+        return client.json(`/api/project/${encodeURIComponent(id)}`, {
           method: "PUT",
           body: JSON.stringify({
-            name: args.name,
-            icon: args.icon,
-            slug: args.slug,
-            description: args.description,
-            isPublic: args.isPublic,
+            name,
+            icon,
+            slug,
+            description,
+            isPublic,
           }),
-        }),
-      ),
+        });
+      });
+    },
   );
 
   const listTasksSchema = z.object({

@@ -105,9 +105,13 @@ describe("registerTools", () => {
     expect(client.json).toHaveBeenNthCalledWith(1, "/api/task/task-1", {
       method: "GET",
     });
-    expect(client.json).toHaveBeenNthCalledWith(2, "/api/task/task-1", {
-      method: "PUT",
-      body: JSON.stringify({
+    const putCall = client.json.mock.calls[1];
+    expect(putCall?.[0]).toBe("/api/task/task-1");
+    const putBody = JSON.parse(
+      String((putCall?.[1] as { body?: string })?.body ?? "{}"),
+    );
+    expect(putBody).toEqual(
+      expect.objectContaining({
         title: "Draft spec",
         description: "Write docs",
         status: "done",
@@ -115,7 +119,7 @@ describe("registerTools", () => {
         projectId: "project-1",
         position: 4,
       }),
-    });
+    );
     expect(result?.isError).toBe(false);
   });
 

@@ -65,6 +65,10 @@ export class AuthService {
       cached.accessToken
     ) {
       const validation = await this.validateAccessToken(cached.accessToken);
+      // Fail-open for "unknown": validateAccessToken returns "unknown" on transient HTTP/network
+      // errors or ambiguous responses. Treating "unknown" like "valid" avoids clearToken() and a full
+      // device re-auth so flaky connectivity does not wipe cached.accessToken; only "invalid" forces
+      // a fresh login. Tests should cover both unknown and invalid paths.
       if (validation === "valid" || validation === "unknown") {
         return cached.accessToken;
       }

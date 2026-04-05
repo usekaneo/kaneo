@@ -15,13 +15,19 @@ export function mergeMcpServerEntry(
 ): string {
   let root: Record<string, unknown> = {};
   if (existingJson) {
-    const parsed: unknown = JSON.parse(existingJson);
-    if (
-      typeof parsed === "object" &&
-      parsed !== null &&
-      !Array.isArray(parsed)
-    ) {
-      root = { ...(parsed as Record<string, unknown>) };
+    try {
+      const parsed: unknown = JSON.parse(existingJson);
+      if (
+        typeof parsed === "object" &&
+        parsed !== null &&
+        !Array.isArray(parsed)
+      ) {
+        root = { ...(parsed as Record<string, unknown>) };
+      }
+    } catch {
+      console.warn(
+        "[kaneo-mcp] Existing MCP config is not valid JSON; overwriting with a fresh object.",
+      );
     }
   }
 

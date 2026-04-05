@@ -1,3 +1,4 @@
+import path from "node:path";
 import prompts from "prompts";
 import { INSTALL_TARGETS, type InstallTargetId } from "./targets.js";
 
@@ -41,10 +42,22 @@ export async function promptCustomConfigPath(): Promise<string> {
       type: "text",
       name: "path",
       message: "Absolute path to the JSON config file (create or update):",
-      validate: (v) =>
-        typeof v === "string" && v.trim().length > 0
-          ? true
-          : "Path is required",
+      validate: (v) => {
+        if (typeof v !== "string") {
+          return "Path is required";
+        }
+        const trimmed = v.trim();
+        if (trimmed.length === 0) {
+          return "Path is required";
+        }
+        if (!path.isAbsolute(trimmed)) {
+          return "Path must be absolute";
+        }
+        if (!trimmed.toLowerCase().endsWith(".json")) {
+          return "Path must end with .json";
+        }
+        return true;
+      },
     },
     { onCancel },
   );
