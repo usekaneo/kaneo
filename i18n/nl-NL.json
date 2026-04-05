@@ -946,6 +946,8 @@
 		"setDueDate": "heeft de einddatum ingesteld op {{date}}",
 		"changedDueDate": "heeft de einddatum gewijzigd van {{from}} naar {{to}}",
 		"changedTitle": "heeft de titel gewijzigd van \"{{from}}\" naar \"{{to}}\"",
+		"created": "heeft deze taak aangemaakt",
+		"moved": "heeft de taak van \"{{from}}\" naar \"{{to}}\" verplaatst",
 		"githubUser": "GitHub-gebruiker",
 		"comment": {
 			"github": "GitHub",
@@ -1059,7 +1061,9 @@
 		},
 		"common": {
 			"selectTask": "Selecteer taak",
-			"loadingTask": "Taak laden..."
+			"loadingTask": "Taak laden...",
+			"taskNotFound": "Taak niet gevonden",
+			"taskNotFoundDescription": "De taak die u zoekt bestaat niet of is verwijderd."
 		},
 		"detail": {
 			"subtaskOf": "Subtaak van",

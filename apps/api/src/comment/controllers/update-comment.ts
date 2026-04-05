@@ -1,11 +1,12 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { commentTable } from "../../database/schema";
+import { commentTable, taskTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 
 async function updateComment(userId: string, id: string, content: string) {
   const [existing] = await db
-    .select({ userId: commentTable.userId })
+    .select({ userId: commentTable.userId, taskId: commentTable.taskId })
     .from(commentTable)
     .where(eq(commentTable.id, id))
     .limit(1);
@@ -20,6 +21,12 @@ async function updateComment(userId: string, id: string, content: string) {
     });
   }
 
+  const [task] = await db
+    .select({ projectId: taskTable.projectId })
+    .from(taskTable)
+    .where(eq(taskTable.id, existing.taskId))
+    .limit(1);
+
   const [updated] = await db
     .update(commentTable)
     .set({ content })
@@ -28,6 +35,14 @@ async function updateComment(userId: string, id: string, content: string) {
 
   if (!updated) {
     throw new HTTPException(500, { message: "Failed to update comment" });
+  }
+
+  if (task) {
+    await publishEvent("comment.updated", {
+      ...updated,
+      projectId: task.projectId,
+      userId,
+    });
   }
 
   return updated;

@@ -1160,6 +1160,8 @@
 		"setDueDate": "a défini la date d'échéance à {{date}}",
 		"changedDueDate": "a changé la date d'échéance de {{from}} à {{to}}",
 		"changedTitle": "a changé le titre de \"{{from}}\" à \"{{to}}\"",
+		"created": "a créé cette tâche",
+		"moved": "a déplacé la tâche de \"{{from}}\" à \"{{to}}\"",
 		"githubUser": "GitHub User",
 		"comment": {
 			"github": "GitHub",
@@ -1273,7 +1275,9 @@
 		},
 		"common": {
 			"selectTask": "Sélectionner une tâche",
-			"loadingTask": "Chargement de la tâche..."
+			"loadingTask": "Chargement de la tâche...",
+			"taskNotFound": "Tâche non trouvée",
+			"taskNotFoundDescription": "La tâche que vous recherchez n'existe pas ou a été supprimée."
 		},
 		"detail": {
 			"subtaskOf": "Sous-tâche de",

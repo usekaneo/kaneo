@@ -1,7 +1,9 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { EventEmitter } from "node:events";
 
 const EVENTS = new EventEmitter();
 EVENTS.setMaxListeners(100);
+export const eventContext = new AsyncLocalStorage<{ initiatorId: string }>();
 
 export type EventPayload<T = unknown> = {
   type: string;
@@ -17,6 +19,11 @@ export async function publishEvent(
   eventType: string,
   data: unknown,
 ): Promise<void> {
+  if (typeof data === "object" && data !== null && "initiatorId" in data) {
+    const store = eventContext.getStore();
+    data.initiatorId = store?.initiatorId;
+  }
+
   const payload: EventPayload = {
     type: eventType,
     data,

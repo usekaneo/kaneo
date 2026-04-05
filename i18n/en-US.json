@@ -1162,6 +1162,8 @@
 		"setDueDate": "set due date to {{date}}",
 		"changedDueDate": "changed due date from {{from}} to {{to}}",
 		"changedTitle": "changed title from \"{{from}}\" to \"{{to}}\"",
+		"moved": "moved task from \"{{from}}\" to \"{{to}}\"",
+		"created": "created this task",
 		"githubUser": "GitHub User",
 		"comment": {
 			"github": "GitHub",
@@ -1275,7 +1277,9 @@
 		},
 		"common": {
 			"selectTask": "Select task",
-			"loadingTask": "Loading task..."
+			"loadingTask": "Loading task...",
+			"taskNotFound": "Task not found",
+			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted."
 		},
 		"detail": {
 			"subtaskOf": "Subtask of",

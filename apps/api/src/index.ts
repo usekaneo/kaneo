@@ -1,6 +1,7 @@
 import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
+import { createNodeWebSocket } from "@hono/node-ws";
 import type { Session, User } from "better-auth/types";
 import { and, eq } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
@@ -21,6 +22,7 @@ import comment from "./comment";
 import config from "./config";
 import db, { schema } from "./database";
 import discordIntegration from "./discord-integration";
+import { eventContext } from "./events";
 import externalLink from "./external-link";
 import genericWebhookIntegration from "./generic-webhook-integration";
 import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
@@ -66,6 +68,7 @@ import {
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
+import { addConnection, removeConnection } from "./ws";
 
 type ApiKey = {
   id: string;
@@ -114,8 +117,13 @@ function buildContentDisposition(filename: string) {
   return `inline; filename="${asciiFallback}"; filename*=UTF-8''${encodedFilename}`;
 }
 
+let injectWebSocket: ReturnType<typeof createNodeWebSocket>["injectWebSocket"];
+
 export function createApp() {
   const app = new Hono<AppVariables>();
+  const nodeWs = createNodeWebSocket({ app });
+  const upgradeWebSocket = nodeWs.upgradeWebSocket;
+  injectWebSocket = nodeWs.injectWebSocket;
   const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
     : undefined;
@@ -428,7 +436,12 @@ export function createApp() {
       console.error("API authentication failed:", error);
       throw new HTTPException(500, { message: "Internal Server Error" });
     }
-    return next();
+
+    const windowId = c.req.header("X-Kaneo-Window-Id");
+    const userId = c.get("userId");
+    const initiatorId = windowId ? `${userId}:${windowId}` : userId;
+
+    return eventContext.run({ initiatorId }, next);
   });
 
   const oauthIdTokenApi = api.get(
@@ -504,6 +517,30 @@ export function createApp() {
 
   app.route("/api", api);
 
+  app.get(
+    "/ws/:projectId",
+    upgradeWebSocket((c) => {
+      const projectId = c.req.param("projectId");
+      const userId = c.req.query("userId") || "anonymous";
+      const windowId = c.req.query("windowId");
+      const initiatorId = windowId ? `${userId}:${windowId}` : userId;
+      let conn: ReturnType<typeof addConnection> | null = null;
+
+      return {
+        onOpen(_evt, ws) {
+          if (projectId) {
+            conn = addConnection(projectId, ws, userId, initiatorId);
+          }
+        },
+        onClose() {
+          if (conn && projectId) {
+            removeConnection(projectId, conn);
+          }
+        },
+      };
+    }),
+  );
+
   return {
     app,
     api,
@@ -568,7 +605,7 @@ export async function startServer(port = 1337) {
     shutdownScheduler();
   });
 
-  serve(
+  const server = serve(
     {
       fetch: app.fetch,
       port,
@@ -579,6 +616,8 @@ export async function startServer(port = 1337) {
       );
     },
   );
+
+  injectWebSocket(server);
 }
 
 const createdApp = createApp();

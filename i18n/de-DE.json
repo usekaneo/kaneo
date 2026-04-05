@@ -1162,6 +1162,8 @@
 		"setDueDate": "hat das Fälligkeitsdatum auf {{date}} gesetzt",
 		"changedDueDate": "hat das Fälligkeitsdatum von {{from}} zu {{to}} geändert",
 		"changedTitle": "hat den Titel von \"{{from}}\" zu \"{{to}}\" geändert",
+		"moved": "hat die Aufgabe von \"{{from}}\" nach \"{{to}}\" verschoben",
+		"created": "hat diese Aufgabe erstellt",
 		"githubUser": "GitHub-Benutzer",
 		"comment": {
 			"github": "GitHub",
@@ -1275,7 +1277,9 @@
 		},
 		"common": {
 			"selectTask": "Aufgabe auswählen",
-			"loadingTask": "Aufgabe wird geladen..."
+			"loadingTask": "Aufgabe wird geladen...",
+			"taskNotFound": "Aufgabe nicht gefunden",
+			"taskNotFoundDescription": "Die gesuchte Aufgabe existiert nicht oder wurde gelöscht."
 		},
 		"detail": {
 			"subtaskOf": "Teilaufgabe von",

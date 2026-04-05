@@ -1160,6 +1160,8 @@
 		"setDueDate": "го постави краениот рок на {{date}}",
 		"changedDueDate": "го промени краениот рок од {{from}} во {{to}}",
 		"changedTitle": "го промени насловот од \"{{from}}\" во \"{{to}}\"",
+		"created": "ја создаде задачата",
+		"moved": "ја премести задачата од \"{{from}}\" во \"{{to}}\"",
 		"githubUser": "GitHub корисник",
 		"comment": {
 			"github": "GitHub",
@@ -1273,7 +1275,9 @@
 		},
 		"common": {
 			"selectTask": "Избери задача",
-			"loadingTask": "Се вчитува задача..."
+			"loadingTask": "Се вчитува задача...",
+			"taskNotFound": "Задачата не е пронајдена",
+			"taskNotFoundDescription": "Задачата што ја барате не постои или е избришана."
 		},
 		"detail": {
 			"subtaskOf": "Подзадача на",

@@ -8,6 +8,7 @@ import getNextTaskNumber from "./get-next-task-number";
 
 async function createTask({
   projectId,
+  currentUserId,
   userId,
   title,
   status,
@@ -17,6 +18,7 @@ async function createTask({
   priority,
 }: {
   projectId: string;
+  currentUserId: string;
   userId?: string;
   title: string;
   status: string;
@@ -85,7 +87,8 @@ async function createTask({
     ...createdTask,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
-    type: "task",
+    currentUserId: currentUserId,
+    type: "created",
     content: null,
   });
 

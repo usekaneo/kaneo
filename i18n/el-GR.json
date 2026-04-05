@@ -1160,6 +1160,8 @@
 		"setDueDate": "όρισε ως ημερομηνία λήξης την {{date}}",
 		"changedDueDate": "άλλαξε την ημερομηνία λήξης από {{from}} σε {{to}}",
 		"changedTitle": "άλλαξε τον τίτλο από \"{{from}}\" σε \"{{to}}\"",
+		"created": "δημιούργησε αυτή την εργασία",
+		"moved": "μετακινήσει την εργασία από \"{{from}}\" σε \"{{to}}\"",
 		"githubUser": "Χρήστης GitHub",
 		"comment": {
 			"github": "GitHub",
@@ -1273,7 +1275,9 @@
 		},
 		"common": {
 			"selectTask": "Επιλέξτε εργασία",
-			"loadingTask": "Φόρτωση εργασίας..."
+			"loadingTask": "Φόρτωση εργασίας...",
+			"taskNotFound": "Η εργασία δεν βρέθηκε",
+			"taskNotFoundDescription": "Η εργασία που αναζητάτε δεν υπάρχει ή έχει διαγραφεί."
 		},
 		"detail": {
 			"subtaskOf": "Υποεργασία του",

@@ -81,12 +81,12 @@ async function moveTask({
   taskId,
   destinationProjectId,
   destinationStatus,
-  userId,
+  currentUserId,
 }: {
   taskId: string;
   destinationProjectId: string;
   destinationStatus?: string;
-  userId: string;
+  currentUserId: string;
 }) {
   const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, taskId),
@@ -131,6 +131,12 @@ async function moveTask({
     destinationStatus,
   );
 
+  if (!resolvedColumn) {
+    throw new HTTPException(400, {
+      message: "Selected status is not valid for the destination project",
+    });
+  }
+
   const movedTask = await db.transaction(async (tx) => {
     const [nextTaskNumber, nextPosition] = await Promise.all([
       getNextTaskNumber(destinationProjectId, tx),
@@ -170,17 +176,14 @@ async function moveTask({
 
   await publishEvent("task.moved", {
     taskId,
-    type: "task",
-    userId,
-    content: `Moved task from ${sourceProject.name} to ${destinationProject.name}`,
-    eventData: {
-      fromProjectId: sourceProject.id,
-      fromProjectName: sourceProject.name,
-      toProjectId: destinationProject.id,
-      toProjectName: destinationProject.name,
-      oldStatus: existingTask.status,
-      newStatus: resolvedColumn.slug,
-    },
+    type: "moved",
+    userId: currentUserId,
+    fromProjectId: sourceProject.id,
+    fromProjectName: sourceProject.name,
+    toProjectId: destinationProject.id,
+    toProjectName: destinationProject.name,
+    oldStatus: existingTask.status,
+    newStatus: resolvedColumn.slug,
   });
 
   return {

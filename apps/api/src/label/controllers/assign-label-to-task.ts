@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 import {
   removeLabelFromGitea,
   syncLabelToGitea,
@@ -11,7 +12,7 @@ import {
   syncLabelToGitHub,
 } from "../../plugins/github/utils/sync-label-to-github";
 
-async function assignLabelToTask(id: string, taskId: string) {
+async function assignLabelToTask(id: string, taskId: string, userId: string) {
   const label = await db.query.labelTable.findFirst({
     where: (label, { eq }) => eq(label.id, id),
   });
@@ -25,6 +26,7 @@ async function assignLabelToTask(id: string, taskId: string) {
   const [task] = await db
     .select({
       id: taskTable.id,
+      projectId: taskTable.projectId,
       workspaceId: projectTable.workspaceId,
     })
     .from(taskTable)
@@ -75,6 +77,13 @@ async function assignLabelToTask(id: string, taskId: string) {
       console.error("Failed to sync label to Gitea:", error);
     },
   );
+
+  await publishEvent("task.label_assigned", {
+    ...updatedLabel,
+    ...task,
+    userId: userId,
+    type: "label_assigned",
+  });
 
   return updatedLabel;
 }
