@@ -42,3 +42,6 @@ yarn-error.log*
 
 # Cache
 .cache/
+
+# IntelliJ IDE
+.idea
