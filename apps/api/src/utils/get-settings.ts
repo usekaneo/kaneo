@@ -1,4 +1,5 @@
 import { config } from "dotenv-mono";
+import { isGithubSsoConfigured } from "./github-sso-env";
 
 config();
 
@@ -14,9 +15,7 @@ function getSettings() {
       Boolean(process.env.SMTP_SECURE) &&
       Boolean(process.env.SMTP_USER) &&
       Boolean(process.env.SMTP_PASSWORD),
-    hasGithubSignIn:
-      Boolean(process.env.GITHUB_CLIENT_ID) &&
-      Boolean(process.env.GITHUB_CLIENT_SECRET),
+    hasGithubSignIn: isGithubSsoConfigured(),
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&
       Boolean(process.env.GOOGLE_CLIENT_SECRET),
