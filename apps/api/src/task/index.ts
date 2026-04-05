@@ -24,7 +24,7 @@ import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
-import importTasks, { type ImportTask } from "./controllers/import-tasks";
+import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
@@ -408,7 +408,7 @@ const task = new Hono<{
     workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { tasks }: { tasks: ImportTask[] } = c.req.valid("json");
+      const { tasks } = c.req.valid("json");
 
       const result = await importTasks(projectId, tasks);
 

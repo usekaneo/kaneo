@@ -74,8 +74,10 @@ async function updateTask(
   }
 
   await publishEvent("task.updated", {
-    ...updatedTask,
     taskId: updatedTask.id,
+    projectId: updatedTask.projectId,
+    title: updatedTask.title,
+    status: updatedTask.status,
     userId: currentUserId,
   });
 

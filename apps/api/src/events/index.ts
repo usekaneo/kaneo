@@ -19,14 +19,15 @@ export async function publishEvent(
   eventType: string,
   data: unknown,
 ): Promise<void> {
-  if (typeof data === "object" && data !== null && "initiatorId" in data) {
+  let enhancedData = null;
+  if (typeof data === "object" && data !== null) {
     const store = eventContext.getStore();
-    data.initiatorId = store?.initiatorId;
+    enhancedData = { ...data, initiatorId: store?.initiatorId };
   }
 
   const payload: EventPayload = {
     type: eventType,
-    data,
+    data: enhancedData || data,
     timestamp: new Date().toISOString(),
   };
 

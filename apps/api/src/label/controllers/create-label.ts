@@ -33,7 +33,7 @@ async function createLabel(
 
     const [inserted] = await db
       .insert(labelTable)
-      .values({ name, color, taskId, workspaceId })
+      .values({ name, color, taskId, workspaceId: task.workspaceId })
       .onConflictDoNothing({
         target: [labelTable.taskId, labelTable.name],
       })
@@ -56,15 +56,14 @@ async function createLabel(
       syncLabelToGitea(taskId, name, color).catch((error) => {
         console.error("Failed to sync label to Gitea:", error);
       });
+
+      await publishEvent("task.label_created", {
+        ...label,
+        ...task,
+        userId: userId,
+        type: "label_created",
+      });
     }
-
-    await publishEvent("task.label_created", {
-      ...label,
-      ...task,
-      userId: userId,
-      type: "label_created",
-    });
-
     return label;
   }
 

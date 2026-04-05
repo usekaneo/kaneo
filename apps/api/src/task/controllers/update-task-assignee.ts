@@ -22,9 +22,15 @@ async function updateTaskAssignee({
       message: "Task not found",
     });
   }
+
+  const nextAssigneeId = userId || null;
+  if (existingTask.userId === nextAssigneeId) {
+    return existingTask;
+  }
+
   const [updatedTask] = await db
     .update(taskTable)
-    .set({ userId: userId || null })
+    .set({ userId: nextAssigneeId || null })
     .where(eq(taskTable.id, id))
     .returning();
 

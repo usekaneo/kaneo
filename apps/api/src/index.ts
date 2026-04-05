@@ -519,9 +519,21 @@ export function createApp() {
 
   app.get(
     "/ws/:projectId",
-    upgradeWebSocket((c) => {
+    upgradeWebSocket(async (c) => {
       const projectId = c.req.param("projectId");
-      const userId = c.req.query("userId") || "anonymous";
+      let userId = "anonymous";
+
+      try {
+        await authenticateApiRequest(c);
+        userId = c.get("userId");
+      } catch (error) {
+        if (error instanceof HTTPException) {
+          throw error;
+        }
+        console.error("API authentication failed:", error);
+        throw new HTTPException(500, { message: "Internal Server Error" });
+      }
+
       const windowId = c.req.query("windowId");
       const initiatorId = windowId ? `${userId}:${windowId}` : userId;
       let conn: ReturnType<typeof addConnection> | null = null;

@@ -1062,7 +1062,7 @@
 			"selectTask": "Seleccionar tarea",
 			"loadingTask": "Cargando tarea...",
 			"taskNotFound": "Tarea no encontrada",
-			"taskNotFoundDescription": "La tarea que busca no existe o ha sido eliminada."
+			"taskNotFoundDescription": "La tarea que buscas no existe o ha sido eliminada."
 		},
 		"detail": {
 			"subtaskOf": "Subtarea de",

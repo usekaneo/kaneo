@@ -30,7 +30,6 @@ function useSignOut(idpLogoutUrl?: string | null) {
                 url.searchParams.set("id_token_hint", idToken);
               }
               window.location.href = url.toString();
-              console.log("Redirecting to IDP logout URL:", url.toString());
             } else {
               navigate({ to: "/auth/sign-in" });
             }

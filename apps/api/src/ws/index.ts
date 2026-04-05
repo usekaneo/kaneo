@@ -145,7 +145,6 @@ subscribeToEvent<{
 
 for (const eventName of taskUpdateEvents) {
   subscribeToEvent<TaskEvent>(eventName, async (data) => {
-    console.log("Broadcasting task update event", eventName);
     const { projectId, initiatorId } = data;
     const taskId = data.taskId || data.id;
     let type: string;

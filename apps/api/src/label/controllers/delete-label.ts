@@ -44,6 +44,12 @@ async function deleteLabel(id: string, userId: string) {
     .where(eq(labelTable.id, id))
     .returning();
 
+  if (!deletedLabel) {
+    throw new HTTPException(404, {
+      message: "Label not found",
+    });
+  }
+
   if (deletedLabel?.taskId) {
     removeLabelFromGitHub(deletedLabel.taskId, deletedLabel.name).catch(
       (error) => {
@@ -53,7 +59,7 @@ async function deleteLabel(id: string, userId: string) {
   }
 
   await publishEvent("task.label_deleted", {
-    ...label,
+    ...deletedLabel,
     ...task,
     userId: userId,
     type: "label_deleted",

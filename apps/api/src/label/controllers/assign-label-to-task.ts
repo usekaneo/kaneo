@@ -81,7 +81,9 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
   await publishEvent("task.label_assigned", {
     ...updatedLabel,
     ...task,
-    userId: userId,
+    projectId: task.projectId,
+    taskId: task.id,
+    userId,
     type: "label_assigned",
   });
 

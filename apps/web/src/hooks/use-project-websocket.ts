@@ -3,12 +3,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { authClient } from "@/lib/auth-client";
 
-function getWsUrl(projectId: string, userId: string | null | undefined) {
+function getWsUrl(projectId: string) {
   const base = (
     import.meta.env.VITE_API_URL || "http://localhost:1337"
   ).replace(/\/+$/, "");
   const wsBase = base.replace(/^http/, "ws");
-  return `${wsBase}/ws/${projectId}?userId=${userId}&windowId=${windowId}`;
+  return `${wsBase}/ws/${encodeURIComponent(projectId)}?windowId=${encodeURIComponent(windowId)}`;
 }
 
 const MAX_RETRIES = 5;
@@ -25,7 +25,7 @@ export function useProjectWebSocket(projectId: string) {
     if (!projectId || !session?.user?.id) return;
 
     function connect() {
-      const url = getWsUrl(projectId, session?.user?.id);
+      const url = getWsUrl(projectId);
       const ws = new WebSocket(url);
       wsRef.current = ws;
 

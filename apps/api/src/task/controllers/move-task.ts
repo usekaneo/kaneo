@@ -131,12 +131,6 @@ async function moveTask({
     destinationStatus,
   );
 
-  if (!resolvedColumn) {
-    throw new HTTPException(400, {
-      message: "Selected status is not valid for the destination project",
-    });
-  }
-
   const movedTask = await db.transaction(async (tx) => {
     const [nextTaskNumber, nextPosition] = await Promise.all([
       getNextTaskNumber(destinationProjectId, tx),
