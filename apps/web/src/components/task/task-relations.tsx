@@ -210,12 +210,15 @@ export default function TaskRelations({
     description: null,
     status: item.task.status,
     priority: item.task.priority,
+    startDate: null,
     dueDate: null,
     position: null,
     createdAt: "",
+    updatedAt: "",
     userId: item.task.userId,
     assigneeId: item.task.userId,
     assigneeName: item.task.assigneeName,
+    assigneeImage: "",
     projectId: item.task.projectId,
   });
 
