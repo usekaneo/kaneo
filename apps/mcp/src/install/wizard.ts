@@ -6,38 +6,33 @@ function onCancel(): void {
   process.exit(0);
 }
 
-function printIntro(): void {
-  console.log(`
-────────────────────────────────────────
-  Kaneo MCP  ·  editor setup
-────────────────────────────────────────
-  Use ↑ / ↓ to move, Enter to select.
-────────────────────────────────────────
-`);
-}
-
-export async function promptTargetSelect(): Promise<InstallTargetId> {
-  printIntro();
+export async function promptTargetSelect(): Promise<InstallTargetId[]> {
   const answer = await prompts(
     {
-      type: "select",
-      name: "target",
+      type: "multiselect",
+      name: "targets",
       message: "Where should Kaneo register this MCP server?",
       choices: INSTALL_TARGETS.map((t) => ({
         title: t.label,
         description: t.description,
         value: t.id,
       })),
-      initial: 0,
+      hint: "- Space to select. Enter to confirm.",
+      min: 1,
+      instructions: false,
     },
     { onCancel },
   );
 
-  if (answer.target === undefined) {
+  if (
+    answer.targets === undefined ||
+    !Array.isArray(answer.targets) ||
+    answer.targets.length === 0
+  ) {
     onCancel();
   }
 
-  return answer.target as InstallTargetId;
+  return answer.targets as InstallTargetId[];
 }
 
 export async function promptCustomConfigPath(): Promise<string> {

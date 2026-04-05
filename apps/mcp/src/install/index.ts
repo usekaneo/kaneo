@@ -174,13 +174,15 @@ export async function runInstall(argv: string[]): Promise<void> {
     return;
   }
 
-  let targetId = parsed.target as InstallTargetId | undefined;
+  let targetIds = parsed.target
+    ? [parsed.target as InstallTargetId]
+    : undefined;
   const needsInteractive =
-    input.isTTY && output.isTTY && !parsed.yes && targetId === undefined;
+    input.isTTY && output.isTTY && !parsed.yes && targetIds === undefined;
 
   if (needsInteractive) {
-    targetId = await promptTargetSelect();
-  } else if (targetId === undefined) {
+    targetIds = await promptTargetSelect();
+  } else if (targetIds === undefined) {
     console.error(
       "Non-interactive mode: specify --target (e.g. --target cursor-user) and use -y to confirm.",
     );
@@ -190,7 +192,7 @@ export async function runInstall(argv: string[]): Promise<void> {
   }
 
   let customPath = parsed.output;
-  if (targetId === "custom") {
+  if (targetIds.includes("custom")) {
     if (!customPath) {
       if (input.isTTY && output.isTTY) {
         customPath = await promptCustomConfigPath();
@@ -201,11 +203,6 @@ export async function runInstall(argv: string[]): Promise<void> {
       }
     }
   }
-
-  const configPath = resolveTargetConfigPath(targetId, {
-    cwd: parsed.projectDir,
-    customPath,
-  });
 
   const entryPath = resolvePackageEntryPath();
   const env =
@@ -219,46 +216,64 @@ export async function runInstall(argv: string[]): Promise<void> {
     ...(env ? { env } : {}),
   };
 
-  let existingText: string | null = null;
-  try {
-    existingText = await readFile(configPath, "utf8");
-  } catch {
-    existingText = null;
-  }
+  const writtenPaths: string[] = [];
 
-  const already = hasExistingServerEntry(existingText, parsed.name);
+  for (const targetId of targetIds) {
+    const configPath = resolveTargetConfigPath(targetId, {
+      cwd: parsed.projectDir,
+      customPath,
+    });
 
-  if (already && !parsed.yes) {
-    if (input.isTTY && output.isTTY) {
-      const ok = await promptConfirmOverwrite(parsed.name);
-      if (!ok) {
-        console.log("Aborted.");
+    let existingText: string | null = null;
+    try {
+      existingText = await readFile(configPath, "utf8");
+    } catch {
+      existingText = null;
+    }
+
+    const already = hasExistingServerEntry(existingText, parsed.name);
+
+    if (already && !parsed.yes) {
+      if (input.isTTY && output.isTTY) {
+        const ok = await promptConfirmOverwrite(parsed.name);
+        if (!ok) {
+          console.log(`Skipped:\n  ${configPath}`);
+          continue;
+        }
+      } else {
+        console.error(
+          `Entry "${parsed.name}" already exists. Pass -y to overwrite.`,
+        );
+        process.exitCode = 1;
         return;
       }
-    } else {
+    }
+
+    let merged: string;
+    try {
+      merged = mergeMcpServerEntry(existingText, parsed.name, serverConfig);
+    } catch {
       console.error(
-        `Entry "${parsed.name}" already exists. Pass -y to overwrite.`,
+        `Cannot update config (invalid JSON or merge error): ${configPath}`,
       );
       process.exitCode = 1;
       return;
     }
+
+    await mkdir(dirname(configPath), { recursive: true });
+    await writeFile(configPath, merged, { encoding: "utf8", mode: 0o600 });
+    writtenPaths.push(configPath);
   }
 
-  let merged: string;
-  try {
-    merged = mergeMcpServerEntry(existingText, parsed.name, serverConfig);
-  } catch {
-    console.error(
-      `Cannot update config (invalid JSON or merge error): ${configPath}`,
-    );
-    process.exitCode = 1;
+  if (writtenPaths.length === 0) {
+    console.log("No config files were updated.");
     return;
   }
 
-  await mkdir(dirname(configPath), { recursive: true });
-  await writeFile(configPath, merged, { encoding: "utf8", mode: 0o600 });
-
-  console.log(`Wrote MCP server "${parsed.name}" to:\n  ${configPath}`);
+  console.log(`Wrote MCP server "${parsed.name}" to:`);
+  for (const configPath of writtenPaths) {
+    console.log(`  ${configPath}`);
+  }
   console.log("\nRestart your MCP client (or reload the window) if needed.");
 }
 

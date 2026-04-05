@@ -1,6 +1,6 @@
 {
 	"name": "@kaneo/mcp",
-	"version": "0.1.0",
+	"version": "0.1.2",
 	"description": "Model Context Protocol (stdio) server for Kaneo — tasks, projects, labels, and device authorization",
 	"license": "MIT",
 	"type": "module",
