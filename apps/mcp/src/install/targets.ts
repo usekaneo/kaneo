@@ -33,7 +33,7 @@ export function validateCustomConfigPathInput(
   return { ok: true, path: trimmed };
 }
 
-export const INSTALL_TARGETS: readonly InstallTarget[] = [
+export const INSTALL_TARGETS = [
   {
     id: "cursor-user",
     label: "Cursor (user-wide)",
@@ -54,7 +54,7 @@ export const INSTALL_TARGETS: readonly InstallTarget[] = [
     label: "Custom file path",
     description: "Any JSON file you choose (advanced)",
   },
-];
+] as const satisfies readonly InstallTarget[];
 
 export function getClaudeDesktopConfigPath(): string {
   const platform = process.platform;
@@ -89,11 +89,11 @@ export function resolveTargetConfigPath(
     case "claude-desktop":
       return getClaudeDesktopConfigPath();
     case "custom": {
-      const p = options.customPath?.trim();
-      if (!p) {
-        throw new Error("Custom target requires a file path");
+      const result = validateCustomConfigPathInput(options.customPath ?? "");
+      if (!result.ok) {
+        throw new Error(result.message);
       }
-      return p;
+      return result.path;
     }
   }
 }
