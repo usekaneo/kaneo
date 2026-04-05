@@ -26,17 +26,53 @@ DEVICE_AUTH_CLIENT_IDS=kaneo-cli,kaneo-mcp,your-client-id
 
 ## Install
 
-If the package is published to npm or your private registry:
+**Recommended (no global install):** run the interactive installer with npx:
+
+```bash
+npx @kaneo/mcp
+```
+
+npm downloads the package, then an **interactive menu** (arrow keys + Enter) asks **where** to register the server (Cursor user-wide, Cursor project, Claude Desktop, or a custom JSON path). It then merges a `mcpServers` entry that points at this package’s `dist/index.js` with your current Node binary.
+
+In a normal terminal, `npx @kaneo/mcp` and `kaneo-mcp` with no subcommand both start the installer. When the process is **not** attached to a TTY (for example when Cursor launches the MCP server with a pipe), the same entry runs the stdio MCP server instead.
+
+To run the server manually from a shell (for example to debug stdio), use:
+
+```bash
+npx @kaneo/mcp serve
+```
+
+If you prefer a global install:
 
 ```bash
 npm install -g @kaneo/mcp
 kaneo-mcp
 ```
 
-Or:
+(`kaneo-mcp install` is the same installer with an explicit subcommand.)
+
+Non-interactive example (Cursor user config, skip overwrite prompts):
 
 ```bash
-npx @kaneo/mcp
+kaneo-mcp install --target cursor-user -y
+```
+
+Point at a self-hosted API when generating the config:
+
+```bash
+kaneo-mcp install --target cursor-user -y --api-url https://kaneo.example.com
+```
+
+See all options:
+
+```bash
+kaneo-mcp install --help
+```
+
+If you are currently inside the local `apps/mcp` package directory, npm may resolve the local workspace package instead of the published one and fail to expose the bin. In that case, either run `npx` from outside `apps/mcp`, or use a local build:
+
+```bash
+node dist/index.js
 ```
 
 The published package includes `dist/`. `prepublishOnly` runs the build before publish.
@@ -58,13 +94,7 @@ Or run it from the package directory:
 pnpm -C apps/mcp run build
 ```
 
-The CLI entry points to `./dist/index.js`.
-
-For Cursor or another MCP client, point the command at the built file:
-
-```text
-.../kaneo/apps/mcp/dist/index.js
-```
+The CLI entry points to `./dist/index.js`. Use `npx @kaneo/mcp` or `kaneo-mcp` after a global install so your IDE config points at the resolved path.
 
 ## Authentication
 

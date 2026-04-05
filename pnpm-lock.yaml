@@ -166,6 +166,9 @@ importers:
       open:
         specifier: ^10.1.0
         version: 10.2.0
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
       zod:
         specifier: ^3.25.0
         version: 3.25.76
@@ -176,6 +179,9 @@ importers:
       '@types/node':
         specifier: ^25.3.5
         version: 25.5.0
+      '@types/prompts':
+        specifier: ^2.4.9
+        version: 2.4.9
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -4234,6 +4240,9 @@ packages:
 
   '@types/pg@8.18.0':
     resolution: {integrity: sha512-gT+oueVQkqnj6ajGJXblFR4iavIXWsGAFCk3dP4Kki5+a9R4NMt0JARdk6s8cUKcfUoqP5dAtDSLU8xYUTFV+Q==}
+
+  '@types/prompts@2.4.9':
+    resolution: {integrity: sha512-qTxFi6Buiu8+50/+3DGIWLHM6QuWsEKugJnnP6iv2Mc4ncxE4A/OJkjuVOA+5X0X1S/nq5VJRa8Lu+nwcvbrKA==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -12657,6 +12666,11 @@ snapshots:
       '@types/node': 25.4.0
       pg-protocol: 1.12.0
       pg-types: 2.2.0
+
+  '@types/prompts@2.4.9':
+    dependencies:
+      '@types/node': 25.5.0
+      kleur: 3.0.3
 
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:

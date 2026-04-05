@@ -52,14 +52,20 @@ export class KaneoClient {
       }
     }
     if (!res.ok) {
-      const message =
+      let detail: string;
+      if (
         typeof body === "object" &&
         body !== null &&
         "message" in body &&
         typeof (body as { message: unknown }).message === "string"
-          ? (body as { message: string }).message
-          : `HTTP ${res.status}`;
-      throw new Error(`${path}: ${message} ${text}`);
+      ) {
+        detail = (body as { message: string }).message;
+      } else if (typeof body === "string" && body.length > 0) {
+        detail = body.length > 500 ? `${body.slice(0, 500)}…` : body;
+      } else {
+        detail = `HTTP ${res.status}`;
+      }
+      throw new Error(`${path}: ${detail}`);
     }
     return body as T;
   }
