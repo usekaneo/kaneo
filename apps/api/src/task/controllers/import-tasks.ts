@@ -10,13 +10,13 @@ import {
 } from "../validate-task-fields";
 import getNextTaskNumber from "./get-next-task-number";
 
-type ImportTask = {
+export type ImportTask = {
   title: string;
   description?: string;
   status: string;
   priority?: string;
-  startDate?: string;
-  dueDate?: string;
+  startDate?: string | null;
+  dueDate?: string | null;
   userId?: string | null;
 };
 
@@ -31,8 +31,7 @@ async function importTasks(projectId: string, tasksToImport: ImportTask[]) {
     });
   }
 
-  const nextTaskNumber = await getNextTaskNumber(projectId);
-  let taskNumber = nextTaskNumber;
+  let taskNumber = await getNextTaskNumber(projectId);
   const validStatuses = await getValidTaskStatuses(projectId);
 
   const results = [];

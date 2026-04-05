@@ -486,7 +486,9 @@
 				"keyShort": "Sleutel moet minimaal 2 tekens bevatten",
 				"keyMax": "Sleutel mag maximaal 8 tekens bevatten",
 				"iconRequired": "Icoon is verplicht"
-			}
+			},
+			"importExportTasks": "Importeren/Exporteren",
+			"importExportTasksDescription": "Importeren/Exporteren taken"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Projectintegraties",

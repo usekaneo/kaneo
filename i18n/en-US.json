@@ -576,7 +576,9 @@
 				"keyShort": "Key must be at least 2 characters",
 				"keyMax": "Key must be at most 8 characters",
 				"iconRequired": "Icon is required"
-			}
+			},
+			"importExportTasks": "Import/Export",
+			"importExportTasksDescription": "Import and export tasks."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Project Integrations",

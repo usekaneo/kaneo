@@ -576,7 +576,9 @@
 				"keyShort": "Клучот мора да има најмалку 2 знаци",
 				"keyMax": "Клучот мора да има најмногу 8 знаци",
 				"iconRequired": "Иконата е задолжителна"
-			}
+			},
+			"importExportTasks": "Импортирање/Експортирање",
+			"importExportTasksDescription": "Импортирање/Експортирање на задачи"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции на проект",

@@ -576,7 +576,9 @@
 				"keyShort": "La clé doit contenir au moins 2 caractères",
 				"keyMax": "La clé doit contenir au plus 8 caractères",
 				"iconRequired": "L'icône est requise"
-			}
+			},
+			"importExportTasks": "Importation/Exportation",
+			"importExportTasksDescription": "Importation/Exportation des Tâches"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Intégrations du projet",

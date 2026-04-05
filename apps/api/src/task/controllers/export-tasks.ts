@@ -22,6 +22,7 @@ async function exportTasks(projectId: string) {
       description: taskTable.description,
       status: taskTable.status,
       priority: taskTable.priority,
+      startDate: taskTable.startDate,
       dueDate: taskTable.dueDate,
       position: taskTable.position,
       createdAt: taskTable.createdAt,
@@ -47,6 +48,7 @@ async function exportTasks(projectId: string) {
       status: task.status,
       priority: task.priority || "low",
       dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
+      startDate: task.startDate ? new Date(task.startDate).toISOString() : null,
       userId: task.userId || null,
     })),
   };

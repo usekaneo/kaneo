@@ -576,7 +576,9 @@
 				"keyShort": "Der Schlüssel muss mindestens 2 Zeichen lang sein",
 				"keyMax": "Der Schlüssel darf höchstens 8 Zeichen lang sein",
 				"iconRequired": "Symbol ist erforderlich"
-			}
+			},
+			"importExportTasks": "Import/Export",
+			"importExportTasksDescription": "Importieren und Exportieren von Aufgaben."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Projektintegrationen",

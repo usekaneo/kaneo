@@ -576,7 +576,9 @@
 				"keyShort": "Το κλειδί πρέπει να έχει τουλάχιστον 2 χαρακτήρες",
 				"keyMax": "Το κλειδί πρέπει να έχει το πολύ 8 χαρακτήρες",
 				"iconRequired": "Το εικονίδιο είναι υποχρεωτικό"
-			}
+			},
+			"importExportTasks": "Εισαγωγή/Εξαγωγή",
+			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Ενσωματώσεις έργου",

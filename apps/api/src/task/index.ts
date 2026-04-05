@@ -26,7 +26,7 @@ import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
-import importTasks from "./controllers/import-tasks";
+import importTasks, { type ImportTask } from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
@@ -417,8 +417,8 @@ const task = new Hono<{
             description: v.optional(v.string()),
             status: v.string(),
             priority: v.optional(v.string()),
-            startDate: v.optional(v.string()),
-            dueDate: v.optional(v.string()),
+            startDate: v.optional(v.nullable(v.string())),
+            dueDate: v.optional(v.nullable(v.string())),
             userId: v.optional(v.nullable(v.string())),
           }),
         ),
@@ -427,7 +427,7 @@ const task = new Hono<{
     workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { tasks } = c.req.valid("json");
+      const { tasks }: { tasks: ImportTask[] } = c.req.valid("json");
 
       const result = await importTasks(projectId, tasks);
 
