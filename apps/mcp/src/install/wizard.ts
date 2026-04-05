@@ -71,12 +71,13 @@ export async function promptCustomConfigPath(): Promise<string> {
 
 export async function promptConfirmOverwrite(
   serverName: string,
+  configPath: string,
 ): Promise<boolean> {
   const answer = await prompts(
     {
       type: "confirm",
       name: "overwrite",
-      message: `MCP server "${serverName}" is already in this file. Overwrite it?`,
+      message: `MCP server "${serverName}" is already in this file (${configPath}). Overwrite it?`,
       initial: false,
     },
     { onCancel },

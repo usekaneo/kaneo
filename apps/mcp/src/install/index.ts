@@ -237,15 +237,26 @@ export async function runInstall(argv: string[]): Promise<void> {
     let existingText: string | null = null;
     try {
       existingText = await readFile(configPath, "utf8");
-    } catch {
-      existingText = null;
+    } catch (err: unknown) {
+      const code =
+        err &&
+        typeof err === "object" &&
+        "code" in err &&
+        typeof (err as NodeJS.ErrnoException).code === "string"
+          ? (err as NodeJS.ErrnoException).code
+          : undefined;
+      if (code === "ENOENT") {
+        existingText = null;
+      } else {
+        throw err;
+      }
     }
 
     const already = hasExistingServerEntry(existingText, parsed.name);
 
     if (already && !parsed.yes) {
       if (input.isTTY && output.isTTY) {
-        const ok = await promptConfirmOverwrite(parsed.name);
+        const ok = await promptConfirmOverwrite(parsed.name, configPath);
         if (!ok) {
           console.log(`Skipped:\n  ${configPath}`);
           continue;

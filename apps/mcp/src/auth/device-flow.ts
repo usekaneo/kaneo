@@ -36,7 +36,39 @@ export async function requestDeviceCode(
   if (!("device_code" in body) || typeof body.device_code !== "string") {
     throw new Error(`device/code: unexpected response ${JSON.stringify(body)}`);
   }
-  return body;
+  if (
+    typeof body.user_code !== "string" ||
+    typeof body.verification_uri !== "string"
+  ) {
+    throw new Error(
+      `device/code: missing user_code or verification_uri ${JSON.stringify(body)}`,
+    );
+  }
+  const interval = toFiniteNumber((body as DeviceCodeResponse).interval);
+  const expiresIn = toFiniteNumber((body as DeviceCodeResponse).expires_in);
+  if (interval === undefined || expiresIn === undefined) {
+    throw new Error(
+      `device/code: invalid interval or expires_in ${JSON.stringify(body)}`,
+    );
+  }
+  return {
+    ...body,
+    interval,
+    expires_in: expiresIn,
+  } as DeviceCodeResponse;
+}
+
+function toFiniteNumber(v: unknown): number | undefined {
+  if (typeof v === "number" && Number.isFinite(v)) {
+    return v;
+  }
+  if (typeof v === "string" && v.trim() !== "") {
+    const n = Number(v);
+    if (Number.isFinite(n)) {
+      return n;
+    }
+  }
+  return undefined;
 }
 
 /**
