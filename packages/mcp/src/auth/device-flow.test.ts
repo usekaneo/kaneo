@@ -31,11 +31,12 @@ describe("requestDeviceCode", () => {
     expect(result.device_code).toBe("device-code");
     expect(fetchMock).toHaveBeenCalledWith(
       "https://api.example.com/api/auth/device/code",
-      {
+      expect.objectContaining({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ client_id: "kaneo-mcp" }),
-      },
+        signal: expect.any(AbortSignal),
+      }),
     );
   });
 
