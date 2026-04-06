@@ -105,10 +105,9 @@ Use the "Browse Repositories" feature in Kaneo to see which repositories your ap
 **Solutions**:
 1. **Verify All Variables Are Set**
    ```bash
-   # Check if environment variables are loaded
+   # Check if integration environment variables are loaded (do not print secrets)
    echo $GITHUB_APP_ID
-   echo $GITHUB_CLIENT_ID
-   # etc.
+   if [ -n "$GITHUB_WEBHOOK_SECRET" ]; then echo "GITHUB_WEBHOOK_SECRET is set"; else echo "GITHUB_WEBHOOK_SECRET is missing"; fi
    ```
 
 2. **Check Private Key Format**
@@ -257,11 +256,10 @@ Follow these steps to systematically test your integration:
 
 1. **Verify Environment Variables**
    ```bash
-   # Check that all required variables are set (don't print private key!)
+   # Check that all required integration variables are set (don't print private key or webhook secret!)
    echo "App ID: $GITHUB_APP_ID"
-   echo "Client ID: $GITHUB_CLIENT_ID"
-   echo "Webhook Secret: [REDACTED]"
    echo "App Name: $GITHUB_APP_NAME"
+   if [ -n "$GITHUB_WEBHOOK_SECRET" ]; then echo "GITHUB_WEBHOOK_SECRET is set"; else echo "GITHUB_WEBHOOK_SECRET is missing"; fi
    ```
 
 2. **Test Repository Access**

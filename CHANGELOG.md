@@ -1,3 +1,42 @@
+## [2.5.3](https://github.com/usekaneo/kaneo/compare/v2.5.2...v2.5.3) (2026-04-03)
+
+
+### Bug Fixes
+
+* **api,test:** preserve bearer sessions on auth routes ([c398a64](https://github.com/usekaneo/kaneo/commit/c398a6444e1c85050318797018027376db0ad198))
+* **api:** harden auth error handling and device query parsing ([a71932c](https://github.com/usekaneo/kaneo/commit/a71932c24cfbe343b09cd6c91ac09c6dda9ee01c))
+* **api:** reject unauthenticated cookie fallback in asset auth ([50806f1](https://github.com/usekaneo/kaneo/commit/50806f19860efcb7e1274e55255a7e59fe8ca11a))
+* **api:** reorder notification project migration constraint ([47224b3](https://github.com/usekaneo/kaneo/commit/47224b393fac05befa74e6aa7d6a6ece87431dff))
+* **api:** tighten bearer parsing and initialize api auth email ([7b750d8](https://github.com/usekaneo/kaneo/commit/7b750d84252357c7a97c1b79fcae602f7a3c495b))
+* Applied suggestions ([c67f66d](https://github.com/usekaneo/kaneo/commit/c67f66d29cdb3f7c853bb6a05317deed3bc660d2))
+* enable all configured notification channels ([70afa9d](https://github.com/usekaneo/kaneo/commit/70afa9df7eb89e100599743602dd90876ebcb52b))
+* fix device auth route validation and bearer handling ([505e1ff](https://github.com/usekaneo/kaneo/commit/505e1ff93617b8318dad3fc42d4c6704b2a9438b))
+* harden secret encryption guard and normalize error handling ([9634b59](https://github.com/usekaneo/kaneo/commit/9634b592b7b09482341f1dba8e430ad15b493b1d))
+* notification preference schema bootstrap ([795d10e](https://github.com/usekaneo/kaneo/commit/795d10e2f079108a101ea8dada905386d5a0013e))
+* notification preferences secrets and locale strings ([4f349ec](https://github.com/usekaneo/kaneo/commit/4f349ec8101e3a5ba170ff7d114f28c60edfd26f))
+* read workspace description from organization field ([343d124](https://github.com/usekaneo/kaneo/commit/343d1246006ba395ca21e206f96d3f2a56fb256b))
+* show all board columns on public project link ([be52d66](https://github.com/usekaneo/kaneo/commit/be52d66ecee8f5355822f12213464ca74c38b4e0))
+* Sort imports ([b1a73d7](https://github.com/usekaneo/kaneo/commit/b1a73d73fce66b70bb42991a3d358263572d0484))
+* stop column migration from restoring deleted default columns ([dd9d038](https://github.com/usekaneo/kaneo/commit/dd9d0384ef3f557ee1c1f7def6936368e9a708fb))
+* update lodash to version 4.18.0 ([79edbff](https://github.com/usekaneo/kaneo/commit/79edbffcab7824d9838e81b3adce529f38eb18a6))
+
+
+### Features
+
+* add account notification delivery settings ([4ed1d98](https://github.com/usekaneo/kaneo/commit/4ed1d98a76de3c46ba41821aa5dc4d1829105910))
+* add coss primitives documentation and rules ([b313a15](https://github.com/usekaneo/kaneo/commit/b313a15ce3128f63113626dd2554b9b5d3d1b7af))
+* add due date reminders scheduler ([aeb345e](https://github.com/usekaneo/kaneo/commit/aeb345ee6d4d2adf62951b198533586a7ce30903))
+* add project settings to sidebar project menu ([c1425a6](https://github.com/usekaneo/kaneo/commit/c1425a632106ad8b40921ee76e89319de9ca7f33))
+* Add Spanish support ([b82513e](https://github.com/usekaneo/kaneo/commit/b82513e850a54a736c4da43c3b0ee7a65d9179aa))
+* add user-based Gotify notifications ([28bcfcf](https://github.com/usekaneo/kaneo/commit/28bcfcfd5c172c304dd999e1de5ef2958f925c3b))
+* **auth:** add device authorization flow for CLI and external apps ([6f3f8c3](https://github.com/usekaneo/kaneo/commit/6f3f8c3ca83f297b5b6d91fc375d3f38394ffc62))
+* **docs:** add otp rfc 8628 to docs ([08a47a6](https://github.com/usekaneo/kaneo/commit/08a47a68cc24f53bf55d3b52eb38684f577a62bb))
+* Finished translations ([7fb800c](https://github.com/usekaneo/kaneo/commit/7fb800c81bd85192dac7c162572c83f65e66fef2))
+* harden notification prefs schema, delivery, OpenAPI, and i18n ([88d57ff](https://github.com/usekaneo/kaneo/commit/88d57ff3912eff6d29ca930d0006cee716a9e2e5))
+* Include Spanish in language selector ([bd72f74](https://github.com/usekaneo/kaneo/commit/bd72f7431895b7d6e573086829514bd1ed7dfdc6))
+* Init es-ES translations ([abee64c](https://github.com/usekaneo/kaneo/commit/abee64c3c9ff57413817ff2d12a423305c8a4224))
+* More translations ([2cec245](https://github.com/usekaneo/kaneo/commit/2cec245634ce47587b3fbeba820c7b1178231c62))
+* Webhook translations ([fdc6f7e](https://github.com/usekaneo/kaneo/commit/fdc6f7e499c2de1771cdfdcb7bd8e9094a1dd7df))
 ## [2.5.2](https://github.com/usekaneo/kaneo/compare/v2.5.1...v2.5.2) (2026-04-02)
 
 

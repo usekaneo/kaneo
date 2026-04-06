@@ -43,6 +43,18 @@ export function formatDateMedium(value: DateInput, locale?: string) {
   );
 }
 
+/** Locale-aware full date and time (for tooltips next to relative labels like "yesterday"). */
+export function formatDateTime(value: DateInput, locale?: string) {
+  return formatDate(
+    value,
+    {
+      dateStyle: "medium",
+      timeStyle: "short",
+    },
+    locale,
+  );
+}
+
 export function formatRelativeTime(
   value: DateInput,
   locale?: string,

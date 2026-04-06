@@ -56,6 +56,29 @@ function normalizeWorkspaceValues(
   };
 }
 
+/** Better Auth persists description as an organization additional field (DB column), not only inside metadata. */
+function getWorkspaceDescription(
+  workspace:
+    | { description?: string | null; metadata?: unknown }
+    | null
+    | undefined,
+): string {
+  if (!workspace) return "";
+  if (typeof workspace.description === "string") {
+    return workspace.description;
+  }
+  if (
+    typeof workspace.metadata === "object" &&
+    workspace.metadata &&
+    "description" in workspace.metadata
+  ) {
+    return String(
+      (workspace.metadata as { description?: unknown }).description ?? "",
+    );
+  }
+  return "";
+}
+
 function RouteComponent() {
   const { t } = useTranslation();
   const workspaceSchema = useMemo(
@@ -82,12 +105,7 @@ function RouteComponent() {
   const { mutateAsync: updateWorkspace } = useUpdateWorkspace();
   const { mutateAsync: deleteWorkspace, isPending: isDeleting } =
     useDeleteWorkspace();
-  const workspaceDescription =
-    typeof workspace?.metadata === "object" &&
-    workspace?.metadata &&
-    "description" in workspace.metadata
-      ? String(workspace.metadata.description ?? "")
-      : "";
+  const workspaceDescription = getWorkspaceDescription(workspace);
 
   const workspaceForm = useForm<WorkspaceFormValues>({
     resolver: standardSchemaResolver(workspaceSchema),

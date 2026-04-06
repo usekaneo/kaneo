@@ -25,8 +25,11 @@ import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { generateDemoName } from "./utils/generate-demo-name";
+import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 
 config();
+
+const githubSso = getGithubSsoOAuthCredentials();
 
 const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 const isPasswordRegistrationDisabled =
@@ -173,8 +176,8 @@ export const auth = betterAuth({
   },
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID || "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      clientId: githubSso.clientId,
+      clientSecret: githubSso.clientSecret,
       scope: ["user:email"],
     },
     google: {

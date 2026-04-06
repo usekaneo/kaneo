@@ -15,7 +15,8 @@ The variables are split up into the following sections:
 - [Authentication](#authentication)
 - [Object Storage](#object-storage)
 - [Access Control](#access-control)
-- [GitHub SSO & Integration](#github-sso-&-integration)
+- [GitHub SSO](#github-sso)
+- [GitHub integration](#github-integration)
 - [Google SSO](#google-sso)
 - [Discord SSO](#discord-sso)
 - [Custom OAuth/OIDC](#custom-oauth-oidc)
@@ -81,15 +82,27 @@ Name | Description | Default |
 | `DISABLE_REGISTRATION` | Disable public user registration. When set to `true`, the sign-up option will not be shown on the sign-in page and new user creation is blocked (including via SSO). **Note:** Users with valid workspace invitations can still register even when this is enabled. | `false` | 
 | `DISABLE_PASSWORD_REGISTRATION` | Disable password-based account creation. When set to `true`, email/password sign-up is blocked, but social/OIDC registration remains available unless `DISABLE_REGISTRATION=true`. | `false` |
 
-### GitHub SSO & Integration
+### GitHub SSO
+
+Sign in with GitHub uses a [GitHub OAuth App](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app). Set `GITHUB_OAUTH_CLIENT_ID` and `GITHUB_OAUTH_CLIENT_SECRET` (or rely on the legacy variables below).
 
 Name | Description |
 --- | --- |
-| `GITHUB_CLIENT_ID` | The GitHub client ID.
-| `GITHUB_CLIENT_SECRET` | The GitHub client secret.
-| `GITHUB_APP_ID` | The GitHub app ID.
-| `GITHUB_WEBHOOK_SECRET` | The GitHub webhook secret.
-| `GITHUB_PRIVATE_KEY` | The GitHub private key.
+| `GITHUB_OAUTH_CLIENT_ID` | OAuth client ID for GitHub sign-in.
+| `GITHUB_OAUTH_CLIENT_SECRET` | OAuth client secret for GitHub sign-in.
+| `GITHUB_CLIENT_ID` | Legacy fallback for OAuth client ID when `GITHUB_OAUTH_*` is not set.
+| `GITHUB_CLIENT_SECRET` | Legacy fallback for OAuth client secret when `GITHUB_OAUTH_*` is not set.
+
+### GitHub integration
+
+Repository sync and webhooks use a [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps). These variables do not enable GitHub sign-in; configure [GitHub SSO](#github-sso) separately if you want both.
+
+Name | Description |
+--- | --- |
+| `GITHUB_APP_ID` | The GitHub App ID.
+| `GITHUB_WEBHOOK_SECRET` | Secret used to verify GitHub webhook payloads.
+| `GITHUB_PRIVATE_KEY` | PEM private key for the GitHub App (JWT authentication).
+| `GITHUB_APP_NAME` | (Optional) GitHub App slug, used for installation links in the UI.
 
 ### Google SSO
 
@@ -134,7 +147,8 @@ Name | Description |
 
 ## Key points
 
-- If you enable GitHub SSO, you need to set up the GitHub app which is used to authenticate users in the [GitHub Developer Settings](https://github.com/settings/developers). See the [GitHub SSO guide](/core/social-providers/github).
+- If you enable GitHub SSO, create a GitHub OAuth App in [GitHub Developer Settings](https://github.com/settings/developers) and set `GITHUB_OAUTH_CLIENT_ID` / `GITHUB_OAUTH_CLIENT_SECRET` (or the legacy `GITHUB_CLIENT_*` variables). See the [GitHub SSO guide](/core/social-providers/github).
+- If you use the GitHub repository integration, configure a GitHub App and set the integration variables in [GitHub integration](#github-integration). See the [GitHub integration configuration](/core/integrations/github/configuration) guide.
 - If you enable Google SSO, you need to set up the Google app which is used to authenticate users in the [Google Cloud Console](https://console.cloud.google.com/). See the [Google SSO guide](/core/social-providers/google).
 - If you enable Discord SSO, you need to set up the Discord application which is used to authenticate users in the [Discord Developer Portal](https://discord.com/developers/applications). See the [Discord SSO guide](/core/social-providers/discord).
 - If you enable Custom OAuth/OIDC, you need to configure your identity provider with the appropriate redirect URI. See the [Custom OAuth/OIDC guide](/core/social-providers/custom-oauth).
