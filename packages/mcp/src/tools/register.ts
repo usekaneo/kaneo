@@ -155,7 +155,7 @@ export function registerTools(
             ? patch.icon
             : existing.icon != null
               ? String(existing.icon)
-              : "";
+              : undefined;
         const slug =
           patch.slug ??
           (typeof existing.slug === "string" ? existing.slug : "");
@@ -167,21 +167,28 @@ export function registerTools(
             ? patch.description
             : typeof existing.description === "string"
               ? existing.description
-              : "";
+              : undefined;
         const isPublic =
           patch.isPublic !== undefined
             ? patch.isPublic
-            : Boolean(existing.isPublic);
+            : existing.isPublic != null
+              ? Boolean(existing.isPublic)
+              : undefined;
+
+        const body: Record<string, unknown> = { name, slug };
+        if (icon !== undefined) {
+          body.icon = icon;
+        }
+        if (description !== undefined) {
+          body.description = description;
+        }
+        if (isPublic !== undefined) {
+          body.isPublic = isPublic;
+        }
 
         return client.json(`/api/project/${encodeURIComponent(id)}`, {
           method: "PUT",
-          body: JSON.stringify({
-            name,
-            icon,
-            slug,
-            description,
-            isPublic,
-          }),
+          body: JSON.stringify(body),
         });
       });
     },

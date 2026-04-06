@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { type McpServerEntry, mergeMcpServerEntry } from "./merge-config.js";
@@ -303,6 +303,7 @@ export async function runInstall(argv: string[]): Promise<void> {
   for (const w of mergedWrites) {
     await mkdir(dirname(w.configPath), { recursive: true });
     await writeFile(w.configPath, w.merged, { encoding: "utf8", mode: 0o600 });
+    await chmod(w.configPath, 0o600);
     writtenPaths.push(w.configPath);
   }
 

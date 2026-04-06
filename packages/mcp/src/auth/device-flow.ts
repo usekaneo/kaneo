@@ -12,19 +12,49 @@ export type DeviceTokenErrorBody = {
   error_description?: string;
 };
 
+const REQUEST_TIMEOUT_MS = 10_000;
+
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function isAbortError(err: unknown): boolean {
+  return err instanceof DOMException
+    ? err.name === "AbortError"
+    : err instanceof Error && err.name === "AbortError";
+}
+
+async function fetchWithTimeout(
+  input: string,
+  init: RequestInit,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export async function requestDeviceCode(
   baseUrl: string,
   clientId: string,
 ): Promise<DeviceCodeResponse> {
-  const res = await fetch(`${baseUrl}/api/auth/device/code`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ client_id: clientId }),
-  });
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(`${baseUrl}/api/auth/device/code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ client_id: clientId }),
+    });
+  } catch (err) {
+    if (isAbortError(err)) {
+      throw new Error("device/code request timed out after 10s.");
+    }
+    throw err;
+  }
   const body = (await res.json().catch(() => ({}))) as
     | DeviceCodeResponse
     | DeviceTokenErrorBody;
@@ -92,15 +122,24 @@ export async function pollDeviceAccessToken(
       await sleep(intervalMs);
     }
 
-    const res = await fetch(`${baseUrl}/api/auth/device/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        grant_type: "urn:ietf:params:oauth:grant-type:device_code",
-        device_code: deviceCode,
-        client_id: clientId,
-      }),
-    });
+    let res: Response;
+    try {
+      res = await fetchWithTimeout(`${baseUrl}/api/auth/device/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+          device_code: deviceCode,
+          client_id: clientId,
+        }),
+      });
+    } catch (err) {
+      if (isAbortError(err)) {
+        log("Device token poll request timed out; retrying.");
+        continue;
+      }
+      throw err;
+    }
 
     if (Date.now() - started > maxWait) {
       throw new Error("Device authorization timed out waiting for approval.");

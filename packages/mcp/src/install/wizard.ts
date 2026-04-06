@@ -5,7 +5,7 @@ import {
   validateCustomConfigPathInput,
 } from "./targets.js";
 
-function onCancel(): void {
+function onCancel(): never {
   console.log("\nCancelled.");
   process.exit(0);
 }

@@ -30,7 +30,11 @@ export class KaneoClient {
     }
 
     const url = `${this.baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
-    const res = await fetch(url, { ...init, headers });
+    const timeoutSignal = AbortSignal.timeout(10_000);
+    const signal = init?.signal
+      ? AbortSignal.any([init.signal, timeoutSignal])
+      : timeoutSignal;
+    const res = await fetch(url, { ...init, headers, signal });
 
     if (res.status === 401 && !didRetry) {
       await this.auth.clearToken();

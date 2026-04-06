@@ -17,6 +17,7 @@ type TokenValidationResult = "valid" | "invalid" | "unknown";
 export class AuthService {
   readonly baseUrl: string;
   readonly clientId: string;
+  private activeGetAccessTokenPromise?: Promise<string>;
 
   constructor(options: AuthServiceOptions) {
     this.baseUrl = options.baseUrl;
@@ -57,51 +58,63 @@ export class AuthService {
    * Returns a valid access token, running the device authorization flow if needed.
    */
   async getAccessToken(): Promise<string> {
-    const cached = await loadCredentials();
-    if (
-      cached &&
-      cached.baseUrl === this.baseUrl &&
-      cached.clientId === this.clientId &&
-      cached.accessToken
-    ) {
-      const validation = await this.validateAccessToken(cached.accessToken);
-      // Fail-open for "unknown": validateAccessToken returns "unknown" on transient HTTP/network
-      // errors or ambiguous responses. Treating "unknown" like "valid" avoids clearToken() and a full
-      // device re-auth so flaky connectivity does not wipe cached.accessToken; only "invalid" forces
-      // a fresh login. Tests should cover both unknown and invalid paths.
-      if (validation === "valid" || validation === "unknown") {
-        return cached.accessToken;
-      }
-      await this.clearToken();
+    if (this.activeGetAccessTokenPromise) {
+      return await this.activeGetAccessTokenPromise;
     }
 
-    const code = await requestDeviceCode(this.baseUrl, this.clientId);
-    const verifyUrl = code.verification_uri_complete || code.verification_uri;
-    this.log(
-      `Open ${verifyUrl} and approve this device. User code: ${code.user_code}`,
-    );
+    this.activeGetAccessTokenPromise = (async () => {
+      const cached = await loadCredentials();
+      if (
+        cached &&
+        cached.baseUrl === this.baseUrl &&
+        cached.clientId === this.clientId &&
+        cached.accessToken
+      ) {
+        const validation = await this.validateAccessToken(cached.accessToken);
+        // Fail-open for "unknown": validateAccessToken returns "unknown" on transient HTTP/network
+        // errors or ambiguous responses. Treating "unknown" like "valid" avoids clearToken() and a full
+        // device re-auth so flaky connectivity does not wipe cached.accessToken; only "invalid" forces
+        // a fresh login. Tests should cover both unknown and invalid paths.
+        if (validation === "valid" || validation === "unknown") {
+          return cached.accessToken;
+        }
+        await this.clearToken();
+      }
+
+      const code = await requestDeviceCode(this.baseUrl, this.clientId);
+      const verifyUrl = code.verification_uri_complete || code.verification_uri;
+      this.log(
+        `Open ${verifyUrl} and approve this device. User code: ${code.user_code}`,
+      );
+
+      try {
+        await open(verifyUrl);
+      } catch {
+        this.log("Could not open a browser automatically; use the URL above.");
+      }
+
+      const accessToken = await pollDeviceAccessToken(
+        this.baseUrl,
+        this.clientId,
+        code.device_code,
+        code.interval,
+        { log: (m) => this.log(m) },
+      );
+
+      const toStore: StoredCredentials = {
+        version: 1,
+        baseUrl: this.baseUrl,
+        clientId: this.clientId,
+        accessToken,
+      };
+      await saveCredentials(toStore);
+      return accessToken;
+    })();
 
     try {
-      await open(verifyUrl);
-    } catch {
-      this.log("Could not open a browser automatically; use the URL above.");
+      return await this.activeGetAccessTokenPromise;
+    } finally {
+      this.activeGetAccessTokenPromise = undefined;
     }
-
-    const accessToken = await pollDeviceAccessToken(
-      this.baseUrl,
-      this.clientId,
-      code.device_code,
-      code.interval,
-      { log: (m) => this.log(m) },
-    );
-
-    const toStore: StoredCredentials = {
-      version: 1,
-      baseUrl: this.baseUrl,
-      clientId: this.clientId,
-      accessToken,
-    };
-    await saveCredentials(toStore);
-    return accessToken;
   }
 }
