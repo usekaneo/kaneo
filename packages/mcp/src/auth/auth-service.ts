@@ -32,8 +32,10 @@ export class AuthService {
     token: string,
   ): Promise<TokenValidationResult> {
     try {
+      const signal = AbortSignal.timeout(10_000);
       const res = await fetch(`${this.baseUrl}/api/auth/get-session`, {
         headers: { Authorization: `Bearer ${token}` },
+        signal,
       });
       if (res.status === 401) {
         return "invalid";

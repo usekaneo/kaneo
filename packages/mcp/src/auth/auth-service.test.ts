@@ -50,17 +50,19 @@ describe("AuthService", () => {
   });
 
   it("reuses the cached token when validation succeeds", async () => {
+    const timeoutSpy = vi.spyOn(AbortSignal, "timeout");
     loadCredentialsMock.mockResolvedValue({
       version: 1,
       baseUrl: "https://api.example.com",
       clientId: "kaneo-mcp",
       accessToken: "cached-token",
     });
-    globalThis.fetch = vi.fn().mockResolvedValue(
+    const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ user: { id: "user-1" } }), {
         status: 200,
       }),
-    ) as typeof fetch;
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
 
     const service = new AuthService({
       baseUrl: "https://api.example.com",
@@ -68,6 +70,12 @@ describe("AuthService", () => {
     });
 
     await expect(service.getAccessToken()).resolves.toBe("cached-token");
+    expect(timeoutSpy).toHaveBeenCalledWith(10_000);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const requestInit = fetchMock.mock.calls[0]?.[1] as
+      | { signal?: AbortSignal }
+      | undefined;
+    expect(requestInit?.signal).toBeInstanceOf(AbortSignal);
     expect(clearCredentialsMock).not.toHaveBeenCalled();
     expect(requestDeviceCodeMock).not.toHaveBeenCalled();
   });

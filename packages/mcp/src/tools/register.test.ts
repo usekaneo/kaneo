@@ -123,6 +123,43 @@ describe("registerTools", () => {
     expect(result?.isError).toBe(false);
   });
 
+  it("fetches the current project and sends a full body for update_project", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi
+        .fn()
+        .mockResolvedValueOnce({
+          name: "Roadmap",
+          slug: "roadmap",
+        })
+        .mockResolvedValueOnce({ id: "project-1", name: "Roadmap v2" }),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("update_project")?.handler({
+      id: "project-1",
+      name: "Roadmap v2",
+    });
+
+    expect(client.json).toHaveBeenNthCalledWith(1, "/api/project/project-1", {
+      method: "GET",
+    });
+    const putCall = client.json.mock.calls[1];
+    expect(putCall?.[0]).toBe("/api/project/project-1");
+    const putBody = JSON.parse(
+      String((putCall?.[1] as { body?: string })?.body ?? "{}"),
+    );
+    expect(putBody).toEqual({
+      name: "Roadmap v2",
+      icon: "Layout",
+      slug: "roadmap",
+      description: "",
+      isPublic: false,
+    });
+    expect(result?.isError).toBe(false);
+  });
+
   it("returns an MCP error result when the client request fails", async () => {
     const { server, tools } = createServerMock();
     const client = {

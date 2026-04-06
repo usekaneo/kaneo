@@ -303,7 +303,11 @@ export async function runInstall(argv: string[]): Promise<void> {
   for (const w of mergedWrites) {
     await mkdir(dirname(w.configPath), { recursive: true });
     await writeFile(w.configPath, w.merged, { encoding: "utf8", mode: 0o600 });
-    await chmod(w.configPath, 0o600);
+    try {
+      await chmod(w.configPath, 0o600);
+    } catch {
+      /* ignore chmod failures on some FS */
+    }
     writtenPaths.push(w.configPath);
   }
 
