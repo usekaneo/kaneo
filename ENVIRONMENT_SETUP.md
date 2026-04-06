@@ -51,7 +51,24 @@ Kaneo supports many optional configuration options including:
 
 #### Redis Configuration
 
-- `REDIS_URL` - Redis connection string (e.g., `redis://localhost:6379`). When set, WebSocket broadcasts use Redis Pub/Sub, allowing multiple API instances to relay real-time updates. When not set, an in-memory adapter is used (single-instance only).
+Kaneo supports three Redis deployment modes for WebSocket Pub/Sub. When any Redis mode is configured, WebSocket broadcasts use Redis Pub/Sub, allowing multiple API instances to relay real-time updates. When none are set, an in-memory adapter is used (single-instance only).
+
+**Standalone (single server):**
+- `REDIS_URL` - Redis connection string (e.g., `redis://localhost:6379`)
+
+**Sentinel (high-availability with automatic failover):**
+- `REDIS_SENTINELS` - Comma-separated list of Sentinel nodes (e.g., `sentinel-1:26379,sentinel-2:26379,sentinel-3:26379`)
+- `REDIS_SENTINEL_MASTER_NAME` - Name of the Sentinel master group (default: `mymaster`)
+- `REDIS_SENTINEL_PASSWORD` - Password for Sentinel instances, if different from the Redis password (optional)
+- `REDIS_SENTINEL_TLS` - Set to `true` to enable TLS for Sentinel connections (default: `false`)
+
+**Cluster (horizontal sharding):**
+- `REDIS_CLUSTER_NODES` - Comma-separated list of cluster seed nodes (e.g., `node-1:6379,node-2:6379,node-3:6379`)
+
+**Shared (used by Sentinel and Cluster modes):**
+- `REDIS_PASSWORD` - Password for the Redis data nodes (used by both Sentinel and Cluster modes, not for Sentinel auth itself — use `REDIS_SENTINEL_PASSWORD` for that)
+
+> **Note:** Only one mode should be configured at a time. If multiple are set, the priority is: Cluster > Sentinel > Standalone.
 
 #### SMTP Configuration
 

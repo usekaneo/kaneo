@@ -122,11 +122,36 @@ Name | Description |
 
 ### Redis
 
-Kaneo supports Redis for horizontal scaling of WebSocket broadcasts. When `REDIS_URL` is set, multiple API instances can relay real-time updates via Redis Pub/Sub. When not set, an in-memory adapter is used (single-instance only).
+Kaneo supports Redis for horizontal scaling of WebSocket broadcasts. When any Redis mode is configured, multiple API instances can relay real-time updates via Redis Pub/Sub. When none are set, an in-memory adapter is used (single-instance only).
+
+Three deployment modes are supported: **Standalone**, **Sentinel**, and **Cluster**. Only one mode should be configured at a time. If multiple are set, the priority is: Cluster > Sentinel > Standalone.
+
+#### Standalone (single server)
 
 Name | Description |
 --- | --- |
-| `REDIS_URL` | Redis connection string (e.g., `redis://localhost:6379`). Enables multi-instance WebSocket broadcasts via Redis Pub/Sub.
+| `REDIS_URL` | Redis connection string (e.g., `redis://localhost:6379`).
+
+#### Sentinel (high-availability with automatic failover)
+
+Name | Description | Default |
+--- | --- | --- |
+| `REDIS_SENTINELS` | Comma-separated list of Sentinel nodes (e.g., `sentinel-1:26379,sentinel-2:26379,sentinel-3:26379`). | |
+| `REDIS_SENTINEL_MASTER_NAME` | Name of the Sentinel master group. | `mymaster` |
+| `REDIS_SENTINEL_PASSWORD` | Password for Sentinel instances, if different from the Redis password. | |
+| `REDIS_SENTINEL_TLS` | Set to `true` to enable TLS for Sentinel connections. | `false` |
+
+#### Cluster (horizontal sharding)
+
+Name | Description |
+--- | --- |
+| `REDIS_CLUSTER_NODES` | Comma-separated list of cluster seed nodes (e.g., `node-1:6379,node-2:6379,node-3:6379`).
+
+#### Shared (used by Sentinel and Cluster modes)
+
+Name | Description |
+--- | --- |
+| `REDIS_PASSWORD` | Password for the Redis data nodes (used by both Sentinel and Cluster modes, not for Sentinel auth itself — use `REDIS_SENTINEL_PASSWORD` for that).
 
 ### SMTP Configuration
 

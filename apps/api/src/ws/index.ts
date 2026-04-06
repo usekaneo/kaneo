@@ -1,5 +1,6 @@
 import type { WSContext } from "hono/ws";
 import { subscribeToEvent } from "../events";
+import { isRedisConfigured } from "../redis";
 import type {
   BroadcastAdapter,
   BroadcastMessage,
@@ -38,7 +39,7 @@ let adapter: BroadcastAdapter | null = null;
 export async function initializeWebSocketAdapter() {
   if (adapter) return;
 
-  const nextAdapter = process.env.REDIS_URL
+  const nextAdapter = isRedisConfigured()
     ? new RedisBroadcastAdapter()
     : new InMemoryBroadcastAdapter();
 
