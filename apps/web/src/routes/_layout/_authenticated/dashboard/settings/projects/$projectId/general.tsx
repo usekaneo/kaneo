@@ -230,6 +230,11 @@ function RouteComponent() {
     ],
   );
 
+  const saveProjectRef = useRef(saveProject);
+  const projectFormRef = useRef(projectForm);
+  saveProjectRef.current = saveProject;
+  projectFormRef.current = projectForm;
+
   const debouncedSave = useCallback(() => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
@@ -246,8 +251,9 @@ function RouteComponent() {
   }, [projectForm, saveProject]);
 
   useEffect(() => {
+    // Do not gate on formState.isDirty here: after setValue (e.g. icon pick), the
+    // watch callback can run before RHF updates isDirty, so the debounced save never runs.
     const subscription = projectForm.watch(() => {
-      if (!projectForm.formState.isDirty) return;
       debouncedSave();
     });
 
@@ -258,7 +264,26 @@ function RouteComponent() {
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
+        debounceTimeoutRef.current = null;
       }
+      // Flush pending edits if the user navigates away before the debounce fires.
+      void (async () => {
+        const latest = projectFormRef.current.getValues() as ProjectFormValues;
+        const normalized = normalizeProjectValues(latest);
+        const last = lastSavedRef.current;
+        const hasPendingChanges =
+          !last ||
+          last.name !== normalized.name ||
+          last.slug !== normalized.slug ||
+          last.description !== normalized.description ||
+          last.icon !== normalized.icon;
+        if (!hasPendingChanges) return;
+
+        const isValid = await projectFormRef.current.trigger();
+        if (isValid) {
+          await saveProjectRef.current(latest);
+        }
+      })();
     };
   }, []);
 
