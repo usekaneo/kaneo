@@ -137,13 +137,13 @@ Keep this private key secure! It's used to authenticate your Kaneo instance with
 From the app settings page, note down these important values:
 
 - **App ID** (shown at the top of the page)
-- **Client ID** (in the "Basic information" section)
-- **Client Secret** (click "Generate a new client secret")
 - **Webhook Secret** (the one you created earlier)
 - **Private Key** (contents of the downloaded `.pem` file)
 
+The GitHub App also shows an OAuth **Client ID** and **Client Secret** under "Basic information". Kaneo’s **repository integration** does not use those environment variables; they are only relevant if you enable **Sign in with GitHub** using `GITHUB_OAUTH_CLIENT_ID` / `GITHUB_OAUTH_CLIENT_SECRET` (see [GitHub SSO](/core/social-providers/github)).
+
 <Info>
-You'll need all of these values for the [configuration step](/core/integrations/github/configuration).
+You need **App ID**, **private key**, and **webhook secret** for the [configuration step](/core/integrations/github/configuration).
 </Info>
 </Step>
 </Steps>

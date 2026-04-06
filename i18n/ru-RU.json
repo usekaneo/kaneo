@@ -1,0 +1,1839 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "Отмена",
+			"close": "Закрыть",
+			"clearAll": "Очистить все",
+			"delete": "Удалить",
+			"deleting": "Удаление...",
+			"markAllRead": "Отметить все как прочитанные",
+			"remove": "Убрать",
+			"reset": "Сбросить",
+			"filter": "Фильтр",
+			"clearAllFilters": "Сбросить все фильтры"
+		},
+		"a11y": {
+			"toggleSidebar": "Переключить боковую панель"
+		},
+		"sidebar": {
+			"title": "Боковая панель",
+			"mobileDescription": "Отображает мобильную боковую панель."
+		},
+		"empty": {
+			"loading": "Загрузка..."
+		},
+		"pagination": {
+			"label": "Пагинация",
+			"previous": "Назад",
+			"next": "Вперёд",
+			"previousPage": "Перейти на предыдущую страницу",
+			"nextPage": "Перейти на следующую страницу",
+			"morePages": "Ещё страницы"
+		},
+		"breadcrumb": {
+			"label": "Навигационная цепочка",
+			"more": "Ещё"
+		},
+		"language": {
+			"english": "Английский",
+			"german": "Немецкий",
+			"greek": "Греческий",
+			"macedonian": "Македонский",
+			"french": "Французский",
+			"spanish": "Испанский",
+			"dutch": "Нидерландский"
+		},
+		"people": {
+			"someone": "Кто-то",
+			"unknown": "Неизвестно"
+		},
+		"error": {
+			"title": "Что-то пошло не так",
+			"troubleshooting": "Шаги для устранения неполадок:",
+			"tryAgain": "Попробовать снова",
+			"viewDeploymentGuide": "Руководство по развёртыванию",
+			"refreshPage": "Обновить страницу"
+		},
+		"formats": {
+			"never": "Никогда"
+		},
+		"modals": {
+			"createProject": {
+				"title": "Создать новый проект",
+				"breadcrumbNew": "Создать новый проект",
+				"workspaceFallback": "РАБОЧАЯ ОБЛАСТЬ",
+				"description": "Создайте новый проект в вашей рабочей области, указав название, ключ и выбрав иконку.",
+				"pickIcon": "Выбрать иконку",
+				"searchIcons": "Поиск иконок...",
+				"projectName": "Название проекта",
+				"keyLabel": "Ключ:",
+				"keyHint": "Используется для идентификаторов задач (например, {{example}}-123)",
+				"createButton": "Создать проект",
+				"successToast": "Проект успешно создан",
+				"errorToast": "Не удалось создать проект"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "Создать новую рабочую область",
+				"description": "Создайте новую рабочую область, указав её название.",
+				"namePlaceholder": "Название рабочей области",
+				"descriptionPlaceholder": "Добавить описание...",
+				"createButton": "Создать рабочую область",
+				"successToast": "Рабочая область успешно создана",
+				"errorToast": "Не удалось создать рабочую область"
+			},
+			"createTask": {
+				"breadcrumbTask": "ЗАДАЧА",
+				"title": "Новая задача",
+				"description": "Создайте новую задачу, указав название, описание и другие детали.",
+				"taskTitlePlaceholder": "Название задачи",
+				"descriptionPlaceholder": "Добавьте описание задачи...",
+				"chooseProjectForImages": "Выберите проект перед загрузкой изображений.",
+				"prepareTaskError": "Не удалось подготовить задачу",
+				"successCreated": "Задача успешно создана",
+				"successUpdated": "Задача успешно обновлена",
+				"createError": "Не удалось создать задачу",
+				"priority": "Приоритет",
+				"statusFallback": "В работе",
+				"startDate": "Дата начала",
+				"dueDate": "Срок выполнения",
+				"clearStartDate": "Очистить дату начала",
+				"clearDueDate": "Очистить срок выполнения",
+				"assign": "Назначить",
+				"assignUnassigned": "Не назначено",
+				"assignUnassignedTitle": "Не назначено",
+				"labels": "Метки",
+				"searchLabels": "Поиск меток...",
+				"noLabelsFound": "Метки не найдены",
+				"createLabel": "Создать «{{name}}»",
+				"chooseColor": "Выберите цвет",
+				"labelCreated": "Метка создана",
+				"labelCreateError": "Не удалось создать метку",
+				"createMore": "Создать ещё",
+				"createButton": "Создать задачу",
+				"untitledTask": "Задача без названия",
+				"labelColors": {
+					"stone": "Камень",
+					"slate": "Сланец",
+					"lavender": "Лаванда",
+					"sage": "Шалфей",
+					"forest": "Лес",
+					"amber": "Янтарь",
+					"terracotta": "Терракота",
+					"rose": "Роза",
+					"crimson": "Малиновый"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "Вход",
+			"title": "С возвращением",
+			"subtitle": "Введите свои учётные данные для доступа к рабочей области",
+			"invitationSubtitle": "Войдите, чтобы принять приглашение",
+			"invitationAlert": "После входа вы сможете принять приглашение в рабочую область.",
+			"signingIn": "Вход...",
+			"continueWithGoogle": "Продолжить с Google",
+			"continueWithGithub": "Продолжить с GitHub",
+			"continueWithDiscord": "Продолжить с Discord",
+			"continueWithOidc": "Продолжить с OIDC",
+			"lastUsed": "Использовался последним",
+			"registrationDisabled": "Публичная регистрация отключена. Используйте приглашение для создания аккаунта.",
+			"passwordRegistrationDisabled": "Регистрация по паролю отключена. Используйте настроенный метод входа через социальные сети или OIDC для создания аккаунта.",
+			"toggleMessage": "Нет аккаунта?",
+			"toggleLink": "Создать аккаунт",
+			"guestSuccess": "Вход выполнен как гость",
+			"guestError": "Не удалось войти как гость",
+			"oidcError": "Не удалось войти через OIDC",
+			"googleError": "Не удалось войти через Google",
+			"githubError": "Не удалось войти через GitHub",
+			"discordError": "Не удалось войти через Discord"
+		},
+		"providers": {
+			"google": "Google",
+			"discord": "Discord"
+		},
+		"forms": {
+			"or": "или",
+			"email": "Электронная почта",
+			"password": "Пароль",
+			"emailPlaceholder": "me@example.com",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "Показать пароль",
+			"hidePassword": "Скрыть пароль"
+		},
+		"checkEmail": {
+			"pageTitle": "Проверьте почту",
+			"title": "Проверьте свою почту",
+			"inboxMessage": "Мы отправили вам временную ссылку для входа. Пожалуйста, проверьте свой почтовый ящик по адресу <email>{{email}}</email>.",
+			"emailFallback": "ваш адрес электронной почты",
+			"backToLogin": "Вернуться к входу"
+		},
+		"signUp": {
+			"pageTitle": "Создание аккаунта",
+			"title": "Создать аккаунт",
+			"subtitleInvitation": "Создайте аккаунт, чтобы принять приглашение",
+			"subtitleRegistrationDisabled": "Для регистрации требуется приглашение",
+			"subtitlePasswordDisabled": "Используйте вход через социальные сети или OIDC для создания аккаунта",
+			"subtitleDefault": "Начните работу с рабочей областью",
+			"invitationAlert": "После создания аккаунта вы сможете принять приглашение в рабочую область.",
+			"registrationDisabledAlert": "Регистрация в данный момент отключена. Если вы получили приглашение, введите адрес электронной почты, на который оно было отправлено.",
+			"passwordDisabledAlert": "Создание аккаунта по паролю отключено. Используйте настроенный метод входа через социальные сети или OIDC на странице входа.",
+			"signingIn": "Вход...",
+			"continueAsGuest": "Продолжить как гость",
+			"toggleMessage": "Уже есть аккаунт?",
+			"toggleLink": "Войти"
+		},
+		"verifyOtp": {
+			"pageTitle": "Проверка кода",
+			"title": "Введите код подтверждения",
+			"subtitle": "Используйте 6-значный код, отправленный на вашу почту",
+			"codeSentTo": "Код отправлен на {{email}}",
+			"verificationCodeLabel": "Код подтверждения",
+			"verifying": "Проверка...",
+			"verifyAndSignIn": "Подтвердить и войти",
+			"changeEmail": "Изменить адрес",
+			"resend": "Отправить повторно",
+			"validation": {
+				"codeLength": "Код должен содержать 6 цифр"
+			},
+			"toast": {
+				"invalidCode": "Неверный код подтверждения",
+				"signedInSuccess": "Вход выполнен успешно!",
+				"verifyFailed": "Не удалось проверить код",
+				"resendFailed": "Не удалось отправить код повторно",
+				"resendSuccess": "Новый код подтверждения отправлен!"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "Не удалось отправить код подтверждения",
+			"codeSent": "Код подтверждения отправлен! Проверьте почту.",
+			"sending": "Отправка...",
+			"sendVerificationCode": "Отправить код подтверждения"
+		},
+		"signInForm": {
+			"failedSignIn": "Не удалось войти",
+			"signedInSuccess": "Вход выполнен успешно",
+			"signingIn": "Вход...",
+			"signIn": "Войти"
+		},
+		"signUpForm": {
+			"fullName": "Полное имя",
+			"namePlaceholder": "Иван Иванов",
+			"failedSignUp": "Не удалось зарегистрироваться",
+			"accountCreated": "Аккаунт успешно создан",
+			"passwordTooShort": "Пароль слишком короткий",
+			"creatingAccount": "Создание аккаунта...",
+			"createAccount": "Создать аккаунт"
+		},
+		"invitation": {
+			"pageTitleAccept": "Принять приглашение",
+			"pageTitleError": "Ошибка приглашения",
+			"pageTitleInvalid": "Недействительное приглашение",
+			"loadingTitle": "Загрузка приглашения...",
+			"errorTitle": "Ошибка приглашения",
+			"invalidTitle": "Недействительное приглашение",
+			"invitationExpired": "Приглашение истекло",
+			"errorLoadDescription": "Не удалось загрузить данные приглашения. Приглашение может быть недействительным или просроченным.",
+			"goToSignIn": "Перейти к входу",
+			"workspaceLabel": "Рабочая область: {{workspaceName}}",
+			"joinWorkspace": "Присоединиться к {{workspaceName}}",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> приглашает вас присоединиться к рабочей области.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> приглашает вас присоединиться к рабочей области в Kaneo.",
+			"signInToAccept": "Войдите, чтобы принять приглашение.",
+			"accepting": "Принятие...",
+			"acceptInvitation": "Принять приглашение",
+			"goToDashboard": "Перейти к панели управления",
+			"signedInAs": "Вы вошли как <email>{{email}}</email>",
+			"youveBeenInvited": "Вас пригласили!",
+			"invitationFor": "Приглашение для: <email>{{email}}</email>",
+			"signIn": "Войти",
+			"toast": {
+				"acceptFailed": "Не удалось принять приглашение",
+				"acceptSuccess": "Приглашение принято! Добро пожаловать в команду."
+			}
+		},
+		"onboarding": {
+			"pageTitle": "Добро пожаловать в Kaneo",
+			"workspacePageTitle": "Создание рабочей области",
+			"createWorkspaceTitle": "Создать рабочую область",
+			"createWorkspaceSubtitle": "Настройте рабочую область, чтобы начать управление проектами",
+			"workspaceName": "Название рабочей области",
+			"workspaceNamePlaceholder": "например, Acme Inc, Моя команда",
+			"descriptionOptional": "Описание (необязательно)",
+			"descriptionPlaceholder": "Чем занимается ваша команда?",
+			"creating": "Создание...",
+			"createWorkspace": "Создать рабочую область",
+			"workspaceCreatedTitle": "Рабочая область создана",
+			"redirectingToWorkspace": "Переход к <name>{{name}}</name>...",
+			"toast": {
+				"workspaceCreated": "Рабочая область успешно создана",
+				"createFailed": "Не удалось создать рабочую область"
+			},
+			"validation": {
+				"workspaceNameRequired": "Название рабочей области обязательно"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "Заполнение профиля",
+			"completeTitle": "Заполните свой профиль",
+			"subtitle": "Пожалуйста, введите своё имя, чтобы начать",
+			"yourName": "Ваше имя",
+			"namePlaceholder": "например, Иван Иванов",
+			"saving": "Сохранение...",
+			"continue": "Продолжить",
+			"welcome": "Добро пожаловать, {{name}}!",
+			"redirecting": "Переход к панели управления...",
+			"toast": {
+				"updateSuccess": "Профиль успешно обновлён",
+				"updateFailed": "Не удалось обновить профиль"
+			},
+			"validation": {
+				"nameRequired": "Имя обязательно",
+				"nameShort": "Имя должно содержать не менее 2 символов"
+			}
+		}
+	},
+	"settings": {
+		"account": "Аккаунт",
+		"developer": "Разработчик",
+		"information": "Информация",
+		"notifications": "Уведомления",
+		"preferences": "Настройки",
+		"apiKeys": "API-ключи",
+		"informationPage": {
+			"pageTitle": "Личная информация",
+			"title": "Личная информация",
+			"subtitle": "Управляйте вашими персональными данными и информацией об аккаунте.",
+			"sectionTitle": "Информация об аккаунте",
+			"sectionSubtitle": "Управляйте вашим профилем и данными аккаунта.",
+			"profilePicture": "Фото профиля",
+			"fullName": "Полное имя",
+			"fullNamePlaceholder": "Введите ваше имя",
+			"email": "Электронная почта",
+			"emailPlaceholder": "Введите вашу почту",
+			"updateSuccess": "Профиль успешно обновлён",
+			"updateError": "Не удалось обновить профиль",
+			"validation": {
+				"nameRequired": "Имя обязательно",
+				"nameShort": "Имя должно содержать не менее 2 символов",
+				"invalidEmail": "Некорректный адрес электронной почты"
+			}
+		},
+		"notificationsPage": {
+			"pageTitle": "Уведомления",
+			"title": "Уведомления",
+			"subtitle": "Выберите, как Kaneo доставляет уведомления и какие каналы использовать.",
+			"statusConnected": "Подключено",
+			"statusPaused": "Приостановлено",
+			"emailTitle": "Электронная почта",
+			"emailDescription": "Используйте адрес вашего аккаунта для получения уведомлений.",
+			"accountEmailLabel": "Почта аккаунта",
+			"accountEmailNoAddress": "Адрес электронной почты недоступен",
+			"accountEmailHint": "Уведомления всегда отправляются на адрес электронной почты текущего аккаунта.",
+			"saveChanges": "Сохранить изменения",
+			"disconnect": "Отключить",
+			"ntfyTitle": "ntfy",
+			"ntfyDescription": "Отправляйте уведомления аккаунта в тему ntfy.",
+			"serverUrl": "URL сервера",
+			"topic": "Тема",
+			"token": "Токен",
+			"ntfyServerPlaceholder": "https://ntfy.example.com",
+			"ntfyTopicPlaceholder": "team-alerts",
+			"ntfyTokenPlaceholder": "Необязательный bearer-токен",
+			"ntfyTokenHintConfigured": "Токен уже настроен ({{masked}}). Введите новый токен для замены.",
+			"ntfyTokenHintOptional": "Необязательно. Укажите токен, если ваш сервер ntfy требует аутентификации.",
+			"connectNtfy": "Подключить ntfy",
+			"gotifyTitle": "Gotify",
+			"gotifyDescription": "Отправляйте уведомления аккаунта на ваш сервер Gotify.",
+			"gotifyTokenLabel": "Токен приложения",
+			"gotifyServerPlaceholder": "https://gotify.example.com",
+			"gotifyTokenPlaceholder": "Токен приложения Gotify",
+			"gotifyTokenHintConfigured": "Токен приложения уже настроен ({{masked}}). Введите новый токен для замены.",
+			"gotifyTokenHintRequired": "Обязательно. Используйте токен приложения с вашего сервера Gotify.",
+			"connectGotify": "Подключить Gotify",
+			"webhookTitle": "Пользовательский вебхук",
+			"webhookDescription": "Отправляйте уведомления аккаунта на ваш эндпоинт в формате JSON.",
+			"endpointUrl": "URL эндпоинта",
+			"signingSecret": "Секрет подписи",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookSecretPlaceholder": "Необязательный общий секрет",
+			"webhookSecretHintConfigured": "Секрет подписи уже настроен ({{masked}}). Введите новый для замены.",
+			"webhookSecretHintOptional": "Необязательно. Kaneo подписывает тело запроса, если секрет задан.",
+			"connectWebhook": "Подключить вебхук",
+			"workspaceRulesTitle": "Правила доставки для рабочих областей",
+			"workspaceRulesDescription": "Используйте глобальные каналы и определяйте, какие рабочие области и проекты могут отправлять уведомления.",
+			"workspaceCardHint": "Выберите, какие каналы может использовать эта рабочая область для уведомлений.",
+			"workspaceCardLabelEmail": "Почта",
+			"workspaceCardLabelNtfy": "ntfy",
+			"workspaceCardLabelGotify": "Gotify",
+			"workspaceCardLabelWebhook": "Пользовательский вебхук",
+			"emailChannelHintEnabled": "Отправлять подходящие уведомления рабочей области по электронной почте.",
+			"emailChannelHintDisabled": "Сначала настройте и включите электронную почту глобально.",
+			"ntfyChannelHintEnabled": "Отправлять подходящие уведомления рабочей области в ntfy.",
+			"ntfyChannelHintDisabled": "Сначала настройте и включите ntfy глобально.",
+			"gotifyChannelHintEnabled": "Отправлять подходящие уведомления рабочей области в Gotify.",
+			"gotifyChannelHintDisabled": "Сначала настройте и включите Gotify глобально.",
+			"webhookChannelHintEnabled": "Отправлять подходящие уведомления рабочей области на вебхук.",
+			"webhookChannelHintDisabled": "Сначала настройте и включите вебхук глобально.",
+			"projectScope": "Область проектов",
+			"projectScopeDescription": "По умолчанию включены все проекты. Сузьте выборку, если нужны уведомления только от определённых проектов.",
+			"allProjects": "Все проекты",
+			"allProjectsDescription": "Доставлять уведомления от всех проектов в этой рабочей области.",
+			"selectedProjects": "Выбранные проекты",
+			"selectedProjectsDescription": "Доставлять уведомления только от выбранных проектов.",
+			"noProjectsInWorkspace": "В этой рабочей области пока нет проектов.",
+			"createRule": "Создать правило",
+			"removeRule": "Удалить правило",
+			"toastEmailSaved": "Настройки email-уведомлений сохранены",
+			"toastEmailSaveFailed": "Не удалось сохранить настройки email",
+			"toastNtfySaved": "Настройки ntfy сохранены",
+			"toastNtfySaveFailed": "Не удалось сохранить настройки ntfy",
+			"toastNtfyDisconnected": "ntfy отключён",
+			"toastNtfyDisconnectFailed": "Не удалось отключить ntfy",
+			"toastGotifySaved": "Настройки Gotify сохранены",
+			"toastGotifySaveFailed": "Не удалось сохранить настройки Gotify",
+			"toastGotifyDisconnected": "Gotify отключён",
+			"toastGotifyDisconnectFailed": "Не удалось отключить Gotify",
+			"toastWebhookSaved": "Настройки вебхука сохранены",
+			"toastWebhookSaveFailed": "Не удалось сохранить настройки вебхука",
+			"toastWebhookDisconnected": "Вебхук отключён",
+			"toastWebhookDisconnectFailed": "Не удалось отключить вебхук",
+			"toastRuleSaved": "Правило уведомлений для {{workspaceName}} сохранено",
+			"toastRuleSaveFailed": "Не удалось сохранить правило уведомлений для рабочей области",
+			"toastRuleRemoved": "Правило уведомлений для {{workspaceName}} удалено",
+			"toastRuleRemoveFailed": "Не удалось удалить правило уведомлений для рабочей области",
+			"toastPreferencesSaved": "Настройки уведомлений сохранены",
+			"toastPreferencesSaveFailed": "Не удалось сохранить настройки уведомлений",
+			"toastRuleSavedGeneric": "Правило уведомлений для рабочей области сохранено",
+			"toastRuleRemovedGeneric": "Правило уведомлений для рабочей области удалено"
+		},
+		"preferencesPage": {
+			"title": "Настройки",
+			"subtitle": "Настройте Kaneo под себя.",
+			"appearanceTitle": "Внешний вид",
+			"appearanceSubtitle": "Визуальные настройки и параметры интерфейса.",
+			"theme": "Тема",
+			"themeDescription": "Выберите предпочтительную цветовую схему",
+			"selectTheme": "Выберите тему",
+			"themeLight": "Светлая",
+			"themeDark": "Тёмная",
+			"themeSystem": "Системная",
+			"language": "Язык",
+			"languageDescription": "Выберите предпочтительный язык интерфейса",
+			"selectLanguage": "Выберите язык",
+			"defaultView": "Вид по умолчанию",
+			"defaultViewDescription": "Выберите предпочтительный режим отображения задач",
+			"selectViewMode": "Выберите режим просмотра",
+			"board": "Доска",
+			"list": "Список",
+			"gantt": "Гант",
+			"sidebarDefault": "Боковая панель по умолчанию",
+			"sidebarDefaultDescription": "Оставлять боковую панель раскрытой при запуске",
+			"displayOptions": "Параметры отображения",
+			"displayOptionsDescription": "Выберите, какую информацию показывать в представлениях задач",
+			"taskNumbers": "Номера задач",
+			"taskNumbersDescription": "Показывать идентификаторы и номера задач",
+			"assignees": "Исполнители",
+			"assigneesDescription": "Показывать, кому назначены задачи",
+			"dueDates": "Сроки выполнения",
+			"dueDatesDescription": "Показывать сроки выполнения задач",
+			"labels": "Метки",
+			"labelsDescription": "Показывать метки и теги задач",
+			"priority": "Приоритет",
+			"priorityDescription": "Показывать индикаторы приоритета"
+		},
+		"developerPage": {
+			"pageTitle": "Настройки разработчика",
+			"title": "Настройки разработчика",
+			"subtitle": "Управляйте вашими API-ключами и ресурсами для разработчиков.",
+			"apiKeysCardTitle": "API-ключи",
+			"apiKeysCardDescription": "Создавайте и управляйте API-ключами для программного доступа к Kaneo.",
+			"createApiKey": "Создать API-ключ",
+			"unnamedKey": "Безымянный ключ"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "API-ключ создан",
+				"description": "Ваш API-ключ «{{keyName}}» успешно создан.",
+				"yourApiKey": "Ваш API-ключ",
+				"copy": "Копировать",
+				"copied": "Скопировано",
+				"toastCopied": "API-ключ скопирован в буфер обмена",
+				"alertTitle": "Готово! Ваш API-ключ создан",
+				"alertDescription": "Скопируйте этот ключ сейчас. Вы больше не сможете его увидеть.",
+				"done": "Готово",
+				"copyToContinue": "Скопируйте ключ, чтобы продолжить"
+			},
+			"table": {
+				"loading": "Загрузка API-ключей...",
+				"empty": "API-ключей пока нет. Создайте первый, чтобы начать.",
+				"columnName": "Название",
+				"columnKey": "Ключ",
+				"columnCreated": "Создан",
+				"columnExpires": "Истекает",
+				"columnActions": "Действия",
+				"unnamedKey": "Безымянный ключ",
+				"expiredBadge": "Истёк {{label}}",
+				"deleteConfirmTitle": "Удалить API-ключ?",
+				"deleteConfirmDescription": "Это действие нельзя отменить. API-ключ {{name}} будет удалён навсегда.",
+				"deleteFallbackName": "этот API-ключ",
+				"delete": "Удалить",
+				"deleting": "Удаление...",
+				"deleteAria": "Удалить {{name}}",
+				"deleteAriaFallback": "API-ключ",
+				"toastDeleted": "API-ключ успешно удалён",
+				"toastDeleteError": "Не удалось удалить API-ключ"
+			},
+			"createDialog": {
+				"title": "Создать API-ключ",
+				"description": "Создайте новый API-ключ для программного доступа к Kaneo API.",
+				"nameLabel": "Название",
+				"namePlaceholder": "Мой API-ключ",
+				"nameDescription": "Описательное название для этого API-ключа",
+				"expirationLabel": "Срок действия",
+				"expirationPlaceholder": "Выберите срок действия",
+				"expirationDescription": "Выберите, как долго этот API-ключ будет действителен. «Бессрочно» создаст ключ без автоматического истечения.",
+				"expiration1d": "1 день",
+				"expiration7d": "7 дней",
+				"expiration30d": "30 дней",
+				"expiration90d": "90 дней",
+				"expirationNever": "Бессрочно",
+				"create": "Создать",
+				"creating": "Создание...",
+				"failedCreate": "Не удалось создать API-ключ",
+				"validation": {
+					"nameRequired": "Название обязательно",
+					"nameShort": "Название должно содержать не менее 3 символов",
+					"expirationRequired": "Срок действия обязателен"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "Основные настройки",
+			"title": "Основные настройки",
+			"subtitle": "Управляйте названием и описанием рабочей области.",
+			"workspaceInfoTitle": "Информация о рабочей области",
+			"workspaceInfoSubtitle": "Настройте параметры и предпочтения рабочей области.",
+			"nameLabel": "Название рабочей области",
+			"nameHint": "Название вашей рабочей области",
+			"namePlaceholder": "Введите название рабочей области",
+			"descriptionLabel": "Описание",
+			"descriptionHint": "Краткое описание вашей рабочей области",
+			"descriptionPlaceholder": "Введите описание рабочей области",
+			"dangerZone": "Опасная зона",
+			"dangerZoneSubtitle": "Необратимые и деструктивные действия.",
+			"deleteWorkspace": "Удалить рабочую область",
+			"deleteWorkspaceDescription": "Запланировать безвозвратное удаление рабочей области",
+			"deleteModalTitle": "Удалить рабочую область?",
+			"deleteModalDescription": "Рабочая область «{{name}}» и все её данные будут безвозвратно удалены. Это действие нельзя отменить.",
+			"deleteModalConfirm": "Удалить рабочую область",
+			"toastUpdated": "Рабочая область успешно обновлена",
+			"toastUpdateError": "Не удалось обновить рабочую область",
+			"toastDeleted": "Рабочая область успешно удалена",
+			"toastDeleteError": "Не удалось удалить рабочую область",
+			"validation": {
+				"nameRequired": "Название рабочей области обязательно",
+				"nameShort": "Название рабочей области должно содержать не менее 2 символов"
+			}
+		},
+		"projectGeneral": {
+			"pageTitle": "Настройки проекта",
+			"title": "Основные настройки",
+			"subtitle": "Управляйте названием, ключом, иконкой и описанием проекта.",
+			"projectInfoTitle": "Информация о проекте",
+			"projectInfoSubtitle": "Настройте параметры и предпочтения проекта.",
+			"iconLabel": "Иконка",
+			"iconHint": "Отображается в боковой панели и на страницах проекта.",
+			"pickIconTitle": "Выбрать иконку",
+			"searchIconsPlaceholder": "Поиск иконок...",
+			"projectNameLabel": "Название проекта",
+			"projectNameHint": "Название вашего проекта",
+			"projectNamePlaceholder": "Введите название проекта",
+			"keyLabel": "Ключ",
+			"keyHint": "Используется для идентификаторов задач (например, {{slug}}-123)",
+			"keyPlaceholder": "PRO",
+			"descriptionLabel": "Описание",
+			"descriptionHint": "Краткое описание вашего проекта",
+			"descriptionPlaceholder": "Введите описание проекта",
+			"dangerZone": "Опасная зона",
+			"dangerZoneSubtitle": "Необратимые и деструктивные действия.",
+			"deleteProject": "Удалить проект",
+			"deleteProjectDescription": "Запланировать безвозвратное удаление проекта",
+			"deleteModalTitle": "Удалить проект?",
+			"deleteModalDescription": "Проект «{{name}}» и все его данные будут безвозвратно удалены. Это действие нельзя отменить.",
+			"deleteModalConfirm": "Удалить проект",
+			"toastUpdated": "Проект успешно обновлён",
+			"toastUpdateError": "Не удалось обновить проект",
+			"toastDeleted": "Проект успешно удалён",
+			"toastDeleteError": "Не удалось удалить проект",
+			"validation": {
+				"nameRequired": "Название проекта обязательно",
+				"nameShort": "Название проекта должно содержать не менее 2 символов",
+				"keyRequired": "Ключ обязателен",
+				"keyShort": "Ключ должен содержать не менее 2 символов",
+				"keyMax": "Ключ должен содержать не более 8 символов",
+				"iconRequired": "Иконка обязательна"
+			}
+		},
+		"projectIntegrations": {
+			"pageTitle": "Интеграции проекта",
+			"title": "Интеграции проекта",
+			"subtitle": "Подключите ваш проект к внешним инструментам и сервисам для оптимизации рабочего процесса.",
+			"githubSectionTitle": "Интеграция с GitHub",
+			"githubSectionSubtitle": "Синхронизация задач с GitHub Issues и двусторонняя синхронизация.",
+			"giteaSectionTitle": "Интеграция с Gitea",
+			"giteaSectionSubtitle": "Синхронизация задач с вашим экземпляром Gitea (задачи, PR, вебхуки).",
+			"discordSectionTitle": "Интеграция с Discord",
+			"discordSectionSubtitle": "Отправка обновлений по задачам проекта в канал Discord через вебхук.",
+			"genericWebhookSectionTitle": "Пользовательские вебхуки",
+			"genericWebhookSectionSubtitle": "Отправка событий по задачам проекта на любой HTTP-эндпоинт в формате JSON.",
+			"slackSectionTitle": "Интеграция со Slack",
+			"slackSectionSubtitle": "Отправка обновлений по задачам проекта в канал Slack через входящий вебхук.",
+			"telegramSectionTitle": "Интеграция с Telegram",
+			"telegramSectionSubtitle": "Отправка обновлений по задачам проекта в чат или тему Telegram через бота."
+		},
+		"projectVisibility": {
+			"pageTitle": "Видимость проекта",
+			"title": "Видимость",
+			"subtitle": "Управляйте доступом к вашему проекту.",
+			"sectionTitle": "Видимость",
+			"sectionSubtitle": "Переключайте публичный доступ и делитесь публичной ссылкой.",
+			"publicAccess": "Публичный доступ",
+			"publicAccessHint": "Разрешить доступ к проекту всем, у кого есть ссылка",
+			"publicUrl": "Публичная ссылка",
+			"publicUrlHint": "Поделитесь этой ссылкой, если проект публичный",
+			"copy": "Копировать",
+			"copiedToast": "Скопировано",
+			"toastUpdated": "Видимость обновлена",
+			"toastUpdateError": "Не удалось обновить видимость"
+		},
+		"projectWorkflow": {
+			"pageTitle": "Настройки рабочего процесса",
+			"title": "Рабочий процесс",
+			"subtitle": "Настройте колонки доски и правила автоматизации для этого проекта.",
+			"columnsTitle": "Колонки",
+			"columnsDescription": "Управляйте колонками на доске. Перетаскивайте для изменения порядка. Включите «Колонка завершения» для этапов, обозначающих выполненную работу.",
+			"automationTitle": "Правила автоматизации",
+			"automationDescription": "Привяжите события интеграций к колонкам. При наступлении события связанная задача перемещается в указанную колонку."
+		},
+		"projectSwitcher": {
+			"selectProject": "Выберите проект",
+			"noProjects": "Нет проектов"
+		},
+		"columnEditor": {
+			"toastCreated": "Колонка создана",
+			"toastCreateError": "Не удалось создать колонку",
+			"toastRenamed": "Колонка переименована",
+			"toastRenameError": "Не удалось обновить колонку",
+			"toastFinalOn": "Колонка отмечена как завершающая",
+			"toastFinalOff": "Колонка больше не завершающая",
+			"toastUpdateError": "Не удалось обновить колонку",
+			"toastDeleted": "Колонка удалена",
+			"toastDeleteError": "Не удалось удалить колонку",
+			"loading": "Загрузка колонок...",
+			"doneColumnTooltip": "Считать эту колонку завершающей",
+			"doneColumn": "Колонка завершения",
+			"markDoneAria": "Отметить {{name}} как колонку завершения",
+			"on": "Вкл",
+			"off": "Выкл",
+			"newColumnPlaceholder": "Название новой колонки...",
+			"add": "Добавить"
+		},
+		"githubIntegration": {
+			"validation": {
+				"ownerRequired": "Владелец репозитория обязателен",
+				"ownerInvalid": "Некорректный формат владельца репозитория",
+				"nameRequired": "Название репозитория обязательно",
+				"nameInvalid": "Некорректный формат названия репозитория"
+			},
+			"toast": {
+				"installedOk": "GitHub App установлено корректно!",
+				"installedMissingPerms": "GitHub App установлено, но не хватает прав",
+				"needsInstallOnRepo": "GitHub App необходимо установить на этот репозиторий",
+				"repoNotFound": "Репозиторий не найден или недоступен",
+				"verifyError": "Не удалось проверить установку GitHub",
+				"installAppFirst": "Сначала установите GitHub App на этот репозиторий",
+				"missingPermsDetail": "GitHub App не хватает прав: {{list}}. Пожалуйста, обновите права приложения.",
+				"updated": "Интеграция с GitHub успешно обновлена",
+				"updateError": "Не удалось обновить интеграцию с GitHub",
+				"removed": "Интеграция с GitHub успешно удалена",
+				"removeError": "Не удалось удалить интеграцию с GitHub",
+				"issuesImported": "Issues успешно импортированы",
+				"importError": "Не удалось импортировать issues",
+				"commentOnEnabled": "Kaneo будет комментировать новые issues ссылкой на задачу",
+				"commentOnDisabled": "Комментарии со ссылками на задачи в новых issues отключены",
+				"settingsUpdateError": "Не удалось обновить интеграцию с GitHub"
+			},
+			"connectionStatus": "Статус подключения",
+			"connectedActive": "Репозиторий подключён и активен",
+			"notConnectedHint": "Репозиторий не подключён",
+			"badgeConnected": "Подключён",
+			"badgeNotConnected": "Не подключён",
+			"repository": "Репозиторий",
+			"repositoryHint": "Подключённый репозиторий GitHub",
+			"commentTaskLinkTitle": "Комментировать ссылкой Kaneo в новых issues",
+			"commentTaskLinkHint": "Когда включено, Kaneo оставляет комментарий в каждом новом GitHub issue со ссылкой на задачу.",
+			"appStatusTitle": "Статус GitHub App",
+			"appStatusHint": "Статус установки и прав",
+			"statusProperlyConfigured": "Настроено корректно",
+			"statusMissingPermissions": "Не хватает прав",
+			"statusNotInstalled": "Не установлено",
+			"ownerLabel": "Владелец репозитория",
+			"ownerHint": "Имя пользователя или организации GitHub",
+			"ownerPlaceholder": "например, octocat",
+			"repoNameLabel": "Название репозитория",
+			"repoNameHint": "Название репозитория",
+			"repoNamePlaceholder": "например, my-project",
+			"actionsTitle": "Действия",
+			"actionsHint": "Управление подключением к репозиторию",
+			"browse": "Обзор",
+			"verify": "Проверить",
+			"update": "Обновить",
+			"connect": "Подключить",
+			"disconnect": "Отключить",
+			"missingPermissionsLabel": "Недостающие права:",
+			"updatePermissions": "Обновить права",
+			"installGithubApp": "Установить GitHub App",
+			"importSectionTitle": "Импорт GitHub Issues",
+			"importSectionHint": "Импортируйте существующие issues из вашего GitHub-репозитория как задачи",
+			"importing": "Импорт...",
+			"importIssues": "Импортировать Issues",
+			"importDisabledHint": "Завершите настройку репозитория выше, чтобы включить импорт"
+		},
+		"giteaIntegration": {
+			"validation": {
+				"baseUrlRequired": "URL Gitea обязателен",
+				"baseUrlInvalid": "Введите корректный URL (например, https://gitea.example.com)",
+				"ownerRequired": "Владелец репозитория обязателен",
+				"ownerInvalid": "Некорректный формат владельца репозитория",
+				"nameRequired": "Название репозитория обязательно",
+				"nameInvalid": "Некорректный формат названия репозитория"
+			},
+			"toast": {
+				"verifyOk": "Токен Gitea может получить доступ к этому репозиторию",
+				"verifyWarning": "Проверьте права токена или доступ к репозиторию",
+				"repoNotFound": "Репозиторий не найден или недоступен",
+				"verifyError": "Не удалось проверить доступ к Gitea",
+				"tokenRequired": "Требуется персональный токен доступа",
+				"tokenRequiredVerify": "Введите токен для проверки",
+				"verifyFirst": "Проверка доступа не удалась — проверьте URL, токен и репозиторий",
+				"updated": "Интеграция с Gitea сохранена",
+				"updateError": "Не удалось сохранить интеграцию с Gitea",
+				"removed": "Интеграция с Gitea удалена",
+				"removeError": "Не удалось удалить интеграцию с Gitea",
+				"issuesImported": "Issues успешно импортированы",
+				"importError": "Не удалось импортировать issues",
+				"commentOnEnabled": "Kaneo будет комментировать новые issues ссылкой на задачу",
+				"commentOnDisabled": "Комментарии со ссылками на задачи в новых issues отключены",
+				"settingsUpdateError": "Не удалось обновить интеграцию с Gitea",
+				"secretCopied": "Скопировано",
+				"unableToCopySecret": "Не удалось скопировать секрет"
+			},
+			"webhookShow": "Показать",
+			"webhookHide": "Скрыть",
+			"webhookCopy": "Копировать",
+			"connectionStatus": "Статус подключения",
+			"connectedActive": "Репозиторий подключён и активен",
+			"notConnectedHint": "Репозиторий Gitea не подключён",
+			"badgeConnected": "Подключён",
+			"badgeNotConnected": "Не подключён",
+			"repository": "Репозиторий",
+			"repositoryHint": "Привязанный репозиторий Gitea",
+			"commentTaskLinkTitle": "Комментировать ссылкой Kaneo в новых issues",
+			"commentTaskLinkHint": "Когда включено, Kaneo оставляет комментарий в каждом новом issue со ссылкой на задачу.",
+			"webhookTitle": "Вебхук",
+			"webhookHint": "В вашем репозитории Gitea добавьте вебхук с этим URL и секретом. Включите события: push, pull request, issues, комментарии к issues и создание (для меток).",
+			"webhookSecretLabel": "Секрет (должен совпадать с секретом вебхука в Gitea)",
+			"baseUrlLabel": "URL Gitea",
+			"baseUrlHint": "Корневой URL вашего экземпляра Gitea",
+			"tokenLabel": "Персональный токен доступа",
+			"tokenHint": "Токен с доступом к репозиторию и issues",
+			"tokenPlaceholder": "Вставьте токен",
+			"tokenPlaceholderUpdate": "Вставьте новый токен для замены",
+			"currentToken": "сохранён",
+			"ownerLabel": "Владелец",
+			"ownerHint": "Имя пользователя или организации",
+			"repoNameLabel": "Название репозитория",
+			"repoNameHint": "Только название репозитория (без владельца)",
+			"actionsTitle": "Действия",
+			"actionsHint": "Проверить доступ и подключить",
+			"browse": "Обзор",
+			"verify": "Проверить",
+			"update": "Обновить",
+			"connect": "Подключить",
+			"disconnect": "Отключить",
+			"importSectionTitle": "Импорт issues из Gitea",
+			"importSectionHint": "Импортируйте открытые issues и pull requests из репозитория",
+			"importing": "Импорт…",
+			"importIssues": "Импортировать issues",
+			"importDisabledHint": "Проверьте репозиторий выше, чтобы включить импорт",
+			"browseModalTitle": "Ваши репозитории",
+			"browseModalHint": "Репозитории, к которым у вашего токена есть доступ",
+			"searchRepos": "Поиск…",
+			"browseNeedsCredentials": "Введите URL Gitea и токен для просмотра",
+			"loadingRepos": "Загрузка репозиториев…",
+			"retry": "Повторить"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "Введите корректный URL вебхука Slack"
+			},
+			"toast": {
+				"saved": "Интеграция со Slack успешно сохранена",
+				"saveError": "Не удалось сохранить интеграцию со Slack",
+				"enabled": "Уведомления Slack включены",
+				"disabled": "Уведомления Slack приостановлены",
+				"updateError": "Не удалось обновить интеграцию со Slack",
+				"removed": "Интеграция со Slack успешно удалена",
+				"removeError": "Не удалось удалить интеграцию со Slack"
+			},
+			"connectionTitle": "Подключение вебхука Slack",
+			"connectionHint": "Вставьте URL входящего вебхука Slack и выберите, какие события задач отправлять.",
+			"connected": "Подключён",
+			"paused": "Приостановлен",
+			"webhookLabel": "URL входящего вебхука",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Создайте входящий вебхук в Slack и вставьте сгенерированный URL сюда.",
+			"channelLabel": "Название канала",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Необязательная метка для справки. Slack определяет канал назначения из настроек вебхука.",
+			"eventsTitle": "Уведомления о событиях",
+			"eventsHint": "Выберите, какие изменения проекта отправлять в Slack.",
+			"events": {
+				"taskCreated": "Новые задачи",
+				"taskStatusChanged": "Изменения статуса",
+				"taskPriorityChanged": "Изменения приоритета",
+				"taskTitleChanged": "Изменения названия",
+				"taskDescriptionChanged": "Изменения описания",
+				"taskCommentCreated": "Новые комментарии"
+			},
+			"connect": "Подключить Slack",
+			"saveChanges": "Сохранить изменения",
+			"update": "Обновить Slack",
+			"disconnect": "Отключить"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "Введите корректный URL вебхука Discord"
+			},
+			"toast": {
+				"saved": "Интеграция с Discord успешно сохранена",
+				"saveError": "Не удалось сохранить интеграцию с Discord",
+				"enabled": "Уведомления Discord включены",
+				"disabled": "Уведомления Discord приостановлены",
+				"updateError": "Не удалось обновить интеграцию с Discord",
+				"removed": "Интеграция с Discord успешно удалена",
+				"removeError": "Не удалось удалить интеграцию с Discord"
+			},
+			"connectionTitle": "Подключение вебхука Discord",
+			"connectionHint": "Вставьте URL вебхука Discord и выберите, какие события задач отправлять.",
+			"connected": "Подключён",
+			"paused": "Приостановлен",
+			"webhookLabel": "URL вебхука",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Создайте вебхук канала Discord и вставьте сгенерированный URL сюда.",
+			"channelLabel": "Название канала",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Необязательная метка для справки. Discord определяет канал назначения из настроек вебхука.",
+			"eventsTitle": "Уведомления о событиях",
+			"eventsHint": "Выберите, какие изменения проекта отправлять в Discord.",
+			"events": {
+				"taskCreated": "Новые задачи",
+				"taskStatusChanged": "Изменения статуса",
+				"taskPriorityChanged": "Изменения приоритета",
+				"taskTitleChanged": "Изменения названия",
+				"taskDescriptionChanged": "Изменения описания",
+				"taskCommentCreated": "Новые комментарии"
+			},
+			"connect": "Подключить Discord",
+			"saveChanges": "Сохранить изменения",
+			"update": "Обновить Discord",
+			"disconnect": "Отключить"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Введите корректный URL вебхука"
+			},
+			"toast": {
+				"saved": "Пользовательский вебхук успешно сохранён",
+				"saveError": "Не удалось сохранить пользовательский вебхук",
+				"enabled": "Уведомления пользовательского вебхука включены",
+				"disabled": "Уведомления пользовательского вебхука приостановлены",
+				"updateError": "Не удалось обновить пользовательский вебхук",
+				"removed": "Пользовательский вебхук успешно удалён",
+				"removeError": "Не удалось удалить пользовательский вебхук"
+			},
+			"connectionTitle": "Исходящий вебхук",
+			"connectionHint": "Отправляйте события задач на ваш эндпоинт в формате JSON. Подписанный заголовок X-Kaneo-Signature включается, если настроен секрет.",
+			"connected": "Подключён",
+			"paused": "Приостановлен",
+			"webhookLabel": "URL эндпоинта",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo отправляет POST-запросы с JSON-данными для каждого включённого события.",
+			"secretLabel": "Секрет подписи",
+			"secretPlaceholder": "Необязательный общий секрет",
+			"secretHint": "Необязательно. Если задан, Kaneo подписывает тело запроса и отправляет hex-дайджест в заголовке X-Kaneo-Signature.",
+			"secretHintConfigured": "Секрет подписи уже настроен ({{secret}}). Введите новый для замены.",
+			"eventsTitle": "Уведомления о событиях",
+			"eventsHint": "Выберите, какие изменения проекта должны вызывать исходящие вебхуки.",
+			"events": {
+				"taskCreated": "Новые задачи",
+				"taskStatusChanged": "Изменения статуса",
+				"taskPriorityChanged": "Изменения приоритета",
+				"taskTitleChanged": "Изменения названия",
+				"taskDescriptionChanged": "Изменения описания",
+				"taskCommentCreated": "Новые комментарии"
+			},
+			"connect": "Подключить вебхук",
+			"saveChanges": "Сохранить изменения",
+			"disconnect": "Отключить"
+		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "Введите корректный токен Telegram-бота",
+				"chatIdRequired": "ID чата обязателен",
+				"threadIdInvalid": "Введите корректный ID темы Telegram"
+			},
+			"toast": {
+				"saved": "Интеграция с Telegram успешно сохранена",
+				"saveError": "Не удалось сохранить интеграцию с Telegram",
+				"enabled": "Уведомления Telegram включены",
+				"disabled": "Уведомления Telegram приостановлены",
+				"updateError": "Не удалось обновить интеграцию с Telegram",
+				"removed": "Интеграция с Telegram успешно удалена",
+				"removeError": "Не удалось удалить интеграцию с Telegram"
+			},
+			"connectionTitle": "Подключение Telegram-бота",
+			"connectionHint": "Используйте токен Telegram-бота и ID чата для отправки обновлений по задачам в чат или тему.",
+			"connected": "Подключён",
+			"paused": "Приостановлен",
+			"botTokenLabel": "Токен бота",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "Создайте бота через BotFather и вставьте его токен сюда.",
+			"botTokenHintConfigured": "Токен бота уже настроен ({{token}}). Введите новый для замены.",
+			"chatIdLabel": "ID чата",
+			"chatIdPlaceholder": "-1001234567890 или @team_updates",
+			"chatIdHint": "Введите ID чата Telegram или имя пользователя канала, куда будут отправляться обновления.",
+			"threadIdLabel": "ID темы",
+			"threadIdPlaceholder": "Необязательный ID темы",
+			"threadIdHint": "Необязательно. Используйте для форумных тем внутри Telegram-групп.",
+			"chatLabelLabel": "Метка чата",
+			"chatLabelPlaceholder": "Обновления разработки",
+			"chatLabelHint": "Необязательная метка для справки внутри Kaneo.",
+			"eventsTitle": "Уведомления о событиях",
+			"eventsHint": "Выберите, какие изменения проекта отправлять в Telegram.",
+			"events": {
+				"taskCreated": "Новые задачи",
+				"taskStatusChanged": "Изменения статуса",
+				"taskPriorityChanged": "Изменения приоритета",
+				"taskTitleChanged": "Изменения названия",
+				"taskDescriptionChanged": "Изменения описания",
+				"taskCommentCreated": "Новые комментарии"
+			},
+			"connect": "Подключить Telegram",
+			"saveChanges": "Сохранить изменения",
+			"disconnect": "Отключить"
+		},
+		"repositoryBrowser": {
+			"title": "Выберите репозиторий",
+			"description": "Выберите репозиторий, на котором установлен ваш GitHub App, для включения синхронизации issues.",
+			"searchPlaceholder": "Поиск репозиториев...",
+			"loadError": "Не удалось загрузить репозитории",
+			"tryAgain": "Попробовать снова",
+			"emptyTitle": "Репозитории не найдены",
+			"emptyHint": "Установите GitHub App на ваши репозитории, чтобы они появились здесь.",
+			"installGithubApp": "Установить GitHub App",
+			"noSearchMatchTitle": "Репозитории по вашему запросу не найдены",
+			"noSearchMatchHint": "Попробуйте изменить поисковый запрос или очистите поиск, чтобы увидеть все репозитории.",
+			"footerSummary": "{{repoCount}} репозиториев в {{installationCount}} установках",
+			"manageInstallations": "Управление установками",
+			"updatedPrefix": "Обновлён",
+			"relativeJustNow": "только что",
+			"relativeMinutesAgo": "{{count}} мин. назад",
+			"relativeHoursAgo": "{{count}} ч. назад",
+			"relativeDaysAgo": "{{count}} дн. назад"
+		},
+		"tasksImportExport": {
+			"exportTasks": "Экспорт задач",
+			"importTasks": "Импорт задач",
+			"dialogTitle": "Импорт задач",
+			"dialogDescription": "Загрузите JSON-файл с задачами для импорта в этот проект.",
+			"expectedFormat": "Ожидаемый формат:",
+			"dropHint": "Перетащите JSON-файл сюда",
+			"selectFile": "Выбрать файл",
+			"exporting": "Экспорт задач...",
+			"exportSuccess": "Задачи успешно экспортированы",
+			"exportError": "Не удалось экспортировать задачи",
+			"importing": "Импорт задач...",
+			"importSuccess_one": "Успешно импортирована {{count}} задача",
+			"importSuccess_few": "Успешно импортировано {{count}} задачи",
+			"importSuccess_many": "Успешно импортировано {{count}} задач",
+			"importSuccess_other": "Успешно импортировано {{count}} задач",
+			"importPartialError_one": "Не удалось импортировать {{count}} задачу",
+			"importPartialError_few": "Не удалось импортировать {{count}} задачи",
+			"importPartialError_many": "Не удалось импортировать {{count}} задач",
+			"importPartialError_other": "Не удалось импортировать {{count}} задач",
+			"importError": "Не удалось импортировать задачи",
+			"invalidFormat": "Некорректный формат файла импорта",
+			"noFileDropped": "Файл не был перетащен",
+			"notJsonFile": "Пожалуйста, загрузите JSON-файл"
+		},
+		"workflowEditor": {
+			"loading": "Загрузка...",
+			"createColumnsFirst": "Сначала создайте колонки для настройки правил автоматизации.",
+			"githubHeading": "GitHub",
+			"githubHint": "Когда происходит событие GitHub, перемещать связанную задачу в колонку.",
+			"giteaHeading": "Gitea",
+			"giteaHint": "Когда происходит событие вебхука Gitea, перемещать связанную задачу в колонку.",
+			"selectColumnPlaceholder": "Выберите колонку...",
+			"toastUpdated": "Правило рабочего процесса обновлено",
+			"toastError": "Не удалось обновить правило",
+			"events": {
+				"branch_push": "Push ветки",
+				"pr_opened": "PR открыт",
+				"pr_merged": "PR влит",
+				"issue_opened": "Issue открыт",
+				"issue_closed": "Issue закрыт"
+			}
+		},
+		"externalLinks": {
+			"resources": "Ресурсы",
+			"issue": "Issue",
+			"branch": "Ветка",
+			"merged": "Влит",
+			"draft": "Черновик",
+			"open": "Открыт"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "Предложения",
+			"commands": "Команды",
+			"projects": "Проекты",
+			"search": "Поиск",
+			"members": "Участники",
+			"createTask": "Создать задачу",
+			"createProject": "Создать проект",
+			"createWorkspace": "Создать рабочую область",
+			"lightTheme": "Светлая тема",
+			"darkTheme": "Тёмная тема",
+			"systemTheme": "Системная тема",
+			"keyboardShortcuts": "Сочетания клавиш",
+			"inputPlaceholder": "Поиск приложений и команд...",
+			"empty": "Результатов не найдено.",
+			"footer": {
+				"navigate": "Навигация",
+				"open": "Открыть",
+				"close": "Закрыть"
+			}
+		},
+		"notifications": "Уведомления",
+		"sidebar": {
+			"overview": "Обзор",
+			"projects": "Проекты",
+			"members": "Участники",
+			"invitations": "Приглашения",
+			"more": "Ещё"
+		},
+		"projectList": {
+			"viewProject": "Открыть проект",
+			"shareProject": "Поделиться проектом",
+			"projectSettings": "Настройки проекта",
+			"linkCopied": "Ссылка на проект скопирована в буфер обмена",
+			"addProject": "Добавить проект",
+			"deleteConfirmTitle": "Удалить проект?",
+			"deleteConfirmDescription": "Проект и все его данные будут безвозвратно удалены. Это действие нельзя отменить.",
+			"deletedToast": "Проект удалён",
+			"deleteProject": "Удалить проект"
+		},
+		"search": {
+			"inputPlaceholder": "Поиск задач, проектов, комментариев...",
+			"minCharsHint": "Введите минимум 3 символа для поиска",
+			"groups": {
+				"task": "Задачи",
+				"project": "Проекты",
+				"workspace": "Рабочие области",
+				"comment": "Комментарии",
+				"activity": "Активности",
+				"fallback": "Результаты"
+			}
+		},
+		"settingsLayout": {
+			"toggleSidebar": "Переключить боковую панель",
+			"back": "Назад"
+		},
+		"userMenu": {
+			"signedOutSuccess": "Выход выполнен успешно",
+			"signOutFailed": "Не удалось выйти",
+			"unnamedUser": "Пользователь",
+			"settings": "Настройки",
+			"signingOut": "Выход...",
+			"logOut": "Выйти"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "Рабочие области",
+			"switching": "Переключение...",
+			"addWorkspace": "Добавить рабочую область",
+			"selectWorkspace": "Выберите рабочую область"
+		},
+		"page": {
+			"projectsTitle": "Проекты",
+			"settingsTitle": "Настройки",
+			"backToWorkspace": "Вернуться к рабочей области",
+			"settingsWorkspaceTab": "Рабочая область"
+		},
+		"projectSettings": {
+			"projectLabel": "Проект"
+		},
+		"keyboardShortcuts": {
+			"title": "Сочетания клавиш",
+			"subtitle": "Ускорьте работу с помощью сочетаний клавиш",
+			"searchPlaceholder": "Поиск сочетаний...",
+			"footer": "Нажмите <kbd>Escape</kbd>, чтобы закрыть",
+			"categories": {
+				"general": "Основные",
+				"create": "Создание",
+				"views": "Представления",
+				"navigation": "Навигация",
+				"quickSelect": "Быстрый выбор (в выпадающих списках)"
+			},
+			"items": {
+				"openCommandPalette": "Открыть палитру команд",
+				"globalSearch": "Глобальный поиск",
+				"toggleSidebar": "Переключить боковую панель",
+				"showShortcuts": "Показать сочетания клавиш",
+				"closeModal": "Закрыть модальное окно/всплывающее меню",
+				"createTask": "Создать задачу",
+				"createProject": "Создать проект",
+				"createWorkspace": "Создать рабочую область",
+				"boardView": "Переключиться на доску",
+				"listView": "Переключиться на список",
+				"backlogView": "Переключиться на бэклог",
+				"nextTask": "Следующая задача",
+				"prevTask": "Предыдущая задача",
+				"openTask": "Открыть выбранную задачу",
+				"quickSelectNumber": "Выбрать вариант по номеру"
+			}
+		}
+	},
+	"notifications": {
+		"title": "Уведомления",
+		"newCount_one": "{{count}} новое",
+		"newCount_few": "{{count}} новых",
+		"newCount_many": "{{count}} новых",
+		"newCount_other": "{{count}} новых",
+		"emptyTitle": "Уведомлений пока нет",
+		"emptySubtitle": "Здесь будут отображаться обновления и активность.",
+		"clearAll": "Очистить все уведомления",
+		"clearDialogTitle": "Очистить все уведомления?",
+		"clearDialogDescription": "Все уведомления будут безвозвратно удалены. Это действие нельзя отменить.",
+		"shortcuts": {
+			"open": "Открыть уведомления"
+		},
+		"events": {
+			"task_created": {
+				"title": "Создана новая задача",
+				"content": "Задача «{{taskTitle}}» создана"
+			},
+			"workspace_created": {
+				"title": "Рабочая область создана",
+				"content": "Ваша рабочая область «{{workspaceName}}» успешно создана"
+			},
+			"task_status_changed": {
+				"title": "Статус задачи изменён",
+				"content": "Статус задачи «{{taskTitle}}» изменён с «{{oldStatus}}» на «{{newStatus}}»"
+			},
+			"task_assignee_changed": {
+				"title": "Задача назначена вам",
+				"content": "Вам назначена задача: {{taskTitle}}"
+			},
+			"time_entry_created": {
+				"title": "Трекинг времени начат",
+				"contentWithTask": "Трекинг времени начат для задачи: {{taskTitle}}",
+				"contentWithoutTask": "Трекинг времени начат для задачи"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "назначил задачу себе",
+		"unassigned": "снял назначение с задачи",
+		"assignedTo": "назначил задачу на {{name}}",
+		"changedStatus": "изменил статус с {{from}} на {{to}}",
+		"changedPriority": "изменил приоритет с {{from}} на {{to}}",
+		"clearedDueDate": "очистил срок выполнения",
+		"setDueDate": "установил срок выполнения: {{date}}",
+		"changedDueDate": "изменил срок выполнения с {{from}} на {{to}}",
+		"changedTitle": "изменил название с «{{from}}» на «{{to}}»",
+		"githubUser": "Пользователь GitHub",
+		"comment": {
+			"github": "GitHub",
+			"viewGithubProfile": "Открыть профиль GitHub",
+			"commentedOnGithub": "прокомментировал на GitHub",
+			"cannotBeEmpty": "Комментарий не может быть пустым",
+			"mustBeLoggedInToEdit": "Для редактирования комментариев необходимо войти в систему",
+			"updated": "Комментарий обновлён",
+			"failedToUpdate": "Не удалось обновить комментарий",
+			"edit": "Редактировать комментарий",
+			"editPlaceholder": "Редактировать комментарий...",
+			"save": "Сохранить",
+			"added": "Комментарий добавлен",
+			"failedToAdd": "Не удалось добавить комментарий",
+			"leavePlaceholder": "Оставить комментарий...",
+			"attachFile": "Прикрепить файл",
+			"submitShortcut": "Отправить комментарий",
+			"editor": {
+				"uploadsOnlyOnSavedTasks": "Загрузка файлов доступна только для сохранённых задач.",
+				"uploadingFile": "Загрузка файла...",
+				"imageUploaded": "Изображение загружено",
+				"fileAttached": "Файл прикреплён",
+				"failedToUploadFile": "Не удалось загрузить файл",
+				"enterUrl": "Введите URL",
+				"plaintext": "Простой текст",
+				"autoDetect": "Автоопределение",
+				"slashGroupText": "Текст",
+				"slashGroupLists": "Списки",
+				"slashGroupInsert": "Вставка",
+				"slashParagraph": "Текст",
+				"slashHeading": "Заголовок",
+				"slashBulletList": "Маркированный список",
+				"slashTaskList": "Чек-лист",
+				"slashOrderedList": "Нумерованный список",
+				"slashQuote": "Цитата",
+				"slashCodeBlock": "Блок кода",
+				"slashTable": "Таблица",
+				"slashFile": "Файл",
+				"searchParagraph": "текст параграф обычный",
+				"searchHeading": "заголовок h2",
+				"searchBulletList": "список маркированный",
+				"searchTaskList": "чеклист список задач",
+				"searchOrderedList": "список нумерованный",
+				"searchQuote": "цитата блок",
+				"searchCodeBlock": "код фрагмент",
+				"searchTable": "таблица сетка",
+				"searchFile": "файл вложение изображение фото загрузка",
+				"embedErrorInvalidUrl": "Введите корректный URL",
+				"embedErrorYoutubeOnly": "Можно встраивать только ссылки YouTube.",
+				"embedVideo": "Встроить видео",
+				"keepAsLink": "Оставить как ссылку",
+				"hintTab": "Tab",
+				"hintEsc": "Esc",
+				"pasteUrl": "Вставьте URL",
+				"asLink": "Как ссылку",
+				"embed": "Встроить",
+				"noCommands": "Нет команд",
+				"ariaCommentContent": "Содержимое комментария",
+				"ariaCommentEditor": "Редактор комментариев",
+				"ariaCopyCode": "Скопировать код",
+				"ariaCopied": "Скопировано",
+				"copy": "Копировать",
+				"copied": "Скопировано",
+				"dropImageToUpload": "Перетащите изображение для загрузки",
+				"previewImageAlt": "Предпросмотр изображения",
+				"codeLang": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"markdown": "Markdown",
+					"plaintext": "Простой текст",
+					"python": "Python",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"typescript": "TypeScript",
+					"yaml": "YAML"
+				}
+			}
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "Статус",
+			"to-do": "К выполнению",
+			"in-progress": "В работе",
+			"in-review": "На проверке",
+			"done": "Готово",
+			"archived": "В архиве",
+			"planned": "Запланировано"
+		},
+		"priority": {
+			"label": "Приоритет",
+			"no-priority": "Без приоритета",
+			"low": "Низкий",
+			"medium": "Средний",
+			"high": "Высокий",
+			"urgent": "Срочный"
+		},
+		"boardSearchPlaceholder": "Поиск задач...",
+		"view": {
+			"board": "Доска",
+			"list": "Список"
+		},
+		"common": {
+			"selectTask": "Выбрать задачу",
+			"loadingTask": "Загрузка задачи..."
+		},
+		"detail": {
+			"subtaskOf": "Подзадача",
+			"activity": "Активность",
+			"noActivity": "Активность не найдена",
+			"openInFullPage": "Открыть на полной странице",
+			"titlePlaceholder": "Нажмите, чтобы добавить название",
+			"addDescription": "Добавить описание...",
+			"editor": {
+				"ariaLabel": "Редактор описания задачи",
+				"placeholder": "Напишите описание...",
+				"previewImage": "Предпросмотр изображения",
+				"enterUrl": "Введите URL",
+				"autoDetect": "Автоопределение",
+				"copyCode": "Скопировать код",
+				"copy": "Копировать",
+				"copied": "Скопировано",
+				"attachFile": "Прикрепить файл",
+				"dropToUpload": "Перетащите изображение для загрузки",
+				"checkbox": {
+					"markIncomplete": "Отметить задачу как невыполненную",
+					"markComplete": "Отметить задачу как выполненную"
+				},
+				"upload": {
+					"loading": "Загрузка файла...",
+					"failed": "Не удалось загрузить файл",
+					"imageSuccess": "Изображение загружено",
+					"fileSuccess": "Файл прикреплён"
+				},
+				"slash": {
+					"groups": {
+						"text": "Текст",
+						"lists": "Списки",
+						"insert": "Вставка"
+					},
+					"empty": "Нет команд",
+					"commands": {
+						"paragraph": "Текст",
+						"heading-2": "Заголовок",
+						"bullet-list": "Маркированный список",
+						"task-list": "Чек-лист",
+						"ordered-list": "Нумерованный список",
+						"blockquote": "Цитата",
+						"code-block": "Блок кода",
+						"table": "Таблица",
+						"file": "Файл"
+					}
+				},
+				"languages": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"clojure": "Clojure",
+					"cypher": "Cypher",
+					"dart": "Dart",
+					"diff": "Diff",
+					"elixir": "Elixir",
+					"excel": "Excel",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"haskell": "Haskell",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"kotlin": "Kotlin",
+					"makefile": "Makefile",
+					"markdown": "Markdown",
+					"ocaml": "OCaml",
+					"php": "PHP",
+					"perl": "Perl",
+					"plaintext": "Простой текст",
+					"python": "Python",
+					"r": "R",
+					"reasonml": "ReasonML",
+					"ruby": "Ruby",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"toml": "TOML",
+					"terraform": "Terraform",
+					"typescript": "TypeScript",
+					"xml": "XML",
+					"yaml": "YAML"
+				},
+				"embed": {
+					"choice": {
+						"embedVideo": "Встроить видео",
+						"keepAsLink": "Оставить как ссылку"
+					},
+					"inputPlaceholder": "Вставьте URL",
+					"embeddedContent": "Встроенный контент",
+					"asLink": "Как ссылку",
+					"submit": "Встроить",
+					"errors": {
+						"invalidUrl": "Введите корректный URL",
+						"onlyYoutube": "Можно встраивать только ссылки YouTube."
+					},
+					"onlyYoutubeInline": "Можно встраивать только URL YouTube. Используйте режим ссылки."
+				}
+			}
+		},
+		"entity": {
+			"task": "Задача"
+		},
+		"relations": {
+			"title": "Связи",
+			"tasksInProject": "Задачи в проекте",
+			"linkError": "Не удалось связать задачу",
+			"empty": "Нет связанных задач",
+			"searchPlaceholder": "Поиск задач для связывания...",
+			"noTasksFound": "Задачи не найдены",
+			"openTask": "Открыть задачу",
+			"removeRelation": "Удалить связь",
+			"related": "Связана",
+			"blocks": "Блокирует",
+			"selectTask": "Выберите задачу для связывания",
+			"types": {
+				"blocks": "блокирует",
+				"related": "связана с"
+			}
+		},
+		"subtasks": {
+			"title": "Подзадачи",
+			"inputPlaceholder": "Название подзадачи...",
+			"addAction": "Добавить",
+			"empty": "Подзадач пока нет",
+			"createError": "Не удалось создать подзадачу",
+			"deleteSuccess": "Задача успешно удалена",
+			"deleteError": "Не удалось удалить задачу",
+			"deleteDialogTitle": "Удалить задачу?",
+			"deleteDialogDescription": "Задача и все её данные будут безвозвратно удалены. Это действие нельзя отменить.",
+			"deleteAction": "Удалить задачу"
+		},
+		"properties": {
+			"title": "Свойства",
+			"labels": "Метки",
+			"copyTaskLink": "Скопировать ссылку на задачу",
+			"copyTaskBranch": "Скопировать ветку задачи",
+			"start": "Начало",
+			"startDate": "Дата начала",
+			"noDate": "Без даты"
+		},
+		"move": {
+			"title": "Переместить задачу",
+			"projectLabel": "Целевой проект",
+			"projectPlaceholder": "Выберите проект",
+			"statusLabel": "Целевой статус",
+			"statusHintKeep": "Рабочий процесс этого проекта уже поддерживает текущий статус.",
+			"statusHintAdjust": "Выберите статус для использования в целевом проекте.",
+			"action": "Переместить задачу",
+			"success": "Задача успешно перемещена",
+			"error": "Не удалось переместить задачу"
+		},
+		"popover": {
+			"assignee": {
+				"unassigned": "Не назначено",
+				"updateError": "Не удалось обновить исполнителя задачи"
+			},
+			"status": {
+				"updateError": "Не удалось обновить статус задачи"
+			},
+			"priority": {
+				"updateError": "Не удалось обновить приоритет задачи"
+			},
+			"dueDate": {
+				"updateSuccess": "Срок выполнения задачи успешно обновлён",
+				"updateError": "Не удалось обновить срок выполнения задачи",
+				"clear": "Очистить дату"
+			},
+			"startDate": {
+				"updateSuccess": "Дата начала задачи успешно обновлена",
+				"updateError": "Не удалось обновить дату начала задачи",
+				"clear": "Очистить дату начала"
+			},
+			"labels": {
+				"searchPlaceholder": "Поиск меток...",
+				"empty": "Метки не найдены",
+				"create": "Создать «{{name}}»",
+				"chooseColor": "Выберите цвет",
+				"addSuccess": "Метка добавлена",
+				"removeSuccess": "Метка удалена",
+				"updateError": "Не удалось обновить метку",
+				"createSuccess": "Метка создана и добавлена",
+				"createError": "Не удалось создать метку",
+				"colors": {
+					"stone": "Камень",
+					"slate": "Сланец",
+					"lavender": "Лаванда",
+					"sage": "Шалфей",
+					"forest": "Лес",
+					"amber": "Янтарь",
+					"terracotta": "Терракота",
+					"rose": "Роза",
+					"crimson": "Малиновый"
+				}
+			}
+		},
+		"backlog": {
+			"pageTitle": "Бэклог — {{name}}",
+			"noTasksToMove": "Нет запланированных задач для перемещения",
+			"moveAllConfirm": "Переместить все {{count}} запланированных задач в «К выполнению»?",
+			"moveAllSuccess_one": "{{count}} задача перемещена в «К выполнению»",
+			"moveAllSuccess_few": "{{count}} задачи перемещены в «К выполнению»",
+			"moveAllSuccess_many": "{{count}} задач перемещено в «К выполнению»",
+			"moveAllSuccess_other": "{{count}} задач перемещено в «К выполнению»",
+			"plan": "Запланировать",
+			"moveAllTooltip": "Переместить все запланированные в «К выполнению»",
+			"moveAll": "Переместить все",
+			"addTask": "Добавить задачу",
+			"filter": "Фильтр",
+			"addFilter": "Добавить фильтр...",
+			"sections": {
+				"planned": "Запланировано",
+				"archived": "В архиве"
+			},
+			"noTasksInSection": "Нет задач в разделе «{{section}}»",
+			"filters": {
+				"priority": "Приоритет: {{name}}",
+				"assignee": "Исполнитель: {{name}}",
+				"due": "Срок: {{date}}",
+				"label": "Метка: {{name}}",
+				"dueThisWeek": "Срок на этой неделе",
+				"dueNextWeek": "Срок на следующей неделе",
+				"noDueDate": "Без срока"
+			}
+		},
+		"sort": {
+			"label": "Сортировка",
+			"by": "Сортировать по",
+			"direction": "Направление",
+			"ascending": "По возрастанию",
+			"descending": "По убыванию",
+			"fields": {
+				"position": "Вручную (позиция)",
+				"createdAt": "Дата создания",
+				"priority": "Приоритет",
+				"dueDate": "Срок выполнения",
+				"title": "Название",
+				"number": "Номер задачи"
+			}
+		},
+		"boardFilters": {
+			"filterBy": "Фильтровать по",
+			"allStatuses": "Все статусы",
+			"allPriorities": "Все приоритеты",
+			"allAssignees": "Все исполнители",
+			"allDueDates": "Все сроки",
+			"allLabels": "Все метки",
+			"selectedCount_one": "{{count}} выбран",
+			"selectedCount_few": "{{count}} выбрано",
+			"selectedCount_many": "{{count}} выбрано",
+			"selectedCount_other": "{{count}} выбрано",
+			"subjects": {
+				"status": "Статус",
+				"priority": "Приоритет",
+				"assignee": "Исполнитель",
+				"dueDate": "Срок выполнения",
+				"labels": "Метки"
+			},
+			"operators": {
+				"isAnyOf": "любой из",
+				"includeAnyOf": "включает любой из"
+			}
+		},
+		"gantt": {
+			"pageTitle": "{{name}} — Гант",
+			"title": "Временная шкала Ганта",
+			"searchPlaceholder": "Поиск запланированных задач...",
+			"hideTasks": "Скрыть задачи",
+			"showTasks": "Показать задачи",
+			"noTasks": "Нет запланированных задач",
+			"noTasksSubtitle": "Добавьте дату начала, срок выполнения или оба значения к задачам, чтобы разместить их на временной шкале проекта.",
+			"noTasksFound": "Задачи не найдены",
+			"noTasksMatch": "Нет запланированных задач, соответствующих «{{query}}»",
+			"taskHeader": "Задача",
+			"updateDatesError": "Не удалось обновить даты задачи",
+			"resizeStart": "Изменить дату начала",
+			"resizeDue": "Изменить срок выполнения",
+			"taskAriaLabel": "{{title}} — откройте или перетащите для перемещения"
+		},
+		"delete": {
+			"title": "Удалить задачу?",
+			"description": "Задача и все её данные будут безвозвратно удалены. Это действие нельзя отменить.",
+			"action": "Удалить задачу",
+			"success": "Задача успешно удалена",
+			"error": "Не удалось удалить задачу"
+		},
+		"archive": {
+			"success_one": "{{count}} задача архивирована",
+			"success_few": "{{count}} задачи архивированы",
+			"success_many": "{{count}} задач архивировано",
+			"success_other": "{{count}} задач архивировано"
+		},
+		"listView": {
+			"addTask": "Добавить задачу",
+			"archiveAllTooltip": "Архивировать все завершённые задачи",
+			"noTasks": "Нет задач"
+		},
+		"kanban": {
+			"addTask": "Добавить задачу"
+		},
+		"pr": {
+			"merged": "Влит",
+			"draft": "Черновик",
+			"open": "Открыт",
+			"label": "Pull Request",
+			"count_one": "{{count}} PR",
+			"count_few": "{{count}} PR",
+			"count_many": "{{count}} PR",
+			"count_other": "{{count}} PR"
+		},
+		"assignee": {
+			"label": "Исполнитель",
+			"unassigned": "Не назначено"
+		},
+		"dueDate": {
+			"label": "Срок выполнения",
+			"clear": "Очистить дату",
+			"updateSuccess": "Срок выполнения задачи успешно обновлён",
+			"updateError": "Не удалось обновить срок выполнения задачи",
+			"clearSuccess": "Срок выполнения задачи очищен",
+			"clearError": "Не удалось очистить срок выполнения"
+		},
+		"labels": {
+			"label": "Метки",
+			"empty": "Нет доступных меток"
+		},
+		"update": {
+			"success": "Задача успешно обновлена",
+			"error": "Не удалось обновить задачу"
+		},
+		"contextMenu": {
+			"copyLink": "Скопировать ссылку",
+			"copyLinkSuccess": "Ссылка на задачу скопирована!"
+		},
+		"actions": {
+			"archive": "Архивировать",
+			"markAsPlanned": "Отметить как запланированную",
+			"delete": "Удалить..."
+		},
+		"bulk": {
+			"selectedCount_one": "{{count}} выбрана",
+			"selectedCount_few": "{{count}} выбраны",
+			"selectedCount_many": "{{count}} выбрано",
+			"selectedCount_other": "{{count}} выбрано",
+			"moveToBacklog": "Переместить в бэклог",
+			"moveToBacklogSuccess_one": "{{count}} задача перемещена в бэклог",
+			"moveToBacklogSuccess_few": "{{count}} задачи перемещены в бэклог",
+			"moveToBacklogSuccess_many": "{{count}} задач перемещено в бэклог",
+			"moveToBacklogSuccess_other": "{{count}} задач перемещено в бэклог",
+			"moveToBacklogError": "Не удалось переместить задачи в бэклог",
+			"moveToBoard": "Переместить на доску",
+			"moveToBoardSuccess_one": "{{count}} задача перемещена на доску",
+			"moveToBoardSuccess_few": "{{count}} задачи перемещены на доску",
+			"moveToBoardSuccess_many": "{{count}} задач перемещено на доску",
+			"moveToBoardSuccess_other": "{{count}} задач перемещено на доску",
+			"moveToBoardError": "Не удалось переместить задачи на доску",
+			"delete": "Удалить задачи",
+			"deleteConfirm_one": "Удалить {{count}} задачу? Это действие нельзя отменить.",
+			"deleteConfirm_few": "Удалить {{count}} задачи? Это действие нельзя отменить.",
+			"deleteConfirm_many": "Удалить {{count}} задач? Это действие нельзя отменить.",
+			"deleteConfirm_other": "Удалить {{count}} задач? Это действие нельзя отменить.",
+			"deleteSuccess_one": "{{count}} задача удалена",
+			"deleteSuccess_few": "{{count}} задачи удалены",
+			"deleteSuccess_many": "{{count}} задач удалено",
+			"deleteSuccess_other": "{{count}} задач удалено",
+			"deleteError": "Не удалось удалить задачи",
+			"archive": "Архивировать задачи",
+			"archiveSuccess_one": "{{count}} задача архивирована",
+			"archiveSuccess_few": "{{count}} задачи архивированы",
+			"archiveSuccess_many": "{{count}} задач архивировано",
+			"archiveSuccess_other": "{{count}} задач архивировано",
+			"archiveError": "Не удалось архивировать задачи",
+			"updateSuccess_one": "{{count}} задача обновлена",
+			"updateSuccess_few": "{{count}} задачи обновлены",
+			"updateSuccess_many": "{{count}} задач обновлено",
+			"updateSuccess_other": "{{count}} задач обновлено",
+			"updateError": "Не удалось обновить задачи",
+			"assignTo": "Назначить на",
+			"assignSuccess_one": "{{count}} задача назначена",
+			"assignSuccess_few": "{{count}} задачи назначены",
+			"assignSuccess_many": "{{count}} задач назначено",
+			"assignSuccess_other": "{{count}} задач назначено",
+			"assignError": "Не удалось назначить задачи",
+			"setPriority": "Установить приоритет",
+			"updatePriorityError": "Не удалось обновить приоритет",
+			"addLabel": "Добавить метку",
+			"addLabelSuccess_one": "Метка добавлена к {{count}} задаче",
+			"addLabelSuccess_few": "Метка добавлена к {{count}} задачам",
+			"addLabelSuccess_many": "Метка добавлена к {{count}} задачам",
+			"addLabelSuccess_other": "Метка добавлена к {{count}} задачам",
+			"addLabelError": "Не удалось добавить метку",
+			"setDueDate": "Установить срок",
+			"updateDueDateError": "Не удалось обновить срок выполнения",
+			"actions": "Действия",
+			"searchActions": "Поиск действий...",
+			"noActionsFound": "Действия не найдены.",
+			"changeStatus": "Изменить статус"
+		}
+	},
+	"invitations": {
+		"pageTitle": "Приглашения",
+		"pendingInvitations": "Ожидающие приглашения",
+		"acceptSubtitle": "Примите приглашения для присоединения к рабочим областям",
+		"noPendingTitle": "Нет ожидающих приглашений",
+		"noPendingDescription": "На данный момент у вас нет ожидающих приглашений в рабочие области.",
+		"continueToSetup": "Продолжить настройку",
+		"skipForNow": "Пропустить пока",
+		"table": {
+			"workspace": "Рабочая область",
+			"invitedBy": "Пригласил",
+			"expires": "Истекает"
+		},
+		"toast": {
+			"acceptError": "Не удалось принять приглашение",
+			"acceptSuccess": "Приглашение принято! Добро пожаловать в команду.",
+			"rejectError": "Не удалось отклонить приглашение",
+			"rejectSuccess": "Приглашение отклонено"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "Проекты",
+			"createProject": "Создать проект",
+			"title": "Название",
+			"progress": "Прогресс",
+			"targetDate": "Целевая дата",
+			"dueDate": "Срок выполнения",
+			"status": "Статус",
+			"emptyTitle": "Проектов пока нет",
+			"emptyDescription": "Начните с создания вашего первого проекта.",
+			"projectStatus": {
+				"notStarted": "Не начат",
+				"complete": "Завершён",
+				"inProgress": "В работе"
+			},
+			"noDueDate": "Без срока"
+		},
+		"search": {
+			"pageTitle": "Поиск",
+			"backToDashboard": "Вернуться к панели управления",
+			"placeholder": "Поиск задач по названию или короткому ID (например, DEP-23)...",
+			"hint": "Поиск по всем проектам в этой рабочей области. Используйте короткие ID, такие как DEP-23, чтобы найти конкретные задачи.",
+			"searching": "Поиск...",
+			"resultsFound_one": "Найден {{count}} результат",
+			"resultsFound_few": "Найдено {{count}} результата",
+			"resultsFound_many": "Найдено {{count}} результатов",
+			"resultsFound_other": "Найдено {{count}} результатов",
+			"noResultsTitle": "Результатов не найдено",
+			"noResultsDescription": "Попробуйте изменить поисковый запрос или поискать что-то другое",
+			"startTitle": "Начните поиск",
+			"startDescription": "Введите поисковый запрос для поиска задач по всем проектам",
+			"quickSearchesLabel": "Быстрый поиск:",
+			"suggestionHighPriority": "Высокий приоритет",
+			"suggestionBug": "Баг",
+			"suggestionFeature": "Фича",
+			"suggestionInProgress": "В работе",
+			"suggestionCompleted": "Завершённые"
+		},
+		"create": {
+			"pageTitle": "Создание рабочей области",
+			"heading": "Создать новую рабочую область",
+			"subtitle": "Рабочие области — это общие среды, где команды могут работать над проектами, циклами и задачами.",
+			"nameLabel": "Название рабочей области",
+			"namePlaceholder": "Введите название рабочей области",
+			"descriptionLabel": "Описание (необязательно)",
+			"descriptionPlaceholder": "Добавьте описание для вашей рабочей области",
+			"required": "Обязательно",
+			"creating": "Создание...",
+			"submit": "Создать рабочую область",
+			"success": "Рабочая область успешно создана",
+			"error": "Не удалось создать рабочую область"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "Владелец",
+			"admin": "Администратор",
+			"member": "Участник"
+		},
+		"members": {
+			"pageTitle": "Участники",
+			"inviteMember": "Пригласить участника"
+		},
+		"inviteModal": {
+			"title": "Пригласить участника команды",
+			"emailLabel": "Электронная почта",
+			"emailPlaceholder": "colleague@company.com",
+			"sendInvitation": "Отправить приглашение",
+			"success": "Приглашение успешно отправлено",
+			"error": "Не удалось пригласить участника команды"
+		},
+		"membersTable": {
+			"emptyTitle": "Участников команды пока нет",
+			"emptyDescription": "Пригласите первого участника команды, чтобы начать.",
+			"columns": {
+				"name": "Имя",
+				"role": "Роль",
+				"joined": "Присоединился",
+				"actions": "Действия"
+			},
+			"memberRolePending": "{{role}} (Ожидает)",
+			"ariaCancelInvitation": "Отменить приглашение",
+			"ariaRemoveMember": "Удалить участника",
+			"removeDialogTitle": "Удалить участника команды?",
+			"removeDialogDescription": "Вы уверены, что хотите удалить {{name}} из рабочей области? Это действие нельзя отменить.",
+			"cancelDialogTitle": "Отменить приглашение?",
+			"cancelDialogDescription": "Вы уверены, что хотите отменить приглашение для {{email}}? Это действие нельзя отменить.",
+			"removeMember": "Удалить участника",
+			"cancelInvitation": "Отменить приглашение",
+			"removeSuccess": "Участник команды успешно удалён",
+			"removeError": "Не удалось удалить участника команды",
+			"cancelInviteSuccess": "Приглашение успешно отменено",
+			"cancelInviteError": "Не удалось отменить приглашение"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "Публичный просмотр",
+		"badge": "Публичный",
+		"readOnly": "Только для чтения",
+		"error": {
+			"title": "Проект не найден",
+			"description": "Этот проект не существует или недоступен публично."
+		},
+		"taskCard": {
+			"viewDetailsAria": "Просмотреть детали задачи {{title}}"
+		},
+		"taskDetail": {
+			"labels": "Метки",
+			"externalLinks": "Внешние ссылки",
+			"pullRequestFallback": "Pull Request",
+			"issueFallback": "Issue",
+			"prStatusMerged": "Влит",
+			"prStatusDraft": "Черновик",
+			"prStatusOpen": "Открыт",
+			"dueWithDate": "Срок: {{date}}",
+			"created": "Создано",
+			"dueDateLabel": "Срок выполнения"
+		},
+		"theme": {
+			"switchToLight": "Переключить на светлую тему",
+			"switchToDark": "Переключить на тёмную тему"
+		},
+		"copyUrl": {
+			"successToast": "URL скопирован",
+			"errorToast": "Не удалось скопировать URL",
+			"copied": "Скопировано",
+			"share": "Поделиться"
+		},
+		"branding": {
+			"poweredBy": "Работает на"
+		}
+	}
+}
