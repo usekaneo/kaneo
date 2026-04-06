@@ -30,6 +30,7 @@ async function createComment(taskId: string, userId: string, content: string) {
 
   await publishEvent("comment.created", {
     ...comment,
+    taskId: comment.taskId,
     projectId: task.projectId,
     userId,
   });

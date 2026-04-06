@@ -38,29 +38,48 @@ let adapter: BroadcastAdapter | null = null;
 export async function initializeWebSocketAdapter() {
   if (adapter) return;
 
-  adapter = process.env.REDIS_URL
+  const nextAdapter = process.env.REDIS_URL
     ? new RedisBroadcastAdapter()
     : new InMemoryBroadcastAdapter();
 
-  await adapter.subscribe((msg: BroadcastMessage) => {
-    deliverToLocalConnections(
-      msg.projectId,
-      msg.message,
-      msg.excludeInitiatorId,
-    );
-  });
+  try {
+    await nextAdapter.subscribe((msg: BroadcastMessage) => {
+      deliverToLocalConnections(
+        msg.projectId,
+        msg.message,
+        msg.excludeInitiatorId,
+      );
+    });
+  } catch (err) {
+    await nextAdapter.shutdown().catch(() => {});
+    throw err;
+  }
 
+  adapter = nextAdapter;
   console.log(`📡 WebSockets Initialized using: "${adapter.constructor.name}"`);
 }
 
 export async function shutdownWebSocketAdapter() {
+  const pendingQueues = [...projectBroadcastQueues.entries()];
+
   for (const timeout of projectBroadcastTimeouts.values()) {
     clearTimeout(timeout);
   }
   projectBroadcastTimeouts.clear();
   projectBroadcastQueues.clear();
 
-  await adapter?.shutdown();
+  const currentAdapter = adapter;
+  if (currentAdapter) {
+    await Promise.allSettled(
+      pendingQueues.flatMap(([projectId, queue]) =>
+        [...queue.values()].map(({ message, excludeInitiatorId }) =>
+          currentAdapter.publish({ projectId, message, excludeInitiatorId }),
+        ),
+      ),
+    );
+  }
+
+  await currentAdapter?.shutdown();
   adapter = null;
 }
 
@@ -78,8 +97,11 @@ function deliverToLocalConnections(
     try {
       conn.ws.send(payload);
     } catch {
-      // Connection might be closed, will be cleaned up on close event
+      connections.delete(conn);
     }
+  }
+  if (connections.size === 0) {
+    projectConnections.delete(projectId);
   }
 }
 

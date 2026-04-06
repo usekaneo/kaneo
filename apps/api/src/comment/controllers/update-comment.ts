@@ -40,6 +40,7 @@ async function updateComment(userId: string, id: string, content: string) {
   if (task) {
     await publishEvent("comment.updated", {
       ...updated,
+      taskId: updated.taskId,
       projectId: task.projectId,
       userId,
     });

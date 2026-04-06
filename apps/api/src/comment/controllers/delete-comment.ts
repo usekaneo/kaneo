@@ -39,6 +39,7 @@ async function deleteComment(userId: string, id: string) {
   if (task) {
     await publishEvent("comment.deleted", {
       ...deleted,
+      taskId: deleted.taskId,
       projectId: task.projectId,
       userId,
     });

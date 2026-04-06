@@ -31,13 +31,13 @@ export function getRedisSub(): Redis {
   return _redisSub;
 }
 
-export function closeRedis(): void {
+export async function closeRedis(): Promise<void> {
   if (_redisPub) {
-    _redisPub.disconnect();
+    await _redisPub.quit();
     _redisPub = null;
   }
   if (_redisSub) {
-    _redisSub.disconnect();
+    await _redisSub.quit();
     _redisSub = null;
   }
 }

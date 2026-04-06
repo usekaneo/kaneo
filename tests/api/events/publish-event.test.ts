@@ -40,7 +40,10 @@ describe("publishEvent / subscribeToEvent", () => {
     });
 
     expect(received).toHaveLength(1);
-    expect(received[0]?.initiatorId).toBe("user-abc");
+    expect(received[0]).toMatchObject({
+      taskId: "t1",
+      initiatorId: "user-abc",
+    });
   });
 
   it("sets initiatorId to undefined when no eventContext store exists", async () => {

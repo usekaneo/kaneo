@@ -20,6 +20,9 @@ const broadcastMessageSchema = v.object({
 
 export class RedisBroadcastAdapter implements BroadcastAdapter {
   private subscribed = false;
+  private _pmessageHandler:
+    | ((pattern: string, channel: string, data: string) => void)
+    | null = null;
 
   async publish(msg: BroadcastMessage): Promise<void> {
     await getRedisPub().publish(
@@ -36,27 +39,34 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
     await getRedisSub().psubscribe(CHANNEL_PATTERN);
 
     // "pmessage" fires for pattern subscriptions (not "message")
-    getRedisSub().on(
-      "pmessage",
-      (_pattern: string, _channel: string, data: string) => {
-        try {
-          const parsed = v.safeParse(broadcastMessageSchema, JSON.parse(data));
-          if (!parsed.success) {
-            console.error("Invalid broadcast message:", parsed.issues);
-            return;
-          }
-          handler(parsed.output);
-        } catch (err) {
-          console.error("Failed to parse broadcast message:", err);
+    this._pmessageHandler = (
+      _pattern: string,
+      _channel: string,
+      data: string,
+    ) => {
+      try {
+        const parsed = v.safeParse(broadcastMessageSchema, JSON.parse(data));
+        if (!parsed.success) {
+          console.error("Invalid broadcast message:", parsed.issues);
+          return;
         }
-      },
-    );
+        handler(parsed.output);
+      } catch (err) {
+        console.error("Failed to parse broadcast message:", err);
+      }
+    };
+    getRedisSub().on("pmessage", this._pmessageHandler);
   }
 
   async shutdown(): Promise<void> {
+    if (this._pmessageHandler) {
+      getRedisSub().off("pmessage", this._pmessageHandler);
+      this._pmessageHandler = null;
+    }
     // Unsubscribe from the pattern — covers all project channels
     await getRedisSub().punsubscribe(CHANNEL_PATTERN);
-    closeRedis();
+    this.subscribed = false;
+    await closeRedis();
   }
 
   private channelForProject(projectId: string): string {

@@ -523,11 +523,9 @@ export function createApp() {
     "/ws/:projectId",
     upgradeWebSocket(async (c) => {
       const projectId = c.req.param("projectId");
-      let userId = "anonymous";
 
       try {
         await authenticateApiRequest(c);
-        userId = c.get("userId");
       } catch (error) {
         if (error instanceof HTTPException) {
           throw error;
@@ -536,6 +534,7 @@ export function createApp() {
         throw new HTTPException(500, { message: "Internal Server Error" });
       }
 
+      const userId = c.get("userId");
       const windowId = c.req.query("windowId");
       const initiatorId = windowId ? `${userId}:${windowId}` : userId;
       let conn: ReturnType<typeof addConnection> | null = null;
