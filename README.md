@@ -115,6 +115,8 @@ Save this as `compose.yml`, create a `.env` file with your configuration (see th
 
 > **Important:** See our [full documentation](https://kaneo.app/docs/core) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
 
+> **Fork-only testing note:** This fork includes `.github/workflows/docker-vulnerability-scan.yml` for validating Docker image security changes in GitHub Actions. Add a repository secret named `SNYK_TOKEN` to enable the Snyk scan, then test it by opening a PR that changes `apps/api/Dockerfile`, `apps/web/Dockerfile`, or the workflow file itself, or by running the workflow manually from the Actions tab. Grype always runs. Snyk runs only when `SNYK_TOKEN` is configured. Both scans fail on `high` or `critical` findings.
+
 ### Development Setup
 
 For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions on configuring environment variables and troubleshooting common issues like CORS problems.
