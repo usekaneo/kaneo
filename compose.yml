@@ -25,6 +25,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+#  Optional for HA Setup
+#  redis:
+#    image: valkey/valkey
+#    ports:
+#      - "6379:6379"
+
   web:
     image: ghcr.io/usekaneo/web:latest
     ports:

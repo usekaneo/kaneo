@@ -47,6 +47,11 @@ Kaneo supports many optional configuration options including:
 - SMTP configuration for email
 - Access control settings
 - CORS configuration
+- Redis for horizontal scaling
+
+#### Redis Configuration
+
+- `REDIS_URL` - Redis connection string (e.g., `redis://localhost:6379`). When set, WebSocket broadcasts use Redis Pub/Sub, allowing multiple API instances to relay real-time updates. When not set, an in-memory adapter is used (single-instance only).
 
 #### SMTP Configuration
 

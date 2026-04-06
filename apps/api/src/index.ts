@@ -68,7 +68,12 @@ import {
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
-import { addConnection, removeConnection } from "./ws";
+import {
+  addConnection,
+  initializeWebSocketAdapter,
+  removeConnection,
+  shutdownWebSocketAdapter,
+} from "./ws";
 
 type ApiKey = {
   id: string;
@@ -601,6 +606,7 @@ export async function runStartupTasks() {
 
   initializePlugins();
   initializeScheduler();
+  await initializeWebSocketAdapter();
 }
 
 export async function startServer(
@@ -614,9 +620,7 @@ export async function startServer(
     process.exit(1);
   }
 
-  process.on("SIGTERM", () => {
-    shutdownScheduler();
-  });
+  let shuttingDown = false;
 
   const server = serve(
     {
@@ -631,6 +635,25 @@ export async function startServer(
   );
 
   injectWebSocket(server);
+
+  const gracefulShutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+
+    console.log("🛑 Shutting down gracefully...");
+    shutdownScheduler();
+    await shutdownWebSocketAdapter();
+    server.close();
+    process.exit(0);
+  };
+
+  process.on("SIGTERM", () => {
+    void gracefulShutdown();
+  });
+
+  process.on("SIGINT", () => {
+    void gracefulShutdown();
+  });
 }
 
 const createdApp = createApp();

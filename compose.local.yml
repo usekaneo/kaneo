@@ -27,6 +27,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+#  Optional
+#  redis:
+#    image: valkey/valkey
+#    ports:
+#      - "6379:6379"
+
   web:
     build:
       context: .

@@ -1,5 +1,12 @@
 import type { WSContext } from "hono/ws";
 import { subscribeToEvent } from "../events";
+import type {
+  BroadcastAdapter,
+  BroadcastMessage,
+  ProjectBroadcastMessage,
+} from "./broadcast-adapter";
+import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
+import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
 
 type ProjectConnection = {
   ws: WSContext;
@@ -7,7 +14,15 @@ type ProjectConnection = {
   initiatorId: string;
 };
 
+/**
+ * Local connections — Each instance tracks only its own WebSocket connections.
+ */
 const projectConnections = new Map<string, Set<ProjectConnection>>();
+
+/**
+ * Batching queues and timers local per-instance.
+ * They accumulate messages before flushing to the broadcast adapter.
+ */
 const projectBroadcastQueues = new Map<
   string,
   Map<string, { message: ProjectBroadcastMessage; excludeInitiatorId?: string }>
@@ -16,6 +31,57 @@ const projectBroadcastTimeouts = new Map<
   string,
   ReturnType<typeof setTimeout>
 >();
+
+let adapter: BroadcastAdapter | null = null;
+
+// --- Subscribe to incoming broadcasts and deliver to local connections ---
+export async function initializeWebSocketAdapter() {
+  if (adapter) return;
+
+  adapter = process.env.REDIS_URL
+    ? new RedisBroadcastAdapter()
+    : new InMemoryBroadcastAdapter();
+
+  await adapter.subscribe((msg: BroadcastMessage) => {
+    deliverToLocalConnections(
+      msg.projectId,
+      msg.message,
+      msg.excludeInitiatorId,
+    );
+  });
+
+  console.log(`📡 WebSockets Initialized using: "${adapter.constructor.name}"`);
+}
+
+export async function shutdownWebSocketAdapter() {
+  for (const timeout of projectBroadcastTimeouts.values()) {
+    clearTimeout(timeout);
+  }
+  projectBroadcastTimeouts.clear();
+  projectBroadcastQueues.clear();
+
+  await adapter?.shutdown();
+  adapter = null;
+}
+
+function deliverToLocalConnections(
+  projectId: string,
+  message: ProjectBroadcastMessage,
+  excludeInitiatorId?: string,
+) {
+  const connections = projectConnections.get(projectId);
+  if (!connections) return;
+
+  const payload = JSON.stringify(message);
+  for (const conn of connections) {
+    if (excludeInitiatorId && conn.initiatorId === excludeInitiatorId) continue;
+    try {
+      conn.ws.send(payload);
+    } catch {
+      // Connection might be closed, will be cleaned up on close event
+    }
+  }
+}
 
 export function addConnection(
   projectId: string,
@@ -41,19 +107,16 @@ export function removeConnection(projectId: string, conn: ProjectConnection) {
   }
 }
 
-type ProjectBroadcastMessage = {
-  type: string;
-  projectId: string;
-  taskId?: string;
-  sourceTaskId?: string;
-  targetTaskId?: string;
-};
-
 export function broadcastToProject(
   projectId: string,
   message: ProjectBroadcastMessage,
   excludeInitiatorId?: string,
 ) {
+  if (!adapter) {
+    console.warn("broadcastToProject called before adapter initialization");
+    return;
+  }
+
   if (!projectBroadcastQueues.has(projectId)) {
     projectBroadcastQueues.set(projectId, new Map());
   }
@@ -72,19 +135,22 @@ export function broadcastToProject(
     const queue = projectBroadcastQueues.get(projectId);
     projectBroadcastQueues.delete(projectId);
 
-    const connections = projectConnections.get(projectId);
-    if (!connections || !queue) return;
+    if (!queue || !adapter) return;
 
+    // Publish each queued message through the adapter
     for (const { message: msg, excludeInitiatorId: exId } of queue.values()) {
-      const payload = JSON.stringify(msg);
-      for (const conn of connections) {
-        if (exId && conn.initiatorId === exId) continue;
-        try {
-          conn.ws.send(payload);
-        } catch {
-          // Connection might be closed, will be cleaned up on close event
-        }
-      }
+      void adapter
+        .publish({
+          projectId,
+          message: msg,
+          excludeInitiatorId: exId,
+        })
+        .catch((err) => {
+          console.error(
+            `Failed to publish broadcast for project ${projectId}:`,
+            err,
+          );
+        });
     }
   }, 100);
 

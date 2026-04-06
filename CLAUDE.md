@@ -183,6 +183,7 @@ Required variables:
 Optional:
 - `CORS_ORIGINS` - Comma-separated allowed origins (empty = allow all in dev)
 - `VITE_API_URL` - API URL for web dev (defaults to http://localhost:1337)
+- `REDIS_URL` - Redis connection string for multi-instance WebSocket broadcasts via Pub/Sub (omit for single-instance in-memory mode)
 - SSO providers (GitHub, Google, Discord, Custom OAuth/OIDC)
 - SMTP configuration
 
