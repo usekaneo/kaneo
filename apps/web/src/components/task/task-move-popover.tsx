@@ -71,7 +71,7 @@ export default function TaskMovePopover({
   const selectedStatusLabel = useMemo(() => {
     if (!effectiveStatus || destinationColumns.length === 0) return null;
     const column = destinationColumns.find((c) => c.id === effectiveStatus);
-    return getStatusLabel(effectiveStatus) || column?.name || null;
+    return column?.name || getStatusLabel(effectiveStatus) || null;
   }, [destinationColumns, effectiveStatus]);
 
   useEffect(() => {
@@ -203,7 +203,7 @@ export default function TaskMovePopover({
                   <SelectContent>
                     {destinationColumns.map((column) => (
                       <SelectItem key={column.id} value={column.id}>
-                        {getStatusLabel(column.id) || column.name}
+                        {column.name || getStatusLabel(column.id)}
                       </SelectItem>
                     ))}
                   </SelectContent>
