@@ -187,6 +187,10 @@ export default function CommentEditor({
   const taskIdRef = useRef(taskId);
   const ensureTaskIdRef = useRef(ensureTaskId);
   const uploadSurfaceRef = useRef(uploadSurface);
+  const onSubmitShortcutRef = useRef(onSubmitShortcut);
+  const onCancelShortcutRef = useRef(onCancelShortcut);
+  onSubmitShortcutRef.current = onSubmitShortcut;
+  onCancelShortcutRef.current = onCancelShortcut;
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
@@ -809,9 +813,10 @@ export default function CommentEditor({
           }
 
           if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-            if (!readOnly && !disabled && onSubmitShortcut) {
+            const submit = onSubmitShortcutRef.current;
+            if (!readOnly && !disabled && submit) {
               event.preventDefault();
-              onSubmitShortcut();
+              submit();
               return true;
             }
           }
@@ -820,10 +825,10 @@ export default function CommentEditor({
             event.key === "Escape" &&
             !readOnly &&
             !disabled &&
-            onCancelShortcut
+            onCancelShortcutRef.current
           ) {
             event.preventDefault();
-            onCancelShortcut();
+            onCancelShortcutRef.current();
             return true;
           }
 
