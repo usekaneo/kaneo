@@ -24,6 +24,10 @@ function isAbortError(err: unknown): boolean {
     : err instanceof Error && err.name === "AbortError";
 }
 
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
 async function fetchWithTimeout(
   input: string,
   init: RequestInit,
@@ -55,15 +59,19 @@ export async function requestDeviceCode(
     }
     throw err;
   }
-  const body = (await res.json().catch(() => ({}))) as
-    | DeviceCodeResponse
-    | DeviceTokenErrorBody;
+  const parsedBody: unknown = await res.json().catch(() => ({}));
+  if (!isObjectRecord(parsedBody)) {
+    throw new Error(
+      `device/code: unexpected response ${JSON.stringify(parsedBody)}`,
+    );
+  }
+  const body = parsedBody;
   if (!res.ok) {
     throw new Error(
       `device/code failed (${res.status}): ${JSON.stringify(body)}`,
     );
   }
-  if (!("device_code" in body) || typeof body.device_code !== "string") {
+  if (typeof body.device_code !== "string") {
     throw new Error(`device/code: unexpected response ${JSON.stringify(body)}`);
   }
   if (
@@ -74,8 +82,8 @@ export async function requestDeviceCode(
       `device/code: missing user_code or verification_uri ${JSON.stringify(body)}`,
     );
   }
-  const interval = toFiniteNumber((body as DeviceCodeResponse).interval);
-  const expiresIn = toFiniteNumber((body as DeviceCodeResponse).expires_in);
+  const interval = toFiniteNumber(body.interval);
+  const expiresIn = toFiniteNumber(body.expires_in);
   if (interval === undefined || expiresIn === undefined) {
     throw new Error(
       `device/code: invalid interval or expires_in ${JSON.stringify(body)}`,
@@ -120,6 +128,9 @@ export async function pollDeviceAccessToken(
   for (let attempt = 0; Date.now() - started < maxWait; attempt++) {
     if (attempt > 0) {
       await sleep(intervalMs);
+      if (Date.now() - started >= maxWait) {
+        break;
+      }
     }
 
     let res: Response;
@@ -141,21 +152,23 @@ export async function pollDeviceAccessToken(
       throw err;
     }
 
-    if (Date.now() - started > maxWait) {
+    if (Date.now() - started >= maxWait) {
       throw new Error("Device authorization timed out waiting for approval.");
     }
 
-    const body = (await res.json().catch(() => ({}))) as {
-      access_token?: string;
-      error?: string;
-      error_description?: string;
-    };
+    const parsedBody: unknown = await res.json().catch(() => ({}));
+    if (!isObjectRecord(parsedBody)) {
+      throw new Error(
+        `device/token failed (${res.status}): ${JSON.stringify(parsedBody)}`,
+      );
+    }
+    const body = parsedBody;
 
     if (res.ok && typeof body.access_token === "string") {
       return body.access_token;
     }
 
-    const err = body.error;
+    const err = typeof body.error === "string" ? body.error : undefined;
     if (err === "authorization_pending") {
       log("Waiting for device approval…");
       continue;

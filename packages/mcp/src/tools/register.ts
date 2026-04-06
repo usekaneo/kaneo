@@ -153,8 +153,8 @@ export function registerTools(
         const icon =
           patch.icon !== undefined
             ? patch.icon
-            : existing.icon != null
-              ? String(existing.icon)
+            : typeof existing.icon === "string"
+              ? existing.icon
               : undefined;
         const slug =
           patch.slug ??
@@ -171,8 +171,8 @@ export function registerTools(
         const isPublic =
           patch.isPublic !== undefined
             ? patch.isPublic
-            : existing.isPublic != null
-              ? Boolean(existing.isPublic)
+            : typeof existing.isPublic === "boolean"
+              ? existing.isPublic
               : undefined;
 
         const body: Record<string, unknown> = { name, slug };
