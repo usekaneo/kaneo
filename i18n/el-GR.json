@@ -1633,6 +1633,11 @@
 			"searchActions": "Αναζήτηση ενεργειών...",
 			"noActionsFound": "Δεν βρέθηκαν ενέργειες.",
 			"changeStatus": "Αλλαγή κατάστασης"
+		},
+		"creator": {
+			"label": "Συγγραφέας",
+			"unknown": "Άγνωστος",
+			"tooltip": "Συγγραφέας: {{name}}"
 		}
 	},
 	"invitations": {

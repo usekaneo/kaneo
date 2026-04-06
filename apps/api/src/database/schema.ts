@@ -296,6 +296,10 @@ export const taskTable = pgTable(
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
     title: text("title").notNull(),
     description: text("description"),
     status: text("status").notNull().default("to-do"),
@@ -315,6 +319,7 @@ export const taskTable = pgTable(
   (table) => [
     index("task_projectId_idx").on(table.projectId),
     index("task_dueDate_idx").on(table.dueDate),
+    index("task_createdBy_idx").on(table.createdBy),
     unique("task_project_number_unique").on(table.projectId, table.number),
   ],
 );

@@ -1633,6 +1633,11 @@
 			"searchActions": "Rechercher des actions...",
 			"noActionsFound": "Aucune action trouvée.",
 			"changeStatus": "Changer le statut"
+		},
+		"creator": {
+			"label": "Auteur",
+			"unknown": "Inconnu",
+			"tooltip": "Auteur : {{name}}"
 		}
 	},
 	"invitations": {

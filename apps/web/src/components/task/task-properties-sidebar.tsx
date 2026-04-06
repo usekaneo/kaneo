@@ -6,6 +6,7 @@ import {
   Copy,
   GitBranch,
   Plus,
+  UserRound,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -99,6 +100,38 @@ export default function TaskPropertiesSidebar({
   const assignee = workspaceUsers?.members?.find(
     (member) => member.userId === task?.userId,
   );
+
+  const creatorMember = task?.createdBy
+    ? workspaceUsers?.members?.find(
+        (member) => member.userId === task.createdBy,
+      )
+    : null;
+  const creatorName = creatorMember?.user?.name ?? task?.creatorName ?? null;
+  const creatorImage = creatorMember?.user?.image ?? task?.creatorImage ?? null;
+  const showCreator = Boolean(task?.createdBy);
+
+  const creatorBadge = showCreator ? (
+    <div
+      className="flex items-center h-7 px-1.5 gap-1.5 text-foreground/70"
+      title={t("tasks:creator.tooltip", {
+        name: creatorName ?? t("tasks:creator.unknown"),
+      })}
+    >
+      {creatorImage || creatorName ? (
+        <Avatar className="h-[16px] w-[16px]">
+          <AvatarImage src={creatorImage ?? ""} alt={creatorName ?? ""} />
+          <AvatarFallback className="text-[9px] font-medium border border-border/30 shrink-0 h-[16px] w-[16px]">
+            {creatorName?.charAt(0).toUpperCase() ?? "?"}
+          </AvatarFallback>
+        </Avatar>
+      ) : (
+        <UserRound className="w-3.5 h-3.5 text-muted-foreground" />
+      )}
+      <span className="text-xs font-semibold truncate max-w-[100px]">
+        {creatorName ?? t("tasks:creator.unknown")}
+      </span>
+    </div>
+  ) : null;
 
   const handleCopyTaskLink = () => {
     navigator.clipboard.writeText(
@@ -242,6 +275,7 @@ export default function TaskPropertiesSidebar({
                   </Button>
                 </TaskAssigneePopover>
               )}
+              {creatorBadge}
               {task && (
                 <TaskStartDatePopover task={task}>
                   <Button
@@ -426,6 +460,7 @@ export default function TaskPropertiesSidebar({
                     </Button>
                   </TaskAssigneePopover>
                 )}
+                {creatorBadge}
                 {task && (
                   <TaskStartDatePopover task={task}>
                     <Button
@@ -613,6 +648,7 @@ export default function TaskPropertiesSidebar({
                     </Button>
                   </TaskAssigneePopover>
                 )}
+                {creatorBadge}
                 {task && (
                   <TaskStartDatePopover task={task}>
                     <Button
