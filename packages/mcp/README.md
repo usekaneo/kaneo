@@ -2,7 +2,7 @@
 
 `@kaneo/mcp` is a local MCP server for Kaneo.
 
-It runs over stdio, signs in with Kaneo's device flow, and then calls the Kaneo API with a bearer token. The package lives in `apps/mcp` in this monorepo and exposes the `kaneo-mcp` CLI.
+It runs over stdio, signs in with Kaneo's device flow, and then calls the Kaneo API with a bearer token. The package lives in `packages/mcp` in this monorepo and exposes the `kaneo-mcp` CLI.
 
 ## Prerequisites
 
@@ -69,7 +69,7 @@ See all options:
 kaneo-mcp install --help
 ```
 
-If you are currently inside the local `apps/mcp` package directory, npm may resolve the local workspace package instead of the published one and fail to expose the bin. In that case, either run `npx` from outside `apps/mcp`, or use a local build:
+If you are currently inside the local `packages/mcp` package directory, npm may resolve the local workspace package instead of the published one and fail to expose the bin. In that case, either run `npx` from outside `packages/mcp`, or use a local build:
 
 ```bash
 node dist/index.js
@@ -91,7 +91,7 @@ pnpm --filter @kaneo/mcp run test
 Or run it from the package directory:
 
 ```bash
-pnpm -C apps/mcp run build
+pnpm -C packages/mcp run build
 ```
 
 The CLI entry points to `./dist/index.js`. Use `npx @kaneo/mcp` or `kaneo-mcp` after a global install so your IDE config points at the resolved path.
