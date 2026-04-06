@@ -34,7 +34,7 @@ RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/
   pnpm run build
 
 # Production stage - use specific version tag without SHA256
-FROM node:20.12-alpine AS runtime
+FROM node:20.20.2-alpine AS runtime
 
 # Set up user in a single layer
 RUN addgroup -g 1001 appuser && \
