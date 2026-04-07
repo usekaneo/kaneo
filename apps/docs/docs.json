@@ -87,6 +87,7 @@
 					{
 						"group": "Integrations",
 						"pages": [
+							"core/integrations/mcp",
 							"core/integrations/discord",
 							"core/integrations/slack",
 							"core/integrations/telegram",

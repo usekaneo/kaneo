@@ -1,0 +1,73 @@
+name: Publish MCP Package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    if: ${{ startsWith(github.event.release.tag_name, 'mcp-v') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20.19.0
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run MCP checks
+        run: |
+          pnpm --filter @kaneo/mcp test
+          pnpm --filter @kaneo/mcp build
+
+      - name: Validate MCP release tag
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
+          TAG_VERSION="${GITHUB_REF_NAME#mcp-v}"
+
+          if [ "${GITHUB_REF_NAME}" = "${TAG_VERSION}" ]; then
+            echo "Release tag must start with mcp-v, got ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+          if [ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]; then
+            echo "Release tag version (${TAG_VERSION}) does not match packages/mcp version (${PACKAGE_VERSION})"
+            exit 1
+          fi
+
+      - name: Check whether @kaneo/mcp version is already published
+        id: version_check
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
+
+          if npm view "@kaneo/mcp@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "@kaneo/mcp@${PACKAGE_VERSION} is already published; skipping publish."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish @kaneo/mcp
+        if: ${{ steps.version_check.outputs.already_published == 'false' }}
+        run: |
+          cd packages/mcp
+          npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
