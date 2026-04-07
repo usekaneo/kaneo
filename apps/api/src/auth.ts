@@ -113,7 +113,7 @@ function getDeviceAuthClientIds(): Set<string> {
         .filter(Boolean),
     );
   }
-  return new Set(["kaneo-cli"]);
+  return new Set(["kaneo-cli", "kaneo-mcp"]);
 }
 
 function getDeviceAuthVerificationUri(): string {

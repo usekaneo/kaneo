@@ -1,0 +1,96 @@
+---
+title: MCP
+description: Connect Kaneo to MCP clients like Cursor and Claude Desktop using the official Kaneo MCP server.
+---
+
+Kaneo ships an official MCP server package, `@kaneo/mcp`, so you can manage workspaces, projects, tasks, comments, and labels from MCP-compatible tools.
+
+The server runs locally over stdio and authenticates with Kaneo using device authorization.
+
+## Prerequisites
+
+- Node.js 20 or newer
+- A running Kaneo API
+- Access to the Kaneo web app to approve device login
+
+By default, self-hosted Kaneo allows both `kaneo-cli` and `kaneo-mcp` as device auth client IDs.
+
+## Install and register
+
+Use the recommended interactive installer:
+
+```bash
+npx @kaneo/mcp
+```
+
+The installer lets you choose where to register the server configuration:
+
+- Cursor (user-wide)
+- Cursor (project-level)
+- Claude Desktop
+- Custom JSON config path
+
+You can also run the explicit install command:
+
+```bash
+kaneo-mcp install --target cursor-user -y
+```
+
+Use `--help` to see all available targets and flags:
+
+```bash
+kaneo-mcp install --help
+```
+
+## Point to a self-hosted instance
+
+When generating config, pass your Kaneo base URL:
+
+```bash
+kaneo-mcp install --target cursor-user -y --api-url https://kaneo.example.com
+```
+
+Or set it via environment variable:
+
+| Variable | Description |
+| --- | --- |
+| `KANEO_API_URL` | Kaneo API origin. Default: `http://localhost:1337`. Do not include `/api`. |
+| `KANEO_MCP_CLIENT_ID` | Device auth client ID. Default: `kaneo-mcp`. |
+
+If you override `KANEO_MCP_CLIENT_ID`, make sure it is included in [`DEVICE_AUTH_CLIENT_IDS`](/core/installation/environment-variables).
+
+## Authentication flow
+
+On the first tool call that needs Kaneo access, the MCP server:
+
+1. Requests a device code from Kaneo
+2. Prints a verification URL and user code
+3. Opens the browser when possible
+4. Polls until you approve sign-in
+5. Stores credentials in `~/.config/kaneo-mcp/credentials.json`
+
+## Available tools
+
+Current MCP tools include:
+
+- Session: `whoami`, `list_workspaces`
+- Projects: `list_projects`, `get_project`, `create_project`, `update_project`
+- Tasks: `list_tasks`, `get_task`, `create_task`, `update_task`, `move_task`, `update_task_status`
+- Comments: `list_task_comments`, `create_task_comment`
+- Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`
+
+## Run manually for debugging
+
+To run the stdio server directly:
+
+```bash
+npx @kaneo/mcp serve
+```
+
+When running from source in this monorepo:
+
+```bash
+pnpm --filter @kaneo/mcp run build
+pnpm --filter @kaneo/mcp run start
+```
+

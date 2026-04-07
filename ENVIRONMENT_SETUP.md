@@ -26,13 +26,13 @@ For development, you'll need at minimum:
 - `KANEO_CLIENT_URL` - The URL of the web application (e.g., `http://localhost:5173`)
 - `KANEO_API_URL` - The URL of the API (e.g., `http://localhost:1337`)
 - `AUTH_SECRET` - Secret key for JWT token generation (**must be at least 32 characters long**; use a long, random value in production)
-- `DEVICE_AUTH_CLIENT_IDS` - Optional comma-separated list of allowed device-flow client IDs (for example `kaneo-cli,my-app`)
+- `DEVICE_AUTH_CLIENT_IDS` - **Optional.** Comma-separated list of allowed device-flow OAuth client IDs. When unset, Kaneo implicitly allows `kaneo-cli` and `kaneo-mcp` by default (no extra configuration for the CLI or MCP). Override only when you need additional trusted clients, for example `kaneo-cli,kaneo-mcp,my-desktop-app`.
 - `DATABASE_URL` - PostgreSQL connection string
 - `POSTGRES_DB` - PostgreSQL database name
 - `POSTGRES_USER` - PostgreSQL username
 - `POSTGRES_PASSWORD` - PostgreSQL password
 
-If you are testing a CLI or external app against your local Kaneo instance, set `DEVICE_AUTH_CLIENT_IDS` to include the client ID your app sends to `/api/auth/device/code`.
+If your app uses a device client ID that is not included in the defaults, set `DEVICE_AUTH_CLIENT_IDS` to the full comma-separated list of allowed IDs (including any defaults you still need), so it includes the client ID your app sends to `/api/auth/device/code`.
 
 ### Development-Specific Variables
 

@@ -97,7 +97,9 @@ const response = await fetch('https://your-kaneo-instance.com/api/task?workspace
 
 ## Using Device Authorization
 
-Before using device authorization on a self-hosted Kaneo instance, the instance operator must allow your client ID through `DEVICE_AUTH_CLIENT_IDS`.
+By default, self-hosted Kaneo allows the built-in device clients `kaneo-cli` and `kaneo-mcp`.
+
+If you want to use a different device client ID, the instance operator must allow it through `DEVICE_AUTH_CLIENT_IDS`.
 
 ### Flow overview
 

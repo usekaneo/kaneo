@@ -1,0 +1,53 @@
+{
+	"name": "@kaneo/mcp",
+	"version": "0.1.5",
+	"description": "Model Context Protocol (stdio) server for Kaneo — tasks, projects, labels, and device authorization",
+	"license": "MIT",
+	"homepage": "https://github.com/usekaneo/kaneo/",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usekaneo/kaneo/",
+		"directory": "packages/mcp"
+	},
+	"type": "module",
+	"bin": {
+		"kaneo-mcp": "dist/index.js"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"keywords": [
+		"mcp",
+		"model-context-protocol",
+		"kaneo",
+		"stdio"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"prepublishOnly": "pnpm run build",
+		"dev": "tsx watch src/index.ts",
+		"lint": "biome check --write .",
+		"start": "node dist/index.js",
+		"test": "vitest run --config vitest.config.ts",
+		"test:watch": "vitest --config vitest.config.ts"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.26.0",
+		"open": "^11.0.0",
+		"prompts": "^2.4.2",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@kaneo/typescript-config": "workspace:*",
+		"@types/node": "^25.3.5",
+		"@types/prompts": "^2.4.9",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.2"
+	}
+}
