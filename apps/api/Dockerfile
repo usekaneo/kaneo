@@ -1,5 +1,5 @@
 # Build stage
-FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS builder
 
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
