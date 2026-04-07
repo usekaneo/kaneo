@@ -1,3 +1,37 @@
+# [2.6.0](https://github.com/usekaneo/kaneo/compare/v2.5.3...v2.6.0) (2026-04-07)
+
+
+### Bug Fixes
+
+* address CodeRabbit review comments ([26735be](https://github.com/usekaneo/kaneo/commit/26735bebae419060bd09194eeeac91c3f6b6fb85))
+* apps/api/Dockerfile to reduce vulnerabilities ([ef0ad52](https://github.com/usekaneo/kaneo/commit/ef0ad52549cfd0628321b71db44e80948d1e5ea3))
+* downgrade dependabot/fetch-metadata to version 2 ([d53164e](https://github.com/usekaneo/kaneo/commit/d53164e2439c2763ebf56a11e0b265735c98537e))
+* fix dist url ([9c2d9af](https://github.com/usekaneo/kaneo/commit/9c2d9af2bf7080d6164d893ef63ac39c519455ef))
+* **mcp:** guard device-flow polling and project fallback types ([037ece5](https://github.com/usekaneo/kaneo/commit/037ece5138bbbee87c3356b0dd7ff4f9772bf6ce))
+* **mcp:** harden auth and tool validation ([cf0a832](https://github.com/usekaneo/kaneo/commit/cf0a832f63e785d3cfb49f7e52c5fd9882a01e3f))
+* **mcp:** harden auth, timeouts, and project update payloads ([64b912f](https://github.com/usekaneo/kaneo/commit/64b912f8cf6dbead379dd71474218146668f6c21))
+* **mcp:** harden install merge, prompts, and device code validation ([f1ef068](https://github.com/usekaneo/kaneo/commit/f1ef0689c426b4e75b653c2f7b07d69138caf0a0))
+* **mcp:** harden project update/auth timeout/install chmod ([b18dfa8](https://github.com/usekaneo/kaneo/commit/b18dfa8e635de712a0701d75067355f79f2f4a36))
+* **mcp:** tighten install validation, merge errors, and config parsing ([7179269](https://github.com/usekaneo/kaneo/commit/71792690f45171ffe93defa9ad56e85c3f00090f))
+* **mcp:** validate custom path in resolveTargetConfigPath ([1a64c25](https://github.com/usekaneo/kaneo/commit/1a64c25a2b60bf97d02544372d58832555eca670))
+* persist project icon from general settings ([e12861e](https://github.com/usekaneo/kaneo/commit/e12861e29c7c899f200b86b03efc1d80e47bbf9c))
+* use refs for comment submit/cancel shortcuts in TipTap handler ([a592d0a](https://github.com/usekaneo/kaneo/commit/a592d0a6b88ea0df664c66752711de858706263b))
+* **web:** prefer column.name over slug-derived label in move popover ([daf3b73](https://github.com/usekaneo/kaneo/commit/daf3b7369fd2c32bfa34b3f7bd8959f25f3ee2b9))
+* **web:** repair comment timestamp tooltip ([fbcf91d](https://github.com/usekaneo/kaneo/commit/fbcf91d9ac16dce0ef38e32dfc62029b01240c06))
+* **web:** use column.id in task move popover ([39e2dfa](https://github.com/usekaneo/kaneo/commit/39e2dfae265f26c8d6d888a560f50ab2d5d58b3f))
+
+
+### Features
+
+* add kaneo mcp app ([a9fffc2](https://github.com/usekaneo/kaneo/commit/a9fffc2236eecae9b6e99c32a94b8de04a9ffa7a))
+* **docs:** add mcp docs ([f6940ed](https://github.com/usekaneo/kaneo/commit/f6940ed20814502a4df2593b309133dde57bef3a))
+* **i18n:** add Russian and Ukrainian locales ([b1ac92a](https://github.com/usekaneo/kaneo/commit/b1ac92a410cc1c6eecba3d7f58a3b73f1b1e4bcd))
+* **mcp:** add interactive installer ([5dd5fd4](https://github.com/usekaneo/kaneo/commit/5dd5fd424fd4cb79571bdf963a2b95897eef3abc))
+* **mcp:** harden install/auth tools and align device auth docs ([d7b4cda](https://github.com/usekaneo/kaneo/commit/d7b4cda244e81e919b597448489a5e3fc510dd13))
+* **mcp:** support multi-target installer ([6ab96ea](https://github.com/usekaneo/kaneo/commit/6ab96ea61bde30ac12dcb2ab43022907bf605556))
+* new docs for mcp; allow mcp by default ([5adb647](https://github.com/usekaneo/kaneo/commit/5adb647d527fe65ef4486c26dc5d45cf848ca98f))
+* separate github sso and integration ([dc4c67d](https://github.com/usekaneo/kaneo/commit/dc4c67dd45c82155b730fc7a4c4b0b3ad7cc198b))
+* **web:** show exact comment timestamp on relative time hover ([ba8cbfe](https://github.com/usekaneo/kaneo/commit/ba8cbfedfc834e78b1d5b732e55a005b586b9bd9))
 ## [2.5.3](https://github.com/usekaneo/kaneo/compare/v2.5.2...v2.5.3) (2026-04-03)
 
 
