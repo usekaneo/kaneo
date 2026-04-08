@@ -297,7 +297,7 @@ export const taskTable = pgTable(
       onUpdate: "cascade",
     }),
     createdBy: text("created_by").references(() => userTable.id, {
-      onDelete: "set null",
+      onDelete: "cascade",
       onUpdate: "cascade",
     }),
     title: text("title").notNull(),

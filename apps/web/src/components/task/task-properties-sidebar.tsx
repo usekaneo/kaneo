@@ -127,6 +127,9 @@ export default function TaskPropertiesSidebar({
       ) : (
         <UserRound className="w-3.5 h-3.5 text-muted-foreground" />
       )}
+      <span className="text-[10px] text-muted-foreground">
+        {t("tasks:creator.label")}:
+      </span>
       <span className="text-xs font-semibold truncate max-w-[100px]">
         {creatorName ?? t("tasks:creator.unknown")}
       </span>
