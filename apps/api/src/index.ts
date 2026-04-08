@@ -535,6 +535,21 @@ export function createApp() {
       }
 
       const userId = c.get("userId");
+
+      if (projectId) {
+        const [project] = await db
+          .select({ workspaceId: schema.projectTable.workspaceId })
+          .from(schema.projectTable)
+          .where(eq(schema.projectTable.id, projectId))
+          .limit(1);
+
+        if (!project) {
+          throw new HTTPException(401, { message: "Unauthorized" });
+        }
+
+        await validateWorkspaceAccess(userId, project.workspaceId);
+      }
+
       const windowId = c.req.query("windowId");
       const initiatorId = windowId ? `${userId}:${windowId}` : userId;
       let conn: ReturnType<typeof addConnection> | null = null;
