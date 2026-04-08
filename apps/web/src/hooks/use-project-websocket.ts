@@ -24,6 +24,8 @@ export function useProjectWebSocket(projectId: string) {
   useEffect(() => {
     if (!projectId || !session?.user?.id) return;
 
+    retriesRef.current = 0;
+
     function connect() {
       const url = getWsUrl(projectId);
       const ws = new WebSocket(url);
