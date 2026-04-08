@@ -157,6 +157,18 @@ export default function TaskRelations({
     return tasks;
   }, [projectData]);
 
+  const finalStatusSlugs = useMemo(() => {
+    if (!projectData) return new Set<string>();
+    if ("columns" in projectData && Array.isArray(projectData.columns)) {
+      return new Set(
+        (projectData.columns as Array<{ id: string; isFinal?: boolean }>)
+          .filter((col) => col.isFinal)
+          .map((col) => col.id),
+      );
+    }
+    return new Set<string>();
+  }, [projectData]);
+
   const filteredTasks = allTasks.filter(
     (t) => !existingRelatedTaskIds.has(t.id),
   );
@@ -281,7 +293,10 @@ export default function TaskRelations({
                               type="button"
                               className="shrink-0 flex items-center justify-center rounded p-0.5 transition-colors outline-none [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
                             >
-                              {getColumnIcon(item.task.status, false)}
+                              {getColumnIcon(
+                                item.task.status,
+                                finalStatusSlugs.has(item.task.status),
+                              )}
                             </button>
                           </SubtaskStatusPopover>
 
@@ -291,7 +306,7 @@ export default function TaskRelations({
                             onClick={() => handleNavigateToTask(item.task.id)}
                           >
                             <span
-                              className={`text-sm truncate block ${item.task.status === "done" ? "line-through text-muted-foreground" : "text-foreground/90"}`}
+                              className={`text-sm truncate block ${finalStatusSlugs.has(item.task.status) ? "line-through text-muted-foreground" : "text-foreground/90"}`}
                             >
                               {item.task.title}
                             </span>
