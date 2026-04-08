@@ -12,7 +12,7 @@ export type BroadcastMessage = {
   excludeInitiatorId?: string;
 };
 
-export interface BroadcastAdapter {
+export type BroadcastAdapter = {
   /** Publish a message to all instances watching this project */
   publish(msg: BroadcastMessage): Promise<void>;
 
@@ -21,4 +21,4 @@ export interface BroadcastAdapter {
 
   /** Cleanup on shutdown */
   shutdown(): Promise<void>;
-}
+};
