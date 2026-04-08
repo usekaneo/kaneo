@@ -244,6 +244,8 @@ for (const eventName of taskUpdateEvents) {
   subscribeToEvent<TaskEvent>(eventName, async (data) => {
     const { projectId, initiatorId } = data;
     const taskId = data.taskId;
+
+    if (!projectId || !taskId) return;
     let type: string;
     switch (eventName) {
       case "task.created":

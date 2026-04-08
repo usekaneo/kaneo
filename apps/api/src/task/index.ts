@@ -409,8 +409,9 @@ const task = new Hono<{
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { tasks } = c.req.valid("json");
+      const currentUserId = c.get("userId");
 
-      const result = await importTasks(projectId, tasks);
+      const result = await importTasks(projectId, tasks, currentUserId);
 
       return c.json(result);
     },
