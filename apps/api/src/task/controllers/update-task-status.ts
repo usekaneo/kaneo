@@ -56,6 +56,11 @@ async function updateTaskStatus({
     type: "status_changed",
   });
 
+  await publishEvent("task-relation.refresh", {
+    projectId: updatedTask.projectId,
+    userId: currentUserId,
+  });
+
   return updatedTask;
 }
 

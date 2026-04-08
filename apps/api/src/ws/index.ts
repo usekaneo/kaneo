@@ -240,6 +240,27 @@ subscribeToEvent<{
   );
 });
 
+subscribeToEvent<{
+  projectId: string;
+  userId: string;
+  initiatorId?: string;
+}>("task-relation.refresh", async (data) => {
+  const { projectId, initiatorId } = data;
+  if (!projectId) return;
+
+  broadcastToProject(
+    projectId,
+    {
+      type: "TASK_RELATION_UPDATED",
+      projectId,
+      taskId: "",
+      sourceTaskId: undefined,
+      targetTaskId: undefined,
+    },
+    initiatorId,
+  );
+});
+
 for (const eventName of taskUpdateEvents) {
   subscribeToEvent<TaskEvent>(eventName, async (data) => {
     const { projectId, initiatorId } = data;

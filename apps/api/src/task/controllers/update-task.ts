@@ -71,6 +71,11 @@ async function updateTask(
       assigneeId: updatedTask.userId,
       type: "status_changed",
     });
+
+    await publishEvent("task-relation.refresh", {
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+    });
   }
 
   await publishEvent("task.updated", {

@@ -68,6 +68,11 @@ export function useProjectWebSocket(projectId: string) {
                   queryKey: ["task-relations", message.targetTaskId],
                 });
               }
+              if (!message.sourceTaskId && !message.targetTaskId) {
+                queryClient.invalidateQueries({
+                  queryKey: ["task-relations"],
+                });
+              }
             } else {
               queryClient.invalidateQueries({
                 queryKey: ["task", message.taskId],

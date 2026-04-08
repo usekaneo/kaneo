@@ -123,6 +123,11 @@ async function bulkUpdateTasks({
             type: "status_changed",
           });
         }
+
+        await publishEvent("task-relation.refresh", {
+          projectId,
+          userId,
+        });
       }
       break;
     }
