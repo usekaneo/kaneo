@@ -3,7 +3,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
 import type { Session, User } from "better-auth/types";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -34,6 +34,7 @@ import label from "./label";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
+import oauth from "./oauth";
 import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
@@ -446,39 +447,7 @@ export function createApp() {
     return eventContext.run({ initiatorId }, next);
   });
 
-  const oauthIdTokenApi = api.get(
-    "/oauth/id-token",
-    describeRoute({
-      operationId: "getOAuthIdToken",
-      tags: ["Authentication"],
-      description:
-        "Get the id_token for the current user's custom OAuth account",
-      responses: {
-        200: {
-          description: "The id_token if available",
-          content: {
-            "application/json": {
-              schema: resolver(v.object({ idToken: v.nullable(v.string()) })),
-            },
-          },
-        },
-      },
-    }),
-    async (c) => {
-      const userId = c.get("userId");
-      const [account] = await db
-        .select({ idToken: schema.accountTable.idToken })
-        .from(schema.accountTable)
-        .where(
-          and(
-            eq(schema.accountTable.userId, userId),
-            eq(schema.accountTable.providerId, "custom"),
-          ),
-        )
-        .limit(1);
-      return c.json({ idToken: account?.idToken ?? null });
-    },
-  );
+  const oauthApi = api.route("/oauth", oauth);
 
   const projectApi = api.route("/project", project);
   const taskApi = api.route("/task", task);
@@ -597,7 +566,7 @@ export function createApp() {
     timeEntryApi,
     workflowRuleApi,
     workspaceApi,
-    oauthIdTokenApi,
+    oauthApi,
   };
 }
 
@@ -698,7 +667,7 @@ const {
   timeEntryApi,
   workflowRuleApi,
   workspaceApi,
-  oauthIdTokenApi,
+  oauthApi,
 } = createdApp;
 
 const isMainModule =
@@ -734,6 +703,6 @@ export type AppType =
   | typeof workspaceApi
   | typeof publicProjectApi
   | typeof invitationPublicApi
-  | typeof oauthIdTokenApi;
+  | typeof oauthApi;
 
 export default app;
