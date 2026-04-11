@@ -88,6 +88,11 @@ export default function TaskPropertiesSidebar({
   const { data: workspaceProjects = [] } = useGetProjects({ workspaceId });
   const canMoveTask =
     Boolean(task) && workspaceProjects.some((p) => p.id !== task?.projectId);
+  const statusColumn = project?.columns?.find(
+    (column) => column.id === task?.status,
+  );
+  const statusLabel = statusColumn?.name || getStatusLabel(task?.status ?? "");
+  const statusIsFinal = statusColumn?.isFinal ?? false;
 
   const projectSlug = project?.slug;
   const taskNumber = task?.number;
@@ -188,9 +193,9 @@ export default function TaskPropertiesSidebar({
                     size="sm"
                     className="justify-start h-7 px-1.5 gap-1.5"
                   >
-                    {getColumnIcon(task.status ?? "", false)}
+                    {getColumnIcon(task.status ?? "", statusIsFinal)}
                     <span className="text-xs font-semibold truncate">
-                      {getStatusLabel(task.status ?? "")}
+                      {statusLabel}
                     </span>
                   </Button>
                 </TaskStatusPopover>
@@ -372,9 +377,9 @@ export default function TaskPropertiesSidebar({
                       size="sm"
                       className="justify-start h-7 px-1.5 gap-1.5"
                     >
-                      {getColumnIcon(task.status ?? "", false)}
+                      {getColumnIcon(task.status ?? "", statusIsFinal)}
                       <span className="text-xs font-semibold truncate">
-                        {getStatusLabel(task.status ?? "")}
+                        {statusLabel}
                       </span>
                     </Button>
                   </TaskStatusPopover>
@@ -559,9 +564,9 @@ export default function TaskPropertiesSidebar({
                       size="sm"
                       className="justify-start h-7 px-1.5 gap-1.5 w-full"
                     >
-                      {getColumnIcon(task.status ?? "", false)}
+                      {getColumnIcon(task.status ?? "", statusIsFinal)}
                       <span className="text-xs font-semibold truncate">
-                        {getStatusLabel(task.status ?? "")}
+                        {statusLabel}
                       </span>
                     </Button>
                   </TaskStatusPopover>

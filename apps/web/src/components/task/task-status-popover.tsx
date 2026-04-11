@@ -11,7 +11,6 @@ import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { getColumnIcon } from "@/lib/column";
-import { getStatusLabel } from "@/lib/i18n/domain";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
@@ -79,9 +78,7 @@ export default function TaskStatusPopover({
               onClick={() => handleStatusChange(status.value)}
             >
               {getColumnIcon(status.value, status.isFinal)}
-              <span className="text-sm">
-                {getStatusLabel(status.value) || status.label}
-              </span>
+              <span className="text-sm">{status.label}</span>
               {task.status === status.value ? (
                 <Check className="ml-auto h-4 w-4" />
               ) : (
