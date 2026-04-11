@@ -15,6 +15,9 @@ import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
+const INITIAL_VISIBLE_USERS = 40;
+const VISIBLE_USERS_STEP = 40;
+
 type TaskAssigneePopoverProps = {
   task: Task;
   workspaceId: string;
@@ -28,6 +31,9 @@ export default function TaskAssigneePopover({
 }: TaskAssigneePopoverProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [visibleUsersCount, setVisibleUsersCount] = useState(
+    INITIAL_VISIBLE_USERS,
+  );
   const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
 
@@ -67,13 +73,43 @@ export default function TaskAssigneePopover({
     return [unassignedOption, ...userOptions];
   }, [usersOptions, handleAssigneeChange]);
 
+  const visibleUsersOptions = useMemo(() => {
+    return usersOptions?.slice(0, visibleUsersCount) ?? [];
+  }, [usersOptions, visibleUsersCount]);
+
+  const handleOpenChange = useCallback((nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      setVisibleUsersCount(INITIAL_VISIBLE_USERS);
+    }
+  }, []);
+
+  const handleListScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      const target = event.currentTarget;
+      const nearBottom =
+        target.scrollHeight - target.scrollTop - target.clientHeight < 48;
+
+      if (!nearBottom) return;
+
+      setVisibleUsersCount((current) => {
+        const totalUsers = usersOptions?.length ?? current;
+        return Math.min(current + VISIBLE_USERS_STEP, totalUsers);
+      });
+    },
+    [usersOptions?.length],
+  );
+
   useNumberedShortcuts(open, shortcutOptions);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="w-56 p-0" align="start">
-        <div className="max-h-80 space-y-1 overflow-y-auto p-1">
+        <div
+          className="max-h-80 space-y-1 overflow-y-auto p-1"
+          onScroll={handleListScroll}
+        >
           <Button
             variant="ghost"
             size="sm"
@@ -97,7 +133,7 @@ export default function TaskAssigneePopover({
               <ShortcutNumber number={1} />
             )}
           </Button>
-          {usersOptions?.map((user, index) => (
+          {visibleUsersOptions.map((user, index) => (
             <Button
               key={user.value}
               variant="ghost"
