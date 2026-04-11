@@ -72,8 +72,8 @@ export default function TaskAssigneePopover({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-48 p-0" align="start">
-        <div className="space-y-1 p-1">
+      <PopoverContent className="w-56 p-0" align="start">
+        <div className="max-h-80 space-y-1 overflow-y-auto p-1">
           <Button
             variant="ghost"
             size="sm"
@@ -97,7 +97,7 @@ export default function TaskAssigneePopover({
               <ShortcutNumber number={1} />
             )}
           </Button>
-          {usersOptions?.slice(0, 8).map((user, index) => (
+          {usersOptions?.map((user, index) => (
             <Button
               key={user.value}
               variant="ghost"
@@ -114,9 +114,9 @@ export default function TaskAssigneePopover({
               <span className="text-sm truncate">{user.label}</span>
               {task.userId === user.value ? (
                 <Check className="ml-auto h-4 w-4 shrink-0" />
-              ) : (
+              ) : index < 8 ? (
                 <ShortcutNumber number={index + 2} />
-              )}
+              ) : null}
             </Button>
           ))}
         </div>
