@@ -115,7 +115,7 @@
 			},
 			{
 				"tab": "API Reference",
-				"openapi": "http://localhost:1337/api/openapi"
+				"openapi": "https://cloud.kaneo.app/api/openapi"
 			}
 		],
 		"global": {
