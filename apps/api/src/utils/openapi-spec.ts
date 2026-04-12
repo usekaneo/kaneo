@@ -438,10 +438,10 @@ export const markOptionalSchemaFieldsNullable = (
 };
 
 export const normalizeEmptyAndEnumSchemas = (spec: Record<string, unknown>) => {
-  const visit = (node: unknown, parentIsProperties?: boolean): void => {
+  const visit = (node: unknown): void => {
     if (Array.isArray(node)) {
       for (const item of node) {
-        visit(item, false);
+        visit(item);
       }
       return;
     }
@@ -488,11 +488,11 @@ export const normalizeEmptyAndEnumSchemas = (spec: Record<string, unknown>) => {
         node[k] = k === "additionalProperties" ? true : { type: "object" };
         continue;
       }
-      visit(value, k === "properties");
+      visit(value);
     }
   };
 
-  visit(spec, false);
+  visit(spec);
   return spec;
 };
 
