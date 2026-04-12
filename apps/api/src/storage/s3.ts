@@ -145,6 +145,9 @@ function getClient(config: StorageConfig) {
     endpoint: config.endpoint,
     region: config.region,
     forcePathStyle: config.forcePathStyle,
+    // Avoid auto-injecting checksum params for presigned PUT URLs. Some
+    // S3-compatible providers (e.g. Garage/R2) reject mismatched hoisted CRCs.
+    requestChecksumCalculation: "WHEN_REQUIRED",
     credentials: {
       accessKeyId: config.accessKeyId,
       secretAccessKey: config.secretAccessKey,
