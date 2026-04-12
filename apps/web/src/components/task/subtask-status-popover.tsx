@@ -12,6 +12,7 @@ import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-stat
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { getColumnIcon } from "@/lib/column";
+import { getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
@@ -87,7 +88,9 @@ export default function SubtaskStatusPopover({
               onClick={() => handleStatusChange(status.value)}
             >
               {getColumnIcon(status.value, status.isFinal)}
-              <span className="text-sm">{status.label}</span>
+              <span className="text-sm">
+                {getStatusDisplayLabel(status.value, status.label)}
+              </span>
               {currentStatus === status.value ? (
                 <Check className="ml-auto h-4 w-4" />
               ) : (

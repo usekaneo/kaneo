@@ -22,6 +22,7 @@ import labelColors from "@/constants/label-colors";
 import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useGetTask from "@/hooks/queries/task/use-get-task";
@@ -30,7 +31,7 @@ import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
-import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
+import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
@@ -81,6 +82,7 @@ export default function TaskPropertiesSidebar({
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
+  const { data: columns = [] } = useGetColumns(projectId);
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId ?? "");
   const { data: githubIntegration } = useGetGithubIntegration(projectId);
@@ -88,10 +90,10 @@ export default function TaskPropertiesSidebar({
   const { data: workspaceProjects = [] } = useGetProjects({ workspaceId });
   const canMoveTask =
     Boolean(task) && workspaceProjects.some((p) => p.id !== task?.projectId);
-  const statusColumn = project?.columns?.find(
-    (column) => column.id === task?.status,
+  const statusColumn = columns.find(
+    (column) => column.slug === task?.status || column.id === task?.status,
   );
-  const statusLabel = statusColumn?.name || getStatusLabel(task?.status ?? "");
+  const statusLabel = getStatusDisplayLabel(task?.status ?? "", statusColumn?.name);
   const statusIsFinal = statusColumn?.isFinal ?? false;
 
   const projectSlug = project?.slug;
