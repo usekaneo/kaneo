@@ -1,3 +1,23 @@
+## [2.6.1](https://github.com/usekaneo/kaneo/compare/v2.6.0...v2.6.1) (2026-04-12)
+
+
+### Bug Fixes
+
+* **api:** avoid checksum query params in presigned S3 uploads ([d798772](https://github.com/usekaneo/kaneo/commit/d79877238d653aaf3ed3b637cdb56de0f72863ad))
+* **docs:** update OpenAPI URL to use the production endpoint ([2b52824](https://github.com/usekaneo/kaneo/commit/2b5282474b28aaa5f97ae092126de692dbfa41b2))
+* **task:** load sidebar status metadata from columns and restore default status i18n ([7d65de7](https://github.com/usekaneo/kaneo/commit/7d65de722db0bce6ea995367e181ab8c22c2a63c))
+* **task:** use renamed project column names in status popovers ([436a14e](https://github.com/usekaneo/kaneo/commit/436a14e4c3d5ce2721cde24556c17c9f81fa75be))
+* **web:** show all workspace members in assignee popovers ([1448bfe](https://github.com/usekaneo/kaneo/commit/1448bfe429885b82ba45100239b1b1b469a6aed6))
+
+
+### Features
+
+* **api:** add normalizeEmptyAndEnumSchemas function for OpenAPI spec processing ([13c544d](https://github.com/usekaneo/kaneo/commit/13c544d1a5e272c0c7ee0f4d57f59822dc2b9de7))
+
+
+### Performance Improvements
+
+* **web:** incrementally render assignee popover members ([4526548](https://github.com/usekaneo/kaneo/commit/452654871ea42a49d103925e4d29de8ff4e68825))
 # [2.6.0](https://github.com/usekaneo/kaneo/compare/v2.5.3...v2.6.0) (2026-04-07)
 
 
