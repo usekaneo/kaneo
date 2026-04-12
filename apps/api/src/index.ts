@@ -59,6 +59,7 @@ import {
   markOptionalSchemaFieldsNullable,
   mergeOpenApiSpecs,
   normalizeApiServerUrl,
+  normalizeEmptyAndEnumSchemas,
   normalizeEmptyRequiredArrays,
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
@@ -309,8 +310,10 @@ export function createApp() {
         dedupeOperationIds(
           markOptionalSchemaFieldsNullable(
             normalizeNullableSchemasForOpenApi30(
-              normalizeEmptyRequiredArrays(
-                mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+              normalizeEmptyAndEnumSchemas(
+                normalizeEmptyRequiredArrays(
+                  mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+                ),
               ),
             ),
           ),

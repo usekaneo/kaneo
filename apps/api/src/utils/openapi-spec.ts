@@ -437,6 +437,65 @@ export const markOptionalSchemaFieldsNullable = (
   return spec;
 };
 
+export const normalizeEmptyAndEnumSchemas = (spec: Record<string, unknown>) => {
+  const visit = (node: unknown, parentIsProperties?: boolean): void => {
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        visit(item, false);
+      }
+      return;
+    }
+
+    if (!isPlainObject(node)) {
+      return;
+    }
+
+    // propertyNames is not valid in OpenAPI 3.0.x — remove it
+    if ("propertyNames" in node) {
+      delete node.propertyNames;
+    }
+
+    // Schema with enum but no type → add type: "string"
+    if (Array.isArray(node.enum) && !node.type && !node.$ref) {
+      node.type = "string";
+    }
+
+    // $ref with siblings is invalid in 3.0.x → wrap in allOf
+    if (typeof node.$ref === "string" && Object.keys(node).length > 1) {
+      const ref = node.$ref as string;
+      delete node.$ref;
+      const rest = { ...node };
+      for (const k of Object.keys(node)) {
+        delete node[k];
+      }
+      Object.assign(node, { allOf: [{ $ref: ref }], ...rest });
+    }
+
+    // For "properties" maps, check children for empty schemas (v.date() → {})
+    if (isPlainObject(node.properties)) {
+      const props = node.properties as Record<string, unknown>;
+      for (const [name, schema] of Object.entries(props)) {
+        if (isPlainObject(schema) && Object.keys(schema).length === 0) {
+          props[name] = { type: "string", format: "date-time" };
+        }
+      }
+    }
+
+    for (const [k, value] of Object.entries(node)) {
+      // Replace remaining empty schemas {} (e.g. v.any() or v.unknown()).
+      if (isPlainObject(value) && Object.keys(value).length === 0) {
+        // additionalProperties: {} → true (means "any additional properties")
+        node[k] = k === "additionalProperties" ? true : { type: "object" };
+        continue;
+      }
+      visit(value, k === "properties");
+    }
+  };
+
+  visit(spec, false);
+  return spec;
+};
+
 export const ensureOperationSummaries = (spec: Record<string, unknown>) => {
   const paths = ((spec as { paths?: unknown }).paths || {}) as Record<
     string,
