@@ -8,7 +8,9 @@ export function getStatusLabel(status: string) {
 }
 
 export function getStatusDisplayLabel(status: string, columnName?: string) {
-  const defaultName = DEFAULT_COLUMNS.find((column) => column.id === status)?.name;
+  const defaultName = DEFAULT_COLUMNS.find(
+    (column) => column.id === status,
+  )?.name;
 
   if (columnName) {
     if (defaultName && columnName === defaultName) {

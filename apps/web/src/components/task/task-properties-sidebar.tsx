@@ -19,10 +19,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import labelColors from "@/constants/label-colors";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
-import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useGetTask from "@/hooks/queries/task/use-get-task";
@@ -93,7 +93,10 @@ export default function TaskPropertiesSidebar({
   const statusColumn = columns.find(
     (column) => column.slug === task?.status || column.id === task?.status,
   );
-  const statusLabel = getStatusDisplayLabel(task?.status ?? "", statusColumn?.name);
+  const statusLabel = getStatusDisplayLabel(
+    task?.status ?? "",
+    statusColumn?.name,
+  );
   const statusIsFinal = statusColumn?.isFinal ?? false;
 
   const projectSlug = project?.slug;
