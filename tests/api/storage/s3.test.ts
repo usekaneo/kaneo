@@ -3,6 +3,7 @@ import {
   assertTaskImageKeyMatchesContext,
   buildObjectKey,
   buildObjectKeyPrefix,
+  createTaskImageUploadUrl,
   getFileExtension,
   isImageContentType,
   parseBoolean,
@@ -13,6 +14,12 @@ import {
 
 describe("S3 helpers", () => {
   const originalMaxSize = process.env.S3_MAX_IMAGE_UPLOAD_BYTES;
+  const originalEndpoint = process.env.S3_ENDPOINT;
+  const originalBucket = process.env.S3_BUCKET;
+  const originalAccessKeyId = process.env.S3_ACCESS_KEY_ID;
+  const originalSecretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
+  const originalRegion = process.env.S3_REGION;
+  const originalPathStyle = process.env.S3_FORCE_PATH_STYLE;
 
   beforeEach(() => {
     delete process.env.S3_MAX_IMAGE_UPLOAD_BYTES;
@@ -20,12 +27,48 @@ describe("S3 helpers", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+
     if (originalMaxSize === undefined) {
       delete process.env.S3_MAX_IMAGE_UPLOAD_BYTES;
-      return;
+    } else {
+      process.env.S3_MAX_IMAGE_UPLOAD_BYTES = originalMaxSize;
     }
 
-    process.env.S3_MAX_IMAGE_UPLOAD_BYTES = originalMaxSize;
+    if (originalEndpoint === undefined) {
+      delete process.env.S3_ENDPOINT;
+    } else {
+      process.env.S3_ENDPOINT = originalEndpoint;
+    }
+
+    if (originalBucket === undefined) {
+      delete process.env.S3_BUCKET;
+    } else {
+      process.env.S3_BUCKET = originalBucket;
+    }
+
+    if (originalAccessKeyId === undefined) {
+      delete process.env.S3_ACCESS_KEY_ID;
+    } else {
+      process.env.S3_ACCESS_KEY_ID = originalAccessKeyId;
+    }
+
+    if (originalSecretAccessKey === undefined) {
+      delete process.env.S3_SECRET_ACCESS_KEY;
+    } else {
+      process.env.S3_SECRET_ACCESS_KEY = originalSecretAccessKey;
+    }
+
+    if (originalRegion === undefined) {
+      delete process.env.S3_REGION;
+    } else {
+      process.env.S3_REGION = originalRegion;
+    }
+
+    if (originalPathStyle === undefined) {
+      delete process.env.S3_FORCE_PATH_STYLE;
+    } else {
+      process.env.S3_FORCE_PATH_STYLE = originalPathStyle;
+    }
   });
 
   it("recognizes allowed image content types case-insensitively", () => {
@@ -97,5 +140,27 @@ describe("S3 helpers", () => {
       validateTaskAssetUploadInput("image/png", 2 * 1024 * 1024),
     ).toThrow("Upload exceeds the maximum upload size of 1MB.");
     expect(() => validateTaskAssetUploadInput("image/png", 512)).not.toThrow();
+  });
+
+  it("creates presigned upload URLs without hoisted checksum query params", async () => {
+    process.env.S3_ENDPOINT = "https://storage.example.test";
+    process.env.S3_BUCKET = "kaneo";
+    process.env.S3_ACCESS_KEY_ID = "test-access-key";
+    process.env.S3_SECRET_ACCESS_KEY = "test-secret-key";
+    process.env.S3_REGION = "us-east-1";
+    process.env.S3_FORCE_PATH_STYLE = "true";
+
+    const upload = await createTaskImageUploadUrl({
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      taskId: "task-1",
+      surface: "description",
+      filename: "report.png",
+      contentType: "image/png",
+    });
+
+    const searchParams = new URL(upload.uploadUrl).searchParams;
+    expect(searchParams.has("x-amz-checksum-crc32")).toBe(false);
+    expect(searchParams.has("x-amz-sdk-checksum-algorithm")).toBe(false);
   });
 });
