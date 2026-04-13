@@ -1,3 +1,9 @@
+## [2.6.4](https://github.com/usekaneo/kaneo/compare/v2.6.3...v2.6.4) (2026-04-13)
+
+
+### Features
+
+* **mcp:** add OAuth 2.0 well-known endpoints for authorization server ([a271249](https://github.com/usekaneo/kaneo/commit/a271249a12c10ab7f651c07c2d01855bb191b87c))
 ## [2.6.3](https://github.com/usekaneo/kaneo/compare/v2.6.2...v2.6.3) (2026-04-13)
 
 
