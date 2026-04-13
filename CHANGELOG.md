@@ -1,3 +1,9 @@
+## [2.6.5](https://github.com/usekaneo/kaneo/compare/v2.6.4...v2.6.5) (2026-04-13)
+
+
+### Bug Fixes
+
+* **api:** remove trailing '/api' from KANEO_API_URL in routing ([d311f8c](https://github.com/usekaneo/kaneo/commit/d311f8c333cc78f477418e431dad5db1c93f899c))
 ## [2.6.4](https://github.com/usekaneo/kaneo/compare/v2.6.3...v2.6.4) (2026-04-13)
 
 
