@@ -1,3 +1,14 @@
+## [2.6.2](https://github.com/usekaneo/kaneo/compare/v2.6.1...v2.6.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* **api:** simplify visit function in normalizeEmptyAndEnumSchemas ([a00592e](https://github.com/usekaneo/kaneo/commit/a00592e0325540c9ee1f5e4027dafdb5a3204717))
+
+
+### Features
+
+* **mcp:** implement Model Context Protocol server with HTTP and stdio support ([e402fe1](https://github.com/usekaneo/kaneo/commit/e402fe16928e6075a1251ba068380890b3c825e7))
 ## [2.6.1](https://github.com/usekaneo/kaneo/compare/v2.6.0...v2.6.1) (2026-04-12)
 
 
