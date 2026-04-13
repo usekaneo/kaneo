@@ -14,15 +14,19 @@ if [ ! -z "$KANEO_API_URL" ]; then
   # Also check for the escaped version which might appear in some files
   find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "\"KANEO_API_URL\"" {} \; | xargs -r sed -i "s#\"KANEO_API_URL\"#\"$KANEO_API_URL\"#g"
 
-  # Replace placeholder in nginx config so /.well-known proxies to the API
-  sed -i "s#KANEO_API_URL_PLACEHOLDER#$KANEO_API_URL#g" /etc/nginx/conf.d/default.conf
+  # Build MCP OAuth discovery JSON for nginx to serve at /.well-known
+  BASE_URL=$(echo "$KANEO_API_URL" | sed 's#/api/*$##')
+  PRM_JSON="{\"resource\":\"${BASE_URL}/api/mcp\",\"authorization_servers\":[\"${BASE_URL}/api\"]}"
+  AS_JSON="{\"issuer\":\"${BASE_URL}/api\",\"authorization_endpoint\":\"${BASE_URL}/api/mcp/authorize\",\"token_endpoint\":\"${BASE_URL}/api/mcp/token\",\"registration_endpoint\":\"${BASE_URL}/api/mcp/register\",\"response_types_supported\":[\"code\"],\"grant_types_supported\":[\"authorization_code\"],\"code_challenge_methods_supported\":[\"S256\"],\"token_endpoint_auth_methods_supported\":[\"none\"]}"
+  sed -i "s#MCP_PRM_JSON_PLACEHOLDER#$PRM_JSON#g" /etc/nginx/conf.d/default.conf
+  sed -i "s#MCP_AS_JSON_PLACEHOLDER#$AS_JSON#g" /etc/nginx/conf.d/default.conf
 
   echo "✅ Replaced KANEO_API_URL with $KANEO_API_URL"
 else
   echo "WARNING: KANEO_API_URL environment variable is not set. API calls may fail."
-  # Replace proxy block with 404 so nginx doesn't fail on missing upstream
-  sed -i 's#proxy_pass KANEO_API_URL_PLACEHOLDER;#return 404;#g' /etc/nginx/conf.d/default.conf
-  sed -i '/proxy_set_header.*Host/d;/proxy_set_header.*Forwarded/d' /etc/nginx/conf.d/default.conf
+  # No API URL — remove MCP placeholders so nginx doesn't serve broken JSON
+  sed -i "s#MCP_PRM_JSON_PLACEHOLDER#{}#g" /etc/nginx/conf.d/default.conf
+  sed -i "s#MCP_AS_JSON_PLACEHOLDER#{}#g" /etc/nginx/conf.d/default.conf
 fi
 
 # Process KANEO_CLIENT_URL efficiently
