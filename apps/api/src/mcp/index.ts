@@ -12,7 +12,10 @@ import {
 import { registerMcpTools } from "./tools";
 
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
-const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
+const apiUrl = (process.env.KANEO_API_URL || "http://localhost:1337").replace(
+  /\/api\/?$/,
+  "",
+);
 
 const sessions = new Map<string, WebStandardStreamableHTTPServerTransport>();
 

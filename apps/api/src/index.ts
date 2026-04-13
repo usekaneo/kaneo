@@ -480,7 +480,12 @@ export function createApp() {
 
   app.route(
     "/",
-    mcpWellKnownRoutes(process.env.KANEO_API_URL || "http://localhost:1337"),
+    mcpWellKnownRoutes(
+      (process.env.KANEO_API_URL || "http://localhost:1337").replace(
+        /\/api\/?$/,
+        "",
+      ),
+    ),
   );
 
   app.route("/api", api);
