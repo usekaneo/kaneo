@@ -1,3 +1,9 @@
+## [2.6.6](https://github.com/usekaneo/kaneo/compare/v2.6.5...v2.6.6) (2026-04-13)
+
+
+### Features
+
+* **api:** add mcp redirects ([491fa81](https://github.com/usekaneo/kaneo/commit/491fa817a5d6a6d1887b1bb3ad9fff99c4156329))
 ## [2.6.5](https://github.com/usekaneo/kaneo/compare/v2.6.4...v2.6.5) (2026-04-13)
 
 
