@@ -1,3 +1,9 @@
+## [2.6.8](https://github.com/usekaneo/kaneo/compare/v2.6.7...v2.6.8) (2026-04-13)
+
+
+### Features
+
+* **nginx:** update well-known endpoints to serve MCP OAuth discovery JSON ([f8df338](https://github.com/usekaneo/kaneo/commit/f8df338429a33c0b84aeb3a8602d912a5fc8fcc2))
 ## [2.6.7](https://github.com/usekaneo/kaneo/compare/v2.6.6...v2.6.7) (2026-04-13)
 
 
