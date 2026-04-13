@@ -20,8 +20,9 @@ if [ ! -z "$KANEO_API_URL" ]; then
   echo "✅ Replaced KANEO_API_URL with $KANEO_API_URL"
 else
   echo "WARNING: KANEO_API_URL environment variable is not set. API calls may fail."
-  # Remove the proxy block so nginx doesn't fail on missing upstream
-  sed -i '/KANEO_API_URL_PLACEHOLDER/,+3d' /etc/nginx/conf.d/default.conf
+  # Replace proxy block with 404 so nginx doesn't fail on missing upstream
+  sed -i 's#proxy_pass KANEO_API_URL_PLACEHOLDER;#return 404;#g' /etc/nginx/conf.d/default.conf
+  sed -i '/proxy_set_header.*Host/d;/proxy_set_header.*Forwarded/d' /etc/nginx/conf.d/default.conf
 fi
 
 # Process KANEO_CLIENT_URL efficiently

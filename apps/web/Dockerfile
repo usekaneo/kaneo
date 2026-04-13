@@ -52,8 +52,9 @@ RUN addgroup -g 1001 appuser && \
 # Copy built files from builder stage
 COPY --from=builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
 
-# Copy nginx configuration
+# Copy nginx configuration (writable so env.sh can substitute placeholders at runtime)
 COPY --chown=appuser:appuser apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+RUN chown -R appuser:appuser /etc/nginx/conf.d
 
 # Copy and set permissions for environment script
 COPY --chown=appuser:appuser apps/web/env.sh /docker-entrypoint.d/env.sh
