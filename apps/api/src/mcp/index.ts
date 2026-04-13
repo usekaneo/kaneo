@@ -75,12 +75,6 @@ mcp.get("/mcp/authorize", async (c) => {
   if (!client) {
     return c.json({ error: "invalid_client" }, 400);
   }
-  if (
-    client.redirectUris.length > 0 &&
-    !client.redirectUris.includes(redirectUri)
-  ) {
-    return c.json({ error: "invalid_redirect_uri" }, 400);
-  }
 
   const session = await auth.api.getSession({
     headers: c.req.raw.headers,
@@ -99,9 +93,116 @@ mcp.get("/mcp/authorize", async (c) => {
     return c.redirect(url.toString());
   }
 
-  const returnUrl = c.req.url;
-  const loginUrl = `${clientUrl}/auth/sign-in?redirect=${encodeURIComponent(returnUrl)}`;
-  return c.redirect(loginUrl);
+  const deviceRes = await fetch(`${apiUrl}/api/auth/device/code`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ client_id: "kaneo-mcp" }),
+  });
+
+  if (!deviceRes.ok) {
+    return c.json({ error: "device_code_failed" }, 500);
+  }
+
+  const device = (await deviceRes.json()) as {
+    device_code: string;
+    user_code: string;
+    verification_uri: string;
+    interval: number;
+    expires_in: number;
+  };
+
+  const devicePageUrl = `${clientUrl}/device?user_code=${encodeURIComponent(device.user_code)}`;
+
+  return c.html(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kaneo MCP</title>
+  <script>window.location.href = ${JSON.stringify(devicePageUrl)};</script>
+</head>
+<body>Redirecting to Kaneo…</body>
+<script>
+  const deviceCode = ${JSON.stringify(device.device_code)};
+  const interval = ${device.interval} * 1000;
+  const apiUrl = ${JSON.stringify(apiUrl)};
+  const redirectUri = ${JSON.stringify(redirectUri)};
+  const codeChallenge = ${JSON.stringify(codeChallenge)};
+  const clientId = ${JSON.stringify(clientId)};
+  const state = ${JSON.stringify(state || "")};
+
+  async function poll() {
+    try {
+      const res = await fetch(apiUrl + "/api/auth/device/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+          device_code: deviceCode,
+          client_id: "kaneo-mcp"
+        })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.access_token) {
+        const codeRes = await fetch(apiUrl + "/api/mcp/authorize/callback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            access_token: data.access_token,
+            client_id: clientId,
+            code_challenge: codeChallenge,
+            redirect_uri: redirectUri,
+            state: state
+          })
+        });
+        const codeData = await codeRes.json();
+        if (codeData.redirect) window.location.href = codeData.redirect;
+        return;
+      }
+
+      if (data.error === "authorization_pending" || data.error === "slow_down") {
+        setTimeout(poll, data.error === "slow_down" ? interval + 5000 : interval);
+        return;
+      }
+    } catch {
+      setTimeout(poll, interval);
+    }
+  }
+
+  setTimeout(poll, interval);
+</script>
+</html>`);
+});
+
+mcp.post("/mcp/authorize/callback", async (c) => {
+  const body = await c.req.json();
+  const { access_token, client_id, code_challenge, redirect_uri, state } = body;
+
+  if (!access_token || !client_id || !code_challenge || !redirect_uri) {
+    return c.json({ error: "invalid_request" }, 400);
+  }
+
+  const headers = new Headers();
+  headers.set("authorization", `Bearer ${access_token}`);
+  const session = await auth.api.getSession({ headers });
+
+  if (!session?.user?.id) {
+    return c.json({ error: "invalid_token" }, 401);
+  }
+
+  const code = createAuthCode({
+    clientId: client_id,
+    userId: session.user.id,
+    codeChallenge: code_challenge,
+    redirectUri: redirect_uri,
+  });
+
+  const url = new URL(redirect_uri);
+  url.searchParams.set("code", code);
+  if (state) url.searchParams.set("state", state);
+
+  return c.json({ redirect: url.toString() });
 });
 
 mcp.post("/mcp/token", async (c) => {
