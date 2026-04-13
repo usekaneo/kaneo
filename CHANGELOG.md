@@ -1,3 +1,9 @@
+## [2.6.3](https://github.com/usekaneo/kaneo/compare/v2.6.2...v2.6.3) (2026-04-13)
+
+
+### Features
+
+* **mcp:** implement device authorization flow with polling mechanism ([4858952](https://github.com/usekaneo/kaneo/commit/485895241cfd7ff0dedc98d6cf852fba64f6732d))
 ## [2.6.2](https://github.com/usekaneo/kaneo/compare/v2.6.1...v2.6.2) (2026-04-13)
 
 
