@@ -84,6 +84,9 @@ importers:
       '@kaneo/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.26.0
+        version: 1.26.0(zod@4.3.6)
       '@octokit/webhooks':
         specifier: ^14.2.0
         version: 14.2.0

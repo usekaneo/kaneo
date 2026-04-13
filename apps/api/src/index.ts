@@ -29,6 +29,7 @@ import githubIntegration, {
 } from "./github-integration";
 import invitation from "./invitation";
 import label from "./label";
+import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
@@ -421,6 +422,8 @@ export function createApp() {
     return auth.handler(c.req.raw);
   });
 
+  api.route("/", mcpRoutes);
+
   api.use("*", async (c, next) => {
     try {
       await authenticateApiRequest(c);
@@ -470,6 +473,11 @@ export function createApp() {
   const workflowRuleApi = api.route("/workflow-rule", workflowRule);
   const invitationApi = api.route("/invitation", invitation);
   const workspaceApi = api.route("/workspace", workspace);
+
+  app.route(
+    "/",
+    mcpWellKnownRoutes(process.env.KANEO_API_URL || "http://localhost:1337"),
+  );
 
   app.route("/api", api);
 
