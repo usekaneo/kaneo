@@ -425,6 +425,10 @@ export function createApp() {
   api.route("/", mcpRoutes);
 
   api.use("*", async (c, next) => {
+    const path = c.req.path;
+    if (path.startsWith("/api/mcp") || path.startsWith("/api/.well-known/")) {
+      return next();
+    }
     try {
       await authenticateApiRequest(c);
     } catch (error) {

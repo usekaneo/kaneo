@@ -242,9 +242,31 @@ mcp.post("/mcp/token", async (c) => {
   });
 });
 
+mcp.get("/.well-known/oauth-protected-resource/api/mcp", (c) =>
+  c.json({
+    resource: `${apiUrl}/api/mcp`,
+    authorization_servers: [`${apiUrl}/api`],
+  }),
+);
+
+mcp.get("/.well-known/oauth-authorization-server/api", (c) =>
+  c.json({
+    issuer: `${apiUrl}/api`,
+    authorization_endpoint: `${apiUrl}/api/mcp/authorize`,
+    token_endpoint: `${apiUrl}/api/mcp/token`,
+    registration_endpoint: `${apiUrl}/api/mcp/register`,
+    response_types_supported: ["code"],
+    grant_types_supported: ["authorization_code"],
+    code_challenge_methods_supported: ["S256"],
+    token_endpoint_auth_methods_supported: ["none"],
+  }),
+);
+
 mcp.all("/mcp", async (c) => {
   const authResult = await validateBearerToken(c.req.raw);
   if (!authResult) {
+    const prmUrl = `${apiUrl}/api/.well-known/oauth-protected-resource/api/mcp`;
+    c.header("WWW-Authenticate", `Bearer resource_metadata="${prmUrl}"`);
     return c.json(
       {
         error: "invalid_token",
