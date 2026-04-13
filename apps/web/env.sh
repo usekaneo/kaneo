@@ -6,17 +6,22 @@ echo "Starting environment variable replacement..."
 # Process KANEO_API_URL first (with special handling)
 if [ ! -z "$KANEO_API_URL" ]; then
   echo "Found KANEO_API_URL: $KANEO_API_URL"
-  
+
   # First, replace the exact string "KANEO_API_URL" in all JavaScript files
   # Use grep -l to only process files that contain the string
   find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "KANEO_API_URL" {} \; | xargs -r sed -i "s#KANEO_API_URL#$KANEO_API_URL#g"
-  
+
   # Also check for the escaped version which might appear in some files
   find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "\"KANEO_API_URL\"" {} \; | xargs -r sed -i "s#\"KANEO_API_URL\"#\"$KANEO_API_URL\"#g"
-  
+
+  # Replace placeholder in nginx config so /.well-known proxies to the API
+  sed -i "s#KANEO_API_URL_PLACEHOLDER#$KANEO_API_URL#g" /etc/nginx/conf.d/default.conf
+
   echo "✅ Replaced KANEO_API_URL with $KANEO_API_URL"
 else
   echo "WARNING: KANEO_API_URL environment variable is not set. API calls may fail."
+  # Remove the proxy block so nginx doesn't fail on missing upstream
+  sed -i '/KANEO_API_URL_PLACEHOLDER/,+3d' /etc/nginx/conf.d/default.conf
 fi
 
 # Process KANEO_CLIENT_URL efficiently
