@@ -1,3 +1,9 @@
+## [2.6.7](https://github.com/usekaneo/kaneo/compare/v2.6.6...v2.6.7) (2026-04-13)
+
+
+### Bug Fixes
+
+* **docker:** update nginx configuration for environment variable handling ([a693fd6](https://github.com/usekaneo/kaneo/commit/a693fd6095b281392059da9ffff96c075a805166))
 ## [2.6.6](https://github.com/usekaneo/kaneo/compare/v2.6.5...v2.6.6) (2026-04-13)
 
 
