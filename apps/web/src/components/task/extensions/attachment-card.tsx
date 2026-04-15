@@ -61,7 +61,9 @@ function AttachmentCardView({ node }: NodeViewProps) {
       setIsDownloading(true);
 
       try {
-        const response = await fetch(downloadUrl);
+        const response = await fetch(downloadUrl, {
+          credentials: "include",
+        });
 
         if (!response.ok) {
           throw new Error(`Download failed with status ${response.status}`);
