@@ -3,11 +3,35 @@ title: MCP
 description: Connect Kaneo to MCP clients like Cursor and Claude Desktop using the official Kaneo MCP server.
 ---
 
-Kaneo ships an official MCP server package, `@kaneo/mcp`, so you can manage workspaces, projects, tasks, comments, and labels from MCP-compatible tools.
+Kaneo supports the Model Context Protocol (MCP) in two ways:
 
-The server runs locally over stdio and authenticates with Kaneo using device authorization.
+1. **Built-in HTTP endpoint** — every Kaneo instance exposes `/api/mcp` out of the box. No extra setup, no extra process.
+2. **Stdio package** (`@kaneo/mcp`) — a local stdio server for clients that prefer stdio transport.
 
-## Prerequisites
+Both offer the same tools for managing workspaces, projects, tasks, comments, and labels.
+
+## Built-in HTTP endpoint
+
+Every Kaneo API instance ships with a Streamable HTTP MCP endpoint. This is the recommended approach for self-hosted deployments.
+
+Point your MCP client at:
+
+```
+https://your-kaneo-instance.com/api/mcp
+```
+
+On first connect, you will be redirected to Kaneo's login page. After you sign in, all MCP tools run as your authenticated user.
+
+The endpoint implements OAuth 2.1 with PKCE for authentication. Discovery metadata is available at:
+
+- `/.well-known/oauth-protected-resource/api/mcp`
+- `/.well-known/oauth-authorization-server/api`
+
+## Stdio package
+
+The `@kaneo/mcp` package runs a local stdio MCP server and authenticates with Kaneo using device authorization. Use this when your MCP client requires stdio transport.
+
+### Prerequisites
 
 - Node.js 20 or newer
 - A running Kaneo API
@@ -15,7 +39,7 @@ The server runs locally over stdio and authenticates with Kaneo using device aut
 
 By default, self-hosted Kaneo allows both `kaneo-cli` and `kaneo-mcp` as device auth client IDs.
 
-## Install and register
+### Install and register
 
 Use the recommended interactive installer:
 
@@ -42,7 +66,7 @@ Use `--help` to see all available targets and flags:
 kaneo-mcp install --help
 ```
 
-## Point to a self-hosted instance
+### Point to a self-hosted instance
 
 When generating config, pass your Kaneo base URL:
 
@@ -59,7 +83,7 @@ Or set it via environment variable:
 
 If you override `KANEO_MCP_CLIENT_ID`, make sure it is included in [`DEVICE_AUTH_CLIENT_IDS`](/core/installation/environment-variables).
 
-## Authentication flow
+### Authentication flow
 
 On the first tool call that needs Kaneo access, the MCP server:
 
@@ -71,7 +95,7 @@ On the first tool call that needs Kaneo access, the MCP server:
 
 ## Available tools
 
-Current MCP tools include:
+Both the HTTP endpoint and stdio package expose the same tools:
 
 - Session: `whoami`, `list_workspaces`
 - Projects: `list_projects`, `get_project`, `create_project`, `update_project`
@@ -79,7 +103,7 @@ Current MCP tools include:
 - Comments: `list_task_comments`, `create_task_comment`
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`
 
-## Run manually for debugging
+## Debugging
 
 To run the stdio server directly:
 
@@ -93,4 +117,3 @@ When running from source in this monorepo:
 pnpm --filter @kaneo/mcp run build
 pnpm --filter @kaneo/mcp run start
 ```
-

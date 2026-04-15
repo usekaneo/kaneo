@@ -29,6 +29,7 @@ import githubIntegration, {
 } from "./github-integration";
 import invitation from "./invitation";
 import label from "./label";
+import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
@@ -59,6 +60,7 @@ import {
   markOptionalSchemaFieldsNullable,
   mergeOpenApiSpecs,
   normalizeApiServerUrl,
+  normalizeEmptyAndEnumSchemas,
   normalizeEmptyRequiredArrays,
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
@@ -309,8 +311,10 @@ export function createApp() {
         dedupeOperationIds(
           markOptionalSchemaFieldsNullable(
             normalizeNullableSchemasForOpenApi30(
-              normalizeEmptyRequiredArrays(
-                mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+              normalizeEmptyAndEnumSchemas(
+                normalizeEmptyRequiredArrays(
+                  mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+                ),
               ),
             ),
           ),
@@ -418,7 +422,13 @@ export function createApp() {
     return auth.handler(c.req.raw);
   });
 
+  api.route("/", mcpRoutes);
+
   api.use("*", async (c, next) => {
+    const path = c.req.path;
+    if (path.startsWith("/api/mcp") || path.startsWith("/api/.well-known/")) {
+      return next();
+    }
     try {
       await authenticateApiRequest(c);
     } catch (error) {
@@ -467,6 +477,16 @@ export function createApp() {
   const workflowRuleApi = api.route("/workflow-rule", workflowRule);
   const invitationApi = api.route("/invitation", invitation);
   const workspaceApi = api.route("/workspace", workspace);
+
+  app.route(
+    "/",
+    mcpWellKnownRoutes(
+      (process.env.KANEO_API_URL || "http://localhost:1337").replace(
+        /\/api\/?$/,
+        "",
+      ),
+    ),
+  );
 
   app.route("/api", api);
 

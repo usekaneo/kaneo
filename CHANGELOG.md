@@ -1,3 +1,70 @@
+## [2.6.8](https://github.com/usekaneo/kaneo/compare/v2.6.7...v2.6.8) (2026-04-13)
+
+
+### Features
+
+* **nginx:** update well-known endpoints to serve MCP OAuth discovery JSON ([f8df338](https://github.com/usekaneo/kaneo/commit/f8df338429a33c0b84aeb3a8602d912a5fc8fcc2))
+## [2.6.7](https://github.com/usekaneo/kaneo/compare/v2.6.6...v2.6.7) (2026-04-13)
+
+
+### Bug Fixes
+
+* **docker:** update nginx configuration for environment variable handling ([a693fd6](https://github.com/usekaneo/kaneo/commit/a693fd6095b281392059da9ffff96c075a805166))
+## [2.6.6](https://github.com/usekaneo/kaneo/compare/v2.6.5...v2.6.6) (2026-04-13)
+
+
+### Features
+
+* **api:** add mcp redirects ([491fa81](https://github.com/usekaneo/kaneo/commit/491fa817a5d6a6d1887b1bb3ad9fff99c4156329))
+## [2.6.5](https://github.com/usekaneo/kaneo/compare/v2.6.4...v2.6.5) (2026-04-13)
+
+
+### Bug Fixes
+
+* **api:** remove trailing '/api' from KANEO_API_URL in routing ([d311f8c](https://github.com/usekaneo/kaneo/commit/d311f8c333cc78f477418e431dad5db1c93f899c))
+## [2.6.4](https://github.com/usekaneo/kaneo/compare/v2.6.3...v2.6.4) (2026-04-13)
+
+
+### Features
+
+* **mcp:** add OAuth 2.0 well-known endpoints for authorization server ([a271249](https://github.com/usekaneo/kaneo/commit/a271249a12c10ab7f651c07c2d01855bb191b87c))
+## [2.6.3](https://github.com/usekaneo/kaneo/compare/v2.6.2...v2.6.3) (2026-04-13)
+
+
+### Features
+
+* **mcp:** implement device authorization flow with polling mechanism ([4858952](https://github.com/usekaneo/kaneo/commit/485895241cfd7ff0dedc98d6cf852fba64f6732d))
+## [2.6.2](https://github.com/usekaneo/kaneo/compare/v2.6.1...v2.6.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* **api:** simplify visit function in normalizeEmptyAndEnumSchemas ([a00592e](https://github.com/usekaneo/kaneo/commit/a00592e0325540c9ee1f5e4027dafdb5a3204717))
+
+
+### Features
+
+* **mcp:** implement Model Context Protocol server with HTTP and stdio support ([e402fe1](https://github.com/usekaneo/kaneo/commit/e402fe16928e6075a1251ba068380890b3c825e7))
+## [2.6.1](https://github.com/usekaneo/kaneo/compare/v2.6.0...v2.6.1) (2026-04-12)
+
+
+### Bug Fixes
+
+* **api:** avoid checksum query params in presigned S3 uploads ([d798772](https://github.com/usekaneo/kaneo/commit/d79877238d653aaf3ed3b637cdb56de0f72863ad))
+* **docs:** update OpenAPI URL to use the production endpoint ([2b52824](https://github.com/usekaneo/kaneo/commit/2b5282474b28aaa5f97ae092126de692dbfa41b2))
+* **task:** load sidebar status metadata from columns and restore default status i18n ([7d65de7](https://github.com/usekaneo/kaneo/commit/7d65de722db0bce6ea995367e181ab8c22c2a63c))
+* **task:** use renamed project column names in status popovers ([436a14e](https://github.com/usekaneo/kaneo/commit/436a14e4c3d5ce2721cde24556c17c9f81fa75be))
+* **web:** show all workspace members in assignee popovers ([1448bfe](https://github.com/usekaneo/kaneo/commit/1448bfe429885b82ba45100239b1b1b469a6aed6))
+
+
+### Features
+
+* **api:** add normalizeEmptyAndEnumSchemas function for OpenAPI spec processing ([13c544d](https://github.com/usekaneo/kaneo/commit/13c544d1a5e272c0c7ee0f4d57f59822dc2b9de7))
+
+
+### Performance Improvements
+
+* **web:** incrementally render assignee popover members ([4526548](https://github.com/usekaneo/kaneo/commit/452654871ea42a49d103925e4d29de8ff4e68825))
 # [2.6.0](https://github.com/usekaneo/kaneo/compare/v2.5.3...v2.6.0) (2026-04-07)
 
 
