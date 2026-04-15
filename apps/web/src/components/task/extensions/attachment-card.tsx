@@ -2,6 +2,8 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { FileText } from "lucide-react";
+import { useCallback, useState } from "react";
+import { toast } from "@/lib/toast";
 
 function formatBytes(size: number) {
   if (!Number.isFinite(size) || size <= 0) return "";
@@ -17,14 +19,59 @@ function AttachmentCardView({ node }: NodeViewProps) {
   const filename = String(node.attrs.filename || "Attachment");
   const mimeType = String(node.attrs.mimeType || "");
   const size = Number(node.attrs.size || 0);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = useCallback(
+    async (event: React.MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+
+      if (!url || isDownloading) {
+        return;
+      }
+
+      setIsDownloading(true);
+
+      try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Download failed with status ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const objectUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = objectUrl;
+        link.download = filename || "attachment";
+        link.rel = "noopener";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.setTimeout(() => {
+          window.URL.revokeObjectURL(objectUrl);
+        }, 1000);
+      } catch (error) {
+        console.error("Failed to download attachment:", error);
+        toast.error("Could not download this attachment");
+      } finally {
+        setIsDownloading(false);
+      }
+    },
+    [filename, isDownloading, url],
+  );
 
   return (
     <NodeViewWrapper as="span" className="kaneo-attachment-node">
       <a
         href={url}
-        download={filename || true}
         className="kaneo-attachment-card"
-        title={`Download ${filename}`}
+        title={
+          isDownloading ? `Downloading ${filename}` : `Download ${filename}`
+        }
+        onClick={handleDownload}
+        aria-busy={isDownloading}
       >
         <span className="kaneo-attachment-card-icon">
           <FileText className="size-4" />
