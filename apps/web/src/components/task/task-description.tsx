@@ -1305,8 +1305,15 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const handleEditorMouseLeave = useCallback(
     (event: ReactMouseEvent<HTMLElement>) => {
-      const relatedTarget = event.relatedTarget as HTMLElement | null;
-      if (relatedTarget?.closest(".kaneo-codeblock-language")) return;
+      const relatedTarget = event.relatedTarget;
+
+      if (
+        relatedTarget instanceof Element &&
+        relatedTarget.closest(".kaneo-codeblock-language")
+      ) {
+        return;
+      }
+
       if (isCodeLanguageMenuOpen) return;
       hoveredCodeBlockElementRef.current = null;
       setHoveredCodeBlock(null);

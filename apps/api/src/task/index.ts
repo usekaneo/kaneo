@@ -897,7 +897,10 @@ const task = new Hono<{
 
       return c.json({
         id: asset.id,
-        url: new URL(`/api/asset/${asset.id}`, c.req.url).toString(),
+        url: new URL(
+          `/api/asset/${asset.id}`,
+          process.env.KANEO_API_URL || c.req.url,
+        ).toString(),
       });
     },
   )
