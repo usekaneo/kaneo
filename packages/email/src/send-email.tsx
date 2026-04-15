@@ -8,6 +8,9 @@ import OtpEmail from "./templates/otp";
 import PasswordResetEmail, {
   type PasswordResetEmailProps,
 } from "./templates/password-reset";
+import TaskAssignmentEmail, {
+  type TaskAssignmentEmailProps,
+} from "./templates/task-assignment";
 import WorkspaceInvitationEmail, {
   type WorkspaceInvitationEmailProps,
 } from "./templates/workspace-invitation";
@@ -121,6 +124,43 @@ export const sendWorkspaceInvitationEmail = async (
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Error sending workspace invitation email", error);
+    throw error;
+  }
+};
+
+export const sendTaskAssignmentEmail = async (
+  to: string,
+  subject: string,
+  data: TaskAssignmentEmailProps,
+): Promise<EmailResult> => {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_FROM) {
+    console.warn("Task assignment email skipped: SMTP not configured", {
+      to,
+      hasSmtpHost: Boolean(process.env.SMTP_HOST),
+      hasSmtpFrom: Boolean(process.env.SMTP_FROM),
+    });
+    return { success: false, reason: "SMTP_NOT_CONFIGURED" };
+  }
+
+  try {
+    const emailTemplate = await render(TaskAssignmentEmail(data));
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+    console.info("Task assignment email queued", {
+      to,
+      subject,
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+      response: info.response,
+    });
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Error sending task assignment email", error);
     throw error;
   }
 };

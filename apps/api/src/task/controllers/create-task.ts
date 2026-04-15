@@ -7,6 +7,7 @@ import { assertValidTaskStatus } from "../validate-task-fields";
 import getNextTaskNumber from "./get-next-task-number";
 
 async function createTask({
+  actorUserId,
   projectId,
   userId,
   title,
@@ -16,6 +17,7 @@ async function createTask({
   description,
   priority,
 }: {
+  actorUserId?: string;
   projectId: string;
   userId?: string;
   title: string;
@@ -83,6 +85,7 @@ async function createTask({
 
   await publishEvent("task.created", {
     ...createdTask,
+    actorUserId: actorUserId ?? null,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
     type: "task",

@@ -22,10 +22,9 @@ function AttachmentCardView({ node }: NodeViewProps) {
     <NodeViewWrapper as="span" className="kaneo-attachment-node">
       <a
         href={url}
-        target="_blank"
-        rel="noopener noreferrer"
+        download={filename || true}
         className="kaneo-attachment-card"
-        title={filename}
+        title={`Download ${filename}`}
       >
         <span className="kaneo-attachment-card-icon">
           <FileText className="size-4" />

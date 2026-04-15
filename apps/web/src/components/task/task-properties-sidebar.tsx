@@ -4,7 +4,6 @@ import {
   CalendarDays,
   CalendarX,
   Copy,
-  GitBranch,
   Plus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -19,15 +18,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import labelColors from "@/constants/label-colors";
-import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
-import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
-import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
+import { generateLink } from "@/lib/generate-link";
 import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -37,28 +34,6 @@ import TaskLabelsPopover from "./task-labels-popover";
 import TaskPriorityPopover from "./task-priority-popover";
 import TaskStartDatePopover from "./task-start-date-popover";
 import TaskStatusPopover from "./task-status-popover";
-
-function slugify(text: string | undefined): string {
-  if (!text) return "";
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 50);
-}
-
-function generateBranchName(
-  pattern: string,
-  projectSlug: string | undefined,
-  taskNumber: number | null | undefined,
-  taskTitle: string | undefined,
-): string {
-  if (!projectSlug || !taskNumber) return "";
-  return pattern
-    .replace("{slug}", projectSlug.toLowerCase())
-    .replace("{number}", taskNumber.toString())
-    .replace("{title}", slugify(taskTitle));
-}
 
 type TaskPropertiesSidebarProps = {
   taskId: string | undefined;
@@ -77,18 +52,8 @@ export default function TaskPropertiesSidebar({
 }: TaskPropertiesSidebarProps) {
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId ?? "");
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId ?? "");
-  const { data: githubIntegration } = useGetGithubIntegration(projectId);
-  const { data: giteaIntegration } = useGetGiteaIntegration(projectId);
-
-  const projectSlug = project?.slug;
-  const taskNumber = task?.number;
-  const branchPattern =
-    githubIntegration?.branchPattern ||
-    giteaIntegration?.branchPattern ||
-    "{slug}-{number}";
 
   const assignee = workspaceUsers?.members?.find(
     (member) => member.userId === task?.userId,
@@ -96,20 +61,11 @@ export default function TaskPropertiesSidebar({
 
   const handleCopyTaskLink = () => {
     navigator.clipboard.writeText(
-      `${window.location.origin}/workspace/${workspaceId}/project/${projectId}/task/${taskId}`,
+      generateLink(
+        `/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`,
+      ),
     );
     toast.message(t("tasks:properties.copyTaskLink"));
-  };
-
-  const handleCopyTaskBranch = () => {
-    const branchName = generateBranchName(
-      branchPattern,
-      projectSlug,
-      taskNumber,
-      task?.title,
-    );
-    navigator.clipboard.writeText(branchName);
-    toast.message(t("tasks:properties.copyTaskBranch"));
   };
 
   return (
@@ -124,7 +80,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-foreground rounded-r-none border-r-0"
+                    className="text-foreground"
                     onClick={() => handleCopyTaskLink()}
                   >
                     <Copy className="size-4" />
@@ -134,28 +90,6 @@ export default function TaskPropertiesSidebar({
                   <KbdSequence
                     keys={["Ctrl", "Shift", "C"]}
                     description={t("tasks:properties.copyTaskLink")}
-                    separator=""
-                  />
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-foreground rounded-l-none"
-                    onClick={() => handleCopyTaskBranch()}
-                  >
-                    <GitBranch className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <KbdSequence
-                    keys={["Ctrl", "Shift", "G"]}
-                    description={t("tasks:properties.copyTaskBranch")}
                     separator=""
                   />
                 </TooltipContent>
@@ -298,7 +232,7 @@ export default function TaskPropertiesSidebar({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-foreground rounded-r-none border-r-0"
+                      className="text-foreground"
                       onClick={() => handleCopyTaskLink()}
                     >
                       <Copy className="size-4" />
@@ -308,28 +242,6 @@ export default function TaskPropertiesSidebar({
                     <KbdSequence
                       keys={["Ctrl", "Shift", "C"]}
                       description={t("tasks:properties.copyTaskLink")}
-                      separator=""
-                    />
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-foreground rounded-l-none"
-                      onClick={() => handleCopyTaskBranch()}
-                    >
-                      <GitBranch className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <KbdSequence
-                      keys={["Ctrl", "Shift", "G"]}
-                      description={t("tasks:properties.copyTaskBranch")}
                       separator=""
                     />
                   </TooltipContent>
@@ -473,7 +385,7 @@ export default function TaskPropertiesSidebar({
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-foreground rounded-r-none border-r-0"
+                        className="text-foreground"
                         onClick={() => handleCopyTaskLink()}
                       >
                         <Copy className="size-4" />
@@ -483,28 +395,6 @@ export default function TaskPropertiesSidebar({
                       <KbdSequence
                         keys={["Ctrl", "Shift", "C"]}
                         description={t("tasks:properties.copyTaskLink")}
-                        separator=""
-                      />
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-foreground rounded-l-none"
-                        onClick={() => handleCopyTaskBranch()}
-                      >
-                        <GitBranch className="size-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <KbdSequence
-                        keys={["Ctrl", "Shift", "G"]}
-                        description={t("tasks:properties.copyTaskBranch")}
                         separator=""
                       />
                     </TooltipContent>

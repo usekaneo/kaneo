@@ -38,6 +38,7 @@ import {
   ShikiCodeBlock,
 } from "@/components/task/extensions/shiki-code-block";
 import { TaskItemWithCheckbox } from "@/components/task/extensions/task-item-with-checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogPopup } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -80,6 +81,15 @@ type CommentEditorProps = {
   ensureTaskId?: () => Promise<string | null>;
   showQuickAttachButton?: boolean;
   onAttachActionChange?: (attach: (() => void) | null) => void;
+  enableMentions?: boolean;
+  mentionableMembers?: MentionableMember[];
+};
+
+export type MentionableMember = {
+  id: string;
+  name: string;
+  email?: string | null;
+  image?: string | null;
 };
 
 type SlashRange = { from: number; to: number };
@@ -94,6 +104,15 @@ type SlashCommand = {
 };
 
 type SlashMenuState = {
+  from: number;
+  to: number;
+  query: string;
+  top: number;
+  left: number;
+  selectedIndex: number;
+};
+
+type MentionMenuState = {
   from: number;
   to: number;
   query: string;
@@ -145,6 +164,10 @@ function normalizeMarkdown(markdown: string) {
     .replace(/\n{2,}$/g, "\n");
 }
 
+function normalizeMentionLabel(name: string) {
+  return name.trim().replace(/\s+/g, " ");
+}
+
 type EmbedComposerState = {
   mode: "choice" | "input";
   url: string;
@@ -173,6 +196,8 @@ export default function CommentEditor({
   ensureTaskId,
   showQuickAttachButton = true,
   onAttachActionChange,
+  enableMentions = false,
+  mentionableMembers,
 }: CommentEditorProps) {
   const { t } = useTranslation();
   const resolvedPlaceholder =
@@ -192,6 +217,7 @@ export default function CommentEditor({
     range?: SlashRange;
   } | null>(null);
   const [slashMenu, setSlashMenu] = useState<SlashMenuState | null>(null);
+  const [mentionMenu, setMentionMenu] = useState<MentionMenuState | null>(null);
   const [shikiHighlighter, setShikiHighlighter] = useState<Highlighter | null>(
     null,
   );
@@ -559,6 +585,58 @@ export default function CommentEditor({
         command.search.includes(query),
     );
   }, [slashCommands, slashMenu?.query]);
+  const filteredMentionMembers = useMemo(() => {
+    const query = mentionMenu?.query.trim().toLowerCase() || "";
+    const members = mentionableMembers ?? [];
+
+    if (!query) {
+      return members.slice(0, 8);
+    }
+
+    return members
+      .filter((member) => {
+        const name = member.name.toLowerCase();
+        const email = member.email?.toLowerCase() ?? "";
+        return name.includes(query) || email.includes(query);
+      })
+      .slice(0, 8);
+  }, [mentionMenu?.query, mentionableMembers]);
+  const insertMention = useCallback(
+    (activeEditor: Editor, range: SlashRange, member: MentionableMember) => {
+      const mentionText = `@${normalizeMentionLabel(member.name)}`;
+      const { state, view } = activeEditor;
+      const linkMarkType = state.schema.marks.link;
+
+      if (!linkMarkType) {
+        activeEditor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .insertContent(`${mentionText} `)
+          .run();
+        return;
+      }
+
+      const mentionNode = state.schema.text(mentionText, [
+        linkMarkType.create({
+          href: `mention://${member.id}`,
+        }),
+      ]);
+      const trailingSpaceNode = state.schema.text(" ");
+      const fragment = Fragment.fromArray([mentionNode, trailingSpaceNode]);
+      const tr = state.tr.replaceWith(range.from, range.to, fragment);
+      const cursorPosition = Math.min(
+        range.from + mentionText.length + 1,
+        tr.doc.content.size,
+      );
+
+      tr.setSelection(TextSelection.near(tr.doc.resolve(cursorPosition)));
+      tr.setStoredMarks([]);
+      view.dispatch(tr.scrollIntoView());
+      view.focus();
+    },
+    [],
+  );
 
   const editor = useEditor(
     {
@@ -577,6 +655,7 @@ export default function CommentEditor({
           autolink: true,
           defaultProtocol: "https",
           linkOnPaste: true,
+          protocols: ["mention"],
           openOnClick: readOnly,
         }),
         Markdown.configure({
@@ -749,7 +828,83 @@ export default function CommentEditor({
           view.dispatch(tr.scrollIntoView());
           return true;
         },
+        handleClick: (_view, _pos, event) => {
+          if (!enableMentions) return false;
+
+          const target = event.target as HTMLElement | null;
+          const mentionLink = target?.closest(
+            'a[href^="mention://"]',
+          ) as HTMLAnchorElement | null;
+
+          if (!mentionLink) {
+            return false;
+          }
+
+          event.preventDefault();
+          return true;
+        },
         handleKeyDown: (_view, event) => {
+          if (!readOnly && !disabled && mentionMenu) {
+            if (
+              event.key === "ArrowDown" &&
+              filteredMentionMembers.length > 0
+            ) {
+              event.preventDefault();
+              setMentionMenu((current) => {
+                if (!current) return current;
+                return {
+                  ...current,
+                  selectedIndex:
+                    (current.selectedIndex + 1) % filteredMentionMembers.length,
+                };
+              });
+              return true;
+            }
+
+            if (event.key === "ArrowUp" && filteredMentionMembers.length > 0) {
+              event.preventDefault();
+              setMentionMenu((current) => {
+                if (!current) return current;
+                return {
+                  ...current,
+                  selectedIndex:
+                    (current.selectedIndex -
+                      1 +
+                      filteredMentionMembers.length) %
+                    filteredMentionMembers.length,
+                };
+              });
+              return true;
+            }
+
+            if (
+              (event.key === "Enter" || event.key === "Tab") &&
+              filteredMentionMembers.length > 0
+            ) {
+              event.preventDefault();
+              if (!editor) return true;
+              const member =
+                filteredMentionMembers[
+                  Math.min(
+                    mentionMenu.selectedIndex,
+                    filteredMentionMembers.length - 1,
+                  )
+                ];
+
+              if (member) {
+                insertMention(editor, mentionMenu, member);
+                setMentionMenu(null);
+              }
+              return true;
+            }
+
+            if (event.key === "Escape") {
+              event.preventDefault();
+              setMentionMenu(null);
+              return true;
+            }
+          }
+
           if (!readOnly && !disabled && slashMenu) {
             if (event.key === "ArrowDown") {
               event.preventDefault();
@@ -903,25 +1058,100 @@ export default function CommentEditor({
   useEffect(() => {
     if (!editor) return;
 
-    const handleImagePreviewClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (!(target instanceof HTMLImageElement)) return;
-      if (!target.classList.contains("kaneo-editor-image")) return;
+    const handleEditorClick = (event: MouseEvent) => {
+      const clickedElement = event.target as HTMLElement | null;
+      const mentionLink = clickedElement?.closest(
+        'a[href^="mention://"]',
+      ) as HTMLAnchorElement | null;
+
+      if (mentionLink) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      if (!(clickedElement instanceof HTMLImageElement)) return;
+      if (!clickedElement.classList.contains("kaneo-editor-image")) return;
 
       event.preventDefault();
       setPreviewImage({
-        src: target.currentSrc || target.src,
-        alt: target.alt || t("activity:comment.editor.previewImageAlt"),
+        src: clickedElement.currentSrc || clickedElement.src,
+        alt: clickedElement.alt || t("activity:comment.editor.previewImageAlt"),
       });
     };
 
     const dom = editor.view.dom;
-    dom.addEventListener("click", handleImagePreviewClick);
+    dom.addEventListener("click", handleEditorClick);
 
     return () => {
-      dom.removeEventListener("click", handleImagePreviewClick);
+      dom.removeEventListener("click", handleEditorClick);
     };
   }, [editor, t]);
+
+  const updateMentionMenu = useCallback(
+    (activeEditor: Editor) => {
+      if (
+        readOnly ||
+        disabled ||
+        !enableMentions ||
+        !mentionableMembers?.length
+      ) {
+        setMentionMenu(null);
+        return;
+      }
+
+      const { state, view } = activeEditor;
+      const { selection } = state;
+      if (!selection.empty) {
+        setMentionMenu(null);
+        return;
+      }
+
+      const { $from } = selection;
+      if (!$from.parent.isTextblock) {
+        setMentionMenu(null);
+        return;
+      }
+
+      const textBefore = $from.parent.textBetween(
+        0,
+        $from.parentOffset,
+        "\0",
+        "\0",
+      );
+      const match = textBefore.match(/(?:^|\s)@([^\s@]*)$/);
+      if (!match) {
+        setMentionMenu(null);
+        return;
+      }
+
+      const query = match[1] || "";
+      const matchText = match[0];
+      const startsWithSpace = matchText.startsWith(" ");
+      const mentionOffset =
+        $from.parentOffset - matchText.length + (startsWithSpace ? 1 : 0);
+      const from = $from.start() + mentionOffset;
+      const to = from + matchText.trimStart().length;
+      const { top, left } = getOverlayPosition(view, $from.pos);
+
+      setSlashMenu(null);
+      setMentionMenu((current) => ({
+        from,
+        to,
+        query,
+        top,
+        left,
+        selectedIndex: current?.query === query ? current.selectedIndex : 0,
+      }));
+    },
+    [
+      disabled,
+      enableMentions,
+      getOverlayPosition,
+      mentionableMembers,
+      readOnly,
+    ],
+  );
 
   const updateSlashMenu = useCallback(
     (activeEditor: Editor) => {
@@ -964,6 +1194,7 @@ export default function CommentEditor({
       const to = from + matchText.trimStart().length;
       const { top, left } = getOverlayPosition(view, $from.pos);
 
+      setMentionMenu(null);
       setSlashMenu((current) => ({
         from,
         to,
@@ -975,6 +1206,18 @@ export default function CommentEditor({
     },
     [disabled, getOverlayPosition, readOnly],
   );
+
+  useEffect(() => {
+    if (!editor) return;
+    const syncMentions = () => updateMentionMenu(editor);
+    editor.on("selectionUpdate", syncMentions);
+    editor.on("update", syncMentions);
+
+    return () => {
+      editor.off("selectionUpdate", syncMentions);
+      editor.off("update", syncMentions);
+    };
+  }, [editor, updateMentionMenu]);
 
   useEffect(() => {
     if (!editor) return;
@@ -1393,6 +1636,7 @@ export default function CommentEditor({
       }
       className={cn(
         "kaneo-comment-editor-shell",
+        enableMentions && "kaneo-comment-editor-shell-mentions-enabled",
         isDragActive && "is-drag-active",
         readOnly && "kaneo-comment-editor-shell-readonly",
         className,
@@ -1669,6 +1913,61 @@ export default function CommentEditor({
           ) : (
             <div className="kaneo-tiptap-slash-empty">
               {t("activity:comment.editor.noCommands")}
+            </div>
+          )}
+        </div>
+      )}
+      {mentionMenu && !readOnly && !disabled && enableMentions && (
+        <div
+          className="kaneo-tiptap-slash-menu kaneo-tiptap-mention-menu"
+          style={{
+            top: mentionMenu.top,
+            left: mentionMenu.left,
+            position: slashMenuPosition,
+          }}
+        >
+          {filteredMentionMembers.length > 0 ? (
+            filteredMentionMembers.map((member, index) => (
+              <button
+                key={member.id}
+                type="button"
+                className={cn(
+                  "kaneo-tiptap-slash-item kaneo-tiptap-mention-item",
+                  mentionMenu.selectedIndex === index && "is-selected",
+                )}
+                onMouseEnter={() =>
+                  setMentionMenu((current) =>
+                    current ? { ...current, selectedIndex: index } : current,
+                  )
+                }
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  if (!editor) return;
+                  insertMention(editor, mentionMenu, member);
+                  setMentionMenu(null);
+                }}
+              >
+                <Avatar className="kaneo-tiptap-mention-avatar">
+                  <AvatarImage src={member.image ?? ""} alt={member.name} />
+                  <AvatarFallback className="bg-muted text-[10px] font-medium">
+                    {member.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="kaneo-tiptap-mention-meta">
+                  <span className="kaneo-tiptap-mention-name">
+                    {member.name}
+                  </span>
+                  {member.email && (
+                    <span className="kaneo-tiptap-mention-email">
+                      {member.email}
+                    </span>
+                  )}
+                </span>
+              </button>
+            ))
+          ) : (
+            <div className="kaneo-tiptap-slash-empty">
+              {t("activity:comment.editor.noMembers")}
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@ import type React from "react";
 import type { ReactNode } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DemoAlert } from "@/components/demo-alert";
+import BrowserNotificationController from "@/components/notification/browser-notification-controller";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { isDemoMode } from "@/constants/urls";
 import { useUserPreferencesEffects } from "@/hooks/use-user-preferences-effects";
@@ -60,6 +61,7 @@ function Layout({ children, className }: LayoutProps) {
           } as React.CSSProperties
         }
       >
+        <BrowserNotificationController />
         <AppSidebar />
         <SidebarInset
           className={cn(

@@ -1,7 +1,6 @@
 import { Calendar, CircleAlert, History, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
+import type { MentionableMember } from "@/components/activity/comment-editor";
 import { formatDateMedium, formatRelativeTime } from "@/lib/format";
 import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -390,16 +389,16 @@ function Activity({
   activity,
   step,
   showConnector = false,
+  workspaceUsers,
+  mentionableMembers,
 }: {
   activity: ActivityItem;
   step: number;
   showConnector?: boolean;
+  workspaceUsers?: WorkspaceUser[];
+  mentionableMembers?: MentionableMember[];
 }) {
   const { t } = useTranslation();
-  const { data: workspace } = useActiveWorkspace();
-  const { data: workspaceUsers } = useGetWorkspaceUsers({
-    workspaceId: workspace?.id,
-  });
 
   const user = activity.userId
     ? workspaceUsers?.find(
@@ -436,6 +435,7 @@ function Activity({
             createdAt={activity.createdAt}
             externalSource={activity.externalSource}
             externalUrl={activity.externalUrl}
+            mentionableMembers={mentionableMembers}
           />
         </TimelineContent>
       </TimelineItem>
@@ -460,7 +460,7 @@ function Activity({
         <UserHoverName user={user || null} fallbackName={actorName} />{" "}
         {renderActivityContent({
           activity,
-          workspaceUsers: workspaceUsers as WorkspaceUser[] | undefined,
+          workspaceUsers,
           t,
         })}{" "}
         <span className="whitespace-nowrap text-muted-foreground/70 text-xs">

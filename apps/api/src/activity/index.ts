@@ -1,12 +1,17 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
-import { taskTable, userTable } from "../database/schema";
+import { activityTable, taskTable, userTable } from "../database/schema";
 import { publishEvent, subscribeToEvent } from "../events";
 import { activitySchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import {
+  replaceMentionLinksWithText,
+  resolveValidTaskCommentMentions,
+} from "./comment-mentions";
 import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
@@ -105,7 +110,8 @@ const activity = new Hono<{
     async (c) => {
       const { taskId, comment } = c.req.valid("json");
       const userId = c.get("userId");
-      const newComment = await createComment(taskId, userId, comment);
+      const mentions = await resolveValidTaskCommentMentions(taskId, comment);
+      const newComment = await createComment(taskId, userId, comment, mentions);
 
       const [user] = await db
         .select({ name: userTable.name })
@@ -122,7 +128,8 @@ const activity = new Hono<{
           commentId: newComment?.id,
           taskId,
           userId,
-          comment: `"${user?.name}" commented: ${comment}`,
+          comment: `"${user?.name}" commented: ${replaceMentionLinksWithText(comment)}`,
+          mentionedUserIds: mentions.map((mention) => mention.userId),
           projectId: task.projectId,
         });
       }
@@ -156,7 +163,29 @@ const activity = new Hono<{
     async (c) => {
       const { activityId, comment } = c.req.valid("json");
       const userId = c.get("userId");
-      const updatedComment = await updateComment(userId, activityId, comment);
+      const [existingComment] = await db
+        .select({
+          id: activityTable.id,
+          taskId: activityTable.taskId,
+        })
+        .from(activityTable)
+        .where(eq(activityTable.id, activityId))
+        .limit(1);
+
+      if (!existingComment) {
+        throw new HTTPException(404, { message: "Comment not found" });
+      }
+
+      const mentions = await resolveValidTaskCommentMentions(
+        existingComment.taskId,
+        comment,
+      );
+      const updatedComment = await updateComment(
+        userId,
+        activityId,
+        comment,
+        mentions,
+      );
       return c.json(updatedComment);
     },
   )

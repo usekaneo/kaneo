@@ -441,6 +441,47 @@ input:-webkit-autofill:active {
     color: color-mix(in srgb, var(--foreground) 56%, transparent);
   }
 
+  .kaneo-tiptap-mention-menu {
+    min-width: 18rem;
+    max-width: min(22rem, calc(100vw - 2rem));
+  }
+
+  .kaneo-tiptap-mention-item {
+    align-items: center;
+    gap: 0.55rem;
+    justify-content: flex-start;
+  }
+
+  .kaneo-tiptap-mention-avatar {
+    flex-shrink: 0;
+    height: 1.65rem;
+    width: 1.65rem;
+  }
+
+  .kaneo-tiptap-mention-meta {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.06rem;
+  }
+
+  .kaneo-tiptap-mention-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.79rem;
+    font-weight: 500;
+  }
+
+  .kaneo-tiptap-mention-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.69rem;
+    color: color-mix(in srgb, currentColor 64%, transparent);
+  }
+
   .kaneo-tiptap-content .ProseMirror p {
     margin: 0.2rem 0;
   }
@@ -574,6 +615,25 @@ input:-webkit-autofill:active {
   .kaneo-tiptap-content .ProseMirror a:hover {
     color: color-mix(in srgb, var(--primary) 84%, var(--foreground));
     text-decoration-color: currentColor;
+  }
+
+  .kaneo-comment-editor-shell-mentions-enabled .kaneo-comment-editor-content .ProseMirror a[href^="mention://"] {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--primary) 16%, var(--border));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+    padding: 0.04rem 0.42rem;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--primary) 88%, var(--foreground));
+    text-decoration: none;
+    cursor: default;
+  }
+
+  .kaneo-comment-editor-shell-mentions-enabled .kaneo-comment-editor-content .ProseMirror a[href^="mention://"]:hover {
+    color: color-mix(in srgb, var(--primary) 88%, var(--foreground));
+    text-decoration: none;
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
   }
 
   .kaneo-tiptap-content .ProseMirror :not(pre) > code {

@@ -1,7 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
+import type { MentionableMember } from "@/components/activity/comment-editor";
 import CommentInput from "@/components/activity/comment-input";
 import { isCommentActivity } from "@/components/activity/utils";
 import { ExternalLinksAccordion } from "@/components/external-links/external-links-accordion";
@@ -12,6 +14,7 @@ import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
+import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
 import type { ExternalLink } from "@/types/external-link";
 import TaskDescription from "./task-description";
 import TaskRelations from "./task-relations";
@@ -39,7 +42,31 @@ export default function TaskDetailsContent({
   const { data: externalLinks = [], isLoading: isLoadingExternalLinks } =
     useExternalLinks(taskId ?? "");
   const { data: relations = [] } = useGetTaskRelations(taskId ?? "");
+  const { data: workspaceUsers } = useGetWorkspaceUsers({
+    workspaceId,
+  });
   const { user } = useAuth();
+  const mentionableMembers = useMemo<MentionableMember[]>(
+    () =>
+      (workspaceUsers ?? []).flatMap((member) => {
+        const userId = member.user?.id;
+        const name = member.user?.name?.trim() || member.user?.email?.trim();
+
+        if (!userId || !name) {
+          return [];
+        }
+
+        return [
+          {
+            id: userId,
+            name,
+            email: member.user?.email ?? null,
+            image: member.user?.image ?? null,
+          },
+        ];
+      }),
+    [workspaceUsers],
+  );
 
   const parentRelation = relations.find(
     (rel) => rel.relationType === "subtask" && rel.targetTaskId === taskId,
@@ -104,7 +131,12 @@ export default function TaskDetailsContent({
       <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block shrink-0" />
       <div className="flex flex-col gap-4">
         <h1 className="text-md font-semibold">{t("tasks:detail.activity")}</h1>
-        {user?.id && taskId && <CommentInput taskId={taskId} />}
+        {user?.id && taskId && (
+          <CommentInput
+            taskId={taskId}
+            mentionableMembers={mentionableMembers}
+          />
+        )}
         {activities.length > 0 ? (
           <Timeline>
             {activities.map((activity, index) => {
@@ -120,6 +152,8 @@ export default function TaskDetailsContent({
                   activity={activity}
                   step={activities.length - index}
                   showConnector={showConnector}
+                  workspaceUsers={workspaceUsers}
+                  mentionableMembers={mentionableMembers}
                 />
               );
             })}

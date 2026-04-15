@@ -219,6 +219,7 @@ const task = new Hono<{
     workspaceAccess.fromProject("projectId"),
     async (c) => {
       const { projectId } = c.req.param();
+      const actorUserId = c.get("userId");
       const {
         title,
         description,
@@ -230,6 +231,7 @@ const task = new Hono<{
       } = c.req.valid("json");
 
       const task = await createTask({
+        actorUserId,
         projectId,
         userId,
         title,

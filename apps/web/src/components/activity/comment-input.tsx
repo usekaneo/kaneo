@@ -2,7 +2,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, Paperclip } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import CommentEditor from "@/components/activity/comment-editor";
+import CommentEditor, {
+  type MentionableMember,
+} from "@/components/activity/comment-editor";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
 import {
@@ -18,9 +20,13 @@ import { toast } from "@/lib/toast";
 
 type CommentInputProps = {
   taskId: string;
+  mentionableMembers?: MentionableMember[];
 };
 
-export default function CommentInput({ taskId }: CommentInputProps) {
+export default function CommentInput({
+  taskId,
+  mentionableMembers,
+}: CommentInputProps) {
   const { t } = useTranslation();
   const [content, setContent] = useState("");
   const [attachAction, setAttachAction] = useState<(() => void) | null>(null);
@@ -65,6 +71,8 @@ export default function CommentInput({ taskId }: CommentInputProps) {
           placeholder={t("activity:comment.leavePlaceholder")}
           taskId={taskId}
           uploadSurface="comment"
+          enableMentions
+          mentionableMembers={mentionableMembers}
           showQuickAttachButton={false}
           onAttachActionChange={handleAttachActionChange}
           className="[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[3rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"

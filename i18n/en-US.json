@@ -1124,6 +1124,7 @@
 				"searchCodeBlock": "code snippet",
 				"searchTable": "table grid",
 				"searchFile": "file attachment image photo picture upload",
+				"noMembers": "No members found",
 				"embedErrorInvalidUrl": "Enter a valid URL",
 				"embedErrorYoutubeOnly": "Only YouTube links can be embedded.",
 				"embedVideo": "Embed video",
@@ -1642,6 +1643,15 @@
 			"subtitle": "Catch up on assignments and fresh discussion from across this workspace.",
 			"emptyTitle": "Nothing new here",
 			"emptyDescription": "When work is assigned to you or someone comments on tasks you’re involved in, it will show up here.",
+			"desktop": {
+				"enableTitle": "Enable desktop notifications",
+				"enableDescription": "See native browser alerts for new assignments and activity while this app stays open.",
+				"enableAction": "Enable desktop notifications",
+				"enabledTitle": "Desktop notifications are on",
+				"enabledDescription": "New assignments and activity can appear as native browser alerts while this app stays open.",
+				"blockedTitle": "Desktop notifications are blocked",
+				"blockedDescription": "Allow notifications for this site in your browser settings to see new activity outside the tab."
+			},
 			"summary": {
 				"unread": "Unread",
 				"total": "Total"

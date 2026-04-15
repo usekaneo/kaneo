@@ -2,7 +2,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Github, Pencil } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import CommentEditor from "@/components/activity/comment-editor";
+import CommentEditor, {
+  type MentionableMember,
+} from "@/components/activity/comment-editor";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -34,6 +36,7 @@ type CommentCardProps = {
   createdAt: string;
   externalSource?: string | null;
   externalUrl?: string | null;
+  mentionableMembers?: MentionableMember[];
 };
 
 export default function CommentCard({
@@ -44,6 +47,7 @@ export default function CommentCard({
   createdAt,
   externalSource,
   externalUrl,
+  mentionableMembers,
 }: CommentCardProps) {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
@@ -210,6 +214,8 @@ export default function CommentCard({
           placeholder={t("activity:comment.editPlaceholder")}
           taskId={taskId}
           uploadSurface="comment"
+          enableMentions
+          mentionableMembers={mentionableMembers}
           className={
             isEditing
               ? "[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[3rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-2.5 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"

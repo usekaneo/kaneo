@@ -1,3 +1,4 @@
+import { sendTaskAssignmentEmail } from "@kaneo/email";
 import { and, eq, ne } from "drizzle-orm";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
@@ -8,6 +9,7 @@ import {
   projectTable,
   taskTable,
   userTable,
+  workspaceTable,
 } from "../database/schema";
 import { subscribeToEvent } from "../events";
 import { notificationSchema } from "../schemas";
@@ -29,8 +31,24 @@ type TaskNotificationContext = {
   projectName: string;
   projectSlug: string;
   taskId: string;
+  taskNumber: number;
   taskTitle: string;
   workspaceId: string;
+};
+
+type TaskAssignmentEmailContext = {
+  assigneeEmail: string | null;
+  assigneeId: string | null;
+  assigneeLocale: string | null;
+  assigneeName: string | null;
+  projectId: string;
+  projectName: string;
+  projectSlug: string;
+  taskId: string;
+  taskNumber: number;
+  taskTitle: string;
+  workspaceId: string;
+  workspaceName: string;
 };
 
 async function getTaskNotificationContext(
@@ -44,11 +62,40 @@ async function getTaskNotificationContext(
       projectName: projectTable.name,
       projectSlug: projectTable.slug,
       taskId: taskTable.id,
+      taskNumber: taskTable.number,
       taskTitle: taskTable.title,
       workspaceId: projectTable.workspaceId,
     })
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(eq(taskTable.id, taskId))
+    .limit(1);
+
+  return context ?? null;
+}
+
+async function getTaskAssignmentEmailContext(
+  taskId: string,
+): Promise<TaskAssignmentEmailContext | null> {
+  const [context] = await db
+    .select({
+      assigneeEmail: userTable.email,
+      assigneeId: userTable.id,
+      assigneeLocale: userTable.locale,
+      assigneeName: userTable.name,
+      projectId: projectTable.id,
+      projectName: projectTable.name,
+      projectSlug: projectTable.slug,
+      taskId: taskTable.id,
+      taskNumber: taskTable.number,
+      taskTitle: taskTable.title,
+      workspaceId: workspaceTable.id,
+      workspaceName: workspaceTable.name,
+    })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .innerJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
+    .leftJoin(userTable, eq(taskTable.userId, userTable.id))
     .where(eq(taskTable.id, taskId))
     .limit(1);
 
@@ -90,6 +137,77 @@ function buildTaskEventData(
     workspaceId: context.workspaceId,
     ...extras,
   };
+}
+
+async function getActor(actorUserId?: string | null) {
+  if (!actorUserId) {
+    return null;
+  }
+
+  const [actor] = await db
+    .select({
+      email: userTable.email,
+      id: userTable.id,
+      name: userTable.name,
+    })
+    .from(userTable)
+    .where(eq(userTable.id, actorUserId))
+    .limit(1);
+
+  return actor ?? null;
+}
+
+async function sendTaskAssignmentEmailForTask({
+  actorUserId,
+  skipIfAssigneeMatches,
+  taskId,
+}: {
+  actorUserId?: string | null;
+  skipIfAssigneeMatches?: string | null;
+  taskId: string;
+}) {
+  const context = await getTaskAssignmentEmailContext(taskId);
+
+  if (!context?.assigneeId || !context.assigneeEmail) {
+    return;
+  }
+
+  if (actorUserId && context.assigneeId === actorUserId) {
+    return;
+  }
+
+  if (skipIfAssigneeMatches && context.assigneeId === skipIfAssigneeMatches) {
+    return;
+  }
+
+  const actor = await getActor(actorUserId);
+  const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
+  const taskUrl = `${clientUrl}/dashboard/workspace/${context.workspaceId}/project/${context.projectId}/task/${context.taskId}`;
+  const taskIdentifier = `${context.projectSlug.toUpperCase()}-${context.taskNumber}`;
+  const result = await sendTaskAssignmentEmail(
+    context.assigneeEmail,
+    `Assigned to ${taskIdentifier} in Tasks by IPSTUDIO`,
+    {
+      actorEmail: actor?.email ?? null,
+      actorName: actor?.name ?? null,
+      assigneeName: context.assigneeName ?? context.assigneeEmail,
+      locale: context.assigneeLocale,
+      projectName: context.projectName,
+      taskIdentifier,
+      taskTitle: context.taskTitle,
+      taskUrl,
+    },
+  );
+
+  if (result.reason === "SMTP_NOT_CONFIGURED") {
+    console.info(
+      "Task assignment email skipped because SMTP is not configured",
+      {
+        assigneeEmail: context.assigneeEmail,
+        taskId: context.taskId,
+      },
+    );
+  }
 }
 
 const notification = new Hono<{
@@ -235,6 +353,7 @@ const notification = new Hono<{
   );
 
 subscribeToEvent<{
+  actorUserId?: string | null;
   taskId: string;
   userId: string;
 }>("task.created", async (data) => {
@@ -254,6 +373,11 @@ subscribeToEvent<{
     eventData: buildTaskEventData(context),
     resourceId: data.taskId,
     resourceType: "task",
+  });
+
+  await sendTaskAssignmentEmailForTask({
+    actorUserId: data.actorUserId,
+    taskId: data.taskId,
   });
 });
 
@@ -334,11 +458,18 @@ subscribeToEvent<{
     resourceId: data.taskId,
     resourceType: "task",
   });
+
+  await sendTaskAssignmentEmailForTask({
+    actorUserId: data.userId,
+    skipIfAssigneeMatches: data.oldAssignee,
+    taskId: data.taskId,
+  });
 });
 
 subscribeToEvent<{
   comment?: string;
   commentId?: string;
+  mentionedUserIds?: string[];
   projectId?: string;
   taskId: string;
   userId: string;
@@ -371,6 +502,12 @@ subscribeToEvent<{
 
   for (const commenterId of priorCommenterIds) {
     recipientIds.add(commenterId);
+  }
+
+  for (const mentionedUserId of data.mentionedUserIds ?? []) {
+    if (mentionedUserId !== data.userId) {
+      recipientIds.add(mentionedUserId);
+    }
   }
 
   for (const recipientId of recipientIds) {

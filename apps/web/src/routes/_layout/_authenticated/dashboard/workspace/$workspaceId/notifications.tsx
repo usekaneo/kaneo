@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import useClearNotifications from "@/hooks/mutations/notification/use-clear-notifications";
 import useMarkAllNotificationsAsRead from "@/hooks/mutations/notification/use-mark-all-notifications-as-read";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
+import useBrowserNotificationPermission from "@/hooks/use-browser-notification-permission";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/notifications",
@@ -49,6 +50,11 @@ function RouteComponent() {
   const { mutate: clearAll, isPending: isClearingAll } =
     useClearNotifications();
   const [showClearDialog, setShowClearDialog] = useState(false);
+  const {
+    supported: isDesktopNotificationsSupported,
+    permission: desktopNotificationPermission,
+    requestPermission,
+  } = useBrowserNotificationPermission();
 
   const workspaceNotifications = useMemo(
     () =>
@@ -167,6 +173,39 @@ function RouteComponent() {
               </div>
             </div>
           </section>
+
+          {isDesktopNotificationsSupported && (
+            <section className="rounded-[1.75rem] border border-border/70 bg-muted/20 px-5 py-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold tracking-tight text-foreground">
+                    {desktopNotificationPermission === "denied"
+                      ? t("workspace:notifications.desktop.blockedTitle")
+                      : desktopNotificationPermission === "granted"
+                        ? t("workspace:notifications.desktop.enabledTitle")
+                        : t("workspace:notifications.desktop.enableTitle")}
+                  </h3>
+                  <p className="max-w-2xl text-sm text-muted-foreground">
+                    {desktopNotificationPermission === "denied"
+                      ? t("workspace:notifications.desktop.blockedDescription")
+                      : desktopNotificationPermission === "granted"
+                        ? t(
+                            "workspace:notifications.desktop.enabledDescription",
+                          )
+                        : t(
+                            "workspace:notifications.desktop.enableDescription",
+                          )}
+                  </p>
+                </div>
+
+                {desktopNotificationPermission === "default" && (
+                  <Button size="sm" onClick={() => void requestPermission()}>
+                    {t("workspace:notifications.desktop.enableAction")}
+                  </Button>
+                )}
+              </div>
+            </section>
+          )}
 
           {workspaceNotifications.length === 0 ? (
             <div className="rounded-[2rem] border border-dashed border-border/70 bg-muted/10 px-6 py-14 text-center">
