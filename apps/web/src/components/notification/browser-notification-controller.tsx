@@ -9,7 +9,7 @@ import {
   showBrowserNotification,
 } from "@/lib/browser-notifications";
 import {
-  playNotificationSound,
+  playNotificationAnnouncement,
   primeNotificationSound,
 } from "@/lib/notification-sound";
 import queryClient from "@/query-client";
@@ -142,7 +142,7 @@ export default function BrowserNotificationController() {
       .map(({ notification }) => notification);
 
     if (newNotifications.length > 0) {
-      void playNotificationSound();
+      void playNotificationAnnouncement(newNotifications);
     }
 
     if (getBrowserNotificationPermission() === "granted") {

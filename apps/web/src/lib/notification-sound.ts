@@ -1,75 +1,87 @@
-const NOTIFICATION_SOUND_SRC = "/tasks-notification.mp3";
-const NOTIFICATION_SOUND_VOLUME = 0.9;
+import type { Notification } from "@/types/notification";
 
-let notificationAudio: HTMLAudioElement | null = null;
-let isNotificationSoundPrimed = false;
-let isNotificationSoundPlaying = false;
+let isNotificationSpeechPrimed = false;
+let isNotificationSpeechActive = false;
 
-function resetPlaybackState() {
-  isNotificationSoundPlaying = false;
-}
-
-function getNotificationAudio() {
-  if (typeof window === "undefined" || typeof window.Audio === "undefined") {
+function getSpeechSynthesis() {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     return null;
   }
 
-  if (!notificationAudio) {
-    notificationAudio = new window.Audio(NOTIFICATION_SOUND_SRC);
-    notificationAudio.preload = "auto";
-    notificationAudio.volume = NOTIFICATION_SOUND_VOLUME;
-    notificationAudio.addEventListener("ended", resetPlaybackState);
-    notificationAudio.addEventListener("pause", () => {
-      if (notificationAudio?.ended || notificationAudio?.currentTime === 0) {
-        resetPlaybackState();
-      }
-    });
-  }
+  return window.speechSynthesis;
+}
 
-  return notificationAudio;
+function resetSpeechState() {
+  isNotificationSpeechActive = false;
 }
 
 export async function primeNotificationSound() {
-  if (isNotificationSoundPrimed) {
-    return true;
-  }
+  const speech = getSpeechSynthesis();
 
-  const audio = getNotificationAudio();
-
-  if (!audio) {
+  if (!speech) {
     return false;
   }
 
-  try {
-    audio.muted = true;
-    audio.currentTime = 0;
-    await audio.play();
-    audio.pause();
-    audio.currentTime = 0;
-    audio.muted = false;
-    isNotificationSoundPrimed = true;
-    return true;
-  } catch {
-    audio.muted = false;
-    return false;
-  }
+  // Loading voices after a real user interaction gives speech synthesis
+  // a better chance of succeeding across browsers.
+  speech.getVoices();
+  isNotificationSpeechPrimed = true;
+  return true;
 }
 
 export async function playNotificationSound() {
-  const audio = getNotificationAudio();
+  return playNotificationAnnouncement([]);
+}
 
-  if (!audio || isNotificationSoundPlaying) {
+function getNotificationAnnouncement(notification: Notification) {
+  switch (notification.type) {
+    case "task_assignee_changed":
+    case "task_created":
+      return "New task alert";
+    case "task_comment_created":
+      return "New comment alert";
+    case "task_status_changed":
+      return "Task update alert";
+    case "workspace_created":
+      return "New workspace alert";
+    case "time_entry_created":
+      return "New time entry alert";
+    default:
+      return "New notification";
+  }
+}
+
+export async function playNotificationAnnouncement(
+  notifications: Notification[],
+) {
+  const speech = getSpeechSynthesis();
+
+  if (!speech || isNotificationSpeechActive || !isNotificationSpeechPrimed) {
     return false;
   }
 
   try {
-    audio.muted = false;
-    audio.currentTime = 0;
-    isNotificationSoundPlaying = true;
-    await audio.play();
+    speech.cancel();
+
+    const announcement =
+      notifications.length > 1
+        ? `You have ${notifications.length} new notifications`
+        : notifications.length === 1
+          ? getNotificationAnnouncement(notifications[0])
+          : "New notification";
+
+    const utterance = new SpeechSynthesisUtterance(announcement);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    utterance.onend = resetSpeechState;
+    utterance.onerror = resetSpeechState;
+
+    isNotificationSpeechActive = true;
+    speech.speak(utterance);
     return true;
   } catch {
-    resetPlaybackState();
+    resetSpeechState();
     return false;
   }
 }
