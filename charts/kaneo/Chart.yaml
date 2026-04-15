@@ -2,8 +2,8 @@ apiVersion: v2
 name: kaneo
 description: Kaneo - All you need. Nothing you don't. Open source project management that works for you.
 type: application
-# Bumped to 0.2.0 due to breaking auth and probe changes
-version: 0.2.0
+# 0.3.0: add api.extraEnv for custom env vars; fix missing KANEO_CLIENT_URL on web container
+version: 0.3.0
 # Bumped to the latest v2 release
 appVersion: "2.3.5"
 keywords:
