@@ -3,6 +3,7 @@ import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { FileText } from "lucide-react";
 import { useCallback, useState } from "react";
+import { getApiUrl } from "@/fetchers/get-api-url";
 import { toast } from "@/lib/toast";
 
 function formatBytes(size: number) {
@@ -14,25 +15,53 @@ function formatBytes(size: number) {
   return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
+function normalizeAttachmentUrl(url: string) {
+  if (!url || typeof window === "undefined") {
+    return url;
+  }
+
+  try {
+    const parsedUrl = new URL(url, window.location.origin);
+
+    if (
+      window.location.protocol !== "https:" ||
+      parsedUrl.protocol !== "http:"
+    ) {
+      return parsedUrl.toString();
+    }
+
+    const apiUrl = new URL(getApiUrl("/"));
+
+    if (parsedUrl.hostname === apiUrl.hostname) {
+      parsedUrl.protocol = "https:";
+    }
+
+    return parsedUrl.toString();
+  } catch {
+    return url;
+  }
+}
+
 function AttachmentCardView({ node }: NodeViewProps) {
   const url = String(node.attrs.url || "");
   const filename = String(node.attrs.filename || "Attachment");
   const mimeType = String(node.attrs.mimeType || "");
   const size = Number(node.attrs.size || 0);
   const [isDownloading, setIsDownloading] = useState(false);
+  const downloadUrl = normalizeAttachmentUrl(url);
 
   const handleDownload = useCallback(
     async (event: React.MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault();
 
-      if (!url || isDownloading) {
+      if (!downloadUrl || isDownloading) {
         return;
       }
 
       setIsDownloading(true);
 
       try {
-        const response = await fetch(url);
+        const response = await fetch(downloadUrl);
 
         if (!response.ok) {
           throw new Error(`Download failed with status ${response.status}`);
@@ -59,13 +88,13 @@ function AttachmentCardView({ node }: NodeViewProps) {
         setIsDownloading(false);
       }
     },
-    [filename, isDownloading, url],
+    [downloadUrl, filename, isDownloading],
   );
 
   return (
     <NodeViewWrapper as="span" className="kaneo-attachment-node">
       <a
-        href={url}
+        href={downloadUrl}
         className="kaneo-attachment-card"
         title={
           isDownloading ? `Downloading ${filename}` : `Download ${filename}`
