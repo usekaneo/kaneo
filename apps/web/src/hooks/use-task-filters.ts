@@ -1,5 +1,6 @@
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 
@@ -56,6 +57,7 @@ export function useTaskFilters(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,
 ) {
+  const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
   const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
 
@@ -122,16 +124,20 @@ export function useTaskFilters(
 
           switch (dueDateFilter) {
             case DUE_DATE_FILTER_VALUES.dueThisWeek: {
-              const weekStart = startOfWeek(today);
-              const weekEnd = endOfWeek(today);
+              const weekStart = startOfWeek(today, { weekStartsOn });
+              const weekEnd = endOfWeek(today, { weekStartsOn });
               return isWithinInterval(taskDate, {
                 start: weekStart,
                 end: weekEnd,
               });
             }
             case DUE_DATE_FILTER_VALUES.dueNextWeek: {
-              const nextWeekStart = startOfWeek(addWeeks(today, 1));
-              const nextWeekEnd = endOfWeek(addWeeks(today, 1));
+              const nextWeekStart = startOfWeek(addWeeks(today, 1), {
+                weekStartsOn,
+              });
+              const nextWeekEnd = endOfWeek(addWeeks(today, 1), {
+                weekStartsOn,
+              });
               return isWithinInterval(taskDate, {
                 start: nextWeekStart,
                 end: nextWeekEnd,
