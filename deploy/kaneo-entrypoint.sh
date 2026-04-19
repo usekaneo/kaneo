@@ -31,16 +31,11 @@ done
 
 cleanup
 
-api_status=0
-nginx_status=0
+wait "$api_pid" || api_status=$?
+wait "$nginx_pid" || nginx_status=$?
 
-if ! wait "$api_pid"; then
-  api_status=$?
-fi
-
-if ! wait "$nginx_pid"; then
-  nginx_status=$?
-fi
+api_status=${api_status:-0}
+nginx_status=${nginx_status:-0}
 
 if [ "$api_status" -ne 0 ]; then
   exit "$api_status"
