@@ -24,25 +24,15 @@ services:
       timeout: 5s
       retries: 5
 
-  api:
-    image: ghcr.io/usekaneo/api:latest
-    ports:
-      - "1337:1337"
-    env_file:
-      - .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-  web:
-    image: ghcr.io/usekaneo/web:latest
+  kaneo:
+    image: ghcr.io/usekaneo/kaneo:latest
     ports:
       - "5173:5173"
     env_file:
       - .env
     depends_on:
-      - api
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
@@ -51,15 +41,25 @@ volumes:
 
 ## The services and volumes
 
-Kaneo utilities the following services:
+Kaneo uses the following services:
 
 - `postgres`: The PostgreSQL database.
-- `api`: The API server.
-- `web`: The web application.
+- `kaneo`: The combined API and web container.
 
 Additionally, the following volumes are used:
 
 - `postgres_data`: The PostgreSQL data.
+
+## Required URL configuration
+
+For the combined image, point both URLs at the same public origin:
+
+```env
+KANEO_CLIENT_URL=http://localhost:5173
+KANEO_API_URL=http://localhost:5173/api
+```
+
+This keeps the browser on one origin while the container proxies `/api` requests to the internal API process.
 
 ## Notes on object storage
 

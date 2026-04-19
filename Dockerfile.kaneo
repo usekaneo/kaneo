@@ -1,0 +1,100 @@
+FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS api-builder
+
+RUN apk add --no-cache python3 make g++ && \
+  corepack enable && \
+  corepack prepare pnpm@10.7.0 --activate
+
+WORKDIR /app
+
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/email/package.json ./packages/email/
+COPY packages/libs/package.json ./packages/libs/
+COPY apps/api/package.json ./apps/api/
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/typescript-config ./packages/typescript-config
+COPY packages/email ./packages/email
+COPY packages/libs ./packages/libs
+COPY apps/api ./apps/api
+
+WORKDIR /app/packages/email
+RUN pnpm run build
+
+WORKDIR /app/apps/api
+RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/..\/packages\/typescript-config\/base.json"/g' /app/apps/api/tsconfig.json && \
+  pnpm run build
+
+FROM node:20.20.2-alpine AS api-runtime
+
+WORKDIR /app
+
+COPY --from=api-builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=api-builder /app/apps/api/package.json ./apps/api/
+COPY --from=api-builder /app/packages/typescript-config/package.json ./packages/typescript-config/
+COPY --from=api-builder /app/packages/libs/package.json ./packages/libs/
+COPY --from=api-builder /app/packages/email/package.json ./packages/email/
+
+RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
+  corepack enable && \
+  corepack prepare pnpm@10.7.0 --activate && \
+  HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
+
+COPY --from=api-builder /app/apps/api/dist ./apps/api/dist
+COPY --from=api-builder /app/apps/api/drizzle ./apps/api/drizzle
+COPY --from=api-builder /app/packages/email ./packages/email
+
+FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS web-builder
+
+RUN apk add --no-cache python3 make g++ && \
+  corepack enable && \
+  corepack prepare pnpm@10.7.0 --activate
+
+WORKDIR /app
+
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY apps/web/package.json ./apps/web/
+COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/libs/package.json ./packages/libs/
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/typescript-config ./packages/typescript-config
+COPY packages/libs ./packages/libs
+COPY i18n ./i18n
+COPY apps/web ./apps/web
+
+WORKDIR /app/apps/web
+RUN pnpm run build
+
+FROM node:20.20.2-alpine AS runtime
+
+RUN apk add --no-cache nginx && \
+  addgroup -g 1001 appuser && \
+  adduser -u 1001 -G appuser -D appuser && \
+  mkdir -p /app /app/apps/api/data /var/cache/nginx /var/run/nginx /var/log/nginx /var/lib/nginx/logs /var/lib/nginx/tmp /usr/share/nginx/html /docker-entrypoint.d && \
+  chown -R appuser:appuser /app /app/apps/api/data /var/cache/nginx /var/run/nginx /var/log/nginx /var/lib/nginx /usr/share/nginx/html /docker-entrypoint.d && \
+  touch /var/run/nginx.pid && \
+  chown appuser:appuser /var/run/nginx.pid && \
+  printf 'worker_processes auto;\nerror_log /var/log/nginx/error.log warn;\npid /var/run/nginx.pid;\nevents { worker_connections 1024; }\nhttp {\n  include /etc/nginx/mime.types;\n  default_type application/octet-stream;\n  include /etc/nginx/conf.d/*.conf;\n}\n' > /etc/nginx/nginx.conf
+
+WORKDIR /app
+
+COPY --from=api-runtime --chown=appuser:appuser /app /app
+COPY --from=web-builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
+COPY --chown=appuser:appuser apps/web/nginx.kaneo.conf /etc/nginx/conf.d/default.conf
+COPY --chown=appuser:appuser apps/web/env.sh /docker-entrypoint.d/env.sh
+COPY --chown=appuser:appuser deploy/kaneo-entrypoint.sh /usr/local/bin/kaneo-entrypoint.sh
+
+RUN chmod +x /docker-entrypoint.d/env.sh /usr/local/bin/kaneo-entrypoint.sh
+
+ENV NODE_ENV=production
+
+USER appuser
+EXPOSE 5173
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:5173/api/health || exit 1
+
+CMD ["/usr/local/bin/kaneo-entrypoint.sh"]
