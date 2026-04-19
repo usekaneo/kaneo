@@ -70,7 +70,7 @@ RUN pnpm run build
 
 FROM node:20.20.2-alpine AS runtime
 
-RUN apk add --no-cache nginx && \
+RUN apk add --no-cache nginx=1.28.3-r0 && \
   addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
   mkdir -p /app /app/apps/api/data /var/cache/nginx /var/run/nginx /var/log/nginx /var/lib/nginx/logs /var/lib/nginx/tmp /usr/share/nginx/html /docker-entrypoint.d && \
