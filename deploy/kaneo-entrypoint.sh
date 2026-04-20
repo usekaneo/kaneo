@@ -9,11 +9,13 @@ fi
 
 # Derive DATABASE_URL from individual postgres vars if not explicitly set
 if [ -z "${DATABASE_URL:-}" ]; then
-  if [ -n "${POSTGRES_USER:-}" ] && [ -n "${POSTGRES_PASSWORD:-}" ] && [ -n "${POSTGRES_DB:-}" ]; then
+  POSTGRES_DB="${POSTGRES_DB:-kaneo}"
+  POSTGRES_USER="${POSTGRES_USER:-kaneo}"
+  if [ -n "${POSTGRES_PASSWORD:-}" ]; then
     export DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
     echo "DATABASE_URL not set — derived from POSTGRES_* vars"
   else
-    echo "ERROR: DATABASE_URL is not set and POSTGRES_USER/PASSWORD/DB are incomplete" >&2
+    echo "ERROR: DATABASE_URL is not set and POSTGRES_PASSWORD is not set" >&2
     exit 1
   fi
 fi
