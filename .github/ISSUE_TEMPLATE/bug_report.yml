@@ -1,0 +1,69 @@
+name: "Bug Report"
+description: Create a report to help us improve Kaneo
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Bug Description"
+      description: "Description of the bug"
+      placeholder: |
+        Example: 
+        A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: "Steps To Reproduce"
+      description: "The sequence of actions to reproduce the bug"
+      placeholder: |
+        Example: 
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_result
+    attributes:
+      label: "Expected Behavior"
+      description: "A clear and concise description of what you expected to happen."
+      placeholder: "Example: Behavior remains the same as it was"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_result
+    attributes:
+      label: "Actual result"
+      placeholder: "Example: The behavior has changed '...'"
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Screenshots"
+      description: "If applicable, add screenshots to help explain your problem."
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment"
+      placeholder: "Example: - Kaneo Version: [e.g., 1.0.0]
+                            - Deployment Method: [e.g., Docker, Kubernetes, etc.]
+                            - Browser: [e.g., Chrome 120, Firefox 119]
+                            - OS: [e.g., Windows 11, macOS Sonoma, Ubuntu 22.04]"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context about the problem here."
