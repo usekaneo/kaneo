@@ -1660,6 +1660,21 @@
 						"selectLanguage": {
 							"type": "string"
 						},
+						"firstDayOfWeek": {
+							"type": "string"
+						},
+						"firstDayOfWeekDescription": {
+							"type": "string"
+						},
+						"selectFirstDayOfWeek": {
+							"type": "string"
+						},
+						"weekStartsOnSunday": {
+							"type": "string"
+						},
+						"weekStartsOnMonday": {
+							"type": "string"
+						},
 						"defaultView": {
 							"type": "string"
 						},
@@ -1735,6 +1750,11 @@
 						"language",
 						"languageDescription",
 						"selectLanguage",
+						"firstDayOfWeek",
+						"firstDayOfWeekDescription",
+						"selectFirstDayOfWeek",
+						"weekStartsOnSunday",
+						"weekStartsOnMonday",
 						"defaultView",
 						"defaultViewDescription",
 						"selectViewMode",

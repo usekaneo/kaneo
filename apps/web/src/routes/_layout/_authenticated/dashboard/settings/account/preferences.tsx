@@ -56,6 +56,8 @@ function RouteComponent() {
   const {
     theme,
     setTheme,
+    weekStartsOn,
+    setWeekStartsOn,
     viewMode,
     setViewMode,
     showTaskNumbers,
@@ -82,6 +84,10 @@ function RouteComponent() {
   const viewLabels: Record<string, string> = {
     board: t("settings:preferencesPage.board"),
     list: t("settings:preferencesPage.list"),
+  };
+  const weekStartLabels: Record<"0" | "1", string> = {
+    "0": t("settings:preferencesPage.weekStartsOnSunday"),
+    "1": t("settings:preferencesPage.weekStartsOnMonday"),
   };
 
   const selectedLocale: AppLocale = locale ?? defaultLocale;
@@ -174,6 +180,45 @@ function RouteComponent() {
                     {getLocaleLabel(supportedLocale)}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.firstDayOfWeek")}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:preferencesPage.firstDayOfWeekDescription")}
+              </p>
+            </div>
+            <Select
+              value={String(weekStartsOn)}
+              onValueChange={(value) => {
+                if (value === "0" || value === "1") {
+                  setWeekStartsOn(Number(value) as 0 | 1);
+                }
+              }}
+            >
+              <SelectTrigger size="sm" className="w-40">
+                <SelectValue
+                  placeholder={t(
+                    "settings:preferencesPage.selectFirstDayOfWeek",
+                  )}
+                >
+                  {weekStartLabels[String(weekStartsOn) as "0" | "1"]}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">
+                  {t("settings:preferencesPage.weekStartsOnSunday")}
+                </SelectItem>
+                <SelectItem value="1">
+                  {t("settings:preferencesPage.weekStartsOnMonday")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
