@@ -24,9 +24,7 @@ export function PublicTaskLabels({ labels }: PublicTaskLabelsProps) {
                 "var(--color-neutral-400)",
             }}
           />
-          <span className="relative max-w-20 truncate -top-0.5">
-            {label.name}
-          </span>
+          <span className="max-w-20 truncate">{label.name}</span>
         </Badge>
       ))}
     </div>

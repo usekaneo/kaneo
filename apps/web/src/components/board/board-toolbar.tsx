@@ -497,7 +497,7 @@ export default function BoardToolbar({
                                   ?.color || "var(--color-neutral-400)",
                             }}
                           />
-                          <span className="relative max-w-20 truncate -top-0.5">
+                          <span className="max-w-20 truncate">
                             {label.name}
                           </span>
                         </DropdownMenuItem>

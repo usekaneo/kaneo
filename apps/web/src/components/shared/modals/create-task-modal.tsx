@@ -647,9 +647,7 @@ function CreateTaskModal({
                             ?.color || "var(--color-neutral-400)",
                       }}
                     />
-                    <span className="relative max-w-20 -top-0.5 truncate">
-                      {label.name}
-                    </span>
+                    <span className="max-w-20 truncate">{label.name}</span>
                   </Badge>
                 ))}
               </div>
@@ -925,7 +923,7 @@ function CreateTaskModal({
                                   )?.color || "var(--color-neutral-400)",
                               }}
                             />
-                            <span className="relative max-w-20 truncate -top-0.5">
+                            <span className="max-w-20 truncate">
                               {label.name}
                             </span>
                           </button>
