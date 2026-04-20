@@ -55,10 +55,12 @@ body:
     id: environment
     attributes:
       label: "Environment"
-      placeholder: "Example: - Kaneo Version: [e.g., 1.0.0]
-                            - Deployment Method: [e.g., Docker, Kubernetes, etc.]
-                            - Browser: [e.g., Chrome 120, Firefox 119]
-                            - OS: [e.g., Windows 11, macOS Sonoma, Ubuntu 22.04]"
+      placeholder: |
+        Example:
+        - Kaneo Version: [e.g., 1.0.0]
+        - Deployment Method: [e.g., Docker, Kubernetes, etc.]
+        - Browser: [e.g., Chrome 120, Firefox 119]
+        - OS: [e.g., Windows 11, macOS Sonoma, Ubuntu 22.04]
     validations:
       required: true
 
