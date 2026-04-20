@@ -101,7 +101,7 @@ volumes:
   postgres_data:
 ```
 
-Save this as `compose.yml`, create a `.env` file with your configuration, set `KANEO_CLIENT_URL=http://localhost:5173`, set `KANEO_API_URL=http://localhost:5173/api`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
+Save this as `compose.yml`, create a `.env` file with `KANEO_CLIENT_URL=http://localhost:5173`, `POSTGRES_PASSWORD=<password>`, and `AUTH_SECRET=<output of openssl rand -hex 32>`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
 > **Important:** See our [full documentation](https://kaneo.app/docs/core) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
 

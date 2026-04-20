@@ -52,12 +52,15 @@ Additionally, the following volumes are used:
 
 ## Required URL configuration
 
-For the combined image, point both URLs at the same public origin:
+For the combined image, only `KANEO_CLIENT_URL` is required — `KANEO_API_URL` is derived automatically as `KANEO_CLIENT_URL/api`:
 
 ```env
 KANEO_CLIENT_URL=http://localhost:5173
-KANEO_API_URL=http://localhost:5173/api
+POSTGRES_PASSWORD=changeme
+AUTH_SECRET=                             # generate: openssl rand -hex 32
 ```
+
+Set `KANEO_API_URL` explicitly only if you need to override the default (e.g. a reverse proxy changes the path).
 
 This keeps the browser on one origin while the container proxies `/api` requests to the internal API process.
 
