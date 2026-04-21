@@ -51,9 +51,7 @@ function TaskCardLabels({ taskId }: { taskId: string }) {
               backgroundColor: validColor(label.color),
             }}
           />
-          <span className="relative max-w-20 truncate -top-0.5">
-            {label.name}
-          </span>
+          <span className="max-w-20 truncate">{label.name}</span>
         </Badge>
       ))}
     </div>
