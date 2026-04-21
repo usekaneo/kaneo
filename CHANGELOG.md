@@ -1,3 +1,18 @@
+## [2.6.9](https://github.com/usekaneo/kaneo/compare/v2.6.8...v2.6.9) (2026-04-21)
+
+
+### Bug Fixes
+
+* .github/ISSUE_TEMPLATE/bug_report.yml ([4f4c33e](https://github.com/usekaneo/kaneo/commit/4f4c33e1b326edae3185cd80f8992c9bdd1116c9))
+* align task list checkboxes to top ([9d44ba7](https://github.com/usekaneo/kaneo/commit/9d44ba708b5addc72548142262da2beead0e7450))
+* restore board label filters after reload ([af09695](https://github.com/usekaneo/kaneo/commit/af09695239ac1a254f79b7971f09de2de1406cc7))
+* **ui:** align task label text vertically ([abb0ae2](https://github.com/usekaneo/kaneo/commit/abb0ae20661334e44158ee9bfa575e6f43563c9f))
+* **web:** sync task label mutations into tasks cache ([fb504d3](https://github.com/usekaneo/kaneo/commit/fb504d3c99d090bde866bb892b2a54b66720ffec))
+
+
+### Features
+
+* add configurable first day of week ([3e532e6](https://github.com/usekaneo/kaneo/commit/3e532e606c4e9fd64eb489fe1c72f8accc1b958a))
 ## [2.6.8](https://github.com/usekaneo/kaneo/compare/v2.6.7...v2.6.8) (2026-04-13)
 
 
