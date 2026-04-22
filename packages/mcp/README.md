@@ -1,8 +1,10 @@
 # Kaneo MCP server
 
-`@kaneo/mcp` is a local MCP server for Kaneo.
+`@kaneo/mcp` is a local stdio MCP server for Kaneo.
 
 It runs over stdio, signs in with Kaneo's device flow, and then calls the Kaneo API with a bearer token. The package lives in `packages/mcp` in this monorepo and exposes the `kaneo-mcp` CLI.
+
+> **Tip:** Every Kaneo instance also ships a built-in HTTP MCP endpoint at `/api/mcp`. If your MCP client supports Streamable HTTP transport (e.g. Claude Code), you can connect directly without this package. See the [MCP docs](https://docs.kaneo.app/core/integrations/mcp) for details.
 
 ## Prerequisites
 

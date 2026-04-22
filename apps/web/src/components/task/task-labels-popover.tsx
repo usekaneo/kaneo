@@ -145,12 +145,8 @@ export default function TaskLabelsPopover({
         toast.success(t("tasks:popover.labels.addSuccess"));
       }
 
-      // Invalidate all relevant queries
       await queryClient.invalidateQueries({
-        queryKey: ["labels", task.id],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["labels", workspaceId],
+        queryKey: ["tasks", task.projectId],
       });
     } catch (error) {
       toast.error(
@@ -188,12 +184,8 @@ export default function TaskLabelsPopover({
         workspaceId,
       });
 
-      // Invalidate all relevant queries
       await queryClient.invalidateQueries({
-        queryKey: ["labels", task.id],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["labels", workspaceId],
+        queryKey: ["tasks", task.projectId],
       });
 
       toast.success(t("tasks:popover.labels.createSuccess"));
@@ -246,9 +238,7 @@ export default function TaskLabelsPopover({
                   "var(--color-neutral-400)",
               }}
             />
-            <span className="relative max-w-20 -top-0.5 truncate">
-              {label.name}
-            </span>
+            <span className="max-w-20 truncate">{label.name}</span>
           </button>
         ))}
 

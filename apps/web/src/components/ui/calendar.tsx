@@ -9,6 +9,7 @@ import type * as React from "react";
 import { DayPicker } from "react-day-picker";
 
 import { cn } from "@/lib/cn";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 
 const buttonClassNames =
   "relative flex size-(--cell-size) text-base sm:text-sm items-center justify-center rounded-lg text-foreground not-in-data-selected:hover:bg-accent disabled:pointer-events-none disabled:opacity-64 [&_svg:not([class*='opacity-'])]:opacity-80 [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0";
@@ -18,8 +19,12 @@ function Calendar({
   classNames,
   showOutsideDays = true,
   components: userComponents,
+  weekStartsOn: weekStartsOnProp,
   ...props
 }: React.ComponentProps<typeof DayPicker>) {
+  const preferredWeekStartsOn = useUserPreferencesStore(
+    (state) => state.weekStartsOn,
+  );
   const defaultClassNames = {
     button_next: buttonClassNames,
     button_previous: buttonClassNames,
@@ -129,6 +134,7 @@ function Calendar({
       }}
       mode="single"
       showOutsideDays={showOutsideDays}
+      weekStartsOn={weekStartsOnProp ?? preferredWeekStartsOn}
       {...props}
     />
   );

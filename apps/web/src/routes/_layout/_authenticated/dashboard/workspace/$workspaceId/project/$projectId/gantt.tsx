@@ -24,6 +24,7 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
 import { getStatusLabel } from "@/lib/i18n/domain";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type GanttSearchParams = {
   taskId?: string;
@@ -50,6 +51,7 @@ function RouteComponent() {
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: project } = useGetTasks(projectId);
+  const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
   const [isTaskRailOpen, setIsTaskRailOpen] = useState(false);
@@ -135,8 +137,8 @@ function RouteComponent() {
 
     // Week-aligned bounds around task dates, then pad with extra days so bars can
     // be resized or moved past the current last task without running out of grid.
-    const weekStart = startOfWeek(earliest, { weekStartsOn: 1 });
-    const weekEnd = endOfWeek(latest, { weekStartsOn: 1 });
+    const weekStart = startOfWeek(earliest, { weekStartsOn });
+    const weekEnd = endOfWeek(latest, { weekStartsOn });
     const rangeStart = subDays(weekStart, 7);
     const rangeEnd = addDays(weekEnd, 28);
 
@@ -148,7 +150,7 @@ function RouteComponent() {
       gridTemplateColumns: `repeat(${days.length}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
       timelineMinWidthRem: days.length * dayColumnWidthRem,
     };
-  }, [parsedTasks, dayColumnWidthRem]);
+  }, [parsedTasks, dayColumnWidthRem, weekStartsOn]);
 
   useLayoutEffect(() => {
     const element = timelineTrackRef.current;

@@ -1,6 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { type BoardFilters, DUE_DATE_FILTER_VALUES } from "./use-task-filters";
@@ -45,7 +45,7 @@ export function useTaskFiltersWithLabelsSupport(
   projectId?: string,
   textQuery?: string,
 ) {
-  const queryClient = useQueryClient();
+  const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
   const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
 
@@ -70,18 +70,6 @@ export function useTaskFiltersWithLabelsSupport(
     if (!storageKey || typeof window === "undefined") return;
     window.localStorage.setItem(storageKey, JSON.stringify(filters));
   }, [filters, storageKey]);
-
-  // Helper function to get cached labels for a task
-  const getTaskLabels = useCallback(
-    (taskId: string) => {
-      const queryKey = ["labels", taskId];
-      const cachedData = queryClient.getQueryData(queryKey) as
-        | Array<{ id: string; name: string; color: string }>
-        | undefined;
-      return cachedData || [];
-    },
-    [queryClient],
-  );
 
   const filterTasks = useCallback(
     (tasks: Task[]): Task[] => {
@@ -139,16 +127,20 @@ export function useTaskFiltersWithLabelsSupport(
 
             switch (dueDateFilter) {
               case DUE_DATE_FILTER_VALUES.dueThisWeek: {
-                const weekStart = startOfWeek(today);
-                const weekEnd = endOfWeek(today);
+                const weekStart = startOfWeek(today, { weekStartsOn });
+                const weekEnd = endOfWeek(today, { weekStartsOn });
                 return isWithinInterval(taskDate, {
                   start: weekStart,
                   end: weekEnd,
                 });
               }
               case DUE_DATE_FILTER_VALUES.dueNextWeek: {
-                const nextWeekStart = startOfWeek(addWeeks(today, 1));
-                const nextWeekEnd = endOfWeek(addWeeks(today, 1));
+                const nextWeekStart = startOfWeek(addWeeks(today, 1), {
+                  weekStartsOn,
+                });
+                const nextWeekEnd = endOfWeek(addWeeks(today, 1), {
+                  weekStartsOn,
+                });
                 return isWithinInterval(taskDate, {
                   start: nextWeekStart,
                   end: nextWeekEnd,
@@ -166,8 +158,7 @@ export function useTaskFiltersWithLabelsSupport(
 
         // Label filtering
         if (filters.labels && filters.labels.length > 0) {
-          const taskLabels = getTaskLabels(task.id);
-          const taskLabelIds = taskLabels.map((label) => label.id);
+          const taskLabelIds = (task.labels ?? []).map((label) => label.id);
 
           // Check if task has at least one of the selected labels
           const hasMatchingLabel = filters.labels.some((labelId) =>
@@ -182,7 +173,7 @@ export function useTaskFiltersWithLabelsSupport(
         return true;
       });
     },
-    [filters, getTaskLabels, textQuery],
+    [filters, textQuery, weekStartsOn],
   );
 
   const filteredProject = useMemo(() => {

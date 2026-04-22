@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CreateLabelRequest } from "@/fetchers/label/create-label";
 import createLabel from "@/fetchers/label/create-label";
+import { addLabelToTaskInTasksCache } from "./sync-task-labels-cache";
 
 function useCreateLabel() {
   const queryClient = useQueryClient();
@@ -38,6 +39,12 @@ function useCreateLabel() {
               : [...existingLabels, createdLabel];
           },
         );
+
+        addLabelToTaskInTasksCache(queryClient, createdLabel.taskId, {
+          id: createdLabel.id,
+          name: createdLabel.name,
+          color: createdLabel.color,
+        });
       }
 
       void queryClient.invalidateQueries({
