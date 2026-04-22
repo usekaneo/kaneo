@@ -23,8 +23,7 @@ WORKDIR /app/packages/email
 RUN pnpm run build
 
 WORKDIR /app/apps/api
-RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/..\/packages\/typescript-config\/base.json"/g' /app/apps/api/tsconfig.json && \
-  pnpm run build
+RUN pnpm run build
 
 FROM node:20.20.2-alpine AS api-runtime
 

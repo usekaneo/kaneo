@@ -69,7 +69,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-kaneo} -d $${POSTGRES_DB:-kaneo}"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER:-kaneo}\" -d \"$${POSTGRES_DB:-kaneo}\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -241,7 +241,9 @@ After upgrading, a minimal `.env` for Docker Compose requires three values:
 ```env
 KANEO_CLIENT_URL=http://localhost:5173
 POSTGRES_PASSWORD=changeme
-AUTH_SECRET=                    # generate: openssl rand -hex 32
+AUTH_SECRET=replace_with_output_of_openssl_rand_hex_32
 ```
+
+Generate a stable secret with `openssl rand -hex 32` and keep it persistent, or active sessions will be invalidated after a container restart.
 
 `POSTGRES_DB` and `POSTGRES_USER` default to `kaneo` if not set. `KANEO_API_URL` and `DATABASE_URL` are derived automatically.
