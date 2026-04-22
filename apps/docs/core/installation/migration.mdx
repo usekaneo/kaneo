@@ -69,7 +69,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-kaneo} -d $${POSTGRES_DB:-kaneo}"]
       interval: 10s
       timeout: 5s
       retries: 5
