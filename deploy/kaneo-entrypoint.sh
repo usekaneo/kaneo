@@ -21,8 +21,9 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # Derive KANEO_API_URL from KANEO_CLIENT_URL if not explicitly set
-if [ -z "${KANEO_API_URL:-}" ] && [ -n "${KANEO_CLIENT_URL:-}" ]; then
-  export KANEO_API_URL="${KANEO_CLIENT_URL}/api"
+client_url_trimmed="$(printf '%s' "${KANEO_CLIENT_URL:-}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+if [ -z "${KANEO_API_URL:-}" ] && [ -n "$client_url_trimmed" ]; then
+  export KANEO_API_URL="${client_url_trimmed}/api"
   echo "KANEO_API_URL not set — derived from KANEO_CLIENT_URL: $KANEO_API_URL"
 fi
 
