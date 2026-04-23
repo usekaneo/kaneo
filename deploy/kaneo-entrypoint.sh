@@ -72,13 +72,41 @@ while kill -0 "$api_pid" 2>/dev/null && kill -0 "$nginx_pid" 2>/dev/null; do
   sleep 1
 done
 
+first_failed_pid=""
+first_failed_status=""
+api_status=""
+nginx_status=""
+
+if ! kill -0 "$api_pid" 2>/dev/null; then
+  wait "$api_pid" || api_status=$?
+  api_status=${api_status:-0}
+  first_failed_pid="$api_pid"
+  first_failed_status="$api_status"
+fi
+
+if [ -z "$first_failed_pid" ] && ! kill -0 "$nginx_pid" 2>/dev/null; then
+  wait "$nginx_pid" || nginx_status=$?
+  nginx_status=${nginx_status:-0}
+  first_failed_pid="$nginx_pid"
+  first_failed_status="$nginx_status"
+fi
+
 cleanup
 
-wait "$api_pid" || api_status=$?
-wait "$nginx_pid" || nginx_status=$?
+if [ "$first_failed_pid" != "$api_pid" ]; then
+  wait "$api_pid" || api_status=$?
+fi
+
+if [ "$first_failed_pid" != "$nginx_pid" ]; then
+  wait "$nginx_pid" || nginx_status=$?
+fi
 
 api_status=${api_status:-0}
 nginx_status=${nginx_status:-0}
+
+if [ -n "$first_failed_status" ]; then
+  exit "$first_failed_status"
+fi
 
 if [ "$api_status" -ne 0 ]; then
   exit "$api_status"
