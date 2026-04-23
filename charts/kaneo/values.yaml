@@ -82,6 +82,9 @@ kaneo:
     # Public URL of this Kaneo instance (e.g. https://kaneo.example.com)
     # KANEO_API_URL is derived automatically as clientUrl/api if not set
     clientUrl: ""
+    # Allowed CORS origins. Accepts a comma-separated string or YAML list.
+    # Defaults to clientUrl when left empty.
+    corsOrigins: []
     # Must be at least 32 characters long for Better Auth
     # Generate with: openssl rand -hex 32
     authSecret: change_me_to_at_least_32_characters_long_string
