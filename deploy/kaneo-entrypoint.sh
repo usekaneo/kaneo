@@ -35,7 +35,7 @@ if [ -z "${DATABASE_URL:-}" ]; then
   if [ -n "${POSTGRES_PASSWORD:-}" ]; then
     encoded_user="$(urlencode "$POSTGRES_USER")"
     encoded_password="$(urlencode "$POSTGRES_PASSWORD")"
-    export DATABASE_URL="postgresql://${encoded_user}:${encoded_password}@postgres:5432/${POSTGRES_DB}"
+    export DATABASE_URL="postgresql://${encoded_user}:${encoded_password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}"
     echo "DATABASE_URL not set — derived from POSTGRES_* vars"
   else
     echo "ERROR: DATABASE_URL is not set and POSTGRES_PASSWORD is not set" >&2
