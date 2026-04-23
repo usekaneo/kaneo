@@ -83,6 +83,7 @@ WORKDIR /app
 COPY --from=api-runtime --chown=appuser:appuser /app /app
 COPY --from=web-builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
 COPY --chown=appuser:appuser apps/web/nginx.kaneo.conf /etc/nginx/conf.d/default.conf
+RUN chown -R appuser:appuser /etc/nginx/conf.d
 COPY --chown=appuser:appuser apps/web/env.sh /docker-entrypoint.d/env.sh
 COPY --chown=appuser:appuser deploy/kaneo-entrypoint.sh /usr/local/bin/kaneo-entrypoint.sh
 
