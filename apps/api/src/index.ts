@@ -118,9 +118,10 @@ function buildContentDisposition(filename: string) {
 
 export function createApp() {
   const app = new Hono<AppVariables>();
-  const corsOriginSource = [process.env.CORS_ORIGINS, process.env.KANEO_CLIENT_URL].find(
-    (value) => value?.trim(),
-  );
+  const corsOriginSource = [
+    process.env.CORS_ORIGINS,
+    process.env.KANEO_CLIENT_URL,
+  ].find((value) => value?.trim());
   const corsOrigins = corsOriginSource
     ?.split(",")
     .map((origin) => origin.trim())
