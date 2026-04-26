@@ -8,6 +8,7 @@ import {
   taskTable,
   workspaceUserTable,
 } from "../../database/schema";
+import { publishEvent } from "../../events";
 import {
   assertValidPriority,
   assertValidTaskStatus,
@@ -112,6 +113,21 @@ async function bulkUpdateTasks({
           .where(inArray(taskTable.id, projectTaskIds));
 
         updatedCount += result.rowCount ?? projectTaskIds.length;
+
+        for (const taskId of projectTaskIds) {
+          await publishEvent("task.status_changed", {
+            taskId,
+            projectId,
+            userId,
+            newStatus: value,
+            type: "status_changed",
+          });
+        }
+
+        await publishEvent("task-relation.refresh", {
+          projectId,
+          userId,
+        });
       }
       break;
     }
@@ -128,6 +144,16 @@ async function bulkUpdateTasks({
         .where(inArray(taskTable.id, foundIds));
 
       updatedCount = result.rowCount ?? foundIds.length;
+
+      for (const task of tasks) {
+        await publishEvent("task.priority_changed", {
+          taskId: task.id,
+          projectId: task.projectId,
+          userId,
+          newPriority: value,
+          type: "priority_changed",
+        });
+      }
       break;
     }
 
@@ -138,10 +164,29 @@ async function bulkUpdateTasks({
         .where(inArray(taskTable.id, foundIds));
 
       updatedCount = result.rowCount ?? foundIds.length;
+
+      for (const task of tasks) {
+        const eventType = value ? "task.assignee_changed" : "task.unassigned";
+        await publishEvent(eventType, {
+          taskId: task.id,
+          projectId: task.projectId,
+          userId,
+          newAssigneeId: value || null,
+          type: value ? "assignee_changed" : "unassigned",
+        });
+      }
       break;
     }
 
     case "delete": {
+      for (const task of tasks) {
+        await publishEvent("task.deleted", {
+          taskId: task.id,
+          projectId: task.projectId,
+          userId,
+        });
+      }
+
       const result = await db
         .delete(taskTable)
         .where(inArray(taskTable.id, foundIds));
@@ -184,6 +229,13 @@ async function bulkUpdateTasks({
               target: [labelTable.taskId, labelTable.name],
             });
           updatedCount++;
+
+          await publishEvent("task.label_assigned", {
+            projectId: task.projectId,
+            taskId: task.id,
+            userId,
+            type: "label_assigned",
+          });
         }
       }
       break;
@@ -201,6 +253,15 @@ async function bulkUpdateTasks({
         );
 
       updatedCount = result.rowCount ?? foundIds.length;
+
+      for (const task of tasks) {
+        await publishEvent("task.label_unassigned", {
+          projectId: task.projectId,
+          taskId: task.id,
+          userId,
+          type: "label_unassigned",
+        });
+      }
       break;
     }
 
@@ -221,6 +282,16 @@ async function bulkUpdateTasks({
         .where(inArray(taskTable.id, foundIds));
 
       updatedCount = result.rowCount ?? foundIds.length;
+
+      for (const task of tasks) {
+        await publishEvent("task.due_date_changed", {
+          taskId: task.id,
+          projectId: task.projectId,
+          userId,
+          newDueDate: parsedDate,
+          type: "due_date_changed",
+        });
+      }
       break;
     }
 

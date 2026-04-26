@@ -1,18 +1,12 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import ProjectLayout from "@/components/common/project-layout";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/",
 )({
-  component: RouteComponent,
+  beforeLoad: () => {
+    throw redirect({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+      replace: true,
+    });
+  },
 });
-
-function RouteComponent() {
-  const { workspaceId, projectId } = Route.useParams();
-
-  return (
-    <ProjectLayout projectId={projectId} workspaceId={workspaceId}>
-      <Outlet />
-    </ProjectLayout>
-  );
-}

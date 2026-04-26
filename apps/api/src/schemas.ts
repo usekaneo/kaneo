@@ -253,4 +253,5 @@ export const configSchema = v.object({
   hasDiscordSignIn: v.nullable(v.boolean()),
   hasCustomOAuth: v.nullable(v.boolean()),
   hasGuestAccess: v.nullable(v.boolean()),
+  customOAuthLogoutUrl: v.nullable(v.string()),
 });

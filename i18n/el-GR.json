@@ -581,7 +581,9 @@
 				"keyShort": "Το κλειδί πρέπει να έχει τουλάχιστον 2 χαρακτήρες",
 				"keyMax": "Το κλειδί πρέπει να έχει το πολύ 8 χαρακτήρες",
 				"iconRequired": "Το εικονίδιο είναι υποχρεωτικό"
-			}
+			},
+			"importExportTasks": "Εισαγωγή/Εξαγωγή",
+			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Ενσωματώσεις έργου",
@@ -1033,7 +1035,8 @@
 			"projects": "Έργα",
 			"members": "Μέλη",
 			"invitations": "Προσκλήσεις",
-			"more": "Περισσότερα"
+			"more": "Περισσότερα",
+			"backToBoard": "Επιστροφή στον πίνακα"
 		},
 		"projectList": {
 			"viewProject": "Προβολή έργου",
@@ -1162,6 +1165,8 @@
 		"setDueDate": "όρισε ως ημερομηνία λήξης την {{date}}",
 		"changedDueDate": "άλλαξε την ημερομηνία λήξης από {{from}} σε {{to}}",
 		"changedTitle": "άλλαξε τον τίτλο από \"{{from}}\" σε \"{{to}}\"",
+		"created": "δημιούργησε αυτή την εργασία",
+		"moved": "μετακίνησε την εργασία από \"{{from}}\" σε \"{{to}}\"",
 		"githubUser": "Χρήστης GitHub",
 		"comment": {
 			"github": "GitHub",
@@ -1275,7 +1280,9 @@
 		},
 		"common": {
 			"selectTask": "Επιλέξτε εργασία",
-			"loadingTask": "Φόρτωση εργασίας..."
+			"loadingTask": "Φόρτωση εργασίας...",
+			"taskNotFound": "Η εργασία δεν βρέθηκε",
+			"taskNotFoundDescription": "Η εργασία που αναζητάτε δεν υπάρχει ή έχει διαγραφεί."
 		},
 		"detail": {
 			"subtaskOf": "Υποεργασία του",

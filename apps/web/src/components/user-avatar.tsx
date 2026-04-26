@@ -14,13 +14,17 @@ import {
 } from "@/components/ui/menu";
 import { Separator } from "@/components/ui/separator";
 import useSignOut from "@/hooks/mutations/use-sign-out";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 
 export function UserAvatar() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { mutateAsync: signOut, isPending } = useSignOut();
+  const { data: config } = useGetConfig();
+  const { mutateAsync: signOut, isPending } = useSignOut(
+    config?.customOAuthLogoutUrl,
+  );
   const queryClient = useQueryClient();
   const { setProject } = useProjectStore();
   const navigate = useNavigate();

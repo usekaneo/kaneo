@@ -30,7 +30,7 @@ export default function TaskStatusPopover({
   const { project } = useProjectStore();
   const statusOptions =
     project?.columns?.map((col) => ({
-      value: col.id,
+      value: col.slug,
       label: col.name,
       isFinal: col.isFinal,
     })) ?? [];

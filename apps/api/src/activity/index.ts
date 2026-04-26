@@ -1,10 +1,7 @@
-import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
-import db from "../database";
-import { taskTable, userTable } from "../database/schema";
-import { publishEvent, subscribeToEvent } from "../events";
+import { subscribeToEvent } from "../events";
 import { activitySchema } from "../schemas";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createActivity from "./controllers/create-activity";
@@ -107,25 +104,6 @@ const activity = new Hono<{
       const userId = c.get("userId");
       const newComment = await createComment(taskId, userId, comment);
 
-      const [user] = await db
-        .select({ name: userTable.name })
-        .from(userTable)
-        .where(eq(userTable.id, userId));
-
-      const [task] = await db
-        .select({ projectId: taskTable.projectId })
-        .from(taskTable)
-        .where(eq(taskTable.id, taskId));
-
-      if (task) {
-        await publishEvent("task.comment_created", {
-          taskId,
-          userId,
-          comment: `"${user?.name}" commented: ${comment}`,
-          projectId: task.projectId,
-        });
-      }
-
       return c.json(newComment);
     },
   )
@@ -191,14 +169,14 @@ const activity = new Hono<{
 
 subscribeToEvent<{
   taskId: string;
-  userId: string;
+  currentUserId: string;
   type: string;
   content: string | null;
 }>("task.created", async (data) => {
-  if (!data.userId || !data.taskId || !data.type) {
+  if (!data.currentUserId || !data.taskId || !data.type) {
     return;
   }
-  await createActivity(data.taskId, data.type, data.userId, null, {});
+  await createActivity(data.taskId, data.type, data.currentUserId, null, {});
 });
 
 subscribeToEvent<{
@@ -206,22 +184,29 @@ subscribeToEvent<{
   userId: string;
   type: string;
   content: string;
-  eventData: {
-    fromProjectId: string;
-    fromProjectName: string;
-    toProjectId: string;
-    toProjectName: string;
-    oldStatus: string;
-    newStatus: string;
-  };
+  fromProjectId: string;
+  fromProjectName: string;
+  toProjectId: string;
+  toProjectName: string;
+  oldStatus: string;
+  newStatus: string;
 }>("task.moved", async (data) => {
-  await createActivity(data.taskId, data.type, data.userId, data.content, {
-    fromProjectId: data.eventData.fromProjectId,
-    fromProjectName: data.eventData.fromProjectName,
-    toProjectId: data.eventData.toProjectId,
-    toProjectName: data.eventData.toProjectName,
-    oldStatus: data.eventData.oldStatus,
-    newStatus: data.eventData.newStatus,
+  const {
+    fromProjectId,
+    fromProjectName,
+    toProjectId,
+    toProjectName,
+    oldStatus,
+    newStatus,
+  } = data;
+
+  await createActivity(data.taskId, data.type, data.userId, null, {
+    fromProjectId,
+    fromProjectName,
+    toProjectId,
+    toProjectName,
+    oldStatus,
+    newStatus,
   });
 });
 

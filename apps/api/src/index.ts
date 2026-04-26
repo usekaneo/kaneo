@@ -1,6 +1,7 @@
 import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
+import { createNodeWebSocket } from "@hono/node-ws";
 import type { Session, User } from "better-auth/types";
 import { eq } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
@@ -21,6 +22,7 @@ import comment from "./comment";
 import config from "./config";
 import db, { schema } from "./database";
 import discordIntegration from "./discord-integration";
+import { eventContext } from "./events";
 import externalLink from "./external-link";
 import genericWebhookIntegration from "./generic-webhook-integration";
 import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
@@ -33,6 +35,7 @@ import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
+import oauth from "./oauth";
 import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
@@ -68,6 +71,12 @@ import {
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
+import {
+  addConnection,
+  initializeWebSocketAdapter,
+  removeConnection,
+  shutdownWebSocketAdapter,
+} from "./ws";
 
 type ApiKey = {
   id: string;
@@ -118,6 +127,8 @@ function buildContentDisposition(filename: string) {
 
 export function createApp() {
   const app = new Hono<AppVariables>();
+  const nodeWs = createNodeWebSocket({ app });
+  const { upgradeWebSocket, injectWebSocket } = nodeWs;
   const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
     : undefined;
@@ -438,8 +449,15 @@ export function createApp() {
       console.error("API authentication failed:", error);
       throw new HTTPException(500, { message: "Internal Server Error" });
     }
-    return next();
+
+    const windowId = c.req.header("X-Kaneo-Window-Id");
+    const userId = c.get("userId");
+    const initiatorId = windowId ? `${userId}:${windowId}` : userId;
+
+    return eventContext.run({ initiatorId }, next);
   });
+
+  const oauthApi = api.route("/oauth", oauth);
 
   const projectApi = api.route("/project", project);
   const taskApi = api.route("/task", task);
@@ -490,9 +508,60 @@ export function createApp() {
 
   app.route("/api", api);
 
+  app.get(
+    "/ws/:projectId",
+    upgradeWebSocket(async (c) => {
+      const projectId = c.req.param("projectId");
+
+      try {
+        await authenticateApiRequest(c);
+      } catch (error) {
+        if (error instanceof HTTPException) {
+          throw error;
+        }
+        console.error("API authentication failed:", error);
+        throw new HTTPException(500, { message: "Internal Server Error" });
+      }
+
+      const userId = c.get("userId");
+
+      if (projectId) {
+        const [project] = await db
+          .select({ workspaceId: schema.projectTable.workspaceId })
+          .from(schema.projectTable)
+          .where(eq(schema.projectTable.id, projectId))
+          .limit(1);
+
+        if (!project) {
+          throw new HTTPException(401, { message: "Unauthorized" });
+        }
+
+        await validateWorkspaceAccess(userId, project.workspaceId);
+      }
+
+      const windowId = c.req.query("windowId");
+      const initiatorId = windowId ? `${userId}:${windowId}` : userId;
+      let conn: ReturnType<typeof addConnection> | null = null;
+
+      return {
+        onOpen(_evt, ws) {
+          if (projectId) {
+            conn = addConnection(projectId, ws, userId, initiatorId);
+          }
+        },
+        onClose() {
+          if (conn && projectId) {
+            removeConnection(projectId, conn);
+          }
+        },
+      };
+    }),
+  );
+
   return {
     app,
     api,
+    injectWebSocket,
     activityApi,
     columnApi,
     commentApi,
@@ -517,6 +586,7 @@ export function createApp() {
     timeEntryApi,
     workflowRuleApi,
     workspaceApi,
+    oauthApi,
   };
 }
 
@@ -539,9 +609,13 @@ export async function runStartupTasks() {
 
   initializePlugins();
   initializeScheduler();
+  await initializeWebSocketAdapter();
 }
 
-export async function startServer(port = 1337) {
+export async function startServer(
+  injectWebSocket: ReturnType<typeof createNodeWebSocket>["injectWebSocket"],
+  port = 1337,
+) {
   try {
     await runStartupTasks();
   } catch (error) {
@@ -549,11 +623,9 @@ export async function startServer(port = 1337) {
     process.exit(1);
   }
 
-  process.on("SIGTERM", () => {
-    shutdownScheduler();
-  });
+  let shuttingDown = false;
 
-  serve(
+  const server = serve(
     {
       fetch: app.fetch,
       port,
@@ -564,11 +636,33 @@ export async function startServer(port = 1337) {
       );
     },
   );
+
+  injectWebSocket(server);
+
+  const gracefulShutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+
+    console.log("🛑 Shutting down gracefully...");
+    shutdownScheduler();
+    await shutdownWebSocketAdapter();
+    server.close();
+    process.exit(0);
+  };
+
+  process.on("SIGTERM", () => {
+    void gracefulShutdown();
+  });
+
+  process.on("SIGINT", () => {
+    void gracefulShutdown();
+  });
 }
 
 const createdApp = createApp();
 const {
   app,
+  injectWebSocket,
   activityApi,
   columnApi,
   commentApi,
@@ -593,6 +687,7 @@ const {
   timeEntryApi,
   workflowRuleApi,
   workspaceApi,
+  oauthApi,
 } = createdApp;
 
 const isMainModule =
@@ -600,7 +695,7 @@ const isMainModule =
   import.meta.url === pathToFileURL(process.argv[1]).href;
 
 if (isMainModule) {
-  void startServer();
+  void startServer(injectWebSocket);
 }
 
 export type AppType =
@@ -627,6 +722,7 @@ export type AppType =
   | typeof invitationApi
   | typeof workspaceApi
   | typeof publicProjectApi
-  | typeof invitationPublicApi;
+  | typeof invitationPublicApi
+  | typeof oauthApi;
 
 export default app;

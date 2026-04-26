@@ -2,14 +2,17 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 import { assertValidTaskStatus } from "../validate-task-fields";
 
 async function updateTaskStatus({
   id,
   status,
+  currentUserId,
 }: {
   id: string;
   status: string;
+  currentUserId: string;
 }) {
   const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
@@ -41,6 +44,22 @@ async function updateTaskStatus({
       message: "Failed to update task status",
     });
   }
+
+  await publishEvent("task.status_changed", {
+    taskId: updatedTask.id,
+    projectId: updatedTask.projectId,
+    userId: currentUserId,
+    oldStatus: existingTask.status,
+    newStatus: status,
+    title: updatedTask.title,
+    assigneeId: updatedTask.userId,
+    type: "status_changed",
+  });
+
+  await publishEvent("task-relation.refresh", {
+    projectId: updatedTask.projectId,
+    userId: currentUserId,
+  });
 
   return updatedTask;
 }

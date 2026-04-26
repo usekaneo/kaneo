@@ -6,6 +6,9 @@ import { resolveApiBaseUrl } from "./api-url";
 
 const apiUrl = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
 
+// Generate once per tab load
+export const windowId = Math.random().toString(36).substring(2, 11);
+
 export const client = hc<AppType>(apiUrl, {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => {
     return fetch(input, {
@@ -13,6 +16,7 @@ export const client = hc<AppType>(apiUrl, {
       headers: {
         ...init?.headers,
         "Content-Type": "application/json",
+        "X-Kaneo-Window-Id": windowId,
       },
       credentials: "include",
     }).catch((error) => {

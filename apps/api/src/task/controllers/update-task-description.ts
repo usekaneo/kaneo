@@ -2,13 +2,16 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 
 async function updateTaskDescription({
   id,
   description,
+  currentUserId,
 }: {
   id: string;
   description: string;
+  currentUserId: string;
 }) {
   const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
@@ -31,6 +34,15 @@ async function updateTaskDescription({
       message: "Failed to update task description",
     });
   }
+
+  await publishEvent("task.description_changed", {
+    taskId: updatedTask.id,
+    projectId: updatedTask.projectId,
+    userId: currentUserId,
+    oldDescription: existingTask.description,
+    newDescription: description,
+    type: "description_changed",
+  });
 
   return updatedTask;
 }
