@@ -24,26 +24,22 @@ services:
       timeout: 5s
       retries: 5
 
-  api:
-    image: ghcr.io/usekaneo/api:latest
+  kaneo:
+    image: ghcr.io/usekaneo/kaneo:latest
     ports:
-      - "1337:1337"
+      - "5173:5173"
     env_file:
       - .env
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
-
-  web:
-    image: ghcr.io/usekaneo/web:latest
-    ports:
-      - "5173:5173"
-    env_file:
-      - .env
-    depends_on:
-      - api
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5173/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
 
 volumes:
   postgres_data:
@@ -51,15 +47,28 @@ volumes:
 
 ## The services and volumes
 
-Kaneo utilities the following services:
+Kaneo uses the following services:
 
 - `postgres`: The PostgreSQL database.
-- `api`: The API server.
-- `web`: The web application.
+- `kaneo`: The combined API and web container.
 
 Additionally, the following volumes are used:
 
 - `postgres_data`: The PostgreSQL data.
+
+## Required URL configuration
+
+For the combined image, only `KANEO_CLIENT_URL` is required — `KANEO_API_URL` is derived automatically as `KANEO_CLIENT_URL/api`:
+
+```env
+KANEO_CLIENT_URL=http://localhost:5173
+POSTGRES_PASSWORD=changeme
+AUTH_SECRET=                             # generate: openssl rand -hex 32
+```
+
+Set `KANEO_API_URL` explicitly only if you need to override the default (e.g. a reverse proxy changes the path).
+
+This keeps the browser on one origin while the container proxies `/api` requests to the internal API process.
 
 ## Notes on object storage
 

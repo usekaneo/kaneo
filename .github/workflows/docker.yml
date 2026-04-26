@@ -24,6 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - dockerfile: ./Dockerfile.kaneo
+            image: ghcr.io/${{ github.repository_owner }}/kaneo
           - dockerfile: ./apps/web/Dockerfile
             image: ghcr.io/${{ github.repository_owner }}/web
           - dockerfile: ./apps/api/Dockerfile

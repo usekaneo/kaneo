@@ -1,3 +1,12 @@
+{{- $corsOrigins := .Values.kaneo.env.corsOrigins -}}
+{{- $corsOriginsValue := "" -}}
+{{- if kindIs "slice" $corsOrigins -}}
+  {{- $corsOriginsValue = join "," $corsOrigins -}}
+{{- else if $corsOrigins -}}
+  {{- $corsOriginsValue = $corsOrigins -}}
+{{- else if .Values.kaneo.env.clientUrl -}}
+  {{- $corsOriginsValue = .Values.kaneo.env.clientUrl -}}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,101 +33,52 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: api
+        - name: kaneo
           securityContext:
-            {{- toYaml .Values.api.securityContext | nindent 12 }}
-          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+            {{- toYaml .Values.kaneo.securityContext | nindent 12 }}
+          image: "{{ .Values.kaneo.image.repository }}:{{ .Values.kaneo.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.kaneo.image.pullPolicy }}
           ports:
-            - name: api
-              containerPort: {{ .Values.api.service.targetPort }}
+            - name: kaneo
+              containerPort: {{ .Values.kaneo.service.targetPort }}
               protocol: TCP
           env:
-            # Updated to support Better Auth
-            - name: BETTER_AUTH_SECRET
-              {{- if .Values.api.env.existingSecret.enabled }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.api.env.existingSecret.name }}
-                  key: {{ .Values.api.env.existingSecret.key }}
-              {{- else }}
-              value: "{{ .Values.api.env.authSecret }}"
-              {{- end }}
-            - name: AUTH_SECRET
-              {{- if .Values.api.env.existingSecret.enabled }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.api.env.existingSecret.name }}
-                  key: {{ .Values.api.env.existingSecret.key }}
-              {{- else }}
-              value: "{{ .Values.api.env.authSecret }}"
-              {{- end }}
-            - name: BETTER_AUTH_URL
-              value: "{{- if .Values.web.env.apiUrl -}}
-                {{ .Values.web.env.apiUrl }}
-              {{- else -}}
-                http://localhost:{{ .Values.api.service.targetPort }}
-              {{- end -}}"
-            - name: KANEO_API_URL
-              value: "{{- if .Values.web.env.apiUrl -}}
-                {{- .Values.web.env.apiUrl -}}
-              {{- else -}}
-                http://localhost:{{ .Values.api.service.targetPort }}
-              {{- end -}}"
             - name: KANEO_CLIENT_URL
-              value: "{{- if .Values.web.env.apiUrl -}}
-                {{- .Values.web.env.apiUrl -}}
-              {{- else -}}
-                http://localhost:{{ .Values.web.service.targetPort }}
-              {{- end -}}"
+              value: "{{ .Values.kaneo.env.clientUrl }}"
             - name: CORS_ORIGINS
-              value: "{{ .Values.web.env.apiUrl | default "*" }}"
-            - name: DATABASE_URL
-              {{- if .Values.api.env.database.external.enabled }}
-              {{- if .Values.api.env.database.external.existingSecret.enabled }}
+              value: {{ $corsOriginsValue | quote }}
+            - name: AUTH_SECRET
+              {{- if .Values.kaneo.env.existingSecret.enabled }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.api.env.database.external.existingSecret.name }}
-                  key: {{ .Values.api.env.database.external.existingSecret.passwordKey }}
+                  name: {{ .Values.kaneo.env.existingSecret.name }}
+                  key: {{ .Values.kaneo.env.existingSecret.key }}
               {{- else }}
-              value: "postgresql://{{ .Values.api.env.database.external.username }}:{{ .Values.api.env.database.external.password }}@{{ .Values.api.env.database.external.host }}:{{ .Values.api.env.database.external.port }}/{{ .Values.api.env.database.external.database }}"
+              value: "{{ .Values.kaneo.env.authSecret }}"
+              {{- end }}
+            - name: DATABASE_URL
+              {{- if .Values.kaneo.env.database.external.enabled }}
+              {{- if .Values.kaneo.env.database.external.existingSecret.enabled }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.kaneo.env.database.external.existingSecret.name }}
+                  key: {{ .Values.kaneo.env.database.external.existingSecret.passwordKey }}
+              {{- else }}
+              value: "postgresql://{{ .Values.kaneo.env.database.external.username }}:{{ .Values.kaneo.env.database.external.password }}@{{ .Values.kaneo.env.database.external.host }}:{{ .Values.kaneo.env.database.external.port }}/{{ .Values.kaneo.env.database.external.database }}"
               {{- end }}
               {{- else }}
               value: "postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "kaneo.fullname" . }}-postgresql:{{ .Values.postgresql.service.port }}/{{ .Values.postgresql.auth.database }}"
               {{- end }}
             - name: DISABLE_REGISTRATION
-              value: {{ .Values.api.env.disableRegistration | quote }}
+              value: {{ .Values.kaneo.env.disableRegistration | quote }}
             - name: DISABLE_PASSWORD_REGISTRATION
-              value: {{ .Values.api.env.disablePasswordRegistration | quote }}
+              value: {{ .Values.kaneo.env.disablePasswordRegistration | quote }}
           livenessProbe:
-            {{- toYaml .Values.api.livenessProbe | nindent 12 }}
+            {{- toYaml .Values.kaneo.livenessProbe | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.api.readinessProbe | nindent 12 }}
+            {{- toYaml .Values.kaneo.readinessProbe | nindent 12 }}
           resources:
-            {{- toYaml .Values.api.resources | nindent 12 }}
-
-        - name: web
-          securityContext:
-            {{- toYaml .Values.web.securityContext | nindent 12 }}
-          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
-          ports:
-            - name: web
-              containerPort: 5173
-              protocol: TCP
-          env:
-            - name: KANEO_API_URL
-              value: "{{- if .Values.web.env.apiUrl -}}
-                {{- .Values.web.env.apiUrl -}}
-              {{- else -}}
-                http://localhost:{{ .Values.api.service.targetPort }}
-              {{- end -}}"
-          livenessProbe:
-            {{- toYaml .Values.web.livenessProbe | nindent 12 }}
-          readinessProbe:
-            {{- toYaml .Values.web.readinessProbe | nindent 12 }}
-          resources:
-            {{- toYaml .Values.web.resources | nindent 12 }}
+            {{- toYaml .Values.kaneo.resources | nindent 12 }}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
