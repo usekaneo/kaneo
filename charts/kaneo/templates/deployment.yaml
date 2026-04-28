@@ -90,6 +90,9 @@ spec:
               value: {{ .Values.api.env.disableRegistration | quote }}
             - name: DISABLE_PASSWORD_REGISTRATION
               value: {{ .Values.api.env.disablePasswordRegistration | quote }}
+            {{- with .Values.api.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.api.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -112,6 +115,12 @@ spec:
                 {{- .Values.web.env.apiUrl -}}
               {{- else -}}
                 http://localhost:{{ .Values.api.service.targetPort }}
+              {{- end -}}"
+            - name: KANEO_CLIENT_URL
+              value: "{{- if .Values.web.env.apiUrl -}}
+                {{- .Values.web.env.apiUrl -}}
+              {{- else -}}
+                http://localhost:{{ .Values.web.service.targetPort }}
               {{- end -}}"
           livenessProbe:
             {{- toYaml .Values.web.livenessProbe | nindent 12 }}

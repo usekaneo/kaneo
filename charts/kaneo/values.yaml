@@ -111,6 +111,18 @@ api:
           enabled: false
           name: ""
           passwordKey: postgres_uri
+  # Additional environment variables for the API container.
+  # Each entry is a standard Kubernetes EnvVar (supports `value` or `valueFrom`).
+  # Useful for CUSTOM_OAUTH_*, SMTP_*, etc. without editing the chart.
+  extraEnv: []
+  # extraEnv:
+  #   - name: CUSTOM_OAUTH_DISCOVERY_URL
+  #     value: "https://idp.example.com/.well-known/openid-configuration"
+  #   - name: CUSTOM_OAUTH_CLIENT_ID
+  #     valueFrom:
+  #       secretKeyRef:
+  #         name: oauth-secret
+  #         key: client-id
   livenessProbe:
     httpGet:
       path: /api/health
