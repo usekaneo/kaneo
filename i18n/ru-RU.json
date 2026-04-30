@@ -1686,6 +1686,11 @@
 			"searchActions": "Поиск действий...",
 			"noActionsFound": "Действия не найдены.",
 			"changeStatus": "Изменить статус"
+		},
+		"creator": {
+			"label": "Автор",
+			"unknown": "Неизвестно",
+			"tooltip": "Автор: {{name}}"
 		}
 	},
 	"invitations": {

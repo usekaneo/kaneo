@@ -1,9 +1,12 @@
 import { eq } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable, userTable } from "../../database/schema";
 
 async function getTask(taskId: string) {
+  const creatorUser = alias(userTable, "creator_user");
+
   const task = await db
     .select({
       id: taskTable.id,
@@ -20,9 +23,13 @@ async function getTask(taskId: string) {
       assigneeName: userTable.name,
       assigneeId: userTable.id,
       projectId: taskTable.projectId,
+      createdBy: taskTable.createdBy,
+      creatorName: creatorUser.name,
+      creatorImage: creatorUser.image,
     })
     .from(taskTable)
     .leftJoin(userTable, eq(taskTable.userId, userTable.id))
+    .leftJoin(creatorUser, eq(taskTable.createdBy, creatorUser.id))
     .where(eq(taskTable.id, taskId))
     .limit(1);
 

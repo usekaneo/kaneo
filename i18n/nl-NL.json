@@ -1413,6 +1413,11 @@
 			"searchActions": "Acties zoeken...",
 			"noActionsFound": "Geen acties gevonden.",
 			"changeStatus": "Status wijzigen"
+		},
+		"creator": {
+			"label": "Auteur",
+			"unknown": "Onbekend",
+			"tooltip": "Auteur: {{name}}"
 		}
 	},
 	"invitations": {

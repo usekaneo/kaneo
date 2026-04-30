@@ -198,10 +198,12 @@ const task = new Hono<{
         status,
         userId,
       } = c.req.valid("json");
+      const createdBy = c.get("userId");
 
       const task = await createTask({
         projectId,
         userId,
+        createdBy,
         title,
         description,
         startDate: startDate ? new Date(startDate) : undefined,

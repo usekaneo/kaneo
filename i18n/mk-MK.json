@@ -1638,6 +1638,11 @@
 			"searchActions": "Пребарај акции...",
 			"noActionsFound": "Не се пронајдени акции.",
 			"changeStatus": "Промени статус"
+		},
+		"creator": {
+			"label": "Автор",
+			"unknown": "Непознат",
+			"tooltip": "Автор: {{name}}"
 		}
 	},
 	"invitations": {

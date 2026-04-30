@@ -9,6 +9,7 @@ import {
   type SQL,
   sql,
 } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -120,6 +121,8 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
 
   const total = Number(taskCount?.count ?? 0);
 
+  const creatorUser = alias(userTable, "creator_user");
+
   const taskSelection = {
     id: taskTable.id,
     title: taskTable.title,
@@ -136,12 +139,16 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     assigneeId: userTable.id,
     assigneeImage: userTable.image,
     projectId: taskTable.projectId,
+    createdBy: taskTable.createdBy,
+    creatorName: creatorUser.name,
+    creatorImage: creatorUser.image,
   };
 
   const query = db
     .select(taskSelection)
     .from(taskTable)
     .leftJoin(userTable, eq(taskTable.userId, userTable.id))
+    .leftJoin(creatorUser, eq(taskTable.createdBy, creatorUser.id))
     .leftJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(whereClause)
     .orderBy(orderByClause);

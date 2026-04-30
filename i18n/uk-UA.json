@@ -1644,6 +1644,11 @@
 			"searchActions": "Пошук дій...",
 			"noActionsFound": "Дій не знайдено.",
 			"changeStatus": "Змінити статус"
+		},
+		"creator": {
+			"label": "Автор",
+			"unknown": "Невідомо",
+			"tooltip": "Автор: {{name}}"
 		}
 	},
 	"invitations": {

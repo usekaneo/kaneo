@@ -125,6 +125,21 @@ function TaskCard({ task }: TaskCardProps) {
     );
   }, [workspaceUsers, task.userId]);
 
+  const creator = useMemo(() => {
+    if (!task.createdBy) return null;
+    const member = workspaceUsers?.members?.find(
+      (member) => member.userId === task.createdBy,
+    );
+    return {
+      name: member?.user?.name ?? task.creatorName ?? null,
+      image: member?.user?.image ?? task.creatorImage ?? null,
+    };
+  }, [workspaceUsers, task.createdBy, task.creatorName, task.creatorImage]);
+
+  const showCreatorBadge = Boolean(
+    task.createdBy && task.createdBy !== task.userId,
+  );
+
   function handleTaskCardClick(
     e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>,
   ) {
@@ -252,6 +267,28 @@ function TaskCard({ task }: TaskCardProps) {
               {showPriority && (
                 <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground">
                   {getPriorityIcon(task.priority ?? "")}
+                </span>
+              )}
+
+              {showCreatorBadge && (
+                <span
+                  className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                  title={t("tasks:creator.tooltip", {
+                    name: creator?.name ?? t("tasks:creator.unknown"),
+                  })}
+                >
+                  <Avatar className="h-3.5 w-3.5">
+                    <AvatarImage
+                      src={creator?.image ?? ""}
+                      alt={creator?.name ?? ""}
+                    />
+                    <AvatarFallback className="text-[8px] font-medium border border-border/30">
+                      {creator?.name?.charAt(0).toUpperCase() ?? "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="leading-none">
+                    {t("tasks:creator.label")}
+                  </span>
                 </span>
               )}
 

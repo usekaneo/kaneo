@@ -1412,6 +1412,11 @@
 			"searchActions": "Buscar acciones...",
 			"noActionsFound": "No se han encontrado acciones.",
 			"changeStatus": "Cambiar estado"
+		},
+		"creator": {
+			"label": "Autor",
+			"unknown": "Desconocido",
+			"tooltip": "Autor: {{name}}"
 		}
 	},
 	"invitations": {

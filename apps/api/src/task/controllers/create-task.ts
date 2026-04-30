@@ -9,6 +9,7 @@ import getNextTaskNumber from "./get-next-task-number";
 async function createTask({
   projectId,
   userId,
+  createdBy,
   title,
   status,
   startDate,
@@ -18,6 +19,7 @@ async function createTask({
 }: {
   projectId: string;
   userId?: string;
+  createdBy?: string;
   title: string;
   status: string;
   startDate?: Date;
@@ -63,6 +65,7 @@ async function createTask({
     .values({
       projectId,
       userId: userId || null,
+      createdBy: createdBy || null,
       title: title || "",
       status: resolvedStatus,
       columnId: column?.id ?? null,
@@ -84,7 +87,8 @@ async function createTask({
   await publishEvent("task.created", {
     ...createdTask,
     taskId: createdTask.id,
-    userId: createdTask.userId ?? "",
+    userId: createdTask.createdBy ?? createdTask.userId ?? "",
+    assigneeId: createdTask.userId ?? null,
     type: "task",
     content: null,
   });

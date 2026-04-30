@@ -36,7 +36,8 @@ export const userTableRelations = relations(userTable, ({ many, one }) => ({
   teamMembers: many(teamMemberTable),
   workspaces: many(workspaceTable),
   workspaceMemberships: many(workspaceUserTable),
-  assignedTasks: many(taskTable),
+  assignedTasks: many(taskTable, { relationName: "taskAssignee" }),
+  createdTasks: many(taskTable, { relationName: "taskCreator" }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   comments: many(commentTable),
@@ -141,6 +142,12 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   assignee: one(userTable, {
     fields: [taskTable.userId],
     references: [userTable.id],
+    relationName: "taskAssignee",
+  }),
+  creator: one(userTable, {
+    fields: [taskTable.createdBy],
+    references: [userTable.id],
+    relationName: "taskCreator",
   }),
   column: one(columnTable, {
     fields: [taskTable.columnId],
