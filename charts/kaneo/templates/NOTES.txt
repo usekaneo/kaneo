@@ -12,12 +12,6 @@ You can access the application using these URLs:
 {{- range .Values.ingress.hosts }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
 {{- end }}
-
-Note: This chart uses path patterns with regex capture groups for nginx:
-  - /?(.*)     -> for web frontend
-  - /api/?(.*)  -> for API requests
-Make sure your ingress controller supports the configured annotations:
-  nginx.ingress.kubernetes.io/rewrite-target: /$1
 {{- else if .Values.gateway.enabled }}
 
 An HTTPRoute has been created for Gateway API.
@@ -33,15 +27,13 @@ No hostnames were set on the HTTPRoute. Configure .Values.gateway.hostnames if y
 Attach the route by setting .Values.gateway.parentRefs to your Gateway listener references.
 {{- else }}
 
-To access the application, you need to set up port forwarding to both services:
+To access the application, set up port forwarding:
 
-$ kubectl port-forward svc/{{ include "kaneo.fullname" . }}-web 5173:{{ .Values.web.service.port }} -n {{ .Release.Namespace }} &
-$ kubectl port-forward svc/{{ include "kaneo.fullname" . }}-api 1337:{{ .Values.api.service.port }} -n {{ .Release.Namespace }} &
+$ kubectl port-forward svc/{{ include "kaneo.fullname" . }}-kaneo 5173:{{ .Values.kaneo.service.port }} -n {{ .Release.Namespace }}
 
 Then access the application at http://localhost:5173
-The web frontend will communicate with the API at http://localhost:1337
 
-Alternatively, you can expose the services using an Ingress by setting .Values.ingress.enabled=true
+Alternatively, expose the service using an Ingress by setting .Values.ingress.enabled=true
 or Gateway API by setting .Values.gateway.enabled=true
 {{- end }}
 
@@ -59,23 +51,11 @@ NOTES:
    {{- end }}
 
 2. Important environment variables:
-   - API:
-     - AUTH_SECRET: Secret key for Better Auth (currently set to: {{ .Values.api.env.authSecret }})
-     - DATABASE_URL: Connection string for the database
-
-   - Web:
-     - KANEO_API_URL: URL of the API service (set to: "{{- if .Values.web.env.apiUrl -}}
-       {{- if hasSuffix "/" .Values.web.env.apiUrl -}}
-         {{- .Values.web.env.apiUrl -}}api
-       {{- else -}}
-         {{- .Values.web.env.apiUrl -}}/api
-       {{- end -}}
-     {{- else -}}
-       http://localhost:{{ .Values.api.service.targetPort }}
-     {{- end -}}")
+   - AUTH_SECRET: Secret key for Better Auth (currently set to: {{ .Values.kaneo.env.authSecret }})
+   - KANEO_CLIENT_URL: Public URL of this instance (currently set to: "{{ .Values.kaneo.env.clientUrl }}")
+   - DATABASE_URL: Derived from postgresql.auth values unless kaneo.env.database.external.enabled=true
 
    You can customize these values in your values.yaml file.
 
-3. IMPORTANT: This chart uses a combined pod approach where both the API and Web containers
-   run in the same pod. This allows the web frontend to connect directly to the API via
-   localhost, simplifying the deployment and eliminating cross-origin issues.
+3. The kaneo image combines the API and web frontend in a single container.
+   nginx runs on port 5173 and proxies /api/ requests to the internal Node API.
