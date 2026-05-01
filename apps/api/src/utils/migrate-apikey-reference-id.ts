@@ -6,6 +6,8 @@ import db from "../database";
  * - reference_id exists and is populated from user_id when needed
  * - config_id exists with default value
  * - user_id is nullable (Better Auth inserts reference_id, not user_id)
+ *
+ * Must run after Drizzle `migrate()` so the `apikey` table exists (see `runStartupTasks`).
  */
 export async function migrateApiKeyReferenceId() {
   console.log("🔄 Checking apikey table reference_id migration...");
