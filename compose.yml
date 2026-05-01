@@ -14,26 +14,22 @@ services:
       timeout: 5s
       retries: 5
 
-  api:
-    image: ghcr.io/usekaneo/api:latest
+  kaneo:
+    image: ghcr.io/usekaneo/kaneo:latest
     ports:
-      - "1337:1337"
+      - "5173:5173"
     env_file:
       - .env
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
-
-  web:
-    image: ghcr.io/usekaneo/web:latest
-    ports:
-      - "5173:5173"
-    env_file:
-      - .env
-    depends_on:
-      - api
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5173/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
 
 volumes:
   postgres_data:

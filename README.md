@@ -67,7 +67,7 @@ Perfect for quick deployments and production setups where you want things to jus
 
 ### Quick Start with Docker Compose
 
-The fastest way to try Kaneo is with Docker Compose. This sets up the API, web interface, and PostgreSQL database:
+The fastest way to try Kaneo is with Docker Compose. This sets up Kaneo and PostgreSQL with a single Kaneo container:
 
 ```yaml
 services:
@@ -86,10 +86,10 @@ services:
       timeout: 5s
       retries: 5
 
-  api:
-    image: ghcr.io/usekaneo/api:latest
+  kaneo:
+    image: ghcr.io/usekaneo/kaneo:latest
     ports:
-      - "1337:1337"
+      - "5173:5173"
     env_file:
       - .env
     depends_on:
@@ -97,21 +97,11 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  web:
-    image: ghcr.io/usekaneo/web:latest
-    ports:
-      - "5173:5173"
-    env_file:
-      - .env
-    depends_on:
-      - api
-    restart: unless-stopped
-
 volumes:
   postgres_data:
 ```
 
-Save this as `compose.yml`, create a `.env` file with your configuration (see the [documentation](https://kaneo.app/docs/core) for all required environment variables), run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
+Save this as `compose.yml`, create a `.env` file with `KANEO_CLIENT_URL=http://localhost:5173`, `POSTGRES_PASSWORD=<password>`, and `AUTH_SECRET=<output of openssl rand -hex 32>`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
 > **Important:** See our [full documentation](https://kaneo.app/docs/core) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
 
@@ -123,7 +113,7 @@ For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for det
 
 Kaneo requires several environment variables to be configured. The Docker Compose setup above handles the database automatically, but you'll need to configure environment variables for the API and web services.
 
-For complete configuration instructions, including all required environment variables, database setup for non-Docker deployments, and advanced settings, see the [documentation](https://kaneo.app/docs/core).
+For complete configuration instructions, including all required environment variables, database setup for non-Docker deployments, and advanced settings, see the [documentation](https://kaneo.app/docs/core). Advanced deployments can still use the separate `ghcr.io/usekaneo/api` and `ghcr.io/usekaneo/web` images.
 
 ## Kubernetes Deployment
 
