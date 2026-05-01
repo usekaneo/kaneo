@@ -110,12 +110,8 @@
 					"name": "account_user_id_user_id_fk",
 					"tableFrom": "account",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -227,12 +223,8 @@
 					"name": "activity_task_id_task_id_fk",
 					"tableFrom": "activity",
 					"tableTo": "task",
-					"columnsFrom": [
-						"task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -240,12 +232,8 @@
 					"name": "activity_user_id_user_id_fk",
 					"tableFrom": "activity",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -255,11 +243,7 @@
 				"activity_task_external_source_external_url_unique": {
 					"name": "activity_task_external_source_external_url_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"task_id",
-						"external_source",
-						"external_url"
-					]
+					"columns": ["task_id", "external_source", "external_url"]
 				}
 			},
 			"policies": {},
@@ -482,12 +466,8 @@
 					"name": "apikey_reference_id_user_id_fk",
 					"tableFrom": "apikey",
 					"tableTo": "user",
-					"columnsFrom": [
-						"reference_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["reference_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				},
@@ -495,12 +475,8 @@
 					"name": "apikey_user_id_user_id_fk",
 					"tableFrom": "apikey",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -664,12 +640,8 @@
 					"name": "asset_workspace_id_workspace_id_fk",
 					"tableFrom": "asset",
 					"tableTo": "workspace",
-					"columnsFrom": [
-						"workspace_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["workspace_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -677,12 +649,8 @@
 					"name": "asset_project_id_project_id_fk",
 					"tableFrom": "asset",
 					"tableTo": "project",
-					"columnsFrom": [
-						"project_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["project_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -690,12 +658,8 @@
 					"name": "asset_task_id_task_id_fk",
 					"tableFrom": "asset",
 					"tableTo": "task",
-					"columnsFrom": [
-						"task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -703,12 +667,8 @@
 					"name": "asset_activity_id_activity_id_fk",
 					"tableFrom": "asset",
 					"tableTo": "activity",
-					"columnsFrom": [
-						"activity_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["activity_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -716,12 +676,8 @@
 					"name": "asset_created_by_user_id_fk",
 					"tableFrom": "asset",
 					"tableTo": "user",
-					"columnsFrom": [
-						"created_by"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
 					"onDelete": "set null",
 					"onUpdate": "cascade"
 				}
@@ -731,9 +687,7 @@
 				"asset_object_key_unique": {
 					"name": "asset_object_key_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"object_key"
-					]
+					"columns": ["object_key"]
 				}
 			},
 			"policies": {},
@@ -831,12 +785,8 @@
 					"name": "column_project_id_project_id_fk",
 					"tableFrom": "column",
 					"tableTo": "project",
-					"columnsFrom": [
-						"project_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["project_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -927,12 +877,8 @@
 					"name": "comment_task_id_task_id_fk",
 					"tableFrom": "comment",
 					"tableTo": "task",
-					"columnsFrom": [
-						"task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -940,12 +886,8 @@
 					"name": "comment_user_id_user_id_fk",
 					"tableFrom": "comment",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -1087,12 +1029,8 @@
 					"name": "device_code_user_id_user_id_fk",
 					"tableFrom": "device_code",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -1237,12 +1175,8 @@
 					"name": "external_link_task_id_task_id_fk",
 					"tableFrom": "external_link",
 					"tableTo": "task",
-					"columnsFrom": [
-						"task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -1250,12 +1184,8 @@
 					"name": "external_link_integration_id_integration_id_fk",
 					"tableFrom": "external_link",
 					"tableTo": "integration",
-					"columnsFrom": [
-						"integration_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["integration_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -1328,12 +1258,8 @@
 					"name": "github_integration_project_id_project_id_fk",
 					"tableFrom": "github_integration",
 					"tableTo": "project",
-					"columnsFrom": [
-						"project_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["project_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -1343,9 +1269,7 @@
 				"github_integration_project_id_unique": {
 					"name": "github_integration_project_id_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"project_id"
-					]
+					"columns": ["project_id"]
 				}
 			},
 			"policies": {},
@@ -1439,12 +1363,8 @@
 					"name": "integration_project_id_project_id_fk",
 					"tableFrom": "integration",
 					"tableTo": "project",
-					"columnsFrom": [
-						"project_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["project_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -1454,10 +1374,7 @@
 				"integration_project_type_unique": {
 					"name": "integration_project_type_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"project_id",
-						"type"
-					]
+					"columns": ["project_id", "type"]
 				}
 			},
 			"policies": {},
@@ -1562,12 +1479,8 @@
 					"name": "invitation_workspace_id_workspace_id_fk",
 					"tableFrom": "invitation",
 					"tableTo": "workspace",
-					"columnsFrom": [
-						"workspace_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["workspace_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				},
@@ -1575,12 +1488,8 @@
 					"name": "invitation_inviter_id_user_id_fk",
 					"tableFrom": "invitation",
 					"tableTo": "user",
-					"columnsFrom": [
-						"inviter_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["inviter_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -1699,12 +1608,8 @@
 					"name": "label_task_id_task_id_fk",
 					"tableFrom": "label",
 					"tableTo": "task",
-					"columnsFrom": [
-						"task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -1712,12 +1617,8 @@
 					"name": "label_workspace_id_workspace_id_fk",
 					"tableFrom": "label",
 					"tableTo": "workspace",
-					"columnsFrom": [
-						"workspace_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["workspace_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -1727,10 +1628,7 @@
 				"label_task_name_unique": {
 					"name": "label_task_name_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"task_id",
-						"name"
-					]
+					"columns": ["task_id", "name"]
 				}
 			},
 			"policies": {},
@@ -1811,12 +1709,8 @@
 					"name": "notification_user_id_user_id_fk",
 					"tableFrom": "notification",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -1895,12 +1789,8 @@
 					"name": "project_workspace_id_workspace_id_fk",
 					"tableFrom": "project",
 					"tableTo": "workspace",
-					"columnsFrom": [
-						"workspace_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["workspace_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -1910,10 +1800,7 @@
 				"project_workspace_id_id_unique": {
 					"name": "project_workspace_id_id_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"workspace_id",
-						"id"
-					]
+					"columns": ["workspace_id", "id"]
 				}
 			},
 			"policies": {},
@@ -2008,12 +1895,8 @@
 					"name": "session_user_id_user_id_fk",
 					"tableFrom": "session",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -2023,9 +1906,7 @@
 				"session_token_unique": {
 					"name": "session_token_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"token"
-					]
+					"columns": ["token"]
 				}
 			},
 			"policies": {},
@@ -2105,12 +1986,8 @@
 					"name": "task_relation_source_task_id_task_id_fk",
 					"tableFrom": "task_relation",
 					"tableTo": "task",
-					"columnsFrom": [
-						"source_task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["source_task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -2118,12 +1995,8 @@
 					"name": "task_relation_target_task_id_task_id_fk",
 					"tableFrom": "task_relation",
 					"tableTo": "task",
-					"columnsFrom": [
-						"target_task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["target_task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -2193,12 +2066,8 @@
 					"name": "task_reminder_sent_task_id_task_id_fk",
 					"tableFrom": "task_reminder_sent",
 					"tableTo": "task",
-					"columnsFrom": [
-						"task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -2208,10 +2077,7 @@
 				"task_reminder_sent_task_type_unique": {
 					"name": "task_reminder_sent_task_type_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"task_id",
-						"reminder_type"
-					]
+					"columns": ["task_id", "reminder_type"]
 				}
 			},
 			"policies": {},
@@ -2350,12 +2216,8 @@
 					"name": "task_project_id_project_id_fk",
 					"tableFrom": "task",
 					"tableTo": "project",
-					"columnsFrom": [
-						"project_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["project_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -2363,12 +2225,8 @@
 					"name": "task_assignee_id_user_id_fk",
 					"tableFrom": "task",
 					"tableTo": "user",
-					"columnsFrom": [
-						"assignee_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["assignee_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -2376,12 +2234,8 @@
 					"name": "task_column_id_column_id_fk",
 					"tableFrom": "task",
 					"tableTo": "column",
-					"columnsFrom": [
-						"column_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["column_id"],
+					"columnsTo": ["id"],
 					"onDelete": "set null",
 					"onUpdate": "cascade"
 				}
@@ -2391,10 +2245,7 @@
 				"task_project_number_unique": {
 					"name": "task_project_number_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"project_id",
-						"number"
-					]
+					"columns": ["project_id", "number"]
 				}
 			},
 			"policies": {},
@@ -2458,12 +2309,8 @@
 					"name": "team_workspace_id_workspace_id_fk",
 					"tableFrom": "team",
 					"tableTo": "workspace",
-					"columnsFrom": [
-						"workspace_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["workspace_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -2540,12 +2387,8 @@
 					"name": "team_member_team_id_team_id_fk",
 					"tableFrom": "team_member",
 					"tableTo": "team",
-					"columnsFrom": [
-						"team_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["team_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				},
@@ -2553,12 +2396,8 @@
 					"name": "team_member_user_id_user_id_fk",
 					"tableFrom": "team_member",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -2630,12 +2469,8 @@
 					"name": "time_entry_task_id_task_id_fk",
 					"tableFrom": "time_entry",
 					"tableTo": "task",
-					"columnsFrom": [
-						"task_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["task_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -2643,12 +2478,8 @@
 					"name": "time_entry_user_id_user_id_fk",
 					"tableFrom": "time_entry",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -2728,9 +2559,7 @@
 				"user_email_unique": {
 					"name": "user_email_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"email"
-					]
+					"columns": ["email"]
 				}
 			},
 			"policies": {},
@@ -2844,12 +2673,8 @@
 					"name": "user_notification_preference_user_id_user_id_fk",
 					"tableFrom": "user_notification_preference",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -2859,9 +2684,7 @@
 				"user_notification_preference_user_id_unique": {
 					"name": "user_notification_preference_user_id_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"user_id"
-					]
+					"columns": ["user_id"]
 				}
 			},
 			"policies": {},
@@ -2948,12 +2771,8 @@
 					"name": "user_notification_workspace_project_workspace_id_workspace_id_fk",
 					"tableFrom": "user_notification_workspace_project",
 					"tableTo": "workspace",
-					"columnsFrom": [
-						"workspace_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["workspace_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -2961,14 +2780,8 @@
 					"name": "user_notification_workspace_project_workspace_id_workspace_rule_id_user_notification_workspace_rule_workspace_id_id_fk",
 					"tableFrom": "user_notification_workspace_project",
 					"tableTo": "user_notification_workspace_rule",
-					"columnsFrom": [
-						"workspace_id",
-						"workspace_rule_id"
-					],
-					"columnsTo": [
-						"workspace_id",
-						"id"
-					],
+					"columnsFrom": ["workspace_id", "workspace_rule_id"],
+					"columnsTo": ["workspace_id", "id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -2976,14 +2789,8 @@
 					"name": "user_notification_workspace_project_workspace_id_project_id_project_workspace_id_id_fk",
 					"tableFrom": "user_notification_workspace_project",
 					"tableTo": "project",
-					"columnsFrom": [
-						"workspace_id",
-						"project_id"
-					],
-					"columnsTo": [
-						"workspace_id",
-						"id"
-					],
+					"columnsFrom": ["workspace_id", "project_id"],
+					"columnsTo": ["workspace_id", "id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -2993,10 +2800,7 @@
 				"user_notification_workspace_project_rule_project_unique": {
 					"name": "user_notification_workspace_project_rule_project_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"workspace_rule_id",
-						"project_id"
-					]
+					"columns": ["workspace_rule_id", "project_id"]
 				}
 			},
 			"policies": {},
@@ -3119,12 +2923,8 @@
 					"name": "user_notification_workspace_rule_user_id_user_id_fk",
 					"tableFrom": "user_notification_workspace_rule",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -3132,12 +2932,8 @@
 					"name": "user_notification_workspace_rule_workspace_id_workspace_id_fk",
 					"tableFrom": "user_notification_workspace_rule",
 					"tableTo": "workspace",
-					"columnsFrom": [
-						"workspace_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["workspace_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -3147,18 +2943,12 @@
 				"user_notification_workspace_rule_user_workspace_unique": {
 					"name": "user_notification_workspace_rule_user_workspace_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"user_id",
-						"workspace_id"
-					]
+					"columns": ["user_id", "workspace_id"]
 				},
 				"user_notification_workspace_rule_workspace_id_id_unique": {
 					"name": "user_notification_workspace_rule_workspace_id_id_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"workspace_id",
-						"id"
-					]
+					"columns": ["workspace_id", "id"]
 				}
 			},
 			"policies": {},
@@ -3303,12 +3093,8 @@
 					"name": "workflow_rule_project_id_project_id_fk",
 					"tableFrom": "workflow_rule",
 					"tableTo": "project",
-					"columnsFrom": [
-						"project_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["project_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				},
@@ -3316,12 +3102,8 @@
 					"name": "workflow_rule_column_id_column_id_fk",
 					"tableFrom": "workflow_rule",
 					"tableTo": "column",
-					"columnsFrom": [
-						"column_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["column_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
 				}
@@ -3386,9 +3168,7 @@
 				"workspace_slug_unique": {
 					"name": "workspace_slug_unique",
 					"nullsNotDistinct": false,
-					"columns": [
-						"slug"
-					]
+					"columns": ["slug"]
 				}
 			},
 			"policies": {},
@@ -3468,12 +3248,8 @@
 					"name": "workspace_member_workspace_id_workspace_id_fk",
 					"tableFrom": "workspace_member",
 					"tableTo": "workspace",
-					"columnsFrom": [
-						"workspace_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["workspace_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				},
@@ -3481,12 +3257,8 @@
 					"name": "workspace_member_user_id_user_id_fk",
 					"tableFrom": "workspace_member",
 					"tableTo": "user",
-					"columnsFrom": [
-						"user_id"
-					],
-					"columnsTo": [
-						"id"
-					],
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
