@@ -1,3 +1,30 @@
+# [2.7.0](https://github.com/usekaneo/kaneo/compare/v2.6.9...v2.7.0) (2026-05-01)
+
+
+### Bug Fixes
+
+* **deploy:** aligning .env.sample ([d7037de](https://github.com/usekaneo/kaneo/commit/d7037deea0463baf46205b3fca654edb15266980))
+* **deploy:** double-slash bug in url ([0a8c945](https://github.com/usekaneo/kaneo/commit/0a8c945cdf3414c479faa60768481b714317fb9b))
+* **deploy:** env.sh fails editing nginx-qodo ([f62d459](https://github.com/usekaneo/kaneo/commit/f62d459467b0a96e8c5c63b95eb10ae971b02c32))
+* **deploy:** fix Biome error in runner ([d3946b6](https://github.com/usekaneo/kaneo/commit/d3946b63ed9e6291958b44864ef7cb3969058b07))
+* **deploy:** fix entrypoint exit codes, scan triggers, and docs drift ([47ff644](https://github.com/usekaneo/kaneo/commit/47ff644da544e041100a0d34b22f906f77e9da97))
+* **deploy:** Helm update to avoid losing CORS allowlist ([2019d5e](https://github.com/usekaneo/kaneo/commit/2019d5e33ac34e5c68f9ac5e8886fec074675f52))
+* **deploy:** missing mcp well-known routes ([90e7551](https://github.com/usekaneo/kaneo/commit/90e7551ae8a6cf552ee2b07e3f119962d53d8bca))
+* **deploy:** nit pick ([568126d](https://github.com/usekaneo/kaneo/commit/568126d7237960d2dfcf8c5faf5175e0afae5ee5))
+* **deploy:** pin nginx to 1.28.3-r0 for reproducible builds ([a1cfe7b](https://github.com/usekaneo/kaneo/commit/a1cfe7b890ff6089415121fed6b12a86cf8c152a))
+* **deploy:** preserve status of process that failed ([e333f52](https://github.com/usekaneo/kaneo/commit/e333f52040dece0ff5698fe14a1c79946ba69a06))
+* **deploy:** removing hardcord postgres ports-but really should be 5432 be default ([71c9873](https://github.com/usekaneo/kaneo/commit/71c9873d4c15a4c4ee7e08fc2108794d968be138))
+* **deploy:** resolve CR PR notes ([6a5e84d](https://github.com/usekaneo/kaneo/commit/6a5e84d1d223d3f6ec89e13ebce48c429b8d4ae4))
+* **deploy:** restore postgres host port 5432 in compose and docs ([9dcf712](https://github.com/usekaneo/kaneo/commit/9dcf7120d24ec149ee3ee57a231d70325cb0035f))
+* **deploy:** whitespace in env.example ([5852c24](https://github.com/usekaneo/kaneo/commit/5852c2436eb06b0803141998b8d57f38fc465130))
+* run apikey migration after drizzle and drop user_id not null ([5dfb52a](https://github.com/usekaneo/kaneo/commit/5dfb52a01d3ffec4aaec9964edeab4f47480633d))
+
+
+### Features
+
+* **deploy:** add single kaneo container combining API and web ([4edba3e](https://github.com/usekaneo/kaneo/commit/4edba3e76b039a9bbbe0613b350879fcaaa925dc))
+* **deploy:** reduce required env vars for combined image ([d334bda](https://github.com/usekaneo/kaneo/commit/d334bda1268ec073ac8e2de5ae756153ec08289e))
+* **deploy:** refactor Helm chart and drim docs to single kaneo image ([bfa651e](https://github.com/usekaneo/kaneo/commit/bfa651e78a37642cbce4238d3c6fceabf0042d66))
 ## [2.6.9](https://github.com/usekaneo/kaneo/compare/v2.6.8...v2.6.9) (2026-04-21)
 
 
