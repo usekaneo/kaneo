@@ -8,7 +8,7 @@ function getWsUrl(projectId: string) {
     import.meta.env.VITE_API_URL || "http://localhost:1337"
   ).replace(/\/+$/, "");
   const wsBase = base.replace(/^http/, "ws");
-  return `${wsBase}/ws/${encodeURIComponent(projectId)}?windowId=${encodeURIComponent(windowId)}`;
+  return `${wsBase}/api/ws/${encodeURIComponent(projectId)}?windowId=${encodeURIComponent(windowId)}`;
 }
 
 const MAX_RETRIES = 5;

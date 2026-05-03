@@ -511,9 +511,7 @@ export function createApp() {
     ),
   );
 
-  app.route("/api", api);
-
-  app.get(
+  api.get(
     "/ws/:projectId",
     upgradeWebSocket(async (c) => {
       const projectId = c.req.param("projectId");
@@ -562,6 +560,8 @@ export function createApp() {
       };
     }),
   );
+
+  app.route("/api", api);
 
   return {
     app,
