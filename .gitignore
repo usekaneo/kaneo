@@ -43,5 +43,8 @@ yarn-error.log*
 # Cache
 .cache/
 
+# Overrides
+compose.override.yml
+
 # IntelliJ IDE
 .idea

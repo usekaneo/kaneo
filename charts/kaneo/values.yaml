@@ -57,17 +57,17 @@ postgresql:
   #   requests:
   #     cpu: 100m
   #     memory: 128Mi
-# API backend configuration
-api:
+# Kaneo application configuration (combined API + web frontend)
+kaneo:
   image:
-    repository: ghcr.io/usekaneo/api
+    repository: ghcr.io/usekaneo/kaneo
     tag: latest
     pullPolicy: IfNotPresent
   securityContext: {}
   service:
     type: ClusterIP
-    port: 1337
-    targetPort: 1337
+    port: 5173
+    targetPort: 5173
   # Resources are optional and disabled by default
   resources: {}
   # resources:
@@ -78,9 +78,15 @@ api:
   #     cpu: 100m
   #     memory: 128Mi
 
-  # Environment variables for the API
   env:
+    # Public URL of this Kaneo instance (e.g. https://kaneo.example.com)
+    # KANEO_API_URL is derived automatically as clientUrl/api if not set
+    clientUrl: ""
+    # Allowed CORS origins. Accepts a comma-separated string or YAML list.
+    # Defaults to clientUrl when left empty.
+    corsOrigins: []
     # Must be at least 32 characters long for Better Auth
+    # Generate with: openssl rand -hex 32
     authSecret: change_me_to_at_least_32_characters_long_string
     existingSecret:
       enabled: false
@@ -114,80 +120,27 @@ api:
   livenessProbe:
     httpGet:
       path: /api/health
-      port: api
-    initialDelaySeconds: 30
+      port: kaneo
+    initialDelaySeconds: 60
     periodSeconds: 10
   readinessProbe:
     httpGet:
       path: /api/health
-      port: api
-    initialDelaySeconds: 5
+      port: kaneo
+    initialDelaySeconds: 30
     periodSeconds: 10
-# Web frontend configuration
-web:
-  image:
-    repository: ghcr.io/usekaneo/web
-    tag: latest
-    pullPolicy: IfNotPresent
-  # Environment variables for the Web
-  env:
-    # Optional: Override the default API URL (http://localhost:1337)
-    # The /api path will be automatically appended to the URL
-    # Make sure this url matches the ingress host
-    # apiUrl: "https://kaneo.example.com"
-    apiUrl: ""
-  securityContext: {}
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 5173 # FIX: Correctly maps the service to the unprivileged Nginx port
-  # Resources are optional and disabled by default
-  resources: {}
-  # resources:
-  #   limits:
-  #     cpu: 300m
-  #     memory: 256Mi
-  #   requests:
-  #     cpu: 100m
-  #     memory: 128Mi
-
-#  livenessProbe:
-#    httpGet:
-#      path: /
-#      port: web
-#    initialDelaySeconds: 90
-#    periodSeconds: 10
-#  readinessProbe:
-#    httpGet:
-#      path: /
-#      port: web
-#    initialDelaySeconds: 60
-#    periodSeconds: 10
 # Ingress configuration
 ingress:
   enabled: false
   className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    ## optional: use cert-manager to automatically provision a TLS certificate
-    # cert-manager.io/cluster-issuer: letsencrypt
-    # When using nginx ingress controller, these annotations provide URL rewriting
-    # similar to the URLRewrite filter in the Gateway API
-    # Other ingress controllers may require different annotations, handle carefully
-    # because it can break the API calls from the frontend to the backend
+  annotations: {}
   hosts:
-    # Use the same host in the web env variable apiUrl (with http:// or https://)
     - host: kaneo.local
       paths:
-        - path: /?(.*)
-          pathType: ImplementationSpecific
-          service: web
-          port: 80
-        - path: /api/?(.*)
-          pathType: ImplementationSpecific
-          service: api
-          port: 1337
+        - path: /
+          pathType: Prefix
+          service: kaneo
+          port: 5173
   tls: []
 
 # Gateway API configuration
@@ -201,20 +154,7 @@ gateway:
     - matches:
         - path:
             type: PathPrefix
-            value: /api
-      filters:
-        - type: URLRewrite
-          urlRewrite:
-            path:
-              type: ReplacePrefixMatch
-              replacePrefixMatch: /
-      backendRefs:
-        - service: api
-          port: 1337
-    - matches:
-        - path:
-            type: PathPrefix
             value: /
       backendRefs:
-        - service: web
-          port: 80
+        - service: kaneo
+          port: 5173

@@ -1,35 +1,16 @@
-# API Service
+# Kaneo Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "kaneo.fullname" . }}-api
+  name: {{ include "kaneo.fullname" . }}-kaneo
   labels:
     {{- include "kaneo.labels" . | nindent 4 }}
-    app.kubernetes.io/component: api
+    app.kubernetes.io/component: kaneo
 spec:
-  type: {{ .Values.api.service.type }}
+  type: {{ .Values.kaneo.service.type }}
   ports:
-    - port: {{ .Values.api.service.port }}
-      targetPort: api
-      protocol: TCP
-      name: http
-  selector:
-    {{- include "kaneo.selectorLabels" . | nindent 4 }}
-
----
-# Web Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "kaneo.fullname" . }}-web
-  labels:
-    {{- include "kaneo.labels" . | nindent 4 }}
-    app.kubernetes.io/component: web
-spec:
-  type: {{ .Values.web.service.type }}
-  ports:
-    - port: {{ .Values.web.service.port }}
-      targetPort: web
+    - port: {{ .Values.kaneo.service.port }}
+      targetPort: kaneo
       protocol: TCP
       name: http
   selector:
