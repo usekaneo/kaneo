@@ -43,7 +43,7 @@ body:
       required: true
 
   - type: textarea
-    id: sinplicity
+    id: simplicity
     attributes:
       label: "Does this feature align with Kaneo's focus on simplicity?"
       description: "Yes/No, because..."
