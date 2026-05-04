@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1009.0",
-    "@aws-sdk/s3-request-presigner": "^3.1006.0",
+    "@aws-sdk/s3-request-presigner": "^3.1041.0",
     "@better-auth/api-key": "^1.5.6",
     "@better-auth/drizzle-adapter": "^1.5.6",
     "@hono/node-server": "^1.19.11",
