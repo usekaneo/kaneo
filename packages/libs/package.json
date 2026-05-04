@@ -16,7 +16,7 @@
 		"hono": "^4.12.14",
 		"react": "^19.2.5",
 		"@kaneo/typescript-config": "workspace:*",
-		"typescript": "^5.9.2",
+		"typescript": "^6.0.3",
 		"vite": "^7.3.2",
 		"vitest": "^4.1.5"
 	}
