@@ -32,12 +32,12 @@
   "pnpm": {
     "overrides": {
       "@isaacs/brace-expansion": "5.0.1",
-      "@hono/node-server": "1.19.10",
+      "@hono/node-server": "1.19.13",
       "ajv": "8.18.0",
       "diff": "8.0.3",
       "esbuild": "0.27.3",
       "express-rate-limit": "8.2.2",
-      "hono": "4.12.7",
+      "hono": "4.12.14",
       "lodash": "4.18.0",
       "markdown-it": "14.1.1",
       "minimatch": "10.2.3",
