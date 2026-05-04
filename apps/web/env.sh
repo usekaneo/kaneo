@@ -1,6 +1,27 @@
 #!/bin/sh
 set -e
 
+# Runtime public env for the SPA (avoids relying on sed inside hashed bundles).
+# Values are base64 so shell metacharacters in URLs cannot break the script.
+write_runtime_config_js() {
+  CONFIG_PATH="/usr/share/nginx/html/env-config.js"
+  parts=""
+  if [ -n "$KANEO_API_URL" ]; then
+    b64=$(printf '%s' "$KANEO_API_URL" | base64 | tr -d '\n')
+    parts="VITE_API_URL:atob(\"${b64}\")"
+  fi
+  if [ -n "$KANEO_CLIENT_URL" ]; then
+    b64=$(printf '%s' "$KANEO_CLIENT_URL" | base64 | tr -d '\n')
+    if [ -n "$parts" ]; then
+      parts="${parts},"
+    fi
+    parts="${parts}VITE_CLIENT_URL:atob(\"${b64}\")"
+  fi
+  printf '%s\n' "window.__KANEO_RUNTIME_CONFIG__={${parts}};" > "$CONFIG_PATH"
+}
+
+write_runtime_config_js
+
 echo "Starting environment variable replacement..."
 
 # Process KANEO_API_URL first (with special handling)

@@ -1,4 +1,5 @@
 import { apiKeyClient } from "@better-auth/api-key/client";
+import { resolvePublicEnvVar } from "@kaneo/libs";
 import {
   anonymousClient,
   deviceAuthorizationClient,
@@ -13,7 +14,9 @@ import { createAuthClient } from "better-auth/react";
 import { ac, admin, member, owner } from "./permissions";
 
 const getBaseURL = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:1337";
+  const apiUrl =
+    resolvePublicEnvVar("VITE_API_URL", import.meta.env.VITE_API_URL) ||
+    "http://localhost:1337";
   try {
     const url = new URL(apiUrl);
     return `${url.protocol}//${url.host}`;

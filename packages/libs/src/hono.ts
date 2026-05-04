@@ -3,8 +3,11 @@
 import type { AppType } from "@kaneo/api";
 import { hc } from "hono/client";
 import { resolveApiBaseUrl } from "./api-url";
+import { resolvePublicEnvVar } from "./runtime-public-env";
 
-const apiUrl = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
+const apiUrl = resolveApiBaseUrl(
+  resolvePublicEnvVar("VITE_API_URL", import.meta.env.VITE_API_URL),
+);
 
 export const client = hc<AppType>(apiUrl, {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => {

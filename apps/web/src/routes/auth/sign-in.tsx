@@ -1,3 +1,4 @@
+import { resolvePublicEnvVar } from "@kaneo/libs";
 import {
   createFileRoute,
   useNavigate,
@@ -54,8 +55,12 @@ function SignIn() {
     return undefined;
   };
 
+  const getClientBaseUrl = () =>
+    resolvePublicEnvVar("VITE_CLIENT_URL", import.meta.env.VITE_CLIENT_URL) ??
+    "";
+
   const getCallbackUrl = () => {
-    const baseUrl = import.meta.env.VITE_CLIENT_URL;
+    const baseUrl = getClientBaseUrl();
     const redirectPath = getSafeRedirectPath();
     if (redirectPath) {
       return `${baseUrl}${redirectPath}`;
@@ -90,7 +95,7 @@ function SignIn() {
       const result = await authClient.signIn.oauth2({
         providerId: "custom",
         callbackURL: getCallbackUrl(),
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+        errorCallbackURL: `${getClientBaseUrl()}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
@@ -110,7 +115,7 @@ function SignIn() {
       const result = await authClient.signIn.social({
         provider: "google",
         callbackURL: getCallbackUrl(),
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+        errorCallbackURL: `${getClientBaseUrl()}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
@@ -130,7 +135,7 @@ function SignIn() {
       const result = await authClient.signIn.social({
         provider: "github",
         callbackURL: getCallbackUrl(),
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+        errorCallbackURL: `${getClientBaseUrl()}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
@@ -150,7 +155,7 @@ function SignIn() {
       const result = await authClient.signIn.social({
         provider: "discord",
         callbackURL: getCallbackUrl(),
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+        errorCallbackURL: `${getClientBaseUrl()}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
