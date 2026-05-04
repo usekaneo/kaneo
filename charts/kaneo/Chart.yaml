@@ -2,8 +2,8 @@ apiVersion: v2
 name: kaneo
 description: Kaneo - All you need. Nothing you don't. Open source project management that works for you.
 type: application
-# Bumped to 0.3.0 — breaking: api/web values collapsed into kaneo, single container
-version: 0.3.0
+# 0.4.0: add kaneo.extraEnv for arbitrary env vars on the kaneo container
+version: 0.4.0
 appVersion: "2.6.0"
 keywords:
   - project-management

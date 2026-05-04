@@ -73,6 +73,9 @@ spec:
               value: {{ .Values.kaneo.env.disableRegistration | quote }}
             - name: DISABLE_PASSWORD_REGISTRATION
               value: {{ .Values.kaneo.env.disablePasswordRegistration | quote }}
+            {{- with .Values.kaneo.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.kaneo.livenessProbe | nindent 12 }}
           readinessProbe:
