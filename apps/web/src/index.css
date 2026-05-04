@@ -11,7 +11,7 @@ input:-webkit-autofill:active {
 
 @font-face {
   font-family: "Cal Sans UI";
-  src: url("./assets/fonts/CalSansUI[MODE,wght].woff2") format("woff2");
+  src: url("./assets/fonts/CalSansUI[wght,GEOM]-s.p.c2e3469d.woff2") format("woff2");
   font-display: swap;
   font-style: normal;
   font-weight: 300 700;

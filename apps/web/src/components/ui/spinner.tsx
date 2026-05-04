@@ -1,19 +1,17 @@
 import { Loader2Icon } from "lucide-react";
+import type React from "react";
 import { cn } from "@/lib/cn";
-import { i18n } from "@/lib/i18n";
 
-function Spinner({
+export function Spinner({
   className,
   ...props
-}: React.ComponentProps<typeof Loader2Icon>) {
+}: React.ComponentProps<typeof Loader2Icon>): React.ReactElement {
   return (
     <Loader2Icon
-      aria-label={i18n.t("common:empty.loading")}
+      aria-label="Loading"
       className={cn("animate-spin", className)}
       role="status"
       {...props}
     />
   );
 }
-
-export { Spinner };

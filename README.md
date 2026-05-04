@@ -19,7 +19,7 @@
     <span> | </span>
     <a href="https://kaneo.app">Website</a>
     <span> | </span>
-    <a href="https://cloud.kaneo.app">Cloud (free)</a>
+    <a href="https://cloud.kaneo.app">Cloud</a>
     <span> | </span>
     <a href="https://discord.gg/rU4tSyhXXU">Discord</a>
   </h3>
@@ -42,13 +42,13 @@ We believe the best tools are **invisible**. They should amplify your team's nat
 - **Clean interface** that focuses on your work, not the tool
 - **Self-hosted** so your data stays yours
 - **Actually fast** because we care about performance
-- **Open source** and free forever
+- **Open source** with a permissive MIT license
 
 Learn more about Kaneo's features and capabilities in our [documentation](https://kaneo.app/docs/core).
 
 ## Sponsors
 
-Kaneo is open source and free forever. If you find it useful, consider [sponsoring the project](https://github.com/sponsors/andrejsshell) to help support ongoing development.
+Kaneo is open source. If you find it useful, consider [sponsoring the project](https://github.com/sponsors/andrejsshell) to help support ongoing development.
 
 ## Getting Started
 

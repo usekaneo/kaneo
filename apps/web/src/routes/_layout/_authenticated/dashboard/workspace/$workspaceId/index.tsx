@@ -7,6 +7,14 @@ import PageTitle from "@/components/page-title";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -137,25 +145,23 @@ function RouteComponent() {
             </Button>
           }
         >
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center space-y-6">
-              <div className="w-16 h-16 mx-auto rounded-xl bg-muted flex items-center justify-center">
-                <LayoutGrid className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold">
-                  {t("workspace:projects.emptyTitle")}
-                </h3>
-                <p className="text-muted-foreground">
-                  {t("workspace:projects.emptyDescription")}
-                </p>
-              </div>
-              <Button onClick={handleCreateProject} className="gap-2 ">
-                <Plus className="w-4 h-4" />
+          <Empty className="min-h-[60vh]">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <LayoutGrid />
+              </EmptyMedia>
+              <EmptyTitle>{t("workspace:projects.emptyTitle")}</EmptyTitle>
+              <EmptyDescription>
+                {t("workspace:projects.emptyDescription")}
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button onClick={handleCreateProject}>
+                <Plus />
                 {t("workspace:projects.createProject")}
               </Button>
-            </div>
-          </div>
+            </EmptyContent>
+          </Empty>
         </WorkspaceLayout>
 
         <CreateProjectModal

@@ -27,5 +27,5 @@ annotations:
     - Simple & Fast: Minimalist interface with powerful features
     - Self-hosted: Full control over your data
     - Customizable: Make it yours with extensive customization options
-    - Open Source: MIT licensed, free forever
+    - Open Source: MIT licensed
 kubeVersion: ">=1.19.0-0"

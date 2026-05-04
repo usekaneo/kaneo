@@ -1,6 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#141414" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kaneo.app"),
@@ -33,8 +40,6 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/images/hero.png",
-        width: 1200,
-        height: 630,
         alt: "Kaneo",
       },
     ],
@@ -53,9 +58,43 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
   },
+  manifest: "/manifest.webmanifest",
+  category: "productivity",
+  creator: "Kaneo",
+  publisher: "Kaneo",
 };
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Kaneo",
+    url: "https://kaneo.app",
+    logo: "https://kaneo.app/logo-512.png",
+    sameAs: ["https://github.com/usekaneo/kaneo"],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Kaneo",
+    url: "https://kaneo.app",
+    inLanguage: "en",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Kaneo",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web, Linux, macOS, Windows",
+    description:
+      "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
+    url: "https://kaneo.app",
+    image: "https://kaneo.app/images/hero.png",
+    license: "https://github.com/usekaneo/kaneo/blob/main/LICENSE",
+  },
+];
 
 export default function RootLayout({
   children,
@@ -86,6 +125,11 @@ export default function RootLayout({
           }}
         />
         {children}
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data must be inlined as a script tag for search engines to parse.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Script
           defer
           data-domain="kaneo.app"

@@ -1,7 +1,8 @@
 import { produce } from "immer";
-import { Archive } from "lucide-react";
+import { Archive, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
@@ -19,6 +20,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { mutate: updateTask } = useUpdateTask();
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const handleConfirmArchive = () => {
     if (!column.isFinal || !project) return;
@@ -58,8 +60,8 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         </span>
       </div>
 
-      {column.isFinal && column.tasks.length > 0 && (
-        <>
+      <div className="flex items-center">
+        {column.isFinal && column.tasks.length > 0 && (
           <button
             type="button"
             onClick={() => setIsArchiveModalOpen(true)}
@@ -68,15 +70,30 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
           >
             <Archive className="w-4 h-4 text-muted-foreground" />
           </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setIsTaskModalOpen(true)}
+          className="flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-all hover:bg-accent/50"
+          title={t("tasks:kanban.addTask")}
+        >
+          <Plus className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </div>
 
-          <ArchiveTasksModal
-            open={isArchiveModalOpen}
-            onClose={() => setIsArchiveModalOpen(false)}
-            onConfirm={handleConfirmArchive}
-            taskCount={column.tasks.length}
-          />
-        </>
-      )}
+      <CreateTaskModal
+        open={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        projectId={project?.id}
+        status={column.id}
+      />
+
+      <ArchiveTasksModal
+        open={isArchiveModalOpen}
+        onClose={() => setIsArchiveModalOpen(false)}
+        onConfirm={handleConfirmArchive}
+        taskCount={column.tasks.length}
+      />
     </div>
   );
 }

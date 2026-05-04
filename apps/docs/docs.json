@@ -157,7 +157,15 @@
 		}
 	},
 	"seo": {
-		"indexing": "all"
+		"indexing": "all",
+		"metatags": {
+			"og:site_name": "Kaneo Docs",
+			"og:type": "website",
+			"og:image": "https://kaneo.app/images/hero.png",
+			"twitter:card": "summary_large_image",
+			"twitter:site": "@usekaneo",
+			"twitter:image": "https://kaneo.app/images/hero.png"
+		}
 	},
 	"integrations": {
 		"plausible": {
