@@ -1,3 +1,38 @@
+## [2.7.1](https://github.com/usekaneo/kaneo/compare/v2.7.0...v2.7.1) (2026-05-04)
+
+
+### Bug Fixes
+
+* broadcast task-relation.refresh on status update. For task details view updates ([ffa30b8](https://github.com/usekaneo/kaneo/commit/ffa30b8d5cb0cd8d800d7e4071336973d5dae591))
+* bulkUpdateTasks never fires WebSocket events ([a7348d5](https://github.com/usekaneo/kaneo/commit/a7348d5f4be9afb2d6d9cca06596ef46a53ba4f2))
+* codeRabbit suggetions ([9cd7a08](https://github.com/usekaneo/kaneo/commit/9cd7a08159a9056019f724aca1abf1c549404e71))
+* codeRabbit suggetions applied ([ebdd208](https://github.com/usekaneo/kaneo/commit/ebdd2085d6db30023ff84519f78c3e944f86c867))
+* copy task link ([e6725de](https://github.com/usekaneo/kaneo/commit/e6725de2704dc7cea1610495405c66796fbe5790))
+* feature_request.yml ([7e857a8](https://github.com/usekaneo/kaneo/commit/7e857a8bd4c078d04f49e32eb60639e67b384cab))
+* get /api/oauth/id-token is implemented inline ([916ddd8](https://github.com/usekaneo/kaneo/commit/916ddd8fceb213685858deb3aefcdbdbc1d72f10))
+* hardcoded "done" check for strike-through styling ([cd0c119](https://github.com/usekaneo/kaneo/commit/cd0c11982678a67063d09fe30c4e8e50f08e2fdc))
+* missing projectId in WS broadcast ([3b60821](https://github.com/usekaneo/kaneo/commit/3b60821cdf28545c17f546828ee45840f27146f7))
+* missing properties of Task type ([3d8305d](https://github.com/usekaneo/kaneo/commit/3d8305d8802d72397a438cf02c70d7a1e73b89c7))
+* move task ([96558f7](https://github.com/usekaneo/kaneo/commit/96558f74e572fc29af6ce86362128b921af0792d))
+* move WebSocket endpoint under API path. For new single docker image ([d65c242](https://github.com/usekaneo/kaneo/commit/d65c242a83efd6bd1fccccd712bcc4d388219112))
+* project membership authorization check to the WebSocket /ws/:projectId endpoint ([5dfb48b](https://github.com/usekaneo/kaneo/commit/5dfb48b549ab6c1d6a928ba67dfa4a02ae4532f8))
+* some CodeRabbit suggetions ([0cf537f](https://github.com/usekaneo/kaneo/commit/0cf537ffa70745132ecff2d5371f745e1ef9a7aa))
+* **type:** broadcastAdapter is defined as an interface ([7de2dec](https://github.com/usekaneo/kaneo/commit/7de2dec8416c7036d4b69f5976784b6dd5f4186b))
+* unused project route ([cf40cdc](https://github.com/usekaneo/kaneo/commit/cf40cdcfc0f2346b825f929a28b6a46160f6cd77))
+* update healthcheck URL to use 127.0.0.1 ([a02a79e](https://github.com/usekaneo/kaneo/commit/a02a79e8f3740b2f6967453f1e8db0616dbb6213))
+* use correct column slug property ([a99011c](https://github.com/usekaneo/kaneo/commit/a99011c0bd8bb930d10a7924f034d3064460fb72))
+* webSocket retry counter not reset on project change ([a850f5b](https://github.com/usekaneo/kaneo/commit/a850f5b37093de7a4f7bd5e343a38a1873eb40a3))
+
+
+### Features
+
+* add redis sentinal and cluster support ([9a80aa8](https://github.com/usekaneo/kaneo/commit/9a80aa8d5fe7ab44686e22db23d4aa8e084a77c1))
+* add Redis-backed broadcast adapter for WebSocket scaling ([3261494](https://github.com/usekaneo/kaneo/commit/326149400a865de53953fccd9c8a20424e06dd09))
+* add websockets for realtime collaboration ([b94d362](https://github.com/usekaneo/kaneo/commit/b94d3625444e9b9148ac573d41af2a9b3ee3917b))
+* custom logout url for automatic logout from idp ([e6cae2a](https://github.com/usekaneo/kaneo/commit/e6cae2a0c8039b7d47e0cba4a48f0d7681a69e62))
+* import/export task re-enabled ([d8a8347](https://github.com/usekaneo/kaneo/commit/d8a8347fc4d54403935da7350cceb8927a3128f0))
+* **ui:** move create task to top and display permanently ([7f6a9c5](https://github.com/usekaneo/kaneo/commit/7f6a9c565f38b32719054379a0dc70775892b1f8))
+* **web:** 404 not found page for task page ([137b91f](https://github.com/usekaneo/kaneo/commit/137b91fffe59807037ca8a714f6d613b19e0b188))
 # [2.7.0](https://github.com/usekaneo/kaneo/compare/v2.6.9...v2.7.0) (2026-05-01)
 
 
