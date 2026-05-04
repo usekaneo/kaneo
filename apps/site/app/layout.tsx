@@ -40,6 +40,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/images/hero.png",
+        width: 1200,
+        height: 630,
         alt: "Kaneo",
       },
     ],
@@ -60,7 +62,6 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
     apple: "/apple-touch-icon.png",
   },
-  manifest: "/manifest.webmanifest",
   category: "productivity",
   creator: "Kaneo",
   publisher: "Kaneo",
