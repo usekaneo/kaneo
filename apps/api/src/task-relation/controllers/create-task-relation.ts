@@ -2,15 +2,18 @@ import { and, eq, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskRelationTable, taskTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 
 async function createTaskRelation({
   sourceTaskId,
   targetTaskId,
   relationType,
+  userId,
 }: {
   sourceTaskId: string;
   targetTaskId: string;
   relationType: string;
+  userId: string;
 }) {
   if (sourceTaskId === targetTaskId) {
     throw new HTTPException(400, {
@@ -19,7 +22,7 @@ async function createTaskRelation({
   }
 
   const [sourceTask] = await db
-    .select({ id: taskTable.id })
+    .select({ id: taskTable.id, projectId: taskTable.projectId })
     .from(taskTable)
     .where(eq(taskTable.id, sourceTaskId))
     .limit(1);
@@ -29,7 +32,7 @@ async function createTaskRelation({
   }
 
   const [targetTask] = await db
-    .select({ id: taskTable.id })
+    .select({ id: taskTable.id, projectId: taskTable.projectId })
     .from(taskTable)
     .where(eq(taskTable.id, targetTaskId))
     .limit(1);
@@ -78,6 +81,13 @@ async function createTaskRelation({
       message: "Failed to create task relation",
     });
   }
+
+  await publishEvent("task-relation.created", {
+    ...relation,
+    taskId: sourceTaskId,
+    projectId: sourceTask.projectId,
+    userId,
+  });
 
   return relation;
 }

@@ -2,13 +2,16 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 
 async function updateTaskPriority({
   id,
   priority,
+  currentUserId,
 }: {
   id: string;
   priority: string;
+  currentUserId: string;
 }) {
   const existingTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, id),
@@ -31,6 +34,16 @@ async function updateTaskPriority({
       message: "Failed to update task priority",
     });
   }
+
+  await publishEvent("task.priority_changed", {
+    taskId: updatedTask.id,
+    projectId: updatedTask.projectId,
+    userId: currentUserId,
+    oldPriority: existingTask.priority,
+    newPriority: priority,
+    title: updatedTask.title,
+    type: "priority_changed",
+  });
 
   return updatedTask;
 }

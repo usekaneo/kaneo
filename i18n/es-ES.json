@@ -491,7 +491,9 @@
 				"keyShort": "El identificador debe contener al menos 2 caracteres",
 				"keyMax": "El identificador debe contener como máximo 8 caracteres",
 				"iconRequired": "El icono es obligatorio"
-			}
+			},
+			"importExportTasks": "Importar/Exportar",
+			"importExportTasksDescription": "Importar/Exportar Tareas"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integraciones del Proyecto",
@@ -819,7 +821,8 @@
 			"projects": "Proyectos",
 			"members": "Miembros",
 			"invitations": "Invitaciones",
-			"more": "Más"
+			"more": "Más",
+			"backToBoard": "Volver al tablero"
 		},
 		"projectList": {
 			"viewProject": "Ver Proyecto",
@@ -947,6 +950,8 @@
 		"setDueDate": "ha configurado la fecha de vencimiento a {{date}}",
 		"changedDueDate": "ha cambiado la fecha de vencimiento de {{from}} a {{to}}",
 		"changedTitle": "ha cambiado el título de \"{{from}}\" a \"{{to}}\"",
+		"created": "ha creado esta tarea",
+		"moved": "ha movido la tarea de \"{{from}}\" a \"{{to}}\"",
 		"githubUser": "Usuario de GitHub",
 		"comment": {
 			"github": "GitHub",
@@ -1060,7 +1065,9 @@
 		},
 		"common": {
 			"selectTask": "Seleccionar tarea",
-			"loadingTask": "Cargando tarea..."
+			"loadingTask": "Cargando tarea...",
+			"taskNotFound": "Tarea no encontrada",
+			"taskNotFoundDescription": "La tarea que buscas no existe o ha sido eliminada."
 		},
 		"detail": {
 			"subtaskOf": "Subtarea de",

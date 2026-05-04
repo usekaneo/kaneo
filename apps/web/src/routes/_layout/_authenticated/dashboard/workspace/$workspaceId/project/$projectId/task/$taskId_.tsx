@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskLayout from "@/components/common/task-layout";
@@ -9,6 +9,7 @@ import {
   TaskPropertiesSidebarSkeleton,
 } from "@/components/task/task-page-skeleton";
 import TaskPropertiesSidebar from "@/components/task/task-properties-sidebar";
+import { Button } from "@/components/ui/button";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
@@ -22,15 +23,19 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { projectId, workspaceId, taskId } = Route.useParams();
-  const { data: task, isLoading: isTaskLoading } = useGetTask(taskId);
+  const {
+    data: task,
+    isLoading: isTaskLoading,
+    isError: isTaskError,
+  } = useGetTask(taskId);
   const { data: project, isLoading: isProjectLoading } = useGetProject({
     id: projectId,
     workspaceId,
   });
   const { isLoading: isActivitiesLoading } = useGetActivitiesByTaskId(taskId);
   const [isShikiReady, setIsShikiReady] = useState(false);
-
   useEffect(() => {
     let mounted = true;
 
@@ -55,7 +60,7 @@ function RouteComponent() {
       rightSidebar={
         isLoading ? (
           <TaskPropertiesSidebarSkeleton className="h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2" />
-        ) : (
+        ) : isTaskError || !task ? null : (
           <TaskPropertiesSidebar
             taskId={taskId}
             projectId={projectId}
@@ -69,12 +74,39 @@ function RouteComponent() {
         title={
           isLoading
             ? t("tasks:common.loadingTask")
-            : `${project?.slug}-${task?.number} — ${task?.title}`
+            : isTaskError || !task
+              ? t("tasks:common.taskNotFound")
+              : `${project?.slug}-${task?.number} — ${task?.title}`
         }
         hideAppName
       />
       {isLoading ? (
         <TaskDetailsSkeleton />
+      ) : isTaskError || !task ? (
+        <div className="flex h-full flex-col items-center justify-center gap-4 px-4 py-12 text-center">
+          <h1 className="text-2xl font-bold">
+            {t("tasks:common.taskNotFound")}
+          </h1>
+          <p className="text-muted-foreground max-w-md">
+            {t("tasks:common.taskNotFoundDescription", {
+              defaultValue:
+                "The task you are looking for does not exist or has been deleted.",
+            })}
+          </p>
+          <Button
+            variant="outline"
+            onClick={() =>
+              navigate({
+                to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+                params: { workspaceId, projectId },
+              })
+            }
+          >
+            {t("navigation:sidebar.backToBoard", {
+              defaultValue: "Back to board",
+            })}
+          </Button>
+        </div>
       ) : (
         <TaskDetailsContent
           taskId={taskId}

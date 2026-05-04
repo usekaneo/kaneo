@@ -31,5 +31,11 @@ services:
       start_period: 60s
       retries: 3
 
+#  Optional for HA Setup
+#  redis:
+#    image: valkey/valkey
+#    ports:
+#      - "6379:6379"
+
 volumes:
   postgres_data:

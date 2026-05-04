@@ -8,13 +8,16 @@ async function createActivity(
   content: string | null,
   eventData?: Record<string, unknown> | null,
 ) {
-  const activity = await db.insert(activityTable).values({
-    taskId,
-    type,
-    userId,
-    content,
-    eventData: eventData ?? null,
-  });
+  const [activity] = await db
+    .insert(activityTable)
+    .values({
+      taskId,
+      type,
+      userId,
+      content,
+      eventData: eventData ?? null,
+    })
+    .returning();
   return activity;
 }
 

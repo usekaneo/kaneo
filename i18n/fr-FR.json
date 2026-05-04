@@ -581,7 +581,9 @@
 				"keyShort": "La clé doit contenir au moins 2 caractères",
 				"keyMax": "La clé doit contenir au plus 8 caractères",
 				"iconRequired": "L'icône est requise"
-			}
+			},
+			"importExportTasks": "Importation/Exportation",
+			"importExportTasksDescription": "Importation/Exportation des Tâches"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Intégrations du projet",
@@ -1033,7 +1035,8 @@
 			"projects": "Projets",
 			"members": "Membres",
 			"invitations": "Invitations",
-			"more": "Plus"
+			"more": "Plus",
+			"backToBoard": "Retour au tableau"
 		},
 		"projectList": {
 			"viewProject": "Voir le projet",
@@ -1162,6 +1165,8 @@
 		"setDueDate": "a défini la date d'échéance à {{date}}",
 		"changedDueDate": "a changé la date d'échéance de {{from}} à {{to}}",
 		"changedTitle": "a changé le titre de \"{{from}}\" à \"{{to}}\"",
+		"created": "a créé cette tâche",
+		"moved": "a déplacé la tâche de \"{{from}}\" à \"{{to}}\"",
 		"githubUser": "GitHub User",
 		"comment": {
 			"github": "GitHub",
@@ -1275,7 +1280,9 @@
 		},
 		"common": {
 			"selectTask": "Sélectionner une tâche",
-			"loadingTask": "Chargement de la tâche..."
+			"loadingTask": "Chargement de la tâche...",
+			"taskNotFound": "Tâche non trouvée",
+			"taskNotFoundDescription": "La tâche que vous recherchez n'existe pas ou a été supprimée."
 		},
 		"detail": {
 			"subtaskOf": "Sous-tâche de",

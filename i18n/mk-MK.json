@@ -581,7 +581,9 @@
 				"keyShort": "Клучот мора да има најмалку 2 знаци",
 				"keyMax": "Клучот мора да има најмногу 8 знаци",
 				"iconRequired": "Иконата е задолжителна"
-			}
+			},
+			"importExportTasks": "Импортирање/Експортирање",
+			"importExportTasksDescription": "Импортирање/Експортирање на задачи"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции на проект",
@@ -1033,7 +1035,8 @@
 			"projects": "Проекти",
 			"members": "Членови",
 			"invitations": "Покани",
-			"more": "Повеќе"
+			"more": "Повеќе",
+			"backToBoard": "Назад на табла"
 		},
 		"projectList": {
 			"viewProject": "Погледни проект",
@@ -1162,6 +1165,8 @@
 		"setDueDate": "го постави краениот рок на {{date}}",
 		"changedDueDate": "го промени краениот рок од {{from}} во {{to}}",
 		"changedTitle": "го промени насловот од \"{{from}}\" во \"{{to}}\"",
+		"created": "ја создаде задачата",
+		"moved": "ја премести задачата од \"{{from}}\" во \"{{to}}\"",
 		"githubUser": "GitHub корисник",
 		"comment": {
 			"github": "GitHub",
@@ -1275,7 +1280,9 @@
 		},
 		"common": {
 			"selectTask": "Избери задача",
-			"loadingTask": "Се вчитува задача..."
+			"loadingTask": "Се вчитува задача...",
+			"taskNotFound": "Задачата не е пронајдена",
+			"taskNotFoundDescription": "Задачата што ја барате не постои или е избришана."
 		},
 		"detail": {
 			"subtaskOf": "Подзадача на",

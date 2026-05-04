@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
+import { TasksImportExport } from "@/components/project/tasks-import-export.tsx";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -38,10 +39,11 @@ import { Separator } from "@/components/ui/separator";
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
-import useGetProject from "@/hooks/queries/project/use-get-project";
+import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
+import useProjectStore from "@/store/project.ts";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/general",
@@ -109,10 +111,14 @@ function RouteComponent() {
   const { data: workspace } = useActiveWorkspace();
   const { projectId: rawProjectId } = useParams({ strict: false });
   const projectId = rawProjectId ?? "";
-  const { data: project } = useGetProject({
-    id: projectId ?? "",
-    workspaceId: workspace?.id || "",
-  });
+  const { data: fetchedProject } = useGetTasks(projectId);
+  const { project, setProject } = useProjectStore();
+
+  useEffect(() => {
+    if (fetchedProject) {
+      setProject(fetchedProject);
+    }
+  }, [fetchedProject, setProject]);
 
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
@@ -523,6 +529,18 @@ function RouteComponent() {
                 />
               </form>
             </Form>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">
+                  {t("settings:projectGeneral.importExportTasks")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("settings:projectGeneral.importExportTasksDescription")}
+                </p>
+              </div>
+              {project && <TasksImportExport project={project} />}
+            </div>
           </div>
         </div>
 

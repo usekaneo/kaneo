@@ -89,11 +89,13 @@ const taskRelation = new Hono<{
       return next();
     },
     async (c) => {
+      const userId = c.get("userId");
       const { sourceTaskId, targetTaskId, relationType } = c.req.valid("json");
       const relation = await createTaskRelation({
         sourceTaskId,
         targetTaskId,
         relationType,
+        userId,
       });
       return c.json(relation);
     },
@@ -141,8 +143,9 @@ const taskRelation = new Hono<{
       return next();
     },
     async (c) => {
+      const userId = c.get("userId");
       const { id } = c.req.valid("param");
-      const relation = await deleteTaskRelation(id);
+      const relation = await deleteTaskRelation(id, userId);
       return c.json(relation);
     },
   );

@@ -35,20 +35,18 @@ function Column({ column }: ColumnProps) {
       <div className="shrink-0 border-b border-border/60 px-3 py-2">
         <ColumnHeader column={column} />
       </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 [-webkit-overflow-scrolling:touch]">
-        <ColumnDropzone column={column} onIsOverChange={setIsDropzoneOver} />
-      </div>
-
-      <div className="border-t border-border/60 p-1.5 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+      <div className="border-t border-border/60 p-1.5 transition-opacity">
         <button
           type="button"
           onClick={() => setIsTaskModalOpen(true)}
-          className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm text-muted-foreground transition-all hover:bg-accent/50 hover:text-foreground"
+          className="flex w-full items-center gap-2 rounded-md px-2 pt-1 text-left text-sm text-muted-foreground transition-all hover:bg-accent/50 hover:text-foreground"
         >
           <Plus className="w-4 h-4" />
           <span>{t("tasks:kanban.addTask")}</span>
         </button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 py-1 [-webkit-overflow-scrolling:touch]">
+        <ColumnDropzone column={column} onIsOverChange={setIsDropzoneOver} />
       </div>
     </div>
   );

@@ -379,6 +379,29 @@ function renderActivityContent({
     }
   }
 
+  if (activity.type === "moved") {
+    if (eventData) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          {t("activity:moved", {
+            from: String(eventData.fromProjectName ?? ""),
+            to: String(eventData.toProjectName ?? ""),
+          })}
+        </span>
+      );
+    }
+  }
+
+  if (activity.type === "created") {
+    if (eventData) {
+      return (
+        <span className="text-sm text-muted-foreground">
+          {t("activity:created")}
+        </span>
+      );
+    }
+  }
+
   return (
     <span className="text-sm text-muted-foreground">
       {content || toDisplayCase(activity.type)}

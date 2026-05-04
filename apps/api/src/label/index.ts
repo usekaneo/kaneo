@@ -12,7 +12,11 @@ import getLabelsByWorkspaceId from "./controllers/get-labels-by-workspace-id";
 import unassignLabelFromTask from "./controllers/unassign-label-from-task";
 import updateLabel from "./controllers/update-label";
 
-const label = new Hono()
+const label = new Hono<{
+  Variables: {
+    userId: string;
+  };
+}>()
   .get(
     "/task/:taskId",
     describeRoute({
@@ -86,7 +90,8 @@ const label = new Hono()
     workspaceAccess.fromBody(),
     async (c) => {
       const { name, color, workspaceId, taskId } = c.req.valid("json");
-      const label = await createLabel(name, color, taskId, workspaceId);
+      const userId = c.get("userId");
+      const label = await createLabel(name, color, taskId, workspaceId, userId);
       return c.json(label);
     },
   )
@@ -134,7 +139,8 @@ const label = new Hono()
     async (c) => {
       const { id } = c.req.valid("param");
       const { taskId } = c.req.valid("json");
-      const label = await assignLabelToTask(id, taskId);
+      const userId = c.get("userId");
+      const label = await assignLabelToTask(id, taskId, userId);
       return c.json(label);
     },
   )
@@ -157,7 +163,8 @@ const label = new Hono()
     workspaceAccess.fromLabel(),
     async (c) => {
       const { id } = c.req.valid("param");
-      const label = await unassignLabelFromTask(id);
+      const userId = c.get("userId");
+      const label = await unassignLabelFromTask(id, userId);
       return c.json(label);
     },
   )
@@ -211,7 +218,8 @@ const label = new Hono()
     workspaceAccess.fromLabel(),
     async (c) => {
       const { id } = c.req.valid("param");
-      const label = await deleteLabel(id);
+      const userId = c.get("userId");
+      const label = await deleteLabel(id, userId);
       return c.json(label);
     },
   );

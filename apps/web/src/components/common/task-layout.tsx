@@ -14,6 +14,7 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
+import { useProjectWebSocket } from "@/hooks/use-project-websocket";
 
 type TaskLayoutProps = {
   taskId: string;
@@ -36,6 +37,9 @@ export default function TaskLayout({
   const navigate = useNavigate();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: task } = useGetTask(taskId);
+
+  useProjectWebSocket(projectId);
+
   const taskLabel =
     project?.slug && task?.number != null
       ? `${project.slug}-${task.number}`

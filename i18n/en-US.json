@@ -581,7 +581,9 @@
 				"keyShort": "Key must be at least 2 characters",
 				"keyMax": "Key must be at most 8 characters",
 				"iconRequired": "Icon is required"
-			}
+			},
+			"importExportTasks": "Import/Export",
+			"importExportTasksDescription": "Import and export tasks."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Project Integrations",
@@ -1035,7 +1037,8 @@
 			"projects": "Projects",
 			"members": "Members",
 			"invitations": "Invitations",
-			"more": "More"
+			"more": "More",
+			"backToBoard": "Back to board"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -1164,6 +1167,8 @@
 		"setDueDate": "set due date to {{date}}",
 		"changedDueDate": "changed due date from {{from}} to {{to}}",
 		"changedTitle": "changed title from \"{{from}}\" to \"{{to}}\"",
+		"moved": "moved task from \"{{from}}\" to \"{{to}}\"",
+		"created": "created this task",
 		"githubUser": "GitHub User",
 		"comment": {
 			"github": "GitHub",
@@ -1277,7 +1282,9 @@
 		},
 		"common": {
 			"selectTask": "Select task",
-			"loadingTask": "Loading task..."
+			"loadingTask": "Loading task...",
+			"taskNotFound": "Task not found",
+			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted."
 		},
 		"detail": {
 			"subtaskOf": "Subtask of",

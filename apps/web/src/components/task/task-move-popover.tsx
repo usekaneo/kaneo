@@ -127,7 +127,7 @@ export default function TaskMovePopover({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild nativeButton={false}>
+      <PopoverTrigger asChild>
         <Button
           type="button"
           variant="outline"
@@ -150,7 +150,7 @@ export default function TaskMovePopover({
               {t("tasks:move.projectLabel")}
             </Label>
             <Select
-              value={selectedProjectId || undefined}
+              value={selectedProjectId}
               onValueChange={(value) =>
                 setSelectedProjectId(String(value ?? ""))
               }
