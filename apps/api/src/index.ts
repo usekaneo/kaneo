@@ -53,6 +53,7 @@ import {
   resolveAssetBearerOrCookie,
 } from "./utils/authenticate-api-request";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
+import { createFkSupportingIndexes } from "./utils/create-fk-supporting-indexes";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateNotificationPreferencesSchema } from "./utils/migrate-notification-preferences-schema";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
@@ -614,6 +615,11 @@ export async function runStartupTasks() {
   await migrateNotificationPreferencesSchema();
   await migrateGitHubIntegration();
   await migrateColumns();
+
+  // `CREATE INDEX CONCURRENTLY` cannot run inside Drizzle's migration
+  // transaction, so run these index builds separately after schema
+  // migrations finish.
+  await createFkSupportingIndexes();
 
   initializePlugins();
   initializeScheduler();
