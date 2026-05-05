@@ -2,7 +2,7 @@ import { pool } from "../database";
 
 export const FK_SUPPORTING_INDEX_STATEMENTS = [
   'CREATE INDEX CONCURRENTLY IF NOT EXISTS "user_notification_workspace_project_workspaceId_projectId_idx" ON "user_notification_workspace_project" USING btree ("workspace_id", "project_id")',
-  'CREATE INDEX CONCURRENTLY IF NOT EXISTS "user_notification_workspace_project_workspaceId_workspaceRuleId_idx" ON "user_notification_workspace_project" USING btree ("workspace_id", "workspace_rule_id")',
+  'CREATE INDEX CONCURRENTLY IF NOT EXISTS "unwp_workspaceId_workspaceRuleId_idx" ON "user_notification_workspace_project" USING btree ("workspace_id", "workspace_rule_id")',
   'CREATE INDEX CONCURRENTLY IF NOT EXISTS "workflow_rule_columnId_idx" ON "workflow_rule" USING btree ("column_id")',
   'CREATE INDEX CONCURRENTLY IF NOT EXISTS "activity_userId_idx" ON "activity" USING btree ("user_id")',
   'CREATE INDEX CONCURRENTLY IF NOT EXISTS "asset_createdBy_idx" ON "asset" USING btree ("created_by")',

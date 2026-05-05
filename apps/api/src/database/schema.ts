@@ -658,9 +658,10 @@ export const userNotificationWorkspaceProjectTable = pgTable(
       table.workspaceId,
       table.projectId,
     ),
-    index(
-      "user_notification_workspace_project_workspaceId_workspaceRuleId_idx",
-    ).on(table.workspaceId, table.workspaceRuleId),
+    index("unwp_workspaceId_workspaceRuleId_idx").on(
+      table.workspaceId,
+      table.workspaceRuleId,
+    ),
     unique("user_notification_workspace_project_rule_project_unique").on(
       table.workspaceRuleId,
       table.projectId,
