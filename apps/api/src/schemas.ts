@@ -76,6 +76,7 @@ export const timeEntrySchema = v.object({
   endTime: v.optional(v.date()),
   duration: v.nullable(v.number()),
   createdAt: v.date(),
+  updatedAt: v.date(),
 });
 
 export const notificationSchema = v.object({
