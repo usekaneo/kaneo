@@ -619,7 +619,14 @@ export async function runStartupTasks() {
   // `CREATE INDEX CONCURRENTLY` cannot run inside Drizzle's migration
   // transaction, so run these index builds separately after schema
   // migrations finish.
-  await createFkSupportingIndexes();
+  try {
+    await createFkSupportingIndexes();
+  } catch (error) {
+    console.warn(
+      "⚠️ FK-supporting index creation failed; continuing startup without them.",
+      error,
+    );
+  }
 
   initializePlugins();
   initializeScheduler();
