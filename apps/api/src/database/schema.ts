@@ -373,8 +373,10 @@ export const timeEntryTable = pgTable(
     startTime: timestamp("start_time", { mode: "date" }).notNull(),
     endTime: timestamp("end_time", { mode: "date" }),
     duration: integer("duration").default(0),
-    createdAt: timestamp("created_at", { mode: "date" })
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()
+      .$onUpdate(() => new Date())
       .notNull(),
   },
   (table) => [
