@@ -99,6 +99,7 @@ export const notificationSchema = v.object({
   resourceId: v.optional(v.string()),
   resourceType: v.optional(v.picklist(["task", "workspace"] as const)),
   createdAt: v.date(),
+  updatedAt: v.date(),
 });
 
 export const notificationPreferenceWorkspaceRuleSchema = v.object({
