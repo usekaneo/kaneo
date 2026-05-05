@@ -204,6 +204,13 @@
 			"when": 1777245262351,
 			"tag": "0028_apikey_user_id_nullable",
 			"breakpoints": true
+		},
+		{
+			"idx": 29,
+			"version": "7",
+			"when": 1778000000000,
+			"tag": "0029_fk_supporting_indexes",
+			"breakpoints": true
 		}
 	]
 }
