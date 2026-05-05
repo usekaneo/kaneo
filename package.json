@@ -44,12 +44,14 @@
       "rollup": "4.59.0",
       "seroval": "1.4.1",
       "effect": ">=3.20.0",
-      "fast-xml-parser": ">=5.5.7",
+      "fast-xml-parser": ">=5.7.0",
       "socket.io-parser": ">=4.2.6",
       "picomatch": ">=4.0.4",
       "path-to-regexp": ">=8.4.0",
       "brace-expansion": ">=5.0.5",
-      "yaml": ">=2.8.3"
+      "yaml": ">=2.8.3",
+      "postcss": ">=8.5.10",
+      "defu": ">=6.1.5"
     }
   },
   "packageManager": "pnpm@10.32.1",
