@@ -1,3 +1,9 @@
+## [2.7.2](https://github.com/usekaneo/kaneo/compare/v2.7.1...v2.7.2) (2026-05-05)
+
+
+### Features
+
+* **chart:** add kaneo.extraEnv for arbitrary env vars ([1cfa2e9](https://github.com/usekaneo/kaneo/commit/1cfa2e92d446976ffca4964a40d578fa5db1f386)), closes [#1203](https://github.com/usekaneo/kaneo/issues/1203)
 ## [2.7.1](https://github.com/usekaneo/kaneo/compare/v2.7.0...v2.7.1) (2026-05-04)
 
 
