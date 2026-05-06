@@ -1,0 +1,1803 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "취소",
+			"close": "닫기",
+			"clearAll": "모두 지우기",
+			"delete": "삭제",
+			"deleting": "삭제 중...",
+			"markAllRead": "모두 읽음으로 표시",
+			"remove": "제거",
+			"reset": "재설정",
+			"filter": "필터",
+			"clearAllFilters": "모든 필터 지우기"
+		},
+		"a11y": {
+			"toggleSidebar": "사이드바 토글"
+		},
+		"sidebar": {
+			"title": "사이드바",
+			"mobileDescription": "모바일 사이드바를 표시합니다."
+		},
+		"empty": {
+			"loading": "로딩 중..."
+		},
+		"pagination": {
+			"label": "페이지 매김",
+			"previous": "이전",
+			"next": "다음",
+			"previousPage": "이전 페이지로 이동",
+			"nextPage": "다음 페이지로 이동",
+			"morePages": "더 많은 페이지"
+		},
+		"breadcrumb": {
+			"label": "이동 경로",
+			"more": "더 보기"
+		},
+		"language": {
+			"english": "영어",
+			"german": "독일어",
+			"greek": "그리스어",
+			"macedonian": "마케도니아어",
+			"french": "프랑스어",
+			"spanish": "스페인어",
+			"dutch": "네덜란드어"
+		},
+		"people": {
+			"someone": "누군가",
+			"unknown": "알 수 없음"
+		},
+		"error": {
+			"title": "문제가 발생했습니다",
+			"troubleshooting": "문제 해결 단계:",
+			"tryAgain": "다시 시도",
+			"viewDeploymentGuide": "배포 가이드 보기",
+			"refreshPage": "페이지 새로고침"
+		},
+		"formats": {
+			"never": "안 함"
+		},
+		"modals": {
+			"createProject": {
+				"title": "새 프로젝트 만들기",
+				"breadcrumbNew": "새 프로젝트 만들기",
+				"workspaceFallback": "워크스페이스",
+				"description": "이름, 키, 아이콘을 지정하여 워크스페이스에 새 프로젝트를 만듭니다.",
+				"pickIcon": "아이콘 선택",
+				"searchIcons": "아이콘 검색...",
+				"projectName": "프로젝트 이름",
+				"keyLabel": "키:",
+				"keyHint": "티켓 ID에 사용됩니다 (예: {{example}}-123)",
+				"createButton": "프로젝트 만들기",
+				"successToast": "프로젝트가 생성되었습니다",
+				"errorToast": "프로젝트 생성에 실패했습니다"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "새 워크스페이스 만들기",
+				"description": "워크스페이스 이름을 지정하여 새 워크스페이스를 만듭니다.",
+				"namePlaceholder": "워크스페이스 이름",
+				"descriptionPlaceholder": "설명 추가...",
+				"createButton": "워크스페이스 만들기",
+				"successToast": "워크스페이스가 생성되었습니다",
+				"errorToast": "워크스페이스 생성에 실패했습니다"
+			},
+			"createTask": {
+				"breadcrumbTask": "작업",
+				"title": "새 작업",
+				"description": "제목, 설명 및 기타 세부 정보를 지정하여 새 작업을 만듭니다.",
+				"taskTitlePlaceholder": "작업 제목",
+				"descriptionPlaceholder": "작업에 대한 설명을 추가하세요...",
+				"chooseProjectForImages": "이미지를 업로드하기 전에 프로젝트를 선택하세요.",
+				"prepareTaskError": "작업 준비에 실패했습니다",
+				"successCreated": "작업이 생성되었습니다",
+				"successUpdated": "작업이 업데이트되었습니다",
+				"createError": "작업 생성에 실패했습니다",
+				"priority": "우선순위",
+				"statusFallback": "진행 중",
+				"startDate": "시작일",
+				"dueDate": "마감일",
+				"clearStartDate": "시작일 지우기",
+				"clearDueDate": "마감일 지우기",
+				"assign": "할당",
+				"assignUnassigned": "미할당",
+				"assignUnassignedTitle": "미할당",
+				"labels": "라벨",
+				"searchLabels": "라벨 검색...",
+				"noLabelsFound": "라벨을 찾을 수 없음",
+				"createLabel": "\"{{name}}\" 만들기",
+				"chooseColor": "색상 선택",
+				"labelCreated": "라벨이 생성되었습니다",
+				"labelCreateError": "라벨 생성에 실패했습니다",
+				"createMore": "계속 만들기",
+				"createButton": "작업 만들기",
+				"untitledTask": "제목 없는 작업",
+				"labelColors": {
+					"stone": "스톤",
+					"slate": "슬레이트",
+					"lavender": "라벤더",
+					"sage": "세이지",
+					"forest": "포레스트",
+					"amber": "앰버",
+					"terracotta": "테라코타",
+					"rose": "로즈",
+					"crimson": "크림슨"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "로그인",
+			"title": "다시 오신 것을 환영합니다",
+			"subtitle": "워크스페이스에 접근하려면 자격 증명을 입력하세요",
+			"invitationSubtitle": "초대를 수락하려면 로그인하세요",
+			"invitationAlert": "로그인 후 워크스페이스 초대를 수락할 수 있습니다.",
+			"signingIn": "로그인 중...",
+			"continueWithGoogle": "Google로 계속하기",
+			"continueWithGithub": "GitHub로 계속하기",
+			"continueWithDiscord": "Discord로 계속하기",
+			"continueWithOidc": "OIDC로 계속하기",
+			"lastUsed": "마지막 사용",
+			"registrationDisabled": "공개 회원가입이 비활성화되어 있습니다. 계정을 만들려면 초대를 사용하세요.",
+			"passwordRegistrationDisabled": "비밀번호 회원가입이 비활성화되어 있습니다. 계정을 만들려면 구성된 소셜 또는 OIDC 로그인 방법을 사용하세요.",
+			"toggleMessage": "계정이 없으신가요?",
+			"toggleLink": "계정 만들기",
+			"guestSuccess": "게스트로 로그인했습니다",
+			"guestError": "게스트로 로그인에 실패했습니다",
+			"oidcError": "OIDC 로그인에 실패했습니다",
+			"googleError": "Google 로그인에 실패했습니다",
+			"githubError": "GitHub 로그인에 실패했습니다",
+			"discordError": "Discord 로그인에 실패했습니다"
+		},
+		"providers": {
+			"google": "Google",
+			"discord": "Discord"
+		},
+		"forms": {
+			"or": "또는",
+			"email": "이메일",
+			"password": "비밀번호",
+			"emailPlaceholder": "me@example.com",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "비밀번호 표시",
+			"hidePassword": "비밀번호 숨기기"
+		},
+		"checkEmail": {
+			"pageTitle": "이메일을 확인하세요",
+			"title": "이메일을 확인하세요",
+			"inboxMessage": "임시 로그인 링크를 보내드렸습니다. <email>{{email}}</email> 수신함을 확인하세요.",
+			"emailFallback": "이메일 주소",
+			"backToLogin": "로그인으로 돌아가기"
+		},
+		"signUp": {
+			"pageTitle": "계정 만들기",
+			"title": "계정 만들기",
+			"subtitleInvitation": "초대를 수락하려면 계정을 만드세요",
+			"subtitleRegistrationDisabled": "회원가입에는 초대가 필요합니다",
+			"subtitlePasswordDisabled": "계정을 만들려면 소셜 또는 OIDC 로그인을 사용하세요",
+			"subtitleDefault": "워크스페이스를 시작하세요",
+			"invitationAlert": "계정을 만든 후 워크스페이스 초대를 수락할 수 있습니다.",
+			"registrationDisabledAlert": "현재 회원가입이 비활성화되어 있습니다. 초대를 받으셨다면, 초대를 받은 이메일 주소를 입력하여 계정을 만드세요.",
+			"passwordDisabledAlert": "비밀번호 기반 계정 생성이 비활성화되어 있습니다. 로그인 페이지에서 구성된 소셜 또는 OIDC 로그인 방법을 사용하세요.",
+			"signingIn": "로그인 중...",
+			"continueAsGuest": "게스트로 계속하기",
+			"toggleMessage": "이미 계정이 있으신가요?",
+			"toggleLink": "로그인"
+		},
+		"verifyOtp": {
+			"pageTitle": "인증 코드 확인",
+			"title": "인증 코드 입력",
+			"subtitle": "이메일로 전송된 6자리 코드를 사용하여 계속하세요",
+			"codeSentTo": "{{email}}(으)로 코드가 전송되었습니다",
+			"verificationCodeLabel": "인증 코드",
+			"verifying": "인증 중...",
+			"verifyAndSignIn": "인증 후 로그인",
+			"changeEmail": "이메일 변경",
+			"resend": "재전송",
+			"validation": {
+				"codeLength": "코드는 6자리여야 합니다"
+			},
+			"toast": {
+				"invalidCode": "잘못된 인증 코드입니다",
+				"signedInSuccess": "로그인되었습니다!",
+				"verifyFailed": "코드 인증에 실패했습니다",
+				"resendFailed": "코드 재전송에 실패했습니다",
+				"resendSuccess": "새 인증 코드가 전송되었습니다!"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "인증 코드 전송에 실패했습니다",
+			"codeSent": "인증 코드가 전송되었습니다! 이메일을 확인하세요.",
+			"sending": "전송 중...",
+			"sendVerificationCode": "인증 코드 전송"
+		},
+		"signInForm": {
+			"failedSignIn": "로그인에 실패했습니다",
+			"signedInSuccess": "로그인되었습니다",
+			"signingIn": "로그인 중...",
+			"signIn": "로그인"
+		},
+		"signUpForm": {
+			"fullName": "이름",
+			"namePlaceholder": "홍길동",
+			"failedSignUp": "회원가입에 실패했습니다",
+			"accountCreated": "계정이 생성되었습니다",
+			"passwordTooShort": "비밀번호가 너무 짧습니다",
+			"creatingAccount": "계정 생성 중...",
+			"createAccount": "계정 만들기"
+		},
+		"invitation": {
+			"pageTitleAccept": "초대 수락",
+			"pageTitleError": "초대 오류",
+			"pageTitleInvalid": "잘못된 초대",
+			"loadingTitle": "초대 로딩 중...",
+			"errorTitle": "초대 오류",
+			"invalidTitle": "잘못된 초대",
+			"invitationExpired": "초대 만료됨",
+			"errorLoadDescription": "초대 정보를 불러오지 못했습니다. 초대가 잘못되었거나 만료되었을 수 있습니다.",
+			"goToSignIn": "로그인으로 이동",
+			"workspaceLabel": "워크스페이스: {{workspaceName}}",
+			"joinWorkspace": "{{workspaceName}} 참여",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter>님이 워크스페이스에 초대했습니다.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter>님이 Kaneo 워크스페이스에 초대했습니다.",
+			"signInToAccept": "이 초대를 수락하려면 로그인하세요.",
+			"accepting": "수락 중...",
+			"acceptInvitation": "초대 수락",
+			"goToDashboard": "대시보드로 이동",
+			"signedInAs": "<email>{{email}}</email>(으)로 로그인됨",
+			"youveBeenInvited": "초대를 받았습니다!",
+			"invitationFor": "초대 대상: <email>{{email}}</email>",
+			"signIn": "로그인",
+			"toast": {
+				"acceptFailed": "초대 수락에 실패했습니다",
+				"acceptSuccess": "초대가 수락되었습니다! 팀에 오신 것을 환영합니다."
+			}
+		},
+		"onboarding": {
+			"pageTitle": "Kaneo에 오신 것을 환영합니다",
+			"workspacePageTitle": "워크스페이스 만들기",
+			"createWorkspaceTitle": "워크스페이스 만들기",
+			"createWorkspaceSubtitle": "프로젝트를 관리하기 위해 워크스페이스를 설정하세요",
+			"workspaceName": "워크스페이스 이름",
+			"workspaceNamePlaceholder": "예: Acme Inc, 우리 팀",
+			"descriptionOptional": "설명 (선택)",
+			"descriptionPlaceholder": "팀에서 어떤 일을 하시나요?",
+			"creating": "생성 중...",
+			"createWorkspace": "워크스페이스 만들기",
+			"workspaceCreatedTitle": "워크스페이스가 생성되었습니다",
+			"redirectingToWorkspace": "<name>{{name}}</name>(으)로 이동 중...",
+			"toast": {
+				"workspaceCreated": "워크스페이스가 생성되었습니다",
+				"createFailed": "워크스페이스 생성에 실패했습니다"
+			},
+			"validation": {
+				"workspaceNameRequired": "워크스페이스 이름은 필수입니다"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "프로필 완성",
+			"completeTitle": "프로필을 완성하세요",
+			"subtitle": "시작하려면 이름을 입력하세요",
+			"yourName": "이름",
+			"namePlaceholder": "예: 홍길동",
+			"saving": "저장 중...",
+			"continue": "계속",
+			"welcome": "{{name}}님, 환영합니다!",
+			"redirecting": "대시보드로 이동 중...",
+			"toast": {
+				"updateSuccess": "프로필이 업데이트되었습니다",
+				"updateFailed": "프로필 업데이트에 실패했습니다"
+			},
+			"validation": {
+				"nameRequired": "이름은 필수입니다",
+				"nameShort": "이름은 2자 이상이어야 합니다"
+			}
+		}
+	},
+	"settings": {
+		"account": "계정",
+		"developer": "개발자",
+		"information": "정보",
+		"notifications": "알림",
+		"preferences": "환경설정",
+		"apiKeys": "API 키",
+		"informationPage": {
+			"pageTitle": "개인 정보",
+			"title": "개인 정보",
+			"subtitle": "개인 세부 정보 및 계정 정보를 관리합니다.",
+			"sectionTitle": "계정 정보",
+			"sectionSubtitle": "프로필 및 계정 세부 정보를 관리합니다.",
+			"profilePicture": "프로필 사진",
+			"fullName": "이름",
+			"fullNamePlaceholder": "이름을 입력하세요",
+			"email": "이메일",
+			"emailPlaceholder": "이메일을 입력하세요",
+			"updateSuccess": "프로필이 업데이트되었습니다",
+			"updateError": "프로필 업데이트에 실패했습니다",
+			"validation": {
+				"nameRequired": "이름은 필수입니다",
+				"nameShort": "이름은 2자 이상이어야 합니다",
+				"invalidEmail": "잘못된 이메일 주소입니다"
+			}
+		},
+		"notificationsPage": {
+			"pageTitle": "알림",
+			"title": "알림",
+			"subtitle": "Kaneo가 계정 알림을 전달하는 방법과 사용할 채널을 선택합니다.",
+			"statusConnected": "연결됨",
+			"statusPaused": "일시 중지됨",
+			"emailTitle": "이메일",
+			"emailDescription": "계정 이메일을 알림 수신처로 사용합니다.",
+			"accountEmailLabel": "계정 이메일",
+			"accountEmailNoAddress": "사용 가능한 계정 이메일이 없습니다",
+			"accountEmailHint": "이메일 전송은 항상 로그인된 계정 이메일로 이루어집니다.",
+			"saveChanges": "변경사항 저장",
+			"disconnect": "연결 해제",
+			"ntfyTitle": "ntfy",
+			"ntfyDescription": "계정 알림을 ntfy 토픽에 게시합니다.",
+			"serverUrl": "서버 URL",
+			"topic": "토픽",
+			"token": "토큰",
+			"ntfyServerPlaceholder": "https://ntfy.example.com",
+			"ntfyTopicPlaceholder": "team-alerts",
+			"ntfyTokenPlaceholder": "선택 사항 - bearer 토큰",
+			"ntfyTokenHintConfigured": "토큰이 이미 구성되어 있습니다 ({{masked}}). 교체하려면 새 토큰을 입력하세요.",
+			"ntfyTokenHintOptional": "선택 사항. ntfy 서버에 인증이 필요한 경우 토큰을 입력하세요.",
+			"connectNtfy": "ntfy 연결",
+			"gotifyTitle": "Gotify",
+			"gotifyDescription": "계정 알림을 Gotify 서버로 전송합니다.",
+			"gotifyTokenLabel": "앱 토큰",
+			"gotifyServerPlaceholder": "https://gotify.example.com",
+			"gotifyTokenPlaceholder": "Gotify 앱 토큰",
+			"gotifyTokenHintConfigured": "앱 토큰이 이미 구성되어 있습니다 ({{masked}}). 교체하려면 새 토큰을 입력하세요.",
+			"gotifyTokenHintRequired": "필수. Gotify 서버의 애플리케이션 토큰을 사용하세요.",
+			"connectGotify": "Gotify 연결",
+			"webhookTitle": "사용자 정의 웹훅",
+			"webhookDescription": "계정 알림을 자체 엔드포인트로 JSON 형식으로 전송합니다.",
+			"endpointUrl": "엔드포인트 URL",
+			"signingSecret": "서명 시크릿",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookSecretPlaceholder": "선택 사항 - 공유 시크릿",
+			"webhookSecretHintConfigured": "서명 시크릿이 이미 구성되어 있습니다 ({{masked}}). 교체하려면 새 시크릿을 입력하세요.",
+			"webhookSecretHintOptional": "선택 사항. 시크릿이 설정된 경우 Kaneo가 요청 본문에 서명합니다.",
+			"connectWebhook": "웹훅 연결",
+			"workspaceRulesTitle": "워크스페이스 전송 규칙",
+			"workspaceRulesDescription": "전역 채널을 재사용한 후 어떤 워크스페이스와 프로젝트가 계정 알림을 보낼 수 있는지 결정합니다.",
+			"workspaceCardHint": "이 워크스페이스가 계정 알림에 사용할 수 있는 채널을 선택합니다.",
+			"workspaceCardLabelEmail": "이메일",
+			"workspaceCardLabelNtfy": "ntfy",
+			"workspaceCardLabelGotify": "Gotify",
+			"workspaceCardLabelWebhook": "사용자 정의 웹훅",
+			"emailChannelHintEnabled": "일치하는 워크스페이스 알림을 이메일로 전송합니다.",
+			"emailChannelHintDisabled": "먼저 이메일을 전역으로 구성하고 활성화하세요.",
+			"ntfyChannelHintEnabled": "일치하는 워크스페이스 알림을 ntfy로 전송합니다.",
+			"ntfyChannelHintDisabled": "먼저 ntfy를 전역으로 구성하고 활성화하세요.",
+			"gotifyChannelHintEnabled": "일치하는 워크스페이스 알림을 Gotify로 전송합니다.",
+			"gotifyChannelHintDisabled": "먼저 Gotify를 전역으로 구성하고 활성화하세요.",
+			"webhookChannelHintEnabled": "일치하는 워크스페이스 알림을 웹훅으로 전송합니다.",
+			"webhookChannelHintDisabled": "먼저 웹훅을 전역으로 구성하고 활성화하세요.",
+			"projectScope": "프로젝트 범위",
+			"projectScopeDescription": "기본적으로 모든 프로젝트가 포함됩니다. 이 워크스페이스가 선택한 프로젝트에서만 알림을 보내야 한다면 범위를 좁히세요.",
+			"allProjects": "모든 프로젝트",
+			"allProjectsDescription": "이 워크스페이스의 모든 프로젝트에서 알림을 전송합니다.",
+			"selectedProjects": "선택한 프로젝트",
+			"selectedProjectsDescription": "선택한 프로젝트에서만 알림을 전송합니다.",
+			"noProjectsInWorkspace": "이 워크스페이스에 사용 가능한 프로젝트가 아직 없습니다.",
+			"createRule": "규칙 만들기",
+			"removeRule": "규칙 제거",
+			"toastEmailSaved": "이메일 알림 설정이 저장되었습니다",
+			"toastEmailSaveFailed": "이메일 설정 저장에 실패했습니다",
+			"toastNtfySaved": "ntfy 설정이 저장되었습니다",
+			"toastNtfySaveFailed": "ntfy 설정 저장에 실패했습니다",
+			"toastNtfyDisconnected": "ntfy 연결이 해제되었습니다",
+			"toastNtfyDisconnectFailed": "ntfy 연결 해제에 실패했습니다",
+			"toastGotifySaved": "Gotify 설정이 저장되었습니다",
+			"toastGotifySaveFailed": "Gotify 설정 저장에 실패했습니다",
+			"toastGotifyDisconnected": "Gotify 연결이 해제되었습니다",
+			"toastGotifyDisconnectFailed": "Gotify 연결 해제에 실패했습니다",
+			"toastWebhookSaved": "웹훅 설정이 저장되었습니다",
+			"toastWebhookSaveFailed": "웹훅 설정 저장에 실패했습니다",
+			"toastWebhookDisconnected": "웹훅 연결이 해제되었습니다",
+			"toastWebhookDisconnectFailed": "웹훅 연결 해제에 실패했습니다",
+			"toastRuleSaved": "{{workspaceName}}의 알림 규칙이 저장되었습니다",
+			"toastRuleSaveFailed": "워크스페이스 알림 규칙 저장에 실패했습니다",
+			"toastRuleRemoved": "{{workspaceName}}의 알림 규칙이 제거되었습니다",
+			"toastRuleRemoveFailed": "워크스페이스 알림 규칙 제거에 실패했습니다",
+			"toastPreferencesSaved": "알림 환경설정이 저장되었습니다",
+			"toastPreferencesSaveFailed": "알림 환경설정 저장에 실패했습니다",
+			"toastRuleSavedGeneric": "워크스페이스 알림 규칙이 저장되었습니다",
+			"toastRuleRemovedGeneric": "워크스페이스 알림 규칙이 제거되었습니다"
+		},
+		"preferencesPage": {
+			"title": "환경설정",
+			"subtitle": "Kaneo 사용 환경을 맞춤 설정합니다.",
+			"appearanceTitle": "모양",
+			"appearanceSubtitle": "시각적 설정 및 레이아웃 환경설정.",
+			"theme": "테마",
+			"themeDescription": "선호하는 색상 구성표를 선택합니다",
+			"selectTheme": "테마 선택",
+			"themeLight": "라이트",
+			"themeDark": "다크",
+			"themeSystem": "시스템",
+			"language": "언어",
+			"languageDescription": "선호하는 인터페이스 언어를 선택합니다",
+			"selectLanguage": "언어 선택",
+			"firstDayOfWeek": "주의 첫 요일",
+			"firstDayOfWeekDescription": "캘린더와 주간 범위가 일요일 또는 월요일에 시작할지 선택합니다",
+			"selectFirstDayOfWeek": "첫 요일 선택",
+			"weekStartsOnSunday": "일요일",
+			"weekStartsOnMonday": "월요일",
+			"defaultView": "기본 보기",
+			"defaultViewDescription": "선호하는 작업 보기 모드를 선택합니다",
+			"selectViewMode": "보기 모드 선택",
+			"board": "보드",
+			"list": "목록",
+			"gantt": "간트",
+			"sidebarDefault": "사이드바 기본값",
+			"sidebarDefaultDescription": "시작 시 사이드바를 펼친 상태로 유지",
+			"displayOptions": "표시 옵션",
+			"displayOptionsDescription": "작업 보기에 표시할 정보를 선택합니다",
+			"taskNumbers": "작업 번호",
+			"taskNumbersDescription": "작업 ID와 번호를 표시합니다",
+			"assignees": "담당자",
+			"assigneesDescription": "작업 담당자를 표시합니다",
+			"dueDates": "마감일",
+			"dueDatesDescription": "작업 마감일을 표시합니다",
+			"labels": "라벨",
+			"labelsDescription": "작업 라벨과 태그를 표시합니다",
+			"priority": "우선순위",
+			"priorityDescription": "우선순위 표시기를 표시합니다"
+		},
+		"developerPage": {
+			"pageTitle": "개발자 설정",
+			"title": "개발자 설정",
+			"subtitle": "API 키와 개발자 리소스를 관리합니다.",
+			"apiKeysCardTitle": "API 키",
+			"apiKeysCardDescription": "Kaneo에 프로그래밍 방식으로 접근하기 위한 API 키를 만들고 관리합니다.",
+			"createApiKey": "API 키 만들기",
+			"unnamedKey": "이름 없는 키"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "API 키 생성됨",
+				"description": "API 키 \"{{keyName}}\"이(가) 생성되었습니다.",
+				"yourApiKey": "API 키",
+				"copy": "복사",
+				"copied": "복사됨",
+				"toastCopied": "API 키가 클립보드에 복사되었습니다",
+				"alertTitle": "API 키가 생성되었습니다",
+				"alertDescription": "지금 키를 복사하세요. 다시 볼 수 없습니다.",
+				"done": "완료",
+				"copyToContinue": "계속하려면 키를 복사하세요"
+			},
+			"table": {
+				"loading": "API 키 로딩 중...",
+				"empty": "아직 API 키가 없습니다. 시작하려면 하나 만드세요.",
+				"columnName": "이름",
+				"columnKey": "키",
+				"columnCreated": "생성일",
+				"columnExpires": "만료일",
+				"columnActions": "작업",
+				"unnamedKey": "이름 없는 키",
+				"expiredBadge": "만료됨 {{label}}",
+				"deleteConfirmTitle": "API 키를 삭제하시겠습니까?",
+				"deleteConfirmDescription": "이 작업은 취소할 수 없습니다. {{name}}이(가) 영구적으로 삭제됩니다.",
+				"deleteFallbackName": "이 API 키",
+				"delete": "삭제",
+				"deleting": "삭제 중...",
+				"deleteAria": "{{name}} 삭제",
+				"deleteAriaFallback": "API 키",
+				"toastDeleted": "API 키가 삭제되었습니다",
+				"toastDeleteError": "API 키 삭제에 실패했습니다"
+			},
+			"createDialog": {
+				"title": "API 키 만들기",
+				"description": "Kaneo API에 프로그래밍 방식으로 접근하기 위한 새 API 키를 만듭니다.",
+				"nameLabel": "이름",
+				"namePlaceholder": "내 API 키",
+				"nameDescription": "이 API 키에 대한 설명적인 이름",
+				"expirationLabel": "만료",
+				"expirationPlaceholder": "만료 선택",
+				"expirationDescription": "이 API 키가 유효하게 유지될 기간을 선택합니다. 안 함을 선택하면 자동 만료 없이 키가 생성됩니다.",
+				"expiration1d": "1일",
+				"expiration7d": "7일",
+				"expiration30d": "30일",
+				"expiration90d": "90일",
+				"expirationNever": "안 함",
+				"create": "만들기",
+				"creating": "생성 중...",
+				"failedCreate": "API 키 생성에 실패했습니다",
+				"validation": {
+					"nameRequired": "이름은 필수입니다",
+					"nameShort": "이름은 3자 이상이어야 합니다",
+					"expirationRequired": "만료는 필수입니다"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "일반 설정",
+			"title": "일반 설정",
+			"subtitle": "워크스페이스 이름과 설명을 관리합니다.",
+			"workspaceInfoTitle": "워크스페이스 정보",
+			"workspaceInfoSubtitle": "워크스페이스 세부 정보 및 환경설정을 구성합니다.",
+			"nameLabel": "워크스페이스 이름",
+			"nameHint": "워크스페이스의 이름",
+			"namePlaceholder": "워크스페이스 이름 입력",
+			"descriptionLabel": "설명",
+			"descriptionHint": "워크스페이스에 대한 간단한 설명",
+			"descriptionPlaceholder": "워크스페이스 설명 입력",
+			"dangerZone": "위험 영역",
+			"dangerZoneSubtitle": "되돌릴 수 없으며 파괴적인 작업입니다.",
+			"deleteWorkspace": "워크스페이스 삭제",
+			"deleteWorkspaceDescription": "워크스페이스를 영구 삭제하도록 예약합니다",
+			"deleteModalTitle": "워크스페이스를 삭제하시겠습니까?",
+			"deleteModalDescription": "이 작업은 워크스페이스 \"{{name}}\"과(와) 모든 데이터를 영구적으로 삭제합니다. 이 작업은 취소할 수 없습니다.",
+			"deleteModalConfirm": "워크스페이스 삭제",
+			"toastUpdated": "워크스페이스가 업데이트되었습니다",
+			"toastUpdateError": "워크스페이스 업데이트에 실패했습니다",
+			"toastDeleted": "워크스페이스가 삭제되었습니다",
+			"toastDeleteError": "워크스페이스 삭제에 실패했습니다",
+			"validation": {
+				"nameRequired": "워크스페이스 이름은 필수입니다",
+				"nameShort": "워크스페이스 이름은 2자 이상이어야 합니다"
+			}
+		},
+		"projectGeneral": {
+			"pageTitle": "프로젝트 설정",
+			"title": "일반 설정",
+			"subtitle": "프로젝트 이름, 키, 아이콘 및 설명을 관리합니다.",
+			"projectInfoTitle": "프로젝트 정보",
+			"projectInfoSubtitle": "프로젝트 세부 정보 및 환경설정을 구성합니다.",
+			"iconLabel": "아이콘",
+			"iconHint": "사이드바와 프로젝트 화면에 표시됩니다.",
+			"pickIconTitle": "아이콘 선택",
+			"searchIconsPlaceholder": "아이콘 검색...",
+			"projectNameLabel": "프로젝트 이름",
+			"projectNameHint": "프로젝트의 이름",
+			"projectNamePlaceholder": "프로젝트 이름 입력",
+			"keyLabel": "키",
+			"keyHint": "티켓 ID에 사용됩니다 (예: {{slug}}-123)",
+			"keyPlaceholder": "PRO",
+			"descriptionLabel": "설명",
+			"descriptionHint": "프로젝트에 대한 간단한 설명",
+			"descriptionPlaceholder": "프로젝트 설명 입력",
+			"dangerZone": "위험 영역",
+			"dangerZoneSubtitle": "되돌릴 수 없으며 파괴적인 작업입니다.",
+			"deleteProject": "프로젝트 삭제",
+			"deleteProjectDescription": "프로젝트를 영구 삭제하도록 예약합니다",
+			"deleteModalTitle": "프로젝트를 삭제하시겠습니까?",
+			"deleteModalDescription": "이 작업은 프로젝트 \"{{name}}\"과(와) 모든 데이터를 영구적으로 삭제합니다. 이 작업은 취소할 수 없습니다.",
+			"deleteModalConfirm": "프로젝트 삭제",
+			"toastUpdated": "프로젝트가 업데이트되었습니다",
+			"toastUpdateError": "프로젝트 업데이트에 실패했습니다",
+			"toastDeleted": "프로젝트가 삭제되었습니다",
+			"toastDeleteError": "프로젝트 삭제에 실패했습니다",
+			"validation": {
+				"nameRequired": "프로젝트 이름은 필수입니다",
+				"nameShort": "프로젝트 이름은 2자 이상이어야 합니다",
+				"keyRequired": "키는 필수입니다",
+				"keyShort": "키는 2자 이상이어야 합니다",
+				"keyMax": "키는 8자 이하여야 합니다",
+				"iconRequired": "아이콘은 필수입니다"
+			},
+			"importExportTasks": "가져오기/내보내기",
+			"importExportTasksDescription": "작업을 가져오고 내보냅니다."
+		},
+		"projectIntegrations": {
+			"pageTitle": "프로젝트 연동",
+			"title": "프로젝트 연동",
+			"subtitle": "외부 도구 및 서비스와 프로젝트를 연결하여 워크플로를 간소화합니다.",
+			"githubSectionTitle": "GitHub 연동",
+			"githubSectionSubtitle": "작업을 GitHub 이슈와 동기화하고 양방향 동기화를 활성화합니다.",
+			"giteaSectionTitle": "Gitea 연동",
+			"giteaSectionSubtitle": "자체 호스팅 Gitea 인스턴스(이슈, PR, 웹훅)와 작업을 동기화합니다.",
+			"discordSectionTitle": "Discord 연동",
+			"discordSectionSubtitle": "웹훅을 사용하여 프로젝트 작업 업데이트를 Discord 채널로 전송합니다.",
+			"genericWebhookSectionTitle": "일반 웹훅",
+			"genericWebhookSectionSubtitle": "프로젝트 작업 이벤트를 모든 HTTP 엔드포인트로 JSON 형식으로 전송합니다.",
+			"slackSectionTitle": "Slack 연동",
+			"slackSectionSubtitle": "수신 웹훅을 사용하여 프로젝트 작업 업데이트를 Slack 채널로 전송합니다.",
+			"telegramSectionTitle": "Telegram 연동",
+			"telegramSectionSubtitle": "봇을 사용하여 프로젝트 작업 업데이트를 Telegram 채팅 또는 토픽으로 전송합니다."
+		},
+		"projectVisibility": {
+			"pageTitle": "프로젝트 공개 설정",
+			"title": "공개 설정",
+			"subtitle": "프로젝트를 누가 보고 접근할 수 있는지 제어합니다.",
+			"sectionTitle": "공개 설정",
+			"sectionSubtitle": "공개 접근을 토글하고 공개 URL을 공유합니다.",
+			"publicAccess": "공개 접근",
+			"publicAccessHint": "URL을 가진 누구나 이 프로젝트를 볼 수 있도록 허용",
+			"publicUrl": "공개 URL",
+			"publicUrlHint": "프로젝트가 공개인 경우 이 링크를 공유하세요",
+			"copy": "복사",
+			"copiedToast": "복사됨",
+			"toastUpdated": "공개 설정이 업데이트되었습니다",
+			"toastUpdateError": "공개 설정 업데이트에 실패했습니다"
+		},
+		"projectWorkflow": {
+			"pageTitle": "워크플로 설정",
+			"title": "워크플로",
+			"subtitle": "이 프로젝트의 보드 컬럼 및 자동화 규칙을 구성합니다.",
+			"columnsTitle": "컬럼",
+			"columnsDescription": "보드에 표시되는 컬럼을 관리합니다. 드래그하여 순서를 바꿉니다. 완료된 작업을 나타내는 단계의 경우 \"완료 컬럼\"을 켜세요.",
+			"automationTitle": "자동화 규칙",
+			"automationDescription": "연동 이벤트를 컬럼에 매핑합니다. 이벤트가 발생하면 연결된 작업이 지정된 컬럼으로 이동합니다."
+		},
+		"projectSwitcher": {
+			"selectProject": "프로젝트 선택",
+			"noProjects": "프로젝트 없음"
+		},
+		"columnEditor": {
+			"toastCreated": "컬럼이 생성되었습니다",
+			"toastCreateError": "컬럼 생성에 실패했습니다",
+			"toastRenamed": "컬럼 이름이 변경되었습니다",
+			"toastRenameError": "컬럼 업데이트에 실패했습니다",
+			"toastFinalOn": "컬럼이 완료로 표시되었습니다",
+			"toastFinalOff": "컬럼의 완료 표시가 해제되었습니다",
+			"toastUpdateError": "컬럼 업데이트에 실패했습니다",
+			"toastDeleted": "컬럼이 삭제되었습니다",
+			"toastDeleteError": "컬럼 삭제에 실패했습니다",
+			"loading": "컬럼 로딩 중...",
+			"doneColumnTooltip": "이를 완료 컬럼으로 처리",
+			"doneColumn": "완료 컬럼",
+			"markDoneAria": "{{name}}을(를) 완료 컬럼으로 표시",
+			"on": "켜짐",
+			"off": "꺼짐",
+			"newColumnPlaceholder": "새 컬럼 이름...",
+			"add": "추가"
+		},
+		"githubIntegration": {
+			"validation": {
+				"ownerRequired": "저장소 소유자는 필수입니다",
+				"ownerInvalid": "잘못된 저장소 소유자 형식입니다",
+				"nameRequired": "저장소 이름은 필수입니다",
+				"nameInvalid": "잘못된 저장소 이름 형식입니다"
+			},
+			"toast": {
+				"installedOk": "GitHub 앱이 올바르게 설치되었습니다!",
+				"installedMissingPerms": "GitHub 앱이 설치되었지만 필수 권한이 없습니다",
+				"needsInstallOnRepo": "GitHub 앱을 이 저장소에 설치해야 합니다",
+				"repoNotFound": "저장소를 찾을 수 없거나 접근할 수 없습니다",
+				"verifyError": "GitHub 설치 확인에 실패했습니다",
+				"installAppFirst": "먼저 이 저장소에 GitHub 앱을 설치하세요",
+				"missingPermsDetail": "GitHub 앱에 필수 권한이 없습니다: {{list}}. 앱 권한을 업데이트하세요.",
+				"updated": "GitHub 연동이 업데이트되었습니다",
+				"updateError": "GitHub 연동 업데이트에 실패했습니다",
+				"removed": "GitHub 연동이 제거되었습니다",
+				"removeError": "GitHub 연동 제거에 실패했습니다",
+				"issuesImported": "이슈를 가져왔습니다",
+				"importError": "이슈 가져오기에 실패했습니다",
+				"commentOnEnabled": "Kaneo가 새 이슈에 작업 링크를 포함한 댓글을 게시합니다",
+				"commentOnDisabled": "새 이슈의 작업 링크 댓글이 꺼져 있습니다",
+				"settingsUpdateError": "GitHub 연동 업데이트에 실패했습니다"
+			},
+			"connectionStatus": "연결 상태",
+			"connectedActive": "저장소가 연결되어 활성 상태입니다",
+			"notConnectedHint": "연결된 저장소가 없습니다",
+			"badgeConnected": "연결됨",
+			"badgeNotConnected": "연결 안 됨",
+			"repository": "저장소",
+			"repositoryHint": "연결된 GitHub 저장소",
+			"commentTaskLinkTitle": "새 이슈에 Kaneo 링크 댓글 달기",
+			"commentTaskLinkHint": "활성화하면 Kaneo가 새 GitHub 이슈마다 작업 링크가 포함된 댓글을 게시합니다.",
+			"appStatusTitle": "GitHub 앱 상태",
+			"appStatusHint": "설치 및 권한 상태",
+			"statusProperlyConfigured": "올바르게 구성됨",
+			"statusMissingPermissions": "권한 누락",
+			"statusNotInstalled": "설치되지 않음",
+			"ownerLabel": "저장소 소유자",
+			"ownerHint": "GitHub 사용자 이름 또는 조직",
+			"ownerPlaceholder": "예: octocat",
+			"repoNameLabel": "저장소 이름",
+			"repoNameHint": "저장소 이름",
+			"repoNamePlaceholder": "예: my-project",
+			"actionsTitle": "작업",
+			"actionsHint": "저장소 연결을 관리합니다",
+			"browse": "찾아보기",
+			"verify": "확인",
+			"update": "업데이트",
+			"connect": "연결",
+			"disconnect": "연결 해제",
+			"missingPermissionsLabel": "누락된 권한:",
+			"updatePermissions": "권한 업데이트",
+			"installGithubApp": "GitHub 앱 설치",
+			"importSectionTitle": "GitHub 이슈 가져오기",
+			"importSectionHint": "GitHub 저장소의 기존 이슈를 작업으로 가져옵니다",
+			"importing": "가져오는 중...",
+			"importIssues": "이슈 가져오기",
+			"importDisabledHint": "가져오기를 활성화하려면 위의 저장소 구성을 완료하세요"
+		},
+		"giteaIntegration": {
+			"validation": {
+				"baseUrlRequired": "Gitea 기본 URL은 필수입니다",
+				"baseUrlInvalid": "유효한 URL을 입력하세요 (예: https://gitea.example.com)",
+				"ownerRequired": "저장소 소유자는 필수입니다",
+				"ownerInvalid": "잘못된 저장소 소유자 형식입니다",
+				"nameRequired": "저장소 이름은 필수입니다",
+				"nameInvalid": "잘못된 저장소 이름 형식입니다"
+			},
+			"toast": {
+				"verifyOk": "Gitea 토큰이 이 저장소에 접근할 수 있습니다",
+				"verifyWarning": "토큰 권한 또는 저장소 접근을 확인하세요",
+				"repoNotFound": "저장소를 찾을 수 없거나 접근할 수 없습니다",
+				"verifyError": "Gitea 접근 확인에 실패했습니다",
+				"tokenRequired": "개인 액세스 토큰은 필수입니다",
+				"tokenRequiredVerify": "확인하려면 토큰을 입력하세요",
+				"verifyFirst": "접근 확인 실패 — URL, 토큰, 저장소를 확인하세요",
+				"updated": "Gitea 연동이 저장되었습니다",
+				"updateError": "Gitea 연동 저장에 실패했습니다",
+				"removed": "Gitea 연동이 제거되었습니다",
+				"removeError": "Gitea 연동 제거에 실패했습니다",
+				"issuesImported": "이슈를 가져왔습니다",
+				"importError": "이슈 가져오기에 실패했습니다",
+				"commentOnEnabled": "Kaneo가 새 이슈에 작업 링크를 포함한 댓글을 게시합니다",
+				"commentOnDisabled": "새 이슈의 작업 링크 댓글이 꺼져 있습니다",
+				"settingsUpdateError": "Gitea 연동 업데이트에 실패했습니다",
+				"secretCopied": "복사됨",
+				"unableToCopySecret": "시크릿을 복사할 수 없습니다"
+			},
+			"webhookShow": "표시",
+			"webhookHide": "숨기기",
+			"webhookCopy": "복사",
+			"connectionStatus": "연결 상태",
+			"connectedActive": "저장소가 연결되어 활성 상태입니다",
+			"notConnectedHint": "연결된 Gitea 저장소가 없습니다",
+			"badgeConnected": "연결됨",
+			"badgeNotConnected": "연결 안 됨",
+			"repository": "저장소",
+			"repositoryHint": "연결된 Gitea 저장소",
+			"commentTaskLinkTitle": "새 이슈에 Kaneo 링크 댓글 달기",
+			"commentTaskLinkHint": "활성화하면 Kaneo가 새 이슈마다 작업 링크가 포함된 댓글을 게시합니다.",
+			"webhookTitle": "웹훅",
+			"webhookHint": "Gitea 저장소에서 이 URL과 시크릿으로 웹훅을 추가합니다. push, pull request, issues, issue comments 및 create(라벨용)를 활성화하세요.",
+			"webhookSecretLabel": "시크릿 (Gitea의 웹훅 시크릿과 일치해야 함)",
+			"baseUrlLabel": "Gitea URL",
+			"baseUrlHint": "Gitea 인스턴스의 루트 URL",
+			"tokenLabel": "개인 액세스 토큰",
+			"tokenHint": "저장소 및 이슈 접근 권한이 있는 토큰",
+			"tokenPlaceholder": "토큰 붙여넣기",
+			"tokenPlaceholderUpdate": "교체할 새 토큰 붙여넣기",
+			"currentToken": "저장됨",
+			"ownerLabel": "소유자",
+			"ownerHint": "사용자 또는 조직 이름",
+			"repoNameLabel": "저장소 이름",
+			"repoNameHint": "저장소 이름만 (소유자 제외)",
+			"actionsTitle": "작업",
+			"actionsHint": "접근을 확인하고 연결합니다",
+			"browse": "찾아보기",
+			"verify": "확인",
+			"update": "업데이트",
+			"connect": "연결",
+			"disconnect": "연결 해제",
+			"importSectionTitle": "Gitea 이슈 가져오기",
+			"importSectionHint": "저장소의 열린 이슈와 풀 리퀘스트를 가져옵니다",
+			"importing": "가져오는 중…",
+			"importIssues": "이슈 가져오기",
+			"importDisabledHint": "가져오기를 활성화하려면 위의 저장소를 확인하세요",
+			"browseModalTitle": "내 저장소",
+			"browseModalHint": "토큰으로 접근할 수 있는 저장소",
+			"searchRepos": "검색…",
+			"browseNeedsCredentials": "찾아보려면 Gitea URL과 토큰을 입력하세요",
+			"loadingRepos": "저장소 로딩 중…",
+			"retry": "재시도"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "유효한 Slack 웹훅 URL을 입력하세요"
+			},
+			"toast": {
+				"saved": "Slack 연동이 저장되었습니다",
+				"saveError": "Slack 연동 저장에 실패했습니다",
+				"enabled": "Slack 알림이 활성화되었습니다",
+				"disabled": "Slack 알림이 일시 중지되었습니다",
+				"updateError": "Slack 연동 업데이트에 실패했습니다",
+				"removed": "Slack 연동이 제거되었습니다",
+				"removeError": "Slack 연동 제거에 실패했습니다"
+			},
+			"connectionTitle": "Slack 웹훅 연결",
+			"connectionHint": "Slack 수신 웹훅 URL을 붙여넣고 게시할 작업 이벤트를 선택하세요.",
+			"connected": "연결됨",
+			"paused": "일시 중지됨",
+			"webhookLabel": "수신 웹훅 URL",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Slack에서 수신 웹훅을 만들고 생성된 URL을 여기에 붙여넣으세요.",
+			"channelLabel": "채널 이름",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "참고용 선택 라벨입니다. 실제 대상 채널은 Slack의 웹훅 설정에서 제어합니다.",
+			"eventsTitle": "이벤트 알림",
+			"eventsHint": "Slack에 게시할 프로젝트 변경 사항을 선택합니다.",
+			"events": {
+				"taskCreated": "새 작업",
+				"taskStatusChanged": "상태 변경",
+				"taskPriorityChanged": "우선순위 변경",
+				"taskTitleChanged": "제목 변경",
+				"taskDescriptionChanged": "설명 변경",
+				"taskCommentCreated": "새 댓글"
+			},
+			"connect": "Slack 연결",
+			"saveChanges": "변경사항 저장",
+			"update": "Slack 업데이트",
+			"disconnect": "연결 해제"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "유효한 Discord 웹훅 URL을 입력하세요"
+			},
+			"toast": {
+				"saved": "Discord 연동이 저장되었습니다",
+				"saveError": "Discord 연동 저장에 실패했습니다",
+				"enabled": "Discord 알림이 활성화되었습니다",
+				"disabled": "Discord 알림이 일시 중지되었습니다",
+				"updateError": "Discord 연동 업데이트에 실패했습니다",
+				"removed": "Discord 연동이 제거되었습니다",
+				"removeError": "Discord 연동 제거에 실패했습니다"
+			},
+			"connectionTitle": "Discord 웹훅 연결",
+			"connectionHint": "Discord 웹훅 URL을 붙여넣고 게시할 작업 이벤트를 선택하세요.",
+			"connected": "연결됨",
+			"paused": "일시 중지됨",
+			"webhookLabel": "웹훅 URL",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Discord 채널 웹훅을 만들고 생성된 URL을 여기에 붙여넣으세요.",
+			"channelLabel": "채널 이름",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "참고용 선택 라벨입니다. 실제 대상 채널은 Discord의 웹훅 설정에서 제어합니다.",
+			"eventsTitle": "이벤트 알림",
+			"eventsHint": "Discord에 게시할 프로젝트 변경 사항을 선택합니다.",
+			"events": {
+				"taskCreated": "새 작업",
+				"taskStatusChanged": "상태 변경",
+				"taskPriorityChanged": "우선순위 변경",
+				"taskTitleChanged": "제목 변경",
+				"taskDescriptionChanged": "설명 변경",
+				"taskCommentCreated": "새 댓글"
+			},
+			"connect": "Discord 연결",
+			"saveChanges": "변경사항 저장",
+			"update": "Discord 업데이트",
+			"disconnect": "연결 해제"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "유효한 웹훅 URL을 입력하세요"
+			},
+			"toast": {
+				"saved": "일반 웹훅 연동이 저장되었습니다",
+				"saveError": "일반 웹훅 연동 저장에 실패했습니다",
+				"enabled": "일반 웹훅 알림이 활성화되었습니다",
+				"disabled": "일반 웹훅 알림이 일시 중지되었습니다",
+				"updateError": "일반 웹훅 연동 업데이트에 실패했습니다",
+				"removed": "일반 웹훅 연동이 제거되었습니다",
+				"removeError": "일반 웹훅 연동 제거에 실패했습니다"
+			},
+			"connectionTitle": "발신 웹훅 연결",
+			"connectionHint": "작업 이벤트를 자체 엔드포인트로 JSON 형식으로 전송합니다. 시크릿이 구성된 경우 서명된 X-Kaneo-Signature 헤더가 포함됩니다.",
+			"connected": "연결됨",
+			"paused": "일시 중지됨",
+			"webhookLabel": "엔드포인트 URL",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo는 활성화된 각 이벤트에 대해 JSON 페이로드와 함께 POST 요청을 전송합니다.",
+			"secretLabel": "서명 시크릿",
+			"secretPlaceholder": "선택 사항 - 공유 시크릿",
+			"secretHint": "선택 사항. 입력하면 Kaneo가 요청 본문에 서명하고 16진수 다이제스트를 X-Kaneo-Signature 헤더로 전송합니다.",
+			"secretHintConfigured": "서명 시크릿이 이미 구성되어 있습니다 ({{secret}}). 교체하려면 새 시크릿을 입력하세요.",
+			"eventsTitle": "이벤트 알림",
+			"eventsHint": "발신 웹훅을 트리거할 프로젝트 변경 사항을 선택합니다.",
+			"events": {
+				"taskCreated": "새 작업",
+				"taskStatusChanged": "상태 변경",
+				"taskPriorityChanged": "우선순위 변경",
+				"taskTitleChanged": "제목 변경",
+				"taskDescriptionChanged": "설명 변경",
+				"taskCommentCreated": "새 댓글"
+			},
+			"connect": "웹훅 연결",
+			"saveChanges": "변경사항 저장",
+			"disconnect": "연결 해제"
+		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "유효한 Telegram 봇 토큰을 입력하세요",
+				"chatIdRequired": "채팅 ID는 필수입니다",
+				"threadIdInvalid": "유효한 Telegram 토픽 스레드 ID를 입력하세요"
+			},
+			"toast": {
+				"saved": "Telegram 연동이 저장되었습니다",
+				"saveError": "Telegram 연동 저장에 실패했습니다",
+				"enabled": "Telegram 알림이 활성화되었습니다",
+				"disabled": "Telegram 알림이 일시 중지되었습니다",
+				"updateError": "Telegram 연동 업데이트에 실패했습니다",
+				"removed": "Telegram 연동이 제거되었습니다",
+				"removeError": "Telegram 연동 제거에 실패했습니다"
+			},
+			"connectionTitle": "Telegram 봇 연결",
+			"connectionHint": "Telegram 봇 토큰과 채팅 ID를 사용하여 채팅 또는 토픽으로 프로젝트 작업 업데이트를 전송합니다.",
+			"connected": "연결됨",
+			"paused": "일시 중지됨",
+			"botTokenLabel": "봇 토큰",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "BotFather로 봇을 만들고 해당 토큰을 여기에 붙여넣으세요.",
+			"botTokenHintConfigured": "봇 토큰이 이미 구성되어 있습니다 ({{token}}). 교체하려면 새 토큰을 입력하세요.",
+			"chatIdLabel": "채팅 ID",
+			"chatIdPlaceholder": "-1001234567890 또는 @team_updates",
+			"chatIdHint": "업데이트를 게시할 Telegram 채팅 ID 또는 채널 사용자 이름을 입력하세요.",
+			"threadIdLabel": "토픽 스레드 ID",
+			"threadIdPlaceholder": "선택 사항 - 토픽 ID",
+			"threadIdHint": "선택 사항. Telegram 그룹 내 포럼 토픽에 사용하세요.",
+			"chatLabelLabel": "채팅 라벨",
+			"chatLabelPlaceholder": "Engineering Updates",
+			"chatLabelHint": "Kaneo 내부 참고용 선택 라벨입니다.",
+			"eventsTitle": "이벤트 알림",
+			"eventsHint": "Telegram에 게시할 프로젝트 변경 사항을 선택합니다.",
+			"events": {
+				"taskCreated": "새 작업",
+				"taskStatusChanged": "상태 변경",
+				"taskPriorityChanged": "우선순위 변경",
+				"taskTitleChanged": "제목 변경",
+				"taskDescriptionChanged": "설명 변경",
+				"taskCommentCreated": "새 댓글"
+			},
+			"connect": "Telegram 연결",
+			"saveChanges": "변경사항 저장",
+			"disconnect": "연결 해제"
+		},
+		"repositoryBrowser": {
+			"title": "저장소 선택",
+			"description": "이슈 동기화를 활성화하기 위해 GitHub 앱이 설치된 저장소를 선택합니다.",
+			"searchPlaceholder": "저장소 검색...",
+			"loadError": "저장소 로딩에 실패했습니다",
+			"tryAgain": "다시 시도",
+			"emptyTitle": "저장소를 찾을 수 없음",
+			"emptyHint": "여기서 보려면 저장소에 GitHub 앱을 설치하세요.",
+			"installGithubApp": "GitHub 앱 설치",
+			"noSearchMatchTitle": "검색과 일치하는 저장소가 없습니다",
+			"noSearchMatchHint": "검색어를 조정하거나 검색을 지워서 모든 저장소를 확인하세요.",
+			"footerSummary": "설치 {{installationCount}}건에 걸쳐 저장소 {{repoCount}}개",
+			"manageInstallations": "설치 관리",
+			"updatedPrefix": "업데이트됨",
+			"relativeJustNow": "방금 전",
+			"relativeMinutesAgo": "{{count}}분 전",
+			"relativeHoursAgo": "{{count}}시간 전",
+			"relativeDaysAgo": "{{count}}일 전"
+		},
+		"tasksImportExport": {
+			"exportTasks": "작업 내보내기",
+			"importTasks": "작업 가져오기",
+			"dialogTitle": "작업 가져오기",
+			"dialogDescription": "이 프로젝트로 가져올 작업이 포함된 JSON 파일을 업로드합니다.",
+			"expectedFormat": "예상 형식:",
+			"dropHint": "여기에 JSON 파일을 드래그하여 놓으세요",
+			"selectFile": "파일 선택",
+			"exporting": "작업 내보내는 중...",
+			"exportSuccess": "작업을 내보냈습니다",
+			"exportError": "작업 내보내기에 실패했습니다",
+			"importing": "작업 가져오는 중...",
+			"importSuccess": "작업 {{count}}개를 가져왔습니다",
+			"importPartialError": "작업 {{count}}개 가져오기에 실패했습니다",
+			"importError": "작업 가져오기에 실패했습니다",
+			"invalidFormat": "잘못된 가져오기 파일 형식입니다",
+			"noFileDropped": "파일이 놓이지 않았습니다",
+			"notJsonFile": "JSON 파일을 업로드하세요"
+		},
+		"workflowEditor": {
+			"loading": "로딩 중...",
+			"createColumnsFirst": "자동화 규칙을 구성하려면 먼저 컬럼을 만드세요.",
+			"githubHeading": "GitHub",
+			"githubHint": "GitHub 이벤트가 발생하면 연결된 작업을 컬럼으로 이동합니다.",
+			"giteaHeading": "Gitea",
+			"giteaHint": "Gitea 웹훅 이벤트가 발생하면 연결된 작업을 컬럼으로 이동합니다.",
+			"selectColumnPlaceholder": "컬럼 선택...",
+			"toastUpdated": "워크플로 규칙이 업데이트되었습니다",
+			"toastError": "규칙 업데이트에 실패했습니다",
+			"events": {
+				"branch_push": "브랜치 푸시",
+				"pr_opened": "PR 열림",
+				"pr_merged": "PR 병합됨",
+				"issue_opened": "이슈 열림",
+				"issue_closed": "이슈 닫힘"
+			}
+		},
+		"externalLinks": {
+			"resources": "리소스",
+			"issue": "이슈",
+			"branch": "브랜치",
+			"merged": "병합됨",
+			"draft": "초안",
+			"open": "열림"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "추천",
+			"commands": "명령",
+			"projects": "프로젝트",
+			"search": "검색",
+			"members": "멤버",
+			"createTask": "작업 만들기",
+			"createProject": "프로젝트 만들기",
+			"createWorkspace": "워크스페이스 만들기",
+			"lightTheme": "라이트 테마",
+			"darkTheme": "다크 테마",
+			"systemTheme": "시스템 테마",
+			"keyboardShortcuts": "키보드 단축키",
+			"inputPlaceholder": "앱과 명령 검색...",
+			"empty": "결과를 찾을 수 없습니다.",
+			"footer": {
+				"navigate": "이동",
+				"open": "열기",
+				"close": "닫기"
+			}
+		},
+		"notifications": "알림",
+		"sidebar": {
+			"overview": "개요",
+			"projects": "프로젝트",
+			"members": "멤버",
+			"invitations": "초대",
+			"more": "더 보기",
+			"backToBoard": "보드로 돌아가기"
+		},
+		"projectList": {
+			"viewProject": "프로젝트 보기",
+			"shareProject": "프로젝트 공유",
+			"projectSettings": "프로젝트 설정",
+			"linkCopied": "프로젝트 링크가 클립보드에 복사되었습니다",
+			"addProject": "프로젝트 추가",
+			"deleteConfirmTitle": "프로젝트를 삭제하시겠습니까?",
+			"deleteConfirmDescription": "프로젝트와 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
+			"deletedToast": "프로젝트가 삭제되었습니다",
+			"deleteProject": "프로젝트 삭제"
+		},
+		"search": {
+			"inputPlaceholder": "작업, 프로젝트, 댓글 검색...",
+			"minCharsHint": "검색하려면 3자 이상 입력하세요",
+			"groups": {
+				"task": "작업",
+				"project": "프로젝트",
+				"workspace": "워크스페이스",
+				"comment": "댓글",
+				"activity": "활동",
+				"fallback": "결과"
+			}
+		},
+		"settingsLayout": {
+			"toggleSidebar": "사이드바 토글",
+			"back": "뒤로"
+		},
+		"userMenu": {
+			"signedOutSuccess": "로그아웃되었습니다",
+			"signOutFailed": "로그아웃에 실패했습니다",
+			"unnamedUser": "사용자",
+			"settings": "설정",
+			"signingOut": "로그아웃 중...",
+			"logOut": "로그아웃"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "워크스페이스",
+			"switching": "전환 중...",
+			"addWorkspace": "워크스페이스 추가",
+			"selectWorkspace": "워크스페이스 선택"
+		},
+		"page": {
+			"projectsTitle": "프로젝트",
+			"settingsTitle": "설정",
+			"backToWorkspace": "워크스페이스로 돌아가기",
+			"settingsWorkspaceTab": "워크스페이스"
+		},
+		"projectSettings": {
+			"projectLabel": "프로젝트"
+		},
+		"keyboardShortcuts": {
+			"title": "키보드 단축키",
+			"subtitle": "키보드 단축키로 워크플로 속도를 높이세요",
+			"searchPlaceholder": "단축키 검색...",
+			"footer": "닫으려면 <kbd>Escape</kbd>를 누르세요",
+			"categories": {
+				"general": "일반",
+				"create": "만들기",
+				"views": "보기",
+				"navigation": "탐색",
+				"quickSelect": "빠른 선택 (팝오버 내)"
+			},
+			"items": {
+				"openCommandPalette": "명령 팔레트 열기",
+				"globalSearch": "전체 검색",
+				"toggleSidebar": "사이드바 토글",
+				"showShortcuts": "키보드 단축키 표시",
+				"closeModal": "모달/팝오버 닫기",
+				"createTask": "작업 만들기",
+				"createProject": "프로젝트 만들기",
+				"createWorkspace": "워크스페이스 만들기",
+				"boardView": "보드 보기로 전환",
+				"listView": "목록 보기로 전환",
+				"backlogView": "백로그 보기로 전환",
+				"nextTask": "다음 작업",
+				"prevTask": "이전 작업",
+				"openTask": "선택한 작업 열기",
+				"quickSelectNumber": "번호로 옵션 선택"
+			}
+		}
+	},
+	"notifications": {
+		"title": "알림",
+		"newCount_one": "새 알림 {{count}}개",
+		"newCount_other": "새 알림 {{count}}개",
+		"emptyTitle": "아직 알림이 없습니다",
+		"emptySubtitle": "여기서 업데이트와 활동을 확인할 수 있습니다.",
+		"clearAll": "모든 알림 지우기",
+		"clearDialogTitle": "모든 알림을 지우시겠습니까?",
+		"clearDialogDescription": "모든 알림이 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
+		"shortcuts": {
+			"open": "알림 열기"
+		},
+		"events": {
+			"task_created": {
+				"title": "새 작업 생성됨",
+				"content": "작업 \"{{taskTitle}}\"이(가) 생성되었습니다"
+			},
+			"workspace_created": {
+				"title": "워크스페이스 생성됨",
+				"content": "워크스페이스 \"{{workspaceName}}\"이(가) 생성되었습니다"
+			},
+			"task_status_changed": {
+				"title": "작업 상태 변경됨",
+				"content": "작업 \"{{taskTitle}}\"의 상태가 \"{{oldStatus}}\"에서 \"{{newStatus}}\"(으)로 변경되었습니다"
+			},
+			"task_assignee_changed": {
+				"title": "작업이 나에게 할당됨",
+				"content": "다음 작업이 할당되었습니다: {{taskTitle}}"
+			},
+			"time_entry_created": {
+				"title": "시간 추적 시작됨",
+				"contentWithTask": "다음 작업의 시간 추적이 시작되었습니다: {{taskTitle}}",
+				"contentWithoutTask": "작업의 시간 추적이 시작되었습니다"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "이 작업을 자신에게 할당함",
+		"unassigned": "작업 할당을 해제함",
+		"assignedTo": "이 작업을 {{name}}님에게 할당함",
+		"changedStatus": "상태를 {{from}}에서 {{to}}(으)로 변경함",
+		"changedPriority": "우선순위를 {{from}}에서 {{to}}(으)로 변경함",
+		"clearedDueDate": "마감일을 지움",
+		"setDueDate": "마감일을 {{date}}(으)로 설정함",
+		"changedDueDate": "마감일을 {{from}}에서 {{to}}(으)로 변경함",
+		"changedTitle": "제목을 \"{{from}}\"에서 \"{{to}}\"(으)로 변경함",
+		"moved": "작업을 \"{{from}}\"에서 \"{{to}}\"(으)로 이동함",
+		"created": "이 작업을 생성함",
+		"githubUser": "GitHub 사용자",
+		"comment": {
+			"github": "GitHub",
+			"viewGithubProfile": "GitHub 프로필 보기",
+			"commentedOnGithub": "GitHub에 댓글을 남김",
+			"cannotBeEmpty": "댓글은 비워둘 수 없습니다",
+			"mustBeLoggedInToEdit": "댓글을 편집하려면 로그인해야 합니다",
+			"updated": "댓글이 업데이트되었습니다",
+			"failedToUpdate": "댓글 업데이트에 실패했습니다",
+			"edit": "댓글 편집",
+			"editPlaceholder": "댓글 편집...",
+			"save": "저장",
+			"added": "댓글이 추가되었습니다",
+			"failedToAdd": "댓글 추가에 실패했습니다",
+			"leavePlaceholder": "댓글을 남기세요...",
+			"attachFile": "파일 첨부",
+			"submitShortcut": "댓글 제출",
+			"editor": {
+				"uploadsOnlyOnSavedTasks": "파일 업로드는 저장된 작업에서만 가능합니다.",
+				"uploadingFile": "파일 업로드 중...",
+				"imageUploaded": "이미지가 업로드되었습니다",
+				"fileAttached": "파일이 첨부되었습니다",
+				"failedToUploadFile": "파일 업로드에 실패했습니다",
+				"enterUrl": "URL 입력",
+				"plaintext": "일반 텍스트",
+				"autoDetect": "자동 감지",
+				"slashGroupText": "텍스트",
+				"slashGroupLists": "목록",
+				"slashGroupInsert": "삽입",
+				"slashParagraph": "텍스트",
+				"slashHeading": "제목",
+				"slashBulletList": "글머리 기호 목록",
+				"slashTaskList": "할 일 목록",
+				"slashOrderedList": "번호 매기기 목록",
+				"slashQuote": "인용",
+				"slashCodeBlock": "코드 블록",
+				"slashTable": "표",
+				"slashFile": "파일",
+				"searchParagraph": "텍스트 단락 일반",
+				"searchHeading": "제목 헤딩 h2",
+				"searchBulletList": "목록 글머리 비순서",
+				"searchTaskList": "할일 to-do 체크리스트 체크박스 작업 목록",
+				"searchOrderedList": "목록 순서 번호",
+				"searchQuote": "인용 인용구",
+				"searchCodeBlock": "코드 스니펫",
+				"searchTable": "표 그리드",
+				"searchFile": "파일 첨부 이미지 사진 그림 업로드",
+				"embedErrorInvalidUrl": "유효한 URL을 입력하세요",
+				"embedErrorYoutubeOnly": "YouTube 링크만 임베드할 수 있습니다.",
+				"embedVideo": "동영상 임베드",
+				"keepAsLink": "링크로 유지",
+				"hintTab": "Tab",
+				"hintEsc": "Esc",
+				"pasteUrl": "URL 붙여넣기",
+				"asLink": "링크로",
+				"embed": "임베드",
+				"noCommands": "명령 없음",
+				"ariaCommentContent": "댓글 내용",
+				"ariaCommentEditor": "댓글 편집기",
+				"ariaCopyCode": "코드 복사",
+				"ariaCopied": "복사됨",
+				"copy": "복사",
+				"copied": "복사됨",
+				"dropImageToUpload": "업로드할 이미지를 놓으세요",
+				"previewImageAlt": "이미지 미리보기",
+				"codeLang": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"markdown": "Markdown",
+					"plaintext": "일반 텍스트",
+					"python": "Python",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"typescript": "TypeScript",
+					"yaml": "YAML"
+				}
+			}
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "상태",
+			"to-do": "할 일",
+			"in-progress": "진행 중",
+			"in-review": "검토 중",
+			"done": "완료",
+			"archived": "보관됨",
+			"planned": "계획됨"
+		},
+		"priority": {
+			"label": "우선순위",
+			"no-priority": "우선순위 없음",
+			"low": "낮음",
+			"medium": "보통",
+			"high": "높음",
+			"urgent": "긴급"
+		},
+		"boardSearchPlaceholder": "티켓 검색...",
+		"view": {
+			"board": "보드",
+			"list": "목록"
+		},
+		"common": {
+			"selectTask": "작업 선택",
+			"loadingTask": "작업 로딩 중...",
+			"taskNotFound": "작업을 찾을 수 없음",
+			"taskNotFoundDescription": "찾는 작업이 존재하지 않거나 삭제되었습니다."
+		},
+		"detail": {
+			"subtaskOf": "상위 작업",
+			"activity": "활동",
+			"noActivity": "활동을 찾을 수 없음",
+			"openInFullPage": "전체 페이지에서 열기",
+			"titlePlaceholder": "클릭하여 제목 추가",
+			"addDescription": "설명 추가...",
+			"editor": {
+				"ariaLabel": "작업 설명 편집기",
+				"placeholder": "설명을 작성하세요...",
+				"previewImage": "이미지 미리보기",
+				"enterUrl": "URL 입력",
+				"autoDetect": "자동 감지",
+				"copyCode": "코드 복사",
+				"copy": "복사",
+				"copied": "복사됨",
+				"attachFile": "파일 첨부",
+				"dropToUpload": "업로드할 이미지를 놓으세요",
+				"checkbox": {
+					"markIncomplete": "작업을 미완료로 표시",
+					"markComplete": "작업을 완료로 표시"
+				},
+				"upload": {
+					"loading": "파일 업로드 중...",
+					"failed": "파일 업로드에 실패했습니다",
+					"imageSuccess": "이미지가 업로드되었습니다",
+					"fileSuccess": "파일이 첨부되었습니다"
+				},
+				"slash": {
+					"groups": {
+						"text": "텍스트",
+						"lists": "목록",
+						"insert": "삽입"
+					},
+					"empty": "명령 없음",
+					"commands": {
+						"paragraph": "텍스트",
+						"heading-2": "제목",
+						"bullet-list": "글머리 기호 목록",
+						"task-list": "할 일 목록",
+						"ordered-list": "번호 매기기 목록",
+						"blockquote": "인용",
+						"code-block": "코드 블록",
+						"table": "표",
+						"file": "파일"
+					}
+				},
+				"languages": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"clojure": "Clojure",
+					"cypher": "Cypher",
+					"dart": "Dart",
+					"diff": "Diff",
+					"elixir": "Elixir",
+					"excel": "Excel",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"haskell": "Haskell",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"kotlin": "Kotlin",
+					"makefile": "Makefile",
+					"markdown": "Markdown",
+					"ocaml": "OCaml",
+					"php": "PHP",
+					"perl": "Perl",
+					"plaintext": "일반 텍스트",
+					"python": "Python",
+					"r": "R",
+					"reasonml": "ReasonML",
+					"ruby": "Ruby",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"toml": "TOML",
+					"terraform": "Terraform",
+					"typescript": "TypeScript",
+					"xml": "XML",
+					"yaml": "YAML"
+				},
+				"embed": {
+					"choice": {
+						"embedVideo": "동영상 임베드",
+						"keepAsLink": "링크로 유지"
+					},
+					"inputPlaceholder": "URL 붙여넣기",
+					"embeddedContent": "임베드된 콘텐츠",
+					"asLink": "링크로",
+					"submit": "임베드",
+					"errors": {
+						"invalidUrl": "유효한 URL을 입력하세요",
+						"onlyYoutube": "YouTube 링크만 임베드할 수 있습니다."
+					},
+					"onlyYoutubeInline": "YouTube URL만 임베드할 수 있습니다. 대신 링크 모드를 사용하세요."
+				}
+			}
+		},
+		"entity": {
+			"task": "작업"
+		},
+		"relations": {
+			"title": "관계",
+			"tasksInProject": "프로젝트의 작업",
+			"linkError": "작업 연결에 실패했습니다",
+			"empty": "관련 작업 없음",
+			"searchPlaceholder": "연결할 작업 검색...",
+			"noTasksFound": "작업을 찾을 수 없음",
+			"openTask": "작업 열기",
+			"removeRelation": "관계 제거",
+			"related": "관련",
+			"blocks": "차단",
+			"selectTask": "연결할 작업 선택",
+			"types": {
+				"blocks": "차단함",
+				"related": "관련됨"
+			}
+		},
+		"subtasks": {
+			"title": "하위 작업",
+			"inputPlaceholder": "하위 작업 제목...",
+			"addAction": "추가",
+			"empty": "아직 하위 작업이 없습니다",
+			"createError": "하위 작업 생성에 실패했습니다",
+			"deleteSuccess": "작업이 삭제되었습니다",
+			"deleteError": "작업 삭제에 실패했습니다",
+			"deleteDialogTitle": "작업을 삭제하시겠습니까?",
+			"deleteDialogDescription": "작업과 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
+			"deleteAction": "작업 삭제"
+		},
+		"properties": {
+			"title": "속성",
+			"labels": "라벨",
+			"copyTaskLink": "작업 링크 복사",
+			"copyTaskBranch": "작업 브랜치 복사",
+			"start": "시작",
+			"startDate": "시작일",
+			"noDate": "날짜 없음"
+		},
+		"move": {
+			"title": "작업 이동",
+			"projectLabel": "대상 프로젝트",
+			"projectPlaceholder": "프로젝트 선택",
+			"statusLabel": "대상 상태",
+			"statusHintKeep": "이 프로젝트의 워크플로가 이미 현재 상태를 지원합니다.",
+			"statusHintAdjust": "대상 프로젝트에서 사용할 상태를 선택하세요.",
+			"action": "작업 이동",
+			"success": "작업이 이동되었습니다",
+			"error": "작업 이동에 실패했습니다"
+		},
+		"popover": {
+			"assignee": {
+				"unassigned": "미할당",
+				"updateError": "작업 담당자 업데이트에 실패했습니다"
+			},
+			"status": {
+				"updateError": "작업 상태 업데이트에 실패했습니다"
+			},
+			"priority": {
+				"updateError": "작업 우선순위 업데이트에 실패했습니다"
+			},
+			"dueDate": {
+				"updateSuccess": "작업 마감일이 업데이트되었습니다",
+				"updateError": "작업 마감일 업데이트에 실패했습니다",
+				"clear": "날짜 지우기"
+			},
+			"startDate": {
+				"updateSuccess": "작업 시작일이 업데이트되었습니다",
+				"updateError": "작업 시작일 업데이트에 실패했습니다",
+				"clear": "시작일 지우기"
+			},
+			"labels": {
+				"searchPlaceholder": "라벨 검색...",
+				"empty": "라벨을 찾을 수 없음",
+				"create": "\"{{name}}\" 만들기",
+				"chooseColor": "색상 선택",
+				"addSuccess": "라벨이 추가되었습니다",
+				"removeSuccess": "라벨이 제거되었습니다",
+				"updateError": "라벨 업데이트에 실패했습니다",
+				"createSuccess": "라벨이 생성되어 추가되었습니다",
+				"createError": "라벨 생성에 실패했습니다",
+				"colors": {
+					"stone": "스톤",
+					"slate": "슬레이트",
+					"lavender": "라벤더",
+					"sage": "세이지",
+					"forest": "포레스트",
+					"amber": "앰버",
+					"terracotta": "테라코타",
+					"rose": "로즈",
+					"crimson": "크림슨"
+				}
+			}
+		},
+		"backlog": {
+			"pageTitle": "{{name}}님의 백로그",
+			"noTasksToMove": "이동할 계획된 작업이 없습니다",
+			"moveAllConfirm": "계획된 작업 {{count}}개를 모두 할 일로 이동하시겠습니까?",
+			"moveAllSuccess": "작업 {{count}}개를 할 일로 이동했습니다",
+			"plan": "계획",
+			"moveAllTooltip": "계획된 작업 모두 할 일로 이동",
+			"moveAll": "모두 이동",
+			"addTask": "작업 추가",
+			"filter": "필터",
+			"addFilter": "필터 추가...",
+			"sections": {
+				"planned": "계획됨",
+				"archived": "보관됨"
+			},
+			"noTasksInSection": "{{section}} 작업이 없습니다",
+			"filters": {
+				"priority": "우선순위: {{name}}",
+				"assignee": "담당자: {{name}}",
+				"due": "마감일: {{date}}",
+				"label": "라벨: {{name}}",
+				"dueThisWeek": "이번 주 마감",
+				"dueNextWeek": "다음 주 마감",
+				"noDueDate": "마감일 없음"
+			}
+		},
+		"sort": {
+			"label": "정렬",
+			"by": "정렬 기준",
+			"direction": "방향",
+			"ascending": "오름차순",
+			"descending": "내림차순",
+			"fields": {
+				"position": "수동 (위치)",
+				"createdAt": "생성일",
+				"priority": "우선순위",
+				"dueDate": "마감일",
+				"title": "제목",
+				"number": "작업 번호"
+			}
+		},
+		"boardFilters": {
+			"filterBy": "필터 기준",
+			"allStatuses": "모든 상태",
+			"allPriorities": "모든 우선순위",
+			"allAssignees": "모든 담당자",
+			"allDueDates": "모든 마감일",
+			"allLabels": "모든 라벨",
+			"selectedCount": "{{count}}개 선택됨",
+			"subjects": {
+				"status": "상태",
+				"priority": "우선순위",
+				"assignee": "담당자",
+				"dueDate": "마감일",
+				"labels": "라벨"
+			},
+			"operators": {
+				"isAnyOf": "다음 중 하나",
+				"includeAnyOf": "다음 중 하나 포함"
+			}
+		},
+		"gantt": {
+			"pageTitle": "{{name}} — 간트",
+			"title": "간트 타임라인",
+			"searchPlaceholder": "예약된 티켓 검색...",
+			"hideTasks": "작업 숨기기",
+			"showTasks": "작업 표시",
+			"noTasks": "예약된 작업 없음",
+			"noTasksSubtitle": "프로젝트 타임라인에 작업을 배치하려면 시작일, 마감일 또는 둘 다 추가하세요.",
+			"noTasksFound": "작업을 찾을 수 없음",
+			"noTasksMatch": "\"{{query}}\"와(과) 일치하는 예약된 작업이 없습니다",
+			"taskHeader": "작업",
+			"updateDatesError": "작업 날짜 업데이트에 실패했습니다",
+			"resizeStart": "시작일 크기 조정",
+			"resizeDue": "마감일 크기 조정",
+			"taskAriaLabel": "{{title}} — 열거나 드래그하여 이동"
+		},
+		"delete": {
+			"title": "작업을 삭제하시겠습니까?",
+			"description": "작업과 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
+			"action": "작업 삭제",
+			"success": "작업이 삭제되었습니다",
+			"error": "작업 삭제에 실패했습니다"
+		},
+		"archive": {
+			"success": "작업 {{count}}개를 보관했습니다"
+		},
+		"listView": {
+			"addTask": "작업 추가",
+			"archiveAllTooltip": "완료된 모든 작업 보관",
+			"noTasks": "작업 없음"
+		},
+		"kanban": {
+			"addTask": "작업 추가"
+		},
+		"pr": {
+			"merged": "병합됨",
+			"draft": "초안",
+			"open": "열림",
+			"label": "풀 리퀘스트",
+			"count_one": "PR {{count}}개",
+			"count_other": "PR {{count}}개"
+		},
+		"assignee": {
+			"label": "담당자",
+			"unassigned": "미할당"
+		},
+		"dueDate": {
+			"label": "마감일",
+			"clear": "날짜 지우기",
+			"updateSuccess": "작업 마감일이 업데이트되었습니다",
+			"updateError": "작업 마감일 업데이트에 실패했습니다",
+			"clearSuccess": "작업 마감일이 지워졌습니다",
+			"clearError": "마감일 지우기에 실패했습니다"
+		},
+		"labels": {
+			"label": "라벨",
+			"empty": "사용 가능한 라벨이 없습니다"
+		},
+		"update": {
+			"success": "작업이 업데이트되었습니다",
+			"error": "작업 업데이트에 실패했습니다"
+		},
+		"contextMenu": {
+			"copyLink": "링크 복사",
+			"copyLinkSuccess": "작업 링크가 복사되었습니다!"
+		},
+		"actions": {
+			"archive": "보관",
+			"markAsPlanned": "계획됨으로 표시",
+			"delete": "삭제..."
+		},
+		"bulk": {
+			"selectedCount": "{{count}}개 선택됨",
+			"moveToBacklog": "백로그로 이동",
+			"moveToBacklogSuccess": "작업 {{count}}개를 백로그로 이동했습니다",
+			"moveToBacklogError": "작업을 백로그로 이동하지 못했습니다",
+			"moveToBoard": "보드로 이동",
+			"moveToBoardSuccess": "작업 {{count}}개를 보드로 이동했습니다",
+			"moveToBoardError": "작업을 보드로 이동하지 못했습니다",
+			"delete": "작업 삭제",
+			"deleteConfirm": "작업 {{count}}개를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+			"deleteSuccess": "작업 {{count}}개가 삭제되었습니다",
+			"deleteError": "작업 삭제에 실패했습니다",
+			"archive": "작업 보관",
+			"archiveSuccess": "작업 {{count}}개가 보관되었습니다",
+			"archiveError": "작업 보관에 실패했습니다",
+			"updateSuccess": "작업 {{count}}개가 업데이트되었습니다",
+			"updateError": "작업 업데이트에 실패했습니다",
+			"assignTo": "할당",
+			"assignSuccess": "작업 {{count}}개가 할당되었습니다",
+			"assignError": "작업 할당에 실패했습니다",
+			"setPriority": "우선순위 설정",
+			"updatePriorityError": "우선순위 업데이트에 실패했습니다",
+			"addLabel": "라벨 추가",
+			"addLabelSuccess": "작업 {{count}}개에 라벨이 추가되었습니다",
+			"addLabelError": "라벨 추가에 실패했습니다",
+			"setDueDate": "마감일 설정",
+			"updateDueDateError": "마감일 업데이트에 실패했습니다",
+			"actions": "작업",
+			"searchActions": "작업 검색...",
+			"noActionsFound": "작업을 찾을 수 없습니다.",
+			"changeStatus": "상태 변경"
+		}
+	},
+	"invitations": {
+		"pageTitle": "초대",
+		"pendingInvitations": "대기 중인 초대",
+		"acceptSubtitle": "워크스페이스에 참여하려면 초대를 수락하세요",
+		"noPendingTitle": "대기 중인 초대가 없습니다",
+		"noPendingDescription": "현재 대기 중인 워크스페이스 초대가 없습니다.",
+		"continueToSetup": "설정으로 계속",
+		"skipForNow": "지금은 건너뛰기",
+		"table": {
+			"workspace": "워크스페이스",
+			"invitedBy": "초대한 사람",
+			"expires": "만료"
+		},
+		"toast": {
+			"acceptError": "초대 수락에 실패했습니다",
+			"acceptSuccess": "초대가 수락되었습니다! 팀에 오신 것을 환영합니다.",
+			"rejectError": "초대 거절에 실패했습니다",
+			"rejectSuccess": "초대를 거절했습니다"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "프로젝트",
+			"createProject": "프로젝트 만들기",
+			"title": "제목",
+			"progress": "진행률",
+			"targetDate": "목표일",
+			"dueDate": "마감일",
+			"status": "상태",
+			"emptyTitle": "아직 프로젝트가 없습니다",
+			"emptyDescription": "첫 프로젝트를 만들어 시작하세요.",
+			"projectStatus": {
+				"notStarted": "시작되지 않음",
+				"complete": "완료",
+				"inProgress": "진행 중"
+			},
+			"noDueDate": "마감일 없음"
+		},
+		"search": {
+			"pageTitle": "검색",
+			"backToDashboard": "대시보드로 돌아가기",
+			"placeholder": "제목 또는 짧은 ID로 작업 검색 (예: DEP-23)...",
+			"hint": "이 워크스페이스의 모든 프로젝트에서 검색합니다. DEP-23과 같은 짧은 ID를 사용하여 특정 작업을 찾으세요.",
+			"searching": "검색 중...",
+			"resultsFound_one": "결과 {{count}}개를 찾았습니다",
+			"resultsFound_other": "결과 {{count}}개를 찾았습니다",
+			"noResultsTitle": "결과를 찾을 수 없음",
+			"noResultsDescription": "검색어를 조정하거나 다른 항목을 검색해 보세요",
+			"startTitle": "검색 시작",
+			"startDescription": "모든 프로젝트에서 작업을 찾으려면 검색어를 입력하세요",
+			"quickSearchesLabel": "빠른 검색:",
+			"suggestionHighPriority": "높은 우선순위",
+			"suggestionBug": "버그",
+			"suggestionFeature": "기능",
+			"suggestionInProgress": "진행 중",
+			"suggestionCompleted": "완료됨"
+		},
+		"create": {
+			"pageTitle": "워크스페이스 만들기",
+			"heading": "새 워크스페이스 만들기",
+			"subtitle": "워크스페이스는 팀이 프로젝트, 사이클 및 이슈를 작업할 수 있는 공유 환경입니다.",
+			"nameLabel": "워크스페이스 이름",
+			"namePlaceholder": "워크스페이스 이름 입력",
+			"descriptionLabel": "설명 (선택)",
+			"descriptionPlaceholder": "워크스페이스 설명 추가",
+			"required": "필수",
+			"creating": "생성 중...",
+			"submit": "워크스페이스 만들기",
+			"success": "워크스페이스가 생성되었습니다",
+			"error": "워크스페이스 생성에 실패했습니다"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "소유자",
+			"admin": "관리자",
+			"member": "멤버"
+		},
+		"members": {
+			"pageTitle": "멤버",
+			"inviteMember": "멤버 초대"
+		},
+		"inviteModal": {
+			"title": "팀 멤버 초대",
+			"emailLabel": "이메일",
+			"emailPlaceholder": "colleague@company.com",
+			"sendInvitation": "초대 전송",
+			"success": "초대가 전송되었습니다",
+			"error": "팀 멤버 초대에 실패했습니다"
+		},
+		"membersTable": {
+			"emptyTitle": "아직 팀 멤버가 없습니다",
+			"emptyDescription": "시작하려면 첫 팀 멤버를 초대하세요.",
+			"columns": {
+				"name": "이름",
+				"role": "역할",
+				"joined": "참여",
+				"actions": "작업"
+			},
+			"memberRolePending": "{{role}} (대기 중)",
+			"ariaCancelInvitation": "초대 취소",
+			"ariaRemoveMember": "멤버 제거",
+			"removeDialogTitle": "팀 멤버를 제거하시겠습니까?",
+			"removeDialogDescription": "{{name}}님을 워크스페이스에서 제거하시겠습니까? 이 작업은 취소할 수 없습니다.",
+			"cancelDialogTitle": "초대를 취소하시겠습니까?",
+			"cancelDialogDescription": "{{email}}에 대한 초대를 취소하시겠습니까? 이 작업은 취소할 수 없습니다.",
+			"removeMember": "멤버 제거",
+			"cancelInvitation": "초대 취소",
+			"removeSuccess": "팀 멤버가 제거되었습니다",
+			"removeError": "팀 멤버 제거에 실패했습니다",
+			"cancelInviteSuccess": "초대가 취소되었습니다",
+			"cancelInviteError": "초대 취소에 실패했습니다"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "공개 보기",
+		"badge": "공개",
+		"readOnly": "읽기 전용",
+		"error": {
+			"title": "프로젝트를 찾을 수 없음",
+			"description": "이 프로젝트는 존재하지 않거나 공개로 접근할 수 없습니다."
+		},
+		"taskCard": {
+			"viewDetailsAria": "{{title}} 작업의 세부 정보 보기"
+		},
+		"taskDetail": {
+			"labels": "라벨",
+			"externalLinks": "외부 링크",
+			"pullRequestFallback": "풀 리퀘스트",
+			"issueFallback": "이슈",
+			"prStatusMerged": "병합됨",
+			"prStatusDraft": "초안",
+			"prStatusOpen": "열림",
+			"dueWithDate": "{{date}} 마감",
+			"created": "생성됨",
+			"dueDateLabel": "마감일"
+		},
+		"theme": {
+			"switchToLight": "라이트 모드로 전환",
+			"switchToDark": "다크 모드로 전환"
+		},
+		"copyUrl": {
+			"successToast": "URL이 복사되었습니다",
+			"errorToast": "URL 복사에 실패했습니다",
+			"copied": "복사됨",
+			"share": "공유"
+		},
+		"branding": {
+			"poweredBy": "제공"
+		}
+	}
+}
