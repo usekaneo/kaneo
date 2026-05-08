@@ -1,4 +1,6 @@
-import { X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { produce } from "immer";
+import { ArrowUpToLine, X } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +29,7 @@ import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
+import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 
 type TaskCardContext = {
@@ -46,7 +49,8 @@ export default function TaskCardContextMenuContent({
   onDeleteClick,
 }: TaskCardContextMenuContentProps) {
   const { t } = useTranslation();
-  const { project } = useProjectStore();
+  const queryClient = useQueryClient();
+  const { project, setProject } = useProjectStore();
   const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
   const columns =
     project?.columns && project.columns.length > 0
@@ -79,6 +83,83 @@ export default function TaskCardContextMenuContent({
       name: member?.user?.name ?? "",
     }));
   }, [workspaceUsers]);
+
+  const effectiveProject = useMemo(() => {
+    const cached = queryClient.getQueryData<ProjectWithTasks>([
+      "projects",
+      taskCardContext.worskpaceId,
+      taskCardContext.projectId,
+    ]);
+    return project ?? cached;
+  }, [
+    project,
+    queryClient,
+    taskCardContext.projectId,
+    taskCardContext.worskpaceId,
+  ]);
+
+  const columnForTask = useMemo(() => {
+    return effectiveProject?.columns?.find((c) => c.id === task.status);
+  }, [effectiveProject?.columns, task.status]);
+
+  const taskIndexInColumn = useMemo(() => {
+    if (!columnForTask) return -1;
+    return columnForTask.tasks.findIndex((t) => t.id === task.id);
+  }, [columnForTask, task.id]);
+
+  const canMoveToTop = taskIndexInColumn > 0;
+
+  const handleMoveToTop = async () => {
+    if (!canMoveToTop || !effectiveProject || !columnForTask) {
+      return;
+    }
+    const snapshot = effectiveProject;
+    const updatedProject = produce(effectiveProject, (draft) => {
+      const col = draft.columns?.find((c) => c.id === task.status);
+      if (!col) return;
+      const i = col.tasks.findIndex((t) => t.id === task.id);
+      if (i <= 0) return;
+      const [moved] = col.tasks.splice(i, 1);
+      col.tasks.unshift(moved);
+    });
+
+    const col = updatedProject.columns?.find((c) => c.id === task.status);
+    if (!col) {
+      return;
+    }
+
+    setProject(updatedProject);
+    try {
+      for (const [index, t] of col.tasks.entries()) {
+        await updateTask({
+          ...t,
+          position: index,
+          status: task.status,
+        });
+      }
+      toast.success(t("tasks:contextMenu.moveToTopSuccess"));
+      queryClient.invalidateQueries({
+        queryKey: ["projects", taskCardContext.worskpaceId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "projects",
+          taskCardContext.worskpaceId,
+          taskCardContext.projectId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", taskCardContext.projectId],
+      });
+    } catch (error) {
+      setProject(snapshot);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:contextMenu.moveToTopError"),
+      );
+    }
+  };
 
   const handleCopyTaskLink = () => {
     const path = `/dashboard/workspace/${taskCardContext.worskpaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
@@ -128,6 +209,15 @@ export default function TaskCardContextMenuContent({
     <ContextMenuContent className="w-46">
       <ContextMenuItem onClick={handleCopyTaskLink}>
         <span>{t("tasks:contextMenu.copyLink")}</span>
+      </ContextMenuItem>
+
+      <ContextMenuItem
+        disabled={!canMoveToTop}
+        onClick={() => void handleMoveToTop()}
+        className="gap-2"
+      >
+        <ArrowUpToLine className="h-4 w-4" />
+        <span>{t("tasks:contextMenu.moveToTop")}</span>
       </ContextMenuItem>
 
       <ContextMenuSeparator />
