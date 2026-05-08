@@ -1,5 +1,4 @@
 import type { Editor } from "@tiptap/core";
-import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
@@ -9,7 +8,7 @@ import TableRow from "@tiptap/extension-table-row";
 import TaskList from "@tiptap/extension-task-list";
 import { Markdown } from "@tiptap/markdown";
 import { Fragment, Slice } from "@tiptap/pm/model";
-import { TextSelection } from "@tiptap/pm/state";
+import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
@@ -68,6 +67,8 @@ import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
 } from "./extensions/shiki-code-block";
+import { TaskDescriptionImage } from "./extensions/task-description-image";
+import { TaskDescriptionImagePreviewContext } from "./extensions/task-description-image-preview-context";
 import { TaskItemWithCheckbox } from "./extensions/task-item-with-checkbox";
 import "tippy.js/dist/tippy.css";
 
@@ -291,7 +292,32 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     src: string;
     alt: string;
   } | null>(null);
+  const [suppressTextFormattingBubble, setSuppressTextFormattingBubble] =
+    useState(false);
+  const bubbleSuppressTimeoutRef = useRef<number | null>(null);
+  const imagePreviewApi = useMemo(
+    () => ({
+      openImagePreview: (src: string, alt: string) => {
+        if (bubbleSuppressTimeoutRef.current != null) {
+          window.clearTimeout(bubbleSuppressTimeoutRef.current);
+          bubbleSuppressTimeoutRef.current = null;
+        }
+        setSuppressTextFormattingBubble(true);
+        lastEditorRef.current?.view.dom.blur();
+        setPreviewImage({ src, alt });
+      },
+    }),
+    [],
+  );
   const slashMenuRef = useRef<SlashMenuState | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (bubbleSuppressTimeoutRef.current != null) {
+        window.clearTimeout(bubbleSuppressTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     taskRef.current = task;
@@ -567,7 +593,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         AttachmentCard,
         KaneoIssueLink,
         TaskList,
-        Image.configure({
+        TaskDescriptionImage.configure({
           HTMLAttributes: {
             class: "kaneo-editor-image",
             loading: "lazy",
@@ -781,29 +807,6 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       observer.disconnect();
     };
   }, [editor]);
-
-  useEffect(() => {
-    if (!editor) return;
-
-    const handleImagePreviewClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (!(target instanceof HTMLImageElement)) return;
-      if (!target.classList.contains("kaneo-editor-image")) return;
-
-      event.preventDefault();
-      setPreviewImage({
-        src: target.currentSrc || target.src,
-        alt: target.alt || t("tasks:detail.editor.previewImage"),
-      });
-    };
-
-    const dom = editor.view.dom;
-    dom.addEventListener("click", handleImagePreviewClick);
-
-    return () => {
-      dom.removeEventListener("click", handleImagePreviewClick);
-    };
-  }, [editor, t]);
 
   useEffect(() => {
     slashMenuRef.current = slashMenu;
@@ -1322,484 +1325,508 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   );
 
   return (
-    <section
-      ref={editorShellRef}
-      aria-label={t("tasks:detail.editor.ariaLabel")}
-      className={cn(
-        "kaneo-tiptap-shell group",
-        isDragActive && "is-drag-active",
-      )}
-      onDragEnter={handleShellDragEnter}
-      onDragOver={handleShellDragOver}
-      onDragLeave={handleShellDragLeave}
-      onDrop={handleShellDrop}
-    >
-      <input
-        ref={imageInputRef}
-        type="file"
-        className="sr-only"
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-          if (!file) return;
+    <TaskDescriptionImagePreviewContext.Provider value={imagePreviewApi}>
+      <section
+        ref={editorShellRef}
+        aria-label={t("tasks:detail.editor.ariaLabel")}
+        className={cn(
+          "kaneo-tiptap-shell group",
+          isDragActive && "is-drag-active",
+        )}
+        onDragEnter={handleShellDragEnter}
+        onDragOver={handleShellDragOver}
+        onDragLeave={handleShellDragLeave}
+        onDrop={handleShellDrop}
+      >
+        <input
+          ref={imageInputRef}
+          type="file"
+          className="sr-only"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
 
-          const pendingInsert = pendingImageInsertRef.current;
-          pendingImageInsertRef.current = null;
-          void handleAssetFileUpload(
-            file,
-            pendingInsert?.editor,
-            pendingInsert?.range,
-          );
+            const pendingInsert = pendingImageInsertRef.current;
+            pendingImageInsertRef.current = null;
+            void handleAssetFileUpload(
+              file,
+              pendingInsert?.editor,
+              pendingInsert?.range,
+            );
 
-          event.target.value = "";
-        }}
-      />
-      {editor && hoveredCodeBlock && (
-        <div
-          className="kaneo-codeblock-language"
-          style={{
-            top: hoveredCodeBlock.top,
-            left: hoveredCodeBlock.left,
-            position: "absolute",
+            event.target.value = "";
           }}
-        >
-          <button
-            type="button"
-            className="kaneo-codeblock-language-trigger kaneo-codeblock-copy-trigger"
-            aria-label={
-              isCodeCopied
-                ? t("tasks:detail.editor.copied")
-                : t("tasks:detail.editor.copyCode")
-            }
-            onMouseDown={(event) => {
-              event.preventDefault();
-            }}
-            onClick={() => {
-              void copyHoveredCodeBlock();
+        />
+        {editor && hoveredCodeBlock && (
+          <div
+            className="kaneo-codeblock-language"
+            style={{
+              top: hoveredCodeBlock.top,
+              left: hoveredCodeBlock.left,
+              position: "absolute",
             }}
           >
-            {isCodeCopied ? (
-              <Check className="size-3.5" />
-            ) : (
-              <Copy className="size-3.5" />
-            )}
-            <span>
-              {isCodeCopied
-                ? t("tasks:detail.editor.copied")
-                : t("tasks:detail.editor.copy")}
-            </span>
-          </button>
-          <DropdownMenu
-            open={isCodeLanguageMenuOpen}
-            onOpenChange={setIsCodeLanguageMenuOpen}
-          >
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="kaneo-codeblock-language-trigger"
-              >
-                <span className="truncate">{activeCodeLanguageLabel}</span>
-                <ChevronDown className="size-3.5 opacity-70" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              side="bottom"
-              sideOffset={6}
-              className="max-h-72 w-48 overflow-y-auto"
-            >
-              <DropdownMenuRadioGroup
-                value={hoveredCodeBlock.language}
-                onValueChange={setCodeLanguage}
-              >
-                <DropdownMenuRadioItem value="auto">
-                  {t("tasks:detail.editor.autoDetect")}
-                </DropdownMenuRadioItem>
-                <DropdownMenuSeparator />
-                {codeLanguages.map(({ value, label }) => (
-                  <DropdownMenuRadioItem key={value} value={value}>
-                    {label}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
-
-      {editor && (
-        <BubbleMenu
-          editor={editor}
-          className="kaneo-tiptap-bubble"
-          shouldShow={({ editor: activeEditor, from, to }) => {
-            if (activeEditor.isActive("embedBlock")) return false;
-            if (activeEditor.isActive("image")) return false;
-            if (activeEditor.isEmpty) return false;
-            return from !== to;
-          }}
-        >
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("heading", { level: 2 }) &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-          >
-            <Heading2 className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("bulletList") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-          >
-            <List className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("taskList") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleTaskList().run()}
-          >
-            <ListTodo className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("orderedList") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          >
-            <ListOrdered className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("blockquote") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          >
-            <Quote className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("codeBlock") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          >
-            <Braces className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className="kaneo-tiptap-bubble-btn"
-            onClick={() =>
-              editor.chain().focus().insertTable({ cols: 3, rows: 3 }).run()
-            }
-          >
-            <Table2 className="size-3.5" />
-          </Button>
-          <span className="kaneo-tiptap-bubble-separator" />
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("bold") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBold().run()}
-          >
-            <Bold className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("italic") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-          >
-            <Italic className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("underline") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-          >
-            <UnderlineIcon className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("strike") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-          >
-            <Strikethrough className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("code") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleCode().run()}
-          >
-            <Code className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("link") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => setLink()}
-          >
-            <Link2 className="size-3.5" />
-          </Button>
-        </BubbleMenu>
-      )}
-
-      {editor && slashMenu && (
-        <div
-          className="kaneo-tiptap-slash-menu"
-          style={{
-            top: slashMenu.top,
-            left: slashMenu.left,
-            position: "absolute",
-          }}
-        >
-          {filteredSlashCommands.length > 0 ? (
-            groupedSlashCommands.map((group) => {
-              if (!group.items.length) return null;
-              return (
-                <div key={group.title} className="kaneo-tiptap-slash-group">
-                  <div className="kaneo-tiptap-slash-group-title">
-                    {group.title}
-                  </div>
-                  {group.items.map((command) => {
-                    const index = filteredSlashCommands.findIndex(
-                      (candidate) => candidate.id === command.id,
-                    );
-                    return (
-                      <button
-                        key={command.id}
-                        type="button"
-                        className={cn(
-                          "kaneo-tiptap-slash-item",
-                          slashMenu.selectedIndex === index && "is-selected",
-                        )}
-                        onMouseEnter={() =>
-                          setSlashMenu((current) =>
-                            current
-                              ? { ...current, selectedIndex: index }
-                              : current,
-                          )
-                        }
-                        onMouseDown={(event) => {
-                          event.preventDefault();
-                          runSlashCommand(command);
-                        }}
-                      >
-                        <span className="kaneo-tiptap-slash-label">
-                          {command.label}
-                        </span>
-                        {command.shortcut && (
-                          <span className="kaneo-tiptap-slash-shortcut">
-                            {command.shortcut}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })
-          ) : (
-            <div className="kaneo-tiptap-slash-empty">
-              {t("tasks:detail.editor.slash.empty")}
-            </div>
-          )}
-        </div>
-      )}
-
-      {editor && embedComposer && (
-        <div
-          className="kaneo-embed-composer"
-          style={{
-            top: embedComposer.top,
-            left: embedComposer.left,
-            position: "absolute",
-          }}
-        >
-          {embedComposer.mode === "choice" ? (
-            <div className="kaneo-embed-choice-menu">
-              <button
-                type="button"
-                className="kaneo-embed-choice-item is-primary"
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  submitEmbedComposer("embed");
-                }}
-              >
-                <span>{t("tasks:detail.editor.embed.choice.embedVideo")}</span>
-                <span className="kaneo-embed-choice-hint">Tab</span>
-              </button>
-              <button
-                type="button"
-                className="kaneo-embed-choice-item"
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  setEmbedComposer(null);
-                  setEmbedComposerError("");
-                }}
-              >
-                <span>{t("tasks:detail.editor.embed.choice.keepAsLink")}</span>
-                <span className="kaneo-embed-choice-hint">Esc</span>
-              </button>
-            </div>
-          ) : (
-            <form
-              className="kaneo-embed-composer-form"
-              onSubmit={(event) => {
+            <button
+              type="button"
+              className="kaneo-codeblock-language-trigger kaneo-codeblock-copy-trigger"
+              aria-label={
+                isCodeCopied
+                  ? t("tasks:detail.editor.copied")
+                  : t("tasks:detail.editor.copyCode")
+              }
+              onMouseDown={(event) => {
                 event.preventDefault();
-                submitEmbedComposer("embed");
+              }}
+              onClick={() => {
+                void copyHoveredCodeBlock();
               }}
             >
-              <Input
-                size="sm"
-                value={embedComposer.url}
-                onChange={(event) => {
-                  setEmbedComposer((current) =>
-                    current ? { ...current, url: event.target.value } : current,
-                  );
-                  if (embedComposerError) setEmbedComposerError("");
-                }}
-                placeholder={t("tasks:detail.editor.embed.inputPlaceholder")}
-                autoFocus
-              />
-              <div className="kaneo-embed-composer-actions">
-                <Button
+              {isCodeCopied ? (
+                <Check className="size-3.5" />
+              ) : (
+                <Copy className="size-3.5" />
+              )}
+              <span>
+                {isCodeCopied
+                  ? t("tasks:detail.editor.copied")
+                  : t("tasks:detail.editor.copy")}
+              </span>
+            </button>
+            <DropdownMenu
+              open={isCodeLanguageMenuOpen}
+              onOpenChange={setIsCodeLanguageMenuOpen}
+            >
+              <DropdownMenuTrigger asChild>
+                <button
                   type="button"
-                  size="xs"
-                  variant="ghost"
-                  onClick={() => submitEmbedComposer("link")}
+                  className="kaneo-codeblock-language-trigger"
                 >
-                  {t("tasks:detail.editor.embed.asLink")}
-                </Button>
-                <Button type="submit" size="xs">
-                  {t("tasks:detail.editor.embed.submit")}
-                </Button>
-                <Button
+                  <span className="truncate">{activeCodeLanguageLabel}</span>
+                  <ChevronDown className="size-3.5 opacity-70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                side="bottom"
+                sideOffset={6}
+                className="max-h-72 w-48 overflow-y-auto"
+              >
+                <DropdownMenuRadioGroup
+                  value={hoveredCodeBlock.language}
+                  onValueChange={setCodeLanguage}
+                >
+                  <DropdownMenuRadioItem value="auto">
+                    {t("tasks:detail.editor.autoDetect")}
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuSeparator />
+                  {codeLanguages.map(({ value, label }) => (
+                    <DropdownMenuRadioItem key={value} value={value}>
+                      {label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        {editor && (
+          <BubbleMenu
+            editor={editor}
+            className="kaneo-tiptap-bubble"
+            shouldShow={({ editor: activeEditor, state, from, to }) => {
+              if (suppressTextFormattingBubble) return false;
+              if (activeEditor.isActive("embedBlock")) return false;
+              if (activeEditor.isActive("image")) return false;
+              if (
+                state.selection instanceof NodeSelection &&
+                state.selection.node.type.name === "image"
+              ) {
+                return false;
+              }
+              if (activeEditor.isEmpty) return false;
+              return from !== to;
+            }}
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("heading", { level: 2 }) &&
+                  "bg-accent text-accent-foreground",
+              )}
+              onClick={() =>
+                editor.chain().focus().toggleHeading({ level: 2 }).run()
+              }
+            >
+              <Heading2 className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("bulletList") &&
+                  "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+            >
+              <List className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("taskList") &&
+                  "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleTaskList().run()}
+            >
+              <ListTodo className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("orderedList") &&
+                  "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            >
+              <ListOrdered className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("blockquote") &&
+                  "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            >
+              <Quote className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("codeBlock") &&
+                  "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            >
+              <Braces className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className="kaneo-tiptap-bubble-btn"
+              onClick={() =>
+                editor.chain().focus().insertTable({ cols: 3, rows: 3 }).run()
+              }
+            >
+              <Table2 className="size-3.5" />
+            </Button>
+            <span className="kaneo-tiptap-bubble-separator" />
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("bold") && "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleBold().run()}
+            >
+              <Bold className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("italic") && "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+            >
+              <Italic className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("underline") &&
+                  "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+            >
+              <UnderlineIcon className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("strike") && "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleStrike().run()}
+            >
+              <Strikethrough className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("code") && "bg-accent text-accent-foreground",
+              )}
+              onClick={() => editor.chain().focus().toggleCode().run()}
+            >
+              <Code className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className={cn(
+                "kaneo-tiptap-bubble-btn",
+                editor.isActive("link") && "bg-accent text-accent-foreground",
+              )}
+              onClick={() => setLink()}
+            >
+              <Link2 className="size-3.5" />
+            </Button>
+          </BubbleMenu>
+        )}
+
+        {editor && slashMenu && (
+          <div
+            className="kaneo-tiptap-slash-menu"
+            style={{
+              top: slashMenu.top,
+              left: slashMenu.left,
+              position: "absolute",
+            }}
+          >
+            {filteredSlashCommands.length > 0 ? (
+              groupedSlashCommands.map((group) => {
+                if (!group.items.length) return null;
+                return (
+                  <div key={group.title} className="kaneo-tiptap-slash-group">
+                    <div className="kaneo-tiptap-slash-group-title">
+                      {group.title}
+                    </div>
+                    {group.items.map((command) => {
+                      const index = filteredSlashCommands.findIndex(
+                        (candidate) => candidate.id === command.id,
+                      );
+                      return (
+                        <button
+                          key={command.id}
+                          type="button"
+                          className={cn(
+                            "kaneo-tiptap-slash-item",
+                            slashMenu.selectedIndex === index && "is-selected",
+                          )}
+                          onMouseEnter={() =>
+                            setSlashMenu((current) =>
+                              current
+                                ? { ...current, selectedIndex: index }
+                                : current,
+                            )
+                          }
+                          onMouseDown={(event) => {
+                            event.preventDefault();
+                            runSlashCommand(command);
+                          }}
+                        >
+                          <span className="kaneo-tiptap-slash-label">
+                            {command.label}
+                          </span>
+                          {command.shortcut && (
+                            <span className="kaneo-tiptap-slash-shortcut">
+                              {command.shortcut}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="kaneo-tiptap-slash-empty">
+                {t("tasks:detail.editor.slash.empty")}
+              </div>
+            )}
+          </div>
+        )}
+
+        {editor && embedComposer && (
+          <div
+            className="kaneo-embed-composer"
+            style={{
+              top: embedComposer.top,
+              left: embedComposer.left,
+              position: "absolute",
+            }}
+          >
+            {embedComposer.mode === "choice" ? (
+              <div className="kaneo-embed-choice-menu">
+                <button
                   type="button"
-                  size="xs"
-                  variant="ghost"
-                  onClick={() => {
+                  className="kaneo-embed-choice-item is-primary"
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    submitEmbedComposer("embed");
+                  }}
+                >
+                  <span>
+                    {t("tasks:detail.editor.embed.choice.embedVideo")}
+                  </span>
+                  <span className="kaneo-embed-choice-hint">Tab</span>
+                </button>
+                <button
+                  type="button"
+                  className="kaneo-embed-choice-item"
+                  onMouseDown={(event) => {
+                    event.preventDefault();
                     setEmbedComposer(null);
                     setEmbedComposerError("");
                   }}
                 >
-                  {t("common:actions.cancel")}
-                </Button>
+                  <span>
+                    {t("tasks:detail.editor.embed.choice.keepAsLink")}
+                  </span>
+                  <span className="kaneo-embed-choice-hint">Esc</span>
+                </button>
               </div>
-              {embedComposerError && (
-                <p className="kaneo-embed-composer-error">
-                  {embedComposerError}
-                </p>
-              )}
-            </form>
-          )}
-        </div>
-      )}
+            ) : (
+              <form
+                className="kaneo-embed-composer-form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  submitEmbedComposer("embed");
+                }}
+              >
+                <Input
+                  size="sm"
+                  value={embedComposer.url}
+                  onChange={(event) => {
+                    setEmbedComposer((current) =>
+                      current
+                        ? { ...current, url: event.target.value }
+                        : current,
+                    );
+                    if (embedComposerError) setEmbedComposerError("");
+                  }}
+                  placeholder={t("tasks:detail.editor.embed.inputPlaceholder")}
+                  autoFocus
+                />
+                <div className="kaneo-embed-composer-actions">
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="ghost"
+                    onClick={() => submitEmbedComposer("link")}
+                  >
+                    {t("tasks:detail.editor.embed.asLink")}
+                  </Button>
+                  <Button type="submit" size="xs">
+                    {t("tasks:detail.editor.embed.submit")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="ghost"
+                    onClick={() => {
+                      setEmbedComposer(null);
+                      setEmbedComposerError("");
+                    }}
+                  >
+                    {t("common:actions.cancel")}
+                  </Button>
+                </div>
+                {embedComposerError && (
+                  <p className="kaneo-embed-composer-error">
+                    {embedComposerError}
+                  </p>
+                )}
+              </form>
+            )}
+          </div>
+        )}
 
-      <EditorContent
-        editor={editor}
-        className="kaneo-tiptap-content"
-        onMouseMove={handleEditorMouseMove}
-        onMouseLeave={handleEditorMouseLeave}
-      />
-      <button
-        type="button"
-        className="kaneo-editor-quick-attach"
-        onMouseDown={(event) => {
-          event.preventDefault();
-        }}
-        onClick={() => openImagePicker(editor)}
-        aria-label={t("tasks:detail.editor.attachFile")}
-      >
-        <Paperclip className="size-3.5" />
-      </button>
-      {isDragActive && (
-        <div className="kaneo-editor-drop-indicator">
-          <span>{t("tasks:detail.editor.dropToUpload")}</span>
-        </div>
-      )}
-      <Dialog
-        open={Boolean(previewImage)}
-        onOpenChange={(open) => {
-          if (!open) setPreviewImage(null);
-        }}
-      >
-        <DialogPopup
-          className="max-w-6xl border-0 bg-transparent p-0 shadow-none before:hidden"
-          showCloseButton={false}
-          bottomStickOnMobile={false}
+        <EditorContent
+          editor={editor}
+          className="kaneo-tiptap-content"
+          onMouseMove={handleEditorMouseMove}
+          onMouseLeave={handleEditorMouseLeave}
+        />
+        <button
+          type="button"
+          className="kaneo-editor-quick-attach"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => openImagePicker(editor)}
+          aria-label={t("tasks:detail.editor.attachFile")}
         >
-          {previewImage && (
-            <div className="flex max-h-[90vh] items-center justify-center p-4">
-              <img
-                src={previewImage.src}
-                alt={previewImage.alt}
-                className="max-h-[85vh] max-w-[92vw] rounded-xl border border-white/12 bg-black/30 object-contain shadow-2xl"
-              />
-            </div>
-          )}
-        </DialogPopup>
-      </Dialog>
-    </section>
+          <Paperclip className="size-3.5" />
+        </button>
+        {isDragActive && (
+          <div className="kaneo-editor-drop-indicator">
+            <span>{t("tasks:detail.editor.dropToUpload")}</span>
+          </div>
+        )}
+        <Dialog
+          open={Boolean(previewImage)}
+          onOpenChange={(open) => {
+            if (open) return;
+            setPreviewImage(null);
+            if (bubbleSuppressTimeoutRef.current != null) {
+              window.clearTimeout(bubbleSuppressTimeoutRef.current);
+            }
+            bubbleSuppressTimeoutRef.current = window.setTimeout(() => {
+              bubbleSuppressTimeoutRef.current = null;
+              setSuppressTextFormattingBubble(false);
+            }, 280);
+          }}
+        >
+          <DialogPopup
+            className="max-w-6xl border-0 bg-transparent p-0 shadow-none before:hidden"
+            showCloseButton={false}
+            bottomStickOnMobile={false}
+          >
+            {previewImage && (
+              <div className="flex max-h-[90vh] items-center justify-center p-4">
+                <img
+                  src={previewImage.src}
+                  alt={previewImage.alt}
+                  className="max-h-[85vh] max-w-[92vw] rounded-xl border border-white/12 bg-black/30 object-contain shadow-2xl"
+                />
+              </div>
+            )}
+          </DialogPopup>
+        </Dialog>
+      </section>
+    </TaskDescriptionImagePreviewContext.Provider>
   );
 }

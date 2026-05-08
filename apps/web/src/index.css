@@ -670,7 +670,6 @@ input:-webkit-autofill:active {
   .kaneo-comment-editor-prose img.kaneo-editor-image {
     display: block;
     max-width: min(100%, 44rem);
-    width: auto;
     height: auto;
     margin: 0.75rem 0;
     border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
@@ -678,6 +677,29 @@ input:-webkit-autofill:active {
     background: color-mix(in srgb, var(--accent) 22%, transparent);
     object-fit: contain;
     overflow: hidden;
+  }
+
+  .kaneo-tiptap-content
+    .ProseMirror
+    .kaneo-task-description-image-node
+    .kaneo-task-description-image-img.kaneo-editor-image {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .kaneo-tiptap-content .ProseMirror .kaneo-task-description-image-node {
+    border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+    border-radius: calc(var(--radius) - 2px);
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  .kaneo-tiptap-content
+    .ProseMirror
+    .kaneo-task-description-image-node
+    .kaneo-task-description-image-img {
+    vertical-align: top;
   }
 
   .kaneo-create-task-modal .kaneo-comment-editor-prose img.kaneo-editor-image {
