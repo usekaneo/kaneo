@@ -20,6 +20,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { getFirstImageSrcFromTaskDescription } from "@/lib/get-first-image-from-task-description";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
@@ -73,6 +74,11 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       (member) => member.userId === task.userId,
     );
   }, [workspaceUsers, task.userId]);
+
+  const descriptionPreviewSrc = useMemo(
+    () => getFirstImageSrcFromTaskDescription(task.description),
+    [task.description],
+  );
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -165,7 +171,15 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
             )}
 
             <div className="flex-1 min-w-0 flex items-center gap-2">
-              <div className="flex items-center gap-2 justify-between w-full">
+              {descriptionPreviewSrc ? (
+                <img
+                  src={descriptionPreviewSrc}
+                  alt=""
+                  loading="lazy"
+                  className="h-8 w-11 shrink-0 rounded border border-border/80 bg-muted/40 object-cover"
+                />
+              ) : null}
+              <div className="flex items-center gap-2 justify-between w-full min-w-0">
                 <span className="text-sm text-foreground truncate">
                   {task.title}
                 </span>

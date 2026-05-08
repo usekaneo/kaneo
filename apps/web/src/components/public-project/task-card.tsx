@@ -1,8 +1,9 @@
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
+import { getFirstImageSrcFromTaskDescription } from "@/lib/get-first-image-from-task-description";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -25,6 +26,10 @@ export function PublicTaskCard({
 }: PublicTaskCardProps) {
   const labels = task.labels || [];
   const externalLinks = task.externalLinks || [];
+  const descriptionPreviewSrc = useMemo(
+    () => getFirstImageSrcFromTaskDescription(task.description),
+    [task.description],
+  );
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(
     null,
   );
@@ -91,9 +96,19 @@ export function PublicTaskCard({
         </div>
       )}
 
-      <div className="mb-3">
+      <div className="mb-3 flex gap-2">
+        {descriptionPreviewSrc ? (
+          <img
+            src={descriptionPreviewSrc}
+            alt=""
+            loading="lazy"
+            className="h-10 w-14 shrink-0 rounded border border-border/80 bg-muted/40 object-cover"
+          />
+        ) : null}
         <h3
-          className="font-medium text-foreground text-sm leading-relaxed overflow-hidden break-words"
+          className={`font-medium text-foreground text-sm leading-relaxed overflow-hidden break-words min-w-0 flex-1 ${
+            descriptionPreviewSrc ? "" : "w-full"
+          }`}
           style={{
             display: "-webkit-box",
             WebkitLineClamp: 3,

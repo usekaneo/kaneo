@@ -32,6 +32,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { getFirstImageSrcFromTaskDescription } from "@/lib/get-first-image-from-task-description";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
@@ -91,6 +92,11 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     if (!externalLinks) return [];
     return externalLinks.filter((link) => link.resourceType === "pull_request");
   }, [externalLinks]);
+
+  const descriptionPreviewSrc = useMemo(
+    () => getFirstImageSrcFromTaskDescription(task.description),
+    [task.description],
+  );
 
   const getPRInfo = (pr: (typeof pullRequests)[number]) => {
     const isMerged = pr.metadata?.merged === true;
@@ -210,7 +216,15 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             )}
 
             <div className="flex-1 min-w-0 flex items-center gap-2">
-              <div className="flex items-center gap-2 justify-between w-full">
+              {descriptionPreviewSrc ? (
+                <img
+                  src={descriptionPreviewSrc}
+                  alt=""
+                  loading="lazy"
+                  className="h-8 w-11 shrink-0 rounded border border-border/80 bg-muted/40 object-cover"
+                />
+              ) : null}
+              <div className="flex items-center gap-2 justify-between w-full min-w-0">
                 <span className="text-sm text-foreground truncate">
                   {task.title}
                 </span>

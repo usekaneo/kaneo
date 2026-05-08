@@ -30,6 +30,7 @@ import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { getFirstImageSrcFromTaskDescription } from "@/lib/get-first-image-from-task-description";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
@@ -78,6 +79,11 @@ function TaskCard({ task }: TaskCardProps) {
     if (!externalLinks) return [];
     return externalLinks.filter((link) => link.resourceType === "pull_request");
   }, [externalLinks]);
+
+  const descriptionPreviewSrc = useMemo(
+    () => getFirstImageSrcFromTaskDescription(task.description),
+    [task.description],
+  );
 
   const getPRInfo = (pr: (typeof pullRequests)[number]) => {
     const isMerged = pr.metadata?.merged === true;
@@ -226,6 +232,17 @@ function TaskCard({ task }: TaskCardProps) {
                 {task.title}
               </div>
             </div>
+
+            {descriptionPreviewSrc && (
+              <div className="mb-2.5 pr-20">
+                <img
+                  src={descriptionPreviewSrc}
+                  alt=""
+                  loading="lazy"
+                  className="h-10 w-14 rounded border border-border/80 bg-muted/40 object-cover"
+                />
+              </div>
+            )}
 
             {showLabels && (
               <div className="mb-2.5">
