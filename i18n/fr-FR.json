@@ -1005,6 +1005,12 @@
 				"copied": "Copié",
 				"attachFile": "Joindre un fichier",
 				"dropToUpload": "Déposer l'image pour téléverser",
+				"imageSizeS": "S",
+				"imageSizeM": "M",
+				"imageSizeL": "L",
+				"imageSizeFull": "Pleine largeur",
+				"imageSizeAuto": "Auto",
+				"expandImage": "Agrandir l’image",
 				"checkbox": {
 					"markIncomplete": "Marquer la tâche comme incomplète",
 					"markComplete": "Marquer la tâche comme terminée"
@@ -1299,7 +1305,10 @@
 		},
 		"contextMenu": {
 			"copyLink": "Copier le lien",
-			"copyLinkSuccess": "Lien de la tâche copié !"
+			"copyLinkSuccess": "Lien de la tâche copié !",
+			"moveToTop": "Déplacer en haut",
+			"moveToTopSuccess": "Tâche déplacée en haut",
+			"moveToTopError": "Échec du déplacement de la tâche"
 		},
 		"actions": {
 			"archive": "Archiver",

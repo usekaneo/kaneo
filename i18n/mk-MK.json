@@ -1005,6 +1005,12 @@
 				"copied": "Копирано",
 				"attachFile": "Прикачи датотека",
 				"dropToUpload": "Пушти слика за прикачување",
+				"imageSizeS": "S",
+				"imageSizeM": "M",
+				"imageSizeL": "L",
+				"imageSizeFull": "Цела ширина",
+				"imageSizeAuto": "Авто",
+				"expandImage": "Прошири слика",
 				"checkbox": {
 					"markIncomplete": "Означи задача како незавршена",
 					"markComplete": "Означи задача како завршена"
@@ -1299,7 +1305,10 @@
 		},
 		"contextMenu": {
 			"copyLink": "Копирај линк",
-			"copyLinkSuccess": "Линкот на задачата е копиран!"
+			"copyLinkSuccess": "Линкот на задачата е копиран!",
+			"moveToTop": "Помести на врв",
+			"moveToTopSuccess": "Задачата е поместена на врв",
+			"moveToTopError": "Неуспешно поместување на задача"
 		},
 		"actions": {
 			"archive": "Архивирај",

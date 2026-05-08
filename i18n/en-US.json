@@ -1211,6 +1211,12 @@
 				"copied": "Copied",
 				"attachFile": "Attach file",
 				"dropToUpload": "Drop image to upload",
+				"imageSizeS": "S",
+				"imageSizeM": "M",
+				"imageSizeL": "L",
+				"imageSizeFull": "Full width",
+				"imageSizeAuto": "Auto",
+				"expandImage": "Expand image",
 				"checkbox": {
 					"markIncomplete": "Mark task as incomplete",
 					"markComplete": "Mark task as complete"
@@ -1505,7 +1511,10 @@
 		},
 		"contextMenu": {
 			"copyLink": "Copy link",
-			"copyLinkSuccess": "Task link copied!"
+			"copyLinkSuccess": "Task link copied!",
+			"moveToTop": "Move to top",
+			"moveToTopSuccess": "Task moved to top",
+			"moveToTopError": "Failed to move task"
 		},
 		"actions": {
 			"archive": "Archive",

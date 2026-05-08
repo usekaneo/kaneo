@@ -1075,6 +1075,12 @@
 				"copied": "Gekopieerd",
 				"attachFile": "Bestand bijvoegen",
 				"dropToUpload": "Sleep afbeelding om te uploaden",
+				"imageSizeS": "S",
+				"imageSizeM": "M",
+				"imageSizeL": "L",
+				"imageSizeFull": "Volle breedte",
+				"imageSizeAuto": "Auto",
+				"expandImage": "Afbeelding vergroten",
 				"checkbox": {
 					"markIncomplete": "Markeer taak als onvoltooid",
 					"markComplete": "Markeer taak als voltooid"
@@ -1369,7 +1375,10 @@
 		},
 		"contextMenu": {
 			"copyLink": "Link kopiëren",
-			"copyLinkSuccess": "Taaklink gekopieerd!"
+			"copyLinkSuccess": "Taaklink gekopieerd!",
+			"moveToTop": "Naar boven",
+			"moveToTopSuccess": "Taak naar boven verplaatst",
+			"moveToTopError": "Taak verplaatsen mislukt"
 		},
 		"actions": {
 			"archive": "Archiveren",

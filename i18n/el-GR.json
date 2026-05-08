@@ -1005,6 +1005,12 @@
 				"copied": "Αντιγράφηκε",
 				"attachFile": "Επισύναψη αρχείου",
 				"dropToUpload": "Αποθέστε εικόνα για μεταφόρτωση",
+				"imageSizeS": "S",
+				"imageSizeM": "M",
+				"imageSizeL": "L",
+				"imageSizeFull": "Πλήρες πλάτος",
+				"imageSizeAuto": "Αυτόματο",
+				"expandImage": "Μεγέθυνση εικόνας",
 				"checkbox": {
 					"markIncomplete": "Σήμανση εργασίας ως μη ολοκληρωμένη",
 					"markComplete": "Σήμανση εργασίας ως ολοκληρωμένη"
@@ -1299,7 +1305,10 @@
 		},
 		"contextMenu": {
 			"copyLink": "Αντιγραφή συνδέσμου",
-			"copyLinkSuccess": "Ο σύνδεσμος της εργασίας αντιγράφηκε!"
+			"copyLinkSuccess": "Ο σύνδεσμος της εργασίας αντιγράφηκε!",
+			"moveToTop": "Μετακίνηση στην κορυφή",
+			"moveToTopSuccess": "Η εργασία μετακινήθηκε στην κορυφή",
+			"moveToTopError": "Αποτυχία μετακίνησης εργασίας"
 		},
 		"actions": {
 			"archive": "Αρχειοθέτηση",

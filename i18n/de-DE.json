@@ -1201,6 +1201,12 @@
 				"copied": "Kopiert",
 				"attachFile": "Datei anhängen",
 				"dropToUpload": "Bild zum Hochladen ablegen",
+				"imageSizeS": "S",
+				"imageSizeM": "M",
+				"imageSizeL": "L",
+				"imageSizeFull": "Volle Breite",
+				"imageSizeAuto": "Auto",
+				"expandImage": "Bild vergrößern",
 				"checkbox": {
 					"markIncomplete": "Aufgabe als unvollständig markieren",
 					"markComplete": "Aufgabe als abgeschlossen markieren"
@@ -1495,7 +1501,10 @@
 		},
 		"contextMenu": {
 			"copyLink": "Link kopieren",
-			"copyLinkSuccess": "Aufgabenlink kopiert!"
+			"copyLinkSuccess": "Aufgabenlink kopiert!",
+			"moveToTop": "Nach oben",
+			"moveToTopSuccess": "Aufgabe nach oben verschoben",
+			"moveToTopError": "Aufgabe konnte nicht verschoben werden"
 		},
 		"actions": {
 			"archive": "Archivieren",

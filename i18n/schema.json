@@ -3786,6 +3786,24 @@
 								"dropToUpload": {
 									"type": "string"
 								},
+								"imageSizeS": {
+									"type": "string"
+								},
+								"imageSizeM": {
+									"type": "string"
+								},
+								"imageSizeL": {
+									"type": "string"
+								},
+								"imageSizeFull": {
+									"type": "string"
+								},
+								"imageSizeAuto": {
+									"type": "string"
+								},
+								"expandImage": {
+									"type": "string"
+								},
 								"checkbox": {
 									"type": "object",
 									"additionalProperties": false,
@@ -4113,6 +4131,12 @@
 								"copied",
 								"attachFile",
 								"dropToUpload",
+								"imageSizeS",
+								"imageSizeM",
+								"imageSizeL",
+								"imageSizeFull",
+								"imageSizeAuto",
+								"expandImage",
 								"checkbox",
 								"upload",
 								"slash",
@@ -4936,9 +4960,24 @@
 						},
 						"copyLinkSuccess": {
 							"type": "string"
+						},
+						"moveToTop": {
+							"type": "string"
+						},
+						"moveToTopSuccess": {
+							"type": "string"
+						},
+						"moveToTopError": {
+							"type": "string"
 						}
 					},
-					"required": ["copyLink", "copyLinkSuccess"]
+					"required": [
+						"copyLink",
+						"copyLinkSuccess",
+						"moveToTop",
+						"moveToTopSuccess",
+						"moveToTopError"
+					]
 				},
 				"actions": {
 					"type": "object",
