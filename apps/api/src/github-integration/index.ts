@@ -12,6 +12,7 @@ import {
 } from "../plugins/github/config";
 import { handleGitHubWebhook } from "../plugins/github/webhook-handler";
 import { githubIntegrationSchema } from "../schemas";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createGithubIntegration from "./controllers/create-github-integration";
@@ -181,6 +182,7 @@ const githubIntegration = new Hono<{
       }),
     ),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { repositoryOwner, repositoryName } = c.req.valid("json");
@@ -226,6 +228,7 @@ const githubIntegration = new Hono<{
       }),
     ),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const body = c.req.valid("json");
@@ -300,6 +303,7 @@ const githubIntegration = new Hono<{
     }),
     validator("param", v.object({ projectId: v.string() })),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const result = await deleteGithubIntegration(projectId);
@@ -353,6 +357,7 @@ const githubIntegration = new Hono<{
 
       return next();
     },
+    requireWorkspacePermission({ task: ["create"] }),
     async (c) => {
       const { projectId } = c.req.valid("json");
       const result = await importIssues(projectId);

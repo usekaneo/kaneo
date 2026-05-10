@@ -3,7 +3,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
 import type { Session, User } from "better-auth/types";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -161,6 +161,44 @@ export function createApp() {
   api.get("/health", (c) => {
     return c.json({ status: "ok" });
   });
+
+  api.get(
+    "/instance/status",
+    describeRoute({
+      operationId: "getInstanceStatus",
+      tags: ["Instance"],
+      description:
+        "Public instance setup status. When hasUsers is false the next signup becomes the instance admin.",
+      security: [],
+      responses: {
+        200: {
+          description: "Instance status",
+          content: {
+            "application/json": {
+              schema: resolver(
+                v.object({
+                  hasUsers: v.boolean(),
+                  hasAdmin: v.boolean(),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const totalRows = await db
+        .select({ value: count() })
+        .from(schema.userTable);
+      const adminRows = await db
+        .select({ value: count() })
+        .from(schema.userTable)
+        .where(eq(schema.userTable.role, "admin"));
+      const total = totalRows[0]?.value ?? 0;
+      const admins = adminRows[0]?.value ?? 0;
+      return c.json({ hasUsers: total > 0, hasAdmin: admins > 0 });
+    },
+  );
 
   const publicProjectApi = api.get("/public-project/:id", async (c) => {
     const { id } = c.req.param();

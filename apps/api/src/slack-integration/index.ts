@@ -12,6 +12,7 @@ import {
   validateSlackConfig,
 } from "../plugins/slack/config";
 import { slackIntegrationSchema } from "../schemas";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 
 const slackIntegration = new Hono<{
@@ -144,6 +145,7 @@ slackIntegration
       }),
     ),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const body = c.req.valid("json");
@@ -225,6 +227,7 @@ slackIntegration
       }),
     ),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const body = c.req.valid("json");
@@ -299,6 +302,7 @@ slackIntegration
     }),
     validator("param", v.object({ projectId: v.string() })),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
 

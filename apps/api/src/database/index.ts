@@ -27,6 +27,7 @@ import {
   userTableRelations,
   verificationTableRelations,
   workflowRuleTableRelations,
+  workspaceRoleTableRelations,
   workspaceTableRelations,
   workspaceUserTableRelations,
 } from "./relations";
@@ -57,6 +58,7 @@ import {
   userTable,
   verificationTable,
   workflowRuleTable,
+  workspaceRoleTable,
   workspaceTable,
   workspaceUserTable,
 } from "./schema";
@@ -96,6 +98,7 @@ export const schema = {
   userNotificationWorkspaceRuleTable,
   verificationTable,
   workflowRuleTable,
+  workspaceRoleTable,
   workspaceTable,
   workspaceUserTable,
   accountTableRelations,
@@ -123,6 +126,7 @@ export const schema = {
   userNotificationWorkspaceRuleTableRelations,
   verificationTableRelations,
   workflowRuleTableRelations,
+  workspaceRoleTableRelations,
   workspaceTableRelations,
   workspaceUserTableRelations,
 };

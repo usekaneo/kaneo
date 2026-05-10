@@ -4,11 +4,13 @@ import {
   sendOtpEmail,
   sendWorkspaceInvitationEmail,
 } from "@kaneo/email";
+import { ac, admin, member, owner, viewer } from "@kaneo/permissions";
 import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import {
+  admin as adminPlugin,
   anonymous,
   bearer,
   deviceAuthorization,
@@ -20,7 +22,7 @@ import {
   organization,
 } from "better-auth/plugins";
 import { config } from "dotenv-mono";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
@@ -147,6 +149,7 @@ export const auth = betterAuth({
       workspace: schema.workspaceTable,
       workspace_member: schema.workspaceUserTable,
       invitation: schema.invitationTable,
+      workspace_role: schema.workspaceRoleTable,
       team: schema.teamTable,
       teamMember: schema.teamMemberTable,
       apikey: schema.apikeyTable,
@@ -226,8 +229,12 @@ export const auth = betterAuth({
       },
     }),
     organization({
-      // creatorRole: "admin", // maybe will want this "The role of the user who creates the organization."
-      // invitationLimit and other fields like this may be beneficial as well
+      ac,
+      roles: { viewer, member, admin, owner },
+      dynamicAccessControl: {
+        enabled: true,
+        maximumRolesPerOrganization: 25,
+      },
       teams: {
         enabled: true,
         maximumTeams: 10,
@@ -254,6 +261,12 @@ export const auth = betterAuth({
         },
         invitation: {
           modelName: "invitation",
+          fields: {
+            organizationId: "workspaceId",
+          },
+        },
+        organizationRole: {
+          modelName: "workspace_role",
           fields: {
             organizationId: "workspaceId",
           },
@@ -341,6 +354,10 @@ export const auth = betterAuth({
       validateClient: async (clientId) =>
         getDeviceAuthClientIds().has(clientId),
     }),
+    adminPlugin({
+      defaultRole: "user",
+      adminRoles: ["admin"],
+    }),
     openAPI(),
   ],
   session: {
@@ -353,6 +370,15 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
+          const userCountRows = await db
+            .select({ value: count() })
+            .from(schema.userTable);
+          const existingUserCount = userCountRows[0]?.value ?? 0;
+
+          if (existingUserCount === 0) {
+            return { data: { ...user, role: "admin" } };
+          }
+
           const result = await checkRegistrationAllowed(user.email);
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {
@@ -374,8 +400,14 @@ export const auth = betterAuth({
         return;
       }
 
+      const userCountRows = await db
+        .select({ value: count() })
+        .from(schema.userTable);
+      const existingUserCount = userCountRows[0]?.value ?? 0;
+      const isInstanceAdminSetup = existingUserCount === 0;
+
       if (ctx.path === "/sign-up/email") {
-        if (isPasswordRegistrationDisabled) {
+        if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
           throw new APIError("FORBIDDEN", {
             message:
               "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
@@ -383,7 +415,7 @@ export const auth = betterAuth({
         }
       }
 
-      if (!isRegistrationDisabled) {
+      if (!isRegistrationDisabled || isInstanceAdminSetup) {
         return;
       }
 

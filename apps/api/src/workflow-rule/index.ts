@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import deleteWorkflowRule from "./controllers/delete-workflow-rule";
 import getWorkflowRules from "./controllers/get-workflow-rules";
@@ -59,6 +60,7 @@ const workflowRule = new Hono<{
       }),
     ),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { integrationType, eventType, columnId } = c.req.valid("json");
@@ -88,6 +90,7 @@ const workflowRule = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromWorkflowRule("id"),
+    requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const result = await deleteWorkflowRule(id);

@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { projectSchema } from "../schemas";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
@@ -75,6 +76,7 @@ const project = new Hono<{
       }),
     ),
     workspaceAccess.fromBody(),
+    requireWorkspacePermission({ project: ["create"] }),
     async (c) => {
       const { name, icon, slug } = c.req.valid("json");
       const workspaceId = c.get("workspaceId");
@@ -133,6 +135,7 @@ const project = new Hono<{
       }),
     ),
     workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { name, icon, slug, description, isPublic } = c.req.valid("json");
@@ -166,6 +169,7 @@ const project = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["delete"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const workspaceId = c.get("workspaceId");
@@ -190,6 +194,7 @@ const project = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const workspaceId = c.get("workspaceId");
@@ -214,6 +219,7 @@ const project = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const workspaceId = c.get("workspaceId");

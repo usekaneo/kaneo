@@ -1,13 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 
 type UpdateWorkspaceUserRoleRequest = {
   workspaceId: string;
   memberId: string;
-  role: "admin" | "member" | "owner";
+  role: string;
 };
 
 function useUpdateWorkspaceUserRole() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       workspaceId,
@@ -17,7 +18,7 @@ function useUpdateWorkspaceUserRole() {
       const { data, error } = await authClient.organization.updateMemberRole({
         memberId,
         organizationId: workspaceId,
-        role,
+        role: role as "admin" | "member" | "owner",
       });
 
       if (error) {
@@ -27,6 +28,13 @@ function useUpdateWorkspaceUserRole() {
       }
 
       return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["workspace", variables.workspaceId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["full-workspace"] });
+      queryClient.invalidateQueries({ queryKey: ["active-workspace-user"] });
     },
   });
 }
