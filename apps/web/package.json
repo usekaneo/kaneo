@@ -49,7 +49,7 @@
 		"@tiptap/extension-image": "^3.22.5",
 		"@tiptap/extension-link": "^3.22.5",
 		"@tiptap/extension-list": "^3.22.5",
-		"@tiptap/extension-placeholder": "^3.22.5",
+		"@tiptap/extension-placeholder": "^3.23.1",
 		"@tiptap/extension-table": "^3.22.5",
 		"@tiptap/extension-table-cell": "^3.22.5",
 		"@tiptap/extension-table-header": "^3.22.5",
