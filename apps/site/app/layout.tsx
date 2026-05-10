@@ -12,7 +12,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://kaneo.app"),
   title: {
-    default: "Kaneo — All you need. Nothing you don't.",
+    default: "Kaneo - All you need. Nothing you don't.",
     template: "%s | Kaneo",
   },
   description:
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://kaneo.app",
     siteName: "Kaneo",
-    title: "Kaneo — All you need. Nothing you don't.",
+    title: "Kaneo - All you need. Nothing you don't.",
     description:
       "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
     images: [
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kaneo — All you need. Nothing you don't.",
+    title: "Kaneo - All you need. Nothing you don't.",
     description:
       "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
     images: ["/images/hero.png"],
