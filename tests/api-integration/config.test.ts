@@ -13,6 +13,8 @@ describe("API integration: config", () => {
     expect(payload).toMatchObject({
       disableRegistration: false,
       disablePasswordRegistration: false,
+      disableLoginForm: expect.any(Boolean),
+      customOAuthAutoLogin: expect.any(Boolean),
       isDemoMode: false,
       hasGuestAccess: true,
     });

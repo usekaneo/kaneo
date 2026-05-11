@@ -26,6 +26,8 @@ function getSettings() {
       Boolean(process.env.CUSTOM_OAUTH_CLIENT_ID) &&
       Boolean(process.env.CUSTOM_OAUTH_CLIENT_SECRET),
     hasGuestAccess: process.env.DISABLE_GUEST_ACCESS !== "true",
+    disableLoginForm: process.env.DISABLE_LOGIN_FORM === "true",
+    customOAuthAutoLogin: process.env.CUSTOM_OAUTH_AUTO_LOGIN === "true",
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
   };
 }
