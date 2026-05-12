@@ -7,7 +7,11 @@ import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 
 async function updateComment(userId: string, id: string, content: string) {
   const [existing] = await db
-    .select({ id: activityTable.id, content: activityTable.content })
+    .select({
+      id: activityTable.id,
+      content: activityTable.content,
+      taskId: activityTable.taskId,
+    })
     .from(activityTable)
     .where(and(eq(activityTable.id, id), eq(activityTable.userId, userId)))
     .limit(1);
@@ -44,7 +48,9 @@ async function updateComment(userId: string, id: string, content: string) {
     });
   }
 
-  deleteOrphanedAssets(existing.content, content).catch(() => {});
+  deleteOrphanedAssets(existing.content, content, {
+    taskId: existing.taskId,
+  }).catch(() => {});
 
   return updated;
 }

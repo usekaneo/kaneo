@@ -218,7 +218,7 @@ describe("S3 helpers", () => {
 
 vi.mock("../../../apps/api/src/database", () => ({ default: {} }));
 
-const { extractAssetIds } = await import(
+const { contentReferencesAsset, extractAssetIds } = await import(
   "../../../apps/api/src/storage/cleanup-assets"
 );
 
@@ -243,5 +243,12 @@ describe("extractAssetIds", () => {
   it("deduplicates repeated asset IDs", () => {
     const content = "/api/asset/abc123 and again /api/asset/abc123";
     expect(extractAssetIds(content)).toEqual(new Set(["abc123"]));
+  });
+
+  it("does not treat asset ID prefixes as references", () => {
+    expect(contentReferencesAsset("/api/asset/abc123xyz", "abc123")).toBe(
+      false,
+    );
+    expect(contentReferencesAsset("/api/asset/abc123", "abc123")).toBe(true);
   });
 });

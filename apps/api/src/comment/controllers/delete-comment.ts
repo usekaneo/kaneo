@@ -50,7 +50,9 @@ async function deleteComment(userId: string, id: string) {
     });
   }
 
-  deleteOrphanedAssets(existing.content, null).catch(() => {});
+  deleteOrphanedAssets(existing.content, null, {
+    taskId: existing.taskId,
+  }).catch(() => {});
 
   return deleted;
 }

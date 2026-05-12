@@ -1,6 +1,11 @@
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, like } from "drizzle-orm";
 import db from "../database";
-import { assetTable } from "../database/schema";
+import {
+  activityTable,
+  assetTable,
+  commentTable,
+  taskTable,
+} from "../database/schema";
 import { deleteS3Object } from "./s3";
 
 const ASSET_URL_PATTERN = /\/api\/asset\/([a-z0-9]+)/gi;
@@ -23,9 +28,69 @@ export function extractAssetIds(
   return ids;
 }
 
+export function contentReferencesAsset(
+  content: string | null | undefined,
+  assetId: string,
+): boolean {
+  return extractAssetIds(content).has(assetId);
+}
+
+export interface AssetCleanupScope {
+  taskId: string;
+}
+
+/**
+ * Check whether an asset ID is still referenced in any content belonging to
+ * the same task (description, comments, or activity comments).
+ */
+async function isAssetReferencedElsewhere(
+  assetId: string,
+  taskId: string,
+): Promise<boolean> {
+  const pattern = `%/api/asset/${assetId}%`;
+
+  const [taskRef] = await db
+    .select({ description: taskTable.description })
+    .from(taskTable)
+    .where(and(eq(taskTable.id, taskId), like(taskTable.description, pattern)))
+    .limit(1);
+
+  if (contentReferencesAsset(taskRef?.description, assetId)) return true;
+
+  const commentRefs = await db
+    .select({ content: commentTable.content })
+    .from(commentTable)
+    .where(
+      and(eq(commentTable.taskId, taskId), like(commentTable.content, pattern)),
+    );
+
+  if (commentRefs.some((ref) => contentReferencesAsset(ref.content, assetId))) {
+    return true;
+  }
+
+  const activityRefs = await db
+    .select({ content: activityTable.content })
+    .from(activityTable)
+    .where(
+      and(
+        eq(activityTable.taskId, taskId),
+        like(activityTable.content, pattern),
+      ),
+    );
+
+  if (
+    activityRefs.some((ref) => contentReferencesAsset(ref.content, assetId))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 export async function deleteOrphanedAssets(
   oldContent: string | null | undefined,
   newContent: string | null | undefined,
+  scope: AssetCleanupScope,
 ): Promise<void> {
   const oldIds = extractAssetIds(oldContent);
   const newIds = extractAssetIds(newContent);
@@ -36,39 +101,47 @@ export async function deleteOrphanedAssets(
   const assets = await db
     .select({ id: assetTable.id, objectKey: assetTable.objectKey })
     .from(assetTable)
-    .where(inArray(assetTable.id, removedIds));
+    .where(
+      and(
+        inArray(assetTable.id, removedIds),
+        eq(assetTable.taskId, scope.taskId),
+      ),
+    );
 
+  const assetsToDelete: typeof assets = [];
   for (const asset of assets) {
-    try {
-      await deleteS3Object(asset.objectKey);
-    } catch {
-      // S3 deletion is best-effort; the DB record is still removed below
+    const stillReferenced = await isAssetReferencedElsewhere(
+      asset.id,
+      scope.taskId,
+    );
+    if (!stillReferenced) {
+      assetsToDelete.push(asset);
     }
   }
 
-  if (assets.length > 0) {
-    await db.delete(assetTable).where(
-      inArray(
-        assetTable.id,
-        assets.map((a) => a.id),
-      ),
-    );
-  }
+  if (assetsToDelete.length === 0) return;
+
+  await Promise.allSettled(
+    assetsToDelete.map((asset) => deleteS3Object(asset.objectKey)),
+  );
+
+  await db.delete(assetTable).where(
+    inArray(
+      assetTable.id,
+      assetsToDelete.map((a) => a.id),
+    ),
+  );
 }
 
-export async function deleteAllTaskAssets(taskId: string): Promise<void> {
+export async function getTaskAssetKeys(taskId: string): Promise<string[]> {
   const assets = await db
-    .select({ id: assetTable.id, objectKey: assetTable.objectKey })
+    .select({ objectKey: assetTable.objectKey })
     .from(assetTable)
     .where(eq(assetTable.taskId, taskId));
 
-  for (const asset of assets) {
-    try {
-      await deleteS3Object(asset.objectKey);
-    } catch {
-      // best-effort
-    }
-  }
+  return assets.map((a) => a.objectKey);
+}
 
-  // DB rows cascade-delete with the task, so no explicit delete needed here
+export async function deleteS3Keys(keys: string[]): Promise<void> {
+  await Promise.allSettled(keys.map((key) => deleteS3Object(key)));
 }

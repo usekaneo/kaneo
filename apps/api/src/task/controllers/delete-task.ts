@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskRelationTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-import { deleteAllTaskAssets } from "../../storage/cleanup-assets";
+import { deleteS3Keys, getTaskAssetKeys } from "../../storage/cleanup-assets";
 import getTask from "./get-task";
 
 async function deleteTask(taskId: string, currentUserId: string) {
@@ -20,7 +20,7 @@ async function deleteTask(taskId: string, currentUserId: string) {
     )
     .execute();
 
-  await deleteAllTaskAssets(taskId).catch(() => {});
+  const assetKeys = await getTaskAssetKeys(taskId);
 
   const [deletedTask] = await db
     .delete(taskTable)
@@ -48,6 +48,11 @@ async function deleteTask(taskId: string, currentUserId: string) {
       sourceTaskId: relation.sourceTaskId,
       targetTaskId: relation.targetTaskId,
     });
+  }
+
+  // Fire-and-forget S3 cleanup after successful DB delete
+  if (assetKeys.length > 0) {
+    deleteS3Keys(assetKeys).catch(() => {});
   }
 
   return task;

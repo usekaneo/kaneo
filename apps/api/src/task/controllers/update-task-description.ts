@@ -45,7 +45,9 @@ async function updateTaskDescription({
     type: "description_changed",
   });
 
-  deleteOrphanedAssets(existingTask.description, description).catch(() => {});
+  deleteOrphanedAssets(existingTask.description, description, {
+    taskId: id,
+  }).catch(() => {});
 
   return updatedTask;
 }

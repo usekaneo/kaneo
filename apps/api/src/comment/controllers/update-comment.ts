@@ -51,7 +51,9 @@ async function updateComment(userId: string, id: string, content: string) {
     });
   }
 
-  deleteOrphanedAssets(existing.content, content).catch(() => {});
+  deleteOrphanedAssets(existing.content, content, {
+    taskId: existing.taskId,
+  }).catch(() => {});
 
   return updated;
 }
