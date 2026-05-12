@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable, taskTable } from "../../../database/schema";
+import { publishEvent } from "../../../events";
 import { updateExternalLink } from "../services/link-manager";
 import {
   findAllIntegrationsByRepo,
@@ -66,7 +67,22 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
       "done",
     );
 
-    await updateTaskStatus(task.id, targetStatus);
+    const statusResult = await updateTaskStatus(task.id, targetStatus);
+    if (
+      statusResult.applied &&
+      statusResult.before.status !== statusResult.after.status
+    ) {
+      await publishEvent("task.status_changed", {
+        taskId: statusResult.after.id,
+        projectId: statusResult.after.projectId,
+        userId: null,
+        oldStatus: statusResult.before.status,
+        newStatus: statusResult.after.status,
+        title: statusResult.after.title,
+        assigneeId: statusResult.after.userId,
+        type: "status_changed",
+      });
+    }
 
     await updateExternalLink(externalLink.id, {
       metadata: {
