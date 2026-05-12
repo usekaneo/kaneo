@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskRelationTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { deleteAllTaskAssets } from "../../storage/cleanup-assets";
 import getTask from "./get-task";
 
 async function deleteTask(taskId: string, currentUserId: string) {
@@ -18,6 +19,8 @@ async function deleteTask(taskId: string, currentUserId: string) {
       ),
     )
     .execute();
+
+  await deleteAllTaskAssets(taskId).catch(() => {});
 
   const [deletedTask] = await db
     .delete(taskTable)

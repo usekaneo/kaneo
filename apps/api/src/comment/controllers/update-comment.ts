@@ -3,10 +3,15 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { commentTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 
 async function updateComment(userId: string, id: string, content: string) {
   const [existing] = await db
-    .select({ userId: commentTable.userId, taskId: commentTable.taskId })
+    .select({
+      userId: commentTable.userId,
+      taskId: commentTable.taskId,
+      content: commentTable.content,
+    })
     .from(commentTable)
     .where(eq(commentTable.id, id))
     .limit(1);
@@ -45,6 +50,8 @@ async function updateComment(userId: string, id: string, content: string) {
       userId,
     });
   }
+
+  deleteOrphanedAssets(existing.content, content).catch(() => {});
 
   return updated;
 }

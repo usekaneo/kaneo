@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 import { assertValidTaskStatus } from "../validate-task-fields";
 
 async function updateTask(
@@ -85,6 +86,10 @@ async function updateTask(
     status: updatedTask.status,
     userId: currentUserId,
   });
+
+  if (existingTask.description !== description) {
+    deleteOrphanedAssets(existingTask.description, description).catch(() => {});
+  }
 
   return updatedTask;
 }

@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 
 async function updateTaskDescription({
   id,
@@ -43,6 +44,8 @@ async function updateTaskDescription({
     newDescription: description,
     type: "description_changed",
   });
+
+  deleteOrphanedAssets(existingTask.description, description).catch(() => {});
 
   return updatedTask;
 }
