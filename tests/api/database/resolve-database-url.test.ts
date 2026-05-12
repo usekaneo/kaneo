@@ -88,13 +88,12 @@ describe("resolve-database-url", () => {
     process.env.POSTGRES_USER = "kaneo";
 
     expect(resolveDatabaseConfig()).toMatchObject({
-      connectionString:
-        "postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo",
+      connectionString: "postgresql://localhost:5432/kaneo",
       source: "LOCAL_FALLBACK",
       host: "localhost",
       port: 5432,
       database: "kaneo",
-      username: "kaneo_user",
+      username: "",
     });
   });
 

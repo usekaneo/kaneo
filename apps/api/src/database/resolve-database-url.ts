@@ -1,5 +1,4 @@
-const LOCAL_FALLBACK_CONNECTION_STRING =
-  "postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo";
+const LOCAL_FALLBACK_CONNECTION_STRING = "postgresql://localhost:5432/kaneo";
 
 type DatabaseConfigSource = "DATABASE_URL" | "POSTGRES_ENV" | "LOCAL_FALLBACK";
 
