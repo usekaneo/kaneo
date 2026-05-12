@@ -17,6 +17,16 @@ export async function waitForDatabase({
   maxAttempts = 30,
   retryDelayMs = 1_000,
 }: WaitForDatabaseOptions): Promise<void> {
+  if (maxAttempts < 1) {
+    throw new RangeError(`maxAttempts must be at least 1, got ${maxAttempts}`);
+  }
+
+  if (retryDelayMs < 0) {
+    throw new RangeError(
+      `retryDelayMs must be non-negative, got ${retryDelayMs}`,
+    );
+  }
+
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

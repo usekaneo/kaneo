@@ -2,6 +2,34 @@ import { describe, expect, it, vi } from "vitest";
 import { waitForDatabase } from "../../../apps/api/src/database/wait-for-database";
 
 describe("wait-for-database", () => {
+  it("throws when maxAttempts is less than 1", async () => {
+    await expect(
+      waitForDatabase({
+        query: async () => undefined,
+        sleep: async () => undefined,
+        maxAttempts: 0,
+      }),
+    ).rejects.toThrow(RangeError);
+
+    await expect(
+      waitForDatabase({
+        query: async () => undefined,
+        sleep: async () => undefined,
+        maxAttempts: -1,
+      }),
+    ).rejects.toThrow(RangeError);
+  });
+
+  it("throws when retryDelayMs is negative", async () => {
+    await expect(
+      waitForDatabase({
+        query: async () => undefined,
+        sleep: async () => undefined,
+        maxAttempts: 1,
+        retryDelayMs: -1,
+      }),
+    ).rejects.toThrow(RangeError);
+  });
   it("returns on the first successful query", async () => {
     const query = vi.fn().mockResolvedValue(undefined);
 
