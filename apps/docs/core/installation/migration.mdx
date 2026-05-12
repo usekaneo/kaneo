@@ -119,13 +119,14 @@ KANEO_CLIENT_URL=https://kaneo.example.com
 
 ### DATABASE_URL is now optional
 
-`DATABASE_URL` is derived from `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` if you leave it unset:
+For the bundled image, `DATABASE_URL` is derived from `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, and the default Compose hostname if you leave it unset:
 
 ```
 postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
 ```
 
-If you were setting `DATABASE_URL` explicitly with the same values, you can remove it. Keep it if you use an external database or a non-default hostname.
+If you were setting `DATABASE_URL` explicitly with the same values, you can remove it.
+Keep it if you use an external database, a non-default hostname, or a host-native API process that should connect through `localhost` instead of the Compose hostname.
 
 **Before:**
 ```env

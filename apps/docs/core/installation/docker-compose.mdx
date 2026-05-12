@@ -70,6 +70,9 @@ Set `KANEO_API_URL` explicitly only if you need to override the default (e.g. a 
 
 This keeps the browser on one origin while the container proxies `/api` requests to the internal API process.
 
+For this Compose setup, the bundled Kaneo container reaches PostgreSQL at the service hostname `postgres`.
+If you run the API directly on your host instead, use `localhost` or set `DATABASE_URL` explicitly.
+
 ## Notes on object storage
 
 Kaneo uses S3-compatible object storage for private uploads in task descriptions and comments.

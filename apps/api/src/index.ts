@@ -3,7 +3,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
 import type { Session, User } from "better-auth/types";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -20,7 +20,9 @@ import { auth } from "./auth";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
-import db, { schema } from "./database";
+import db, { getDatabase, schema } from "./database";
+import { prepareDatabaseStartup } from "./database/prepare-database-startup";
+import { waitForDatabase } from "./database/wait-for-database";
 import discordIntegration from "./discord-integration";
 import { eventContext } from "./events";
 import externalLink from "./external-link";
@@ -598,14 +600,25 @@ export function createApp() {
 export async function runStartupTasks() {
   const currentDir = dirname(fileURLToPath(import.meta.url));
 
-  await migrateWorkspaceUserEmail();
-  await migrateSessionColumn();
+  await prepareDatabaseStartup({
+    waitForDatabase: async () => {
+      await waitForDatabase({
+        query: async () => {
+          await getDatabase().execute(sql`SELECT 1`);
+        },
+      });
+    },
+    runStartupMigrations: async () => {
+      await migrateWorkspaceUserEmail();
+      await migrateSessionColumn();
 
-  console.log("🔄 Migrating database...");
-  await migrate(db, {
-    migrationsFolder: `${currentDir}/../drizzle`,
+      console.log("🔄 Migrating database...");
+      await migrate(getDatabase(), {
+        migrationsFolder: `${currentDir}/../drizzle`,
+      });
+      console.log("✅ Database migrated successfully!");
+    },
   });
-  console.log("✅ Database migrated successfully!");
 
   // After Drizzle migrations: apikey table must exist so we can align columns
   // with Better Auth (reference_id + nullable user_id).
