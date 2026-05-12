@@ -121,16 +121,17 @@ export async function deleteOrphanedAssets(
 
   if (assetsToDelete.length === 0) return;
 
-  await Promise.allSettled(
-    assetsToDelete.map((asset) => deleteS3Object(asset.objectKey)),
+  const deleteResults = await deleteS3Keys(
+    assetsToDelete.map((asset) => asset.objectKey),
   );
 
-  await db.delete(assetTable).where(
-    inArray(
-      assetTable.id,
-      assetsToDelete.map((a) => a.id),
-    ),
-  );
+  const deletedAssetIds = assetsToDelete
+    .filter((_, index) => deleteResults[index]?.status === "fulfilled")
+    .map((asset) => asset.id);
+
+  if (deletedAssetIds.length === 0) return;
+
+  await db.delete(assetTable).where(inArray(assetTable.id, deletedAssetIds));
 }
 
 export async function getTaskAssetKeys(taskId: string): Promise<string[]> {
@@ -142,6 +143,33 @@ export async function getTaskAssetKeys(taskId: string): Promise<string[]> {
   return assets.map((a) => a.objectKey);
 }
 
-export async function deleteS3Keys(keys: string[]): Promise<void> {
-  await Promise.allSettled(keys.map((key) => deleteS3Object(key)));
+export async function deleteS3Keys(
+  keys: string[],
+): Promise<PromiseSettledResult<void>[]> {
+  const deleteResults = await Promise.allSettled(
+    keys.map((key) => deleteS3Object(key)),
+  );
+
+  const failedDeletions = keys
+    .map((key, index) => ({ key, result: deleteResults[index] }))
+    .filter(
+      (
+        deletion,
+      ): deletion is {
+        key: string;
+        result: PromiseRejectedResult;
+      } => deletion.result?.status === "rejected",
+    );
+
+  if (failedDeletions.length > 0) {
+    console.error(
+      "Failed to delete S3 objects",
+      failedDeletions.map(({ key, result }) => ({
+        key,
+        reason: result.reason,
+      })),
+    );
+  }
+
+  return deleteResults;
 }
