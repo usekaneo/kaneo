@@ -21,6 +21,7 @@ import {
   openAPI,
   organization,
 } from "better-auth/plugins";
+import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
 import { count, eq, sql } from "drizzle-orm";
 import db, { schema } from "./database";
@@ -380,8 +381,11 @@ export const auth = betterAuth({
         after: async (user) => {
           // The anonymous() plugin creates ephemeral users for guest
           // access; never promote one to instance admin even if no
-          // real admin exists yet.
-          if ((user as { isAnonymous?: boolean }).isAnonymous) {
+          // real admin exists yet. `isAnonymous` is contributed by the
+          // anonymous plugin's `additionalFields` and isn't part of the
+          // base User type, so we narrow through `UserWithAnonymous`.
+          const userWithAnonymous = user as Partial<UserWithAnonymous>;
+          if (userWithAnonymous.isAnonymous) {
             return;
           }
 
