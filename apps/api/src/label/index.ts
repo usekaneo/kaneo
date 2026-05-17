@@ -89,7 +89,7 @@ const label = new Hono<{
       }),
     ),
     workspaceAccess.fromBody(),
-    requireWorkspacePermission({ project: ["update"] }),
+    requireWorkspacePermission({ label: ["create"] }),
     async (c) => {
       const { name, color, workspaceId, taskId } = c.req.valid("json");
       const userId = c.get("userId");
@@ -138,7 +138,7 @@ const label = new Hono<{
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ taskId: v.string() })),
     workspaceAccess.fromLabel(),
-    requireWorkspacePermission({ task: ["update"] }),
+    requireWorkspacePermission({ label: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { taskId } = c.req.valid("json");
@@ -164,7 +164,7 @@ const label = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromLabel(),
-    requireWorkspacePermission({ task: ["update"] }),
+    requireWorkspacePermission({ label: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const userId = c.get("userId");
@@ -196,7 +196,7 @@ const label = new Hono<{
       }),
     ),
     workspaceAccess.fromLabel(),
-    requireWorkspacePermission({ project: ["update"] }),
+    requireWorkspacePermission({ label: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { name, color } = c.req.valid("json");
@@ -221,7 +221,7 @@ const label = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromLabel(),
-    requireWorkspacePermission({ project: ["update"] }),
+    requireWorkspacePermission({ label: ["delete"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const userId = c.get("userId");

@@ -10,6 +10,7 @@ COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
+COPY packages/permissions/package.json ./packages/permissions/
 COPY apps/api/package.json ./apps/api/
 
 RUN pnpm install --frozen-lockfile
@@ -17,6 +18,7 @@ RUN pnpm install --frozen-lockfile
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/email ./packages/email
 COPY packages/libs ./packages/libs
+COPY packages/permissions ./packages/permissions
 COPY apps/api ./apps/api
 
 WORKDIR /app/packages/email
@@ -34,6 +36,7 @@ COPY --from=api-builder /app/apps/api/package.json ./apps/api/
 COPY --from=api-builder /app/packages/typescript-config/package.json ./packages/typescript-config/
 COPY --from=api-builder /app/packages/libs/package.json ./packages/libs/
 COPY --from=api-builder /app/packages/email/package.json ./packages/email/
+COPY --from=api-builder /app/packages/permissions/package.json ./packages/permissions/
 
 RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
   corepack enable && \
@@ -43,6 +46,7 @@ RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
 COPY --from=api-builder /app/apps/api/dist ./apps/api/dist
 COPY --from=api-builder /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=api-builder /app/packages/email ./packages/email
+COPY --from=api-builder /app/packages/permissions ./packages/permissions
 
 FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS web-builder
 
@@ -56,11 +60,13 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
+COPY packages/permissions/package.json ./packages/permissions/
 
 RUN pnpm install --frozen-lockfile
 
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/libs ./packages/libs
+COPY packages/permissions ./packages/permissions
 COPY i18n ./i18n
 COPY apps/web ./apps/web
 
