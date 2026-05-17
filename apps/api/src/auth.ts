@@ -378,6 +378,13 @@ export const auth = betterAuth({
           }
         },
         after: async (user) => {
+          // The anonymous() plugin creates ephemeral users for guest
+          // access; never promote one to instance admin even if no
+          // real admin exists yet.
+          if ((user as { isAnonymous?: boolean }).isAnonymous) {
+            return;
+          }
+
           // Promote the first user to instance admin atomically.
           //
           // A previous version of this code checked the user count in

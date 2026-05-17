@@ -184,7 +184,14 @@ function SignIn() {
     }
   };
 
-  if (isConfigLoading || isInstanceStatusLoading) {
+  // Treat "no users yet" as still loading so the skeleton stays visible
+  // while the useEffect above redirects to /auth/sign-up. Otherwise the
+  // form briefly paints before the redirect fires.
+  if (
+    isConfigLoading ||
+    isInstanceStatusLoading ||
+    instanceStatus?.hasUsers === false
+  ) {
     return (
       <>
         <PageTitle title={t("auth:signIn.pageTitle")} />
