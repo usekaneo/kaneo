@@ -21,6 +21,7 @@ import {
   openAPI,
   organization,
 } from "better-auth/plugins";
+import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
 import { count, eq, sql } from "drizzle-orm";
@@ -230,7 +231,12 @@ export const auth = betterAuth({
       },
     }),
     organization({
-      ac,
+      // `ac` is created with a narrow `statement` shape (project/task/label/
+      // workspace + the default org statements), which makes its inferred
+      // `newRole` generic incompatible with better-auth's looser
+      // `AccessControl` type. Widen via an explicit cast so the plugin
+      // accepts our custom statement.
+      ac: ac as unknown as AccessControl,
       roles: { viewer, member, admin, owner },
       dynamicAccessControl: {
         enabled: true,
