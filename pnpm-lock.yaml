@@ -593,7 +593,7 @@ importers:
         specifier: 4.12.14
         version: 4.12.14
       react:
-        specifier: ^19.2.6
+        specifier: ^19.2.5
         version: 19.2.6
       typescript:
         specifier: ^5.9.2
