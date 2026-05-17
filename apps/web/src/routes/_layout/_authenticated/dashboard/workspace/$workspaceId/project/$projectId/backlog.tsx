@@ -565,10 +565,12 @@ function RouteComponent() {
                         }
                         className="h-8 rounded-md text-sm [&_svg]:text-sidebar-foreground"
                       >
-                        {getPriorityIcon(priority)}
-                        <span className="capitalize">
-                          {getPriorityLabel(priority)}
-                        </span>
+                        <div className="flex gap-2 items-center">
+                          {getPriorityIcon(priority)}
+                          <span className="capitalize">
+                            {getPriorityLabel(priority)}
+                          </span>
+                        </div>
                       </DropdownMenuCheckboxItem>
                     ))}
 
@@ -590,7 +592,7 @@ function RouteComponent() {
                         }
                         className="h-8 rounded-md text-sm"
                       >
-                        <Avatar className="h-6 w-6">
+                        <Avatar className="h-6 w-6 mr-2">
                           <AvatarImage
                             src={member.user?.image ?? ""}
                             alt={member.user?.name || ""}

@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
-import { Download, Loader2, Upload, X } from "lucide-react";
+import { Download, Loader2, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -175,12 +175,6 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
               <DialogTitle className="text-lg font-semibold text-foreground">
                 {t("settings:tasksImportExport.dialogTitle")}
               </DialogTitle>
-              <DialogClose
-                className="text-muted-foreground hover:text-foreground"
-                render={<button type="button" />}
-              >
-                <X size={20} className="cursor-pointer" />
-              </DialogClose>
             </div>
 
             <div className="p-4">

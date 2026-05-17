@@ -14,6 +14,7 @@ async function getTimeEntriesByTaskId(taskId: string) {
       endTime: timeEntryTable.endTime,
       duration: timeEntryTable.duration,
       createdAt: timeEntryTable.createdAt,
+      updatedAt: timeEntryTable.updatedAt,
     })
     .from(timeEntryTable)
     .leftJoin(userTable, eq(timeEntryTable.userId, userTable.id))

@@ -3,6 +3,7 @@ import elGR from "./el-GR.json";
 import enUS from "./en-US.json";
 import esES from "./es-ES.json";
 import frFR from "./fr-FR.json";
+import koKR from "./ko-KR.json";
 import mkMK from "./mk-MK.json";
 import nlNL from "./nl-NL.json";
 import ruRU from "./ru-RU.json";
@@ -16,6 +17,7 @@ export const supportedLocales = [
   "en-US",
   "es-ES",
   "fr-FR",
+  "ko-KR",
   "ru-RU",
   "uk-UA",
 ] as const;
@@ -32,6 +34,7 @@ export const resources = {
   "el-GR": elGR,
   "fr-FR": frFR,
   "es-ES": esES,
+  "ko-KR": koKR,
   "ru-RU": ruRU,
   "uk-UA": ukUA,
 } as const;
