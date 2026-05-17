@@ -19,6 +19,37 @@ function builtInRoleStatements(
   return null;
 }
 
+function parsePermissionStatements(
+  raw: string,
+): Record<string, readonly string[]> | null {
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  // Only keep entries shaped like { [resource: string]: string[] }.
+  // Anything malformed is dropped so `satisfies()` never calls
+  // `.includes()` on a non-array.
+  const result: Record<string, string[]> = {};
+  for (const [resource, actions] of Object.entries(
+    value as Record<string, unknown>,
+  )) {
+    if (!Array.isArray(actions)) continue;
+    const filtered = actions.filter(
+      (action): action is string => typeof action === "string",
+    );
+    if (filtered.length > 0) {
+      result[resource] = filtered;
+    }
+  }
+  return result;
+}
+
 async function customRoleStatements(
   workspaceId: string,
   role: string,
@@ -36,12 +67,7 @@ async function customRoleStatements(
 
   if (!row?.permission) return null;
 
-  try {
-    const parsed = JSON.parse(row.permission) as Record<string, string[]>;
-    return parsed;
-  } catch {
-    return null;
-  }
+  return parsePermissionStatements(row.permission);
 }
 
 function satisfies(
