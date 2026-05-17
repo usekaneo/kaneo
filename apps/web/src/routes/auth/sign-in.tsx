@@ -43,7 +43,8 @@ function SignIn() {
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
-  const { data: instanceStatus } = useInstanceStatus();
+  const { data: instanceStatus, isLoading: isInstanceStatusLoading } =
+    useInstanceStatus();
 
   useEffect(() => {
     if (instanceStatus && instanceStatus.hasUsers === false) {
@@ -183,7 +184,7 @@ function SignIn() {
     }
   };
 
-  if (isConfigLoading) {
+  if (isConfigLoading || isInstanceStatusLoading) {
     return (
       <>
         <PageTitle title={t("auth:signIn.pageTitle")} />

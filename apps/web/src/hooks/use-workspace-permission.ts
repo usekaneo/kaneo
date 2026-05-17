@@ -41,11 +41,13 @@ export function useWorkspacePermission() {
       requiredRole: PermissionLevel = "member",
     ): boolean => {
       if (!activeWorkspace || !activeMember) return false;
-      const userRole = activeMember.role as PermissionLevel;
+      const userRole = activeMember.role as string | undefined;
+      if (!userRole) return false;
       if (requiredRole === "owner") return userRole === "owner";
       if (requiredRole === "admin")
         return ["owner", "admin"].includes(userRole);
-      return ["owner", "admin", "member"].includes(userRole);
+      // Baseline membership: any non-empty role (built-in or custom) counts.
+      return true;
     };
 
     return {

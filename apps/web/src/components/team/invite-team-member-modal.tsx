@@ -35,7 +35,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const { mutateAsync } = useInviteWorkspaceUser();
   const queryClient = useQueryClient();
   const { data: workspace } = useActiveWorkspace();
-  const workspaceId = workspace?.id ?? "";
+  const workspaceId = workspace?.id;
 
   const form = useForm<TeamMemberFormValues>({
     resolver: standardSchemaResolver(teamMemberSchema),
@@ -45,6 +45,10 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   });
 
   const onSubmit = async ({ email }: TeamMemberFormValues) => {
+    if (!workspaceId) {
+      toast.error(t("team:inviteModal.error"));
+      return;
+    }
     try {
       await mutateAsync({ email, workspaceId, role: "member" }); // TODO: role and email
       await queryClient.refetchQueries({
@@ -63,9 +67,11 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   };
 
   const resetInviteTeamMember = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ["workspace-users", workspaceId],
-    });
+    if (workspaceId) {
+      await queryClient.invalidateQueries({
+        queryKey: ["workspace-users", workspaceId],
+      });
+    }
     form.reset();
   };
 
@@ -128,7 +134,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                 >
                   {t("common:actions.cancel")}
                 </DialogClose>
-                <Button type="submit">
+                <Button type="submit" disabled={!workspaceId}>
                   {t("team:inviteModal.sendInvitation")}
                 </Button>
               </div>

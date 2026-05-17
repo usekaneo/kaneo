@@ -1760,7 +1760,8 @@
 					"name": "updated_at",
 					"type": "timestamp",
 					"primaryKey": false,
-					"notNull": false
+					"notNull": true,
+					"default": "now()"
 				}
 			},
 			"indexes": {
@@ -1803,7 +1804,7 @@
 					"columnsFrom": ["workspace_id"],
 					"columnsTo": ["id"],
 					"onDelete": "cascade",
-					"onUpdate": "no action"
+					"onUpdate": "cascade"
 				}
 			},
 			"compositePrimaryKeys": {},

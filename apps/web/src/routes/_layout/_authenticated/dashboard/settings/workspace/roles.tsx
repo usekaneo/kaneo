@@ -1,4 +1,10 @@
-import { statement } from "@kaneo/permissions";
+import {
+  admin as adminRole,
+  member as memberRole,
+  owner as ownerRole,
+  statement,
+  viewer as viewerRole,
+} from "@kaneo/permissions";
 import { createFileRoute } from "@tanstack/react-router";
 import { Lock, Plus, Shield, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -45,14 +51,33 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-type CustomResource = "project" | "task" | "workspace";
-const CUSTOM_RESOURCES: CustomResource[] = ["project", "task", "workspace"];
+// Resources our app contributes on top of better-auth's defaults
+// (organization/member/team/invitation). Derive the list from the shared
+// `@kaneo/permissions` statement so adding a new resource there picks it
+// up here automatically.
+const BUILT_IN_RESOURCES = new Set([
+  "organization",
+  "member",
+  "team",
+  "invitation",
+]);
+const CUSTOM_RESOURCES = (Object.keys(statement) as string[]).filter(
+  (key) => !BUILT_IN_RESOURCES.has(key),
+);
 
-const RESOURCE_LABELS: Record<CustomResource, string> = {
+const RESOURCE_LABELS: Record<string, string> = {
   project: "Projects",
   task: "Tasks",
+  label: "Labels",
   workspace: "Workspace",
 };
+
+function resourceLabel(resource: string): string {
+  return (
+    RESOURCE_LABELS[resource] ??
+    resource.charAt(0).toUpperCase() + resource.slice(1)
+  );
+}
 
 const PERMISSION_LABELS: Record<
   string,
@@ -98,6 +123,22 @@ const PERMISSION_LABELS: Record<
     label: "Assign tasks",
     description: "Assign tasks to other workspace members.",
   },
+  "label:create": {
+    label: "Create labels",
+    description: "Add new labels to tasks in this workspace.",
+  },
+  "label:read": {
+    label: "View labels",
+    description: "View labels attached to tasks.",
+  },
+  "label:update": {
+    label: "Edit labels",
+    description: "Rename, recolor, and reassign labels.",
+  },
+  "label:delete": {
+    label: "Delete labels",
+    description: "Permanently delete labels from this workspace.",
+  },
   "workspace:read": {
     label: "Access workspace",
     description: "Read workspace metadata and members.",
@@ -117,42 +158,51 @@ const PERMISSION_LABELS: Record<
   },
 };
 
+function permissionsForResources(
+  statements: Record<string, readonly string[]>,
+): Record<string, string[]> {
+  const result: Record<string, string[]> = {};
+  for (const resource of CUSTOM_RESOURCES) {
+    const granted = statements[resource];
+    if (granted && granted.length > 0) {
+      result[resource] = [...granted];
+    }
+  }
+  return result;
+}
+
 const BUILT_IN_ROLES: Array<{
   name: string;
   description: string;
-  permissions: Partial<Record<CustomResource, string[]>>;
+  permissions: Record<string, string[]>;
 }> = [
   {
     name: "viewer",
     description: "Read-only access to projects, tasks, and workspace.",
-    permissions: { project: ["read"], task: ["read"], workspace: ["read"] },
+    permissions: permissionsForResources(
+      viewerRole.statements as Record<string, readonly string[]>,
+    ),
   },
   {
     name: "member",
     description: "Can create and update projects and tasks.",
-    permissions: {
-      project: ["create", "read"],
-      task: ["create", "read", "update"],
-      workspace: ["read"],
-    },
+    permissions: permissionsForResources(
+      memberRole.statements as Record<string, readonly string[]>,
+    ),
   },
   {
     name: "admin",
     description: "Full project and task management plus workspace settings.",
-    permissions: {
-      project: ["create", "read", "update", "delete", "share"],
-      task: ["create", "read", "update", "delete", "assign"],
-      workspace: ["read", "update", "manage_settings"],
-    },
+    permissions: permissionsForResources(
+      adminRole.statements as Record<string, readonly string[]>,
+    ),
   },
   {
     name: "owner",
     description: "Full access including workspace deletion.",
-    permissions: {
-      project: ["create", "read", "update", "delete", "share"],
-      task: ["create", "read", "update", "delete", "assign"],
-      workspace: ["read", "update", "delete", "manage_settings"],
-    },
+    permissions: permissionsForResources(
+      ownerRole.statements as Record<string, readonly string[]>,
+    ),
   },
 ];
 
@@ -182,7 +232,12 @@ function permissionCount(permissions: Record<string, string[] | undefined>) {
 function RouteComponent() {
   const { workspace, isAdmin } = useWorkspacePermission();
   const workspaceId = workspace?.id ?? "";
-  const { data: customRoles = [], isLoading } = useWorkspaceRoles(workspaceId);
+  const {
+    data: customRoles = [],
+    isLoading,
+    isError: customRolesError,
+    error: customRolesErrorValue,
+  } = useWorkspaceRoles(workspaceId);
   const [draftActive, setDraftActive] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<WorkspaceRole | null>(null);
   const [openCustom, setOpenCustom] = useState<string[]>([]);
@@ -280,6 +335,12 @@ function RouteComponent() {
             {isLoading && !draftActive ? (
               <p className="text-xs text-muted-foreground px-4 py-6">
                 Loading…
+              </p>
+            ) : customRolesError ? (
+              <p className="text-xs text-destructive px-4 py-6">
+                {customRolesErrorValue instanceof Error
+                  ? customRolesErrorValue.message
+                  : "Failed to load custom roles."}
               </p>
             ) : customRoles.length === 0 && !draftActive ? (
               <Empty>
@@ -425,7 +486,7 @@ function PermissionList({
           {groupIndex > 0 && <Separator />}
           <div className="space-y-4 p-4">
             <p className="text-sm font-medium capitalize">
-              {RESOURCE_LABELS[resource as CustomResource]}
+              {resourceLabel(resource)}
             </p>
             <div className="space-y-4">
               {actions.map((action, idx) => {
@@ -697,12 +758,17 @@ function DeleteRoleConfirm({
             Cancel
           </Button>
         </AlertDialogClose>
-        <AlertDialogClose
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled={isPending || !role}
           onClick={async () => {
             if (!role) return;
             try {
               await deleteRole({ workspaceId, roleName: role.role });
               toast.success("Role deleted");
+              // Caller closes the dialog after the mutation succeeds so a
+              // failed delete leaves the confirmation visible.
               onDeleted();
             } catch (error) {
               toast.error(
@@ -712,13 +778,10 @@ function DeleteRoleConfirm({
               );
             }
           }}
-          disabled={isPending}
         >
-          <Button variant="destructive" size="sm" disabled={isPending}>
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete
-          </Button>
-        </AlertDialogClose>
+          <Trash2 className="w-4 h-4 mr-2" />
+          Delete
+        </Button>
       </AlertDialogFooter>
     </AlertDialogContent>
   );

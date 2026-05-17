@@ -90,6 +90,7 @@ const comment = new Hono<{
       v.object({ content: v.pipe(v.string(), v.minLength(1)) }),
     ),
     workspaceAccess.fromComment(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { content } = c.req.valid("json");
@@ -115,6 +116,7 @@ const comment = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromComment(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const userId = c.get("userId");

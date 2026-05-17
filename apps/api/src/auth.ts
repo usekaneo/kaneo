@@ -22,7 +22,7 @@ import {
   organization,
 } from "better-auth/plugins";
 import { config } from "dotenv-mono";
-import { count, eq } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
@@ -370,21 +370,42 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
-          const userCountRows = await db
-            .select({ value: count() })
-            .from(schema.userTable);
-          const existingUserCount = userCountRows[0]?.value ?? 0;
-
-          if (existingUserCount === 0) {
-            return { data: { ...user, role: "admin" } };
-          }
-
           const result = await checkRegistrationAllowed(user.email);
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {
               message: result.reason,
             });
           }
+        },
+        after: async (user) => {
+          // Promote the first user to instance admin atomically.
+          //
+          // A previous version of this code checked the user count in
+          // the `before` hook and returned `role: "admin"`, but the
+          // count and the eventual INSERT happened in separate
+          // transactions, so two concurrent first-signups could both
+          // see count=0 and both become admins (qodo bot #5).
+          //
+          // We now run the check + promote inside a single transaction
+          // guarded by a Postgres advisory lock. Whichever transaction
+          // wins the lock first promotes its user; any concurrent
+          // transaction then sees adminCount >= 1 and skips the update.
+          await db.transaction(async (tx) => {
+            await tx.execute(sql`SELECT pg_advisory_xact_lock(2026)`);
+
+            const adminRows = await tx
+              .select({ value: count() })
+              .from(schema.userTable)
+              .where(eq(schema.userTable.role, "admin"));
+            const adminCount = adminRows[0]?.value ?? 0;
+
+            if (adminCount === 0) {
+              await tx
+                .update(schema.userTable)
+                .set({ role: "admin" })
+                .where(eq(schema.userTable.id, user.id));
+            }
+          });
         },
       },
     },

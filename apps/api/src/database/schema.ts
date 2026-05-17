@@ -211,13 +211,17 @@ export const workspaceRoleTable = pgTable(
       .primaryKey(),
     workspaceId: text("workspace_id")
       .notNull()
-      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
     role: text("role").notNull(),
     permission: text("permission").notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { mode: "date" }).$onUpdate(
-      () => new Date(),
-    ),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   (table) => [
     index("workspace_role_workspaceId_idx").on(table.workspaceId),

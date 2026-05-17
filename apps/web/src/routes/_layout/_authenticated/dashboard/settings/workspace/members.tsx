@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
@@ -16,12 +17,14 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { t } = useTranslation();
   const { workspace } = useWorkspacePermission();
-  const workspaceId = workspace?.id ?? "";
-  const { data: fullWorkspace } = useGetFullWorkspace({ workspaceId });
+  const workspaceId = workspace?.id;
+  const {
+    data: fullWorkspace,
+    isLoading,
+    isError,
+    error,
+  } = useGetFullWorkspace({ workspaceId });
   const [isInviteOpen, setIsInviteOpen] = useState(false);
-
-  const users = fullWorkspace?.members ?? [];
-  const invitations = fullWorkspace?.invitations ?? [];
 
   return (
     <>
@@ -44,12 +47,29 @@ function RouteComponent() {
           </p>
         </div>
 
-        <MembersTable
-          workspaceId={workspaceId}
-          users={users}
-          invitations={invitations}
-          onInvite={() => setIsInviteOpen(true)}
-        />
+        {!workspaceId || isLoading ? (
+          <div className="flex items-center justify-center py-12 text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            <span className="text-sm">
+              {t("common:status.loading", { defaultValue: "Loading…" })}
+            </span>
+          </div>
+        ) : isError ? (
+          <div className="rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+            {error instanceof Error
+              ? error.message
+              : t("settings:workspaceMembers.loadError", {
+                  defaultValue: "Failed to load members.",
+                })}
+          </div>
+        ) : (
+          <MembersTable
+            workspaceId={workspaceId}
+            users={fullWorkspace?.members ?? []}
+            invitations={fullWorkspace?.invitations ?? []}
+            onInvite={() => setIsInviteOpen(true)}
+          />
+        )}
 
         <InviteTeamMemberModal
           open={isInviteOpen}

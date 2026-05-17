@@ -77,8 +77,11 @@ function MembersTable({ workspaceId, invitations, users, onInvite }: Props) {
     useCancelInvitation();
   const { mutateAsync: updateMemberRole } = useUpdateWorkspaceUserRole();
   const { data: customRoles = [] } = useWorkspaceRoles(workspaceId);
-  const { isAdmin, isOwner } = useWorkspacePermission();
-  const canEditRoles = isAdmin || isOwner;
+  const { isOwner, canManageTeam, canRemoveMembers, canInviteUsers } =
+    useWorkspacePermission();
+  const canChangeRoles = Boolean(canManageTeam());
+  const canRemove = Boolean(canRemoveMembers());
+  const canInvite = Boolean(canInviteUsers());
 
   const pendingInvitations = invitations.filter(
     (inv) => inv.status !== "accepted" && inv.status !== "canceled",
@@ -157,10 +160,12 @@ function MembersTable({ workspaceId, invitations, users, onInvite }: Props) {
                   })}
             </p>
           </div>
-          <Button size="sm" onClick={onInvite} className="gap-1.5">
-            <UserPlus className="w-3.5 h-3.5" />
-            {t("team:members.inviteMember")}
-          </Button>
+          {canInvite && (
+            <Button size="sm" onClick={onInvite} className="gap-1.5">
+              <UserPlus className="w-3.5 h-3.5" />
+              {t("team:members.inviteMember")}
+            </Button>
+          )}
         </div>
 
         <div className="border border-border rounded-md bg-sidebar overflow-hidden">
@@ -180,7 +185,7 @@ function MembersTable({ workspaceId, invitations, users, onInvite }: Props) {
             <ul className="divide-y divide-border">
               {users.map((member) => {
                 const isSelf = currentUser?.id === member.userId;
-                const showRoleSelect = canEditRoles && !isSelf;
+                const showRoleSelect = canChangeRoles && !isSelf;
                 return (
                   <li
                     key={member.user.email}
@@ -241,7 +246,7 @@ function MembersTable({ workspaceId, invitations, users, onInvite }: Props) {
                         {member.role}
                       </Badge>
                     )}
-                    {!isSelf && canEditRoles && (
+                    {!isSelf && canRemove && (
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           render={
@@ -321,15 +326,17 @@ function MembersTable({ workspaceId, invitations, users, onInvite }: Props) {
                   <Badge variant="outline" className="capitalize">
                     {invitation.role}
                   </Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setInvitationToCancel(invitation)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    aria-label={t("team:membersTable.ariaCancelInvitation")}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {canInvite && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setInvitationToCancel(invitation)}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      aria-label={t("team:membersTable.ariaCancelInvitation")}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>

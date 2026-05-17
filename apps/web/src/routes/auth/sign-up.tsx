@@ -124,16 +124,27 @@ function SignUp() {
                 errorCallbackURL={errorCallbackURL}
               />
             );
+            // Hide self-service alternatives (guest + SSO) when registration
+            // is disabled and the user isn't either accepting an invitation
+            // or doing first-user instance setup — otherwise the alternatives
+            // would either bypass the policy or send the user into a flow
+            // the backend will reject.
+            const selfServiceAllowed =
+              !config?.disableRegistration ||
+              !!invitationId ||
+              isInstanceAdminSetup;
             const hasGuest =
               config?.hasGuestAccess &&
               !invitationId &&
               !isInstanceAdminSetup &&
-              !config?.disablePasswordRegistration;
+              !config?.disablePasswordRegistration &&
+              selfServiceAllowed;
             const hasAnySso =
-              config?.hasGoogleSignIn ||
-              config?.hasGithubSignIn ||
-              config?.hasDiscordSignIn ||
-              config?.hasCustomOAuth;
+              selfServiceAllowed &&
+              (config?.hasGoogleSignIn ||
+                config?.hasGithubSignIn ||
+                config?.hasDiscordSignIn ||
+                config?.hasCustomOAuth);
             const showAlternatives = hasGuest || hasAnySso;
             if (!showAlternatives) return null;
             return (
