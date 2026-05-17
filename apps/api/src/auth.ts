@@ -377,6 +377,18 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
+          // Allow the very first signup through even when registration
+          // is disabled — that's the instance-admin bootstrap flow.
+          // Otherwise a fresh instance with DISABLE_REGISTRATION=true
+          // could never be set up because `checkRegistrationAllowed`
+          // would reject the first user (qodo bot #3).
+          const [{ value: existingUserCount }] = await db
+            .select({ value: count() })
+            .from(schema.userTable);
+          if (existingUserCount === 0) {
+            return;
+          }
+
           const result = await checkRegistrationAllowed(user.email);
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {
@@ -406,17 +418,25 @@ export const auth = betterAuth({
           // We now run the check + promote inside a single transaction
           // guarded by a Postgres advisory lock. Whichever transaction
           // wins the lock first promotes its user; any concurrent
-          // transaction then sees adminCount >= 1 and skips the update.
+          // transaction then sees totalUserCount > 1 and skips.
+          //
+          // Note: we count total users (not admins) so that upgrading
+          // an existing instance — where every existing user has
+          // role=NULL from the new column — doesn't promote the next
+          // signup to admin (qodo bot #4).
           await db.transaction(async (tx) => {
             await tx.execute(sql`SELECT pg_advisory_xact_lock(2026)`);
 
-            const adminRows = await tx
+            const totalRows = await tx
               .select({ value: count() })
-              .from(schema.userTable)
-              .where(eq(schema.userTable.role, "admin"));
-            const adminCount = adminRows[0]?.value ?? 0;
+              .from(schema.userTable);
+            const totalUserCount = totalRows[0]?.value ?? 0;
 
-            if (adminCount === 0) {
+            // This hook runs after the user row is inserted, so the
+            // just-created user is included in the count. If they are
+            // the only row in the table, this is a fresh-instance
+            // bootstrap and they get promoted to admin.
+            if (totalUserCount === 1) {
               await tx
                 .update(schema.userTable)
                 .set({ role: "admin" })

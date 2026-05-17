@@ -3,7 +3,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
 import type { Session, User } from "better-auth/types";
-import { count, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -29,6 +29,7 @@ import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
+import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
 import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
@@ -187,16 +188,8 @@ export function createApp() {
       },
     }),
     async (c) => {
-      const totalRows = await db
-        .select({ value: count() })
-        .from(schema.userTable);
-      const adminRows = await db
-        .select({ value: count() })
-        .from(schema.userTable)
-        .where(eq(schema.userTable.role, "admin"));
-      const total = totalRows[0]?.value ?? 0;
-      const admins = adminRows[0]?.value ?? 0;
-      return c.json({ hasUsers: total > 0, hasAdmin: admins > 0 });
+      const status = await getInstanceStatus();
+      return c.json(status);
     },
   );
 

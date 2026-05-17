@@ -43,14 +43,31 @@ function SignIn() {
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
-  const { data: instanceStatus, isLoading: isInstanceStatusLoading } =
-    useInstanceStatus();
+  const {
+    data: instanceStatus,
+    isLoading: isInstanceStatusLoading,
+    isError: isInstanceStatusError,
+    error: instanceStatusError,
+  } = useInstanceStatus();
 
   useEffect(() => {
     if (instanceStatus && instanceStatus.hasUsers === false) {
       navigate({ to: "/auth/sign-up", replace: true });
     }
   }, [instanceStatus, navigate]);
+
+  useEffect(() => {
+    if (isInstanceStatusError) {
+      toast.error(
+        instanceStatusError instanceof Error
+          ? instanceStatusError.message
+          : t("auth:signIn.instanceStatusError", {
+              defaultValue:
+                "Couldn't reach the server. Please retry in a moment.",
+            }),
+      );
+    }
+  }, [isInstanceStatusError, instanceStatusError, t]);
 
   const invitationId = search.invitationId;
   const defaultEmail = search.email;

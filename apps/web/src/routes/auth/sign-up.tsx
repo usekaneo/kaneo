@@ -4,7 +4,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { UserCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import { AuthLayout } from "@/components/auth/layout";
@@ -35,7 +35,24 @@ function SignUp() {
   const search = useSearch({ from: "/auth/sign-up" });
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const { data: config } = useGetConfig();
-  const { data: instanceStatus } = useInstanceStatus();
+  const {
+    data: instanceStatus,
+    isError: isInstanceStatusError,
+    error: instanceStatusError,
+  } = useInstanceStatus();
+
+  useEffect(() => {
+    if (isInstanceStatusError) {
+      toast.error(
+        instanceStatusError instanceof Error
+          ? instanceStatusError.message
+          : t("auth:signUp.instanceStatusError", {
+              defaultValue:
+                "Couldn't reach the server. Please retry in a moment.",
+            }),
+      );
+    }
+  }, [isInstanceStatusError, instanceStatusError, t]);
 
   const invitationId = search.invitationId;
   const prefillEmail = search.email;

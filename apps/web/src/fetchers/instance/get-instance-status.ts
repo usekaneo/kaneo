@@ -11,7 +11,17 @@ export async function getInstanceStatus(): Promise<InstanceStatus> {
     credentials: "include",
   });
   if (!response.ok) {
-    throw new Error("Failed to fetch instance status");
+    // Surface the server's error body when available so the UI can
+    // distinguish "instance unreachable" from other failures.
+    let detail = "";
+    try {
+      detail = (await response.text()).trim();
+    } catch {}
+    throw new Error(
+      detail
+        ? `Failed to fetch instance status (${response.status}): ${detail}`
+        : `Failed to fetch instance status (${response.status})`,
+    );
   }
   return response.json();
 }
