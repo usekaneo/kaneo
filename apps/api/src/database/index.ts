@@ -64,6 +64,12 @@ import {
 
 config();
 
+export const pool = new Pool({
+  connectionString:
+    process.env.DATABASE_URL ||
+    "postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo",
+});
+
 export const schema = {
   accountTable,
   assetTable,

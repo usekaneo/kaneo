@@ -1,3 +1,4 @@
+import { publishEvent } from "../../../events";
 import type { GitHubConfig } from "../config";
 import { createOrUpdateExternalLink } from "../services/link-manager";
 import {
@@ -134,7 +135,22 @@ export async function handlePush(payload: PushPayload) {
       console.log(
         `[Push] Updating task ${task.id} status from ${task.status} to ${targetStatus}`,
       );
-      await updateTaskStatus(task.id, targetStatus);
+      const statusResult = await updateTaskStatus(task.id, targetStatus);
+      if (
+        statusResult.applied &&
+        statusResult.before.status !== statusResult.after.status
+      ) {
+        await publishEvent("task.status_changed", {
+          taskId: statusResult.after.id,
+          projectId: statusResult.after.projectId,
+          userId: null,
+          oldStatus: statusResult.before.status,
+          newStatus: statusResult.after.status,
+          title: statusResult.after.title,
+          assigneeId: statusResult.after.userId,
+          type: "status_changed",
+        });
+      }
     } else {
       console.log(`[Push] Skipping status update - already ${task.status}`);
     }
