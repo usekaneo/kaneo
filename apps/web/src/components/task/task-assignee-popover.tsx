@@ -12,6 +12,7 @@ import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
@@ -36,6 +37,8 @@ export default function TaskAssigneePopover({
   );
   const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
+  const { canAssignTasks } = useWorkspacePermission();
+  const canAssign = canAssignTasks();
 
   const usersOptions = useMemo(() => {
     return workspaceUsers?.members?.map((member) => ({
@@ -101,6 +104,8 @@ export default function TaskAssigneePopover({
   );
 
   useNumberedShortcuts(open, shortcutOptions);
+
+  if (!canAssign) return <>{children}</>;
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>

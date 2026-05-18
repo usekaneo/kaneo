@@ -27,6 +27,11 @@ function useUpdateWorkspaceRole() {
       queryClient.invalidateQueries({
         queryKey: ["workspace-roles", variables.workspaceId],
       });
+      // The role's permission set just changed, so any cached capability
+      // map for members assigned to this role is now stale.
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-capabilities", variables.workspaceId],
+      });
     },
   });
 }

@@ -1,12 +1,6 @@
-import {
-  admin as adminRole,
-  member as memberRole,
-  owner as ownerRole,
-  statement,
-  viewer as viewerRole,
-} from "@kaneo/permissions";
+import { DEFAULT_ROLE_NAMES, statement } from "@kaneo/permissions";
 import { createFileRoute } from "@tanstack/react-router";
-import { Lock, Plus, Shield, Trash2, X } from "lucide-react";
+import { Plus, Shield, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import PageTitle from "@/components/page-title";
 import {
@@ -55,11 +49,15 @@ export const Route = createFileRoute(
 // (organization/member/team/invitation). Derive the list from the shared
 // `@kaneo/permissions` statement so adding a new resource there picks it
 // up here automatically.
+// "ac" is better-auth's meta-resource for managing roles themselves; we don't
+// surface it. Organization/member/team/invitation are likewise managed by the
+// org plugin, not by our workspace permissions UI.
 const BUILT_IN_RESOURCES = new Set([
   "organization",
   "member",
   "team",
   "invitation",
+  "ac",
 ]);
 const CUSTOM_RESOURCES = (Object.keys(statement) as string[]).filter(
   (key) => !BUILT_IN_RESOURCES.has(key),
@@ -158,53 +156,24 @@ const PERMISSION_LABELS: Record<
   },
 };
 
-function permissionsForResources(
-  statements: Record<string, readonly string[]>,
-): Record<string, string[]> {
-  const result: Record<string, string[]> = {};
-  for (const resource of CUSTOM_RESOURCES) {
-    const granted = statements[resource];
-    if (granted && granted.length > 0) {
-      result[resource] = [...granted];
-    }
-  }
-  return result;
-}
+// Default roles are seeded per workspace by the API (see
+// `seedDefaultWorkspaceRoles` and the afterCreateOrganization hook). They show
+// up in `customRoles` like any other dynamic role but get a "Default" badge,
+// can't be deleted, and reserve their names against new custom roles. Owner
+// stays a static role on the auth side and is hidden from this UI, but its
+// name is still reserved here.
+const DEFAULT_ROLE_NAME_SET = new Set<string>(DEFAULT_ROLE_NAMES);
+const RESERVED_ROLE_NAMES = [...DEFAULT_ROLE_NAMES, "owner"];
 
-const BUILT_IN_ROLES: Array<{
-  name: string;
-  description: string;
-  permissions: Record<string, string[]>;
-}> = [
-  {
-    name: "viewer",
-    description: "Read-only access to projects, tasks, and workspace.",
-    permissions: permissionsForResources(
-      viewerRole.statements as Record<string, readonly string[]>,
-    ),
-  },
-  {
-    name: "member",
-    description: "Can create and update projects and tasks.",
-    permissions: permissionsForResources(
-      memberRole.statements as Record<string, readonly string[]>,
-    ),
-  },
-  {
-    name: "admin",
-    description: "Full project and task management plus workspace settings.",
-    permissions: permissionsForResources(
-      adminRole.statements as Record<string, readonly string[]>,
-    ),
-  },
-  {
-    name: "owner",
-    description: "Full access including workspace deletion.",
-    permissions: permissionsForResources(
-      ownerRole.statements as Record<string, readonly string[]>,
-    ),
-  },
-];
+const DEFAULT_ROLE_DESCRIPTIONS: Record<string, string> = {
+  viewer: "Read-only access to projects, tasks, and workspace.",
+  member: "Can create and update projects and tasks.",
+  admin: "Full project and task management plus workspace settings.",
+};
+
+function isDefaultRole(name: string) {
+  return DEFAULT_ROLE_NAME_SET.has(name);
+}
 
 function permissionsEqual(
   a: Record<string, string[]>,
@@ -242,6 +211,23 @@ function RouteComponent() {
   const [roleToDelete, setRoleToDelete] = useState<WorkspaceRole | null>(null);
   const [openCustom, setOpenCustom] = useState<string[]>([]);
 
+  // Defaults (viewer/member/admin) first so they anchor the list, then
+  // user-created roles in their natural order.
+  const sortedRoles = useMemo(() => {
+    const defaults: WorkspaceRole[] = [];
+    const custom: WorkspaceRole[] = [];
+    for (const role of customRoles) {
+      if (isDefaultRole(role.role)) defaults.push(role);
+      else custom.push(role);
+    }
+    defaults.sort(
+      (a, b) =>
+        DEFAULT_ROLE_NAMES.indexOf(a.role as never) -
+        DEFAULT_ROLE_NAMES.indexOf(b.role as never),
+    );
+    return [...defaults, ...custom];
+  }, [customRoles]);
+
   if (!isAdmin) {
     return (
       <>
@@ -271,49 +257,12 @@ function RouteComponent() {
         </div>
 
         <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">Built-in roles</h2>
-            <p className="text-xs text-muted-foreground">
-              Default roles available in every workspace. Click to inspect the
-              permissions they grant.
-            </p>
-          </div>
-          <div className="border border-border rounded-md bg-sidebar">
-            <Accordion>
-              {BUILT_IN_ROLES.map((role) => (
-                <AccordionItem
-                  key={role.name}
-                  value={role.name}
-                  className="border-b border-border last:border-b-0"
-                >
-                  <AccordionTrigger className="px-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Lock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium capitalize">
-                          {role.name}
-                        </p>
-                        <p className="text-xs font-normal text-muted-foreground truncate">
-                          {role.description}
-                        </p>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionPanel className="px-0 pt-0 pb-0">
-                    <PermissionList permissions={role.permissions} readOnly />
-                  </AccordionPanel>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </div>
-
-        <div className="space-y-6">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <h2 className="text-md font-medium">Custom roles</h2>
+              <h2 className="text-md font-medium">Workspace roles</h2>
               <p className="text-xs text-muted-foreground">
-                Roles you've defined for this workspace.
+                Edit the default roles or add a tailored one. Members keep their
+                assigned role name across edits.
               </p>
             </div>
             <Button
@@ -340,17 +289,18 @@ function RouteComponent() {
               <p className="text-xs text-destructive px-4 py-6">
                 {customRolesErrorValue instanceof Error
                   ? customRolesErrorValue.message
-                  : "Failed to load custom roles."}
+                  : "Failed to load roles."}
               </p>
-            ) : customRoles.length === 0 && !draftActive ? (
+            ) : sortedRoles.length === 0 && !draftActive ? (
               <Empty>
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
                     <Shield />
                   </EmptyMedia>
-                  <EmptyTitle>No custom roles yet</EmptyTitle>
+                  <EmptyTitle>No roles yet</EmptyTitle>
                   <EmptyDescription>
-                    Create one to grant a tailored permission set.
+                    Default roles will appear here once they're seeded for this
+                    workspace.
                   </EmptyDescription>
                 </EmptyHeader>
               </Empty>
@@ -377,7 +327,7 @@ function RouteComponent() {
                       <DraftEditor
                         workspaceId={workspaceId}
                         existingNames={[
-                          ...BUILT_IN_ROLES.map((r) => r.name),
+                          ...RESERVED_ROLE_NAMES,
                           ...customRoles.map((r) => r.role),
                         ]}
                         onCreated={(roleName) => {
@@ -397,35 +347,56 @@ function RouteComponent() {
                     </AccordionPanel>
                   </AccordionItem>
                 )}
-                {customRoles.map((role) => (
-                  <AccordionItem
-                    key={role.id}
-                    value={role.role}
-                    className="border-b border-border last:border-b-0"
-                  >
-                    <AccordionTrigger className="px-4">
-                      <div className="flex items-center justify-between gap-4 flex-1 min-w-0">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                          <p className="text-sm font-medium capitalize truncate">
-                            {role.role}
+                {sortedRoles.map((role) => {
+                  const isDefault = isDefaultRole(role.role);
+                  const description = isDefault
+                    ? DEFAULT_ROLE_DESCRIPTIONS[role.role]
+                    : undefined;
+                  return (
+                    <AccordionItem
+                      key={role.id}
+                      value={role.role}
+                      className="border-b border-border last:border-b-0"
+                    >
+                      <AccordionTrigger className="px-4">
+                        <div className="flex items-center justify-between gap-4 flex-1 min-w-0">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium capitalize truncate">
+                                  {role.role}
+                                </p>
+                                {isDefault && (
+                                  <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                    Default
+                                  </span>
+                                )}
+                              </div>
+                              {description && (
+                                <p className="text-xs font-normal text-muted-foreground truncate">
+                                  {description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs font-normal text-muted-foreground shrink-0">
+                            {permissionCount(role.permission)} permissions
                           </p>
                         </div>
-                        <p className="text-xs font-normal text-muted-foreground shrink-0">
-                          {permissionCount(role.permission)} permissions
-                        </p>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionPanel className="px-0 pt-0 pb-0">
-                      <CustomRoleEditor
-                        key={role.id}
-                        workspaceId={workspaceId}
-                        role={role}
-                        onDelete={() => setRoleToDelete(role)}
-                      />
-                    </AccordionPanel>
-                  </AccordionItem>
-                ))}
+                      </AccordionTrigger>
+                      <AccordionPanel className="px-0 pt-0 pb-0">
+                        <CustomRoleEditor
+                          key={role.id}
+                          workspaceId={workspaceId}
+                          role={role}
+                          isDefault={isDefault}
+                          onDelete={() => setRoleToDelete(role)}
+                        />
+                      </AccordionPanel>
+                    </AccordionItem>
+                  );
+                })}
               </Accordion>
             )}
           </div>
@@ -606,14 +577,16 @@ function DraftEditor({
           />
         </div>
       </div>
-      <PermissionList
-        permissions={{}}
-        selected={permissions}
-        onToggle={togglePermission}
-        disabled={isPending}
-      />
+      <div className="max-h-[60vh] overflow-y-auto">
+        <PermissionList
+          permissions={{}}
+          selected={permissions}
+          onToggle={togglePermission}
+          disabled={isPending}
+        />
+      </div>
       <Separator />
-      <div className="flex justify-end gap-2 px-4 py-3">
+      <div className="flex justify-end gap-2 px-4 py-3 bg-sidebar">
         <Button
           variant="ghost"
           size="sm"
@@ -634,10 +607,12 @@ function DraftEditor({
 function CustomRoleEditor({
   workspaceId,
   role,
+  isDefault,
   onDelete,
 }: {
   workspaceId: string;
   role: WorkspaceRole;
+  isDefault?: boolean;
   onDelete: () => void;
 }) {
   const [permissions, setPermissions] = useState<Record<string, Set<string>>>(
@@ -691,26 +666,39 @@ function CustomRoleEditor({
     }
   };
 
+  // AccordionPanel sets `overflow-hidden`, which kills `position: sticky`
+  // relative to the page. Instead, we cap the permission list height and
+  // give it its own scroll, so the action bar below stays anchored at the
+  // bottom of the accordion content while the user scrolls through
+  // permissions.
   return (
     <div>
-      <PermissionList
-        permissions={role.permission}
-        selected={permissions}
-        onToggle={togglePermission}
-        disabled={isPending}
-      />
-      <Separator />
-      <div className="flex items-center justify-between gap-2 px-4 py-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onDelete}
-          className="text-destructive hover:text-destructive"
+      <div className="max-h-[60vh] overflow-y-auto">
+        <PermissionList
+          permissions={role.permission}
+          selected={permissions}
+          onToggle={togglePermission}
           disabled={isPending}
-        >
-          <Trash2 className="w-4 h-4" />
-          Delete role
-        </Button>
+        />
+      </div>
+      <Separator />
+      <div className="flex items-center justify-between gap-2 px-4 py-3 bg-sidebar">
+        {isDefault ? (
+          <span className="text-xs text-muted-foreground">
+            Default role — name is reserved and the row can't be deleted.
+          </span>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDelete}
+            className="text-destructive hover:text-destructive"
+            disabled={isPending}
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete role
+          </Button>
+        )}
         <div className="flex items-center gap-3">
           <p className="text-xs text-muted-foreground">
             {dirty ? "You have unsaved changes" : "All changes saved"}

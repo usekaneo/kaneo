@@ -4,7 +4,12 @@ import {
   sendOtpEmail,
   sendWorkspaceInvitationEmail,
 } from "@kaneo/email";
-import { ac, admin, member, owner, viewer } from "@kaneo/permissions";
+import {
+  ac,
+  DEFAULT_ROLE_NAMES,
+  defaultRolePayloads,
+  owner,
+} from "@kaneo/permissions";
 import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -237,7 +242,13 @@ export const auth = betterAuth({
       // `AccessControl` type. Widen via an explicit cast so the plugin
       // accepts our custom statement.
       ac: ac as unknown as AccessControl,
-      roles: { viewer, member, admin, owner },
+      // Only `owner` stays static so its permissions can never be edited away
+      // from the workspace creator. `viewer`, `member`, and `admin` are
+      // seeded into `workspace_role` per workspace and resolved via
+      // dynamic access control, so admins can fully override (replace) their
+      // permissions per workspace. See `seedDefaultWorkspaceRoles` + the
+      // afterCreateOrganization hook.
+      roles: { owner },
       dynamicAccessControl: {
         enabled: true,
         maximumRolesPerOrganization: 25,
@@ -288,6 +299,41 @@ export const auth = betterAuth({
       allowUserToCreateOrganization: true,
       organizationHooks: {
         afterCreateOrganization: async ({ organization, user }) => {
+          // Seed the editable default roles for this workspace. Each
+          // role's permissions are derived from the compiled-in defaults
+          // in `@kaneo/permissions`; admins can later replace them in the
+          // Roles UI. We skip names that somehow already exist (this hook
+          // is best-effort idempotent — the boot-time backfill is the
+          // belt-and-braces path).
+          try {
+            const existing = await db
+              .select({ role: schema.workspaceRoleTable.role })
+              .from(schema.workspaceRoleTable)
+              .where(
+                eq(schema.workspaceRoleTable.workspaceId, organization.id),
+              );
+            const taken = new Set(existing.map((r) => r.role));
+            const now = new Date();
+            const rows = DEFAULT_ROLE_NAMES.filter(
+              (name) => !taken.has(name),
+            ).map((name) => ({
+              workspaceId: organization.id,
+              role: name,
+              permission: JSON.stringify(defaultRolePayloads[name]),
+              createdAt: now,
+              updatedAt: now,
+            }));
+            if (rows.length > 0) {
+              await db.insert(schema.workspaceRoleTable).values(rows);
+            }
+          } catch (error) {
+            console.error(
+              "Failed to seed default workspace roles for workspace",
+              organization.id,
+              error,
+            );
+          }
+
           publishEvent("workspace.created", {
             workspaceId: organization.id,
             workspaceName: organization.name,

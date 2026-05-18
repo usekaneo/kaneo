@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 import { Button } from "../ui/button";
 import { Dialog, DialogClose, DialogPopup, DialogTitle } from "../ui/dialog";
@@ -36,6 +37,8 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const queryClient = useQueryClient();
   const { data: workspace } = useActiveWorkspace();
   const workspaceId = workspace?.id;
+  const { canInviteUsers } = useWorkspacePermission();
+  const canInvite = canInviteUsers();
 
   const form = useForm<TeamMemberFormValues>({
     resolver: standardSchemaResolver(teamMemberSchema),
@@ -46,6 +49,13 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
 
   const onSubmit = async ({ email }: TeamMemberFormValues) => {
     if (!workspaceId) {
+      toast.error(t("team:inviteModal.error"));
+      return;
+    }
+    if (!canInvite) {
+      // Defense-in-depth: parent gates the trigger, but if the modal is
+      // somehow open without permission we refuse rather than firing a
+      // mutation the server will reject.
       toast.error(t("team:inviteModal.error"));
       return;
     }
@@ -134,7 +144,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                 >
                   {t("common:actions.cancel")}
                 </DialogClose>
-                <Button type="submit" disabled={!workspaceId}>
+                <Button type="submit" disabled={!workspaceId || !canInvite}>
                   {t("team:inviteModal.sendInvitation")}
                 </Button>
               </div>

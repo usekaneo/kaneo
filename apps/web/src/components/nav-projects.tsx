@@ -58,9 +58,9 @@ export function NavProjects() {
   });
   const queryClient = useQueryClient();
   const { mutateAsync: deleteProject } = useDeleteProject();
-  const { canCreateProjects, checkRolePermission } = useWorkspacePermission();
+  const { canCreateProjects, canDeleteProjects } = useWorkspacePermission();
   const canCreate = canCreateProjects();
-  const canDeleteProject = checkRolePermission({ project: ["delete"] });
+  const canDeleteProject = canDeleteProjects();
   const navigate = useNavigate();
   const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
     useParams({

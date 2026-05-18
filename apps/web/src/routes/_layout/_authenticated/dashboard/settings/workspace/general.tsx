@@ -29,6 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import useDeleteWorkspace from "@/hooks/mutations/workspace/use-delete-workspace";
 import useUpdateWorkspace from "@/hooks/mutations/workspace/use-update-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
@@ -105,6 +106,9 @@ function RouteComponent() {
   const { mutateAsync: updateWorkspace } = useUpdateWorkspace();
   const { mutateAsync: deleteWorkspace, isPending: isDeleting } =
     useDeleteWorkspace();
+  const { canManageWorkspace, canDeleteWorkspace } = useWorkspacePermission();
+  const canEdit = canManageWorkspace();
+  const canDelete = canDeleteWorkspace();
   const workspaceDescription = getWorkspaceDescription(workspace);
 
   const workspaceForm = useForm<WorkspaceFormValues>({
@@ -232,6 +236,7 @@ function RouteComponent() {
   );
 
   useEffect(() => {
+    if (!canEdit) return;
     const subscription = workspaceForm.watch(() => {
       if (workspaceForm.formState.isDirty && workspaceForm.formState.isValid) {
         debouncedSave(workspaceForm.getValues());
@@ -239,7 +244,7 @@ function RouteComponent() {
     });
 
     return () => subscription.unsubscribe();
-  }, [workspaceForm, debouncedSave]);
+  }, [workspaceForm, debouncedSave, canEdit]);
 
   useEffect(() => {
     return () => {
@@ -295,6 +300,7 @@ function RouteComponent() {
                             placeholder={t(
                               "settings:workspaceGeneral.namePlaceholder",
                             )}
+                            disabled={!canEdit}
                             {...field}
                           />
                         </FormControl>
@@ -326,6 +332,7 @@ function RouteComponent() {
                             placeholder={t(
                               "settings:workspaceGeneral.descriptionPlaceholder",
                             )}
+                            disabled={!canEdit}
                             {...field}
                           />
                         </FormControl>
@@ -339,38 +346,40 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:workspaceGeneral.dangerZone")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:workspaceGeneral.dangerZoneSubtitle")}
-            </p>
-          </div>
+        {canDelete && (
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <h2 className="text-md font-medium">
+                {t("settings:workspaceGeneral.dangerZone")}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:workspaceGeneral.dangerZoneSubtitle")}
+              </p>
+            </div>
 
-          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">
+            <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">
+                    {t("settings:workspaceGeneral.deleteWorkspace")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("settings:workspaceGeneral.deleteWorkspaceDescription")}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive transition-colors"
+                  type="button"
+                  onClick={() => setIsDeleteModalOpen(true)}
+                >
                   {t("settings:workspaceGeneral.deleteWorkspace")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("settings:workspaceGeneral.deleteWorkspaceDescription")}
-                </p>
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive transition-colors"
-                type="button"
-                onClick={() => setIsDeleteModalOpen(true)}
-              >
-                {t("settings:workspaceGeneral.deleteWorkspace")}
-              </Button>
             </div>
           </div>
-        </div>
+        )}
 
         <AlertDialog
           open={isDeleteModalOpen}

@@ -69,6 +69,7 @@ import {
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
 } from "./utils/openapi-spec";
+import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
@@ -645,6 +646,7 @@ export async function runStartupTasks() {
   await migrateNotificationPreferencesSchema();
   await migrateGitHubIntegration();
   await migrateColumns();
+  await seedDefaultWorkspaceRoles();
 
   initializePlugins();
   initializeScheduler();

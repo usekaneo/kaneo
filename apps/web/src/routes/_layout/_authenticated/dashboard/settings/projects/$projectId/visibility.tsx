@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
@@ -30,7 +31,21 @@ function RouteComponent() {
 
   const queryClient = useQueryClient();
   const { mutateAsync: updateProject } = useUpdateProject();
+  const { hasPermission } = useWorkspacePermission();
   const savingRef = useRef(false);
+  // `project:share` isn't in CAPABILITIES (only admin/owner/custom roles
+  // with it can flip visibility), so use the generic server check. Result
+  // isn't cached, but visibility is a rarely-toggled setting page.
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    void hasPermission({ project: ["share"] }).then((ok) => {
+      if (!cancelled) setCanShare(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [hasPermission]);
 
   const handleToggle = useCallback(async () => {
     if (!project) return;
@@ -105,7 +120,8 @@ function RouteComponent() {
               </div>
               <Switch
                 checked={!!project?.isPublic}
-                onCheckedChange={handleToggle}
+                onCheckedChange={canShare ? handleToggle : undefined}
+                disabled={!canShare}
               />
             </div>
 

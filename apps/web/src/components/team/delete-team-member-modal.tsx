@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Trash2, X } from "lucide-react";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { Button } from "../ui/button";
 import { Dialog, DialogClose, DialogPopup, DialogTitle } from "../ui/dialog";
 
@@ -18,8 +19,11 @@ function DeleteTeamMemberModal({
   const workspaceId = workspace?.id ?? "";
   const { mutateAsync: deleteWorkspaceUser } = useDeleteWorkspaceUser();
   const queryClient = useQueryClient();
+  const { canRemoveMembers } = useWorkspacePermission();
+  const canRemove = canRemoveMembers();
 
   const onRemoveMember = async () => {
+    if (!canRemove) return;
     await deleteWorkspaceUser({
       workspaceId,
       userId,
@@ -66,7 +70,11 @@ function DeleteTeamMemberModal({
               >
                 Cancel
               </DialogClose>
-              <Button onClick={onRemoveMember} variant="destructive">
+              <Button
+                onClick={onRemoveMember}
+                variant="destructive"
+                disabled={!canRemove}
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Remove Member
               </Button>

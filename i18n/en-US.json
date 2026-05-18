@@ -1681,6 +1681,7 @@
 			"status": "Status",
 			"emptyTitle": "No projects yet",
 			"emptyDescription": "Get started by creating your first project.",
+			"emptyDescriptionReadOnly": "There are no projects in this workspace yet. Ask an admin to create one.",
 			"projectStatus": {
 				"notStarted": "Not started",
 				"complete": "Complete",

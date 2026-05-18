@@ -10,6 +10,7 @@ import {
 import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { toast } from "@/lib/toast";
@@ -35,6 +36,8 @@ export default function TaskStatusPopover({
       isFinal: col.isFinal,
     })) ?? [];
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
+  const { canManageTasks } = useWorkspacePermission();
+  const canEdit = canManageTasks();
 
   const handleStatusChange = useCallback(
     async (newStatus: string) => {
@@ -64,6 +67,8 @@ export default function TaskStatusPopover({
   );
 
   useNumberedShortcuts(open, shortcutOptions);
+
+  if (!canEdit) return <>{children}</>;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

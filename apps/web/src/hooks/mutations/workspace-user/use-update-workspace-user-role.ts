@@ -35,6 +35,11 @@ function useUpdateWorkspaceUserRole() {
       });
       queryClient.invalidateQueries({ queryKey: ["full-workspace"] });
       queryClient.invalidateQueries({ queryKey: ["active-workspace-user"] });
+      // The active user's role may have changed; capability cache is keyed
+      // by (workspaceId, role) so we drop the per-workspace cache.
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-capabilities", variables.workspaceId],
+      });
     },
   });
 }

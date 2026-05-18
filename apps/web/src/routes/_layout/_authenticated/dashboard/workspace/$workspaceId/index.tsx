@@ -160,7 +160,9 @@ function RouteComponent() {
               </EmptyMedia>
               <EmptyTitle>{t("workspace:projects.emptyTitle")}</EmptyTitle>
               <EmptyDescription>
-                {t("workspace:projects.emptyDescription")}
+                {canCreate
+                  ? t("workspace:projects.emptyDescription")
+                  : t("workspace:projects.emptyDescriptionReadOnly")}
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
@@ -188,15 +190,17 @@ function RouteComponent() {
       <WorkspaceLayout
         title={t("workspace:projects.pageTitle")}
         headerActions={
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={handleCreateProject}
-            className="gap-1"
-          >
-            <Plus className="w-3 h-3" />
-            {t("workspace:projects.createProject")}
-          </Button>
+          canCreate ? (
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={handleCreateProject}
+              className="gap-1"
+            >
+              <Plus className="w-3 h-3" />
+              {t("workspace:projects.createProject")}
+            </Button>
+          ) : null
         }
       >
         <Table>
