@@ -56,20 +56,19 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
-
-RUN pnpm install --frozen-lockfile
-
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/libs ./packages/libs
 COPY i18n ./i18n
 COPY apps/web ./apps/web
+
+RUN pnpm install --frozen-lockfile
 
 WORKDIR /app/apps/web
 RUN pnpm run build
 
 FROM node:20.20.2-alpine AS runtime
 
-RUN apk add --no-cache nginx=1.28.3-r0 && \
+RUN apk add --no-cache nginx=1.28.3-r1 && \
   addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
   mkdir -p /app /app/apps/api/data /var/cache/nginx /var/run/nginx /var/log/nginx /var/lib/nginx/logs /var/lib/nginx/tmp /usr/share/nginx/html /docker-entrypoint.d && \

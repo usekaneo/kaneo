@@ -43,6 +43,9 @@ yarn-error.log*
 # Cache
 .cache/
 
+# Local worktrees
+.worktrees/
+
 # Overrides
 compose.override.yml
 

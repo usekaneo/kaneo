@@ -136,6 +136,16 @@ For a complete list of all environment variables, their descriptions, and config
    - Ensure the connection string format is correct
    - Check username, password, host, port, and database name
 
+3. **Match the hostname to where the API runs:**
+   - Use `postgres` only when the API container is on the same Docker Compose network as the Postgres service
+   - Use `localhost` when the API runs directly on your host machine
+   - If you see `getaddrinfo EAI_AGAIN postgres`, the API is trying to resolve the Compose hostname from the wrong network context
+
+4. **Use the right configuration mode:**
+   - For host-native development, prefer an explicit `DATABASE_URL`
+   - If you derive from `POSTGRES_*`, set `POSTGRES_HOST=localhost` when running the API on your host
+   - `POSTGRES_DB` and `POSTGRES_USER` by themselves do not switch Kaneo into derived connection mode
+
 ### Authentication Issues
 
 **Symptoms:**

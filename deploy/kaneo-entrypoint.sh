@@ -28,7 +28,9 @@ if [ -z "${KANEO_API_URL:-}" ] && [ -n "$client_url" ]; then
   echo "KANEO_API_URL not set — derived from KANEO_CLIENT_URL: $KANEO_API_URL"
 fi
 
-# Derive DATABASE_URL from individual postgres vars if not explicitly set
+# Derive DATABASE_URL for the bundled image when it is not explicitly set.
+# This image requires either DATABASE_URL or POSTGRES_PASSWORD so startup
+# fails fast instead of silently falling back to localhost inside the container.
 if [ -z "${DATABASE_URL:-}" ]; then
   POSTGRES_DB="${POSTGRES_DB:-kaneo}"
   POSTGRES_USER="${POSTGRES_USER:-kaneo}"
@@ -38,7 +40,7 @@ if [ -z "${DATABASE_URL:-}" ]; then
     export DATABASE_URL="postgresql://${encoded_user}:${encoded_password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}"
     echo "DATABASE_URL not set — derived from POSTGRES_* vars"
   else
-    echo "ERROR: DATABASE_URL is not set and POSTGRES_PASSWORD is not set" >&2
+    echo "ERROR: DATABASE_URL is not set and POSTGRES_PASSWORD is not set for bundled-image startup" >&2
     exit 1
   fi
 fi

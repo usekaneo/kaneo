@@ -30,6 +30,7 @@ import {
   workspaceTableRelations,
   workspaceUserTableRelations,
 } from "./relations";
+import { resolveDatabaseConnectionString } from "./resolve-database-url";
 import {
   accountTable,
   activityTable,
@@ -62,12 +63,6 @@ import {
 } from "./schema";
 
 config();
-
-export const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    "postgresql://kaneo_user:kaneo_password@localhost:5432/kaneo",
-});
 
 export const schema = {
   accountTable,
@@ -127,8 +122,41 @@ export const schema = {
   workspaceUserTableRelations,
 };
 
-const db = drizzle(pool, {
-  schema: schema,
+type DatabaseInstance = ReturnType<typeof drizzle<typeof schema>>;
+
+let pool: Pool | undefined;
+let dbInstance: DatabaseInstance | undefined;
+
+export function getDatabasePool(): Pool {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: resolveDatabaseConnectionString(),
+    });
+  }
+
+  return pool;
+}
+
+export function getDatabase(): DatabaseInstance {
+  if (!dbInstance) {
+    dbInstance = drizzle(getDatabasePool(), {
+      schema,
+    });
+  }
+
+  return dbInstance;
+}
+
+const db = new Proxy({} as DatabaseInstance, {
+  get(_target, property, receiver) {
+    const value = Reflect.get(getDatabase(), property, receiver);
+
+    if (typeof value === "function") {
+      return value.bind(getDatabase());
+    }
+
+    return value;
+  },
 });
 
 export default db;
