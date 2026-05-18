@@ -24,7 +24,7 @@ async function deleteComment(userId: string, id: string) {
 
   const [deletedComment] = await db
     .delete(activityTable)
-    .where(eq(activityTable.id, id))
+    .where(and(eq(activityTable.id, id), eq(activityTable.userId, userId)))
     .returning();
 
   if (!deletedComment) {

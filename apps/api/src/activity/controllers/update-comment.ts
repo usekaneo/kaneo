@@ -25,7 +25,7 @@ async function updateComment(userId: string, id: string, content: string) {
   const [updated] = await db
     .update(activityTable)
     .set({ content })
-    .where(eq(activityTable.id, id))
+    .where(and(eq(activityTable.id, id), eq(activityTable.userId, userId)))
     .returning();
 
   if (!updated) {
