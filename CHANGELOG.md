@@ -1,3 +1,22 @@
+## [2.7.3](https://github.com/usekaneo/kaneo/compare/v2.7.2...v2.7.3) (2026-05-18)
+
+
+### Bug Fixes
+
+* **api:** resolve issue [#1231](https://github.com/usekaneo/kaneo/issues/1231) ([#1257](https://github.com/usekaneo/kaneo/issues/1257)) ([94072ee](https://github.com/usekaneo/kaneo/commit/94072eec4c81fe5d4fb041d0a25342fa576431ff))
+* **db:** add missing foreign key indexes ([#1226](https://github.com/usekaneo/kaneo/issues/1226)) ([09742d4](https://github.com/usekaneo/kaneo/commit/09742d4452babdde1ebb359d290d04b0723384ed))
+* emit task.status_changed for git webhook status updates ([#1263](https://github.com/usekaneo/kaneo/issues/1263)) ([89c8207](https://github.com/usekaneo/kaneo/commit/89c8207052cea65cc1be7491651179cd41f98a4d))
+* inconsistent import extension ([4b5afc9](https://github.com/usekaneo/kaneo/commit/4b5afc9abb93a6c0d12d7c370152796691ff7a1c))
+* properly construct WS URL ([13d2ecc](https://github.com/usekaneo/kaneo/commit/13d2eccca3ced31cdbce55a022daa9f6f9c31197))
+* remove duplicate import tasks modal close button ([#1264](https://github.com/usekaneo/kaneo/issues/1264)) ([4f4d36b](https://github.com/usekaneo/kaneo/commit/4f4d36b69602cbbeba8ec0608745b1a687fb6e97))
+* replace em dash with hyphen in titles and metadata ([00b1f86](https://github.com/usekaneo/kaneo/commit/00b1f865f89e410e62936612cf4310af00e1060e))
+* **web:** Fix websocket path ([#1228](https://github.com/usekaneo/kaneo/issues/1228)) ([7059683](https://github.com/usekaneo/kaneo/commit/70596832d4eb325001a661cfadf6d4044a73863e))
+
+
+### Features
+
+* **i18n:** add Korean (ko-KR) translation ([#1229](https://github.com/usekaneo/kaneo/issues/1229)) ([cb5f607](https://github.com/usekaneo/kaneo/commit/cb5f607a4901b3275885c0bf62e232bbe92b19d5))
+* **site:** add Product Hunt launch badge to hero ([6d33c9e](https://github.com/usekaneo/kaneo/commit/6d33c9e37a53c83e5bb635ecfb18aa0df9293464)), closes [#141](https://github.com/usekaneo/kaneo/issues/141) [#124](https://github.com/usekaneo/kaneo/issues/124) [#140](https://github.com/usekaneo/kaneo/issues/140)
 ## [2.7.2](https://github.com/usekaneo/kaneo/compare/v2.7.1...v2.7.2) (2026-05-05)
 
 
