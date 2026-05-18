@@ -1,0 +1,25 @@
+name: Notify Discord on new issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to Discord
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+          WEBHOOK: ${{ secrets.DISCORD_ISSUE_WEBHOOK }}
+        run: |
+          payload=$(jq -nc \
+            --arg title "$ISSUE_TITLE" \
+            --arg url "$ISSUE_URL" \
+            --arg number "$ISSUE_NUMBER" \
+            --arg author "$AUTHOR" \
+            '{content: "New issue #\($number) by **\($author)**: \($title)\n\($url)"}')
+          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK"
