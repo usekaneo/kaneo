@@ -41,6 +41,7 @@ function SignIn() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDiscordLoading, setIsDiscordLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const [autoLoginFailed, setAutoLoginFailed] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
   const {
@@ -126,6 +127,7 @@ function SignIn() {
       toast.error(
         error instanceof Error ? error.message : t("auth:signIn.oidcError"),
       );
+      setAutoLoginFailed(true);
     } finally {
       setIsCustomOAuthLoading(false);
     }
@@ -220,7 +222,7 @@ function SignIn() {
     isConfigLoading ||
     isInstanceStatusLoading ||
     instanceStatus?.hasUsers === false ||
-    (config?.customOAuthAutoLogin && config?.hasCustomOAuth)
+    (config?.customOAuthAutoLogin && config?.hasCustomOAuth && !autoLoginFailed)
   ) {
     return (
       <>
