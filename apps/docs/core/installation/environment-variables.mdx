@@ -103,7 +103,8 @@ Name | Description |
 --- | --- |
 | `GITHUB_APP_ID` | The GitHub App ID.
 | `GITHUB_WEBHOOK_SECRET` | Secret used to verify GitHub webhook payloads.
-| `GITHUB_PRIVATE_KEY` | PEM private key for the GitHub App (JWT authentication).
+| `GITHUB_PRIVATE_KEY` | PEM private key for the GitHub App (JWT authentication). Accepts a real multi-line PEM, or a single line where every newline is replaced with the literal characters `\n` (useful when the host's env editor strips newlines, e.g. Portainer's form-based stack editor).
+| `GITHUB_PRIVATE_KEY_BASE64` | (Optional) Alternative to `GITHUB_PRIVATE_KEY`: a base64-encoded PEM. Takes precedence when both are set. Convenient when your orchestrator can't carry newlines at all.
 | `GITHUB_APP_NAME` | (Optional) GitHub App slug, used for installation links in the UI.
 
 ### Google SSO
