@@ -13,13 +13,17 @@
 	},
 	"license": "MIT",
 	"scripts": {
-		"lint": "biome check --write ."
+		"lint": "biome check --write .",
+		"test": "vitest run --config vitest.config.ts",
+		"test:watch": "vitest --config vitest.config.ts"
 	},
 	"dependencies": {
 		"better-auth": "^1.6.9"
 	},
 	"devDependencies": {
 		"@kaneo/typescript-config": "workspace:*",
-		"typescript": "^5.9.2"
+		"typescript": "^5.9.2",
+		"vite": "^7.3.2",
+		"vitest": "^4.1.6"
 	}
 }
