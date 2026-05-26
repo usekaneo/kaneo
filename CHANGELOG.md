@@ -1,3 +1,14 @@
+## [2.7.4](https://github.com/usekaneo/kaneo/compare/v2.7.3...v2.7.4) (2026-05-18)
+
+
+### Bug Fixes
+
+* **api:** restore atomic ownership check on activity comment writes ([12e9b94](https://github.com/usekaneo/kaneo/commit/12e9b942a1e78d48f2222908eb8267205855da27))
+
+
+### Features
+
+* **api:** add S3 key prefix support and auto-delete orphaned assets ([#1258](https://github.com/usekaneo/kaneo/issues/1258)) ([84fd6bd](https://github.com/usekaneo/kaneo/commit/84fd6bd38bd2f5f670502e79f28b99783436f10d))
 ## [2.7.3](https://github.com/usekaneo/kaneo/compare/v2.7.2...v2.7.3) (2026-05-18)
 
 

@@ -1,0 +1,38 @@
+name: Notify Discord on release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to Discord
+        env:
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          AUTHOR: ${{ github.event.release.author.login }}
+          AUTHOR_AVATAR: ${{ github.event.release.author.avatar_url }}
+          WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+        run: |
+          body=$(printf '%s' "$RELEASE_BODY" | head -c 4000)
+          payload=$(jq -nc \
+            --arg title "${RELEASE_NAME:-$RELEASE_TAG}" \
+            --arg body "$body" \
+            --arg url "$RELEASE_URL" \
+            --arg author "$AUTHOR" \
+            --arg avatar "$AUTHOR_AVATAR" \
+            '{
+              embeds: [{
+                title: $title,
+                url: $url,
+                description: $body,
+                color: 3066993,
+                author: {name: $author, icon_url: $avatar},
+                footer: {text: "usekaneo/kaneo"}
+              }]
+            }')
+          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK"
