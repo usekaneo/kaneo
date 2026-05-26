@@ -5,7 +5,7 @@ import {
   redirect,
   useLocation,
 } from "@tanstack/react-router";
-import { Settings, Shield, Users } from "lucide-react";
+import { Settings, Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -55,11 +55,6 @@ function RouteComponent() {
       title: t("settings:workspaceGeneral.title"),
       url: "/dashboard/settings/workspace/general",
       icon: Settings,
-    },
-    {
-      title: t("settings:workspaceMembers.title", { defaultValue: "Members" }),
-      url: "/dashboard/settings/workspace/members",
-      icon: Users,
     },
     {
       title: t("settings:workspaceRoles.title", { defaultValue: "Roles" }),

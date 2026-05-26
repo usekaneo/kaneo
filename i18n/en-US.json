@@ -1727,7 +1727,8 @@
 		"roles": {
 			"owner": "Owner",
 			"admin": "Admin",
-			"member": "Member"
+			"member": "Member",
+			"viewer": "Viewer"
 		},
 		"members": {
 			"pageTitle": "Members",
@@ -1762,7 +1763,9 @@
 			"removeSuccess": "Team member removed successfully",
 			"removeError": "Failed to remove team member",
 			"cancelInviteSuccess": "Invitation cancelled successfully",
-			"cancelInviteError": "Failed to cancel invitation"
+			"cancelInviteError": "Failed to cancel invitation",
+			"roleUpdateSuccess": "Role updated",
+			"roleUpdateError": "Failed to update role"
 		}
 	},
 	"publicProject": {
