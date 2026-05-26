@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
+import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -25,10 +26,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import useDeleteWorkspace from "@/hooks/mutations/workspace/use-delete-workspace";
+import useTransferWorkspaceOwnership from "@/hooks/mutations/workspace/use-transfer-workspace-ownership";
 import useUpdateWorkspace from "@/hooks/mutations/workspace/use-update-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import useGetFullWorkspace from "@/hooks/queries/workspace/use-get-full-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 
@@ -101,15 +111,35 @@ function RouteComponent() {
   const queuedSaveRef = useRef<WorkspaceFormValues | null>(null);
   const lastSavedRef = useRef<NormalizedWorkspaceValues | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [selectedNewOwnerId, setSelectedNewOwnerId] = useState<string>("");
 
+  const { user: currentUser } = useAuth();
   const { data: workspace } = useActiveWorkspace();
+  const { data: fullWorkspace } = useGetFullWorkspace({
+    workspaceId: workspace?.id,
+  });
   const { mutateAsync: updateWorkspace } = useUpdateWorkspace();
   const { mutateAsync: deleteWorkspace, isPending: isDeleting } =
     useDeleteWorkspace();
-  const { canManageWorkspace, canDeleteWorkspace } = useWorkspacePermission();
+  const { mutateAsync: transferOwnership, isPending: isTransferring } =
+    useTransferWorkspaceOwnership();
+  const { canManageWorkspace, canDeleteWorkspace, isOwner } =
+    useWorkspacePermission();
   const canEdit = canManageWorkspace();
   const canDelete = canDeleteWorkspace();
   const workspaceDescription = getWorkspaceDescription(workspace);
+
+  // Ownership transfer is owner-only. Eligible recipients are any current
+  // member who isn't the owner themselves.
+  const members = fullWorkspace?.members ?? [];
+  const currentOwnerMember = members.find((m) => m.role === "owner");
+  const eligibleNewOwners = members.filter(
+    (m) => m.role !== "owner" && m.userId !== currentUser?.id,
+  );
+  const selectedMember = eligibleNewOwners.find(
+    (m) => m.id === selectedNewOwnerId,
+  );
 
   const workspaceForm = useForm<WorkspaceFormValues>({
     resolver: standardSchemaResolver(workspaceSchema),
@@ -198,6 +228,33 @@ function RouteComponent() {
     },
     [workspace, updateWorkspace, queryClient, workspaceForm, t],
   );
+
+  const handleTransferOwnership = useCallback(async () => {
+    if (!workspace?.id || !currentOwnerMember || !selectedMember) return;
+
+    try {
+      await transferOwnership({
+        workspaceId: workspace.id,
+        newOwnerMemberId: selectedMember.id,
+        currentOwnerMemberId: currentOwnerMember.id,
+      });
+      toast.success(
+        t("settings:workspaceGeneral.transferOwnership.toastSuccess", {
+          defaultValue: "Ownership transferred",
+        }),
+      );
+      setIsTransferModalOpen(false);
+      setSelectedNewOwnerId("");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:workspaceGeneral.transferOwnership.toastError", {
+              defaultValue: "Failed to transfer ownership",
+            }),
+      );
+    }
+  }, [workspace?.id, currentOwnerMember, selectedMember, transferOwnership, t]);
 
   const handleDeleteWorkspace = useCallback(async () => {
     if (!workspace?.id) return;
@@ -346,6 +403,97 @@ function RouteComponent() {
           </div>
         </div>
 
+        {isOwner ? (
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <h2 className="text-md font-medium">
+                {t("settings:workspaceGeneral.transferOwnership.title", {
+                  defaultValue: "Transfer ownership",
+                })}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:workspaceGeneral.transferOwnership.subtitle", {
+                  defaultValue:
+                    "Hand this workspace over to another member. You'll be demoted to admin and lose owner-only abilities.",
+                })}
+              </p>
+            </div>
+
+            <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5 min-w-0">
+                  <p className="text-sm font-medium">
+                    {t(
+                      "settings:workspaceGeneral.transferOwnership.pickerLabel",
+                      { defaultValue: "New owner" },
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {eligibleNewOwners.length === 0
+                      ? t(
+                          "settings:workspaceGeneral.transferOwnership.noEligibleMembers",
+                          {
+                            defaultValue:
+                              "Invite at least one other member before you can transfer ownership.",
+                          },
+                        )
+                      : t(
+                          "settings:workspaceGeneral.transferOwnership.pickerHint",
+                          {
+                            defaultValue:
+                              "They become the sole owner of this workspace.",
+                          },
+                        )}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={selectedNewOwnerId}
+                    onValueChange={(value) => {
+                      if (typeof value === "string") {
+                        setSelectedNewOwnerId(value);
+                      }
+                    }}
+                    disabled={eligibleNewOwners.length === 0}
+                  >
+                    <SelectTrigger size="sm" className="w-56">
+                      <SelectValue
+                        placeholder={t(
+                          "settings:workspaceGeneral.transferOwnership.pickerPlaceholder",
+                          { defaultValue: "Select a member" },
+                        )}
+                      >
+                        {selectedMember
+                          ? selectedMember.user.name ||
+                            selectedMember.user.email
+                          : null}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {eligibleNewOwners.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.user.name} ({m.user.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    disabled={!selectedNewOwnerId || isTransferring}
+                    onClick={() => setIsTransferModalOpen(true)}
+                  >
+                    {t("settings:workspaceGeneral.transferOwnership.button", {
+                      defaultValue: "Transfer",
+                    })}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {canDelete && (
           <div className="space-y-6">
             <div className="space-y-1">
@@ -380,6 +528,57 @@ function RouteComponent() {
             </div>
           </div>
         )}
+
+        <AlertDialog
+          open={isTransferModalOpen}
+          onOpenChange={setIsTransferModalOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t("settings:workspaceGeneral.transferOwnership.dialogTitle", {
+                  defaultValue: "Transfer ownership?",
+                })}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {t(
+                  "settings:workspaceGeneral.transferOwnership.dialogDescription",
+                  {
+                    defaultValue:
+                      "{{name}} will become the sole owner of {{workspace}}. You'll keep admin access but lose owner-only abilities like deleting the workspace or transferring it again.",
+                    name:
+                      selectedMember?.user.name ||
+                      selectedMember?.user.email ||
+                      "",
+                    workspace: workspace?.name ?? "",
+                  },
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogClose disabled={isTransferring}>
+                <Button variant="outline" size="sm" disabled={isTransferring}>
+                  {t("common:actions.cancel")}
+                </Button>
+              </AlertDialogClose>
+              <AlertDialogClose
+                onClick={handleTransferOwnership}
+                disabled={isTransferring || !selectedMember}
+              >
+                <Button size="sm" disabled={isTransferring}>
+                  {isTransferring
+                    ? t(
+                        "settings:workspaceGeneral.transferOwnership.transferring",
+                        { defaultValue: "Transferring…" },
+                      )
+                    : t("settings:workspaceGeneral.transferOwnership.confirm", {
+                        defaultValue: "Transfer ownership",
+                      })}
+                </Button>
+              </AlertDialogClose>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <AlertDialog
           open={isDeleteModalOpen}
