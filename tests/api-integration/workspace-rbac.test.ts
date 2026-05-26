@@ -300,6 +300,356 @@ describe("API integration: workspace RBAC enforcement", () => {
     });
   });
 
+  describe("resource coverage: task:update", () => {
+    it("allows a member to update a task", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/task/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Updated by member",
+          description: "edit",
+          priority: "high",
+          status: "to-do",
+          projectId: project.id,
+          position: 1,
+        }),
+      });
+      expect(response.status).toBe(200);
+    });
+
+    it("blocks a viewer from updating a task", async () => {
+      const member = await createWorkspaceMember({ role: "viewer" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/task/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Viewer attempt",
+          description: "nope",
+          priority: "low",
+          status: "to-do",
+          projectId: project.id,
+          position: 1,
+        }),
+      });
+      expect(response.status).toBe(403);
+    });
+  });
+
+  describe("resource coverage: task:assign", () => {
+    it("blocks a member from assigning a task (assign is admin-tier)", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/task/assignee/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ userId: member.user.id }),
+      });
+      expect(response.status).toBe(403);
+    });
+
+    it("allows an admin to assign a task", async () => {
+      const member = await createWorkspaceMember({ role: "admin" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/task/assignee/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ userId: member.user.id }),
+      });
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe("resource coverage: project:create / update / delete", () => {
+    it("allows a member to create a project", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/project", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: "Member-made",
+          workspaceId: member.workspace.id,
+          slug: "MEM",
+          icon: "Folder",
+        }),
+      });
+      expect(response.status).toBe(200);
+    });
+
+    it("blocks a viewer from creating a project", async () => {
+      const member = await createWorkspaceMember({ role: "viewer" });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/project", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: "Viewer attempt",
+          workspaceId: member.workspace.id,
+          slug: "VWR",
+          icon: "Folder",
+        }),
+      });
+      expect(response.status).toBe(403);
+    });
+
+    it("blocks a member from updating a project (project:update is admin-tier)", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/project/${project.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: "Member-rename",
+          icon: "Folder",
+          slug: project.slug,
+          description: "",
+          isPublic: false,
+        }),
+      });
+      expect(response.status).toBe(403);
+    });
+
+    it("allows an admin to update a project", async () => {
+      const member = await createWorkspaceMember({ role: "admin" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/project/${project.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: "Admin-rename",
+          icon: "Folder",
+          slug: project.slug,
+          description: "",
+          isPublic: false,
+        }),
+      });
+      expect(response.status).toBe(200);
+    });
+
+    it("blocks a member from deleting a project (project:delete is admin-tier)", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/project/${project.id}`, {
+        method: "DELETE",
+      });
+      expect(response.status).toBe(403);
+    });
+
+    it("allows an admin to delete a project", async () => {
+      const member = await createWorkspaceMember({ role: "admin" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/project/${project.id}`, {
+        method: "DELETE",
+      });
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe("resource coverage: label:create / delete", () => {
+    it("allows a member to create a label", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/label", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: "bug",
+          color: "#ff0000",
+          workspaceId: member.workspace.id,
+        }),
+      });
+      expect(response.status).toBe(200);
+    });
+
+    it("blocks a viewer from creating a label", async () => {
+      const member = await createWorkspaceMember({ role: "viewer" });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/label", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: "nope",
+          color: "#000000",
+          workspaceId: member.workspace.id,
+        }),
+      });
+      expect(response.status).toBe(403);
+    });
+
+    it("allows a member to delete a label", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+      // deleteLabel requires the label to be attached to a task; without a
+      // taskId the controller rejects with 400 before checking permissions.
+      const [label] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "scratch",
+          color: "#abcdef",
+          workspaceId: member.workspace.id,
+          taskId: task.id,
+        })
+        .returning();
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/label/${label.id}`, {
+        method: "DELETE",
+      });
+      expect(response.status).toBe(200);
+    });
+
+    it("blocks a viewer from deleting a label", async () => {
+      const member = await createWorkspaceMember({ role: "viewer" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+      const [label] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "scratch",
+          color: "#abcdef",
+          workspaceId: member.workspace.id,
+          taskId: task.id,
+        })
+        .returning();
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/label/${label.id}`, {
+        method: "DELETE",
+      });
+      expect(response.status).toBe(403);
+    });
+  });
+
+  describe("resource coverage: workspace:manage_settings", () => {
+    // The integration endpoints (slack/discord/etc.) all gate on
+    // workspace:manage_settings. Use Slack as the canonical surface — the
+    // 403 fires in middleware before the handler ever tries to call out.
+    it("blocks a member from creating a Slack integration", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(
+        `/api/slack-integration/project/${project.id}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            webhookUrl: "https://hooks.slack.com/services/x/y/z",
+          }),
+        },
+      );
+      expect(response.status).toBe(403);
+    });
+
+    it("blocks a viewer from creating a Slack integration", async () => {
+      const member = await createWorkspaceMember({ role: "viewer" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(
+        `/api/slack-integration/project/${project.id}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            webhookUrl: "https://hooks.slack.com/services/x/y/z",
+          }),
+        },
+      );
+      expect(response.status).toBe(403);
+    });
+
+    it("blocks a member from deleting an integration", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(
+        `/api/slack-integration/project/${project.id}`,
+        { method: "DELETE" },
+      );
+      expect(response.status).toBe(403);
+    });
+  });
+
   describe("instance admin bypass", () => {
     it("bypasses the workspace permission check when user.role === 'admin'", async () => {
       const member = await createWorkspaceMember({ role: "viewer" });
