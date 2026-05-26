@@ -5,6 +5,7 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
 import { projectTable, taskRelationTable, taskTable } from "../database/schema";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTaskRelation from "./controllers/create-task-relation";
@@ -22,6 +23,7 @@ const taskRelationSchema = v.object({
 const taskRelation = new Hono<{
   Variables: {
     userId: string;
+    workspaceId: string;
   };
 }>()
   .get(
@@ -86,8 +88,10 @@ const taskRelation = new Hono<{
         throw new HTTPException(404, { message: "Source task not found" });
       }
       await validateWorkspaceAccess(userId, task.workspaceId);
+      c.set("workspaceId", task.workspaceId);
       return next();
     },
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const userId = c.get("userId");
       const { sourceTaskId, targetTaskId, relationType } = c.req.valid("json");
@@ -140,8 +144,10 @@ const taskRelation = new Hono<{
         throw new HTTPException(404, { message: "Task not found" });
       }
       await validateWorkspaceAccess(userId, task.workspaceId);
+      c.set("workspaceId", task.workspaceId);
       return next();
     },
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const userId = c.get("userId");
       const { id } = c.req.valid("param");

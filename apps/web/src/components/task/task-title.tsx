@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Form, FormField } from "@/components/ui/form";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import useGetTask from "@/hooks/queries/task/use-get-task";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import debounce from "@/lib/debounce";
 
 type TaskTitleProps = {
@@ -15,6 +16,8 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId);
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
+  const { canManageTasks } = useWorkspacePermission();
+  const canEdit = canManageTasks();
   const isInitializedRef = useRef(false);
   const taskRef = useRef(task);
   const updateTaskRef = useRef(updateTaskTitle);
@@ -81,6 +84,7 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
             {...field}
             type="text"
             placeholder={t("tasks:detail.titlePlaceholder")}
+            readOnly={!canEdit}
             className="block h-auto w-full appearance-none border-0 bg-transparent p-0 font-heading text-[2rem] leading-[1.15] font-semibold tracking-[-0.02em] text-foreground outline-none placeholder:text-foreground/45"
             onChange={(e) => {
               field.onChange(e);

@@ -45,6 +45,7 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
@@ -93,6 +94,8 @@ export default function TaskRelations({
   );
   const createRelation = useCreateTaskRelation();
   const deleteRelation = useDeleteTaskRelation(taskId);
+  const { canManageTasks } = useWorkspacePermission();
+  const canEdit = canManageTasks();
 
   useEffect(() => {
     if (!commandOpen) {
@@ -260,14 +263,16 @@ export default function TaskRelations({
               </span>
             )}
           </div>
-          <Button
-            variant="ghost"
-            size="xs"
-            className="text-muted-foreground"
-            onClick={() => setCommandOpen(true)}
-          >
-            <Plus className="size-3.5" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="xs"
+              className="text-muted-foreground"
+              onClick={() => setCommandOpen(true)}
+            >
+              <Plus className="size-3.5" />
+            </Button>
+          )}
         </div>
 
         <CollapsibleContent>
@@ -353,13 +358,17 @@ export default function TaskRelations({
                         >
                           <span>{t("tasks:relations.openTask")}</span>
                         </ContextMenuItem>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem
-                          className="text-destructive"
-                          onClick={() => handleRemoveRelation(item.id)}
-                        >
-                          <span>{t("tasks:relations.removeRelation")}</span>
-                        </ContextMenuItem>
+                        {canEdit && (
+                          <>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem
+                              className="text-destructive"
+                              onClick={() => handleRemoveRelation(item.id)}
+                            >
+                              <span>{t("tasks:relations.removeRelation")}</span>
+                            </ContextMenuItem>
+                          </>
+                        )}
                       </ContextMenuContent>
                     </ContextMenu>
                   );

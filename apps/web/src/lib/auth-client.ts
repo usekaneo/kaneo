@@ -1,5 +1,6 @@
 import { apiKeyClient } from "@better-auth/api-key/client";
 import {
+  adminClient,
   anonymousClient,
   deviceAuthorizationClient,
   emailOTPClient,
@@ -10,7 +11,7 @@ import {
   organizationClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
-import { ac, admin, member, owner } from "./permissions";
+import { ac, admin, member, owner, viewer } from "./permissions";
 
 const getBaseURL = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:1337";
@@ -33,14 +34,19 @@ export const authClient = createAuthClient({
     organizationClient({
       ac,
       roles: {
+        viewer,
         member,
         admin,
         owner,
+      },
+      dynamicAccessControl: {
+        enabled: true,
       },
     }),
     genericOAuthClient(),
     deviceAuthorizationClient(),
     apiKeyClient(),
+    adminClient(),
     inferAdditionalFields({
       user: {
         locale: {

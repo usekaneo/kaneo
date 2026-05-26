@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUser } from "@/hooks/queries/workspace-users/use-active-workspace-user";
@@ -5,110 +6,126 @@ import { authClient } from "@/lib/auth-client";
 
 export type PermissionLevel = "owner" | "admin" | "member";
 
+// Capabilities are named permission bundles checked against the SERVER via
+// better-auth's `/organization/has-permission` endpoint. Going through the
+// server is what makes custom workspace roles work in the UI — the local
+// `checkRolePermission` only knows about the four static roles compiled
+// into the auth client, so it would silently return false for any custom
+// role that grants the permission.
+const CAPABILITIES = {
+  manageProjects: { project: ["create", "update", "delete"] },
+  createProjects: { project: ["create"] },
+  deleteProjects: { project: ["delete"] },
+  manageTasks: { task: ["create", "update", "delete"] },
+  assignTasks: { task: ["assign"] },
+  manageLabels: { label: ["create", "update", "delete"] },
+  manageWorkspace: { workspace: ["update", "manage_settings"] },
+  deleteWorkspace: { workspace: ["delete"] },
+  inviteUsers: { invitation: ["create"] },
+  manageTeam: { member: ["update", "delete"] },
+  removeMembers: { member: ["delete"] },
+} as const satisfies Record<string, Record<string, string[]>>;
+
+type Capability = keyof typeof CAPABILITIES;
+
+type CapabilityMap = Record<Capability, boolean>;
+
+function emptyCapabilityMap(): CapabilityMap {
+  const out = {} as CapabilityMap;
+  for (const key of Object.keys(CAPABILITIES) as Capability[]) {
+    out[key] = false;
+  }
+  return out;
+}
+
 export function useWorkspacePermission() {
   const { data: activeWorkspace } = useActiveWorkspace();
   const { data: activeMember } = useGetActiveWorkspaceUser();
+  const workspaceId = activeWorkspace?.id;
+  const role = activeMember?.role as string | undefined;
 
-  const permissionCheckers = useMemo(
-    () => ({
-      // Server-side permission checking (most secure)
-      async hasPermission(permissions: Record<string, string[]>) {
+  // One query that fans out to all capability checks in parallel and caches
+  // the resulting map by (workspaceId, role). Refetches when either changes
+  // — e.g., when the admin edits the role's permissions in the Roles UI and
+  // we invalidate this key.
+  const {
+    data: capabilities,
+    isLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: ["workspace-capabilities", workspaceId, role],
+    enabled: Boolean(workspaceId && role),
+    staleTime: 5 * 60 * 1000,
+    queryFn: async (): Promise<CapabilityMap> => {
+      const entries = Object.entries(CAPABILITIES) as Array<
+        [Capability, Record<string, string[]>]
+      >;
+      const results = await Promise.all(
+        entries.map(async ([key, permissions]) => {
+          try {
+            const res = await authClient.organization.hasPermission({
+              organizationId: workspaceId,
+              permissions,
+            });
+            return [key, res.data?.success === true] as const;
+          } catch (error) {
+            console.error(`hasPermission check failed for ${key}:`, error);
+            return [key, false] as const;
+          }
+        }),
+      );
+      const map = emptyCapabilityMap();
+      for (const [key, value] of results) {
+        map[key] = value;
+      }
+      return map;
+    },
+  });
+
+  const can: CapabilityMap = capabilities ?? emptyCapabilityMap();
+
+  const helpers = useMemo(() => {
+    return {
+      canManageProjects: () => can.manageProjects,
+      canCreateProjects: () => can.createProjects,
+      canDeleteProjects: () => can.deleteProjects,
+      canManageTasks: () => can.manageTasks,
+      canAssignTasks: () => can.assignTasks,
+      canManageLabels: () => can.manageLabels,
+      canManageWorkspace: () => can.manageWorkspace,
+      canDeleteWorkspace: () => can.deleteWorkspace,
+      canInviteUsers: () => can.inviteUsers,
+      canManageTeam: () => can.manageTeam,
+      canRemoveMembers: () => can.removeMembers,
+      // Escape hatch for ad-hoc permission checks (uncached). Prefer adding
+      // a capability above.
+      hasPermission: async (permissions: Record<string, string[]>) => {
         try {
-          const result = await authClient.organization.hasPermission({
+          const res = await authClient.organization.hasPermission({
+            organizationId: workspaceId,
             permissions,
           });
-          return result.data || false;
+          return res.data?.success === true;
         } catch (error) {
-          console.error("Permission check failed:", error);
+          console.error("hasPermission check failed:", error);
           return false;
         }
       },
-
-      // Client-side role-based checking (faster for UI)
-      checkRolePermission(permissions: Record<string, string[]>) {
-        if (!activeMember?.role) return false;
-        try {
-          return authClient.organization.checkRolePermission({
-            permissions,
-            role: activeMember.role as PermissionLevel,
-          });
-        } catch (error) {
-          console.error("Role permission check failed:", error);
-          return false;
-        }
-      },
-
-      // Convenience methods for common checks
-      canManageProjects() {
-        return this.checkRolePermission({
-          project: ["create", "update", "delete"],
-        });
-      },
-
-      canCreateProjects() {
-        return this.checkRolePermission({ project: ["create"] });
-      },
-
-      canManageTasks() {
-        return this.checkRolePermission({
-          task: ["create", "update", "delete"],
-        });
-      },
-
-      canAssignTasks() {
-        return this.checkRolePermission({ task: ["assign"] });
-      },
-
-      canManageWorkspace() {
-        return this.checkRolePermission({
-          workspace: ["update", "manage_settings"],
-        });
-      },
-
-      canDeleteWorkspace() {
-        return this.checkRolePermission({ workspace: ["delete"] });
-      },
-
-      canInviteUsers() {
-        return this.checkRolePermission({ team: ["invite"] });
-      },
-
-      canManageTeam() {
-        return this.checkRolePermission({ team: ["remove", "manage_roles"] });
-      },
-
-      canRemoveMembers() {
-        return this.checkRolePermission({ team: ["remove"] });
-      },
-
-      // Legacy compatibility method
-      checkPermission(requiredRole: PermissionLevel = "member"): boolean {
-        if (!activeWorkspace || !activeMember) return false;
-
-        const userRole = activeMember.role as PermissionLevel;
-
-        if (requiredRole === "owner") {
-          return userRole === "owner";
-        }
-
-        if (requiredRole === "admin") {
-          return ["owner", "admin"].includes(userRole);
-        }
-
-        // For member level, all roles have access
-        return ["owner", "admin", "member"].includes(userRole);
-      },
-
-      isOwner: activeMember?.role === "owner",
-      isAdmin: ["owner", "admin"].includes(activeMember?.role || ""),
-      role: activeMember?.role as PermissionLevel | undefined,
-    }),
-    [activeMember, activeWorkspace],
-  );
+    };
+  }, [can, workspaceId]);
 
   return {
-    ...permissionCheckers,
+    ...helpers,
     workspace: activeWorkspace,
     member: activeMember,
+    role,
+    isOwner: role === "owner",
+    isAdmin: role === "owner" || role === "admin",
+    // True while the first capability fetch is in flight. Useful for hiding
+    // action UI during the initial render instead of flashing it on then
+    // off when the server check resolves.
+    isCheckingPermissions:
+      Boolean(workspaceId && role) && (isLoading || !capabilities),
+    isRefetchingPermissions: isFetching,
   };
 }

@@ -10,6 +10,7 @@ import {
 import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -35,6 +36,8 @@ export default function TaskPriorityPopover({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
+  const { canManageTasks } = useWorkspacePermission();
+  const canEdit = canManageTasks();
 
   const handlePriorityChange = useCallback(
     async (newPriority: string) => {
@@ -64,6 +67,10 @@ export default function TaskPriorityPopover({
   );
 
   useNumberedShortcuts(open, shortcutOptions);
+
+  // Read-only role: render the trigger child as a plain element so the user
+  // still sees the current priority but can't open the popover.
+  if (!canEdit) return <>{children}</>;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

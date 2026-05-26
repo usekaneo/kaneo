@@ -1681,6 +1681,7 @@
 			"status": "Status",
 			"emptyTitle": "No projects yet",
 			"emptyDescription": "Get started by creating your first project.",
+			"emptyDescriptionReadOnly": "There are no projects in this workspace yet. Ask an admin to create one.",
 			"projectStatus": {
 				"notStarted": "Not started",
 				"complete": "Complete",
@@ -1726,7 +1727,8 @@
 		"roles": {
 			"owner": "Owner",
 			"admin": "Admin",
-			"member": "Member"
+			"member": "Member",
+			"viewer": "Viewer"
 		},
 		"members": {
 			"pageTitle": "Members",
@@ -1761,7 +1763,9 @@
 			"removeSuccess": "Team member removed successfully",
 			"removeError": "Failed to remove team member",
 			"cancelInviteSuccess": "Invitation cancelled successfully",
-			"cancelInviteError": "Failed to cancel invitation"
+			"cancelInviteError": "Failed to cancel invitation",
+			"roleUpdateSuccess": "Role updated",
+			"roleUpdateError": "Failed to update role"
 		}
 	},
 	"publicProject": {

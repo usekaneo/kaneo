@@ -4,13 +4,14 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { Github, KeyRound, UserCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import useInstanceStatus from "@/hooks/queries/instance/use-instance-status";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -42,6 +43,31 @@ function SignIn() {
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
+  const {
+    data: instanceStatus,
+    isLoading: isInstanceStatusLoading,
+    isError: isInstanceStatusError,
+    error: instanceStatusError,
+  } = useInstanceStatus();
+
+  useEffect(() => {
+    if (instanceStatus && instanceStatus.hasUsers === false) {
+      navigate({ to: "/auth/sign-up", replace: true });
+    }
+  }, [instanceStatus, navigate]);
+
+  useEffect(() => {
+    if (isInstanceStatusError) {
+      toast.error(
+        instanceStatusError instanceof Error
+          ? instanceStatusError.message
+          : t("auth:signIn.instanceStatusError", {
+              defaultValue:
+                "Couldn't reach the server. Please retry in a moment.",
+            }),
+      );
+    }
+  }, [isInstanceStatusError, instanceStatusError, t]);
 
   const invitationId = search.invitationId;
   const defaultEmail = search.email;
@@ -175,7 +201,14 @@ function SignIn() {
     }
   };
 
-  if (isConfigLoading) {
+  // Treat "no users yet" as still loading so the skeleton stays visible
+  // while the useEffect above redirects to /auth/sign-up. Otherwise the
+  // form briefly paints before the redirect fires.
+  if (
+    isConfigLoading ||
+    isInstanceStatusLoading ||
+    instanceStatus?.hasUsers === false
+  ) {
     return (
       <>
         <PageTitle title={t("auth:signIn.pageTitle")} />

@@ -30,6 +30,16 @@ export async function validateWorkspaceAccess(
     }
   }
 
+  const [user] = await db
+    .select({ role: schema.userTable.role })
+    .from(schema.userTable)
+    .where(eq(schema.userTable.id, userId))
+    .limit(1);
+
+  if (user?.role === "admin") {
+    return;
+  }
+
   const membership = await db
     .select()
     .from(schema.workspaceUserTable)

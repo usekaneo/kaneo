@@ -12,6 +12,7 @@ import {
   validateTelegramConfig,
 } from "../plugins/telegram/config";
 import { telegramIntegrationSchema } from "../schemas";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import {
   buildNextTelegramConfigFromPatch,
@@ -105,6 +106,7 @@ telegramIntegration
       }),
     ),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const body = c.req.valid("json");
@@ -188,6 +190,7 @@ telegramIntegration
     validator("param", v.object({ projectId: v.string() })),
     validator("json", telegramIntegrationPatchBodySchema),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const body = c.req.valid("json");
@@ -276,6 +279,7 @@ telegramIntegration
     }),
     validator("param", v.object({ projectId: v.string() })),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
 

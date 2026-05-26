@@ -26,6 +26,7 @@ import {
   userTable,
   verificationTable,
   workflowRuleTable,
+  workspaceRoleTable,
   workspaceTable,
   workspaceUserTable,
 } from "./schema";
@@ -309,6 +310,16 @@ export const invitationTableRelations = relations(
     inviter: one(userTable, {
       fields: [invitationTable.inviterId],
       references: [userTable.id],
+    }),
+  }),
+);
+
+export const workspaceRoleTableRelations = relations(
+  workspaceRoleTable,
+  ({ one }) => ({
+    workspace: one(workspaceTable, {
+      fields: [workspaceRoleTable.workspaceId],
+      references: [workspaceTable.id],
     }),
   }),
 );

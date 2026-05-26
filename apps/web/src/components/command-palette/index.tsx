@@ -121,13 +121,11 @@ function CommandPalette() {
           },
           {
             value: "members",
-            label: t("navigation:commandPalette.members"),
+            label: t("navigation:commandPalette.members", {
+              defaultValue: "Members",
+            }),
             onRun: () => {
-              if (!workspace?.id) return;
-              navigate({
-                to: "/dashboard/workspace/$workspaceId/members",
-                params: { workspaceId: workspace.id },
-              });
+              navigate({ to: "/dashboard/settings/workspace/members" });
             },
           },
           {

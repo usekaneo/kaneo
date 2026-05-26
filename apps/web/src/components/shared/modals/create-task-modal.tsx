@@ -43,6 +43,7 @@ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getPriorityIcon } from "@/lib/priority";
@@ -174,6 +175,9 @@ function CreateTaskModal({
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id || "",
   );
+  const { canManageTasks, canManageLabels } = useWorkspacePermission();
+  const canCreateTaskCapability = canManageTasks();
+  const canCreateLabelCapability = canManageLabels();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -576,6 +580,11 @@ function CreateTaskModal({
     setLabels(labels.filter((l) => l.name !== labelName));
   };
 
+  // Defense-in-depth: if the user lacks task-create permission, don't render
+  // the modal even if a stale trigger somehow opens it (e.g., keyboard
+  // shortcut after the capability has changed).
+  if (!canCreateTaskCapability) return null;
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
@@ -929,10 +938,12 @@ function CreateTaskModal({
                           </button>
                         ))}
 
-                        {isCreatingNewLabel && filteredLabels.length > 0 && (
-                          <div className="border-t border-border my-1" />
-                        )}
-                        {isCreatingNewLabel && (
+                        {canCreateLabelCapability &&
+                          isCreatingNewLabel &&
+                          filteredLabels.length > 0 && (
+                            <div className="border-t border-border my-1" />
+                          )}
+                        {canCreateLabelCapability && isCreatingNewLabel && (
                           <button
                             type="button"
                             className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"

@@ -12,6 +12,7 @@ import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useDeleteLabel from "@/hooks/mutations/label/use-delete-label";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
@@ -66,6 +67,13 @@ export default function TaskLabelsPopover({
 
   const { mutateAsync: createLabel } = useCreateLabel();
   const { mutateAsync: deleteLabel } = useDeleteLabel();
+  // Attaching/removing labels from a task is a task mutation; creating a new
+  // workspace label needs the label capability. We gate the popover trigger
+  // on whichever is required: any flow needs at least task-edit since the
+  // result lives on the task.
+  const { canManageTasks, canManageLabels } = useWorkspacePermission();
+  const canEdit = canManageTasks();
+  const canCreateLabels = canManageLabels();
 
   const { data: taskLabels = [] } = useGetLabelsByTask(task.id);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -242,10 +250,10 @@ export default function TaskLabelsPopover({
           </button>
         ))}
 
-        {isCreatingNewLabel && filteredLabels.length > 0 && (
+        {canCreateLabels && isCreatingNewLabel && filteredLabels.length > 0 && (
           <div className="border-t border-border my-1" />
         )}
-        {isCreatingNewLabel && (
+        {canCreateLabels && isCreatingNewLabel && (
           <button
             type="button"
             className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
@@ -312,6 +320,10 @@ export default function TaskLabelsPopover({
       </div>
     </div>
   );
+
+  // No task-edit permission → no label changes at all. The trigger renders
+  // as a plain element so users still see the existing labels.
+  if (!canEdit) return <>{children}</>;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

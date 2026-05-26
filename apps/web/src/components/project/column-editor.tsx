@@ -9,6 +9,7 @@ import { useDeleteColumn } from "@/hooks/mutations/column/use-delete-column";
 import { useReorderColumns } from "@/hooks/mutations/column/use-reorder-columns";
 import { useUpdateColumn } from "@/hooks/mutations/column/use-update-column";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 
 type ColumnEditorProps = {
@@ -22,6 +23,8 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   const { mutateAsync: updateColumn } = useUpdateColumn();
   const { mutateAsync: deleteColumn } = useDeleteColumn();
   const { mutateAsync: reorderColumns } = useReorderColumns();
+  const { canManageProjects } = useWorkspacePermission();
+  const canEdit = canManageProjects();
   const [newColumnName, setNewColumnName] = useState("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
@@ -123,7 +126,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
           <div
             key={col.id}
             role="listitem"
-            draggable
+            draggable={canEdit}
             onDragStart={() => handleDragStart(index)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragEnd={handleDragEnd}
@@ -133,6 +136,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
             <Input
               defaultValue={col.name}
               className="h-8 text-sm flex-1"
+              disabled={!canEdit}
               onBlur={(e) => {
                 if (e.target.value !== col.name) {
                   handleRename(col.id, e.target.value);
@@ -160,9 +164,12 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                 </span>
                 <Switch
                   checked={col.isFinal}
-                  onCheckedChange={(checked) =>
-                    handleToggleFinal(col.id, checked)
+                  onCheckedChange={
+                    canEdit
+                      ? (checked) => handleToggleFinal(col.id, checked)
+                      : undefined
                   }
+                  disabled={!canEdit}
                   aria-label={t("settings:columnEditor.markDoneAria", {
                     name: col.name,
                   })}
@@ -174,40 +181,44 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                     : t("settings:columnEditor.off")}
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                onClick={() => handleDelete(col.id)}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </Button>
+              {canEdit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDelete(col.id)}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center gap-2">
-        <Input
-          placeholder={t("settings:columnEditor.newColumnPlaceholder")}
-          value={newColumnName}
-          onChange={(e) => setNewColumnName(e.target.value)}
-          className="h-8 text-sm flex-1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleCreate();
-          }}
-        />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleCreate}
-          disabled={!newColumnName.trim()}
-          className="h-8 gap-1"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          {t("settings:columnEditor.add")}
-        </Button>
-      </div>
+      {canEdit && (
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder={t("settings:columnEditor.newColumnPlaceholder")}
+            value={newColumnName}
+            onChange={(e) => setNewColumnName(e.target.value)}
+            className="h-8 text-sm flex-1"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCreate();
+            }}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCreate}
+            disabled={!newColumnName.trim()}
+            className="h-8 gap-1"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            {t("settings:columnEditor.add")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

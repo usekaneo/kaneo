@@ -17,6 +17,7 @@ import {
   isImageContentType,
   validateTaskAssetUploadInput,
 } from "../storage/s3";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import bulkUpdateTasks from "./controllers/bulk-update-tasks";
 import createTask from "./controllers/create-task";
@@ -185,6 +186,7 @@ const task = new Hono<{
       }),
     ),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["create"] }),
     async (c) => {
       const { projectId } = c.req.param();
       const {
@@ -269,6 +271,7 @@ const task = new Hono<{
       }),
     ),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { destinationProjectId, destinationStatus } = c.req.valid("json");
@@ -315,6 +318,7 @@ const task = new Hono<{
       }),
     ),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const {
@@ -406,6 +410,7 @@ const task = new Hono<{
       }),
     ),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["create"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { tasks } = c.req.valid("json");
@@ -433,6 +438,7 @@ const task = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["delete"] }),
     async (c) => {
       const { id } = c.req.valid("param");
 
@@ -460,6 +466,7 @@ const task = new Hono<{
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ status: v.string() })),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { status } = c.req.valid("json");
@@ -488,6 +495,7 @@ const task = new Hono<{
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ priority: v.picklist(VALID_PRIORITIES) })),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { priority } = c.req.valid("json");
@@ -516,6 +524,7 @@ const task = new Hono<{
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ userId: v.string() })),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["assign"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { userId } = c.req.valid("json");
@@ -544,6 +553,7 @@ const task = new Hono<{
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ dueDate: v.optional(v.string()) })),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { dueDate = null } = c.req.valid("json");
@@ -577,6 +587,7 @@ const task = new Hono<{
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ title: v.string() })),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { title } = c.req.valid("json");
@@ -615,6 +626,7 @@ const task = new Hono<{
       }),
     ),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { filename, contentType, size, surface } = c.req.valid("json");
@@ -698,6 +710,7 @@ const task = new Hono<{
       }),
     ),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { key, filename, contentType, size, surface } = c.req.valid("json");
@@ -813,6 +826,7 @@ const task = new Hono<{
     validator("param", v.object({ id: v.string() })),
     validator("json", v.object({ description: v.string() })),
     workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { description } = c.req.valid("json");

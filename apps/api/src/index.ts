@@ -31,6 +31,7 @@ import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
+import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
 import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
@@ -70,6 +71,7 @@ import {
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
 } from "./utils/openapi-spec";
+import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
@@ -163,6 +165,36 @@ export function createApp() {
   api.get("/health", (c) => {
     return c.json({ status: "ok" });
   });
+
+  api.get(
+    "/instance/status",
+    describeRoute({
+      operationId: "getInstanceStatus",
+      tags: ["Instance"],
+      description:
+        "Public instance setup status. When hasUsers is false the next signup becomes the instance admin.",
+      security: [],
+      responses: {
+        200: {
+          description: "Instance status",
+          content: {
+            "application/json": {
+              schema: resolver(
+                v.object({
+                  hasUsers: v.boolean(),
+                  hasAdmin: v.boolean(),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const status = await getInstanceStatus();
+      return c.json(status);
+    },
+  );
 
   const publicProjectApi = api.get("/public-project/:id", async (c) => {
     const { id } = c.req.param();
@@ -627,6 +659,7 @@ export async function runStartupTasks() {
   await migrateNotificationPreferencesSchema();
   await migrateGitHubIntegration();
   await migrateColumns();
+  await seedDefaultWorkspaceRoles();
 
   initializePlugins();
   initializeScheduler();

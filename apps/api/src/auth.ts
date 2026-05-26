@@ -4,11 +4,18 @@ import {
   sendOtpEmail,
   sendWorkspaceInvitationEmail,
 } from "@kaneo/email";
+import {
+  ac,
+  DEFAULT_ROLE_NAMES,
+  defaultRolePayloads,
+  owner,
+} from "@kaneo/permissions";
 import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import {
+  admin as adminPlugin,
   anonymous,
   bearer,
   deviceAuthorization,
@@ -19,8 +26,10 @@ import {
   openAPI,
   organization,
 } from "better-auth/plugins";
+import type { AccessControl } from "better-auth/plugins/access";
+import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
-import { eq } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
@@ -147,6 +156,7 @@ export const auth = betterAuth({
       workspace: schema.workspaceTable,
       workspace_member: schema.workspaceUserTable,
       invitation: schema.invitationTable,
+      workspace_role: schema.workspaceRoleTable,
       team: schema.teamTable,
       teamMember: schema.teamMemberTable,
       apikey: schema.apikeyTable,
@@ -226,8 +236,23 @@ export const auth = betterAuth({
       },
     }),
     organization({
-      // creatorRole: "admin", // maybe will want this "The role of the user who creates the organization."
-      // invitationLimit and other fields like this may be beneficial as well
+      // `ac` is created with a narrow `statement` shape (project/task/label/
+      // workspace + the default org statements), which makes its inferred
+      // `newRole` generic incompatible with better-auth's looser
+      // `AccessControl` type. Widen via an explicit cast so the plugin
+      // accepts our custom statement.
+      ac: ac as unknown as AccessControl,
+      // Only `owner` stays static so its permissions can never be edited away
+      // from the workspace creator. `viewer`, `member`, and `admin` are
+      // seeded into `workspace_role` per workspace and resolved via
+      // dynamic access control, so admins can fully override (replace) their
+      // permissions per workspace. See `seedDefaultWorkspaceRoles` + the
+      // afterCreateOrganization hook.
+      roles: { owner },
+      dynamicAccessControl: {
+        enabled: true,
+        maximumRolesPerOrganization: 25,
+      },
       teams: {
         enabled: true,
         maximumTeams: 10,
@@ -258,6 +283,12 @@ export const auth = betterAuth({
             organizationId: "workspaceId",
           },
         },
+        organizationRole: {
+          modelName: "workspace_role",
+          fields: {
+            organizationId: "workspaceId",
+          },
+        },
         team: {
           modelName: "team",
           fields: {
@@ -268,6 +299,41 @@ export const auth = betterAuth({
       allowUserToCreateOrganization: true,
       organizationHooks: {
         afterCreateOrganization: async ({ organization, user }) => {
+          // Seed the editable default roles for this workspace. Each
+          // role's permissions are derived from the compiled-in defaults
+          // in `@kaneo/permissions`; admins can later replace them in the
+          // Roles UI. We skip names that somehow already exist (this hook
+          // is best-effort idempotent — the boot-time backfill is the
+          // belt-and-braces path).
+          try {
+            const existing = await db
+              .select({ role: schema.workspaceRoleTable.role })
+              .from(schema.workspaceRoleTable)
+              .where(
+                eq(schema.workspaceRoleTable.workspaceId, organization.id),
+              );
+            const taken = new Set(existing.map((r) => r.role));
+            const now = new Date();
+            const rows = DEFAULT_ROLE_NAMES.filter(
+              (name) => !taken.has(name),
+            ).map((name) => ({
+              workspaceId: organization.id,
+              role: name,
+              permission: JSON.stringify(defaultRolePayloads[name]),
+              createdAt: now,
+              updatedAt: now,
+            }));
+            if (rows.length > 0) {
+              await db.insert(schema.workspaceRoleTable).values(rows);
+            }
+          } catch (error) {
+            console.error(
+              "Failed to seed default workspace roles for workspace",
+              organization.id,
+              error,
+            );
+          }
+
           publishEvent("workspace.created", {
             workspaceId: organization.id,
             workspaceName: organization.name,
@@ -341,6 +407,10 @@ export const auth = betterAuth({
       validateClient: async (clientId) =>
         getDeviceAuthClientIds().has(clientId),
     }),
+    adminPlugin({
+      defaultRole: "user",
+      adminRoles: ["admin"],
+    }),
     openAPI(),
   ],
   session: {
@@ -353,12 +423,72 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
+          // Allow the very first signup through even when registration
+          // is disabled — that's the instance-admin bootstrap flow.
+          // Otherwise a fresh instance with DISABLE_REGISTRATION=true
+          // could never be set up because `checkRegistrationAllowed`
+          // would reject the first user (qodo bot #3).
+          const [{ value: existingUserCount }] = await db
+            .select({ value: count() })
+            .from(schema.userTable);
+          if (existingUserCount === 0) {
+            return;
+          }
+
           const result = await checkRegistrationAllowed(user.email);
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {
               message: result.reason,
             });
           }
+        },
+        after: async (user) => {
+          // The anonymous() plugin creates ephemeral users for guest
+          // access; never promote one to instance admin even if no
+          // real admin exists yet. `isAnonymous` is contributed by the
+          // anonymous plugin's `additionalFields` and isn't part of the
+          // base User type, so we narrow through `UserWithAnonymous`.
+          const userWithAnonymous = user as Partial<UserWithAnonymous>;
+          if (userWithAnonymous.isAnonymous) {
+            return;
+          }
+
+          // Promote the first user to instance admin atomically.
+          //
+          // A previous version of this code checked the user count in
+          // the `before` hook and returned `role: "admin"`, but the
+          // count and the eventual INSERT happened in separate
+          // transactions, so two concurrent first-signups could both
+          // see count=0 and both become admins (qodo bot #5).
+          //
+          // We now run the check + promote inside a single transaction
+          // guarded by a Postgres advisory lock. Whichever transaction
+          // wins the lock first promotes its user; any concurrent
+          // transaction then sees totalUserCount > 1 and skips.
+          //
+          // Note: we count total users (not admins) so that upgrading
+          // an existing instance — where every existing user has
+          // role=NULL from the new column — doesn't promote the next
+          // signup to admin (qodo bot #4).
+          await db.transaction(async (tx) => {
+            await tx.execute(sql`SELECT pg_advisory_xact_lock(2026)`);
+
+            const totalRows = await tx
+              .select({ value: count() })
+              .from(schema.userTable);
+            const totalUserCount = totalRows[0]?.value ?? 0;
+
+            // This hook runs after the user row is inserted, so the
+            // just-created user is included in the count. If they are
+            // the only row in the table, this is a fresh-instance
+            // bootstrap and they get promoted to admin.
+            if (totalUserCount === 1) {
+              await tx
+                .update(schema.userTable)
+                .set({ role: "admin" })
+                .where(eq(schema.userTable.id, user.id));
+            }
+          });
         },
       },
     },
@@ -374,8 +504,14 @@ export const auth = betterAuth({
         return;
       }
 
+      const userCountRows = await db
+        .select({ value: count() })
+        .from(schema.userTable);
+      const existingUserCount = userCountRows[0]?.value ?? 0;
+      const isInstanceAdminSetup = existingUserCount === 0;
+
       if (ctx.path === "/sign-up/email") {
-        if (isPasswordRegistrationDisabled) {
+        if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
           throw new APIError("FORBIDDEN", {
             message:
               "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
@@ -383,7 +519,7 @@ export const auth = betterAuth({
         }
       }
 
-      if (!isRegistrationDisabled) {
+      if (!isRegistrationDisabled || isInstanceAdminSetup) {
         return;
       }
 

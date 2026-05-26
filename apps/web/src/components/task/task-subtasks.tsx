@@ -26,6 +26,7 @@ import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-ta
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
 import type Task from "@/types/task";
@@ -60,6 +61,8 @@ export default function TaskSubtasks({
   const createTask = useCreateTask();
   const createRelation = useCreateTaskRelation();
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { canManageTasks } = useWorkspacePermission();
+  const canEdit = canManageTasks();
 
   const subtasks = relations
     .filter(
@@ -298,14 +301,16 @@ export default function TaskSubtasks({
               </span>
             )}
           </div>
-          <Button
-            variant="ghost"
-            size="xs"
-            className="text-muted-foreground"
-            onClick={() => setIsAdding(true)}
-          >
-            <Plus className="size-3.5" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="xs"
+              className="text-muted-foreground"
+              onClick={() => setIsAdding(true)}
+            >
+              <Plus className="size-3.5" />
+            </Button>
+          )}
         </div>
 
         <CollapsibleContent>

@@ -4,8 +4,9 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
-import { Route } from "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/members";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -41,7 +42,10 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const { t } = useTranslation();
   const { mutateAsync } = useInviteWorkspaceUser();
   const queryClient = useQueryClient();
-  const { workspaceId } = Route.useParams();
+  const { data: workspace } = useActiveWorkspace();
+  const workspaceId = workspace?.id;
+  const { canInviteUsers } = useWorkspacePermission();
+  const canInvite = canInviteUsers();
 
   const form = useForm<TeamMemberFormValues>({
     resolver: standardSchemaResolver(teamMemberSchema),
@@ -51,6 +55,17 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   });
 
   const onSubmit = async ({ email }: TeamMemberFormValues) => {
+    if (!workspaceId) {
+      toast.error(t("team:inviteModal.error"));
+      return;
+    }
+    if (!canInvite) {
+      // Defense-in-depth: parent gates the trigger, but if the modal is
+      // somehow open without permission we refuse rather than firing a
+      // mutation the server will reject.
+      toast.error(t("team:inviteModal.error"));
+      return;
+    }
     try {
       await mutateAsync({ email, workspaceId, role: "member" }); // TODO: role and email
       await queryClient.refetchQueries({
@@ -69,9 +84,11 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   };
 
   const resetInviteTeamMember = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ["workspace-users", workspaceId],
-    });
+    if (workspaceId) {
+      await queryClient.invalidateQueries({
+        queryKey: ["workspace-users", workspaceId],
+      });
+    }
     form.reset();
   };
 
@@ -115,7 +132,11 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
               >
                 {t("common:actions.cancel")}
               </DialogClose>
-              <Button type="submit" size="sm">
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!workspaceId || !canInvite}
+              >
                 {t("team:inviteModal.sendInvitation")}
               </Button>
             </DialogFooter>

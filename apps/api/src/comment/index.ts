@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { commentSchema } from "../schemas";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
@@ -59,6 +60,7 @@ const comment = new Hono<{
       v.object({ content: v.pipe(v.string(), v.minLength(1)) }),
     ),
     workspaceAccess.fromTaskId(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { taskId } = c.req.valid("param");
       const { content } = c.req.valid("json");
@@ -88,6 +90,7 @@ const comment = new Hono<{
       v.object({ content: v.pipe(v.string(), v.minLength(1)) }),
     ),
     workspaceAccess.fromComment(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const { content } = c.req.valid("json");
@@ -113,6 +116,7 @@ const comment = new Hono<{
     }),
     validator("param", v.object({ id: v.string() })),
     workspaceAccess.fromComment(),
+    requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const userId = c.get("userId");
