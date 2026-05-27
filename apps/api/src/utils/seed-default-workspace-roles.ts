@@ -85,7 +85,15 @@ export async function seedDefaultWorkspaceRoles() {
       return;
     }
 
-    await db.insert(schema.workspaceRoleTable).values(rows);
+    // Postgres' bind protocol caps parameters at 65535 per query, so insert
+    // in chunks. 6 columns × 1000 rows = 6000 params per batch, leaving ample
+    // headroom even for instances with tens of thousands of workspaces.
+    const BATCH_SIZE = 1000;
+    for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+      await db
+        .insert(schema.workspaceRoleTable)
+        .values(rows.slice(i, i + BATCH_SIZE));
+    }
     console.log(
       `✅ Seeded ${rows.length} default workspace role row(s) across ${workspaceIds.length} workspace(s).`,
     );
