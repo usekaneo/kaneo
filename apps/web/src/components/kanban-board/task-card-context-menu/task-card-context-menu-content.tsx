@@ -54,11 +54,13 @@ export default function TaskCardContextMenuContent({
       ? project.columns.map((col) => ({
           slug: col.id,
           name: col.name,
+          icon: col.icon,
           isFinal: col.isFinal,
         }))
       : columnsData.map((col) => ({
           slug: col.slug,
           name: col.name,
+          icon: col.icon,
           isFinal: col.isFinal,
         }));
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
@@ -182,7 +184,7 @@ export default function TaskCardContextMenuContent({
                 closeOnClick
                 className="[&_svg]:text-muted-foreground"
               >
-                {getColumnIcon(col.slug, col.isFinal)}
+                {getColumnIcon(col.slug, col.isFinal, col.icon)}
                 <span>{col.name}</span>
               </ContextMenuCheckboxItem>
             ))}

@@ -1,31 +1,29 @@
-import {
-  Archive,
-  CheckCircle2,
-  Circle,
-  CircleDashed,
-  CircleDot,
-  Search,
-} from "lucide-react";
+import { CheckCircle2, Circle } from "lucide-react";
+import columnIcons, {
+  DEFAULT_COLUMN_ICON_NAMES,
+} from "@/constants/column-icons";
 
-export const getColumnIcon = (columnId: string, isFinal?: boolean) => {
-  switch (columnId) {
-    case "to-do":
-      return <Circle className="w-4 h-4 text-muted-foreground" />;
-    case "in-progress":
-      return <CircleDot className="w-4 h-4 text-muted-foreground" />;
-    case "in-review":
-      return <Search className="w-4 h-4 text-muted-foreground" />;
-    case "done":
-      return <CheckCircle2 className="w-4 h-4 text-muted-foreground" />;
-    case "archived":
-      return <Archive className="w-4 h-4 text-muted-foreground" />;
-    case "planned":
-      return <CircleDashed className="w-4 h-4 text-muted-foreground" />;
-    default:
-      return isFinal ? (
-        <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
-      ) : (
-        <Circle className="w-4 h-4 text-muted-foreground" />
-      );
+export const getColumnIcon = (
+  columnId: string,
+  isFinal?: boolean,
+  iconName?: string | null,
+) => {
+  const resolvedIconName =
+    iconName ||
+    DEFAULT_COLUMN_ICON_NAMES[
+      columnId as keyof typeof DEFAULT_COLUMN_ICON_NAMES
+    ];
+  const Icon =
+    resolvedIconName &&
+    columnIcons[resolvedIconName as keyof typeof columnIcons];
+
+  if (Icon) {
+    return <Icon className="w-4 h-4 text-muted-foreground" />;
   }
+
+  return isFinal ? (
+    <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+  ) : (
+    <Circle className="w-4 h-4 text-muted-foreground" />
+  );
 };

@@ -172,6 +172,20 @@ export default function TaskRelations({
     return new Set<string>();
   }, [projectData]);
 
+  const columnIconBySlug = useMemo(() => {
+    const icons = new Map<string, string | null | undefined>();
+    if (!projectData) return icons;
+    if ("columns" in projectData && Array.isArray(projectData.columns)) {
+      for (const col of projectData.columns as Array<{
+        id: string;
+        icon?: string | null;
+      }>) {
+        icons.set(col.id, col.icon);
+      }
+    }
+    return icons;
+  }, [projectData]);
+
   const filteredTasks = allTasks.filter(
     (t) => !existingRelatedTaskIds.has(t.id),
   );
@@ -301,6 +315,7 @@ export default function TaskRelations({
                               {getColumnIcon(
                                 item.task.status,
                                 finalStatusSlugs.has(item.task.status),
+                                columnIconBySlug.get(item.task.status),
                               )}
                             </button>
                           </SubtaskStatusPopover>
@@ -415,7 +430,11 @@ export default function TaskRelations({
                             onClick={() => handleLinkTask(item.id)}
                             className="flex items-center gap-3 py-2"
                           >
-                            {getColumnIcon(item.status, false)}
+                            {getColumnIcon(
+                              item.status,
+                              false,
+                              columnIconBySlug.get(item.status),
+                            )}
                             <span className="text-xs text-muted-foreground shrink-0 font-mono">
                               {project?.slug}-{item.number}
                             </span>
