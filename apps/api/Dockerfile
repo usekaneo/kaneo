@@ -30,6 +30,10 @@ COPY apps/api ./apps/api
 WORKDIR /app/packages/email
 RUN pnpm run build
 
+# Build permissions package
+WORKDIR /app/packages/permissions
+RUN pnpm run build
+
 # Fix TypeScript config and build API
 WORKDIR /app/apps/api
 RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/..\/packages\/typescript-config\/base.json"/g' /app/apps/api/tsconfig.json && \

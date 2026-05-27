@@ -24,6 +24,9 @@ COPY apps/api ./apps/api
 WORKDIR /app/packages/email
 RUN pnpm run build
 
+WORKDIR /app/packages/permissions
+RUN pnpm run build
+
 WORKDIR /app/apps/api
 RUN pnpm run build
 
