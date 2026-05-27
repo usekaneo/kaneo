@@ -27,7 +27,7 @@ export function PublicKanbanView({
                 <div className="p-2 shrink-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {getColumnIcon(column.id, column.isFinal)}
+                      {getColumnIcon(column.id, column.isFinal, column.icon)}
                       <h3 className="font-medium text-foreground">
                         {column.name}
                       </h3>
@@ -53,7 +53,7 @@ export function PublicKanbanView({
                   {column.tasks.length === 0 && (
                     <div className="text-center text-sm text-muted-foreground py-12 px-4">
                       <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mx-auto mb-2">
-                        {getColumnIcon(column.id, column.isFinal)}
+                        {getColumnIcon(column.id, column.isFinal, column.icon)}
                       </div>
                       No tasks in {column.name.toLowerCase()}
                     </div>

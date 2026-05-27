@@ -16,7 +16,9 @@ describe("updateTaskLabelsInProject", () => {
       columns: [
         {
           id: "todo",
+          slug: "todo",
           name: "Todo",
+          icon: null,
           isFinal: false,
           tasks: [
             {
