@@ -71,6 +71,9 @@ COPY apps/web ./apps/web
 
 RUN pnpm install --frozen-lockfile
 
+WORKDIR /app/packages/permissions
+RUN pnpm run build
+
 WORKDIR /app/apps/web
 RUN pnpm run build
 

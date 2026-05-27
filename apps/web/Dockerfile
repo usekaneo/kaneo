@@ -25,6 +25,10 @@ COPY packages/permissions ./packages/permissions
 COPY i18n ./i18n
 COPY apps/web ./apps/web
 
+# Build the permissions package first
+WORKDIR /app/packages/permissions
+RUN pnpm run build
+
 # Build the application
 WORKDIR /app/apps/web
 RUN pnpm run build
