@@ -4,6 +4,7 @@ type Task = {
   title: string;
   status: string;
   priority: string | null;
+  startDate: string | null;
   dueDate: string | null;
   assigneeName?: string | null;
   assigneeImage?: string | null;
