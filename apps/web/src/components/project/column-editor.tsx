@@ -3,14 +3,24 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import columnIcons, {
+  DEFAULT_COLUMN_ICON_NAMES,
+} from "@/constants/column-icons";
 import { useCreateColumn } from "@/hooks/mutations/column/use-create-column";
 import { useDeleteColumn } from "@/hooks/mutations/column/use-delete-column";
 import { useReorderColumns } from "@/hooks/mutations/column/use-reorder-columns";
 import { useUpdateColumn } from "@/hooks/mutations/column/use-update-column";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 type ColumnEditorProps = {
   projectId: string;
@@ -26,6 +36,12 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   const { canManageProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
   const [newColumnName, setNewColumnName] = useState("");
+  const [newColumnIcon, setNewColumnIcon] = useState("Circle");
+  const [iconPickerColumnId, setIconPickerColumnId] = useState<string | null>(
+    null,
+  );
+  const [newIconPickerOpen, setNewIconPickerOpen] = useState(false);
+  const [iconSearch, setIconSearch] = useState("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const handleCreate = async () => {
@@ -33,9 +49,10 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     try {
       await createColumn({
         projectId,
-        data: { name: newColumnName.trim() },
+        data: { name: newColumnName.trim(), icon: newColumnIcon },
       });
       setNewColumnName("");
+      setNewColumnIcon("Circle");
       toast.success(t("settings:columnEditor.toastCreated"));
     } catch (error) {
       toast.error(
@@ -67,6 +84,21 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
           ? t("settings:columnEditor.toastFinalOn")
           : t("settings:columnEditor.toastFinalOff"),
       );
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastUpdateError"),
+      );
+    }
+  };
+
+  const handleUpdateIcon = async (id: string, icon: string) => {
+    try {
+      await updateColumn({ id, projectId, data: { icon } });
+      setIconPickerColumnId(null);
+      setIconSearch("");
+      toast.success(t("settings:columnEditor.toastIconUpdated"));
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -110,6 +142,10 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     setDraggedIndex(null);
   };
 
+  const filteredIcons = Object.entries(columnIcons).filter(([iconName]) =>
+    iconName.toLowerCase().includes(iconSearch.trim().toLowerCase()),
+  );
+
   if (isLoading) {
     return (
       <div className="text-sm text-muted-foreground">
@@ -133,6 +169,68 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
             className="flex items-center gap-2 p-2 border border-border rounded-md bg-sidebar hover:bg-sidebar-accent/50 transition-colors"
           >
             <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab shrink-0" />
+            <Popover
+              open={iconPickerColumnId === col.id}
+              onOpenChange={(open) => {
+                setIconPickerColumnId(open ? col.id : null);
+                if (!open) setIconSearch("");
+              }}
+              modal={true}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 shrink-0"
+                  title={t("settings:columnEditor.pickIconTitle")}
+                  disabled={!canEdit}
+                >
+                  {getColumnIcon(col.slug, col.isFinal, col.icon)}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="start">
+                <div className="space-y-2">
+                  <Input
+                    value={iconSearch}
+                    onChange={(e) => setIconSearch(e.target.value)}
+                    placeholder={t(
+                      "settings:columnEditor.searchIconsPlaceholder",
+                    )}
+                    className="h-8 text-xs"
+                  />
+                  <div className="max-h-[280px] overflow-y-auto pr-1">
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {filteredIcons.map(([iconName, Icon]) => {
+                        const selectedIconName =
+                          col.icon ||
+                          DEFAULT_COLUMN_ICON_NAMES[
+                            col.slug as keyof typeof DEFAULT_COLUMN_ICON_NAMES
+                          ];
+                        const isSelected = selectedIconName === iconName;
+                        return (
+                          <Button
+                            key={iconName}
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleUpdateIcon(col.id, iconName)}
+                            className={cn(
+                              "h-10 items-center justify-center rounded-md p-0",
+                              isSelected &&
+                                "bg-sidebar-accent text-sidebar-accent-foreground",
+                            )}
+                            title={iconName}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Input
               defaultValue={col.name}
               className="h-8 text-sm flex-1"
@@ -198,6 +296,66 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
 
       {canEdit && (
         <div className="flex items-center gap-2">
+          <Popover
+            open={newIconPickerOpen}
+            onOpenChange={(open) => {
+              setNewIconPickerOpen(open);
+              if (!open) setIconSearch("");
+            }}
+            modal={true}
+          >
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 shrink-0"
+                title={t("settings:columnEditor.pickIconTitle")}
+              >
+                {getColumnIcon("", false, newColumnIcon)}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="start">
+              <div className="space-y-2">
+                <Input
+                  value={iconSearch}
+                  onChange={(e) => setIconSearch(e.target.value)}
+                  placeholder={t(
+                    "settings:columnEditor.searchIconsPlaceholder",
+                  )}
+                  className="h-8 text-xs"
+                />
+                <div className="max-h-[280px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {filteredIcons.map(([iconName, Icon]) => {
+                      const isSelected = newColumnIcon === iconName;
+                      return (
+                        <Button
+                          key={iconName}
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setNewColumnIcon(iconName);
+                            setNewIconPickerOpen(false);
+                            setIconSearch("");
+                          }}
+                          className={cn(
+                            "h-10 items-center justify-center rounded-md p-0",
+                            isSelected &&
+                              "bg-sidebar-accent text-sidebar-accent-foreground",
+                          )}
+                          title={iconName}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           <Input
             placeholder={t("settings:columnEditor.newColumnPlaceholder")}
             value={newColumnName}

@@ -98,6 +98,7 @@ export default function TaskPropertiesSidebar({
     statusColumn?.name,
   );
   const statusIsFinal = statusColumn?.isFinal ?? false;
+  const statusIcon = statusColumn?.icon;
 
   const projectSlug = project?.slug;
   const taskNumber = task?.number;
@@ -198,7 +199,11 @@ export default function TaskPropertiesSidebar({
                     size="sm"
                     className="justify-start h-7 px-1.5 gap-1.5"
                   >
-                    {getColumnIcon(task.status ?? "", statusIsFinal)}
+                    {getColumnIcon(
+                      task.status ?? "",
+                      statusIsFinal,
+                      statusIcon,
+                    )}
                     <span className="text-xs font-semibold truncate">
                       {statusLabel}
                     </span>
@@ -382,7 +387,11 @@ export default function TaskPropertiesSidebar({
                       size="sm"
                       className="justify-start h-7 px-1.5 gap-1.5"
                     >
-                      {getColumnIcon(task.status ?? "", statusIsFinal)}
+                      {getColumnIcon(
+                        task.status ?? "",
+                        statusIsFinal,
+                        statusIcon,
+                      )}
                       <span className="text-xs font-semibold truncate">
                         {statusLabel}
                       </span>
@@ -569,7 +578,11 @@ export default function TaskPropertiesSidebar({
                       size="sm"
                       className="justify-start h-7 px-1.5 gap-1.5 w-full"
                     >
-                      {getColumnIcon(task.status ?? "", statusIsFinal)}
+                      {getColumnIcon(
+                        task.status ?? "",
+                        statusIsFinal,
+                        statusIcon,
+                      )}
                       <span className="text-xs font-semibold truncate">
                         {statusLabel}
                       </span>

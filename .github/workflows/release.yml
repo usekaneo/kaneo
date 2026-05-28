@@ -84,13 +84,12 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2.6.1
         with:
+          token: ${{ secrets.RELEASE_TOKEN }}
           tag_name: v${{ steps.new_version.outputs.version }}
           name: Release v${{ steps.new_version.outputs.version }}
           generate_release_notes: true
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Trigger Docker Build
         uses: actions/github-script@v8

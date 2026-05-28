@@ -225,6 +225,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     id: column.slug,
     slug: column.slug,
     name: column.name,
+    icon: column.icon,
     isFinal: column.isFinal,
     tasks: paginatedTasks
       .filter((task) => task.status === column.slug)

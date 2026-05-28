@@ -388,7 +388,7 @@ function BacklogBulkToolbar() {
                       key={col.id}
                       onClick={() => handleMoveToBoard(col.id)}
                     >
-                      {getColumnIcon(col.id, col.isFinal)}
+                      {getColumnIcon(col.id, col.isFinal, col.icon)}
                       <span className="ml-2">{col.name}</span>
                     </DropdownMenuItem>
                   ))}

@@ -24,6 +24,9 @@ COPY apps/api ./apps/api
 WORKDIR /app/packages/email
 RUN pnpm run build
 
+WORKDIR /app/packages/permissions
+RUN pnpm run build
+
 WORKDIR /app/apps/api
 RUN pnpm run build
 
@@ -68,12 +71,15 @@ COPY apps/web ./apps/web
 
 RUN pnpm install --frozen-lockfile
 
+WORKDIR /app/packages/permissions
+RUN pnpm run build
+
 WORKDIR /app/apps/web
 RUN pnpm run build
 
 FROM node:20.20.2-alpine AS runtime
 
-RUN apk add --no-cache nginx=1.28.3-r1 && \
+RUN apk add --no-cache nginx=1.28.3-r2 && \
   addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
   mkdir -p /app /app/apps/api/data /var/cache/nginx /var/run/nginx /var/log/nginx /var/lib/nginx/logs /var/lib/nginx/tmp /usr/share/nginx/html /docker-entrypoint.d && \

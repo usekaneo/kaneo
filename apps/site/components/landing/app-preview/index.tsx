@@ -1,6 +1,19 @@
 "use client";
 
 import {
+  addDays,
+  differenceInCalendarDays,
+  eachDayOfInterval,
+  endOfWeek,
+  format,
+  isSameMonth,
+  isToday,
+  isWeekend,
+  parseISO,
+  subDays,
+} from "date-fns";
+import {
+  CalendarDays,
   ChevronDown,
   ChevronRight,
   MoreHorizontal,
@@ -9,7 +22,7 @@ import {
   SquircleDashed,
 } from "lucide-react";
 import type * as React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BoardToolbar from "@/components/project-board-toolbar";
 import { PrivateKanbanView } from "@/components/project-private-kanban-view";
 import { PrivateListView } from "@/components/project-private-list-view";
@@ -45,6 +58,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useTaskFilters } from "@/hooks/use-task-filters";
 import { cn } from "@/lib/utils";
+import type Task from "@/types/task";
 import {
   MOCK_PROJECTS,
   MOCK_USERS,
@@ -54,6 +68,281 @@ import {
 
 const PREVIEW_W = 1400;
 const PREVIEW_H = 860;
+
+type PreviewMode = "board" | "list" | "gantt";
+
+type ScheduledTask = Task & {
+  scheduleStart: Date;
+  scheduleEnd: Date;
+};
+
+function parseTaskDate(value: string | null) {
+  if (!value) return null;
+  const parsed = parseISO(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getBarGridColumns(
+  scheduleStart: Date,
+  scheduleEnd: Date,
+  rangeStart: Date,
+  trackCount: number,
+): { barInView: boolean; lineStart: number; lineEnd: number } {
+  const startIndex = differenceInCalendarDays(scheduleStart, rangeStart);
+  const endIndex = differenceInCalendarDays(scheduleEnd, rangeStart);
+  const barInView = endIndex >= 0 && startIndex < trackCount && trackCount > 0;
+  if (!barInView) return { barInView: false, lineStart: 1, lineEnd: 1 };
+
+  const lineStart = Math.max(1, Math.min(startIndex + 1, trackCount));
+  const lineEnd = Math.max(
+    lineStart + 1,
+    Math.min(endIndex + 2, trackCount + 1),
+  );
+
+  return { barInView: true, lineStart, lineEnd };
+}
+
+function MockGanttTaskBar({
+  task,
+  timeline,
+}: {
+  task: ScheduledTask;
+  timeline: {
+    days: Date[];
+    rangeStart: Date;
+    gridTemplateColumns: string;
+  };
+}) {
+  const { barInView, lineStart, lineEnd } = getBarGridColumns(
+    task.scheduleStart,
+    task.scheduleEnd,
+    timeline.rangeStart,
+    timeline.days.length,
+  );
+
+  if (!barInView || lineEnd <= lineStart) return null;
+
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 z-[1] grid items-center"
+      style={{ gridTemplateColumns: timeline.gridTemplateColumns }}
+    >
+      <div
+        style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
+        className="group pointer-events-auto relative mx-1 flex h-11 min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40"
+      >
+        <div className="relative z-20 w-2 shrink-0 border-r border-primary/15 bg-primary/8" />
+        <button
+          type="button"
+          className="relative z-10 min-w-0 flex-1 cursor-grab overflow-hidden px-2.5 text-left active:cursor-grabbing"
+        >
+          <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
+          <span className="relative z-10 block truncate">{task.title}</span>
+        </button>
+        <div className="relative z-20 w-2 shrink-0 border-l border-primary/15 bg-primary/8" />
+      </div>
+    </div>
+  );
+}
+
+function MockGanttView({
+  project,
+}: {
+  project: (typeof MOCK_PROJECTS)[number];
+}) {
+  const dayColumnWidthRem = 2.75;
+  const taskColumnWidthRem = 20;
+
+  const statusNames = useMemo(
+    () => new Map(project.columns.map((column) => [column.id, column.name])),
+    [project.columns],
+  );
+
+  const parsedTasks = useMemo(() => {
+    return project.columns
+      .flatMap((column) => column.tasks)
+      .map((task) => {
+        const parsedStart =
+          parseTaskDate(task.startDate) ?? parseTaskDate(task.dueDate);
+        const parsedEnd =
+          parseTaskDate(task.dueDate) ?? parseTaskDate(task.startDate);
+
+        if (!parsedStart || !parsedEnd) return null;
+
+        const start = parsedStart <= parsedEnd ? parsedStart : parsedEnd;
+        const end = parsedEnd >= parsedStart ? parsedEnd : parsedStart;
+
+        return {
+          ...task,
+          scheduleStart: start,
+          scheduleEnd: end,
+        };
+      })
+      .filter((task): task is ScheduledTask => task !== null)
+      .sort(
+        (left, right) =>
+          left.scheduleStart.getTime() - right.scheduleStart.getTime(),
+      );
+  }, [project.columns]);
+
+  const timeline = useMemo(() => {
+    if (parsedTasks.length === 0) return null;
+
+    const latest = parsedTasks.reduce(
+      (current, task) =>
+        task.scheduleEnd > current ? task.scheduleEnd : current,
+      parsedTasks[0].scheduleEnd,
+    );
+
+    const weekEnd = endOfWeek(latest, { weekStartsOn: 1 });
+    const today = new Date();
+    const rangeStart = subDays(today, 4);
+    const rangeEnd = addDays(weekEnd, 21);
+    const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
+
+    return {
+      days,
+      rangeStart,
+      gridTemplateColumns: `repeat(${days.length}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
+      timelineMinWidthRem: days.length * dayColumnWidthRem,
+    };
+  }, [parsedTasks]);
+
+  if (!timeline) return null;
+
+  return (
+    <div className="flex h-full min-h-0 flex-col bg-background">
+      <div className="border-b border-border/80 px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-sm font-semibold text-foreground">Gantt</h2>
+          </div>
+
+          <div className="relative w-full max-w-sm">
+            <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <div className="flex h-8 items-center rounded-md border border-input bg-background pl-8 pr-3 text-xs text-muted-foreground shadow-xs">
+              Search tasks...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-auto overscroll-x-contain">
+        <div className="relative min-w-max">
+          <div className="sticky top-0 z-20 flex border-b border-border bg-background/95 backdrop-blur">
+            <div
+              className="sticky left-0 z-30 shrink-0 border-r border-border bg-background px-4 py-3"
+              style={{ width: `${taskColumnWidthRem}rem` }}
+            >
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Task
+              </p>
+            </div>
+            <div
+              className="grid shrink-0"
+              style={{
+                gridTemplateColumns: timeline.gridTemplateColumns,
+                minWidth: `${timeline.timelineMinWidthRem}rem`,
+              }}
+            >
+              {timeline.days.map((day, index) => {
+                const showMonth =
+                  index === 0 ||
+                  !isSameMonth(day, timeline.days[index - 1] ?? day);
+
+                return (
+                  <div
+                    key={day.toISOString()}
+                    className={cn(
+                      "border-r border-border/70 px-1 py-2 text-center",
+                      isWeekend(day) && "bg-muted/25",
+                    )}
+                  >
+                    <div className="h-4 text-[10px] font-medium text-muted-foreground">
+                      {showMonth ? format(day, "MMM") : ""}
+                    </div>
+                    <div
+                      className={cn(
+                        "mx-auto flex size-6 items-center justify-center rounded-full text-xs font-medium",
+                        isToday(day) && "bg-primary text-primary-foreground",
+                      )}
+                    >
+                      {format(day, "d")}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="relative">
+            <div
+              className="absolute inset-y-0 z-0 grid"
+              style={{
+                left: `${taskColumnWidthRem}rem`,
+                gridTemplateColumns: timeline.gridTemplateColumns,
+                width: `${timeline.timelineMinWidthRem}rem`,
+              }}
+            >
+              {timeline.days.map((day) => (
+                <div
+                  key={`bg-line-${day.toISOString()}`}
+                  className={cn(
+                    "h-full min-h-0 border-r border-border/60",
+                    isWeekend(day) && "bg-muted/25",
+                  )}
+                />
+              ))}
+            </div>
+
+            <div className="relative z-10 flex flex-col">
+              {parsedTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="grid items-stretch border-b border-border/70"
+                  style={{
+                    gridTemplateColumns: `${taskColumnWidthRem}rem max-content`,
+                  }}
+                >
+                  <div className="sticky left-0 z-[11] h-full border-r border-border bg-background">
+                    <button
+                      type="button"
+                      className="flex w-full min-w-0 flex-col items-start justify-center gap-0.5 px-3 py-1.5 text-left transition-colors hover:bg-muted"
+                    >
+                      <div className="flex w-full items-center gap-1.5">
+                        <span className="truncate rounded-full bg-secondary px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground">
+                          {statusNames.get(task.status) ?? task.status}
+                        </span>
+                        <span className="truncate text-[10px] text-muted-foreground">
+                          {project.slug}-{task.number}
+                        </span>
+                      </div>
+                      <p className="w-full line-clamp-1 text-xs font-medium leading-tight text-foreground">
+                        {task.title}
+                      </p>
+                      <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
+                        {format(task.scheduleStart, "MMM d")} -{" "}
+                        {format(task.scheduleEnd, "MMM d")}
+                        {task.assigneeName ? ` • ${task.assigneeName}` : ""}
+                      </p>
+                    </button>
+                  </div>
+
+                  <div
+                    className="relative h-[50px] shrink-0 select-none"
+                    style={{ minWidth: `${timeline.timelineMinWidthRem}rem` }}
+                  >
+                    <MockGanttTaskBar task={task} timeline={timeline} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MockSidebar — visually identical to app-sidebar.tsx, driven by mock data
@@ -236,7 +525,7 @@ export function AppPreview() {
   const [scale, setScale] = useState(1);
 
   const [activeProjectId, setActiveProjectId] = useState(MOCK_PROJECTS[0].id);
-  const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const [viewMode, setViewMode] = useState<PreviewMode>("board");
 
   const activeProject =
     MOCK_PROJECTS.find((p) => p.id === activeProjectId) ?? MOCK_PROJECTS[0];
@@ -252,6 +541,10 @@ export function AppPreview() {
 
   const handleProjectSelect = useCallback((id: string) => {
     setActiveProjectId(id);
+  }, []);
+
+  const setBoardToolbarMode = useCallback((mode: "board" | "list") => {
+    setViewMode(mode);
   }, []);
 
   // Scale preview to fill the container width; boost on mobile for legibility
@@ -343,28 +636,44 @@ export function AppPreview() {
                       <SquareKanban className="size-3.5" />
                       Board
                     </Button>
+                    <Button
+                      variant={viewMode === "gantt" ? "secondary" : "ghost"}
+                      size="xs"
+                      onClick={() => setViewMode("gantt")}
+                      className={cn(
+                        "h-6 gap-1.5 rounded-md px-2 text-xs",
+                        viewMode !== "gantt" && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarDays className="size-3.5" />
+                      Gantt
+                    </Button>
                   </div>
                 </div>
               </div>
             </header>
 
             {/* ── Board Toolbar ─────────────────────────────────────────── */}
-            <BoardToolbar
-              project={activeProject}
-              filters={filters}
-              updateFilter={updateFilter}
-              updateLabelFilter={updateLabelFilter}
-              clearFilters={clearFilters}
-              hasActiveFilters={hasActiveFilters}
-              users={MOCK_USERS}
-              workspaceLabels={MOCK_WORKSPACE_LABELS}
-              viewMode={viewMode}
-              setViewMode={setViewMode}
-            />
+            {viewMode !== "gantt" ? (
+              <BoardToolbar
+                project={activeProject}
+                filters={filters}
+                updateFilter={updateFilter}
+                updateLabelFilter={updateLabelFilter}
+                clearFilters={clearFilters}
+                hasActiveFilters={hasActiveFilters}
+                users={MOCK_USERS}
+                workspaceLabels={MOCK_WORKSPACE_LABELS}
+                viewMode={viewMode}
+                setViewMode={setBoardToolbarMode}
+              />
+            ) : null}
 
             {/* ── View content ─────────────────────────────────────────── */}
             <div className="relative flex-1 overflow-hidden flex flex-col min-h-0 bg-linear-to-b from-muted/20 to-background">
-              {viewMode === "board" ? (
+              {viewMode === "gantt" ? (
+                <MockGanttView project={filteredProject ?? activeProject} />
+              ) : viewMode === "board" ? (
                 <PrivateKanbanView
                   project={filteredProject ?? activeProject}
                   onTaskClick={() => {}}

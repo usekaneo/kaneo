@@ -1,3 +1,58 @@
+## [2.7.5](https://github.com/usekaneo/kaneo/compare/v2.7.4...v2.7.5) (2026-05-27)
+
+
+### Bug Fixes
+
+* **auth:** widen ac to AccessControl for organization() typing ([e21c6d4](https://github.com/usekaneo/kaneo/commit/e21c6d43e0f9f82c45d5efd4060f3f6a90f4c64b))
+* **ci:** use RELEASE_TOKEN PAT so release events fire downstream ([62eac52](https://github.com/usekaneo/kaneo/commit/62eac52593f67c117a5355edf96552ec24497a12))
+* **columns:** allow workflow icon updates ([2f02835](https://github.com/usekaneo/kaneo/commit/2f02835c5642785d39a02f7cd54d9fdd3a667f94))
+* **deps:** regenerate pnpm-lock.yaml (stale next@16 reference) ([7e86f06](https://github.com/usekaneo/kaneo/commit/7e86f069c5062e26a525d4d9aa0d83f86c7cfb86))
+* **docker:** bump pinned nginx to 1.28.3-r2 in Dockerfile.kaneo ([7e7ba28](https://github.com/usekaneo/kaneo/commit/7e7ba2844251620f319e146b813071a85793af76))
+* **github:** accept \n-escaped and base64-encoded GITHUB_PRIVATE_KEY ([63c060b](https://github.com/usekaneo/kaneo/commit/63c060bc74a30b167a680fd6cc1d7b8b51c41b8a)), closes [#1299](https://github.com/usekaneo/kaneo/issues/1299)
+* **package:** revert version to 2.7.4 in package.json ([0ac1302](https://github.com/usekaneo/kaneo/commit/0ac1302a9c27fe6d42c656eff72a65e22abd300f))
+* **rbac:** address CodeRabbit follow-up on admin promotion and sign-in flash ([c882894](https://github.com/usekaneo/kaneo/commit/c8828941ba07ac0db64e15bff94d56570bf6c167))
+* **rbac:** address PR review feedback (build, tests, label permissions) ([21c0f75](https://github.com/usekaneo/kaneo/commit/21c0f754ecbcb5c253241ffc3737497cf15f983e))
+* **rbac:** address Qodo re-review (admin promotion, registration, instance status) ([67eda1e](https://github.com/usekaneo/kaneo/commit/67eda1ea6c6eca01748e3d8895229bdebe090f97)), closes [#4](https://github.com/usekaneo/kaneo/issues/4) [#3](https://github.com/usekaneo/kaneo/issues/3) [#1](https://github.com/usekaneo/kaneo/issues/1) [#2](https://github.com/usekaneo/kaneo/issues/2)
+* **rbac:** address review bot comments ([68a9f65](https://github.com/usekaneo/kaneo/commit/68a9f654cf5c72a7cbc9e20319a963df9e69b4b5)), closes [#2](https://github.com/usekaneo/kaneo/issues/2)
+* **rbac:** validate custom-role permission JSON before authorizing ([c522001](https://github.com/usekaneo/kaneo/commit/c5220012b9c8a8522de4bda2291eaa540722acb7))
+* **web:** align invite member modal styling ([81932e3](https://github.com/usekaneo/kaneo/commit/81932e31569838f1ccadaeedc6be51fd51d3cbb8))
+* **web:** ensure active workspace is set when deep-linking to settings ([31cd7e0](https://github.com/usekaneo/kaneo/commit/31cd7e03ebd10519aa998161798d3d6e84a425e2))
+* **web:** invalidate the right caches on workspace user role update ([a411821](https://github.com/usekaneo/kaneo/commit/a411821fb7eb6132292c6978459420abc7a0e5da))
+
+
+### Features
+
+* **rbac:** gate workspace UI on server-checked permissions ([c414432](https://github.com/usekaneo/kaneo/commit/c41443276ca783395c0ff95c568f96005501554e))
+* **site:** add product hunt landing badge ([28fb3e3](https://github.com/usekaneo/kaneo/commit/28fb3e397689fe54eb04848c5fea554a4525da15))
+* **web:** move members page back to workspace sidebar with new table design ([565b898](https://github.com/usekaneo/kaneo/commit/565b898c14ebf7c6419940a59e564acfeaa9d5ac))
+* **web:** ownership transfer in workspace general settings ([405de6e](https://github.com/usekaneo/kaneo/commit/405de6e7caec1a23fa772a9550514313590b27f0))
+* workspace RBAC with custom roles and instance admin ([039f4bb](https://github.com/usekaneo/kaneo/commit/039f4bb00f0b40ae10a00b51281bde213b098492))
+## [2.7.5](https://github.com/usekaneo/kaneo/compare/v2.7.4...v2.7.5) (2026-05-27)
+
+
+### Bug Fixes
+
+* **auth:** widen ac to AccessControl for organization() typing ([e21c6d4](https://github.com/usekaneo/kaneo/commit/e21c6d43e0f9f82c45d5efd4060f3f6a90f4c64b))
+* **columns:** allow workflow icon updates ([2f02835](https://github.com/usekaneo/kaneo/commit/2f02835c5642785d39a02f7cd54d9fdd3a667f94))
+* **deps:** regenerate pnpm-lock.yaml (stale next@16 reference) ([7e86f06](https://github.com/usekaneo/kaneo/commit/7e86f069c5062e26a525d4d9aa0d83f86c7cfb86))
+* **github:** accept \n-escaped and base64-encoded GITHUB_PRIVATE_KEY ([63c060b](https://github.com/usekaneo/kaneo/commit/63c060bc74a30b167a680fd6cc1d7b8b51c41b8a)), closes [#1299](https://github.com/usekaneo/kaneo/issues/1299)
+* **rbac:** address CodeRabbit follow-up on admin promotion and sign-in flash ([c882894](https://github.com/usekaneo/kaneo/commit/c8828941ba07ac0db64e15bff94d56570bf6c167))
+* **rbac:** address PR review feedback (build, tests, label permissions) ([21c0f75](https://github.com/usekaneo/kaneo/commit/21c0f754ecbcb5c253241ffc3737497cf15f983e))
+* **rbac:** address Qodo re-review (admin promotion, registration, instance status) ([67eda1e](https://github.com/usekaneo/kaneo/commit/67eda1ea6c6eca01748e3d8895229bdebe090f97)), closes [#4](https://github.com/usekaneo/kaneo/issues/4) [#3](https://github.com/usekaneo/kaneo/issues/3) [#1](https://github.com/usekaneo/kaneo/issues/1) [#2](https://github.com/usekaneo/kaneo/issues/2)
+* **rbac:** address review bot comments ([68a9f65](https://github.com/usekaneo/kaneo/commit/68a9f654cf5c72a7cbc9e20319a963df9e69b4b5)), closes [#2](https://github.com/usekaneo/kaneo/issues/2)
+* **rbac:** validate custom-role permission JSON before authorizing ([c522001](https://github.com/usekaneo/kaneo/commit/c5220012b9c8a8522de4bda2291eaa540722acb7))
+* **web:** align invite member modal styling ([81932e3](https://github.com/usekaneo/kaneo/commit/81932e31569838f1ccadaeedc6be51fd51d3cbb8))
+* **web:** ensure active workspace is set when deep-linking to settings ([31cd7e0](https://github.com/usekaneo/kaneo/commit/31cd7e03ebd10519aa998161798d3d6e84a425e2))
+* **web:** invalidate the right caches on workspace user role update ([a411821](https://github.com/usekaneo/kaneo/commit/a411821fb7eb6132292c6978459420abc7a0e5da))
+
+
+### Features
+
+* **rbac:** gate workspace UI on server-checked permissions ([c414432](https://github.com/usekaneo/kaneo/commit/c41443276ca783395c0ff95c568f96005501554e))
+* **site:** add product hunt landing badge ([28fb3e3](https://github.com/usekaneo/kaneo/commit/28fb3e397689fe54eb04848c5fea554a4525da15))
+* **web:** move members page back to workspace sidebar with new table design ([565b898](https://github.com/usekaneo/kaneo/commit/565b898c14ebf7c6419940a59e564acfeaa9d5ac))
+* **web:** ownership transfer in workspace general settings ([405de6e](https://github.com/usekaneo/kaneo/commit/405de6e7caec1a23fa772a9550514313590b27f0))
+* workspace RBAC with custom roles and instance admin ([039f4bb](https://github.com/usekaneo/kaneo/commit/039f4bb00f0b40ae10a00b51281bde213b098492))
 ## [2.7.4](https://github.com/usekaneo/kaneo/compare/v2.7.3...v2.7.4) (2026-05-18)
 
 
