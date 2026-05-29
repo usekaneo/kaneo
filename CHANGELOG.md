@@ -1,3 +1,17 @@
+## [2.7.6](https://github.com/usekaneo/kaneo/compare/v2.7.5...v2.7.6) (2026-05-29)
+
+
+### Bug Fixes
+
+* **docker:** build @kaneo/permissions in web stages too ([6b8d4ca](https://github.com/usekaneo/kaneo/commit/6b8d4cae815339c0d4ac1714b785ba32b723dbf5))
+* **github:** skip issues opened by the configured app bot ([9078121](https://github.com/usekaneo/kaneo/commit/9078121ab85660fcfdc596d8f1aec3f2e88b7a40))
+* **permissions:** compile package to dist for prod node runtime ([75273c9](https://github.com/usekaneo/kaneo/commit/75273c9a660ff5fb0c8feba71c5d70d22642d8ad))
+* **rbac:** chunk default-role seed insert to stay under bind-param cap ([365d575](https://github.com/usekaneo/kaneo/commit/365d5759b398cbec887ccb744b8f175e53f29799))
+
+
+### Features
+
+* **auth:** cloud abuse-mitigation gates for sign-up and invites ([1d44a33](https://github.com/usekaneo/kaneo/commit/1d44a33fd9e011da7a7063a9a7d780d726f9dd76))
 ## [2.7.5](https://github.com/usekaneo/kaneo/compare/v2.7.4...v2.7.5) (2026-05-27)
 
 
