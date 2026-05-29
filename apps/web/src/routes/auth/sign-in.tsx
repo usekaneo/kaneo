@@ -3,7 +3,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { Github, KeyRound, UserCheck } from "lucide-react";
+import { Github, KeyRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
@@ -40,7 +40,6 @@ function SignIn() {
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDiscordLoading, setIsDiscordLoading] = useState(false);
-  const [isGuestLoading, setIsGuestLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
   const {
@@ -90,24 +89,6 @@ function SignIn() {
       return `${baseUrl}/invitation/accept/${invitationId}`;
     }
     return `${baseUrl}/dashboard`;
-  };
-
-  const handleGuestAccess = async () => {
-    setIsGuestLoading(true);
-    try {
-      const result = await authClient.signIn.anonymous();
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-      toast.success(t("auth:signIn.guestSuccess"));
-      navigate({ to: "/dashboard" });
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("auth:signIn.guestError"),
-      );
-    } finally {
-      setIsGuestLoading(false);
-    }
   };
 
   const handleCustomOAuth = async () => {
@@ -362,20 +343,6 @@ function SignIn() {
                       </span>
                     )}
                   </div>
-                )}
-
-                {config?.hasGuestAccess && !invitationId && (
-                  <Button
-                    variant="outline"
-                    onClick={handleGuestAccess}
-                    disabled={isGuestLoading}
-                    className="w-full"
-                  >
-                    <UserCheck className="w-4 h-4 mr-2" />
-                    {isGuestLoading
-                      ? t("auth:signIn.signingIn")
-                      : t("auth:signUp.continueAsGuest")}
-                  </Button>
                 )}
               </div>
 

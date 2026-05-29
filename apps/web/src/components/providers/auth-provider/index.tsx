@@ -1,4 +1,4 @@
-import { createContext, type PropsWithChildren } from "react";
+import { createContext, type PropsWithChildren, useRef } from "react";
 import { authClient } from "@/lib/auth-client";
 import type { User } from "@/types/user";
 import { LoadingSkeleton } from "../../ui/loading-skeleton";
@@ -15,8 +15,17 @@ export const AuthContext = createContext<{
 
 function AuthProvider({ children }: PropsWithChildren) {
   const { data, isPending } = useSession();
+  // Only show the loading skeleton during the *first* session fetch. Better
+  // Auth re-fetches the session on window focus; if we kept returning the
+  // skeleton while those background fetches are pending we'd unmount the
+  // entire route tree on every alt-tab — which tore down the Turnstile
+  // iframe and forced a re-challenge.
+  const hasLoadedOnce = useRef(false);
+  if (!isPending) {
+    hasLoadedOnce.current = true;
+  }
 
-  if (isPending) {
+  if (isPending && !hasLoadedOnce.current) {
     return <LoadingSkeleton />;
   }
 

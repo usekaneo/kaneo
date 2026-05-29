@@ -85,6 +85,15 @@ For sending emails (workspace invitations, magic links, etc.), configure these v
 
 > **Note:** If you're using an SMTP server with a self-signed or invalid TLS certificate, set `SMTP_IGNORE_TLS=true` to bypass certificate validation.
 
+#### Cloud-mode abuse mitigations
+
+Hosted multi-tenant instances should enable the cloud abuse gates. Self-hosted instances can leave these unset.
+
+- `KANEO_CLOUD` - Set to `true` to enable cloud-only protections: disposable-email signup block, Turnstile captcha enforcement, guest-account invite block, and tightened rate limits on `/sign-up/email` and `/organization/invite-member`.
+- `TURNSTILE_SECRET_KEY` - Cloudflare Turnstile secret key (API container, server-side verification). When unset, captcha verification is skipped.
+- `KANEO_TURNSTILE_SITE_KEY` - Cloudflare Turnstile site key, on the **web container**. The production web image bakes the literal placeholder `KANEO_TURNSTILE_SITE_KEY` into the bundle; `apps/web/env.sh` swaps it for the runtime value when the container starts.
+- `VITE_TURNSTILE_SITE_KEY` - Local dev only. Set in `apps/web/.env` when running `pnpm dev`; Vite reads this at build/dev time. Not used in the production image.
+
 For a complete list of all environment variables, their descriptions, and configuration options, see the [official documentation](https://kaneo.app/docs/core/installation/environment-variables).
 
 ## Common Issues & Troubleshooting
