@@ -12,7 +12,7 @@
     "i18n:schema": "node ./scripts/i18n/schema.mjs",
     "lint": "turbo lint",
     "test": "turbo test",
-    "test:integration": "pnpm --filter @kaneo/api test:integration",
+    "test:integration": "turbo test:integration",
     "prepare": "husky"
   },
   "devDependencies": {
