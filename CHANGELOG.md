@@ -1,3 +1,11 @@
+## [2.7.7](https://github.com/usekaneo/kaneo/compare/v2.7.6...v2.7.7) (2026-05-29)
+
+
+### Bug Fixes
+
+* **ci:** build internal deps before running tests ([1c69023](https://github.com/usekaneo/kaneo/commit/1c69023f977f5282f98f052b4a2db0622996dc96))
+* **ci:** route test:integration through turbo so deps are built first ([8d0cbaf](https://github.com/usekaneo/kaneo/commit/8d0cbaff44e9b882cfe776c05797d32da72652c0))
+* **web:** empty unset KANEO_* placeholders so self-hosted signup works ([d9420a8](https://github.com/usekaneo/kaneo/commit/d9420a817279931d1c9c94b7406146e0b52e31e2)), closes [#1304](https://github.com/usekaneo/kaneo/issues/1304)
 ## [2.7.6](https://github.com/usekaneo/kaneo/compare/v2.7.5...v2.7.6) (2026-05-29)
 
 
