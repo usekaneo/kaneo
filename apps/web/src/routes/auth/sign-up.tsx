@@ -4,13 +4,14 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { UserCheck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import { AuthLayout } from "@/components/auth/layout";
 import { SignUpForm } from "@/components/auth/sign-up-form";
 import { SSOProviders } from "@/components/auth/sso-providers";
 import { AuthToggle } from "@/components/auth/toggle";
+import { Turnstile } from "@/components/auth/turnstile";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,10 @@ import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useInstanceStatus from "@/hooks/queries/instance/use-instance-status";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "@/lib/toast";
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as
+  | string
+  | undefined;
 
 const signUpSearchSchema = z.object({
   invitationId: z.string().optional(),
@@ -34,6 +39,15 @@ function SignUp() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth/sign-up" });
   const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken(null);
+  }, []);
+  const captchaConfigured = Boolean(TURNSTILE_SITE_KEY);
+  const captchaPending = captchaConfigured && !turnstileToken;
   const { data: config } = useGetConfig();
   const {
     data: instanceStatus,
@@ -65,6 +79,7 @@ function SignUp() {
   const errorCallbackURL = `${baseUrl}/auth/sign-up`;
 
   const handleGuestAccess = async () => {
+    if (captchaPending) return;
     setIsGuestLoading(true);
     try {
       const result = await authClient.signIn.anonymous();
@@ -139,6 +154,7 @@ function SignUp() {
                 config={config}
                 callbackURL={callbackURL}
                 errorCallbackURL={errorCallbackURL}
+                disabled={captchaPending}
               />
             );
             // Hide self-service alternatives (guest + SSO) when registration
@@ -172,7 +188,7 @@ function SignUp() {
                     <Button
                       variant="outline"
                       onClick={handleGuestAccess}
-                      disabled={isGuestLoading}
+                      disabled={isGuestLoading || captchaPending}
                       className="w-full"
                     >
                       <UserCheck className="w-4 h-4 mr-2" />
@@ -196,6 +212,15 @@ function SignUp() {
             <SignUpForm
               invitationId={invitationId}
               defaultEmail={prefillEmail}
+              turnstileToken={captchaConfigured ? turnstileToken : undefined}
+            />
+          )}
+          {captchaConfigured && TURNSTILE_SITE_KEY && (
+            <Turnstile
+              siteKey={TURNSTILE_SITE_KEY}
+              onVerify={handleTurnstileVerify}
+              onExpire={handleTurnstileExpire}
+              onError={handleTurnstileExpire}
             />
           )}
           {!isInstanceAdminSetup && (
