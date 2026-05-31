@@ -25,6 +25,7 @@ const signInSearchSchema = z.object({
   invitationId: z.string().optional(),
   email: z.string().optional(),
   redirect: z.string().optional(),
+  error: z.string().optional(),
 });
 
 export const Route = createFileRoute("/auth/sign-in")({
@@ -186,15 +187,22 @@ function SignIn() {
   };
 
   useEffect(() => {
+    if (search.error) {
+      setAutoLoginFailed(true);
+    }
+  }, [search.error]);
+
+  useEffect(() => {
     if (
       config?.customOAuthAutoLogin &&
       config?.hasCustomOAuth &&
-      !autoLoginTriggered.current
+      !autoLoginTriggered.current &&
+      !search.error
     ) {
       autoLoginTriggered.current = true;
       handleCustomOAuth();
     }
-  }, [config, handleCustomOAuth]);
+  }, [config, handleCustomOAuth, search.error]);
 
   // Treat "no users yet" as still loading so the skeleton stays visible
   // while the useEffect above redirects to /auth/sign-up. Otherwise the
@@ -230,6 +238,21 @@ function SignIn() {
         }
       >
         <div className="mt-6">
+          {search.error && (
+            <Alert variant="error" className="mb-4">
+              <AlertDescription>
+                {(() => {
+                  const errorKey = search.error
+                    .replace(/[._]+/g, "_")
+                    .toLowerCase();
+                  const translationKey = `auth:signIn.errors.${errorKey}`;
+                  const translated = t(translationKey, { defaultValue: "" });
+                  return translated || search.error.replace(/_/g, " ");
+                })()}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {invitationId && (
             <Alert className="mb-4">
               <AlertDescription>
@@ -390,24 +413,21 @@ function SignIn() {
               />
             ))}
           {config?.disableRegistration ||
-          config?.disablePasswordRegistration ||
-          config?.disableLoginForm ? (
+          config?.disablePasswordRegistration ? (
             <div className="text-center pt-4">
               <p className="text-sm text-muted-foreground">
                 {config?.disableRegistration
                   ? t("auth:signIn.registrationDisabled")
-                  : config?.disableLoginForm
-                    ? ""
-                    : t("auth:signIn.passwordRegistrationDisabled")}
+                  : t("auth:signIn.passwordRegistrationDisabled")}
               </p>
             </div>
-          ) : (
+          ) : !config?.disableLoginForm ? (
             <AuthToggle
               message={t("auth:signIn.toggleMessage")}
               linkText={t("auth:signIn.toggleLink")}
               linkTo="/auth/sign-up"
             />
-          )}
+          ) : null}
         </div>
       </AuthLayout>
     </>
