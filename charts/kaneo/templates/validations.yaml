@@ -1,0 +1,10 @@
+{{- $publicExposureEnabled := or .Values.ingress.enabled .Values.gateway.enabled -}}
+{{- if and $publicExposureEnabled (not .Values.kaneo.env.existingSecret.enabled) (eq .Values.kaneo.env.authSecret "change_me_to_at_least_32_characters_long_string") -}}
+{{- fail "kaneo.env.authSecret must be changed or provided via kaneo.env.existingSecret before enabling ingress or gateway" -}}
+{{- end -}}
+{{- if and $publicExposureEnabled .Values.postgresql.enabled (not .Values.postgresql.auth.existingSecret) (eq .Values.postgresql.auth.password "kaneo_password") -}}
+{{- fail "postgresql.auth.password must be changed or provided via postgresql.auth.existingSecret before enabling ingress or gateway" -}}
+{{- end -}}
+{{- if and .Values.autoscaling.enabled .Values.autoscaling.targetCPUUtilizationPercentage (not (dig "requests" "cpu" "" .Values.kaneo.resources)) -}}
+{{- fail "kaneo.resources.requests.cpu must be set when autoscaling CPU utilization is enabled" -}}
+{{- end -}}

@@ -15,6 +15,7 @@ spec:
       name: http
   selector:
     {{- include "kaneo.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: kaneo
 
 {{- if .Values.postgresql.enabled }}
 ---

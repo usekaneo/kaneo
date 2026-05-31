@@ -61,7 +61,8 @@ postgresql:
 kaneo:
   image:
     repository: ghcr.io/usekaneo/kaneo
-    tag: latest
+    # Defaults to Chart.appVersion when empty.
+    tag: ""
     pullPolicy: IfNotPresent
   securityContext: {}
   service:
