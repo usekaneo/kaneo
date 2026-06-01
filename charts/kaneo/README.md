@@ -8,7 +8,7 @@ This chart bootstraps a Kaneo deployment on a Kubernetes cluster using the Helm 
 
 ## Prerequisites
 
-- Kubernetes 1.19+
+- Kubernetes 1.23+
 - Helm 3.2.0+
 - PV provisioner support in the underlying infrastructure (if persistence is enabled)
 
@@ -16,18 +16,15 @@ This chart bootstraps a Kaneo deployment on a Kubernetes cluster using the Helm 
 
 ### Basic Installation
 
-Clone the repository and install with Helm:
+Install directly from GHCR:
 
 ```bash
-# Clone the repo
-git clone https://github.com/usekaneo/kaneo.git
-cd kaneo
-
-# Install with Helm
-helm install kaneo ./charts/kaneo --namespace kaneo --create-namespace
+helm install kaneo oci://ghcr.io/usekaneo/charts/kaneo \
+  --namespace kaneo \
+  --create-namespace
 
 # Access locally
-kubectl port-forward svc/kaneo-web 5173:5173 -n kaneo
+kubectl port-forward svc/kaneo-kaneo 5173:5173 -n kaneo
 ```
 
 Open [http://localhost:5173](http://localhost:5173) and you're ready to go.
@@ -37,7 +34,7 @@ Open [http://localhost:5173](http://localhost:5173) and you're ready to go.
 For real deployments, you'll want proper ingress:
 
 ```bash
-helm install kaneo ./charts/kaneo \
+helm install kaneo oci://ghcr.io/usekaneo/charts/kaneo \
   --namespace kaneo \
   --create-namespace \
   --set ingress.enabled=true \
@@ -50,7 +47,7 @@ helm install kaneo ./charts/kaneo \
 If your cluster already has Gateway API CRDs and a `Gateway` configured, you can expose Kaneo with an `HTTPRoute`:
 
 ```bash
-helm install kaneo ./charts/kaneo \
+helm install kaneo oci://ghcr.io/usekaneo/charts/kaneo \
   --namespace kaneo \
   --create-namespace \
   --set gateway.enabled=true \
@@ -62,7 +59,13 @@ helm install kaneo ./charts/kaneo \
 
 ## Installing the Chart
 
-To install the chart with the release name `my-kaneo`:
+To install the published chart with the release name `my-kaneo`:
+
+```bash
+helm install my-kaneo oci://ghcr.io/usekaneo/charts/kaneo
+```
+
+To install from a local checkout instead:
 
 ```bash
 helm install my-kaneo ./charts/kaneo
@@ -97,6 +100,8 @@ helm uninstall my-kaneo
 | `autoscaling.maxReplicas`           | Maximum number of replicas                                                                                         | `10`        |
 | `autoscaling.targetCPUUtilizationPercentage` | Target CPU utilization percentage                                                                         | `80`        |
 
+When CPU autoscaling is enabled, set `kaneo.resources.requests.cpu`; Kubernetes cannot calculate CPU utilization without a CPU request.
+
 ### PostgreSQL Database parameters
 
 | Name                                | Description                                                                                                        | Value                           |
@@ -117,43 +122,33 @@ helm uninstall my-kaneo
 | `postgresql.service.port`           | PostgreSQL service port                                                                                            | `5432`                          |
 | `postgresql.resources`              | Resource requests and limits for PostgreSQL container                                                              | `{}`                            |
 
-### API Backend parameters
+### Kaneo application parameters
 
 | Name                                | Description                                                                                                        | Value                           |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
-| `api.image.repository`              | API image repository                                                                                              | `ghcr.io/usekaneo/api`          |
-| `api.image.tag`                     | API image tag                                                                                                     | `latest`                        |
-| `api.image.pullPolicy`              | API image pull policy                                                                                             | `IfNotPresent`                  |
-| `api.service.type`                  | API service type                                                                                                  | `ClusterIP`                     |
-| `api.service.port`                  | API service port                                                                                                  | `1337`                          |
-| `api.service.targetPort`            | API container port                                                                                                | `1337`                          |
-| `api.env`                           | Environment variables for the API container                                                                       | See `values.yaml`               |
-| `api.env.jwtAccess`                 | Secret key for JWT token generation (ignored if existingSecret is enabled)                                        | `change_me`                     |
-| `api.env.existingSecret.enabled`    | Whether to use an existing secret for JWT access token                                                            | `false`                         |
-| `api.env.existingSecret.name`       | Name of the existing secret containing the JWT access token                                                       | `""`                            |
-| `api.env.existingSecret.key`        | Key in the existing secret that contains the JWT access token                                                     | `jwt-access`                    |
-| `api.env.disableRegistration`       | Disable new user registration                                                                                      | `false`                         |
-| `api.env.disablePasswordRegistration` | Disable password-based account creation while keeping social/OIDC registration available                        | `false`                         |
-| `api.env.database.external.enabled` | Use external PostgreSQL database (set postgresql.enabled to false)                                               | `false`                         |
-| `api.env.database.external.host`    | External PostgreSQL host                                                                                          | `""`                            |
-| `api.env.database.external.port`    | External PostgreSQL port                                                                                          | `5432`                          |
-| `api.env.database.external.database` | External PostgreSQL database name                                                                                | `kaneo`                         |
-| `api.env.database.external.username` | External PostgreSQL username                                                                                     | `kaneo_user`                    |
-| `api.env.database.external.password` | External PostgreSQL password                                                                                     | `""`                            |
-| `api.resources`                     | Resource requests and limits for the API container (optional, disabled by default)                                | `{}`                            |
-
-### Web Frontend parameters
-
-| Name                                | Description                                                                                                        | Value                           |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
-| `web.image.repository`              | Web image repository                                                                                               | `ghcr.io/usekaneo/web`          |
-| `web.image.tag`                     | Web image tag                                                                                                      | `latest`                        |
-| `web.image.pullPolicy`              | Web image pull policy                                                                                              | `IfNotPresent`                  |
-| `web.service.type`                  | Web service type                                                                                                   | `ClusterIP`                     |
-| `web.service.port`                  | Web service port                                                                                                   | `80`                            |
-| `web.service.targetPort`            | Web container port                                                                                                 | `80`                            |
-| `web.env`                           | Environment variables for the Web container                                                                        | See `values.yaml`               |
-| `web.resources`                     | Resource requests and limits for the Web container (optional, disabled by default)                                 | `{}`                            |
+| `kaneo.image.repository`            | Kaneo image repository                                                                                             | `ghcr.io/usekaneo/kaneo`        |
+| `kaneo.image.tag`                   | Kaneo image tag. Defaults to `Chart.appVersion` when empty                                                         | `""`                            |
+| `kaneo.image.pullPolicy`            | Kaneo image pull policy                                                                                            | `IfNotPresent`                  |
+| `kaneo.service.type`                | Kaneo service type                                                                                                 | `ClusterIP`                     |
+| `kaneo.service.port`                | Kaneo service port                                                                                                 | `5173`                          |
+| `kaneo.service.targetPort`          | Kaneo container port                                                                                               | `5173`                          |
+| `kaneo.env`                         | Environment variables for the Kaneo container                                                                      | See `values.yaml`               |
+| `kaneo.env.clientUrl`               | Public URL of the Kaneo instance                                                                                   | `""`                            |
+| `kaneo.env.corsOrigins`             | Allowed CORS origins as a comma-separated string or YAML list                                                      | `[]`                            |
+| `kaneo.env.authSecret`              | Better Auth secret, ignored if existingSecret is enabled                                                           | `change_me_to_at_least_32_characters_long_string` |
+| `kaneo.env.existingSecret.enabled`  | Whether to use an existing secret for `AUTH_SECRET`                                                                | `false`                         |
+| `kaneo.env.existingSecret.name`     | Name of the existing secret containing `AUTH_SECRET`                                                               | `""`                            |
+| `kaneo.env.existingSecret.key`      | Key in the existing secret that contains `AUTH_SECRET`                                                             | `auth-secret`                   |
+| `kaneo.env.disableRegistration`     | Disable new user registration                                                                                      | `false`                         |
+| `kaneo.env.disablePasswordRegistration` | Disable password-based account creation while keeping social/OIDC registration available                        | `false`                         |
+| `kaneo.env.database.external.enabled` | Use external PostgreSQL database (set postgresql.enabled to false)                                               | `false`                         |
+| `kaneo.env.database.external.host`  | External PostgreSQL host                                                                                           | `""`                            |
+| `kaneo.env.database.external.port`  | External PostgreSQL port                                                                                           | `5432`                          |
+| `kaneo.env.database.external.database` | External PostgreSQL database name                                                                               | `kaneo`                         |
+| `kaneo.env.database.external.username` | External PostgreSQL username                                                                                    | `kaneo_user`                    |
+| `kaneo.env.database.external.password` | External PostgreSQL password                                                                                    | `""`                            |
+| `kaneo.extraEnv`                    | Additional Kubernetes EnvVar entries appended to the Kaneo container                                               | `[]`                            |
+| `kaneo.resources`                   | Resource requests and limits for the Kaneo container (optional, disabled by default)                               | `{}`                            |
 
 ### Ingress parameters
 
@@ -182,30 +177,22 @@ helm uninstall my-kaneo
 
 ```yaml
 # values.yaml
-api:
+kaneo:
   env:
-    jwtAccess: "your-secure-jwt-secret"
-
-web:
-  env:
-    apiUrl: "https://your-domain.com"
+    authSecret: "your-secure-auth-secret-at-least-32-characters"
+    clientUrl: "https://your-domain.com"
 
 ingress:
   enabled: true
   className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  annotations: {}
   hosts:
     - host: your-domain.com
       paths:
-        - path: /?(.*)
+        - path: /
           pathType: Prefix
-          service: web
-          port: 80
-        - path: /api/?(.*)
-          pathType: Prefix
-          service: api
-          port: 1337
+          service: kaneo
+          port: 5173
 ```
 
 ### Production Configuration with TLS
@@ -229,8 +216,8 @@ postgresql:
       cpu: 100m
       memory: 128Mi
 
-# API configuration
-api:
+# Kaneo configuration
+kaneo:
   resources:
     limits:
       cpu: 1000m
@@ -239,19 +226,8 @@ api:
       cpu: 200m
       memory: 256Mi
   env:
-    jwtAccess: "your-secure-jwt-secret"
-
-# Web configuration
-web:
-  resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-  env:
-    apiUrl: "https://your-domain.com"
+    authSecret: "your-secure-auth-secret-at-least-32-characters"
+    clientUrl: "https://your-domain.com"
 
 ingress:
   enabled: true
@@ -259,18 +235,13 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
   hosts:
     - host: your-domain.com
       paths:
         - path: /
           pathType: Prefix
-          service: web
-          port: 80
-        - path: /api/?(.*)
-          pathType: Prefix
-          service: api
-          port: 1337
+          service: kaneo
+          port: 5173
   tls:
     - secretName: kaneo-tls
       hosts:
@@ -287,9 +258,9 @@ If you prefer to use an external PostgreSQL database instead of the bundled one:
 postgresql:
   enabled: false
 
-api:
+kaneo:
   env:
-    jwtAccess: "your-secure-jwt-secret"
+    authSecret: "your-secure-auth-secret-at-least-32-characters"
     database:
       external:
         enabled: true
@@ -302,13 +273,15 @@ api:
 
 ### Using an Existing Secret for Sensitive Data
 
-For production environments, it's recommended to store sensitive data like the JWT access token and database credentials in Kubernetes Secrets:
+For production environments, it's recommended to store sensitive data like the auth secret and database credentials in Kubernetes Secrets:
+
+When `postgresql.auth.existingSecret` is used with bundled PostgreSQL, the password is expanded by Kubernetes into `DATABASE_URL` at runtime and must be URL-safe. If your password contains reserved URI characters such as `@`, `:`, `/`, `#`, `%`, or spaces, use an external database and provide the complete connection URI through `kaneo.env.database.external.existingSecret`.
 
 ```bash
 # Create a Secret for sensitive data
 kubectl create secret generic kaneo-secrets \
   --namespace kaneo \
-  --from-literal=jwt-access="your-secure-jwt-secret" \
+  --from-literal=auth-secret="your-secure-auth-secret-at-least-32-characters" \
   --from-literal=postgres-password="your-secure-db-password"
 ```
 
@@ -322,12 +295,12 @@ postgresql:
     secretKeys:
       userPasswordKey: "postgres-password"
 
-api:
+kaneo:
   env:
     existingSecret:
       enabled: true
       name: "kaneo-secrets"
-      key: "jwt-access"
+      key: "auth-secret"
 ```
 
 ## Database Management
@@ -339,6 +312,17 @@ The chart deploys PostgreSQL 16 (Alpine) by default with the following configura
 - Username: `kaneo_user`
 - Default password: `kaneo_password` (change this in production!)
 - Persistent storage: 8Gi (configurable)
+
+The bundled PostgreSQL deployment is intended for development, trials, and small self-hosted installs. For production environments, use an external managed PostgreSQL database by setting `postgresql.enabled=false` and configuring `kaneo.env.database.external`.
+
+Bundled PostgreSQL credentials are only applied when PostgreSQL initializes an empty data directory. If a PVC already exists, changing `postgresql.auth.password` or `postgresql.auth.existingSecret` updates the Pod environment but does not rotate the password inside the existing database. For local retesting with a new password, uninstall the release and delete the test PVC before reinstalling:
+
+```bash
+helm uninstall kaneo -n kaneo-test
+kubectl delete pvc kaneo-postgresql-data -n kaneo-test --ignore-not-found
+```
+
+To preserve data, rotate the password inside PostgreSQL first, then update the Helm values to match.
 
 ### Backup and Recovery
 
@@ -362,17 +346,16 @@ Contact the Kaneo community on [Discord](https://discord.gg/rU4tSyhXXU) for migr
 
 This chart deploys the following components:
 
-1. **API Backend**: Handles all business logic and database operations
-2. **Web Frontend**: Serves the user interface
-3. **PostgreSQL Database**: Stores all application data with proper relational integrity
+1. **Kaneo application**: Serves the web UI and API from the combined Kaneo image
+2. **PostgreSQL Database**: Stores all application data with proper relational integrity
 
-The API and Web components are deployed in the same pod for simplified connectivity, while PostgreSQL runs in a separate pod for better resource isolation and management.
+The Kaneo application and PostgreSQL run in separate pods for resource isolation and simpler database lifecycle management.
 
 ## Production Environment
 
 For production deployments, you should:
 
-1. Set secure passwords for JWT and PostgreSQL
+1. Set secure values for `AUTH_SECRET` and PostgreSQL passwords
 2. Use an Ingress controller to expose the application
 3. Configure TLS for secure access
 4. Set appropriate resource limits and requests
@@ -386,18 +369,13 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
   hosts:
     - host: your-domain.com
       paths:
-        - path: /?(.*)
+        - path: /
           pathType: Prefix
-          service: web
-          port: 80
-        - path: /api/?(.*)
-          pathType: Prefix
-          service: api
-          port: 1337
+          service: kaneo
+          port: 5173
   tls:
     - secretName: kaneo-tls
       hosts:
@@ -420,18 +398,17 @@ gateway:
     - kaneo.example.com
 ```
 
-By default the chart creates two Gateway API rules:
+By default the chart creates one Gateway API rule:
 
-1. `/api` goes to the API service and rewrites the prefix to `/`
-2. `/` goes to the web service
+1. `/` goes to the Kaneo service
 
-If you need custom matching or multiple backend references, override `gateway.rules` directly. Each `backendRefs` entry follows the same pattern as ingress and uses the chart-specific `service` field (`api` or `web`), which is expanded to the release-specific Service name.
+If you need custom matching or multiple backend references, override `gateway.rules` directly. Each `backendRefs` entry follows the same pattern as ingress and uses the chart-specific `service` field (`kaneo`), which is expanded to the release-specific Service name.
 
 ## Security
 
 For production deployments, consider the following security recommendations:
 
-1. Use secure JWT_ACCESS and PostgreSQL passwords, preferably stored in Kubernetes Secrets
+1. Use secure `AUTH_SECRET` and PostgreSQL passwords, preferably stored in Kubernetes Secrets
 2. Enable TLS for ingress or Gateway API
 3. Enable and set resource limits to prevent resource exhaustion
 4. Use a dedicated storage class for the PostgreSQL database
@@ -443,7 +420,7 @@ For production deployments, consider the following security recommendations:
 By default, user registration is enabled. To disable new user registration:
 
 ```yaml
-api:
+kaneo:
   env:
     disableRegistration: true
 ```

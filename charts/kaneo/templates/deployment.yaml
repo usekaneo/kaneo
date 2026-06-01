@@ -28,6 +28,7 @@ spec:
       {{- end }}
       labels:
         {{- include "kaneo.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: kaneo
     spec:
       serviceAccountName: {{ include "kaneo.serviceAccountName" . }}
       securityContext:
@@ -64,11 +65,22 @@ spec:
                   name: {{ .Values.kaneo.env.database.external.existingSecret.name }}
                   key: {{ .Values.kaneo.env.database.external.existingSecret.passwordKey }}
               {{- else }}
-              value: "postgresql://{{ .Values.kaneo.env.database.external.username }}:{{ .Values.kaneo.env.database.external.password }}@{{ .Values.kaneo.env.database.external.host }}:{{ .Values.kaneo.env.database.external.port }}/{{ .Values.kaneo.env.database.external.database }}"
+              value: "postgresql://{{ include "kaneo.urlencodeUserinfo" .Values.kaneo.env.database.external.username }}:{{ include "kaneo.urlencodeUserinfo" .Values.kaneo.env.database.external.password }}@{{ .Values.kaneo.env.database.external.host }}:{{ .Values.kaneo.env.database.external.port }}/{{ .Values.kaneo.env.database.external.database }}"
               {{- end }}
               {{- else }}
-              value: "postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "kaneo.fullname" . }}-postgresql:{{ .Values.postgresql.service.port }}/{{ .Values.postgresql.auth.database }}"
+              {{- if .Values.postgresql.auth.existingSecret }}
+              value: "postgresql://{{ include "kaneo.urlencodeUserinfo" .Values.postgresql.auth.username }}:$(KANEO_POSTGRES_PASSWORD)@{{ include "kaneo.fullname" . }}-postgresql:{{ .Values.postgresql.service.port }}/{{ .Values.postgresql.auth.database }}"
+              {{- else }}
+              value: "postgresql://{{ include "kaneo.urlencodeUserinfo" .Values.postgresql.auth.username }}:{{ include "kaneo.urlencodeUserinfo" .Values.postgresql.auth.password }}@{{ include "kaneo.fullname" . }}-postgresql:{{ .Values.postgresql.service.port }}/{{ .Values.postgresql.auth.database }}"
               {{- end }}
+              {{- end }}
+            {{- if and (not .Values.kaneo.env.database.external.enabled) .Values.postgresql.auth.existingSecret }}
+            - name: KANEO_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.auth.existingSecret }}
+                  key: {{ .Values.postgresql.auth.secretKeys.userPasswordKey }}
+            {{- end }}
             - name: DISABLE_REGISTRATION
               value: {{ .Values.kaneo.env.disableRegistration | quote }}
             - name: DISABLE_PASSWORD_REGISTRATION
