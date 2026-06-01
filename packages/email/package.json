@@ -32,7 +32,7 @@
     "@react-email/render": "^2.0.8",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "react-email": "5.2.10",
+    "react-email": "6.5.0",
     "vitest": "^4.1.5"
   }
 }
