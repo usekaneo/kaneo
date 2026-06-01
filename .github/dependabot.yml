@@ -4,18 +4,48 @@ updates:
     directory: "/apps/api"
     schedule:
       interval: "weekly"
+    groups:
+      # Batch all non-major updates into a single PR to avoid lockfile churn.
+      # Major bumps still open as individual PRs for review.
+      api-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "npm"
     directory: "/apps/web"
     schedule:
       interval: "weekly"
+    groups:
+      web-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "npm"
     directory: "/packages/libs"
     schedule:
       interval: "weekly"
+    groups:
+      libs-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "npm"
     directory: "/packages/email"
     schedule:
       interval: "weekly"
+    groups:
+      email-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
