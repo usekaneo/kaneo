@@ -57,6 +57,13 @@ spec:
               {{- else }}
               value: "{{ .Values.kaneo.env.authSecret }}"
               {{- end }}
+            {{- if and (not .Values.kaneo.env.database.external.enabled) .Values.postgresql.auth.existingSecret }}
+            - name: KANEO_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.auth.existingSecret }}
+                  key: {{ .Values.postgresql.auth.secretKeys.userPasswordKey }}
+            {{- end }}
             - name: DATABASE_URL
               {{- if .Values.kaneo.env.database.external.enabled }}
               {{- if .Values.kaneo.env.database.external.existingSecret.enabled }}
@@ -74,13 +81,6 @@ spec:
               value: "postgresql://{{ include "kaneo.urlencodeUserinfo" .Values.postgresql.auth.username }}:{{ include "kaneo.urlencodeUserinfo" .Values.postgresql.auth.password }}@{{ include "kaneo.fullname" . }}-postgresql:{{ .Values.postgresql.service.port }}/{{ .Values.postgresql.auth.database }}"
               {{- end }}
               {{- end }}
-            {{- if and (not .Values.kaneo.env.database.external.enabled) .Values.postgresql.auth.existingSecret }}
-            - name: KANEO_POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.postgresql.auth.existingSecret }}
-                  key: {{ .Values.postgresql.auth.secretKeys.userPasswordKey }}
-            {{- end }}
             - name: DISABLE_REGISTRATION
               value: {{ .Values.kaneo.env.disableRegistration | quote }}
             - name: DISABLE_PASSWORD_REGISTRATION
