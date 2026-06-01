@@ -46,7 +46,7 @@
 		"@tanstack/router-plugin": "^1.164.0",
 		"@tiptap/core": "^3.22.5",
 		"@tiptap/extension-code-block-lowlight": "^3.22.5",
-		"@tiptap/extension-image": "^3.22.5",
+		"@tiptap/extension-image": "^3.24.0",
 		"@tiptap/extension-link": "^3.22.5",
 		"@tiptap/extension-list": "^3.22.5",
 		"@tiptap/extension-placeholder": "^3.23.1",
