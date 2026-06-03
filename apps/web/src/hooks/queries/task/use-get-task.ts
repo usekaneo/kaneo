@@ -7,6 +7,7 @@ function useGetTask(taskId: string) {
     queryFn: () => getTask(taskId),
     refetchOnMount: "always",
     staleTime: 0,
+    enabled: Boolean(taskId),
   });
 }
 
