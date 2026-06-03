@@ -191,6 +191,18 @@ export const slackIntegrationSchema = v.object({
   updatedAt: v.date(),
 });
 
+export const mattermostIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  channelName: v.nullable(v.string()),
+  webhookConfigured: v.boolean(),
+  maskedWebhookUrl: v.string(),
+  events: integrationEventsSchema,
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
 export const discordIntegrationSchema = v.object({
   id: v.string(),
   projectId: v.string(),
