@@ -231,7 +231,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: kaneo
+                name: kaneo-kaneo
                 port:
                   number: 5173
   tls:
@@ -428,15 +428,16 @@ For production deployments, consider the following security recommendations:
 ### Pod Security Context
 On clusters with Pod Security Admission enforcement, set the following to satisfy the `restricted` policy:
 ```yaml
-podSecurityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
+kaneo:
+    podSecurityContext:
+        runAsNonRoot: true
+        seccompProfile:
+            type: RuntimeDefault
 
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop: ["ALL"]
+    securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+            drop: ["ALL"]
 ```
 ### Registration Control
 By default, user registration is enabled. To disable new user registration:
