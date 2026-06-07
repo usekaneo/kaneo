@@ -358,7 +358,7 @@ function SignIn() {
               </div>
             </>
           )}
-          {config?.hasSmtp ? (
+          {config?.hasSmtp && !config?.disableEmailOtpSignIn ? (
             <OtpSignInForm
               invitationId={invitationId}
               defaultEmail={defaultEmail}

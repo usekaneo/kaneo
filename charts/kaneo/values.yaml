@@ -95,6 +95,7 @@ kaneo:
       key: auth-secret
     disableRegistration: false
     disablePasswordRegistration: false
+    disableEmailOtpSignIn: false
     # Database configuration
     database:
       # Use external PostgreSQL (set postgresql.enabled to false)
