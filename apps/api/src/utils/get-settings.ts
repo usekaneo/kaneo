@@ -8,6 +8,7 @@ function getSettings() {
     disableRegistration: process.env.DISABLE_REGISTRATION === "true",
     disablePasswordRegistration:
       process.env.DISABLE_PASSWORD_REGISTRATION === "true",
+    disableEmailOtpSignIn: process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true",
     isDemoMode: process.env.DEMO_MODE === "true",
     hasSmtp:
       Boolean(process.env.SMTP_HOST) &&
