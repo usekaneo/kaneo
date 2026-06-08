@@ -1,5 +1,6 @@
+import { useNavigate } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
@@ -27,6 +28,7 @@ import {
 import { shortcuts } from "@/constants/shortcuts";
 import useClearNotifications from "@/hooks/mutations/notification/use-clear-notifications";
 import useMarkAllNotificationsAsRead from "@/hooks/mutations/notification/use-mark-all-notifications-as-read";
+import useMarkNotificationAsRead from "@/hooks/mutations/notification/use-mark-notification-as-read";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
@@ -148,12 +150,43 @@ function getNotificationContent(
 const NotificationDropdown = forwardRef<NotificationDropdownRef>(
   (_props, ref) => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const { data: notifications } = useGetNotifications();
     const [isOpen, setIsOpen] = useState(false);
     const [showClearDialog, setShowClearDialog] = useState(false);
 
     const { mutate: markAllAsRead } = useMarkAllNotificationsAsRead();
     const { mutate: clearAll } = useClearNotifications();
+    const { mutate: markAsRead } = useMarkNotificationAsRead();
+
+    const handleNotificationClick = useCallback(
+      (notification: Notification) => {
+        if (!notification.isRead) {
+          markAsRead(notification.id);
+        }
+
+        const ed = getEventDataRecord(notification.eventData);
+        const workspaceId =
+          typeof ed?.workspaceId === "string" ? ed.workspaceId : null;
+        const projectId =
+          typeof ed?.projectId === "string" ? ed.projectId : null;
+        const taskId = notification.resourceId ?? null;
+
+        if (
+          notification.resourceType === "task" &&
+          workspaceId &&
+          projectId &&
+          taskId
+        ) {
+          setIsOpen(false);
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+            params: { workspaceId, projectId, taskId },
+          });
+        }
+      },
+      [markAsRead, navigate],
+    );
 
     const unreadNotifications = notifications?.filter((n) => !n.isRead) || [];
     const hasNotifications = notifications && notifications.length > 0;
@@ -240,10 +273,12 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                 </div>
               ) : (
                 notifications.map((notification) => (
-                  <div
+                  <button
                     key={notification.id}
+                    type="button"
+                    onClick={() => handleNotificationClick(notification)}
                     className={cn(
-                      "px-3 py-3 border-b border-border/50 hover:bg-accent/50 transition-colors",
+                      "w-full text-left px-3 py-3 border-b border-border/50 hover:bg-accent/50 transition-colors cursor-pointer",
                       !notification.isRead && "bg-accent/20",
                     )}
                   >
@@ -267,7 +302,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))
               )}
             </div>
