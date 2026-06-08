@@ -275,7 +275,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                 notifications.map((notification) => (
                   <DropdownMenuItem
                     key={notification.id}
-                    onSelect={() => handleNotificationClick(notification)}
+                    onClick={() => handleNotificationClick(notification)}
                     className={cn(
                       "px-3 py-3 border-b border-border/50 rounded-none cursor-pointer",
                       !notification.isRead && "bg-accent/20",
