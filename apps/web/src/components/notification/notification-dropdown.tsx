@@ -80,6 +80,11 @@ function getNotificationTitle(
           ...eventData,
           defaultValue: notification.title ?? notification.type,
         });
+      case "task_mention":
+        return t("notifications:events.task_mention.title", {
+          ...eventData,
+          defaultValue: notification.title ?? notification.type,
+        });
       default:
         break;
     }
@@ -127,6 +132,11 @@ function getNotificationContent(
               ...eventData,
               defaultValue: notification.content ?? "",
             });
+      case "task_mention":
+        return t("notifications:events.task_mention.content", {
+          ...eventData,
+          defaultValue: notification.content ?? "",
+        });
       default:
         break;
     }
@@ -179,7 +189,11 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                   >
                     <Bell className="h-4 w-4" />
                     {unreadNotifications.length > 0 && (
-                      <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-destructive" />
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-0.5 text-[10px] font-bold leading-none text-destructive-foreground">
+                        {unreadNotifications.length > 99
+                          ? "99+"
+                          : unreadNotifications.length}
+                      </span>
                     )}
                     <span className="sr-only">
                       {t("navigation:notifications")}
@@ -207,21 +221,11 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                 {t("notifications:title")}
               </h3>
               {unreadNotifications.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
-                    {t("notifications:newCount", {
-                      count: unreadNotifications.length,
-                    })}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => markAllAsRead()}
-                    className="text-xs h-6 px-2"
-                  >
-                    {t("common:actions.markAllRead")}
-                  </Button>
-                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {t("notifications:newCount", {
+                    count: unreadNotifications.length,
+                  })}
+                </Badge>
               )}
             </div>
 
@@ -268,12 +272,21 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               )}
             </div>
             {hasNotifications && (
-              <div className="border-t border-border p-2">
+              <div className="border-t border-border p-2 flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => markAllAsRead()}
+                  disabled={unreadNotifications.length === 0}
+                  className="flex-1 text-xs"
+                >
+                  {t("common:actions.markAllRead")}
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowClearDialog(true)}
-                  className="w-full text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="flex-1 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   {t("notifications:clearAll")}
                 </Button>
