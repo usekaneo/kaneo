@@ -221,7 +221,7 @@ export default function CommentCard({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => deleteComment(commentId)}
+                  onClick={() => deleteComment({ activityId: commentId })}
                   disabled={isDeleting}
                   className="h-6 w-6 rounded-md p-0 text-muted-foreground hover:text-destructive"
                 >
