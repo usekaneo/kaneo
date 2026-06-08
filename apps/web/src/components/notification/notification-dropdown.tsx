@@ -222,7 +222,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                   >
                     <Bell className="h-4 w-4" />
                     {unreadNotifications.length > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-0.5 text-[10px] font-bold leading-none text-destructive-foreground">
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-0.5 text-[10px] font-bold leading-none text-white">
                         {unreadNotifications.length > 99
                           ? "99+"
                           : unreadNotifications.length}
@@ -250,7 +250,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
 
           <DropdownMenuContent align="end" className="w-80 p-0">
             <div className="flex items-center justify-between px-3 py-2 border-b">
-              <h3 className="font-medium text-sm text-white">
+              <h3 className="font-medium text-sm">
                 {t("notifications:title")}
               </h3>
               {unreadNotifications.length > 0 && (
@@ -264,11 +264,9 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
 
             <div className="relative max-h-96 overflow-y-auto">
               {!hasNotifications ? (
-                <div className="p-6 text-center text-sm text-white/60">
-                  <Bell className="mx-auto h-12 w-12 opacity-40 mb-2" />
-                  <p className="text-white/80">
-                    {t("notifications:emptyTitle")}
-                  </p>
+                <div className="p-6 text-center text-sm text-muted-foreground">
+                  <Bell className="mx-auto h-12 w-12 opacity-50 mb-2" />
+                  <p>{t("notifications:emptyTitle")}</p>
                   <p className="text-xs mt-1">
                     {t("notifications:emptySubtitle")}
                   </p>
@@ -287,7 +285,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                     <div className="flex items-start gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="text-sm font-medium text-white">
+                          <h4 className="text-sm font-medium text-foreground">
                             {getNotificationTitle(notification, t)}
                           </h4>
                           {!notification.isRead && (
@@ -295,11 +293,11 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                           )}
                         </div>
                         {getNotificationContent(notification, t) && (
-                          <p className="text-xs text-white/70 line-clamp-2">
+                          <p className="text-xs text-muted-foreground line-clamp-2">
                             {getNotificationContent(notification, t)}
                           </p>
                         )}
-                        <p className="text-xs text-white/40 mt-2">
+                        <p className="text-xs text-muted-foreground mt-2">
                           {formatRelativeTime(notification.createdAt)}
                         </p>
                       </div>
