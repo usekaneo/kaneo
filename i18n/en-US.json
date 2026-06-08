@@ -150,7 +150,11 @@
 			"oidcError": "Failed to sign in with OIDC",
 			"googleError": "Failed to sign in with Google",
 			"githubError": "Failed to sign in with GitHub",
-			"discordError": "Failed to sign in with Discord"
+			"discordError": "Failed to sign in with Discord",
+			"errors": {
+				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
+			}
 		},
 		"providers": {
 			"google": "Google",

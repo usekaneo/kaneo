@@ -30,6 +30,7 @@ To configure a custom OAuth/OIDC provider, you need to set the following environ
 | `CUSTOM_OAUTH_RESPONSE_TYPE` | OAuth response type | `code` |
 | `CUSTOM_AUTH_PKCE` | Enable/disable PKCE (Proof Key for Code Exchange) | `true` |
 | `CUSTOM_OAUTH_LOGOUT_URL` | Logout endpoint URL (optional) | `https://id.example.com/api/oidc/logout` |
+| `CUSTOM_OAUTH_AUTO_LOGIN` | Auto-redirect to the custom OAuth provider, bypassing the login page | `false` |
 
 ## Setup Steps
 
@@ -114,6 +115,16 @@ CUSTOM_OAUTH_SCOPES=openid,profile,email
 ## Usage
 
 Once configured, users will see a "Continue with OIDC" button on the sign-in page. The system will automatically remember the last used login method for each user.
+
+### Auto-Login (Skip the Login Page)
+
+If you want to bypass the login page entirely and automatically redirect users to your identity provider, set:
+
+```bash
+CUSTOM_OAUTH_AUTO_LOGIN=true
+```
+
+When enabled, users visiting the sign-in page will be immediately redirected to your custom OAuth provider without seeing the Kaneo login page. This is ideal for organizations that use a single identity provider for all authentication.
 
 ## Troubleshooting
 
