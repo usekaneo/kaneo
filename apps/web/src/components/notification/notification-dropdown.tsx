@@ -17,6 +17,7 @@ import { KbdSequence } from "@/components/ui/kbd";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
 import {
@@ -178,7 +179,6 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
           projectId &&
           taskId
         ) {
-          setIsOpen(false);
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
             params: { workspaceId, projectId, taskId },
@@ -273,12 +273,11 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                 </div>
               ) : (
                 notifications.map((notification) => (
-                  <button
+                  <DropdownMenuItem
                     key={notification.id}
-                    type="button"
-                    onClick={() => handleNotificationClick(notification)}
+                    onSelect={() => handleNotificationClick(notification)}
                     className={cn(
-                      "w-full text-left px-3 py-3 border-b border-border/50 hover:bg-accent/50 transition-colors cursor-pointer",
+                      "px-3 py-3 border-b border-border/50 rounded-none cursor-pointer",
                       !notification.isRead && "bg-accent/20",
                     )}
                   >
@@ -302,7 +301,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                         </p>
                       </div>
                     </div>
-                  </button>
+                  </DropdownMenuItem>
                 ))
               )}
             </div>
