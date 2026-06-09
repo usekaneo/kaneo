@@ -17,7 +17,12 @@
 			"persistent": true
 		},
 		"test": {
-			"dependsOn": ["^test"],
+			"dependsOn": ["^build"],
+			"cache": false,
+			"outputs": ["coverage/**"]
+		},
+		"test:integration": {
+			"dependsOn": ["^build"],
 			"cache": false,
 			"outputs": ["coverage/**"]
 		}

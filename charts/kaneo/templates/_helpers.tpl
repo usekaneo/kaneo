@@ -62,6 +62,14 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+URL-encode credentials for URI userinfo. Sprig urlquery uses form escaping,
+so spaces become +; in userinfo they must be %20 to preserve credentials.
+*/}}
+{{- define "kaneo.urlencodeUserinfo" -}}
+{{- . | urlquery | replace "+" "%20" -}}
+{{- end }}
+
+{{/*
 API component common labels
 */}}
 {{- define "kaneo.api.labels" -}}

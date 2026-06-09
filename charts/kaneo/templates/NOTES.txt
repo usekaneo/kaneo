@@ -51,7 +51,7 @@ NOTES:
    {{- end }}
 
 2. Important environment variables:
-   - AUTH_SECRET: Secret key for Better Auth (currently set to: {{ .Values.kaneo.env.authSecret }})
+   - AUTH_SECRET: Secret key for Better Auth
    - KANEO_CLIENT_URL: Public URL of this instance (currently set to: "{{ .Values.kaneo.env.clientUrl }}")
    - DATABASE_URL: Derived from postgresql.auth values unless kaneo.env.database.external.enabled=true
 

@@ -3,6 +3,12 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, vi } from "vitest";
 
+// Prevent dotenv-mono from loading the local .env file during tests.
+// All env vars are set explicitly below — the .env file must be ignored.
+vi.mock("dotenv-mono", () => ({
+  config: () => {},
+}));
+
 function stripEnvValueQuotes(value: string) {
   const trimmed = value.trim();
   if (
@@ -66,6 +72,7 @@ process.env.KANEO_CLIENT_URL = "http://localhost:5173";
 process.env.DISABLE_GUEST_ACCESS = "false";
 process.env.DISABLE_REGISTRATION = "false";
 process.env.DISABLE_PASSWORD_REGISTRATION = "false";
+process.env.DISABLE_LOGIN_FORM = "";
 process.env.DEMO_MODE = "false";
 process.env.SMTP_HOST = "";
 process.env.SMTP_PORT = "";
@@ -88,6 +95,7 @@ process.env.CUSTOM_OAUTH_USER_INFO_URL = "";
 process.env.CUSTOM_OAUTH_SCOPES = "";
 process.env.CUSTOM_OAUTH_RESPONSE_TYPE = "";
 process.env.CUSTOM_OAUTH_DISCOVERY_URL = "";
+process.env.CUSTOM_OAUTH_AUTO_LOGIN = "";
 process.env.DEVICE_AUTH_CLIENT_IDS = "kaneo-cli";
 
 afterEach(() => {

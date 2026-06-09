@@ -12,6 +12,7 @@ type Props = {
   callbackURL: string;
   errorCallbackURL: string;
   lastLoginMethod?: string | null;
+  disabled?: boolean;
 };
 
 export function SSOProviders({
@@ -19,6 +20,7 @@ export function SSOProviders({
   callbackURL,
   errorCallbackURL,
   lastLoginMethod,
+  disabled = false,
 }: Props) {
   const { t } = useTranslation();
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
@@ -73,6 +75,7 @@ export function SSOProviders({
       {config?.hasGoogleSignIn && (
         <ProviderButton
           providerId="google"
+          disabled={disabled}
           isLoading={loadingProvider === "google"}
           isLastUsed={lastLoginMethod === "google"}
           onClick={() => handleSocial("google", "auth:signIn.googleError")}
@@ -97,6 +100,7 @@ export function SSOProviders({
       {config?.hasGithubSignIn && (
         <ProviderButton
           providerId="github"
+          disabled={disabled}
           isLoading={loadingProvider === "github"}
           isLastUsed={lastLoginMethod === "github"}
           onClick={() => handleSocial("github", "auth:signIn.githubError")}
@@ -108,6 +112,7 @@ export function SSOProviders({
       {config?.hasDiscordSignIn && (
         <ProviderButton
           providerId="discord"
+          disabled={disabled}
           isLoading={loadingProvider === "discord"}
           isLastUsed={lastLoginMethod === "discord"}
           onClick={() => handleSocial("discord", "auth:signIn.discordError")}
@@ -130,6 +135,7 @@ export function SSOProviders({
       {config?.hasCustomOAuth && (
         <ProviderButton
           providerId="custom"
+          disabled={disabled}
           isLoading={loadingProvider === "custom"}
           isLastUsed={lastLoginMethod === "custom"}
           onClick={handleCustomOAuth}
@@ -150,6 +156,7 @@ function ProviderButton({
   isLoading,
   isLastUsed,
   onClick,
+  disabled = false,
 }: {
   providerId: string;
   icon: React.ReactNode;
@@ -158,6 +165,7 @@ function ProviderButton({
   isLoading: boolean;
   isLastUsed: boolean;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   const { t } = useTranslation();
   return (
@@ -165,7 +173,7 @@ function ProviderButton({
       <Button
         variant="outline"
         onClick={onClick}
-        disabled={isLoading}
+        disabled={isLoading || disabled}
         className={cn("w-full", isLastUsed && "border-primary/50!")}
         data-provider={providerId}
       >

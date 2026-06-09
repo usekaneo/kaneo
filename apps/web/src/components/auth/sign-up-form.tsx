@@ -27,13 +27,25 @@ export type SignUpFormValues = {
 type SignUpFormProps = {
   invitationId?: string;
   defaultEmail?: string;
+  /**
+   * Captcha token lifted from the page level. When the page renders Turnstile
+   * (cloud only), it passes the verified token here. `null` means captcha is
+   * required but not yet completed — the submit button stays disabled.
+   * `undefined` means captcha isn't required at all (self-hosted).
+   */
+  turnstileToken?: string | null;
 };
 
-export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
+export function SignUpForm({
+  invitationId,
+  defaultEmail,
+  turnstileToken,
+}: SignUpFormProps) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const { history } = useRouter();
+  const captchaRequired = turnstileToken !== undefined;
 
   const signUpSchema = useMemo(
     () =>
@@ -59,11 +71,16 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
   const onSubmit = async (data: SignUpFormValues) => {
     setIsPending(true);
     try {
-      const result = await authClient.signUp.email({
-        email: data.email,
-        name: data.name,
-        password: data.password,
-      });
+      const result = await authClient.signUp.email(
+        {
+          email: data.email,
+          name: data.name,
+          password: data.password,
+        },
+        turnstileToken
+          ? { headers: { "x-turnstile-token": turnstileToken } }
+          : undefined,
+      );
 
       if (result.error) {
         toast.error(result.error.message || t("auth:signUpForm.failedSignUp"));
@@ -172,7 +189,11 @@ export function SignUpForm({ invitationId, defaultEmail }: SignUpFormProps) {
           />
         </div>
 
-        <Button type="submit" disabled={isPending} className="w-full mt-4">
+        <Button
+          type="submit"
+          disabled={isPending || (captchaRequired && !turnstileToken)}
+          className="w-full mt-4"
+        >
           {isPending
             ? t("auth:signUpForm.creatingAccount")
             : t("auth:signUpForm.createAccount")}

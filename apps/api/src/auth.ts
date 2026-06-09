@@ -13,7 +13,11 @@ import {
 import bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { APIError, createAuthMiddleware } from "better-auth/api";
+import {
+  APIError,
+  createAuthMiddleware,
+  getSessionFromCtx,
+} from "better-auth/api";
 import {
   admin as adminPlugin,
   anonymous,
@@ -33,8 +37,12 @@ import { count, eq, sql } from "drizzle-orm";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
+import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { generateDemoName } from "./utils/generate-demo-name";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
+import { isCloud } from "./utils/is-cloud";
+import { isDisposableEmail } from "./utils/is-disposable-email";
+import { verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
 
@@ -298,6 +306,12 @@ export const auth = betterAuth({
       },
       allowUserToCreateOrganization: true,
       organizationHooks: {
+        beforeCreateOrganization: async ({ organization }) => {
+          const check = checkWorkspaceName(organization.name ?? "");
+          if (!check.ok) {
+            throw new APIError("BAD_REQUEST", { message: check.reason });
+          }
+        },
         afterCreateOrganization: async ({ organization, user }) => {
           // Seed the editable default roles for this workspace. Each
           // role's permissions are derived from the compiled-in defaults
@@ -419,6 +433,18 @@ export const auth = betterAuth({
       maxAge: 5 * 60,
     },
   },
+  rateLimit: {
+    // Enable in cloud; self-hosted instances opt in by setting KANEO_CLOUD.
+    // Default better-auth rate-limit only kicks in for production; we keep the
+    // global limits conservative and tighten signup/invite via customRules.
+    enabled: isCloud(),
+    window: 10,
+    max: 100,
+    customRules: {
+      "/sign-up/email": { window: 60, max: 3 },
+      "/organization/invite-member": { window: 60, max: 5 },
+    },
+  },
   databaseHooks: {
     user: {
       create: {
@@ -495,6 +521,34 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      // Block invite-member calls on cloud from anonymous users or to
+      // disposable-email addresses. The 2026-05-28 incident saw ~14k phishing
+      // invites sent from throwaway disposable-email signups; gating here
+      // shuts that path off without affecting self-hosted instances.
+      if (ctx.path === "/organization/invite-member" && isCloud()) {
+        // `before` hooks don't auto-populate ctx.context.session; load it
+        // explicitly. `disableRefresh` keeps this gate cheap — we only need
+        // the user record, not a session refresh side-effect.
+        const session = await getSessionFromCtx(ctx, {
+          disableRefresh: true,
+        }).catch(() => null);
+        const sessionUser = session?.user as
+          | { isAnonymous?: boolean | null }
+          | undefined;
+        if (sessionUser?.isAnonymous) {
+          throw new APIError("FORBIDDEN", {
+            message: "Guest accounts may not send workspace invitations.",
+          });
+        }
+        const inviteeEmail = (ctx.body?.email as string | undefined) ?? "";
+        if (inviteeEmail && isDisposableEmail(inviteeEmail)) {
+          throw new APIError("BAD_REQUEST", {
+            message:
+              "Invitations to disposable-email addresses are not allowed.",
+          });
+        }
+      }
+
       const isSignUpPath =
         ctx.path === "/sign-up/email" ||
         ctx.path.startsWith("/callback/") ||
@@ -516,6 +570,31 @@ export const auth = betterAuth({
             message:
               "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
           });
+        }
+
+        // Cloud-only abuse gates on password signup. Self-hosted instances
+        // leave KANEO_CLOUD/TURNSTILE_SECRET_KEY unset and skip both.
+        if (isCloud() && !isInstanceAdminSetup) {
+          const signupEmail = (ctx.body?.email as string | undefined) ?? "";
+          if (signupEmail && isDisposableEmail(signupEmail)) {
+            throw new APIError("BAD_REQUEST", {
+              message:
+                "Sign-up with disposable email addresses is not allowed.",
+            });
+          }
+
+          const turnstileToken =
+            (ctx.body?.turnstileToken as string | undefined) ??
+            ctx.headers?.get("x-turnstile-token") ??
+            null;
+          const remoteIp =
+            ctx.headers?.get("cf-connecting-ip") ??
+            ctx.headers?.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+            null;
+          const verdict = await verifyTurnstile(turnstileToken, remoteIp);
+          if (!verdict.ok) {
+            throw new APIError("FORBIDDEN", { message: verdict.reason });
+          }
         }
       }
 
