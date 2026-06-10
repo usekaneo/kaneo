@@ -225,6 +225,20 @@
 			"when": 1778335540111,
 			"tag": "0031_strong_colleen_wing",
 			"breakpoints": true
+		},
+		{
+			"idx": 32,
+			"version": "7",
+			"when": 1780969118774,
+			"tag": "0032_hard_the_anarchist",
+			"breakpoints": true
+		},
+		{
+			"idx": 33,
+			"version": "7",
+			"when": 1781050000000,
+			"tag": "0033_glance_views",
+			"breakpoints": true
 		}
 	]
 }
