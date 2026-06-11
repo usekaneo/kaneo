@@ -7,8 +7,6 @@ CREATE TABLE "glance_user_prefs" (
 	CONSTRAINT "glance_user_prefs_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
-ALTER TABLE "notification" ADD COLUMN "updated_at" timestamp with time zone DEFAULT now() NOT NULL;--> statement-breakpoint
-ALTER TABLE "time_entry" ADD COLUMN "updated_at" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
 ALTER TABLE "glance_user_prefs" ADD CONSTRAINT "glance_user_prefs_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 CREATE INDEX "glance_user_prefs_userId_idx" ON "glance_user_prefs" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "activity_userId_idx" ON "activity" USING btree ("user_id");--> statement-breakpoint
