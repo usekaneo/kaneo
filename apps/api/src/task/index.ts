@@ -17,6 +17,7 @@ import {
   isImageContentType,
   validateTaskAssetUploadInput,
 } from "../storage/s3";
+import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import bulkUpdateTasks from "./controllers/bulk-update-tasks";
@@ -802,9 +803,12 @@ const task = new Hono<{
               id: assetTable.id,
             });
 
+      const apiBaseUrl = normalizeApiServerUrl(
+        process.env.KANEO_API_URL || "http://localhost:1337",
+      );
       return c.json({
         id: asset.id,
-        url: new URL(`/api/asset/${asset.id}`, c.req.url).toString(),
+        url: `${apiBaseUrl}/asset/${asset.id}`,
       });
     },
   )
