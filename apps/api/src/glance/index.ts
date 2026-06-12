@@ -9,6 +9,7 @@ import {
   isNotNull,
   isNull,
   lt,
+  ne,
   or,
   sql,
 } from "drizzle-orm";
@@ -97,6 +98,7 @@ glance.get(
       inArray(taskTable.userId, resolvedAssignees),
       or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
       isNull(projectTable.archivedAt),
+      ne(taskTable.status, "archived"),
       // Security: caller must be a member of the workspace
       eq(workspaceUserTable.userId, userId),
     ];
