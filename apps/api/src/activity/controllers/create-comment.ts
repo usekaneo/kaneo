@@ -34,7 +34,7 @@ async function createComment(taskId: string, userId: string, content: string) {
   if (task) {
     await publishEvent("task.comment_created", {
       ...activity,
-      comment: `"${user?.name}" commented: ${content}`,
+      comment: `**${user?.name}** commented:\n> ${content}`,
       projectId: task.projectId,
     });
   }
