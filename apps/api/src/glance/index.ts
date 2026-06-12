@@ -96,6 +96,7 @@ glance.get(
     const conditions = [
       inArray(taskTable.userId, resolvedAssignees),
       or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
+      isNull(projectTable.archivedAt),
       // Security: caller must be a member of the workspace
       eq(workspaceUserTable.userId, userId),
     ];
