@@ -10,8 +10,5 @@ export function useDeleteGlanceView() {
     onSuccess: (updated) => {
       queryClient.setQueryData<GlancePrefs>(["glance-prefs"], updated);
     },
-    onError: (error) => {
-      console.error("[Glance] Failed to delete view:", error);
-    },
   });
 }
