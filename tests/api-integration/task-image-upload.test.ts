@@ -124,7 +124,7 @@ describe("API integration: task image upload finalize", () => {
     expect(payload.url).not.toContain("localhost");
   });
 
-  it("falls back when KANEO_API_URL is not set", async () => {
+  it("falls back to deriving URL from the request when KANEO_API_URL is not set", async () => {
     delete process.env.KANEO_API_URL;
 
     const member = await createWorkspaceMember();
@@ -152,7 +152,7 @@ describe("API integration: task image upload finalize", () => {
     const key = `workspace/${member.workspace.id}/project/${project.id}/task/${task.id}/descriptions/fallback-image.png`;
 
     const response = await app.request(
-      `/api/task/image-upload/${task.id}/finalize`,
+      `https://app.kaneo.test/api/task/image-upload/${task.id}/finalize`,
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -168,7 +168,8 @@ describe("API integration: task image upload finalize", () => {
 
     expect(response.status).toBe(200);
     const payload = (await response.json()) as { id: string; url: string };
-    expect(payload.url).toBe(`http://localhost:1337/api/asset/${payload.id}`);
+    expect(payload.url).toBe(`https://app.kaneo.test/api/asset/${payload.id}`);
+    expect(payload.url).not.toContain("localhost");
   });
 
   it("persists a new asset record with correct metadata", async () => {
