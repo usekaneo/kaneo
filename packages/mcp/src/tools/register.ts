@@ -516,14 +516,23 @@ export function registerTools(
     "delete_label",
     {
       description:
-        "Delete a workspace label by ID (removes it from all tasks).",
+        "Delete a label by ID. Only task-associated labels can be deleted; workspace-level labels (taskId null) are rejected by the API.",
       inputSchema: z.object({ id: nonEmptyString }),
     },
     async (args) =>
-      run(() =>
-        client.json(`/api/label/${encodeURIComponent(args.id)}`, {
+      run(async () => {
+        const label = (await client.json(
+          `/api/label/${encodeURIComponent(args.id)}`,
+          { method: "GET" },
+        )) as { taskId?: string | null };
+        if (!label?.taskId) {
+          throw new Error(
+            "Label is not associated with a task and cannot be deleted (workspace-level labels are not deletable via this endpoint).",
+          );
+        }
+        return client.json(`/api/label/${encodeURIComponent(args.id)}`, {
           method: "DELETE",
-        }),
-      ),
+        });
+      }),
   );
 }

@@ -282,16 +282,42 @@ describe("registerTools", () => {
     });
   });
 
-  it("deletes a label by id", async () => {
+  it("deletes a task-associated label after a preflight check", async () => {
     const { server, tools } = createServerMock();
-    const client = { json: vi.fn().mockResolvedValue({}) };
+    const client = {
+      json: vi
+        .fn()
+        .mockResolvedValueOnce({ id: "label-1", taskId: "task-1" })
+        .mockResolvedValueOnce({ id: "label-1" }),
+    };
 
     registerTools(server as never, { client: client as never });
 
-    await tools.get("delete_label")?.handler({ id: "label-1" });
+    const result = await tools.get("delete_label")?.handler({ id: "label-1" });
 
-    expect(client.json).toHaveBeenCalledWith("/api/label/label-1", {
+    expect(client.json).toHaveBeenNthCalledWith(1, "/api/label/label-1", {
+      method: "GET",
+    });
+    expect(client.json).toHaveBeenNthCalledWith(2, "/api/label/label-1", {
       method: "DELETE",
+    });
+    expect(result?.isError).toBe(false);
+  });
+
+  it("refuses to delete a workspace label (taskId null)", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi.fn().mockResolvedValue({ id: "label-1", taskId: null }),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("delete_label")?.handler({ id: "label-1" });
+
+    expect(result?.isError).toBe(true);
+    expect(client.json).toHaveBeenCalledTimes(1);
+    expect(client.json).toHaveBeenCalledWith("/api/label/label-1", {
+      method: "GET",
     });
   });
 });
