@@ -67,8 +67,8 @@ Name | Description | Default |
 --- | --- | --- |
 | `S3_ENDPOINT` | The S3-compatible API endpoint used by the Kaneo API for presigned uploads. Example: `http://minio:9000`. |  |
 | `S3_BUCKET` | The bucket Kaneo will use for uploaded files. |  |
-| `S3_ACCESS_KEY_ID` | Access key used by the Kaneo API to create presigned upload URLs. |  |
-| `S3_SECRET_ACCESS_KEY` | Secret key used by the Kaneo API to create presigned upload URLs. |  |
+| `S3_ACCESS_KEY_ID` | Access key used by the Kaneo API to create presigned upload URLs. Optional — leave unset (together with `S3_SECRET_ACCESS_KEY`) to use the default AWS credential provider chain (IAM role / IRSA / instance profile). |  |
+| `S3_SECRET_ACCESS_KEY` | Secret key used by the Kaneo API to create presigned upload URLs. Must be set together with `S3_ACCESS_KEY_ID`, or left unset for IAM-role-based access. |  |
 | `S3_REGION` | The storage region used for request signing. | `us-east-1` |
 | `S3_PUBLIC_BASE_URL` | Optional public base URL for uploaded assets. Kaneo does not require this for the current private asset flow. |  |
 | `S3_FORCE_PATH_STYLE` | Use path-style S3 URLs. This should usually be `true` for MinIO and `fs`. | `true` |
