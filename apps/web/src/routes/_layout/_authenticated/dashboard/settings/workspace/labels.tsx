@@ -522,7 +522,7 @@ function RouteComponent() {
             <AlertDialogDescription>
               {t("settings:workspaceLabels.deleteConfirmDescription", {
                 defaultValue:
-                  "This will permanently remove this label from all tasks. This action cannot be undone.",
+                  "Any tasks using this label will have it removed. This action cannot be undone.",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
