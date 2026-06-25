@@ -1,0 +1,69 @@
+import { renderHook } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import useUpdateLabel from "./use-update-label";
+
+const mockInvalidateQueries = vi.fn();
+
+vi.mock("@tanstack/react-query", () => ({
+  useQueryClient: () => ({
+    invalidateQueries: mockInvalidateQueries,
+  }),
+  useMutation: (options: { onSuccess?: (data: unknown) => void }) => {
+    const mutateAsync = vi
+      .fn()
+      .mockImplementation(
+        async (vars: { id: string; name: string; color: string }) => {
+          const result = {
+            id: vars.id,
+            name: vars.name,
+            color: vars.color,
+            workspaceId: "workspace-1",
+            taskId: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          await options.onSuccess?.(result);
+          return result;
+        },
+      );
+
+    return {
+      mutateAsync,
+      isPending: false,
+    };
+  },
+}));
+
+vi.mock("@/fetchers/label/update-label", () => ({
+  default: vi.fn(),
+}));
+
+describe("useUpdateLabel", () => {
+  it("invalidates the workspace labels cache on success", async () => {
+    const { result } = renderHook(() => useUpdateLabel());
+
+    await result.current.mutateAsync({
+      id: "label-1",
+      name: "Updated Label",
+      color: "purple",
+    });
+
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["labels", "workspace-1"],
+    });
+  });
+
+  it("invalidates with the correct workspaceId from the response", async () => {
+    const { result } = renderHook(() => useUpdateLabel());
+
+    await result.current.mutateAsync({
+      id: "label-2",
+      name: "Bug",
+      color: "red",
+    });
+
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["labels", "workspace-1"],
+    });
+  });
+});
