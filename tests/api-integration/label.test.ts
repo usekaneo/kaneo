@@ -117,7 +117,7 @@ describe("API integration: labels", () => {
   describe("deletion cascade", () => {
     it("deletes task-level copies when a workspace label is deleted", async () => {
       const member = await createWorkspaceMember();
-      const { project } = await createProjectFixture({
+      const { project, columns } = await createProjectFixture({
         workspaceId: member.workspace.id,
       });
 
@@ -129,7 +129,7 @@ describe("API integration: labels", () => {
           userId: member.user.id,
           title: "Task A",
           status: "to-do",
-          columnId: project.columns.todo.id,
+          columnId: columns.todo.id,
           priority: "medium",
           number: 1,
           position: 1,
@@ -143,7 +143,7 @@ describe("API integration: labels", () => {
           userId: member.user.id,
           title: "Task B",
           status: "to-do",
-          columnId: project.columns.todo.id,
+          columnId: columns.todo.id,
           priority: "medium",
           number: 2,
           position: 2,
@@ -207,7 +207,7 @@ describe("API integration: labels", () => {
 
     it("does not affect unrelated labels when deleting a workspace label", async () => {
       const member = await createWorkspaceMember();
-      const { project } = await createProjectFixture({
+      const { project, columns } = await createProjectFixture({
         workspaceId: member.workspace.id,
       });
 
@@ -218,7 +218,7 @@ describe("API integration: labels", () => {
           userId: member.user.id,
           title: "Task",
           status: "to-do",
-          columnId: project.columns.todo.id,
+          columnId: columns.todo.id,
           priority: "medium",
           number: 1,
           position: 1,
