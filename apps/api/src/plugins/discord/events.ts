@@ -81,7 +81,13 @@ async function getDiscordEventData(
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .innerJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
-    .leftJoin(columnTable, eq(taskTable.columnId, columnTable.id))
+    .leftJoin(
+      columnTable,
+      and(
+        eq(taskTable.columnId, columnTable.id),
+        eq(columnTable.projectId, projectTable.id),
+      ),
+    )
     .where(and(eq(taskTable.id, taskId), eq(projectTable.id, projectId)))
     .limit(1);
 
