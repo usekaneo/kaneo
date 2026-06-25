@@ -16,29 +16,57 @@ async function deleteLabel(id: string, userId: string) {
     });
   }
 
-  if (!label.taskId) {
-    throw new HTTPException(400, {
-      message: "Label is not associated with a task",
+  if (label.taskId) {
+    // Task-level label: fetch task, delete with event + GitHub sync
+    const [task] = await db
+      .select({
+        id: taskTable.id,
+        projectId: taskTable.projectId,
+        workspaceId: projectTable.workspaceId,
+      })
+      .from(taskTable)
+      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+      .where(eq(taskTable.id, label.taskId))
+      .limit(1);
+
+    if (!task) {
+      throw new HTTPException(404, {
+        message: "Task not found",
+      });
+    }
+
+    const [deletedLabel] = await db
+      .delete(labelTable)
+      .where(eq(labelTable.id, id))
+      .returning();
+
+    if (!deletedLabel) {
+      throw new HTTPException(404, {
+        message: "Label not found",
+      });
+    }
+
+    if (deletedLabel.taskId) {
+      removeLabelFromGitHub(deletedLabel.taskId, deletedLabel.name).catch(
+        (error) => {
+          console.error("Failed to remove label from GitHub:", error);
+        },
+      );
+    }
+
+    await publishEvent("task.label_deleted", {
+      label: deletedLabel,
+      task,
+      projectId: task.projectId,
+      taskId: task.id,
+      userId,
+      type: "label_deleted",
     });
+
+    return deletedLabel;
   }
 
-  const [task] = await db
-    .select({
-      id: taskTable.id,
-      projectId: taskTable.projectId,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(taskTable)
-    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(taskTable.id, label.taskId))
-    .limit(1);
-
-  if (!task) {
-    throw new HTTPException(404, {
-      message: "Task not found",
-    });
-  }
-
+  // Workspace-level label: just delete, no GitHub sync or event needed
   const [deletedLabel] = await db
     .delete(labelTable)
     .where(eq(labelTable.id, id))
@@ -49,23 +77,6 @@ async function deleteLabel(id: string, userId: string) {
       message: "Label not found",
     });
   }
-
-  if (deletedLabel?.taskId) {
-    removeLabelFromGitHub(deletedLabel.taskId, deletedLabel.name).catch(
-      (error) => {
-        console.error("Failed to remove label from GitHub:", error);
-      },
-    );
-  }
-
-  await publishEvent("task.label_deleted", {
-    label: deletedLabel,
-    task: task,
-    projectId: task.projectId,
-    taskId: task.id,
-    userId: userId,
-    type: "label_deleted",
-  });
 
   return deletedLabel;
 }
