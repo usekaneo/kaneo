@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
+  columnTable,
   integrationTable,
   projectTable,
   taskTable,
@@ -50,6 +51,7 @@ async function getTaskData(
       number: taskTable.number,
       status: taskTable.status,
       priority: taskTable.priority,
+      columnName: columnTable.name,
       projectId: projectTable.id,
       projectName: projectTable.name,
       workspaceId: workspaceTable.id,
@@ -57,6 +59,7 @@ async function getTaskData(
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .innerJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
+    .leftJoin(columnTable, eq(taskTable.columnId, columnTable.id))
     .where(and(eq(taskTable.id, taskId), eq(projectTable.id, projectId)))
     .limit(1);
 
@@ -68,6 +71,7 @@ async function getTaskData(
 
   return {
     ...taskRow,
+    status: taskRow.columnName ?? taskRow.status,
     taskUrl: `${clientUrl}/dashboard/workspace/${taskRow.workspaceId}/project/${taskRow.projectId}/task/${taskId}`,
   };
 }

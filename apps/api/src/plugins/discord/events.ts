@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
+  columnTable,
   projectTable,
   taskTable,
   userTable,
@@ -72,6 +73,7 @@ async function getDiscordEventData(
       number: taskTable.number,
       status: taskTable.status,
       priority: taskTable.priority,
+      columnName: columnTable.name,
       projectName: projectTable.name,
       projectId: projectTable.id,
       workspaceId: workspaceTable.id,
@@ -79,6 +81,7 @@ async function getDiscordEventData(
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .innerJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
+    .leftJoin(columnTable, eq(taskTable.columnId, columnTable.id))
     .where(and(eq(taskTable.id, taskId), eq(projectTable.id, projectId)))
     .limit(1);
 
@@ -105,7 +108,7 @@ async function getDiscordEventData(
     projectName: taskRow.projectName,
     taskUrl,
     actorName: user?.name ?? null,
-    status: taskRow.status,
+    status: taskRow.columnName ?? taskRow.status,
     priority: taskRow.priority,
   };
 }
