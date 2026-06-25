@@ -26,7 +26,8 @@ type DiscordEventData = {
   projectName: string;
   taskUrl: string | null;
   actorName: string | null;
-  status: string | null;
+  statusSlug: string;
+  columnName: string | null;
   priority: string | null;
 };
 
@@ -114,7 +115,8 @@ async function getDiscordEventData(
     projectName: taskRow.projectName,
     taskUrl,
     actorName: user?.name ?? null,
-    status: taskRow.columnName ?? taskRow.status,
+    statusSlug: taskRow.status,
+    columnName: taskRow.columnName,
     priority: taskRow.priority,
   };
 }
@@ -132,7 +134,9 @@ async function sendDiscordMessage(
   const safeBody = sanitizeDiscordContent(body);
   const safeTaskLabel = sanitizeDiscordContent(taskLabel);
   const safeProjectName = sanitizeDiscordContent(data.projectName);
-  const safeStatus = sanitizeDiscordContent(toSentenceCase(data.status));
+  const safeStatus = sanitizeDiscordContent(
+    data.columnName ?? toSentenceCase(data.statusSlug),
+  );
   const safePriority = sanitizeDiscordContent(toSentenceCase(data.priority));
   const safeActor = data.actorName
     ? sanitizeDiscordContent(data.actorName)

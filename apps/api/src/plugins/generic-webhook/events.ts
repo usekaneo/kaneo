@@ -26,6 +26,7 @@ type GenericWebhookTaskData = {
   title: string;
   number: number | null;
   status: string | null;
+  statusName: string | null;
   priority: string | null;
   projectId: string;
   projectName: string;
@@ -77,7 +78,8 @@ async function getTaskData(
 
   return {
     ...taskRow,
-    status: taskRow.columnName ?? taskRow.status,
+    status: taskRow.status,
+    statusName: taskRow.columnName ?? taskRow.status,
     taskUrl: `${clientUrl}/dashboard/workspace/${taskRow.workspaceId}/project/${taskRow.projectId}/task/${taskId}`,
   };
 }
@@ -178,6 +180,7 @@ async function sendEvent(
           number: task.number,
           title: task.title,
           status: task.status,
+          statusName: task.statusName,
           priority: task.priority,
           url: task.taskUrl,
         },
