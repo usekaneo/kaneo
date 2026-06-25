@@ -16,7 +16,7 @@ import type {
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
 } from "../types";
-import { postToDiscord } from "./client";
+import { postToDiscord, sanitizeDiscordContent } from "./client";
 import type { DiscordConfig, DiscordEventKey } from "./config";
 import { normalizeDiscordConfig } from "./config";
 
@@ -122,43 +122,52 @@ async function sendDiscordMessage(
   const issueKey =
     data.taskNumber !== null ? `#${data.taskNumber}` : "Task update";
   const taskLabel = `${issueKey} ${data.taskTitle}`;
+  const safeTitle = sanitizeDiscordContent(title);
+  const safeBody = sanitizeDiscordContent(body);
+  const safeTaskLabel = sanitizeDiscordContent(taskLabel);
+  const safeProjectName = sanitizeDiscordContent(data.projectName);
+  const safeStatus = sanitizeDiscordContent(toSentenceCase(data.status));
+  const safePriority = sanitizeDiscordContent(toSentenceCase(data.priority));
+  const safeActor = data.actorName
+    ? sanitizeDiscordContent(data.actorName)
+    : null;
 
   try {
     await postToDiscord(config.webhookUrl, {
-      content: `${title}: ${data.taskTitle}`,
+      content: `${safeTitle}: ${safeTaskLabel}`,
       embeds: [
         {
-          title,
-          description: body,
+          title: safeTitle,
+          description: safeBody,
           url: data.taskUrl ?? undefined,
           color: 0x5865f2,
           fields: [
             {
               name: "Task",
               value: data.taskUrl
-                ? `[${taskLabel}](${data.taskUrl})`
-                : taskLabel,
+                ? `[${safeTaskLabel}](${data.taskUrl})`
+                : safeTaskLabel,
               inline: true,
             },
             {
               name: "Project",
-              value: data.projectName,
+              value: safeProjectName,
               inline: true,
             },
             {
               name: "Status",
-              value: toSentenceCase(data.status),
+              value: safeStatus,
               inline: true,
             },
             {
               name: "Priority",
-              value: toSentenceCase(data.priority),
+              value: safePriority,
               inline: true,
             },
           ],
           footer: {
-            text: data.actorName
-              ? `Triggered by ${data.actorName}`
+            text: safeActor
+              ? `Triggered by ${safeActor}`
               : "Triggered by Kaneo",
           },
         },
