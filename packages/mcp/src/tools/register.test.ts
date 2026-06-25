@@ -213,4 +213,111 @@ describe("registerTools", () => {
       }),
     ).toThrow();
   });
+
+  it("creates a task relation with the expected body", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi.fn().mockResolvedValue({ id: "rel-1", relationType: "blocks" }),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("create_task_relation")?.handler({
+      sourceTaskId: "task-1",
+      targetTaskId: "task-2",
+      relationType: "blocks",
+    });
+
+    expect(client.json).toHaveBeenCalledWith("/api/task-relation", {
+      method: "POST",
+      body: JSON.stringify({
+        sourceTaskId: "task-1",
+        targetTaskId: "task-2",
+        relationType: "blocks",
+      }),
+    });
+    expect(result?.isError).toBe(false);
+  });
+
+  it("validates relationType for create_task_relation", () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn() };
+
+    registerTools(server as never, { client: client as never });
+
+    const schema = tools.get("create_task_relation")?.config.inputSchema;
+    expect(schema).toBeDefined();
+    expect(() =>
+      schema?.parse({
+        sourceTaskId: "task-1",
+        targetTaskId: "task-2",
+        relationType: "duplicate",
+      }),
+    ).toThrow();
+  });
+
+  it("gets task relations by task id", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue([]) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("get_task_relations")?.handler({ taskId: "task 1" });
+
+    expect(client.json).toHaveBeenCalledWith("/api/task-relation/task%201", {
+      method: "GET",
+    });
+  });
+
+  it("deletes a task relation by id", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({}) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("delete_task_relation")?.handler({ id: "rel-1" });
+
+    expect(client.json).toHaveBeenCalledWith("/api/task-relation/rel-1", {
+      method: "DELETE",
+    });
+  });
+
+  it("deletes a task-associated label after a preflight check", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi
+        .fn()
+        .mockResolvedValueOnce({ id: "label-1", taskId: "task-1" })
+        .mockResolvedValueOnce({ id: "label-1" }),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("delete_label")?.handler({ id: "label-1" });
+
+    expect(client.json).toHaveBeenNthCalledWith(1, "/api/label/label-1", {
+      method: "GET",
+    });
+    expect(client.json).toHaveBeenNthCalledWith(2, "/api/label/label-1", {
+      method: "DELETE",
+    });
+    expect(result?.isError).toBe(false);
+  });
+
+  it("refuses to delete a workspace label (taskId null)", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi.fn().mockResolvedValue({ id: "label-1", taskId: null }),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("delete_label")?.handler({ id: "label-1" });
+
+    expect(result?.isError).toBe(true);
+    expect(client.json).toHaveBeenCalledTimes(1);
+    expect(client.json).toHaveBeenCalledWith("/api/label/label-1", {
+      method: "GET",
+    });
+  });
 });
