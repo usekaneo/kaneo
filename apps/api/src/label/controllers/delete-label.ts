@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
@@ -66,7 +66,7 @@ async function deleteLabel(id: string, userId: string) {
     return deletedLabel;
   }
 
-  // Workspace-level label: just delete, no GitHub sync or event needed
+  // Workspace-level label: delete the label and cascade to all task-level copies
   const [deletedLabel] = await db
     .delete(labelTable)
     .where(eq(labelTable.id, id))
@@ -77,6 +77,17 @@ async function deleteLabel(id: string, userId: string) {
       message: "Label not found",
     });
   }
+
+  // Cascade: delete all task-level copies of this label so existing tasks lose it
+  await db
+    .delete(labelTable)
+    .where(
+      and(
+        eq(labelTable.workspaceId, label.workspaceId),
+        eq(labelTable.name, label.name),
+        isNotNull(labelTable.taskId),
+      ),
+    );
 
   return deletedLabel;
 }
