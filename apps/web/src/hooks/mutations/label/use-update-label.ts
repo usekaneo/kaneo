@@ -6,9 +6,15 @@ function useUpdateLabel() {
 
   return useMutation({
     mutationFn: updateLabel,
-    onSuccess: (updatedLabel) => {
+    onSuccess: (_updatedLabel) => {
       void queryClient.invalidateQueries({
-        queryKey: ["labels", updatedLabel.workspaceId],
+        queryKey: ["labels"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["task"],
       });
     },
   });

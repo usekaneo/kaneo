@@ -39,7 +39,7 @@ vi.mock("@/fetchers/label/update-label", () => ({
 }));
 
 describe("useUpdateLabel", () => {
-  it("invalidates the workspace labels cache on success", async () => {
+  it("invalidates label and task caches on success", async () => {
     const { result } = renderHook(() => useUpdateLabel());
 
     await result.current.mutateAsync({
@@ -49,7 +49,13 @@ describe("useUpdateLabel", () => {
     });
 
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: ["labels", "workspace-1"],
+      queryKey: ["labels"],
+    });
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["tasks"],
+    });
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["task"],
     });
   });
 
@@ -63,7 +69,13 @@ describe("useUpdateLabel", () => {
     });
 
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: ["labels", "workspace-1"],
+      queryKey: ["labels"],
+    });
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["tasks"],
+    });
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["task"],
     });
   });
 });
