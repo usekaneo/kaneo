@@ -43,7 +43,9 @@
 			"french": "Французька",
 			"spanish": "Іспанська",
 			"dutch": "Нідерландська",
-			"korean": "Корейська"
+			"korean": "Корейська",
+			"russian": "Російська",
+			"ukrainian": "Українська"
 		},
 		"people": {
 			"someone": "Хтось",
@@ -150,7 +152,12 @@
 			"oidcError": "Не вдалося увійти через OIDC",
 			"googleError": "Не вдалося увійти через Google",
 			"githubError": "Не вдалося увійти через GitHub",
-			"discordError": "Не вдалося увійти через Discord"
+			"discordError": "Не вдалося увійти через Discord",
+			"errors": {
+				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
+			},
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"providers": {
 			"google": "Google",
@@ -185,7 +192,10 @@
 			"signingIn": "Вхід...",
 			"continueAsGuest": "Продовжити як гість",
 			"toggleMessage": "Вже маєте обліковий запис?",
-			"toggleLink": "Увійти"
+			"toggleLink": "Увійти",
+			"instanceAdminSubtitle": "This account becomes the instance administrator with full access.",
+			"instanceAdminTitle": "Set up your Kaneo instance",
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"verifyOtp": {
 			"pageTitle": "Підтвердження коду",
@@ -543,6 +553,21 @@
 			"validation": {
 				"nameRequired": "Назва робочого простору є обов'язковою",
 				"nameShort": "Назва робочого простору має містити щонайменше 2 символи"
+			},
+			"transferOwnership": {
+				"button": "Transfer",
+				"confirm": "Transfer ownership",
+				"dialogDescription": "{{name}} will become the sole owner of {{workspace}}. You'll keep admin access but lose owner-only abilities like deleting the workspace or transferring it again.",
+				"dialogTitle": "Transfer ownership?",
+				"noEligibleMembers": "Invite at least one other member before you can transfer ownership.",
+				"pickerHint": "They become the sole owner of this workspace.",
+				"pickerLabel": "New owner",
+				"pickerPlaceholder": "Select a member",
+				"subtitle": "Hand this workspace over to another member. You'll be demoted to admin and lose owner-only abilities.",
+				"title": "Transfer ownership",
+				"toastError": "Failed to transfer ownership",
+				"toastSuccess": "Ownership transferred",
+				"transferring": "Transferring..."
 			}
 		},
 		"projectGeneral": {
@@ -582,7 +607,9 @@
 				"keyShort": "Ключ має містити щонайменше 2 символи",
 				"keyMax": "Ключ може містити не більше 8 символів",
 				"iconRequired": "Іконка є обов'язковою"
-			}
+			},
+			"importExportTasks": "Import/Export",
+			"importExportTasksDescription": "Import and export tasks."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Інтеґрації проєкту",
@@ -1009,6 +1036,9 @@
 			"merged": "Змерджено",
 			"draft": "Чернетка",
 			"open": "Відкрито"
+		},
+		"workspaceRoles": {
+			"title": "Roles"
 		}
 	},
 	"navigation": {
@@ -1039,7 +1069,8 @@
 			"projects": "Проєкти",
 			"members": "Учасники",
 			"invitations": "Запрошення",
-			"more": "Більше"
+			"more": "Більше",
+			"backToBoard": "Back to board"
 		},
 		"projectList": {
 			"viewProject": "Переглянути проєкт",
@@ -1125,8 +1156,6 @@
 	"notifications": {
 		"title": "Сповіщення",
 		"newCount_one": "{{count}} нове",
-		"newCount_few": "{{count}} нових",
-		"newCount_many": "{{count}} нових",
 		"newCount_other": "{{count}} нових",
 		"emptyTitle": "Сповіщень ще немає",
 		"emptySubtitle": "Тут з'являтимуться оновлення та активність.",
@@ -1256,7 +1285,9 @@
 					"yaml": "YAML"
 				}
 			}
-		}
+		},
+		"created": "created this task",
+		"moved": "moved task from \"{{from}}\" to \"{{to}}\""
 	},
 	"tasks": {
 		"status": {
@@ -1283,7 +1314,9 @@
 		},
 		"common": {
 			"selectTask": "Обрати завдання",
-			"loadingTask": "Завантаження завдання..."
+			"loadingTask": "Завантаження завдання...",
+			"taskNotFound": "Task not found",
+			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted."
 		},
 		"detail": {
 			"subtaskOf": "Підзавдання",
@@ -1584,8 +1617,6 @@
 			"open": "Відкрито",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_few": "{{count}} PR",
-			"count_many": "{{count}} PR",
 			"count_other": "{{count}} PR"
 		},
 		"assignee": {
@@ -1686,7 +1717,8 @@
 				"complete": "Завершено",
 				"inProgress": "В роботі"
 			},
-			"noDueDate": "Без дати завершення"
+			"noDueDate": "Без дати завершення",
+			"emptyDescriptionReadOnly": "There are no projects in this workspace yet. Ask an admin to create one."
 		},
 		"search": {
 			"pageTitle": "Пошук",
@@ -1695,8 +1727,6 @@
 			"hint": "Пошук по всіх проєктах у цьому робочому просторі. Використовуйте короткі ID, як DEP-23, щоб знайти конкретні завдання.",
 			"searching": "Пошук...",
 			"resultsFound_one": "{{count}} результат знайдено",
-			"resultsFound_few": "{{count}} результати знайдено",
-			"resultsFound_many": "{{count}} результатів знайдено",
 			"resultsFound_other": "{{count}} результатів знайдено",
 			"noResultsTitle": "Результатів не знайдено",
 			"noResultsDescription": "Спробуйте змінити пошукові терміни або пошукати щось інше",
@@ -1728,11 +1758,13 @@
 		"roles": {
 			"owner": "Власник",
 			"admin": "Адміністратор",
-			"member": "Учасник"
+			"member": "Учасник",
+			"viewer": "Viewer"
 		},
 		"members": {
 			"pageTitle": "Учасники",
-			"inviteMember": "Запросити учасника"
+			"inviteMember": "Запросити учасника",
+			"you": "You"
 		},
 		"inviteModal": {
 			"title": "Запросити учасника команди",
@@ -1763,7 +1795,13 @@
 			"removeSuccess": "Учасника команди успішно видалено",
 			"removeError": "Не вдалося видалити учасника команди",
 			"cancelInviteSuccess": "Запрошення успішно скасовано",
-			"cancelInviteError": "Не вдалося скасувати запрошення"
+			"cancelInviteError": "Не вдалося скасувати запрошення",
+			"roleUpdateError": "Failed to update role",
+			"roleUpdateSuccess": "Role updated"
+		},
+		"invitations": {
+			"expires": "Expires {{date}}",
+			"pendingBadge": "pending"
 		}
 	},
 	"publicProject": {

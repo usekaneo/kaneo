@@ -43,7 +43,9 @@
 			"french": "Französisch",
 			"spanish": "Spanisch",
 			"dutch": "Niederländisch",
-			"korean": "Koreanisch"
+			"korean": "Koreanisch",
+			"russian": "Russisch",
+			"ukrainian": "Ukrainisch"
 		},
 		"people": {
 			"someone": "Jemand",
@@ -150,7 +152,12 @@
 			"oidcError": "Anmeldung mit OIDC fehlgeschlagen",
 			"googleError": "Anmeldung mit Google fehlgeschlagen",
 			"githubError": "Anmeldung mit GitHub fehlgeschlagen",
-			"discordError": "Anmeldung mit Discord fehlgeschlagen"
+			"discordError": "Anmeldung mit Discord fehlgeschlagen",
+			"errors": {
+				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
+			},
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"providers": {
 			"google": "Google",
@@ -185,7 +192,10 @@
 			"signingIn": "Anmeldung läuft...",
 			"continueAsGuest": "Als Gast fortfahren",
 			"toggleMessage": "Du hast bereits ein Konto?",
-			"toggleLink": "Anmelden"
+			"toggleLink": "Anmelden",
+			"instanceAdminSubtitle": "This account becomes the instance administrator with full access.",
+			"instanceAdminTitle": "Set up your Kaneo instance",
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"verifyOtp": {
 			"pageTitle": "Code verifizieren",
@@ -543,6 +553,21 @@
 			"validation": {
 				"nameRequired": "Workspace-Name ist erforderlich",
 				"nameShort": "Der Workspace-Name muss mindestens 2 Zeichen lang sein"
+			},
+			"transferOwnership": {
+				"button": "Transfer",
+				"confirm": "Transfer ownership",
+				"dialogDescription": "{{name}} will become the sole owner of {{workspace}}. You'll keep admin access but lose owner-only abilities like deleting the workspace or transferring it again.",
+				"dialogTitle": "Transfer ownership?",
+				"noEligibleMembers": "Invite at least one other member before you can transfer ownership.",
+				"pickerHint": "They become the sole owner of this workspace.",
+				"pickerLabel": "New owner",
+				"pickerPlaceholder": "Select a member",
+				"subtitle": "Hand this workspace over to another member. You'll be demoted to admin and lose owner-only abilities.",
+				"title": "Transfer ownership",
+				"toastError": "Failed to transfer ownership",
+				"toastSuccess": "Ownership transferred",
+				"transferring": "Transferring..."
 			}
 		},
 		"projectGeneral": {
@@ -1011,6 +1036,9 @@
 			"merged": "Zusammengeführt",
 			"draft": "Entwurf",
 			"open": "Offen"
+		},
+		"workspaceRoles": {
+			"title": "Roles"
 		}
 	},
 	"navigation": {
@@ -1689,7 +1717,8 @@
 				"complete": "Abgeschlossen",
 				"inProgress": "In Bearbeitung"
 			},
-			"noDueDate": "Kein Fälligkeitsdatum"
+			"noDueDate": "Kein Fälligkeitsdatum",
+			"emptyDescriptionReadOnly": "There are no projects in this workspace yet. Ask an admin to create one."
 		},
 		"search": {
 			"pageTitle": "Suche",
@@ -1729,11 +1758,13 @@
 		"roles": {
 			"owner": "Eigentümer",
 			"admin": "Admin",
-			"member": "Mitglied"
+			"member": "Mitglied",
+			"viewer": "Viewer"
 		},
 		"members": {
 			"pageTitle": "Mitglieder",
-			"inviteMember": "Mitglied einladen"
+			"inviteMember": "Mitglied einladen",
+			"you": "You"
 		},
 		"inviteModal": {
 			"title": "Teammitglied einladen",
@@ -1764,7 +1795,13 @@
 			"removeSuccess": "Teammitglied erfolgreich entfernt",
 			"removeError": "Teammitglied konnte nicht entfernt werden",
 			"cancelInviteSuccess": "Einladung erfolgreich abgebrochen",
-			"cancelInviteError": "Einladung konnte nicht abgebrochen werden"
+			"cancelInviteError": "Einladung konnte nicht abgebrochen werden",
+			"roleUpdateError": "Failed to update role",
+			"roleUpdateSuccess": "Role updated"
+		},
+		"invitations": {
+			"expires": "Expires {{date}}",
+			"pendingBadge": "pending"
 		}
 	},
 	"publicProject": {

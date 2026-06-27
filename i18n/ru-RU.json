@@ -43,7 +43,9 @@
 			"french": "Французский",
 			"spanish": "Испанский",
 			"dutch": "Нидерландский",
-			"korean": "Корейский"
+			"korean": "Корейский",
+			"russian": "Русский",
+			"ukrainian": "Украинский"
 		},
 		"people": {
 			"someone": "Кто-то",
@@ -150,7 +152,12 @@
 			"oidcError": "Не удалось войти через OIDC",
 			"googleError": "Не удалось войти через Google",
 			"githubError": "Не удалось войти через GitHub",
-			"discordError": "Не удалось войти через Discord"
+			"discordError": "Не удалось войти через Discord",
+			"errors": {
+				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
+			},
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"providers": {
 			"google": "Google",
@@ -185,7 +192,10 @@
 			"signingIn": "Вход...",
 			"continueAsGuest": "Продолжить как гость",
 			"toggleMessage": "Уже есть аккаунт?",
-			"toggleLink": "Войти"
+			"toggleLink": "Войти",
+			"instanceAdminSubtitle": "This account becomes the instance administrator with full access.",
+			"instanceAdminTitle": "Set up your Kaneo instance",
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"verifyOtp": {
 			"pageTitle": "Проверка кода",
@@ -543,6 +553,21 @@
 			"validation": {
 				"nameRequired": "Название рабочей области обязательно",
 				"nameShort": "Название рабочей области должно содержать не менее 2 символов"
+			},
+			"transferOwnership": {
+				"button": "Transfer",
+				"confirm": "Transfer ownership",
+				"dialogDescription": "{{name}} will become the sole owner of {{workspace}}. You'll keep admin access but lose owner-only abilities like deleting the workspace or transferring it again.",
+				"dialogTitle": "Transfer ownership?",
+				"noEligibleMembers": "Invite at least one other member before you can transfer ownership.",
+				"pickerHint": "They become the sole owner of this workspace.",
+				"pickerLabel": "New owner",
+				"pickerPlaceholder": "Select a member",
+				"subtitle": "Hand this workspace over to another member. You'll be demoted to admin and lose owner-only abilities.",
+				"title": "Transfer ownership",
+				"toastError": "Failed to transfer ownership",
+				"toastSuccess": "Ownership transferred",
+				"transferring": "Transferring..."
 			}
 		},
 		"projectGeneral": {
@@ -582,7 +607,9 @@
 				"keyShort": "Ключ должен содержать не менее 2 символов",
 				"keyMax": "Ключ должен содержать не более 8 символов",
 				"iconRequired": "Иконка обязательна"
-			}
+			},
+			"importExportTasks": "Import/Export",
+			"importExportTasksDescription": "Import and export tasks."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции проекта",
@@ -977,18 +1004,12 @@
 			"exportSuccess": "Задачи успешно экспортированы",
 			"exportError": "Не удалось экспортировать задачи",
 			"importing": "Импорт задач...",
-			"importSuccess_one": "Успешно импортирована {{count}} задача",
-			"importSuccess_few": "Успешно импортировано {{count}} задачи",
-			"importSuccess_many": "Успешно импортировано {{count}} задач",
-			"importSuccess_other": "Успешно импортировано {{count}} задач",
-			"importPartialError_one": "Не удалось импортировать {{count}} задачу",
-			"importPartialError_few": "Не удалось импортировать {{count}} задачи",
-			"importPartialError_many": "Не удалось импортировать {{count}} задач",
-			"importPartialError_other": "Не удалось импортировать {{count}} задач",
 			"importError": "Не удалось импортировать задачи",
 			"invalidFormat": "Некорректный формат файла импорта",
 			"noFileDropped": "Файл не был перетащен",
-			"notJsonFile": "Пожалуйста, загрузите JSON-файл"
+			"notJsonFile": "Пожалуйста, загрузите JSON-файл",
+			"importPartialError": "Failed to import {{count}} tasks",
+			"importSuccess": "Imported {{count}} tasks successfully"
 		},
 		"workflowEditor": {
 			"loading": "Загрузка...",
@@ -1015,6 +1036,9 @@
 			"merged": "Влит",
 			"draft": "Черновик",
 			"open": "Открыт"
+		},
+		"workspaceRoles": {
+			"title": "Roles"
 		}
 	},
 	"navigation": {
@@ -1045,7 +1069,8 @@
 			"projects": "Проекты",
 			"members": "Участники",
 			"invitations": "Приглашения",
-			"more": "Ещё"
+			"more": "Ещё",
+			"backToBoard": "Back to board"
 		},
 		"projectList": {
 			"viewProject": "Открыть проект",
@@ -1131,8 +1156,6 @@
 	"notifications": {
 		"title": "Уведомления",
 		"newCount_one": "{{count}} новое",
-		"newCount_few": "{{count}} новых",
-		"newCount_many": "{{count}} новых",
 		"newCount_other": "{{count}} новых",
 		"emptyTitle": "Уведомлений пока нет",
 		"emptySubtitle": "Здесь будут отображаться обновления и активность.",
@@ -1262,7 +1285,9 @@
 					"yaml": "YAML"
 				}
 			}
-		}
+		},
+		"created": "created this task",
+		"moved": "moved task from \"{{from}}\" to \"{{to}}\""
 	},
 	"tasks": {
 		"status": {
@@ -1289,7 +1314,9 @@
 		},
 		"common": {
 			"selectTask": "Выбрать задачу",
-			"loadingTask": "Загрузка задачи..."
+			"loadingTask": "Загрузка задачи...",
+			"taskNotFound": "Task not found",
+			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted."
 		},
 		"detail": {
 			"subtaskOf": "Подзадача",
@@ -1493,10 +1520,6 @@
 			"pageTitle": "Бэклог — {{name}}",
 			"noTasksToMove": "Нет запланированных задач для перемещения",
 			"moveAllConfirm": "Переместить все {{count}} запланированных задач в «К выполнению»?",
-			"moveAllSuccess_one": "{{count}} задача перемещена в «К выполнению»",
-			"moveAllSuccess_few": "{{count}} задачи перемещены в «К выполнению»",
-			"moveAllSuccess_many": "{{count}} задач перемещено в «К выполнению»",
-			"moveAllSuccess_other": "{{count}} задач перемещено в «К выполнению»",
 			"plan": "Запланировать",
 			"moveAllTooltip": "Переместить все запланированные в «К выполнению»",
 			"moveAll": "Переместить все",
@@ -1516,7 +1539,8 @@
 				"dueThisWeek": "Срок на этой неделе",
 				"dueNextWeek": "Срок на следующей неделе",
 				"noDueDate": "Без срока"
-			}
+			},
+			"moveAllSuccess": "Moved {{count}} tasks to To Do"
 		},
 		"sort": {
 			"label": "Сортировка",
@@ -1540,10 +1564,6 @@
 			"allAssignees": "Все исполнители",
 			"allDueDates": "Все сроки",
 			"allLabels": "Все метки",
-			"selectedCount_one": "{{count}} выбран",
-			"selectedCount_few": "{{count}} выбрано",
-			"selectedCount_many": "{{count}} выбрано",
-			"selectedCount_other": "{{count}} выбрано",
 			"subjects": {
 				"status": "Статус",
 				"priority": "Приоритет",
@@ -1554,7 +1574,8 @@
 			"operators": {
 				"isAnyOf": "любой из",
 				"includeAnyOf": "включает любой из"
-			}
+			},
+			"selectedCount": "{{count}} selected"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} — Гант",
@@ -1580,10 +1601,7 @@
 			"error": "Не удалось удалить задачу"
 		},
 		"archive": {
-			"success_one": "{{count}} задача архивирована",
-			"success_few": "{{count}} задачи архивированы",
-			"success_many": "{{count}} задач архивировано",
-			"success_other": "{{count}} задач архивировано"
+			"success": "Archived {{count}} tasks"
 		},
 		"listView": {
 			"addTask": "Добавить задачу",
@@ -1599,8 +1617,6 @@
 			"open": "Открыт",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_few": "{{count}} PR",
-			"count_many": "{{count}} PR",
 			"count_other": "{{count}} PR"
 		},
 		"assignee": {
@@ -1633,63 +1649,36 @@
 			"delete": "Удалить..."
 		},
 		"bulk": {
-			"selectedCount_one": "{{count}} выбрана",
-			"selectedCount_few": "{{count}} выбраны",
-			"selectedCount_many": "{{count}} выбрано",
-			"selectedCount_other": "{{count}} выбрано",
 			"moveToBacklog": "Переместить в бэклог",
-			"moveToBacklogSuccess_one": "{{count}} задача перемещена в бэклог",
-			"moveToBacklogSuccess_few": "{{count}} задачи перемещены в бэклог",
-			"moveToBacklogSuccess_many": "{{count}} задач перемещено в бэклог",
-			"moveToBacklogSuccess_other": "{{count}} задач перемещено в бэклог",
 			"moveToBacklogError": "Не удалось переместить задачи в бэклог",
 			"moveToBoard": "Переместить на доску",
-			"moveToBoardSuccess_one": "{{count}} задача перемещена на доску",
-			"moveToBoardSuccess_few": "{{count}} задачи перемещены на доску",
-			"moveToBoardSuccess_many": "{{count}} задач перемещено на доску",
-			"moveToBoardSuccess_other": "{{count}} задач перемещено на доску",
 			"moveToBoardError": "Не удалось переместить задачи на доску",
 			"delete": "Удалить задачи",
-			"deleteConfirm_one": "Удалить {{count}} задачу? Это действие нельзя отменить.",
-			"deleteConfirm_few": "Удалить {{count}} задачи? Это действие нельзя отменить.",
-			"deleteConfirm_many": "Удалить {{count}} задач? Это действие нельзя отменить.",
-			"deleteConfirm_other": "Удалить {{count}} задач? Это действие нельзя отменить.",
-			"deleteSuccess_one": "{{count}} задача удалена",
-			"deleteSuccess_few": "{{count}} задачи удалены",
-			"deleteSuccess_many": "{{count}} задач удалено",
-			"deleteSuccess_other": "{{count}} задач удалено",
 			"deleteError": "Не удалось удалить задачи",
 			"archive": "Архивировать задачи",
-			"archiveSuccess_one": "{{count}} задача архивирована",
-			"archiveSuccess_few": "{{count}} задачи архивированы",
-			"archiveSuccess_many": "{{count}} задач архивировано",
-			"archiveSuccess_other": "{{count}} задач архивировано",
 			"archiveError": "Не удалось архивировать задачи",
-			"updateSuccess_one": "{{count}} задача обновлена",
-			"updateSuccess_few": "{{count}} задачи обновлены",
-			"updateSuccess_many": "{{count}} задач обновлено",
-			"updateSuccess_other": "{{count}} задач обновлено",
 			"updateError": "Не удалось обновить задачи",
 			"assignTo": "Назначить на",
-			"assignSuccess_one": "{{count}} задача назначена",
-			"assignSuccess_few": "{{count}} задачи назначены",
-			"assignSuccess_many": "{{count}} задач назначено",
-			"assignSuccess_other": "{{count}} задач назначено",
 			"assignError": "Не удалось назначить задачи",
 			"setPriority": "Установить приоритет",
 			"updatePriorityError": "Не удалось обновить приоритет",
 			"addLabel": "Добавить метку",
-			"addLabelSuccess_one": "Метка добавлена к {{count}} задаче",
-			"addLabelSuccess_few": "Метка добавлена к {{count}} задачам",
-			"addLabelSuccess_many": "Метка добавлена к {{count}} задачам",
-			"addLabelSuccess_other": "Метка добавлена к {{count}} задачам",
 			"addLabelError": "Не удалось добавить метку",
 			"setDueDate": "Установить срок",
 			"updateDueDateError": "Не удалось обновить срок выполнения",
 			"actions": "Действия",
 			"searchActions": "Поиск действий...",
 			"noActionsFound": "Действия не найдены.",
-			"changeStatus": "Изменить статус"
+			"changeStatus": "Изменить статус",
+			"addLabelSuccess": "Label added to {{count}} tasks",
+			"archiveSuccess": "{{count}} tasks archived",
+			"assignSuccess": "{{count}} tasks assigned",
+			"deleteConfirm": "Delete {{count}} tasks? This action cannot be undone.",
+			"deleteSuccess": "{{count}} tasks deleted",
+			"moveToBacklogSuccess": "{{count}} tasks moved to backlog",
+			"moveToBoardSuccess": "{{count}} tasks moved to board",
+			"selectedCount": "{{count}} selected",
+			"updateSuccess": "{{count}} tasks updated"
 		}
 	},
 	"invitations": {
@@ -1728,7 +1717,8 @@
 				"complete": "Завершён",
 				"inProgress": "В работе"
 			},
-			"noDueDate": "Без срока"
+			"noDueDate": "Без срока",
+			"emptyDescriptionReadOnly": "There are no projects in this workspace yet. Ask an admin to create one."
 		},
 		"search": {
 			"pageTitle": "Поиск",
@@ -1737,8 +1727,6 @@
 			"hint": "Поиск по всем проектам в этой рабочей области. Используйте короткие ID, такие как DEP-23, чтобы найти конкретные задачи.",
 			"searching": "Поиск...",
 			"resultsFound_one": "Найден {{count}} результат",
-			"resultsFound_few": "Найдено {{count}} результата",
-			"resultsFound_many": "Найдено {{count}} результатов",
 			"resultsFound_other": "Найдено {{count}} результатов",
 			"noResultsTitle": "Результатов не найдено",
 			"noResultsDescription": "Попробуйте изменить поисковый запрос или поискать что-то другое",
@@ -1770,11 +1758,13 @@
 		"roles": {
 			"owner": "Владелец",
 			"admin": "Администратор",
-			"member": "Участник"
+			"member": "Участник",
+			"viewer": "Viewer"
 		},
 		"members": {
 			"pageTitle": "Участники",
-			"inviteMember": "Пригласить участника"
+			"inviteMember": "Пригласить участника",
+			"you": "You"
 		},
 		"inviteModal": {
 			"title": "Пригласить участника команды",
@@ -1805,7 +1795,13 @@
 			"removeSuccess": "Участник команды успешно удалён",
 			"removeError": "Не удалось удалить участника команды",
 			"cancelInviteSuccess": "Приглашение успешно отменено",
-			"cancelInviteError": "Не удалось отменить приглашение"
+			"cancelInviteError": "Не удалось отменить приглашение",
+			"roleUpdateError": "Failed to update role",
+			"roleUpdateSuccess": "Role updated"
+		},
+		"invitations": {
+			"expires": "Expires {{date}}",
+			"pendingBadge": "pending"
 		}
 	},
 	"publicProject": {

@@ -43,7 +43,9 @@
 			"french": "Français",
 			"spanish": "Espagnol",
 			"dutch": "Néerlandais",
-			"korean": "Coréen"
+			"korean": "Coréen",
+			"russian": "Russe",
+			"ukrainian": "Ukrainien"
 		},
 		"people": {
 			"someone": "Quelqu'un",
@@ -150,7 +152,12 @@
 			"oidcError": "Échec de la connexion avec OIDC",
 			"googleError": "Échec de la connexion avec Google",
 			"githubError": "Échec de la connexion avec GitHub",
-			"discordError": "Échec de la connexion avec Discord"
+			"discordError": "Échec de la connexion avec Discord",
+			"errors": {
+				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
+			},
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"providers": {
 			"google": "Google",
@@ -185,7 +192,10 @@
 			"signingIn": "Connexion...",
 			"continueAsGuest": "Continuer en tant qu'invité",
 			"toggleMessage": "Vous avez déjà un compte?",
-			"toggleLink": "Se connecter"
+			"toggleLink": "Se connecter",
+			"instanceAdminSubtitle": "This account becomes the instance administrator with full access.",
+			"instanceAdminTitle": "Set up your Kaneo instance",
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"verifyOtp": {
 			"pageTitle": "Vérifier le code",
@@ -543,6 +553,21 @@
 			"validation": {
 				"nameRequired": "Le nom de l'espace de travail est requis",
 				"nameShort": "Le nom de l'espace de travail doit contenir au moins 2 caractères"
+			},
+			"transferOwnership": {
+				"button": "Transfer",
+				"confirm": "Transfer ownership",
+				"dialogDescription": "{{name}} will become the sole owner of {{workspace}}. You'll keep admin access but lose owner-only abilities like deleting the workspace or transferring it again.",
+				"dialogTitle": "Transfer ownership?",
+				"noEligibleMembers": "Invite at least one other member before you can transfer ownership.",
+				"pickerHint": "They become the sole owner of this workspace.",
+				"pickerLabel": "New owner",
+				"pickerPlaceholder": "Select a member",
+				"subtitle": "Hand this workspace over to another member. You'll be demoted to admin and lose owner-only abilities.",
+				"title": "Transfer ownership",
+				"toastError": "Failed to transfer ownership",
+				"toastSuccess": "Ownership transferred",
+				"transferring": "Transferring..."
 			}
 		},
 		"projectGeneral": {
@@ -1000,7 +1025,9 @@
 				"pr_merged": "PR Fusionné",
 				"issue_opened": "Problème Ouvert",
 				"issue_closed": "Problème Fermé"
-			}
+			},
+			"giteaHeading": "Gitea",
+			"giteaHint": "When a Gitea webhook event occurs, move the linked task to a column."
 		},
 		"externalLinks": {
 			"resources": "Ressources",
@@ -1009,6 +1036,9 @@
 			"merged": "Fusionné",
 			"draft": "Brouillon",
 			"open": "Ouvert"
+		},
+		"workspaceRoles": {
+			"title": "Roles"
 		}
 	},
 	"navigation": {
@@ -1687,7 +1717,8 @@
 				"complete": "Terminé",
 				"inProgress": "En cours"
 			},
-			"noDueDate": "Pas de date d'échéance"
+			"noDueDate": "Pas de date d'échéance",
+			"emptyDescriptionReadOnly": "There are no projects in this workspace yet. Ask an admin to create one."
 		},
 		"search": {
 			"pageTitle": "Rechercher",
@@ -1727,11 +1758,13 @@
 		"roles": {
 			"owner": "Propriétaire",
 			"admin": "Admin",
-			"member": "Membre"
+			"member": "Membre",
+			"viewer": "Viewer"
 		},
 		"members": {
 			"pageTitle": "Membres",
-			"inviteMember": "Inviter un membre"
+			"inviteMember": "Inviter un membre",
+			"you": "You"
 		},
 		"inviteModal": {
 			"title": "Inviter un membre de l'équipe",
@@ -1762,7 +1795,13 @@
 			"removeSuccess": "Membre de l'équipe supprimé avec succès",
 			"removeError": "Échec de la suppression du membre de l'équipe",
 			"cancelInviteSuccess": "Invitation annulée avec succès",
-			"cancelInviteError": "Échec de l'annulation de l'invitation"
+			"cancelInviteError": "Échec de l'annulation de l'invitation",
+			"roleUpdateError": "Failed to update role",
+			"roleUpdateSuccess": "Role updated"
+		},
+		"invitations": {
+			"expires": "Expires {{date}}",
+			"pendingBadge": "pending"
 		}
 	},
 	"publicProject": {

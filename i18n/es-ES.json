@@ -42,7 +42,10 @@
 			"macedonian": "Macedonio",
 			"french": "Francés",
 			"spanish": "Español",
-			"korean": "Coreano"
+			"korean": "Coreano",
+			"dutch": "Neerlandés",
+			"russian": "Ruso",
+			"ukrainian": "Ucraniano"
 		},
 		"people": {
 			"someone": "Alguien",
@@ -149,7 +152,12 @@
 			"oidcError": "Error al iniciar sesión con OIDC",
 			"googleError": "Error al iniciar sesión con Google",
 			"githubError": "Error al iniciar sesión con GitHub",
-			"discordError": "Error al iniciar sesión con Discord"
+			"discordError": "Error al iniciar sesión con Discord",
+			"errors": {
+				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
+			},
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"providers": {
 			"google": "Google",
@@ -184,7 +192,10 @@
 			"signingIn": "Iniciando sesión...",
 			"continueAsGuest": "Continuar como invitado",
 			"toggleMessage": "¿Ya tienes cuenta?",
-			"toggleLink": "Iniciar sesión"
+			"toggleLink": "Iniciar sesión",
+			"instanceAdminSubtitle": "This account becomes the instance administrator with full access.",
+			"instanceAdminTitle": "Set up your Kaneo instance",
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
 		},
 		"verifyOtp": {
 			"pageTitle": "Verificar Código",
@@ -453,6 +464,21 @@
 			"validation": {
 				"nameRequired": "El nombre del espacio de trabajo es obligatorio",
 				"nameShort": "El nombre del espacio de trabajo debe contener al menos 2 caracteres"
+			},
+			"transferOwnership": {
+				"button": "Transfer",
+				"confirm": "Transfer ownership",
+				"dialogDescription": "{{name}} will become the sole owner of {{workspace}}. You'll keep admin access but lose owner-only abilities like deleting the workspace or transferring it again.",
+				"dialogTitle": "Transfer ownership?",
+				"noEligibleMembers": "Invite at least one other member before you can transfer ownership.",
+				"pickerHint": "They become the sole owner of this workspace.",
+				"pickerLabel": "New owner",
+				"pickerPlaceholder": "Select a member",
+				"subtitle": "Hand this workspace over to another member. You'll be demoted to admin and lose owner-only abilities.",
+				"title": "Transfer ownership",
+				"toastError": "Failed to transfer ownership",
+				"toastSuccess": "Ownership transferred",
+				"transferring": "Transferring..."
 			}
 		},
 		"projectGeneral": {
@@ -507,7 +533,11 @@
 			"genericWebhookSectionTitle": "Webhooks generales",
 			"genericWebhookSectionSubtitle": "Envía los eventos de las tareas a cualquier endpoint HTTP como JSON.",
 			"slackSectionTitle": "Integración con Slack",
-			"slackSectionSubtitle": "Envía los eventos de las tareas a un canal de Slack con un webhook."
+			"slackSectionSubtitle": "Envía los eventos de las tareas a un canal de Slack con un webhook.",
+			"giteaSectionSubtitle": "Synchronize tasks with a self-hosted Gitea instance (issues, PRs, webhooks).",
+			"giteaSectionTitle": "Gitea Integration",
+			"telegramSectionSubtitle": "Send project task updates into a Telegram chat or topic with a bot.",
+			"telegramSectionTitle": "Telegram Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilidad del Proyecto",
@@ -786,7 +816,9 @@
 				"pr_merged": "PR mergeada",
 				"issue_opened": "Issue abierto",
 				"issue_closed": "Issue cerrado"
-			}
+			},
+			"giteaHeading": "Gitea",
+			"giteaHint": "When a Gitea webhook event occurs, move the linked task to a column."
 		},
 		"externalLinks": {
 			"resources": "Recursos",
@@ -795,6 +827,218 @@
 			"merged": "Merged",
 			"draft": "Borrador",
 			"open": "Abierta"
+		},
+		"giteaIntegration": {
+			"actionsHint": "Verify access and connect",
+			"actionsTitle": "Actions",
+			"badgeConnected": "Connected",
+			"badgeNotConnected": "Not connected",
+			"baseUrlHint": "Root URL of your Gitea instance",
+			"baseUrlLabel": "Gitea URL",
+			"browse": "Browse",
+			"browseModalHint": "Repositories your token can access",
+			"browseModalTitle": "Your repositories",
+			"browseNeedsCredentials": "Enter Gitea URL and token to browse",
+			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
+			"connect": "Connect",
+			"connectedActive": "Repository connected and active",
+			"connectionStatus": "Connection status",
+			"currentToken": "stored",
+			"disconnect": "Disconnect",
+			"importDisabledHint": "Verify the repository above to enable importing",
+			"importing": "Importing…",
+			"importIssues": "Import issues",
+			"importSectionHint": "Import open issues and pull requests from the repository",
+			"importSectionTitle": "Import Gitea issues",
+			"loadingRepos": "Loading repositories…",
+			"notConnectedHint": "No Gitea repository connected",
+			"ownerHint": "User or organization name",
+			"ownerLabel": "Owner",
+			"repoNameHint": "Repository name only (no owner)",
+			"repoNameLabel": "Repository name",
+			"repository": "Repository",
+			"repositoryHint": "Linked Gitea repository",
+			"retry": "Retry",
+			"searchRepos": "Search…",
+			"toast": {
+				"commentOnDisabled": "Task link comments on new issues are turned off",
+				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
+				"importError": "Failed to import issues",
+				"issuesImported": "Issues imported successfully",
+				"removed": "Gitea integration removed",
+				"removeError": "Failed to remove Gitea integration",
+				"repoNotFound": "Repository not found or not accessible",
+				"secretCopied": "Copied",
+				"settingsUpdateError": "Failed to update Gitea integration",
+				"tokenRequired": "Personal access token is required",
+				"tokenRequiredVerify": "Enter a token to verify",
+				"unableToCopySecret": "Unable to copy secret",
+				"updated": "Gitea integration saved",
+				"updateError": "Failed to save Gitea integration",
+				"verifyError": "Failed to verify Gitea access",
+				"verifyFirst": "Verify access failed — check URL, token, and repository",
+				"verifyOk": "Gitea token can access this repository",
+				"verifyWarning": "Check token permissions or repository access"
+			},
+			"tokenHint": "Token with repo and issues access",
+			"tokenLabel": "Personal access token",
+			"tokenPlaceholder": "Paste token",
+			"tokenPlaceholderUpdate": "Paste new token to rotate",
+			"update": "Update",
+			"validation": {
+				"baseUrlInvalid": "Enter a valid URL (e.g. https://gitea.example.com)",
+				"baseUrlRequired": "Gitea base URL is required",
+				"nameInvalid": "Invalid repository name format",
+				"nameRequired": "Repository name is required",
+				"ownerInvalid": "Invalid repository owner format",
+				"ownerRequired": "Repository owner is required"
+			},
+			"verify": "Verify",
+			"webhookCopy": "Copy",
+			"webhookHide": "Hide",
+			"webhookHint": "In your Gitea repository, add a webhook with this URL and secret. Enable push, pull request, issues, issue comments, and create (for labels).",
+			"webhookSecretLabel": "Secret (must match the webhook secret in Gitea)",
+			"webhookShow": "Show",
+			"webhookTitle": "Webhook"
+		},
+		"notifications": "Notifications",
+		"notificationsPage": {
+			"accountEmailHint": "Email delivery always goes to the signed-in account email.",
+			"accountEmailLabel": "Account email",
+			"accountEmailNoAddress": "No account email available",
+			"allProjects": "All projects",
+			"allProjectsDescription": "Deliver notifications from every project in this workspace.",
+			"connectGotify": "Connect Gotify",
+			"connectNtfy": "Connect ntfy",
+			"connectWebhook": "Connect webhook",
+			"createRule": "Create rule",
+			"disconnect": "Disconnect",
+			"emailChannelHintDisabled": "Configure and enable email globally first.",
+			"emailChannelHintEnabled": "Send matching workspace notifications by email.",
+			"emailDescription": "Use your account email as the destination for notifications.",
+			"emailTitle": "Email",
+			"endpointUrl": "Endpoint URL",
+			"gotifyChannelHintDisabled": "Configure and enable Gotify globally first.",
+			"gotifyChannelHintEnabled": "Send matching workspace notifications to Gotify.",
+			"gotifyDescription": "Send account notifications to your Gotify server.",
+			"gotifyServerPlaceholder": "https://gotify.example.com",
+			"gotifyTitle": "Gotify",
+			"gotifyTokenHintConfigured": "An app token is already configured ({{masked}}). Enter a new token to replace it.",
+			"gotifyTokenHintRequired": "Required. Use an application token from your Gotify server.",
+			"gotifyTokenLabel": "App token",
+			"gotifyTokenPlaceholder": "Gotify app token",
+			"noProjectsInWorkspace": "No projects available for this workspace yet.",
+			"ntfyChannelHintDisabled": "Configure and enable ntfy globally first.",
+			"ntfyChannelHintEnabled": "Send matching workspace notifications to ntfy.",
+			"ntfyDescription": "Publish account notifications to an ntfy topic.",
+			"ntfyServerPlaceholder": "https://ntfy.example.com",
+			"ntfyTitle": "ntfy",
+			"ntfyTokenHintConfigured": "A token is already configured ({{masked}}). Enter a new token to replace it.",
+			"ntfyTokenHintOptional": "Optional. Provide a token if your ntfy server requires authentication.",
+			"ntfyTokenPlaceholder": "Optional bearer token",
+			"ntfyTopicPlaceholder": "team-alerts",
+			"pageTitle": "Notifications",
+			"projectScope": "Project scope",
+			"projectScopeDescription": "All projects are included by default. Narrow it down if this workspace should only send notifications from selected projects.",
+			"removeRule": "Remove rule",
+			"saveChanges": "Save changes",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only deliver notifications from chosen projects.",
+			"serverUrl": "Server URL",
+			"signingSecret": "Signing secret",
+			"statusConnected": "Connected",
+			"statusPaused": "Paused",
+			"subtitle": "Choose how Kaneo delivers your account notifications and which channels to use.",
+			"title": "Notifications",
+			"toastEmailSaved": "Email notification settings saved",
+			"toastEmailSaveFailed": "Failed to save email settings",
+			"toastGotifyDisconnected": "Gotify disconnected",
+			"toastGotifyDisconnectFailed": "Failed to disconnect Gotify",
+			"toastGotifySaved": "Gotify settings saved",
+			"toastGotifySaveFailed": "Failed to save Gotify settings",
+			"toastNtfyDisconnected": "ntfy disconnected",
+			"toastNtfyDisconnectFailed": "Failed to disconnect ntfy",
+			"toastNtfySaved": "ntfy settings saved",
+			"toastNtfySaveFailed": "Failed to save ntfy settings",
+			"toastPreferencesSaved": "Notification preferences saved",
+			"toastPreferencesSaveFailed": "Failed to save notification preferences",
+			"toastRuleRemoved": "Removed notification rule for {{workspaceName}}",
+			"toastRuleRemovedGeneric": "Workspace notification rule removed",
+			"toastRuleRemoveFailed": "Failed to remove workspace notification rule",
+			"toastRuleSaved": "Saved notification rule for {{workspaceName}}",
+			"toastRuleSavedGeneric": "Workspace notification rule saved",
+			"toastRuleSaveFailed": "Failed to save workspace notification rule",
+			"toastWebhookDisconnected": "Webhook disconnected",
+			"toastWebhookDisconnectFailed": "Failed to disconnect webhook",
+			"toastWebhookSaved": "Webhook settings saved",
+			"toastWebhookSaveFailed": "Failed to save webhook settings",
+			"token": "Token",
+			"topic": "Topic",
+			"webhookChannelHintDisabled": "Configure and enable the webhook globally first.",
+			"webhookChannelHintEnabled": "Send matching workspace notifications to your webhook.",
+			"webhookDescription": "Send account notifications to your own endpoint as JSON.",
+			"webhookSecretHintConfigured": "A signing secret is already configured ({{masked}}). Enter a new one to replace it.",
+			"webhookSecretHintOptional": "Optional. Kaneo signs the request body when a secret is set.",
+			"webhookSecretPlaceholder": "Optional shared secret",
+			"webhookTitle": "Custom webhook",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"workspaceCardHint": "Choose which channels this workspace can use for account notifications.",
+			"workspaceCardLabelEmail": "Email",
+			"workspaceCardLabelGotify": "Gotify",
+			"workspaceCardLabelNtfy": "ntfy",
+			"workspaceCardLabelWebhook": "Custom webhook",
+			"workspaceRulesDescription": "Reuse your global channels, then decide which workspaces and projects are allowed to send account notifications.",
+			"workspaceRulesTitle": "Workspace delivery rules"
+		},
+		"telegramIntegration": {
+			"botTokenHint": "Create a bot with BotFather and paste its token here.",
+			"botTokenHintConfigured": "A bot token is already configured ({{token}}). Enter a new one to replace it.",
+			"botTokenLabel": "Bot token",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"chatIdHint": "Enter the Telegram chat ID or channel username where updates should be posted.",
+			"chatIdLabel": "Chat ID",
+			"chatIdPlaceholder": "-1001234567890 or @team_updates",
+			"chatLabelHint": "Optional label for your reference inside Kaneo.",
+			"chatLabelLabel": "Chat label",
+			"chatLabelPlaceholder": "Engineering Updates",
+			"connect": "Connect Telegram",
+			"connected": "Connected",
+			"connectionHint": "Use a Telegram bot token and chat ID to send project task updates into a chat or topic.",
+			"connectionTitle": "Telegram bot connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Telegram.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"threadIdHint": "Optional. Use this for forum topics inside Telegram groups.",
+			"threadIdLabel": "Topic thread ID",
+			"threadIdPlaceholder": "Optional topic ID",
+			"toast": {
+				"disabled": "Telegram notifications paused",
+				"enabled": "Telegram notifications enabled",
+				"removed": "Telegram integration removed successfully",
+				"removeError": "Failed to remove Telegram integration",
+				"saved": "Telegram integration saved successfully",
+				"saveError": "Failed to save Telegram integration",
+				"updateError": "Failed to update Telegram integration"
+			},
+			"validation": {
+				"botTokenInvalid": "Enter a valid Telegram bot token",
+				"chatIdRequired": "Chat ID is required",
+				"threadIdInvalid": "Enter a valid Telegram topic thread ID"
+			}
+		},
+		"workspaceRoles": {
+			"title": "Roles"
 		}
 	},
 	"navigation": {
@@ -836,7 +1080,8 @@
 			"deleteConfirmTitle": "¿Eliminar proyecto?",
 			"deleteConfirmDescription": "Esto eliminará permanentemente el proyecto y todos sus datos. Esta acción no se puede deshacer.",
 			"deletedToast": "Proyecto eliminado",
-			"deleteProject": "Eliminar proyecto"
+			"deleteProject": "Eliminar proyecto",
+			"projectSettings": "Project settings"
 		},
 		"search": {
 			"inputPlaceholder": "Busca tareas, proyectos, comentarios...",
@@ -1423,6 +1668,17 @@
 			"searchActions": "Buscar acciones...",
 			"noActionsFound": "No se han encontrado acciones.",
 			"changeStatus": "Cambiar estado"
+		},
+		"move": {
+			"action": "Move task",
+			"error": "Failed to move task",
+			"projectLabel": "Destination project",
+			"projectPlaceholder": "Select a project",
+			"statusHintAdjust": "Choose the status to use in the destination project.",
+			"statusHintKeep": "This project's workflow already supports the current status.",
+			"statusLabel": "Destination status",
+			"success": "Task moved successfully",
+			"title": "Move task"
 		}
 	},
 	"invitations": {
@@ -1461,7 +1717,8 @@
 				"complete": "Completado",
 				"inProgress": "En progreso"
 			},
-			"noDueDate": "Sin fecha de vencimiento"
+			"noDueDate": "Sin fecha de vencimiento",
+			"emptyDescriptionReadOnly": "There are no projects in this workspace yet. Ask an admin to create one."
 		},
 		"search": {
 			"pageTitle": "Buscar",
@@ -1501,11 +1758,13 @@
 		"roles": {
 			"owner": "Propietario",
 			"admin": "Admin",
-			"member": "Miembro"
+			"member": "Miembro",
+			"viewer": "Viewer"
 		},
 		"members": {
 			"pageTitle": "Miembros",
-			"inviteMember": "Invitar miembro"
+			"inviteMember": "Invitar miembro",
+			"you": "You"
 		},
 		"inviteModal": {
 			"title": "Invitar miembro al equipo",
@@ -1536,7 +1795,13 @@
 			"removeSuccess": "Miembro eliminado del equipo correctamente",
 			"removeError": "Error al eliminar miembro del equipo",
 			"cancelInviteSuccess": "Invitación cancelada correctamente",
-			"cancelInviteError": "Error al cancelar invitación"
+			"cancelInviteError": "Error al cancelar invitación",
+			"roleUpdateError": "Failed to update role",
+			"roleUpdateSuccess": "Role updated"
+		},
+		"invitations": {
+			"expires": "Expires {{date}}",
+			"pendingBadge": "pending"
 		}
 	},
 	"publicProject": {

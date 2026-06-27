@@ -10,14 +10,14 @@ import ruRU from "./ru-RU.json";
 import ukUA from "./uk-UA.json";
 
 export const supportedLocales = [
-  "mk-MK",
-  "nl-NL",
   "de-DE",
   "el-GR",
   "en-US",
   "es-ES",
   "fr-FR",
   "ko-KR",
+  "mk-MK",
+  "nl-NL",
   "ru-RU",
   "uk-UA",
 ] as const;
@@ -27,14 +27,14 @@ export type AppLocale = (typeof supportedLocales)[number];
 export const defaultLocale: AppLocale = "en-US";
 
 export const resources = {
-  "mk-MK": mkMK,
-  "nl-NL": nlNL,
-  "en-US": enUS,
   "de-DE": deDE,
   "el-GR": elGR,
-  "fr-FR": frFR,
+  "en-US": enUS,
   "es-ES": esES,
+  "fr-FR": frFR,
   "ko-KR": koKR,
+  "mk-MK": mkMK,
+  "nl-NL": nlNL,
   "ru-RU": ruRU,
   "uk-UA": ukUA,
-} as const;
+} as const satisfies Record<AppLocale, typeof enUS>;

@@ -43,7 +43,9 @@
 			"french": "French",
 			"spanish": "Spanish",
 			"dutch": "Dutch",
-			"korean": "Korean"
+			"korean": "Korean",
+			"russian": "Russian",
+			"ukrainian": "Ukrainian"
 		},
 		"people": {
 			"someone": "Someone",
@@ -143,6 +145,7 @@
 			"lastUsed": "Last used",
 			"registrationDisabled": "Public registration is disabled. Use an invitation to create an account.",
 			"passwordRegistrationDisabled": "Password registration is disabled. Use a configured social or OIDC sign-in method to create an account.",
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment.",
 			"toggleMessage": "Don't have an account?",
 			"toggleLink": "Create account",
 			"guestSuccess": "Signed in as guest",
@@ -187,6 +190,9 @@
 			"registrationDisabledAlert": "Registration is currently disabled. If you were invited, enter the email address that received the invitation to create your account.",
 			"passwordDisabledAlert": "Password-based account creation is disabled. Use a configured social or OIDC sign-in method from the sign-in page.",
 			"signingIn": "Signing in...",
+			"instanceAdminTitle": "Set up your Kaneo instance",
+			"instanceAdminSubtitle": "This account becomes the instance administrator with full access.",
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment.",
 			"continueAsGuest": "Continue as guest",
 			"toggleMessage": "Already have an account?",
 			"toggleLink": "Sign in"
@@ -544,10 +550,28 @@
 			"toastUpdateError": "Failed to update workspace",
 			"toastDeleted": "Workspace deleted successfully",
 			"toastDeleteError": "Failed to delete workspace",
+			"transferOwnership": {
+				"title": "Transfer ownership",
+				"subtitle": "Hand this workspace over to another member. You'll be demoted to admin and lose owner-only abilities.",
+				"pickerLabel": "New owner",
+				"noEligibleMembers": "Invite at least one other member before you can transfer ownership.",
+				"pickerHint": "They become the sole owner of this workspace.",
+				"pickerPlaceholder": "Select a member",
+				"button": "Transfer",
+				"dialogTitle": "Transfer ownership?",
+				"dialogDescription": "{{name}} will become the sole owner of {{workspace}}. You'll keep admin access but lose owner-only abilities like deleting the workspace or transferring it again.",
+				"transferring": "Transferring...",
+				"confirm": "Transfer ownership",
+				"toastSuccess": "Ownership transferred",
+				"toastError": "Failed to transfer ownership"
+			},
 			"validation": {
 				"nameRequired": "Workspace name is required",
 				"nameShort": "Workspace name must be at least 2 characters"
 			}
+		},
+		"workspaceRoles": {
+			"title": "Roles"
 		},
 		"projectGeneral": {
 			"pageTitle": "Project Settings",
@@ -1739,7 +1763,12 @@
 		},
 		"members": {
 			"pageTitle": "Members",
-			"inviteMember": "Invite member"
+			"inviteMember": "Invite member",
+			"you": "You"
+		},
+		"invitations": {
+			"pendingBadge": "pending",
+			"expires": "Expires {{date}}"
 		},
 		"inviteModal": {
 			"title": "Invite Team Member",
