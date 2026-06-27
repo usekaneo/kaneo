@@ -114,4 +114,5 @@ On the first tool call that needs Kaneo, the server:
 - Projects: `list_projects`, `get_project`, `create_project`, `update_project`
 - Tasks: `list_tasks`, `get_task`, `create_task`, `update_task`, `move_task`, `update_task_status`
 - Comments: `list_task_comments`, `create_task_comment`
-- Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`
+- Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`
+- Task relations: `create_task_relation`, `get_task_relations`, `delete_task_relation`
