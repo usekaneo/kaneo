@@ -101,7 +101,7 @@ volumes:
   postgres_data:
 ```
 
-Save this as `compose.yml`, create a `.env` file with `KANEO_CLIENT_URL=http://localhost:5173`, `POSTGRES_PASSWORD=<password>`, and `AUTH_SECRET=<output of openssl rand -hex 32>`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
+Save this as `compose.yml`, copy `.env.sample` to `.env` and set `POSTGRES_PASSWORD=<password>` and `AUTH_SECRET=<output of openssl rand -hex 32>`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
 In Docker Compose, the bundled Kaneo container reaches PostgreSQL at the service hostname `postgres`.
 If you run the API on your host instead of inside Compose, use `localhost` or set `DATABASE_URL` explicitly.
