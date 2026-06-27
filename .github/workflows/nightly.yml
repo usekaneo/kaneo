@@ -12,11 +12,11 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   verify:
     name: Verify nightly build
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -41,7 +41,7 @@ jobs:
       DISABLE_GUEST_ACCESS: "false"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -72,7 +72,11 @@ jobs:
   publish-images:
     name: Publish nightly images
     needs: verify
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -85,7 +89,7 @@ jobs:
             image: ghcr.io/${{ github.repository_owner }}/api
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -107,7 +111,7 @@ jobs:
           images: ${{ matrix.image }}
           tags: |
             type=raw,value=nightly
-            type=schedule,pattern=nightly-{{date 'YYYYMMDD'}}
+            type=raw,value=nightly-{{date 'YYYYMMDD'}}
             type=sha,prefix=nightly-
 
       - name: Build and push
