@@ -249,83 +249,85 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
           </TooltipProvider>
 
           <DropdownMenuContent align="end" className="w-80 p-0">
-            <div className="flex items-center justify-between px-3 py-2 border-b">
-              <h3 className="font-medium text-sm">
-                {t("notifications:title")}
-              </h3>
-              {unreadNotifications.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
-                  {t("notifications:newCount", {
-                    count: unreadNotifications.length,
-                  })}
-                </Badge>
-              )}
-            </div>
-
-            <div className="relative max-h-96 overflow-y-auto">
-              {!hasNotifications ? (
-                <div className="p-6 text-center text-sm text-muted-foreground">
-                  <Bell className="mx-auto h-12 w-12 opacity-50 mb-2" />
-                  <p>{t("notifications:emptyTitle")}</p>
-                  <p className="text-xs mt-1">
-                    {t("notifications:emptySubtitle")}
-                  </p>
-                </div>
-              ) : (
-                notifications.map((notification) => (
-                  <DropdownMenuItem
-                    key={notification.id}
-                    onClick={() => handleNotificationClick(notification)}
-                    className={cn(
-                      "px-3 py-3 border-b border-border/50 rounded-none cursor-pointer",
-                      !notification.isRead && "bg-accent/20",
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="text-sm font-medium text-foreground">
-                            {getNotificationTitle(notification, t)}
-                          </h4>
-                          {!notification.isRead && (
-                            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-                          )}
-                        </div>
-                        {getNotificationContent(notification, t) && (
-                          <p className="text-xs text-muted-foreground line-clamp-2">
-                            {getNotificationContent(notification, t)}
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {formatRelativeTime(notification.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  </DropdownMenuItem>
-                ))
-              )}
-            </div>
-            {hasNotifications && (
-              <div className="border-t border-border p-2 flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => markAllAsRead()}
-                  disabled={unreadNotifications.length === 0}
-                  className="flex-1 text-xs"
-                >
-                  {t("common:actions.markAllRead")}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowClearDialog(true)}
-                  className="flex-1 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  {t("notifications:clearAll")}
-                </Button>
+            <div className="-m-1 overflow-hidden rounded-lg">
+              <div className="flex items-center justify-between px-3 py-2 border-b">
+                <h3 className="font-medium text-sm">
+                  {t("notifications:title")}
+                </h3>
+                {unreadNotifications.length > 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    {t("notifications:newCount", {
+                      count: unreadNotifications.length,
+                    })}
+                  </Badge>
+                )}
               </div>
-            )}
+
+              <div className="relative max-h-96 overflow-y-auto">
+                {!hasNotifications ? (
+                  <div className="p-6 text-center text-sm text-muted-foreground">
+                    <Bell className="mx-auto h-12 w-12 opacity-50 mb-2" />
+                    <p>{t("notifications:emptyTitle")}</p>
+                    <p className="text-xs mt-1">
+                      {t("notifications:emptySubtitle")}
+                    </p>
+                  </div>
+                ) : (
+                  notifications.map((notification) => (
+                    <DropdownMenuItem
+                      key={notification.id}
+                      onClick={() => handleNotificationClick(notification)}
+                      className={cn(
+                        "px-3 py-3 border-b border-border/50 rounded-none cursor-pointer",
+                        !notification.isRead && "bg-accent/20",
+                      )}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-sm font-medium text-foreground">
+                              {getNotificationTitle(notification, t)}
+                            </h4>
+                            {!notification.isRead && (
+                              <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
+                            )}
+                          </div>
+                          {getNotificationContent(notification, t) && (
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {getNotificationContent(notification, t)}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {formatRelativeTime(notification.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </div>
+              {hasNotifications && (
+                <div className="border-t border-border p-2 flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => markAllAsRead()}
+                    disabled={unreadNotifications.length === 0}
+                    className="flex-1 text-xs"
+                  >
+                    {t("common:actions.markAllRead")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowClearDialog(true)}
+                    className="flex-1 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    {t("notifications:clearAll")}
+                  </Button>
+                </div>
+              )}
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
 

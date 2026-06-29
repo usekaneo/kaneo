@@ -8,7 +8,6 @@ function useGetTask(taskId: string) {
     enabled: Boolean(taskId),
     refetchOnMount: "always",
     staleTime: 0,
-    enabled: Boolean(taskId),
   });
 }
 
