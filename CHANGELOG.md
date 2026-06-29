@@ -1,3 +1,43 @@
+## [2.7.8](https://github.com/usekaneo/kaneo/compare/v2.7.7...v2.7.8) (2026-06-29)
+
+
+### Bug Fixes
+
+* add enabled guard to useGetTask ([b689d48](https://github.com/usekaneo/kaneo/commit/b689d48de18993be7d07db84be690cf3680490e2))
+* add WebSocket keepalive pings and DB connection timeouts ([#1323](https://github.com/usekaneo/kaneo/issues/1323)) ([6ae96c6](https://github.com/usekaneo/kaneo/commit/6ae96c6d6fbbef947440c7b6baa3a712c50ed9a9))
+* auto-login failure can leave the sign-in page permanently stuck on skeleton ([e29bebb](https://github.com/usekaneo/kaneo/commit/e29bebb9c5dbb7372e7e76eb498c6f40c3917dd9))
+* **bug:** added normalizedApiServerUrl to resolve asset url ([5b9633e](https://github.com/usekaneo/kaneo/commit/5b9633e8402b69b6905477e377fcff93907b3d81))
+* **bug:** derive fallback asset URL from request origin instead of hardcoded localhost:1337 ([686a0cb](https://github.com/usekaneo/kaneo/commit/686a0cbd3318ab324bf1b46eced045f5d2453d30))
+* **command-palette:** default to planned status when creating a task from backlog ([020ec96](https://github.com/usekaneo/kaneo/commit/020ec962e44fa30f5c005289de7ca4adc8f5c7c4))
+* **comment:** improve comment formatting in task event publication. ([02dec8e](https://github.com/usekaneo/kaneo/commit/02dec8e34818a0909513c405e61fe6707140936e))
+* **deps:** allow @hono/node-server v2 so the [#1292](https://github.com/usekaneo/kaneo/issues/1292) upgrade takes effect ([#1313](https://github.com/usekaneo/kaneo/issues/1313)) ([b527638](https://github.com/usekaneo/kaneo/commit/b52763822bb8144a52d549151359b05ffb404fd2))
+* **docker:** bump pinned nginx to 1.28.3-r4 ([97388a0](https://github.com/usekaneo/kaneo/commit/97388a0d5397e20ec1beb3b1ff03238d770104a0))
+* **docs:** resolves bug 1346 ([#1350](https://github.com/usekaneo/kaneo/issues/1350)) ([709453f](https://github.com/usekaneo/kaneo/commit/709453fd87a2c5ed6fa18b924510d2b6bc5cbaf4))
+* **docs:** resolving qodo suggestions ([72caad9](https://github.com/usekaneo/kaneo/commit/72caad9bd04d94767691475fd9af8efc93db5b9d))
+* **docs:** updating README.md for helm chart. Replaced steps and added clear direction ([53a245d](https://github.com/usekaneo/kaneo/commit/53a245dac23f6178d963c2609731e2a63b2a7712))
+* **editor:** add table row/column controls to the bubble menu ([adde63d](https://github.com/usekaneo/kaneo/commit/adde63db46b6a6d38059c262c39f1ad7f9c01b9a))
+* errorCallbackURL redirect loop, empty <p>, integration test ([81c5d6a](https://github.com/usekaneo/kaneo/commit/81c5d6a8255bbbc204231404c1bd3f3efa485c2e))
+* **github-integration:** surface server error text on verify failure ([781274d](https://github.com/usekaneo/kaneo/commit/781274d0af5cb683d86277275139d08f49d5e593))
+* **helm:** define KANEO_POSTGRES_PASSWORD before DATABASE_URL ([#1309](https://github.com/usekaneo/kaneo/issues/1309)) ([ac43e74](https://github.com/usekaneo/kaneo/commit/ac43e74d928b564c77b27a0753b0febb83034325))
+* **helm:** resolve agent reviews and suggestions ([9380e69](https://github.com/usekaneo/kaneo/commit/9380e698539271cf0ac8cad8e2e96fff34bfe5ef))
+* **mcp:** guard delete_label against workspace labels ([27b8304](https://github.com/usekaneo/kaneo/commit/27b83048bd1c310688adc9c9113e57a79c554179))
+* **notifications:** full-bleed inbox dropdown and drop duplicate query key ([8c1e212](https://github.com/usekaneo/kaneo/commit/8c1e21265e82b5538ea5fa0376ac003e257d03d5)), closes [#1324](https://github.com/usekaneo/kaneo/issues/1324) [#1323](https://github.com/usekaneo/kaneo/issues/1323)
+* **permissions:** let members with create-only permission create tasks ([e71a8f9](https://github.com/usekaneo/kaneo/commit/e71a8f98d639a8a3a887160d0cb27d755294aedf))
+* **task-relations:** distinguish "blocked by" from "blocks" ([867df7d](https://github.com/usekaneo/kaneo/commit/867df7d4b8ce4b92cec6513eaba468d910d499f8))
+* **tests:** added integration tests for fix validation ([caba382](https://github.com/usekaneo/kaneo/commit/caba3829de12ba84efb9c9d8d2b5cc3bf0ae617b))
+* use custom column names in webhook status reports ([#1343](https://github.com/usekaneo/kaneo/issues/1343)) ([8ef65f0](https://github.com/usekaneo/kaneo/commit/8ef65f02ad1463295eec1e2265d2a087bd1aa9f2))
+* use LF line endings in husky commit-msg hook ([4a9fe04](https://github.com/usekaneo/kaneo/commit/4a9fe04a8f5dc417d6fcd24e40262aeb5360d788))
+
+
+### Features
+
+* **ci:** add helm chart publishing ([9b141f3](https://github.com/usekaneo/kaneo/commit/9b141f369e55e70b78e68925b2d4d2eaad5052e6))
+* **comments:** allow users to delete their own comments ([#1322](https://github.com/usekaneo/kaneo/issues/1322)) ([02e1712](https://github.com/usekaneo/kaneo/commit/02e1712e3cce44a727fc77f524f40df423f61a34))
+* custom OAuth auto login, allow disabling the Login Form ([97b2b98](https://github.com/usekaneo/kaneo/commit/97b2b98aa955fc6ee61961a98559ce427a38d015))
+* **helm:** prep for helm chart publishing ([1972efa](https://github.com/usekaneo/kaneo/commit/1972efa2ae1b2690e816508877bb9a300e067a12))
+* **mcp:** add task-relation and label-delete tools ([dfc2d9b](https://github.com/usekaneo/kaneo/commit/dfc2d9b0f47286d5a279fb44c12e4430c8592275))
+* **notifications:** notification inbox with real-time WebSocket updates ([#1324](https://github.com/usekaneo/kaneo/issues/1324)) ([3c09c5b](https://github.com/usekaneo/kaneo/commit/3c09c5bb423116a01c2163cf200f972bc44994f2))
+* support AWS IAM roles for S3 storage ([#1342](https://github.com/usekaneo/kaneo/issues/1342)) ([089a7de](https://github.com/usekaneo/kaneo/commit/089a7de9c5b14f344dd958bb06f07c23e73e9cdf))
 ## [2.7.7](https://github.com/usekaneo/kaneo/compare/v2.7.6...v2.7.7) (2026-05-29)
 
 
