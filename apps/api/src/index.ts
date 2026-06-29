@@ -77,8 +77,10 @@ import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 import {
   addConnection,
+  addUserConnection,
   initializeWebSocketAdapter,
   removeConnection,
+  removeUserConnection,
   shutdownWebSocketAdapter,
 } from "./ws";
 
@@ -543,6 +545,57 @@ export function createApp() {
         "",
       ),
     ),
+  );
+
+  // User-scoped WebSocket endpoint — MUST be registered before /ws/:projectId
+  // so the literal path "user" isn't consumed by the param route.
+  api.get(
+    "/ws/user",
+    upgradeWebSocket(async (c) => {
+      try {
+        await authenticateApiRequest(c);
+      } catch (error) {
+        if (error instanceof HTTPException) {
+          throw error;
+        }
+        console.error("API authentication failed:", error);
+        throw new HTTPException(500, { message: "Internal Server Error" });
+      }
+
+      const userId = c.get("userId");
+      let conn: ReturnType<typeof addUserConnection> | null = null;
+
+      return {
+        onOpen(_evt, ws) {
+          if (userId) {
+            conn = addUserConnection(userId, ws);
+          }
+        },
+        onMessage(evt) {
+          try {
+            const raw =
+              typeof evt.data === "string"
+                ? evt.data
+                : Buffer.isBuffer(evt.data)
+                  ? evt.data.toString()
+                  : null;
+            if (raw) {
+              const msg = JSON.parse(raw) as { type?: string };
+              if (msg?.type === "ping") {
+                // keepalive — no-op
+              }
+            }
+          } catch {
+            // Ignore malformed messages
+          }
+        },
+        onClose() {
+          if (conn && userId) {
+            removeUserConnection(userId, conn);
+          }
+        },
+      };
+    }),
   );
 
   api.get(
