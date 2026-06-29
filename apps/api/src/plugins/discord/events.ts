@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
+  columnTable,
   projectTable,
   taskTable,
   userTable,
@@ -15,7 +16,7 @@ import type {
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
 } from "../types";
-import { postToDiscord } from "./client";
+import { postToDiscord, sanitizeDiscordContent } from "./client";
 import type { DiscordConfig, DiscordEventKey } from "./config";
 import { normalizeDiscordConfig } from "./config";
 
@@ -25,7 +26,8 @@ type DiscordEventData = {
   projectName: string;
   taskUrl: string | null;
   actorName: string | null;
-  status: string | null;
+  statusSlug: string;
+  columnName: string | null;
   priority: string | null;
 };
 
@@ -72,6 +74,7 @@ async function getDiscordEventData(
       number: taskTable.number,
       status: taskTable.status,
       priority: taskTable.priority,
+      columnName: columnTable.name,
       projectName: projectTable.name,
       projectId: projectTable.id,
       workspaceId: workspaceTable.id,
@@ -79,6 +82,13 @@ async function getDiscordEventData(
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .innerJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
+    .leftJoin(
+      columnTable,
+      and(
+        eq(taskTable.columnId, columnTable.id),
+        eq(columnTable.projectId, projectTable.id),
+      ),
+    )
     .where(and(eq(taskTable.id, taskId), eq(projectTable.id, projectId)))
     .limit(1);
 
@@ -105,7 +115,8 @@ async function getDiscordEventData(
     projectName: taskRow.projectName,
     taskUrl,
     actorName: user?.name ?? null,
-    status: taskRow.status,
+    statusSlug: taskRow.status,
+    columnName: taskRow.columnName,
     priority: taskRow.priority,
   };
 }
@@ -119,43 +130,54 @@ async function sendDiscordMessage(
   const issueKey =
     data.taskNumber !== null ? `#${data.taskNumber}` : "Task update";
   const taskLabel = `${issueKey} ${data.taskTitle}`;
+  const safeTitle = sanitizeDiscordContent(title);
+  const safeBody = sanitizeDiscordContent(body);
+  const safeTaskLabel = sanitizeDiscordContent(taskLabel);
+  const safeProjectName = sanitizeDiscordContent(data.projectName);
+  const safeStatus = sanitizeDiscordContent(
+    data.columnName ?? toSentenceCase(data.statusSlug),
+  );
+  const safePriority = sanitizeDiscordContent(toSentenceCase(data.priority));
+  const safeActor = data.actorName
+    ? sanitizeDiscordContent(data.actorName)
+    : null;
 
   try {
     await postToDiscord(config.webhookUrl, {
-      content: `${title}: ${data.taskTitle}`,
+      content: `${safeTitle}: ${safeTaskLabel}`,
       embeds: [
         {
-          title,
-          description: body,
+          title: safeTitle,
+          description: safeBody,
           url: data.taskUrl ?? undefined,
           color: 0x5865f2,
           fields: [
             {
               name: "Task",
               value: data.taskUrl
-                ? `[${taskLabel}](${data.taskUrl})`
-                : taskLabel,
+                ? `[${safeTaskLabel}](${data.taskUrl})`
+                : safeTaskLabel,
               inline: true,
             },
             {
               name: "Project",
-              value: data.projectName,
+              value: safeProjectName,
               inline: true,
             },
             {
               name: "Status",
-              value: toSentenceCase(data.status),
+              value: safeStatus,
               inline: true,
             },
             {
               name: "Priority",
-              value: toSentenceCase(data.priority),
+              value: safePriority,
               inline: true,
             },
           ],
           footer: {
-            text: data.actorName
-              ? `Triggered by ${data.actorName}`
+            text: safeActor
+              ? `Triggered by ${safeActor}`
               : "Triggered by Kaneo",
           },
         },
