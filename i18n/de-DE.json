@@ -601,7 +601,9 @@
 			"slackSectionTitle": "Slack-Integration",
 			"slackSectionSubtitle": "Sende Projektaktualisierungen per Incoming Webhook in einen Slack-Kanal.",
 			"telegramSectionTitle": "Telegram-Integration",
-			"telegramSectionSubtitle": "Sende Projektaktualisierungen mit einem Bot in einen Telegram-Chat oder ein Thema."
+			"telegramSectionSubtitle": "Sende Projektaktualisierungen mit einem Bot in einen Telegram-Chat oder ein Thema.",
+			"mattermostSectionTitle": "Mattermost Integration",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook."
 		},
 		"projectVisibility": {
 			"pageTitle": "Projektsichtbarkeit",
@@ -1011,6 +1013,44 @@
 			"merged": "Zusammengeführt",
 			"draft": "Entwurf",
 			"open": "Offen"
+		},
+		"mattermostIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"toast": {
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"enabled": "Mattermost notifications enabled",
+				"disabled": "Mattermost notifications paused",
+				"updateError": "Failed to update Mattermost integration",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration"
+			},
+			"connectionTitle": "Mattermost webhook connection",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/...",
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "town-square",
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect Mattermost",
+			"saveChanges": "Save changes",
+			"update": "Update Mattermost",
+			"disconnect": "Disconnect"
 		}
 	},
 	"navigation": {
