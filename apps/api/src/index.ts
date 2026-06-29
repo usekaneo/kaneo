@@ -68,6 +68,7 @@ import {
   normalizeApiServerUrl,
   normalizeEmptyAndEnumSchemas,
   normalizeEmptyRequiredArrays,
+  normalizeMalformedPropertySchemas,
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
 } from "./utils/openapi-spec";
@@ -365,7 +366,9 @@ export function createApp() {
             normalizeNullableSchemasForOpenApi30(
               normalizeEmptyAndEnumSchemas(
                 normalizeEmptyRequiredArrays(
-                  mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+                  normalizeMalformedPropertySchemas(
+                    mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+                  ),
                 ),
               ),
             ),
