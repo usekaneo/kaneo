@@ -40,10 +40,10 @@ This section will cover all the variables related to the database.
 
 Name | Description |
 --- | --- |
-| `DATABASE_URL` | The URL of the PostgreSQL database.
-| `POSTGRES_DB` | The name of the PostgreSQL database.
-| `POSTGRES_USER` | The username for the PostgreSQL database.
-| `POSTGRES_PASSWORD` | The password for the PostgreSQL database.
+| `DATABASE_URL` | The full PostgreSQL connection string, in the format `postgresql://[user]:[password]@[host]:[port]/[database]`. Example: `postgresql://kaneo:kaneo@localhost:5432/kaneo`. The user/password/database must match the `POSTGRES_*` values below.
+| `POSTGRES_DB` | The name of the PostgreSQL database. Example: `kaneo`.
+| `POSTGRES_USER` | The username for the PostgreSQL database. Example: `kaneo`.
+| `POSTGRES_PASSWORD` | The password for the PostgreSQL database. Use a strong value in production.
 
 ### Authentication
 
@@ -85,6 +85,12 @@ Name | Description | Default |
 | `DISABLE_PASSWORD_REGISTRATION` | Disable password-based account creation. When set to `true`, email/password sign-up is blocked, but social/OIDC registration remains available unless `DISABLE_REGISTRATION=true`. | `false` |
 | `DISABLE_LOGIN_FORM` | Hide the email/password login form on the sign-in page. When set to `true`, only SSO/OAuth buttons are shown. Useful when you want to enforce authentication exclusively through an external identity provider. | `false` |
 | `CUSTOM_OAUTH_AUTO_LOGIN` | Automatically redirect to the custom OAuth/OIDC provider instead of showing the sign-in page. When set to `true`, users are immediately redirected to your identity provider without seeing the login page. Requires a custom OAuth provider to be configured. | `false` |
+
+### Notifications
+
+Name | Description | Default |
+--- | --- | --- |
+| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks) that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Only enable on a trusted, isolated deployment. | `false` |
 
 ### GitHub SSO
 

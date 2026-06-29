@@ -49,6 +49,7 @@ Kaneo supports many optional configuration options including:
 - Access control settings
 - CORS configuration
 - Redis for horizontal scaling
+- Private-network notification receivers (`KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` lets ntfy/Gotify/webhook destinations resolve to private addresses; off by default to prevent SSRF)
 
 #### Redis Configuration
 
