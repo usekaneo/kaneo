@@ -114,6 +114,24 @@ For another AWS region, adjust:
 
 - `S3_ENDPOINT`
 
+### Using an IAM role instead of an access key
+
+If Kaneo runs on AWS (EC2, ECS, or EKS), you can omit `S3_ACCESS_KEY_ID` and
+`S3_SECRET_ACCESS_KEY` entirely and let Kaneo authenticate with the instance's
+IAM role. Leave both unset and the AWS SDK resolves credentials from its default
+provider chain (instance profile, ECS task role, or EKS IRSA).
+
+```env
+S3_ENDPOINT=https://s3.us-east-1.amazonaws.com
+S3_BUCKET=kaneo-uploads
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=false
+# S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY omitted — the IAM role is used
+```
+
+Set both keys or neither: configuring only one is rejected. The role must allow
+`s3:PutObject`, `s3:GetObject`, and `s3:DeleteObject` on the bucket.
+
 Recommended S3 CORS policy:
 
 ```json
