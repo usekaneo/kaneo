@@ -639,6 +639,27 @@ export function createApp() {
             conn = addConnection(projectId, ws, userId, initiatorId);
           }
         },
+        onMessage(evt) {
+          // Respond to client keepalive pings (sent every 30s to prevent
+          // Cloudflare from closing idle connections at 100s timeout)
+          try {
+            const raw =
+              typeof evt.data === "string"
+                ? evt.data
+                : Buffer.isBuffer(evt.data)
+                  ? evt.data.toString()
+                  : null;
+            if (raw) {
+              const msg = JSON.parse(raw) as { type?: string };
+              if (msg?.type === "ping") {
+                // No-op: receiving the ping is enough to satisfy Cloudflare.
+                // A pong response is optional but helps confirm liveness.
+              }
+            }
+          } catch {
+            // Ignore malformed messages
+          }
+        },
         onClose() {
           if (conn && projectId) {
             removeConnection(projectId, conn);

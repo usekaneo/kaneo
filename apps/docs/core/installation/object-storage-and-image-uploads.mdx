@@ -136,8 +136,8 @@ Set these in your Kaneo deployment:
 | --- | --- |
 | `S3_ENDPOINT` | S3-compatible API endpoint used by Kaneo |
 | `S3_BUCKET` | Bucket used for uploaded files |
-| `S3_ACCESS_KEY_ID` | Access key used to create presigned upload URLs |
-| `S3_SECRET_ACCESS_KEY` | Secret key used to create presigned upload URLs |
+| `S3_ACCESS_KEY_ID` | Access key used to create presigned upload URLs. Optional when using an IAM role (see below) |
+| `S3_SECRET_ACCESS_KEY` | Secret key used to create presigned upload URLs. Optional when using an IAM role (see below) |
 | `S3_REGION` | Region used for signing |
 | `S3_FORCE_PATH_STYLE` | Usually `true` for MinIO and `fs` |
 
@@ -148,6 +148,40 @@ Optional:
 | `S3_PUBLIC_BASE_URL` | Optional public asset base URL. Kaneo does not require this for the current private asset flow. |
 | `S3_MAX_IMAGE_UPLOAD_BYTES` | Maximum allowed upload size in bytes for images and other uploaded files |
 | `S3_PRESIGN_TTL_SECONDS` | Presigned upload URL lifetime |
+
+## Using an IAM role (AWS S3) instead of static keys
+
+When Kaneo runs on AWS (EC2, ECS, or EKS), you can let it authenticate with an
+IAM role instead of long-lived access keys.
+
+Leave both `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY` unset. Kaneo then falls
+back to the AWS SDK's default credential provider chain, which automatically
+picks up credentials from:
+
+- an EC2 instance profile
+- an ECS task role
+- an EKS service account / IRSA (`AWS_WEB_IDENTITY_TOKEN_FILE`)
+- standard `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` environment variables
+- a shared `~/.aws/credentials` profile
+
+Example for AWS S3 with an attached IAM role:
+
+```env
+S3_ENDPOINT=https://s3.us-east-1.amazonaws.com
+S3_BUCKET=kaneo-uploads
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=false
+# S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY intentionally omitted
+```
+
+The IAM role must allow `s3:PutObject`, `s3:GetObject`, and `s3:DeleteObject`
+on the bucket.
+
+<Warning>
+  Set both keys or neither. Configuring only one of `S3_ACCESS_KEY_ID` /
+  `S3_SECRET_ACCESS_KEY` is treated as a misconfiguration and Kaneo will refuse
+  to start the storage client.
+</Warning>
 
 ## Testing uploads
 
