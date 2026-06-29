@@ -1,0 +1,1 @@
+ALTER TABLE "glance_user_prefs" ADD COLUMN "views" jsonb DEFAULT '[]'::jsonb NOT NULL;

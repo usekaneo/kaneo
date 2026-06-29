@@ -917,6 +917,43 @@ export const deviceCodeTable = pgTable(
   ],
 );
 
+export const glanceUserPrefsTable = pgTable(
+  "glance_user_prefs",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .unique()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    filters: jsonb("filters")
+      .$type<Record<string, string>>()
+      .notNull()
+      .default({}),
+    groupBy: text("group_by").notNull().default("workspace"),
+    views: jsonb("views")
+      .$type<
+        Array<{
+          id: string;
+          name: string;
+          filters: Record<string, string>;
+          groupBy: string;
+        }>
+      >()
+      .notNull()
+      .default([]),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("glance_user_prefs_userId_idx").on(table.userId)],
+);
+
 // Auth-schema compatible aliases in schema.ts
 export const user = userTable;
 export const session = sessionTable;

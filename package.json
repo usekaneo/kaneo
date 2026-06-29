@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=!@kaneo/mcp --filter=!@kaneo/site --filter=!@kaneo/email",
     "i18n:check": "node ./scripts/i18n/check.mjs",
     "i18n:check:fix": "node ./scripts/i18n/check.mjs --fix",
     "i18n:report": "node ./scripts/i18n/report.mjs",
