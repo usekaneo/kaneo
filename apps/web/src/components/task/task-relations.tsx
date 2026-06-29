@@ -122,13 +122,18 @@ export default function TaskRelations({
       const linkedTask = isSource ? rel.targetTask : rel.sourceTask;
       if (!linkedTask) continue;
 
-      const type = rel.relationType;
+      // "blocks" is directional: when the current task is the target it is the
+      // one being blocked, so group it under a distinct "blocked_by" key.
+      const type =
+        rel.relationType === "blocks" && !isSource
+          ? "blocked_by"
+          : rel.relationType;
       if (!groups[type]) {
         groups[type] = [];
       }
       groups[type].push({
         id: rel.id,
-        relationType: type,
+        relationType: rel.relationType,
         task: linkedTask,
       });
     }
@@ -293,7 +298,9 @@ export default function TaskRelations({
           {Object.entries(groupedRelations).map(([type, items]) => (
             <div key={type} className="mt-1.5">
               <span className="text-[11px] text-muted-foreground/70 px-2">
-                {t(`tasks:relations.types.${type}`, { defaultValue: type })}
+                {t(`tasks:relations.types.${type}`, {
+                  defaultValue: type.replace(/_/g, " "),
+                })}
               </span>
               <div className="flex flex-col mt-0.5">
                 {items.map((item) => {
