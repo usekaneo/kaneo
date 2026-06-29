@@ -14,16 +14,23 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import {
+  BetweenHorizontalEnd,
+  BetweenHorizontalStart,
+  BetweenVerticalEnd,
+  BetweenVerticalStart,
   Bold,
   Check,
   ChevronDown,
+  Columns3,
   Copy,
+  Grid2x2X,
   Italic,
   Link2,
   List,
   ListOrdered,
   ListTodo,
   Paperclip,
+  Rows3,
   UnderlineIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
@@ -1608,6 +1615,112 @@ export default function CommentEditor({
             onClick={() => openImagePicker(editor)}
           >
             <Paperclip className="size-3.5" />
+          </Button>
+        </BubbleMenu>
+      )}
+      {editor && !readOnly && !disabled && showBubbleMenu && (
+        <BubbleMenu
+          editor={editor}
+          pluginKey="kaneo-comment-table-bubble"
+          className="kaneo-comment-editor-bubble"
+          shouldShow={({ editor: activeEditor, from, to }) =>
+            activeEditor.isActive("table") && from === to
+          }
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            title={t("activity:comment.editor.table.addColumnBefore", {
+              defaultValue: "Insert column left",
+            })}
+            onClick={() => editor.chain().focus().addColumnBefore().run()}
+          >
+            <BetweenVerticalStart className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            title={t("activity:comment.editor.table.addColumnAfter", {
+              defaultValue: "Insert column right",
+            })}
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+          >
+            <BetweenVerticalEnd className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-comment-editor-bubble-btn",
+              "text-destructive",
+            )}
+            title={t("activity:comment.editor.table.deleteColumn", {
+              defaultValue: "Delete column",
+            })}
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+          >
+            <Columns3 className="size-3.5" />
+          </Button>
+          <span className="kaneo-tiptap-bubble-separator" />
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            title={t("activity:comment.editor.table.addRowBefore", {
+              defaultValue: "Insert row above",
+            })}
+            onClick={() => editor.chain().focus().addRowBefore().run()}
+          >
+            <BetweenHorizontalStart className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            title={t("activity:comment.editor.table.addRowAfter", {
+              defaultValue: "Insert row below",
+            })}
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+          >
+            <BetweenHorizontalEnd className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-comment-editor-bubble-btn",
+              "text-destructive",
+            )}
+            title={t("activity:comment.editor.table.deleteRow", {
+              defaultValue: "Delete row",
+            })}
+            onClick={() => editor.chain().focus().deleteRow().run()}
+          >
+            <Rows3 className="size-3.5" />
+          </Button>
+          <span className="kaneo-tiptap-bubble-separator" />
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-comment-editor-bubble-btn",
+              "text-destructive",
+            )}
+            title={t("activity:comment.editor.table.deleteTable", {
+              defaultValue: "Delete table",
+            })}
+            onClick={() => editor.chain().focus().deleteTable().run()}
+          >
+            <Grid2x2X className="size-3.5" />
           </Button>
         </BubbleMenu>
       )}
