@@ -39,6 +39,9 @@ function useDeleteLabel() {
         });
       } else {
         void queryClient.invalidateQueries({
+          queryKey: ["labels"],
+        });
+        void queryClient.invalidateQueries({
           queryKey: ["tasks"],
         });
       }
