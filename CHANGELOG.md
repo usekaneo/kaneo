@@ -1,3 +1,16 @@
+# [2.9.0](https://github.com/usekaneo/kaneo/compare/v2.8.0...v2.9.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* **auth:** allow unverified users to accept workspace invitations ([d2f2b0f](https://github.com/usekaneo/kaneo/commit/d2f2b0f559204c4b97cd32aaff322a8cc526782d))
+* **auth:** link OIDC sign-in to existing same-email accounts ([#987](https://github.com/usekaneo/kaneo/issues/987)) ([0667479](https://github.com/usekaneo/kaneo/commit/0667479cb693dc66f2fda59da564219620133884))
+
+
+### Features
+
+* **comments:** [@mention](https://github.com/mention) workspace members in task comments ([#1353](https://github.com/usekaneo/kaneo/issues/1353)) ([98184d2](https://github.com/usekaneo/kaneo/commit/98184d2611a218dc1463b5e1c3b0fa71efd9be81))
+* **tasks:** notify members [@mentioned](https://github.com/mentioned) in a task description ([#1353](https://github.com/usekaneo/kaneo/issues/1353)) ([554b5ac](https://github.com/usekaneo/kaneo/commit/554b5ac9e4f21070b2901943dfead400cb864c58))
 # [2.8.0](https://github.com/usekaneo/kaneo/compare/v2.7.8...v2.8.0) (2026-06-30)
 
 
