@@ -1,3 +1,17 @@
+# [2.8.0](https://github.com/usekaneo/kaneo/compare/v2.7.8...v2.8.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* **api:** drop malformed Better Auth schema fields from OpenAPI output ([e986f58](https://github.com/usekaneo/kaneo/commit/e986f58173a0c8c205e61c6c28dc0f90d27407c7))
+* **auth:** claim device code before approve/deny (better-auth 1.6.11) ([d57a957](https://github.com/usekaneo/kaneo/commit/d57a9574d68fe618a7ffd24a13f33bf0aa2cf87a))
+* **subtasks:** make the leading checkbox toggle completion ([#1352](https://github.com/usekaneo/kaneo/issues/1352)) ([7627210](https://github.com/usekaneo/kaneo/commit/762721001416fafcea0af713585f2d428d13d309))
+
+
+### Features
+
+* **mcp:** support KANEO_API_KEY for non-interactive auth ([014cc96](https://github.com/usekaneo/kaneo/commit/014cc9622b5aa527e617a6eb58944e7aa5558c7d))
+* **notifications:** opt-in flag to allow private webhook destinations ([412c568](https://github.com/usekaneo/kaneo/commit/412c56879d11eaeb3ff2db0e1612e32e8c727002))
 ## [2.7.8](https://github.com/usekaneo/kaneo/compare/v2.7.7...v2.7.8) (2026-06-29)
 
 
