@@ -40,6 +40,9 @@ import { bundledLanguages, type Highlighter } from "shiki";
 import { AttachmentCard } from "@/components/task/extensions/attachment-card";
 import { EmbedBlock } from "@/components/task/extensions/embed-block";
 import { KaneoIssueLink } from "@/components/task/extensions/kaneo-issue-link";
+import { KaneoMention } from "@/components/task/extensions/kaneo-mention";
+import type { MentionMember } from "@/components/task/extensions/mention-list";
+import { MentionSuggestion } from "@/components/task/extensions/mention-suggestion";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -56,6 +59,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
 import {
@@ -184,6 +189,20 @@ export default function CommentEditor({
   const { t } = useTranslation();
   const resolvedPlaceholder =
     placeholder ?? t("activity:comment.leavePlaceholder");
+  const { data: activeWorkspace } = useActiveWorkspace();
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    activeWorkspace?.id ?? "",
+  );
+  const mentionMembersRef = useRef<MentionMember[]>([]);
+  mentionMembersRef.current = useMemo(
+    () =>
+      (workspaceUsers?.members ?? []).map((member) => ({
+        id: member.userId,
+        label: member.user?.name ?? member.user?.email ?? "",
+        image: member.user?.image ?? null,
+      })),
+    [workspaceUsers],
+  );
   const editorShellRef = useRef<HTMLDivElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
@@ -605,6 +624,10 @@ export default function CommentEditor({
         EmbedBlock,
         AttachmentCard,
         KaneoIssueLink,
+        KaneoMention,
+        MentionSuggestion.configure({
+          getMembers: () => mentionMembersRef.current,
+        }),
         TaskList,
         Image.configure({
           HTMLAttributes: {
