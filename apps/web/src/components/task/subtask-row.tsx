@@ -4,6 +4,7 @@ import TaskCardContextMenuContent from "@/components/kanban-board/task-card-cont
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import type Task from "@/types/task";
 import SubtaskAssigneePopover from "./subtask-assignee-popover";
@@ -16,11 +17,14 @@ type SubtaskRowProps = {
   workspaceId: string;
   isSelected: boolean;
   isFocused: boolean;
+  isCompleted: boolean;
+  canEdit: boolean;
   selectionRadius: string;
   assignee: {
     user?: { image?: string | null; name?: string | null } | null;
   } | null;
   onToggleSelection: () => void;
+  onToggleComplete: () => void;
   onNavigate: () => void;
   onDeleteClick: () => void;
 };
@@ -32,9 +36,12 @@ export default function SubtaskRow({
   workspaceId,
   isSelected,
   isFocused,
+  isCompleted,
+  canEdit,
   selectionRadius,
   assignee,
   onToggleSelection,
+  onToggleComplete,
   onNavigate,
   onDeleteClick,
 }: SubtaskRowProps) {
@@ -53,9 +60,30 @@ export default function SubtaskRow({
           <div
             className={`group flex items-center gap-2 py-1 px-2 ${selectionRadius} transition-colors cursor-default ${isSelected ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-accent/50"} ${isFocused ? "ring-1 ring-inset ring-ring/50" : ""}`}
           >
+            {/* Selection for bulk actions — hover-revealed so it is not
+                mistaken for the completion checkbox. */}
             <Checkbox
               checked={isSelected}
               onCheckedChange={onToggleSelection}
+              aria-label={t("tasks:subtasks.selectAria", {
+                defaultValue: "Select subtask",
+              })}
+              className={cn(
+                "transition-opacity",
+                isSelected || isFocused
+                  ? "opacity-100"
+                  : "opacity-0 group-hover:opacity-100",
+              )}
+            />
+
+            {/* Completion — toggles the subtask done/undone and persists it. */}
+            <Checkbox
+              checked={isCompleted}
+              onCheckedChange={onToggleComplete}
+              disabled={!canEdit}
+              aria-label={t("tasks:subtasks.completeAria", {
+                defaultValue: "Mark subtask complete",
+              })}
             />
 
             <SubtaskStatusPopover tasks={tasks} projectId={projectId}>
@@ -73,7 +101,7 @@ export default function SubtaskRow({
               onClick={onNavigate}
             >
               <span
-                className={`text-sm truncate block ${task.status === "done" ? "line-through text-muted-foreground" : "text-foreground/90"}`}
+                className={`text-sm truncate block ${isCompleted ? "line-through text-muted-foreground" : "text-foreground/90"}`}
               >
                 {task.title}
               </span>

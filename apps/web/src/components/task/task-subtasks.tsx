@@ -22,7 +22,9 @@ import {
 import { Input } from "@/components/ui/input";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -61,8 +63,20 @@ export default function TaskSubtasks({
   const createTask = useCreateTask();
   const createRelation = useCreateTaskRelation();
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
+  const { data: columns = [] } = useGetColumns(projectId);
   const { canManageTasks } = useWorkspacePermission();
   const canEdit = canManageTasks();
+
+  // Map the completion checkbox to the project's actual column slugs (the API
+  // validates status against columns). A subtask counts as completed when its
+  // status is a final column.
+  const doneSlug = columns.find((c) => c.isFinal)?.slug ?? "done";
+  const todoSlug = columns.find((c) => !c.isFinal)?.slug ?? "to-do";
+  const isCompleted = (status: string) =>
+    columns.length > 0
+      ? (columns.find((c) => c.slug === status)?.isFinal ?? false)
+      : status === "done";
 
   const subtasks = relations
     .filter(
@@ -74,8 +88,8 @@ export default function TaskSubtasks({
         item.task !== null,
     );
 
-  const completedCount = subtasks.filter(
-    (s) => s.task.status === "done",
+  const completedCount = subtasks.filter((s) =>
+    isCompleted(s.task.status),
   ).length;
   const totalCount = subtasks.length;
   const hasSelection = selectedIds.size > 0;
@@ -121,6 +135,21 @@ export default function TaskSubtasks({
         .map(buildTaskObject);
     }
     return [currentTask];
+  };
+
+  const handleToggleComplete = async (taskObj: Task) => {
+    try {
+      await updateTaskStatus({
+        ...taskObj,
+        status: isCompleted(taskObj.status) ? todoSlug : doneSlug,
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:popover.status.updateError"),
+      );
+    }
   };
 
   const getAssignee = (userId: string | null) => {
@@ -338,9 +367,12 @@ export default function TaskSubtasks({
                     workspaceId={workspace?.id ?? workspaceId}
                     isSelected={isSelected}
                     isFocused={focusedIndex === index}
+                    isCompleted={isCompleted(subtask.task.status)}
+                    canEdit={canEdit}
                     selectionRadius={getSelectionRadius(index, isSelected)}
                     assignee={getAssignee(subtask.task.userId)}
                     onToggleSelection={() => toggleSelection(subtask.task.id)}
+                    onToggleComplete={() => handleToggleComplete(taskObj)}
                     onNavigate={() =>
                       navigate({
                         to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
