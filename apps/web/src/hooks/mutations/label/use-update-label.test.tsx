@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import useUpdateLabel from "./use-update-label";
 
 const mockInvalidateQueries = vi.fn();
@@ -39,6 +39,10 @@ vi.mock("@/fetchers/label/update-label", () => ({
 }));
 
 describe("useUpdateLabel", () => {
+  beforeEach(() => {
+    mockInvalidateQueries.mockClear();
+  });
+
   it("invalidates label and task caches on success", async () => {
     const { result } = renderHook(() => useUpdateLabel());
 
@@ -48,6 +52,7 @@ describe("useUpdateLabel", () => {
       color: "purple",
     });
 
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(3);
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: ["labels"],
     });
@@ -68,6 +73,7 @@ describe("useUpdateLabel", () => {
       color: "red",
     });
 
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(3);
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: ["labels"],
     });
