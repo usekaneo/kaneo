@@ -330,7 +330,10 @@ function RouteComponent() {
       </div>
 
       {/* Create Dialog */}
-      <Dialog open={createOpen} onClose={() => setCreateOpen(false)}>
+      <Dialog
+        open={createOpen}
+        onOpenChange={(open) => !open && setCreateOpen(false)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
@@ -414,9 +417,11 @@ function RouteComponent() {
       {/* Edit Dialog */}
       <Dialog
         open={editOpen}
-        onClose={() => {
-          setEditOpen(false);
-          setEditingLabel(null);
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditOpen(false);
+            setEditingLabel(null);
+          }
         }}
       >
         <DialogContent className="sm:max-w-md">
@@ -507,9 +512,11 @@ function RouteComponent() {
       {/* Delete Confirmation */}
       <AlertDialog
         open={deleteOpen}
-        onClose={() => {
-          setDeleteOpen(false);
-          setDeletingLabel(null);
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteOpen(false);
+            setDeletingLabel(null);
+          }
         }}
       >
         <AlertDialogContent>
