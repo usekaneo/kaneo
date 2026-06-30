@@ -323,6 +323,13 @@ export const auth = betterAuth({
         },
       },
       allowUserToCreateOrganization: true,
+      // Better Auth defaults this to `true`, which blocks any user whose email
+      // is not verified from accepting/rejecting an invitation. Kaneo does not
+      // verify emails on signup (and guest/anonymous users are unverified by
+      // design), so leaving the default on breaks invitation acceptance for
+      // everyone. The invitation link id is the actual secret here, so gate on
+      // that rather than on email verification.
+      requireEmailVerificationOnInvitation: false,
       organizationHooks: {
         beforeCreateOrganization: async ({ organization }) => {
           const check = checkWorkspaceName(organization.name ?? "");
