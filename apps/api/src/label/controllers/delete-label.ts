@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 
 async function deleteLabel(id: string, userId: string) {
@@ -78,6 +79,26 @@ async function deleteLabel(id: string, userId: string) {
     });
   }
 
+  // Capture affected task-level labels before cascading so we have data
+  // for events and provider sync
+  const affectedLabels = await db
+    .select({
+      label: labelTable,
+      taskId: taskTable.id,
+      projectId: projectTable.id,
+      workspaceId: projectTable.workspaceId,
+    })
+    .from(labelTable)
+    .innerJoin(taskTable, eq(labelTable.taskId, taskTable.id))
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(
+      and(
+        eq(labelTable.workspaceId, label.workspaceId),
+        eq(labelTable.name, label.name),
+        isNotNull(labelTable.taskId),
+      ),
+    );
+
   // Cascade: delete all task-level copies of this label so existing tasks lose it
   await db
     .delete(labelTable)
@@ -88,6 +109,27 @@ async function deleteLabel(id: string, userId: string) {
         isNotNull(labelTable.taskId),
       ),
     );
+
+  // Emit events and sync providers for each affected task
+  for (const { label: l, taskId, projectId } of affectedLabels) {
+    if (l.taskId) {
+      removeLabelFromGitHub(l.taskId, l.name).catch((error) => {
+        console.error("Failed to remove label from GitHub:", error);
+      });
+      removeLabelFromGitea(l.taskId, l.name).catch((error) => {
+        console.error("Failed to remove label from Gitea:", error);
+      });
+    }
+
+    await publishEvent("task.label_deleted", {
+      label: l,
+      task: { id: taskId, projectId },
+      projectId,
+      taskId,
+      userId,
+      type: "label_deleted",
+    });
+  }
 
   return deletedLabel;
 }

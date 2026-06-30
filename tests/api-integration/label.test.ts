@@ -162,7 +162,7 @@ describe("API integration: labels", () => {
         .returning();
 
       // Create task-level copies (simulating assigning the label to tasks)
-      const [taskLabelA] = await db
+      const [_taskLabelA] = await db
         .insert(schema.labelTable)
         .values({
           name: "Bug",
