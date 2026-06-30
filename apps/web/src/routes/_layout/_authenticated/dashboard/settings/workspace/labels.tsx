@@ -367,7 +367,8 @@ function RouteComponent() {
                   defaultValue: "Enter label name",
                 })}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleCreate();
+                  if (e.key === "Enter" && !createLabel.isPending)
+                    handleCreate();
                 }}
               />
               {createError && (
@@ -456,7 +457,7 @@ function RouteComponent() {
                   defaultValue: "Enter label name",
                 })}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleEdit();
+                  if (e.key === "Enter" && !updateLabel.isPending) handleEdit();
                 }}
               />
               {editError && (
