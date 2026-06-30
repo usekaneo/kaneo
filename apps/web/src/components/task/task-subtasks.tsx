@@ -371,7 +371,6 @@ export default function TaskSubtasks({
                     canEdit={canEdit}
                     selectionRadius={getSelectionRadius(index, isSelected)}
                     assignee={getAssignee(subtask.task.userId)}
-                    onToggleSelection={() => toggleSelection(subtask.task.id)}
                     onToggleComplete={() => handleToggleComplete(taskObj)}
                     onNavigate={() =>
                       navigate({
