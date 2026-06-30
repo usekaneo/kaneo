@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type Mock,
+  vi,
+} from "vitest";
 
 const mockFindFirst = vi.fn();
 const mockSelect = vi.fn();
@@ -78,7 +86,7 @@ const TASK_LABEL_2 = {
  * The terminal `.where()` returns a Promise resolved to `rows`.
  */
 function makeSelectMock(rows: unknown[]) {
-  const chain: Record<string, vi.Mock> = {
+  const chain: Record<string, Mock> = {
     from: vi.fn(() => chain),
     innerJoin: vi.fn(() => chain),
     where: vi.fn(() => Promise.resolve(rows)),
@@ -93,7 +101,7 @@ function makeSelectMock(rows: unknown[]) {
  * - `.where()` returns a sub-chain that supports `.returning()` and is thenable.
  */
 function makeDeleteMock(deletedRow: unknown) {
-  const chain: Record<string, vi.Mock> = {};
+  const chain: Record<string, Mock> = {};
 
   // Sub-chain returned by .where():
   // - Native Promise.then so `await db.delete().where(...)` works
