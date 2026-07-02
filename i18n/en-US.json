@@ -549,6 +549,31 @@
 				"nameShort": "Workspace name must be at least 2 characters"
 			}
 		},
+		"workspaceLabels": {
+			"pageTitle": "Label Settings",
+			"title": "Labels",
+			"subtitle": "Create, edit, and delete workspace-level labels.",
+			"cardDescription": "Manage labels that can be assigned to tasks.",
+			"createLabel": "Create Label",
+			"editLabel": "Edit Label",
+			"deleteLabel": "Delete",
+			"saveLabel": "Save",
+			"nameLabel": "Label name",
+			"namePlaceholder": "Enter label name",
+			"colorLabel": "Color",
+			"createDescription": "Create a new label that can be used across tasks in this workspace.",
+			"editDescription": "Update the name or color of this label.",
+			"deleteConfirmTitle": "Delete this label?",
+			"deleteConfirmDescription": "This will permanently remove this label from all tasks. This action cannot be undone.",
+			"empty": "No labels yet. Create your first label to get started.",
+			"createSuccess": "Label created",
+			"updateSuccess": "Label updated",
+			"deleteSuccess": "Label deleted",
+			"createError": "Failed to create label",
+			"updateError": "Failed to update label",
+			"deleteError": "Failed to delete label",
+			"nameRequired": "Label name is required"
+		},
 		"projectGeneral": {
 			"pageTitle": "Project Settings",
 			"title": "General Settings",
