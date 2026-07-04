@@ -22,6 +22,17 @@ type DiscordMessage = {
 
 const DISCORD_TIMEOUT_MS = 10_000;
 
+export function sanitizeDiscordContent(value: string): string {
+  return value
+    .replace(/@everyone/g, "@\u200beveryone")
+    .replace(/@here/g, "@\u200bhere")
+    .replace(/<@&/g, "<@\u200b&")
+    .replace(/<@!?\d+>/g, (match) => `<@\u200b${match.slice(2)}`)
+    .replace(/<#\d+>/g, (match) => `<#\u200b${match.slice(2)}`)
+    .replace(/<:\w+:\d+>/g, (match) => `<:\u200b${match.slice(2)}`)
+    .replace(/<a:\w+:\d+>/g, (match) => `<a:\u200b${match.slice(3)}`);
+}
+
 export async function postToDiscord(
   webhookUrl: string,
   message: DiscordMessage,

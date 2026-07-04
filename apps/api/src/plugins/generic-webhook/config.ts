@@ -61,6 +61,15 @@ export async function assertPublicWebhookDestination(
     throw new Error("Generic webhook URL must use http or https");
   }
 
+  // Self-hosters whose receivers (Gotify, ntfy, ...) live on a private network
+  // can opt out of the SSRF/private-address guard. Default off keeps protection on.
+  if (
+    process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS === "true" ||
+    process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS === "1"
+  ) {
+    return;
+  }
+
   if (isDisallowedAddress(url.hostname)) {
     throw new Error(
       "Generic webhook destination resolves to a non-routable address",

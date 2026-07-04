@@ -132,6 +132,8 @@ This applies to:
 
 If you are using a self-hosted ntfy instance, Gotify instance, or webhook receiver, it must be reachable from the API with an accepted public or routable hostname.
 
+If your receiver only exists on a private network, set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` on the API to bypass this guard. It is off by default, the `http`/`https` protocol requirement still applies, and enabling it re-opens the SSRF surface the check protects against. Only turn it on for a trusted, isolated deployment.
+
 ## Troubleshooting
 
 ### Notifications show in Kaneo but are not delivered

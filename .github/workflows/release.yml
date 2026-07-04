@@ -82,7 +82,7 @@ jobs:
         run: git push origin HEAD:${{ github.ref }} --tags
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2.6.1
+        uses: softprops/action-gh-release@v3.0.1
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           tag_name: v${{ steps.new_version.outputs.version }}

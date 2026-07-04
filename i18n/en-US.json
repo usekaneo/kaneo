@@ -1158,6 +1158,10 @@
 				"title": "Task assigned to you",
 				"content": "You have been assigned to task: {{taskTitle}}"
 			},
+			"task_mention": {
+				"title": "{{mentionerName}} mentioned you",
+				"content": "{{mentionerName}} mentioned you in: {{taskTitle}}"
+			},
 			"time_entry_created": {
 				"title": "Time tracking started",
 				"contentWithTask": "Time tracking started on task: {{taskTitle}}",
@@ -1413,6 +1417,7 @@
 			"selectTask": "Select a task to link",
 			"types": {
 				"blocks": "blocks",
+				"blocked_by": "blocked by",
 				"related": "relates to"
 			}
 		},

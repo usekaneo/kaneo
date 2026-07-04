@@ -435,6 +435,56 @@ input:-webkit-autofill:active {
     color: var(--accent-foreground);
   }
 
+  .kaneo-mention {
+    display: inline-flex;
+    align-items: baseline;
+    border-radius: 0.3rem;
+    padding: 0 0.2rem;
+    font-weight: 500;
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    white-space: nowrap;
+  }
+
+  .kaneo-mention-popup {
+    position: absolute;
+    z-index: 50;
+  }
+
+  .kaneo-mention-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 12rem;
+    max-height: 16rem;
+    overflow-y: auto;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+    border-radius: 0.5rem;
+    background: var(--popover);
+    padding: 0.32rem;
+    box-shadow:
+      0 10px 28px --alpha(var(--color-black) / 18%),
+      0 1px 2px --alpha(var(--color-black) / 10%);
+  }
+
+  .kaneo-mention-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    border-radius: 0.35rem;
+    padding: 0.32rem 0.42rem;
+    text-align: left;
+    font-size: 0.79rem;
+    color: color-mix(in srgb, var(--foreground) 88%, transparent);
+  }
+
+  .kaneo-mention-item:hover,
+  .kaneo-mention-item.is-active {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+
   .kaneo-tiptap-slash-empty {
     padding: 0.4rem 0.55rem;
     font-size: 0.76rem;

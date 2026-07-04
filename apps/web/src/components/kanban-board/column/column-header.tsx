@@ -19,8 +19,9 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { t } = useTranslation();
   const { project, setProject } = useProjectStore();
   const { mutate: updateTask } = useUpdateTask();
-  const { canManageTasks } = useWorkspacePermission();
+  const { canManageTasks, canCreateTasks } = useWorkspacePermission();
   const canTask = canManageTasks();
+  const canCreate = canCreateTasks();
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -74,7 +75,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
             <Archive className="w-4 h-4 text-muted-foreground" />
           </button>
         )}
-        {canTask && (
+        {canCreate && (
           <button
             type="button"
             onClick={() => setIsTaskModalOpen(true)}

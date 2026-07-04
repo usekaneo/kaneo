@@ -1,0 +1,131 @@
+name: Nightly
+
+on:
+  schedule:
+    # Runs at 02:17 UTC to avoid the busiest top-of-hour scheduler window.
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-main
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify nightly build
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: kaneo_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kaneo_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      AUTH_SECRET: test-secret-with-at-least-32-chars
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/kaneo_test
+      KANEO_API_URL: http://localhost:1337
+      KANEO_CLIENT_URL: http://localhost:5173
+      DISABLE_GUEST_ACCESS: "false"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20.20.2
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Biome
+        run: pnpm exec biome ci .
+
+      - name: Run unit tests
+        run: pnpm test
+
+      - name: Run API integration tests
+        run: pnpm test:integration
+
+      - name: Build monorepo
+        run: pnpm build
+
+  publish-images:
+    name: Publish nightly images
+    needs: verify
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./Dockerfile.kaneo
+            image: ghcr.io/${{ github.repository_owner }}/kaneo
+          - dockerfile: ./apps/web/Dockerfile
+            image: ghcr.io/${{ github.repository_owner }}/web
+          - dockerfile: ./apps/api/Dockerfile
+            image: ghcr.io/${{ github.repository_owner }}/api
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ matrix.image }}
+          tags: |
+            type=raw,value=nightly
+            type=raw,value=nightly-{{date 'YYYYMMDD'}}
+            type=sha,prefix=nightly-
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
