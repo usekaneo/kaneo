@@ -68,8 +68,11 @@ jobs:
 
       - name: Update Chart.yaml appVersion and chart version
         run: |
-          sed -i "s/^version: .*/version: ${{ steps.new_version.outputs.version }}/" charts/kaneo/Chart.yaml
-          sed -i 's/^appVersion: ".*"/appVersion: "${{ steps.new_version.outputs.version }}"/' charts/kaneo/Chart.yaml
+          VERSION="${{ steps.new_version.outputs.version }}"
+          sed -i -E "s/^version:[[:space:]]*.*/version: ${VERSION}/" charts/kaneo/Chart.yaml
+          sed -i -E "s/^appVersion:[[:space:]]*\"?[^\"]*\"?.*/appVersion: \"${VERSION}\"/" charts/kaneo/Chart.yaml
+          grep -q "^version: ${VERSION}$" charts/kaneo/Chart.yaml
+          grep -q "^appVersion: \"${VERSION}\"$" charts/kaneo/Chart.yaml
 
       - name: Generate changelog
         run: |
