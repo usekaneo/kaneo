@@ -116,13 +116,13 @@
 				"untitledTask": "Başlıksız talep",
 				"labelColors": {
 					"stone": "Taş",
-					"slate": "Arduaz",
+					"slate": "Arduvaz",
 					"lavender": "Lavanta",
 					"sage": "Adaçayı",
 					"forest": "Orman",
 					"amber": "Kehribar",
 					"terracotta": "Terakota",
-					"rose": "Gül",
+					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
 				}
 			}
@@ -505,7 +505,7 @@
 				"nameDescription": "Bu API anahtarı için açıklayıcı bir ad",
 				"expirationLabel": "Süre Sonu",
 				"expirationPlaceholder": "Süre sonu seçin",
-				"expirationDescription": "Bu API anahtarının ne kadar süreyle geçerli olacağını seçin. Asla, otomatik süre sonu olmayan bir anahtar oluşturur.",
+				"expirationDescription": "Bu API anahtarının ne kadar süreyle geçerli olacağını seçin. Asla seçeneği, otomatik süre sonu olmayan bir anahtar oluşturur.",
 				"expiration1d": "1 gün",
 				"expiration7d": "7 gün",
 				"expiration30d": "30 gün",
@@ -910,7 +910,7 @@
 			"validation": {
 				"botTokenInvalid": "Geçerli bir Telegram bot belirteci girin",
 				"chatIdRequired": "Sohbet kimliği gereklidir",
-				"threadIdInvalid": "Geçerli bir Telegram konu başlık kimliği girin"
+				"threadIdInvalid": "Geçerli bir Telegram konu kimliği girin"
 			},
 			"toast": {
 				"saved": "Telegram entegrasyonu başarıyla kaydedildi",
@@ -932,7 +932,7 @@
 			"chatIdLabel": "Sohbet kimliği",
 			"chatIdPlaceholder": "-1001234567890 veya @takim_guncellemeleri",
 			"chatIdHint": "Güncellemelerin gönderileceği Telegram sohbet kimliğini veya kanal kullanıcı adını girin.",
-			"threadIdLabel": "Konu başlık kimliği",
+			"threadIdLabel": "Konu kimliği",
 			"threadIdPlaceholder": "İsteğe bağlı konu kimliği",
 			"threadIdHint": "İsteğe bağlı. Telegram gruplarındaki forum konuları için kullanın.",
 			"chatLabelLabel": "Sohbet etiketi",
@@ -968,7 +968,7 @@
 			"updatedPrefix": "Güncellendi",
 			"relativeJustNow": "az önce",
 			"relativeMinutesAgo": "{{count}} dk önce",
-			"relativeHoursAgo": "{{count}} sa önce",
+			"relativeHoursAgo": "{{count}} saat önce",
 			"relativeDaysAgo": "{{count}} gün önce"
 		},
 		"tasksImportExport": {
@@ -1159,8 +1159,8 @@
 				"content": "Size şu talep atandı: {{taskTitle}}"
 			},
 			"task_mention": {
-				"title": "{{mentionerName}} sizi mentioned",
-				"content": "{{mentionerName}} sizi şu talepte mentioned: {{taskTitle}}"
+				"title": "{{mentionerName}} sizden bahsetti",
+				"content": "{{mentionerName}} sizden şu talepte bahsetti: {{taskTitle}}"
 			},
 			"time_entry_created": {
 				"title": "Zaman takibi başlatıldı",
@@ -1299,7 +1299,7 @@
 			"taskNotFoundDescription": "Aradığınız talep mevcut değil veya silinmiş."
 		},
 		"detail": {
-			"subtaskOf": "Alt talebi şunun:",
+			"subtaskOf": "Şunun alt talebi:",
 			"activity": "Aktivite",
 			"noActivity": "Aktivite bulunamadı",
 			"openInFullPage": "Tam sayfada aç",
@@ -1486,13 +1486,13 @@
 				"createError": "Etiket oluşturulamadı",
 				"colors": {
 					"stone": "Taş",
-					"slate": "Arduaz",
+					"slate": "Arduvaz",
 					"lavender": "Lavanta",
 					"sage": "Adaçayı",
 					"forest": "Orman",
 					"amber": "Kehribar",
 					"terracotta": "Terakota",
-					"rose": "Gül",
+					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
 				}
 			}
@@ -1814,7 +1814,7 @@
 			"share": "Paylaş"
 		},
 		"branding": {
-			"poweredBy": "Gücünü alır"
+			"poweredBy": "Powered by"
 		}
 	}
 }
