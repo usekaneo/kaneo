@@ -7,6 +7,7 @@ import koKR from "./ko-KR.json";
 import mkMK from "./mk-MK.json";
 import nlNL from "./nl-NL.json";
 import ruRU from "./ru-RU.json";
+import trTR from "./tr-TR.json";
 import ukUA from "./uk-UA.json";
 
 export const supportedLocales = [
@@ -19,6 +20,7 @@ export const supportedLocales = [
   "fr-FR",
   "ko-KR",
   "ru-RU",
+  "tr-TR",
   "uk-UA",
 ] as const;
 
@@ -36,5 +38,6 @@ export const resources = {
   "es-ES": esES,
   "ko-KR": koKR,
   "ru-RU": ruRU,
+  "tr-TR": trTR,
   "uk-UA": ukUA,
 } as const;
