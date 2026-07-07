@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (leave empty for automatic versioning)'
+        description: "Version to release (leave empty for automatic versioning)"
         required: false
         type: string
 
@@ -66,6 +66,14 @@ jobs:
         run: |
           bun x npm version ${{ steps.new_version.outputs.version }} --no-git-tag-version
 
+      - name: Update Chart.yaml appVersion and chart version
+        run: |
+          VERSION="${{ steps.new_version.outputs.version }}"
+          sed -i -E "s/^version:[[:space:]]*.*/version: ${VERSION}/" charts/kaneo/Chart.yaml
+          sed -i -E "s/^appVersion:[[:space:]]*\"?[^\"]*\"?.*/appVersion: \"${VERSION}\"/" charts/kaneo/Chart.yaml
+          grep -q "^version: ${VERSION}$" charts/kaneo/Chart.yaml
+          grep -q "^appVersion: \"${VERSION}\"$" charts/kaneo/Chart.yaml
+
       - name: Generate changelog
         run: |
           bunx conventional-changelog -p angular -i CHANGELOG.md -s --release-count 1
@@ -74,7 +82,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add CHANGELOG.md package.json
+          git add CHANGELOG.md package.json charts/kaneo/Chart.yaml
           git commit -m "chore(release): v${{ steps.new_version.outputs.version }}"
           git tag "v${{ steps.new_version.outputs.version }}"
 
