@@ -91,11 +91,13 @@ jobs:
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
     
       - name: Extract Version from Tag
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
         run: |
           if [[ $GITHUB_REF == refs/tags/kaneo-* ]]; then
             echo "CHART_VERSION=${GITHUB_REF#refs/tags/kaneo-}" >> $GITHUB_ENV
           else
-            echo "CHART_VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+            echo "CHART_VERSION=$INPUT_VERSION" >> $GITHUB_ENV
           fi
     
       - name: Package chart
@@ -112,4 +114,11 @@ jobs:
       - name: Publish chart
         run: |
           OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          CHART_REF="oci://$REGISTRY/$OWNER/charts/kaneo"
+
+          if helm show chart "$CHART_REF" --version "$CHART_VERSION" >/dev/null 2>&1; then
+            echo "Chart $CHART_REF:$CHART_VERSION already exists; skipping publish."
+            exit 0
+          fi
+
           helm push dist/kaneo-"$CHART_VERSION".tgz "oci://$REGISTRY/$OWNER/charts"
