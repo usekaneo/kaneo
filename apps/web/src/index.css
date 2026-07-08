@@ -670,6 +670,59 @@ input:-webkit-autofill:active {
     overflow: hidden;
   }
 
+  /* Resizable image: drag handles rendered by Tiptap's ResizableNodeView. */
+  .kaneo-tiptap-content .ProseMirror [data-resize-wrapper] {
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-resize-handle] {
+    width: 12px;
+    height: 12px;
+    z-index: 2;
+    border-radius: 9999px;
+    background: var(--primary);
+    border: 2px solid var(--background);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--border) 65%, transparent);
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+
+  .kaneo-tiptap-content
+    .ProseMirror
+    [data-resize-wrapper]:hover
+    [data-resize-handle],
+  .kaneo-tiptap-content
+    .ProseMirror
+    .ProseMirror-selectednode
+    [data-resize-handle],
+  .kaneo-tiptap-content
+    .ProseMirror
+    [data-resize-container][data-resize-state="true"]
+    [data-resize-handle] {
+    opacity: 1;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-resize-handle="top-left"] {
+    transform: translate(-50%, -50%);
+    cursor: nwse-resize;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-resize-handle="top-right"] {
+    transform: translate(50%, -50%);
+    cursor: nesw-resize;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-resize-handle="bottom-left"] {
+    transform: translate(-50%, 50%);
+    cursor: nesw-resize;
+  }
+
+  .kaneo-tiptap-content .ProseMirror [data-resize-handle="bottom-right"] {
+    transform: translate(50%, 50%);
+    cursor: nwse-resize;
+  }
+
   .kaneo-create-task-modal .kaneo-comment-editor-prose img.kaneo-editor-image {
     max-height: min(50vh, 28rem);
     width: 100%;
