@@ -87,33 +87,29 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
+    
       - name: Extract Version from Tag
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            echo "CHART_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          if [[ $GITHUB_REF == refs/tags/kaneo-* ]]; then
+            echo "CHART_VERSION=${GITHUB_REF#refs/tags/kaneo-}" >> $GITHUB_ENV
           else
             echo "CHART_VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
           fi
-
-      - name: Update Chart Version
-        run: |
-          yq -i ".version = \"$CHART_VERSION\"" "$CHART_PATH/Chart.yaml"
-
-      - name: Publish chart
-        run: |
-          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
-          helm push dist/kaneo-"$CHART_VERSION".tgz "oci://$REGISTRY/$OWNER/charts"
-
-      - name: Set up Helm
-        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
-
+    
       - name: Package chart
         run: |
           mkdir -p dist
-          helm package "$CHART_PATH" --destination dist
-
+          helm package "$CHART_PATH" --version "$CHART_VERSION" --destination dist
+    
       - name: Log in to GHCR
         env:
           GH_ACTOR: ${{ github.actor }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: echo "$GH_TOKEN" | helm registry login "$REGISTRY" --username "$GH_ACTOR" --password-stdin
+    
+      - name: Publish chart
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          helm push dist/kaneo-"$CHART_VERSION".tgz "oci://$REGISTRY/$OWNER/charts"
