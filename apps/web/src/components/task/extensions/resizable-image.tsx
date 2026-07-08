@@ -41,7 +41,15 @@ export const ResizableImage = Image.extend({
     const height =
       attrs.height != null && attrs.height !== "" ? String(attrs.height) : "";
 
-    if (width || height) {
+    // Fall back to a (fully escaped) HTML <img> when the image is resized, or
+    // when a field contains characters that can't be represented safely in the
+    // `![alt](src "title")` form — e.g. a filename-derived alt containing
+    // brackets, or a src with spaces/parens. Otherwise keep the plain markdown
+    // so existing content is untouched.
+    const hasUnsafeMarkdown =
+      /[[\]\\]/.test(alt) || /[\s()<>\\]/.test(src) || /["\\]/.test(title);
+
+    if (width || height || hasUnsafeMarkdown) {
       const parts = [
         `src="${escapeHtmlAttribute(src)}"`,
         `alt="${escapeHtmlAttribute(alt)}"`,

@@ -101,4 +101,26 @@ describe("ResizableImage markdown persistence", () => {
 
     editor.destroy();
   });
+
+  it("round-trips an alt that plain markdown can't represent", () => {
+    const editor = createEditor();
+    // Filename-derived alt text can contain brackets, which would break the
+    // `![alt](src)` form; it must fall back to HTML and survive a reload.
+    editor.commands.setContent({
+      type: "doc",
+      content: [
+        { type: "image", attrs: { src: SRC, alt: "screenshot [final]" } },
+      ],
+    });
+
+    const markdown = editor.getMarkdown();
+    expect(markdown).toContain("<img");
+    expect(markdown).toContain('alt="screenshot [final]"');
+
+    editor.commands.setContent(markdown, { contentType: "markdown" });
+    const image = findImage(editor.getJSON() as JSONNode);
+    expect(image?.attrs?.alt).toBe("screenshot [final]");
+
+    editor.destroy();
+  });
 });
