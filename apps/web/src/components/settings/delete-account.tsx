@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import useDeleteAccount from "@/hooks/mutations/use-delete-account";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "@/lib/toast";
 
@@ -20,13 +21,15 @@ function DeleteAccount() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { mutateAsync: deleteAccount, isPending } = useDeleteAccount();
 
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmText, setConfirmText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  // Whether the account signs in with a password. Credential accounts must
-  // provide it on deletion; social/OIDC-only accounts rely on a fresh session.
+  // Whether the account has a password (credential) login. When it does we show
+  // a password field, but deletion is never blocked on it: users signed in via
+  // OAuth/OIDC (or with a fresh session) can delete without a password, and
+  // better-auth enforces the real requirement server-side.
   const [hasPasswordAccount, setHasPasswordAccount] = useState(false);
 
   useEffect(() => {
@@ -41,7 +44,7 @@ function DeleteAccount() {
         );
       })
       .catch(() => {
-        // Best-effort: if we can't tell, fall back to not requiring a password.
+        // Best-effort: if we can't tell, just don't show the password field.
       });
     return () => {
       cancelled = true;
@@ -51,10 +54,7 @@ function DeleteAccount() {
   const email = user?.email ?? "";
   const confirmMatches =
     confirmText.trim().toLowerCase() === email.trim().toLowerCase();
-  const canDelete =
-    confirmMatches &&
-    (!hasPasswordAccount || password.length > 0) &&
-    !isDeleting;
+  const canDelete = confirmMatches && !isPending;
 
   const resetDialog = () => {
     setPassword("");
@@ -68,14 +68,8 @@ function DeleteAccount() {
 
   const handleDelete = async () => {
     if (!canDelete) return;
-    setIsDeleting(true);
     try {
-      const result = await authClient.deleteUser(
-        hasPasswordAccount ? { password } : {},
-      );
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
+      await deleteAccount(password || undefined);
 
       toast.success(t("settings:deleteAccount.success"));
       setOpen(false);
@@ -91,8 +85,6 @@ function DeleteAccount() {
           ? error.message
           : t("settings:deleteAccount.error"),
       );
-    } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -157,6 +149,9 @@ function DeleteAccount() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    {t("settings:deleteAccount.passwordHint")}
+                  </p>
                 </div>
               ) : null}
 

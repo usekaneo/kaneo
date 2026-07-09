@@ -205,7 +205,8 @@ export const auth = betterAuth({
               eq(schema.workspaceUserTable.userId, user.id),
               eq(schema.workspaceUserTable.role, "owner"),
             ),
-          );
+          )
+          .limit(1);
         if (ownedWorkspaces.length > 0) {
           throw new APIError("BAD_REQUEST", {
             message:

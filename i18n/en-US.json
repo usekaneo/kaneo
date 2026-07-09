@@ -311,6 +311,7 @@
 			"dialogTitle": "Delete account",
 			"warning": "This permanently deletes your account. Tasks assigned to you will be unassigned, not deleted. This action cannot be undone.",
 			"passwordLabel": "Password",
+			"passwordHint": "Required only if you sign in with a password.",
 			"confirmLabel": "Type {{email}} to confirm",
 			"confirmButton": "Delete account",
 			"success": "Your account has been deleted.",
