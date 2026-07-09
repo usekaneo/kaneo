@@ -30,7 +30,10 @@ RUN pnpm run build
 WORKDIR /app/apps/api
 RUN pnpm run build
 
-FROM node:20.20.2-alpine AS api-runtime
+# Assembles the production node_modules on the BUILD platform (native, no QEMU emulation).
+# All API runtime deps are pure JavaScript (bcrypt was replaced with bcryptjs), so this
+# node_modules is architecture-independent and is copied into the runtime stage below.
+FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS api-runtime
 
 WORKDIR /app
 
@@ -91,6 +94,10 @@ RUN apk add --no-cache nginx=1.28.3-r4 && \
 WORKDIR /app
 
 COPY --from=api-runtime --chown=appuser:appuser /app /app
+
+# Fail the build early if the runtime dependency layout is broken on the target architecture
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}"
+
 COPY --from=web-builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
 COPY --chown=appuser:appuser apps/web/nginx.kaneo.conf /etc/nginx/conf.d/default.conf
 RUN chown -R appuser:appuser /etc/nginx/conf.d
