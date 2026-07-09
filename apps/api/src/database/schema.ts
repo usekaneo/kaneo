@@ -328,7 +328,10 @@ export const taskTable = pgTable(
     position: integer("position").default(0),
     number: integer("number").default(1),
     userId: text("assignee_id").references(() => userTable.id, {
-      onDelete: "cascade",
+      // Unassign the task when its assignee is deleted instead of deleting the
+      // task — a departing/removed user must not take a workspace's tasks with
+      // them.
+      onDelete: "set null",
       onUpdate: "cascade",
     }),
     title: text("title").notNull(),

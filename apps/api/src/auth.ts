@@ -33,7 +33,7 @@ import {
 import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
-import { count, eq, sql } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
@@ -177,6 +177,41 @@ export const auth = betterAuth({
         type: "string",
         input: true,
         required: false,
+      },
+    },
+    deleteUser: {
+      enabled: true,
+      // better-auth already requires the account password or a fresh session
+      // before hitting this route. These guards run just before the row is
+      // removed.
+      beforeDelete: async (user) => {
+        // Let self-hosted / enterprise instances turn self-service deletion
+        // off entirely (e.g. accounts managed by an external IdP).
+        if (process.env.DISABLE_ACCOUNT_DELETION === "true") {
+          throw new APIError("FORBIDDEN", {
+            message: "Account deletion is disabled on this instance.",
+          });
+        }
+
+        // Workspaces have no owner column — ownership is only the
+        // workspace_member "owner" role, which cascade-deletes with the user.
+        // Block deletion while the user still owns a workspace so it can't be
+        // orphaned; they must transfer ownership or delete it first.
+        const ownedWorkspaces = await db
+          .select({ workspaceId: schema.workspaceUserTable.workspaceId })
+          .from(schema.workspaceUserTable)
+          .where(
+            and(
+              eq(schema.workspaceUserTable.userId, user.id),
+              eq(schema.workspaceUserTable.role, "owner"),
+            ),
+          );
+        if (ownedWorkspaces.length > 0) {
+          throw new APIError("BAD_REQUEST", {
+            message:
+              "You still own one or more workspaces. Transfer ownership or delete them before deleting your account.",
+          });
+        }
       },
     },
   },

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
+import DeleteAccount from "@/components/settings/delete-account";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Form,
@@ -265,6 +266,8 @@ function RouteComponent() {
             </Form>
           </div>
         </div>
+
+        <DeleteAccount />
       </div>
     </>
   );

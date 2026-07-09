@@ -302,6 +302,20 @@
 		}
 	},
 	"settings": {
+		"deleteAccount": {
+			"title": "Delete account",
+			"subtitle": "Permanently delete your account and personal data.",
+			"label": "Delete your account",
+			"description": "Once deleted, your account and its data cannot be recovered.",
+			"button": "Delete account",
+			"dialogTitle": "Delete account",
+			"warning": "This permanently deletes your account. Tasks assigned to you will be unassigned, not deleted. This action cannot be undone.",
+			"passwordLabel": "Password",
+			"confirmLabel": "Type {{email}} to confirm",
+			"confirmButton": "Delete account",
+			"success": "Your account has been deleted.",
+			"error": "Failed to delete account."
+		},
 		"account": "Account",
 		"developer": "Developer",
 		"information": "Information",
