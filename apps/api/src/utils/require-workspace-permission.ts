@@ -93,6 +93,13 @@ export function requireWorkspacePermission(permissions: PermissionMap) {
       });
     }
 
+    const apiKey = c.get("apiKey") as
+      | { permissions?: Record<string, string[]> | null }
+      | undefined;
+    if (apiKey?.permissions && !satisfies(apiKey.permissions, permissions)) {
+      throw new HTTPException(403, { message: "Insufficient API key scope" });
+    }
+
     if (await isInstanceAdmin(c)) {
       return next();
     }

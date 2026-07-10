@@ -89,6 +89,7 @@ type ApiKey = {
   id: string;
   userId: string;
   enabled: boolean;
+  permissions: Record<string, string[]> | null;
 };
 
 type AppVariables = {

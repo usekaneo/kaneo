@@ -51,6 +51,7 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
         id: key.id,
         userId: key.userId,
         enabled: key.enabled,
+        permissions: key.permissions,
       });
       return;
     }
