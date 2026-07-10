@@ -42,6 +42,7 @@ import { generateDemoName } from "./utils/generate-demo-name";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
+import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
 import { verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
@@ -547,16 +548,10 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      if (
-        isLoginFormDisabled &&
-        (ctx.path === "/sign-in/email" ||
-          ctx.path === "/sign-in/magic-link" ||
-          ctx.path === "/sign-in/email-otp" ||
-          ctx.path.startsWith("/email-otp/"))
-      ) {
+      if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
         throw new APIError("FORBIDDEN", {
           message:
-            "Email and password sign-in is disabled. Please use a configured social or OIDC sign-in method.",
+            "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
         });
       }
 
