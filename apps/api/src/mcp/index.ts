@@ -78,6 +78,9 @@ mcp.get("/mcp/authorize", async (c) => {
   if (!client) {
     return c.json({ error: "invalid_client" }, 400);
   }
+  if (!client.redirectUris.includes(redirectUri)) {
+    return c.json({ error: "invalid_redirect_uri" }, 400);
+  }
 
   const session = await auth.api.getSession({
     headers: c.req.raw.headers,
@@ -184,6 +187,14 @@ mcp.post("/mcp/authorize/callback", async (c) => {
 
   if (!access_token || !client_id || !code_challenge || !redirect_uri) {
     return c.json({ error: "invalid_request" }, 400);
+  }
+
+  const client = getClient(client_id);
+  if (!client) {
+    return c.json({ error: "invalid_client" }, 400);
+  }
+  if (!client.redirectUris.includes(redirect_uri)) {
+    return c.json({ error: "invalid_redirect_uri" }, 400);
   }
 
   const headers = new Headers();
