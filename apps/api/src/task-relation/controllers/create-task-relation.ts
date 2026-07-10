@@ -13,11 +13,13 @@ async function createTaskRelation({
   targetTaskId,
   relationType,
   userId,
+  workspaceId,
 }: {
   sourceTaskId: string;
   targetTaskId: string;
   relationType: string;
   userId: string;
+  workspaceId: string;
 }) {
   if (sourceTaskId === targetTaskId) {
     throw new HTTPException(400, {
@@ -33,7 +35,12 @@ async function createTaskRelation({
     })
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(taskTable.id, sourceTaskId))
+    .where(
+      and(
+        eq(taskTable.id, sourceTaskId),
+        eq(projectTable.workspaceId, workspaceId),
+      ),
+    )
     .limit(1);
 
   if (!sourceTask) {
@@ -48,17 +55,16 @@ async function createTaskRelation({
     })
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(taskTable.id, targetTaskId))
+    .where(
+      and(
+        eq(taskTable.id, targetTaskId),
+        eq(projectTable.workspaceId, workspaceId),
+      ),
+    )
     .limit(1);
 
   if (!targetTask) {
     throw new HTTPException(404, { message: "Target task not found" });
-  }
-
-  if (sourceTask.workspaceId !== targetTask.workspaceId) {
-    throw new HTTPException(400, {
-      message: "Tasks from different workspaces cannot be related",
-    });
   }
 
   const existing = await db
