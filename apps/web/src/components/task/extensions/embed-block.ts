@@ -88,6 +88,14 @@ export const EmbedBlock = Node.create({
       contenteditable: "false",
     });
 
+    if (!isValidUrl(url)) {
+      return [
+        "div",
+        attrs,
+        ["span", { class: "kaneo-embed-invalid-link" }, url],
+      ];
+    }
+
     if (embedSource) {
       return [
         "div",
@@ -119,14 +127,6 @@ export const EmbedBlock = Node.create({
       ];
     }
 
-    if (!isValidUrl(url)) {
-      return [
-        "div",
-        attrs,
-        ["span", { class: "kaneo-embed-invalid-link" }, url],
-      ];
-    }
-
     return [
       "div",
       attrs,
@@ -149,7 +149,9 @@ export const EmbedBlock = Node.create({
   ) {
     const url = String(node.attrs?.url || "");
     const mode = node.attrs?.mode === "link" ? "link" : "embed";
-    if (!isValidUrl(url)) return "";
+    if (!isValidUrl(url)) {
+      return `\n<span class="kaneo-embed-invalid-link">${escapeHtml(url)}</span>\n`;
+    }
     return `\n<kaneo-embed url="${escapeHtml(url)}" mode="${mode}" />\n`;
   },
 });
