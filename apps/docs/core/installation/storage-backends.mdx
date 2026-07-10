@@ -52,13 +52,13 @@ MinIO is the recommended self-hosted option.
 For local development, this is fine:
 
 ```env
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=minioadmin
+MINIO_ROOT_USER=kaneo-local
+MINIO_ROOT_PASSWORD=<choose-a-local-development-password>
 
 S3_ENDPOINT=http://minio:9000
 S3_BUCKET=kaneo-uploads
-S3_ACCESS_KEY_ID=minioadmin
-S3_SECRET_ACCESS_KEY=minioadmin
+S3_ACCESS_KEY_ID=kaneo-local
+S3_SECRET_ACCESS_KEY=<choose-a-local-development-password>
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=true
 ```
@@ -229,13 +229,13 @@ Matching `.env`:
 KANEO_CLIENT_URL=https://cloud.kaneo.app
 KANEO_API_URL=https://cloud.kaneo.app/api
 
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=change-me
+MINIO_ROOT_USER=<generate-a-unique-admin-user>
+MINIO_ROOT_PASSWORD=<generate-a-strong-random-secret>
 
 S3_ENDPOINT=https://files.cloud.kaneo.app
 S3_BUCKET=kaneo-uploads
-S3_ACCESS_KEY_ID=minioadmin
-S3_SECRET_ACCESS_KEY=change-me
+S3_ACCESS_KEY_ID=<generate-a-unique-admin-user>
+S3_SECRET_ACCESS_KEY=<generate-a-strong-random-secret>
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=true
 ```
