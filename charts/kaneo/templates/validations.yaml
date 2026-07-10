@@ -1,9 +1,6 @@
 {{- $publicExposureEnabled := or .Values.ingress.enabled .Values.gateway.enabled -}}
-{{- if and $publicExposureEnabled (not .Values.kaneo.env.existingSecret.enabled) (eq .Values.kaneo.env.authSecret "change_me_to_at_least_32_characters_long_string") -}}
-{{- fail "kaneo.env.authSecret must be changed or provided via kaneo.env.existingSecret before enabling ingress or gateway" -}}
-{{- end -}}
-{{- if and $publicExposureEnabled (not .Values.kaneo.env.existingSecret.enabled) (lt (len (.Values.kaneo.env.authSecret | toString)) 32) -}}
-{{- fail "kaneo.env.authSecret must be at least 32 characters or provided via kaneo.env.existingSecret before enabling ingress or gateway" -}}
+{{- if and (not .Values.kaneo.env.existingSecret.enabled) .Values.kaneo.env.authSecret (lt (len (.Values.kaneo.env.authSecret | toString)) 32) -}}
+{{- fail "kaneo.env.authSecret must be at least 32 characters; leave it empty to generate a per-release secret" -}}
 {{- end -}}
 {{- if and $publicExposureEnabled .Values.postgresql.enabled (not .Values.postgresql.auth.existingSecret) (eq .Values.postgresql.auth.password "kaneo_password") -}}
 {{- fail "postgresql.auth.password must be changed or provided via postgresql.auth.existingSecret before enabling ingress or gateway" -}}

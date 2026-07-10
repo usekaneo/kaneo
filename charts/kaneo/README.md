@@ -99,7 +99,7 @@ When CPU autoscaling is enabled, set `kaneo.resources.requests.cpu`; Kubernetes 
 | `kaneo.env`                         | Environment variables for the Kaneo container                                                                      | See `values.yaml`               |
 | `kaneo.env.clientUrl`               | Public URL of the Kaneo instance. **Required for any non-localhost deployment** — sets `KANEO_CLIENT_URL`. Omitting this causes "invalid origin" errors on login. Note: this key is case-sensitive (`clientUrl`, not `clientURL`). | `""` |
 | `kaneo.env.corsOrigins`             | Allowed CORS origins as a comma-separated string or YAML list                                                      | `[]`                            |
-| `kaneo.env.authSecret`              | Better Auth secret, ignored if existingSecret is enabled                                                           | `change_me_to_at_least_32_characters_long_string` |
+| `kaneo.env.authSecret`              | Better Auth secret; generated per release when empty, ignored if existingSecret is enabled                          | `""` |
 | `kaneo.env.existingSecret.enabled`  | Whether to use an existing secret for `AUTH_SECRET`                                                                | `false`                         |
 | `kaneo.env.existingSecret.name`     | Name of the existing secret containing `AUTH_SECRET`                                                               | `""`                            |
 | `kaneo.env.existingSecret.key`      | Key in the existing secret that contains `AUTH_SECRET`                                                             | `auth-secret`                   |
