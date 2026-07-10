@@ -55,10 +55,7 @@ spec:
                   name: {{ .Values.kaneo.env.existingSecret.name }}
                   key: {{ .Values.kaneo.env.existingSecret.key }}
               {{- else }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ printf "%s-auth" (include "kaneo.fullname" .) }}
-                  key: auth-secret
+              value: {{ .Values.kaneo.env.authSecret | quote }}
               {{- end }}
             {{- if and (not .Values.kaneo.env.database.external.enabled) .Values.postgresql.auth.existingSecret }}
             - name: KANEO_POSTGRES_PASSWORD

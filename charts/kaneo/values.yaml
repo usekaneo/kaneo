@@ -86,8 +86,8 @@ kaneo:
     # Allowed CORS origins. Accepts a comma-separated string or YAML list.
     # Defaults to clientUrl when left empty.
     corsOrigins: []
-    # Optional explicit Better Auth secret (minimum 32 characters).
-    # When empty, the chart generates and preserves a per-release secret.
+    # Required Better Auth secret (minimum 32 characters), unless existingSecret is enabled.
+    # Generate with: openssl rand -hex 32
     authSecret: ""
     existingSecret:
       enabled: false
