@@ -111,9 +111,13 @@ type ApiVariables = {
 };
 
 const SAFE_INLINE_ASSET_TYPES = new Set([
+  "image/apng",
   "image/avif",
   "image/gif",
+  "image/heic",
+  "image/heif",
   "image/jpeg",
+  "image/jpg",
   "image/png",
   "image/webp",
 ]);
