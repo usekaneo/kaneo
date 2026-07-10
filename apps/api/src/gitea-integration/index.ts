@@ -144,6 +144,7 @@ const giteaIntegration = new Hono<{
     }),
     validator("param", v.object({ projectId: v.string() })),
     workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
       const integration = await getGiteaIntegration(projectId);
