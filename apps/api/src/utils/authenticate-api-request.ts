@@ -39,6 +39,26 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
     throw new HTTPException(401, { message: "Unauthorized" });
   }
 
+  const apiKeyHeader = c.req.header("x-api-key")?.trim();
+  if (!token && apiKeyHeader) {
+    const apiKeyResult = await verifyApiKey(apiKeyHeader);
+    if (!apiKeyResult?.valid || !apiKeyResult.key) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+    const key = apiKeyResult.key;
+    c.set("userId", key.userId);
+    c.set("userEmail", "");
+    c.set("user", null);
+    c.set("session", null);
+    c.set("apiKey", {
+      id: key.id,
+      userId: key.userId,
+      enabled: key.enabled,
+      permissions: key.permissions,
+    });
+    return;
+  }
+
   if (token) {
     const apiKeyResult = await verifyApiKey(token);
     if (apiKeyResult?.valid && apiKeyResult.key) {
@@ -85,6 +105,18 @@ export async function resolveAssetBearerOrCookie(c: Context): Promise<{
 }> {
   const { token, malformed } = parseBearerToken(c.req.header("Authorization"));
   if (malformed) {
+    throw new HTTPException(401, { message: "Unauthorized" });
+  }
+
+  const apiKeyHeader = c.req.header("x-api-key")?.trim();
+  if (!token && apiKeyHeader) {
+    const apiKeyResult = await verifyApiKey(apiKeyHeader);
+    if (apiKeyResult?.valid && apiKeyResult.key) {
+      return {
+        userId: apiKeyResult.key.userId,
+        apiKeyId: apiKeyResult.key.id,
+      };
+    }
     throw new HTTPException(401, { message: "Unauthorized" });
   }
 
