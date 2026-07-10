@@ -110,7 +110,15 @@ type ApiVariables = {
   };
 };
 
-function buildContentDisposition(filename: string) {
+const SAFE_INLINE_ASSET_TYPES = new Set([
+  "image/avif",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
+function buildContentDisposition(filename: string, inline: boolean) {
   const normalized = filename
     .normalize("NFC")
     .replace(/[\r\n"]/g, "")
@@ -129,7 +137,8 @@ function buildContentDisposition(filename: string) {
     (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`,
   );
 
-  return `inline; filename="${asciiFallback}"; filename*=UTF-8''${encodedFilename}`;
+  const disposition = inline ? "inline" : "attachment";
+  return `${disposition}; filename="${asciiFallback}"; filename*=UTF-8''${encodedFilename}`;
 }
 
 export function createApp() {
@@ -291,15 +300,27 @@ export function createApp() {
 
       try {
         const object = await getPrivateObject(asset.objectKey);
+        const storedContentType =
+          (object.contentType || asset.mimeType)
+            .toLowerCase()
+            .split(";")[0]
+            ?.trim() ?? "";
+        const inline = SAFE_INLINE_ASSET_TYPES.has(storedContentType);
 
         return new Response(object.body as BodyInit, {
           headers: {
             "Cache-Control": asset.isPublic
               ? "public, max-age=300"
               : "private, max-age=120",
-            "Content-Disposition": buildContentDisposition(asset.filename),
+            "Content-Disposition": buildContentDisposition(
+              asset.filename,
+              inline,
+            ),
             "Content-Length": object.contentLength?.toString() || "",
-            "Content-Type": object.contentType || asset.mimeType,
+            "Content-Type": inline
+              ? storedContentType
+              : "application/octet-stream",
+            "X-Content-Type-Options": "nosniff",
             ETag: object.etag || "",
             "Last-Modified": object.lastModified?.toUTCString() || "",
           },
