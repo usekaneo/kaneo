@@ -52,6 +52,13 @@ const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 const isPasswordRegistrationDisabled =
   process.env.DISABLE_PASSWORD_REGISTRATION === "true";
 
+function normalizeInvitationId(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.trim();
+  if (!/^[a-z0-9_-]{1,128}$/i.test(normalized)) return undefined;
+  return normalized;
+}
+
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
 const isHttps = apiUrl.startsWith("https://");
@@ -486,10 +493,11 @@ export const auth = betterAuth({
             return;
           }
 
-          const invitationId =
+          const invitationId = normalizeInvitationId(
             ctx?.body?.invitationId ||
-            ctx?.query?.invitationId ||
-            ctx?.headers?.get("x-invitation-id");
+              ctx?.query?.invitationId ||
+              ctx?.headers?.get("x-invitation-id"),
+          );
           const result = await checkRegistrationAllowed(
             user.email,
             invitationId,
@@ -638,10 +646,11 @@ export const auth = betterAuth({
         ctx.body?.email ||
         ctx.query?.email ||
         ctx.headers?.get("x-invitation-email");
-      const invitationId =
+      const invitationId = normalizeInvitationId(
         ctx.body?.invitationId ||
-        ctx.query?.invitationId ||
-        ctx.headers?.get("x-invitation-id");
+          ctx.query?.invitationId ||
+          ctx.headers?.get("x-invitation-id"),
+      );
 
       if (ctx.path === "/sign-up/email") {
         const result = await checkRegistrationAllowed(email, invitationId);
