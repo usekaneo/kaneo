@@ -51,6 +51,7 @@ const githubSso = getGithubSsoOAuthCredentials();
 const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 const isPasswordRegistrationDisabled =
   process.env.DISABLE_PASSWORD_REGISTRATION === "true";
+const isLoginFormDisabled = process.env.DISABLE_LOGIN_FORM === "true";
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
@@ -546,6 +547,19 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (
+        isLoginFormDisabled &&
+        (ctx.path === "/sign-in/email" ||
+          ctx.path === "/sign-in/magic-link" ||
+          ctx.path === "/sign-in/email-otp" ||
+          ctx.path.startsWith("/email-otp/"))
+      ) {
+        throw new APIError("FORBIDDEN", {
+          message:
+            "Email and password sign-in is disabled. Please use a configured social or OIDC sign-in method.",
+        });
+      }
+
       // Block invite-member calls on cloud from anonymous users or to
       // disposable-email addresses. The 2026-05-28 incident saw ~14k phishing
       // invites sent from throwaway disposable-email signups; gating here
