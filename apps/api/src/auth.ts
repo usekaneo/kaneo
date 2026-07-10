@@ -187,15 +187,11 @@ export const auth = betterAuth({
       // providers verify the email on their side, so they are trusted to link.
       enabled: true,
       trustedProviders: ["github", "google", "discord", "custom"],
-      // Kaneo does not require email verification on password signup, so the
-      // existing local account is usually unverified; allow linking to it so
-      // OIDC users are not locked out.
-      // SECURITY: with open password registration this means someone who
-      // pre-registered a victim's email (unverified) could be linked into by
-      // that victim's OIDC login. Instances that allow password signup
-      // alongside OIDC should set DISABLE_PASSWORD_REGISTRATION or require email
-      // verification.
-      requireLocalEmailVerified: false,
+      // Only link to an existing local account after its email has been
+      // verified. Without this check, an attacker could pre-register a victim's
+      // email with a password account and retain access after the victim signs
+      // in through a trusted OAuth/OIDC provider.
+      requireLocalEmailVerified: true,
     },
   },
   emailAndPassword: {

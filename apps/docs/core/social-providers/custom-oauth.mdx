@@ -178,9 +178,9 @@ This will automatically discover the authorization, token, and userinfo endpoint
 
 ## Account linking
 
-When a user signs in with this provider using an email that already belongs to a Kaneo account (for example one created with email and password), Kaneo links the OIDC identity to that existing account instead of failing with `error=account_not_linked`. GitHub, Google, Discord, and this custom provider are trusted to link because they verify the user's email.
+When a user signs in with this provider using an email that already belongs to a Kaneo account (for example one created with email and password), Kaneo can link the OIDC identity to that existing account instead of failing with `error=account_not_linked`. GitHub, Google, Discord, and this custom provider are trusted to link because they verify the user's email.
 
-Because Kaneo does not require email verification on password signup, linking also applies to unverified local accounts so OIDC users are not locked out. If your instance allows password registration alongside OIDC, set `DISABLE_PASSWORD_REGISTRATION=true` (or require email verification) so that nobody can pre-register another person's email and have an OIDC login linked into it.
+For safety, Kaneo only links to an existing local account if that account's email has already been verified. This prevents someone from pre-registering another person's email with a password account and retaining access after the real owner signs in through OIDC. If your instance allows password registration alongside OIDC, consider setting `DISABLE_PASSWORD_REGISTRATION=true` or requiring email verification for password users to avoid account-linking surprises.
 
 ## Security Notes
 
