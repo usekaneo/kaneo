@@ -18,8 +18,17 @@ type AuthCode = {
   expiresAt: number;
 };
 
+export type AuthorizationRequest = {
+  clientId: string;
+  codeChallenge: string;
+  redirectUri: string;
+  state?: string;
+  expiresAt: number;
+};
+
 const clients = new Map<string, RegisteredClient>();
 const codes = new Map<string, AuthCode>();
+const authorizationRequests = new Map<string, AuthorizationRequest>();
 
 export function getClient(clientId: string): RegisteredClient | undefined {
   return clients.get(clientId);
@@ -54,6 +63,41 @@ export function createAuthCode(params: {
   return code;
 }
 
+export function createAuthorizationRequest(params: {
+  clientId: string;
+  codeChallenge: string;
+  redirectUri: string;
+  state?: string;
+}): string {
+  const requestId = randomUUID();
+  authorizationRequests.set(requestId, {
+    ...params,
+    expiresAt: Date.now() + 10 * 60 * 1000,
+  });
+  return requestId;
+}
+
+export function getAuthorizationRequest(
+  requestId: string,
+): AuthorizationRequest | undefined {
+  const request = authorizationRequests.get(requestId);
+  if (!request) return undefined;
+  if (request.expiresAt < Date.now()) {
+    authorizationRequests.delete(requestId);
+    return undefined;
+  }
+  return request;
+}
+
+export function consumeAuthorizationRequest(
+  requestId: string,
+): AuthorizationRequest | undefined {
+  const request = getAuthorizationRequest(requestId);
+  if (!request) return undefined;
+  authorizationRequests.delete(requestId);
+  return request;
+}
+
 function base64url(buf: Buffer): string {
   return buf.toString("base64url");
 }
@@ -71,12 +115,12 @@ export async function exchangeCode(
 ): Promise<{ accessToken: string; expiresIn: number } | null> {
   const stored = codes.get(code);
   if (!stored) return null;
-  codes.delete(code);
 
   if (stored.clientId !== clientId) return null;
   if (stored.redirectUri !== redirectUri) return null;
   if (stored.expiresAt < Date.now()) return null;
   if (!verifyPkce(codeVerifier, stored.codeChallenge)) return null;
+  codes.delete(code);
 
   const sessionToken = randomUUID();
   const expiresIn = 30 * 24 * 60 * 60;
