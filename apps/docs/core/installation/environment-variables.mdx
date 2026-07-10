@@ -86,6 +86,10 @@ Name | Description | Default |
 | `DISABLE_LOGIN_FORM` | Hide the email/password login form on the sign-in page. When set to `true`, only SSO/OAuth buttons are shown. Useful when you want to enforce authentication exclusively through an external identity provider. | `false` |
 | `CUSTOM_OAUTH_AUTO_LOGIN` | Automatically redirect to the custom OAuth/OIDC provider instead of showing the sign-in page. When set to `true`, users are immediately redirected to your identity provider without seeing the login page. Requires a custom OAuth provider to be configured. | `false` |
 
+<Warning>
+  Before enabling SSO-only access with `DISABLE_LOGIN_FORM=true` or `CUSTOM_OAUTH_AUTO_LOGIN=true` on an existing installation, make sure existing local accounts have verified email addresses. OAuth/OIDC identities cannot be linked to an unverified local account, and affected users will receive `error=account_not_linked`. Keep the login form available until those users have signed in with an email OTP or magic link. If SSO-only access is already enabled, temporarily set both options to `false`, restart Kaneo, and let affected users complete an email sign-in before restoring the SSO-only settings.
+</Warning>
+
 ### Notifications
 
 Name | Description | Default |

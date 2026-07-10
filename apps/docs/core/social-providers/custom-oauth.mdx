@@ -178,9 +178,11 @@ This will automatically discover the authorization, token, and userinfo endpoint
 
 ## Account linking
 
-When a user signs in with this provider using an email that already belongs to a Kaneo account (for example one created with email and password), Kaneo can link the OIDC identity to that existing account instead of failing with `error=account_not_linked`. GitHub, Google, Discord, and this custom provider are trusted to link because they verify the user's email.
+When a user signs in with this provider using an email that already belongs to a Kaneo account (for example one created with email and password), Kaneo can link the OIDC identity to that existing account instead of failing with `error=account_not_linked`. GitHub, Google, and Discord are trusted because they verify email ownership. Kaneo also treats the configured custom provider as trusted, but it cannot verify the provider's email claims itself. Only use a custom provider that guarantees ownership of every returned email address; otherwise, an attacker-controlled email claim could be linked to an existing verified account.
 
 For safety, Kaneo only links to an existing local account if that account's email has already been verified. This prevents someone from pre-registering another person's email with a password account and retaining access after the real owner signs in through OIDC. If your instance allows password registration alongside OIDC, consider setting `DISABLE_PASSWORD_REGISTRATION=true` or requiring email verification for password users to avoid account-linking surprises.
+
+On existing installations, local accounts created before this requirement may still have an unverified email. Those users will receive `error=account_not_linked` until they verify the local account. Before enforcing SSO-only access, keep the login form available so affected users can sign in with an email OTP or magic link, which verifies the email. If users are already locked out, temporarily set `DISABLE_LOGIN_FORM=false` and `CUSTOM_OAUTH_AUTO_LOGIN=false`, restart Kaneo, and have them complete an email sign-in before enabling SSO-only access again.
 
 ## Security Notes
 
@@ -188,4 +190,3 @@ For safety, Kaneo only links to an existing local account if that account's emai
 - Keep your client secret secure and never commit it to version control
 - Enable PKCE when possible for enhanced security
 - Use the most restrictive scopes necessary for your use case
-
