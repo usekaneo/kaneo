@@ -39,7 +39,10 @@ type IssueOpenedPayload = {
   };
 };
 
-export async function handleGiteaIssueOpened(payload: IssueOpenedPayload) {
+export async function handleGiteaIssueOpened(
+  payload: IssueOpenedPayload,
+  integrationId?: string,
+) {
   const { issue, repository } = payload;
 
   const baseUrl = baseUrlFromRepositoryHtmlUrl(repository.html_url);
@@ -52,6 +55,7 @@ export async function handleGiteaIssueOpened(payload: IssueOpenedPayload) {
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   if (integrations.length === 0) {

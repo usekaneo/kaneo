@@ -8,6 +8,7 @@ export async function findAllIntegrationsByGiteaRepo(
   baseUrl: string,
   owner: string,
   repo: string,
+  integrationId?: string,
 ) {
   const normalized = normalizeGiteaBaseUrl(baseUrl);
   const integrations = await db.query.integrationTable.findMany({
@@ -21,6 +22,10 @@ export async function findAllIntegrationsByGiteaRepo(
   });
 
   return integrations.filter((integration) => {
+    if (integrationId && integration.id !== integrationId) {
+      return false;
+    }
+
     try {
       const config = JSON.parse(integration.config) as GiteaConfig;
       return (

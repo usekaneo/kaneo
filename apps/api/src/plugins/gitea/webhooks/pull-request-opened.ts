@@ -39,7 +39,10 @@ type PROpenedPayload = {
   };
 };
 
-export async function handleGiteaPullRequestOpened(payload: PROpenedPayload) {
+export async function handleGiteaPullRequestOpened(
+  payload: PROpenedPayload,
+  integrationId?: string,
+) {
   const { pull_request, repository } = payload;
 
   const baseUrl = baseUrlFromRepositoryHtmlUrl(repository.html_url);
@@ -50,6 +53,7 @@ export async function handleGiteaPullRequestOpened(payload: PROpenedPayload) {
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   for (const integration of integrations) {
