@@ -473,7 +473,7 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user) => {
+        before: async (user, ctx) => {
           // Allow the very first signup through even when registration
           // is disabled — that's the instance-admin bootstrap flow.
           // Otherwise a fresh instance with DISABLE_REGISTRATION=true
@@ -486,7 +486,14 @@ export const auth = betterAuth({
             return;
           }
 
-          const result = await checkRegistrationAllowed(user.email);
+          const invitationId =
+            ctx?.body?.invitationId ||
+            ctx?.query?.invitationId ||
+            ctx?.headers?.get("x-invitation-id");
+          const result = await checkRegistrationAllowed(
+            user.email,
+            invitationId,
+          );
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {
               message: result.reason,
