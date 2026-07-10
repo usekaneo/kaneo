@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable } from "../../database/schema";
+import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 import { assertValidTaskStatus } from "../validate-task-fields";
@@ -19,13 +19,36 @@ async function updateTask(
   userId?: string,
   currentUserId?: string,
 ) {
-  const existingTask = await db.query.taskTable.findFirst({
-    where: eq(taskTable.id, id),
-  });
+  const [existingTask] = await db
+    .select({
+      id: taskTable.id,
+      description: taskTable.description,
+      status: taskTable.status,
+      workspaceId: projectTable.workspaceId,
+    })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(eq(taskTable.id, id))
+    .limit(1);
 
   if (!existingTask) {
     throw new HTTPException(404, {
       message: "Task not found",
+    });
+  }
+
+  const [destinationProject] = await db
+    .select({ workspaceId: projectTable.workspaceId })
+    .from(projectTable)
+    .where(eq(projectTable.id, projectId))
+    .limit(1);
+
+  if (
+    !destinationProject ||
+    destinationProject.workspaceId !== existingTask.workspaceId
+  ) {
+    throw new HTTPException(400, {
+      message: "Tasks cannot be moved to a project in another workspace",
     });
   }
 
