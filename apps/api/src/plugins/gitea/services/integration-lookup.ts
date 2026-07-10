@@ -11,28 +11,34 @@ export async function findAllIntegrationsByGiteaRepo(
   integrationId?: string,
 ) {
   const normalized = normalizeGiteaBaseUrl(baseUrl);
+  const conditions = [
+    eq(integrationTable.type, "gitea"),
+    eq(integrationTable.isActive, true),
+  ];
+  if (integrationId) {
+    conditions.push(eq(integrationTable.id, integrationId));
+  }
+
   const integrations = await db.query.integrationTable.findMany({
-    where: and(
-      eq(integrationTable.type, "gitea"),
-      eq(integrationTable.isActive, true),
-    ),
+    where: and(...conditions),
     with: {
       project: true,
     },
   });
 
   return integrations.filter((integration) => {
-    if (integrationId && integration.id !== integrationId) {
-      return false;
-    }
-
     try {
       const config = JSON.parse(integration.config) as GiteaConfig;
-      return (
+      const matches =
         normalizeGiteaBaseUrl(config.baseUrl) === normalized &&
         config.repositoryOwner === owner &&
-        config.repositoryName === repo
-      );
+        config.repositoryName === repo;
+      if (integrationId && !matches) {
+        console.warn("[Gitea Webhook] Signed integration repository mismatch", {
+          integrationId,
+        });
+      }
+      return matches;
     } catch {
       return false;
     }
