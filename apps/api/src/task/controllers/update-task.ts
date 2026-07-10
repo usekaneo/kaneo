@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, projectTable, taskTable } from "../../database/schema";
+import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 import { assertValidTaskStatus } from "../validate-task-fields";
@@ -24,10 +24,9 @@ async function updateTask(
       id: taskTable.id,
       description: taskTable.description,
       status: taskTable.status,
-      workspaceId: projectTable.workspaceId,
+      projectId: taskTable.projectId,
     })
     .from(taskTable)
-    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(eq(taskTable.id, id))
     .limit(1);
 
@@ -37,18 +36,9 @@ async function updateTask(
     });
   }
 
-  const [destinationProject] = await db
-    .select({ workspaceId: projectTable.workspaceId })
-    .from(projectTable)
-    .where(eq(projectTable.id, projectId))
-    .limit(1);
-
-  if (
-    !destinationProject ||
-    destinationProject.workspaceId !== existingTask.workspaceId
-  ) {
+  if (projectId !== existingTask.projectId) {
     throw new HTTPException(400, {
-      message: "Tasks cannot be moved to a project in another workspace",
+      message: "Use the task move endpoint to move tasks between projects",
     });
   }
 
