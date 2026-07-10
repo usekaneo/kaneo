@@ -35,6 +35,10 @@ vi.mock("../../apps/api/src/mcp/tools", () => ({
 }));
 
 import mcpRoutes from "../../apps/api/src/mcp";
+import {
+  createAuthorizationRequest,
+  getAuthorizationRequest,
+} from "../../apps/api/src/mcp/oauth";
 
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
 const clientOrigin = new URL(clientUrl).origin;
@@ -60,6 +64,7 @@ function buildAuthorizeUrl(
   clientId: string,
   redirectUri: string,
   verifier: string,
+  state: string | undefined = "client-state",
 ) {
   const url = new URL("http://api.local/mcp/authorize");
   url.searchParams.set("response_type", "code");
@@ -67,8 +72,46 @@ function buildAuthorizeUrl(
   url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("code_challenge", challengeFor(verifier));
   url.searchParams.set("code_challenge_method", "S256");
-  url.searchParams.set("state", "client-state");
+  if (state !== undefined) url.searchParams.set("state", state);
   return url;
+}
+
+async function decideAuthorization(params: {
+  clientId: string;
+  redirectUri: string;
+  verifier: string;
+  approved: boolean;
+  state?: string;
+}) {
+  const authorizeUrl = buildAuthorizeUrl(
+    params.clientId,
+    params.redirectUri,
+    params.verifier,
+    params.state,
+  );
+  const authorize = await mcpRoutes.request(authorizeUrl.toString(), {
+    redirect: "manual",
+  });
+  expect(authorize.status).toBe(302);
+  const consentUrl = new URL(authorize.headers.get("location") ?? "");
+  const requestId = consentUrl.searchParams.get("request_id");
+  expect(requestId).toBeTruthy();
+
+  const decision = await mcpRoutes.request(
+    `/mcp/authorize/request/${requestId}`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: "victim_session=1",
+        origin: clientOrigin,
+      },
+      body: JSON.stringify({ approved: params.approved }),
+    },
+  );
+  expect(decision.status).toBe(200);
+  const body = (await decision.json()) as { redirect: string };
+  return new URL(body.redirect);
 }
 
 describe("MCP OAuth security", () => {
@@ -206,5 +249,74 @@ describe("MCP OAuth security", () => {
       },
     );
     expect(replay.status).toBe(404);
+  });
+
+  it("preserves an explicitly empty state value", async () => {
+    const redirectUri = "https://client.example/empty-state";
+    const client = await registerClient(redirectUri);
+    const callback = await decideAuthorization({
+      clientId: client.client_id,
+      redirectUri,
+      verifier: "empty-state-verifier",
+      approved: false,
+      state: "",
+    });
+
+    expect(callback.searchParams.get("error")).toBe("access_denied");
+    expect(callback.searchParams.has("state")).toBe(true);
+    expect(callback.searchParams.get("state")).toBe("");
+  });
+
+  it("consumes an authorization code after a failed redemption attempt", async () => {
+    const redirectUri = "https://client.example/single-use";
+    const verifier = "single-use-verifier";
+    const client = await registerClient(redirectUri);
+    const callback = await decideAuthorization({
+      clientId: client.client_id,
+      redirectUri,
+      verifier,
+      approved: true,
+    });
+    const code = callback.searchParams.get("code") ?? "";
+
+    const redeem = (codeVerifier: string) =>
+      mcpRoutes.request("/mcp/token", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          grant_type: "authorization_code",
+          code,
+          client_id: client.client_id,
+          redirect_uri: redirectUri,
+          code_verifier: codeVerifier,
+        }),
+      });
+
+    expect((await redeem("incorrect-verifier")).status).toBe(400);
+    expect((await redeem(verifier)).status).toBe(400);
+  });
+
+  it("sweeps expired authorization requests when creating a new one", () => {
+    const now = Date.now();
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(now);
+      const expiredRequestId = createAuthorizationRequest({
+        clientId: "client-expired",
+        redirectUri: "https://client.example/expired",
+        codeChallenge: "challenge",
+      });
+
+      vi.setSystemTime(now + 10 * 60 * 1000 + 1);
+      createAuthorizationRequest({
+        clientId: "client-current",
+        redirectUri: "https://client.example/current",
+        codeChallenge: "challenge",
+      });
+
+      expect(getAuthorizationRequest(expiredRequestId)).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

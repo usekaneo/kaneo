@@ -29,6 +29,19 @@ export type AuthorizationRequest = {
 const clients = new Map<string, RegisteredClient>();
 const codes = new Map<string, AuthCode>();
 const authorizationRequests = new Map<string, AuthorizationRequest>();
+const maxAuthorizationRequests = 10_000;
+
+function pruneAuthorizationRequests(now = Date.now()): void {
+  for (const [requestId, request] of authorizationRequests) {
+    if (request.expiresAt < now) authorizationRequests.delete(requestId);
+  }
+
+  while (authorizationRequests.size >= maxAuthorizationRequests) {
+    const oldestRequestId = authorizationRequests.keys().next().value;
+    if (!oldestRequestId) break;
+    authorizationRequests.delete(oldestRequestId);
+  }
+}
 
 export function getClient(clientId: string): RegisteredClient | undefined {
   return clients.get(clientId);
@@ -69,6 +82,7 @@ export function createAuthorizationRequest(params: {
   redirectUri: string;
   state?: string;
 }): string {
+  pruneAuthorizationRequests();
   const requestId = randomUUID();
   authorizationRequests.set(requestId, {
     ...params,
@@ -115,12 +129,12 @@ export async function exchangeCode(
 ): Promise<{ accessToken: string; expiresIn: number } | null> {
   const stored = codes.get(code);
   if (!stored) return null;
+  codes.delete(code);
 
   if (stored.clientId !== clientId) return null;
   if (stored.redirectUri !== redirectUri) return null;
   if (stored.expiresAt < Date.now()) return null;
   if (!verifyPkce(codeVerifier, stored.codeChallenge)) return null;
-  codes.delete(code);
 
   const sessionToken = randomUUID();
   const expiresIn = 30 * 24 * 60 * 60;

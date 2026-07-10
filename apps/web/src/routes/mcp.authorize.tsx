@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { useMcpAuthorizationDecision } from "@/hooks/mutations/mcp/use-authorization-decision";
 import { useMcpAuthorizationRequest } from "@/hooks/queries/mcp/use-authorization-request";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "@/lib/toast";
 
 const authorizationSearchSchema = z.object({
   request_id: z.string().optional(),
@@ -80,7 +79,6 @@ function McpAuthorizePage() {
       { requestId, approved },
       {
         onSuccess: (redirect) => window.location.assign(redirect),
-        onError: (error) => toast.error(error.message),
       },
     );
   };
