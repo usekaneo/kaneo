@@ -5,9 +5,8 @@ type EmbedMode = "embed" | "link";
 
 function isValidUrl(value: string) {
   try {
-    // eslint-disable-next-line no-new
-    new URL(value);
-    return true;
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
   } catch {
     return false;
   }
@@ -117,6 +116,14 @@ export const EmbedBlock = Node.create({
           { class: "kaneo-embed-unsupported" },
           i18n.t("tasks:detail.editor.embed.onlyYoutubeInline"),
         ],
+      ];
+    }
+
+    if (!isValidUrl(url)) {
+      return [
+        "div",
+        attrs,
+        ["span", { class: "kaneo-embed-invalid-link" }, url],
       ];
     }
 
