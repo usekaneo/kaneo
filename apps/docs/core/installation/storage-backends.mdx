@@ -81,8 +81,8 @@ Then use:
 ```env
 S3_ENDPOINT=https://files.cloud.kaneo.app
 S3_BUCKET=kaneo-uploads
-S3_ACCESS_KEY_ID=minioadmin
-S3_SECRET_ACCESS_KEY=minioadmin
+S3_ACCESS_KEY_ID=kaneo
+S3_SECRET_ACCESS_KEY=<generate-a-strong-random-secret>
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=true
 ```
@@ -90,8 +90,14 @@ S3_FORCE_PATH_STYLE=true
 You also need:
 
 - a created bucket
+- a dedicated, non-root MinIO user with access limited to that bucket
 - MinIO CORS allowing your Kaneo origin
 - no anonymous bucket read policy is required
+
+<Warning>
+  Never expose MinIO with its default `minioadmin` root credentials. Generate
+  unique credentials for every deployment and keep the MinIO Console private.
+</Warning>
 
 ## AWS S3
 
