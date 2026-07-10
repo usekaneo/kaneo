@@ -1,8 +1,24 @@
-import { eq, inArray, or } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 import db from "../../database";
-import { taskRelationTable, taskTable, userTable } from "../../database/schema";
+import {
+  projectTable,
+  taskRelationTable,
+  taskTable,
+  userTable,
+} from "../../database/schema";
 
 async function getTaskRelations(taskId: string) {
+  const [requestedTask] = await db
+    .select({ workspaceId: projectTable.workspaceId })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(eq(taskTable.id, taskId))
+    .limit(1);
+
+  if (!requestedTask) {
+    return [];
+  }
+
   const relations = await db
     .select({
       id: taskRelationTable.id,
@@ -52,19 +68,27 @@ async function getTaskRelations(taskId: string) {
         assigneeName: userTable.name,
       })
       .from(taskTable)
+      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
       .leftJoin(userTable, eq(taskTable.userId, userTable.id))
-      .where(inArray(taskTable.id, [...taskIds]));
+      .where(
+        and(
+          inArray(taskTable.id, [...taskIds]),
+          eq(projectTable.workspaceId, requestedTask.workspaceId),
+        ),
+      );
 
     for (const task of taskRows) {
       tasks.set(task.id, task);
     }
   }
 
-  return relations.map((rel) => ({
-    ...rel,
-    sourceTask: tasks.get(rel.sourceTaskId) ?? null,
-    targetTask: tasks.get(rel.targetTaskId) ?? null,
-  }));
+  return relations
+    .filter((rel) => tasks.has(rel.sourceTaskId) && tasks.has(rel.targetTaskId))
+    .map((rel) => ({
+      ...rel,
+      sourceTask: tasks.get(rel.sourceTaskId) ?? null,
+      targetTask: tasks.get(rel.targetTaskId) ?? null,
+    }));
 }
 
 export default getTaskRelations;
