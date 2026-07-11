@@ -294,6 +294,10 @@ function RouteComponent() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label={t(
+                              "settings:workspaceLabels.editLabel",
+                              { defaultValue: "Edit Label" },
+                            )}
                             className="h-8 w-8"
                             onClick={() =>
                               openEdit({
@@ -308,6 +312,10 @@ function RouteComponent() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label={t(
+                              "settings:workspaceLabels.deleteLabel",
+                              { defaultValue: "Delete" },
+                            )}
                             className="h-8 w-8 text-destructive hover:text-destructive"
                             onClick={() =>
                               openDelete({
