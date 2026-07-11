@@ -37,6 +37,18 @@ const messages = {
       "Falls du damit nicht gerechnet hast, kannst du diese E-Mail einfach ignorieren.",
     footer: "Kaneo Workspace-Einladung",
   },
+  fr: {
+    preview: "Vous êtes invité à rejoindre {{workspaceName}} sur Kaneo",
+    title: "Rejoindre {{workspaceName}}",
+    subtitle:
+      "{{inviterName}} ({{inviterEmail}}) vous invite à collaborer sur Kaneo.",
+    cta: "Accepter l’invitation",
+    sameEmail:
+      "Vous pouvez accepter l’invitation avec l’adresse e-mail qui a reçu ce message.",
+    ignore:
+      "Si vous ne vous attendiez pas à recevoir ce message, vous pouvez l’ignorer.",
+    footer: "Invitation à un espace de travail Kaneo",
+  },
 } as const;
 
 function interpolate(template: string, values: Record<string, string>) {
@@ -53,7 +65,8 @@ const WorkspaceInvitationEmail = ({
   to,
   locale,
 }: WorkspaceInvitationEmailProps) => {
-  const copy = messages[resolveEmailLocale(locale)];
+  const copy =
+    messages[resolveEmailLocale(locale, ["en", "de", "fr"] as const)];
   const values = { workspaceName, inviterName, inviterEmail };
 
   return (
