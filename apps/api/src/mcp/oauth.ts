@@ -1,4 +1,9 @@
-import { createHash, randomUUID } from "node:crypto";
+import {
+  createHash,
+  createHmac,
+  randomUUID,
+  timingSafeEqual,
+} from "node:crypto";
 import { createId } from "@paralleldrive/cuid2";
 import db from "../database";
 import { sessionTable } from "../database/schema";
@@ -18,8 +23,69 @@ type AuthCode = {
   expiresAt: number;
 };
 
+type AuthorizationContext = {
+  clientId: string;
+  redirectUri: string;
+  codeChallenge: string;
+  state?: string;
+  expiresAt: number;
+};
+
 const clients = new Map<string, RegisteredClient>();
 const codes = new Map<string, AuthCode>();
+
+function signAuthorizationContext(payload: string): string {
+  return createHmac("sha256", process.env.AUTH_SECRET || "")
+    .update(payload)
+    .digest("base64url");
+}
+
+export function createAuthorizationContext(
+  params: Omit<AuthorizationContext, "expiresAt">,
+): string {
+  const payload = Buffer.from(
+    JSON.stringify({
+      ...params,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    } satisfies AuthorizationContext),
+  ).toString("base64url");
+  return `${payload}.${signAuthorizationContext(payload)}`;
+}
+
+export function verifyAuthorizationContext(
+  token: string,
+): AuthorizationContext | null {
+  const [payload, signature, ...rest] = token.split(".");
+  if (!payload || !signature || rest.length > 0) return null;
+
+  const expected = Buffer.from(signAuthorizationContext(payload));
+  const actual = Buffer.from(signature);
+  if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
+    return null;
+  }
+
+  let value: unknown;
+  try {
+    value = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+
+  const context = value as Partial<AuthorizationContext>;
+  if (
+    typeof context.clientId !== "string" ||
+    typeof context.redirectUri !== "string" ||
+    typeof context.codeChallenge !== "string" ||
+    (context.state !== undefined && typeof context.state !== "string") ||
+    typeof context.expiresAt !== "number" ||
+    context.expiresAt < Date.now()
+  ) {
+    return null;
+  }
+
+  return context as AuthorizationContext;
+}
 
 export function getClient(clientId: string): RegisteredClient | undefined {
   return clients.get(clientId);
@@ -32,7 +98,7 @@ export function registerClient(params: {
   const clientId = randomUUID();
   const client: RegisteredClient = {
     clientId,
-    redirectUris: params.redirectUris,
+    redirectUris: [...params.redirectUris],
     clientName: params.clientName,
     issuedAt: Math.floor(Date.now() / 1000),
   };
