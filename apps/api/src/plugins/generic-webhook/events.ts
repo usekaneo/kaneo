@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
+  columnTable,
   integrationTable,
   projectTable,
   taskTable,
@@ -25,6 +26,7 @@ type GenericWebhookTaskData = {
   title: string;
   number: number | null;
   status: string | null;
+  statusName: string | null;
   priority: string | null;
   projectId: string;
   projectName: string;
@@ -50,6 +52,7 @@ async function getTaskData(
       number: taskTable.number,
       status: taskTable.status,
       priority: taskTable.priority,
+      columnName: columnTable.name,
       projectId: projectTable.id,
       projectName: projectTable.name,
       workspaceId: workspaceTable.id,
@@ -57,6 +60,13 @@ async function getTaskData(
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .innerJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
+    .leftJoin(
+      columnTable,
+      and(
+        eq(taskTable.columnId, columnTable.id),
+        eq(columnTable.projectId, projectTable.id),
+      ),
+    )
     .where(and(eq(taskTable.id, taskId), eq(projectTable.id, projectId)))
     .limit(1);
 
@@ -68,6 +78,8 @@ async function getTaskData(
 
   return {
     ...taskRow,
+    status: taskRow.status,
+    statusName: taskRow.columnName ?? taskRow.status,
     taskUrl: `${clientUrl}/dashboard/workspace/${taskRow.workspaceId}/project/${taskRow.projectId}/task/${taskId}`,
   };
 }
@@ -168,6 +180,7 @@ async function sendEvent(
           number: task.number,
           title: task.title,
           status: task.status,
+          statusName: task.statusName,
           priority: task.priority,
           url: task.taskUrl,
         },

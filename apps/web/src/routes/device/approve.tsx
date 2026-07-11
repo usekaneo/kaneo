@@ -94,6 +94,9 @@ function DeviceApprovePage() {
   const handleApprove = async () => {
     setProcessing(true);
     try {
+      // better-auth >= 1.6.11 requires the signed-in user to claim the code
+      // (GET /device) before it can be approved. No-op if already claimed.
+      await authClient.device({ query: { user_code: normalizedCode } });
       const res = await authClient.device.approve({
         userCode: normalizedCode,
       });
@@ -113,6 +116,9 @@ function DeviceApprovePage() {
   const handleDeny = async () => {
     setProcessing(true);
     try {
+      // Claim the code first (see handleApprove) so deny is authorized in
+      // better-auth >= 1.6.11.
+      await authClient.device({ query: { user_code: normalizedCode } });
       const res = await authClient.device.deny({
         userCode: normalizedCode,
       });

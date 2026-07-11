@@ -176,6 +176,12 @@ CUSTOM_OAUTH_DISCOVERY_URL=https://your-idp.com/.well-known/openid-configuration
 
 This will automatically discover the authorization, token, and userinfo endpoints. However, you still need to provide the client ID and secret.
 
+## Account linking
+
+When a user signs in with this provider using an email that already belongs to a Kaneo account (for example one created with email and password), Kaneo links the OIDC identity to that existing account instead of failing with `error=account_not_linked`. GitHub, Google, Discord, and this custom provider are trusted to link because they verify the user's email.
+
+Because Kaneo does not require email verification on password signup, linking also applies to unverified local accounts so OIDC users are not locked out. If your instance allows password registration alongside OIDC, set `DISABLE_PASSWORD_REGISTRATION=true` (or require email verification) so that nobody can pre-register another person's email and have an OIDC login linked into it.
+
 ## Security Notes
 
 - Always use HTTPS in production

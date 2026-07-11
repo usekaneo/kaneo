@@ -549,6 +549,143 @@
 				"nameShort": "Workspace name must be at least 2 characters"
 			}
 		},
+		"workspaceRoles": {
+			"pageTitle": "Roles",
+			"title": "Roles",
+			"subtitle": "Define which actions members can perform in {{workspaceName}}.",
+			"thisWorkspace": "this workspace",
+			"noAccess": "You need admin or owner permissions to manage workspace roles.",
+			"sectionTitle": "Workspace roles",
+			"sectionSubtitle": "Edit the default roles or add a tailored one. Members keep their assigned role name across edits.",
+			"newRole": "New role",
+			"loading": "Loading…",
+			"loadError": "Failed to load roles.",
+			"emptyTitle": "No roles yet",
+			"emptyDescription": "Default roles will appear here once they're seeded for this workspace.",
+			"defaultBadge": "Default",
+			"permissionCount_one": "{{count}} permission",
+			"permissionCount_other": "{{count}} permissions",
+			"nameLabel": "Name",
+			"nameHint": "Lowercase. Cannot be changed later.",
+			"namePlaceholder": "e.g. reviewer",
+			"discard": "Discard",
+			"createRole": "Create role",
+			"deleteRole": "Delete role",
+			"defaultRoleHelp": "Default role — name is reserved and the row can't be deleted.",
+			"unsavedChanges": "You have unsaved changes",
+			"allChangesSaved": "All changes saved",
+			"saveChanges": "Save changes",
+			"defaultRoleDescriptions": {
+				"viewer": "Read-only access to projects, tasks, and workspace.",
+				"member": "Can create and update projects and tasks.",
+				"admin": "Full project and task management plus workspace settings."
+			},
+			"resources": {
+				"project": "Projects",
+				"task": "Tasks",
+				"label": "Labels",
+				"workspace": "Workspace"
+			},
+			"permissions": {
+				"project": {
+					"create": {
+						"label": "Create projects",
+						"description": "Create new projects in this workspace."
+					},
+					"read": {
+						"label": "View projects",
+						"description": "View projects and their details."
+					},
+					"update": {
+						"label": "Edit projects",
+						"description": "Update project name, icon, description, and settings."
+					},
+					"delete": {
+						"label": "Delete projects",
+						"description": "Permanently delete projects in this workspace."
+					},
+					"share": {
+						"label": "Share projects",
+						"description": "Make projects publicly accessible via share links."
+					}
+				},
+				"task": {
+					"create": {
+						"label": "Create tasks",
+						"description": "Create new tasks in any project."
+					},
+					"read": {
+						"label": "View tasks",
+						"description": "View tasks across projects."
+					},
+					"update": {
+						"label": "Edit tasks",
+						"description": "Edit task content, status, priority, due date, and labels."
+					},
+					"delete": {
+						"label": "Delete tasks",
+						"description": "Permanently delete tasks."
+					},
+					"assign": {
+						"label": "Assign tasks",
+						"description": "Assign tasks to other workspace members."
+					}
+				},
+				"label": {
+					"create": {
+						"label": "Create labels",
+						"description": "Add new labels to tasks in this workspace."
+					},
+					"read": {
+						"label": "View labels",
+						"description": "View labels attached to tasks."
+					},
+					"update": {
+						"label": "Edit labels",
+						"description": "Rename, recolor, and reassign labels."
+					},
+					"delete": {
+						"label": "Delete labels",
+						"description": "Permanently delete labels from this workspace."
+					}
+				},
+				"workspace": {
+					"read": {
+						"label": "Access workspace",
+						"description": "Read workspace metadata and members."
+					},
+					"update": {
+						"label": "Edit workspace",
+						"description": "Edit workspace name and description."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete this workspace."
+					},
+					"manage_settings": {
+						"label": "Manage settings",
+						"description": "Configure integrations, notification rules, and workspace preferences."
+					}
+				}
+			},
+			"validation": {
+				"nameRequired": "Name is required",
+				"nameExists": "A role with that name already exists",
+				"permissionRequired": "Select at least one permission"
+			},
+			"toast": {
+				"created": "Role created",
+				"createError": "Failed to create role",
+				"updated": "Role updated",
+				"updateError": "Failed to update role",
+				"deleted": "Role deleted",
+				"deleteError": "Failed to delete role"
+			},
+			"deleteDialog": {
+				"title": "Delete role",
+				"description": "This will permanently delete the role \"{{role}}\". Members assigned to this role will lose its permissions."
+			}
+		},
 		"projectGeneral": {
 			"pageTitle": "Project Settings",
 			"title": "General Settings",
@@ -1158,6 +1295,10 @@
 				"title": "Task assigned to you",
 				"content": "You have been assigned to task: {{taskTitle}}"
 			},
+			"task_mention": {
+				"title": "{{mentionerName}} mentioned you",
+				"content": "{{mentionerName}} mentioned you in: {{taskTitle}}"
+			},
 			"time_entry_created": {
 				"title": "Time tracking started",
 				"contentWithTask": "Time tracking started on task: {{taskTitle}}",
@@ -1413,6 +1554,7 @@
 			"selectTask": "Select a task to link",
 			"types": {
 				"blocks": "blocks",
+				"blocked_by": "blocked by",
 				"related": "relates to"
 			}
 		},

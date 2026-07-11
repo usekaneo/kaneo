@@ -18,8 +18,8 @@ async function verifyGithubInstallation(
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Request failed");
+    const error = await response.text();
+    throw new Error(error || "Request failed");
   }
 
   const result = await response.json();

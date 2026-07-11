@@ -190,6 +190,20 @@ describe("API integration: device authorization (RFC 8628)", () => {
       interval: number;
     };
 
+    // better-auth >= 1.6.11 requires the authenticated user to first claim the
+    // code (GET /device?user_code=...) before it can be approved.
+    const claimRes = await app.request(
+      `/api/auth/device?user_code=${encodeURIComponent(devicePayload.user_code)}`,
+      {
+        method: "GET",
+        headers: {
+          Origin: origin,
+          Cookie: cookieJar,
+        },
+      },
+    );
+    expect(claimRes.status).toBe(200);
+
     const approveRes = await app.request("/api/auth/device/approve", {
       method: "POST",
       headers: {

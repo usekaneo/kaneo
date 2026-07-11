@@ -16,11 +16,13 @@ type SubtaskRowProps = {
   workspaceId: string;
   isSelected: boolean;
   isFocused: boolean;
+  isCompleted: boolean;
+  canEdit: boolean;
   selectionRadius: string;
   assignee: {
     user?: { image?: string | null; name?: string | null } | null;
   } | null;
-  onToggleSelection: () => void;
+  onToggleComplete: () => void;
   onNavigate: () => void;
   onDeleteClick: () => void;
 };
@@ -32,9 +34,11 @@ export default function SubtaskRow({
   workspaceId,
   isSelected,
   isFocused,
+  isCompleted,
+  canEdit,
   selectionRadius,
   assignee,
-  onToggleSelection,
+  onToggleComplete,
   onNavigate,
   onDeleteClick,
 }: SubtaskRowProps) {
@@ -53,9 +57,14 @@ export default function SubtaskRow({
           <div
             className={`group flex items-center gap-2 py-1 px-2 ${selectionRadius} transition-colors cursor-default ${isSelected ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-accent/50"} ${isFocused ? "ring-1 ring-inset ring-ring/50" : ""}`}
           >
+            {/* Completion — toggles the subtask done/undone and persists it. */}
             <Checkbox
-              checked={isSelected}
-              onCheckedChange={onToggleSelection}
+              checked={isCompleted}
+              onCheckedChange={onToggleComplete}
+              disabled={!canEdit}
+              aria-label={t("tasks:subtasks.completeAria", {
+                defaultValue: "Mark subtask complete",
+              })}
             />
 
             <SubtaskStatusPopover tasks={tasks} projectId={projectId}>
@@ -73,7 +82,7 @@ export default function SubtaskRow({
               onClick={onNavigate}
             >
               <span
-                className={`text-sm truncate block ${task.status === "done" ? "line-through text-muted-foreground" : "text-foreground/90"}`}
+                className={`text-sm truncate block ${isCompleted ? "line-through text-muted-foreground" : "text-foreground/90"}`}
               >
                 {task.title}
               </span>

@@ -458,4 +458,81 @@ export function registerTools(
         }),
       ),
   );
+
+  server.registerTool(
+    "create_task_relation",
+    {
+      description:
+        "Create a relation between two tasks. relationType: 'subtask' (sourceTaskId is the parent, targetTaskId the child), 'blocks' (sourceTaskId blocks targetTaskId), or 'related' (bidirectional).",
+      inputSchema: z.object({
+        sourceTaskId: nonEmptyString,
+        targetTaskId: nonEmptyString,
+        relationType: z.enum(["subtask", "blocks", "related"]),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json("/api/task-relation", {
+          method: "POST",
+          body: JSON.stringify({
+            sourceTaskId: args.sourceTaskId,
+            targetTaskId: args.targetTaskId,
+            relationType: args.relationType,
+          }),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "get_task_relations",
+    {
+      description:
+        "List all relations (subtask/blocks/related) involving a task.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task-relation/${encodeURIComponent(args.taskId)}`, {
+          method: "GET",
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "delete_task_relation",
+    {
+      description: "Delete a task relation by its relation ID.",
+      inputSchema: z.object({ id: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task-relation/${encodeURIComponent(args.id)}`, {
+          method: "DELETE",
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "delete_label",
+    {
+      description:
+        "Delete a label by ID. Only task-associated labels can be deleted; workspace-level labels (taskId null) are rejected by the API.",
+      inputSchema: z.object({ id: nonEmptyString }),
+    },
+    async (args) =>
+      run(async () => {
+        const label = (await client.json(
+          `/api/label/${encodeURIComponent(args.id)}`,
+          { method: "GET" },
+        )) as { taskId?: string | null };
+        if (!label?.taskId) {
+          throw new Error(
+            "Label is not associated with a task and cannot be deleted (workspace-level labels are not deletable via this endpoint).",
+          );
+        }
+        return client.json(`/api/label/${encodeURIComponent(args.id)}`, {
+          method: "DELETE",
+        });
+      }),
+  );
 }

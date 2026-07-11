@@ -14,16 +14,23 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import {
+  BetweenHorizontalEnd,
+  BetweenHorizontalStart,
+  BetweenVerticalEnd,
+  BetweenVerticalStart,
   Bold,
   Check,
   ChevronDown,
+  Columns3,
   Copy,
+  Grid2x2X,
   Italic,
   Link2,
   List,
   ListOrdered,
   ListTodo,
   Paperclip,
+  Rows3,
   UnderlineIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
@@ -33,6 +40,9 @@ import { bundledLanguages, type Highlighter } from "shiki";
 import { AttachmentCard } from "@/components/task/extensions/attachment-card";
 import { EmbedBlock } from "@/components/task/extensions/embed-block";
 import { KaneoIssueLink } from "@/components/task/extensions/kaneo-issue-link";
+import { KaneoMention } from "@/components/task/extensions/kaneo-mention";
+import type { MentionMember } from "@/components/task/extensions/mention-list";
+import { MentionSuggestion } from "@/components/task/extensions/mention-suggestion";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -49,6 +59,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
 import {
@@ -177,6 +189,20 @@ export default function CommentEditor({
   const { t } = useTranslation();
   const resolvedPlaceholder =
     placeholder ?? t("activity:comment.leavePlaceholder");
+  const { data: activeWorkspace } = useActiveWorkspace();
+  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
+    activeWorkspace?.id ?? "",
+  );
+  const mentionMembersRef = useRef<MentionMember[]>([]);
+  mentionMembersRef.current = useMemo(
+    () =>
+      (workspaceUsers?.members ?? []).map((member) => ({
+        id: member.userId,
+        label: member.user?.name ?? member.user?.email ?? "",
+        image: member.user?.image ?? null,
+      })),
+    [workspaceUsers],
+  );
   const editorShellRef = useRef<HTMLDivElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
@@ -598,6 +624,10 @@ export default function CommentEditor({
         EmbedBlock,
         AttachmentCard,
         KaneoIssueLink,
+        KaneoMention,
+        MentionSuggestion.configure({
+          getMembers: () => mentionMembersRef.current,
+        }),
         TaskList,
         Image.configure({
           HTMLAttributes: {
@@ -1608,6 +1638,112 @@ export default function CommentEditor({
             onClick={() => openImagePicker(editor)}
           >
             <Paperclip className="size-3.5" />
+          </Button>
+        </BubbleMenu>
+      )}
+      {editor && !readOnly && !disabled && showBubbleMenu && (
+        <BubbleMenu
+          editor={editor}
+          pluginKey="kaneo-comment-table-bubble"
+          className="kaneo-comment-editor-bubble"
+          shouldShow={({ editor: activeEditor, from, to }) =>
+            activeEditor.isActive("table") && from === to
+          }
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            title={t("activity:comment.editor.table.addColumnBefore", {
+              defaultValue: "Insert column left",
+            })}
+            onClick={() => editor.chain().focus().addColumnBefore().run()}
+          >
+            <BetweenVerticalStart className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            title={t("activity:comment.editor.table.addColumnAfter", {
+              defaultValue: "Insert column right",
+            })}
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+          >
+            <BetweenVerticalEnd className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-comment-editor-bubble-btn",
+              "text-destructive",
+            )}
+            title={t("activity:comment.editor.table.deleteColumn", {
+              defaultValue: "Delete column",
+            })}
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+          >
+            <Columns3 className="size-3.5" />
+          </Button>
+          <span className="kaneo-tiptap-bubble-separator" />
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            title={t("activity:comment.editor.table.addRowBefore", {
+              defaultValue: "Insert row above",
+            })}
+            onClick={() => editor.chain().focus().addRowBefore().run()}
+          >
+            <BetweenHorizontalStart className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="kaneo-comment-editor-bubble-btn"
+            title={t("activity:comment.editor.table.addRowAfter", {
+              defaultValue: "Insert row below",
+            })}
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+          >
+            <BetweenHorizontalEnd className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-comment-editor-bubble-btn",
+              "text-destructive",
+            )}
+            title={t("activity:comment.editor.table.deleteRow", {
+              defaultValue: "Delete row",
+            })}
+            onClick={() => editor.chain().focus().deleteRow().run()}
+          >
+            <Rows3 className="size-3.5" />
+          </Button>
+          <span className="kaneo-tiptap-bubble-separator" />
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className={cn(
+              "kaneo-comment-editor-bubble-btn",
+              "text-destructive",
+            )}
+            title={t("activity:comment.editor.table.deleteTable", {
+              defaultValue: "Delete table",
+            })}
+            onClick={() => editor.chain().focus().deleteTable().run()}
+          >
+            <Grid2x2X className="size-3.5" />
           </Button>
         </BubbleMenu>
       )}

@@ -2,6 +2,7 @@ import { DEFAULT_ROLE_NAMES, statement } from "@kaneo/permissions";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Shield, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import {
   Accordion,
@@ -69,13 +70,6 @@ const RESOURCE_LABELS: Record<string, string> = {
   label: "Labels",
   workspace: "Workspace",
 };
-
-function resourceLabel(resource: string): string {
-  return (
-    RESOURCE_LABELS[resource] ??
-    resource.charAt(0).toUpperCase() + resource.slice(1)
-  );
-}
 
 const PERMISSION_LABELS: Record<
   string,
@@ -199,6 +193,7 @@ function permissionCount(permissions: Record<string, string[] | undefined>) {
 }
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const { workspace, isAdmin } = useWorkspacePermission();
   const workspaceId = workspace?.id ?? "";
   const {
@@ -231,12 +226,14 @@ function RouteComponent() {
   if (!isAdmin) {
     return (
       <>
-        <PageTitle title="Roles" />
+        <PageTitle title={t("settings:workspaceRoles.pageTitle")} />
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold">Roles</h1>
+            <h1 className="text-2xl font-semibold">
+              {t("settings:workspaceRoles.title")}
+            </h1>
             <p className="text-muted-foreground">
-              You need admin or owner permissions to manage workspace roles.
+              {t("settings:workspaceRoles.noAccess")}
             </p>
           </div>
         </div>
@@ -246,23 +243,28 @@ function RouteComponent() {
 
   return (
     <>
-      <PageTitle title="Roles" />
+      <PageTitle title={t("settings:workspaceRoles.pageTitle")} />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">Roles</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("settings:workspaceRoles.title")}
+          </h1>
           <p className="text-muted-foreground">
-            Define which actions members can perform in{" "}
-            {workspace?.name ?? "this workspace"}.
+            {t("settings:workspaceRoles.subtitle", {
+              workspaceName:
+                workspace?.name ?? t("settings:workspaceRoles.thisWorkspace"),
+            })}
           </p>
         </div>
 
         <div className="space-y-6">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <h2 className="text-md font-medium">Workspace roles</h2>
+              <h2 className="text-md font-medium">
+                {t("settings:workspaceRoles.sectionTitle")}
+              </h2>
               <p className="text-xs text-muted-foreground">
-                Edit the default roles or add a tailored one. Members keep their
-                assigned role name across edits.
+                {t("settings:workspaceRoles.sectionSubtitle")}
               </p>
             </div>
             <Button
@@ -277,19 +279,19 @@ function RouteComponent() {
               disabled={draftActive}
             >
               <Plus className="w-3.5 h-3.5" />
-              New role
+              {t("settings:workspaceRoles.newRole")}
             </Button>
           </div>
           <div className="border border-border rounded-md bg-sidebar">
             {isLoading && !draftActive ? (
               <p className="text-xs text-muted-foreground px-4 py-6">
-                Loading…
+                {t("settings:workspaceRoles.loading")}
               </p>
             ) : customRolesError ? (
               <p className="text-xs text-destructive px-4 py-6">
                 {customRolesErrorValue instanceof Error
                   ? customRolesErrorValue.message
-                  : "Failed to load roles."}
+                  : t("settings:workspaceRoles.loadError")}
               </p>
             ) : sortedRoles.length === 0 && !draftActive ? (
               <Empty>
@@ -297,10 +299,11 @@ function RouteComponent() {
                   <EmptyMedia variant="icon">
                     <Shield />
                   </EmptyMedia>
-                  <EmptyTitle>No roles yet</EmptyTitle>
+                  <EmptyTitle>
+                    {t("settings:workspaceRoles.emptyTitle")}
+                  </EmptyTitle>
                   <EmptyDescription>
-                    Default roles will appear here once they're seeded for this
-                    workspace.
+                    {t("settings:workspaceRoles.emptyDescription")}
                   </EmptyDescription>
                 </EmptyHeader>
               </Empty>
@@ -320,7 +323,9 @@ function RouteComponent() {
                     <AccordionTrigger className="px-4">
                       <div className="flex items-center gap-3 min-w-0">
                         <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                        <p className="text-sm font-medium italic">New role</p>
+                        <p className="text-sm font-medium italic">
+                          {t("settings:workspaceRoles.newRole")}
+                        </p>
                       </div>
                     </AccordionTrigger>
                     <AccordionPanel className="px-0 pt-0 pb-0">
@@ -349,8 +354,19 @@ function RouteComponent() {
                 )}
                 {sortedRoles.map((role) => {
                   const isDefault = isDefaultRole(role.role);
+                  const roleLabel = isDefault
+                    ? t(`team:roles.${role.role}`, {
+                        defaultValue: role.role,
+                      })
+                    : role.role;
                   const description = isDefault
-                    ? DEFAULT_ROLE_DESCRIPTIONS[role.role]
+                    ? t(
+                        `settings:workspaceRoles.defaultRoleDescriptions.${role.role}`,
+                        {
+                          defaultValue:
+                            DEFAULT_ROLE_DESCRIPTIONS[role.role] ?? "",
+                        },
+                      )
                     : undefined;
                   return (
                     <AccordionItem
@@ -364,12 +380,16 @@ function RouteComponent() {
                             <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium capitalize truncate">
-                                  {role.role}
+                                <p
+                                  className={`text-sm font-medium truncate ${
+                                    isDefault ? "" : "capitalize"
+                                  }`}
+                                >
+                                  {roleLabel}
                                 </p>
                                 {isDefault && (
                                   <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                    Default
+                                    {t("settings:workspaceRoles.defaultBadge")}
                                   </span>
                                 )}
                               </div>
@@ -381,7 +401,9 @@ function RouteComponent() {
                             </div>
                           </div>
                           <p className="text-xs font-normal text-muted-foreground shrink-0">
-                            {permissionCount(role.permission)} permissions
+                            {t("settings:workspaceRoles.permissionCount", {
+                              count: permissionCount(role.permission),
+                            })}
                           </p>
                         </div>
                       </AccordionTrigger>
@@ -436,6 +458,7 @@ function PermissionList({
   readOnly?: boolean;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation();
   const groups = useMemo(
     () =>
       CUSTOM_RESOURCES.map((resource) => ({
@@ -457,7 +480,11 @@ function PermissionList({
           {groupIndex > 0 && <Separator />}
           <div className="space-y-4 p-4">
             <p className="text-sm font-medium capitalize">
-              {resourceLabel(resource)}
+              {t(`settings:workspaceRoles.resources.${resource}`, {
+                defaultValue:
+                  RESOURCE_LABELS[resource] ??
+                  resource.charAt(0).toUpperCase() + resource.slice(1),
+              })}
             </p>
             <div className="space-y-4">
               {actions.map((action, idx) => {
@@ -465,17 +492,29 @@ function PermissionList({
                   label: `${action} ${resource}`,
                   description: "",
                 };
+                const labelKey = `${resource}.${action}.label`;
+                const descriptionKey = `${resource}.${action}.description`;
                 return (
                   <div key={`${resource}:${action}`}>
                     {idx > 0 && <Separator className="mb-4" />}
                     <div className="flex items-center justify-between gap-6">
                       <div className="space-y-0.5 flex-1 min-w-0">
                         <Label className="text-sm font-medium">
-                          {meta.label}
+                          {t(
+                            `settings:workspaceRoles.permissions.${labelKey}`,
+                            {
+                              defaultValue: meta.label,
+                            },
+                          )}
                         </Label>
                         {meta.description && (
                           <p className="text-xs text-muted-foreground">
-                            {meta.description}
+                            {t(
+                              `settings:workspaceRoles.permissions.${descriptionKey}`,
+                              {
+                                defaultValue: meta.description,
+                              },
+                            )}
                           </p>
                         )}
                       </div>
@@ -511,6 +550,7 @@ function DraftEditor({
   onCreated: (roleName: string) => void;
   onDiscard: () => void;
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [permissions, setPermissions] = useState<Record<string, Set<string>>>(
     {},
@@ -531,11 +571,11 @@ function DraftEditor({
   const handleCreate = async () => {
     const trimmed = name.trim().toLowerCase();
     if (!trimmed) {
-      toast.error("Name is required");
+      toast.error(t("settings:workspaceRoles.validation.nameRequired"));
       return;
     }
     if (existingNames.map((n) => n.toLowerCase()).includes(trimmed)) {
-      toast.error("A role with that name already exists");
+      toast.error(t("settings:workspaceRoles.validation.nameExists"));
       return;
     }
     const permission: Record<string, string[]> = {};
@@ -543,16 +583,18 @@ function DraftEditor({
       if (set.size > 0) permission[r] = Array.from(set);
     }
     if (Object.keys(permission).length === 0) {
-      toast.error("Select at least one permission");
+      toast.error(t("settings:workspaceRoles.validation.permissionRequired"));
       return;
     }
     try {
       await createRole({ workspaceId, role: trimmed, permission });
-      toast.success("Role created");
+      toast.success(t("settings:workspaceRoles.toast.created"));
       onCreated(trimmed);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create role",
+        error instanceof Error
+          ? error.message
+          : t("settings:workspaceRoles.toast.createError"),
       );
     }
   };
@@ -562,15 +604,17 @@ function DraftEditor({
       <div className="border-t border-border">
         <div className="flex items-center justify-between gap-4 px-4 py-3">
           <div className="space-y-0.5">
-            <Label className="text-sm font-medium">Name</Label>
+            <Label className="text-sm font-medium">
+              {t("settings:workspaceRoles.nameLabel")}
+            </Label>
             <p className="text-xs text-muted-foreground">
-              Lowercase. Cannot be changed later.
+              {t("settings:workspaceRoles.nameHint")}
             </p>
           </div>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. reviewer"
+            placeholder={t("settings:workspaceRoles.namePlaceholder")}
             className="w-64"
             autoFocus
             disabled={isPending}
@@ -594,10 +638,10 @@ function DraftEditor({
           disabled={isPending}
         >
           <X className="w-4 h-4" />
-          Discard
+          {t("settings:workspaceRoles.discard")}
         </Button>
         <Button size="sm" onClick={handleCreate} disabled={isPending}>
-          Create role
+          {t("settings:workspaceRoles.createRole")}
         </Button>
       </div>
     </div>
@@ -615,6 +659,7 @@ function CustomRoleEditor({
   isDefault?: boolean;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const [permissions, setPermissions] = useState<Record<string, Set<string>>>(
     () => {
       const out: Record<string, Set<string>> = {};
@@ -649,7 +694,7 @@ function CustomRoleEditor({
 
   const handleSave = async () => {
     if (Object.keys(currentPermissions).length === 0) {
-      toast.error("Select at least one permission");
+      toast.error(t("settings:workspaceRoles.validation.permissionRequired"));
       return;
     }
     try {
@@ -658,10 +703,12 @@ function CustomRoleEditor({
         roleName: role.role,
         permission: currentPermissions,
       });
-      toast.success("Role updated");
+      toast.success(t("settings:workspaceRoles.toast.updated"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update role",
+        error instanceof Error
+          ? error.message
+          : t("settings:workspaceRoles.toast.updateError"),
       );
     }
   };
@@ -685,7 +732,7 @@ function CustomRoleEditor({
       <div className="flex items-center justify-between gap-2 px-4 py-3 bg-sidebar">
         {isDefault ? (
           <span className="text-xs text-muted-foreground">
-            Default role — name is reserved and the row can't be deleted.
+            {t("settings:workspaceRoles.defaultRoleHelp")}
           </span>
         ) : (
           <Button
@@ -696,15 +743,17 @@ function CustomRoleEditor({
             disabled={isPending}
           >
             <Trash2 className="w-4 h-4" />
-            Delete role
+            {t("settings:workspaceRoles.deleteRole")}
           </Button>
         )}
         <div className="flex items-center gap-3">
           <p className="text-xs text-muted-foreground">
-            {dirty ? "You have unsaved changes" : "All changes saved"}
+            {dirty
+              ? t("settings:workspaceRoles.unsavedChanges")
+              : t("settings:workspaceRoles.allChangesSaved")}
           </p>
           <Button size="sm" onClick={handleSave} disabled={isPending || !dirty}>
-            Save changes
+            {t("settings:workspaceRoles.saveChanges")}
           </Button>
         </div>
       </div>
@@ -723,15 +772,20 @@ function DeleteRoleConfirm({
   onDeleted: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const { mutateAsync: deleteRole, isPending } = useDeleteWorkspaceRole();
 
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>Delete role</AlertDialogTitle>
+        <AlertDialogTitle>
+          {t("settings:workspaceRoles.deleteDialog.title")}
+        </AlertDialogTitle>
         <AlertDialogDescription>
           {role
-            ? `This will permanently delete the role "${role.role}". Members assigned to this role will lose its permissions.`
+            ? t("settings:workspaceRoles.deleteDialog.description", {
+                role: role.role,
+              })
             : ""}
         </AlertDialogDescription>
       </AlertDialogHeader>
@@ -743,7 +797,7 @@ function DeleteRoleConfirm({
             disabled={isPending}
             onClick={onCancel}
           >
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
         </AlertDialogClose>
         <Button
@@ -754,7 +808,7 @@ function DeleteRoleConfirm({
             if (!role) return;
             try {
               await deleteRole({ workspaceId, roleName: role.role });
-              toast.success("Role deleted");
+              toast.success(t("settings:workspaceRoles.toast.deleted"));
               // Caller closes the dialog after the mutation succeeds so a
               // failed delete leaves the confirmation visible.
               onDeleted();
@@ -762,13 +816,13 @@ function DeleteRoleConfirm({
               toast.error(
                 error instanceof Error
                   ? error.message
-                  : "Failed to delete role",
+                  : t("settings:workspaceRoles.toast.deleteError"),
               );
             }
           }}
         >
           <Trash2 className="w-4 h-4 mr-2" />
-          Delete
+          {t("common:actions.delete")}
         </Button>
       </AlertDialogFooter>
     </AlertDialogContent>

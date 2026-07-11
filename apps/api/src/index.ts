@@ -69,6 +69,7 @@ import {
   normalizeApiServerUrl,
   normalizeEmptyAndEnumSchemas,
   normalizeEmptyRequiredArrays,
+  normalizeMalformedPropertySchemas,
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
 } from "./utils/openapi-spec";
@@ -78,8 +79,10 @@ import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 import {
   addConnection,
+  addUserConnection,
   initializeWebSocketAdapter,
   removeConnection,
+  removeUserConnection,
   shutdownWebSocketAdapter,
 } from "./ws";
 
@@ -364,7 +367,9 @@ export function createApp() {
             normalizeNullableSchemasForOpenApi30(
               normalizeEmptyAndEnumSchemas(
                 normalizeEmptyRequiredArrays(
-                  mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+                  normalizeMalformedPropertySchemas(
+                    mergeOpenApiSpecs(honoSpec, normalizedAuthSpec),
+                  ),
                 ),
               ),
             ),
@@ -547,6 +552,57 @@ export function createApp() {
     ),
   );
 
+  // User-scoped WebSocket endpoint — MUST be registered before /ws/:projectId
+  // so the literal path "user" isn't consumed by the param route.
+  api.get(
+    "/ws/user",
+    upgradeWebSocket(async (c) => {
+      try {
+        await authenticateApiRequest(c);
+      } catch (error) {
+        if (error instanceof HTTPException) {
+          throw error;
+        }
+        console.error("API authentication failed:", error);
+        throw new HTTPException(500, { message: "Internal Server Error" });
+      }
+
+      const userId = c.get("userId");
+      let conn: ReturnType<typeof addUserConnection> | null = null;
+
+      return {
+        onOpen(_evt, ws) {
+          if (userId) {
+            conn = addUserConnection(userId, ws);
+          }
+        },
+        onMessage(evt) {
+          try {
+            const raw =
+              typeof evt.data === "string"
+                ? evt.data
+                : Buffer.isBuffer(evt.data)
+                  ? evt.data.toString()
+                  : null;
+            if (raw) {
+              const msg = JSON.parse(raw) as { type?: string };
+              if (msg?.type === "ping") {
+                // keepalive — no-op
+              }
+            }
+          } catch {
+            // Ignore malformed messages
+          }
+        },
+        onClose() {
+          if (conn && userId) {
+            removeUserConnection(userId, conn);
+          }
+        },
+      };
+    }),
+  );
+
   api.get(
     "/ws/:projectId",
     upgradeWebSocket(async (c) => {
@@ -586,6 +642,27 @@ export function createApp() {
         onOpen(_evt, ws) {
           if (projectId) {
             conn = addConnection(projectId, ws, userId, initiatorId);
+          }
+        },
+        onMessage(evt) {
+          // Respond to client keepalive pings (sent every 30s to prevent
+          // Cloudflare from closing idle connections at 100s timeout)
+          try {
+            const raw =
+              typeof evt.data === "string"
+                ? evt.data
+                : Buffer.isBuffer(evt.data)
+                  ? evt.data.toString()
+                  : null;
+            if (raw) {
+              const msg = JSON.parse(raw) as { type?: string };
+              if (msg?.type === "ping") {
+                // No-op: receiving the ping is enough to satisfy Cloudflare.
+                // A pong response is optional but helps confirm liveness.
+              }
+            }
+          } catch {
+            // Ignore malformed messages
           }
         },
         onClose() {

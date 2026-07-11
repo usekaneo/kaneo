@@ -10,6 +10,7 @@ import {
 export type AuthServiceOptions = {
   baseUrl: string;
   clientId: string;
+  apiKey?: string;
 };
 
 type TokenValidationResult = "valid" | "invalid" | "unknown";
@@ -17,14 +18,26 @@ type TokenValidationResult = "valid" | "invalid" | "unknown";
 export class AuthService {
   readonly baseUrl: string;
   readonly clientId: string;
+  private readonly apiKey?: string;
   private activeGetAccessTokenPromise?: Promise<string>;
 
   constructor(options: AuthServiceOptions) {
     this.baseUrl = options.baseUrl;
     this.clientId = options.clientId;
+    this.apiKey = options.apiKey;
+  }
+
+  /**
+   * True when a pre-created Kaneo API key is used instead of the interactive
+   * device flow. Callers use this to avoid clearing/retrying auth on a 401.
+   */
+  get usingApiKey(): boolean {
+    return Boolean(this.apiKey);
   }
 
   async clearToken(): Promise<void> {
+    // Nothing to clear for API-key auth; the key is static config.
+    if (this.apiKey) return;
     await clearCredentials();
   }
 
@@ -60,6 +73,13 @@ export class AuthService {
    * Returns a valid access token, running the device authorization flow if needed.
    */
   async getAccessToken(): Promise<string> {
+    // Non-interactive auth: a pre-created Kaneo API key (KANEO_API_KEY) is sent
+    // as a Bearer token, which the REST API already accepts. This skips the
+    // device flow so the MCP server works in headless/Docker environments.
+    if (this.apiKey) {
+      return this.apiKey;
+    }
+
     if (this.activeGetAccessTokenPromise) {
       return await this.activeGetAccessTokenPromise;
     }

@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Github, Pencil } from "lucide-react";
+import { ExternalLink, Github, Pencil, Trash2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import { toast } from "@/lib/toast";
@@ -50,6 +51,8 @@ export default function CommentCard({
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const { mutateAsync: updateComment, isPending } = useUpdateComment();
+  const { mutate: deleteComment, isPending: isDeleting } =
+    useDeleteComment(taskId);
   const queryClient = useQueryClient();
 
   const canEdit = currentUser?.id === user?.id;
@@ -197,21 +200,39 @@ export default function CommentCard({
         </div>
 
         {canEdit && !isEditing && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleEdit}
-                className="absolute top-2 right-2 h-6 w-6 rounded-md p-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground"
-              >
-                <Pencil className="size-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">{t("activity:comment.edit")}</p>
-            </TooltipContent>
-          </Tooltip>
+          <div className="absolute top-2 right-2 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleEdit}
+                  className="h-6 w-6 rounded-md p-0 text-muted-foreground hover:text-foreground"
+                >
+                  <Pencil className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">{t("activity:comment.edit")}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteComment({ activityId: commentId })}
+                  disabled={isDeleting}
+                  className="h-6 w-6 rounded-md p-0 text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">{t("common:actions.delete")}</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
         )}
 
         <div className="pt-0.5">
