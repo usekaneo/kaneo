@@ -17,6 +17,8 @@ export async function postToMattermost(
   webhookUrl: string,
   message: MattermostMessage,
 ): Promise<void> {
+  await assertPublicWebhookDestination(webhookUrl);
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), MATTERMOST_TIMEOUT_MS);
 
@@ -27,6 +29,7 @@ export async function postToMattermost(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(message),
+      redirect: "error",
       signal: controller.signal,
     });
 
@@ -48,3 +51,5 @@ export async function postToMattermost(
     clearTimeout(timeoutId);
   }
 }
+
+import { assertPublicWebhookDestination } from "../generic-webhook/config";

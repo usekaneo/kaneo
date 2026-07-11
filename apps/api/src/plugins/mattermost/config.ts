@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { assertPublicWebhookDestination } from "../generic-webhook/config";
 
 const mattermostWebhookUrlPattern = /^https:\/\/[^\s]+$/;
 
@@ -68,7 +69,8 @@ export async function validateMattermostConfig(
   config: unknown,
 ): Promise<{ valid: boolean; errors?: string[] }> {
   try {
-    v.parse(mattermostConfigSchema, config);
+    const parsed = v.parse(mattermostConfigSchema, config);
+    await assertPublicWebhookDestination(parsed.webhookUrl);
     return { valid: true };
   } catch (error) {
     if (error instanceof v.ValiError) {

@@ -599,9 +599,7 @@
 			"slackSectionTitle": "Интеграция со Slack",
 			"slackSectionSubtitle": "Отправка обновлений по задачам проекта в канал Slack через входящий вебхук.",
 			"telegramSectionTitle": "Интеграция с Telegram",
-			"telegramSectionSubtitle": "Отправка обновлений по задачам проекта в чат или тему Telegram через бота.",
-			"mattermostSectionTitle": "Mattermost Integration",
-			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook."
+			"telegramSectionSubtitle": "Отправка обновлений по задачам проекта в чат или тему Telegram через бота."
 		},
 		"projectVisibility": {
 			"pageTitle": "Видимость проекта",
@@ -1017,44 +1015,6 @@
 			"merged": "Влит",
 			"draft": "Черновик",
 			"open": "Открыт"
-		},
-		"mattermostIntegration": {
-			"validation": {
-				"webhookInvalid": "Enter a valid Mattermost webhook URL"
-			},
-			"toast": {
-				"saved": "Mattermost integration saved successfully",
-				"saveError": "Failed to save Mattermost integration",
-				"enabled": "Mattermost notifications enabled",
-				"disabled": "Mattermost notifications paused",
-				"updateError": "Failed to update Mattermost integration",
-				"removed": "Mattermost integration removed successfully",
-				"removeError": "Failed to remove Mattermost integration"
-			},
-			"connectionTitle": "Mattermost webhook connection",
-			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
-			"connected": "Connected",
-			"paused": "Paused",
-			"webhookLabel": "Incoming webhook URL",
-			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/...",
-			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
-			"channelLabel": "Channel name",
-			"channelPlaceholder": "town-square",
-			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
-			"eventsTitle": "Event notifications",
-			"eventsHint": "Choose which project changes should post to Mattermost.",
-			"events": {
-				"taskCreated": "New tasks",
-				"taskStatusChanged": "Status changes",
-				"taskPriorityChanged": "Priority changes",
-				"taskTitleChanged": "Title changes",
-				"taskDescriptionChanged": "Description changes",
-				"taskCommentCreated": "New comments"
-			},
-			"connect": "Connect Mattermost",
-			"saveChanges": "Save changes",
-			"update": "Update Mattermost",
-			"disconnect": "Disconnect"
 		}
 	},
 	"navigation": {

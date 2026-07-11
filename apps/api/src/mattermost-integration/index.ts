@@ -255,7 +255,10 @@ mattermostIntegration
         JSON.parse(existing.config) as MattermostConfig,
       );
       const nextConfig = normalizeMattermostConfig({
-        webhookUrl: body.webhookUrl?.trim() || currentConfig.webhookUrl,
+        webhookUrl:
+          body.webhookUrl === undefined
+            ? currentConfig.webhookUrl
+            : body.webhookUrl.trim(),
         channelName:
           body.channelName === undefined
             ? currentConfig.channelName

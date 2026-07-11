@@ -200,7 +200,7 @@ export function MattermostIntegrationSettings({
           projectId,
           json: {
             webhookUrl: trimmedWebhookUrl || undefined,
-            channelName: values.channelName || undefined,
+            channelName: values.channelName.trim() || null,
             events,
           },
         });
