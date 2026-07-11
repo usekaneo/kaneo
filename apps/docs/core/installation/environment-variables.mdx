@@ -40,10 +40,10 @@ This section will cover all the variables related to the database.
 
 Name | Description |
 --- | --- |
-| `DATABASE_URL` | The URL of the PostgreSQL database.
-| `POSTGRES_DB` | The name of the PostgreSQL database.
-| `POSTGRES_USER` | The username for the PostgreSQL database.
-| `POSTGRES_PASSWORD` | The password for the PostgreSQL database.
+| `DATABASE_URL` | The full PostgreSQL connection string, in the format `postgresql://[user]:[password]@[host]:[port]/[database]`. Example: `postgresql://kaneo:kaneo@localhost:5432/kaneo`. The user/password/database must match the `POSTGRES_*` values below.
+| `POSTGRES_DB` | The name of the PostgreSQL database. Example: `kaneo`.
+| `POSTGRES_USER` | The username for the PostgreSQL database. Example: `kaneo`.
+| `POSTGRES_PASSWORD` | The password for the PostgreSQL database. Use a strong value in production.
 
 ### Authentication
 
@@ -67,8 +67,8 @@ Name | Description | Default |
 --- | --- | --- |
 | `S3_ENDPOINT` | The S3-compatible API endpoint used by the Kaneo API for presigned uploads. Example: `http://minio:9000`. |  |
 | `S3_BUCKET` | The bucket Kaneo will use for uploaded files. |  |
-| `S3_ACCESS_KEY_ID` | Access key used by the Kaneo API to create presigned upload URLs. |  |
-| `S3_SECRET_ACCESS_KEY` | Secret key used by the Kaneo API to create presigned upload URLs. |  |
+| `S3_ACCESS_KEY_ID` | Access key used by the Kaneo API to create presigned upload URLs. Optional — leave unset (together with `S3_SECRET_ACCESS_KEY`) to use the default AWS credential provider chain (IAM role / IRSA / instance profile). |  |
+| `S3_SECRET_ACCESS_KEY` | Secret key used by the Kaneo API to create presigned upload URLs. Must be set together with `S3_ACCESS_KEY_ID`, or left unset for IAM-role-based access. |  |
 | `S3_REGION` | The storage region used for request signing. | `us-east-1` |
 | `S3_PUBLIC_BASE_URL` | Optional public base URL for uploaded assets. Kaneo does not require this for the current private asset flow. |  |
 | `S3_FORCE_PATH_STYLE` | Use path-style S3 URLs. This should usually be `true` for MinIO and `fs`. | `true` |
@@ -84,6 +84,14 @@ Name | Description | Default |
 | `DISABLE_REGISTRATION` | Disable public user registration. When set to `true`, the sign-up option will not be shown on the sign-in page and new user creation is blocked (including via SSO). **Note:** Users with valid workspace invitations can still register even when this is enabled. | `false` |
 | `DISABLE_PASSWORD_REGISTRATION` | Disable password-based account creation. When set to `true`, email/password sign-up is blocked, but social/OIDC registration remains available unless `DISABLE_REGISTRATION=true`. | `false` |
 | `DISABLE_EMAIL_OTP_SIGN_IN` | When SMTP is configured, sign-in uses email verification codes by default. Set to `true` to use email/password sign-in instead. Workspace invitation emails still use SMTP. | `false` |
+| `DISABLE_LOGIN_FORM` | Hide the email/password login form on the sign-in page. When set to `true`, only SSO/OAuth buttons are shown. Useful when you want to enforce authentication exclusively through an external identity provider. | `false` |
+| `CUSTOM_OAUTH_AUTO_LOGIN` | Automatically redirect to the custom OAuth/OIDC provider instead of showing the sign-in page. When set to `true`, users are immediately redirected to your identity provider without seeing the login page. Requires a custom OAuth provider to be configured. | `false` |
+
+### Notifications
+
+Name | Description | Default |
+--- | --- | --- |
+| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks) that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Only enable on a trusted, isolated deployment. | `false` |
 
 ### GitHub SSO
 
@@ -135,6 +143,7 @@ Name | Description |
 | `CUSTOM_OAUTH_SCOPES` | (Optional) Comma-separated list of OAuth scopes. Default: `profile,email`.
 | `CUSTOM_OAUTH_RESPONSE_TYPE` | (Optional) OAuth response type. Default: `code`.
 | `CUSTOM_AUTH_PKCE` | (Optional) Enable/disable PKCE. Default: `true`.
+| `CUSTOM_OAUTH_LOGOUT_URL` | (Optional) Logout endpoint URL for your identity provider.
 
 ### Redis
 

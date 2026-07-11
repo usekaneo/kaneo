@@ -58,15 +58,17 @@ Additionally, the following volumes are used:
 
 ## Required URL configuration
 
-For the combined image, only `KANEO_CLIENT_URL` is required — `KANEO_API_URL` is derived automatically as `KANEO_CLIENT_URL/api`:
+Copy `.env.sample` to `.env` and uncomment or set these values:
 
 ```env
 KANEO_CLIENT_URL=http://localhost:5173
+POSTGRES_DB=kaneo
+POSTGRES_USER=kaneo
 POSTGRES_PASSWORD=changeme
 AUTH_SECRET=                             # generate: openssl rand -hex 32
 ```
 
-Set `KANEO_API_URL` explicitly only if you need to override the default (e.g. a reverse proxy changes the path).
+`KANEO_API_URL` defaults to `KANEO_CLIENT_URL/api` — set it explicitly only if you need to override the default (e.g. a reverse proxy changes the path).
 
 This keeps the browser on one origin while the container proxies `/api` requests to the internal API process.
 

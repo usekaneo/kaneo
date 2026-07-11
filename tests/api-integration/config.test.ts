@@ -14,6 +14,8 @@ describe("API integration: config", () => {
       disableRegistration: false,
       disablePasswordRegistration: false,
       disableEmailOtpSignIn: false,
+      disableLoginForm: false,
+      customOAuthAutoLogin: false,
       isDemoMode: false,
       hasGuestAccess: true,
     });

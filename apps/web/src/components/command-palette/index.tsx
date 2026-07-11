@@ -54,6 +54,7 @@ function CommandPalette() {
   const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);
   const projectIdFromRoute =
     location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? undefined;
+  const isBacklogView = location.pathname.endsWith("/backlog");
 
   useRegisterShortcuts({
     shortcuts: {
@@ -318,6 +319,7 @@ function CommandPalette() {
       <CreateTaskModal
         open={isCreateTaskOpen}
         projectId={projectIdFromRoute}
+        status={isBacklogView ? "planned" : undefined}
         onClose={() => setIsCreateTaskOpen(false)}
       />
       <CreateWorkspaceModal

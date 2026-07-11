@@ -92,17 +92,53 @@ export function parsePositiveInt(value: string | undefined, fallback: number) {
   return parsed;
 }
 
+/**
+ * Resolves static S3 credentials from the access key pair.
+ *
+ * Returns the explicit credentials only when BOTH the access key id and secret
+ * are provided. When neither is set, returns `undefined` so the AWS SDK falls
+ * back to its default credential provider chain (EC2 instance profile, ECS task
+ * role, EKS IRSA, environment variables, or shared config) — enabling
+ * IAM-role-based access without static keys.
+ *
+ * Throws when exactly one of the two is set, since that is almost always a
+ * misconfiguration rather than an intentional fallback.
+ */
+export function resolveS3Credentials(
+  accessKeyId: string,
+  secretAccessKey: string,
+): { accessKeyId: string; secretAccessKey: string } | undefined {
+  const hasAccessKeyId = Boolean(accessKeyId);
+  const hasSecretAccessKey = Boolean(secretAccessKey);
+
+  if (hasAccessKeyId !== hasSecretAccessKey) {
+    throw new Error(
+      "Incomplete S3 credentials. Set both S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY, or neither to use the default AWS credential provider chain (IAM role / IRSA / environment).",
+    );
+  }
+
+  if (hasAccessKeyId && hasSecretAccessKey) {
+    return { accessKeyId, secretAccessKey };
+  }
+
+  return undefined;
+}
+
 function getStorageConfig(): StorageConfig {
   const endpoint = env("S3_ENDPOINT");
   const bucket = env("S3_BUCKET");
   const accessKeyId = env("S3_ACCESS_KEY_ID");
   const secretAccessKey = env("S3_SECRET_ACCESS_KEY");
 
-  if (!endpoint || !bucket || !accessKeyId || !secretAccessKey) {
+  if (!endpoint || !bucket) {
     throw new Error(
-      "S3 uploads are not configured. Set S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY_ID, and S3_SECRET_ACCESS_KEY.",
+      "S3 uploads are not configured. Set S3_ENDPOINT and S3_BUCKET (and either both S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY, or neither to use the default AWS credential provider chain / IAM role).",
     );
   }
+
+  // Validate the access key pair early so misconfiguration surfaces here rather
+  // than as an opaque signing error later.
+  resolveS3Credentials(accessKeyId, secretAccessKey);
 
   return {
     endpoint,
@@ -151,11 +187,20 @@ function getClient(config: StorageConfig) {
     // Avoid auto-injecting checksum params for presigned PUT URLs. Some
     // S3-compatible providers (e.g. Garage/R2) reject mismatched hoisted CRCs.
     requestChecksumCalculation: "WHEN_REQUIRED",
-    credentials: {
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey,
-    },
   };
+
+  const credentials = resolveS3Credentials(
+    config.accessKeyId,
+    config.secretAccessKey,
+  );
+
+  // Only pin explicit credentials when both keys are provided. Otherwise leave
+  // `credentials` unset so the AWS SDK resolves them from its default provider
+  // chain (EC2 instance profile, ECS task role, EKS IRSA, env, shared config),
+  // which is how IAM-role-based access works.
+  if (credentials) {
+    clientConfig.credentials = credentials;
+  }
 
   const client = new S3Client(clientConfig);
   clientCache = { cacheKey, client };

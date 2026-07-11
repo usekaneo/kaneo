@@ -4,7 +4,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { Github, KeyRound } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import PageTitle from "@/components/page-title";
@@ -25,6 +25,7 @@ const signInSearchSchema = z.object({
   invitationId: z.string().optional(),
   email: z.string().optional(),
   redirect: z.string().optional(),
+  error: z.string().optional(),
 });
 
 export const Route = createFileRoute("/auth/sign-in")({
@@ -40,6 +41,7 @@ function SignIn() {
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDiscordLoading, setIsDiscordLoading] = useState(false);
+  const [autoLoginFailed, setAutoLoginFailed] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
   const {
@@ -67,19 +69,20 @@ function SignIn() {
       );
     }
   }, [isInstanceStatusError, instanceStatusError, t]);
+  const autoLoginTriggered = useRef(false);
 
   const invitationId = search.invitationId;
   const defaultEmail = search.email;
 
-  const getSafeRedirectPath = () => {
+  const getSafeRedirectPath = useCallback(() => {
     const redirectPath = search.redirect;
     if (redirectPath?.startsWith("/") && !redirectPath.includes("//")) {
       return redirectPath;
     }
     return undefined;
-  };
+  }, [search.redirect]);
 
-  const getCallbackUrl = () => {
+  const getCallbackUrl = useCallback(() => {
     const baseUrl = import.meta.env.VITE_CLIENT_URL;
     const redirectPath = getSafeRedirectPath();
     if (redirectPath) {
@@ -89,9 +92,9 @@ function SignIn() {
       return `${baseUrl}/invitation/accept/${invitationId}`;
     }
     return `${baseUrl}/dashboard`;
-  };
+  }, [invitationId, getSafeRedirectPath]);
 
-  const handleCustomOAuth = async () => {
+  const handleCustomOAuth = useCallback(async () => {
     setIsCustomOAuthLoading(true);
     try {
       const result = await authClient.signIn.oauth2({
@@ -106,10 +109,11 @@ function SignIn() {
       toast.error(
         error instanceof Error ? error.message : t("auth:signIn.oidcError"),
       );
+      setAutoLoginFailed(true);
     } finally {
       setIsCustomOAuthLoading(false);
     }
-  };
+  }, [getCallbackUrl, t]);
 
   const handleSignInGoogle = async () => {
     setIsGoogleLoading(true);
@@ -182,13 +186,32 @@ function SignIn() {
     }
   };
 
+  useEffect(() => {
+    if (search.error) {
+      setAutoLoginFailed(true);
+    }
+  }, [search.error]);
+
+  useEffect(() => {
+    if (
+      config?.customOAuthAutoLogin &&
+      config?.hasCustomOAuth &&
+      !autoLoginTriggered.current &&
+      !search.error
+    ) {
+      autoLoginTriggered.current = true;
+      handleCustomOAuth();
+    }
+  }, [config, handleCustomOAuth, search.error]);
+
   // Treat "no users yet" as still loading so the skeleton stays visible
   // while the useEffect above redirects to /auth/sign-up. Otherwise the
   // form briefly paints before the redirect fires.
   if (
     isConfigLoading ||
     isInstanceStatusLoading ||
-    instanceStatus?.hasUsers === false
+    instanceStatus?.hasUsers === false ||
+    (config?.customOAuthAutoLogin && config?.hasCustomOAuth && !autoLoginFailed)
   ) {
     return (
       <>
@@ -215,6 +238,21 @@ function SignIn() {
         }
       >
         <div className="mt-6">
+          {search.error && (
+            <Alert variant="error" className="mb-4">
+              <AlertDescription>
+                {(() => {
+                  const errorKey = search.error
+                    .replace(/[._]+/g, "_")
+                    .toLowerCase();
+                  const translationKey = `auth:signIn.errors.${errorKey}`;
+                  const translated = t(translationKey, { defaultValue: "" });
+                  return translated || search.error.replace(/_/g, " ");
+                })()}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {invitationId && (
             <Alert className="mb-4">
               <AlertDescription>
@@ -346,31 +384,34 @@ function SignIn() {
                 )}
               </div>
 
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border" />
+              {!config?.disableLoginForm && (
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-card text-muted-foreground">
+                      {t("auth:forms.or")}
+                    </span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-card text-muted-foreground">
-                    {t("auth:forms.or")}
-                  </span>
-                </div>
-              </div>
+              )}
             </>
           )}
-          {config?.hasSmtp && !config?.disableEmailOtpSignIn ? (
-            <OtpSignInForm
-              invitationId={invitationId}
-              defaultEmail={defaultEmail}
-              redirect={getSafeRedirectPath()}
-              onSuccess={handleSignInSuccess}
-            />
-          ) : (
-            <SignInForm
-              defaultEmail={defaultEmail}
-              onSuccess={handleSignInSuccess}
-            />
-          )}
+          {!config?.disableLoginForm &&
+            (config?.hasSmtp && !config?.disableEmailOtpSignIn ? (
+              <OtpSignInForm
+                invitationId={invitationId}
+                defaultEmail={defaultEmail}
+                redirect={getSafeRedirectPath()}
+                onSuccess={handleSignInSuccess}
+              />
+            ) : (
+              <SignInForm
+                defaultEmail={defaultEmail}
+                onSuccess={handleSignInSuccess}
+              />
+            ))}
           {config?.disableRegistration ||
           config?.disablePasswordRegistration ? (
             <div className="text-center pt-4">
@@ -380,13 +421,13 @@ function SignIn() {
                   : t("auth:signIn.passwordRegistrationDisabled")}
               </p>
             </div>
-          ) : (
+          ) : !config?.disableLoginForm ? (
             <AuthToggle
               message={t("auth:signIn.toggleMessage")}
               linkText={t("auth:signIn.toggleLink")}
               linkTo="/auth/sign-up"
             />
-          )}
+          ) : null}
         </div>
       </AuthLayout>
     </>
