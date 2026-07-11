@@ -4,15 +4,11 @@ import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/
 import { Hono } from "hono";
 import { describeRoute, validator } from "hono-openapi";
 import * as v from "valibot";
-import { auth } from "../auth";
 import {
-  createAuthCode,
-  createAuthorizationContext,
-  exchangeCode,
-  getClient,
-  registerClient,
-  verifyAuthorizationContext,
-} from "./oauth";
+  authorizeClient,
+  completeClientAuthorization,
+} from "./controllers/authorize-client";
+import { exchangeCode, registerClient } from "./oauth";
 import { registerMcpTools } from "./tools";
 
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
@@ -27,9 +23,9 @@ const redirectUriSchema = v.pipe(v.string(), v.nonEmpty(), v.url());
 const registerClientSchema = v.object({
   redirect_uris: v.pipe(v.array(redirectUriSchema), v.minLength(1)),
   client_name: v.optional(v.pipe(v.string(), v.nonEmpty())),
-  token_endpoint_auth_method: v.optional(v.string()),
-  grant_types: v.optional(v.array(v.string())),
-  response_types: v.optional(v.array(v.string())),
+  token_endpoint_auth_method: v.optional(v.literal("none")),
+  grant_types: v.optional(v.tuple([v.literal("authorization_code")])),
+  response_types: v.optional(v.tuple([v.literal("code")])),
 });
 const authorizeQuerySchema = v.object({
   client_id: v.pipe(v.string(), v.nonEmpty()),
@@ -120,56 +116,17 @@ mcp.get(
       state,
     } = c.req.valid("query");
 
-    const client = getClient(clientId);
-    if (!client) {
-      return c.json({ error: "invalid_client" }, 400);
-    }
-    if (!client.redirectUris.includes(redirectUri)) {
-      return c.json({ error: "invalid_redirect_uri" }, 400);
-    }
-
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
-
-    if (session?.user?.id) {
-      const code = createAuthCode({
-        clientId,
-        userId: session.user.id,
-        codeChallenge,
-        redirectUri,
-      });
-      const url = new URL(redirectUri);
-      url.searchParams.set("code", code);
-      if (state) url.searchParams.set("state", state);
-      return c.redirect(url.toString());
+    const result = await authorizeClient(
+      { clientId, redirectUri, codeChallenge, state },
+      c.req.raw.headers,
+      apiUrl,
+    );
+    if (result.type === "redirect") {
+      return c.redirect(result.redirect);
     }
 
-    const deviceRes = await fetch(`${apiUrl}/api/auth/device/code`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_id: "kaneo-mcp" }),
-    });
-
-    if (!deviceRes.ok) {
-      return c.json({ error: "device_code_failed" }, 500);
-    }
-
-    const device = (await deviceRes.json()) as {
-      device_code: string;
-      user_code: string;
-      verification_uri: string;
-      interval: number;
-      expires_in: number;
-    };
-
+    const { device, authorizationContext } = result;
     const devicePageUrl = `${clientUrl}/device?user_code=${encodeURIComponent(device.user_code)}`;
-    const authorizationContext = createAuthorizationContext({
-      clientId,
-      redirectUri,
-      codeChallenge,
-      ...(state ? { state } : {}),
-    });
 
     return c.html(`<!DOCTYPE html>
 <html lang="en">
@@ -195,7 +152,8 @@ mcp.get(
           grant_type: "urn:ietf:params:oauth:grant-type:device_code",
           device_code: deviceCode,
           client_id: "kaneo-mcp"
-        })
+        }),
+        signal: AbortSignal.timeout(10000)
       });
       const data = await res.json();
 
@@ -206,7 +164,8 @@ mcp.get(
           body: JSON.stringify({
             access_token: data.access_token,
             authorization_context: authorizationContext
-          })
+          }),
+          signal: AbortSignal.timeout(10000)
         });
         const codeData = await codeRes.json();
         if (codeData.redirect) window.location.href = codeData.redirect;
@@ -243,31 +202,11 @@ mcp.post(
   validator("json", authorizeCallbackSchema),
   async (c) => {
     const { access_token, authorization_context } = c.req.valid("json");
-    const context = verifyAuthorizationContext(authorization_context);
-    if (!context) {
-      return c.json({ error: "invalid_request" }, 400);
-    }
-
-    const headers = new Headers();
-    headers.set("authorization", `Bearer ${access_token}`);
-    const session = await auth.api.getSession({ headers });
-
-    if (!session?.user?.id) {
-      return c.json({ error: "invalid_token" }, 401);
-    }
-
-    const code = createAuthCode({
-      clientId: context.clientId,
-      userId: session.user.id,
-      codeChallenge: context.codeChallenge,
-      redirectUri: context.redirectUri,
-    });
-
-    const url = new URL(context.redirectUri);
-    url.searchParams.set("code", code);
-    if (context.state) url.searchParams.set("state", context.state);
-
-    return c.json({ redirect: url.toString() });
+    const redirect = await completeClientAuthorization(
+      access_token,
+      authorization_context,
+    );
+    return c.json({ redirect });
   },
 );
 

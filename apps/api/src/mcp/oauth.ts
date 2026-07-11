@@ -34,8 +34,16 @@ type AuthorizationContext = {
 const clients = new Map<string, RegisteredClient>();
 const codes = new Map<string, AuthCode>();
 
+function getAuthorizationSecret(): string {
+  const secret = process.env.AUTH_SECRET;
+  if (!secret) {
+    throw new Error("AUTH_SECRET is required");
+  }
+  return secret;
+}
+
 function signAuthorizationContext(payload: string): string {
-  return createHmac("sha256", process.env.AUTH_SECRET || "")
+  return createHmac("sha256", getAuthorizationSecret())
     .update(payload)
     .digest("base64url");
 }
