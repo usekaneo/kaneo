@@ -45,5 +45,15 @@ services:
       - api
     restart: unless-stopped
 
+  docs:
+    image: node:20-alpine
+    working_dir: /app/apps/docs
+    command: sh -c "npm install -g mintlify && mintlify dev --disable-openapi"
+    ports:
+      - "3421:3000"
+    volumes:
+      - ./apps/docs:/app/apps/docs
+    restart: unless-stopped
+
 volumes:
   postgres_data:
