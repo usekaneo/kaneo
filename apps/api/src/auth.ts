@@ -39,6 +39,7 @@ import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { generateDemoName } from "./utils/generate-demo-name";
+import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
@@ -136,16 +137,6 @@ function getDeviceAuthClientIds(): Set<string> {
 function getDeviceAuthVerificationUri(): string {
   const base = clientUrl.replace(/\/$/, "");
   return `${base}/device`;
-}
-
-function getInvitationEmailSubject(
-  locale: string | null,
-  inviterName: string,
-  workspaceName: string,
-) {
-  return getLocaleKey(locale) === "de"
-    ? `${inviterName} hat dich eingeladen, ${workspaceName} auf Kaneo beizutreten`
-    : `${inviterName} invited you to join ${workspaceName} on Kaneo`;
 }
 
 export const auth = betterAuth({
