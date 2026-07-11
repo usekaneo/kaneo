@@ -97,6 +97,47 @@ export const normalizeOrganizationAuthOperations = (
         summaryObjectParts,
       )}`.trim();
       operation.tags = ["Organization Management"];
+
+      if (path === "/auth/organization/get-invitation" && method === "get") {
+        const parameters = operation.parameters;
+        if (Array.isArray(parameters)) {
+          const idParameter = parameters.find(
+            (parameter) =>
+              isPlainObject(parameter) &&
+              parameter.name === "id" &&
+              parameter.in === "query",
+          );
+          if (isPlainObject(idParameter)) {
+            idParameter.required = true;
+          }
+        }
+      }
+
+      if (path === "/auth/organization/update-team" && method === "post") {
+        const requestBody = operation.requestBody;
+        if (isPlainObject(requestBody)) {
+          const content = requestBody.content;
+          const jsonContent = isPlainObject(content)
+            ? content["application/json"]
+            : undefined;
+          const schema = isPlainObject(jsonContent)
+            ? jsonContent.schema
+            : undefined;
+          const properties = isPlainObject(schema)
+            ? schema.properties
+            : undefined;
+          const data = isPlainObject(properties) ? properties.data : undefined;
+          const dataProperties = isPlainObject(data)
+            ? data.properties
+            : undefined;
+          const id = isPlainObject(dataProperties)
+            ? dataProperties.id
+            : undefined;
+          if (isPlainObject(id)) {
+            delete id.default;
+          }
+        }
+      }
     }
   }
 

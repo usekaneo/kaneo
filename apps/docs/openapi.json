@@ -171,7 +171,8 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "object"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -2189,7 +2190,8 @@
                 "type": "object",
                 "properties": {
                   "userId": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -6581,10 +6583,10 @@
             "in": "query",
             "name": "limit",
             "schema": {
-              "type": "string",
+              "type": "integer",
               "minimum": 1,
               "maximum": 50,
-              "default": "20"
+              "default": 20
             }
           },
           {
@@ -11549,7 +11551,8 @@
             "schema": {
               "type": "string",
               "description": "The ID of the invitation to get"
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -13663,7 +13666,6 @@
                     "properties": {
                       "id": {
                         "type": "string",
-                        "default": "M6mcvJzStshERyUqBha2hU6KW5mudtWJ",
                         "nullable": true
                       },
                       "name": {

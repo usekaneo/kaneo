@@ -100,6 +100,67 @@ describe("openapi spec helpers", () => {
     expect(schemaNames).toEqual(["MemberList", "Member"]);
   });
 
+  it("normalizes organization invitation and team schemas", () => {
+    const normalized = normalizeOrganizationAuthOperations({
+      paths: {
+        "/organization/get-invitation": {
+          get: {
+            parameters: [
+              { name: "id", in: "query", schema: { type: "string" } },
+            ],
+          },
+        },
+        "/organization/update-team": {
+          post: {
+            requestBody: {
+              content: {
+                "application/json": {
+                  schema: {
+                    properties: {
+                      data: {
+                        properties: {
+                          id: {
+                            type: "string",
+                            default: "generated-team-id",
+                            nullable: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const paths = normalized.paths as Record<
+      string,
+      Record<string, Record<string, unknown>>
+    >;
+    const invitationParameters = paths["/auth/organization/get-invitation"].get
+      .parameters as Record<string, unknown>[];
+    expect(invitationParameters[0]?.required).toBe(true);
+
+    const requestBody = paths["/auth/organization/update-team"].post
+      .requestBody as {
+      content: {
+        "application/json": {
+          schema: {
+            properties: {
+              data: { properties: { id: Record<string, unknown> } };
+            };
+          };
+        };
+      };
+    };
+    expect(
+      requestBody.content["application/json"].schema.properties.data.properties
+        .id,
+    ).toEqual({ type: "string", nullable: true });
+  });
+
   it("merges hono and auth specs", () => {
     const merged = mergeOpenApiSpecs(
       {
