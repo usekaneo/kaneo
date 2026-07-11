@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
@@ -180,16 +180,21 @@ async function lookupWorkspaceId(
           .select({
             workspaceId: schema.projectTable.workspaceId,
           })
-          .from(schema.commentTable)
+          .from(schema.activityTable)
           .innerJoin(
             schema.taskTable,
-            eq(schema.commentTable.taskId, schema.taskTable.id),
+            eq(schema.activityTable.taskId, schema.taskTable.id),
           )
           .innerJoin(
             schema.projectTable,
             eq(schema.taskTable.projectId, schema.projectTable.id),
           )
-          .where(eq(schema.commentTable.id, id))
+          .where(
+            and(
+              eq(schema.activityTable.id, id),
+              eq(schema.activityTable.type, "comment"),
+            ),
+          )
           .limit(1);
         return comment?.workspaceId || null;
       }

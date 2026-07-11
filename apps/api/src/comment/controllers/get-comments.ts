@@ -1,29 +1,31 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import db from "../../database";
-import { commentTable, userTable } from "../../database/schema";
+import { activityTable, userTable } from "../../database/schema";
 
 async function getComments(taskId: string) {
   const comments = await db
     .select({
-      id: commentTable.id,
-      taskId: commentTable.taskId,
-      userId: commentTable.userId,
-      content: commentTable.content,
-      createdAt: commentTable.createdAt,
-      updatedAt: commentTable.updatedAt,
+      id: activityTable.id,
+      taskId: activityTable.taskId,
+      userId: activityTable.userId,
+      content: activityTable.content,
+      createdAt: activityTable.createdAt,
+      updatedAt: activityTable.updatedAt,
       userName: userTable.name,
       userImage: userTable.image,
     })
-    .from(commentTable)
-    .leftJoin(userTable, eq(commentTable.userId, userTable.id))
-    .where(eq(commentTable.taskId, taskId))
-    .orderBy(asc(commentTable.createdAt));
+    .from(activityTable)
+    .leftJoin(userTable, eq(activityTable.userId, userTable.id))
+    .where(
+      and(eq(activityTable.taskId, taskId), eq(activityTable.type, "comment")),
+    )
+    .orderBy(asc(activityTable.createdAt));
 
   return comments.map((c) => ({
     id: c.id,
     taskId: c.taskId,
-    userId: c.userId,
-    content: c.content,
+    userId: c.userId ?? "",
+    content: c.content ?? "",
     createdAt: c.createdAt,
     updatedAt: c.updatedAt,
     user: {
