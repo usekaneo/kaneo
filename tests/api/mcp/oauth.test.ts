@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import mcp from "../../../apps/api/src/mcp";
 import {
   createAuthorizationContext,
+  registerClient,
   verifyAuthorizationContext,
 } from "../../../apps/api/src/mcp/oauth";
 
@@ -53,9 +54,12 @@ describe("MCP authorization context", () => {
     ).toThrow("AUTH_SECRET is required");
   });
 
-  it("rejects authorization for an unregistered client", async () => {
+  it("rejects authorization for an unregistered redirect URI", async () => {
+    const client = registerClient({
+      redirectUris: ["http://127.0.0.1:3000/callback"],
+    });
     const response = await mcp.request(
-      "/mcp/authorize?client_id=missing&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&code_challenge=challenge",
+      `/mcp/authorize?client_id=${client.clientId}&redirect_uri=http%3A%2F%2F127.0.0.1%3A3001%2Fcallback&code_challenge=challenge`,
     );
 
     expect(response.status).toBe(400);
