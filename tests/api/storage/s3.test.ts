@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   applyKeyPrefix,
+  assertStorageConfigured,
   assertTaskImageKeyMatchesContext,
   buildObjectKey,
   buildObjectKeyPrefix,
@@ -9,6 +10,7 @@ import {
   isImageContentType,
   parseBoolean,
   parsePositiveInt,
+  resolveS3Credentials,
   sanitizePathSegment,
   validateTaskAssetUploadInput,
 } from "../../../apps/api/src/storage/s3";
@@ -213,6 +215,125 @@ describe("S3 helpers", () => {
     const searchParams = new URL(upload.uploadUrl).searchParams;
     expect(searchParams.has("x-amz-checksum-crc32")).toBe(false);
     expect(searchParams.has("x-amz-sdk-checksum-algorithm")).toBe(false);
+  });
+
+  it("resolveS3Credentials returns explicit credentials when both keys are set", () => {
+    expect(resolveS3Credentials("AKIA", "secret")).toEqual({
+      accessKeyId: "AKIA",
+      secretAccessKey: "secret",
+    });
+  });
+
+  it("resolveS3Credentials returns undefined when both keys are absent (IAM role fallback)", () => {
+    expect(resolveS3Credentials("", "")).toBeUndefined();
+  });
+
+  it("resolveS3Credentials throws when only one key is set", () => {
+    expect(() => resolveS3Credentials("AKIA", "")).toThrow(
+      /both S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY/,
+    );
+    expect(() => resolveS3Credentials("", "secret")).toThrow(
+      /both S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY/,
+    );
+  });
+
+  it("assertStorageConfigured succeeds without static keys (IAM role mode)", () => {
+    process.env.S3_ENDPOINT = "https://s3.us-east-1.amazonaws.com";
+    process.env.S3_BUCKET = "kaneo";
+    delete process.env.S3_ACCESS_KEY_ID;
+    delete process.env.S3_SECRET_ACCESS_KEY;
+
+    const config = assertStorageConfigured();
+    expect(config.bucket).toBe("kaneo");
+    expect(config.accessKeyId).toBe("");
+    expect(config.secretAccessKey).toBe("");
+  });
+
+  it("assertStorageConfigured throws when only one credential key is set", () => {
+    process.env.S3_ENDPOINT = "https://s3.us-east-1.amazonaws.com";
+    process.env.S3_BUCKET = "kaneo";
+    process.env.S3_ACCESS_KEY_ID = "AKIA";
+    delete process.env.S3_SECRET_ACCESS_KEY;
+
+    expect(() => assertStorageConfigured()).toThrow(
+      /Incomplete S3 credentials/,
+    );
+  });
+
+  it("assertStorageConfigured throws when endpoint or bucket is missing", () => {
+    delete process.env.S3_ENDPOINT;
+    delete process.env.S3_BUCKET;
+
+    expect(() => assertStorageConfigured()).toThrow(
+      /S3 uploads are not configured/,
+    );
+  });
+});
+
+describe("S3 credential provider chain (IAM role)", () => {
+  const trackedKeys = [
+    "S3_ENDPOINT",
+    "S3_BUCKET",
+    "S3_ACCESS_KEY_ID",
+    "S3_SECRET_ACCESS_KEY",
+    "S3_REGION",
+    "S3_FORCE_PATH_STYLE",
+    "S3_KEY_PREFIX",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_SESSION_TOKEN",
+  ] as const;
+
+  const original: Partial<Record<(typeof trackedKeys)[number], string>> = {};
+
+  beforeEach(() => {
+    for (const key of trackedKeys) {
+      original[key] = process.env[key];
+      delete process.env[key];
+    }
+  });
+
+  afterEach(() => {
+    for (const key of trackedKeys) {
+      const value = original[key];
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  });
+
+  it("signs presigned URLs using ambient credentials when S3 keys are unset", async () => {
+    // Non-sensitive, obviously-fake credentials generated at runtime so no
+    // credential-like literals are committed (avoids secret-scanning hits).
+    const ambientAccessKeyId = `test-ambient-key-${Date.now()}`;
+    const ambientSecretAccessKey = `test-ambient-secret-${Date.now()}`;
+
+    // Simulates an IAM role / IRSA / instance profile: no S3_ACCESS_KEY_ID is
+    // configured, but ambient AWS credentials are resolvable from the
+    // environment (the AWS SDK default provider chain reads AWS_* env vars).
+    process.env.S3_ENDPOINT = "https://s3.us-east-1.amazonaws.com";
+    process.env.S3_BUCKET = "kaneo";
+    process.env.S3_REGION = "us-east-1";
+    process.env.S3_FORCE_PATH_STYLE = "false";
+    process.env.AWS_ACCESS_KEY_ID = ambientAccessKeyId;
+    process.env.AWS_SECRET_ACCESS_KEY = ambientSecretAccessKey;
+
+    const upload = await createTaskImageUploadUrl({
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      taskId: "task-1",
+      surface: "description",
+      filename: "report.png",
+      contentType: "image/png",
+    });
+
+    const searchParams = new URL(upload.uploadUrl).searchParams;
+    // The signature must be derived from the ambient credentials, proving the
+    // SDK default provider chain (used for IAM roles) was applied.
+    expect(searchParams.get("X-Amz-Credential")).toContain(ambientAccessKeyId);
+    expect(searchParams.has("X-Amz-Signature")).toBe(true);
   });
 });
 

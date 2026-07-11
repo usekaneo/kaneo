@@ -36,7 +36,9 @@ export class KaneoClient {
       : timeoutSignal;
     const res = await fetch(url, { ...init, headers, signal });
 
-    if (res.status === 401 && !didRetry) {
+    // With a static API key there is nothing to refresh, so surface the 401
+    // instead of looping back into the interactive device flow.
+    if (res.status === 401 && !didRetry && !this.auth.usingApiKey) {
       await this.auth.clearToken();
       return this.authorizedFetch(path, init, true);
     }

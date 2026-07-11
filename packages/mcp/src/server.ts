@@ -15,7 +15,8 @@ export function createMcpServer(): McpServer {
     process.env.KANEO_API_URL || "http://localhost:1337",
   );
   const clientId = process.env.KANEO_MCP_CLIENT_ID || "kaneo-mcp";
-  const auth = new AuthService({ baseUrl, clientId });
+  const apiKey = process.env.KANEO_API_KEY || undefined;
+  const auth = new AuthService({ baseUrl, clientId, apiKey });
   const client = new KaneoClient({ baseUrl, auth });
   const server = new McpServer({
     name: "kaneo-mcp",
