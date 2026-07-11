@@ -22,6 +22,7 @@ export type GlanceFilters = {
   projects: Array<{ id: string; name: string; workspaceId: string }>;
   labels: Array<{ name: string; color: string }>;
   priorities: string[];
+  statuses: string[];
 };
 
 export type GlanceMember = {

@@ -32,11 +32,45 @@ const {
 
 const glance = new Hono<{ Variables: { userId: string } }>();
 
+const multiFilterSchema = v.optional(v.pipe(v.string(), v.maxLength(10_000)));
+const glanceTasksQuerySchema = v.object({
+  assignees: multiFilterSchema,
+  workspaceId: multiFilterSchema,
+  project: multiFilterSchema,
+  priority: multiFilterSchema,
+  status: multiFilterSchema,
+  label: multiFilterSchema,
+  due: v.optional(v.picklist(["overdue", "today", "week", "none"])),
+});
+
+function parseMultiFilter(value: string | undefined): string[] {
+  if (!value) return [];
+
+  if (value.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(value);
+      const result = v.safeParse(
+        v.array(v.pipe(v.string(), v.maxLength(255))),
+        parsed,
+      );
+      if (result.success) return result.output;
+    } catch {}
+
+    throw new HTTPException(400, { message: "Invalid multi-value filter" });
+  }
+
+  // Backward compatibility for preferences saved by earlier Glance builds.
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 // ─── GET /tasks ──────────────────────────────────────────────────────────────
 // Non-final tasks assigned to the requested users, with optional filters.
 // Query params (all optional):
 //   workspaceId, project, priority, status, label, due=(overdue|today|week|none)
-//   assignees=comma-separated userIds or "me" (default: "me")
+//   Multi-value filters use JSON arrays; legacy comma-separated prefs are read.
 
 const glanceTaskSchema = v.object({
   taskId: v.string(),
@@ -75,24 +109,26 @@ glance.get(
       },
     },
   }),
+  validator("query", glanceTasksQuerySchema),
   async (c) => {
     const userId = c.get("userId");
     if (!userId) throw new HTTPException(401, { message: "Unauthorized" });
 
     // Resolve assignees: "me" → current userId; default when absent = [userId]
-    const assigneesRaw = c.req.queries("assignees") ?? [];
+    const query = c.req.valid("query");
+    const assigneesRaw = parseMultiFilter(query.assignees);
     const resolvedAssignees = assigneesRaw.length
       ? assigneesRaw
           .map((id) => (id.trim() === "me" ? userId : id.trim()))
           .filter(Boolean)
       : [userId];
 
-    const wsFilter = c.req.queries("workspaceId") ?? [];
-    const projFilter = c.req.queries("project") ?? [];
-    const priFilter = c.req.queries("priority") ?? [];
-    const statusFilter = c.req.queries("status") ?? [];
-    const labelFilter = c.req.queries("label") ?? [];
-    const dueFilter = c.req.query("due") ?? null;
+    const wsFilter = parseMultiFilter(query.workspaceId);
+    const projFilter = parseMultiFilter(query.project);
+    const priFilter = parseMultiFilter(query.priority);
+    const statusFilter = parseMultiFilter(query.status);
+    const labelFilter = parseMultiFilter(query.label);
+    const dueFilter = query.due ?? null;
 
     const conditions = [
       inArray(taskTable.userId, resolvedAssignees),
@@ -281,6 +317,7 @@ glance.get(
                   v.object({ name: v.string(), color: v.string() }),
                 ),
                 priorities: v.array(v.string()),
+                statuses: v.array(v.string()),
               }),
             ),
           },
@@ -292,7 +329,7 @@ glance.get(
     const userId = c.get("userId");
     if (!userId) throw new HTTPException(401, { message: "Unauthorized" });
 
-    const [workspaces, projects, labels] = await Promise.all([
+    const [workspaces, projects, labels, statuses] = await Promise.all([
       db
         .selectDistinct({
           id: workspaceTable.id,
@@ -340,6 +377,25 @@ glance.get(
           ),
         )
         .orderBy(asc(labelTable.name)),
+
+      db
+        .selectDistinct({ status: taskTable.status })
+        .from(taskTable)
+        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+        .innerJoin(
+          workspaceUserTable,
+          and(
+            eq(workspaceUserTable.workspaceId, projectTable.workspaceId),
+            eq(workspaceUserTable.userId, userId),
+          ),
+        )
+        .where(
+          and(
+            isNull(projectTable.archivedAt),
+            ne(taskTable.status, "archived"),
+          ),
+        )
+        .orderBy(asc(taskTable.status)),
     ]);
 
     return c.json({
@@ -347,6 +403,7 @@ glance.get(
       projects,
       labels,
       priorities: ["urgent", "high", "medium", "low"],
+      statuses: statuses.map(({ status }) => status),
     });
   },
 );
@@ -560,11 +617,12 @@ glance.delete(
       },
     },
   }),
+  validator("param", v.object({ viewId: v.string() })),
   async (c) => {
     const userId = c.get("userId");
     if (!userId) throw new HTTPException(401, { message: "Unauthorized" });
 
-    const viewId = c.req.param("viewId");
+    const { viewId } = c.req.valid("param");
 
     const [existing] = await db
       .select({

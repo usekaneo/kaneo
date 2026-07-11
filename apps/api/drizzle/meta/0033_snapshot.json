@@ -1336,6 +1336,13 @@
 					"notNull": true,
 					"default": "'workspace'"
 				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
 				"updated_at": {
 					"name": "updated_at",
 					"type": "timestamp",
@@ -1351,23 +1358,7 @@
 					"default": "'[]'::jsonb"
 				}
 			},
-			"indexes": {
-				"glance_user_prefs_userId_idx": {
-					"name": "glance_user_prefs_userId_idx",
-					"columns": [
-						{
-							"expression": "user_id",
-							"isExpression": false,
-							"asc": true,
-							"nulls": "last"
-						}
-					],
-					"isUnique": false,
-					"concurrently": false,
-					"method": "btree",
-					"with": {}
-				}
-			},
+			"indexes": {},
 			"foreignKeys": {
 				"glance_user_prefs_user_id_user_id_fk": {
 					"name": "glance_user_prefs_user_id_user_id_fk",

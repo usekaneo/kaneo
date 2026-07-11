@@ -8,12 +8,7 @@ export async function getGlanceTasks(
 
   for (const [key, value] of Object.entries(filters)) {
     if (!value) continue;
-    // Comma-separated multi-select values become repeated query params
-    // so the API can use req.queries() to read them as an array.
-    for (const v of value.split(",")) {
-      const trimmed = v.trim();
-      if (trimmed) params.append(key, trimmed);
-    }
+    params.set(key, value);
   }
 
   const response = await fetch(

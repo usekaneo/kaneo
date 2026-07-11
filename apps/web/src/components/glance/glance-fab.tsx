@@ -52,7 +52,7 @@ import { useGlancePrefs } from "@/hooks/queries/glance/use-glance-prefs";
 import { useGlanceTasks } from "@/hooks/queries/glance/use-glance-tasks";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
-import { getPriorityLabel } from "@/lib/i18n/domain";
+import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -78,13 +78,29 @@ const FILTER_ACTIVE = "border-primary/50 bg-primary/5";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Parse a comma-separated filter string into an array of values. */
+/** Parse JSON-array filters while keeping older comma-separated prefs working. */
 function parseMulti(raw: string | undefined): string[] {
   if (!raw) return [];
+
+  if (raw.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(
+          (value): value is string => typeof value === "string",
+        );
+      }
+    } catch {}
+  }
+
   return raw
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+function serializeMulti(values: string[]): string {
+  return JSON.stringify(values);
 }
 
 /** Parse assignees string, defaulting to ["me"] when empty. */
@@ -164,7 +180,7 @@ function groupTasks(
           } else if (d < tomorrow) {
             key = "today";
             label = "Due today";
-          } else if (d < in7Days) {
+          } else if (d <= in7Days) {
             key = "week";
             label = "Due within 7 days";
           } else {
@@ -604,7 +620,7 @@ export function GlanceFab() {
   const currentUserId = session?.user?.id ?? "";
 
   // Prefs — load on open, sync into local filter state once per open
-  const { data: savedPrefs } = useGlancePrefs(open);
+  const { data: savedPrefs, isFetched: prefsFetched } = useGlancePrefs(open);
   const [filterState, setFilterState] = useState<GlanceFilterState>({
     filters: {},
     groupBy: "workspace",
@@ -644,9 +660,10 @@ export function GlanceFab() {
 
   const { data: filterOptions } = useGlanceFilters(open);
   const { data: members = [] } = useGlanceMembers(open);
+  const prefsReady = prefsFetched && (!savedPrefs || prefsApplied.current);
   const { data: tasks, isLoading: tasksLoading } = useGlanceTasks(
     filterState.filters,
-    open,
+    open && prefsReady,
   );
   const { mutate: savePrefs } = useUpdateGlancePrefs();
   const { mutate: createView } = useCreateGlanceView();
@@ -690,7 +707,7 @@ export function GlanceFab() {
               delete f[key];
               return f;
             })()
-          : { ...filterState.filters, [key]: nextArr.join(",") };
+          : { ...filterState.filters, [key]: serializeMulti(nextArr) };
       const next: GlanceFilterState = { ...filterState, filters: nextFilters };
       setFilterState(next);
       setActiveViewId(null);
@@ -715,7 +732,10 @@ export function GlanceFab() {
   /** Replace all selections for a multi-select filter at once. */
   const setMultiFilter = useCallback(
     (key: string, values: string[]) => {
-      const nextFilters = { ...filterState.filters, [key]: values.join(",") };
+      const nextFilters = {
+        ...filterState.filters,
+        [key]: serializeMulti(values),
+      };
       const next: GlanceFilterState = { ...filterState, filters: nextFilters };
       setFilterState(next);
       setActiveViewId(null);
@@ -735,7 +755,7 @@ export function GlanceFab() {
             delete f.assignees;
             return f;
           })()
-        : { ...filterState.filters, assignees: assignees.join(",") };
+        : { ...filterState.filters, assignees: serializeMulti(assignees) };
       const next: GlanceFilterState = { ...filterState, filters: nextFilters };
       setFilterState(next);
       setActiveViewId(null);
@@ -826,6 +846,11 @@ export function GlanceFab() {
     [filterState.filters.priority],
   );
 
+  const selectedStatuses = useMemo(
+    () => parseMulti(filterState.filters.status),
+    [filterState.filters.status],
+  );
+
   // Projects visible in the Projects filter (restricted by selected workspaces)
   const visibleProjects = useMemo(() => {
     if (!filterOptions) return [];
@@ -909,6 +934,15 @@ export function GlanceFab() {
           prefix: getPriorityIcon(p),
         }),
       ),
+    [filterOptions],
+  );
+
+  const statusOptions = useMemo(
+    () =>
+      (filterOptions?.statuses ?? []).map((status) => ({
+        value: status,
+        label: getStatusLabel(status),
+      })),
     [filterOptions],
   );
 
@@ -997,7 +1031,7 @@ export function GlanceFab() {
                   if (nextWs.length === 0) {
                     delete f.workspaceId;
                   } else {
-                    f.workspaceId = nextWs.join(",");
+                    f.workspaceId = serializeMulti(nextWs);
                   }
 
                   // Drop any selected projects that no longer belong to the new workspace set
@@ -1011,7 +1045,7 @@ export function GlanceFab() {
                     if (kept.length === 0) {
                       delete f.project;
                     } else if (kept.length !== selectedProjects.length) {
-                      f.project = kept.join(",");
+                      f.project = serializeMulti(kept);
                     }
                   }
 
@@ -1035,6 +1069,17 @@ export function GlanceFab() {
                 onClear={() => clearMultiFilter("project")}
                 onSelectAll={(values) => setMultiFilter("project", values)}
               />
+
+              {statusOptions.length > 0 && (
+                <MultiSelectFilter
+                  placeholder="Any status"
+                  options={statusOptions}
+                  selected={selectedStatuses}
+                  onToggle={(value) => toggleMultiFilter("status", value)}
+                  onClear={() => clearMultiFilter("status")}
+                  onSelectAll={(values) => setMultiFilter("status", values)}
+                />
+              )}
 
               <SingleSelectFilter
                 placeholder="Any date"
