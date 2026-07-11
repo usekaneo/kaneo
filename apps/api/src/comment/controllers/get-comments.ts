@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull } from "drizzle-orm";
 import db from "../../database";
 import { activityTable, userTable } from "../../database/schema";
 
@@ -7,7 +7,7 @@ async function getComments(taskId: string) {
     .select({
       id: activityTable.id,
       taskId: activityTable.taskId,
-      userId: activityTable.userId,
+      userId: userTable.id,
       content: activityTable.content,
       createdAt: activityTable.createdAt,
       updatedAt: activityTable.updatedAt,
@@ -15,21 +15,26 @@ async function getComments(taskId: string) {
       userImage: userTable.image,
     })
     .from(activityTable)
-    .leftJoin(userTable, eq(activityTable.userId, userTable.id))
+    .innerJoin(userTable, eq(activityTable.userId, userTable.id))
     .where(
-      and(eq(activityTable.taskId, taskId), eq(activityTable.type, "comment")),
+      and(
+        eq(activityTable.taskId, taskId),
+        eq(activityTable.type, "comment"),
+        isNotNull(activityTable.userId),
+        isNotNull(activityTable.content),
+      ),
     )
     .orderBy(asc(activityTable.createdAt));
 
   return comments.map((c) => ({
     id: c.id,
     taskId: c.taskId,
-    userId: c.userId ?? "",
-    content: c.content ?? "",
+    userId: c.userId,
+    content: c.content as string,
     createdAt: c.createdAt,
     updatedAt: c.updatedAt,
     user: {
-      name: c.userName ?? "",
+      name: c.userName,
       image: c.userImage,
     },
   }));
