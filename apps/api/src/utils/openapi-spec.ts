@@ -522,6 +522,11 @@ export const normalizeEmptyAndEnumSchemas = (spec: Record<string, unknown>) => {
     for (const [k, value] of Object.entries(node)) {
       // Replace remaining empty schemas {} (e.g. v.any() or v.unknown()).
       if (isPlainObject(value) && Object.keys(value).length === 0) {
+        // An empty properties map is valid and must remain a map. Replacing it
+        // with a schema object would create `properties: { type: "object" }`.
+        if (k === "properties") {
+          continue;
+        }
         // additionalProperties: {} → true (means "any additional properties")
         node[k] = k === "additionalProperties" ? true : { type: "object" };
         continue;

@@ -5,7 +5,9 @@ import {
   markOptionalSchemaFieldsNullable,
   mergeOpenApiSpecs,
   normalizeApiServerUrl,
+  normalizeEmptyAndEnumSchemas,
   normalizeEmptyRequiredArrays,
+  normalizeMalformedPropertySchemas,
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
 } from "../../../apps/api/src/utils/openapi-spec";
@@ -189,6 +191,37 @@ describe("openapi spec helpers", () => {
       minimum: 1,
       nullable: true,
     });
+  });
+
+  it("keeps empty properties maps valid after removing malformed schemas", () => {
+    const spec = normalizeEmptyAndEnumSchemas(
+      normalizeMalformedPropertySchemas({
+        components: {
+          schemas: {
+            Example: {
+              type: "object",
+              properties: {
+                additionalFields: {
+                  type: "object",
+                  properties: { type: "object" },
+                },
+              },
+            },
+          },
+        },
+      }),
+    );
+
+    expect(
+      (
+        spec.components as {
+          schemas: Record<
+            string,
+            { properties: Record<string, Record<string, unknown>> }
+          >;
+        }
+      ).schemas.Example.properties.additionalFields.properties,
+    ).toEqual({});
   });
 
   it("marks optional schema fields nullable and fills missing summaries", () => {
