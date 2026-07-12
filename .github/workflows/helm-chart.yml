@@ -27,7 +27,8 @@ jobs:
       matrix:
         include:
           - name: default
-            args: ""
+            args: >-
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
           - name: ingress
             args: >-
               --set ingress.enabled=true
@@ -43,15 +44,18 @@ jobs:
             args: >-
               --set autoscaling.enabled=true
               --set kaneo.resources.requests.cpu=100m
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
           - name: external-database
             args: >-
               --set postgresql.enabled=false
               --set kaneo.env.database.external.enabled=true
               --set kaneo.env.database.external.host=db.example.com
               --set kaneo.env.database.external.password=secure-db-password
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
           - name: bundled-postgresql-secret
             args: >-
               --set postgresql.auth.existingSecret=kaneo-secrets
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
 
     steps:
       - name: Checkout repository
