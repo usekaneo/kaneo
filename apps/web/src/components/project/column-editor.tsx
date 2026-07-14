@@ -143,6 +143,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     const dragPreview = sourceElement.cloneNode(true) as HTMLDivElement;
 
     dragPreview.setAttribute("aria-hidden", "true");
+    dragPreview.inert = true;
 
     Object.assign(dragPreview.style, {
       position: "fixed",
