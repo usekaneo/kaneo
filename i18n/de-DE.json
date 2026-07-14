@@ -1654,6 +1654,16 @@
 		}
 	},
 	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} hat dich eingeladen, {{workspaceName}} auf Kaneo beizutreten",
+			"preview": "Du wurdest zu {{workspaceName}} auf Kaneo eingeladen",
+			"title": "{{workspaceName}} beitreten",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) hat dich eingeladen, in Kaneo zusammenzuarbeiten.",
+			"cta": "Einladung annehmen",
+			"sameEmail": "Du kannst die Einladung mit derselben E-Mail-Adresse annehmen, die diese Nachricht erhalten hat.",
+			"ignore": "Falls du damit nicht gerechnet hast, kannst du diese E-Mail einfach ignorieren.",
+			"footer": "Kaneo Workspace-Einladung"
+		},
 		"pageTitle": "Einladungen",
 		"pendingInvitations": "Ausstehende Einladungen",
 		"acceptSubtitle": "Nimm Einladungen an, um Workspaces beizutreten",

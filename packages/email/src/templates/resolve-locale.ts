@@ -1,19 +1,10 @@
-const defaultSupportedLocales = ["en", "de"] as const;
+const supportedLocales = ["en", "de"] as const;
 
-type EmailLocale = (typeof defaultSupportedLocales)[number];
+type EmailLocale = (typeof supportedLocales)[number];
 
-export function resolveEmailLocale(locale?: string | null): EmailLocale;
-export function resolveEmailLocale<
-  const SupportedLocales extends readonly [string, ...string[]],
->(
-  locale: string | null | undefined,
-  supportedLocales: SupportedLocales,
-): SupportedLocales[number];
-export function resolveEmailLocale(
-  locale?: string | null,
-  supportedLocales: readonly string[] = defaultSupportedLocales,
-): string {
-  const defaultLocale = supportedLocales[0] ?? "en";
+const defaultLocale: EmailLocale = "en";
+
+export function resolveEmailLocale(locale?: string | null): EmailLocale {
   if (!locale) return defaultLocale;
 
   const normalized = locale.toLowerCase();

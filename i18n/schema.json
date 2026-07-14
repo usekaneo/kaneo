@@ -7123,6 +7123,46 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"email": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"subject": {
+							"type": "string"
+						},
+						"preview": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"cta": {
+							"type": "string"
+						},
+						"sameEmail": {
+							"type": "string"
+						},
+						"ignore": {
+							"type": "string"
+						},
+						"footer": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"subject",
+						"preview",
+						"title",
+						"subtitle",
+						"cta",
+						"sameEmail",
+						"ignore",
+						"footer"
+					]
+				},
 				"pageTitle": {
 					"type": "string"
 				},
@@ -7186,6 +7226,7 @@
 				}
 			},
 			"required": [
+				"email",
 				"pageTitle",
 				"pendingInvitations",
 				"acceptSubtitle",

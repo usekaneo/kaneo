@@ -40,6 +40,7 @@ import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { generateDemoName } from "./utils/generate-demo-name";
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
+import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
@@ -375,6 +376,7 @@ export const auth = betterAuth({
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.KANEO_CLIENT_URL}/invitation/accept/${data.id}`;
         const locale = await getUserLocale(data.email);
+        const copy = getWorkspaceInvitationEmailCopy(locale);
 
         const result = await sendWorkspaceInvitationEmail(
           data.email,
@@ -390,6 +392,7 @@ export const auth = betterAuth({
             workspaceName: data.organization.name,
             invitationLink: inviteLink,
             to: data.email,
+            copy,
           },
         );
 

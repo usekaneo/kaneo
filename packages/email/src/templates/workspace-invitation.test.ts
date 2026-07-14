@@ -1,6 +1,7 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
+import frFR from "../../../../i18n/fr-FR.json";
 import WorkspaceInvitationEmail from "./workspace-invitation";
 
 describe("WorkspaceInvitationEmail", () => {
@@ -12,7 +13,7 @@ describe("WorkspaceInvitationEmail", () => {
         inviterEmail: "camille@example.com",
         invitationLink: "https://kaneo.example/invite/abc",
         to: "invite@example.com",
-        locale: "fr-FR",
+        copy: frFR.invitations.email,
       }),
     );
 
