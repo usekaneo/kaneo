@@ -1,5 +1,5 @@
 import { CheckCircle2, Circle, GripVertical, Plus, Trash2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,12 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   const [iconSearch, setIconSearch] = useState("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const dragPreviewRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      dragPreviewRef.current?.remove();
+    };
+  }, []);
 
   const handleCreate = async () => {
     if (!newColumnName.trim()) return;
