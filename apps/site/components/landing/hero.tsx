@@ -67,9 +67,12 @@ export function Hero() {
                     rel="noreferrer"
                     aria-label="View Kaneo on Product Hunt"
                   >
-                    <span className="flex size-5 items-center justify-center rounded-full bg-[#da552f] font-semibold text-[13px] text-white leading-none">
-                      P
-                    </span>
+                    <img
+                      src="/images/product-hunt.svg"
+                      alt=""
+                      className="size-5"
+                      aria-hidden="true"
+                    />
                     Product Hunt
                   </a>
                 }

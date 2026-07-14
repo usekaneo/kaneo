@@ -86,15 +86,16 @@ kaneo:
     # Allowed CORS origins. Accepts a comma-separated string or YAML list.
     # Defaults to clientUrl when left empty.
     corsOrigins: []
-    # Must be at least 32 characters long for Better Auth
+    # Required Better Auth secret (minimum 32 characters), unless existingSecret is enabled.
     # Generate with: openssl rand -hex 32
-    authSecret: change_me_to_at_least_32_characters_long_string
+    authSecret: ""
     existingSecret:
       enabled: false
       name: ""
       key: auth-secret
     disableRegistration: false
     disablePasswordRegistration: false
+    disableEmailOtpSignIn: false
     # Database configuration
     database:
       # Use external PostgreSQL (set postgresql.enabled to false)

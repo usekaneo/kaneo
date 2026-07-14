@@ -252,7 +252,7 @@ export function createApp() {
         200: {
           description: "The requested asset binary stream",
           content: {
-            "*/*": { schema: resolver(v.any()) },
+            "*/*": { schema: { type: "string", format: "binary" } },
           },
         },
       },

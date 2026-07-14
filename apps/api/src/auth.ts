@@ -53,6 +53,8 @@ const githubSso = getGithubSsoOAuthCredentials();
 const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 const isPasswordRegistrationDisabled =
   process.env.DISABLE_PASSWORD_REGISTRATION === "true";
+const isEmailOtpSignInDisabled =
+  process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
@@ -241,18 +243,22 @@ export const auth = betterAuth({
         }
       },
     }),
-    emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
-        if (type === "sign-in") {
-          const locale = await getUserLocale(email);
-          const copy = getAuthEmailCopy(locale);
-          await sendOtpEmail(email, copy.otpSubject, {
-            otp,
-            locale,
-          });
-        }
-      },
-    }),
+    ...(isEmailOtpSignInDisabled
+      ? []
+      : [
+          emailOTP({
+            async sendVerificationOTP({ email, otp, type }) {
+              if (type === "sign-in") {
+                const locale = await getUserLocale(email);
+                const copy = getAuthEmailCopy(locale);
+                await sendOtpEmail(email, copy.otpSubject, {
+                  otp,
+                  locale,
+                });
+              }
+            },
+          }),
+        ]),
     organization({
       // `ac` is created with a narrow `statement` shape (project/task/label/
       // workspace + the default org statements), which makes its inferred
