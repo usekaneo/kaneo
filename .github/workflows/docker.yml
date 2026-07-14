@@ -71,3 +71,24 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  trigger-helm-publish:
+    needs: build-and-push-image
+    if: inputs.version != ''
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Trigger Helm chart publish
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'helm-chart.yml',
+              ref: 'main',
+              inputs: {
+                version: '${{ inputs.version }}'
+              }
+            });
+            console.log('Triggered Helm chart publish for version ${{ inputs.version }}');
