@@ -91,6 +91,13 @@ export async function hasWorkspacePermission(
   const workspaceId = c.get("workspaceId");
   if (!workspaceId) return false;
 
+  const apiKey = c.get("apiKey") as
+    | { permissions?: Record<string, string[]> | null }
+    | undefined;
+  if (apiKey?.permissions && !satisfies(apiKey.permissions, permissions)) {
+    return false;
+  }
+
   if (await isInstanceAdmin(c)) {
     return true;
   }
@@ -132,7 +139,17 @@ export function requireWorkspacePermission(permissions: PermissionMap) {
       });
     }
 
+    const apiKey = c.get("apiKey") as
+      | { permissions?: Record<string, string[]> | null }
+      | undefined;
+    if (apiKey?.permissions && !satisfies(apiKey.permissions, permissions)) {
+      throw new HTTPException(403, { message: "Insufficient API key scope" });
+    }
+
     if (!(await hasWorkspacePermission(c, permissions))) {
+      if (!c.get("userId")) {
+        throw new HTTPException(401, { message: "Unauthorized" });
+      }
       throw new HTTPException(403, { message: "Insufficient permissions" });
     }
 

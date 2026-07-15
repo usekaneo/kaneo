@@ -57,7 +57,8 @@
 							"core/functional/collaborate-with-team",
 							"core/functional/configure-workflows",
 							"core/functional/account-notifications",
-							"core/functional/personalize-your-workspace"
+							"core/functional/personalize-your-workspace",
+							"core/functional/manage-workspace-labels"
 						]
 					},
 					{
@@ -115,7 +116,7 @@
 			},
 			{
 				"tab": "API Reference",
-				"openapi": "https://cloud.kaneo.app/api/openapi"
+				"openapi": "openapi.json"
 			}
 		],
 		"global": {

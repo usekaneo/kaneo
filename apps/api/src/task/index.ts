@@ -523,7 +523,7 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
-    validator("json", v.object({ userId: v.string() })),
+    validator("json", v.object({ userId: v.nullable(v.string()) })),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["assign"] }),
     async (c) => {

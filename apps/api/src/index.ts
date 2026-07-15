@@ -89,6 +89,7 @@ type ApiKey = {
   id: string;
   userId: string;
   enabled: boolean;
+  permissions: Record<string, string[]> | null;
 };
 
 type AppVariables = {
@@ -252,7 +253,7 @@ export function createApp() {
         200: {
           description: "The requested asset binary stream",
           content: {
-            "*/*": { schema: resolver(v.any()) },
+            "*/*": { schema: { type: "string", format: "binary" } },
           },
         },
       },
