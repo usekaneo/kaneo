@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 
 async function deleteLabel(id: string, userId: string) {
@@ -16,29 +17,57 @@ async function deleteLabel(id: string, userId: string) {
     });
   }
 
-  if (!label.taskId) {
-    throw new HTTPException(400, {
-      message: "Label is not associated with a task",
+  if (label.taskId) {
+    // Task-level label: fetch task, delete with event + GitHub sync
+    const [task] = await db
+      .select({
+        id: taskTable.id,
+        projectId: taskTable.projectId,
+        workspaceId: projectTable.workspaceId,
+      })
+      .from(taskTable)
+      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+      .where(eq(taskTable.id, label.taskId))
+      .limit(1);
+
+    if (!task) {
+      throw new HTTPException(404, {
+        message: "Task not found",
+      });
+    }
+
+    const [deletedLabel] = await db
+      .delete(labelTable)
+      .where(eq(labelTable.id, id))
+      .returning();
+
+    if (!deletedLabel) {
+      throw new HTTPException(404, {
+        message: "Label not found",
+      });
+    }
+
+    if (deletedLabel.taskId) {
+      removeLabelFromGitHub(deletedLabel.taskId, deletedLabel.name).catch(
+        (error) => {
+          console.error("Failed to remove label from GitHub:", error);
+        },
+      );
+    }
+
+    await publishEvent("task.label_deleted", {
+      label: deletedLabel,
+      task,
+      projectId: task.projectId,
+      taskId: task.id,
+      userId,
+      type: "label_deleted",
     });
+
+    return deletedLabel;
   }
 
-  const [task] = await db
-    .select({
-      id: taskTable.id,
-      projectId: taskTable.projectId,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(taskTable)
-    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(taskTable.id, label.taskId))
-    .limit(1);
-
-  if (!task) {
-    throw new HTTPException(404, {
-      message: "Task not found",
-    });
-  }
-
+  // Workspace-level label: delete the label and cascade to all task-level copies
   const [deletedLabel] = await db
     .delete(labelTable)
     .where(eq(labelTable.id, id))
@@ -50,22 +79,57 @@ async function deleteLabel(id: string, userId: string) {
     });
   }
 
-  if (deletedLabel?.taskId) {
-    removeLabelFromGitHub(deletedLabel.taskId, deletedLabel.name).catch(
-      (error) => {
-        console.error("Failed to remove label from GitHub:", error);
-      },
+  // Capture affected task-level labels before cascading so we have data
+  // for events and provider sync
+  const affectedLabels = await db
+    .select({
+      label: labelTable,
+      taskId: taskTable.id,
+      projectId: projectTable.id,
+      workspaceId: projectTable.workspaceId,
+    })
+    .from(labelTable)
+    .innerJoin(taskTable, eq(labelTable.taskId, taskTable.id))
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(
+      and(
+        eq(labelTable.workspaceId, label.workspaceId),
+        eq(labelTable.name, label.name),
+        isNotNull(labelTable.taskId),
+      ),
     );
-  }
 
-  await publishEvent("task.label_deleted", {
-    label: deletedLabel,
-    task: task,
-    projectId: task.projectId,
-    taskId: task.id,
-    userId: userId,
-    type: "label_deleted",
-  });
+  // Cascade: delete all task-level copies of this label so existing tasks lose it
+  await db
+    .delete(labelTable)
+    .where(
+      and(
+        eq(labelTable.workspaceId, label.workspaceId),
+        eq(labelTable.name, label.name),
+        isNotNull(labelTable.taskId),
+      ),
+    );
+
+  // Emit events and sync providers for each affected task
+  for (const { label: l, taskId, projectId } of affectedLabels) {
+    if (l.taskId) {
+      removeLabelFromGitHub(l.taskId, l.name).catch((error) => {
+        console.error("Failed to remove label from GitHub:", error);
+      });
+      removeLabelFromGitea(l.taskId, l.name).catch((error) => {
+        console.error("Failed to remove label from Gitea:", error);
+      });
+    }
+
+    await publishEvent("task.label_deleted", {
+      label: l,
+      task: { id: taskId, projectId },
+      projectId,
+      taskId,
+      userId,
+      type: "label_deleted",
+    });
+  }
 
   return deletedLabel;
 }

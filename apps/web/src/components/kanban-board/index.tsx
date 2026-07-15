@@ -253,7 +253,7 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
                 key={column.id}
                 className="h-full max-w-96 min-w-80 shrink-0 flex-1"
               >
-                <Column column={column} />
+                <Column column={column} disableDragDrop={disableDragDrop} />
               </div>
             ))}
           </div>

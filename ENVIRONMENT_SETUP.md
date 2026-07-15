@@ -86,6 +86,8 @@ For sending emails (workspace invitations, magic links, etc.), configure these v
 
 > **Note:** If you're using an SMTP server with a self-signed or invalid TLS certificate, set `SMTP_IGNORE_TLS=true` to bypass certificate validation.
 
+When SMTP is configured, sign-in uses email verification codes by default. Set `DISABLE_EMAIL_OTP_SIGN_IN=true` to use email/password sign-in instead (workspace invitation emails still use SMTP).
+
 #### Cloud-mode abuse mitigations
 
 Hosted multi-tenant instances should enable the cloud abuse gates. Self-hosted instances can leave these unset.

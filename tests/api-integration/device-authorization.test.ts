@@ -215,6 +215,10 @@ describe("API integration: device authorization (RFC 8628)", () => {
         userCode: devicePayload.user_code,
       }),
     });
+    if (approveRes.status !== 200) {
+      const body = await approveRes.text();
+      console.error("APPROVE ERROR:", approveRes.status, body);
+    }
     expect(approveRes.status).toBe(200);
 
     let accessToken: string | undefined;
