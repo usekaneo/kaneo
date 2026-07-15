@@ -5,6 +5,7 @@ function useGetLabelsByTask(taskId: string) {
   return useQuery({
     queryKey: ["labels", taskId],
     queryFn: () => getLabelsByTask({ taskId }),
+    refetchOnMount: true,
   });
 }
 

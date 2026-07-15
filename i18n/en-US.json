@@ -656,9 +656,9 @@
 			"allChangesSaved": "All changes saved",
 			"saveChanges": "Save changes",
 			"defaultRoleDescriptions": {
-				"viewer": "Read-only access to projects, tasks, and workspace.",
-				"member": "Can create and update projects and tasks.",
-				"admin": "Full project and task management plus workspace settings."
+				"viewer": "Can view and comment on tasks.",
+				"member": "Can create and manage tasks and projects.",
+				"admin": "Has full access to the workspace."
 			},
 			"resources": {
 				"project": "Projects",
@@ -669,89 +669,89 @@
 			"permissions": {
 				"project": {
 					"create": {
-						"label": "Create projects",
-						"description": "Create new projects in this workspace."
+						"label": "Create",
+						"description": "Can create new projects"
 					},
 					"read": {
-						"label": "View projects",
-						"description": "View projects and their details."
+						"label": "Read",
+						"description": "Can view projects"
 					},
 					"update": {
-						"label": "Edit projects",
-						"description": "Update project name, icon, description, and settings."
+						"label": "Update",
+						"description": "Can edit project settings"
 					},
 					"delete": {
-						"label": "Delete projects",
-						"description": "Permanently delete projects in this workspace."
+						"label": "Delete",
+						"description": "Can delete projects"
 					},
 					"share": {
-						"label": "Share projects",
-						"description": "Make projects publicly accessible via share links."
+						"label": "Share",
+						"description": "Can share projects"
 					}
 				},
 				"task": {
 					"create": {
-						"label": "Create tasks",
-						"description": "Create new tasks in any project."
+						"label": "Create",
+						"description": "Can create tasks"
 					},
 					"read": {
-						"label": "View tasks",
-						"description": "View tasks across projects."
+						"label": "Read",
+						"description": "Can view tasks"
 					},
 					"update": {
-						"label": "Edit tasks",
-						"description": "Edit task content, status, priority, due date, and labels."
+						"label": "Update",
+						"description": "Can edit tasks"
 					},
 					"delete": {
-						"label": "Delete tasks",
-						"description": "Permanently delete tasks."
+						"label": "Delete",
+						"description": "Can delete tasks"
 					},
 					"assign": {
-						"label": "Assign tasks",
-						"description": "Assign tasks to other workspace members."
+						"label": "Assign",
+						"description": "Can assign tasks to members"
 					}
 				},
 				"label": {
 					"create": {
-						"label": "Create labels",
-						"description": "Add new labels to tasks in this workspace."
+						"label": "Create",
+						"description": "Can create labels"
 					},
 					"read": {
-						"label": "View labels",
-						"description": "View labels attached to tasks."
+						"label": "Read",
+						"description": "Can view labels"
 					},
 					"update": {
-						"label": "Edit labels",
-						"description": "Rename, recolor, and reassign labels."
+						"label": "Update",
+						"description": "Can edit labels"
 					},
 					"delete": {
-						"label": "Delete labels",
-						"description": "Permanently delete labels from this workspace."
+						"label": "Delete",
+						"description": "Can delete labels"
 					}
 				},
 				"workspace": {
 					"read": {
-						"label": "Access workspace",
-						"description": "Read workspace metadata and members."
+						"label": "Read",
+						"description": "Can view workspace settings"
 					},
 					"update": {
-						"label": "Edit workspace",
-						"description": "Edit workspace name and description."
+						"label": "Update",
+						"description": "Can update workspace settings"
 					},
 					"delete": {
-						"label": "Delete workspace",
-						"description": "Permanently delete this workspace."
+						"label": "Delete",
+						"description": "Can delete workspace"
 					},
 					"manage_settings": {
-						"label": "Manage settings",
-						"description": "Configure integrations, notification rules, and workspace preferences."
+						"label": "Manage Settings",
+						"description": "Can manage workspace settings"
 					}
 				}
 			},
 			"validation": {
-				"nameRequired": "Name is required",
-				"nameExists": "A role with that name already exists",
-				"permissionRequired": "Select at least one permission"
+				"nameRequired": "Role name is required",
+				"nameExists": "A role with this name already exists",
+				"permissionRequired": "At least one permission must be selected"
 			},
 			"toast": {
 				"created": "Role created",
@@ -765,6 +765,31 @@
 				"title": "Delete role",
 				"description": "This will permanently delete the role \"{{role}}\". Members assigned to this role will lose its permissions."
 			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "Label Settings",
+			"title": "Labels",
+			"subtitle": "Create, edit, and delete workspace-level labels.",
+			"cardDescription": "Manage labels that can be assigned to tasks.",
+			"createLabel": "Create Label",
+			"editLabel": "Edit Label",
+			"deleteLabel": "Delete",
+			"saveLabel": "Save",
+			"nameLabel": "Label name",
+			"namePlaceholder": "Enter label name",
+			"colorLabel": "Color",
+			"createDescription": "Create a new label that can be used across tasks in this workspace.",
+			"editDescription": "Update the name or color of this label.",
+			"deleteConfirmTitle": "Delete this label?",
+			"deleteConfirmDescription": "This will permanently remove this label from all tasks. This action cannot be undone.",
+			"empty": "No labels yet. Create your first label to get started.",
+			"createSuccess": "Label created",
+			"updateSuccess": "Label updated",
+			"deleteSuccess": "Label deleted",
+			"createError": "Failed to create label",
+			"updateError": "Failed to update label",
+			"deleteError": "Failed to delete label",
+			"nameRequired": "Label name is required"
 		},
 		"projectGeneral": {
 			"pageTitle": "Project Settings",
