@@ -74,8 +74,10 @@ jobs:
 
   trigger-helm-publish:
     needs: build-and-push-image
-    if: inputs.version != ''
+    if: inputs.version != '' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
+    permissions:
+      actions: write
     steps:
       - name: Trigger Helm chart publish
         uses: actions/github-script@v8
