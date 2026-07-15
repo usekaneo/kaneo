@@ -399,7 +399,7 @@ function SignIn() {
             </>
           )}
           {!config?.disableLoginForm &&
-            (config?.hasSmtp ? (
+            (config?.hasSmtp && !config?.disableEmailOtpSignIn ? (
               <OtpSignInForm
                 invitationId={invitationId}
                 defaultEmail={defaultEmail}
