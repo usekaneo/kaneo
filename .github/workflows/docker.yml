@@ -81,16 +81,19 @@ jobs:
     steps:
       - name: Trigger Helm chart publish
         uses: actions/github-script@v8
+        env:
+          VERSION: ${{ inputs.version }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const version = process.env.VERSION;
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'helm-chart.yml',
               ref: 'main',
               inputs: {
-                version: '${{ inputs.version }}'
+                version: version
               }
             });
-            console.log('Triggered Helm chart publish for version ${{ inputs.version }}');
+            console.log(`Triggered Helm chart publish for version ${version}`);
