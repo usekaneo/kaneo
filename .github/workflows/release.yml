@@ -24,8 +24,8 @@ jobs:
 
       - name: Enforce dispatch from main
         run: |
-          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
-            echo "::error::release.yml must be dispatched from main (current ref: ${{ github.ref }}). The Chart.yaml bump and tag push will not land on main otherwise."
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::release.yml must be dispatched from main (current ref: $GITHUB_REF). The Chart.yaml bump and tag push will not land on main otherwise."
             exit 1
           fi
 
