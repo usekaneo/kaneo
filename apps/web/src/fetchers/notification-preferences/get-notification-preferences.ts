@@ -34,6 +34,11 @@ export type NotificationPreferences = {
   webhookUrl: string | null;
   webhookSecretConfigured: boolean;
   maskedWebhookSecret: string | null;
+  taskAssignmentEnabled: boolean;
+  taskCommentEnabled: boolean;
+  taskStatusChangeEnabled: boolean;
+  dueDateReminderEnabled: boolean;
+  dueDateReminderLeadTimeMinutes: number;
   workspaces: NotificationPreferenceWorkspaceRule[];
   createdAt: string | null;
   updatedAt: string | null;

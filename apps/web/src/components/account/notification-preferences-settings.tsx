@@ -39,6 +39,14 @@ type GlobalChannelPrefsState = {
   webhook: { enabled: boolean; url: string; secret: string };
 };
 
+type NotificationEventPrefsState = {
+  taskAssignmentEnabled: boolean;
+  taskCommentEnabled: boolean;
+  taskStatusChangeEnabled: boolean;
+  dueDateReminderEnabled: boolean;
+  dueDateReminderLeadTimeHours: number;
+};
+
 function createWorkspaceRuleState(input: {
   hasEmailChannel: boolean;
   hasGotifyChannel: boolean;
@@ -124,15 +132,20 @@ function ChannelToggle({
   label: string;
   onCheckedChange: (checked: boolean) => void;
 }) {
+  const id = React.useId();
+
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="min-w-0 space-y-0.5">
-        <Label className="text-sm font-medium">{label}</Label>
+        <Label className="text-sm font-medium" htmlFor={id}>
+          {label}
+        </Label>
         {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
       </div>
       <Switch
         checked={checked}
         disabled={disabled}
+        id={id}
         onCheckedChange={onCheckedChange}
       />
     </div>
@@ -238,6 +251,9 @@ function WorkspaceRuleCard({
             </div>
           ) : null}
           <Switch
+            aria-label={t("settings:notificationsPage.workspaceEnabledLabel", {
+              workspaceName: workspace.name,
+            })}
             checked={state.isActive}
             disabled={isBusy}
             onCheckedChange={(checked) =>
@@ -462,6 +478,14 @@ export function NotificationPreferencesSettings() {
   const [globalPrefs, setGlobalPrefs] = React.useState<GlobalChannelPrefsState>(
     createDefaultGlobalChannelPrefs,
   );
+  const [eventPrefs, setEventPrefs] =
+    React.useState<NotificationEventPrefsState>({
+      taskAssignmentEnabled: true,
+      taskCommentEnabled: true,
+      taskStatusChangeEnabled: true,
+      dueDateReminderEnabled: true,
+      dueDateReminderLeadTimeHours: 24,
+    });
 
   React.useEffect(() => {
     if (!preferences) return;
@@ -483,6 +507,14 @@ export function NotificationPreferencesSettings() {
         url: preferences.webhookUrl ?? "",
         secret: "",
       },
+    });
+    setEventPrefs({
+      taskAssignmentEnabled: preferences.taskAssignmentEnabled,
+      taskCommentEnabled: preferences.taskCommentEnabled,
+      taskStatusChangeEnabled: preferences.taskStatusChangeEnabled,
+      dueDateReminderEnabled: preferences.dueDateReminderEnabled,
+      dueDateReminderLeadTimeHours:
+        preferences.dueDateReminderLeadTimeMinutes / 60,
     });
   }, [preferences]);
 
@@ -509,6 +541,109 @@ export function NotificationPreferencesSettings() {
 
   return (
     <div className="space-y-8">
+      <div className="flex flex-col gap-5 rounded-md border bg-sidebar p-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-medium">
+            {t("settings:notificationsPage.eventPreferencesTitle")}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {t("settings:notificationsPage.eventPreferencesDescription")}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <ChannelToggle
+            checked={eventPrefs.taskAssignmentEnabled}
+            label={t("settings:notificationsPage.eventTaskAssignments")}
+            onCheckedChange={(checked) =>
+              setEventPrefs((current) => ({
+                ...current,
+                taskAssignmentEnabled: checked,
+              }))
+            }
+          />
+          <ChannelToggle
+            checked={eventPrefs.taskCommentEnabled}
+            hint={t("settings:notificationsPage.eventCommentsHint")}
+            label={t("settings:notificationsPage.eventComments")}
+            onCheckedChange={(checked) =>
+              setEventPrefs((current) => ({
+                ...current,
+                taskCommentEnabled: checked,
+              }))
+            }
+          />
+          <ChannelToggle
+            checked={eventPrefs.taskStatusChangeEnabled}
+            label={t("settings:notificationsPage.eventStatusChanges")}
+            onCheckedChange={(checked) =>
+              setEventPrefs((current) => ({
+                ...current,
+                taskStatusChangeEnabled: checked,
+              }))
+            }
+          />
+          <ChannelToggle
+            checked={eventPrefs.dueDateReminderEnabled}
+            label={t("settings:notificationsPage.eventDueDateReminders")}
+            onCheckedChange={(checked) =>
+              setEventPrefs((current) => ({
+                ...current,
+                dueDateReminderEnabled: checked,
+              }))
+            }
+          />
+        </div>
+
+        <div className="flex max-w-sm flex-col gap-1">
+          <Label htmlFor="due-date-reminder-lead-time">
+            {t("settings:notificationsPage.reminderLeadTimeLabel")}
+          </Label>
+          <Input
+            disabled={!eventPrefs.dueDateReminderEnabled}
+            id="due-date-reminder-lead-time"
+            max={720}
+            min={1}
+            onChange={(event) =>
+              setEventPrefs((current) => ({
+                ...current,
+                dueDateReminderLeadTimeHours: Number(event.target.value),
+              }))
+            }
+            step={1}
+            type="number"
+            value={eventPrefs.dueDateReminderLeadTimeHours}
+          />
+          <p className="text-xs text-muted-foreground">
+            {t("settings:notificationsPage.reminderLeadTimeHint")}
+          </p>
+        </div>
+
+        <div>
+          <Button
+            disabled={
+              isSavingPreferences ||
+              eventPrefs.dueDateReminderLeadTimeHours < 1 ||
+              eventPrefs.dueDateReminderLeadTimeHours > 720
+            }
+            onClick={async () => {
+              await updatePreferences({
+                taskAssignmentEnabled: eventPrefs.taskAssignmentEnabled,
+                taskCommentEnabled: eventPrefs.taskCommentEnabled,
+                taskStatusChangeEnabled: eventPrefs.taskStatusChangeEnabled,
+                dueDateReminderEnabled: eventPrefs.dueDateReminderEnabled,
+                dueDateReminderLeadTimeMinutes: Math.round(
+                  eventPrefs.dueDateReminderLeadTimeHours * 60,
+                ),
+              });
+            }}
+            type="button"
+          >
+            {t("settings:notificationsPage.saveEventPreferences")}
+          </Button>
+        </div>
+      </div>
+
       <ChannelCard
         actions={
           <div className="flex gap-2">

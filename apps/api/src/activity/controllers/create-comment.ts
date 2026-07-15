@@ -29,7 +29,11 @@ async function createComment(taskId: string, userId: string, content: string) {
     .where(eq(userTable.id, userId));
 
   const [task] = await db
-    .select({ projectId: taskTable.projectId, title: taskTable.title })
+    .select({
+      assigneeId: taskTable.userId,
+      projectId: taskTable.projectId,
+      title: taskTable.title,
+    })
     .from(taskTable)
     .where(eq(taskTable.id, taskId));
 
@@ -50,6 +54,24 @@ async function createComment(taskId: string, userId: string, content: string) {
       eventData: {
         taskTitle: task?.title ?? null,
         mentionerName: user?.name ?? null,
+      },
+      resourceId: taskId,
+      resourceType: "task",
+    });
+  }
+
+  if (
+    task?.assigneeId &&
+    task.assigneeId !== userId &&
+    !mentionedIds.includes(task.assigneeId)
+  ) {
+    await createNotification({
+      userId: task.assigneeId,
+      type: "task_comment",
+      eventData: {
+        taskTitle: task.title,
+        commenterName: user?.name ?? null,
+        commentPreview: content.slice(0, 160),
       },
       resourceId: taskId,
       resourceType: "task",

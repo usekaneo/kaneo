@@ -4,10 +4,12 @@ import {
   columnTable,
   taskReminderSentTable,
   taskTable,
+  userNotificationPreferenceTable,
 } from "../database/schema";
 import createNotification from "../notification/controllers/create-notification";
+import { isReminderDue } from "./reminder-timing";
 
-type ReminderType = "one_day_before" | "one_hour_before" | "overdue";
+type ReminderType = "configured_before" | "overdue";
 
 const HOUR_MS = 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
@@ -16,16 +18,10 @@ function buildWindows(now: Date) {
   const nowMs = now.getTime();
 
   return {
-    oneDay: {
-      start: new Date(nowMs + 23 * HOUR_MS + 50 * MINUTE_MS),
-      end: new Date(nowMs + 24 * HOUR_MS + 10 * MINUTE_MS),
-      type: "one_day_before" as ReminderType,
-      notificationType: "due_date_reminder" as const,
-    },
-    oneHour: {
-      start: new Date(nowMs + 50 * MINUTE_MS),
-      end: new Date(nowMs + 70 * MINUTE_MS),
-      type: "one_hour_before" as ReminderType,
+    upcoming: {
+      start: now,
+      end: new Date(nowMs + 30 * 24 * HOUR_MS),
+      type: "configured_before" as ReminderType,
       notificationType: "due_date_reminder" as const,
     },
     overdue: {
@@ -49,9 +45,15 @@ async function getTasksNeedingReminder(
       userId: taskTable.userId,
       dueDate: taskTable.dueDate,
       projectId: taskTable.projectId,
+      leadTimeMinutes:
+        userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes,
     })
     .from(taskTable)
     .leftJoin(columnTable, eq(taskTable.columnId, columnTable.id))
+    .leftJoin(
+      userNotificationPreferenceTable,
+      eq(userNotificationPreferenceTable.userId, taskTable.userId),
+    )
     .leftJoin(
       taskReminderSentTable,
       and(
@@ -65,6 +67,10 @@ async function getTasksNeedingReminder(
         isNotNull(taskTable.dueDate),
         between(taskTable.dueDate, windowStart, windowEnd),
         isNull(taskReminderSentTable.id),
+        or(
+          isNull(userNotificationPreferenceTable.id),
+          eq(userNotificationPreferenceTable.dueDateReminderEnabled, true),
+        ),
         // Exclude tasks in final columns (completed); include tasks with no column
         or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
       ),
@@ -80,6 +86,7 @@ async function processReminder(
     userId: string | null;
     dueDate: Date | null;
     projectId: string;
+    leadTimeMinutes: number | null;
   },
   reminderType: ReminderType,
   notificationType: "due_date_reminder" | "task_overdue",
@@ -113,6 +120,7 @@ async function processReminder(
     eventData: {
       taskTitle: task.title,
       reminderType,
+      leadTimeMinutes: task.leadTimeMinutes ?? 1440,
       dueDate: task.dueDate?.toISOString() ?? null,
     },
     resourceId: task.id,
@@ -133,6 +141,13 @@ export async function checkDueDateReminders(): Promise<void> {
       );
 
       for (const task of tasks) {
+        if (window.type === "configured_before" && task.dueDate) {
+          const leadTimeMinutes = task.leadTimeMinutes ?? 1440;
+          if (!isReminderDue({ dueDate: task.dueDate, leadTimeMinutes, now })) {
+            continue;
+          }
+        }
+
         try {
           await processReminder(task, window.type, window.notificationType);
         } catch (error) {

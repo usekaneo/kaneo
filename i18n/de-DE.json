@@ -367,6 +367,17 @@
 			"workspaceRulesTitle": "Zustellregeln für Arbeitsbereiche",
 			"workspaceRulesDescription": "Nutze deine globalen Kanäle erneut und lege fest, welche Arbeitsbereiche und Projekte Kontobenachrichtigungen senden dürfen.",
 			"workspaceCardHint": "Wähle, welche Kanäle dieser Arbeitsbereich für Kontobenachrichtigungen nutzen darf.",
+			"workspaceEnabledLabel": "Benachrichtigungen für {{workspaceName}} aktivieren",
+			"eventPreferencesTitle": "Benachrichtige mich über",
+			"eventPreferencesDescription": "Wähle aus, welche Aufgabenereignisse Benachrichtigungen in Kaneo erstellen und über verbundene Kanäle zugestellt werden können.",
+			"eventTaskAssignments": "Aufgabenzuweisungen",
+			"eventComments": "Kommentare und Erwähnungen",
+			"eventCommentsHint": "Umfasst neue Kommentare zu dir zugewiesenen Aufgaben und direkte @Erwähnungen.",
+			"eventStatusChanges": "Statusänderungen von Aufgaben",
+			"eventDueDateReminders": "Erinnerungen an Fälligkeitstermine",
+			"reminderLeadTimeLabel": "So viele Stunden vorher erinnern",
+			"reminderLeadTimeHint": "Wähle zwischen 1 Stunde und 30 Tagen. Überfällige Aufgaben werden separat gemeldet.",
+			"saveEventPreferences": "Benachrichtigungstypen speichern",
 			"workspaceCardLabelEmail": "E-Mail",
 			"workspaceCardLabelNtfy": "ntfy",
 			"workspaceCardLabelGotify": "Gotify",
@@ -896,8 +907,10 @@
 				"taskPriorityChanged": "Prioritätsänderungen",
 				"taskTitleChanged": "Titeländerungen",
 				"taskDescriptionChanged": "Beschreibungsänderungen",
-				"taskCommentCreated": "Neue Kommentare"
+				"taskCommentCreated": "Neue Kommentare",
+				"dueDateReminder": "Erinnerungen an Fälligkeitstermine"
 			},
+			"reminderLeadTimeLabel": "Webhook so viele Stunden vorher senden",
 			"connect": "Webhook verbinden",
 			"saveChanges": "Änderungen speichern",
 			"disconnect": "Trennen"
@@ -1137,6 +1150,14 @@
 		"shortcuts": {
 			"open": "Benachrichtigungen öffnen"
 		},
+		"reminderLeadTime": {
+			"minutes_one": "{{count}} Minute",
+			"minutes_other": "{{count}} Minuten",
+			"hours_one": "{{count}} Stunde",
+			"hours_other": "{{count}} Stunden",
+			"days_one": "{{count}} Tag",
+			"days_other": "{{count}} Tage"
+		},
 		"events": {
 			"task_created": {
 				"title": "Neue Aufgabe erstellt",
@@ -1153,6 +1174,22 @@
 			"task_assignee_changed": {
 				"title": "Aufgabe wurde dir zugewiesen",
 				"content": "Dir wurde die Aufgabe \"{{taskTitle}}\" zugewiesen"
+			},
+			"task_mention": {
+				"title": "{{mentionerName}} hat dich erwähnt",
+				"content": "{{mentionerName}} hat dich in „{{taskTitle}}“ erwähnt"
+			},
+			"task_comment": {
+				"title": "{{commenterName}} hat deine Aufgabe kommentiert",
+				"content": "Neuer Kommentar zu „{{taskTitle}}“: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "Aufgabe bald fällig",
+				"content": "„{{taskTitle}}“ ist in {{leadTime}} fällig"
+			},
+			"task_overdue": {
+				"title": "Aufgabe überfällig",
+				"content": "„{{taskTitle}}“ ist überfällig"
 			},
 			"time_entry_created": {
 				"title": "Zeiterfassung gestartet",
