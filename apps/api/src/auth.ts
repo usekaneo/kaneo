@@ -42,6 +42,7 @@ import { generateDemoName } from "./utils/generate-demo-name";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
+import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
 import { verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
@@ -51,6 +52,7 @@ const githubSso = getGithubSsoOAuthCredentials();
 const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 const isPasswordRegistrationDisabled =
   process.env.DISABLE_PASSWORD_REGISTRATION === "true";
+const isLoginFormDisabled = process.env.DISABLE_LOGIN_FORM === "true";
 const isEmailOtpSignInDisabled =
   process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
 
@@ -552,6 +554,13 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
+        throw new APIError("FORBIDDEN", {
+          message:
+            "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
+        });
+      }
+
       // Block invite-member calls on cloud from anonymous users or to
       // disposable-email addresses. The 2026-05-28 incident saw ~14k phishing
       // invites sent from throwaway disposable-email signups; gating here
