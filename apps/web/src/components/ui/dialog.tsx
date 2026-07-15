@@ -206,11 +206,15 @@ function DialogDescription({
 
 function DialogPanel({
   className,
+  scrollAreaClassName,
   scrollFade = true,
   ...props
-}: React.ComponentProps<"div"> & { scrollFade?: boolean }) {
+}: React.ComponentProps<"div"> & {
+  scrollFade?: boolean;
+  scrollAreaClassName?: string;
+}) {
   return (
-    <ScrollArea scrollFade={scrollFade}>
+    <ScrollArea scrollFade={scrollFade} className={scrollAreaClassName}>
       <div
         className={cn(
           "p-6 in-[[data-slot=dialog-popup]:has([data-slot=dialog-header])]:pt-1 in-[[data-slot=dialog-popup]:has([data-slot=dialog-footer]:not(.border-t))]:pb-1",
