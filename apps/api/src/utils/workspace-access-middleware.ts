@@ -245,10 +245,7 @@ export const workspaceAccess = {
 
   fromProject: (idKey = "id") =>
     workspaceAccessMiddleware({
-      sources: [
-        { type: "query", key: "workspaceId" },
-        { type: "lookup", resource: "project", idKey },
-      ],
+      sources: [{ type: "lookup", resource: "project", idKey }],
     }),
 
   fromTask: (idKey = "id") =>
