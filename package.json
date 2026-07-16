@@ -55,14 +55,14 @@
       "ws": ">=8.20.1",
       "ip-address": ">=10.1.1",
       "postcss": ">=8.5.10",
-      "better-auth": "1.6.11",
+      "better-auth": "1.6.23",
       "undici": ">=7.28.0 <8",
       "js-yaml": ">=4.2.0 <5",
       "@babel/core": ">=7.29.6 <8"
     }
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

@@ -35,7 +35,10 @@ type PRClosedPayload = {
   };
 };
 
-export async function handleGiteaPullRequestClosed(payload: PRClosedPayload) {
+export async function handleGiteaPullRequestClosed(
+  payload: PRClosedPayload,
+  integrationId?: string,
+) {
   const { pull_request, repository } = payload;
 
   const baseUrl = baseUrlFromRepositoryHtmlUrl(repository.html_url);
@@ -46,6 +49,7 @@ export async function handleGiteaPullRequestClosed(payload: PRClosedPayload) {
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   for (const integration of integrations) {

@@ -42,6 +42,7 @@ import { generateDemoName } from "./utils/generate-demo-name";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
+import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
 import { verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
@@ -51,6 +52,16 @@ const githubSso = getGithubSsoOAuthCredentials();
 const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 const isPasswordRegistrationDisabled =
   process.env.DISABLE_PASSWORD_REGISTRATION === "true";
+const isLoginFormDisabled = process.env.DISABLE_LOGIN_FORM === "true";
+const isEmailOtpSignInDisabled =
+  process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
+
+function normalizeInvitationId(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.trim();
+  if (!/^[a-z0-9_-]{1,128}$/i.test(normalized)) return undefined;
+  return normalized;
+}
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
@@ -187,15 +198,11 @@ export const auth = betterAuth({
       // providers verify the email on their side, so they are trusted to link.
       enabled: true,
       trustedProviders: ["github", "google", "discord", "custom"],
-      // Kaneo does not require email verification on password signup, so the
-      // existing local account is usually unverified; allow linking to it so
-      // OIDC users are not locked out.
-      // SECURITY: with open password registration this means someone who
-      // pre-registered a victim's email (unverified) could be linked into by
-      // that victim's OIDC login. Instances that allow password signup
-      // alongside OIDC should set DISABLE_PASSWORD_REGISTRATION or require email
-      // verification.
-      requireLocalEmailVerified: false,
+      // Only link to an existing local account after its email has been
+      // verified. Without this check, an attacker could pre-register a victim's
+      // email with a password account and retain access after the victim signs
+      // in through a trusted OAuth/OIDC provider.
+      requireLocalEmailVerified: true,
     },
   },
   emailAndPassword: {
@@ -249,18 +256,22 @@ export const auth = betterAuth({
         }
       },
     }),
-    emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
-        if (type === "sign-in") {
-          const locale = await getUserLocale(email);
-          const copy = getAuthEmailCopy(locale);
-          await sendOtpEmail(email, copy.otpSubject, {
-            otp,
-            locale,
-          });
-        }
-      },
-    }),
+    ...(isEmailOtpSignInDisabled
+      ? []
+      : [
+          emailOTP({
+            async sendVerificationOTP({ email, otp, type }) {
+              if (type === "sign-in") {
+                const locale = await getUserLocale(email);
+                const copy = getAuthEmailCopy(locale);
+                await sendOtpEmail(email, copy.otpSubject, {
+                  otp,
+                  locale,
+                });
+              }
+            },
+          }),
+        ]),
     organization({
       // `ac` is created with a narrow `statement` shape (project/task/label/
       // workspace + the default org statements), which makes its inferred
@@ -473,7 +484,12 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user) => {
+        before: async (user, ctx) => {
+          // The anonymous() plugin creates ephemeral users for guest
+          // access; registration limits don't apply to them (guest
+          // availability is governed by DISABLE_GUEST_ACCESS instead).
+          // `isAnonymous` is `input: false` in the plugin schema, so a
+          // regular signup request cannot spoof it.
           const userWithAnonymous = user as Partial<UserWithAnonymous>;
           if (userWithAnonymous.isAnonymous) {
             return;
@@ -491,7 +507,15 @@ export const auth = betterAuth({
             return;
           }
 
-          const result = await checkRegistrationAllowed(user.email);
+          const invitationId = normalizeInvitationId(
+            ctx?.body?.invitationId ||
+              ctx?.query?.invitationId ||
+              ctx?.headers?.get("x-invitation-id"),
+          );
+          const result = await checkRegistrationAllowed(
+            user.email,
+            invitationId,
+          );
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {
               message: result.reason,
@@ -551,6 +575,13 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
+        throw new APIError("FORBIDDEN", {
+          message:
+            "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
+        });
+      }
+
       // Block invite-member calls on cloud from anonymous users or to
       // disposable-email addresses. The 2026-05-28 incident saw ~14k phishing
       // invites sent from throwaway disposable-email signups; gating here
@@ -636,10 +667,11 @@ export const auth = betterAuth({
         ctx.body?.email ||
         ctx.query?.email ||
         ctx.headers?.get("x-invitation-email");
-      const invitationId =
+      const invitationId = normalizeInvitationId(
         ctx.body?.invitationId ||
-        ctx.query?.invitationId ||
-        ctx.headers?.get("x-invitation-id");
+          ctx.query?.invitationId ||
+          ctx.headers?.get("x-invitation-id"),
+      );
 
       if (ctx.path === "/sign-up/email") {
         const result = await checkRegistrationAllowed(email, invitationId);

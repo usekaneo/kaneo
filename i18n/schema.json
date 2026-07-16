@@ -592,6 +592,9 @@
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
+								"account_not_linked": {
+									"type": "string"
+								},
 								"oauth_code_verification_failed": {
 									"type": "string"
 								},
@@ -600,6 +603,7 @@
 								}
 							},
 							"required": [
+								"account_not_linked",
 								"oauth_code_verification_failed",
 								"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_"
 							]
@@ -2665,6 +2669,60 @@
 						"deleteDialog"
 					]
 				},
+				"workspaceLabels": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": { "type": "string" },
+						"title": { "type": "string" },
+						"subtitle": { "type": "string" },
+						"cardDescription": { "type": "string" },
+						"createLabel": { "type": "string" },
+						"editLabel": { "type": "string" },
+						"deleteLabel": { "type": "string" },
+						"saveLabel": { "type": "string" },
+						"nameLabel": { "type": "string" },
+						"namePlaceholder": { "type": "string" },
+						"colorLabel": { "type": "string" },
+						"createDescription": { "type": "string" },
+						"editDescription": { "type": "string" },
+						"deleteConfirmTitle": { "type": "string" },
+						"deleteConfirmDescription": { "type": "string" },
+						"empty": { "type": "string" },
+						"createSuccess": { "type": "string" },
+						"updateSuccess": { "type": "string" },
+						"deleteSuccess": { "type": "string" },
+						"createError": { "type": "string" },
+						"updateError": { "type": "string" },
+						"deleteError": { "type": "string" },
+						"nameRequired": { "type": "string" }
+					},
+					"required": [
+						"pageTitle",
+						"title",
+						"subtitle",
+						"cardDescription",
+						"createLabel",
+						"editLabel",
+						"deleteLabel",
+						"saveLabel",
+						"nameLabel",
+						"namePlaceholder",
+						"colorLabel",
+						"createDescription",
+						"editDescription",
+						"deleteConfirmTitle",
+						"deleteConfirmDescription",
+						"empty",
+						"createSuccess",
+						"updateSuccess",
+						"deleteSuccess",
+						"createError",
+						"updateError",
+						"deleteError",
+						"nameRequired"
+					]
+				},
 				"projectGeneral": {
 					"type": "object",
 					"additionalProperties": false,
@@ -4557,6 +4615,7 @@
 				"apiKey",
 				"workspaceGeneral",
 				"workspaceRoles",
+				"workspaceLabels",
 				"projectGeneral",
 				"projectIntegrations",
 				"projectVisibility",

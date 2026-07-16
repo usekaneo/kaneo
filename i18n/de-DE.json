@@ -150,7 +150,10 @@
 			"oidcError": "Anmeldung mit OIDC fehlgeschlagen",
 			"googleError": "Anmeldung mit Google fehlgeschlagen",
 			"githubError": "Anmeldung mit GitHub fehlgeschlagen",
-			"discordError": "Anmeldung mit Discord fehlgeschlagen"
+			"discordError": "Anmeldung mit Discord fehlgeschlagen",
+			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
+			}
 		},
 		"providers": {
 			"google": "Google",

@@ -99,12 +99,13 @@ When CPU autoscaling is enabled, set `kaneo.resources.requests.cpu`; Kubernetes 
 | `kaneo.env`                         | Environment variables for the Kaneo container                                                                      | See `values.yaml`               |
 | `kaneo.env.clientUrl`               | Public URL of the Kaneo instance. **Required for any non-localhost deployment** — sets `KANEO_CLIENT_URL`. Omitting this causes "invalid origin" errors on login. Note: this key is case-sensitive (`clientUrl`, not `clientURL`). | `""` |
 | `kaneo.env.corsOrigins`             | Allowed CORS origins as a comma-separated string or YAML list                                                      | `[]`                            |
-| `kaneo.env.authSecret`              | Better Auth secret, ignored if existingSecret is enabled                                                           | `change_me_to_at_least_32_characters_long_string` |
+| `kaneo.env.authSecret`              | Required Better Auth secret (minimum 32 characters), ignored if existingSecret is enabled                           | `""` |
 | `kaneo.env.existingSecret.enabled`  | Whether to use an existing secret for `AUTH_SECRET`                                                                | `false`                         |
 | `kaneo.env.existingSecret.name`     | Name of the existing secret containing `AUTH_SECRET`                                                               | `""`                            |
 | `kaneo.env.existingSecret.key`      | Key in the existing secret that contains `AUTH_SECRET`                                                             | `auth-secret`                   |
 | `kaneo.env.disableRegistration`     | Disable new user registration                                                                                      | `false`                         |
 | `kaneo.env.disablePasswordRegistration` | Disable password-based account creation while keeping social/OIDC registration available                        | `false`                         |
+| `kaneo.env.disableEmailOtpSignIn`   | Use email/password sign-in instead of verification codes when SMTP is configured                                   | `false`                         |
 | `kaneo.env.database.external.enabled` | Use external PostgreSQL database (set postgresql.enabled to false)                                               | `false`                         |
 | `kaneo.env.database.external.host`  | External PostgreSQL host                                                                                           | `""`                            |
 | `kaneo.env.database.external.port`  | External PostgreSQL port                                                                                           | `5432`                          |

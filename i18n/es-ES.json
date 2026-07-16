@@ -149,7 +149,10 @@
 			"oidcError": "Error al iniciar sesión con OIDC",
 			"googleError": "Error al iniciar sesión con Google",
 			"githubError": "Error al iniciar sesión con GitHub",
-			"discordError": "Error al iniciar sesión con Discord"
+			"discordError": "Error al iniciar sesión con Discord",
+			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
+			}
 		},
 		"providers": {
 			"google": "Google",
