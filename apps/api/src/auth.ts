@@ -56,6 +56,13 @@ const isLoginFormDisabled = process.env.DISABLE_LOGIN_FORM === "true";
 const isEmailOtpSignInDisabled =
   process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
 
+function normalizeInvitationId(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.trim();
+  if (!/^[a-z0-9_-]{1,128}$/i.test(normalized)) return undefined;
+  return normalized;
+}
+
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
 const isHttps = apiUrl.startsWith("https://");
@@ -481,7 +488,7 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user) => {
+        before: async (user, ctx) => {
           // Allow the very first signup through even when registration
           // is disabled — that's the instance-admin bootstrap flow.
           // Otherwise a fresh instance with DISABLE_REGISTRATION=true
@@ -494,7 +501,15 @@ export const auth = betterAuth({
             return;
           }
 
-          const result = await checkRegistrationAllowed(user.email);
+          const invitationId = normalizeInvitationId(
+            ctx?.body?.invitationId ||
+              ctx?.query?.invitationId ||
+              ctx?.headers?.get("x-invitation-id"),
+          );
+          const result = await checkRegistrationAllowed(
+            user.email,
+            invitationId,
+          );
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {
               message: result.reason,
@@ -646,10 +661,11 @@ export const auth = betterAuth({
         ctx.body?.email ||
         ctx.query?.email ||
         ctx.headers?.get("x-invitation-email");
-      const invitationId =
+      const invitationId = normalizeInvitationId(
         ctx.body?.invitationId ||
-        ctx.query?.invitationId ||
-        ctx.headers?.get("x-invitation-id");
+          ctx.query?.invitationId ||
+          ctx.headers?.get("x-invitation-id"),
+      );
 
       if (ctx.path === "/sign-up/email") {
         const result = await checkRegistrationAllowed(email, invitationId);
