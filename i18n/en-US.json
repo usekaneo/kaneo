@@ -1907,7 +1907,12 @@
 		},
 		"members": {
 			"pageTitle": "Members",
-			"inviteMember": "Invite member"
+			"inviteMember": "Invite member",
+			"you": "You"
+		},
+		"invitations": {
+			"pendingBadge": "pending",
+			"expires": "Expires {{date}}"
 		},
 		"inviteModal": {
 			"title": "Invite Team Member",
