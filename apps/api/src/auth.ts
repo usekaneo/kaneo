@@ -485,6 +485,16 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user, ctx) => {
+          // The anonymous() plugin creates ephemeral users for guest
+          // access; registration limits don't apply to them (guest
+          // availability is governed by DISABLE_GUEST_ACCESS instead).
+          // `isAnonymous` is `input: false` in the plugin schema, so a
+          // regular signup request cannot spoof it.
+          const userWithAnonymous = user as Partial<UserWithAnonymous>;
+          if (userWithAnonymous.isAnonymous) {
+            return;
+          }
+
           // Allow the very first signup through even when registration
           // is disabled — that's the instance-admin bootstrap flow.
           // Otherwise a fresh instance with DISABLE_REGISTRATION=true
