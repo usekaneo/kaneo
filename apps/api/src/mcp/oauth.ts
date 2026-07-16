@@ -18,8 +18,30 @@ type AuthCode = {
   expiresAt: number;
 };
 
+export type AuthorizationRequest = {
+  clientId: string;
+  codeChallenge: string;
+  redirectUri: string;
+  state?: string;
+  expiresAt: number;
+};
+
 const clients = new Map<string, RegisteredClient>();
 const codes = new Map<string, AuthCode>();
+const authorizationRequests = new Map<string, AuthorizationRequest>();
+const maxAuthorizationRequests = 10_000;
+
+function pruneAuthorizationRequests(now = Date.now()): void {
+  for (const [requestId, request] of authorizationRequests) {
+    if (request.expiresAt < now) authorizationRequests.delete(requestId);
+  }
+
+  while (authorizationRequests.size >= maxAuthorizationRequests) {
+    const oldestRequestId = authorizationRequests.keys().next().value;
+    if (!oldestRequestId) break;
+    authorizationRequests.delete(oldestRequestId);
+  }
+}
 
 export function getClient(clientId: string): RegisteredClient | undefined {
   return clients.get(clientId);
@@ -52,6 +74,42 @@ export function createAuthCode(params: {
     expiresAt: Date.now() + 5 * 60 * 1000,
   });
   return code;
+}
+
+export function createAuthorizationRequest(params: {
+  clientId: string;
+  codeChallenge: string;
+  redirectUri: string;
+  state?: string;
+}): string {
+  pruneAuthorizationRequests();
+  const requestId = randomUUID();
+  authorizationRequests.set(requestId, {
+    ...params,
+    expiresAt: Date.now() + 10 * 60 * 1000,
+  });
+  return requestId;
+}
+
+export function getAuthorizationRequest(
+  requestId: string,
+): AuthorizationRequest | undefined {
+  const request = authorizationRequests.get(requestId);
+  if (!request) return undefined;
+  if (request.expiresAt < Date.now()) {
+    authorizationRequests.delete(requestId);
+    return undefined;
+  }
+  return request;
+}
+
+export function consumeAuthorizationRequest(
+  requestId: string,
+): AuthorizationRequest | undefined {
+  const request = getAuthorizationRequest(requestId);
+  if (!request) return undefined;
+  authorizationRequests.delete(requestId);
+  return request;
 }
 
 function base64url(buf: Buffer): string {
