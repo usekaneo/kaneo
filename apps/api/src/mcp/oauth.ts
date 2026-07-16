@@ -54,7 +54,7 @@ export function registerClient(params: {
   const clientId = randomUUID();
   const client: RegisteredClient = {
     clientId,
-    redirectUris: params.redirectUris,
+    redirectUris: [...params.redirectUris],
     clientName: params.clientName,
     issuedAt: Math.floor(Date.now() / 1000),
   };

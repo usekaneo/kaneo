@@ -1,6 +1,7 @@
 import { HTTPException } from "hono/http-exception";
 import type * as v from "valibot";
 import { auth } from "../../auth";
+import { publishEvent } from "../../events";
 import {
   consumeAuthorizationRequest,
   createAuthCode,
@@ -132,6 +133,11 @@ export async function decideMcpAuthorizationRequest(params: {
     clientId: request.clientId,
     userId: session.user.id,
     codeChallenge: request.codeChallenge,
+    redirectUri: request.redirectUri,
+  });
+  await publishEvent("mcp.authorization_code_issued", {
+    clientId: request.clientId,
+    userId: session.user.id,
     redirectUri: request.redirectUri,
   });
   return buildAuthorizationRedirect(request, { code });
