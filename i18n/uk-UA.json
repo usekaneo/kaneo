@@ -1654,6 +1654,16 @@
 		}
 	},
 	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
+			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"title": "Join {{workspaceName}}",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"cta": "Accept invitation",
+			"sameEmail": "You can accept with the same email that received this message.",
+			"ignore": "If this wasn't expected, you can safely ignore this email.",
+			"footer": "Kaneo workspace invitation"
+		},
 		"pageTitle": "Запрошення",
 		"pendingInvitations": "Очікуючі запрошення",
 		"acceptSubtitle": "Прийміть запрошення, щоб приєднатися до робочих просторів",
