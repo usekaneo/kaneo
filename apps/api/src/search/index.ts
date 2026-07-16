@@ -67,10 +67,12 @@ const search = new Hono<{
         v.pipe(
           v.string(),
           v.transform(Number),
+          v.number(),
+          v.integer("Limit must be an integer"),
           v.minValue(1, "Limit must be at least 1"),
           v.maxValue(50, "Limit must not exceed 50"),
         ),
-        "20",
+        20,
       ),
       userEmail: v.optional(v.pipe(v.string(), v.email())),
     }),
@@ -88,7 +90,7 @@ const search = new Hono<{
       type,
       workspaceId,
       projectId,
-      limit: typeof limit === "string" ? Number(limit) : limit,
+      limit,
     });
 
     return c.json(results);

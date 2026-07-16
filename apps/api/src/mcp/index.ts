@@ -2,41 +2,33 @@ import { randomUUID } from "node:crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { Hono } from "hono";
-import { describeRoute, validator } from "hono-openapi";
-import * as v from "valibot";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import { auth } from "../auth";
 import {
-  authorizeClient,
-  completeClientAuthorization,
-} from "./controllers/authorize-client";
-import { exchangeCode, registerClient } from "./oauth";
+  beginMcpAuthorization,
+  decideMcpAuthorizationRequest,
+  getMcpAuthorizationRequest,
+  registerMcpClient,
+} from "./controllers/oauth-consent";
+import { exchangeCode } from "./oauth";
+import {
+  authorizationDecisionResponseSchema,
+  authorizationDecisionSchema,
+  authorizationQuerySchema,
+  authorizationRequestParamSchema,
+  authorizationRequestResponseSchema,
+  clientRegistrationResponseSchema,
+  clientRegistrationSchema,
+  oauthErrorSchema,
+} from "./schemas";
 import { registerMcpTools } from "./tools";
 
-const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
 const apiUrl = (process.env.KANEO_API_URL || "http://localhost:1337").replace(
   /\/api\/?$/,
   "",
 );
 
 const sessions = new Map<string, WebStandardStreamableHTTPServerTransport>();
-
-const redirectUriSchema = v.pipe(v.string(), v.nonEmpty(), v.url());
-const registerClientSchema = v.object({
-  redirect_uris: v.pipe(v.array(redirectUriSchema), v.minLength(1)),
-  client_name: v.optional(v.pipe(v.string(), v.nonEmpty())),
-  token_endpoint_auth_method: v.optional(v.literal("none")),
-  grant_types: v.optional(v.tuple([v.literal("authorization_code")])),
-  response_types: v.optional(v.tuple([v.literal("code")])),
-});
-const authorizeQuerySchema = v.object({
-  client_id: v.pipe(v.string(), v.nonEmpty()),
-  redirect_uri: redirectUriSchema,
-  code_challenge: v.pipe(v.string(), v.nonEmpty()),
-  state: v.optional(v.string()),
-});
-const authorizeCallbackSchema = v.object({
-  access_token: v.pipe(v.string(), v.nonEmpty()),
-  authorization_context: v.pipe(v.string(), v.nonEmpty()),
-});
 
 function createMcpServerForUser(token: string): McpServer {
   const server = new McpServer({
@@ -69,143 +61,140 @@ const mcp = new Hono();
 mcp.post(
   "/mcp/register",
   describeRoute({
-    operationId: "registerMcpClient",
+    operationId: "registerMcpOAuthClient",
     tags: ["MCP"],
-    description: "Register an OAuth client for MCP access",
+    description: "Register a public OAuth client for the MCP endpoint",
+    security: [],
     responses: {
-      200: { description: "OAuth client registered successfully" },
-      400: { description: "Invalid client metadata" },
+      200: {
+        description: "Registered OAuth client",
+        content: {
+          "application/json": {
+            schema: resolver(clientRegistrationResponseSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid client metadata",
+        content: {
+          "application/json": { schema: resolver(oauthErrorSchema) },
+        },
+      },
     },
   }),
-  validator("json", registerClientSchema),
-  async (c) => {
-    const body = c.req.valid("json");
-    const client = registerClient({
-      redirectUris: body.redirect_uris,
-      clientName: body.client_name,
-    });
-    return c.json({
-      client_id: client.clientId,
-      client_id_issued_at: client.issuedAt,
-      redirect_uris: client.redirectUris,
-      client_name: client.clientName,
-      token_endpoint_auth_method: body.token_endpoint_auth_method ?? "none",
-      grant_types: body.grant_types ?? ["authorization_code"],
-      response_types: body.response_types ?? ["code"],
-    });
-  },
+  validator("json", clientRegistrationSchema),
+  (c) => c.json(registerMcpClient(c.req.valid("json"))),
 );
 
 mcp.get(
   "/mcp/authorize",
   describeRoute({
-    operationId: "authorizeMcpClient",
+    operationId: "authorizeMcpOAuthClient",
     tags: ["MCP"],
-    description: "Authorize a registered MCP OAuth client",
+    description: "Start an explicit MCP OAuth consent request",
+    security: [],
     responses: {
-      302: { description: "Redirect to the client or device authorization" },
-      400: { description: "Invalid authorization request" },
+      302: { description: "Redirect to the Kaneo consent page" },
+      400: {
+        description: "Invalid authorization request",
+        content: {
+          "application/json": { schema: resolver(oauthErrorSchema) },
+        },
+      },
     },
   }),
-  validator("query", authorizeQuerySchema),
-  async (c) => {
-    const {
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      code_challenge: codeChallenge,
-      state,
-    } = c.req.valid("query");
+  validator("query", authorizationQuerySchema),
+  (c) => c.redirect(beginMcpAuthorization(c.req.valid("query"))),
+);
 
-    const result = await authorizeClient(
-      { clientId, redirectUri, codeChallenge, state },
-      c.req.raw.headers,
-      apiUrl,
-    );
-    if (result.type === "redirect") {
-      return c.redirect(result.redirect);
-    }
-
-    const { device, authorizationContext } = result;
-    const devicePageUrl = `${clientUrl}/device?user_code=${encodeURIComponent(device.user_code)}`;
-
-    return c.html(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kaneo MCP</title>
-  <script>window.location.href = ${JSON.stringify(devicePageUrl)};</script>
-</head>
-<body>Redirecting to Kaneo…</body>
-<script>
-  const deviceCode = ${JSON.stringify(device.device_code)};
-  const interval = ${device.interval} * 1000;
-  const apiUrl = ${JSON.stringify(apiUrl)};
-  const authorizationContext = ${JSON.stringify(authorizationContext)};
-
-  async function poll() {
-    try {
-      const res = await fetch(apiUrl + "/api/auth/device/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          grant_type: "urn:ietf:params:oauth:grant-type:device_code",
-          device_code: deviceCode,
-          client_id: "kaneo-mcp"
-        }),
-        signal: AbortSignal.timeout(10000)
-      });
-      const data = await res.json();
-
-      if (res.ok && data.access_token) {
-        const codeRes = await fetch(apiUrl + "/api/mcp/authorize/callback", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            access_token: data.access_token,
-            authorization_context: authorizationContext
-          }),
-          signal: AbortSignal.timeout(10000)
-        });
-        const codeData = await codeRes.json();
-        if (codeData.redirect) window.location.href = codeData.redirect;
-        return;
-      }
-
-      if (data.error === "authorization_pending" || data.error === "slow_down") {
-        setTimeout(poll, data.error === "slow_down" ? interval + 5000 : interval);
-        return;
-      }
-    } catch {
-      setTimeout(poll, interval);
-    }
-  }
-
-  setTimeout(poll, interval);
-</script>
-</html>`);
+mcp.get(
+  "/mcp/authorize/request/:requestId",
+  describeRoute({
+    operationId: "getMcpAuthorizationRequest",
+    tags: ["MCP"],
+    description: "Get display details for an MCP OAuth consent request",
+    security: [],
+    responses: {
+      200: {
+        description: "Authorization request details",
+        content: {
+          "application/json": {
+            schema: resolver(authorizationRequestResponseSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid OAuth client",
+        content: {
+          "application/json": { schema: resolver(oauthErrorSchema) },
+        },
+      },
+      404: {
+        description: "Unknown or expired authorization request",
+        content: {
+          "application/json": { schema: resolver(oauthErrorSchema) },
+        },
+      },
+    },
+  }),
+  validator("param", authorizationRequestParamSchema),
+  (c) => {
+    const { requestId } = c.req.valid("param");
+    return c.json(getMcpAuthorizationRequest(requestId));
   },
 );
 
 mcp.post(
-  "/mcp/authorize/callback",
+  "/mcp/authorize/request/:requestId",
   describeRoute({
-    operationId: "completeMcpAuthorization",
+    operationId: "decideMcpAuthorizationRequest",
     tags: ["MCP"],
-    description: "Complete device authorization for an MCP OAuth client",
+    description: "Approve or deny an MCP OAuth consent request",
     responses: {
-      200: { description: "Authorization completed successfully" },
-      400: { description: "Invalid authorization context" },
-      401: { description: "Invalid access token" },
+      200: {
+        description: "OAuth client redirect",
+        content: {
+          "application/json": {
+            schema: resolver(authorizationDecisionResponseSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid request or OAuth client",
+        content: {
+          "application/json": { schema: resolver(oauthErrorSchema) },
+        },
+      },
+      401: {
+        description: "Authentication required",
+        content: {
+          "application/json": { schema: resolver(oauthErrorSchema) },
+        },
+      },
+      403: {
+        description: "Untrusted request origin",
+        content: {
+          "application/json": { schema: resolver(oauthErrorSchema) },
+        },
+      },
+      404: {
+        description: "Unknown or expired authorization request",
+        content: {
+          "application/json": { schema: resolver(oauthErrorSchema) },
+        },
+      },
     },
   }),
-  validator("json", authorizeCallbackSchema),
+  validator("param", authorizationRequestParamSchema),
+  validator("json", authorizationDecisionSchema),
   async (c) => {
-    const { access_token, authorization_context } = c.req.valid("json");
-    const redirect = await completeClientAuthorization(
-      access_token,
-      authorization_context,
-    );
+    const { requestId } = c.req.valid("param");
+    const redirect = await decideMcpAuthorizationRequest({
+      requestId,
+      decision: c.req.valid("json"),
+      headers: c.req.raw.headers,
+      origin: c.req.header("origin"),
+    });
     return c.json({ redirect });
   },
 );

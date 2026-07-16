@@ -42,6 +42,7 @@ import { generateDemoName } from "./utils/generate-demo-name";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
+import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
 import { verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
@@ -51,6 +52,9 @@ const githubSso = getGithubSsoOAuthCredentials();
 const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 const isPasswordRegistrationDisabled =
   process.env.DISABLE_PASSWORD_REGISTRATION === "true";
+const isLoginFormDisabled = process.env.DISABLE_LOGIN_FORM === "true";
+const isEmailOtpSignInDisabled =
+  process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
@@ -249,18 +253,22 @@ export const auth = betterAuth({
         }
       },
     }),
-    emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
-        if (type === "sign-in") {
-          const locale = await getUserLocale(email);
-          const copy = getAuthEmailCopy(locale);
-          await sendOtpEmail(email, copy.otpSubject, {
-            otp,
-            locale,
-          });
-        }
-      },
-    }),
+    ...(isEmailOtpSignInDisabled
+      ? []
+      : [
+          emailOTP({
+            async sendVerificationOTP({ email, otp, type }) {
+              if (type === "sign-in") {
+                const locale = await getUserLocale(email);
+                const copy = getAuthEmailCopy(locale);
+                await sendOtpEmail(email, copy.otpSubject, {
+                  otp,
+                  locale,
+                });
+              }
+            },
+          }),
+        ]),
     organization({
       // `ac` is created with a narrow `statement` shape (project/task/label/
       // workspace + the default org statements), which makes its inferred
@@ -546,6 +554,13 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
+        throw new APIError("FORBIDDEN", {
+          message:
+            "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
+        });
+      }
+
       // Block invite-member calls on cloud from anonymous users or to
       // disposable-email addresses. The 2026-05-28 incident saw ~14k phishing
       // invites sent from throwaway disposable-email signups; gating here

@@ -32,6 +32,7 @@ type IssueCommentCreatedPayload = {
 
 export async function handleGiteaIssueCommentCreated(
   payload: IssueCommentCreatedPayload,
+  integrationId?: string,
 ) {
   const { issue, comment, repository } = payload;
 
@@ -52,6 +53,7 @@ export async function handleGiteaIssueCommentCreated(
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   for (const integration of integrations) {

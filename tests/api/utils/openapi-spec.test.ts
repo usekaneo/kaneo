@@ -5,7 +5,9 @@ import {
   markOptionalSchemaFieldsNullable,
   mergeOpenApiSpecs,
   normalizeApiServerUrl,
+  normalizeEmptyAndEnumSchemas,
   normalizeEmptyRequiredArrays,
+  normalizeMalformedPropertySchemas,
   normalizeNullableSchemasForOpenApi30,
   normalizeOrganizationAuthOperations,
 } from "../../../apps/api/src/utils/openapi-spec";
@@ -96,6 +98,67 @@ describe("openapi spec helpers", () => {
       ).schemas || {},
     );
     expect(schemaNames).toEqual(["MemberList", "Member"]);
+  });
+
+  it("normalizes organization invitation and team schemas", () => {
+    const normalized = normalizeOrganizationAuthOperations({
+      paths: {
+        "/organization/get-invitation": {
+          get: {
+            parameters: [
+              { name: "id", in: "query", schema: { type: "string" } },
+            ],
+          },
+        },
+        "/organization/update-team": {
+          post: {
+            requestBody: {
+              content: {
+                "application/json": {
+                  schema: {
+                    properties: {
+                      data: {
+                        properties: {
+                          id: {
+                            type: "string",
+                            default: "generated-team-id",
+                            nullable: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const paths = normalized.paths as Record<
+      string,
+      Record<string, Record<string, unknown>>
+    >;
+    const invitationParameters = paths["/auth/organization/get-invitation"].get
+      .parameters as Record<string, unknown>[];
+    expect(invitationParameters[0]?.required).toBe(true);
+
+    const requestBody = paths["/auth/organization/update-team"].post
+      .requestBody as {
+      content: {
+        "application/json": {
+          schema: {
+            properties: {
+              data: { properties: { id: Record<string, unknown> } };
+            };
+          };
+        };
+      };
+    };
+    expect(
+      requestBody.content["application/json"].schema.properties.data.properties
+        .id,
+    ).toEqual({ type: "string", nullable: true });
   });
 
   it("merges hono and auth specs", () => {
@@ -189,6 +252,37 @@ describe("openapi spec helpers", () => {
       minimum: 1,
       nullable: true,
     });
+  });
+
+  it("keeps empty properties maps valid after removing malformed schemas", () => {
+    const spec = normalizeEmptyAndEnumSchemas(
+      normalizeMalformedPropertySchemas({
+        components: {
+          schemas: {
+            Example: {
+              type: "object",
+              properties: {
+                additionalFields: {
+                  type: "object",
+                  properties: { type: "object" },
+                },
+              },
+            },
+          },
+        },
+      }),
+    );
+
+    expect(
+      (
+        spec.components as {
+          schemas: Record<
+            string,
+            { properties: Record<string, Record<string, unknown>> }
+          >;
+        }
+      ).schemas.Example.properties.additionalFields.properties,
+    ).toEqual({});
   });
 
   it("marks optional schema fields nullable and fills missing summaries", () => {
