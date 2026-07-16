@@ -152,6 +152,7 @@
 			"githubError": "Failed to sign in with GitHub",
 			"discordError": "Failed to sign in with Discord",
 			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator.",
 				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
 			}

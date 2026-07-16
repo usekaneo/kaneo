@@ -152,6 +152,7 @@
 			"githubError": "Gagal masuk dengan GitHub",
 			"discordError": "Gagal masuk dengan Discord",
 			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator.",
 				"oauth_code_verification_failed": "Verifikasi OAuth gagal. Silakan coba lagi.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Pendaftaran saat ini dinonaktifkan. Anda memerlukan undangan yang valid untuk membuat akun."
 			}

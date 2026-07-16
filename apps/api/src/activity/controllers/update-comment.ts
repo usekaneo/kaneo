@@ -13,7 +13,13 @@ async function updateComment(userId: string, id: string, content: string) {
       taskId: activityTable.taskId,
     })
     .from(activityTable)
-    .where(and(eq(activityTable.id, id), eq(activityTable.userId, userId)))
+    .where(
+      and(
+        eq(activityTable.id, id),
+        eq(activityTable.userId, userId),
+        eq(activityTable.type, "comment"),
+      ),
+    )
     .limit(1);
 
   if (!existing) {
@@ -25,7 +31,13 @@ async function updateComment(userId: string, id: string, content: string) {
   const [updated] = await db
     .update(activityTable)
     .set({ content })
-    .where(and(eq(activityTable.id, id), eq(activityTable.userId, userId)))
+    .where(
+      and(
+        eq(activityTable.id, id),
+        eq(activityTable.userId, userId),
+        eq(activityTable.type, "comment"),
+      ),
+    )
     .returning();
 
   if (!updated) {

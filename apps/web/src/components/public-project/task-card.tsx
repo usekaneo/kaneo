@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -82,7 +83,7 @@ export function PublicTaskCard({
               alt={task.assigneeName ?? ""}
             />
             <AvatarFallback className="text-[10px] font-medium border border-border/30">
-              {task.assigneeName.charAt(0).toUpperCase()}
+              {getInitials(task.assigneeName)}
             </AvatarFallback>
           </Avatar>
           <span className="text-[10px] text-muted-foreground font-medium truncate">
