@@ -11,7 +11,6 @@ const allowedImageMimeTypes = new Set([
   "image/jpeg",
   "image/jpg",
   "image/png",
-  "image/svg+xml",
   "image/webp",
 ]);
 

@@ -9,11 +9,13 @@ import TaskCard from "../task-card";
 
 type ColumnDropzoneProps = {
   column: ProjectWithTasks["columns"][number];
+  disableDragDrop?: boolean;
   onIsOverChange?: (isOver: boolean) => void;
 };
 
 export function ColumnDropzone({
   column,
+  disableDragDrop = false,
   onIsOverChange,
 }: ColumnDropzoneProps) {
   const { setNodeRef, isOver } = useDroppable({
@@ -36,7 +38,11 @@ export function ColumnDropzone({
       >
         <div className="flex flex-col gap-2">
           {column.tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard
+              key={task.id}
+              task={task}
+              disableDragDrop={disableDragDrop}
+            />
           ))}
         </div>
       </SortableContext>

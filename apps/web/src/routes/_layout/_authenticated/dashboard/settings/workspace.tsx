@@ -5,7 +5,7 @@ import {
   redirect,
   useLocation,
 } from "@tanstack/react-router";
-import { Settings, Shield } from "lucide-react";
+import { Settings, Shield, Tag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import getWorkspaces from "@/fetchers/workspace/get-workspaces";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
+import { getInitials } from "@/lib/get-initials";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace",
@@ -61,15 +62,14 @@ function RouteComponent() {
       url: "/dashboard/settings/workspace/roles",
       icon: Shield,
     },
+    {
+      title: t("settings:workspaceLabels.title", { defaultValue: "Labels" }),
+      url: "/dashboard/settings/workspace/labels",
+      icon: Tag,
+    },
   ];
   const isActivePath = (path: string) => location.pathname === path;
-  const workspaceInitials =
-    workspace?.name
-      ?.split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join("") || "WS";
+  const workspaceInitials = getInitials(workspace?.name, "WS");
 
   return (
     <div className="flex gap-6 h-full">

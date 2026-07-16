@@ -4,7 +4,10 @@ import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
-import { createWorkspaceMember } from "./helpers/fixtures";
+import {
+  createProjectFixture,
+  createWorkspaceMember,
+} from "./helpers/fixtures";
 
 describe("API integration: labels", () => {
   beforeEach(async () => {
@@ -109,5 +112,177 @@ describe("API integration: labels", () => {
     });
 
     expect(persisted).toBeUndefined();
+  });
+
+  describe("deletion cascade", () => {
+    it("deletes task-level copies when a workspace label is deleted", async () => {
+      const member = await createWorkspaceMember();
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+
+      // Create two tasks to assign labels to
+      const [taskA] = await db
+        .insert(schema.taskTable)
+        .values({
+          projectId: project.id,
+          userId: member.user.id,
+          title: "Task A",
+          status: "to-do",
+          columnId: columns.todo.id,
+          priority: "medium",
+          number: 1,
+          position: 1,
+        })
+        .returning();
+
+      const [taskB] = await db
+        .insert(schema.taskTable)
+        .values({
+          projectId: project.id,
+          userId: member.user.id,
+          title: "Task B",
+          status: "to-do",
+          columnId: columns.todo.id,
+          priority: "medium",
+          number: 2,
+          position: 2,
+        })
+        .returning();
+
+      // Create a workspace-level label
+      const [workspaceLabel] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "Bug",
+          color: "#ef4444",
+          workspaceId: member.workspace.id,
+          taskId: null,
+        })
+        .returning();
+
+      // Create task-level copies (simulating assigning the label to tasks)
+      const [_taskLabelA] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "Bug",
+          color: "#ef4444",
+          workspaceId: member.workspace.id,
+          taskId: taskA.id,
+        })
+        .returning();
+
+      const [_taskLabelB] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "Bug",
+          color: "#ef4444",
+          workspaceId: member.workspace.id,
+          taskId: taskB.id,
+        })
+        .returning();
+
+      // Verify all three labels exist
+      const before = await db.query.labelTable.findMany({
+        where: eq(schema.labelTable.workspaceId, member.workspace.id),
+      });
+      expect(before).toHaveLength(3);
+
+      // Delete the workspace-level label via the API
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/label/${workspaceLabel.id}`, {
+        method: "DELETE",
+      });
+
+      expect(response.status).toBe(200);
+
+      // Verify the workspace label and task-level copies are all gone
+      const remaining = await db.query.labelTable.findMany({
+        where: eq(schema.labelTable.workspaceId, member.workspace.id),
+      });
+      expect(remaining).toHaveLength(0);
+    });
+
+    it("does not affect unrelated labels when deleting a workspace label", async () => {
+      const member = await createWorkspaceMember();
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+
+      const [task] = await db
+        .insert(schema.taskTable)
+        .values({
+          projectId: project.id,
+          userId: member.user.id,
+          title: "Task",
+          status: "to-do",
+          columnId: columns.todo.id,
+          priority: "medium",
+          number: 1,
+          position: 1,
+        })
+        .returning();
+
+      // Create two different workspace labels
+      const [labelBug] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "Bug",
+          color: "#ef4444",
+          workspaceId: member.workspace.id,
+          taskId: null,
+        })
+        .returning();
+
+      const [labelFeature] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "Feature",
+          color: "#3b82f6",
+          workspaceId: member.workspace.id,
+          taskId: null,
+        })
+        .returning();
+
+      // Create task-level copies for both
+      await db.insert(schema.labelTable).values({
+        name: "Bug",
+        color: "#ef4444",
+        workspaceId: member.workspace.id,
+        taskId: task.id,
+      });
+
+      const [featureCopy] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "Feature",
+          color: "#3b82f6",
+          workspaceId: member.workspace.id,
+          taskId: task.id,
+        })
+        .returning();
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      // Delete only the "Bug" workspace label
+      const response = await app.request(`/api/label/${labelBug.id}`, {
+        method: "DELETE",
+      });
+      expect(response.status).toBe(200);
+
+      // "Feature" workspace label and its task-level copy should still exist
+      const featureWorkspace = await db.query.labelTable.findFirst({
+        where: eq(schema.labelTable.id, labelFeature.id),
+      });
+      expect(featureWorkspace).toBeDefined();
+
+      const featureTaskCopy = await db.query.labelTable.findFirst({
+        where: eq(schema.labelTable.id, featureCopy.id),
+      });
+      expect(featureTaskCopy).toBeDefined();
+    });
   });
 });

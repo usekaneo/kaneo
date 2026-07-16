@@ -150,7 +150,10 @@
 			"oidcError": "Anmeldung mit OIDC fehlgeschlagen",
 			"googleError": "Anmeldung mit Google fehlgeschlagen",
 			"githubError": "Anmeldung mit GitHub fehlgeschlagen",
-			"discordError": "Anmeldung mit Discord fehlgeschlagen"
+			"discordError": "Anmeldung mit Discord fehlgeschlagen",
+			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
+			}
 		},
 		"providers": {
 			"google": "Google",
@@ -1654,6 +1657,16 @@
 		}
 	},
 	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} hat dich eingeladen, {{workspaceName}} auf Kaneo beizutreten",
+			"preview": "Du wurdest zu {{workspaceName}} auf Kaneo eingeladen",
+			"title": "{{workspaceName}} beitreten",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) hat dich eingeladen, in Kaneo zusammenzuarbeiten.",
+			"cta": "Einladung annehmen",
+			"sameEmail": "Du kannst die Einladung mit derselben E-Mail-Adresse annehmen, die diese Nachricht erhalten hat.",
+			"ignore": "Falls du damit nicht gerechnet hast, kannst du diese E-Mail einfach ignorieren.",
+			"footer": "Kaneo Workspace-Einladung"
+		},
 		"pageTitle": "Einladungen",
 		"pendingInvitations": "Ausstehende Einladungen",
 		"acceptSubtitle": "Nimm Einladungen an, um Workspaces beizutreten",

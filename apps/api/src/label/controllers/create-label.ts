@@ -31,6 +31,12 @@ async function createLabel(
       });
     }
 
+    if (task.workspaceId !== workspaceId) {
+      throw new HTTPException(404, {
+        message: "Task not found",
+      });
+    }
+
     const [inserted] = await db
       .insert(labelTable)
       .values({ name, color, taskId, workspaceId: task.workspaceId })

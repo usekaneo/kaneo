@@ -152,6 +152,7 @@
 			"githubError": "Failed to sign in with GitHub",
 			"discordError": "Failed to sign in with Discord",
 			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator.",
 				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
 			}
@@ -548,6 +549,168 @@
 				"nameRequired": "Workspace name is required",
 				"nameShort": "Workspace name must be at least 2 characters"
 			}
+		},
+		"workspaceRoles": {
+			"pageTitle": "Roles",
+			"title": "Roles",
+			"subtitle": "Define which actions members can perform in {{workspaceName}}.",
+			"thisWorkspace": "this workspace",
+			"noAccess": "You need admin or owner permissions to manage workspace roles.",
+			"sectionTitle": "Workspace roles",
+			"sectionSubtitle": "Edit the default roles or add a tailored one. Members keep their assigned role name across edits.",
+			"newRole": "New role",
+			"loading": "Loading…",
+			"loadError": "Failed to load roles.",
+			"emptyTitle": "No roles yet",
+			"emptyDescription": "Default roles will appear here once they're seeded for this workspace.",
+			"defaultBadge": "Default",
+			"permissionCount_one": "{{count}} permission",
+			"permissionCount_other": "{{count}} permissions",
+			"nameLabel": "Name",
+			"nameHint": "Lowercase. Cannot be changed later.",
+			"namePlaceholder": "e.g. reviewer",
+			"discard": "Discard",
+			"createRole": "Create role",
+			"deleteRole": "Delete role",
+			"defaultRoleHelp": "Default role — name is reserved and the row can't be deleted.",
+			"unsavedChanges": "You have unsaved changes",
+			"allChangesSaved": "All changes saved",
+			"saveChanges": "Save changes",
+			"defaultRoleDescriptions": {
+				"viewer": "Can view and comment on tasks.",
+				"member": "Can create and manage tasks and projects.",
+				"admin": "Has full access to the workspace."
+			},
+			"resources": {
+				"project": "Projects",
+				"task": "Tasks",
+				"label": "Labels",
+				"workspace": "Workspace"
+			},
+			"permissions": {
+				"project": {
+					"create": {
+						"label": "Create",
+						"description": "Can create new projects"
+					},
+					"read": {
+						"label": "Read",
+						"description": "Can view projects"
+					},
+					"update": {
+						"label": "Update",
+						"description": "Can edit project settings"
+					},
+					"delete": {
+						"label": "Delete",
+						"description": "Can delete projects"
+					},
+					"share": {
+						"label": "Share",
+						"description": "Can share projects"
+					}
+				},
+				"task": {
+					"create": {
+						"label": "Create",
+						"description": "Can create tasks"
+					},
+					"read": {
+						"label": "Read",
+						"description": "Can view tasks"
+					},
+					"update": {
+						"label": "Update",
+						"description": "Can edit tasks"
+					},
+					"delete": {
+						"label": "Delete",
+						"description": "Can delete tasks"
+					},
+					"assign": {
+						"label": "Assign",
+						"description": "Can assign tasks to members"
+					}
+				},
+				"label": {
+					"create": {
+						"label": "Create",
+						"description": "Can create labels"
+					},
+					"read": {
+						"label": "Read",
+						"description": "Can view labels"
+					},
+					"update": {
+						"label": "Update",
+						"description": "Can edit labels"
+					},
+					"delete": {
+						"label": "Delete",
+						"description": "Can delete labels"
+					}
+				},
+				"workspace": {
+					"read": {
+						"label": "Read",
+						"description": "Can view workspace settings"
+					},
+					"update": {
+						"label": "Update",
+						"description": "Can update workspace settings"
+					},
+					"delete": {
+						"label": "Delete",
+						"description": "Can delete workspace"
+					},
+					"manage_settings": {
+						"label": "Manage Settings",
+						"description": "Can manage workspace settings"
+					}
+				}
+			},
+			"validation": {
+				"nameRequired": "Role name is required",
+				"nameExists": "A role with this name already exists",
+				"permissionRequired": "At least one permission must be selected"
+			},
+			"toast": {
+				"created": "Role created",
+				"createError": "Failed to create role",
+				"updated": "Role updated",
+				"updateError": "Failed to update role",
+				"deleted": "Role deleted",
+				"deleteError": "Failed to delete role"
+			},
+			"deleteDialog": {
+				"title": "Delete role",
+				"description": "This will permanently delete the role \"{{role}}\". Members assigned to this role will lose its permissions."
+			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "Label Settings",
+			"title": "Labels",
+			"subtitle": "Create, edit, and delete workspace-level labels.",
+			"cardDescription": "Manage labels that can be assigned to tasks.",
+			"createLabel": "Create Label",
+			"editLabel": "Edit Label",
+			"deleteLabel": "Delete",
+			"saveLabel": "Save",
+			"nameLabel": "Label name",
+			"namePlaceholder": "Enter label name",
+			"colorLabel": "Color",
+			"createDescription": "Create a new label that can be used across tasks in this workspace.",
+			"editDescription": "Update the name or color of this label.",
+			"deleteConfirmTitle": "Delete this label?",
+			"deleteConfirmDescription": "This will permanently remove this label from all tasks. This action cannot be undone.",
+			"empty": "No labels yet. Create your first label to get started.",
+			"createSuccess": "Label created",
+			"updateSuccess": "Label updated",
+			"deleteSuccess": "Label deleted",
+			"createError": "Failed to create label",
+			"updateError": "Failed to update label",
+			"deleteError": "Failed to delete label",
+			"nameRequired": "Label name is required"
 		},
 		"projectGeneral": {
 			"pageTitle": "Project Settings",
@@ -1663,6 +1826,16 @@
 		}
 	},
 	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
+			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"title": "Join {{workspaceName}}",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"cta": "Accept invitation",
+			"sameEmail": "You can accept with the same email that received this message.",
+			"ignore": "If this wasn't expected, you can safely ignore this email.",
+			"footer": "Kaneo workspace invitation"
+		},
 		"pageTitle": "Invitations",
 		"pendingInvitations": "Pending Invitations",
 		"acceptSubtitle": "Accept invitations to join workspaces",
@@ -1744,7 +1917,12 @@
 		},
 		"members": {
 			"pageTitle": "Members",
-			"inviteMember": "Invite member"
+			"inviteMember": "Invite member",
+			"you": "You"
+		},
+		"invitations": {
+			"pendingBadge": "pending",
+			"expires": "Expires {{date}}"
 		},
 		"inviteModal": {
 			"title": "Invite Team Member",

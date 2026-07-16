@@ -1,3 +1,4 @@
+import type { User } from "better-auth/types";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
@@ -6,6 +7,7 @@ import getUserPendingInvitations from "./controllers/get-user-pending-invitation
 
 const invitation = new Hono<{
   Variables: {
+    user: User | null;
     userId: string;
     userEmail: string;
   };
@@ -41,6 +43,11 @@ const invitation = new Hono<{
       },
     }),
     async (c) => {
+      const user = c.get("user");
+      if (!user?.emailVerified) {
+        return c.json([]);
+      }
+
       const userEmail = c.get("userEmail");
       const invitations = await getUserPendingInvitations(userEmail);
       return c.json(invitations);
