@@ -15,6 +15,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import useSignOut from "@/hooks/mutations/use-sign-out";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 
@@ -52,13 +53,7 @@ export function UserAvatar() {
     navigate({ to: "/dashboard/settings/account/information" });
   };
 
-  const initials = user.name
-    ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-    : user.email?.substring(0, 2).toUpperCase() || "U";
+  const initials = getInitials(user.name || user.email, "UN");
 
   return (
     <DropdownMenu>

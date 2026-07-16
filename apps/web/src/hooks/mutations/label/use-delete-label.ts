@@ -37,6 +37,13 @@ function useDeleteLabel() {
         void queryClient.invalidateQueries({
           queryKey: ["labels", deletedLabel.taskId],
         });
+      } else {
+        void queryClient.invalidateQueries({
+          queryKey: ["labels"],
+        });
+        void queryClient.invalidateQueries({
+          queryKey: ["tasks"],
+        });
       }
     },
   });

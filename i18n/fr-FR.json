@@ -153,7 +153,8 @@
 			"discordError": "Échec de la connexion avec Discord",
 			"errors": {
 				"oauth_code_verification_failed": "La vérification d'OAuth a échoué. Veuillez réessayer.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "L'inscription est actuellement désactivée. Vous avez besoin d'une invitation valide pour créer un compte."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "L'inscription est actuellement désactivée. Vous avez besoin d'une invitation valide pour créer un compte.",
+				"account_not_linked": "Cette identité n'a pas pu être associée au compte existant. Connectez-vous par e-mail pour vérifier le compte, puis réessayez la connexion SSO. Si la connexion par e-mail n'est pas disponible, contactez votre administrateur."
 			}
 		},
 		"providers": {

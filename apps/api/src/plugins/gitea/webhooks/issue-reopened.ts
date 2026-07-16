@@ -31,7 +31,10 @@ type IssueReopenedPayload = {
   };
 };
 
-export async function handleGiteaIssueReopened(payload: IssueReopenedPayload) {
+export async function handleGiteaIssueReopened(
+  payload: IssueReopenedPayload,
+  integrationId?: string,
+) {
   if (payload.action !== "reopened") {
     return;
   }
@@ -46,6 +49,7 @@ export async function handleGiteaIssueReopened(payload: IssueReopenedPayload) {
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   for (const integration of integrations) {

@@ -39,6 +39,25 @@ WORKDIR /app/apps/api
 RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/..\/packages\/typescript-config\/base.json"/g' /app/apps/api/tsconfig.json && \
   pnpm run build
 
+# Production dependencies stage - runs on the BUILD platform (native, no QEMU emulation).
+# All API runtime deps are pure JavaScript (bcrypt was replaced with bcryptjs), so the
+# resulting node_modules is architecture-independent and safe to copy into the arm64 runtime.
+FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS prod-deps
+
+RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
+
+WORKDIR /app
+
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/libs/package.json ./packages/libs/
+COPY packages/email/package.json ./packages/email/
+COPY packages/permissions/package.json ./packages/permissions/
+COPY apps/api/package.json ./apps/api/
+
+RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
+  HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
+
 # Production stage - use specific version tag without SHA256
 FROM node:20.20.2-alpine AS runtime
 
@@ -49,29 +68,19 @@ RUN addgroup -g 1001 appuser && \
   chown -R appuser:appuser /app
 
 WORKDIR /app
-
-# Copy package files for production install
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/apps/api/package.json ./apps/api/
-COPY --from=builder /app/packages/typescript-config/package.json ./packages/typescript-config/
-COPY --from=builder /app/packages/libs/package.json ./packages/libs/
-COPY --from=builder /app/packages/email/package.json ./packages/email/
-COPY --from=builder /app/packages/permissions/package.json ./packages/permissions/
-
-# Install production dependencies only
-RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
-  corepack enable && \
-  corepack prepare pnpm@10.7.0 --activate && \
-  HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
-
-# Copy built files
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/drizzle ./apps/api/drizzle
-COPY --from=builder /app/packages/email ./packages/email
-COPY --from=builder /app/packages/permissions ./packages/permissions
-
-# Set environment variables
 ENV NODE_ENV=production
+
+# Production node_modules built natively on the build platform (pure JS, arch-independent)
+COPY --from=prod-deps --chown=appuser:appuser /app ./
+
+# Built application and workspace packages
+COPY --from=builder --chown=appuser:appuser /app/apps/api/dist ./apps/api/dist
+COPY --from=builder --chown=appuser:appuser /app/apps/api/drizzle ./apps/api/drizzle
+COPY --from=builder --chown=appuser:appuser /app/packages/email ./packages/email
+COPY --from=builder --chown=appuser:appuser /app/packages/permissions ./packages/permissions
+
+# Fail the build early if the runtime dependency layout is broken on the target architecture
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}"
 
 # Switch to non-root user
 USER appuser

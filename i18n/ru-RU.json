@@ -150,7 +150,10 @@
 			"oidcError": "Не удалось войти через OIDC",
 			"googleError": "Не удалось войти через Google",
 			"githubError": "Не удалось войти через GitHub",
-			"discordError": "Не удалось войти через Discord"
+			"discordError": "Не удалось войти через Discord",
+			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
+			}
 		},
 		"providers": {
 			"google": "Google",

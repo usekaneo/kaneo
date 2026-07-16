@@ -23,7 +23,10 @@ type LabelCreatePayload = {
   };
 };
 
-export async function handleGiteaLabelCreated(payload: LabelCreatePayload) {
+export async function handleGiteaLabelCreated(
+  payload: LabelCreatePayload,
+  integrationId?: string,
+) {
   if ((payload.ref_type && payload.ref_type !== "label") || !payload.label) {
     return;
   }
@@ -38,6 +41,7 @@ export async function handleGiteaLabelCreated(payload: LabelCreatePayload) {
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   for (const integration of integrations) {

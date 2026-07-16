@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/cn";
+import { getInitials } from "@/lib/get-initials";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/account",
@@ -55,7 +56,7 @@ function RouteComponent() {
             <Avatar className="h-9 w-9">
               <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
               <AvatarFallback className="text-xs font-medium border border-border/30">
-                {user?.name?.charAt(0).toUpperCase()}
+                {getInitials(user?.name)}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
