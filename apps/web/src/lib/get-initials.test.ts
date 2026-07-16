@@ -19,4 +19,14 @@ describe("getInitials", () => {
     expect(getInitials(undefined)).toBe("??");
     expect(getInitials("", "NA")).toBe("NA");
   });
+
+  it("normalizes the fallback to two uppercase characters", () => {
+    expect(getInitials(null, "na")).toBe("NA");
+    expect(getInitials(undefined, "long")).toBe("LO");
+  });
+
+  it("keeps initials to two characters when uppercasing expands them", () => {
+    expect(getInitials("ßeta")).toBe("SS");
+    expect(getInitials("ßeta test")).toBe("ST");
+  });
 });

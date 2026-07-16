@@ -239,7 +239,9 @@ export default function TaskPropertiesSidebar({
                           alt={assignee?.user?.name || ""}
                         />
                         <AvatarFallback className="text-[9px] font-medium border border-border/30 flex-shrink-0 h-[16px] w-[16px]">
-                          {getInitials(assignee?.user?.name)}
+                          {getInitials(
+                            assignee?.user?.name || task.assigneeName,
+                          )}
                         </AvatarFallback>
                       </Avatar>
                     ) : (
@@ -427,7 +429,9 @@ export default function TaskPropertiesSidebar({
                             alt={assignee?.user?.name || ""}
                           />
                           <AvatarFallback className="text-[9px] font-medium border border-border/30 shrink-0 h-[16px] w-[16px]">
-                            {getInitials(assignee?.user?.name)}
+                            {getInitials(
+                              assignee?.user?.name || task.assigneeName,
+                            )}
                           </AvatarFallback>
                         </Avatar>
                       ) : (
@@ -618,7 +622,9 @@ export default function TaskPropertiesSidebar({
                             alt={assignee?.user?.name || ""}
                           />
                           <AvatarFallback className="text-[9px] font-medium border border-border/30 shrink-0 h-[16px] w-[16px]">
-                            {getInitials(assignee?.user?.name)}
+                            {getInitials(
+                              assignee?.user?.name || task.assigneeName,
+                            )}
                           </AvatarFallback>
                         </Avatar>
                       ) : (
