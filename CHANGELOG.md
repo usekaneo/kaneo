@@ -1,3 +1,29 @@
+## [2.9.2](https://github.com/usekaneo/kaneo/compare/v2.9.1...v2.9.2) (2026-07-16)
+
+
+### Bug Fixes
+
+* **api:** enforce scoped API key permissions ([#1374](https://github.com/usekaneo/kaneo/issues/1374)) ([9bedc4a](https://github.com/usekaneo/kaneo/commit/9bedc4aee161ac272f8c31d0d6a7d320b6a7c13d))
+* **api:** prioritize project workspace lookup ([#1383](https://github.com/usekaneo/kaneo/issues/1383)) ([7a8320a](https://github.com/usekaneo/kaneo/commit/7a8320a783fa894cd5442bb11c7f23a3df677ca5))
+* **assets:** prevent active content execution ([#1373](https://github.com/usekaneo/kaneo/issues/1373)) ([39b787a](https://github.com/usekaneo/kaneo/commit/39b787a6c2ec051d47bb4e8a9a9012ec978b31d5))
+* **auth:** enforce disabled local login ([#1375](https://github.com/usekaneo/kaneo/issues/1375)) ([8c8eaf3](https://github.com/usekaneo/kaneo/commit/8c8eaf3e86a560eaa477f1af1a8fda1660bcc114))
+* **auth:** protect invitation acceptance from unverified accounts ([#1386](https://github.com/usekaneo/kaneo/issues/1386)) ([a686614](https://github.com/usekaneo/kaneo/commit/a6866143f1ccf85ff84669bb9c7f5541d01ab98d))
+* **auth:** require verified email for account linking ([#1387](https://github.com/usekaneo/kaneo/issues/1387)) ([4a5c818](https://github.com/usekaneo/kaneo/commit/4a5c8187de45ef1da1c4f0d4c3c6032f815d3911))
+* **auth:** restore guest sign-in access ([#1391](https://github.com/usekaneo/kaneo/issues/1391)) ([d7281e1](https://github.com/usekaneo/kaneo/commit/d7281e1a20be25ab057a0a82afac1bb11e0af7b0))
+* **comments:** unify API and activity storage ([#1389](https://github.com/usekaneo/kaneo/issues/1389)) ([23f8bf4](https://github.com/usekaneo/kaneo/commit/23f8bf4f05c43d4023965c80768bdc1c28aeadfc))
+* **editor:** reject active embed URL schemes ([#1376](https://github.com/usekaneo/kaneo/issues/1376)) ([5630fd0](https://github.com/usekaneo/kaneo/commit/5630fd0e5fb0c56e6f40b49bdbe32a30f25e9ed2))
+* **gitea:** bind webhooks to signed integration ([#1378](https://github.com/usekaneo/kaneo/issues/1378)) ([27cb25e](https://github.com/usekaneo/kaneo/commit/27cb25ea0d608d0dbde82da86b70a8bb71b1f267))
+* **gitea:** restrict webhook secret access ([#1377](https://github.com/usekaneo/kaneo/issues/1377)) ([37207a0](https://github.com/usekaneo/kaneo/commit/37207a0e2cf0d4adaf4af6ee17d218b09f6ce7bf))
+* **labels:** enforce task workspace boundary ([#1380](https://github.com/usekaneo/kaneo/issues/1380)) ([4f6ea91](https://github.com/usekaneo/kaneo/commit/4f6ea91d86035e8fd30262df982cb18a29bd5226))
+* **mcp:** require explicit OAuth consent ([#1372](https://github.com/usekaneo/kaneo/issues/1372)) ([2c8b6d8](https://github.com/usekaneo/kaneo/commit/2c8b6d8582ef1f7c9929531e900412b29fca46c3))
+* **mcp:** validate registered redirect URIs ([#1381](https://github.com/usekaneo/kaneo/issues/1381)) ([e18eb00](https://github.com/usekaneo/kaneo/commit/e18eb00e2d49d1f372a95bfd6ff8529dfecf10a0))
+* **tasks:** prevent cross-workspace moves ([#1384](https://github.com/usekaneo/kaneo/issues/1384)) ([797380d](https://github.com/usekaneo/kaneo/commit/797380d2d6e4648b44295c0d13b3440d7e7e5138))
+* **tasks:** prevent cross-workspace relations ([#1385](https://github.com/usekaneo/kaneo/issues/1385)) ([9c2a33b](https://github.com/usekaneo/kaneo/commit/9c2a33b613aececbb5545d7679a7a5ad2cb00979))
+
+
+### Features
+
+* standardize avatar fallback initials ([#1401](https://github.com/usekaneo/kaneo/issues/1401)) ([5cddfa1](https://github.com/usekaneo/kaneo/commit/5cddfa13019f8dfb83976913824954677be33cbb))
 ## [2.9.1](https://github.com/usekaneo/kaneo/compare/v2.9.0...v2.9.1) (2026-07-15)
 
 
