@@ -9,12 +9,12 @@ import {
 } from "@/components/ui/popover";
 import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { toast } from "@/lib/toast";
-import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 
 type TaskStatusPopoverProps = {
@@ -28,14 +28,13 @@ export default function TaskStatusPopover({
 }: TaskStatusPopoverProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const { project } = useProjectStore();
-  const statusOptions =
-    project?.columns?.map((col) => ({
-      value: col.slug,
-      label: col.name,
-      icon: col.icon,
-      isFinal: col.isFinal,
-    })) ?? [];
+  const { data: columns = [] } = useGetColumns(task.projectId);
+  const statusOptions = columns.map((col) => ({
+    value: col.slug,
+    label: col.name,
+    icon: col.icon,
+    isFinal: col.isFinal,
+  }));
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { canManageTasks } = useWorkspacePermission();
   const canEdit = canManageTasks();
