@@ -28,14 +28,10 @@ export default function TaskStatusPopover({
 }: TaskStatusPopoverProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const {
-    data: columns = [],
-    isLoading,
-    isError,
-  } = useGetColumns(task.projectId);
+  const { data: columns, isLoading, isError } = useGetColumns(task.projectId);
   const statusOptions = useMemo(
     () =>
-      columns.map((col) => ({
+      (columns ?? []).map((col) => ({
         value: col.slug,
         label: col.name,
         icon: col.icon,
