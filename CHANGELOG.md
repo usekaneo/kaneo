@@ -1,3 +1,19 @@
+## [2.9.3](https://github.com/usekaneo/kaneo/compare/v2.9.2...v2.9.3) (2026-07-17)
+
+
+### Bug Fixes
+
+* **auth:** fall back for custom OAuth profile names ([#1360](https://github.com/usekaneo/kaneo/issues/1360)) ([02edfa9](https://github.com/usekaneo/kaneo/commit/02edfa915806389824d7f5232e2fa74a4443dfb8))
+* **docker:** allow nginx revision rebuilds in apk pin ([#1405](https://github.com/usekaneo/kaneo/issues/1405)) ([d99d678](https://github.com/usekaneo/kaneo/commit/d99d67863add6b6fb020d9a6f0d8750bef4e1304))
+* **email:** translate French workspace invitations ([#1390](https://github.com/usekaneo/kaneo/issues/1390)) ([1e99d3a](https://github.com/usekaneo/kaneo/commit/1e99d3a28c5c52f746c4364b0f6cae9ba54df229))
+* load task statuses on direct page visits ([#1403](https://github.com/usekaneo/kaneo/issues/1403)) ([1ca05c4](https://github.com/usekaneo/kaneo/commit/1ca05c4c7857e5d2b64d0fc3d0442ee0015f5911))
+* **web:** load status options from columns query ([#1404](https://github.com/usekaneo/kaneo/issues/1404)) ([2fbdd3c](https://github.com/usekaneo/kaneo/commit/2fbdd3cbf7ae9e442eddf65ba34e83dc6de821f3)), closes [#1402](https://github.com/usekaneo/kaneo/issues/1402)
+
+
+### Features
+
+* **i18n:** complete French translations ([#1359](https://github.com/usekaneo/kaneo/issues/1359)) ([772cbc5](https://github.com/usekaneo/kaneo/commit/772cbc5f8fa9e28ed3bf4faabdababbdeca436ac))
+* **i18n:** turkish language support ([#1366](https://github.com/usekaneo/kaneo/issues/1366)) ([8806e86](https://github.com/usekaneo/kaneo/commit/8806e86f0f71833ddca9577f58f5077f5191f095))
 ## [2.9.2](https://github.com/usekaneo/kaneo/compare/v2.9.1...v2.9.2) (2026-07-16)
 
 
