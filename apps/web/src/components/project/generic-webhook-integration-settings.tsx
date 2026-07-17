@@ -83,18 +83,26 @@ export function GenericWebhookIntegrationSettings({
   const { t } = useTranslation();
   const schema = React.useMemo(
     () =>
-      z.object({
-        webhookUrl: z.string(),
-        secret: z.string(),
-        taskCreated: z.boolean(),
-        taskStatusChanged: z.boolean(),
-        taskPriorityChanged: z.boolean(),
-        taskTitleChanged: z.boolean(),
-        taskDescriptionChanged: z.boolean(),
-        taskCommentCreated: z.boolean(),
-        dueDateReminder: z.boolean(),
-        dueDateReminderLeadTimeHours: z.number().min(1).max(720),
-      }),
+      z
+        .object({
+          webhookUrl: z.string(),
+          secret: z.string(),
+          taskCreated: z.boolean(),
+          taskStatusChanged: z.boolean(),
+          taskPriorityChanged: z.boolean(),
+          taskTitleChanged: z.boolean(),
+          taskDescriptionChanged: z.boolean(),
+          taskCommentCreated: z.boolean(),
+          dueDateReminder: z.boolean(),
+          dueDateReminderLeadTimeHours: z.number(),
+        })
+        .refine(
+          (values) =>
+            !values.dueDateReminder ||
+            (values.dueDateReminderLeadTimeHours >= 5 / 60 &&
+              values.dueDateReminderLeadTimeHours <= 720),
+          { path: ["dueDateReminderLeadTimeHours"] },
+        ),
     [],
   );
 
@@ -168,9 +176,13 @@ export function GenericWebhookIntegrationSettings({
             webhookUrl: trimmedWebhookUrl,
             secret: trimmedSecret || undefined,
             events,
-            dueDateReminderLeadTimeMinutes: Math.round(
-              values.dueDateReminderLeadTimeHours * 60,
-            ),
+            ...(values.dueDateReminder
+              ? {
+                  dueDateReminderLeadTimeMinutes: Math.round(
+                    values.dueDateReminderLeadTimeHours * 60,
+                  ),
+                }
+              : {}),
           },
         });
       } else {
@@ -180,9 +192,13 @@ export function GenericWebhookIntegrationSettings({
             webhookUrl: trimmedWebhookUrl,
             secret: trimmedSecret || undefined,
             events,
-            dueDateReminderLeadTimeMinutes: Math.round(
-              values.dueDateReminderLeadTimeHours * 60,
-            ),
+            ...(values.dueDateReminder
+              ? {
+                  dueDateReminderLeadTimeMinutes: Math.round(
+                    values.dueDateReminderLeadTimeHours * 60,
+                  ),
+                }
+              : {}),
           },
         });
       }
@@ -422,11 +438,11 @@ export function GenericWebhookIntegrationSettings({
                     <FormControl>
                       <Input
                         max={720}
-                        min={1}
+                        min={5 / 60}
                         onChange={(event) =>
                           field.onChange(Number(event.target.value))
                         }
-                        step={1}
+                        step="any"
                         type="number"
                         value={field.value}
                       />

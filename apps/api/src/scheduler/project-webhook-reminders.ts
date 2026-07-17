@@ -1,4 +1,4 @@
-import { and, between, eq, isNull, or } from "drizzle-orm";
+import { and, between, eq, isNotNull, isNull, or } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -11,10 +11,9 @@ import {
   normalizeGenericWebhookConfig,
 } from "../plugins/generic-webhook/config";
 import { sendDueDateReminder } from "../plugins/generic-webhook/events";
-import { isReminderDue } from "./reminder-timing";
+import { REMINDER_WINDOW_MINUTES } from "./reminder-timing";
 
 const MINUTE_MS = 60 * 1000;
-const MAX_LEAD_TIME_MINUTES = 43_200;
 
 export async function checkProjectWebhookReminders(): Promise<void> {
   const now = new Date();
@@ -40,6 +39,10 @@ export async function checkProjectWebhookReminders(): Promise<void> {
       if (!config.events?.dueDateReminder) continue;
 
       const leadTimeMinutes = config.dueDateReminderLeadTimeMinutes ?? 1440;
+      const windowEnd = new Date(now.getTime() + leadTimeMinutes * MINUTE_MS);
+      const windowStart = new Date(
+        windowEnd.getTime() - REMINDER_WINDOW_MINUTES * MINUTE_MS,
+      );
       const reminderType = `generic_webhook:${integration.id}`;
       const tasks = await db
         .select({ id: taskTable.id, dueDate: taskTable.dueDate })
@@ -55,23 +58,15 @@ export async function checkProjectWebhookReminders(): Promise<void> {
         .where(
           and(
             eq(taskTable.projectId, integration.projectId),
-            between(
-              taskTable.dueDate,
-              now,
-              new Date(now.getTime() + MAX_LEAD_TIME_MINUTES * MINUTE_MS),
-            ),
+            isNotNull(taskTable.dueDate),
+            between(taskTable.dueDate, windowStart, windowEnd),
             isNull(taskReminderSentTable.id),
             or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
           ),
         );
 
       for (const task of tasks) {
-        if (
-          !task.dueDate ||
-          !isReminderDue({ dueDate: task.dueDate, leadTimeMinutes, now })
-        ) {
-          continue;
-        }
+        if (!task.dueDate) continue;
 
         const [sentRecord] = await db
           .insert(taskReminderSentTable)

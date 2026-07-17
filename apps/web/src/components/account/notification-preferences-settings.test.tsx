@@ -1,5 +1,11 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NotificationPreferencesSettings } from "./notification-preferences-settings";
 
 const updatePreferences = vi.fn();
@@ -63,6 +69,8 @@ vi.mock(
 );
 
 describe("NotificationPreferencesSettings", () => {
+  afterEach(cleanup);
+
   beforeEach(() => {
     updatePreferences.mockReset();
     updatePreferences.mockResolvedValue(undefined);
@@ -91,6 +99,32 @@ describe("NotificationPreferencesSettings", () => {
         taskStatusChangeEnabled: true,
         dueDateReminderEnabled: true,
         dueDateReminderLeadTimeMinutes: 2880,
+      }),
+    );
+  });
+
+  it("saves disabled reminders without validating their retained lead time", async () => {
+    render(<NotificationPreferencesSettings />);
+
+    fireEvent.change(
+      screen.getByLabelText("settings:notificationsPage.reminderLeadTimeLabel"),
+      { target: { value: "0" } },
+    );
+    fireEvent.click(
+      screen.getByLabelText("settings:notificationsPage.eventDueDateReminders"),
+    );
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:notificationsPage.saveEventPreferences",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(updatePreferences).toHaveBeenCalledWith({
+        taskAssignmentEnabled: true,
+        taskCommentEnabled: true,
+        taskStatusChangeEnabled: true,
+        dueDateReminderEnabled: false,
       }),
     );
   });

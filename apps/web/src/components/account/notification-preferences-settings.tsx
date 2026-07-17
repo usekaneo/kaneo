@@ -603,14 +603,14 @@ export function NotificationPreferencesSettings() {
             disabled={!eventPrefs.dueDateReminderEnabled}
             id="due-date-reminder-lead-time"
             max={720}
-            min={1}
+            min={5 / 60}
             onChange={(event) =>
               setEventPrefs((current) => ({
                 ...current,
                 dueDateReminderLeadTimeHours: Number(event.target.value),
               }))
             }
-            step={1}
+            step="any"
             type="number"
             value={eventPrefs.dueDateReminderLeadTimeHours}
           />
@@ -623,8 +623,9 @@ export function NotificationPreferencesSettings() {
           <Button
             disabled={
               isSavingPreferences ||
-              eventPrefs.dueDateReminderLeadTimeHours < 1 ||
-              eventPrefs.dueDateReminderLeadTimeHours > 720
+              (eventPrefs.dueDateReminderEnabled &&
+                (eventPrefs.dueDateReminderLeadTimeHours < 5 / 60 ||
+                  eventPrefs.dueDateReminderLeadTimeHours > 720))
             }
             onClick={async () => {
               await updatePreferences({
@@ -632,9 +633,13 @@ export function NotificationPreferencesSettings() {
                 taskCommentEnabled: eventPrefs.taskCommentEnabled,
                 taskStatusChangeEnabled: eventPrefs.taskStatusChangeEnabled,
                 dueDateReminderEnabled: eventPrefs.dueDateReminderEnabled,
-                dueDateReminderLeadTimeMinutes: Math.round(
-                  eventPrefs.dueDateReminderLeadTimeHours * 60,
-                ),
+                ...(eventPrefs.dueDateReminderEnabled
+                  ? {
+                      dueDateReminderLeadTimeMinutes: Math.round(
+                        eventPrefs.dueDateReminderLeadTimeHours * 60,
+                      ),
+                    }
+                  : {}),
               });
             }}
             type="button"

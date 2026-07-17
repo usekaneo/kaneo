@@ -1,4 +1,4 @@
-import { and, between, eq, isNotNull, isNull, or } from "drizzle-orm";
+import { and, between, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -7,11 +7,10 @@ import {
   userNotificationPreferenceTable,
 } from "../database/schema";
 import createNotification from "../notification/controllers/create-notification";
-import { isReminderDue } from "./reminder-timing";
+import { REMINDER_WINDOW_MINUTES } from "./reminder-timing";
 
 type ReminderType = "configured_before" | "overdue";
 
-const HOUR_MS = 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
 
 function buildWindows(now: Date) {
@@ -19,8 +18,8 @@ function buildWindows(now: Date) {
 
   return {
     upcoming: {
-      start: now,
-      end: new Date(nowMs + 30 * 24 * HOUR_MS),
+      start: new Date(nowMs - REMINDER_WINDOW_MINUTES * MINUTE_MS),
+      end: now,
       type: "configured_before" as ReminderType,
       notificationType: "due_date_reminder" as const,
     },
@@ -65,7 +64,9 @@ async function getTasksNeedingReminder(
       and(
         isNotNull(taskTable.userId),
         isNotNull(taskTable.dueDate),
-        between(taskTable.dueDate, windowStart, windowEnd),
+        reminderType === "configured_before"
+          ? sql`${taskTable.dueDate} - (COALESCE(${userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes}, 1440) * interval '1 minute') BETWEEN ${windowStart} AND ${windowEnd}`
+          : between(taskTable.dueDate, windowStart, windowEnd),
         isNull(taskReminderSentTable.id),
         or(
           isNull(userNotificationPreferenceTable.id),
@@ -141,13 +142,6 @@ export async function checkDueDateReminders(): Promise<void> {
       );
 
       for (const task of tasks) {
-        if (window.type === "configured_before" && task.dueDate) {
-          const leadTimeMinutes = task.leadTimeMinutes ?? 1440;
-          if (!isReminderDue({ dueDate: task.dueDate, leadTimeMinutes, now })) {
-            continue;
-          }
-        }
-
         try {
           await processReminder(task, window.type, window.notificationType);
         } catch (error) {

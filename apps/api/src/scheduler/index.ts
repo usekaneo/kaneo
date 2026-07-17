@@ -7,7 +7,9 @@ const jobs: Cron[] = [];
 export function initializeScheduler(): void {
   jobs.push(new Cron("*/5 * * * *", checkDueDateReminders));
   jobs.push(new Cron("*/5 * * * *", checkProjectWebhookReminders));
-  console.log("⏰ Scheduler started (due date reminders every 5 minutes)");
+  console.log(
+    "⏰ Scheduler started (due date and project webhook reminders every 5 minutes)",
+  );
 }
 
 export function shutdownScheduler(): void {
