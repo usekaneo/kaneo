@@ -28,13 +28,17 @@ export default function TaskStatusPopover({
 }: TaskStatusPopoverProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const { data: columns = [] } = useGetColumns(task.projectId);
-  const statusOptions = columns.map((col) => ({
-    value: col.slug,
-    label: col.name,
-    icon: col.icon,
-    isFinal: col.isFinal,
-  }));
+  const { data: columns } = useGetColumns(task.projectId);
+  const statusOptions = useMemo(
+    () =>
+      (columns ?? []).map((col) => ({
+        value: col.slug,
+        label: col.name,
+        icon: col.icon,
+        isFinal: col.isFinal,
+      })),
+    [columns],
+  );
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { canManageTasks } = useWorkspacePermission();
   const canEdit = canManageTasks();
