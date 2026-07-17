@@ -1,10 +1,15 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Button } from "@/components/ui/button";
 import type Task from "@/types/task";
 import TaskStatusPopover from "./task-status-popover";
 
 const useGetColumns = vi.fn();
+
+afterEach(() => {
+  cleanup();
+  document.body.innerHTML = "";
+});
 
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: (projectId: string) => useGetColumns(projectId),
@@ -20,16 +25,6 @@ vi.mock("@/hooks/use-numbered-shortcuts", () => ({
 
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({ canManageTasks: () => true }),
-}));
-
-vi.mock("@/components/ui/popover", () => ({
-  Popover: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  PopoverTrigger: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-  PopoverContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
 }));
 
 vi.mock("react-i18next", () => ({
@@ -54,7 +49,7 @@ const task: Task = {
 };
 
 describe("TaskStatusPopover", () => {
-  it("loads status options for the task project without relying on board state", () => {
+  it("loads status options for the task project without relying on board state", async () => {
     useGetColumns.mockReturnValue({
       data: [
         {
@@ -65,6 +60,8 @@ describe("TaskStatusPopover", () => {
           isFinal: false,
         },
       ],
+      isLoading: false,
+      isError: false,
     });
 
     render(
@@ -74,6 +71,46 @@ describe("TaskStatusPopover", () => {
     );
 
     expect(useGetColumns).toHaveBeenCalledWith("project-1");
-    expect(screen.getByRole("button", { name: /Ready/ })).toBeVisible();
+    expect(screen.queryByRole("button", { name: /Ready/ })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Status" }));
+
+    expect(await screen.findByRole("button", { name: /Ready/ })).toBeVisible();
+  });
+
+  it("shows loading feedback while status options are loading", async () => {
+    useGetColumns.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+    });
+
+    render(
+      <TaskStatusPopover task={task}>
+        <Button>Status</Button>
+      </TaskStatusPopover>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Status" }));
+
+    expect(await screen.findByText("common:empty.loading")).toBeVisible();
+  });
+
+  it("shows error feedback when status options fail to load", async () => {
+    useGetColumns.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    });
+
+    render(
+      <TaskStatusPopover task={task}>
+        <Button>Status</Button>
+      </TaskStatusPopover>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Status" }));
+
+    expect(await screen.findByText("common:error.title")).toBeVisible();
   });
 });
