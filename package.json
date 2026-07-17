@@ -62,7 +62,7 @@
     }
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.9.3",
+  "version": "2.9.4",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }
