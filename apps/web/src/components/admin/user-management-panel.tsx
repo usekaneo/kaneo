@@ -148,8 +148,13 @@ function UserManagementPanel() {
 
   const total = data?.total ?? 0;
   const pageCount = Math.max(1, Math.ceil(total / ADMIN_USERS_PAGE_SIZE));
-  const isSearchActive = debouncedSearch.trim().length > 0;
   const isBusy = isTogglingStatus || isDeleting;
+
+  useEffect(() => {
+    if (page >= pageCount) {
+      setPage(pageCount - 1);
+    }
+  }, [page, pageCount]);
 
   const handleEditSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -175,7 +180,7 @@ function UserManagementPanel() {
       setEditingUser(null);
     } catch (error) {
       toast.error(
-        error instanceof Error
+        error instanceof Error && error.message
           ? error.message
           : t("settings:adminUsers.toast.updateError"),
       );
@@ -206,7 +211,7 @@ function UserManagementPanel() {
       setPendingAction(null);
     } catch (error) {
       toast.error(
-        error instanceof Error
+        error instanceof Error && error.message
           ? error.message
           : t("settings:adminUsers.toast.actionError"),
       );
@@ -361,10 +366,12 @@ function UserManagementPanel() {
                         <TableCell className="ps-6 py-3">
                           <div className="flex items-center gap-3">
                             <Avatar className="size-9 border bg-muted">
-                              <AvatarImage
-                                src={managedUser.image ?? ""}
-                                alt={managedUser.name}
-                              />
+                              {managedUser.image ? (
+                                <AvatarImage
+                                  src={managedUser.image}
+                                  alt={managedUser.name}
+                                />
+                              ) : null}
                               <AvatarFallback className="text-xs font-medium">
                                 {getUserInitials(managedUser.name)}
                               </AvatarFallback>
@@ -507,7 +514,7 @@ function UserManagementPanel() {
           </Table>
         </div>
 
-        {!isSearchActive && !isLoading && !isError ? (
+        {!isLoading && !isError ? (
           <div className="flex items-center justify-between gap-4 border-t bg-sidebar/30 px-4 py-3">
             <p className="text-xs text-muted-foreground tabular-nums">
               {t("settings:adminUsers.pagination", {

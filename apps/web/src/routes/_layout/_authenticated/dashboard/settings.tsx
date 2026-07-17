@@ -7,9 +7,9 @@ import {
 import { ChevronLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
-import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
@@ -27,7 +27,7 @@ function SettingsLayout() {
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id ?? "",
   });
-  const { user } = useAuth();
+  const { data: hasAdminAccess } = useAdminAccess();
 
   const getActiveTab = () => {
     const pathname = location.pathname;
@@ -102,7 +102,7 @@ function SettingsLayout() {
                 >
                   {t("navigation:sidebar.projects")}
                 </TabsTrigger>
-                {user?.role === "admin" ? (
+                {hasAdminAccess ? (
                   <TabsTrigger
                     value="admin"
                     className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import { getAdminUsers } from "@/fetchers/admin/get-admin-users";
 import { authClient } from "@/lib/auth-client";
-import { fetchAdminUsers } from "./use-admin-users";
 
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
@@ -45,7 +45,7 @@ describe("fetchAdminUsers", () => {
       error: null,
     });
 
-    await expect(fetchAdminUsers("", 1)).resolves.toEqual({
+    await expect(getAdminUsers("", 1)).resolves.toEqual({
       users: [grace],
       total: 41,
     });
@@ -70,7 +70,7 @@ describe("fetchAdminUsers", () => {
         error: null,
       });
 
-    await expect(fetchAdminUsers("  a  ", 0)).resolves.toEqual({
+    await expect(getAdminUsers("  a  ", 0)).resolves.toEqual({
       users: [grace, ada],
       total: 2,
     });
@@ -86,5 +86,47 @@ describe("fetchAdminUsers", () => {
         searchField: "email",
       }),
     });
+  });
+
+  it("paginates complete search results beyond the first API batch", async () => {
+    const firstBatch = Array.from({ length: 100 }, (_, index) => ({
+      ...ada,
+      id: `user-${index}`,
+      email: `user-${index}@example.com`,
+    }));
+    const finalUser = {
+      ...ada,
+      id: "user-100",
+      email: "user-100@example.com",
+    };
+
+    listUsers
+      .mockResolvedValueOnce({
+        data: { users: firstBatch, total: 101 },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { users: [], total: 0 },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { users: [finalUser], total: 101 },
+        error: null,
+      });
+
+    await expect(getAdminUsers("user", 5)).resolves.toEqual({
+      users: [finalUser],
+      total: 101,
+    });
+    expect(listUsers).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({
+        query: expect.objectContaining({
+          searchField: "name",
+          limit: 100,
+          offset: 100,
+        }),
+      }),
+    );
   });
 });
