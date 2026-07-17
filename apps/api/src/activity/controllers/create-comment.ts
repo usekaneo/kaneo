@@ -1,7 +1,12 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { activityTable, taskTable, userTable } from "../../database/schema";
+import {
+  activityTable,
+  projectTable,
+  taskTable,
+  userTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import createNotification from "../../notification/controllers/create-notification";
 import { parseMentionIds } from "../../utils/parse-mentions";
@@ -33,8 +38,10 @@ async function createComment(taskId: string, userId: string, content: string) {
       assigneeId: taskTable.userId,
       projectId: taskTable.projectId,
       title: taskTable.title,
+      workspaceId: projectTable.workspaceId,
     })
     .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(eq(taskTable.id, taskId));
 
   if (task) {
@@ -54,6 +61,8 @@ async function createComment(taskId: string, userId: string, content: string) {
       eventData: {
         taskTitle: task?.title ?? null,
         mentionerName: user?.name ?? null,
+        projectId: task?.projectId ?? null,
+        workspaceId: task?.workspaceId ?? null,
       },
       resourceId: taskId,
       resourceType: "task",
@@ -72,6 +81,8 @@ async function createComment(taskId: string, userId: string, content: string) {
         taskTitle: task.title,
         commenterName: user?.name ?? null,
         commentPreview: content.slice(0, 160),
+        projectId: task.projectId,
+        workspaceId: task.workspaceId,
       },
       resourceId: taskId,
       resourceType: "task",
