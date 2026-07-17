@@ -75,7 +75,6 @@ import useAdminUsers, {
   type AdminUser,
 } from "@/hooks/queries/admin/use-admin-users";
 import { formatDateMedium } from "@/lib/format";
-import { toast } from "@/lib/toast";
 
 type PendingAction = {
   type: "deactivate" | "reactivate" | "delete";
@@ -176,14 +175,9 @@ function UserManagementPanel() {
               : "user"
             : editValues.role,
       });
-      toast.success(t("settings:adminUsers.toast.updated"));
       setEditingUser(null);
-    } catch (error) {
-      toast.error(
-        error instanceof Error && error.message
-          ? error.message
-          : t("settings:adminUsers.toast.updateError"),
-      );
+    } catch {
+      return;
     }
   };
 
@@ -193,28 +187,16 @@ function UserManagementPanel() {
     try {
       if (pendingAction.type === "delete") {
         await deleteUser(pendingAction.user.id);
-        toast.success(t("settings:adminUsers.toast.deleted"));
       } else {
         const deactivate = pendingAction.type === "deactivate";
         await toggleUserStatus({
           userId: pendingAction.user.id,
           deactivate,
         });
-        toast.success(
-          t(
-            deactivate
-              ? "settings:adminUsers.toast.deactivated"
-              : "settings:adminUsers.toast.reactivated",
-          ),
-        );
       }
       setPendingAction(null);
-    } catch (error) {
-      toast.error(
-        error instanceof Error && error.message
-          ? error.message
-          : t("settings:adminUsers.toast.actionError"),
-      );
+    } catch {
+      return;
     }
   };
 
