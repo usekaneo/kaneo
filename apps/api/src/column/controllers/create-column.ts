@@ -4,11 +4,12 @@ import db from "../../database";
 import { columnTable } from "../../database/schema";
 import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
 
-function toSlug(name: string): string {
+export function toSlug(name: string): string {
   return name
+    .normalize("NFKC")
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^\p{L}\p{M}\p{N}]+/gu, "-")
     .replace(/^-+|-+$/g, "");
 }
 
