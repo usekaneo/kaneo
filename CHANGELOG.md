@@ -1,3 +1,9 @@
+## [2.9.5](https://github.com/usekaneo/kaneo/compare/v2.9.4...v2.9.5) (2026-07-18)
+
+
+### Features
+
+* complete task reminders and notifications ([#1399](https://github.com/usekaneo/kaneo/issues/1399)) ([813dcb3](https://github.com/usekaneo/kaneo/commit/813dcb3631649664c88b05b414f373358c720651))
 ## [2.9.4](https://github.com/usekaneo/kaneo/compare/v2.9.3...v2.9.4) (2026-07-17)
 ## [2.9.3](https://github.com/usekaneo/kaneo/compare/v2.9.2...v2.9.3) (2026-07-17)
 
