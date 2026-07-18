@@ -77,8 +77,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition:
-      transition || "transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    transition: transition || "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
     touchAction: isDragging ? "none" : "auto",
   };
 
@@ -134,7 +133,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "border-b border-border/50 transition-all duration-200",
+        "border-b border-border/50 transition-colors duration-150",
         isDragging && "opacity-50",
         isTaskSelected &&
           "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",

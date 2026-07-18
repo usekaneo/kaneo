@@ -1330,7 +1330,7 @@
 		},
 		"events": {
 			"task_created": {
-				"title": "New Task Created",
+				"title": "New task created",
 				"content": "Task \"{{taskTitle}}\" was created"
 			},
 			"workspace_created": {

@@ -397,7 +397,7 @@ function RouteComponent() {
                     type="button"
                     title={c.label}
                     className={cn(
-                      "w-8 h-8 rounded-full border-2 transition-all",
+                      "w-8 h-8 rounded-full border-2 transition-[scale,border-color]",
                       newColor === c.value
                         ? "border-foreground scale-110"
                         : "border-transparent hover:scale-110",
@@ -486,7 +486,7 @@ function RouteComponent() {
                     type="button"
                     title={c.label}
                     className={cn(
-                      "w-8 h-8 rounded-full border-2 transition-all",
+                      "w-8 h-8 rounded-full border-2 transition-[scale,border-color]",
                       editColor === c.value
                         ? "border-foreground scale-110"
                         : "border-transparent hover:scale-110",

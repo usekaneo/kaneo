@@ -65,7 +65,7 @@ function CommandPalette() {
     modifierShortcuts: {
       [shortcuts.palette.prefix]: {
         [shortcuts.palette.open]: () => {
-          setOpen(true);
+          setOpen((prev) => !prev);
         },
       },
     },
@@ -245,7 +245,7 @@ function CommandPalette() {
   return (
     <>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandDialogPopup>
+        <CommandDialogPopup instant>
           <Command items={groupedItems}>
             <CommandInput
               placeholder={t("navigation:commandPalette.inputPlaceholder")}

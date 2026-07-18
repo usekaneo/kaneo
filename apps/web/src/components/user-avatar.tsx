@@ -61,9 +61,9 @@ export function UserAvatar() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 rounded-full p-0 hover:bg-sidebar-accent/70"
+          className="h-8 w-8 rounded-full p-0 hover:bg-sidebar-accent/70"
         >
-          <Avatar className="h-7 w-7">
+          <Avatar className="h-8 w-8">
             <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
             <AvatarFallback className="text-xs font-medium border border-border/30">
               {initials}
