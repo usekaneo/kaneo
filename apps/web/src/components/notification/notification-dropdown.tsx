@@ -11,7 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { KbdSequence } from "@/components/ui/kbd";
 import {
@@ -297,80 +296,88 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
             </Tooltip>
           </TooltipProvider>
 
-          <DropdownMenuContent align="end" className="w-80 p-0">
+          <DropdownMenuContent align="end" className="w-88 p-0">
             <div className="-m-1 overflow-hidden rounded-lg">
-              <div className="flex items-center justify-between px-3 py-2 border-b">
+              <div className="flex h-10 items-center justify-between border-border/50 border-b pr-2 pl-3">
                 <h3 className="font-medium text-sm">
                   {t("notifications:title")}
                 </h3>
                 {unreadNotifications.length > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {t("notifications:newCount", {
-                      count: unreadNotifications.length,
-                    })}
-                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    onClick={() => markAllAsRead()}
+                    className="text-muted-foreground text-xs hover:text-foreground"
+                  >
+                    {t("common:actions.markAllRead")}
+                  </Button>
                 )}
               </div>
 
-              <div className="relative max-h-96 overflow-y-auto">
+              <div className="relative max-h-80 overflow-y-auto p-1">
                 {!hasNotifications ? (
-                  <div className="p-6 text-center text-sm text-muted-foreground">
-                    <Bell className="mx-auto h-12 w-12 opacity-50 mb-2" />
-                    <p>{t("notifications:emptyTitle")}</p>
-                    <p className="text-xs mt-1">
+                  <div className="flex flex-col items-center gap-1 py-10 text-center">
+                    <Bell className="mb-1 size-5 text-muted-foreground/40" />
+                    <p className="text-muted-foreground text-sm">
+                      {t("notifications:emptyTitle")}
+                    </p>
+                    <p className="text-muted-foreground/60 text-xs">
                       {t("notifications:emptySubtitle")}
                     </p>
                   </div>
                 ) : (
-                  notifications.map((notification) => (
-                    <DropdownMenuItem
-                      key={notification.id}
-                      onClick={() => handleNotificationClick(notification)}
-                      className={cn(
-                        "px-3 py-3 border-b border-border/50 rounded-none cursor-pointer",
-                        !notification.isRead && "bg-accent/20",
-                      )}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-sm font-medium text-foreground">
+                  notifications.map((notification) => {
+                    const content = getNotificationContent(notification, t);
+                    return (
+                      <DropdownMenuItem
+                        key={notification.id}
+                        onClick={() => handleNotificationClick(notification)}
+                        className="cursor-pointer items-start rounded-md px-2.5 py-2"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={cn(
+                                "truncate text-sm",
+                                notification.isRead
+                                  ? "text-muted-foreground"
+                                  : "font-medium text-foreground",
+                              )}
+                            >
                               {getNotificationTitle(notification, t)}
-                            </h4>
+                            </span>
+                            <span className="ml-auto shrink-0 text-[11px] text-muted-foreground/70">
+                              {formatRelativeTime(notification.createdAt)}
+                            </span>
                             {!notification.isRead && (
-                              <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
+                              <span className="size-1.5 shrink-0 rounded-full bg-primary" />
                             )}
                           </div>
-                          {getNotificationContent(notification, t) && (
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {getNotificationContent(notification, t)}
+                          {content && (
+                            <p
+                              className={cn(
+                                "mt-0.5 line-clamp-1 text-xs",
+                                notification.isRead
+                                  ? "text-muted-foreground/60"
+                                  : "text-muted-foreground",
+                              )}
+                            >
+                              {content}
                             </p>
                           )}
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {formatRelativeTime(notification.createdAt)}
-                          </p>
                         </div>
-                      </div>
-                    </DropdownMenuItem>
-                  ))
+                      </DropdownMenuItem>
+                    );
+                  })
                 )}
               </div>
               {hasNotifications && (
-                <div className="border-t border-border p-2 flex gap-1">
+                <div className="border-border/50 border-t p-1">
                   <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={() => markAllAsRead()}
-                    disabled={unreadNotifications.length === 0}
-                    className="flex-1 text-xs"
-                  >
-                    {t("common:actions.markAllRead")}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                    size="xs"
                     onClick={() => setShowClearDialog(true)}
-                    className="flex-1 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="w-full justify-center text-muted-foreground text-xs hover:text-destructive"
                   >
                     {t("notifications:clearAll")}
                   </Button>
