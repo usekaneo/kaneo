@@ -731,7 +731,12 @@
 				"taskPriorityChanged": "Prioriteitswijzigingen",
 				"taskTitleChanged": "Titelwijzigingen",
 				"taskDescriptionChanged": "Beschrijvingswijzigingen",
-				"taskCommentCreated": "Nieuwe reacties"
+				"taskCommentCreated": "Nieuwe reacties",
+				"taskDeleted": "Taak verwijderd",
+				"taskMoved": "Taak verplaatst",
+				"taskDueDateChanged": "Einddatum gewijzigd",
+				"taskAssigneeChanged": "Toewijzing gewijzigd",
+				"taskUnassigned": "Toewijzing verwijderd"
 			},
 			"connect": "Webhook verbinden",
 			"saveChanges": "Wijzigingen opslaan",

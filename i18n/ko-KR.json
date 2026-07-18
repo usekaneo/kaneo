@@ -899,7 +899,12 @@
 				"taskPriorityChanged": "우선순위 변경",
 				"taskTitleChanged": "제목 변경",
 				"taskDescriptionChanged": "설명 변경",
-				"taskCommentCreated": "새 댓글"
+				"taskCommentCreated": "새 댓글",
+				"taskDeleted": "작업 삭제",
+				"taskMoved": "작업 이동",
+				"taskDueDateChanged": "마감일 변경",
+				"taskAssigneeChanged": "담당자 변경",
+				"taskUnassigned": "할당 해제"
 			},
 			"connect": "웹훅 연결",
 			"saveChanges": "변경사항 저장",

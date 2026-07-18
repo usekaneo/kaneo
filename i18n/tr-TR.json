@@ -900,7 +900,12 @@
 				"taskPriorityChanged": "Öncelik değişiklikleri",
 				"taskTitleChanged": "Başlık değişiklikleri",
 				"taskDescriptionChanged": "Açıklama değişiklikleri",
-				"taskCommentCreated": "Yeni yorumlar"
+				"taskCommentCreated": "Yeni yorumlar",
+				"taskDeleted": "Talep silindi",
+				"taskMoved": "Talep taşındı",
+				"taskDueDateChanged": "Bitiş tarihi değişti",
+				"taskAssigneeChanged": "Atanan kişi değişti",
+				"taskUnassigned": "Atama kaldırıldı"
 			},
 			"connect": "Webhook bağla",
 			"saveChanges": "Değişiklikleri kaydet",

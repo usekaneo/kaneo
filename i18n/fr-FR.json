@@ -901,7 +901,12 @@
 				"taskPriorityChanged": "Changements de priorité",
 				"taskTitleChanged": "Changements de titre",
 				"taskDescriptionChanged": "Changements de description",
-				"taskCommentCreated": "Nouveaux commentaires"
+				"taskCommentCreated": "Nouveaux commentaires",
+				"taskDeleted": "Tâche supprimée",
+				"taskMoved": "Tâche déplacée",
+				"taskDueDateChanged": "Date d'échéance modifiée",
+				"taskAssigneeChanged": "Assigné modifié",
+				"taskUnassigned": "Tâche désassignée"
 			},
 			"connect": "Connecter le webhook",
 			"saveChanges": "Enregistrer les modifications",

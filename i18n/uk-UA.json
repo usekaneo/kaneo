@@ -897,7 +897,12 @@
 				"taskPriorityChanged": "Зміни пріоритету",
 				"taskTitleChanged": "Зміни назви",
 				"taskDescriptionChanged": "Зміни опису",
-				"taskCommentCreated": "Нові коментарі"
+				"taskCommentCreated": "Нові коментарі",
+				"taskDeleted": "Завдання видалено",
+				"taskMoved": "Завдання переміщено",
+				"taskDueDateChanged": "Змінено дату завершення",
+				"taskAssigneeChanged": "Змінено виконавця",
+				"taskUnassigned": "Призначення знято"
 			},
 			"connect": "Підключити вебхук",
 			"saveChanges": "Зберегти зміни",
