@@ -245,7 +245,7 @@ function CommandPalette() {
   return (
     <>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandDialogPopup>
+        <CommandDialogPopup instant>
           <Command items={groupedItems}>
             <CommandInput
               placeholder={t("navigation:commandPalette.inputPlaceholder")}

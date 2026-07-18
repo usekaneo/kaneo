@@ -181,7 +181,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
           {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
           <div
             onClick={handleTaskCardClick}
-            className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-all duration-200 ease-out ${
+            className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98] ${
               disableDragDrop ? "cursor-default" : "cursor-move"
             } ${
               isDragging

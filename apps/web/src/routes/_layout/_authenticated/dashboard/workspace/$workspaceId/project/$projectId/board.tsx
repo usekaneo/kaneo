@@ -181,7 +181,7 @@ function RouteComponent() {
 
   const boardHeaderSearch = isBoardSearchMounted ? (
     <div
-      className={`relative w-[240px] origin-top transition-all duration-180 ease-out ${
+      className={`relative w-[240px] origin-top transition-[translate,scale,opacity] duration-180 ease-out ${
         isBoardSearchVisible
           ? "translate-y-0 scale-y-100 opacity-100"
           : "pointer-events-none -translate-y-1 scale-y-95 opacity-0"

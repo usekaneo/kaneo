@@ -167,9 +167,6 @@ export default function TaskPropertiesSidebar({
                     />
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -357,9 +354,6 @@ export default function TaskPropertiesSidebar({
                       />
                     </TooltipContent>
                   </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -549,9 +543,6 @@ export default function TaskPropertiesSidebar({
                         />
                       </TooltipContent>
                     </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
