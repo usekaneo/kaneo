@@ -152,6 +152,7 @@
 			"githubError": "Failed to sign in with GitHub",
 			"discordError": "Failed to sign in with Discord",
 			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator.",
 				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
 			}
@@ -1858,6 +1859,16 @@
 		}
 	},
 	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
+			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"title": "Join {{workspaceName}}",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"cta": "Accept invitation",
+			"sameEmail": "You can accept with the same email that received this message.",
+			"ignore": "If this wasn't expected, you can safely ignore this email.",
+			"footer": "Kaneo workspace invitation"
+		},
 		"pageTitle": "Invitations",
 		"pendingInvitations": "Pending Invitations",
 		"acceptSubtitle": "Accept invitations to join workspaces",
@@ -1939,7 +1950,12 @@
 		},
 		"members": {
 			"pageTitle": "Members",
-			"inviteMember": "Invite member"
+			"inviteMember": "Invite member",
+			"you": "You"
+		},
+		"invitations": {
+			"pendingBadge": "pending",
+			"expires": "Expires {{date}}"
 		},
 		"inviteModal": {
 			"title": "Invite Team Member",

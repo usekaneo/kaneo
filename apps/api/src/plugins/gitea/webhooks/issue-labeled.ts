@@ -112,7 +112,10 @@ async function syncGiteaLabelsToTask(
   }
 }
 
-export async function handleGiteaIssueLabeled(payload: IssueLabeledPayload) {
+export async function handleGiteaIssueLabeled(
+  payload: IssueLabeledPayload,
+  integrationId?: string,
+) {
   const { issue, repository, label: addedLabel } = payload;
 
   const baseUrl = baseUrlFromRepositoryHtmlUrl(repository.html_url);
@@ -123,6 +126,7 @@ export async function handleGiteaIssueLabeled(payload: IssueLabeledPayload) {
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   for (const integration of integrations) {

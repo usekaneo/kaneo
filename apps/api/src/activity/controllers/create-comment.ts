@@ -45,7 +45,7 @@ async function createComment(taskId: string, userId: string, content: string) {
     .where(eq(taskTable.id, taskId));
 
   if (task) {
-    await publishEvent("task.comment_created", {
+    await publishEvent("comment.created", {
       ...activity,
       comment: `**${user?.name}** commented:\n> ${content}`,
       projectId: task.projectId,

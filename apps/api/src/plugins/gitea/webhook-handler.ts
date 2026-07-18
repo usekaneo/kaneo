@@ -115,7 +115,7 @@ export async function handleGiteaWebhookRequest(
   }
 
   try {
-    await dispatchGiteaEvent(event, payload);
+    await dispatchGiteaEvent(event, payload, integration.id);
     return { success: true };
   } catch (error) {
     console.error("[Gitea Webhook] Handler error:", error);
@@ -129,13 +129,14 @@ export async function handleGiteaWebhookRequest(
 async function dispatchGiteaEvent(
   event: string,
   payload: Record<string, unknown>,
+  integrationId: string,
 ) {
   console.log(`[Gitea Webhook] Event: ${event}`);
 
   switch (event) {
     case "push":
       if (isPushPayload(payload)) {
-        await handleGiteaPush(payload);
+        await handleGiteaPush(payload, integrationId);
       }
       return;
     case "pull_request": {
@@ -146,11 +147,12 @@ async function dispatchGiteaEvent(
         action === "ready_for_review"
       ) {
         if (isPullRequestPayload(payload)) {
-          await handleGiteaPullRequestOpened(payload);
+          await handleGiteaPullRequestOpened(payload, integrationId);
         }
       } else if (action === "closed" && isPullRequestPayload(payload)) {
         await handleGiteaPullRequestClosed(
           payload as unknown as GiteaPullRequestClosedPayload,
+          integrationId,
         );
       }
       return;
@@ -162,40 +164,45 @@ async function dispatchGiteaEvent(
         (action === "opened" || action === "created") &&
         isIssuePayload(payload)
       ) {
-        await handleGiteaIssueOpened(payload);
+        await handleGiteaIssueOpened(payload, integrationId);
       } else if (action === "reopened" && isIssuePayload(payload)) {
         await handleGiteaIssueReopened(
           payload as unknown as GiteaIssueReopenedPayload,
+          integrationId,
         );
       } else if (action === "closed" && isIssuePayload(payload)) {
         await handleGiteaIssueClosed(
           payload as unknown as GiteaIssueClosedPayload,
+          integrationId,
         );
       } else if (action === "edited" && isIssuePayload(payload)) {
-        await handleGiteaIssueEdited(payload);
+        await handleGiteaIssueEdited(payload, integrationId);
       } else if (
         isIssuePayload(payload) &&
         (action === "labeled" ||
           action === "unlabeled" ||
           action === "label_updated")
       ) {
-        await handleGiteaIssueLabeled({
-          ...payload,
-          action: action ?? "",
-        });
+        await handleGiteaIssueLabeled(
+          {
+            ...payload,
+            action: action ?? "",
+          },
+          integrationId,
+        );
       }
       return;
     }
     case "issue_comment": {
       const action = payload.action as string | undefined;
       if (action === "created" && isIssueCommentPayload(payload)) {
-        await handleGiteaIssueCommentCreated(payload);
+        await handleGiteaIssueCommentCreated(payload, integrationId);
       }
       return;
     }
     case "issue_label": {
       if (isLabelPayload(payload)) {
-        await handleGiteaLabelCreated(payload);
+        await handleGiteaLabelCreated(payload, integrationId);
       }
       return;
     }
