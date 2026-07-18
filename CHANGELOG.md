@@ -1,3 +1,9 @@
+## [2.9.7](https://github.com/usekaneo/kaneo/compare/v2.9.6...v2.9.7) (2026-07-18)
+
+
+### Features
+
+* **web:** motion and fluidity polish pass ([#1407](https://github.com/usekaneo/kaneo/issues/1407)) ([63e44cc](https://github.com/usekaneo/kaneo/commit/63e44ccff707e1add078bfe9976980f6fc362658))
 ## [2.9.6](https://github.com/usekaneo/kaneo/compare/v2.9.5...v2.9.6) (2026-07-18)
 ## [2.9.5](https://github.com/usekaneo/kaneo/compare/v2.9.4...v2.9.5) (2026-07-18)
 
