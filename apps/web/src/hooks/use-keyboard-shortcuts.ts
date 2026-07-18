@@ -176,7 +176,7 @@ export function KeyboardShortcutsProvider({
 
       // Editors own their chords (cmd+b bold in TipTap and friends); only
       // the palette toggle may pass while typing.
-      if (isEditingText && key !== "k") {
+      if (isEditingText && (key !== "k" || event.altKey || event.shiftKey)) {
         return;
       }
 
