@@ -263,14 +263,10 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="relative h-9 w-9 p-0"
-                  >
+                  <Button variant="ghost" size="icon" className="relative">
                     <Bell className="h-4 w-4" />
                     {unreadNotifications.length > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-0.5 text-[10px] font-bold leading-none text-white transition-[scale,opacity] duration-200 ease-out starting:scale-75 starting:opacity-0 motion-reduce:starting:scale-100">
+                      <span className="absolute -top-0.5 -right-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-semibold leading-none text-white ring-2 ring-sidebar transition-[scale,opacity] duration-200 ease-out starting:scale-75 starting:opacity-0 motion-reduce:starting:scale-100">
                         {unreadNotifications.length > 99
                           ? "99+"
                           : unreadNotifications.length}
@@ -306,7 +302,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                   <DropdownMenuItem
                     closeOnClick={false}
                     onClick={() => markAllAsRead()}
-                    className="w-auto cursor-pointer rounded-md px-2 py-1 text-muted-foreground text-xs data-highlighted:text-foreground"
+                    className="min-h-0 w-auto cursor-pointer rounded-md px-1.5 py-1 text-muted-foreground text-xs sm:min-h-0 sm:text-xs data-highlighted:text-foreground"
                   >
                     {t("common:actions.markAllRead")}
                   </DropdownMenuItem>
@@ -337,7 +333,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                           <div className="flex items-center gap-2">
                             <span
                               className={cn(
-                                "truncate text-sm",
+                                "truncate text-sm transition-colors duration-150",
                                 notification.isRead
                                   ? "text-muted-foreground"
                                   : "font-medium text-foreground",
@@ -349,13 +345,13 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                               {formatRelativeTime(notification.createdAt)}
                             </span>
                             {!notification.isRead && (
-                              <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+                              <span className="size-1.5 shrink-0 rounded-full bg-info" />
                             )}
                           </div>
                           {content && (
                             <p
                               className={cn(
-                                "mt-0.5 line-clamp-1 text-xs",
+                                "mt-0.5 line-clamp-1 text-xs transition-colors duration-150",
                                 notification.isRead
                                   ? "text-muted-foreground/60"
                                   : "text-muted-foreground",
@@ -374,7 +370,7 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                 <div className="border-border/50 border-t p-1">
                   <DropdownMenuItem
                     onClick={() => setShowClearDialog(true)}
-                    className="cursor-pointer justify-center rounded-md px-2 py-1.5 text-muted-foreground text-xs data-highlighted:text-destructive"
+                    className="min-h-0 cursor-pointer justify-center rounded-md px-2 py-1 text-muted-foreground/70 text-xs sm:min-h-0 sm:text-xs data-highlighted:text-destructive"
                   >
                     {t("notifications:clearAll")}
                   </DropdownMenuItem>
