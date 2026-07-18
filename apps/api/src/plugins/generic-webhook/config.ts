@@ -95,6 +95,7 @@ export const genericWebhookEventKeys = [
   "taskTitleChanged",
   "taskDescriptionChanged",
   "taskCommentCreated",
+  "dueDateReminder",
 ] as const;
 
 export type GenericWebhookEventKey = (typeof genericWebhookEventKeys)[number];
@@ -133,7 +134,11 @@ export const genericWebhookConfigSchema = v.object({
       taskTitleChanged: v.optional(v.boolean()),
       taskDescriptionChanged: v.optional(v.boolean()),
       taskCommentCreated: v.optional(v.boolean()),
+      dueDateReminder: v.optional(v.boolean()),
     }),
+  ),
+  dueDateReminderLeadTimeMinutes: v.optional(
+    v.pipe(v.number(), v.integer(), v.minValue(5), v.maxValue(43_200)),
   ),
 });
 
@@ -151,6 +156,7 @@ export const defaultGenericWebhookEvents: Record<
   taskTitleChanged: false,
   taskDescriptionChanged: false,
   taskCommentCreated: true,
+  dueDateReminder: false,
 };
 
 export function normalizeGenericWebhookConfig(
@@ -170,6 +176,8 @@ export function normalizeGenericWebhookConfig(
           failureCount: config.health.failureCount ?? 0,
         }
       : undefined,
+    dueDateReminderLeadTimeMinutes:
+      config.dueDateReminderLeadTimeMinutes ?? 1440,
     events: {
       ...defaultGenericWebhookEvents,
       ...(config.events ?? {}),

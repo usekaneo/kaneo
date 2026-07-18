@@ -149,9 +149,9 @@ async function sendEvent(
   projectId: string,
   userId: string | null,
   data: Record<string, unknown>,
-): Promise<void> {
+): Promise<boolean> {
   const task = await getTaskData(taskId, projectId);
-  if (!task) return;
+  if (!task) return false;
 
   const actor = await getActor(userId);
   const attempt = {
@@ -199,6 +199,7 @@ async function sendEvent(
         lastAttempt: attempt,
       },
     }));
+    return true;
   } catch (error) {
     const message =
       error instanceof Error ? (error.stack ?? error.message) : String(error);
@@ -221,7 +222,31 @@ async function sendEvent(
       projectId,
       webhookUrl: config.webhookUrl,
     });
+    return false;
   }
+}
+
+export async function sendDueDateReminder(
+  config: GenericWebhookConfig,
+  taskId: string,
+  projectId: string,
+  leadTimeMinutes: number,
+  dueDate: Date,
+): Promise<boolean> {
+  const normalizedConfig = normalizeGenericWebhookConfig(config);
+  if (!isEnabled(normalizedConfig, "dueDateReminder")) return false;
+
+  return sendEvent(
+    normalizedConfig,
+    "task.due_date_reminder",
+    taskId,
+    projectId,
+    null,
+    {
+      dueDate: dueDate.toISOString(),
+      leadTimeMinutes,
+    },
+  );
 }
 
 export async function handleTaskCreated(

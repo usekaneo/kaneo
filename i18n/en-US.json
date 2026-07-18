@@ -372,6 +372,20 @@
 			"workspaceRulesTitle": "Workspace delivery rules",
 			"workspaceRulesDescription": "Reuse your global channels, then decide which workspaces and projects are allowed to send account notifications.",
 			"workspaceCardHint": "Choose which channels this workspace can use for account notifications.",
+			"workspaceEnabledLabel": "Enable notifications for {{workspaceName}}",
+			"eventPreferencesTitle": "Notify me about",
+			"eventPreferencesDescription": "Choose which task events create in-app notifications and can be delivered to your connected channels.",
+			"eventTaskAssignments": "Task assignments",
+			"eventComments": "Comments and mentions",
+			"eventCommentsHint": "Includes new comments on tasks assigned to you and direct @mentions.",
+			"eventStatusChanges": "Task status changes",
+			"eventDueDateReminders": "Due-date reminders",
+			"reminderLeadTimeLabel": "Remind me before the due date",
+			"reminderLeadTimeHint": "Between 1 hour and 30 days before. Overdue notifications are sent separately.",
+			"reminderLeadTimeUnitHours": "Hours",
+			"reminderLeadTimeUnitDays": "Days",
+			"reminderLeadTimeInvalid": "Enter a whole number between 1 and {{max}}.",
+			"saveEventPreferences": "Save notification types",
 			"workspaceCardLabelEmail": "Email",
 			"workspaceCardLabelNtfy": "ntfy",
 			"workspaceCardLabelGotify": "Gotify",
@@ -1063,8 +1077,10 @@
 				"taskPriorityChanged": "Priority changes",
 				"taskTitleChanged": "Title changes",
 				"taskDescriptionChanged": "Description changes",
-				"taskCommentCreated": "New comments"
+				"taskCommentCreated": "New comments",
+				"dueDateReminder": "Due-date reminders"
 			},
+			"reminderLeadTimeLabel": "Send the webhook this many hours before",
 			"connect": "Connect webhook",
 			"saveChanges": "Save changes",
 			"disconnect": "Disconnect"
@@ -1304,6 +1320,14 @@
 		"shortcuts": {
 			"open": "Open notifications"
 		},
+		"reminderLeadTime": {
+			"minutes_one": "{{count}} minute",
+			"minutes_other": "{{count}} minutes",
+			"hours_one": "{{count}} hour",
+			"hours_other": "{{count}} hours",
+			"days_one": "{{count}} day",
+			"days_other": "{{count}} days"
+		},
 		"events": {
 			"task_created": {
 				"title": "New Task Created",
@@ -1324,6 +1348,18 @@
 			"task_mention": {
 				"title": "{{mentionerName}} mentioned you",
 				"content": "{{mentionerName}} mentioned you in: {{taskTitle}}"
+			},
+			"task_comment": {
+				"title": "{{commenterName}} commented on your task",
+				"content": "New comment on {{taskTitle}}: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "Task due soon",
+				"content": "{{taskTitle}} is due in {{leadTime}}"
+			},
+			"task_overdue": {
+				"title": "Task overdue",
+				"content": "{{taskTitle}} is past its due date"
 			},
 			"time_entry_created": {
 				"title": "Time tracking started",

@@ -24,6 +24,11 @@ export async function migrateNotificationPreferencesSchema() {
         "webhook_enabled" boolean DEFAULT false NOT NULL,
         "webhook_url" text,
         "webhook_secret" text,
+        "task_assignment_enabled" boolean DEFAULT true NOT NULL,
+        "task_comment_enabled" boolean DEFAULT true NOT NULL,
+        "task_status_change_enabled" boolean DEFAULT true NOT NULL,
+        "due_date_reminder_enabled" boolean DEFAULT true NOT NULL,
+        "due_date_reminder_lead_time_minutes" integer DEFAULT 1440 NOT NULL,
         "created_at" timestamp DEFAULT now() NOT NULL,
         "updated_at" timestamp DEFAULT now() NOT NULL
       );
@@ -42,6 +47,11 @@ export async function migrateNotificationPreferencesSchema() {
       ADD COLUMN IF NOT EXISTS "webhook_enabled" boolean DEFAULT false NOT NULL,
       ADD COLUMN IF NOT EXISTS "webhook_url" text,
       ADD COLUMN IF NOT EXISTS "webhook_secret" text,
+      ADD COLUMN IF NOT EXISTS "task_assignment_enabled" boolean DEFAULT true NOT NULL,
+      ADD COLUMN IF NOT EXISTS "task_comment_enabled" boolean DEFAULT true NOT NULL,
+      ADD COLUMN IF NOT EXISTS "task_status_change_enabled" boolean DEFAULT true NOT NULL,
+      ADD COLUMN IF NOT EXISTS "due_date_reminder_enabled" boolean DEFAULT true NOT NULL,
+      ADD COLUMN IF NOT EXISTS "due_date_reminder_lead_time_minutes" integer DEFAULT 1440 NOT NULL,
       ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT now() NOT NULL,
       ADD COLUMN IF NOT EXISTS "updated_at" timestamp DEFAULT now() NOT NULL;
     `);

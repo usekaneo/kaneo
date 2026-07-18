@@ -232,6 +232,13 @@
 			"when": 1783761933880,
 			"tag": "0032_unify_task_comments",
 			"breakpoints": true
+		},
+		{
+			"idx": 33,
+			"version": "7",
+			"when": 1784374645880,
+			"tag": "0033_public_patriot",
+			"breakpoints": true
 		}
 	]
 }

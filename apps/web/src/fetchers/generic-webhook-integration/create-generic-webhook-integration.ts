@@ -11,7 +11,9 @@ export type CreateGenericWebhookIntegrationRequest = {
     taskTitleChanged?: boolean;
     taskDescriptionChanged?: boolean;
     taskCommentCreated?: boolean;
+    dueDateReminder?: boolean;
   };
+  dueDateReminderLeadTimeMinutes?: number;
 };
 
 async function createGenericWebhookIntegration(
