@@ -111,7 +111,12 @@ async function processReminder(
       .returning();
 
     if (!inserted) return;
-  } catch {
+  } catch (error) {
+    console.error("Failed to record due date reminder", {
+      taskId: task.id,
+      reminderType,
+      error,
+    });
     return;
   }
 

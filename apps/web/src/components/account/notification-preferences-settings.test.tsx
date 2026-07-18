@@ -84,7 +84,7 @@ describe("NotificationPreferencesSettings", () => {
     );
     fireEvent.change(
       screen.getByLabelText("settings:notificationsPage.reminderLeadTimeLabel"),
-      { target: { value: "48" } },
+      { target: { value: "2" } },
     );
     fireEvent.click(
       screen.getByRole("button", {
@@ -101,6 +101,24 @@ describe("NotificationPreferencesSettings", () => {
         dueDateReminderLeadTimeMinutes: 2880,
       }),
     );
+  });
+
+  it("blocks saving a cleared reminder lead time", () => {
+    render(<NotificationPreferencesSettings />);
+
+    fireEvent.change(
+      screen.getByLabelText("settings:notificationsPage.reminderLeadTimeLabel"),
+      { target: { value: "" } },
+    );
+
+    expect(
+      screen.getByText("settings:notificationsPage.reminderLeadTimeInvalid"),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: "settings:notificationsPage.saveEventPreferences",
+      }),
+    ).toHaveProperty("disabled", true);
   });
 
   it("saves disabled reminders without validating their retained lead time", async () => {
