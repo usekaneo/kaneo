@@ -65,7 +65,7 @@ function CommandPalette() {
     modifierShortcuts: {
       [shortcuts.palette.prefix]: {
         [shortcuts.palette.open]: () => {
-          setOpen(true);
+          setOpen((prev) => !prev);
         },
       },
     },
