@@ -9,6 +9,7 @@ import useWorkspaceRoles from "@/hooks/queries/workspace/use-workspace-roles";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 import type {
   WorkspaceUser,
@@ -75,16 +76,6 @@ function toneFor(value: string): string {
     hash |= 0;
   }
   return AVATAR_TONES[Math.abs(hash) % AVATAR_TONES.length];
-}
-
-function initials(value: string | null | undefined): string {
-  if (!value) return "?";
-  return value
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
 }
 
 function capitalize(value: string): string {
@@ -219,7 +210,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                         alt={member.user.name ?? ""}
                       />
                       <AvatarFallback className="bg-transparent text-[11px] font-medium">
-                        {initials(member.user.name)}
+                        {getInitials(member.user.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">

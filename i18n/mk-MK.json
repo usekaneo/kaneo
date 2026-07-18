@@ -150,7 +150,10 @@
 			"oidcError": "Неуспешна најава со OIDC",
 			"googleError": "Неуспешна најава со Google",
 			"githubError": "Неуспешна најава со GitHub",
-			"discordError": "Неуспешна најава со Discord"
+			"discordError": "Неуспешна најава со Discord",
+			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
+			}
 		},
 		"providers": {
 			"google": "Google",
@@ -1652,6 +1655,16 @@
 		}
 	},
 	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
+			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"title": "Join {{workspaceName}}",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"cta": "Accept invitation",
+			"sameEmail": "You can accept with the same email that received this message.",
+			"ignore": "If this wasn't expected, you can safely ignore this email.",
+			"footer": "Kaneo workspace invitation"
+		},
 		"pageTitle": "Покани",
 		"pendingInvitations": "Покани на чекање",
 		"acceptSubtitle": "Прифати покани за приклучување кон работни простори",

@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import useUpdateUserProfile from "@/hooks/mutations/use-update-user-profile";
+import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
@@ -197,7 +198,7 @@ function RouteComponent() {
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
                 <AvatarFallback className="text-xs font-medium border border-border/30">
-                  {user?.name?.charAt(0).toUpperCase()}
+                  {getInitials(user?.name)}
                 </AvatarFallback>
               </Avatar>
             </div>

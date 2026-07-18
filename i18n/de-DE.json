@@ -150,7 +150,10 @@
 			"oidcError": "Anmeldung mit OIDC fehlgeschlagen",
 			"googleError": "Anmeldung mit Google fehlgeschlagen",
 			"githubError": "Anmeldung mit GitHub fehlgeschlagen",
-			"discordError": "Anmeldung mit Discord fehlgeschlagen"
+			"discordError": "Anmeldung mit Discord fehlgeschlagen",
+			"errors": {
+				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
+			}
 		},
 		"providers": {
 			"google": "Google",
@@ -447,6 +450,20 @@
 			"workspaceRulesTitle": "Zustellregeln für Arbeitsbereiche",
 			"workspaceRulesDescription": "Nutze deine globalen Kanäle erneut und lege fest, welche Arbeitsbereiche und Projekte Kontobenachrichtigungen senden dürfen.",
 			"workspaceCardHint": "Wähle, welche Kanäle dieser Arbeitsbereich für Kontobenachrichtigungen nutzen darf.",
+			"workspaceEnabledLabel": "Benachrichtigungen für {{workspaceName}} aktivieren",
+			"eventPreferencesTitle": "Benachrichtige mich über",
+			"eventPreferencesDescription": "Wähle aus, welche Aufgabenereignisse Benachrichtigungen in Kaneo erstellen und über verbundene Kanäle zugestellt werden können.",
+			"eventTaskAssignments": "Aufgabenzuweisungen",
+			"eventComments": "Kommentare und Erwähnungen",
+			"eventCommentsHint": "Umfasst neue Kommentare zu dir zugewiesenen Aufgaben und direkte @Erwähnungen.",
+			"eventStatusChanges": "Statusänderungen von Aufgaben",
+			"eventDueDateReminders": "Erinnerungen an Fälligkeitstermine",
+			"reminderLeadTimeLabel": "Vor dem Fälligkeitsdatum erinnern",
+			"reminderLeadTimeHint": "Zwischen 1 Stunde und 30 Tagen vorher. Überfällige Aufgaben werden separat gemeldet.",
+			"reminderLeadTimeUnitHours": "Stunden",
+			"reminderLeadTimeUnitDays": "Tage",
+			"reminderLeadTimeInvalid": "Gib eine ganze Zahl zwischen 1 und {{max}} ein.",
+			"saveEventPreferences": "Benachrichtigungstypen speichern",
 			"workspaceCardLabelEmail": "E-Mail",
 			"workspaceCardLabelNtfy": "ntfy",
 			"workspaceCardLabelGotify": "Gotify",
@@ -976,8 +993,10 @@
 				"taskPriorityChanged": "Prioritätsänderungen",
 				"taskTitleChanged": "Titeländerungen",
 				"taskDescriptionChanged": "Beschreibungsänderungen",
-				"taskCommentCreated": "Neue Kommentare"
+				"taskCommentCreated": "Neue Kommentare",
+				"dueDateReminder": "Erinnerungen an Fälligkeitstermine"
 			},
+			"reminderLeadTimeLabel": "Webhook so viele Stunden vorher senden",
 			"connect": "Webhook verbinden",
 			"saveChanges": "Änderungen speichern",
 			"disconnect": "Trennen"
@@ -1217,6 +1236,14 @@
 		"shortcuts": {
 			"open": "Benachrichtigungen öffnen"
 		},
+		"reminderLeadTime": {
+			"minutes_one": "{{count}} Minute",
+			"minutes_other": "{{count}} Minuten",
+			"hours_one": "{{count}} Stunde",
+			"hours_other": "{{count}} Stunden",
+			"days_one": "{{count}} Tag",
+			"days_other": "{{count}} Tage"
+		},
 		"events": {
 			"task_created": {
 				"title": "Neue Aufgabe erstellt",
@@ -1233,6 +1260,22 @@
 			"task_assignee_changed": {
 				"title": "Aufgabe wurde dir zugewiesen",
 				"content": "Dir wurde die Aufgabe \"{{taskTitle}}\" zugewiesen"
+			},
+			"task_mention": {
+				"title": "{{mentionerName}} hat dich erwähnt",
+				"content": "{{mentionerName}} hat dich in „{{taskTitle}}“ erwähnt"
+			},
+			"task_comment": {
+				"title": "{{commenterName}} hat deine Aufgabe kommentiert",
+				"content": "Neuer Kommentar zu „{{taskTitle}}“: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "Aufgabe bald fällig",
+				"content": "„{{taskTitle}}“ ist in {{leadTime}} fällig"
+			},
+			"task_overdue": {
+				"title": "Aufgabe überfällig",
+				"content": "„{{taskTitle}}“ ist überfällig"
 			},
 			"time_entry_created": {
 				"title": "Zeiterfassung gestartet",
@@ -1734,6 +1777,16 @@
 		}
 	},
 	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} hat dich eingeladen, {{workspaceName}} auf Kaneo beizutreten",
+			"preview": "Du wurdest zu {{workspaceName}} auf Kaneo eingeladen",
+			"title": "{{workspaceName}} beitreten",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) hat dich eingeladen, in Kaneo zusammenzuarbeiten.",
+			"cta": "Einladung annehmen",
+			"sameEmail": "Du kannst die Einladung mit derselben E-Mail-Adresse annehmen, die diese Nachricht erhalten hat.",
+			"ignore": "Falls du damit nicht gerechnet hast, kannst du diese E-Mail einfach ignorieren.",
+			"footer": "Kaneo Workspace-Einladung"
+		},
 		"pageTitle": "Einladungen",
 		"pendingInvitations": "Ausstehende Einladungen",
 		"acceptSubtitle": "Nimm Einladungen an, um Workspaces beizutreten",

@@ -12,7 +12,9 @@ export type UpdateGenericWebhookIntegrationRequest = {
     taskTitleChanged?: boolean;
     taskDescriptionChanged?: boolean;
     taskCommentCreated?: boolean;
+    dueDateReminder?: boolean;
   };
+  dueDateReminderLeadTimeMinutes?: number;
 };
 
 async function updateGenericWebhookIntegration(

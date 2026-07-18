@@ -124,7 +124,7 @@ export function initializeEventSubscriptions(): void {
     userId: string;
     comment: string;
     projectId: string;
-  }>("task.comment_created", async (data) => {
+  }>("comment.created", async (data) => {
     await broadcastTaskCommentCreated({
       taskId: data.taskId,
       projectId: data.projectId,
@@ -290,10 +290,7 @@ export async function broadcastTaskCommentCreated(
     try {
       await plugin.onTaskCommentCreated(event, context);
     } catch (error) {
-      console.error(
-        `Plugin ${plugin.type} error on task.comment_created:`,
-        error,
-      );
+      console.error(`Plugin ${plugin.type} error on comment.created:`, error);
     }
   }
 }
