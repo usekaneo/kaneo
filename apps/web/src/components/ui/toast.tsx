@@ -139,7 +139,7 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
 
                   <div className="flex flex-col gap-0.5">
                     <Toast.Title
-                      className="font-medium"
+                      className="font-normal"
                       data-slot="toast-title"
                     />
                     <Toast.Description
@@ -231,7 +231,7 @@ function AnchoredToasts() {
 
                       <div className="flex flex-col gap-0.5">
                         <Toast.Title
-                          className="font-medium"
+                          className="font-normal"
                           data-slot="toast-title"
                         />
                         <Toast.Description

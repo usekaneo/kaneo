@@ -50,9 +50,6 @@ input:-webkit-autofill:active {
   [data-slot="command-dialog-popup"],
   [data-slot="sheet-popup"],
   [data-slot="toast-popup"] {
-    scale: 1 !important;
-    translate: 0 !important;
-    transform: none !important;
     transition-property: opacity !important;
   }
 

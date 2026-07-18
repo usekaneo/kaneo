@@ -297,20 +297,19 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
           </TooltipProvider>
 
           <DropdownMenuContent align="end" className="w-88 p-0">
-            <div className="-m-1 overflow-hidden rounded-lg">
+            <div className="overflow-hidden rounded-lg">
               <div className="flex h-10 items-center justify-between border-border/50 border-b pr-2 pl-3">
                 <h3 className="font-medium text-sm">
                   {t("notifications:title")}
                 </h3>
                 {unreadNotifications.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="xs"
+                  <DropdownMenuItem
+                    closeOnClick={false}
                     onClick={() => markAllAsRead()}
-                    className="text-muted-foreground text-xs hover:text-foreground"
+                    className="w-auto cursor-pointer rounded-md px-2 py-1 text-muted-foreground text-xs data-highlighted:text-foreground"
                   >
                     {t("common:actions.markAllRead")}
-                  </Button>
+                  </DropdownMenuItem>
                 )}
               </div>
 
@@ -373,14 +372,12 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               </div>
               {hasNotifications && (
                 <div className="border-border/50 border-t p-1">
-                  <Button
-                    variant="ghost"
-                    size="xs"
+                  <DropdownMenuItem
                     onClick={() => setShowClearDialog(true)}
-                    className="w-full justify-center text-muted-foreground text-xs hover:text-destructive"
+                    className="cursor-pointer justify-center rounded-md px-2 py-1.5 text-muted-foreground text-xs data-highlighted:text-destructive"
                   >
                     {t("notifications:clearAll")}
-                  </Button>
+                  </DropdownMenuItem>
                 </div>
               )}
             </div>
