@@ -65,7 +65,7 @@ async function getTasksNeedingReminder(
         isNotNull(taskTable.userId),
         isNotNull(taskTable.dueDate),
         reminderType === "configured_before"
-          ? sql`${taskTable.dueDate} - (COALESCE(${userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes}, 1440) * interval '1 minute') BETWEEN ${windowStart} AND ${windowEnd}`
+          ? sql`${taskTable.dueDate} - (COALESCE(${userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes}, 1440) * interval '1 minute') BETWEEN ${windowStart.toISOString()} AND ${windowEnd.toISOString()}`
           : between(taskTable.dueDate, windowStart, windowEnd),
         isNull(taskReminderSentTable.id),
         or(
