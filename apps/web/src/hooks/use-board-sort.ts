@@ -71,7 +71,11 @@ export function useBoardSort(projectId: string | undefined) {
 
   useEffect(() => {
     if (!storageKey || typeof window === "undefined") return;
-    window.localStorage.setItem(storageKey, JSON.stringify(sort));
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(sort));
+    } catch {
+      // persistence is best-effort; private mode or quota can block writes
+    }
   }, [sort, storageKey]);
 
   return { sort, setSort };
