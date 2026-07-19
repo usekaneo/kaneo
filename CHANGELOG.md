@@ -1,3 +1,9 @@
+## [2.9.8](https://github.com/usekaneo/kaneo/compare/v2.9.7...v2.9.8) (2026-07-19)
+
+
+### Features
+
+* webhook events, unicode slugs, board sort ([#1408](https://github.com/usekaneo/kaneo/issues/1408)) ([c17187e](https://github.com/usekaneo/kaneo/commit/c17187ece24b3a3da04eb27192fde2f4f68375d5)), closes [#1395](https://github.com/usekaneo/kaneo/issues/1395) [#1357](https://github.com/usekaneo/kaneo/issues/1357) [#1396](https://github.com/usekaneo/kaneo/issues/1396)
 ## [2.9.7](https://github.com/usekaneo/kaneo/compare/v2.9.6...v2.9.7) (2026-07-18)
 
 
