@@ -901,7 +901,12 @@
 				"taskPriorityChanged": "Perubahan prioritas",
 				"taskTitleChanged": "Perubahan judul",
 				"taskDescriptionChanged": "Perubahan deskripsi",
-				"taskCommentCreated": "Komentar baru"
+				"taskCommentCreated": "Komentar baru",
+				"taskDeleted": "Tugas dihapus",
+				"taskMoved": "Tugas dipindahkan",
+				"taskDueDateChanged": "Tenggat diubah",
+				"taskAssigneeChanged": "Penanggung jawab diubah",
+				"taskUnassigned": "Penugasan dihapus"
 			},
 			"connect": "Hubungkan webhook",
 			"saveChanges": "Simpan perubahan",

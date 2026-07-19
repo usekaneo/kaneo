@@ -897,7 +897,12 @@
 				"taskPriorityChanged": "Изменения приоритета",
 				"taskTitleChanged": "Изменения названия",
 				"taskDescriptionChanged": "Изменения описания",
-				"taskCommentCreated": "Новые комментарии"
+				"taskCommentCreated": "Новые комментарии",
+				"taskDeleted": "Задача удалена",
+				"taskMoved": "Задача перемещена",
+				"taskDueDateChanged": "Изменен срок выполнения",
+				"taskAssigneeChanged": "Изменен исполнитель",
+				"taskUnassigned": "Назначение снято"
 			},
 			"connect": "Подключить вебхук",
 			"saveChanges": "Сохранить изменения",

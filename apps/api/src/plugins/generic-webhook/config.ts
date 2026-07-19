@@ -95,6 +95,11 @@ export const genericWebhookEventKeys = [
   "taskTitleChanged",
   "taskDescriptionChanged",
   "taskCommentCreated",
+  "taskDeleted",
+  "taskMoved",
+  "taskDueDateChanged",
+  "taskAssigneeChanged",
+  "taskUnassigned",
   "dueDateReminder",
 ] as const;
 
@@ -134,6 +139,11 @@ export const genericWebhookConfigSchema = v.object({
       taskTitleChanged: v.optional(v.boolean()),
       taskDescriptionChanged: v.optional(v.boolean()),
       taskCommentCreated: v.optional(v.boolean()),
+      taskDeleted: v.optional(v.boolean()),
+      taskMoved: v.optional(v.boolean()),
+      taskDueDateChanged: v.optional(v.boolean()),
+      taskAssigneeChanged: v.optional(v.boolean()),
+      taskUnassigned: v.optional(v.boolean()),
       dueDateReminder: v.optional(v.boolean()),
     }),
   ),
@@ -156,6 +166,11 @@ export const defaultGenericWebhookEvents: Record<
   taskTitleChanged: false,
   taskDescriptionChanged: false,
   taskCommentCreated: true,
+  taskDeleted: false,
+  taskMoved: false,
+  taskDueDateChanged: false,
+  taskAssigneeChanged: false,
+  taskUnassigned: false,
   dueDateReminder: false,
 };
 
