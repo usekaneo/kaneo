@@ -132,7 +132,7 @@ export function WorkspaceSwitcher() {
                   </span>
                 </div>
                 <ChevronDown
-                  className={`ml-1 size-3.5 text-foreground/70 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-all duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
+                  className={`ml-1 size-3.5 text-foreground/70 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-[rotate,opacity] duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
                   data-state={isOpen ? "open" : "closed"}
                 />
               </DropdownMenuTrigger>
@@ -189,7 +189,7 @@ export function WorkspaceSwitcher() {
 
         <div className="flex items-center gap-1">
           <NotificationDropdown />
-          <div className="h-7 w-7 shrink-0">
+          <div className="h-8 w-8 shrink-0">
             <UserAvatar />
           </div>
         </div>

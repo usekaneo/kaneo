@@ -139,7 +139,7 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
 
                   <div className="flex flex-col gap-0.5">
                     <Toast.Title
-                      className="font-medium"
+                      className="font-sans font-normal tracking-normal"
                       data-slot="toast-title"
                     />
                     <Toast.Description
@@ -215,7 +215,10 @@ function AnchoredToasts() {
               >
                 {tooltipStyle ? (
                   <Toast.Content className="pointer-events-auto px-2 py-1">
-                    <Toast.Title data-slot="toast-title" />
+                    <Toast.Title
+                      className="font-sans tracking-normal"
+                      data-slot="toast-title"
+                    />
                   </Toast.Content>
                 ) : (
                   <Toast.Content className="pointer-events-auto flex items-center justify-between gap-1.5 overflow-hidden px-3.5 py-3 text-sm">
@@ -231,7 +234,7 @@ function AnchoredToasts() {
 
                       <div className="flex flex-col gap-0.5">
                         <Toast.Title
-                          className="font-medium"
+                          className="font-sans font-normal tracking-normal"
                           data-slot="toast-title"
                         />
                         <Toast.Description

@@ -874,12 +874,17 @@
 			"connectionTitle": "Σύνδεση εξερχόμενου webhook",
 			"disconnect": "Αποσύνδεση",
 			"events": {
+				"taskAssigneeChanged": "Αλλαγή ανάθεσης",
 				"taskCommentCreated": "Νέα σχόλια",
 				"taskCreated": "Νέες εργασίες",
+				"taskDeleted": "Διαγραφή εργασίας",
 				"taskDescriptionChanged": "Αλλαγές περιγραφής",
+				"taskDueDateChanged": "Αλλαγή ημερομηνίας λήξης",
+				"taskMoved": "Μετακίνηση εργασίας",
 				"taskPriorityChanged": "Αλλαγές προτεραιότητας",
 				"taskStatusChanged": "Αλλαγές κατάστασης",
-				"taskTitleChanged": "Αλλαγές τίτλου"
+				"taskTitleChanged": "Αλλαγές τίτλου",
+				"taskUnassigned": "Αφαίρεση ανάθεσης"
 			},
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα ενεργοποιούν εξερχόμενα webhooks.",
 			"eventsTitle": "Ειδοποιήσεις γεγονότων",

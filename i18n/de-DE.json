@@ -994,6 +994,11 @@
 				"taskTitleChanged": "Titeländerungen",
 				"taskDescriptionChanged": "Beschreibungsänderungen",
 				"taskCommentCreated": "Neue Kommentare",
+				"taskDeleted": "Aufgabe gelöscht",
+				"taskMoved": "Aufgabe verschoben",
+				"taskDueDateChanged": "Fälligkeitsdatum geändert",
+				"taskAssigneeChanged": "Zuweisung geändert",
+				"taskUnassigned": "Zuweisung entfernt",
 				"dueDateReminder": "Erinnerungen an Fälligkeitstermine"
 			},
 			"reminderLeadTimeLabel": "Webhook so viele Stunden vorher senden",

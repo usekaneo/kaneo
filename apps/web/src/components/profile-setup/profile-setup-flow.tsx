@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, User } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -29,13 +29,17 @@ export type ProfileFormValues = {
   name: string;
 };
 
-const fadeTransition = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-};
+function useFadeTransition() {
+  const reduceMotion = useReducedMotion();
+  return {
+    initial: { opacity: 0, y: reduceMotion ? 0 : 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: reduceMotion ? 0 : -20 },
+  };
+}
 
 export function ProfileSetupFlow() {
+  const fadeTransition = useFadeTransition();
   const { t } = useTranslation();
   const [step, setStep] = useState<ProfileSetupStep>("profile");
   const [userName, setUserName] = useState("");
@@ -96,7 +100,7 @@ export function ProfileSetupFlow() {
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
       className="w-full max-w-sm mx-auto"
     >
       <Logo className="mx-auto mb-6 w-full flex items-end justify-center" />
@@ -154,7 +158,7 @@ export function ProfileSetupFlow() {
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
       className="w-full max-w-sm mx-auto"
     >
       <Logo className="mx-auto mb-6 w-full flex items-end justify-center" />

@@ -1158,6 +1158,11 @@
 				"taskTitleChanged": "Title changes",
 				"taskDescriptionChanged": "Description changes",
 				"taskCommentCreated": "New comments",
+				"taskDeleted": "Task deleted",
+				"taskMoved": "Task moved",
+				"taskDueDateChanged": "Due date changed",
+				"taskAssigneeChanged": "Assignee changed",
+				"taskUnassigned": "Task unassigned",
 				"dueDateReminder": "Due-date reminders"
 			},
 			"reminderLeadTimeLabel": "Send the webhook this many hours before",
@@ -1410,7 +1415,7 @@
 		},
 		"events": {
 			"task_created": {
-				"title": "New Task Created",
+				"title": "New task created",
 				"content": "Task \"{{taskTitle}}\" was created"
 			},
 			"workspace_created": {

@@ -12,6 +12,11 @@ describe("generic webhook reminder config", () => {
 
     expect(config.events).toEqual(defaultGenericWebhookEvents);
     expect(config.events?.dueDateReminder).toBe(false);
+    expect(config.events?.taskDeleted).toBe(false);
+    expect(config.events?.taskMoved).toBe(false);
+    expect(config.events?.taskDueDateChanged).toBe(false);
+    expect(config.events?.taskAssigneeChanged).toBe(false);
+    expect(config.events?.taskUnassigned).toBe(false);
     expect(config.dueDateReminderLeadTimeMinutes).toBe(1440);
   });
 

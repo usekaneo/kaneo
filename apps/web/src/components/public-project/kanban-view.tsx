@@ -16,14 +16,14 @@ export function PublicKanbanView({
 
   return (
     <div className="flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]">
-      <div className="flex gap-3 p-3 h-full min-w-max transition-all duration-200 ease-out">
+      <div className="flex gap-3 p-3 h-full min-w-max">
         {columns.map((column) => {
           return (
             <div
               key={column.id}
               className="h-full flex-1 min-w-80 max-w-96 flex-shrink-0"
             >
-              <div className="flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50 transition-all duration-300 ease-out hover:bg-accent/20 hover:shadow-sm">
+              <div className="flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50 transition-[background-color,box-shadow] duration-150 ease hover:bg-accent/20 hover:shadow-sm">
                 <div className="p-2 shrink-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">

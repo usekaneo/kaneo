@@ -219,6 +219,11 @@ export const genericWebhookIntegrationSchema = v.object({
   maskedSecret: v.nullable(v.string()),
   events: v.object({
     ...integrationEventsSchema.entries,
+    taskDeleted: v.boolean(),
+    taskMoved: v.boolean(),
+    taskDueDateChanged: v.boolean(),
+    taskAssigneeChanged: v.boolean(),
+    taskUnassigned: v.boolean(),
     dueDateReminder: v.boolean(),
   }),
   dueDateReminderLeadTimeMinutes: v.number(),

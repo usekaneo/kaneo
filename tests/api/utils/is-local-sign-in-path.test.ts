@@ -12,11 +12,10 @@ describe("isLocalSignInPath", () => {
     expect(isLocalSignInPath(path)).toBe(true);
   });
 
-  it.each([
-    "/sign-in/social",
-    "/callback/google",
-    "/get-session",
-  ])("allows %s", (path) => {
-    expect(isLocalSignInPath(path)).toBe(false);
-  });
+  it.each(["/sign-in/social", "/callback/google", "/get-session"])(
+    "allows %s",
+    (path) => {
+      expect(isLocalSignInPath(path)).toBe(false);
+    },
+  );
 });

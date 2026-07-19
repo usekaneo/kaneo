@@ -1,3 +1,22 @@
+## [2.9.8](https://github.com/usekaneo/kaneo/compare/v2.9.7...v2.9.8) (2026-07-19)
+
+
+### Features
+
+* webhook events, unicode slugs, board sort ([#1408](https://github.com/usekaneo/kaneo/issues/1408)) ([c17187e](https://github.com/usekaneo/kaneo/commit/c17187ece24b3a3da04eb27192fde2f4f68375d5)), closes [#1395](https://github.com/usekaneo/kaneo/issues/1395) [#1357](https://github.com/usekaneo/kaneo/issues/1357) [#1396](https://github.com/usekaneo/kaneo/issues/1396)
+## [2.9.7](https://github.com/usekaneo/kaneo/compare/v2.9.6...v2.9.7) (2026-07-18)
+
+
+### Features
+
+* **web:** motion and fluidity polish pass ([#1407](https://github.com/usekaneo/kaneo/issues/1407)) ([63e44cc](https://github.com/usekaneo/kaneo/commit/63e44ccff707e1add078bfe9976980f6fc362658))
+## [2.9.6](https://github.com/usekaneo/kaneo/compare/v2.9.5...v2.9.6) (2026-07-18)
+## [2.9.5](https://github.com/usekaneo/kaneo/compare/v2.9.4...v2.9.5) (2026-07-18)
+
+
+### Features
+
+* complete task reminders and notifications ([#1399](https://github.com/usekaneo/kaneo/issues/1399)) ([813dcb3](https://github.com/usekaneo/kaneo/commit/813dcb3631649664c88b05b414f373358c720651))
 ## [2.9.4](https://github.com/usekaneo/kaneo/compare/v2.9.3...v2.9.4) (2026-07-17)
 ## [2.9.3](https://github.com/usekaneo/kaneo/compare/v2.9.2...v2.9.3) (2026-07-17)
 

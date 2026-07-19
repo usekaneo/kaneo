@@ -4,12 +4,15 @@ import db from "../../database";
 import { columnTable } from "../../database/schema";
 import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
 
-function toSlug(name: string): string {
-  return name
+export function toSlug(name: string): string {
+  const slug = name
+    .normalize("NFKC")
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^\p{L}\p{M}\p{N}]+/gu, "-")
     .replace(/^-+|-+$/g, "");
+
+  return /[\p{L}\p{N}]/u.test(slug) ? slug : "";
 }
 
 async function createColumn({

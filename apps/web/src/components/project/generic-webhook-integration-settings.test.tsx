@@ -57,9 +57,9 @@ describe("GenericWebhookIntegrationSettings", () => {
       { target: { value: "https://example.com/hooks/kaneo" } },
     );
     fireEvent.click(
-      screen.getByLabelText(
-        "settings:genericWebhookIntegration.events.dueDateReminder",
-      ),
+      screen.getByRole("switch", {
+        name: "settings:genericWebhookIntegration.events.dueDateReminder",
+      }),
     );
     fireEvent.change(
       screen.getByLabelText(
@@ -79,7 +79,56 @@ describe("GenericWebhookIntegrationSettings", () => {
         data: expect.objectContaining({
           webhookUrl: "https://example.com/hooks/kaneo",
           dueDateReminderLeadTimeMinutes: 2880,
-          events: expect.objectContaining({ dueDateReminder: true }),
+          events: expect.objectContaining({
+            dueDateReminder: true,
+            taskDeleted: false,
+            taskMoved: false,
+            taskDueDateChanged: false,
+            taskAssigneeChanged: false,
+            taskUnassigned: false,
+          }),
+        }),
+      }),
+    );
+  });
+
+  it("creates a webhook with the opt-in task lifecycle events enabled", async () => {
+    render(<GenericWebhookIntegrationSettings projectId="project-1" />);
+
+    fireEvent.change(
+      screen.getByLabelText("settings:genericWebhookIntegration.webhookLabel"),
+      { target: { value: "https://example.com/hooks/kaneo" } },
+    );
+    for (const event of [
+      "taskDeleted",
+      "taskMoved",
+      "taskDueDateChanged",
+      "taskAssigneeChanged",
+      "taskUnassigned",
+    ]) {
+      fireEvent.click(
+        screen.getByRole("switch", {
+          name: `settings:genericWebhookIntegration.events.${event}`,
+        }),
+      );
+    }
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:genericWebhookIntegration.connect",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(createIntegration).toHaveBeenCalledWith({
+        projectId: "project-1",
+        data: expect.objectContaining({
+          events: expect.objectContaining({
+            taskDeleted: true,
+            taskMoved: true,
+            taskDueDateChanged: true,
+            taskAssigneeChanged: true,
+            taskUnassigned: true,
+          }),
         }),
       }),
     );
@@ -93,9 +142,9 @@ describe("GenericWebhookIntegrationSettings", () => {
       { target: { value: "https://example.com/hooks/kaneo" } },
     );
     fireEvent.click(
-      screen.getByLabelText(
-        "settings:genericWebhookIntegration.events.dueDateReminder",
-      ),
+      screen.getByRole("switch", {
+        name: "settings:genericWebhookIntegration.events.dueDateReminder",
+      }),
     );
     fireEvent.change(
       screen.getByLabelText(
@@ -104,9 +153,9 @@ describe("GenericWebhookIntegrationSettings", () => {
       { target: { value: "0" } },
     );
     fireEvent.click(
-      screen.getByLabelText(
-        "settings:genericWebhookIntegration.events.dueDateReminder",
-      ),
+      screen.getByRole("switch", {
+        name: "settings:genericWebhookIntegration.events.dueDateReminder",
+      }),
     );
     fireEvent.click(
       screen.getByRole("button", {
