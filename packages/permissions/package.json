@@ -25,6 +25,6 @@
 		"@kaneo/typescript-config": "workspace:*",
 		"typescript": "^5.9.2",
 		"vite": "^7.3.5",
-		"vitest": "^4.1.6"
+		"vitest": "^4.1.10"
 	}
 }
