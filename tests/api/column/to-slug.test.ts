@@ -31,4 +31,9 @@ describe("toSlug", () => {
     expect(toSlug("!!!")).toBe("");
     expect(toSlug("- - -")).toBe("");
   });
+
+  it("returns an empty slug for names made only of combining marks", () => {
+    expect(toSlug("́́")).toBe("");
+    expect(toSlug(" ̇ ")).toBe("");
+  });
 });
