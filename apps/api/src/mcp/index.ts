@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { Hono } from "hono";
 import { auth } from "../auth";
+import { verifyApiKey } from "../utils/verify-api-key";
 import {
   createAuthCode,
   exchangeCode,
@@ -41,8 +42,18 @@ async function validateBearerToken(
   headers.set("authorization", `Bearer ${token}`);
   const session = await auth.api.getSession({ headers });
 
-  if (!session?.user?.id) return null;
-  return { userId: session.user.id, token };
+  if (session?.user?.id) {
+    return { userId: session.user.id, token };
+  }
+
+  // Fallback: Hermes and other agents send Kaneo API keys as Bearer.
+  // Match REST auth (authenticateApiRequest) via verifyApiKey.
+  const apiKeyResult = await verifyApiKey(token);
+  if (apiKeyResult?.valid && apiKeyResult.key?.userId) {
+    return { userId: apiKeyResult.key.userId, token };
+  }
+
+  return null;
 }
 
 const mcp = new Hono();
