@@ -80,7 +80,9 @@ describe("NotificationPreferencesSettings", () => {
     render(<NotificationPreferencesSettings />);
 
     fireEvent.click(
-      screen.getByLabelText("settings:notificationsPage.eventTaskAssignments"),
+      screen.getByRole("switch", {
+        name: "settings:notificationsPage.eventTaskAssignments",
+      }),
     );
     fireEvent.change(
       screen.getByLabelText("settings:notificationsPage.reminderLeadTimeLabel"),
@@ -129,7 +131,9 @@ describe("NotificationPreferencesSettings", () => {
       { target: { value: "0" } },
     );
     fireEvent.click(
-      screen.getByLabelText("settings:notificationsPage.eventDueDateReminders"),
+      screen.getByRole("switch", {
+        name: "settings:notificationsPage.eventDueDateReminders",
+      }),
     );
     fireEvent.click(
       screen.getByRole("button", {

@@ -57,9 +57,9 @@ describe("GenericWebhookIntegrationSettings", () => {
       { target: { value: "https://example.com/hooks/kaneo" } },
     );
     fireEvent.click(
-      screen.getByLabelText(
-        "settings:genericWebhookIntegration.events.dueDateReminder",
-      ),
+      screen.getByRole("switch", {
+        name: "settings:genericWebhookIntegration.events.dueDateReminder",
+      }),
     );
     fireEvent.change(
       screen.getByLabelText(
@@ -93,9 +93,9 @@ describe("GenericWebhookIntegrationSettings", () => {
       { target: { value: "https://example.com/hooks/kaneo" } },
     );
     fireEvent.click(
-      screen.getByLabelText(
-        "settings:genericWebhookIntegration.events.dueDateReminder",
-      ),
+      screen.getByRole("switch", {
+        name: "settings:genericWebhookIntegration.events.dueDateReminder",
+      }),
     );
     fireEvent.change(
       screen.getByLabelText(
@@ -104,9 +104,9 @@ describe("GenericWebhookIntegrationSettings", () => {
       { target: { value: "0" } },
     );
     fireEvent.click(
-      screen.getByLabelText(
-        "settings:genericWebhookIntegration.events.dueDateReminder",
-      ),
+      screen.getByRole("switch", {
+        name: "settings:genericWebhookIntegration.events.dueDateReminder",
+      }),
     );
     fireEvent.click(
       screen.getByRole("button", {
