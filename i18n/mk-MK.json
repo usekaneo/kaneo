@@ -899,7 +899,12 @@
 				"taskPriorityChanged": "Промени на приоритет",
 				"taskTitleChanged": "Промени на наслов",
 				"taskDescriptionChanged": "Промени на опис",
-				"taskCommentCreated": "Нови коментари"
+				"taskCommentCreated": "Нови коментари",
+				"taskDeleted": "Избришана задача",
+				"taskMoved": "Преместена задача",
+				"taskDueDateChanged": "Променет краен рок",
+				"taskAssigneeChanged": "Променето доделување",
+				"taskUnassigned": "Одземено доделување"
 			},
 			"connect": "Поврзи webhook",
 			"saveChanges": "Зачувај промени",
