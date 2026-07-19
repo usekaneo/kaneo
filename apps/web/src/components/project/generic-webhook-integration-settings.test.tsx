@@ -107,9 +107,9 @@ describe("GenericWebhookIntegrationSettings", () => {
       "taskUnassigned",
     ]) {
       fireEvent.click(
-        screen.getByLabelText(
-          `settings:genericWebhookIntegration.events.${event}`,
-        ),
+        screen.getByRole("switch", {
+          name: `settings:genericWebhookIntegration.events.${event}`,
+        }),
       );
     }
     fireEvent.click(
