@@ -54,6 +54,50 @@ export async function checkRegistrationAllowed(
   };
 }
 
+const PASSWORD_REGISTRATION_DISABLED_REASON =
+  "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.";
+
+/**
+ * When DISABLE_PASSWORD_REGISTRATION is on, password sign-up is blocked
+ * unless the caller has a valid pending invitation (invitee set-password flow).
+ */
+export async function checkPasswordRegistrationAllowed(
+  email?: string,
+  invitationId?: string,
+): Promise<RegistrationCheckResult> {
+  const isPasswordRegistrationDisabled =
+    process.env.DISABLE_PASSWORD_REGISTRATION === "true";
+
+  if (!isPasswordRegistrationDisabled) {
+    return {
+      allowed: true,
+      reason: "Password registration is enabled",
+    };
+  }
+
+  if (!invitationId) {
+    return {
+      allowed: false,
+      reason: PASSWORD_REGISTRATION_DISABLED_REASON,
+    };
+  }
+
+  const invitation = await findValidInvitation(email, invitationId);
+
+  if (!invitation) {
+    return {
+      allowed: false,
+      reason: PASSWORD_REGISTRATION_DISABLED_REASON,
+    };
+  }
+
+  return {
+    allowed: true,
+    reason: "Valid invitation found",
+    invitation,
+  };
+}
+
 async function findValidInvitation(
   email?: string,
   invitationId?: string,

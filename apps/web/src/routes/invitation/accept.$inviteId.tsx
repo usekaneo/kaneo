@@ -9,12 +9,12 @@ import {
   CheckCircle,
   Clock,
   Loader2,
-  LogIn,
   Users,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import { InvitationSignedOut } from "@/components/auth/invitation-signed-out";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -84,11 +84,22 @@ function AcceptInvitation() {
     }
   };
 
+  const invitationSearch = {
+    invitationId: inviteId,
+    email: invitationData?.invitation?.email,
+  };
+
+  const handleCreateAccount = () => {
+    navigate({
+      to: "/auth/sign-up",
+      search: invitationSearch,
+    });
+  };
+
   const handleSignIn = () => {
-    const email = invitationData?.invitation?.email;
     navigate({
       to: "/auth/sign-in",
-      search: { invitationId: inviteId, email },
+      search: invitationSearch,
     });
   };
 
@@ -257,48 +268,13 @@ function AcceptInvitation() {
     <>
       <PageTitle title={t("auth:invitation.pageTitleAccept")} />
       <AuthLayout title={t("auth:invitation.youveBeenInvited")}>
-        <div className="space-y-4 mt-4">
-          <div className="flex items-center justify-center w-12 h-12 mx-auto bg-primary/10 rounded-full">
-            <Users className="w-6 h-6 text-primary" />
-          </div>
-
-          <div className="space-y-3 text-center">
-            <h2 className="text-lg font-semibold text-foreground">
-              {t("auth:invitation.joinWorkspace", {
-                workspaceName: invitation.workspaceName,
-              })}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              <Trans
-                i18nKey="auth:invitation.inviteBodySignedOut"
-                values={{ inviterName: invitation.inviterName }}
-                components={{ inviter: <strong /> }}
-              />
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("auth:invitation.signInToAccept")}
-            </p>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            <Button onClick={handleSignIn} className="w-full">
-              <LogIn className="w-4 h-4 mr-2" />
-              {t("auth:invitation.signIn")}
-            </Button>
-          </div>
-
-          <div className="pt-4 border-t border-border">
-            <div className="text-center space-y-1">
-              <p className="text-xs text-muted-foreground">
-                <Trans
-                  i18nKey="auth:invitation.invitationFor"
-                  values={{ email: invitation.email }}
-                  components={{ email: <strong /> }}
-                />
-              </p>
-            </div>
-          </div>
-        </div>
+        <InvitationSignedOut
+          workspaceName={invitation.workspaceName}
+          inviterName={invitation.inviterName}
+          email={invitation.email}
+          onCreateAccount={handleCreateAccount}
+          onSignIn={handleSignIn}
+        />
       </AuthLayout>
     </>
   );

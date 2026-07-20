@@ -133,8 +133,8 @@
 			"pageTitle": "Giriş Yap",
 			"title": "Tekrar hoş geldiniz",
 			"subtitle": "Çalışma alanınıza erişmek için kimlik bilgilerinizi girin",
-			"invitationSubtitle": "Davetinizi kabul etmek için giriş yapın",
-			"invitationAlert": "Giriş yaptıktan sonra çalışma alanı davetinizi kabul edebileceksiniz.",
+			"invitationSubtitle": "Sign in or create an account to accept your invitation",
+			"invitationAlert": "Don't have an account yet? Create one with this invitation to set your password.",
 			"signingIn": "Giriş yapılıyor...",
 			"continueWithGoogle": "Google ile devam et",
 			"continueWithGithub": "GitHub ile devam et",
@@ -180,11 +180,11 @@
 		"signUp": {
 			"pageTitle": "Hesap Oluştur",
 			"title": "Hesap oluştur",
-			"subtitleInvitation": "Davetinizi kabul etmek için bir hesap oluşturun",
+			"subtitleInvitation": "Set a password to create your account and accept the invitation",
 			"subtitleRegistrationDisabled": "Kayıt bir davet gerektirir",
 			"subtitlePasswordDisabled": "Hesap oluşturmak için sosyal veya OIDC giriş yöntemini kullanın",
 			"subtitleDefault": "Çalışma alanınızla başlayın",
-			"invitationAlert": "Hesabınızı oluşturduktan sonra çalışma alanı davetinizi kabul edebileceksiniz.",
+			"invitationAlert": "Set a password for this email, then you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "Kayıt şu anda devre dışı. Davet edildiyseniz, hesap oluşturmak için davetin gönderildiği e-posta adresini girin.",
 			"passwordDisabledAlert": "Parola tabanlı hesap oluşturma devre dışı. Giriş sayfasından yapılandırılmış bir sosyal veya OIDC giriş yöntemi kullanın.",
 			"signingIn": "Giriş yapılıyor...",
@@ -232,7 +232,10 @@
 			"accountCreated": "Hesap başarıyla oluşturuldu",
 			"passwordTooShort": "Parola çok kısa",
 			"creatingAccount": "Hesap Oluşturuluyor...",
-			"createAccount": "Hesap Oluştur"
+			"createAccount": "Hesap Oluştur",
+			"setPassword": "Set password",
+			"setPasswordPlaceholder": "Choose a password",
+			"createAccountAndContinue": "Create account & continue"
 		},
 		"invitation": {
 			"pageTitleAccept": "Daveti Kabul Et",
@@ -259,7 +262,10 @@
 			"toast": {
 				"acceptFailed": "Davet kabul edilemedi",
 				"acceptSuccess": "Davet kabul edildi! Aramıza hoş geldiniz."
-			}
+			},
+			"createAccountToAccept": "Create an account and set a password to accept this invitation.",
+			"createAccount": "Create account",
+			"alreadyHaveAccount": "Already have an account?"
 		},
 		"onboarding": {
 			"pageTitle": "Kaneo'ya Hoş Geldiniz",

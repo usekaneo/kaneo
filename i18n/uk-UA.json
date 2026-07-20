@@ -133,8 +133,8 @@
 			"pageTitle": "Вхід",
 			"title": "З поверненням",
 			"subtitle": "Введіть ваші облікові дані для доступу до робочого простору",
-			"invitationSubtitle": "Увійдіть, щоб прийняти запрошення",
-			"invitationAlert": "Після входу ви зможете прийняти запрошення до робочого простору.",
+			"invitationSubtitle": "Sign in or create an account to accept your invitation",
+			"invitationAlert": "Don't have an account yet? Create one with this invitation to set your password.",
 			"signingIn": "Вхід...",
 			"continueWithGoogle": "Продовжити з Google",
 			"continueWithGithub": "Продовжити з GitHub",
@@ -180,11 +180,11 @@
 		"signUp": {
 			"pageTitle": "Створення облікового запису",
 			"title": "Створити обліковий запис",
-			"subtitleInvitation": "Створіть обліковий запис, щоб прийняти запрошення",
+			"subtitleInvitation": "Set a password to create your account and accept the invitation",
 			"subtitleRegistrationDisabled": "Для реєстрації потрібне запрошення",
 			"subtitlePasswordDisabled": "Використовуйте вхід через соціальну мережу або OIDC для створення облікового запису",
 			"subtitleDefault": "Почніть роботу з вашим робочим простором",
-			"invitationAlert": "Після створення облікового запису ви зможете прийняти запрошення до робочого простору.",
+			"invitationAlert": "Set a password for this email, then you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "Реєстрацію наразі вимкнено. Якщо вас запросили, введіть адресу електронної пошти, на яку було надіслано запрошення.",
 			"passwordDisabledAlert": "Створення облікового запису за допомогою пароля вимкнено. Використовуйте налаштований метод входу через соціальну мережу або OIDC на сторінці входу.",
 			"signingIn": "Вхід...",
@@ -232,7 +232,10 @@
 			"accountCreated": "Обліковий запис успішно створено",
 			"passwordTooShort": "Пароль занадто короткий",
 			"creatingAccount": "Створення облікового запису...",
-			"createAccount": "Створити обліковий запис"
+			"createAccount": "Створити обліковий запис",
+			"setPassword": "Set password",
+			"setPasswordPlaceholder": "Choose a password",
+			"createAccountAndContinue": "Create account & continue"
 		},
 		"invitation": {
 			"pageTitleAccept": "Прийняти запрошення",
@@ -259,7 +262,10 @@
 			"toast": {
 				"acceptFailed": "Не вдалося прийняти запрошення",
 				"acceptSuccess": "Запрошення прийнято! Ласкаво просимо до команди."
-			}
+			},
+			"createAccountToAccept": "Create an account and set a password to accept this invitation.",
+			"createAccount": "Create account",
+			"alreadyHaveAccount": "Already have an account?"
 		},
 		"onboarding": {
 			"pageTitle": "Ласкаво просимо до Kaneo",

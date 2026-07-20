@@ -133,8 +133,8 @@
 			"pageTitle": "Masuk",
 			"title": "Selamat datang kembali",
 			"subtitle": "Masukkan kredensial Anda untuk mengakses ruang kerja",
-			"invitationSubtitle": "Masuk untuk menerima undangan Anda",
-			"invitationAlert": "Setelah masuk, Anda dapat menerima undangan ruang kerja.",
+			"invitationSubtitle": "Sign in or create an account to accept your invitation",
+			"invitationAlert": "Don't have an account yet? Create one with this invitation to set your password.",
 			"signingIn": "Masuk...",
 			"continueWithGoogle": "Lanjutkan dengan Google",
 			"continueWithGithub": "Lanjutkan dengan GitHub",
@@ -180,11 +180,11 @@
 		"signUp": {
 			"pageTitle": "Buat Akun",
 			"title": "Buat akun",
-			"subtitleInvitation": "Buat akun untuk menerima undangan Anda",
+			"subtitleInvitation": "Set a password to create your account and accept the invitation",
 			"subtitleRegistrationDisabled": "Pendaftaran memerlukan undangan",
 			"subtitlePasswordDisabled": "Gunakan masuk sosial atau OIDC untuk membuat akun",
 			"subtitleDefault": "Mulai dengan ruang kerja Anda",
-			"invitationAlert": "Setelah membuat akun, Anda dapat menerima undangan ruang kerja.",
+			"invitationAlert": "Set a password for this email, then you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "Pendaftaran saat ini dinonaktifkan. Jika Anda diundang, masukkan alamat email yang menerima undangan untuk membuat akun.",
 			"passwordDisabledAlert": "Pembuatan akun berbasis kata sandi dinonaktifkan. Gunakan metode masuk sosial atau OIDC yang telah dikonfigurasi dari halaman masuk.",
 			"signingIn": "Masuk...",
@@ -232,7 +232,10 @@
 			"accountCreated": "Akun berhasil dibuat",
 			"passwordTooShort": "Kata sandi terlalu pendek",
 			"creatingAccount": "Membuat Akun...",
-			"createAccount": "Buat Akun"
+			"createAccount": "Buat Akun",
+			"setPassword": "Set password",
+			"setPasswordPlaceholder": "Choose a password",
+			"createAccountAndContinue": "Create account & continue"
 		},
 		"invitation": {
 			"pageTitleAccept": "Terima Undangan",
@@ -259,7 +262,10 @@
 			"toast": {
 				"acceptFailed": "Gagal menerima undangan",
 				"acceptSuccess": "Undangan diterima! Selamat bergabung dengan tim."
-			}
+			},
+			"createAccountToAccept": "Create an account and set a password to accept this invitation.",
+			"createAccount": "Create account",
+			"alreadyHaveAccount": "Already have an account?"
 		},
 		"onboarding": {
 			"pageTitle": "Selamat datang di Kaneo",

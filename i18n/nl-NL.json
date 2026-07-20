@@ -133,8 +133,8 @@
 			"pageTitle": "Inloggen",
 			"title": "Welkom terug",
 			"subtitle": "Voer je gegevens in om toegang te krijgen tot je werkruimte",
-			"invitationSubtitle": "Log in om je uitnodiging te accepteren",
-			"invitationAlert": "Na het inloggen kun je de uitnodiging voor de werkruimte accepteren.",
+			"invitationSubtitle": "Sign in or create an account to accept your invitation",
+			"invitationAlert": "Don't have an account yet? Create one with this invitation to set your password.",
 			"signingIn": "Inloggen...",
 			"continueWithGoogle": "Doorgaan met Google",
 			"continueWithGithub": "Doorgaan met GitHub",
@@ -180,11 +180,11 @@
 		"signUp": {
 			"pageTitle": "Account aanmaken",
 			"title": "Maak account aan",
-			"subtitleInvitation": "Maak een account aan om je uitnodiging te accepteren",
+			"subtitleInvitation": "Set a password to create your account and accept the invitation",
 			"subtitleRegistrationDisabled": "Registratie vereist een uitnodiging",
 			"subtitlePasswordDisabled": "Gebruik sociale media of OIDC om een account aan te maken",
 			"subtitleDefault": "Aan de slag met je werkruimte",
-			"invitationAlert": "Na het aanmaken van je account kun je de uitnodiging accepteren.",
+			"invitationAlert": "Set a password for this email, then you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "Registratie is momenteel uitgeschakeld. Als je bent uitgenodigd, voer dan het e-mailadres in waarop je de uitnodiging hebt ontvangen.",
 			"passwordDisabledAlert": "Account aanmaken met wachtwoord is uitgeschakeld. Gebruik een sociale of OIDC-methode.",
 			"signingIn": "Inloggen...",
@@ -232,7 +232,10 @@
 			"accountCreated": "Account succesvol aangemaakt",
 			"passwordTooShort": "Wachtwoord is te kort",
 			"creatingAccount": "Account aanmaken...",
-			"createAccount": "Account aanmaken"
+			"createAccount": "Account aanmaken",
+			"setPassword": "Set password",
+			"setPasswordPlaceholder": "Choose a password",
+			"createAccountAndContinue": "Create account & continue"
 		},
 		"invitation": {
 			"pageTitleAccept": "Uitnodiging accepteren",
@@ -259,7 +262,10 @@
 			"toast": {
 				"acceptFailed": "Accepteren van uitnodiging mislukt",
 				"acceptSuccess": "Uitnodiging geaccepteerd! Welkom bij het team."
-			}
+			},
+			"createAccountToAccept": "Create an account and set a password to accept this invitation.",
+			"createAccount": "Create account",
+			"alreadyHaveAccount": "Already have an account?"
 		},
 		"onboarding": {
 			"pageTitle": "Welkom bij Kaneo",

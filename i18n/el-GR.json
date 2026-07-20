@@ -133,8 +133,8 @@
 			"pageTitle": "Σύνδεση",
 			"title": "Καλώς ήρθατε ξανά",
 			"subtitle": "Εισάγετε τα στοιχεία σας για να αποκτήσετε πρόσβαση στον χώρο εργασίας σας",
-			"invitationSubtitle": "Συνδεθείτε για να αποδεχτείτε την πρόσκλησή σας",
-			"invitationAlert": "Μετά τη σύνδεση, θα μπορείτε να αποδεχτείτε την πρόσκληση για τον χώρο εργασίας σας.",
+			"invitationSubtitle": "Sign in or create an account to accept your invitation",
+			"invitationAlert": "Don't have an account yet? Create one with this invitation to set your password.",
 			"signingIn": "Γίνεται σύνδεση...",
 			"continueWithGoogle": "Συνέχεια με Google",
 			"continueWithGithub": "Συνέχεια με GitHub",
@@ -180,11 +180,11 @@
 		"signUp": {
 			"pageTitle": "Δημιουργία λογαριασμού",
 			"title": "Δημιουργία λογαριασμού",
-			"subtitleInvitation": "Δημιουργήστε λογαριασμό για να αποδεχτείτε την πρόσκλησή σας",
+			"subtitleInvitation": "Set a password to create your account and accept the invitation",
 			"subtitleRegistrationDisabled": "Η εγγραφή απαιτεί πρόσκληση",
 			"subtitlePasswordDisabled": "Χρησιμοποιήστε social ή OIDC σύνδεση για να δημιουργήσετε λογαριασμό",
 			"subtitleDefault": "Ξεκινήστε με τον χώρο εργασίας σας",
-			"invitationAlert": "Μετά τη δημιουργία του λογαριασμού σας, θα μπορείτε να αποδεχτείτε την πρόσκληση για τον χώρο εργασίας σας.",
+			"invitationAlert": "Set a password for this email, then you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "Η εγγραφή είναι προσωρινά απενεργοποιημένη. Αν έχετε προσκληθεί, εισάγετε τη διεύθυνση email που έλαβε την πρόσκληση για να δημιουργήσετε λογαριασμό.",
 			"passwordDisabledAlert": "Η δημιουργία λογαριασμού με κωδικό είναι απενεργοποιημένη. Χρησιμοποιήστε μια διαθέσιμη μέθοδο social ή OIDC από τη σελίδα σύνδεσης.",
 			"signingIn": "Γίνεται σύνδεση...",
@@ -232,7 +232,10 @@
 			"accountCreated": "Ο λογαριασμός δημιουργήθηκε με επιτυχία",
 			"passwordTooShort": "Ο κωδικός είναι πολύ σύντομος",
 			"creatingAccount": "Γίνεται δημιουργία λογαριασμού...",
-			"createAccount": "Δημιουργία λογαριασμού"
+			"createAccount": "Δημιουργία λογαριασμού",
+			"setPassword": "Set password",
+			"setPasswordPlaceholder": "Choose a password",
+			"createAccountAndContinue": "Create account & continue"
 		},
 		"invitation": {
 			"pageTitleAccept": "Αποδοχή πρόσκλησης",
@@ -259,7 +262,10 @@
 			"toast": {
 				"acceptFailed": "Αποτυχία αποδοχής πρόσκλησης",
 				"acceptSuccess": "Η πρόσκληση έγινε αποδεκτή! Καλώς ήρθατε στην ομάδα."
-			}
+			},
+			"createAccountToAccept": "Create an account and set a password to accept this invitation.",
+			"createAccount": "Create account",
+			"alreadyHaveAccount": "Already have an account?"
 		},
 		"onboarding": {
 			"pageTitle": "Καλώς ήρθατε στο Kaneo",
