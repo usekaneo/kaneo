@@ -1823,7 +1823,11 @@
 			"removeSuccess": "Участник команды успешно удалён",
 			"removeError": "Не удалось удалить участника команды",
 			"cancelInviteSuccess": "Приглашение успешно отменено",
-			"cancelInviteError": "Не удалось отменить приглашение"
+			"cancelInviteError": "Не удалось отменить приглашение",
+			"copyInviteLinkSuccess": "Ссылка на приглашение скопирована",
+			"copyInviteLinkError": "Не удалось скопировать ссылку на приглашение",
+			"copyInviteLinkAria": "Скопировать ссылку на приглашение",
+			"copyInviteLinkHint": "Нажмите, чтобы скопировать ссылку на приглашение"
 		}
 	},
 	"publicProject": {

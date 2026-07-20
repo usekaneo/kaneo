@@ -1996,7 +1996,11 @@
 			"cancelInviteSuccess": "Invitation cancelled successfully",
 			"cancelInviteError": "Failed to cancel invitation",
 			"roleUpdateSuccess": "Role updated",
-			"roleUpdateError": "Failed to update role"
+			"roleUpdateError": "Failed to update role",
+			"copyInviteLinkSuccess": "Invite link copied",
+			"copyInviteLinkError": "Failed to copy invite link",
+			"copyInviteLinkAria": "Copy invite link",
+			"copyInviteLinkHint": "Click to copy invite link"
 		}
 	},
 	"publicProject": {

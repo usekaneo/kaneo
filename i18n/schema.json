@@ -7646,6 +7646,18 @@
 						},
 						"roleUpdateError": {
 							"type": "string"
+						},
+						"copyInviteLinkSuccess": {
+							"type": "string"
+						},
+						"copyInviteLinkError": {
+							"type": "string"
+						},
+						"copyInviteLinkAria": {
+							"type": "string"
+						},
+						"copyInviteLinkHint": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -7666,7 +7678,11 @@
 						"cancelInviteSuccess",
 						"cancelInviteError",
 						"roleUpdateSuccess",
-						"roleUpdateError"
+						"roleUpdateError",
+						"copyInviteLinkSuccess",
+						"copyInviteLinkError",
+						"copyInviteLinkAria",
+						"copyInviteLinkHint"
 					]
 				}
 			},

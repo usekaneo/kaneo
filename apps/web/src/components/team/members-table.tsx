@@ -10,6 +10,7 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
+import { getInvitationAcceptUrl } from "@/lib/get-invitation-accept-url";
 import { toast } from "@/lib/toast";
 import type {
   WorkspaceUser,
@@ -173,6 +174,21 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
     }
   };
 
+  const handleCopyInviteLink = async (invitation: WorkspaceUserInvitation) => {
+    try {
+      await navigator.clipboard.writeText(
+        getInvitationAcceptUrl(invitation.id),
+      );
+      toast.success(t("team:membersTable.copyInviteLinkSuccess"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("team:membersTable.copyInviteLinkError"),
+      );
+    }
+  };
+
   return (
     <>
       <Table>
@@ -324,15 +340,31 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                       <span className="text-sm font-medium">
                         {invitation.email}
                       </span>
-                      <Badge
-                        variant="outline"
-                        size="sm"
-                        className="font-mono text-[9px] uppercase tracking-wider"
-                      >
-                        {t("team:invitations.pendingBadge", {
-                          defaultValue: "pending",
-                        })}
-                      </Badge>
+                      {canInvite ? (
+                        <Badge
+                          variant="outline"
+                          size="sm"
+                          render={<button type="button" />}
+                          onClick={() => handleCopyInviteLink(invitation)}
+                          aria-label={t("team:membersTable.copyInviteLinkAria")}
+                          title={t("team:membersTable.copyInviteLinkHint")}
+                          className="font-mono text-[9px] uppercase tracking-wider"
+                        >
+                          {t("team:invitations.pendingBadge", {
+                            defaultValue: "pending",
+                          })}
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          size="sm"
+                          className="font-mono text-[9px] uppercase tracking-wider"
+                        >
+                          {t("team:invitations.pendingBadge", {
+                            defaultValue: "pending",
+                          })}
+                        </Badge>
+                      )}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {invitation.expiresAt
