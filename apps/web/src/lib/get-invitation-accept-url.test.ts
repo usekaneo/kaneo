@@ -21,4 +21,12 @@ describe("getInvitationAcceptUrl", () => {
       `${window.location.origin}/invitation/accept/inv-123`,
     );
   });
+
+  it("falls back to window.location.origin when VITE_CLIENT_URL is empty", () => {
+    vi.stubEnv("VITE_CLIENT_URL", "");
+
+    expect(getInvitationAcceptUrl("inv-123")).toBe(
+      `${window.location.origin}/invitation/accept/inv-123`,
+    );
+  });
 });

@@ -414,7 +414,21 @@
 			"toastPreferencesSaved": "Preferensi notifikasi disimpan",
 			"toastPreferencesSaveFailed": "Gagal menyimpan preferensi notifikasi",
 			"toastRuleSavedGeneric": "Aturan notifikasi ruang kerja disimpan",
-			"toastRuleRemovedGeneric": "Aturan notifikasi ruang kerja dihapus"
+			"toastRuleRemovedGeneric": "Aturan notifikasi ruang kerja dihapus",
+			"eventComments": "Comments and mentions",
+			"eventCommentsHint": "Includes new comments on tasks assigned to you and direct @mentions.",
+			"eventDueDateReminders": "Due-date reminders",
+			"eventPreferencesDescription": "Choose which task events create in-app notifications and can be delivered to your connected channels.",
+			"eventPreferencesTitle": "Notify me about",
+			"eventStatusChanges": "Task status changes",
+			"eventTaskAssignments": "Task assignments",
+			"reminderLeadTimeHint": "Between 1 hour and 30 days before. Overdue notifications are sent separately.",
+			"reminderLeadTimeInvalid": "Enter a whole number between 1 and {{max}}.",
+			"reminderLeadTimeLabel": "Remind me before the due date",
+			"reminderLeadTimeUnitDays": "Days",
+			"reminderLeadTimeUnitHours": "Hours",
+			"saveEventPreferences": "Save notification types",
+			"workspaceEnabledLabel": "Enable notifications for {{workspaceName}}"
 		},
 		"preferencesPage": {
 			"title": "Preferensi",
@@ -906,11 +920,13 @@
 				"taskMoved": "Tugas dipindahkan",
 				"taskDueDateChanged": "Tenggat diubah",
 				"taskAssigneeChanged": "Penanggung jawab diubah",
-				"taskUnassigned": "Penugasan dihapus"
+				"taskUnassigned": "Penugasan dihapus",
+				"dueDateReminder": "Due-date reminders"
 			},
 			"connect": "Hubungkan webhook",
 			"saveChanges": "Simpan perubahan",
-			"disconnect": "Putuskan"
+			"disconnect": "Putuskan",
+			"reminderLeadTimeLabel": "Send the webhook this many hours before"
 		},
 		"telegramIntegration": {
 			"validation": {
@@ -1158,6 +1174,31 @@
 				"title": "Hapus peran",
 				"description": "Ini akan menghapus peran \"{{role}}\" secara permanen. Anggota yang memakai peran ini akan kehilangan izinnya."
 			}
+		},
+		"workspaceLabels": {
+			"cardDescription": "Manage labels that can be assigned to tasks.",
+			"colorLabel": "Color",
+			"createDescription": "Create a new label that can be used across tasks in this workspace.",
+			"createError": "Failed to create label",
+			"createLabel": "Create Label",
+			"createSuccess": "Label created",
+			"deleteConfirmDescription": "This will permanently remove this label from all tasks. This action cannot be undone.",
+			"deleteConfirmTitle": "Delete this label?",
+			"deleteError": "Failed to delete label",
+			"deleteLabel": "Delete",
+			"deleteSuccess": "Label deleted",
+			"editDescription": "Update the name or color of this label.",
+			"editLabel": "Edit Label",
+			"empty": "No labels yet. Create your first label to get started.",
+			"nameLabel": "Label name",
+			"namePlaceholder": "Enter label name",
+			"nameRequired": "Label name is required",
+			"pageTitle": "Label Settings",
+			"saveLabel": "Save",
+			"subtitle": "Create, edit, and delete workspace-level labels.",
+			"title": "Labels",
+			"updateError": "Failed to update label",
+			"updateSuccess": "Label updated"
 		}
 	},
 	"navigation": {
@@ -1309,7 +1350,27 @@
 				"title": "Pelacakan waktu dimulai",
 				"contentWithTask": "Pelacakan waktu dimulai pada tugas: {{taskTitle}}",
 				"contentWithoutTask": "Pelacakan waktu dimulai pada sebuah tugas"
+			},
+			"due_date_reminder": {
+				"content": "{{taskTitle}} is due in {{leadTime}}",
+				"title": "Task due soon"
+			},
+			"task_comment": {
+				"content": "New comment on {{taskTitle}}: {{commentPreview}}",
+				"title": "{{commenterName}} commented on your task"
+			},
+			"task_overdue": {
+				"content": "{{taskTitle}} is past its due date",
+				"title": "Task overdue"
 			}
+		},
+		"reminderLeadTime": {
+			"days_one": "{{count}} day",
+			"days_other": "{{count}} days",
+			"hours_one": "{{count}} hour",
+			"hours_other": "{{count}} hours",
+			"minutes_one": "{{count}} minute",
+			"minutes_other": "{{count}} minutes"
 		}
 	},
 	"activity": {
@@ -1897,7 +1958,8 @@
 		},
 		"members": {
 			"pageTitle": "Anggota",
-			"inviteMember": "Undang anggota"
+			"inviteMember": "Undang anggota",
+			"you": "You"
 		},
 		"inviteModal": {
 			"title": "Undang Anggota Tim",
@@ -1930,7 +1992,15 @@
 			"cancelInviteSuccess": "Undangan berhasil dibatalkan",
 			"cancelInviteError": "Gagal membatalkan undangan",
 			"roleUpdateSuccess": "Peran diperbarui",
-			"roleUpdateError": "Gagal memperbarui peran"
+			"roleUpdateError": "Gagal memperbarui peran",
+			"copyInviteLinkAria": "Copy invite link",
+			"copyInviteLinkError": "Failed to copy invite link",
+			"copyInviteLinkHint": "Click to copy invite link",
+			"copyInviteLinkSuccess": "Invite link copied"
+		},
+		"invitations": {
+			"expires": "Expires {{date}}",
+			"pendingBadge": "pending"
 		}
 	},
 	"publicProject": {
