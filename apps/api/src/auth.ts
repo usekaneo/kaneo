@@ -36,7 +36,10 @@ import { config } from "dotenv-mono";
 import { count, eq, sql } from "drizzle-orm";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
-import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
+import {
+  checkPasswordRegistrationAllowed,
+  checkRegistrationAllowed,
+} from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
 import { generateDemoName } from "./utils/generate-demo-name";
@@ -621,12 +624,27 @@ export const auth = betterAuth({
       const existingUserCount = userCountRows[0]?.value ?? 0;
       const isInstanceAdminSetup = existingUserCount === 0;
 
+      const email =
+        ctx.body?.email ||
+        ctx.query?.email ||
+        ctx.headers?.get("x-invitation-email");
+      const invitationId = normalizeInvitationId(
+        ctx.body?.invitationId ||
+          ctx.query?.invitationId ||
+          ctx.headers?.get("x-invitation-id"),
+      );
+
       if (ctx.path === "/sign-up/email") {
         if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
-          throw new APIError("FORBIDDEN", {
-            message:
-              "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
-          });
+          const passwordResult = await checkPasswordRegistrationAllowed(
+            email,
+            invitationId,
+          );
+          if (!passwordResult.allowed) {
+            throw new APIError("FORBIDDEN", {
+              message: passwordResult.reason,
+            });
+          }
         }
 
         // Cloud-only abuse gates on password signup. Self-hosted instances
@@ -658,16 +676,6 @@ export const auth = betterAuth({
       if (!isRegistrationDisabled || isInstanceAdminSetup) {
         return;
       }
-
-      const email =
-        ctx.body?.email ||
-        ctx.query?.email ||
-        ctx.headers?.get("x-invitation-email");
-      const invitationId = normalizeInvitationId(
-        ctx.body?.invitationId ||
-          ctx.query?.invitationId ||
-          ctx.headers?.get("x-invitation-id"),
-      );
 
       if (ctx.path === "/sign-up/email") {
         const result = await checkRegistrationAllowed(email, invitationId);
