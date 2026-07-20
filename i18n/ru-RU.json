@@ -1815,6 +1815,17 @@
 			"archiveAllTooltip": "Архивировать все завершённые задачи",
 			"noTasks": "Нет задач"
 		},
+		"hierarchy": {
+			"mode": {
+				"flat": "Плоский",
+				"tree": "Дерево",
+				"nested": "В колонках"
+			},
+			"expand": "Развернуть подзадачи",
+			"collapse": "Свернуть подзадачи",
+			"subtaskOf": "Подзадача: {{title}}",
+			"subtaskProgress": "{{completed}} из {{total}} подзадач выполнено"
+		},
 		"kanban": {
 			"addTask": "Добавить задачу"
 		},

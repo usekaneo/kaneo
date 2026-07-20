@@ -6,6 +6,7 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
+  ChevronRight,
   GitMerge,
   GitPullRequest,
 } from "lucide-react";
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import CircularProgress from "@/components/ui/circular-progress";
 import {
   HoverCard,
   HoverCardContent,
@@ -31,7 +33,9 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import type { HierarchyMode } from "@/lib/build-task-hierarchy";
 import { cn } from "@/lib/cn";
+import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
@@ -48,9 +52,30 @@ import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 type TaskRowProps = {
   task: Task;
   projectSlug: string;
+  depth?: number;
+  hasChildren?: boolean;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
+  parentTitle?: string | null;
+  parentId?: string | null;
+  showParentBadge?: boolean;
+  showStatusIcon?: boolean;
+  hierarchyMode?: HierarchyMode;
 };
 
-function TaskRow({ task, projectSlug }: TaskRowProps) {
+function TaskRow({
+  task,
+  projectSlug,
+  depth = 0,
+  hasChildren = false,
+  isExpanded = false,
+  onToggleExpand,
+  parentTitle,
+  parentId,
+  showParentBadge = false,
+  showStatusIcon = false,
+  hierarchyMode = "flat",
+}: TaskRowProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const {
@@ -63,6 +88,9 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   } = useSortable({ id: task.id });
 
   const { project } = useProjectStore();
+  const statusColumn = project?.columns?.find(
+    (column) => column.id === task.status,
+  );
   const { data: workspace } = useActiveWorkspace();
   const {
     showAssignees,
@@ -173,6 +201,18 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     }
   };
 
+  const handleParentBadgeClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (!parentId) return;
+    navigate({
+      to: ".",
+      search: { taskId: parentId },
+    });
+  };
+
+  const showHierarchyChrome = hierarchyMode !== "flat";
+  const indentPx = 16 + depth * 20;
+
   return (
     <div
       ref={setNodeRef}
@@ -183,6 +223,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
         isTaskSelected &&
           "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",
         isTaskFocused && "ring-2 ring-inset ring-ring/50",
+        showHierarchyChrome && depth > 0 && "border-l border-border/40",
       )}
     >
       <ContextMenu>
@@ -192,12 +233,41 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             className={cn(
-              "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
+              "group relative flex items-center gap-3 py-1.5 pr-4 transition-colors cursor-pointer",
               isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
             )}
+            style={{ paddingLeft: `${indentPx}px` }}
             {...attributes}
             {...listeners}
           >
+            {showHierarchyChrome && (
+              <div className="flex w-4 shrink-0 items-center justify-center">
+                {hasChildren ? (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onToggleExpand?.();
+                    }}
+                    className="inline-flex h-4 w-4 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+                    aria-label={
+                      isExpanded
+                        ? t("tasks:hierarchy.collapse")
+                        : t("tasks:hierarchy.expand")
+                    }
+                  >
+                    <ChevronRight
+                      className={cn(
+                        "h-3 w-3 transition-transform",
+                        isExpanded && "rotate-90",
+                      )}
+                    />
+                  </button>
+                ) : (
+                  <span className="h-4 w-4" />
+                )}
+              </div>
+            )}
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
                 {getPriorityIcon(task.priority ?? "")}
@@ -210,11 +280,40 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             )}
 
             <div className="flex-1 min-w-0 flex items-center gap-2">
-              <div className="flex items-center gap-2 justify-between w-full">
+              {showParentBadge && parentTitle && (
+                <button
+                  type="button"
+                  onClick={handleParentBadgeClick}
+                  className="inline-flex max-w-[160px] shrink-0 items-center rounded-md border border-border bg-muted/50 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-accent hover:text-foreground"
+                >
+                  <span className="truncate">
+                    {t("tasks:hierarchy.subtaskOf", { title: parentTitle })}
+                  </span>
+                </button>
+              )}
+              <div className="flex items-center gap-2 justify-between w-full min-w-0">
                 <span className="text-sm text-foreground truncate">
                   {task.title}
                 </span>
                 <div className="flex items-center gap-1">
+                  {hasChildren && (task.directSubtaskCount ?? 0) > 0 && (
+                    <div
+                      className="inline-flex items-center gap-1 rounded-md border border-border bg-sidebar px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                      title={t("tasks:hierarchy.subtaskProgress", {
+                        completed: task.completedSubtaskCount ?? 0,
+                        total: task.directSubtaskCount ?? 0,
+                      })}
+                    >
+                      <CircularProgress
+                        completed={task.completedSubtaskCount ?? 0}
+                        total={task.directSubtaskCount ?? 0}
+                      />
+                      <span>
+                        {task.completedSubtaskCount ?? 0}/
+                        {task.directSubtaskCount ?? 0}
+                      </span>
+                    </div>
+                  )}
                   {showLabels && <TaskCardLabels taskId={task.id} />}
 
                   {pullRequests.length === 1 && (
@@ -330,6 +429,19 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                 </div>
               </div>
             </div>
+
+            {showStatusIcon && statusColumn && (
+              <div
+                className="flex shrink-0 items-center"
+                title={statusColumn.name}
+              >
+                {getColumnIcon(
+                  statusColumn.id,
+                  statusColumn.isFinal,
+                  statusColumn.icon,
+                )}
+              </div>
+            )}
 
             {showDueDates && task.dueDate && (
               <div

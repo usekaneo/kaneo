@@ -6,6 +6,7 @@ import {
   gte,
   inArray,
   lte,
+  or,
   type SQL,
   sql,
 } from "drizzle-orm";
@@ -16,6 +17,7 @@ import {
   externalLinkTable,
   labelTable,
   projectTable,
+  taskRelationTable,
   taskTable,
   userTable,
 } from "../../database/schema";
@@ -221,6 +223,62 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     .where(eq(columnTable.projectId, projectId))
     .orderBy(asc(columnTable.position));
 
+  const finalColumnSlugs = new Set(
+    projectColumns
+      .filter((column) => column.isFinal)
+      .map((column) => column.slug),
+  );
+
+  const subtaskRelations =
+    taskIds.length > 0
+      ? await db
+          .select({
+            sourceTaskId: taskRelationTable.sourceTaskId,
+            targetTaskId: taskRelationTable.targetTaskId,
+          })
+          .from(taskRelationTable)
+          .where(
+            and(
+              eq(taskRelationTable.relationType, "subtask"),
+              or(
+                inArray(taskRelationTable.sourceTaskId, taskIds),
+                inArray(taskRelationTable.targetTaskId, taskIds),
+              ),
+            ),
+          )
+      : [];
+
+  const parentIdMap = new Map<string, string>();
+  const childrenMap = new Map<string, string[]>();
+
+  for (const relation of subtaskRelations) {
+    parentIdMap.set(relation.targetTaskId, relation.sourceTaskId);
+    const children = childrenMap.get(relation.sourceTaskId) ?? [];
+    children.push(relation.targetTaskId);
+    childrenMap.set(relation.sourceTaskId, children);
+  }
+
+  const taskStatusMap = new Map(
+    paginatedTasks.map((task) => [task.id, task.status]),
+  );
+
+  const enrichTask = (task: (typeof paginatedTasks)[number]) => {
+    const children = childrenMap.get(task.id) ?? [];
+    const completedSubtaskCount = children.filter((childId) => {
+      const status = taskStatusMap.get(childId);
+      return status ? finalColumnSlugs.has(status) : false;
+    }).length;
+
+    return {
+      ...task,
+      labels: taskLabelsMap.get(task.id) || [],
+      externalLinks: taskExternalLinksMap.get(task.id) || [],
+      parentId: parentIdMap.get(task.id) ?? null,
+      directSubtaskCount: children.length,
+      completedSubtaskCount,
+    };
+  };
+
   const columns = projectColumns.map((column) => ({
     id: column.slug,
     slug: column.slug,
@@ -229,28 +287,16 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     isFinal: column.isFinal,
     tasks: paginatedTasks
       .filter((task) => task.status === column.slug)
-      .map((task) => ({
-        ...task,
-        labels: taskLabelsMap.get(task.id) || [],
-        externalLinks: taskExternalLinksMap.get(task.id) || [],
-      })),
+      .map(enrichTask),
   }));
 
   const archivedTasks = paginatedTasks
     .filter((task) => task.status === "archived")
-    .map((task) => ({
-      ...task,
-      labels: taskLabelsMap.get(task.id) || [],
-      externalLinks: taskExternalLinksMap.get(task.id) || [],
-    }));
+    .map(enrichTask);
 
   const plannedTasks = paginatedTasks
     .filter((task) => task.status === "planned")
-    .map((task) => ({
-      ...task,
-      labels: taskLabelsMap.get(task.id) || [],
-      externalLinks: taskExternalLinksMap.get(task.id) || [],
-    }));
+    .map(enrichTask);
 
   return {
     data: {

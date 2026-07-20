@@ -9,34 +9,32 @@ import {
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
 import { produce } from "immer";
-import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Flag } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { flattenTree, groupNestedByColumn } from "@/lib/build-task-hierarchy";
 import { cn } from "@/lib/cn";
-import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
+import useHierarchyExpansionStore from "@/store/hierarchy-expansion";
 import useProjectStore from "@/store/project";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
-import TaskRow from "./task-row";
+import ColumnSection from "./column-section";
+import TaskTreeList from "./task-tree-list";
 
 type ListViewProps = {
   project: ProjectWithTasks;
@@ -46,6 +44,8 @@ type ListViewProps = {
 function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const { t } = useTranslation();
   const { setProject } = useProjectStore();
+  const { hierarchyMode } = useUserPreferencesStore();
+  const { sort } = useBoardSort(project.id);
   const {
     setAvailableTasks,
     focusNext,
@@ -53,6 +53,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     focusedTaskId,
     clearFocus,
   } = useBulkSelectionStore();
+  const { isExpanded, toggleExpanded } = useHierarchyExpansionStore();
   const { mutate: updateTask } = useUpdateTask();
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -75,14 +76,55 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     ProjectWithTasks["columns"][number] | null
   >(null);
 
-  useEffect(() => {
-    if (project?.columns) {
-      const visibleTaskIds = project.columns
-        .filter((column) => expandedSections[column.id])
-        .flatMap((column) => column.tasks.map((task) => task.id));
-      setAvailableTasks(visibleTaskIds);
+  const hierarchyDragDisabled =
+    disableDragDrop || hierarchyMode === "tree" || hierarchyMode === "nested";
+
+  const expandedIds = useHierarchyExpansionStore(
+    (state) => state.expandedTaskIds[project.id] ?? [],
+  );
+  const expandedSet = useMemo(() => new Set(expandedIds), [expandedIds]);
+
+  const allTasks = useMemo(
+    () => project.columns.flatMap((column) => column.tasks),
+    [project.columns],
+  );
+
+  const treeTasks = useMemo(() => {
+    if (hierarchyMode !== "tree") {
+      return [];
     }
-  }, [project, expandedSections, setAvailableTasks]);
+    return flattenTree(allTasks, expandedSet, sort);
+  }, [allTasks, expandedSet, hierarchyMode, sort]);
+
+  const nestedColumns = useMemo(() => {
+    if (hierarchyMode !== "nested") {
+      return project.columns;
+    }
+    return groupNestedByColumn(project.columns, expandedSet, sort);
+  }, [project.columns, expandedSet, hierarchyMode, sort]);
+
+  const visibleTaskIds = useMemo(() => {
+    if (hierarchyMode === "tree") {
+      return treeTasks.map((task) => task.id);
+    }
+
+    const columns =
+      hierarchyMode === "nested" ? nestedColumns : project.columns;
+
+    return columns
+      .filter((column) => expandedSections[column.id])
+      .flatMap((column) => column.tasks.map((task) => task.id));
+  }, [
+    expandedSections,
+    hierarchyMode,
+    nestedColumns,
+    project.columns,
+    treeTasks,
+  ]);
+
+  useEffect(() => {
+    setAvailableTasks(visibleTaskIds);
+  }, [setAvailableTasks, visibleTaskIds]);
 
   useEffect(() => {
     clearFocus();
@@ -121,15 +163,27 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
+      activationConstraint: { distance: hierarchyDragDisabled ? 999999 : 8 },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: disableDragDrop ? 999999 : 200,
+        delay: hierarchyDragDisabled ? 999999 : 200,
         tolerance: 8,
       },
     }),
     useSensor(KeyboardSensor),
+  );
+
+  const handleToggleExpand = useCallback(
+    (taskId: string) => {
+      toggleExpanded(project.id, taskId);
+    },
+    [project.id, toggleExpanded],
+  );
+
+  const checkExpanded = useCallback(
+    (taskId: string) => isExpanded(project.id, taskId),
+    [project.id, isExpanded],
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -165,7 +219,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setActiveId(null);
     setOverColumnId(null);
 
-    if (!over || !project?.columns) return;
+    if (!over || !project?.columns || hierarchyMode !== "flat") return;
 
     const activeTaskId = active.id.toString();
     const overId = over.id.toString();
@@ -276,112 +330,6 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setColumnToArchive(null);
   };
 
-  function ColumnSection({
-    column,
-  }: {
-    column: ProjectWithTasks["columns"][number];
-  }) {
-    const { setNodeRef } = useDroppable({
-      id: column.id,
-      data: {
-        type: "column",
-        column,
-      },
-    });
-
-    const showDropIndicator = activeId && overColumnId === column.id;
-
-    return (
-      <div
-        className={cn(
-          "border-b border-border/50 transition-colors duration-150 overflow-auto",
-          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
-        )}
-      >
-        <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">
-          <button
-            type="button"
-            onClick={() => toggleSection(column.id)}
-            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronRight
-              className={cn(
-                "w-3 h-3 transition-transform",
-                expandedSections[column.id] && "rotate-90",
-              )}
-            />
-            <div className="flex items-center gap-2 h-4">
-              {getColumnIcon(column.id, column.isFinal, column.icon)}
-              <div className="flex items-center gap-1">
-                <span className="mt-1 mr-1">{column.name}</span>
-                <span className="text-xs text-muted-foreground mt-0.5">
-                  {column.tasks.length}
-                </span>
-              </div>
-            </div>
-          </button>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                setIsTaskModalOpen(true);
-                setActiveColumn(column.id);
-              }}
-              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-              title={t("tasks:listView.addTask")}
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-
-            {column.isFinal && column.tasks.length > 0 && (
-              <button
-                type="button"
-                onClick={() => handleArchiveClick(column)}
-                className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-                title={t("tasks:listView.archiveAllTooltip")}
-              >
-                <Archive className="w-3 h-3" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {expandedSections[column.id] && (
-          <div
-            ref={setNodeRef}
-            className="bg-card transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
-          >
-            <SortableContext
-              items={column.tasks}
-              strategy={verticalListSortingStrategy}
-            >
-              <AnimatePresence initial={false} mode="popLayout">
-                {column.tasks.map((task) => (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                  >
-                    <TaskRow task={task} projectSlug={project?.slug ?? ""} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </SortableContext>
-
-            {column.tasks.length === 0 && (
-              <div className="py-6 px-4 text-center text-xs text-muted-foreground">
-                {t("tasks:listView.noTasks")}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
   if (!project?.columns) {
     return null;
   }
@@ -391,6 +339,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
         ?.flatMap((col) => col.tasks)
         .find((task) => task.id === activeId)
     : null;
+
+  const columnsToRender =
+    hierarchyMode === "nested" ? nestedColumns : project.columns;
 
   return (
     <DndContext
@@ -402,11 +353,37 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       modifiers={[snapCenterToCursor]}
     >
       <div className="w-full h-full overflow-auto bg-muted/20">
-        <div className="divide-y divide-border/50">
-          {project.columns.map((column) => (
-            <ColumnSection key={column.id} column={column} />
-          ))}
-        </div>
+        {hierarchyMode === "tree" ? (
+          <TaskTreeList
+            tasks={treeTasks}
+            projectSlug={project.slug ?? ""}
+            isExpanded={checkExpanded}
+            onToggleExpand={handleToggleExpand}
+          />
+        ) : (
+          <div className="divide-y divide-border/50">
+            {columnsToRender.map((column) => (
+              <ColumnSection
+                key={column.id}
+                column={column}
+                projectSlug={project.slug ?? ""}
+                hierarchyMode={hierarchyMode}
+                tasks={hierarchyMode === "nested" ? column.tasks : undefined}
+                expandedSections={expandedSections}
+                activeId={activeId}
+                overColumnId={overColumnId}
+                onToggleSection={toggleSection}
+                onAddTask={(columnId) => {
+                  setIsTaskModalOpen(true);
+                  setActiveColumn(columnId);
+                }}
+                onArchiveClick={handleArchiveClick}
+                onToggleExpand={handleToggleExpand}
+                isExpanded={checkExpanded}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <DragOverlay>
