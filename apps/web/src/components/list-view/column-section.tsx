@@ -19,6 +19,8 @@ type ColumnSectionProps = {
   projectSlug: string;
   hierarchyMode: HierarchyMode;
   tasks?: TaskTreeNode[];
+  /** Full column size, including nested rows hidden by collapse. */
+  totalTaskCount?: number;
   expandedSections: Record<string, boolean>;
   activeId: string | number | null;
   overColumnId: string | null;
@@ -35,6 +37,7 @@ export default function ColumnSection({
   projectSlug,
   hierarchyMode,
   tasks,
+  totalTaskCount,
   expandedSections,
   activeId,
   overColumnId,
@@ -56,6 +59,7 @@ export default function ColumnSection({
 
   const showDropIndicator = activeId && overColumnId === column.id;
   const visibleTasks = tasks ?? column.tasks;
+  const columnTaskCount = totalTaskCount ?? visibleTasks.length;
   const isNested = hierarchyMode === "nested";
 
   const renderTaskRow = (task: Task | TaskTreeNode) => {
@@ -108,7 +112,7 @@ export default function ColumnSection({
             <div className="flex items-center gap-1">
               <span className="mt-1 mr-1">{column.name}</span>
               <span className="text-xs text-muted-foreground mt-0.5">
-                {visibleTasks.length}
+                {columnTaskCount}
               </span>
             </div>
           </div>
@@ -124,7 +128,7 @@ export default function ColumnSection({
             <Plus className="w-3 h-3" />
           </button>
 
-          {column.isFinal && visibleTasks.length > 0 && (
+          {column.isFinal && columnTaskCount > 0 && (
             <button
               type="button"
               onClick={() => onArchiveClick(column)}

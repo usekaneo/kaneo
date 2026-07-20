@@ -377,6 +377,10 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
                 projectSlug={project.slug ?? ""}
                 hierarchyMode={hierarchyMode}
                 tasks={hierarchyMode === "nested" ? column.tasks : undefined}
+                totalTaskCount={
+                  project.columns.find((col) => col.id === column.id)?.tasks
+                    .length ?? column.tasks.length
+                }
                 expandedSections={expandedSections}
                 activeId={activeId}
                 overColumnId={overColumnId}
