@@ -245,6 +245,7 @@ function RouteComponent() {
             ) : (
               <ListView
                 project={sortedProject}
+                sort={sort}
                 disableDragDrop={sort.field !== "position"}
               />
             )

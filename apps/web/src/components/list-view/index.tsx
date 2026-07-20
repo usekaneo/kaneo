@@ -20,10 +20,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
-import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { flattenTree, groupNestedByColumn } from "@/lib/build-task-hierarchy";
 import { cn } from "@/lib/cn";
+import type { SortConfig } from "@/lib/sort-tasks";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useHierarchyExpansionStore from "@/store/hierarchy-expansion";
@@ -38,14 +38,18 @@ import TaskTreeList from "./task-tree-list";
 
 type ListViewProps = {
   project: ProjectWithTasks;
+  sort: SortConfig;
   disableDragDrop?: boolean;
 };
 
-function ListView({ project, disableDragDrop = false }: ListViewProps) {
+function ListView({
+  project,
+  sort,
+  disableDragDrop = false,
+}: ListViewProps) {
   const { t } = useTranslation();
   const { setProject } = useProjectStore();
   const { hierarchyMode } = useUserPreferencesStore();
-  const { sort } = useBoardSort(project.id);
   const {
     setAvailableTasks,
     focusNext,
