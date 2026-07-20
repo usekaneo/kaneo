@@ -21,6 +21,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
@@ -76,8 +77,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition:
-      transition || "transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    transition: transition || "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
     touchAction: isDragging ? "none" : "auto",
   };
 
@@ -133,7 +133,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "border-b border-border/50 transition-all duration-200",
+        "border-b border-border/50 transition-colors duration-150",
         isDragging && "opacity-50",
         isTaskSelected &&
           "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",
@@ -204,7 +204,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
                       alt={assignee?.user?.name || ""}
                     />
                     <AvatarFallback className="text-xs font-medium border border-border/30">
-                      {assignee?.user?.name?.charAt(0).toUpperCase()}
+                      {getInitials(assignee?.user?.name)}
                     </AvatarFallback>
                   </Avatar>
                 ) : (

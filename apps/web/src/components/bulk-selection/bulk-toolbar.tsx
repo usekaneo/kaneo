@@ -43,6 +43,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -315,7 +316,7 @@ function BulkToolbar() {
                 alt={member.user?.name || ""}
               />
               <AvatarFallback className="text-xs font-medium border border-border/30">
-                {member.user?.name?.charAt(0).toUpperCase()}
+                {getInitials(member.user?.name)}
               </AvatarFallback>
             </Avatar>
           ),
@@ -382,7 +383,7 @@ function BulkToolbar() {
   if (!canEdit && !canAssign) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+    <div className="-translate-x-1/2 fixed bottom-6 left-1/2 z-50 transition-[translate,opacity] duration-200 ease-out starting:translate-y-3 starting:opacity-0 motion-reduce:starting:translate-y-0">
       <Toolbar className="items-center gap-1 rounded-xl border-border/80 bg-background px-1.5 py-1 shadow-lg/8">
         <ToolbarGroup className="px-1.5">
           <span className="text-sm font-medium text-foreground">
@@ -461,7 +462,7 @@ function BulkToolbar() {
       </Toolbar>
 
       <CommandDialog open={isActionsOpen} onOpenChange={setIsActionsOpen}>
-        <CommandDialogPopup>
+        <CommandDialogPopup instant>
           <Command items={groupedItems}>
             <CommandInput placeholder={t("tasks:bulk.searchActions")} />
             <CommandPanel>

@@ -31,6 +31,7 @@ import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -166,9 +167,6 @@ export default function TaskPropertiesSidebar({
                     />
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -238,7 +236,9 @@ export default function TaskPropertiesSidebar({
                           alt={assignee?.user?.name || ""}
                         />
                         <AvatarFallback className="text-[9px] font-medium border border-border/30 flex-shrink-0 h-[16px] w-[16px]">
-                          {assignee?.user?.name?.charAt(0).toUpperCase()}
+                          {getInitials(
+                            assignee?.user?.name || task.assigneeName,
+                          )}
                         </AvatarFallback>
                       </Avatar>
                     ) : (
@@ -354,9 +354,6 @@ export default function TaskPropertiesSidebar({
                       />
                     </TooltipContent>
                   </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -426,7 +423,9 @@ export default function TaskPropertiesSidebar({
                             alt={assignee?.user?.name || ""}
                           />
                           <AvatarFallback className="text-[9px] font-medium border border-border/30 shrink-0 h-[16px] w-[16px]">
-                            {assignee?.user?.name?.charAt(0).toUpperCase()}
+                            {getInitials(
+                              assignee?.user?.name || task.assigneeName,
+                            )}
                           </AvatarFallback>
                         </Avatar>
                       ) : (
@@ -544,9 +543,6 @@ export default function TaskPropertiesSidebar({
                         />
                       </TooltipContent>
                     </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
@@ -617,7 +613,9 @@ export default function TaskPropertiesSidebar({
                             alt={assignee?.user?.name || ""}
                           />
                           <AvatarFallback className="text-[9px] font-medium border border-border/30 shrink-0 h-[16px] w-[16px]">
-                            {assignee?.user?.name?.charAt(0).toUpperCase()}
+                            {getInitials(
+                              assignee?.user?.name || task.assigneeName,
+                            )}
                           </AvatarFallback>
                         </Avatar>
                       ) : (

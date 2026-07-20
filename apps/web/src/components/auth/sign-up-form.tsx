@@ -71,15 +71,21 @@ export function SignUpForm({
   const onSubmit = async (data: SignUpFormValues) => {
     setIsPending(true);
     try {
+      const headers: Record<string, string> = {};
+      if (turnstileToken) {
+        headers["x-turnstile-token"] = turnstileToken;
+      }
+      if (invitationId) {
+        headers["x-invitation-id"] = invitationId;
+      }
+
       const result = await authClient.signUp.email(
         {
           email: data.email,
           name: data.name,
           password: data.password,
         },
-        turnstileToken
-          ? { headers: { "x-turnstile-token": turnstileToken } }
-          : undefined,
+        Object.keys(headers).length > 0 ? { headers } : undefined,
       );
 
       if (result.error) {

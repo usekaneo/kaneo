@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -64,7 +65,7 @@ export function PublicTaskCard({
   return (
     <button
       type="button"
-      className="group w-full text-left p-3 bg-card border border-border rounded-lg cursor-pointer transition-all duration-200 ease-out hover:border-border/70 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+      className="group w-full text-left p-3 bg-card border border-border rounded-lg cursor-pointer transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:border-border/70 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onClick={handleClick}
@@ -82,7 +83,7 @@ export function PublicTaskCard({
               alt={task.assigneeName ?? ""}
             />
             <AvatarFallback className="text-[10px] font-medium border border-border/30">
-              {task.assigneeName.charAt(0).toUpperCase()}
+              {getInitials(task.assigneeName)}
             </AvatarFallback>
           </Avatar>
           <span className="text-[10px] text-muted-foreground font-medium truncate">

@@ -46,6 +46,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
@@ -768,9 +769,7 @@ function CreateTaskModal({
                             alt={selectedUser?.user?.name || ""}
                           />
                           <AvatarFallback className="text-[10px] font-medium border border-border/30">
-                            {selectedUser?.user?.name
-                              ?.charAt(0)
-                              .toUpperCase() || "?"}
+                            {getInitials(selectedUser?.user?.name)}
                           </AvatarFallback>
                         </Avatar>
                         <span>{selectedUser.user?.name}</span>
@@ -818,7 +817,7 @@ function CreateTaskModal({
                             alt={member?.user?.name || ""}
                           />
                           <AvatarFallback className="text-xs font-medium border border-border/30">
-                            {member?.user?.name?.charAt(0).toUpperCase() || "?"}
+                            {getInitials(member?.user?.name)}
                           </AvatarFallback>
                         </Avatar>
                         <span className="text-sm">{member?.user?.name}</span>
@@ -1024,7 +1023,7 @@ function CreateTaskModal({
                   type="checkbox"
                   checked={createMore}
                   onChange={(e) => setCreateMore(e.target.checked)}
-                  className="rounded border-border bg-background text-primary focus:ring-ring focus:ring-offset-0 focus:ring-2 transition-all"
+                  className="rounded border-border bg-background text-primary focus:ring-ring focus:ring-offset-0 focus:ring-2 transition-[border-color,box-shadow]"
                 />
                 {t("common:modals.createTask.createMore")}
               </label>

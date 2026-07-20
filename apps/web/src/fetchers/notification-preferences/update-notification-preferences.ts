@@ -13,6 +13,11 @@ export type UpdateNotificationPreferencesRequest = {
   webhookEnabled?: boolean;
   webhookUrl?: string | null;
   webhookSecret?: string | null;
+  taskAssignmentEnabled?: boolean;
+  taskCommentEnabled?: boolean;
+  taskStatusChangeEnabled?: boolean;
+  dueDateReminderEnabled?: boolean;
+  dueDateReminderLeadTimeMinutes?: number;
 };
 
 async function updateNotificationPreferences(

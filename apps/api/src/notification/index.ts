@@ -162,10 +162,11 @@ const notification = new Hono<{
 subscribeToEvent<{
   taskId: string;
   userId: string;
+  currentUserId?: string;
   title: string;
   projectId: string;
 }>("task.created", async (data) => {
-  if (data.userId) {
+  if (data.userId && data.userId !== data.currentUserId) {
     const [project] = await db
       .select({ workspaceId: projectTable.workspaceId })
       .from(projectTable)
