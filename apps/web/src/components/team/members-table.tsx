@@ -5,11 +5,13 @@ import { useTranslation } from "react-i18next";
 import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-invitation";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
 import useUpdateWorkspaceUserRole from "@/hooks/mutations/workspace-user/use-update-workspace-user-role";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useWorkspaceRoles from "@/hooks/queries/workspace/use-workspace-roles";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
+import { getInvitationAcceptUrl } from "@/lib/get-invitation-accept-url";
 import { toast } from "@/lib/toast";
 import type {
   WorkspaceUser,
@@ -98,6 +100,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
     useCancelInvitation();
   const { mutateAsync: updateMemberRole } = useUpdateWorkspaceUserRole();
   const { data: allWorkspaceRoles = [] } = useWorkspaceRoles(workspaceId);
+  const { data: config } = useGetConfig();
   const { canManageTeam, canRemoveMembers, canInviteUsers } =
     useWorkspacePermission();
   const canChangeRoles = Boolean(canManageTeam());
@@ -170,6 +173,28 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
       );
     } finally {
       setInvitationToCancel(null);
+    }
+  };
+
+  const handleCopyInviteLink = async (invitation: WorkspaceUserInvitation) => {
+    const url = getInvitationAcceptUrl(invitation.id, {
+      clientUrl: config?.clientUrl,
+    });
+
+    if (!url) {
+      toast.error(t("team:membersTable.copyInviteLinkError"));
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t("team:membersTable.copyInviteLinkSuccess"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("team:membersTable.copyInviteLinkError"),
+      );
     }
   };
 
@@ -324,15 +349,31 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                       <span className="text-sm font-medium">
                         {invitation.email}
                       </span>
-                      <Badge
-                        variant="outline"
-                        size="sm"
-                        className="font-mono text-[9px] uppercase tracking-wider"
-                      >
-                        {t("team:invitations.pendingBadge", {
-                          defaultValue: "pending",
-                        })}
-                      </Badge>
+                      {canInvite ? (
+                        <Badge
+                          variant="outline"
+                          size="sm"
+                          render={<button type="button" />}
+                          onClick={() => handleCopyInviteLink(invitation)}
+                          aria-label={t("team:membersTable.copyInviteLinkAria")}
+                          title={t("team:membersTable.copyInviteLinkHint")}
+                          className="font-mono text-[9px] uppercase tracking-wider"
+                        >
+                          {t("team:invitations.pendingBadge", {
+                            defaultValue: "pending",
+                          })}
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          size="sm"
+                          className="font-mono text-[9px] uppercase tracking-wider"
+                        >
+                          {t("team:invitations.pendingBadge", {
+                            defaultValue: "pending",
+                          })}
+                        </Badge>
+                      )}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {invitation.expiresAt

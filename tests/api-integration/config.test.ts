@@ -18,6 +18,7 @@ describe("API integration: config", () => {
       customOAuthAutoLogin: false,
       isDemoMode: false,
       hasGuestAccess: true,
+      clientUrl: "http://localhost:5173",
     });
     expect(payload).toSatisfy((value: Record<string, unknown>) =>
       [

@@ -30,6 +30,9 @@ function getSettings() {
     disableLoginForm: process.env.DISABLE_LOGIN_FORM === "true",
     customOAuthAutoLogin: process.env.CUSTOM_OAUTH_AUTO_LOGIN === "true",
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
+    clientUrl: (
+      process.env.KANEO_CLIENT_URL || "http://localhost:5173"
+    ).replace(/\/$/, ""),
   };
 }
 
