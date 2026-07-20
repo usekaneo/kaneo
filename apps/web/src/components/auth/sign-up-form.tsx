@@ -68,6 +68,9 @@ export function SignUpForm({
     },
   });
 
+  const isInviteSignUp = Boolean(invitationId);
+  const emailLocked = isInviteSignUp && Boolean(defaultEmail);
+
   const onSubmit = async (data: SignUpFormValues) => {
     setIsPending(true);
     try {
@@ -149,7 +152,8 @@ export function SignUpForm({
                     placeholder={t("auth:forms.emailPlaceholder")}
                     type="email"
                     autoComplete="email"
-                    disabled={!!defaultEmail}
+                    readOnly={emailLocked}
+                    className={emailLocked ? "bg-muted" : undefined}
                     {...field}
                   />
                 </FormControl>
@@ -164,12 +168,18 @@ export function SignUpForm({
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium">
-                  {t("auth:forms.password")}
+                  {isInviteSignUp
+                    ? t("auth:signUpForm.setPassword")
+                    : t("auth:forms.password")}
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
-                      placeholder={t("auth:forms.passwordPlaceholder")}
+                      placeholder={
+                        isInviteSignUp
+                          ? t("auth:signUpForm.setPasswordPlaceholder")
+                          : t("auth:forms.passwordPlaceholder")
+                      }
                       type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
                       {...field}
@@ -202,7 +212,9 @@ export function SignUpForm({
         >
           {isPending
             ? t("auth:signUpForm.creatingAccount")
-            : t("auth:signUpForm.createAccount")}
+            : isInviteSignUp
+              ? t("auth:signUpForm.createAccountAndContinue")
+              : t("auth:signUpForm.createAccount")}
         </Button>
       </form>
     </Form>

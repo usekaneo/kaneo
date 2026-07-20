@@ -133,8 +133,8 @@
 			"pageTitle": "Iniciar sesión",
 			"title": "Bienvenido",
 			"subtitle": "Introduce tus credenciales para acceder a tu espacio de trabajo",
-			"invitationSubtitle": "Inicia sesión para aceptar la invitación",
-			"invitationAlert": "Al iniciar sesión, podrás aceptar la invitación al espacio de trabajo.",
+			"invitationSubtitle": "Sign in or create an account to accept your invitation",
+			"invitationAlert": "Don't have an account yet? Create one with this invitation to set your password.",
 			"signingIn": "Iniciando sesión...",
 			"continueWithGoogle": "Continuar con Google",
 			"continueWithGithub": "Continuar con GitHub",
@@ -180,11 +180,11 @@
 		"signUp": {
 			"pageTitle": "Crear Cuenta",
 			"title": "Crear cuenta",
-			"subtitleInvitation": "Crea una cuenta para aceptar tu invitación",
+			"subtitleInvitation": "Set a password to create your account and accept the invitation",
 			"subtitleRegistrationDisabled": "El registro requiere una invitación",
 			"subtitlePasswordDisabled": "Usa un proveedor social o OIDC para crear una cuenta",
 			"subtitleDefault": "Comienza con tu espacio de trabajo",
-			"invitationAlert": "Al crear tu cuenta podrás aceptar la invitación al espacio de trabajo.",
+			"invitationAlert": "Set a password for this email, then you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "El registro está actualmente deshabilitado. Si has sido invitado, introduce la dirección de correo electrónico en la que has recibido la invitación para crear tu cuenta.",
 			"passwordDisabledAlert": "El registro con contraseña está deshabilitado. Usa un proveedor social o OIDC desde la página de registro.",
 			"signingIn": "Iniciando sesión...",
@@ -232,7 +232,10 @@
 			"accountCreated": "Cuenta creada satisfactoriamente",
 			"passwordTooShort": "La contraseña es demasiado corta",
 			"creatingAccount": "Creando cuenta...",
-			"createAccount": "Crear cuenta"
+			"createAccount": "Crear cuenta",
+			"setPassword": "Set password",
+			"setPasswordPlaceholder": "Choose a password",
+			"createAccountAndContinue": "Create account & continue"
 		},
 		"invitation": {
 			"pageTitleAccept": "Aceptar Invitación",
@@ -259,7 +262,10 @@
 			"toast": {
 				"acceptFailed": "Error al aceptar la invitación",
 				"acceptSuccess": "¡Invitación aceptada! Bienvenido al equipo."
-			}
+			},
+			"createAccountToAccept": "Create an account and set a password to accept this invitation.",
+			"createAccount": "Create account",
+			"alreadyHaveAccount": "Already have an account?"
 		},
 		"onboarding": {
 			"pageTitle": "Bienvenido a Kaneo",

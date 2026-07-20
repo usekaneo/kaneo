@@ -133,8 +133,8 @@
 			"pageTitle": "Најава",
 			"title": "Добредојде назад",
 			"subtitle": "Внеси ги твоите податоци за да пристапиш до работниот простор",
-			"invitationSubtitle": "Најави се за да ја прифатиш поканата",
-			"invitationAlert": "По најавувањето, ќе можеш да ја прифатиш поканата за работниот простор.",
+			"invitationSubtitle": "Sign in or create an account to accept your invitation",
+			"invitationAlert": "Don't have an account yet? Create one with this invitation to set your password.",
 			"signingIn": "Се најавува...",
 			"continueWithGoogle": "Продолжи со Google",
 			"continueWithGithub": "Продолжи со GitHub",
@@ -180,11 +180,11 @@
 		"signUp": {
 			"pageTitle": "Креирај сметка",
 			"title": "Креирај сметка",
-			"subtitleInvitation": "Креирај сметка за да ја прифатиш поканата",
+			"subtitleInvitation": "Set a password to create your account and accept the invitation",
 			"subtitleRegistrationDisabled": "Регистрацијата бара покана",
 			"subtitlePasswordDisabled": "Користи социјална или OIDC најава за да креираш сметка",
 			"subtitleDefault": "Започни со твојот работен простор",
-			"invitationAlert": "По креирањето на сметката, ќе можеш да ја прифатиш поканата за работниот простор.",
+			"invitationAlert": "Set a password for this email, then you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "Регистрацијата е моментално оневозможена. Ако си поканет, внеси ја е-поштата на која ја доби поканата за да ја креираш сметката.",
 			"passwordDisabledAlert": "Креирањето сметка со лозинка е оневозможено. Користи социјална или OIDC метода за најава од страницата за најава.",
 			"signingIn": "Се најавува...",
@@ -232,7 +232,10 @@
 			"accountCreated": "Сметката е успешно креирана",
 			"passwordTooShort": "Лозинката е прекратка",
 			"creatingAccount": "Се креира сметка...",
-			"createAccount": "Креирај сметка"
+			"createAccount": "Креирај сметка",
+			"setPassword": "Set password",
+			"setPasswordPlaceholder": "Choose a password",
+			"createAccountAndContinue": "Create account & continue"
 		},
 		"invitation": {
 			"pageTitleAccept": "Прифати покана",
@@ -259,7 +262,10 @@
 			"toast": {
 				"acceptFailed": "Неуспешно прифаќање на поканата",
 				"acceptSuccess": "Поканата е прифатена! Добредојде во тимот."
-			}
+			},
+			"createAccountToAccept": "Create an account and set a password to accept this invitation.",
+			"createAccount": "Create account",
+			"alreadyHaveAccount": "Already have an account?"
 		},
 		"onboarding": {
 			"pageTitle": "Добредојде на Kaneo",

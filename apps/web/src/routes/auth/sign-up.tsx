@@ -140,13 +140,15 @@ function SignUp() {
                 </AlertDescription>
               </Alert>
             )}
-          {config?.disablePasswordRegistration && !isInstanceAdminSetup && (
-            <Alert>
-              <AlertDescription>
-                {t("auth:signUp.passwordDisabledAlert")}
-              </AlertDescription>
-            </Alert>
-          )}
+          {config?.disablePasswordRegistration &&
+            !isInstanceAdminSetup &&
+            !invitationId && (
+              <Alert>
+                <AlertDescription>
+                  {t("auth:signUp.passwordDisabledAlert")}
+                </AlertDescription>
+              </Alert>
+            )}
 
           {(() => {
             const ssoNode = (
@@ -208,7 +210,9 @@ function SignUp() {
               </>
             );
           })()}
-          {(!config?.disablePasswordRegistration || isInstanceAdminSetup) && (
+          {(!config?.disablePasswordRegistration ||
+            isInstanceAdminSetup ||
+            !!invitationId) && (
             <SignUpForm
               invitationId={invitationId}
               defaultEmail={prefillEmail}
@@ -228,6 +232,9 @@ function SignUp() {
               message={t("auth:signUp.toggleMessage")}
               linkText={t("auth:signUp.toggleLink")}
               linkTo="/auth/sign-in"
+              search={
+                invitationId ? { invitationId, email: prefillEmail } : undefined
+              }
             />
           )}
         </div>

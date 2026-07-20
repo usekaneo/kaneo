@@ -474,18 +474,33 @@ function SignIn() {
             ))}
           {config?.disableRegistration ||
           config?.disablePasswordRegistration ? (
-            <div className="text-center pt-4">
-              <p className="text-sm text-muted-foreground">
-                {config?.disableRegistration
-                  ? t("auth:signIn.registrationDisabled")
-                  : t("auth:signIn.passwordRegistrationDisabled")}
-              </p>
-            </div>
+            invitationId ? (
+              <AuthToggle
+                message={t("auth:signIn.toggleMessage")}
+                linkText={t("auth:signIn.toggleLink")}
+                linkTo="/auth/sign-up"
+                search={{
+                  invitationId,
+                  email: defaultEmail,
+                }}
+              />
+            ) : (
+              <div className="text-center pt-4">
+                <p className="text-sm text-muted-foreground">
+                  {config?.disableRegistration
+                    ? t("auth:signIn.registrationDisabled")
+                    : t("auth:signIn.passwordRegistrationDisabled")}
+                </p>
+              </div>
+            )
           ) : !config?.disableLoginForm ? (
             <AuthToggle
               message={t("auth:signIn.toggleMessage")}
               linkText={t("auth:signIn.toggleLink")}
               linkTo="/auth/sign-up"
+              search={
+                invitationId ? { invitationId, email: defaultEmail } : undefined
+              }
             />
           ) : null}
         </div>

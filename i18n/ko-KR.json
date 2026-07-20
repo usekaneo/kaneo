@@ -133,8 +133,8 @@
 			"pageTitle": "로그인",
 			"title": "다시 오신 것을 환영합니다",
 			"subtitle": "워크스페이스에 접근하려면 자격 증명을 입력하세요",
-			"invitationSubtitle": "초대를 수락하려면 로그인하세요",
-			"invitationAlert": "로그인 후 워크스페이스 초대를 수락할 수 있습니다.",
+			"invitationSubtitle": "Sign in or create an account to accept your invitation",
+			"invitationAlert": "Don't have an account yet? Create one with this invitation to set your password.",
 			"signingIn": "로그인 중...",
 			"continueWithGoogle": "Google로 계속하기",
 			"continueWithGithub": "GitHub로 계속하기",
@@ -180,11 +180,11 @@
 		"signUp": {
 			"pageTitle": "계정 만들기",
 			"title": "계정 만들기",
-			"subtitleInvitation": "초대를 수락하려면 계정을 만드세요",
+			"subtitleInvitation": "Set a password to create your account and accept the invitation",
 			"subtitleRegistrationDisabled": "회원가입에는 초대가 필요합니다",
 			"subtitlePasswordDisabled": "계정을 만들려면 소셜 또는 OIDC 로그인을 사용하세요",
 			"subtitleDefault": "워크스페이스를 시작하세요",
-			"invitationAlert": "계정을 만든 후 워크스페이스 초대를 수락할 수 있습니다.",
+			"invitationAlert": "Set a password for this email, then you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "현재 회원가입이 비활성화되어 있습니다. 초대를 받으셨다면, 초대를 받은 이메일 주소를 입력하여 계정을 만드세요.",
 			"passwordDisabledAlert": "비밀번호 기반 계정 생성이 비활성화되어 있습니다. 로그인 페이지에서 구성된 소셜 또는 OIDC 로그인 방법을 사용하세요.",
 			"signingIn": "로그인 중...",
@@ -232,7 +232,10 @@
 			"accountCreated": "계정이 생성되었습니다",
 			"passwordTooShort": "비밀번호가 너무 짧습니다",
 			"creatingAccount": "계정 생성 중...",
-			"createAccount": "계정 만들기"
+			"createAccount": "계정 만들기",
+			"setPassword": "Set password",
+			"setPasswordPlaceholder": "Choose a password",
+			"createAccountAndContinue": "Create account & continue"
 		},
 		"invitation": {
 			"pageTitleAccept": "초대 수락",
@@ -259,7 +262,10 @@
 			"toast": {
 				"acceptFailed": "초대 수락에 실패했습니다",
 				"acceptSuccess": "초대가 수락되었습니다! 팀에 오신 것을 환영합니다."
-			}
+			},
+			"createAccountToAccept": "Create an account and set a password to accept this invitation.",
+			"createAccount": "Create account",
+			"alreadyHaveAccount": "Already have an account?"
 		},
 		"onboarding": {
 			"pageTitle": "Kaneo에 오신 것을 환영합니다",

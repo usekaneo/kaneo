@@ -922,6 +922,15 @@
 						},
 						"createAccount": {
 							"type": "string"
+						},
+						"setPassword": {
+							"type": "string"
+						},
+						"setPasswordPlaceholder": {
+							"type": "string"
+						},
+						"createAccountAndContinue": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -931,7 +940,10 @@
 						"accountCreated",
 						"passwordTooShort",
 						"creatingAccount",
-						"createAccount"
+						"createAccount",
+						"setPassword",
+						"setPasswordPlaceholder",
+						"createAccountAndContinue"
 					]
 				},
 				"invitation": {
@@ -978,6 +990,15 @@
 							"type": "string"
 						},
 						"signInToAccept": {
+							"type": "string"
+						},
+						"createAccountToAccept": {
+							"type": "string"
+						},
+						"createAccount": {
+							"type": "string"
+						},
+						"alreadyHaveAccount": {
 							"type": "string"
 						},
 						"accepting": {
@@ -1030,6 +1051,9 @@
 						"inviteBodySignedIn",
 						"inviteBodySignedOut",
 						"signInToAccept",
+						"createAccountToAccept",
+						"createAccount",
+						"alreadyHaveAccount",
 						"accepting",
 						"acceptInvitation",
 						"goToDashboard",
