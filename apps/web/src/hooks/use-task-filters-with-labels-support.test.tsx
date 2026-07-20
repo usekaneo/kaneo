@@ -103,4 +103,37 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       "task-1",
     );
   });
+
+  it("returns the same project reference when no filters or search are active", () => {
+    const project = {
+      id: "project-1",
+      name: "Project",
+      slug: "PROJ",
+      icon: null,
+      description: null,
+      isPublic: false,
+      createdAt: "2026-04-16T00:00:00.000Z",
+      updatedAt: "2026-04-16T00:00:00.000Z",
+      workspaceId: "workspace-1",
+      columns: [
+        {
+          id: "todo",
+          slug: "todo",
+          name: "Todo",
+          icon: null,
+          isFinal: false,
+          tasks: [],
+        },
+      ],
+      plannedTasks: [],
+      archivedTasks: [],
+    };
+
+    const { result } = renderHook(() =>
+      useTaskFiltersWithLabelsSupport(project, "project-1"),
+    );
+
+    expect(result.current.hasActiveFilters).toBe(false);
+    expect(result.current.filteredProject).toBe(project);
+  });
 });

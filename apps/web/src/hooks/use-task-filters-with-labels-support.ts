@@ -185,6 +185,10 @@ export function useTaskFiltersWithLabelsSupport(
   const filteredProject = useMemo(() => {
     if (!project) return null;
 
+    if (!hasActiveFilters && !hasTextQuery) {
+      return project;
+    }
+
     const filtered = {
       ...project,
       columns:
@@ -195,11 +199,7 @@ export function useTaskFiltersWithLabelsSupport(
     };
 
     // When filters/search drop subtasks, API counts no longer match the view.
-    if (hasActiveFilters || hasTextQuery) {
-      return recalculateVisibleSubtaskCounts(filtered);
-    }
-
-    return filtered;
+    return recalculateVisibleSubtaskCounts(filtered);
   }, [project, filterTasks, hasActiveFilters, hasTextQuery]);
 
   const clearFilters = () => {
