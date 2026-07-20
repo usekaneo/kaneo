@@ -9,17 +9,21 @@ type HierarchyExpansionStore = {
   collapseAll: (projectId: string) => void;
 };
 
+const EMPTY_EXPANDED_IDS: string[] = [];
+
 const useHierarchyExpansionStore = create<HierarchyExpansionStore>()(
   persist(
     (set, get) => ({
       expandedTaskIds: {},
       isExpanded: (projectId, taskId) => {
-        const expanded = get().expandedTaskIds[projectId] ?? [];
+        const expanded = get().expandedTaskIds[projectId] ?? EMPTY_EXPANDED_IDS;
         return expanded.includes(taskId);
       },
       toggleExpanded: (projectId, taskId) => {
         set((state) => {
-          const current = new Set(state.expandedTaskIds[projectId] ?? []);
+          const current = new Set(
+            state.expandedTaskIds[projectId] ?? EMPTY_EXPANDED_IDS,
+          );
           if (current.has(taskId)) {
             current.delete(taskId);
           } else {
@@ -57,4 +61,5 @@ const useHierarchyExpansionStore = create<HierarchyExpansionStore>()(
   ),
 );
 
+export { EMPTY_EXPANDED_IDS };
 export default useHierarchyExpansionStore;

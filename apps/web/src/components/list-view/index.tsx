@@ -26,7 +26,9 @@ import { cn } from "@/lib/cn";
 import type { SortConfig } from "@/lib/sort-tasks";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
-import useHierarchyExpansionStore from "@/store/hierarchy-expansion";
+import useHierarchyExpansionStore, {
+  EMPTY_EXPANDED_IDS,
+} from "@/store/hierarchy-expansion";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
@@ -35,6 +37,8 @@ import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import ColumnSection from "./column-section";
 import TaskTreeList from "./task-tree-list";
+
+const EMPTY_TREE_TASKS: ReturnType<typeof flattenTree> = [];
 
 type ListViewProps = {
   project: ProjectWithTasks;
@@ -50,13 +54,13 @@ function ListView({
   const { t } = useTranslation();
   const { setProject } = useProjectStore();
   const { hierarchyMode } = useUserPreferencesStore();
-  const {
-    setAvailableTasks,
-    focusNext,
-    focusPrevious,
-    focusedTaskId,
-    clearFocus,
-  } = useBulkSelectionStore();
+  const setAvailableTasks = useBulkSelectionStore(
+    (state) => state.setAvailableTasks,
+  );
+  const focusNext = useBulkSelectionStore((state) => state.focusNext);
+  const focusPrevious = useBulkSelectionStore((state) => state.focusPrevious);
+  const focusedTaskId = useBulkSelectionStore((state) => state.focusedTaskId);
+  const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
   const { isExpanded, toggleExpanded } = useHierarchyExpansionStore();
   const { mutate: updateTask } = useUpdateTask();
   const navigate = useNavigate();
@@ -84,7 +88,7 @@ function ListView({
     disableDragDrop || hierarchyMode === "tree" || hierarchyMode === "nested";
 
   const expandedIds = useHierarchyExpansionStore(
-    (state) => state.expandedTaskIds[project.id] ?? [],
+    (state) => state.expandedTaskIds[project.id] ?? EMPTY_EXPANDED_IDS,
   );
   const expandedSet = useMemo(() => new Set(expandedIds), [expandedIds]);
 
@@ -95,7 +99,7 @@ function ListView({
 
   const treeTasks = useMemo(() => {
     if (hierarchyMode !== "tree") {
-      return [];
+      return EMPTY_TREE_TASKS;
     }
     return flattenTree(allTasks, expandedSet, sort);
   }, [allTasks, expandedSet, hierarchyMode, sort]);
