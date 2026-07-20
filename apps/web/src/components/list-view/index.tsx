@@ -161,17 +161,20 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     },
   });
 
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: { distance: hierarchyDragDisabled ? 999999 : 8 },
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: hierarchyDragDisabled ? 999999 : 200,
+      tolerance: 8,
+    },
+  });
+  const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: { distance: hierarchyDragDisabled ? 999999 : 8 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: hierarchyDragDisabled ? 999999 : 200,
-        tolerance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor),
+    mouseSensor,
+    touchSensor,
+    ...(hierarchyDragDisabled ? [] : [keyboardSensor]),
   );
 
   const handleToggleExpand = useCallback(
@@ -297,8 +300,12 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   };
 
   const handleArchiveClick = (column: ProjectWithTasks["columns"][number]) => {
-    if (!column.isFinal || column.tasks.length === 0) return;
-    setColumnToArchive(column);
+    // Always archive from the full project column — nested/tree views omit
+    // collapsed subtasks from the rendered column.tasks list.
+    const sourceColumn =
+      project.columns.find((col) => col.id === column.id) ?? column;
+    if (!sourceColumn.isFinal || sourceColumn.tasks.length === 0) return;
+    setColumnToArchive(sourceColumn);
     setIsArchiveModalOpen(true);
   };
 

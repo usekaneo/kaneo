@@ -298,7 +298,7 @@ function TaskRow({
                   {task.title}
                 </span>
                 <div className="flex items-center gap-1">
-                  {hasChildren && (task.directSubtaskCount ?? 0) > 0 && (
+                  {(task.directSubtaskCount ?? 0) > 0 && (
                     <div
                       className="inline-flex items-center gap-1 rounded-md border border-border bg-sidebar px-1.5 py-0.5 text-[10px] text-muted-foreground"
                       title={t("tasks:hierarchy.subtaskProgress", {
