@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-invitation";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
 import useUpdateWorkspaceUserRole from "@/hooks/mutations/workspace-user/use-update-workspace-user-role";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useWorkspaceRoles from "@/hooks/queries/workspace/use-workspace-roles";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
@@ -99,6 +100,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
     useCancelInvitation();
   const { mutateAsync: updateMemberRole } = useUpdateWorkspaceUserRole();
   const { data: allWorkspaceRoles = [] } = useWorkspaceRoles(workspaceId);
+  const { data: config } = useGetConfig();
   const { canManageTeam, canRemoveMembers, canInviteUsers } =
     useWorkspacePermission();
   const canChangeRoles = Boolean(canManageTeam());
@@ -175,10 +177,17 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
   };
 
   const handleCopyInviteLink = async (invitation: WorkspaceUserInvitation) => {
+    const url = getInvitationAcceptUrl(invitation.id, {
+      clientUrl: config?.clientUrl,
+    });
+
+    if (!url) {
+      toast.error(t("team:membersTable.copyInviteLinkError"));
+      return;
+    }
+
     try {
-      await navigator.clipboard.writeText(
-        getInvitationAcceptUrl(invitation.id),
-      );
+      await navigator.clipboard.writeText(url);
       toast.success(t("team:membersTable.copyInviteLinkSuccess"));
     } catch (error) {
       toast.error(

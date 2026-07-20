@@ -64,6 +64,14 @@ vi.mock("@/hooks/queries/workspace/use-workspace-roles", () => ({
   }),
 }));
 
+vi.mock("@/hooks/queries/config/use-get-config", () => ({
+  default: () => ({
+    data: {
+      clientUrl: "https://app.example.com",
+    },
+  }),
+}));
+
 vi.mock("@/components/providers/auth-provider/hooks/use-auth", () => ({
   useAuth: () => ({ user: null }),
 }));
@@ -128,7 +136,7 @@ describe("MembersTable pending invite link", () => {
 
     await waitFor(() => {
       expect(mockWriteText).toHaveBeenCalledWith(
-        `${window.location.origin}/invitation/accept/inv-123`,
+        "https://app.example.com/invitation/accept/inv-123",
       );
     });
     expect(mockToastSuccess).toHaveBeenCalledWith(
