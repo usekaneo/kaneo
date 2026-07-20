@@ -1793,6 +1793,17 @@
 			"archiveAllTooltip": "Archive all completed tasks",
 			"noTasks": "No tasks"
 		},
+		"hierarchy": {
+			"mode": {
+				"flat": "Flat",
+				"tree": "Tree",
+				"nested": "Nested"
+			},
+			"expand": "Expand subtasks",
+			"collapse": "Collapse subtasks",
+			"subtaskOf": "Subtask of {{title}}",
+			"subtaskProgress": "{{completed}} of {{total}} subtasks completed"
+		},
 		"kanban": {
 			"addTask": "Add task"
 		},

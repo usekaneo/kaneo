@@ -40,6 +40,9 @@ export const taskSchema = v.object({
   startDate: v.optional(v.date()),
   dueDate: v.optional(v.date()),
   createdAt: v.date(),
+  parentId: v.optional(v.nullable(v.string())),
+  directSubtaskCount: v.optional(v.number()),
+  completedSubtaskCount: v.optional(v.number()),
 });
 
 export const activitySchema = v.object({

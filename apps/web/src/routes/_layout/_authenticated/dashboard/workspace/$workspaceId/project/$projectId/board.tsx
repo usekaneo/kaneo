@@ -81,7 +81,8 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
-  const { viewMode, setViewMode } = useUserPreferencesStore();
+  const { viewMode, setViewMode, hierarchyMode, setHierarchyMode } =
+    useUserPreferencesStore();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [boardSearchQuery, setBoardSearchQuery] = useState("");
   const [isBoardSearchMounted, setIsBoardSearchMounted] = useState(false);
@@ -228,6 +229,8 @@ function RouteComponent() {
           workspaceLabels={workspaceLabels}
           viewMode={viewMode}
           setViewMode={setViewMode}
+          hierarchyMode={hierarchyMode}
+          setHierarchyMode={setHierarchyMode}
           sort={sort}
           onSortChange={setSort}
         />
@@ -242,6 +245,7 @@ function RouteComponent() {
             ) : (
               <ListView
                 project={sortedProject}
+                sort={sort}
                 disableDragDrop={sort.field !== "position"}
               />
             )

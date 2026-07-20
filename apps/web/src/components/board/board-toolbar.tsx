@@ -1,4 +1,11 @@
-import { Filter, PanelsTopLeft, Rows3, X } from "lucide-react";
+import {
+  Filter,
+  GitBranch,
+  ListTree,
+  PanelsTopLeft,
+  Rows3,
+  X,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import SortControl from "@/components/common/sort-control";
@@ -20,6 +27,7 @@ import {
   type BoardFilters,
   DUE_DATE_FILTER_VALUES,
 } from "@/hooks/use-task-filters";
+import type { HierarchyMode } from "@/lib/build-task-hierarchy";
 import { getColumnIcon } from "@/lib/column";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
@@ -57,6 +65,8 @@ type BoardToolbarProps = {
   workspaceLabels: WorkspaceLabel[];
   viewMode: "board" | "list";
   setViewMode: (mode: "board" | "list") => void;
+  hierarchyMode: HierarchyMode;
+  setHierarchyMode: (mode: HierarchyMode) => void;
   sort: SortConfig;
   onSortChange: (sort: SortConfig) => void;
 };
@@ -141,6 +151,8 @@ export default function BoardToolbar({
   workspaceLabels,
   viewMode,
   setViewMode,
+  hierarchyMode,
+  setHierarchyMode,
   sort,
   onSortChange,
 }: BoardToolbarProps) {
@@ -644,6 +656,49 @@ export default function BoardToolbar({
           </div>
 
           <div className="inline-flex items-center gap-1">
+            {viewMode === "list" && (
+              <div className="mr-2 inline-flex items-center gap-0.5 rounded-md border border-border bg-background p-0.5">
+                <button
+                  type="button"
+                  className={`inline-flex h-6 items-center gap-1 rounded px-2 text-xs font-medium transition-colors ${
+                    hierarchyMode === "flat"
+                      ? "bg-accent text-foreground"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                  }`}
+                  onClick={() => setHierarchyMode("flat")}
+                  title={t("tasks:hierarchy.mode.flat")}
+                >
+                  <Rows3 className="h-3 w-3" />
+                  {t("tasks:hierarchy.mode.flat")}
+                </button>
+                <button
+                  type="button"
+                  className={`inline-flex h-6 items-center gap-1 rounded px-2 text-xs font-medium transition-colors ${
+                    hierarchyMode === "tree"
+                      ? "bg-accent text-foreground"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                  }`}
+                  onClick={() => setHierarchyMode("tree")}
+                  title={t("tasks:hierarchy.mode.tree")}
+                >
+                  <GitBranch className="h-3 w-3" />
+                  {t("tasks:hierarchy.mode.tree")}
+                </button>
+                <button
+                  type="button"
+                  className={`inline-flex h-6 items-center gap-1 rounded px-2 text-xs font-medium transition-colors ${
+                    hierarchyMode === "nested"
+                      ? "bg-accent text-foreground"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                  }`}
+                  onClick={() => setHierarchyMode("nested")}
+                  title={t("tasks:hierarchy.mode.nested")}
+                >
+                  <ListTree className="h-3 w-3" />
+                  {t("tasks:hierarchy.mode.nested")}
+                </button>
+              </div>
+            )}
             <button
               type="button"
               className={`inline-flex h-6 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors ${

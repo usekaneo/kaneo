@@ -1,5 +1,6 @@
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { recalculateVisibleSubtaskCounts } from "@/lib/recalculate-visible-subtask-counts";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
@@ -176,10 +177,15 @@ export function useTaskFiltersWithLabelsSupport(
     [filters, textQuery, weekStartsOn],
   );
 
+  const hasActiveFilters = Object.values(filters).some((filter) =>
+    Array.isArray(filter) ? filter.length > 0 : filter !== null,
+  );
+  const hasTextQuery = Boolean(textQuery?.trim());
+
   const filteredProject = useMemo(() => {
     if (!project) return null;
 
-    return {
+    const filtered = {
       ...project,
       columns:
         project.columns?.map((column) => ({
@@ -187,11 +193,14 @@ export function useTaskFiltersWithLabelsSupport(
           tasks: filterTasks(column.tasks),
         })) ?? [],
     };
-  }, [project, filterTasks]);
 
-  const hasActiveFilters = Object.values(filters).some((filter) =>
-    Array.isArray(filter) ? filter.length > 0 : filter !== null,
-  );
+    // When filters/search drop subtasks, API counts no longer match the view.
+    if (hasActiveFilters || hasTextQuery) {
+      return recalculateVisibleSubtaskCounts(filtered);
+    }
+
+    return filtered;
+  }, [project, filterTasks, hasActiveFilters, hasTextQuery]);
 
   const clearFilters = () => {
     setFilters(DEFAULT_FILTERS);

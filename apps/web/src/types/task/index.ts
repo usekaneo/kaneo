@@ -15,6 +15,12 @@ type TaskExternalLink = {
   metadata: Record<string, unknown> | null;
 };
 
+export type TaskHierarchyMeta = {
+  parentId: string | null;
+  directSubtaskCount: number;
+  completedSubtaskCount: number;
+};
+
 type Task = {
   id: string;
   title: string;
@@ -35,6 +41,18 @@ type Task = {
   columnId?: string | null;
   labels?: TaskLabel[];
   externalLinks?: TaskExternalLink[];
+  parentId?: string | null;
+  directSubtaskCount?: number;
+  completedSubtaskCount?: number;
+};
+
+export type TaskWithHierarchy = Task & Required<TaskHierarchyMeta>;
+
+export type TaskTreeNode = TaskWithHierarchy & {
+  depth: number;
+  hasChildren: boolean;
+  parentInSameColumn: boolean;
+  parentTitle?: string | null;
 };
 
 export default Task;

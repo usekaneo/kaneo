@@ -11,6 +11,9 @@ type UserPreferencesStore = {
   viewMode: "board" | "list";
   setViewMode: (mode: "board" | "list") => void;
 
+  hierarchyMode: "flat" | "tree" | "nested";
+  setHierarchyMode: (mode: "flat" | "tree" | "nested") => void;
+
   compactMode: boolean;
   setCompactMode: (compact: boolean) => void;
 
@@ -71,6 +74,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
 
       viewMode: "board",
       setViewMode: (mode) => set({ viewMode: mode }),
+
+      hierarchyMode: "flat",
+      setHierarchyMode: (mode) => set({ hierarchyMode: mode }),
 
       compactMode: false,
       setCompactMode: (compact) => set({ compactMode: compact }),

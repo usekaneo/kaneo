@@ -6,6 +6,7 @@ import {
   gte,
   inArray,
   lte,
+  or,
   type SQL,
   sql,
 } from "drizzle-orm";
@@ -16,9 +17,11 @@ import {
   externalLinkTable,
   labelTable,
   projectTable,
+  taskRelationTable,
   taskTable,
   userTable,
 } from "../../database/schema";
+import { getBoardVisibleSubtaskCounts } from "../utils/subtask-counts";
 
 type GetTasksOptions = {
   assigneeId?: string;
@@ -221,6 +224,94 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     .where(eq(columnTable.projectId, projectId))
     .orderBy(asc(columnTable.position));
 
+  const finalColumnSlugs = new Set(
+    projectColumns
+      .filter((column) => column.isFinal)
+      .map((column) => column.slug),
+  );
+
+  const boardColumnSlugs = new Set(projectColumns.map((column) => column.slug));
+
+  const subtaskRelations =
+    taskIds.length > 0
+      ? await db
+          .select({
+            sourceTaskId: taskRelationTable.sourceTaskId,
+            targetTaskId: taskRelationTable.targetTaskId,
+          })
+          .from(taskRelationTable)
+          .where(
+            and(
+              eq(taskRelationTable.relationType, "subtask"),
+              or(
+                inArray(taskRelationTable.sourceTaskId, taskIds),
+                inArray(taskRelationTable.targetTaskId, taskIds),
+              ),
+            ),
+          )
+      : [];
+
+  const parentIdMap = new Map<string, string>();
+  const childrenMap = new Map<string, string[]>();
+
+  for (const relation of subtaskRelations) {
+    parentIdMap.set(relation.targetTaskId, relation.sourceTaskId);
+    const children = childrenMap.get(relation.sourceTaskId) ?? [];
+    children.push(relation.targetTaskId);
+    childrenMap.set(relation.sourceTaskId, children);
+  }
+
+  const taskStatusMap = new Map(
+    paginatedTasks.map((task) => [task.id, task.status]),
+  );
+
+  const missingChildIds = [
+    ...new Set(
+      [...childrenMap.values()]
+        .flat()
+        .filter((childId) => !taskStatusMap.has(childId)),
+    ),
+  ];
+
+  if (missingChildIds.length > 0) {
+    const missingStatuses = await db
+      .select({
+        id: taskTable.id,
+        status: taskTable.status,
+      })
+      .from(taskTable)
+      .where(
+        and(
+          eq(taskTable.projectId, projectId),
+          inArray(taskTable.id, missingChildIds),
+        ),
+      );
+
+    for (const child of missingStatuses) {
+      taskStatusMap.set(child.id, child.status);
+    }
+  }
+
+  const enrichTask = (task: (typeof paginatedTasks)[number]) => {
+    const { directSubtaskCount, completedSubtaskCount } =
+      getBoardVisibleSubtaskCounts(
+        task.id,
+        childrenMap,
+        taskStatusMap,
+        boardColumnSlugs,
+        finalColumnSlugs,
+      );
+
+    return {
+      ...task,
+      labels: taskLabelsMap.get(task.id) || [],
+      externalLinks: taskExternalLinksMap.get(task.id) || [],
+      parentId: parentIdMap.get(task.id) ?? null,
+      directSubtaskCount,
+      completedSubtaskCount,
+    };
+  };
+
   const columns = projectColumns.map((column) => ({
     id: column.slug,
     slug: column.slug,
@@ -229,28 +320,16 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     isFinal: column.isFinal,
     tasks: paginatedTasks
       .filter((task) => task.status === column.slug)
-      .map((task) => ({
-        ...task,
-        labels: taskLabelsMap.get(task.id) || [],
-        externalLinks: taskExternalLinksMap.get(task.id) || [],
-      })),
+      .map(enrichTask),
   }));
 
   const archivedTasks = paginatedTasks
     .filter((task) => task.status === "archived")
-    .map((task) => ({
-      ...task,
-      labels: taskLabelsMap.get(task.id) || [],
-      externalLinks: taskExternalLinksMap.get(task.id) || [],
-    }));
+    .map(enrichTask);
 
   const plannedTasks = paginatedTasks
     .filter((task) => task.status === "planned")
-    .map((task) => ({
-      ...task,
-      labels: taskLabelsMap.get(task.id) || [],
-      externalLinks: taskExternalLinksMap.get(task.id) || [],
-    }));
+    .map(enrichTask);
 
   return {
     data: {
