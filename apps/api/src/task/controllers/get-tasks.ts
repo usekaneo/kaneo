@@ -21,6 +21,7 @@ import {
   taskTable,
   userTable,
 } from "../../database/schema";
+import { getBoardVisibleSubtaskCounts } from "../utils/subtask-counts";
 
 type GetTasksOptions = {
   assigneeId?: string;
@@ -229,6 +230,8 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
       .map((column) => column.slug),
   );
 
+  const boardColumnSlugs = new Set(projectColumns.map((column) => column.slug));
+
   const subtaskRelations =
     taskIds.length > 0
       ? await db
@@ -263,18 +266,21 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
   );
 
   const enrichTask = (task: (typeof paginatedTasks)[number]) => {
-    const children = childrenMap.get(task.id) ?? [];
-    const completedSubtaskCount = children.filter((childId) => {
-      const status = taskStatusMap.get(childId);
-      return status ? finalColumnSlugs.has(status) : false;
-    }).length;
+    const { directSubtaskCount, completedSubtaskCount } =
+      getBoardVisibleSubtaskCounts(
+        task.id,
+        childrenMap,
+        taskStatusMap,
+        boardColumnSlugs,
+        finalColumnSlugs,
+      );
 
     return {
       ...task,
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
       parentId: parentIdMap.get(task.id) ?? null,
-      directSubtaskCount: children.length,
+      directSubtaskCount,
       completedSubtaskCount,
     };
   };

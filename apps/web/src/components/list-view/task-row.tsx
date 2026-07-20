@@ -61,6 +61,7 @@ type TaskRowProps = {
   showParentBadge?: boolean;
   showStatusIcon?: boolean;
   hierarchyMode?: HierarchyMode;
+  disableDragDrop?: boolean;
 };
 
 function TaskRow({
@@ -75,6 +76,7 @@ function TaskRow({
   showParentBadge = false,
   showStatusIcon = false,
   hierarchyMode = "flat",
+  disableDragDrop = false,
 }: TaskRowProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -85,7 +87,7 @@ function TaskRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({ id: task.id, disabled: disableDragDrop });
 
   const { project } = useProjectStore();
   const statusColumn = project?.columns?.find(

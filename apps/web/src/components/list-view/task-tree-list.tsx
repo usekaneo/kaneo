@@ -12,6 +12,7 @@ type TaskTreeListProps = {
   projectSlug: string;
   isExpanded: (taskId: string) => boolean;
   onToggleExpand: (taskId: string) => void;
+  disableDragDrop?: boolean;
 };
 
 export default function TaskTreeList({
@@ -19,6 +20,7 @@ export default function TaskTreeList({
   projectSlug,
   isExpanded,
   onToggleExpand,
+  disableDragDrop = false,
 }: TaskTreeListProps) {
   const { t } = useTranslation();
 
@@ -52,6 +54,7 @@ export default function TaskTreeList({
               parentId={task.parentId}
               showStatusIcon
               hierarchyMode="tree"
+              disableDragDrop={disableDragDrop}
             />
           </motion.div>
         ))}

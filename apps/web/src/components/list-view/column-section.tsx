@@ -27,6 +27,7 @@ type ColumnSectionProps = {
   onArchiveClick: (column: ProjectWithTasks["columns"][number]) => void;
   onToggleExpand: (taskId: string) => void;
   isExpanded: (taskId: string) => boolean;
+  disableDragDrop?: boolean;
 };
 
 export default function ColumnSection({
@@ -42,6 +43,7 @@ export default function ColumnSection({
   onArchiveClick,
   onToggleExpand,
   isExpanded,
+  disableDragDrop = false,
 }: ColumnSectionProps) {
   const { t } = useTranslation();
   const { setNodeRef } = useDroppable({
@@ -77,6 +79,7 @@ export default function ColumnSection({
           (treeNode.depth ?? 0) === 0
         }
         hierarchyMode={hierarchyMode}
+        disableDragDrop={disableDragDrop}
       />
     );
   };

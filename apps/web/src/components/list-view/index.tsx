@@ -359,6 +359,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
             projectSlug={project.slug ?? ""}
             isExpanded={checkExpanded}
             onToggleExpand={handleToggleExpand}
+            disableDragDrop={hierarchyDragDisabled}
           />
         ) : (
           <div className="divide-y divide-border/50">
@@ -380,6 +381,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
                 onArchiveClick={handleArchiveClick}
                 onToggleExpand={handleToggleExpand}
                 isExpanded={checkExpanded}
+                disableDragDrop={hierarchyDragDisabled}
               />
             ))}
           </div>
