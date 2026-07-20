@@ -127,8 +127,21 @@ function ListView({
   ]);
 
   useEffect(() => {
+    const previousFocusedId =
+      useBulkSelectionStore.getState().focusedTaskId;
+
     setAvailableTasks(visibleTaskIds);
-  }, [setAvailableTasks, visibleTaskIds]);
+
+    // Collapsing a parent drops subtasks from the visible list; clear stale
+    // keyboard focus and the matching URL taskId so j/k/Enter stay in sync.
+    if (previousFocusedId && !visibleTaskIds.includes(previousFocusedId)) {
+      navigate({
+        to: ".",
+        search: (prev) =>
+          prev.taskId === previousFocusedId ? {} : prev,
+      });
+    }
+  }, [navigate, setAvailableTasks, visibleTaskIds]);
 
   useEffect(() => {
     clearFocus();

@@ -65,9 +65,15 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
     })),
 
   setAvailableTasks: (taskIds: string[]) =>
-    set(() => ({
-      availableTaskIds: taskIds,
-    })),
+    set((state) => {
+      const focusedStillVisible =
+        state.focusedTaskId != null && taskIds.includes(state.focusedTaskId);
+
+      return {
+        availableTaskIds: taskIds,
+        focusedTaskId: focusedStillVisible ? state.focusedTaskId : null,
+      };
+    }),
 
   getSelectedCount: () => {
     const { selectedTaskIds } = get();
@@ -99,7 +105,7 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
 
     if (availableTaskIds.length === 0) return;
 
-    if (!focusedTaskId) {
+    if (!focusedTaskId || !availableTaskIds.includes(focusedTaskId)) {
       get().setFocusedTask(availableTaskIds[0]);
       return;
     }
@@ -114,7 +120,7 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
 
     if (availableTaskIds.length === 0) return;
 
-    if (!focusedTaskId) {
+    if (!focusedTaskId || !availableTaskIds.includes(focusedTaskId)) {
       get().setFocusedTask(availableTaskIds[availableTaskIds.length - 1]);
       return;
     }
