@@ -265,6 +265,33 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     paginatedTasks.map((task) => [task.id, task.status]),
   );
 
+  const missingChildIds = [
+    ...new Set(
+      [...childrenMap.values()]
+        .flat()
+        .filter((childId) => !taskStatusMap.has(childId)),
+    ),
+  ];
+
+  if (missingChildIds.length > 0) {
+    const missingStatuses = await db
+      .select({
+        id: taskTable.id,
+        status: taskTable.status,
+      })
+      .from(taskTable)
+      .where(
+        and(
+          eq(taskTable.projectId, projectId),
+          inArray(taskTable.id, missingChildIds),
+        ),
+      );
+
+    for (const child of missingStatuses) {
+      taskStatusMap.set(child.id, child.status);
+    }
+  }
+
   const enrichTask = (task: (typeof paginatedTasks)[number]) => {
     const { directSubtaskCount, completedSubtaskCount } =
       getBoardVisibleSubtaskCounts(

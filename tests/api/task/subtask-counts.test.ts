@@ -51,4 +51,29 @@ describe("getBoardVisibleSubtaskCounts", () => {
       completedSubtaskCount: 0,
     });
   });
+
+  it("counts children whose status was loaded outside the paginated page", () => {
+    const childrenMap = new Map([["parent", ["child-on-page", "child-off-page"]]]);
+    const taskStatusMap = new Map([
+      ["parent", "to-do"],
+      ["child-on-page", "to-do"],
+      // Status fetched in a follow-up query for off-page children
+      ["child-off-page", "done"],
+    ]);
+    const boardColumnSlugs = new Set(["to-do", "done"]);
+    const finalColumnSlugs = new Set(["done"]);
+
+    expect(
+      getBoardVisibleSubtaskCounts(
+        "parent",
+        childrenMap,
+        taskStatusMap,
+        boardColumnSlugs,
+        finalColumnSlugs,
+      ),
+    ).toEqual({
+      directSubtaskCount: 2,
+      completedSubtaskCount: 1,
+    });
+  });
 });
