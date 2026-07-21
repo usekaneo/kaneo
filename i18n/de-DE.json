@@ -302,11 +302,91 @@
 	},
 	"settings": {
 		"account": "Konto",
+		"administration": "Administration",
 		"developer": "Entwicklung",
 		"information": "Informationen",
 		"notifications": "Benachrichtigungen",
 		"preferences": "Einstellungen",
 		"apiKeys": "API-Schlüssel",
+		"adminUsers": {
+			"title": "Benutzerverwaltung",
+			"subtitle": "Verwalte alle Konten, die auf dieser Kaneo-Instanz registriert sind.",
+			"instanceBadge": "Instanz",
+			"directoryTitle": "Benutzerverzeichnis",
+			"userCount_one": "{{count}} registrierter Benutzer",
+			"userCount_other": "{{count}} registrierte Benutzer",
+			"searchCount_one": "{{count}} passender Benutzer",
+			"searchCount_other": "{{count}} passende Benutzer",
+			"refreshing": "Benutzer werden aktualisiert",
+			"searchPlaceholder": "Name oder E-Mail suchen…",
+			"searchLabel": "Benutzer suchen",
+			"loadError": "Benutzer konnten nicht geladen werden.",
+			"retry": "Erneut versuchen",
+			"emptyTitle": "Keine Benutzer gefunden",
+			"emptyDescription": "Versuche einen anderen Namen oder eine andere E-Mail-Adresse.",
+			"clearSearch": "Suche löschen",
+			"you": "(du)",
+			"previous": "Zurück",
+			"next": "Weiter",
+			"pagination": "Seite {{current}} von {{total}}",
+			"columns": {
+				"user": "Benutzer",
+				"role": "Globale Rolle",
+				"status": "Status",
+				"joined": "Registriert",
+				"actions": "Aktionen"
+			},
+			"roles": {
+				"admin": "Instanzadministrator",
+				"user": "Benutzer"
+			},
+			"status": {
+				"active": "Aktiv",
+				"deactivated": "Deaktiviert"
+			},
+			"actions": {
+				"open": "Aktionen für {{name}}",
+				"edit": "Konto bearbeiten",
+				"deactivate": "Konto deaktivieren",
+				"reactivate": "Konto reaktivieren"
+			},
+			"edit": {
+				"title": "Benutzer bearbeiten",
+				"description": "Aktualisiere die Identität und den instanzweiten Zugriff dieses Kontos.",
+				"name": "Vollständiger Name",
+				"email": "E-Mail-Adresse",
+				"role": "Globale Rolle",
+				"selfRoleHint": "Du kannst deine eigene globale Rolle nicht ändern.",
+				"save": "Änderungen speichern",
+				"saving": "Wird gespeichert…"
+			},
+			"confirm": {
+				"working": "Wird ausgeführt…",
+				"deactivate": {
+					"title": "Dieses Konto deaktivieren?",
+					"description": "{{name}} wird abgemeldet und kann sich erst wieder anmelden, nachdem ein Administrator das Konto reaktiviert hat.",
+					"action": "Konto deaktivieren"
+				},
+				"reactivate": {
+					"title": "Dieses Konto reaktivieren?",
+					"description": "{{name}} kann sich danach wieder anmelden und auf die eigenen Arbeitsbereiche zugreifen.",
+					"action": "Konto reaktivieren"
+				},
+				"delete": {
+					"title": "Dieses Konto endgültig löschen?",
+					"description": "Dadurch werden {{name}}, alle Sitzungen, Mitgliedschaften und zugehörigen Daten endgültig gelöscht. Dies kann nicht rückgängig gemacht werden.",
+					"action": "Endgültig löschen"
+				}
+			},
+			"toast": {
+				"updated": "Benutzer aktualisiert",
+				"updateError": "Benutzer konnte nicht aktualisiert werden",
+				"deactivated": "Benutzer deaktiviert",
+				"reactivated": "Benutzer reaktiviert",
+				"deleted": "Benutzer gelöscht",
+				"actionError": "Benutzerstatus konnte nicht aktualisiert werden"
+			}
+		},
 		"informationPage": {
 			"pageTitle": "Persönliche Informationen",
 			"title": "Persönliche Informationen",

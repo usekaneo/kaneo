@@ -304,11 +304,91 @@
 	},
 	"settings": {
 		"account": "Account",
+		"administration": "Administration",
 		"developer": "Developer",
 		"information": "Information",
 		"notifications": "Notifications",
 		"preferences": "Preferences",
 		"apiKeys": "API Keys",
+		"adminUsers": {
+			"title": "User management",
+			"subtitle": "Manage every account registered on this Kaneo instance.",
+			"instanceBadge": "Instance",
+			"directoryTitle": "User directory",
+			"userCount_one": "{{count}} registered user",
+			"userCount_other": "{{count}} registered users",
+			"searchCount_one": "{{count}} matching user",
+			"searchCount_other": "{{count}} matching users",
+			"refreshing": "Refreshing users",
+			"searchPlaceholder": "Search name or email…",
+			"searchLabel": "Search users",
+			"loadError": "Users could not be loaded.",
+			"retry": "Retry",
+			"emptyTitle": "No users found",
+			"emptyDescription": "Try another name or email address.",
+			"clearSearch": "Clear search",
+			"you": "(you)",
+			"previous": "Previous",
+			"next": "Next",
+			"pagination": "Page {{current}} of {{total}}",
+			"columns": {
+				"user": "User",
+				"role": "Global role",
+				"status": "Status",
+				"joined": "Joined",
+				"actions": "Actions"
+			},
+			"roles": {
+				"admin": "Instance admin",
+				"user": "User"
+			},
+			"status": {
+				"active": "Active",
+				"deactivated": "Deactivated"
+			},
+			"actions": {
+				"open": "Actions for {{name}}",
+				"edit": "Edit account",
+				"deactivate": "Deactivate account",
+				"reactivate": "Reactivate account"
+			},
+			"edit": {
+				"title": "Edit user",
+				"description": "Update this account's identity and instance-wide access.",
+				"name": "Full name",
+				"email": "Email address",
+				"role": "Global role",
+				"selfRoleHint": "You cannot change your own global role.",
+				"save": "Save changes",
+				"saving": "Saving…"
+			},
+			"confirm": {
+				"working": "Working…",
+				"deactivate": {
+					"title": "Deactivate this account?",
+					"description": "{{name}} will be signed out and unable to sign in until an administrator reactivates the account.",
+					"action": "Deactivate account"
+				},
+				"reactivate": {
+					"title": "Reactivate this account?",
+					"description": "{{name}} will be able to sign in and access their workspaces again.",
+					"action": "Reactivate account"
+				},
+				"delete": {
+					"title": "Permanently delete this account?",
+					"description": "This permanently deletes {{name}}, their sessions, memberships, and associated data. This cannot be undone.",
+					"action": "Delete permanently"
+				}
+			},
+			"toast": {
+				"updated": "User updated",
+				"updateError": "Failed to update user",
+				"deactivated": "User deactivated",
+				"reactivated": "User reactivated",
+				"deleted": "User deleted",
+				"actionError": "Failed to update user status"
+			}
+		},
 		"informationPage": {
 			"pageTitle": "Personal Information",
 			"title": "Personal Information",
