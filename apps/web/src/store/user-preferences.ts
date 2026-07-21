@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+export const WEEK_START_DAYS = [0, 1, 6] as const;
+export type WeekStartDay = (typeof WEEK_START_DAYS)[number];
+
+export function isWeekStartDay(value: number): value is WeekStartDay {
+  return WEEK_START_DAYS.some((day) => day === value);
+}
+
 type UserPreferencesStore = {
   theme: "light" | "dark" | "system";
   setTheme: (
@@ -34,8 +41,8 @@ type UserPreferencesStore = {
   sidebarDefaultOpen: boolean;
   setSidebarDefaultOpen: (open: boolean) => void;
 
-  weekStartsOn: 0 | 1;
-  setWeekStartsOn: (weekStartsOn: 0 | 1) => void;
+  weekStartsOn: WeekStartDay;
+  setWeekStartsOn: (weekStartsOn: WeekStartDay) => void;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>()(

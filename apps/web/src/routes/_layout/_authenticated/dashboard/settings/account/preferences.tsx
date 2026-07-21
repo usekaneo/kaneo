@@ -18,7 +18,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useLocale } from "@/hooks/use-locale";
-import { useUserPreferencesStore } from "@/store/user-preferences";
+import {
+  isWeekStartDay,
+  useUserPreferencesStore,
+  WEEK_START_DAYS,
+  type WeekStartDay,
+} from "@/store/user-preferences";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/account/preferences",
@@ -85,9 +90,10 @@ function RouteComponent() {
     board: t("settings:preferencesPage.board"),
     list: t("settings:preferencesPage.list"),
   };
-  const weekStartLabels: Record<"0" | "1", string> = {
-    "0": t("settings:preferencesPage.weekStartsOnSunday"),
-    "1": t("settings:preferencesPage.weekStartsOnMonday"),
+  const weekStartLabels: Record<WeekStartDay, string> = {
+    0: t("settings:preferencesPage.weekStartsOnSunday"),
+    1: t("settings:preferencesPage.weekStartsOnMonday"),
+    6: t("settings:preferencesPage.weekStartsOnSaturday"),
   };
 
   const selectedLocale: AppLocale = locale ?? defaultLocale;
@@ -198,8 +204,14 @@ function RouteComponent() {
             <Select
               value={String(weekStartsOn)}
               onValueChange={(value) => {
-                if (value === "0" || value === "1") {
-                  setWeekStartsOn(Number(value) as 0 | 1);
+                if (!value) {
+                  return;
+                }
+
+                const parsedWeekStart = Number(value);
+
+                if (isWeekStartDay(parsedWeekStart)) {
+                  setWeekStartsOn(parsedWeekStart);
                 }
               }}
             >
@@ -209,16 +221,15 @@ function RouteComponent() {
                     "settings:preferencesPage.selectFirstDayOfWeek",
                   )}
                 >
-                  {weekStartLabels[String(weekStartsOn) as "0" | "1"]}
+                  {weekStartLabels[weekStartsOn]}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="0">
-                  {t("settings:preferencesPage.weekStartsOnSunday")}
-                </SelectItem>
-                <SelectItem value="1">
-                  {t("settings:preferencesPage.weekStartsOnMonday")}
-                </SelectItem>
+                {WEEK_START_DAYS.map((day) => (
+                  <SelectItem key={day} value={String(day)}>
+                    {weekStartLabels[day]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
