@@ -7,15 +7,11 @@ type Sponsor = {
   name: string | null;
   avatarUrl: string;
   tier: number | null;
+  founding: boolean;
 };
 
-const founding = sponsors.founding as Sponsor[];
 const current = sponsors.current as Sponsor[];
 const past = sponsors.past as Sponsor[];
-
-const featured = [...founding, ...current];
-const featuredLabel =
-  current.length > 0 ? "Founding and current sponsors" : "Founding sponsor";
 
 // Higher sponsorship tiers get larger placement, matching the tier rewards on
 // GitHub Sponsors.
@@ -56,40 +52,44 @@ export function Sponsors() {
           </p>
         </FadeIn>
         <FadeIn delay={160}>
-          <div className="mt-12">
-            <p className="font-medium text-muted-foreground text-sm">
-              {featuredLabel}
-            </p>
-            <div className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-5">
-              {featured.map((sponsor) => (
-                <a
-                  key={sponsor.login}
-                  className="flex items-center gap-3"
-                  href={`https://github.com/${sponsor.login}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    alt=""
-                    className={cn(
-                      "rounded-full border border-border/70",
-                      avatarSize(sponsor.tier),
-                    )}
-                    src={sponsor.avatarUrl}
-                    loading="lazy"
-                  />
-                  <span>
-                    <span className="block font-medium text-base">
-                      {sponsor.name ?? sponsor.login}
+          {current.length > 0 && (
+            <div className="mt-12">
+              <p className="font-medium text-muted-foreground text-sm">
+                Current sponsors
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-5">
+                {current.map((sponsor) => (
+                  <a
+                    key={sponsor.login}
+                    className="flex items-center gap-3"
+                    href={`https://github.com/${sponsor.login}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <img
+                      alt=""
+                      className={cn(
+                        "rounded-full border border-border/70",
+                        avatarSize(sponsor.tier),
+                      )}
+                      src={sponsor.avatarUrl}
+                      loading="lazy"
+                    />
+                    <span>
+                      <span className="block font-medium text-base">
+                        {sponsor.name ?? sponsor.login}
+                      </span>
+                      <span className="block text-muted-foreground text-sm">
+                        {sponsor.founding
+                          ? "Founding sponsor"
+                          : `@${sponsor.login}`}
+                      </span>
                     </span>
-                    <span className="block text-muted-foreground text-sm">
-                      @{sponsor.login}
-                    </span>
-                  </span>
-                </a>
-              ))}
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           {past.length > 0 && (
             <div className="mt-10">
               <p className="font-medium text-muted-foreground text-sm">
@@ -103,7 +103,9 @@ export function Sponsors() {
                     href={`https://github.com/${sponsor.login}`}
                     target="_blank"
                     rel="noreferrer"
-                    title={sponsor.name ?? `@${sponsor.login}`}
+                    title={`${sponsor.name ?? `@${sponsor.login}`}${
+                      sponsor.founding ? " · Founding sponsor" : ""
+                    }`}
                   >
                     <img
                       alt={sponsor.name ?? sponsor.login}

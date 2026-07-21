@@ -2,8 +2,10 @@
 // which drives the Sponsors section on the landing page.
 //
 // Only sponsorships GitHub reports as PUBLIC are written; private sponsors are
-// never included. Founding sponsors are pinned permanently and stay listed even
-// if their sponsorship ends.
+// never included. Sponsors are grouped strictly by activity (current vs past).
+// Founding is a permanent badge for the project's early backers: they keep the
+// badge in either group and stay on the wall even if the API stops returning
+// their sponsorship.
 //
 // Usage: GITHUB_TOKEN=<token with the read:user scope> node scripts/sync-sponsors.mjs
 
@@ -13,12 +15,43 @@ import { fileURLToPath } from "node:url";
 
 const MAINTAINER = "andrejsshell";
 
+// The project's early backers. Pinned so they can never disappear from the
+// wall; the entries double as fallbacks if the API no longer returns them.
 const FOUNDING = [
   {
     login: "danielsada",
     name: "Daniel Sada",
     avatarUrl: "https://avatars.githubusercontent.com/u/2849006?v=4",
-    tier: null,
+  },
+  {
+    login: "achouvardas",
+    name: "Angelos Chouvardas",
+    avatarUrl: "https://avatars.githubusercontent.com/u/77693989?v=4",
+  },
+  {
+    login: "alexgutjahr",
+    name: "Alex Gutjahr",
+    avatarUrl: "https://avatars.githubusercontent.com/u/58935?v=4",
+  },
+  {
+    login: "KnudH",
+    name: "Knud Hollander",
+    avatarUrl: "https://avatars.githubusercontent.com/u/26556793?v=4",
+  },
+  {
+    login: "MakoPhil",
+    name: null,
+    avatarUrl: "https://avatars.githubusercontent.com/u/36614366?v=4",
+  },
+  {
+    login: "ndinevski",
+    name: "Nikola Dinevski",
+    avatarUrl: "https://avatars.githubusercontent.com/u/61565298?v=4",
+  },
+  {
+    login: "TehMaat",
+    name: null,
+    avatarUrl: "https://avatars.githubusercontent.com/u/60507708?v=4",
   },
 ];
 
@@ -95,6 +128,8 @@ async function fetchSponsorships() {
   return nodes;
 }
 
+const foundingLogins = new Set(FOUNDING.map((sponsor) => sponsor.login));
+
 function toEntry(node) {
   const { login, name, databaseId } = node.sponsorEntity;
   return {
@@ -102,14 +137,13 @@ function toEntry(node) {
     name: name ?? null,
     avatarUrl: `https://avatars.githubusercontent.com/u/${databaseId}?v=4`,
     tier: node.tier?.monthlyPriceInDollars ?? null,
+    founding: foundingLogins.has(login),
   };
 }
 
 const byLogin = (a, b) =>
   a.login.localeCompare(b.login, "en", { sensitivity: "base" });
 
-const foundingLogins = new Set(FOUNDING.map((sponsor) => sponsor.login));
-const fromApi = new Map();
 const current = [];
 const past = [];
 
@@ -120,20 +154,22 @@ for (const node of await fetchSponsorships()) {
     continue;
   }
   const entry = toEntry(node);
-  if (foundingLogins.has(entry.login)) {
-    fromApi.set(entry.login, entry);
-  } else if (node.isActive) {
+  if (node.isActive) {
     current.push(entry);
   } else {
     past.push(entry);
   }
 }
 
-// Founding sponsors are permanent: fall back to the pinned entry if the API
-// no longer returns their sponsorship.
-const founding = FOUNDING.map(
-  (sponsor) => fromApi.get(sponsor.login) ?? sponsor,
-);
+// Founding sponsors are permanent: if the API no longer returns one of them,
+// keep them on the wall via the pinned fallback entry.
+const seen = new Set([...current, ...past].map((entry) => entry.login));
+for (const sponsor of FOUNDING) {
+  if (!seen.has(sponsor.login)) {
+    past.push({ ...sponsor, tier: null, founding: true });
+  }
+}
+
 // Higher tiers come first so placement on the site follows tier promises.
 current.sort((a, b) => (b.tier ?? 0) - (a.tier ?? 0) || byLogin(a, b));
 past.sort(byLogin);
@@ -144,9 +180,9 @@ const outputPath = join(
   "constants",
   "sponsors.json",
 );
-const data = { founding, current, past };
+const data = { current, past };
 // Tab indentation matches how Biome formats JSON in this repo.
 await writeFile(outputPath, `${JSON.stringify(data, null, "\t")}\n`);
 console.log(
-  `Wrote ${founding.length} founding, ${current.length} current, and ${past.length} past sponsors to constants/sponsors.json`,
+  `Wrote ${current.length} current and ${past.length} past sponsors to constants/sponsors.json`,
 );

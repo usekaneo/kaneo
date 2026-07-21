@@ -1,49 +1,55 @@
 {
-	"founding": [
+	"current": [
 		{
 			"login": "danielsada",
 			"name": "Daniel Sada",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/2849006?v=4",
-			"tier": 5
+			"tier": 5,
+			"founding": true
 		}
 	],
-	"current": [],
 	"past": [
 		{
 			"login": "achouvardas",
 			"name": "Angelos Chouvardas",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/77693989?v=4",
-			"tier": 10
+			"tier": 10,
+			"founding": true
 		},
 		{
 			"login": "alexgutjahr",
 			"name": "Alex Gutjahr",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/58935?v=4",
-			"tier": 10
+			"tier": 10,
+			"founding": true
 		},
 		{
 			"login": "KnudH",
 			"name": "Knud Hollander",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/26556793?v=4",
-			"tier": 10
+			"tier": 10,
+			"founding": true
 		},
 		{
 			"login": "MakoPhil",
 			"name": null,
 			"avatarUrl": "https://avatars.githubusercontent.com/u/36614366?v=4",
-			"tier": 20
+			"tier": 20,
+			"founding": true
 		},
 		{
 			"login": "ndinevski",
 			"name": "Nikola Dinevski",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/61565298?v=4",
-			"tier": 5
+			"tier": 5,
+			"founding": true
 		},
 		{
 			"login": "TehMaat",
 			"name": null,
 			"avatarUrl": "https://avatars.githubusercontent.com/u/60507708?v=4",
-			"tier": 10
+			"tier": 10,
+			"founding": true
 		}
 	]
 }
