@@ -1,0 +1,49 @@
+{
+	"founding": [
+		{
+			"login": "danielsada",
+			"name": "Daniel Sada",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/2849006?v=4",
+			"tier": null
+		}
+	],
+	"current": [],
+	"past": [
+		{
+			"login": "achouvardas",
+			"name": "Angelos Chouvardas",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/77693989?v=4",
+			"tier": null
+		},
+		{
+			"login": "alexgutjahr",
+			"name": "Alex Gutjahr",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/58935?v=4",
+			"tier": null
+		},
+		{
+			"login": "KnudH",
+			"name": "Knud Hollander",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/26556793?v=4",
+			"tier": null
+		},
+		{
+			"login": "MakoPhil",
+			"name": null,
+			"avatarUrl": "https://avatars.githubusercontent.com/u/36614366?v=4",
+			"tier": null
+		},
+		{
+			"login": "ndinevski",
+			"name": "Nikola Dinevski",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/61565298?v=4",
+			"tier": null
+		},
+		{
+			"login": "TehMaat",
+			"name": null,
+			"avatarUrl": "https://avatars.githubusercontent.com/u/60507708?v=4",
+			"tier": null
+		}
+	]
+}

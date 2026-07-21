@@ -38,10 +38,16 @@ jobs:
           minimum: 1
           marker: sponsors
 
+      - name: Sync Site Sponsors
+        if: ${{ github.repository_owner == 'usekaneo' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ANDREJ }}
+        run: node apps/site/scripts/sync-sponsors.mjs
+
       - name: Commit and Push Changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add CONTRIBUTORS.svg README.md
+          git add CONTRIBUTORS.svg README.md apps/site/constants/sponsors.json
           git commit -m "docs: update contributors and sponsors" || exit 0
           git push 
