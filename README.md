@@ -50,7 +50,7 @@ Learn more about Kaneo's features and capabilities in our [documentation](https:
 
 Kaneo is open source. If you find it useful, consider [sponsoring the project](https://github.com/sponsors/andrejsshell) to help support ongoing development.
 
-<!-- sponsors --><a href="https://github.com/danielsada"><img src="https://github.com/danielsada.png" width="60px" alt="User avatar: Daniel Sada" /></a><!-- sponsors -->
+<!-- sponsors --><a href="https://github.com/danielsada"><img src="https:&#x2F;&#x2F;github.com&#x2F;danielsada.png" width="60px" alt="User avatar: Daniel Sada" /></a><!-- sponsors -->
 
 ## Getting Started
 

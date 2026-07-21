@@ -4,7 +4,7 @@
 			"login": "danielsada",
 			"name": "Daniel Sada",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/2849006?v=4",
-			"tier": null
+			"tier": 5
 		}
 	],
 	"current": [],
@@ -13,37 +13,37 @@
 			"login": "achouvardas",
 			"name": "Angelos Chouvardas",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/77693989?v=4",
-			"tier": null
+			"tier": 10
 		},
 		{
 			"login": "alexgutjahr",
 			"name": "Alex Gutjahr",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/58935?v=4",
-			"tier": null
+			"tier": 10
 		},
 		{
 			"login": "KnudH",
 			"name": "Knud Hollander",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/26556793?v=4",
-			"tier": null
+			"tier": 10
 		},
 		{
 			"login": "MakoPhil",
 			"name": null,
 			"avatarUrl": "https://avatars.githubusercontent.com/u/36614366?v=4",
-			"tier": null
+			"tier": 20
 		},
 		{
 			"login": "ndinevski",
 			"name": "Nikola Dinevski",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/61565298?v=4",
-			"tier": null
+			"tier": 5
 		},
 		{
 			"login": "TehMaat",
 			"name": null,
 			"avatarUrl": "https://avatars.githubusercontent.com/u/60507708?v=4",
-			"tier": null
+			"tier": 10
 		}
 	]
 }
