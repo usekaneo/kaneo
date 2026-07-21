@@ -1437,6 +1437,48 @@
 						"workspaceCardHint": {
 							"type": "string"
 						},
+						"workspaceEnabledLabel": {
+							"type": "string"
+						},
+						"eventPreferencesTitle": {
+							"type": "string"
+						},
+						"eventPreferencesDescription": {
+							"type": "string"
+						},
+						"eventTaskAssignments": {
+							"type": "string"
+						},
+						"eventComments": {
+							"type": "string"
+						},
+						"eventCommentsHint": {
+							"type": "string"
+						},
+						"eventStatusChanges": {
+							"type": "string"
+						},
+						"eventDueDateReminders": {
+							"type": "string"
+						},
+						"reminderLeadTimeLabel": {
+							"type": "string"
+						},
+						"reminderLeadTimeHint": {
+							"type": "string"
+						},
+						"reminderLeadTimeUnitHours": {
+							"type": "string"
+						},
+						"reminderLeadTimeUnitDays": {
+							"type": "string"
+						},
+						"reminderLeadTimeInvalid": {
+							"type": "string"
+						},
+						"saveEventPreferences": {
+							"type": "string"
+						},
 						"workspaceCardLabelEmail": {
 							"type": "string"
 						},
@@ -1611,6 +1653,20 @@
 						"workspaceRulesTitle",
 						"workspaceRulesDescription",
 						"workspaceCardHint",
+						"workspaceEnabledLabel",
+						"eventPreferencesTitle",
+						"eventPreferencesDescription",
+						"eventTaskAssignments",
+						"eventComments",
+						"eventCommentsHint",
+						"eventStatusChanges",
+						"eventDueDateReminders",
+						"reminderLeadTimeLabel",
+						"reminderLeadTimeHint",
+						"reminderLeadTimeUnitHours",
+						"reminderLeadTimeUnitDays",
+						"reminderLeadTimeInvalid",
+						"saveEventPreferences",
 						"workspaceCardLabelEmail",
 						"workspaceCardLabelNtfy",
 						"workspaceCardLabelGotify",
@@ -2673,29 +2729,75 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"pageTitle": { "type": "string" },
-						"title": { "type": "string" },
-						"subtitle": { "type": "string" },
-						"cardDescription": { "type": "string" },
-						"createLabel": { "type": "string" },
-						"editLabel": { "type": "string" },
-						"deleteLabel": { "type": "string" },
-						"saveLabel": { "type": "string" },
-						"nameLabel": { "type": "string" },
-						"namePlaceholder": { "type": "string" },
-						"colorLabel": { "type": "string" },
-						"createDescription": { "type": "string" },
-						"editDescription": { "type": "string" },
-						"deleteConfirmTitle": { "type": "string" },
-						"deleteConfirmDescription": { "type": "string" },
-						"empty": { "type": "string" },
-						"createSuccess": { "type": "string" },
-						"updateSuccess": { "type": "string" },
-						"deleteSuccess": { "type": "string" },
-						"createError": { "type": "string" },
-						"updateError": { "type": "string" },
-						"deleteError": { "type": "string" },
-						"nameRequired": { "type": "string" }
+						"pageTitle": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"cardDescription": {
+							"type": "string"
+						},
+						"createLabel": {
+							"type": "string"
+						},
+						"editLabel": {
+							"type": "string"
+						},
+						"deleteLabel": {
+							"type": "string"
+						},
+						"saveLabel": {
+							"type": "string"
+						},
+						"nameLabel": {
+							"type": "string"
+						},
+						"namePlaceholder": {
+							"type": "string"
+						},
+						"colorLabel": {
+							"type": "string"
+						},
+						"createDescription": {
+							"type": "string"
+						},
+						"editDescription": {
+							"type": "string"
+						},
+						"deleteConfirmTitle": {
+							"type": "string"
+						},
+						"deleteConfirmDescription": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"createSuccess": {
+							"type": "string"
+						},
+						"updateSuccess": {
+							"type": "string"
+						},
+						"deleteSuccess": {
+							"type": "string"
+						},
+						"createError": {
+							"type": "string"
+						},
+						"updateError": {
+							"type": "string"
+						},
+						"deleteError": {
+							"type": "string"
+						},
+						"nameRequired": {
+							"type": "string"
+						}
 					},
 					"required": [
 						"pageTitle",
@@ -4113,6 +4215,24 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"taskDeleted": {
+									"type": "string"
+								},
+								"taskMoved": {
+									"type": "string"
+								},
+								"taskDueDateChanged": {
+									"type": "string"
+								},
+								"taskAssigneeChanged": {
+									"type": "string"
+								},
+								"taskUnassigned": {
+									"type": "string"
+								},
+								"dueDateReminder": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -4121,8 +4241,17 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"taskDeleted",
+								"taskMoved",
+								"taskDueDateChanged",
+								"taskAssigneeChanged",
+								"taskUnassigned",
+								"dueDateReminder"
 							]
+						},
+						"reminderLeadTimeLabel": {
+							"type": "string"
 						},
 						"connect": {
 							"type": "string"
@@ -4151,6 +4280,7 @@
 						"eventsTitle",
 						"eventsHint",
 						"events",
+						"reminderLeadTimeLabel",
 						"connect",
 						"saveChanges",
 						"disconnect"
@@ -5121,6 +5251,38 @@
 					},
 					"required": ["open"]
 				},
+				"reminderLeadTime": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"minutes_one": {
+							"type": "string"
+						},
+						"minutes_other": {
+							"type": "string"
+						},
+						"hours_one": {
+							"type": "string"
+						},
+						"hours_other": {
+							"type": "string"
+						},
+						"days_one": {
+							"type": "string"
+						},
+						"days_other": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"minutes_one",
+						"minutes_other",
+						"hours_one",
+						"hours_other",
+						"days_one",
+						"days_other"
+					]
+				},
 				"events": {
 					"type": "object",
 					"additionalProperties": false,
@@ -5190,6 +5352,45 @@
 							},
 							"required": ["title", "content"]
 						},
+						"task_comment": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"content": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "content"]
+						},
+						"due_date_reminder": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"content": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "content"]
+						},
+						"task_overdue": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"content": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "content"]
+						},
 						"time_entry_created": {
 							"type": "object",
 							"additionalProperties": false,
@@ -5213,6 +5414,9 @@
 						"task_status_changed",
 						"task_assignee_changed",
 						"task_mention",
+						"task_comment",
+						"due_date_reminder",
+						"task_overdue",
 						"time_entry_created"
 					]
 				}
@@ -5227,6 +5431,7 @@
 				"clearDialogTitle",
 				"clearDialogDescription",
 				"shortcuts",
+				"reminderLeadTime",
 				"events"
 			]
 		},
@@ -7537,9 +7742,25 @@
 						},
 						"inviteMember": {
 							"type": "string"
+						},
+						"you": {
+							"type": "string"
 						}
 					},
-					"required": ["pageTitle", "inviteMember"]
+					"required": ["pageTitle", "inviteMember", "you"]
+				},
+				"invitations": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pendingBadge": {
+							"type": "string"
+						},
+						"expires": {
+							"type": "string"
+						}
+					},
+					"required": ["pendingBadge", "expires"]
 				},
 				"inviteModal": {
 					"type": "object",
@@ -7670,7 +7891,13 @@
 					]
 				}
 			},
-			"required": ["roles", "members", "inviteModal", "membersTable"]
+			"required": [
+				"roles",
+				"members",
+				"invitations",
+				"inviteModal",
+				"membersTable"
+			]
 		},
 		"publicProject": {
 			"type": "object",
