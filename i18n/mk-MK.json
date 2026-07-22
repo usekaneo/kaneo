@@ -429,7 +429,7 @@
 			"languageDescription": "Избери го претпочитаниот јазик на интерфејсот",
 			"selectLanguage": "Избери јазик",
 			"firstDayOfWeek": "Прв ден од неделата",
-			"firstDayOfWeekDescription": "Избери дали календарите и неделите почнуваат во недела или понеделник",
+			"firstDayOfWeekDescription": "Избери на кој ден почнуваат календарите и неделите",
 			"selectFirstDayOfWeek": "Избери прв ден",
 			"weekStartsOnSunday": "Недела",
 			"weekStartsOnMonday": "Понеделник",

@@ -429,7 +429,7 @@
 			"languageDescription": "Выберите предпочтительный язык интерфейса",
 			"selectLanguage": "Выберите язык",
 			"firstDayOfWeek": "Первый день недели",
-			"firstDayOfWeekDescription": "Выберите, начинаются ли календари и недели с воскресенья или понедельника",
+			"firstDayOfWeekDescription": "Выберите день, с которого начинаются календари и недели",
 			"selectFirstDayOfWeek": "Выберите первый день",
 			"weekStartsOnSunday": "Воскресенье",
 			"weekStartsOnMonday": "Понедельник",

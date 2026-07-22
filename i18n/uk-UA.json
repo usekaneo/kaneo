@@ -429,7 +429,7 @@
 			"languageDescription": "Оберіть бажану мову інтерфейсу",
 			"selectLanguage": "Обрати мову",
 			"firstDayOfWeek": "Перший день тижня",
-			"firstDayOfWeekDescription": "Оберіть, чи календарі та тижні починаються в неділю або понеділок",
+			"firstDayOfWeekDescription": "Оберіть день, з якого починаються календарі та тижні",
 			"selectFirstDayOfWeek": "Обрати перший день",
 			"weekStartsOnSunday": "Неділя",
 			"weekStartsOnMonday": "Понеділок",

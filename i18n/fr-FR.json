@@ -431,7 +431,7 @@
 			"languageDescription": "Choisissez la langue de l'interface",
 			"selectLanguage": "Sélectionnez une langue",
 			"firstDayOfWeek": "Premier jour de la semaine",
-			"firstDayOfWeekDescription": "Choisissez si les calendriers et les semaines commencent le dimanche ou le lundi",
+			"firstDayOfWeekDescription": "Choisissez le jour où commencent les calendriers et les semaines",
 			"selectFirstDayOfWeek": "Sélectionnez le premier jour",
 			"weekStartsOnSunday": "Dimanche",
 			"weekStartsOnMonday": "Lundi",
