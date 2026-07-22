@@ -443,7 +443,7 @@
 			"languageDescription": "Wähle deine bevorzugte Oberflächensprache",
 			"selectLanguage": "Sprache auswählen",
 			"firstDayOfWeek": "Erster Wochentag",
-			"firstDayOfWeekDescription": "Lege fest, ob Kalender und Wochenbereiche am Sonntag oder Montag beginnen",
+			"firstDayOfWeekDescription": "Lege fest, an welchem Tag Kalender und Wochenbereiche beginnen",
 			"selectFirstDayOfWeek": "Ersten Tag auswählen",
 			"weekStartsOnSunday": "Sonntag",
 			"weekStartsOnMonday": "Montag",

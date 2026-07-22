@@ -430,7 +430,7 @@
 			"languageDescription": "Tercih ettiğiniz arayüz dilini seçin",
 			"selectLanguage": "Bir dil seçin",
 			"firstDayOfWeek": "Haftanın İlk Günü",
-			"firstDayOfWeekDescription": "Takvimlerin ve haftalık aralıkların Pazar veya Pazartesi ile başlamasını seçin",
+			"firstDayOfWeekDescription": "Takvimlerin ve haftalık aralıkların hangi gün başlayacağını seçin",
 			"selectFirstDayOfWeek": "İlk günü seçin",
 			"weekStartsOnSunday": "Pazar",
 			"weekStartsOnMonday": "Pazartesi",

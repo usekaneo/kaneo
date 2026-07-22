@@ -119,6 +119,11 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
     {
       name: "user-preferences",
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state && !isWeekStartDay(state.weekStartsOn)) {
+          state.setWeekStartsOn(0);
+        }
+      },
     },
   ),
 );

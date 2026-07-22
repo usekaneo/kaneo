@@ -339,7 +339,7 @@
 			"languageDescription": "Elige el idioma de la interfaz",
 			"selectLanguage": "Seleccionar un idioma",
 			"firstDayOfWeek": "Primer día de la semana",
-			"firstDayOfWeekDescription": "Elige si los calendarios y las semanas empiezan en domingo o lunes",
+			"firstDayOfWeekDescription": "Elige qué día comienzan los calendarios y las semanas",
 			"selectFirstDayOfWeek": "Selecciona el primer día",
 			"weekStartsOnSunday": "Domingo",
 			"weekStartsOnMonday": "Lunes",

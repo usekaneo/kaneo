@@ -431,7 +431,7 @@
 			"languageDescription": "Pilih bahasa antarmuka yang Anda inginkan",
 			"selectLanguage": "Pilih bahasa",
 			"firstDayOfWeek": "Hari Pertama Minggu",
-			"firstDayOfWeekDescription": "Pilih apakah kalender dan rentang mingguan dimulai pada Minggu atau Senin",
+			"firstDayOfWeekDescription": "Pilih hari dimulainya kalender dan rentang mingguan",
 			"selectFirstDayOfWeek": "Pilih hari pertama",
 			"weekStartsOnSunday": "Minggu",
 			"weekStartsOnMonday": "Senin",
