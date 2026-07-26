@@ -59,9 +59,9 @@ function ContextMenuSub(props: ContextMenuPrimitive.SubmenuRoot.Props) {
 
 function ContextMenuContent({
   className,
-  sideOffset = 4,
-  align = "center",
-  side = "right",
+  sideOffset = 2,
+  align = "start",
+  side = "bottom",
   alignOffset = 0,
   anchor,
   children,

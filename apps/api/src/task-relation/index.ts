@@ -45,7 +45,7 @@ const taskRelation = new Hono<{
     workspaceAccess.fromTaskId("taskId"),
     async (c) => {
       const { taskId } = c.req.valid("param");
-      const relations = await getTaskRelations(taskId);
+      const relations = await getTaskRelations(taskId, c.get("workspaceId"));
       return c.json(relations);
     },
   )
@@ -100,6 +100,7 @@ const taskRelation = new Hono<{
         targetTaskId,
         relationType,
         userId,
+        workspaceId: c.get("workspaceId"),
       });
       return c.json(relation);
     },

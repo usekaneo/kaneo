@@ -56,13 +56,63 @@ export type TaskCommentCreatedEvent = {
   comment: string;
 };
 
+export type TaskDeletedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  title: string;
+};
+
+export type TaskMovedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  fromProjectId: string;
+  fromProjectName: string;
+  toProjectId: string;
+  toProjectName: string;
+  oldStatus: string;
+  newStatus: string;
+};
+
+export type TaskDueDateChangedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  title: string;
+  oldDueDate: Date | null;
+  newDueDate: Date | null;
+};
+
+export type TaskAssigneeChangedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  title: string;
+  oldAssignee: string | null;
+  newAssignee: string | undefined;
+  newAssigneeId: string;
+};
+
+export type TaskUnassignedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  title: string;
+};
+
 export type TaskEvent =
   | TaskCreatedEvent
   | TaskStatusChangedEvent
   | TaskPriorityChangedEvent
   | TaskTitleChangedEvent
   | TaskDescriptionChangedEvent
-  | TaskCommentCreatedEvent;
+  | TaskCommentCreatedEvent
+  | TaskDeletedEvent
+  | TaskMovedEvent
+  | TaskDueDateChangedEvent
+  | TaskAssigneeChangedEvent
+  | TaskUnassignedEvent;
 
 export type ExternalMetadata = {
   type: "issue" | "pull_request" | "branch";
@@ -103,6 +153,11 @@ export type IntegrationPlugin = {
   onTaskTitleChanged?: TaskEventHandler<TaskTitleChangedEvent>;
   onTaskDescriptionChanged?: TaskEventHandler<TaskDescriptionChangedEvent>;
   onTaskCommentCreated?: TaskEventHandler<TaskCommentCreatedEvent>;
+  onTaskDeleted?: TaskEventHandler<TaskDeletedEvent>;
+  onTaskMoved?: TaskEventHandler<TaskMovedEvent>;
+  onTaskDueDateChanged?: TaskEventHandler<TaskDueDateChangedEvent>;
+  onTaskAssigneeChanged?: TaskEventHandler<TaskAssigneeChangedEvent>;
+  onTaskUnassigned?: TaskEventHandler<TaskUnassignedEvent>;
 
   handleWebhook?: WebhookHandler;
   getTaskMetadata?: MetadataProvider;

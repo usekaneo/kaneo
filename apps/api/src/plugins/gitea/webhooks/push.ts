@@ -43,7 +43,10 @@ const PROTECTED_BRANCHES = [
   "production",
 ];
 
-export async function handleGiteaPush(payload: PushPayload) {
+export async function handleGiteaPush(
+  payload: PushPayload,
+  integrationId?: string,
+) {
   const { ref, repository } = payload;
 
   if (!ref.startsWith("refs/heads/")) {
@@ -68,6 +71,7 @@ export async function handleGiteaPush(payload: PushPayload) {
     origin,
     owner,
     repository.name,
+    integrationId,
   );
 
   if (integrations.length === 0) {

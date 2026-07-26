@@ -24,6 +24,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -281,7 +282,7 @@ export default function TaskCardContextMenuContent({
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
                   <AvatarFallback className="text-xs font-medium border border-border/30">
-                    {user.name?.charAt(0).toUpperCase()}
+                    {getInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>
 

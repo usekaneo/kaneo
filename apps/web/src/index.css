@@ -35,7 +35,36 @@ input:-webkit-autofill:active {
 
 @custom-variant dark (&:is(.dark *));
 
+/* Reduced motion: keep opacity feedback, drop movement (scale/translate) and
+   container morphs. Tailwind v4 scale/translate utilities use the standalone
+   CSS properties, so forcing them here neutralizes entrance/exit movement
+   while transition-property keeps the fade. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="popover-popup"],
+  [data-slot="select-popup"],
+  [data-slot="menu-popup"],
+  [data-slot="menu-sub-content"],
+  [data-slot="tooltip-popup"],
+  [data-slot="dialog-popup"],
+  [data-slot="alert-dialog-popup"],
+  [data-slot="command-dialog-popup"],
+  [data-slot="sheet-popup"],
+  [data-slot="toast-popup"] {
+    transition-property: opacity !important;
+  }
+
+  [data-slot="sidebar-gap"],
+  [data-slot="sidebar-container"],
+  [data-slot="sidebar-group-content"],
+  [data-slot="sidebar-menu-badge"] {
+    transition: none !important;
+  }
+}
+
+
 @theme inline {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --animate-skeleton: skeleton 2s -1s infinite linear;
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);

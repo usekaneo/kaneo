@@ -31,7 +31,10 @@ type IssueEditedPayload = {
   };
 };
 
-export async function handleGiteaIssueEdited(payload: IssueEditedPayload) {
+export async function handleGiteaIssueEdited(
+  payload: IssueEditedPayload,
+  integrationId?: string,
+) {
   const { issue, repository, changes } = payload;
 
   if (!changes?.title && !changes?.body) {
@@ -46,6 +49,7 @@ export async function handleGiteaIssueEdited(payload: IssueEditedPayload) {
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   for (const integration of integrations) {

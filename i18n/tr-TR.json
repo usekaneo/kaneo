@@ -1,0 +1,1825 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "İptal",
+			"close": "Kapat",
+			"clearAll": "Tümünü temizle",
+			"delete": "Sil",
+			"deleting": "Siliniyor...",
+			"markAllRead": "Tümünü okundu işaretle",
+			"remove": "Kaldır",
+			"reset": "Sıfırla",
+			"filter": "Filtrele",
+			"clearAllFilters": "Tüm filtreleri temizle"
+		},
+		"a11y": {
+			"toggleSidebar": "Kenar çubuğunu aç/kapat"
+		},
+		"sidebar": {
+			"title": "Kenar çubuğu",
+			"mobileDescription": "Mobil kenar çubuğunu görüntüler."
+		},
+		"empty": {
+			"loading": "Yükleniyor..."
+		},
+		"pagination": {
+			"label": "Sayfalama",
+			"previous": "Önceki",
+			"next": "Sonraki",
+			"previousPage": "Önceki sayfaya git",
+			"nextPage": "Sonraki sayfaya git",
+			"morePages": "Daha fazla sayfa"
+		},
+		"breadcrumb": {
+			"label": "Navigasyon",
+			"more": "Daha fazla"
+		},
+		"language": {
+			"english": "İngilizce",
+			"german": "Almanca",
+			"greek": "Yunanca",
+			"macedonian": "Makedonca",
+			"french": "Fransızca",
+			"spanish": "İspanyolca",
+			"dutch": "Hollandaca",
+			"korean": "Korece"
+		},
+		"people": {
+			"someone": "Biri",
+			"unknown": "Bilinmiyor"
+		},
+		"error": {
+			"title": "Bir şeyler ters gitti",
+			"troubleshooting": "Sorun giderme adımları:",
+			"tryAgain": "Tekrar dene",
+			"viewDeploymentGuide": "Dağıtım Kılavuzunu Görüntüle",
+			"refreshPage": "Sayfayı Yenile"
+		},
+		"formats": {
+			"never": "Asla"
+		},
+		"modals": {
+			"createProject": {
+				"title": "Yeni proje oluştur",
+				"breadcrumbNew": "Yeni proje oluştur",
+				"workspaceFallback": "ÇALIŞMA ALANI",
+				"description": "Bir ad, anahtar ve simge girerek çalışma alanınızda yeni bir proje oluşturun.",
+				"pickIcon": "Simge seç",
+				"searchIcons": "Simge ara...",
+				"projectName": "Proje adı",
+				"keyLabel": "Anahtar:",
+				"keyHint": "Talep kimlikleri için kullanılır (örn. {{example}}-123)",
+				"createButton": "Proje Oluştur",
+				"successToast": "Proje başarıyla oluşturuldu",
+				"errorToast": "Proje oluşturulamadı"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "Yeni çalışma alanı oluştur",
+				"description": "Çalışma alanınız için bir ad girerek yeni bir çalışma alanı oluşturun.",
+				"namePlaceholder": "Çalışma alanı adı",
+				"descriptionPlaceholder": "Açıklama ekle...",
+				"createButton": "Çalışma Alanı Oluştur",
+				"successToast": "Çalışma alanı başarıyla oluşturuldu",
+				"errorToast": "Çalışma alanı oluşturulamadı"
+			},
+			"createTask": {
+				"breadcrumbTask": "TALEP",
+				"title": "Yeni Talep",
+				"description": "Bir başlık, açıklama ve diğer ayrıntıları girerek yeni bir talep oluşturun.",
+				"taskTitlePlaceholder": "Talep başlığı",
+				"descriptionPlaceholder": "Talebiniz için bir açıklama ekleyin...",
+				"chooseProjectForImages": "Görsel yüklemeden önce bir proje seçin.",
+				"prepareTaskError": "Talep hazırlanamadı",
+				"successCreated": "Talep başarıyla oluşturuldu",
+				"successUpdated": "Talep başarıyla güncellendi",
+				"createError": "Talep oluşturulamadı",
+				"priority": "Öncelik",
+				"statusFallback": "Devam Ediyor",
+				"startDate": "Başlangıç tarihi",
+				"dueDate": "Bitiş tarihi",
+				"clearStartDate": "Başlangıç tarihini temizle",
+				"clearDueDate": "Bitiş tarihini temizle",
+				"assign": "Ata",
+				"assignUnassigned": "Atanmamış",
+				"assignUnassignedTitle": "Atanmamış",
+				"labels": "Etiketler",
+				"searchLabels": "Etiket ara...",
+				"noLabelsFound": "Etiket bulunamadı",
+				"createLabel": "\"{{name}}\" oluştur",
+				"chooseColor": "Renk seç",
+				"labelCreated": "Etiket oluşturuldu",
+				"labelCreateError": "Etiket oluşturulamadı",
+				"createMore": "Daha fazla oluştur",
+				"createButton": "Talep Oluştur",
+				"untitledTask": "Başlıksız talep",
+				"labelColors": {
+					"stone": "Taş",
+					"slate": "Arduvaz",
+					"lavender": "Lavanta",
+					"sage": "Adaçayı",
+					"forest": "Orman",
+					"amber": "Kehribar",
+					"terracotta": "Terakota",
+					"rose": "Gül Kurusu",
+					"crimson": "Koyu Kırmızı"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "Giriş Yap",
+			"title": "Tekrar hoş geldiniz",
+			"subtitle": "Çalışma alanınıza erişmek için kimlik bilgilerinizi girin",
+			"invitationSubtitle": "Davetinizi kabul etmek için giriş yapın",
+			"invitationAlert": "Giriş yaptıktan sonra çalışma alanı davetinizi kabul edebileceksiniz.",
+			"signingIn": "Giriş yapılıyor...",
+			"continueWithGoogle": "Google ile devam et",
+			"continueWithGithub": "GitHub ile devam et",
+			"continueWithDiscord": "Discord ile devam et",
+			"continueWithOidc": "OIDC ile devam et",
+			"lastUsed": "Son kullanılan",
+			"registrationDisabled": "Genel kayıt devre dışı. Hesap oluşturmak için bir davet kullanın.",
+			"passwordRegistrationDisabled": "Parola kaydı devre dışı. Hesap oluşturmak için yapılandırılmış bir sosyal veya OIDC giriş yöntemi kullanın.",
+			"toggleMessage": "Hesabınız yok mu?",
+			"toggleLink": "Hesap oluştur",
+			"guestSuccess": "Misafir olarak giriş yapıldı",
+			"guestError": "Misafir olarak giriş yapılamadı",
+			"oidcError": "OIDC ile giriş yapılamadı",
+			"googleError": "Google ile giriş yapılamadı",
+			"githubError": "GitHub ile giriş yapılamadı",
+			"discordError": "Discord ile giriş yapılamadı",
+			"errors": {
+				"oauth_code_verification_failed": "OAuth doğrulaması başarısız. Lütfen tekrar deneyin.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Kayıt şu anda devre dışı. Hesap oluşturmak için geçerli bir davet gereklidir."
+			}
+		},
+		"providers": {
+			"google": "Google",
+			"discord": "Discord"
+		},
+		"forms": {
+			"or": "veya",
+			"email": "E-posta",
+			"password": "Parola",
+			"emailPlaceholder": "ben@example.com",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "Parolayı göster",
+			"hidePassword": "Parolayı gizle"
+		},
+		"checkEmail": {
+			"pageTitle": "E-postanızı Kontrol Edin",
+			"title": "E-postanızı kontrol edin",
+			"inboxMessage": "Size geçici bir giriş bağlantısı gönderdik. Lütfen <email>{{email}}</email> adresindeki gelen kutunuzu kontrol edin.",
+			"emailFallback": "e-posta adresiniz",
+			"backToLogin": "Girişe dön"
+		},
+		"signUp": {
+			"pageTitle": "Hesap Oluştur",
+			"title": "Hesap oluştur",
+			"subtitleInvitation": "Davetinizi kabul etmek için bir hesap oluşturun",
+			"subtitleRegistrationDisabled": "Kayıt bir davet gerektirir",
+			"subtitlePasswordDisabled": "Hesap oluşturmak için sosyal veya OIDC giriş yöntemini kullanın",
+			"subtitleDefault": "Çalışma alanınızla başlayın",
+			"invitationAlert": "Hesabınızı oluşturduktan sonra çalışma alanı davetinizi kabul edebileceksiniz.",
+			"registrationDisabledAlert": "Kayıt şu anda devre dışı. Davet edildiyseniz, hesap oluşturmak için davetin gönderildiği e-posta adresini girin.",
+			"passwordDisabledAlert": "Parola tabanlı hesap oluşturma devre dışı. Giriş sayfasından yapılandırılmış bir sosyal veya OIDC giriş yöntemi kullanın.",
+			"signingIn": "Giriş yapılıyor...",
+			"continueAsGuest": "Misafir olarak devam et",
+			"toggleMessage": "Zaten hesabınız var mı?",
+			"toggleLink": "Giriş yap"
+		},
+		"verifyOtp": {
+			"pageTitle": "Kodu Doğrula",
+			"title": "Doğrulama kodunu girin",
+			"subtitle": "Devam etmek için e-postanıza gönderilen 6 haneli kodu kullanın",
+			"codeSentTo": "Kod {{email}} adresine gönderildi",
+			"verificationCodeLabel": "Doğrulama Kodu",
+			"verifying": "Doğrulanıyor...",
+			"verifyAndSignIn": "Doğrula ve Giriş Yap",
+			"changeEmail": "E-postayı değiştir",
+			"resend": "Yeniden gönder",
+			"validation": {
+				"codeLength": "Kod 6 haneli olmalıdır"
+			},
+			"toast": {
+				"invalidCode": "Geçersiz doğrulama kodu",
+				"signedInSuccess": "Başarıyla giriş yapıldı!",
+				"verifyFailed": "Kod doğrulanamadı",
+				"resendFailed": "Kod yeniden gönderilemedi",
+				"resendSuccess": "Yeni doğrulama kodu gönderildi!"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "Doğrulama kodu gönderilemedi",
+			"codeSent": "Doğrulama kodu gönderildi! E-postanızı kontrol edin.",
+			"sending": "Gönderiliyor...",
+			"sendVerificationCode": "Doğrulama Kodu Gönder"
+		},
+		"signInForm": {
+			"failedSignIn": "Giriş başarısız",
+			"signedInSuccess": "Başarıyla giriş yapıldı",
+			"signingIn": "Giriş Yapılıyor...",
+			"signIn": "Giriş Yap"
+		},
+		"signUpForm": {
+			"fullName": "Ad Soyad",
+			"namePlaceholder": "John Doe",
+			"failedSignUp": "Kayıt başarısız",
+			"accountCreated": "Hesap başarıyla oluşturuldu",
+			"passwordTooShort": "Parola çok kısa",
+			"creatingAccount": "Hesap Oluşturuluyor...",
+			"createAccount": "Hesap Oluştur"
+		},
+		"invitation": {
+			"pageTitleAccept": "Daveti Kabul Et",
+			"pageTitleError": "Davet Hatası",
+			"pageTitleInvalid": "Geçersiz Davet",
+			"loadingTitle": "Davet yükleniyor...",
+			"errorTitle": "Davet Hatası",
+			"invalidTitle": "Geçersiz Davet",
+			"invitationExpired": "Davetin Süresi Doldu",
+			"errorLoadDescription": "Davet ayrıntıları yüklenemedi. Davet geçersiz veya süresi dolmuş olabilir.",
+			"goToSignIn": "Girişe Git",
+			"workspaceLabel": "Çalışma alanı: {{workspaceName}}",
+			"joinWorkspace": "{{workspaceName}} çalışma alanına katıl",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> sizi çalışma alanına katılmaya davet etti.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> sizi Kaneo üzerindeki çalışma alanına katılmaya davet etti.",
+			"signInToAccept": "Bu daveti kabul etmek için giriş yapın.",
+			"accepting": "Kabul ediliyor...",
+			"acceptInvitation": "Daveti Kabul Et",
+			"goToDashboard": "Panele Git",
+			"signedInAs": "<email>{{email}}</email> olarak giriş yapıldı",
+			"youveBeenInvited": "Davet edildiniz!",
+			"invitationFor": "Davet: <email>{{email}}</email>",
+			"signIn": "Giriş Yap",
+			"toast": {
+				"acceptFailed": "Davet kabul edilemedi",
+				"acceptSuccess": "Davet kabul edildi! Aramıza hoş geldiniz."
+			}
+		},
+		"onboarding": {
+			"pageTitle": "Kaneo'ya Hoş Geldiniz",
+			"workspacePageTitle": "Çalışma Alanı Oluştur",
+			"createWorkspaceTitle": "Çalışma alanı oluştur",
+			"createWorkspaceSubtitle": "Projeleri yönetmeye başlamak için çalışma alanınızı kurun",
+			"workspaceName": "Çalışma alanı adı",
+			"workspaceNamePlaceholder": "örn. Acme Inc, Ekibim",
+			"descriptionOptional": "Açıklama (isteğe bağlı)",
+			"descriptionPlaceholder": "Ekibiniz ne üzerinde çalışıyor?",
+			"creating": "Oluşturuluyor...",
+			"createWorkspace": "Çalışma alanı oluştur",
+			"workspaceCreatedTitle": "Çalışma alanı oluşturuldu",
+			"redirectingToWorkspace": "Sizi <name>{{name}}</name> çalışma alanına götürüyorum...",
+			"toast": {
+				"workspaceCreated": "Çalışma alanı başarıyla oluşturuldu",
+				"createFailed": "Çalışma alanı oluşturulamadı"
+			},
+			"validation": {
+				"workspaceNameRequired": "Çalışma alanı adı gereklidir"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "Profili Tamamla",
+			"completeTitle": "Profilinizi tamamlayın",
+			"subtitle": "Başlamak için lütfen adınızı girin",
+			"yourName": "Adınız",
+			"namePlaceholder": "örn. John Doe",
+			"saving": "Kaydediliyor...",
+			"continue": "Devam et",
+			"welcome": "Hoş geldiniz, {{name}}!",
+			"redirecting": "Sizi panelinize götürüyorum...",
+			"toast": {
+				"updateSuccess": "Profil başarıyla güncellendi",
+				"updateFailed": "Profil güncellenemedi"
+			},
+			"validation": {
+				"nameRequired": "Ad gereklidir",
+				"nameShort": "Ad en az 2 karakter olmalıdır"
+			}
+		}
+	},
+	"settings": {
+		"account": "Hesap",
+		"developer": "Geliştirici",
+		"information": "Bilgiler",
+		"notifications": "Bildirimler",
+		"preferences": "Tercihler",
+		"apiKeys": "API Anahtarları",
+		"informationPage": {
+			"pageTitle": "Kişisel Bilgiler",
+			"title": "Kişisel Bilgiler",
+			"subtitle": "Kişisel ayrıntılarınızı ve hesap bilgilerinizi yönetin.",
+			"sectionTitle": "Hesap Bilgileri",
+			"sectionSubtitle": "Profilinizi ve hesap ayrıntılarınızı yönetin.",
+			"profilePicture": "Profil fotoğrafı",
+			"fullName": "Ad Soyad",
+			"fullNamePlaceholder": "Adınızı girin",
+			"email": "E-posta",
+			"emailPlaceholder": "E-postanızı girin",
+			"updateSuccess": "Profil başarıyla güncellendi",
+			"updateError": "Profil güncellenemedi",
+			"validation": {
+				"nameRequired": "Ad gereklidir",
+				"nameShort": "Ad en az 2 karakter olmalıdır",
+				"invalidEmail": "Geçersiz e-posta adresi"
+			}
+		},
+		"notificationsPage": {
+			"pageTitle": "Bildirimler",
+			"title": "Bildirimler",
+			"subtitle": "Kaneo'nun hesap bildirimlerinizi nasıl ileteceğini ve hangi kanalları kullanacağını seçin.",
+			"statusConnected": "Bağlı",
+			"statusPaused": "Duraklatıldı",
+			"emailTitle": "E-posta",
+			"emailDescription": "Bildirimleriniz için hedef olarak hesap e-postanızı kullanın.",
+			"accountEmailLabel": "Hesap e-postası",
+			"accountEmailNoAddress": "Kullanılabilir hesap e-postası yok",
+			"accountEmailHint": "E-posta bildirimleri her zaman giriş yapılan hesap e-postasına gönderilir.",
+			"saveChanges": "Değişiklikleri kaydet",
+			"disconnect": "Bağlantıyı kes",
+			"ntfyTitle": "ntfy",
+			"ntfyDescription": "Hesap bildirimlerini bir ntfy konusuna yayınlayın.",
+			"serverUrl": "Sunucu URL'si",
+			"topic": "Konu",
+			"token": "Belirteç",
+			"ntfyServerPlaceholder": "https://ntfy.example.com",
+			"ntfyTopicPlaceholder": "takim-uyarilari",
+			"ntfyTokenPlaceholder": "İsteğe bağlı bearer belirteç",
+			"ntfyTokenHintConfigured": "Bir belirteç zaten yapılandırılmış ({{masked}}). Değiştirmek için yeni bir belirteç girin.",
+			"ntfyTokenHintOptional": "İsteğe bağlı. ntfy sunucunuz kimlik doğrulaması gerektiriyorsa bir belirteç sağlayın.",
+			"connectNtfy": "ntfy bağla",
+			"gotifyTitle": "Gotify",
+			"gotifyDescription": "Hesap bildirimlerinizi Gotify sunucunuza gönderin.",
+			"gotifyTokenLabel": "Uygulama belirteci",
+			"gotifyServerPlaceholder": "https://gotify.example.com",
+			"gotifyTokenPlaceholder": "Gotify uygulama belirteci",
+			"gotifyTokenHintConfigured": "Bir uygulama belirteci zaten yapılandırılmış ({{masked}}). Değiştirmek için yeni bir belirteç girin.",
+			"gotifyTokenHintRequired": "Gereklidir. Gotify sunucunuzdan bir uygulama belirteci kullanın.",
+			"connectGotify": "Gotify bağla",
+			"webhookTitle": "Özel webhook",
+			"webhookDescription": "Hesap bildirimlerini kendi uç noktanıza JSON olarak gönderin.",
+			"endpointUrl": "Uç nokta URL'si",
+			"signingSecret": "İmzalama gizli anahtarı",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookSecretPlaceholder": "İsteğe bağlı paylaşılan gizli anahtar",
+			"webhookSecretHintConfigured": "Bir imzalama gizli anahtarı zaten yapılandırılmış ({{masked}}). Değiştirmek için yeni bir tane girin.",
+			"webhookSecretHintOptional": "İsteğe bağlı. Bir gizli anahtar ayarlandığında Kaneo istek gövdesini imzalar.",
+			"connectWebhook": "Webhook bağla",
+			"workspaceRulesTitle": "Çalışma alanı teslim kuralları",
+			"workspaceRulesDescription": "Genel kanallarınızı yeniden kullanın, ardından hangi çalışma alanlarının ve projelerin hesap bildirimleri göndermesine izin verileceğine karar verin.",
+			"workspaceCardHint": "Bu çalışma alanının hesap bildirimleri için hangi kanalları kullanabileceğini seçin.",
+			"workspaceCardLabelEmail": "E-posta",
+			"workspaceCardLabelNtfy": "ntfy",
+			"workspaceCardLabelGotify": "Gotify",
+			"workspaceCardLabelWebhook": "Özel webhook",
+			"emailChannelHintEnabled": "Eşleşen çalışma alanı bildirimlerini e-posta ile gönder.",
+			"emailChannelHintDisabled": "Önce e-postayı genel olarak yapılandırın ve etkinleştirin.",
+			"ntfyChannelHintEnabled": "Eşleşen çalışma alanı bildirimlerini ntfy'ye gönder.",
+			"ntfyChannelHintDisabled": "Önce ntfy'yi genel olarak yapılandırın ve etkinleştirin.",
+			"gotifyChannelHintEnabled": "Eşleşen çalışma alanı bildirimlerini Gotify'a gönder.",
+			"gotifyChannelHintDisabled": "Önce Gotify'ı genel olarak yapılandırın ve etkinleştirin.",
+			"webhookChannelHintEnabled": "Eşleşen çalışma alanı bildirimlerini webhook'unuza gönder.",
+			"webhookChannelHintDisabled": "Önce webhook'u genel olarak yapılandırın ve etkinleştirin.",
+			"projectScope": "Proje kapsamı",
+			"projectScopeDescription": "Tüm projeler varsayılan olarak dahildir. Bu çalışma alanı yalnızca seçili projelerden bildirim göndermesi gerekiyorsa daraltın.",
+			"allProjects": "Tüm projeler",
+			"allProjectsDescription": "Bu çalışma alanındaki tüm projelerden bildirimleri teslim et.",
+			"selectedProjects": "Seçili projeler",
+			"selectedProjectsDescription": "Yalnızca seçilen projelerden bildirimleri teslim et.",
+			"noProjectsInWorkspace": "Bu çalışma alanında henüz proje yok.",
+			"createRule": "Kural oluştur",
+			"removeRule": "Kuralı kaldır",
+			"toastEmailSaved": "E-posta bildirim ayarları kaydedildi",
+			"toastEmailSaveFailed": "E-posta ayarları kaydedilemedi",
+			"toastNtfySaved": "ntfy ayarları kaydedildi",
+			"toastNtfySaveFailed": "ntfy ayarları kaydedilemedi",
+			"toastNtfyDisconnected": "ntfy bağlantısı kesildi",
+			"toastNtfyDisconnectFailed": "ntfy bağlantısı kesilemedi",
+			"toastGotifySaved": "Gotify ayarları kaydedildi",
+			"toastGotifySaveFailed": "Gotify ayarları kaydedilemedi",
+			"toastGotifyDisconnected": "Gotify bağlantısı kesildi",
+			"toastGotifyDisconnectFailed": "Gotify bağlantısı kesilemedi",
+			"toastWebhookSaved": "Webhook ayarları kaydedildi",
+			"toastWebhookSaveFailed": "Webhook ayarları kaydedilemedi",
+			"toastWebhookDisconnected": "Webhook bağlantısı kesildi",
+			"toastWebhookDisconnectFailed": "Webhook bağlantısı kesilemedi",
+			"toastRuleSaved": "{{workspaceName}} için bildirim kuralı kaydedildi",
+			"toastRuleSaveFailed": "Çalışma alanı bildirim kuralı kaydedilemedi",
+			"toastRuleRemoved": "{{workspaceName}} için bildirim kuralı kaldırıldı",
+			"toastRuleRemoveFailed": "Çalışma alanı bildirim kuralı kaldırılamadı",
+			"toastPreferencesSaved": "Bildirim tercihleri kaydedildi",
+			"toastPreferencesSaveFailed": "Bildirim tercihleri kaydedilemedi",
+			"toastRuleSavedGeneric": "Çalışma alanı bildirim kuralı kaydedildi",
+			"toastRuleRemovedGeneric": "Çalışma alanı bildirim kuralı kaldırıldı"
+		},
+		"preferencesPage": {
+			"title": "Tercihler",
+			"subtitle": "Kaneo deneyiminizi özelleştirin.",
+			"appearanceTitle": "Görünüm",
+			"appearanceSubtitle": "Görsel ayarlar ve düzen tercihleri.",
+			"theme": "Tema",
+			"themeDescription": "Tercih ettiğiniz renk düzenini seçin",
+			"selectTheme": "Tema seçin",
+			"themeLight": "Açık",
+			"themeDark": "Koyu",
+			"themeSystem": "Sistem",
+			"language": "Dil",
+			"languageDescription": "Tercih ettiğiniz arayüz dilini seçin",
+			"selectLanguage": "Bir dil seçin",
+			"firstDayOfWeek": "Haftanın İlk Günü",
+			"firstDayOfWeekDescription": "Takvimlerin ve haftalık aralıkların Pazar veya Pazartesi ile başlamasını seçin",
+			"selectFirstDayOfWeek": "İlk günü seçin",
+			"weekStartsOnSunday": "Pazar",
+			"weekStartsOnMonday": "Pazartesi",
+			"defaultView": "Varsayılan Görünüm",
+			"defaultViewDescription": "Tercih ettiğiniz talep görünüm modunu seçin",
+			"selectViewMode": "Bir görünüm modu seçin",
+			"board": "Pano",
+			"list": "Liste",
+			"gantt": "Gantt",
+			"sidebarDefault": "Kenar Çubuğu Varsayılanı",
+			"sidebarDefaultDescription": "Başlangıçta kenar çubuğunu geniş tut",
+			"displayOptions": "Görüntüleme seçenekleri",
+			"displayOptionsDescription": "Talep görünümlerinde hangi bilgilerin gösterileceğini seçin",
+			"taskNumbers": "Talep Numaraları",
+			"taskNumbersDescription": "Talep kimliklerini ve numaralarını göster",
+			"assignees": "Atananlar",
+			"assigneesDescription": "Taleplere kimin atandığını göster",
+			"dueDates": "Bitiş Tarihleri",
+			"dueDatesDescription": "Talep son tarihlerini görüntüle",
+			"labels": "Etiketler",
+			"labelsDescription": "Talep etiketlerini ve etiketleri göster",
+			"priority": "Öncelik",
+			"priorityDescription": "Öncelik göstergelerini görüntüle"
+		},
+		"developerPage": {
+			"pageTitle": "Geliştirici Ayarları",
+			"title": "Geliştirici Ayarları",
+			"subtitle": "API anahtarlarınızı ve geliştirici kaynaklarınızı yönetin.",
+			"apiKeysCardTitle": "API Anahtarları",
+			"apiKeysCardDescription": "Kaneo'ya programlı erişim için API anahtarları oluşturun ve yönetin.",
+			"createApiKey": "API Anahtarı Oluştur",
+			"unnamedKey": "İsimsiz Anahtar"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "API Anahtarı Oluşturuldu",
+				"description": "\"{{keyName}}\" API anahtarınız başarıyla oluşturuldu.",
+				"yourApiKey": "API Anahtarınız",
+				"copy": "Kopyala",
+				"copied": "Kopyalandı",
+				"toastCopied": "API anahtarı panoya kopyalandı",
+				"alertTitle": "Başarılı! API anahtarınız oluşturuldu",
+				"alertDescription": "Bu anahtarı hemen kopyalayın. Tekrar göremezsiniz.",
+				"done": "Bitti",
+				"copyToContinue": "Devam etmek için anahtarı kopyalayın"
+			},
+			"table": {
+				"loading": "API anahtarları yükleniyor...",
+				"empty": "Henüz API anahtarı yok. Başlamak için bir tane oluşturun.",
+				"columnName": "Ad",
+				"columnKey": "Anahtar",
+				"columnCreated": "Oluşturulma",
+				"columnExpires": "Süre Sonu",
+				"columnActions": "İşlemler",
+				"unnamedKey": "İsimsiz Anahtar",
+				"expiredBadge": "Süresi dolmuş {{label}}",
+				"deleteConfirmTitle": "API anahtarı silinsin mi?",
+				"deleteConfirmDescription": "Bu işlem geri alınamaz. {{name}} kalıcı olarak silinecek.",
+				"deleteFallbackName": "bu API anahtarı",
+				"delete": "Sil",
+				"deleting": "Siliniyor...",
+				"deleteAria": "{{name}} anahtarını sil",
+				"deleteAriaFallback": "API anahtarı",
+				"toastDeleted": "API anahtarı başarıyla silindi",
+				"toastDeleteError": "API anahtarı silinemedi"
+			},
+			"createDialog": {
+				"title": "API Anahtarı Oluştur",
+				"description": "Kaneo API'sine programlı erişim için yeni bir API anahtarı oluşturun.",
+				"nameLabel": "Ad",
+				"namePlaceholder": "API Anahtarım",
+				"nameDescription": "Bu API anahtarı için açıklayıcı bir ad",
+				"expirationLabel": "Süre Sonu",
+				"expirationPlaceholder": "Süre sonu seçin",
+				"expirationDescription": "Bu API anahtarının ne kadar süreyle geçerli olacağını seçin. Asla seçeneği, otomatik süre sonu olmayan bir anahtar oluşturur.",
+				"expiration1d": "1 gün",
+				"expiration7d": "7 gün",
+				"expiration30d": "30 gün",
+				"expiration90d": "90 gün",
+				"expirationNever": "Asla",
+				"create": "Oluştur",
+				"creating": "Oluşturuluyor...",
+				"failedCreate": "API anahtarı oluşturulamadı",
+				"validation": {
+					"nameRequired": "Ad gereklidir",
+					"nameShort": "Ad en az 3 karakter olmalıdır",
+					"expirationRequired": "Süre sonu gereklidir"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "Genel Ayarlar",
+			"title": "Genel Ayarlar",
+			"subtitle": "Çalışma alanı adınızı ve açıklamanızı yönetin.",
+			"workspaceInfoTitle": "Çalışma Alanı Bilgileri",
+			"workspaceInfoSubtitle": "Çalışma alanı ayrıntılarınızı ve tercihlerinizi yapılandırın.",
+			"nameLabel": "Çalışma alanı adı",
+			"nameHint": "Çalışma alanınızın adı",
+			"namePlaceholder": "Çalışma alanı adını girin",
+			"descriptionLabel": "Açıklama",
+			"descriptionHint": "Çalışma alanınızın kısa bir açıklaması",
+			"descriptionPlaceholder": "Çalışma alanı açıklamasını girin",
+			"dangerZone": "Tehlikeli bölge",
+			"dangerZoneSubtitle": "Geri alınamaz ve yıkıcı işlemler.",
+			"deleteWorkspace": "Çalışma alanını sil",
+			"deleteWorkspaceDescription": "Çalışma alanının kalıcı olarak silinmesini planla",
+			"deleteModalTitle": "Çalışma Alanı Silinsin mi?",
+			"deleteModalDescription": "Bu, \"{{name}}\" çalışma alanını ve tüm verilerini kalıcı olarak silecek. Bu işlem geri alınamaz.",
+			"deleteModalConfirm": "Çalışma Alanını Sil",
+			"toastUpdated": "Çalışma alanı başarıyla güncellendi",
+			"toastUpdateError": "Çalışma alanı güncellenemedi",
+			"toastDeleted": "Çalışma alanı başarıyla silindi",
+			"toastDeleteError": "Çalışma alanı silinemedi",
+			"validation": {
+				"nameRequired": "Çalışma alanı adı gereklidir",
+				"nameShort": "Çalışma alanı adı en az 2 karakter olmalıdır"
+			}
+		},
+		"projectGeneral": {
+			"pageTitle": "Proje Ayarları",
+			"title": "Genel Ayarlar",
+			"subtitle": "Proje adınızı, anahtarını, simgesini ve açıklamasını yönetin.",
+			"projectInfoTitle": "Proje Bilgileri",
+			"projectInfoSubtitle": "Proje ayrıntılarınızı ve tercihlerinizi yapılandırın.",
+			"iconLabel": "Simge",
+			"iconHint": "Kenar çubuğunda ve proje yüzeylerinde görüntülenir.",
+			"pickIconTitle": "Simge seç",
+			"searchIconsPlaceholder": "Simge ara...",
+			"projectNameLabel": "Proje adı",
+			"projectNameHint": "Projenizin adı",
+			"projectNamePlaceholder": "Proje adını girin",
+			"keyLabel": "Anahtar",
+			"keyHint": "Talep kimlikleri için kullanılır (örn. {{slug}}-123)",
+			"keyPlaceholder": "PRO",
+			"descriptionLabel": "Açıklama",
+			"descriptionHint": "Projenizin kısa bir açıklaması",
+			"descriptionPlaceholder": "Proje açıklamasını girin",
+			"dangerZone": "Tehlikeli bölge",
+			"dangerZoneSubtitle": "Geri alınamaz ve yıkıcı işlemler.",
+			"deleteProject": "Projeyi sil",
+			"deleteProjectDescription": "Projenin kalıcı olarak silinmesini planla",
+			"deleteModalTitle": "Proje Silinsin mi?",
+			"deleteModalDescription": "Bu, \"{{name}}\" projesini ve tüm verilerini kalıcı olarak silecek. Bu işlem geri alınamaz.",
+			"deleteModalConfirm": "Projeyi Sil",
+			"toastUpdated": "Proje başarıyla güncellendi",
+			"toastUpdateError": "Proje güncellenemedi",
+			"toastDeleted": "Proje başarıyla silindi",
+			"toastDeleteError": "Proje silinemedi",
+			"validation": {
+				"nameRequired": "Proje adı gereklidir",
+				"nameShort": "Proje adı en az 2 karakter olmalıdır",
+				"keyRequired": "Anahtar gereklidir",
+				"keyShort": "Anahtar en az 2 karakter olmalıdır",
+				"keyMax": "Anahtar en fazla 8 karakter olmalıdır",
+				"iconRequired": "Simge gereklidir"
+			},
+			"importExportTasks": "İçe/Dışa Aktar",
+			"importExportTasksDescription": "Talepleri içe ve dışa aktarın."
+		},
+		"projectIntegrations": {
+			"pageTitle": "Proje Entegrasyonları",
+			"title": "Proje Entegrasyonları",
+			"subtitle": "İş akışınızı kolaylaştırmak için projenizi dış araçlar ve hizmetlerle bağlayın.",
+			"githubSectionTitle": "GitHub Entegrasyonu",
+			"githubSectionSubtitle": "Talepleri GitHub sorunlarıyla senkronize edin ve çift yönlü senkronizasyonu etkinleştirin.",
+			"giteaSectionTitle": "Gitea Entegrasyonu",
+			"giteaSectionSubtitle": "Talepleri kendi sunucunuzda barındırılan bir Gitea örneğiyle senkronize edin (sorunlar, PR'lar, webhook'lar).",
+			"discordSectionTitle": "Discord Entegrasyonu",
+			"discordSectionSubtitle": "Proje talep güncellemelerini bir webhook ile Discord kanalına gönderin.",
+			"genericWebhookSectionTitle": "Genel Webhook'lar",
+			"genericWebhookSectionSubtitle": "Proje talep olaylarını JSON olarak herhangi bir HTTP uç noktasına gönderin.",
+			"slackSectionTitle": "Slack Entegrasyonu",
+			"slackSectionSubtitle": "Proje talep güncellemelerini gelen bir webhook ile Slack kanalına gönderin.",
+			"telegramSectionTitle": "Telegram Entegrasyonu",
+			"telegramSectionSubtitle": "Proje talep güncellemelerini bir bot ile Telegram sohbetine veya konusuna gönderin."
+		},
+		"projectVisibility": {
+			"pageTitle": "Proje Görünürlüğü",
+			"title": "Görünürlük",
+			"subtitle": "Projenizi kimlerin görüntüleyebileceğini ve erişebileceğini kontrol edin.",
+			"sectionTitle": "Görünürlük",
+			"sectionSubtitle": "Herkese açık erişimi açın ve herkese açık URL'yi paylaşın.",
+			"publicAccess": "Herkese açık erişim",
+			"publicAccessHint": "URL'ye sahip herkesin bu projeyi görüntülemesine izin ver",
+			"publicUrl": "Herkese Açık URL",
+			"publicUrlHint": "Proje herkese açıksa bu bağlantıyı paylaşın",
+			"copy": "Kopyala",
+			"copiedToast": "Kopyalandı",
+			"toastUpdated": "Görünürlük güncellendi",
+			"toastUpdateError": "Görünürlük güncellenemedi"
+		},
+		"projectWorkflow": {
+			"pageTitle": "İş Akışı Ayarları",
+			"title": "İş Akışı",
+			"subtitle": "Bu proje için pano sütunlarını ve otomasyon kurallarını yapılandırın.",
+			"columnsTitle": "Sütunlar",
+			"columnsDescription": "Panonuzda görünecek sütunları yönetin. Yeniden sıralamak için sürükleyin. Tamamlanmış işleri temsil eden aşamalar için \"Tamamlandı sütunu\"nu açın.",
+			"automationTitle": "Otomasyon Kuralları",
+			"automationDescription": "Entegrasyon olaylarını sütunlarla eşleştirin. Bir olay gerçekleştiğinde, bağlı talep belirtilen sütuna taşınır."
+		},
+		"projectSwitcher": {
+			"selectProject": "Proje seç",
+			"noProjects": "Proje yok"
+		},
+		"columnEditor": {
+			"toastCreated": "Sütun oluşturuldu",
+			"toastCreateError": "Sütun oluşturulamadı",
+			"toastRenamed": "Sütun yeniden adlandırıldı",
+			"toastRenameError": "Sütun güncellenemedi",
+			"toastFinalOn": "Sütun tamamlandı olarak işaretlendi",
+			"toastFinalOff": "Sütunun tamamlandı işareti kaldırıldı",
+			"toastUpdateError": "Sütun güncellenemedi",
+			"toastIconUpdated": "Sütun simgesi güncellendi",
+			"toastDeleted": "Sütun silindi",
+			"toastDeleteError": "Sütun silinemedi",
+			"loading": "Sütunlar yükleniyor...",
+			"pickIconTitle": "Sütun simgesi seç",
+			"searchIconsPlaceholder": "Simge ara...",
+			"doneColumnTooltip": "Bunu tamamlandı sütunu olarak işaretle",
+			"doneColumn": "Tamamlandı sütunu",
+			"markDoneAria": "{{name}} sütununu tamamlandı olarak işaretle",
+			"on": "Açık",
+			"off": "Kapalı",
+			"newColumnPlaceholder": "Yeni sütun adı...",
+			"add": "Ekle"
+		},
+		"githubIntegration": {
+			"validation": {
+				"ownerRequired": "Depo sahibi gereklidir",
+				"ownerInvalid": "Geçersiz depo sahibi biçimi",
+				"nameRequired": "Depo adı gereklidir",
+				"nameInvalid": "Geçersiz depo adı biçimi"
+			},
+			"toast": {
+				"installedOk": "GitHub Uygulaması düzgün kurulmuş!",
+				"installedMissingPerms": "GitHub Uygulaması kurulu ancak gerekli izinler eksik",
+				"needsInstallOnRepo": "GitHub Uygulamasının bu depoya kurulması gerekiyor",
+				"repoNotFound": "Depo bulunamadı veya erişilemiyor",
+				"verifyError": "GitHub kurulumu doğrulanamadı",
+				"installAppFirst": "Lütfen önce GitHub Uygulamasını bu depoya kurun",
+				"missingPermsDetail": "GitHub Uygulamasında gerekli izinler eksik: {{list}}. Lütfen uygulama izinlerini güncelleyin.",
+				"updated": "GitHub entegrasyonu başarıyla güncellendi",
+				"updateError": "GitHub entegrasyonu güncellenemedi",
+				"removed": "GitHub entegrasyonu başarıyla kaldırıldı",
+				"removeError": "GitHub entegrasyonu kaldırılamadı",
+				"issuesImported": "Sorunlar başarıyla içe aktarıldı",
+				"importError": "Sorunlar içe aktarılamadı",
+				"commentOnEnabled": "Kaneo yeni sorunlara talep bağlantısıyla yorum yapacak",
+				"commentOnDisabled": "Yeni sorunlardaki talep bağlantısı yorumları kapatıldı",
+				"settingsUpdateError": "GitHub entegrasyonu güncellenemedi"
+			},
+			"connectionStatus": "Bağlantı Durumu",
+			"connectedActive": "Depo bağlı ve aktif",
+			"notConnectedHint": "Bağlı depo yok",
+			"badgeConnected": "Bağlı",
+			"badgeNotConnected": "Bağlı Değil",
+			"repository": "Depo",
+			"repositoryHint": "Bağlı GitHub deposu",
+			"commentTaskLinkTitle": "Yeni sorunlara Kaneo bağlantısı yorumu yap",
+			"commentTaskLinkHint": "Etkinleştirildiğinde, Kaneo her yeni GitHub sorununa talep bağlantısı içeren bir yorum gönderir.",
+			"appStatusTitle": "GitHub Uygulama Durumu",
+			"appStatusHint": "Kurulum ve izin durumu",
+			"statusProperlyConfigured": "Düzgün yapılandırılmış",
+			"statusMissingPermissions": "İzinler eksik",
+			"statusNotInstalled": "Kurulu değil",
+			"ownerLabel": "Depo Sahibi",
+			"ownerHint": "GitHub kullanıcı adı veya organizasyon",
+			"ownerPlaceholder": "örn. octocat",
+			"repoNameLabel": "Depo Adı",
+			"repoNameHint": "Depo adı",
+			"repoNamePlaceholder": "örn. my-project",
+			"actionsTitle": "İşlemler",
+			"actionsHint": "Depo bağlantınızı yönetin",
+			"browse": "Göz at",
+			"verify": "Doğrula",
+			"update": "Güncelle",
+			"connect": "Bağlan",
+			"disconnect": "Bağlantıyı kes",
+			"missingPermissionsLabel": "Eksik izinler:",
+			"updatePermissions": "İzinleri Güncelle",
+			"installGithubApp": "GitHub Uygulamasını Kur",
+			"importSectionTitle": "GitHub Sorunlarını İçe Aktar",
+			"importSectionHint": "GitHub deponuzdan mevcut sorunları talep olarak içe aktarın",
+			"importing": "İçe aktarılıyor...",
+			"importIssues": "Sorunları İçe Aktar",
+			"importDisabledHint": "İçe aktarmayı etkinleştirmek için yukarıdaki depo yapılandırmasını tamamlayın"
+		},
+		"giteaIntegration": {
+			"validation": {
+				"baseUrlRequired": "Gitea temel URL'si gereklidir",
+				"baseUrlInvalid": "Geçerli bir URL girin (örn. https://gitea.example.com)",
+				"ownerRequired": "Depo sahibi gereklidir",
+				"ownerInvalid": "Geçersiz depo sahibi biçimi",
+				"nameRequired": "Depo adı gereklidir",
+				"nameInvalid": "Geçersiz depo adı biçimi"
+			},
+			"toast": {
+				"verifyOk": "Gitea belirteci bu depoya erişebiliyor",
+				"verifyWarning": "Belirteç izinlerini veya depo erişimini kontrol edin",
+				"repoNotFound": "Depo bulunamadı veya erişilemiyor",
+				"verifyError": "Gitea erişimi doğrulanamadı",
+				"tokenRequired": "Kişisel erişim belirteci gereklidir",
+				"tokenRequiredVerify": "Doğrulamak için bir belirteç girin",
+				"verifyFirst": "Erişim doğrulanamadı — URL, belirteç ve depoyu kontrol edin",
+				"updated": "Gitea entegrasyonu kaydedildi",
+				"updateError": "Gitea entegrasyonu kaydedilemedi",
+				"removed": "Gitea entegrasyonu kaldırıldı",
+				"removeError": "Gitea entegrasyonu kaldırılamadı",
+				"issuesImported": "Sorunlar başarıyla içe aktarıldı",
+				"importError": "Sorunlar içe aktarılamadı",
+				"commentOnEnabled": "Kaneo yeni sorunlara talep bağlantısıyla yorum yapacak",
+				"commentOnDisabled": "Yeni sorunlardaki talep bağlantısı yorumları kapatıldı",
+				"settingsUpdateError": "Gitea entegrasyonu güncellenemedi",
+				"secretCopied": "Kopyalandı",
+				"unableToCopySecret": "Gizli anahtar kopyalanamıyor"
+			},
+			"webhookShow": "Göster",
+			"webhookHide": "Gizle",
+			"webhookCopy": "Kopyala",
+			"connectionStatus": "Bağlantı durumu",
+			"connectedActive": "Depo bağlı ve aktif",
+			"notConnectedHint": "Bağlı Gitea deposu yok",
+			"badgeConnected": "Bağlı",
+			"badgeNotConnected": "Bağlı değil",
+			"repository": "Depo",
+			"repositoryHint": "Bağlı Gitea deposu",
+			"commentTaskLinkTitle": "Yeni sorunlara Kaneo bağlantısı yorumu yap",
+			"commentTaskLinkHint": "Etkinleştirildiğinde, Kaneo her yeni sorununa talep bağlantısı içeren bir yorum gönderir.",
+			"webhookTitle": "Webhook",
+			"webhookHint": "Gitea deponuzda bu URL ve gizli anahtar ile bir webhook ekleyin. Push, pull request, sorunlar, sorun yorumları ve create (etiketler için) olaylarını etkinleştirin.",
+			"webhookSecretLabel": "Gizli anahtar (Gitea'daki webhook gizli anahtarıyla eşleşmelidir)",
+			"baseUrlLabel": "Gitea URL'si",
+			"baseUrlHint": "Gitea örneğinizin kök URL'si",
+			"tokenLabel": "Kişisel erişim belirteci",
+			"tokenHint": "Repo ve sorun erişimi olan belirteç",
+			"tokenPlaceholder": "Belirteci yapıştır",
+			"tokenPlaceholderUpdate": "Yeni belirteç için yapıştır",
+			"currentToken": "kaydedildi",
+			"ownerLabel": "Sahip",
+			"ownerHint": "Kullanıcı veya organizasyon adı",
+			"repoNameLabel": "Depo adı",
+			"repoNameHint": "Yalnızca depo adı (sahip yok)",
+			"actionsTitle": "İşlemler",
+			"actionsHint": "Erişimi doğrulayın ve bağlanın",
+			"browse": "Göz at",
+			"verify": "Doğrula",
+			"update": "Güncelle",
+			"connect": "Bağlan",
+			"disconnect": "Bağlantıyı kes",
+			"importSectionTitle": "Gitea sorunlarını içe aktar",
+			"importSectionHint": "Depodan açık sorunları ve pull request'leri içe aktar",
+			"importing": "İçe aktarılıyor…",
+			"importIssues": "Sorunları içe aktar",
+			"importDisabledHint": "İçe aktarmayı etkinleştirmek için yukarıdaki depoyu doğrulayın",
+			"browseModalTitle": "Depolarınız",
+			"browseModalHint": "Belirtecinizin erişebileceği depolar",
+			"searchRepos": "Ara…",
+			"browseNeedsCredentials": "Göz atmak için Gitea URL'si ve belirteci girin",
+			"loadingRepos": "Depolar yükleniyor…",
+			"retry": "Tekrar dene"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "Geçerli bir Slack webhook URL'si girin"
+			},
+			"toast": {
+				"saved": "Slack entegrasyonu başarıyla kaydedildi",
+				"saveError": "Slack entegrasyonu kaydedilemedi",
+				"enabled": "Slack bildirimleri etkinleştirildi",
+				"disabled": "Slack bildirimleri duraklatıldı",
+				"updateError": "Slack entegrasyonu güncellenemedi",
+				"removed": "Slack entegrasyonu başarıyla kaldırıldı",
+				"removeError": "Slack entegrasyonu kaldırılamadı"
+			},
+			"connectionTitle": "Slack webhook bağlantısı",
+			"connectionHint": "Bir Slack gelen webhook URL'si yapıştırın ve hangi talep olaylarının gönderileceğini seçin.",
+			"connected": "Bağlı",
+			"paused": "Duraklatıldı",
+			"webhookLabel": "Gelen webhook URL'si",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Slack'te bir Gelen Webhook oluşturun ve oluşturulan URL'yi buraya yapıştırın.",
+			"channelLabel": "Kanal adı",
+			"channelPlaceholder": "#takim-guncellemeleri",
+			"channelHint": "Referansınız için isteğe bağlı etiket. Slack, gerçek hedef kanalı webhook kurulumundan kontrol eder.",
+			"eventsTitle": "Olay bildirimleri",
+			"eventsHint": "Hangi proje değişikliklerinin Slack'e gönderileceğini seçin.",
+			"events": {
+				"taskCreated": "Yeni talepler",
+				"taskStatusChanged": "Durum değişiklikleri",
+				"taskPriorityChanged": "Öncelik değişiklikleri",
+				"taskTitleChanged": "Başlık değişiklikleri",
+				"taskDescriptionChanged": "Açıklama değişiklikleri",
+				"taskCommentCreated": "Yeni yorumlar"
+			},
+			"connect": "Slack bağla",
+			"saveChanges": "Değişiklikleri kaydet",
+			"update": "Slack'i güncelle",
+			"disconnect": "Bağlantıyı kes"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "Geçerli bir Discord webhook URL'si girin"
+			},
+			"toast": {
+				"saved": "Discord entegrasyonu başarıyla kaydedildi",
+				"saveError": "Discord entegrasyonu kaydedilemedi",
+				"enabled": "Discord bildirimleri etkinleştirildi",
+				"disabled": "Discord bildirimleri duraklatıldı",
+				"updateError": "Discord entegrasyonu güncellenemedi",
+				"removed": "Discord entegrasyonu başarıyla kaldırıldı",
+				"removeError": "Discord entegrasyonu kaldırılamadı"
+			},
+			"connectionTitle": "Discord webhook bağlantısı",
+			"connectionHint": "Bir Discord webhook URL'si yapıştırın ve hangi talep olaylarının gönderileceğini seçin.",
+			"connected": "Bağlı",
+			"paused": "Duraklatıldı",
+			"webhookLabel": "Webhook URL'si",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Bir Discord kanal webhook'u oluşturun ve oluşturulan URL'yi buraya yapıştırın.",
+			"channelLabel": "Kanal adı",
+			"channelPlaceholder": "#takim-guncellemeleri",
+			"channelHint": "Referansınız için isteğe bağlı etiket. Discord, gerçek hedef kanalı webhook kurulumundan kontrol eder.",
+			"eventsTitle": "Olay bildirimleri",
+			"eventsHint": "Hangi proje değişikliklerinin Discord'a gönderileceğini seçin.",
+			"events": {
+				"taskCreated": "Yeni talepler",
+				"taskStatusChanged": "Durum değişiklikleri",
+				"taskPriorityChanged": "Öncelik değişiklikleri",
+				"taskTitleChanged": "Başlık değişiklikleri",
+				"taskDescriptionChanged": "Açıklama değişiklikleri",
+				"taskCommentCreated": "Yeni yorumlar"
+			},
+			"connect": "Discord bağla",
+			"saveChanges": "Değişiklikleri kaydet",
+			"update": "Discord'u güncelle",
+			"disconnect": "Bağlantıyı kes"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "Geçerli bir webhook URL'si girin"
+			},
+			"toast": {
+				"saved": "Genel webhook entegrasyonu başarıyla kaydedildi",
+				"saveError": "Genel webhook entegrasyonu kaydedilemedi",
+				"enabled": "Genel webhook bildirimleri etkinleştirildi",
+				"disabled": "Genel webhook bildirimleri duraklatıldı",
+				"updateError": "Genel webhook entegrasyonu güncellenemedi",
+				"removed": "Genel webhook entegrasyonu başarıyla kaldırıldı",
+				"removeError": "Genel webhook entegrasyonu kaldırılamadı"
+			},
+			"connectionTitle": "Giden webhook bağlantısı",
+			"connectionHint": "Talep olaylarını kendi uç noktanıza JSON olarak gönderin. Bir gizli anahtar yapılandırıldığında imzalı bir X-Kaneo-Signature başlığı dahil edilir.",
+			"connected": "Bağlı",
+			"paused": "Duraklatıldı",
+			"webhookLabel": "Uç nokta URL'si",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo, etkinleştirilen her olay için JSON yükü ile POST istekleri gönderir.",
+			"secretLabel": "İmzalama gizli anahtarı",
+			"secretPlaceholder": "İsteğe bağlı paylaşılan gizli anahtar",
+			"secretHint": "İsteğe bağlı. Sağlanırsa, Kaneo istek gövdesini imzalar ve hex özetini X-Kaneo-Signature başlığında gönderir.",
+			"secretHintConfigured": "Bir imzalama gizli anahtarı zaten yapılandırılmış ({{secret}}). Değiştirmek için yeni bir tane girin.",
+			"eventsTitle": "Olay bildirimleri",
+			"eventsHint": "Hangi proje değişikliklerinin giden webhook'ları tetikleyeceğini seçin.",
+			"events": {
+				"taskCreated": "Yeni talepler",
+				"taskStatusChanged": "Durum değişiklikleri",
+				"taskPriorityChanged": "Öncelik değişiklikleri",
+				"taskTitleChanged": "Başlık değişiklikleri",
+				"taskDescriptionChanged": "Açıklama değişiklikleri",
+				"taskCommentCreated": "Yeni yorumlar",
+				"taskDeleted": "Talep silindi",
+				"taskMoved": "Talep taşındı",
+				"taskDueDateChanged": "Bitiş tarihi değişti",
+				"taskAssigneeChanged": "Atanan kişi değişti",
+				"taskUnassigned": "Atama kaldırıldı"
+			},
+			"connect": "Webhook bağla",
+			"saveChanges": "Değişiklikleri kaydet",
+			"disconnect": "Bağlantıyı kes"
+		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "Geçerli bir Telegram bot belirteci girin",
+				"chatIdRequired": "Sohbet kimliği gereklidir",
+				"threadIdInvalid": "Geçerli bir Telegram konu kimliği girin"
+			},
+			"toast": {
+				"saved": "Telegram entegrasyonu başarıyla kaydedildi",
+				"saveError": "Telegram entegrasyonu kaydedilemedi",
+				"enabled": "Telegram bildirimleri etkinleştirildi",
+				"disabled": "Telegram bildirimleri duraklatıldı",
+				"updateError": "Telegram entegrasyonu güncellenemedi",
+				"removed": "Telegram entegrasyonu başarıyla kaldırıldı",
+				"removeError": "Telegram entegrasyonu kaldırılamadı"
+			},
+			"connectionTitle": "Telegram bot bağlantısı",
+			"connectionHint": "Proje talep güncellemelerini bir sohbete veya konuya göndermek için bir Telegram bot belirteci ve sohbet kimliği kullanın.",
+			"connected": "Bağlı",
+			"paused": "Duraklatıldı",
+			"botTokenLabel": "Bot belirteci",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "BotFather ile bir bot oluşturun ve belirtecini buraya yapıştırın.",
+			"botTokenHintConfigured": "Bir bot belirteci zaten yapılandırılmış ({{token}}). Değiştirmek için yeni bir tane girin.",
+			"chatIdLabel": "Sohbet kimliği",
+			"chatIdPlaceholder": "-1001234567890 veya @takim_guncellemeleri",
+			"chatIdHint": "Güncellemelerin gönderileceği Telegram sohbet kimliğini veya kanal kullanıcı adını girin.",
+			"threadIdLabel": "Konu kimliği",
+			"threadIdPlaceholder": "İsteğe bağlı konu kimliği",
+			"threadIdHint": "İsteğe bağlı. Telegram gruplarındaki forum konuları için kullanın.",
+			"chatLabelLabel": "Sohbet etiketi",
+			"chatLabelPlaceholder": "Mühendislik Güncellemeleri",
+			"chatLabelHint": "Kaneo içinde referansınız için isteğe bağlı etiket.",
+			"eventsTitle": "Olay bildirimleri",
+			"eventsHint": "Hangi proje değişikliklerinin Telegram'a gönderileceğini seçin.",
+			"events": {
+				"taskCreated": "Yeni talepler",
+				"taskStatusChanged": "Durum değişiklikleri",
+				"taskPriorityChanged": "Öncelik değişiklikleri",
+				"taskTitleChanged": "Başlık değişiklikleri",
+				"taskDescriptionChanged": "Açıklama değişiklikleri",
+				"taskCommentCreated": "Yeni yorumlar"
+			},
+			"connect": "Telegram bağla",
+			"saveChanges": "Değişiklikleri kaydet",
+			"disconnect": "Bağlantıyı kes"
+		},
+		"repositoryBrowser": {
+			"title": "Depo Seç",
+			"description": "Sorun senkronizasyonunu etkinleştirmek için GitHub Uygulamanızın kurulu olduğu bir depo seçin.",
+			"searchPlaceholder": "Depo ara...",
+			"loadError": "Depolar yüklenemedi",
+			"tryAgain": "Tekrar Dene",
+			"emptyTitle": "Depo bulunamadı",
+			"emptyHint": "Depolarınızı burada görmek için GitHub Uygulamasını kurun.",
+			"installGithubApp": "GitHub Uygulamasını Kur",
+			"noSearchMatchTitle": "Aramanızla eşleşen depo yok",
+			"noSearchMatchHint": "Arama terimlerinizi ayarlayın veya tüm depoları görmek için aramayı temizleyin.",
+			"footerSummary": "{{installationCount}} kurulum arasında {{repoCount}} depo",
+			"manageInstallations": "Kurulumları Yönet",
+			"updatedPrefix": "Güncellendi",
+			"relativeJustNow": "az önce",
+			"relativeMinutesAgo": "{{count}} dk önce",
+			"relativeHoursAgo": "{{count}} saat önce",
+			"relativeDaysAgo": "{{count}} gün önce"
+		},
+		"tasksImportExport": {
+			"exportTasks": "Talepleri Dışa Aktar",
+			"importTasks": "Talepleri İçe Aktar",
+			"dialogTitle": "Talepleri İçe Aktar",
+			"dialogDescription": "Bu projeye içe aktarmak için talepler içeren bir JSON dosyası yükleyin.",
+			"expectedFormat": "Beklenen biçim:",
+			"dropHint": "JSON dosyanızı buraya sürükleyip bırakın",
+			"selectFile": "Dosya Seç",
+			"exporting": "Talepler dışa aktarılıyor...",
+			"exportSuccess": "Talepler başarıyla dışa aktarıldı",
+			"exportError": "Talepler dışa aktarılamadı",
+			"importing": "Talepler içe aktarılıyor...",
+			"importSuccess": "{{count}} talep başarıyla içe aktarıldı",
+			"importPartialError": "{{count}} talep içe aktarılamadı",
+			"importError": "Talepler içe aktarılamadı",
+			"invalidFormat": "Geçersiz içe aktarma dosyası biçimi",
+			"noFileDropped": "Hiç dosya bırakılmadı",
+			"notJsonFile": "Lütfen bir JSON dosyası yükleyin"
+		},
+		"workflowEditor": {
+			"loading": "Yükleniyor...",
+			"createColumnsFirst": "Otomasyon kurallarını yapılandırmak için önce sütunlar oluşturun.",
+			"githubHeading": "GitHub",
+			"githubHint": "Bir GitHub olayı gerçekleştiğinde, bağlı talebi bir sütuna taşıyın.",
+			"giteaHeading": "Gitea",
+			"giteaHint": "Bir Gitea webhook olayı gerçekleştiğinde, bağlı talebi bir sütuna taşıyın.",
+			"selectColumnPlaceholder": "Sütun seç...",
+			"toastUpdated": "İş akışı kuralı güncellendi",
+			"toastError": "Kural güncellenemedi",
+			"events": {
+				"branch_push": "Dal Push",
+				"pr_opened": "PR Açıldı",
+				"pr_merged": "PR Birleştirildi",
+				"issue_opened": "Sorun Açıldı",
+				"issue_closed": "Sorun Kapatıldı"
+			}
+		},
+		"externalLinks": {
+			"resources": "Kaynaklar",
+			"issue": "Sorun",
+			"branch": "Dal",
+			"merged": "Birleştirildi",
+			"draft": "Taslak",
+			"open": "Açık"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "Öneriler",
+			"commands": "Komutlar",
+			"projects": "Projeler",
+			"search": "Ara",
+			"members": "Üyeler",
+			"createTask": "Talep oluştur",
+			"createProject": "Proje oluştur",
+			"createWorkspace": "Çalışma alanı oluştur",
+			"lightTheme": "Açık tema",
+			"darkTheme": "Koyu tema",
+			"systemTheme": "Sistem teması",
+			"keyboardShortcuts": "Klavye kısayolları",
+			"inputPlaceholder": "Uygulama ve komut ara...",
+			"empty": "Sonuç bulunamadı.",
+			"footer": {
+				"navigate": "Gezin",
+				"open": "Aç",
+				"close": "Kapat"
+			}
+		},
+		"notifications": "Bildirimler",
+		"sidebar": {
+			"overview": "Genel Bakış",
+			"projects": "Projeler",
+			"members": "Üyeler",
+			"invitations": "Davetler",
+			"more": "Daha fazla",
+			"backToBoard": "Panoya dön"
+		},
+		"projectList": {
+			"viewProject": "Projeyi Görüntüle",
+			"shareProject": "Projeyi Paylaş",
+			"projectSettings": "Proje ayarları",
+			"linkCopied": "Proje bağlantısı panoya kopyalandı",
+			"addProject": "Proje ekle",
+			"deleteConfirmTitle": "Proje Silinsin mi?",
+			"deleteConfirmDescription": "Bu, projeyi ve tüm verilerini kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
+			"deletedToast": "Proje silindi",
+			"deleteProject": "Projeyi Sil"
+		},
+		"search": {
+			"inputPlaceholder": "Talep, proje, yorum ara...",
+			"minCharsHint": "Aramak için en az 3 karakter yazın",
+			"groups": {
+				"task": "Talepler",
+				"project": "Projeler",
+				"workspace": "Çalışma Alanları",
+				"comment": "Yorumlar",
+				"activity": "Aktiviteler",
+				"fallback": "Sonuçlar"
+			}
+		},
+		"settingsLayout": {
+			"toggleSidebar": "Kenar çubuğunu aç/kapat",
+			"back": "Geri"
+		},
+		"userMenu": {
+			"signedOutSuccess": "Başarıyla çıkış yapıldı",
+			"signOutFailed": "Çıkış yapılamadı",
+			"unnamedUser": "Kullanıcı",
+			"settings": "Ayarlar",
+			"signingOut": "Çıkış yapılıyor...",
+			"logOut": "Çıkış yap"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "Çalışma Alanları",
+			"switching": "Geçiliyor...",
+			"addWorkspace": "Çalışma alanı ekle",
+			"selectWorkspace": "Çalışma alanı seç"
+		},
+		"page": {
+			"projectsTitle": "Projeler",
+			"settingsTitle": "Ayarlar",
+			"backToWorkspace": "Çalışma Alanına Dön",
+			"settingsWorkspaceTab": "Çalışma Alanı"
+		},
+		"projectSettings": {
+			"projectLabel": "Proje"
+		},
+		"keyboardShortcuts": {
+			"title": "Klavye Kısayolları",
+			"subtitle": "Klavye kısayollarıyla iş akışınızı hızlandırın",
+			"searchPlaceholder": "Kısayol ara...",
+			"footer": "Kapatmak için <kbd>Escape</kbd> tuşuna basın",
+			"categories": {
+				"general": "Genel",
+				"create": "Oluştur",
+				"views": "Görünümler",
+				"navigation": "Gezinme",
+				"quickSelect": "Hızlı Seçim (açılır pencerelerde)"
+			},
+			"items": {
+				"openCommandPalette": "Komut paletini aç",
+				"globalSearch": "Genel arama",
+				"toggleSidebar": "Kenar çubuğunu aç/kapat",
+				"showShortcuts": "Klavye kısayollarını göster",
+				"closeModal": "Modal/açılır pencereyi kapat",
+				"createTask": "Talep oluştur",
+				"createProject": "Proje oluştur",
+				"createWorkspace": "Çalışma alanı oluştur",
+				"boardView": "Pano görünümüne geç",
+				"listView": "Liste görünümüne geç",
+				"backlogView": "Backlog görünümüne geç",
+				"nextTask": "Sonraki talep",
+				"prevTask": "Önceki talep",
+				"openTask": "Seçili talebi aç",
+				"quickSelectNumber": "Numarayla seçenek seç"
+			}
+		}
+	},
+	"notifications": {
+		"title": "Bildirimler",
+		"newCount_one": "{{count}} yeni",
+		"newCount_other": "{{count}} yeni",
+		"emptyTitle": "Henüz bildirim yok",
+		"emptySubtitle": "Güncellemeleri ve aktiviteleri burada göreceksiniz.",
+		"clearAll": "Tüm bildirimleri temizle",
+		"clearDialogTitle": "Tüm bildirimler temizlensin mi?",
+		"clearDialogDescription": "Bu, tüm bildirimleri kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
+		"shortcuts": {
+			"open": "Bildirimleri aç"
+		},
+		"events": {
+			"task_created": {
+				"title": "Yeni Talep Oluşturuldu",
+				"content": "\"{{taskTitle}}\" talebi oluşturuldu"
+			},
+			"workspace_created": {
+				"title": "Çalışma alanı oluşturuldu",
+				"content": "\"{{workspaceName}}\" çalışma alanınız başarıyla oluşturuldu"
+			},
+			"task_status_changed": {
+				"title": "Talep durumu değişti",
+				"content": "\"{{taskTitle}}\" talebinin durumu \"{{oldStatus}}\" yerine \"{{newStatus}}\" olarak değişti"
+			},
+			"task_assignee_changed": {
+				"title": "Size atanan talep",
+				"content": "Size şu talep atandı: {{taskTitle}}"
+			},
+			"task_mention": {
+				"title": "{{mentionerName}} sizden bahsetti",
+				"content": "{{mentionerName}} sizden şu talepte bahsetti: {{taskTitle}}"
+			},
+			"time_entry_created": {
+				"title": "Zaman takibi başlatıldı",
+				"contentWithTask": "Şu talepte zaman takibi başlatıldı: {{taskTitle}}",
+				"contentWithoutTask": "Bir talepte zaman takibi başlatıldı"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "talebi kendisine atadı",
+		"unassigned": "talebin atamasını kaldırdı",
+		"assignedTo": "talebi {{name}} kişisine atadı",
+		"changedStatus": "durumu {{from}} yerine {{to}} olarak değiştirdi",
+		"changedPriority": "önceliği {{from}} yerine {{to}} olarak değiştirdi",
+		"clearedDueDate": "bitiş tarihini temizledi",
+		"setDueDate": "bitiş tarihini {{date}} olarak ayarladı",
+		"changedDueDate": "bitiş tarihini {{from}} yerine {{to}} olarak değiştirdi",
+		"changedTitle": "başlığı \"{{from}}\" yerine \"{{to}}\" olarak değiştirdi",
+		"moved": "talebi \"{{from}}\" yerine \"{{to}}\" konumuna taşıdı",
+		"created": "bu talebi oluşturdu",
+		"githubUser": "GitHub Kullanıcısı",
+		"comment": {
+			"github": "GitHub",
+			"viewGithubProfile": "GitHub Profilini Görüntüle",
+			"commentedOnGithub": "GitHub'da yorum yaptı",
+			"cannotBeEmpty": "Yorum boş olamaz",
+			"mustBeLoggedInToEdit": "Yorumları düzenlemek için giriş yapmış olmalısınız",
+			"updated": "Yorum güncellendi",
+			"failedToUpdate": "Yorum güncellenemedi",
+			"edit": "Yorumu düzenle",
+			"editPlaceholder": "Yorumu düzenle...",
+			"save": "Kaydet",
+			"added": "Yorum eklendi",
+			"failedToAdd": "Yorum eklenemedi",
+			"leavePlaceholder": "Yorum bırakın...",
+			"attachFile": "Dosya ekle",
+			"submitShortcut": "Yorumu gönder",
+			"editor": {
+				"uploadsOnlyOnSavedTasks": "Dosya yüklemeleri yalnızca kaydedilmiş taleplerde kullanılabilir.",
+				"uploadingFile": "Dosya yükleniyor...",
+				"imageUploaded": "Görsel yüklendi",
+				"fileAttached": "Dosya eklendi",
+				"failedToUploadFile": "Dosya yüklenemedi",
+				"enterUrl": "URL girin",
+				"plaintext": "Düz metin",
+				"autoDetect": "Otomatik algıla",
+				"slashGroupText": "Metin",
+				"slashGroupLists": "Listeler",
+				"slashGroupInsert": "Ekle",
+				"slashParagraph": "Metin",
+				"slashHeading": "Başlık",
+				"slashBulletList": "Madde işaretli liste",
+				"slashTaskList": "Yapılacaklar listesi",
+				"slashOrderedList": "Numaralı liste",
+				"slashQuote": "Alıntı",
+				"slashCodeBlock": "Kod bloğu",
+				"slashTable": "Tablo",
+				"slashFile": "Dosya",
+				"searchParagraph": "metin paragraf normal",
+				"searchHeading": "başlık başlık h2",
+				"searchBulletList": "liste madde sırasız",
+				"searchTaskList": "yapılacak kontrol listesi onay kutusu görev listesi",
+				"searchOrderedList": "liste numaralı sıralı",
+				"searchQuote": "alıntı blok alıntı",
+				"searchCodeBlock": "kod parçacığı",
+				"searchTable": "tablo ızgara",
+				"searchFile": "dosya ek görsel fotoğraf resim yükleme",
+				"embedErrorInvalidUrl": "Geçerli bir URL girin",
+				"embedErrorYoutubeOnly": "Yalnızca YouTube bağlantıları gömülebilir.",
+				"embedVideo": "Video göm",
+				"keepAsLink": "Bağlantı olarak tut",
+				"hintTab": "Tab",
+				"hintEsc": "Esc",
+				"pasteUrl": "URL yapıştır",
+				"asLink": "Bağlantı olarak",
+				"embed": "Göm",
+				"noCommands": "Komut yok",
+				"ariaCommentContent": "Yorum içeriği",
+				"ariaCommentEditor": "Yorum düzenleyici",
+				"ariaCopyCode": "Kodu kopyala",
+				"ariaCopied": "Kopyalandı",
+				"copy": "Kopyala",
+				"copied": "Kopyalandı",
+				"dropImageToUpload": "Yüklemek için görseli bırakın",
+				"previewImageAlt": "Önizleme görseli",
+				"codeLang": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"markdown": "Markdown",
+					"plaintext": "Düz Metin",
+					"python": "Python",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"typescript": "TypeScript",
+					"yaml": "YAML"
+				}
+			}
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "Durum",
+			"to-do": "Yapılacak",
+			"in-progress": "Devam Ediyor",
+			"in-review": "İncelemede",
+			"done": "Tamamlandı",
+			"archived": "Arşivlendi",
+			"planned": "Planlandı"
+		},
+		"priority": {
+			"label": "Öncelik",
+			"no-priority": "Öncelik yok",
+			"low": "Düşük",
+			"medium": "Orta",
+			"high": "Yüksek",
+			"urgent": "Acil"
+		},
+		"boardSearchPlaceholder": "Talep ara...",
+		"view": {
+			"board": "Pano",
+			"list": "Liste"
+		},
+		"common": {
+			"selectTask": "Talep seç",
+			"loadingTask": "Talep yükleniyor...",
+			"taskNotFound": "Talep bulunamadı",
+			"taskNotFoundDescription": "Aradığınız talep mevcut değil veya silinmiş."
+		},
+		"detail": {
+			"subtaskOf": "Şunun alt talebi:",
+			"activity": "Aktivite",
+			"noActivity": "Aktivite bulunamadı",
+			"openInFullPage": "Tam sayfada aç",
+			"titlePlaceholder": "Başlık eklemek için tıklayın",
+			"addDescription": "Açıklama ekle...",
+			"editor": {
+				"ariaLabel": "Talep açıklama düzenleyici",
+				"placeholder": "Açıklama yazın...",
+				"previewImage": "Önizleme görseli",
+				"enterUrl": "URL girin",
+				"autoDetect": "Otomatik algıla",
+				"copyCode": "Kodu kopyala",
+				"copy": "Kopyala",
+				"copied": "Kopyalandı",
+				"attachFile": "Dosya ekle",
+				"dropToUpload": "Yüklemek için görseli bırakın",
+				"checkbox": {
+					"markIncomplete": "Talebi tamamlanmadı olarak işaretle",
+					"markComplete": "Talebi tamamlandı olarak işaretle"
+				},
+				"upload": {
+					"loading": "Dosya yükleniyor...",
+					"failed": "Dosya yüklenemedi",
+					"imageSuccess": "Görsel yüklendi",
+					"fileSuccess": "Dosya eklendi"
+				},
+				"slash": {
+					"groups": {
+						"text": "Metin",
+						"lists": "Listeler",
+						"insert": "Ekle"
+					},
+					"empty": "Komut yok",
+					"commands": {
+						"paragraph": "Metin",
+						"heading-2": "Başlık",
+						"bullet-list": "Madde işaretli liste",
+						"task-list": "Yapılacaklar listesi",
+						"ordered-list": "Numaralı liste",
+						"blockquote": "Alıntı",
+						"code-block": "Kod bloğu",
+						"table": "Tablo",
+						"file": "Dosya"
+					}
+				},
+				"languages": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"clojure": "Clojure",
+					"cypher": "Cypher",
+					"dart": "Dart",
+					"diff": "Diff",
+					"elixir": "Elixir",
+					"excel": "Excel",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"haskell": "Haskell",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"kotlin": "Kotlin",
+					"makefile": "Makefile",
+					"markdown": "Markdown",
+					"ocaml": "OCaml",
+					"php": "PHP",
+					"perl": "Perl",
+					"plaintext": "Düz Metin",
+					"python": "Python",
+					"r": "R",
+					"reasonml": "ReasonML",
+					"ruby": "Ruby",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"toml": "TOML",
+					"terraform": "Terraform",
+					"typescript": "TypeScript",
+					"xml": "XML",
+					"yaml": "YAML"
+				},
+				"embed": {
+					"choice": {
+						"embedVideo": "Video göm",
+						"keepAsLink": "Bağlantı olarak tut"
+					},
+					"inputPlaceholder": "URL yapıştır",
+					"embeddedContent": "Gömülü içerik",
+					"asLink": "Bağlantı olarak",
+					"submit": "Göm",
+					"errors": {
+						"invalidUrl": "Geçerli bir URL girin",
+						"onlyYoutube": "Yalnızca YouTube bağlantıları gömülebilir."
+					},
+					"onlyYoutubeInline": "Yalnızca YouTube URL'leri gömülebilir. Bağlantı modunu kullanın."
+				}
+			}
+		},
+		"entity": {
+			"task": "Talep"
+		},
+		"relations": {
+			"title": "İlişkiler",
+			"tasksInProject": "Projedeki talepler",
+			"linkError": "Talep bağlanamadı",
+			"empty": "İlişkili talep yok",
+			"searchPlaceholder": "Bağlanacak talep ara...",
+			"noTasksFound": "Talep bulunamadı",
+			"openTask": "Talebi aç",
+			"removeRelation": "İlişkiyi kaldır",
+			"related": "İlişkili",
+			"blocks": "Engeller",
+			"selectTask": "Bağlanacak bir talep seç",
+			"types": {
+				"blocks": "engeller",
+				"blocked_by": "engellenen",
+				"related": "ilişkilidir"
+			}
+		},
+		"subtasks": {
+			"title": "Alt talepler",
+			"inputPlaceholder": "Alt talep başlığı...",
+			"addAction": "Ekle",
+			"empty": "Henüz alt talep yok",
+			"createError": "Alt talep oluşturulamadı",
+			"deleteSuccess": "Talep başarıyla silindi",
+			"deleteError": "Talep silinemedi",
+			"deleteDialogTitle": "Talep Silinsin mi?",
+			"deleteDialogDescription": "Bu, talebi ve tüm verilerini kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
+			"deleteAction": "Talebi Sil"
+		},
+		"properties": {
+			"title": "Özellikler",
+			"labels": "Etiketler",
+			"copyTaskLink": "Talep bağlantısını kopyala",
+			"copyTaskBranch": "Talep dalını kopyala",
+			"start": "Başlat",
+			"startDate": "Başlangıç tarihi",
+			"noDate": "Tarih yok"
+		},
+		"move": {
+			"title": "Talebi taşı",
+			"projectLabel": "Hedef proje",
+			"projectPlaceholder": "Bir proje seç",
+			"statusLabel": "Hedef durum",
+			"statusHintKeep": "Bu projenin iş akışı mevcut durumu zaten destekliyor.",
+			"statusHintAdjust": "Hedef projede kullanılacak durumu seçin.",
+			"action": "Talebi taşı",
+			"success": "Talep başarıyla taşındı",
+			"error": "Talep taşınamadı"
+		},
+		"popover": {
+			"assignee": {
+				"unassigned": "Atanmamış",
+				"updateError": "Talep atananı güncellenemedi"
+			},
+			"status": {
+				"updateError": "Talep durumu güncellenemedi"
+			},
+			"priority": {
+				"updateError": "Talep önceliği güncellenemedi"
+			},
+			"dueDate": {
+				"updateSuccess": "Talep bitiş tarihi başarıyla güncellendi",
+				"updateError": "Talep bitiş tarihi güncellenemedi",
+				"clear": "Tarihi temizle"
+			},
+			"startDate": {
+				"updateSuccess": "Talep başlangıç tarihi başarıyla güncellendi",
+				"updateError": "Talep başlangıç tarihi güncellenemedi",
+				"clear": "Başlangıç tarihini temizle"
+			},
+			"labels": {
+				"searchPlaceholder": "Etiket ara...",
+				"empty": "Etiket bulunamadı",
+				"create": "\"{{name}}\" oluştur",
+				"chooseColor": "Renk seç",
+				"addSuccess": "Etiket eklendi",
+				"removeSuccess": "Etiket kaldırıldı",
+				"updateError": "Etiket güncellenemedi",
+				"createSuccess": "Etiket oluşturuldu ve eklendi",
+				"createError": "Etiket oluşturulamadı",
+				"colors": {
+					"stone": "Taş",
+					"slate": "Arduvaz",
+					"lavender": "Lavanta",
+					"sage": "Adaçayı",
+					"forest": "Orman",
+					"amber": "Kehribar",
+					"terracotta": "Terakota",
+					"rose": "Gül Kurusu",
+					"crimson": "Koyu Kırmızı"
+				}
+			}
+		},
+		"backlog": {
+			"pageTitle": "{{name}} backlog",
+			"noTasksToMove": "Taşınacak planlanmış talep yok",
+			"moveAllConfirm": "Tüm {{count}} planlanmış talep Yapılacak'a taşınsın mı?",
+			"moveAllSuccess": "{{count}} talep Yapılacak'a taşındı",
+			"plan": "Planla",
+			"moveAllTooltip": "Tüm Planlanmış Talepleri Yapılacak'a Taşı",
+			"moveAll": "Tümünü Taşı",
+			"addTask": "Talep ekle",
+			"filter": "Filtrele",
+			"addFilter": "Filtre ekle...",
+			"sections": {
+				"planned": "Planlandı",
+				"archived": "Arşivlendi"
+			},
+			"noTasksInSection": "{{section}} talebi yok",
+			"filters": {
+				"priority": "Öncelik: {{name}}",
+				"assignee": "Atanan: {{name}}",
+				"due": "Bitiş: {{date}}",
+				"label": "Etiket: {{name}}",
+				"dueThisWeek": "Bu hafta bitiyor",
+				"dueNextWeek": "Önümüzdeki hafta bitiyor",
+				"noDueDate": "Bitiş tarihi yok"
+			}
+		},
+		"sort": {
+			"label": "Sırala",
+			"by": "Sıralama Ölçütü",
+			"direction": "Yön",
+			"ascending": "Artan",
+			"descending": "Azalan",
+			"fields": {
+				"position": "Manuel (konum)",
+				"createdAt": "Oluşturma tarihi",
+				"priority": "Öncelik",
+				"dueDate": "Bitiş tarihi",
+				"title": "Başlık",
+				"number": "Talep numarası"
+			}
+		},
+		"boardFilters": {
+			"filterBy": "Filtrele",
+			"allStatuses": "Tüm durumlar",
+			"allPriorities": "Tüm öncelikler",
+			"allAssignees": "Tüm atananlar",
+			"allDueDates": "Tüm bitiş tarihleri",
+			"allLabels": "Tüm etiketler",
+			"selectedCount": "{{count}} seçili",
+			"subjects": {
+				"status": "Durum",
+				"priority": "Öncelik",
+				"assignee": "Atanan",
+				"dueDate": "Bitiş tarihi",
+				"labels": "Etiketler"
+			},
+			"operators": {
+				"isAnyOf": "herhangi biri",
+				"includeAnyOf": "herhangi birini içer"
+			}
+		},
+		"gantt": {
+			"pageTitle": "{{name}} — Gantt",
+			"title": "Gantt Zaman Çizelgesi",
+			"searchPlaceholder": "Zamanlanmış talep ara...",
+			"hideTasks": "Talepleri gizle",
+			"showTasks": "Talepleri göster",
+			"noTasks": "Zamanlanmış talep yok",
+			"noTasksSubtitle": "Talepleri proje zaman çizelgesine yerleştirmek için başlangıç tarihi, bitiş tarihi veya her ikisini ekleyin.",
+			"noTasksFound": "Talep bulunamadı",
+			"noTasksMatch": "\"{{query}}\" ile eşleşen zamanlanmış talep yok",
+			"taskHeader": "Talep",
+			"updateDatesError": "Talep tarihleri güncellenemedi",
+			"resizeStart": "Başlangıç tarihini yeniden boyutlandır",
+			"resizeDue": "Bitiş tarihini yeniden boyutlandır",
+			"taskAriaLabel": "{{title}} — açmak veya taşımak için sürükleyin"
+		},
+		"delete": {
+			"title": "Talep Silinsin mi?",
+			"description": "Bu, talebi ve tüm verilerini kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
+			"action": "Talebi Sil",
+			"success": "Talep başarıyla silindi",
+			"error": "Talep silinemedi"
+		},
+		"archive": {
+			"success": "{{count}} talep arşivlendi"
+		},
+		"listView": {
+			"addTask": "Talep ekle",
+			"archiveAllTooltip": "Tüm tamamlanmış talepleri arşivle",
+			"noTasks": "Talep yok"
+		},
+		"kanban": {
+			"addTask": "Talep ekle"
+		},
+		"pr": {
+			"merged": "Birleştirildi",
+			"draft": "Taslak",
+			"open": "Açık",
+			"label": "Pull Request",
+			"count_one": "{{count}} PR",
+			"count_other": "{{count}} PR"
+		},
+		"assignee": {
+			"label": "Atanan",
+			"unassigned": "Atanmamış"
+		},
+		"dueDate": {
+			"label": "Bitiş tarihi",
+			"clear": "Tarihi temizle",
+			"updateSuccess": "Talep bitiş tarihi başarıyla güncellendi",
+			"updateError": "Talep bitiş tarihi güncellenemedi",
+			"clearSuccess": "Talep bitiş tarihi temizlendi",
+			"clearError": "Bitiş tarihi temizlenemedi"
+		},
+		"labels": {
+			"label": "Etiketler",
+			"empty": "Kullanılabilir etiket yok"
+		},
+		"update": {
+			"success": "Talep başarıyla güncellendi",
+			"error": "Talep güncellenemedi"
+		},
+		"contextMenu": {
+			"copyLink": "Bağlantıyı kopyala",
+			"copyLinkSuccess": "Talep bağlantısı kopyalandı!"
+		},
+		"actions": {
+			"archive": "Arşivle",
+			"markAsPlanned": "Planlandı olarak işaretle",
+			"delete": "Sil..."
+		},
+		"bulk": {
+			"selectedCount": "{{count}} seçili",
+			"moveToBacklog": "Backlog'a Taşı",
+			"moveToBacklogSuccess": "{{count}} talep backlog'a taşındı",
+			"moveToBacklogError": "Talepler backlog'a taşınamadı",
+			"moveToBoard": "Panoya Taşı",
+			"moveToBoardSuccess": "{{count}} talep panoya taşındı",
+			"moveToBoardError": "Talepler panoya taşınamadı",
+			"delete": "Talepleri sil",
+			"deleteConfirm": "{{count}} talep silinsin mi? Bu işlem geri alınamaz.",
+			"deleteSuccess": "{{count}} talep silindi",
+			"deleteError": "Talepler silinemedi",
+			"archive": "Talepleri arşivle",
+			"archiveSuccess": "{{count}} talep arşivlendi",
+			"archiveError": "Talepler arşivlenemedi",
+			"updateSuccess": "{{count}} talep güncellendi",
+			"updateError": "Talepler güncellenemedi",
+			"assignTo": "Ata",
+			"assignSuccess": "{{count}} talep atandı",
+			"assignError": "Talepler atanamadı",
+			"setPriority": "Öncelik Belirle",
+			"updatePriorityError": "Öncelik güncellenemedi",
+			"addLabel": "Etiket Ekle",
+			"addLabelSuccess": "{{count}} talebe etiket eklendi",
+			"addLabelError": "Etiket eklenemedi",
+			"setDueDate": "Bitiş Tarihi Belirle",
+			"updateDueDateError": "Bitiş tarihi güncellenemedi",
+			"actions": "İşlemler",
+			"searchActions": "İşlem ara...",
+			"noActionsFound": "İşlem bulunamadı.",
+			"changeStatus": "Durumu Değiştir"
+		}
+	},
+	"invitations": {
+		"pageTitle": "Davetler",
+		"pendingInvitations": "Bekleyen Davetler",
+		"acceptSubtitle": "Çalışma alanlarına katılmak için davetleri kabul edin",
+		"noPendingTitle": "Bekleyen davet yok",
+		"noPendingDescription": "Şu anda bekleyen çalışma alanı davetiniz yok.",
+		"continueToSetup": "Kuruluma Devam Et",
+		"skipForNow": "Şimdilik atla",
+		"table": {
+			"workspace": "Çalışma Alanı",
+			"invitedBy": "Davet Eden",
+			"expires": "Süre Sonu"
+		},
+		"toast": {
+			"acceptError": "Davet kabul edilemedi",
+			"acceptSuccess": "Davet kabul edildi! Aramıza hoş geldiniz.",
+			"rejectError": "Davet reddedilemedi",
+			"rejectSuccess": "Davet reddedildi"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "Projeler",
+			"createProject": "Proje oluştur",
+			"title": "Başlık",
+			"progress": "İlerleme",
+			"targetDate": "Hedef tarih",
+			"dueDate": "Bitiş tarihi",
+			"status": "Durum",
+			"emptyTitle": "Henüz proje yok",
+			"emptyDescription": "İlk projenizi oluşturarak başlayın.",
+			"emptyDescriptionReadOnly": "Bu çalışma alanında henüz proje yok. Bir yöneticiden oluşturmasını isteyin.",
+			"projectStatus": {
+				"notStarted": "Başlamadı",
+				"complete": "Tamamlandı",
+				"inProgress": "Devam ediyor"
+			},
+			"noDueDate": "Bitiş tarihi yok"
+		},
+		"search": {
+			"pageTitle": "Ara",
+			"backToDashboard": "Panele Dön",
+			"placeholder": "Talepleri başlığa veya kısa kimlikle ara (örn. DEP-23)...",
+			"hint": "Bu çalışma alanındaki tüm projelerde arayın. Belirli talepleri bulmak için DEP-23 gibi kısa kimlikler kullanın.",
+			"searching": "Aranıyor...",
+			"resultsFound_one": "{{count}} sonuç bulundu",
+			"resultsFound_other": "{{count}} sonuç bulundu",
+			"noResultsTitle": "Sonuç bulunamadı",
+			"noResultsDescription": "Arama terimlerinizi ayarlayın veya başka bir şey arayın",
+			"startTitle": "Aramaya Başla",
+			"startDescription": "Tüm projelerde talep bulmak için bir arama terimi girin",
+			"quickSearchesLabel": "Hızlı aramalar:",
+			"suggestionHighPriority": "Yüksek öncelik",
+			"suggestionBug": "Hata",
+			"suggestionFeature": "Özellik",
+			"suggestionInProgress": "Devam ediyor",
+			"suggestionCompleted": "Tamamlandı"
+		},
+		"create": {
+			"pageTitle": "Çalışma Alanı Oluştur",
+			"heading": "Yeni çalışma alanı oluştur",
+			"subtitle": "Çalışma alanları, ekiplerin projeler, döngüler ve sorunlar üzerinde çalışabileceği paylaşılan ortamlardır.",
+			"nameLabel": "Çalışma Alanı Adı",
+			"namePlaceholder": "Çalışma alanı adını girin",
+			"descriptionLabel": "Açıklama (isteğe bağlı)",
+			"descriptionPlaceholder": "Çalışma alanınız için bir açıklama ekleyin",
+			"required": "Gereklidir",
+			"creating": "Oluşturuluyor...",
+			"submit": "Çalışma alanı oluştur",
+			"success": "Çalışma alanı başarıyla oluşturuldu",
+			"error": "Çalışma alanı oluşturulamadı"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "Sahip",
+			"admin": "Yönetici",
+			"member": "Üye",
+			"viewer": "Görüntüleyici"
+		},
+		"members": {
+			"pageTitle": "Üyeler",
+			"inviteMember": "Üye davet et"
+		},
+		"inviteModal": {
+			"title": "Ekip Üyesi Davet Et",
+			"emailLabel": "E-posta",
+			"emailPlaceholder": "arkadas@sirket.com",
+			"sendInvitation": "Davet Gönder",
+			"success": "Davet başarıyla gönderildi",
+			"error": "Ekip üyesi davet edilemedi"
+		},
+		"membersTable": {
+			"emptyTitle": "Henüz ekip üyesi yok",
+			"emptyDescription": "Başlamak için ilk ekip üyenizi davet edin.",
+			"columns": {
+				"name": "Ad",
+				"role": "Rol",
+				"joined": "Katılım",
+				"actions": "İşlemler"
+			},
+			"memberRolePending": "{{role}} (Beklemede)",
+			"ariaCancelInvitation": "Daveti iptal et",
+			"ariaRemoveMember": "Üyeyi kaldır",
+			"removeDialogTitle": "Ekip Üyesi Kaldırılsın mı?",
+			"removeDialogDescription": "{{name}} kişisini çalışma alanından kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+			"cancelDialogTitle": "Davet İptal Edilsin mi?",
+			"cancelDialogDescription": "{{email}} için daveti iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+			"removeMember": "Üyeyi Kaldır",
+			"cancelInvitation": "Daveti İptal Et",
+			"removeSuccess": "Ekip üyesi başarıyla kaldırıldı",
+			"removeError": "Ekip üyesi kaldırılamadı",
+			"cancelInviteSuccess": "Davet başarıyla iptal edildi",
+			"cancelInviteError": "Davet iptal edilemedi",
+			"roleUpdateSuccess": "Rol güncellendi",
+			"roleUpdateError": "Rol güncellenemedi"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "Herkese Açık Görünüm",
+		"badge": "Herkese Açık",
+		"readOnly": "Salt okunur",
+		"error": {
+			"title": "Proje Bulunamadı",
+			"description": "Bu proje mevcut değil veya herkese açık olarak erişilebilir değil."
+		},
+		"taskCard": {
+			"viewDetailsAria": "{{title}} talebi için ayrıntıları görüntüle"
+		},
+		"taskDetail": {
+			"labels": "Etiketler",
+			"externalLinks": "Dış Bağlantılar",
+			"pullRequestFallback": "Pull Request",
+			"issueFallback": "Sorun",
+			"prStatusMerged": "Birleştirildi",
+			"prStatusDraft": "Taslak",
+			"prStatusOpen": "Açık",
+			"dueWithDate": "Bitiş {{date}}",
+			"created": "Oluşturuldu",
+			"dueDateLabel": "Bitiş Tarihi"
+		},
+		"theme": {
+			"switchToLight": "Açık moduna geç",
+			"switchToDark": "Koyu moduna geç"
+		},
+		"copyUrl": {
+			"successToast": "URL kopyalandı",
+			"errorToast": "URL kopyalanamadı",
+			"copied": "Kopyalandı",
+			"share": "Paylaş"
+		},
+		"branding": {
+			"poweredBy": "Tarafından desteklenmektedir"
+		}
+	}
+}

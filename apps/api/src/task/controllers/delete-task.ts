@@ -38,6 +38,7 @@ async function deleteTask(taskId: string, currentUserId: string) {
     taskId: task.id,
     projectId: task.projectId,
     userId: currentUserId,
+    title: task.title,
   });
 
   for (const relation of relations) {

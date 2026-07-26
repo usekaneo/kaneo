@@ -589,6 +589,21 @@ export const userNotificationPreferenceTable = pgTable(
     webhookEnabled: boolean("webhook_enabled").default(false).notNull(),
     webhookUrl: text("webhook_url"),
     webhookSecret: text("webhook_secret"),
+    taskAssignmentEnabled: boolean("task_assignment_enabled")
+      .default(true)
+      .notNull(),
+    taskCommentEnabled: boolean("task_comment_enabled").default(true).notNull(),
+    taskStatusChangeEnabled: boolean("task_status_change_enabled")
+      .default(true)
+      .notNull(),
+    dueDateReminderEnabled: boolean("due_date_reminder_enabled")
+      .default(true)
+      .notNull(),
+    dueDateReminderLeadTimeMinutes: integer(
+      "due_date_reminder_lead_time_minutes",
+    )
+      .default(1440)
+      .notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()

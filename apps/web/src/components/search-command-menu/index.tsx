@@ -192,7 +192,7 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandDialogPopup>
+      <CommandDialogPopup instant>
         <Command items={groupedItems}>
           <CommandInput
             placeholder={t("navigation:search.inputPlaceholder")}

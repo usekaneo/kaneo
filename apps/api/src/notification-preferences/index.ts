@@ -121,6 +121,13 @@ notificationPreferences
         webhookEnabled: v.optional(v.boolean()),
         webhookUrl: v.optional(v.nullable(v.string())),
         webhookSecret: v.optional(v.nullable(v.string())),
+        taskAssignmentEnabled: v.optional(v.boolean()),
+        taskCommentEnabled: v.optional(v.boolean()),
+        taskStatusChangeEnabled: v.optional(v.boolean()),
+        dueDateReminderEnabled: v.optional(v.boolean()),
+        dueDateReminderLeadTimeMinutes: v.optional(
+          v.pipe(v.number(), v.integer(), v.minValue(5), v.maxValue(43_200)),
+        ),
       }),
     ),
     async (c) => {

@@ -32,6 +32,11 @@ export type NotificationPreferenceResponse = {
   webhookUrl: string | null;
   webhookSecretConfigured: boolean;
   maskedWebhookSecret: string | null;
+  taskAssignmentEnabled: boolean;
+  taskCommentEnabled: boolean;
+  taskStatusChangeEnabled: boolean;
+  dueDateReminderEnabled: boolean;
+  dueDateReminderLeadTimeMinutes: number;
   workspaces: Array<{
     id: string;
     workspaceId: string;
@@ -62,6 +67,11 @@ export type UpdateNotificationPreferenceInput = {
   webhookEnabled?: boolean;
   webhookUrl?: string | null;
   webhookSecret?: string | null;
+  taskAssignmentEnabled?: boolean;
+  taskCommentEnabled?: boolean;
+  taskStatusChangeEnabled?: boolean;
+  dueDateReminderEnabled?: boolean;
+  dueDateReminderLeadTimeMinutes?: number;
 };
 
 export type UpsertWorkspaceRuleInput = {
@@ -201,6 +211,12 @@ export async function getNotificationPreferences(
     webhookUrl: decryptedPreference?.webhookUrl ?? null,
     webhookSecretConfigured: Boolean(decryptedPreference?.webhookSecret),
     maskedWebhookSecret: maskValue(decryptedPreference?.webhookSecret),
+    taskAssignmentEnabled: preference?.taskAssignmentEnabled ?? true,
+    taskCommentEnabled: preference?.taskCommentEnabled ?? true,
+    taskStatusChangeEnabled: preference?.taskStatusChangeEnabled ?? true,
+    dueDateReminderEnabled: preference?.dueDateReminderEnabled ?? true,
+    dueDateReminderLeadTimeMinutes:
+      preference?.dueDateReminderLeadTimeMinutes ?? 1440,
     workspaces: rules.map((rule) => ({
       id: rule.id,
       workspaceId: rule.workspaceId,
@@ -379,6 +395,20 @@ export async function updateNotificationPreferences(
       input.webhookSecret === undefined
         ? (existing?.webhookSecret ?? null)
         : (encryptSecret(webhookSecret) ?? null),
+    taskAssignmentEnabled:
+      input.taskAssignmentEnabled ?? existing?.taskAssignmentEnabled ?? true,
+    taskCommentEnabled:
+      input.taskCommentEnabled ?? existing?.taskCommentEnabled ?? true,
+    taskStatusChangeEnabled:
+      input.taskStatusChangeEnabled ??
+      existing?.taskStatusChangeEnabled ??
+      true,
+    dueDateReminderEnabled:
+      input.dueDateReminderEnabled ?? existing?.dueDateReminderEnabled ?? true,
+    dueDateReminderLeadTimeMinutes:
+      input.dueDateReminderLeadTimeMinutes ??
+      existing?.dueDateReminderLeadTimeMinutes ??
+      1440,
   };
 
   if (existing) {

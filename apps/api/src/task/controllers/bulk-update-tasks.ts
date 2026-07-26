@@ -6,6 +6,7 @@ import {
   labelTable,
   projectTable,
   taskTable,
+  userTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
@@ -37,7 +38,10 @@ async function bulkUpdateTasks({
   const tasks = await db
     .select({
       id: taskTable.id,
+      title: taskTable.title,
       projectId: taskTable.projectId,
+      userId: taskTable.userId,
+      dueDate: taskTable.dueDate,
       workspaceId: projectTable.workspaceId,
     })
     .from(taskTable)
@@ -158,6 +162,16 @@ async function bulkUpdateTasks({
     }
 
     case "updateAssignee": {
+      const newAssigneeName = value
+        ? (
+            await db
+              .select({ name: userTable.name })
+              .from(userTable)
+              .where(eq(userTable.id, value))
+              .limit(1)
+          )[0]?.name
+        : undefined;
+
       const result = await db
         .update(taskTable)
         .set({ userId: value || null })
@@ -171,7 +185,10 @@ async function bulkUpdateTasks({
           taskId: task.id,
           projectId: task.projectId,
           userId,
+          oldAssignee: task.userId,
+          newAssignee: newAssigneeName,
           newAssigneeId: value || null,
+          title: task.title,
           type: value ? "assignee_changed" : "unassigned",
         });
       }
@@ -179,19 +196,20 @@ async function bulkUpdateTasks({
     }
 
     case "delete": {
-      for (const task of tasks) {
-        await publishEvent("task.deleted", {
-          taskId: task.id,
-          projectId: task.projectId,
-          userId,
-        });
-      }
-
       const result = await db
         .delete(taskTable)
         .where(inArray(taskTable.id, foundIds));
 
       updatedCount = result.rowCount ?? foundIds.length;
+
+      for (const task of tasks) {
+        await publishEvent("task.deleted", {
+          taskId: task.id,
+          projectId: task.projectId,
+          userId,
+          title: task.title,
+        });
+      }
       break;
     }
 
@@ -288,7 +306,9 @@ async function bulkUpdateTasks({
           taskId: task.id,
           projectId: task.projectId,
           userId,
+          oldDueDate: task.dueDate,
           newDueDate: parsedDate,
+          title: task.title,
           type: "due_date_changed",
         });
       }

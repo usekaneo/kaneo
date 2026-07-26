@@ -26,6 +26,7 @@ import {
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { getInitials } from "@/lib/get-initials";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects",
@@ -64,13 +65,7 @@ function RouteComponent() {
     workspaceId: workspace?.id || "",
   });
 
-  const workspaceInitials =
-    workspace?.name
-      ?.split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join("") || "WS";
+  const workspaceInitials = getInitials(workspace?.name, "WS");
 
   const selectedProjectMatch = location.pathname.match(
     /^\/dashboard\/settings\/projects\/([^/]+)\//,

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -30,7 +31,7 @@ export function PublicTaskRow({
   return (
     <button
       type="button"
-      className="group w-full text-left px-4 py-3 rounded-lg flex items-center gap-4 bg-card border border-border shadow-sm hover:shadow-md transition-all duration-200 ease-out hover:border-border/70 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+      className="group w-full text-left px-4 py-3 rounded-lg flex items-center gap-4 bg-card border border-border shadow-sm hover:shadow-md transition-[background-color,border-color,box-shadow] duration-200 ease-out hover:border-border/70 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
       onClick={() => onTaskClick(task)}
       aria-label={t("publicProject:taskCard.viewDetailsAria", {
         title: task.title,
@@ -57,7 +58,7 @@ export function PublicTaskRow({
                 alt={task.assigneeName ?? ""}
               />
               <AvatarFallback className="text-[10px] font-medium border border-border/30">
-                {task.assigneeName.charAt(0).toUpperCase()}
+                {getInitials(task.assigneeName)}
               </AvatarFallback>
             </Avatar>
             <span className="text-xs text-muted-foreground font-medium">

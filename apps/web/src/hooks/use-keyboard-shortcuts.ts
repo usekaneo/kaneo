@@ -164,15 +164,21 @@ export function KeyboardShortcutsProvider({
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
-      if (
+      const isEditingText =
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
-        target.contentEditable === "true"
-      ) {
+        target.contentEditable === "true";
+      if (isEditingText && !event.metaKey && !event.ctrlKey) {
         return;
       }
 
       const key = event.key.toLowerCase();
+
+      // Editors own their chords (cmd+b bold in TipTap and friends); only
+      // the palette toggle may pass while typing.
+      if (isEditingText && (key !== "k" || event.altKey || event.shiftKey)) {
+        return;
+      }
 
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
         const modifierKey = event.metaKey

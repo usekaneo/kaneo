@@ -18,7 +18,7 @@ export function ThemeToggleDropdown() {
       <div className="relative inline-grid h-7 grid-cols-[1fr_1fr] items-center font-medium text-sm">
         <Switch
           checked={checked}
-          className="peer absolute inset-0 h-[inherit] w-auto rounded-full bg-input/50 data-checked:bg-input/50 data-unchecked:bg-input/50 [&_[data-slot=switch-thumb]]:h-full [&_[data-slot=switch-thumb]]:w-1/2 [&_[data-slot=switch-thumb]]:rounded-full [&_[data-slot=switch-thumb]]:transition-transform [&_[data-slot=switch-thumb]]:duration-300 [&_[data-slot=switch-thumb]]:ease-[cubic-bezier(0.16,1,0.3,1)] [&_[data-slot=switch-thumb]]:data-checked:translate-x-full [&_[data-slot=switch-thumb]]:rtl:data-checked:-translate-x-full"
+          className="peer absolute inset-0 h-[inherit] w-auto rounded-full bg-input/50 data-checked:bg-input/50 data-unchecked:bg-input/50 [&_[data-slot=switch-thumb]]:h-full [&_[data-slot=switch-thumb]]:w-1/2 [&_[data-slot=switch-thumb]]:rounded-full [&_[data-slot=switch-thumb]]:transition-transform [&_[data-slot=switch-thumb]]:duration-300 [&_[data-slot=switch-thumb]]:ease-out [&_[data-slot=switch-thumb]]:data-checked:translate-x-full [&_[data-slot=switch-thumb]]:rtl:data-checked:-translate-x-full"
           id={id}
           onCheckedChange={handleThemeChange}
         />

@@ -10,12 +10,17 @@ import {
 } from "../../database/schema";
 import type {
   PluginContext,
+  TaskAssigneeChangedEvent,
   TaskCommentCreatedEvent,
   TaskCreatedEvent,
+  TaskDeletedEvent,
   TaskDescriptionChangedEvent,
+  TaskDueDateChangedEvent,
+  TaskMovedEvent,
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
+  TaskUnassignedEvent,
 } from "../types";
 import { postToGenericWebhook } from "./client";
 import type { GenericWebhookConfig, GenericWebhookEventKey } from "./config";
@@ -142,18 +147,13 @@ async function persistWebhookHealth(
   }
 }
 
-async function sendEvent(
+async function deliverWebhookEvent(
   config: GenericWebhookConfig,
   eventName: string,
   taskId: string,
   projectId: string,
-  userId: string | null,
-  data: Record<string, unknown>,
-): Promise<void> {
-  const task = await getTaskData(taskId, projectId);
-  if (!task) return;
-
-  const actor = await getActor(userId);
+  payload: Record<string, unknown>,
+): Promise<boolean> {
   const attempt = {
     eventName,
     taskId,
@@ -162,33 +162,7 @@ async function sendEvent(
   };
 
   try {
-    await postToGenericWebhook(
-      config.webhookUrl,
-      {
-        event: eventName,
-        timestamp: new Date().toISOString(),
-        integration: {
-          type: "generic-webhook",
-        },
-        project: {
-          id: task.projectId,
-          name: task.projectName,
-          workspaceId: task.workspaceId,
-        },
-        task: {
-          id: task.id,
-          number: task.number,
-          title: task.title,
-          status: task.status,
-          statusName: task.statusName,
-          priority: task.priority,
-          url: task.taskUrl,
-        },
-        actor,
-        data,
-      },
-      config.secret,
-    );
+    await postToGenericWebhook(config.webhookUrl, payload, config.secret);
 
     void persistWebhookHealth(projectId, (currentConfig) => ({
       ...currentConfig,
@@ -199,6 +173,7 @@ async function sendEvent(
         lastAttempt: attempt,
       },
     }));
+    return true;
   } catch (error) {
     const message =
       error instanceof Error ? (error.stack ?? error.message) : String(error);
@@ -214,14 +189,76 @@ async function sendEvent(
       },
     }));
 
-    console.error("sendEvent postToGenericWebhook failed", {
+    console.error("postToGenericWebhook failed", {
       error,
       eventName,
       taskId,
       projectId,
       webhookUrl: config.webhookUrl,
     });
+    return false;
   }
+}
+
+async function sendEvent(
+  config: GenericWebhookConfig,
+  eventName: string,
+  taskId: string,
+  projectId: string,
+  userId: string | null,
+  data: Record<string, unknown>,
+): Promise<boolean> {
+  const task = await getTaskData(taskId, projectId);
+  if (!task) return false;
+
+  const actor = await getActor(userId);
+
+  return deliverWebhookEvent(config, eventName, taskId, projectId, {
+    event: eventName,
+    timestamp: new Date().toISOString(),
+    integration: {
+      type: "generic-webhook",
+    },
+    project: {
+      id: task.projectId,
+      name: task.projectName,
+      workspaceId: task.workspaceId,
+    },
+    task: {
+      id: task.id,
+      number: task.number,
+      title: task.title,
+      status: task.status,
+      statusName: task.statusName,
+      priority: task.priority,
+      url: task.taskUrl,
+    },
+    actor,
+    data,
+  });
+}
+
+export async function sendDueDateReminder(
+  config: GenericWebhookConfig,
+  taskId: string,
+  projectId: string,
+  leadTimeMinutes: number,
+  dueDate: Date,
+): Promise<boolean> {
+  const normalizedConfig = normalizeGenericWebhookConfig(config);
+  if (!isEnabled(normalizedConfig, "dueDateReminder")) return false;
+
+  return sendEvent(
+    normalizedConfig,
+    "task.due_date_reminder",
+    taskId,
+    projectId,
+    null,
+    {
+      dueDate: dueDate.toISOString(),
+      leadTimeMinutes,
+    },
+  );
 }
 
 export async function handleTaskCreated(
@@ -356,6 +393,156 @@ export async function handleTaskCommentCreated(
     event.userId,
     {
       comment: event.comment,
+    },
+  );
+}
+
+async function sendTaskDeletedEvent(
+  config: GenericWebhookConfig,
+  event: TaskDeletedEvent,
+): Promise<boolean> {
+  const [project] = await db
+    .select({
+      id: projectTable.id,
+      name: projectTable.name,
+      workspaceId: projectTable.workspaceId,
+    })
+    .from(projectTable)
+    .where(eq(projectTable.id, event.projectId))
+    .limit(1);
+
+  if (!project) return false;
+
+  const actor = await getActor(event.userId);
+
+  return deliverWebhookEvent(
+    config,
+    "task.deleted",
+    event.taskId,
+    event.projectId,
+    {
+      event: "task.deleted",
+      timestamp: new Date().toISOString(),
+      integration: {
+        type: "generic-webhook",
+      },
+      project: {
+        id: project.id,
+        name: project.name,
+        workspaceId: project.workspaceId,
+      },
+      task: {
+        id: event.taskId,
+        title: event.title,
+      },
+      actor,
+      data: {},
+    },
+  );
+}
+
+export async function handleTaskDeleted(
+  event: TaskDeletedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeGenericWebhookConfig(
+    context.config as GenericWebhookConfig,
+  );
+  if (!isEnabled(config, "taskDeleted")) return;
+
+  await sendTaskDeletedEvent(config, event);
+}
+
+export async function handleTaskMoved(
+  event: TaskMovedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeGenericWebhookConfig(
+    context.config as GenericWebhookConfig,
+  );
+  if (!isEnabled(config, "taskMoved")) return;
+
+  await sendEvent(
+    config,
+    "task.moved",
+    event.taskId,
+    event.projectId,
+    event.userId,
+    {
+      fromProjectId: event.fromProjectId,
+      fromProjectName: event.fromProjectName,
+      toProjectId: event.toProjectId,
+      toProjectName: event.toProjectName,
+      oldStatus: event.oldStatus,
+      newStatus: event.newStatus,
+    },
+  );
+}
+
+export async function handleTaskDueDateChanged(
+  event: TaskDueDateChangedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeGenericWebhookConfig(
+    context.config as GenericWebhookConfig,
+  );
+  if (!isEnabled(config, "taskDueDateChanged")) return;
+
+  await sendEvent(
+    config,
+    "task.due_date_changed",
+    event.taskId,
+    event.projectId,
+    event.userId,
+    {
+      title: event.title,
+      oldDueDate: event.oldDueDate,
+      newDueDate: event.newDueDate,
+    },
+  );
+}
+
+export async function handleTaskAssigneeChanged(
+  event: TaskAssigneeChangedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeGenericWebhookConfig(
+    context.config as GenericWebhookConfig,
+  );
+  if (!isEnabled(config, "taskAssigneeChanged")) return;
+
+  await sendEvent(
+    config,
+    "task.assignee_changed",
+    event.taskId,
+    event.projectId,
+    event.userId,
+    {
+      title: event.title,
+      oldAssigneeId: event.oldAssignee ?? null,
+      newAssigneeId: event.newAssigneeId,
+      newAssignee: event.newAssignee ?? null,
+    },
+  );
+}
+
+export async function handleTaskUnassigned(
+  event: TaskUnassignedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeGenericWebhookConfig(
+    context.config as GenericWebhookConfig,
+  );
+  if (!isEnabled(config, "taskUnassigned")) return;
+
+  await sendEvent(
+    config,
+    "task.unassigned",
+    event.taskId,
+    event.projectId,
+    event.userId,
+    {
+      title: event.title,
     },
   );
 }

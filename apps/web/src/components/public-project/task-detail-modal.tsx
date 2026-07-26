@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogClose, DialogPopup } from "@/components/ui/dialog";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateMedium, formatDateShort } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -151,7 +152,7 @@ export function PublicTaskDetailModal({
                         alt={task.assigneeName ?? ""}
                       />
                       <AvatarFallback className="text-[10px]">
-                        {task.assigneeName.charAt(0).toUpperCase()}
+                        {getInitials(task.assigneeName)}
                       </AvatarFallback>
                     </Avatar>
                     <span>{task.assigneeName}</span>

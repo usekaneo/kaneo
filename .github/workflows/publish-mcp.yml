@@ -3,19 +3,29 @@ name: Publish MCP Package
 on:
   release:
     types: [published]
+  push:
+    branches: [main]
+    paths:
+      - packages/mcp/package.json
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
+
+concurrency:
+  group: publish-mcp
+  cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-24.04
-    if: ${{ startsWith(github.event.release.tag_name, 'mcp-v') }}
+    if: ${{ github.event_name == 'push' || startsWith(github.event.release.tag_name, 'mcp-v') }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -38,6 +48,7 @@ jobs:
           pnpm --filter @kaneo/mcp build
 
       - name: Validate MCP release tag
+        if: ${{ github.event_name == 'release' }}
         run: |
           PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
           TAG_VERSION="${GITHUB_REF_NAME#mcp-v}"
@@ -71,3 +82,21 @@ jobs:
           npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create MCP release
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
+
+          if gh release view "mcp-v${PACKAGE_VERSION}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release mcp-v${PACKAGE_VERSION} already exists; skipping."
+            exit 0
+          fi
+
+          gh release create "mcp-v${PACKAGE_VERSION}" \
+            --target "${GITHUB_SHA}" \
+            --title "@kaneo/mcp v${PACKAGE_VERSION}" \
+            --notes "Published [@kaneo/mcp@${PACKAGE_VERSION}](https://www.npmjs.com/package/@kaneo/mcp/v/${PACKAGE_VERSION}) to npm." \
+            --latest=false
+        env:
+          GH_TOKEN: ${{ github.token }}

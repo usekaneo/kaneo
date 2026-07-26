@@ -31,6 +31,7 @@ import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
@@ -180,7 +181,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
           {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
           <div
             onClick={handleTaskCardClick}
-            className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-all duration-200 ease-out ${
+            className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98] ${
               disableDragDrop ? "cursor-default" : "cursor-move"
             } ${
               isDragging
@@ -214,7 +215,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                       alt={assignee?.user?.name || ""}
                     />
                     <AvatarFallback className="text-xs font-medium border border-border/30">
-                      {assignee?.user?.name?.charAt(0).toUpperCase()}
+                      {getInitials(assignee?.user?.name)}
                     </AvatarFallback>
                   </Avatar>
                 ) : (

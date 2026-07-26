@@ -11,6 +11,31 @@ async function hashApiKey(key: string): Promise<string> {
     .replace(/=/g, "");
 }
 
+function parsePermissions(raw: string | null): Record<string, string[]> | null {
+  if (raw === null) return null;
+
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return {};
+  }
+
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  const permissions: Record<string, string[]> = {};
+  for (const [resource, actions] of Object.entries(
+    value as Record<string, unknown>,
+  )) {
+    if (!Array.isArray(actions)) return {};
+    if (actions.some((action) => typeof action !== "string")) return {};
+    permissions[resource] = actions as string[];
+  }
+  return permissions;
+}
+
 export async function verifyApiKey(key: string) {
   const hashedKey = await hashApiKey(key);
 
@@ -43,9 +68,7 @@ export async function verifyApiKey(key: string) {
       start: apiKey.start,
       enabled: apiKey.enabled ?? false,
       expiresAt: apiKey.expiresAt,
-      permissions: apiKey.permissions
-        ? (JSON.parse(apiKey.permissions) as Record<string, string[]>)
-        : null,
+      permissions: parsePermissions(apiKey.permissions),
       refillInterval: apiKey.refillInterval,
       refillAmount: apiKey.refillAmount,
       lastRefillAt: apiKey.lastRefillAt,

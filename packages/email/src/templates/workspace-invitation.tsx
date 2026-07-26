@@ -1,6 +1,5 @@
 import { Link, Section, Text } from "@react-email/components";
 import React from "react";
-import { resolveEmailLocale } from "./resolve-locale";
 import { EmailShell, styles } from "./shell";
 
 void React;
@@ -11,33 +10,19 @@ export type WorkspaceInvitationEmailProps = {
   inviterEmail: string;
   invitationLink: string;
   to: string;
-  locale?: string | null;
+  copy: WorkspaceInvitationEmailCopy;
 };
 
-const messages = {
-  en: {
-    preview: "You're invited to {{workspaceName}} on Kaneo",
-    title: "Join {{workspaceName}}",
-    subtitle:
-      "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
-    cta: "Accept invitation",
-    sameEmail: "You can accept with the same email that received this message.",
-    ignore: "If this wasn't expected, you can safely ignore this email.",
-    footer: "Kaneo workspace invitation",
-  },
-  de: {
-    preview: "Du wurdest zu {{workspaceName}} auf Kaneo eingeladen",
-    title: "{{workspaceName}} beitreten",
-    subtitle:
-      "{{inviterName}} ({{inviterEmail}}) hat dich eingeladen, in Kaneo zusammenzuarbeiten.",
-    cta: "Einladung annehmen",
-    sameEmail:
-      "Du kannst die Einladung mit derselben E-Mail-Adresse annehmen, die diese Nachricht erhalten hat.",
-    ignore:
-      "Falls du damit nicht gerechnet hast, kannst du diese E-Mail einfach ignorieren.",
-    footer: "Kaneo Workspace-Einladung",
-  },
-} as const;
+export type WorkspaceInvitationEmailCopy = {
+  subject: string;
+  preview: string;
+  title: string;
+  subtitle: string;
+  cta: string;
+  sameEmail: string;
+  ignore: string;
+  footer: string;
+};
 
 function interpolate(template: string, values: Record<string, string>) {
   return template.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => {
@@ -51,9 +36,8 @@ const WorkspaceInvitationEmail = ({
   inviterEmail,
   invitationLink,
   to,
-  locale,
+  copy,
 }: WorkspaceInvitationEmailProps) => {
-  const copy = messages[resolveEmailLocale(locale)];
   const values = { workspaceName, inviterName, inviterEmail };
 
   return (
@@ -81,6 +65,17 @@ WorkspaceInvitationEmail.PreviewProps = {
   inviterEmail: "john@acme.com",
   invitationLink: "https://kaneo.app/invite/abc123",
   to: "invitee@example.com",
+  copy: {
+    subject: "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
+    preview: "You're invited to {{workspaceName}} on Kaneo",
+    title: "Join {{workspaceName}}",
+    subtitle:
+      "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+    cta: "Accept invitation",
+    sameEmail: "You can accept with the same email that received this message.",
+    ignore: "If this wasn't expected, you can safely ignore this email.",
+    footer: "Kaneo workspace invitation",
+  },
 } as WorkspaceInvitationEmailProps;
 
 export default WorkspaceInvitationEmail;

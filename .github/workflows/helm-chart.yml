@@ -107,7 +107,7 @@ jobs:
       - name: Package chart
         run: |
           mkdir -p dist
-          helm package "$CHART_PATH" --version "$CHART_VERSION" --destination dist
+          helm package "$CHART_PATH" --version "$CHART_VERSION" --app-version "$CHART_VERSION" --destination dist
     
       - name: Log in to GHCR
         env:

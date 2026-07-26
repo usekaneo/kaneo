@@ -20,6 +20,7 @@ import {
 import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { formatDateTime, formatRelativeTime } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 
 type CommentCardProps = {
@@ -116,7 +117,7 @@ export default function CommentCard({
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
                   <AvatarFallback className="bg-muted text-xs font-medium">
-                    {user?.name?.charAt(0).toUpperCase()}
+                    {getInitials(user?.name)}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium text-foreground/92 hover:text-foreground transition-colors">
@@ -129,7 +130,7 @@ export default function CommentCard({
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
                   <AvatarFallback className="bg-muted text-xs font-medium">
-                    {user?.name?.charAt(0).toUpperCase()}
+                    {getInitials(user?.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">

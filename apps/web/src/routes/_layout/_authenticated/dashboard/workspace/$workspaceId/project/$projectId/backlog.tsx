@@ -30,6 +30,7 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { DUE_DATE_FILTER_VALUES } from "@/hooks/use-task-filters";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import type { SortConfig } from "@/lib/sort-tasks";
@@ -598,7 +599,7 @@ function RouteComponent() {
                             alt={member.user?.name || ""}
                           />
                           <AvatarFallback className="text-xs font-medium border border-border/30">
-                            {member.user?.name?.charAt(0).toUpperCase()}
+                            {getInitials(member.user?.name)}
                           </AvatarFallback>
                         </Avatar>
                         <span>{member.user?.name}</span>

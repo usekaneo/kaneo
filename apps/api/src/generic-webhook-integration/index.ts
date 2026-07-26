@@ -55,6 +55,8 @@ function toResponse(integration: {
       ...defaultGenericWebhookEvents,
       ...(config.events ?? {}),
     },
+    dueDateReminderLeadTimeMinutes:
+      config.dueDateReminderLeadTimeMinutes ?? 1440,
     isActive: integration.isActive,
     createdAt: integration.createdAt,
     updatedAt: integration.updatedAt,
@@ -83,6 +85,12 @@ const genericWebhookEventsSchema = v.object({
   taskTitleChanged: v.optional(v.boolean()),
   taskDescriptionChanged: v.optional(v.boolean()),
   taskCommentCreated: v.optional(v.boolean()),
+  taskDeleted: v.optional(v.boolean()),
+  taskMoved: v.optional(v.boolean()),
+  taskDueDateChanged: v.optional(v.boolean()),
+  taskAssigneeChanged: v.optional(v.boolean()),
+  taskUnassigned: v.optional(v.boolean()),
+  dueDateReminder: v.optional(v.boolean()),
 });
 
 const nullableGenericWebhookIntegrationSchema = v.nullable(
@@ -138,6 +146,9 @@ genericWebhookIntegration
         webhookUrl: v.pipe(v.string(), v.minLength(1)),
         secret: v.optional(v.string()),
         events: v.optional(genericWebhookEventsSchema),
+        dueDateReminderLeadTimeMinutes: v.optional(
+          v.pipe(v.number(), v.integer(), v.minValue(5), v.maxValue(43_200)),
+        ),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
@@ -150,6 +161,7 @@ genericWebhookIntegration
         webhookUrl: body.webhookUrl,
         secret: body.secret,
         events: body.events,
+        dueDateReminderLeadTimeMinutes: body.dueDateReminderLeadTimeMinutes,
       });
 
       const validation = await validateGenericWebhookConfig(config);
@@ -212,6 +224,9 @@ genericWebhookIntegration
         secret: v.optional(v.nullable(v.string())),
         isActive: v.optional(v.boolean()),
         events: v.optional(genericWebhookEventsSchema),
+        dueDateReminderLeadTimeMinutes: v.optional(
+          v.pipe(v.number(), v.integer(), v.minValue(5), v.maxValue(43_200)),
+        ),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
@@ -246,6 +261,9 @@ genericWebhookIntegration
           ...(currentConfig.events ?? {}),
           ...(body.events ?? {}),
         },
+        dueDateReminderLeadTimeMinutes:
+          body.dueDateReminderLeadTimeMinutes ??
+          currentConfig.dueDateReminderLeadTimeMinutes,
       });
 
       const validation = await validateGenericWebhookConfig(nextConfig);

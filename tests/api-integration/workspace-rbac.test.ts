@@ -188,6 +188,33 @@ describe("API integration: workspace RBAC enforcement", () => {
       // workspaceAccess.fromProject runs first and rejects with its own message
       expect(response.status).toBe(403);
     });
+
+    it("does not authorize a project through a conflicting workspaceId query", async () => {
+      const attacker = await createWorkspaceMember({ role: "admin" });
+      const victim = await createWorkspaceMember({ role: "admin" });
+      const { project } = await createProjectFixture({
+        workspaceId: victim.workspace.id,
+      });
+
+      mockAuthenticatedSession(attacker.user);
+      const { app } = createApp();
+
+      const response = await app.request(
+        `/api/task/${project.id}?workspaceId=${attacker.workspace.id}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            title: "Cross-workspace probe",
+            description: "",
+            priority: "low",
+            status: "to-do",
+          }),
+        },
+      );
+
+      expect(response.status).toBe(403);
+    });
   });
 
   describe("custom workspace roles", () => {

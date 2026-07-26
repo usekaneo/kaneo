@@ -28,6 +28,7 @@ import listRepositories, {
   type ListRepositoriesResponse,
 } from "@/fetchers/github-integration/list-repositories";
 import { cn } from "@/lib/cn";
+import { getInitials } from "@/lib/get-initials";
 
 type RepositoryBrowserModalProps = {
   open: boolean;
@@ -220,7 +221,7 @@ export function RepositoryBrowserModal({
                           <Avatar className="w-8 h-8 flex-shrink-0">
                             <AvatarImage src={repository.owner.avatar_url} />
                             <AvatarFallback>
-                              {repository.owner.login.charAt(0).toUpperCase()}
+                              {getInitials(repository.owner.login)}
                             </AvatarFallback>
                           </Avatar>
 

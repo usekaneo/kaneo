@@ -1,5 +1,5 @@
 import { CheckCircle2, Circle, GripVertical, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,13 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   const [newIconPickerOpen, setNewIconPickerOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const dragPreviewRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      dragPreviewRef.current?.remove();
+    };
+  }, []);
 
   const handleCreate = async () => {
     if (!newColumnName.trim()) return;
@@ -121,8 +128,47 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     }
   };
 
-  const handleDragStart = (index: number) => {
+  const handleDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    index: number,
+  ) => {
     setDraggedIndex(index);
+
+    dragPreviewRef.current?.remove();
+
+    const sourceElement = e.currentTarget;
+    const sourceRect = sourceElement.getBoundingClientRect();
+
+    // Use an isolated clone so the drag image only captures the selected row.
+    const dragPreview = sourceElement.cloneNode(true) as HTMLDivElement;
+
+    dragPreview.setAttribute("aria-hidden", "true");
+    dragPreview.inert = true;
+
+    Object.assign(dragPreview.style, {
+      position: "fixed",
+      top: "-10000px",
+      left: "-10000px",
+      width: `${sourceRect.width}px`,
+      height: `${sourceRect.height}px`,
+      margin: "0",
+      boxSizing: "border-box",
+      overflow: "hidden",
+      pointerEvents: "none",
+      transform: "none",
+      contain: "layout paint",
+    });
+
+    document.body.appendChild(dragPreview);
+    dragPreviewRef.current = dragPreview;
+
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(index));
+    e.dataTransfer.setDragImage(
+      dragPreview,
+      e.clientX - sourceRect.left,
+      e.clientY - sourceRect.top,
+    );
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
@@ -140,6 +186,9 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
 
   const handleDragEnd = () => {
     setDraggedIndex(null);
+
+    dragPreviewRef.current?.remove();
+    dragPreviewRef.current = null;
   };
 
   const filteredIcons = Object.entries(columnIcons).filter(([iconName]) =>
@@ -163,7 +212,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
             key={col.id}
             role="listitem"
             draggable={canEdit}
-            onDragStart={() => handleDragStart(index)}
+            onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragEnd={handleDragEnd}
             className="flex items-center gap-2 p-2 border border-border rounded-md bg-sidebar hover:bg-sidebar-accent/50 transition-colors"

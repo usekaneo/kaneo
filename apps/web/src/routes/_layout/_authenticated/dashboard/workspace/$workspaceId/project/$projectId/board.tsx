@@ -14,9 +14,9 @@ import { shortcuts } from "@/constants/shortcuts";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
-import type { SortConfig } from "@/lib/sort-tasks";
 import { sortTasks } from "@/lib/sort-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -88,10 +88,7 @@ function RouteComponent() {
   const [isBoardSearchVisible, setIsBoardSearchVisible] = useState(false);
   const [boardSearchInput, setBoardSearchInput] =
     useState<HTMLInputElement | null>(null);
-  const [sort, setSort] = useState<SortConfig>({
-    field: "position",
-    direction: "asc",
-  });
+  const { sort, setSort } = useBoardSort(projectId);
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -181,7 +178,7 @@ function RouteComponent() {
 
   const boardHeaderSearch = isBoardSearchMounted ? (
     <div
-      className={`relative w-[240px] origin-top transition-all duration-180 ease-out ${
+      className={`relative w-[240px] origin-top transition-[translate,scale,opacity] duration-180 ease-out ${
         isBoardSearchVisible
           ? "translate-y-0 scale-y-100 opacity-100"
           : "pointer-events-none -translate-y-1 scale-y-95 opacity-0"

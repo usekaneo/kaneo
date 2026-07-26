@@ -21,6 +21,29 @@ async function createNotification({
   resourceId?: string;
   resourceType?: string;
 }) {
+  const preferenceKey =
+    type === "task_assignee_changed" || type === "task_created"
+      ? "taskAssignmentEnabled"
+      : type === "task_comment" || type === "task_mention"
+        ? "taskCommentEnabled"
+        : type === "task_status_changed"
+          ? "taskStatusChangeEnabled"
+          : type === "due_date_reminder" || type === "task_overdue"
+            ? "dueDateReminderEnabled"
+            : null;
+
+  if (preferenceKey) {
+    const preference = await db.query.userNotificationPreferenceTable.findFirst(
+      {
+        where: (table, { eq }) => eq(table.userId, userId),
+      },
+    );
+
+    if (preference?.[preferenceKey] === false) {
+      return null;
+    }
+  }
+
   const [notification] = await db
     .insert(notificationTable)
     .values({

@@ -1,7 +1,11 @@
 import { and, eq, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskRelationTable, taskTable } from "../../database/schema";
+import {
+  projectTable,
+  taskRelationTable,
+  taskTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 
 async function createTaskRelation({
@@ -9,11 +13,13 @@ async function createTaskRelation({
   targetTaskId,
   relationType,
   userId,
+  workspaceId,
 }: {
   sourceTaskId: string;
   targetTaskId: string;
   relationType: string;
   userId: string;
+  workspaceId: string;
 }) {
   if (sourceTaskId === targetTaskId) {
     throw new HTTPException(400, {
@@ -22,9 +28,19 @@ async function createTaskRelation({
   }
 
   const [sourceTask] = await db
-    .select({ id: taskTable.id, projectId: taskTable.projectId })
+    .select({
+      id: taskTable.id,
+      projectId: taskTable.projectId,
+      workspaceId: projectTable.workspaceId,
+    })
     .from(taskTable)
-    .where(eq(taskTable.id, sourceTaskId))
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(
+      and(
+        eq(taskTable.id, sourceTaskId),
+        eq(projectTable.workspaceId, workspaceId),
+      ),
+    )
     .limit(1);
 
   if (!sourceTask) {
@@ -32,9 +48,19 @@ async function createTaskRelation({
   }
 
   const [targetTask] = await db
-    .select({ id: taskTable.id, projectId: taskTable.projectId })
+    .select({
+      id: taskTable.id,
+      projectId: taskTable.projectId,
+      workspaceId: projectTable.workspaceId,
+    })
     .from(taskTable)
-    .where(eq(taskTable.id, targetTaskId))
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(
+      and(
+        eq(taskTable.id, targetTaskId),
+        eq(projectTable.workspaceId, workspaceId),
+      ),
+    )
     .limit(1);
 
   if (!targetTask) {

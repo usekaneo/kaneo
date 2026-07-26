@@ -387,6 +387,38 @@ export function registerTools(
   );
 
   server.registerTool(
+    "update_task_comment",
+    {
+      description: "Update one of your comments on a task.",
+      inputSchema: z.object({
+        commentId: nonEmptyString,
+        content: nonEmptyString,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/comment/${encodeURIComponent(args.commentId)}`, {
+          method: "PUT",
+          body: JSON.stringify({ content: args.content }),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "delete_task_comment",
+    {
+      description: "Delete one of your comments from a task.",
+      inputSchema: z.object({ commentId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/comment/${encodeURIComponent(args.commentId)}`, {
+          method: "DELETE",
+        }),
+      ),
+  );
+
+  server.registerTool(
     "list_workspace_labels",
     {
       description: "List labels defined in a workspace.",

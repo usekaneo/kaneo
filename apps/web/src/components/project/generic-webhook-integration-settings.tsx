@@ -32,6 +32,13 @@ type GenericWebhookIntegrationFormValues = {
   taskTitleChanged: boolean;
   taskDescriptionChanged: boolean;
   taskCommentCreated: boolean;
+  taskDeleted: boolean;
+  taskMoved: boolean;
+  taskDueDateChanged: boolean;
+  taskAssigneeChanged: boolean;
+  taskUnassigned: boolean;
+  dueDateReminder: boolean;
+  dueDateReminderLeadTimeHours: number;
 };
 
 function EventToggle({
@@ -50,6 +57,12 @@ function EventToggle({
     | "taskTitleChanged"
     | "taskDescriptionChanged"
     | "taskCommentCreated"
+    | "taskDeleted"
+    | "taskMoved"
+    | "taskDueDateChanged"
+    | "taskAssigneeChanged"
+    | "taskUnassigned"
+    | "dueDateReminder"
   >;
   label: string;
 }) {
@@ -80,16 +93,31 @@ export function GenericWebhookIntegrationSettings({
   const { t } = useTranslation();
   const schema = React.useMemo(
     () =>
-      z.object({
-        webhookUrl: z.string(),
-        secret: z.string(),
-        taskCreated: z.boolean(),
-        taskStatusChanged: z.boolean(),
-        taskPriorityChanged: z.boolean(),
-        taskTitleChanged: z.boolean(),
-        taskDescriptionChanged: z.boolean(),
-        taskCommentCreated: z.boolean(),
-      }),
+      z
+        .object({
+          webhookUrl: z.string(),
+          secret: z.string(),
+          taskCreated: z.boolean(),
+          taskStatusChanged: z.boolean(),
+          taskPriorityChanged: z.boolean(),
+          taskTitleChanged: z.boolean(),
+          taskDescriptionChanged: z.boolean(),
+          taskCommentCreated: z.boolean(),
+          taskDeleted: z.boolean(),
+          taskMoved: z.boolean(),
+          taskDueDateChanged: z.boolean(),
+          taskAssigneeChanged: z.boolean(),
+          taskUnassigned: z.boolean(),
+          dueDateReminder: z.boolean(),
+          dueDateReminderLeadTimeHours: z.number(),
+        })
+        .refine(
+          (values) =>
+            !values.dueDateReminder ||
+            (values.dueDateReminderLeadTimeHours >= 5 / 60 &&
+              values.dueDateReminderLeadTimeHours <= 720),
+          { path: ["dueDateReminderLeadTimeHours"] },
+        ),
     [],
   );
 
@@ -113,6 +141,14 @@ export function GenericWebhookIntegrationSettings({
       taskDescriptionChanged:
         integration?.events?.taskDescriptionChanged ?? false,
       taskCommentCreated: integration?.events?.taskCommentCreated ?? true,
+      taskDeleted: integration?.events?.taskDeleted ?? false,
+      taskMoved: integration?.events?.taskMoved ?? false,
+      taskDueDateChanged: integration?.events?.taskDueDateChanged ?? false,
+      taskAssigneeChanged: integration?.events?.taskAssigneeChanged ?? false,
+      taskUnassigned: integration?.events?.taskUnassigned ?? false,
+      dueDateReminder: integration?.events?.dueDateReminder ?? false,
+      dueDateReminderLeadTimeHours:
+        (integration?.dueDateReminderLeadTimeMinutes ?? 1440) / 60,
     }),
     [integration],
   );
@@ -141,6 +177,12 @@ export function GenericWebhookIntegrationSettings({
         taskTitleChanged: values.taskTitleChanged,
         taskDescriptionChanged: values.taskDescriptionChanged,
         taskCommentCreated: values.taskCommentCreated,
+        taskDeleted: values.taskDeleted,
+        taskMoved: values.taskMoved,
+        taskDueDateChanged: values.taskDueDateChanged,
+        taskAssigneeChanged: values.taskAssigneeChanged,
+        taskUnassigned: values.taskUnassigned,
+        dueDateReminder: values.dueDateReminder,
       };
 
       if (!trimmedWebhookUrl || !z.url().safeParse(trimmedWebhookUrl).success) {
@@ -159,6 +201,13 @@ export function GenericWebhookIntegrationSettings({
             webhookUrl: trimmedWebhookUrl,
             secret: trimmedSecret || undefined,
             events,
+            ...(values.dueDateReminder
+              ? {
+                  dueDateReminderLeadTimeMinutes: Math.round(
+                    values.dueDateReminderLeadTimeHours * 60,
+                  ),
+                }
+              : {}),
           },
         });
       } else {
@@ -168,6 +217,13 @@ export function GenericWebhookIntegrationSettings({
             webhookUrl: trimmedWebhookUrl,
             secret: trimmedSecret || undefined,
             events,
+            ...(values.dueDateReminder
+              ? {
+                  dueDateReminderLeadTimeMinutes: Math.round(
+                    values.dueDateReminderLeadTimeHours * 60,
+                  ),
+                }
+              : {}),
           },
         });
       }
@@ -219,6 +275,13 @@ export function GenericWebhookIntegrationSettings({
         taskTitleChanged: false,
         taskDescriptionChanged: false,
         taskCommentCreated: true,
+        taskDeleted: false,
+        taskMoved: false,
+        taskDueDateChanged: false,
+        taskAssigneeChanged: false,
+        taskUnassigned: false,
+        dueDateReminder: false,
+        dueDateReminderLeadTimeHours: 24,
       });
       toast.success(t("settings:genericWebhookIntegration.toast.removed"));
     } catch (error) {
@@ -384,6 +447,72 @@ export function GenericWebhookIntegrationSettings({
               )}
               name="taskCommentCreated"
             />
+            <EventToggle
+              control={form.control}
+              label={t("settings:genericWebhookIntegration.events.taskDeleted")}
+              name="taskDeleted"
+            />
+            <EventToggle
+              control={form.control}
+              label={t("settings:genericWebhookIntegration.events.taskMoved")}
+              name="taskMoved"
+            />
+            <EventToggle
+              control={form.control}
+              label={t(
+                "settings:genericWebhookIntegration.events.taskDueDateChanged",
+              )}
+              name="taskDueDateChanged"
+            />
+            <EventToggle
+              control={form.control}
+              label={t(
+                "settings:genericWebhookIntegration.events.taskAssigneeChanged",
+              )}
+              name="taskAssigneeChanged"
+            />
+            <EventToggle
+              control={form.control}
+              label={t(
+                "settings:genericWebhookIntegration.events.taskUnassigned",
+              )}
+              name="taskUnassigned"
+            />
+            <EventToggle
+              control={form.control}
+              label={t(
+                "settings:genericWebhookIntegration.events.dueDateReminder",
+              )}
+              name="dueDateReminder"
+            />
+            {form.watch("dueDateReminder") ? (
+              <FormField
+                control={form.control}
+                name="dueDateReminderLeadTimeHours"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t(
+                        "settings:genericWebhookIntegration.reminderLeadTimeLabel",
+                      )}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        max={720}
+                        min={5 / 60}
+                        onChange={(event) =>
+                          field.onChange(Number(event.target.value))
+                        }
+                        step="any"
+                        type="number"
+                        value={field.value}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
           </div>
 
           <div className="flex flex-wrap gap-2">

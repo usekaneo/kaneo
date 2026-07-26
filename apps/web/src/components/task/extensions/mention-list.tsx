@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/get-initials";
 
 export type MentionMember = {
   id: string;
@@ -62,7 +63,7 @@ const MentionList = forwardRef<MentionListRef, MentionListProps>(
             <Avatar className="h-5 w-5">
               <AvatarImage src={item.image ?? ""} alt={item.label} />
               <AvatarFallback className="text-[9px] font-medium">
-                {item.label.charAt(0).toUpperCase()}
+                {getInitials(item.label)}
               </AvatarFallback>
             </Avatar>
             <span className="truncate">{item.label}</span>

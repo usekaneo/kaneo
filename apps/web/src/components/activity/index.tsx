@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
 import { formatDateMedium, formatRelativeTime } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
@@ -124,7 +125,7 @@ function UserHoverName({
               alt={user.user.name || ""}
             />
             <AvatarFallback className="bg-muted text-xs font-medium">
-              {user.user.name?.charAt(0).toUpperCase()}
+              {getInitials(user.user.name)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
@@ -152,7 +153,7 @@ function ActorAvatar({
     <Avatar className="size-6">
       <AvatarImage src={user?.user?.image ?? ""} alt={fallbackName} />
       <AvatarFallback className="bg-muted text-[11px] font-medium">
-        {fallbackName.charAt(0).toUpperCase()}
+        {getInitials(fallbackName)}
       </AvatarFallback>
     </Avatar>
   );

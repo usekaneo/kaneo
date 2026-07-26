@@ -14,7 +14,10 @@ function maskToken(token: string): string {
   return `${token.slice(0, 4)}••••••${token.slice(-4)}`;
 }
 
-async function getGiteaIntegration(projectId: string) {
+async function getGiteaIntegration(
+  projectId: string,
+  includeWebhookSecret = false,
+) {
   const integration = await db.query.integrationTable.findFirst({
     where: and(
       eq(integrationTable.projectId, projectId),
@@ -40,7 +43,7 @@ async function getGiteaIntegration(projectId: string) {
     repositoryName: config.repositoryName,
     maskedAccessToken: maskToken(config.accessToken),
     webhookUrl: `${apiBase.replace(/\/$/, "")}/gitea-integration/webhook/${integration.id}`,
-    webhookSecret: config.webhookSecret ?? "",
+    webhookSecret: includeWebhookSecret ? (config.webhookSecret ?? "") : "",
     branchPattern: config.branchPattern || defaultGiteaConfig.branchPattern,
     commentTaskLinkOnGiteaIssue: config.commentTaskLinkOnGiteaIssue !== false,
     isActive: integration.isActive,

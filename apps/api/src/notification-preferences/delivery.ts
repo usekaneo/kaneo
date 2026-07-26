@@ -59,6 +59,27 @@ function getStringValue(
   return typeof value === "string" ? value : null;
 }
 
+function getNumberValue(
+  data: Record<string, unknown> | null | undefined,
+  key: string,
+) {
+  const value = data?.[key];
+  return typeof value === "number" ? value : null;
+}
+
+function formatLeadTime(minutes: number | null) {
+  if (!minutes) return "soon";
+  if (minutes % 1440 === 0) {
+    const days = minutes / 1440;
+    return `in ${days} ${days === 1 ? "day" : "days"}`;
+  }
+  if (minutes % 60 === 0) {
+    const hours = minutes / 60;
+    return `in ${hours} ${hours === 1 ? "hour" : "hours"}`;
+  }
+  return `in ${minutes} minutes`;
+}
+
 function buildDeliveryContent(notification: {
   type: string;
   content: string | null;
@@ -126,12 +147,9 @@ function buildDeliveryContent(notification: {
     }
     case "due_date_reminder": {
       const taskTitle = getStringValue(notification.eventData, "taskTitle");
-      const reminderType = getStringValue(
-        notification.eventData,
-        "reminderType",
+      const label = formatLeadTime(
+        getNumberValue(notification.eventData, "leadTimeMinutes"),
       );
-      const label =
-        reminderType === "one_hour_before" ? "in 1 hour" : "in 1 day";
       return {
         title: "Task due soon",
         body: taskTitle
@@ -146,6 +164,36 @@ function buildDeliveryContent(notification: {
         body: taskTitle
           ? `"${taskTitle}" is past its due date.`
           : "A task is past its due date.",
+      };
+    }
+    case "task_mention": {
+      const taskTitle = getStringValue(notification.eventData, "taskTitle");
+      const mentionerName = getStringValue(
+        notification.eventData,
+        "mentionerName",
+      );
+      return {
+        title: mentionerName
+          ? `${mentionerName} mentioned you`
+          : "You were mentioned",
+        body: taskTitle
+          ? `You were mentioned in ${taskTitle}.`
+          : "You were mentioned in a Kaneo task.",
+      };
+    }
+    case "task_comment": {
+      const taskTitle = getStringValue(notification.eventData, "taskTitle");
+      const commenterName = getStringValue(
+        notification.eventData,
+        "commenterName",
+      );
+      return {
+        title: commenterName
+          ? `${commenterName} commented on your task`
+          : "New task comment",
+        body: taskTitle
+          ? `A new comment was added to ${taskTitle}.`
+          : "A new comment was added to a Kaneo task.",
       };
     }
     default:
@@ -465,7 +513,7 @@ export async function deliverNotification(
         actionUrl: context.taskUrl,
         actionLabel: context.taskUrl ? "Open in Kaneo" : undefined,
         locale: user.locale ?? null,
-      }),
+      }).then(() => undefined),
     );
   }
 

@@ -31,7 +31,10 @@ type IssueClosedPayload = {
   };
 };
 
-export async function handleGiteaIssueClosed(payload: IssueClosedPayload) {
+export async function handleGiteaIssueClosed(
+  payload: IssueClosedPayload,
+  integrationId?: string,
+) {
   if (payload.action !== "closed") {
     return;
   }
@@ -46,6 +49,7 @@ export async function handleGiteaIssueClosed(payload: IssueClosedPayload) {
     baseUrl,
     owner,
     repository.name,
+    integrationId,
   );
 
   for (const integration of integrations) {

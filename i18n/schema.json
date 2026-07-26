@@ -592,6 +592,9 @@
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
+								"account_not_linked": {
+									"type": "string"
+								},
 								"oauth_code_verification_failed": {
 									"type": "string"
 								},
@@ -600,6 +603,7 @@
 								}
 							},
 							"required": [
+								"account_not_linked",
 								"oauth_code_verification_failed",
 								"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_"
 							]
@@ -7178,6 +7182,46 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"email": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"subject": {
+							"type": "string"
+						},
+						"preview": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"cta": {
+							"type": "string"
+						},
+						"sameEmail": {
+							"type": "string"
+						},
+						"ignore": {
+							"type": "string"
+						},
+						"footer": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"subject",
+						"preview",
+						"title",
+						"subtitle",
+						"cta",
+						"sameEmail",
+						"ignore",
+						"footer"
+					]
+				},
 				"pageTitle": {
 					"type": "string"
 				},
@@ -7241,6 +7285,7 @@
 				}
 			},
 			"required": [
+				"email",
 				"pageTitle",
 				"pendingInvitations",
 				"acceptSubtitle",
