@@ -16,10 +16,10 @@
     "date-fns": "^4.4.0",
     "lucide-react": "^0.563.0",
     "next": "15.5.18",
-    "radix-ui": "^1.6.2",
-    "react": "19.2.7",
+    "radix-ui": "^1.6.7",
+    "react": "19.2.8",
     "react-day-picker": "9.13.2",
-    "react-dom": "19.2.7",
+    "react-dom": "19.2.8",
     "tailwind-merge": "^3.6.0",
     "zustand": "^5.0.14"
   },
