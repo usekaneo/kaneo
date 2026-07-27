@@ -1,7 +1,10 @@
+import "./instrument";
+
 import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
+import * as Sentry from "@sentry/node";
 import type { Session, User } from "better-auth/types";
 import { eq, sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
@@ -148,6 +151,19 @@ function buildContentDisposition(filename: string, inline: boolean) {
 
 export function createApp() {
   const app = new Hono<AppVariables>();
+
+  app.onError((err, c) => {
+    if (err instanceof HTTPException) {
+      // expected errors (401/404/...) are not reported; real failures are
+      if (err.status >= 500) {
+        Sentry.captureException(err);
+      }
+      return err.getResponse();
+    }
+
+    Sentry.captureException(err);
+    return c.json({ message: "Internal Server Error" }, 500);
+  });
   const nodeWs = createNodeWebSocket({ app });
   const { upgradeWebSocket, injectWebSocket } = nodeWs;
   const corsOriginSource = [
