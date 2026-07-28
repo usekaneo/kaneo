@@ -4,7 +4,7 @@ import db from "../../database";
 import { columnTable, taskTable, userTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { assertValidTaskStatus } from "../validate-task-fields";
-import getNextTaskNumber from "./get-next-task-number";
+import { claimTaskNumber } from "./claim-task-numbers";
 
 async function createTask({
   projectId,
@@ -37,8 +37,6 @@ async function createTask({
     .from(userTable)
     .where(eq(userTable.id, userId ?? ""));
 
-  const nextTaskNumber = await getNextTaskNumber(projectId);
-
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, projectId),
@@ -60,22 +58,28 @@ async function createTask({
 
   const nextPosition = (maxPositionResult?.maxPosition ?? 0) + 1;
 
-  const [createdTask] = await db
-    .insert(taskTable)
-    .values({
-      projectId,
-      userId: userId || null,
-      title: title || "",
-      status: resolvedStatus,
-      columnId: column?.id ?? null,
-      startDate: startDate || null,
-      dueDate: dueDate || null,
-      description: description || "",
-      priority: resolvedPriority,
-      number: nextTaskNumber + 1,
-      position: nextPosition,
-    })
-    .returning();
+  const createdTask = await db.transaction(async (tx) => {
+    const taskNumber = await claimTaskNumber(projectId, tx);
+
+    const [task] = await tx
+      .insert(taskTable)
+      .values({
+        projectId,
+        userId: userId || null,
+        title: title || "",
+        status: resolvedStatus,
+        columnId: column?.id ?? null,
+        startDate: startDate || null,
+        dueDate: dueDate || null,
+        description: description || "",
+        priority: resolvedPriority,
+        number: taskNumber,
+        position: nextPosition,
+      })
+      .returning();
+
+    return task;
+  });
 
   if (!createdTask) {
     throw new HTTPException(500, {

@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { columnTable, projectTable, taskTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
-import getNextTaskNumber from "../../../task/controllers/get-next-task-number";
+import { claimTaskNumber } from "../../../task/controllers/claim-task-numbers";
 import {
   createExternalLink,
   findExternalLink,
@@ -88,7 +88,7 @@ export async function handleGiteaIssueOpened(
       continue;
     }
 
-    const nextTaskNumber = await getNextTaskNumber(projectId);
+    const nextTaskNumber = await claimTaskNumber(projectId);
 
     const resolvedStatus = await resolveTargetStatus(
       projectId,
@@ -111,7 +111,7 @@ export async function handleGiteaIssueOpened(
       status: resolvedStatus,
       columnId: targetColumn?.id ?? null,
       priority: null,
-      number: nextTaskNumber + 1,
+      number: nextTaskNumber,
     };
 
     if (priority) taskValues.priority = priority;

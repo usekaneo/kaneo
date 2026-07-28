@@ -239,6 +239,13 @@
 			"when": 1784374645880,
 			"tag": "0033_public_patriot",
 			"breakpoints": true
+		},
+		{
+			"idx": 34,
+			"version": "7",
+			"when": 1785240609705,
+			"tag": "0034_icy_cable",
+			"breakpoints": true
 		}
 	]
 }
