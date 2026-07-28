@@ -21,7 +21,7 @@ import {
 } from "../../plugins/github/utils/extract-priority";
 import { formatTaskDescriptionFromIssue } from "../../plugins/github/utils/format";
 import { getInstallationOctokit } from "../../plugins/github/utils/github-app";
-import getNextTaskNumber from "../../task/controllers/get-next-task-number";
+import { claimTaskNumber } from "../../task/controllers/claim-task-numbers";
 
 type ImportResult = {
   imported: number;
@@ -236,7 +236,7 @@ async function importSingleIssue(
     return "updated";
   }
 
-  const nextTaskNumber = await getNextTaskNumber(projectId);
+  const nextTaskNumber = await claimTaskNumber(projectId);
 
   const taskValues: typeof taskTable.$inferInsert = {
     projectId,
@@ -245,7 +245,7 @@ async function importSingleIssue(
     description: formatTaskDescriptionFromIssue(issue.body),
     status: status || "to-do",
     priority: priority || null,
-    number: nextTaskNumber + 1,
+    number: nextTaskNumber,
   };
 
   const [createdTask] = await db

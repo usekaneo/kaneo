@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { columnTable, projectTable, taskTable } from "../../../database/schema";
-import getNextTaskNumber from "../../../task/controllers/get-next-task-number";
+import { claimTaskNumber } from "../../../task/controllers/claim-task-numbers";
 import type { GitHubConfig } from "../config";
 import { createExternalLink, findExternalLink } from "../services/link-manager";
 import { findAllIntegrationsByRepo } from "../services/task-service";
@@ -76,7 +76,7 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
       continue;
     }
 
-    const nextTaskNumber = await getNextTaskNumber(projectId);
+    const nextTaskNumber = await claimTaskNumber(projectId);
 
     const resolvedStatus = await resolveTargetStatus(
       projectId,
@@ -100,7 +100,7 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
       status: targetStatus,
       columnId: targetColumn?.id ?? null,
       priority: null,
-      number: nextTaskNumber + 1,
+      number: nextTaskNumber,
     };
 
     if (priority) taskValues.priority = priority;
