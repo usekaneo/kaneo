@@ -583,9 +583,7 @@
 			"toastDeleteError": "Échec de la suppression du projet",
 			"validation": {
 				"nameRequired": "Le nom du projet est requis",
-				"nameShort": "Le nom du projet doit contenir au moins 2 caractères",
 				"keyRequired": "La clé est requise",
-				"keyShort": "La clé doit contenir au moins 2 caractères",
 				"keyMax": "La clé doit contenir au plus 8 caractères",
 				"iconRequired": "L'icône est requise"
 			},

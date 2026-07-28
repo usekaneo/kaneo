@@ -595,9 +595,7 @@
 			"toastDeleteError": "Projekt konnte nicht gelöscht werden",
 			"validation": {
 				"nameRequired": "Projektname ist erforderlich",
-				"nameShort": "Der Projektname muss mindestens 2 Zeichen lang sein",
 				"keyRequired": "Schlüssel ist erforderlich",
-				"keyShort": "Der Schlüssel muss mindestens 2 Zeichen lang sein",
 				"keyMax": "Der Schlüssel darf höchstens 8 Zeichen lang sein",
 				"iconRequired": "Symbol ist erforderlich"
 			},

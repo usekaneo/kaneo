@@ -581,9 +581,7 @@
 			"toastDeleteError": "프로젝트 삭제에 실패했습니다",
 			"validation": {
 				"nameRequired": "프로젝트 이름은 필수입니다",
-				"nameShort": "프로젝트 이름은 2자 이상이어야 합니다",
 				"keyRequired": "키는 필수입니다",
-				"keyShort": "키는 2자 이상이어야 합니다",
 				"keyMax": "키는 8자 이하여야 합니다",
 				"iconRequired": "아이콘은 필수입니다"
 			},

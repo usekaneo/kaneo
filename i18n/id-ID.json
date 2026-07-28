@@ -583,9 +583,7 @@
 			"toastDeleteError": "Gagal menghapus proyek",
 			"validation": {
 				"nameRequired": "Nama proyek wajib diisi",
-				"nameShort": "Nama proyek harus minimal 2 karakter",
 				"keyRequired": "Key wajib diisi",
-				"keyShort": "Key harus minimal 2 karakter",
 				"keyMax": "Key maksimal 8 karakter",
 				"iconRequired": "Ikon wajib diisi"
 			},

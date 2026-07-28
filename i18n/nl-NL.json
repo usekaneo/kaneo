@@ -491,9 +491,7 @@
 			"toastDeleteError": "Verwijderen project mislukt",
 			"validation": {
 				"nameRequired": "Projectnaam is verplicht",
-				"nameShort": "Projectnaam moet minimaal 2 tekens bevatten",
 				"keyRequired": "Sleutel is verplicht",
-				"keyShort": "Sleutel moet minimaal 2 tekens bevatten",
 				"keyMax": "Sleutel mag maximaal 8 tekens bevatten",
 				"iconRequired": "Icoon is verplicht"
 			},
