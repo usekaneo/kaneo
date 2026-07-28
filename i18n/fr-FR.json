@@ -455,6 +455,7 @@
 			"selectFirstDayOfWeek": "Sélectionnez le premier jour",
 			"weekStartsOnSunday": "Dimanche",
 			"weekStartsOnMonday": "Lundi",
+			"weekStartsOnSaturday": "Samedi",
 			"defaultView": "Vue par défaut",
 			"defaultViewDescription": "Choisissez votre mode d'affichage des tâches préféré",
 			"selectViewMode": "Sélectionnez un mode d'affichage",

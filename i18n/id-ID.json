@@ -455,6 +455,7 @@
 			"selectFirstDayOfWeek": "Pilih hari pertama",
 			"weekStartsOnSunday": "Minggu",
 			"weekStartsOnMonday": "Senin",
+			"weekStartsOnSaturday": "Sabtu",
 			"defaultView": "Tampilan Default",
 			"defaultViewDescription": "Pilih mode tampilan tugas yang Anda inginkan",
 			"selectViewMode": "Pilih mode tampilan",

@@ -352,6 +352,7 @@
 			"selectFirstDayOfWeek": "Selecciona el primer día",
 			"weekStartsOnSunday": "Domingo",
 			"weekStartsOnMonday": "Lunes",
+			"weekStartsOnSaturday": "Sábado",
 			"defaultView": "Vista por defecto",
 			"defaultViewDescription": "Elige la vista por defecto para las tareas",
 			"selectViewMode": "Elige una vista por defecto",

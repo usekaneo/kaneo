@@ -455,6 +455,7 @@
 			"selectFirstDayOfWeek": "İlk günü seçin",
 			"weekStartsOnSunday": "Pazar",
 			"weekStartsOnMonday": "Pazartesi",
+			"weekStartsOnSaturday": "Cumartesi",
 			"defaultView": "Varsayılan Görünüm",
 			"defaultViewDescription": "Tercih ettiğiniz talep görünüm modunu seçin",
 			"selectViewMode": "Bir görünüm modu seçin",

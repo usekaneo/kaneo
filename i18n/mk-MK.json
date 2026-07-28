@@ -455,6 +455,7 @@
 			"selectFirstDayOfWeek": "Избери прв ден",
 			"weekStartsOnSunday": "Недела",
 			"weekStartsOnMonday": "Понеделник",
+			"weekStartsOnSaturday": "Сабота",
 			"defaultView": "Стандарден приказ",
 			"defaultViewDescription": "Избери го претпочитаниот режим на приказ на задачи",
 			"selectViewMode": "Избери режим на приказ",
