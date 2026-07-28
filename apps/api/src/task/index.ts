@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { requireEntitlement } from "../billing/require-entitlement-middleware";
 import db from "../database";
 import {
   assetTable,
@@ -188,6 +189,7 @@ const task = new Hono<{
     ),
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ task: ["create"] }),
+    requireEntitlement,
     async (c) => {
       const { projectId } = c.req.param();
       const {
@@ -273,6 +275,7 @@ const task = new Hono<{
     ),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { destinationProjectId, destinationStatus } = c.req.valid("json");
@@ -320,6 +323,7 @@ const task = new Hono<{
     ),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const {
@@ -412,6 +416,7 @@ const task = new Hono<{
     ),
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ task: ["create"] }),
+    requireEntitlement,
     async (c) => {
       const { projectId } = c.req.valid("param");
       const { tasks } = c.req.valid("json");
@@ -468,6 +473,7 @@ const task = new Hono<{
     validator("json", v.object({ status: v.string() })),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { status } = c.req.valid("json");
@@ -497,6 +503,7 @@ const task = new Hono<{
     validator("json", v.object({ priority: v.picklist(VALID_PRIORITIES) })),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { priority } = c.req.valid("json");
@@ -526,6 +533,7 @@ const task = new Hono<{
     validator("json", v.object({ userId: v.nullable(v.string()) })),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["assign"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { userId } = c.req.valid("json");
@@ -555,6 +563,7 @@ const task = new Hono<{
     validator("json", v.object({ dueDate: v.optional(v.string()) })),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { dueDate = null } = c.req.valid("json");
@@ -589,6 +598,7 @@ const task = new Hono<{
     validator("json", v.object({ title: v.string() })),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { title } = c.req.valid("json");
@@ -628,6 +638,7 @@ const task = new Hono<{
     ),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { filename, contentType, size, surface } = c.req.valid("json");
@@ -712,6 +723,7 @@ const task = new Hono<{
     ),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { key, filename, contentType, size, surface } = c.req.valid("json");
@@ -831,6 +843,7 @@ const task = new Hono<{
     validator("json", v.object({ description: v.string() })),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
       const { description } = c.req.valid("json");
