@@ -1,3 +1,15 @@
+## [2.9.10](https://github.com/usekaneo/kaneo/compare/v2.9.9...v2.9.10) (2026-07-28)
+
+
+### Bug Fixes
+
+* **api:** allocate task numbers atomically via per-project counter ([a2e5132](https://github.com/usekaneo/kaneo/commit/a2e51329d9ba53ea1a524a13018fdaf464811e7b))
+* **api:** return 401 instead of 500 for invalid API keys ([bf7cb38](https://github.com/usekaneo/kaneo/commit/bf7cb38656533b88685513acfbcc531b026a87da))
+
+
+### Features
+
+* **site:** add pricing, privacy policy, and terms pages ([cbe93a0](https://github.com/usekaneo/kaneo/commit/cbe93a0755b6a4d04e2a532ac080c041badc13ae))
 ## [2.9.9](https://github.com/usekaneo/kaneo/compare/v2.9.8...v2.9.9) (2026-07-27)
 
 

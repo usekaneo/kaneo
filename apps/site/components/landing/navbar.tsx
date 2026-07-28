@@ -102,6 +102,7 @@ const navigationLinks: NavigationLink[] = [
     submenu: true,
     type: "simple",
   },
+  { href: "/pricing", label: "Pricing" },
 ];
 
 export function Navbar() {
@@ -241,7 +242,7 @@ export function Navbar() {
                       </>
                     ) : (
                       <NavigationMenuLink
-                        className="rounded-none py-1.5 font-medium text-muted-foreground hover:text-primary"
+                        className="rounded-none bg-transparent px-2 py-1.5 font-medium text-muted-foreground hover:bg-transparent hover:text-primary focus:bg-transparent"
                         href={link.href}
                       >
                         {link.label}
