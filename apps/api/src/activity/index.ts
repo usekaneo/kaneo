@@ -287,18 +287,4 @@ subscribeToEvent<{
   });
 });
 
-subscribeToEvent<{
-  taskId: string;
-  userId: string;
-  oldTitle: string;
-  newTitle: string;
-  title: string;
-  type: string;
-}>("task.title_changed", async (data) => {
-  await createActivity(data.taskId, data.type, data.userId, null, {
-    oldTitle: data.oldTitle,
-    newTitle: data.newTitle,
-  });
-});
-
 export default activity;
