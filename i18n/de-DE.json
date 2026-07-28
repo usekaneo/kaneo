@@ -447,6 +447,7 @@
 			"selectFirstDayOfWeek": "Ersten Tag auswählen",
 			"weekStartsOnSunday": "Sonntag",
 			"weekStartsOnMonday": "Montag",
+			"weekStartsOnSaturday": "Samstag",
 			"defaultView": "Standardansicht",
 			"defaultViewDescription": "Wähle deine bevorzugte Aufgabenansicht",
 			"selectViewMode": "Ansicht auswählen",

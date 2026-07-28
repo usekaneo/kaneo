@@ -343,6 +343,7 @@
 			"selectFirstDayOfWeek": "Selecteer de eerste dag",
 			"weekStartsOnSunday": "Zondag",
 			"weekStartsOnMonday": "Maandag",
+			"weekStartsOnSaturday": "Zaterdag",
 			"defaultView": "Standaardweergave",
 			"defaultViewDescription": "Kies de weergavemodus voor taken",
 			"selectViewMode": "Selecteer een weergavemodus",

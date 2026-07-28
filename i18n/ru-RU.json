@@ -433,6 +433,7 @@
 			"selectFirstDayOfWeek": "Выберите первый день",
 			"weekStartsOnSunday": "Воскресенье",
 			"weekStartsOnMonday": "Понедельник",
+			"weekStartsOnSaturday": "Суббота",
 			"defaultView": "Вид по умолчанию",
 			"defaultViewDescription": "Выберите предпочтительный режим отображения задач",
 			"selectViewMode": "Выберите режим просмотра",

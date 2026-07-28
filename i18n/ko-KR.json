@@ -433,6 +433,7 @@
 			"selectFirstDayOfWeek": "첫 요일 선택",
 			"weekStartsOnSunday": "일요일",
 			"weekStartsOnMonday": "월요일",
+			"weekStartsOnSaturday": "토요일",
 			"defaultView": "기본 보기",
 			"defaultViewDescription": "선호하는 작업 보기 모드를 선택합니다",
 			"selectViewMode": "보기 모드 선택",
