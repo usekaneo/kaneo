@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNotNull } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -278,9 +278,8 @@ async function bulkUpdateTasks({
         .delete(labelTable)
         .where(
           and(
-            eq(labelTable.workspaceId, label.workspaceId),
+            eq(labelTable.workspaceId, workspaceId),
             eq(labelTable.name, label.name),
-            isNotNull(labelTable.taskId),
             inArray(labelTable.taskId, foundIds),
           ),
         )

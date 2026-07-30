@@ -81,13 +81,41 @@ async function verifyGithubInstallation({
     });
   }
 
-  const installationOctokit = await githubApp.getInstallationOctokit(
-    installation.id,
-  );
-  const { data: repo } = await installationOctokit.rest.repos.get({
-    owner: repositoryOwner,
-    repo: repositoryName,
-  });
+  let repo: {
+    id: number;
+    private: boolean;
+    owner: { id: number; login: string };
+  };
+  try {
+    const installationOctokit = await githubApp.getInstallationOctokit(
+      installation.id,
+    );
+    const { data } = await installationOctokit.rest.repos.get({
+      owner: repositoryOwner,
+      repo: repositoryName,
+    });
+    repo = data;
+  } catch (error) {
+    if (isGithubNotFound(error)) {
+      return {
+        isInstalled: true,
+        installationId: installation.id,
+        repositoryExists: false,
+        repositoryPrivate: null,
+        permissions: installation.permissions ?? null,
+        hasRequiredPermissions: false,
+        missingPermissions: [],
+        message:
+          "GitHub App is installed but the repository is no longer accessible",
+        settingsUrl: settingsUrlFor(installation.id),
+        installationUrl: appInstallUrl(),
+      };
+    }
+
+    throw new HTTPException(500, {
+      message: `Failed to verify GitHub installation: ${(error as Error).message || "Unknown error"}`,
+    });
+  }
 
   const requiredPermissions = ["issues"];
   const hasRequiredPermissions = checkPermissions(
@@ -98,6 +126,7 @@ async function verifyGithubInstallation({
     installation.permissions,
     requiredPermissions,
   );
+  const accountId = repo.owner.id;
 
   if (!hasRequiredPermissions) {
     return {
@@ -105,12 +134,12 @@ async function verifyGithubInstallation({
       installationId: installation.id,
       repositoryExists: true,
       repositoryPrivate: repo.private,
-      permissions: installation.permissions,
+      permissions: installation.permissions ?? null,
       hasRequiredPermissions: false,
       missingPermissions,
       message: `GitHub App is installed but missing required permissions: ${missingPermissions.join(", ")}`,
       settingsUrl: settingsUrlFor(installation.id),
-      installationUrl: newInstallUrl(repo.id),
+      installationUrl: newInstallUrl(accountId),
     };
   }
 
@@ -119,13 +148,13 @@ async function verifyGithubInstallation({
     installationId: installation.id,
     repositoryExists: true,
     repositoryPrivate: repo.private,
-    permissions: installation.permissions,
+    permissions: installation.permissions ?? null,
     hasRequiredPermissions: true,
     missingPermissions: [],
     message:
       "GitHub App is properly installed and has all required permissions",
     settingsUrl: settingsUrlFor(installation.id),
-    installationUrl: newInstallUrl(repo.id),
+    installationUrl: newInstallUrl(accountId),
   };
 }
 

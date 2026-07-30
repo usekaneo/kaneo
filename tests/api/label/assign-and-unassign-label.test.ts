@@ -18,6 +18,18 @@ const mockRemoveLabelFromGitea = vi.fn();
 const mockSyncLabelToGitHub = vi.fn();
 const mockSyncLabelToGitea = vi.fn();
 
+const mockTransaction = vi.fn(async (cb: (tx: unknown) => unknown) =>
+  cb({
+    insert: (...args: unknown[]) => mockInsert(...args),
+    delete: (...args: unknown[]) => mockDelete(...args),
+    query: {
+      labelTable: {
+        findFirst: (...args: unknown[]) => mockFindFirst(...args),
+      },
+    },
+  }),
+);
+
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     query: {
@@ -28,6 +40,7 @@ vi.mock("../../../apps/api/src/database", () => ({
     select: (...args: unknown[]) => mockSelect(...args),
     insert: (...args: unknown[]) => mockInsert(...args),
     delete: (...args: unknown[]) => mockDelete(...args),
+    transaction: (...args: unknown[]) => mockTransaction(...args),
   },
 }));
 
@@ -112,7 +125,18 @@ function makeInsertMock(insertedRow: unknown) {
 
 describe("unassignLabelFromTask", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+    mockTransaction.mockImplementation(async (cb: (tx: unknown) => unknown) =>
+      cb({
+        insert: (...args: unknown[]) => mockInsert(...args),
+        delete: (...args: unknown[]) => mockDelete(...args),
+        query: {
+          labelTable: {
+            findFirst: (...args: unknown[]) => mockFindFirst(...args),
+          },
+        },
+      }),
+    );
   });
 
   afterEach(() => {
@@ -164,7 +188,18 @@ describe("unassignLabelFromTask", () => {
 
 describe("assignLabelToTask", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+    mockTransaction.mockImplementation(async (cb: (tx: unknown) => unknown) =>
+      cb({
+        insert: (...args: unknown[]) => mockInsert(...args),
+        delete: (...args: unknown[]) => mockDelete(...args),
+        query: {
+          labelTable: {
+            findFirst: (...args: unknown[]) => mockFindFirst(...args),
+          },
+        },
+      }),
+    );
   });
 
   afterEach(() => {
@@ -248,5 +283,53 @@ describe("assignLabelToTask", () => {
         taskId: "task-1",
       }),
     );
+  });
+
+  it("is idempotent when the workspace label is re-attached to the same task", async () => {
+    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
+    mockSelect.mockReturnValue(makeSelectMock([TASK]));
+    const insertChain = makeInsertMock(undefined);
+    mockInsert.mockReturnValue(insertChain);
+    mockFindFirst.mockResolvedValueOnce(TASK_LABEL);
+
+    const result = await assignLabelToTask("label-ws-1", "task-1", "user-1");
+
+    expect(result).toEqual(TASK_LABEL);
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockSyncLabelToGitHub).not.toHaveBeenCalled();
+    expect(mockSyncLabelToGitea).not.toHaveBeenCalled();
+    expect(mockPublishEvent).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the existing task label when the workspace insert returns no row", async () => {
+    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
+    mockSelect.mockReturnValue(makeSelectMock([TASK]));
+    const insertChain = makeInsertMock(undefined);
+    mockInsert.mockReturnValue(insertChain);
+    mockFindFirst.mockResolvedValueOnce(TASK_LABEL);
+
+    await assignLabelToTask("label-ws-1", "task-1", "user-1");
+
+    expect(mockTransaction).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockFindFirst).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws HTTP 500 when the insert and fallback lookup both return no row", async () => {
+    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
+    mockSelect.mockReturnValue(makeSelectMock([TASK]));
+    const insertChain = makeInsertMock(undefined);
+    mockInsert.mockReturnValue(insertChain);
+    mockFindFirst.mockResolvedValueOnce(undefined);
+
+    await expect(
+      assignLabelToTask("label-ws-1", "task-1", "user-1"),
+    ).rejects.toMatchObject({
+      status: 500,
+    });
+
+    expect(mockSyncLabelToGitHub).not.toHaveBeenCalled();
+    expect(mockSyncLabelToGitea).not.toHaveBeenCalled();
+    expect(mockPublishEvent).not.toHaveBeenCalled();
   });
 });

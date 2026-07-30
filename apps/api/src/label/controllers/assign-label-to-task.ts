@@ -1,7 +1,12 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { labelTable, projectTable, taskTable } from "../../database/schema";
+import {
+  labelTable,
+  type labelTable as labelTableType,
+  projectTable,
+  taskTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import {
   removeLabelFromGitea,
@@ -11,6 +16,8 @@ import {
   removeLabelFromGitHub,
   syncLabelToGitHub,
 } from "../../plugins/github/utils/sync-label-to-github";
+
+type LabelRow = typeof labelTableType.$inferSelect;
 
 async function assignLabelToTask(id: string, taskId: string, userId: string) {
   const label = await db.query.labelTable.findFirst({
@@ -50,12 +57,52 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
     return label;
   }
 
-  if (label.taskId && label.taskId !== taskId) {
-    const previousTaskId = label.taskId;
-    const previousName = label.name;
+  const previousTaskId =
+    label.taskId && label.taskId !== taskId ? label.taskId : null;
+  const previousName = label.name;
 
-    await db.delete(labelTable).where(eq(labelTable.id, id));
+  type InsertionResult = { taskLabel: LabelRow; inserted: boolean };
+  const { taskLabel, inserted } = await db.transaction<InsertionResult>(
+    async (tx) => {
+      if (previousTaskId) {
+        await tx.delete(labelTable).where(eq(labelTable.id, id));
+      }
 
+      const [insertedRow] = await tx
+        .insert(labelTable)
+        .values({
+          name: label.name,
+          color: label.color,
+          taskId,
+          workspaceId: task.workspaceId,
+        })
+        .onConflictDoNothing({
+          target: [labelTable.taskId, labelTable.name],
+        })
+        .returning();
+
+      if (insertedRow) {
+        return { taskLabel: insertedRow, inserted: true };
+      }
+
+      const existing = await tx.query.labelTable.findFirst({
+        where: and(
+          eq(labelTable.taskId, taskId),
+          eq(labelTable.name, label.name),
+        ),
+      });
+
+      if (!existing) {
+        throw new HTTPException(500, {
+          message: "Failed to attach label to task",
+        });
+      }
+
+      return { taskLabel: existing, inserted: false };
+    },
+  );
+
+  if (previousTaskId) {
     removeLabelFromGitHub(previousTaskId, previousName).catch((error) => {
       console.error("Failed to remove label from GitHub:", error);
     });
@@ -64,32 +111,8 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
     });
   }
 
-  const [inserted] = await db
-    .insert(labelTable)
-    .values({
-      name: label.name,
-      color: label.color,
-      taskId,
-      workspaceId: task.workspaceId,
-    })
-    .onConflictDoNothing({
-      target: [labelTable.taskId, labelTable.name],
-    })
-    .returning();
-
-  const taskLabel =
-    inserted ??
-    (await db.query.labelTable.findFirst({
-      where: and(
-        eq(labelTable.taskId, taskId),
-        eq(labelTable.name, label.name),
-      ),
-    }));
-
-  if (!taskLabel) {
-    throw new HTTPException(500, {
-      message: "Failed to attach label to task",
-    });
+  if (!inserted) {
+    return taskLabel;
   }
 
   syncLabelToGitHub(taskId, taskLabel.name, taskLabel.color).catch((error) => {

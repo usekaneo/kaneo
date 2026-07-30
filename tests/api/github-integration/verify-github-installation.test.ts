@@ -81,7 +81,7 @@ describe("verifyGithubInstallation", () => {
     });
     mockGetInstallationOctokit.mockResolvedValue(makeInstallationOctokit());
     mockReposGet.mockResolvedValue({
-      data: { id: 99, private: false },
+      data: { id: 99, private: false, owner: { id: 555, login: "usekaneo" } },
     });
 
     const result = await verifyGithubInstallation({
@@ -101,7 +101,7 @@ describe("verifyGithubInstallation", () => {
         "GitHub App is properly installed and has all required permissions",
       settingsUrl: "https://github.com/settings/installations/4242",
       installationUrl:
-        "https://github.com/apps/kaneo-app/installations/new/permissions?target_id=99",
+        "https://github.com/apps/kaneo-app/installations/new/permissions?target_id=555",
     });
 
     expect(mockGetRepoInstallation).toHaveBeenCalledWith({
@@ -125,7 +125,7 @@ describe("verifyGithubInstallation", () => {
     });
     mockGetInstallationOctokit.mockResolvedValue(makeInstallationOctokit());
     mockReposGet.mockResolvedValue({
-      data: { id: 12, private: true },
+      data: { id: 12, private: true, owner: { id: 888, login: "usekaneo" } },
     });
 
     const result = await verifyGithubInstallation({
@@ -142,7 +142,7 @@ describe("verifyGithubInstallation", () => {
     expect(result.settingsUrl).toBe(
       "https://github.com/settings/installations/7777",
     );
-    expect(result.installationUrl).toContain("target_id=12");
+    expect(result.installationUrl).toContain("target_id=888");
   });
 
   it("returns a deterministic negative result when getRepoInstallation responds with 404", async () => {
@@ -200,6 +200,74 @@ describe("verifyGithubInstallation", () => {
     });
   });
 
+  it("wraps getInstallationOctokit failures as HTTP 500", async () => {
+    mockGetRepoInstallation.mockResolvedValue({
+      data: { id: 4242, permissions: { issues: "write" } },
+    });
+    mockGetInstallationOctokit.mockRejectedValue(
+      Object.assign(new Error("token exchange failed"), { status: 500 }),
+    );
+
+    await expect(
+      verifyGithubInstallation({
+        repositoryOwner: "usekaneo",
+        repositoryName: "kaneo",
+      }),
+    ).rejects.toMatchObject({
+      status: 500,
+    });
+
+    expect(mockReposGet).not.toHaveBeenCalled();
+  });
+
+  it("returns a deterministic negative result when repos.get responds with 404", async () => {
+    mockGetRepoInstallation.mockResolvedValue({
+      data: { id: 4242, permissions: { issues: "write" } },
+    });
+    mockGetInstallationOctokit.mockResolvedValue(makeInstallationOctokit());
+    mockReposGet.mockRejectedValue(
+      Object.assign(new Error("Not Found"), { status: 404 }),
+    );
+
+    const result = await verifyGithubInstallation({
+      repositoryOwner: "usekaneo",
+      repositoryName: "kaneo",
+    });
+
+    expect(result).toEqual({
+      isInstalled: true,
+      installationId: 4242,
+      repositoryExists: false,
+      repositoryPrivate: null,
+      permissions: { issues: "write" },
+      hasRequiredPermissions: false,
+      missingPermissions: [],
+      message:
+        "GitHub App is installed but the repository is no longer accessible",
+      settingsUrl: "https://github.com/settings/installations/4242",
+      installationUrl: "https://github.com/apps/kaneo-app",
+    });
+  });
+
+  it("wraps repos.get failures as HTTP 500 when the status is not 404", async () => {
+    mockGetRepoInstallation.mockResolvedValue({
+      data: { id: 4242, permissions: { issues: "write" } },
+    });
+    mockGetInstallationOctokit.mockResolvedValue(makeInstallationOctokit());
+    mockReposGet.mockRejectedValue(
+      Object.assign(new Error("Server Error"), { status: 500 }),
+    );
+
+    await expect(
+      verifyGithubInstallation({
+        repositoryOwner: "usekaneo",
+        repositoryName: "kaneo",
+      }),
+    ).rejects.toMatchObject({
+      status: 500,
+    });
+  });
+
   it("omits install URLs when GITHUB_APP_NAME is not configured and installation is missing", async () => {
     delete process.env.GITHUB_APP_NAME;
     const error = Object.assign(new Error("Not Found"), { status: 404 });
@@ -214,6 +282,24 @@ describe("verifyGithubInstallation", () => {
     expect(result.installationUrl).toBeUndefined();
     expect(result.settingsUrl).toBeUndefined();
     expect(result.message).toContain("not installed");
+  });
+
+  it("normalizes a missing installation.permissions to null on the success path", async () => {
+    mockGetRepoInstallation.mockResolvedValue({
+      data: { id: 4242, permissions: undefined },
+    });
+    mockGetInstallationOctokit.mockResolvedValue(makeInstallationOctokit());
+    mockReposGet.mockResolvedValue({
+      data: { id: 99, private: false, owner: { id: 555, login: "usekaneo" } },
+    });
+
+    const result = await verifyGithubInstallation({
+      repositoryOwner: "usekaneo",
+      repositoryName: "kaneo",
+    });
+
+    expect(result.permissions).toBeNull();
+    expect(result.hasRequiredPermissions).toBe(false);
   });
 
   it("matches the OpenAPI verification result schema for every returned shape", async () => {
@@ -242,7 +328,9 @@ describe("verifyGithubInstallation", () => {
       },
     });
     mockGetInstallationOctokit.mockResolvedValue(makeInstallationOctokit());
-    mockReposGet.mockResolvedValue({ data: { id: 2, private: false } });
+    mockReposGet.mockResolvedValue({
+      data: { id: 2, private: false, owner: { id: 100, login: "usekaneo" } },
+    });
     scenarios.push({
       name: "happy path",
       mock: () =>
@@ -259,7 +347,9 @@ describe("verifyGithubInstallation", () => {
       },
     });
     mockGetInstallationOctokit.mockResolvedValue(makeInstallationOctokit());
-    mockReposGet.mockResolvedValue({ data: { id: 3, private: true } });
+    mockReposGet.mockResolvedValue({
+      data: { id: 3, private: true, owner: { id: 200, login: "usekaneo" } },
+    });
     scenarios.push({
       name: "missing permissions",
       mock: () =>
@@ -274,6 +364,22 @@ describe("verifyGithubInstallation", () => {
     );
     scenarios.push({
       name: "missing installation",
+      mock: () =>
+        verifyGithubInstallation({
+          repositoryOwner: "usekaneo",
+          repositoryName: "kaneo",
+        }),
+    });
+
+    mockGetRepoInstallation.mockResolvedValue({
+      data: { id: 4, permissions: { issues: "write" } },
+    });
+    mockGetInstallationOctokit.mockResolvedValue(makeInstallationOctokit());
+    mockReposGet.mockRejectedValueOnce(
+      Object.assign(new Error("Not Found"), { status: 404 }),
+    );
+    scenarios.push({
+      name: "installed but repo inaccessible",
       mock: () =>
         verifyGithubInstallation({
           repositoryOwner: "usekaneo",
