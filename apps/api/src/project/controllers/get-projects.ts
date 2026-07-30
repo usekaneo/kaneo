@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, isNull, min, sql } from "drizzle-orm";
+import { and, count, eq, isNull, min, sql } from "drizzle-orm";
 import db from "../../database";
 import { projectTable, taskTable } from "../../database/schema";
 
@@ -14,17 +14,18 @@ const EMPTY_STATISTICS: ProjectStatistics = {
   dueDate: null,
 };
 
-async function getProjectStatistics(projectIds: string[]) {
+async function getProjectStatistics(
+  workspaceId: string,
+  includeArchived: boolean,
+) {
   const statisticsByProject = new Map<string, ProjectStatistics>();
-
-  if (projectIds.length === 0) {
-    return statisticsByProject;
-  }
 
   // Aggregate in the database instead of loading every task row into memory.
   // This endpoint needs three numbers per project; the previous
   // `with: { tasks: true }` made both the query and the response grow linearly
-  // with the number of tasks in the workspace.
+  // with the number of tasks in the workspace. Scoping by workspaceId through
+  // a join (rather than an `IN (...projectIds)` list) keeps the statement size
+  // constant regardless of how many projects the workspace has.
   const rows = await db
     .select({
       projectId: taskTable.projectId,
@@ -35,7 +36,15 @@ async function getProjectStatistics(projectIds: string[]) {
       dueDate: min(taskTable.dueDate),
     })
     .from(taskTable)
-    .where(inArray(taskTable.projectId, projectIds))
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(
+      includeArchived
+        ? eq(projectTable.workspaceId, workspaceId)
+        : and(
+            eq(projectTable.workspaceId, workspaceId),
+            isNull(projectTable.archivedAt),
+          ),
+    )
     .groupBy(taskTable.projectId);
 
   for (const row of rows) {
@@ -64,7 +73,8 @@ async function getProjects(workspaceId: string, includeArchived = false) {
   });
 
   const statisticsByProject = await getProjectStatistics(
-    projects.map((project) => project.id),
+    workspaceId,
+    includeArchived,
   );
 
   return projects.map((project) => ({
