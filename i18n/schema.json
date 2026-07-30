@@ -5505,6 +5505,9 @@
 										"markdown": {
 											"type": "string"
 										},
+										"mermaid": {
+											"type": "string"
+										},
 										"plaintext": {
 											"type": "string"
 										},
@@ -5539,6 +5542,7 @@
 										"java",
 										"javascript",
 										"markdown",
+										"mermaid",
 										"plaintext",
 										"python",
 										"rust",
@@ -5976,6 +5980,9 @@
 										"markdown": {
 											"type": "string"
 										},
+										"mermaid": {
+											"type": "string"
+										},
 										"ocaml": {
 											"type": "string"
 										},
@@ -6046,6 +6053,7 @@
 										"kotlin",
 										"makefile",
 										"markdown",
+										"mermaid",
 										"ocaml",
 										"php",
 										"perl",

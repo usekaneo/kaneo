@@ -72,6 +72,7 @@ import { uploadTaskImage } from "@/lib/upload-task-image";
 import { AttachmentCard } from "./extensions/attachment-card";
 import { EmbedBlock } from "./extensions/embed-block";
 import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
+import { MermaidBlock } from "./extensions/mermaid-block";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -147,6 +148,7 @@ const CODE_LANGUAGE_OPTIONS = [
   { value: "kotlin", label: "Kotlin" },
   { value: "makefile", label: "Makefile" },
   { value: "markdown", label: "Markdown" },
+  { value: "mermaid", label: "Mermaid" },
   { value: "ocaml", label: "OCaml" },
   { value: "php", label: "PHP" },
   { value: "perl", label: "Perl" },
@@ -573,6 +575,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           themeDark: "github-dark",
           themeLight: "github-light",
         }),
+        MermaidBlock,
         EmbedBlock,
         AttachmentCard,
         KaneoIssueLink,
