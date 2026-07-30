@@ -1,3 +1,9 @@
+# [2.12.0](https://github.com/usekaneo/kaneo/compare/v2.11.0...v2.12.0) (2026-07-30)
+
+
+### Features
+
+* deep-link pricing CTAs through signup to checkout ([b2ba8e4](https://github.com/usekaneo/kaneo/commit/b2ba8e467f286e33ef074c7a2f50c6c6fef361bf))
 # [2.11.0](https://github.com/usekaneo/kaneo/compare/v2.10.0...v2.11.0) (2026-07-30)
 
 
