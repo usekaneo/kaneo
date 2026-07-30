@@ -1440,6 +1440,9 @@
 						"onlyYoutube": "Nur YouTube-Links können eingebettet werden."
 					},
 					"onlyYoutubeInline": "Nur YouTube-URLs können eingebettet werden. Verwende stattdessen den Link-Modus."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid-Diagramm konnte nicht gerendert werden"
 				}
 			}
 		},

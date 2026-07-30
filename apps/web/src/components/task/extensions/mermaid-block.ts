@@ -3,7 +3,10 @@ import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import type { EditorState, Transaction } from "@tiptap/pm/state";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
+import DOMPurify from "dompurify";
 import debounce from "@/lib/debounce";
+import { i18n } from "@/lib/i18n";
+import { toast } from "@/lib/toast";
 import { isDarkTheme, SHIKI_CODEBLOCK_REFRESH_META } from "./shiki-code-block";
 
 const MERMAID_LANGUAGE = "mermaid";
@@ -17,9 +20,16 @@ type RenderState =
   | { status: "error"; message: string };
 
 type Scheduler = {
-  want: (cacheKey: string, code: string, dark: boolean) => void;
+  want: (
+    cacheKey: string,
+    code: string,
+    dark: boolean,
+    explicit: boolean,
+  ) => void;
   reset: () => void;
   flush: () => void;
+  cancel: () => void;
+  destroy: () => void;
 };
 
 const MERMAID_OPENERS =
@@ -30,8 +40,12 @@ let mermaidIdCounter = 0;
 let initializedTheme: "dark" | "default" | null = null;
 
 function isMermaid(code: string) {
-  const firstLine = code.split("\n", 1)[0].trim();
-  return MERMAID_OPENERS.test(firstLine);
+  const opener = code
+    .split("\n")
+    .map((line) => line.trim())
+    .find((line) => line.length > 0 && !line.startsWith("%%"));
+
+  return opener !== undefined && MERMAID_OPENERS.test(opener);
 }
 
 function cacheRender(cacheKey: string, state: RenderState) {
@@ -52,6 +66,8 @@ async function renderMermaid(code: string, dark: boolean) {
       securityLevel: "strict",
       theme,
       fontFamily: "inherit",
+      htmlLabels: false,
+      flowchart: { htmlLabels: false },
     });
     initializedTheme = theme;
   }
@@ -61,18 +77,27 @@ async function renderMermaid(code: string, dark: boolean) {
     `kaneo-mermaid-${mermaidIdCounter}`,
     code,
   );
-  return svg;
+
+  return DOMPurify.sanitize(svg, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+  });
 }
 
 function createScheduler(onSettled: () => void): Scheduler {
-  const wanted = new Map<string, { code: string; dark: boolean }>();
+  const wanted = new Map<
+    string,
+    { code: string; dark: boolean; explicit: boolean }
+  >();
+  let active = true;
 
   const flush = debounce(async () => {
+    if (!active) return;
+
     const batch = [...wanted].filter(([key]) => !renderCache.has(key));
     if (batch.length === 0) return;
 
     await Promise.all(
-      batch.map(async ([key, { code, dark }]) => {
+      batch.map(async ([key, { code, dark, explicit }]) => {
         renderCache.set(key, null);
         try {
           cacheRender(key, {
@@ -80,22 +105,33 @@ function createScheduler(onSettled: () => void): Scheduler {
             svg: await renderMermaid(code, dark),
           });
         } catch (error) {
-          cacheRender(key, {
-            status: "error",
-            message: error instanceof Error ? error.message : String(error),
-          });
+          const message =
+            error instanceof Error ? error.message : String(error);
+          cacheRender(key, { status: "error", message });
+          if (explicit && active) {
+            toast.error(i18n.t("tasks:detail.editor.mermaid.renderFailed"), {
+              description: message,
+            });
+          }
         }
       }),
     );
 
-    onSettled();
+    if (active) onSettled();
   }, RENDER_DEBOUNCE_MS);
 
   return {
-    want: (cacheKey, code, dark) => wanted.set(cacheKey, { code, dark }),
+    want: (cacheKey, code, dark, explicit) =>
+      wanted.set(cacheKey, { code, dark, explicit }),
     reset: () => wanted.clear(),
     flush: () => {
       if (wanted.size > 0) flush();
+    },
+    cancel: () => flush.cancel(),
+    destroy: () => {
+      active = false;
+      flush.cancel();
+      wanted.clear();
     },
   };
 }
@@ -105,14 +141,8 @@ function createPreviewElement(state: RenderState | null) {
   container.className = "kaneo-mermaid-preview";
   container.contentEditable = "false";
 
-  if (!state) {
+  if (!state || state.status === "error") {
     container.dataset.state = "loading";
-    return container;
-  }
-
-  if (state.status === "error") {
-    container.dataset.state = "error";
-    container.textContent = state.message;
     return container;
   }
 
@@ -142,8 +172,10 @@ function getDecorations(doc: ProseMirrorNode, scheduler: Scheduler) {
       const cacheKey = `${dark ? "dark" : "light"}:${code}`;
       const state = renderCache.get(cacheKey) ?? null;
 
-      if (state?.status === "error" && !explicit) return;
-      if (!renderCache.has(cacheKey)) scheduler.want(cacheKey, code, dark);
+      if (state?.status === "error") return;
+      if (!renderCache.has(cacheKey)) {
+        scheduler.want(cacheKey, code, dark, explicit);
+      }
 
       decorations.push(
         Decoration.widget(
@@ -172,6 +204,8 @@ export const MermaidBlock = Extension.create({
       view.dispatch(view.state.tr.setMeta(MERMAID_REFRESH_META, true));
     });
 
+    editor.once("destroy", () => scheduler.destroy());
+
     return [
       new Plugin({
         key: mermaidPluginKey,
@@ -190,6 +224,7 @@ export const MermaidBlock = Extension.create({
             return decorationSet.map(transaction.mapping, transaction.doc);
           },
         },
+        view: () => ({ destroy: () => scheduler.cancel() }),
         props: {
           decorations(state: EditorState) {
             return mermaidPluginKey.getState(state);

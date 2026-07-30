@@ -1184,6 +1184,9 @@
 						"onlyYoutube": "Alleen YouTube-links kunnen worden ingesloten."
 					},
 					"onlyYoutubeInline": "Alleen YouTube URL's kunnen worden ingesloten. Gebruik link-modus."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
 			}
 		},

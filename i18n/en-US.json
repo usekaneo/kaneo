@@ -1604,6 +1604,9 @@
 						"onlyYoutube": "Only YouTube links can be embedded."
 					},
 					"onlyYoutubeInline": "Only YouTube URLs can be embedded. Use link mode instead."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		},

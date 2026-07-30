@@ -6072,6 +6072,16 @@
 										"yaml"
 									]
 								},
+								"mermaid": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"renderFailed": {
+											"type": "string"
+										}
+									},
+									"required": ["renderFailed"]
+								},
 								"embed": {
 									"type": "object",
 									"additionalProperties": false,
@@ -6144,7 +6154,8 @@
 								"upload",
 								"slash",
 								"languages",
-								"embed"
+								"embed",
+								"mermaid"
 							]
 						}
 					},

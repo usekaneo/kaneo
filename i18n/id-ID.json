@@ -1543,6 +1543,9 @@
 						"onlyYoutube": "Hanya tautan YouTube yang dapat disematkan."
 					},
 					"onlyYoutubeInline": "Hanya URL YouTube yang dapat disematkan. Gunakan mode tautan."
+				},
+				"mermaid": {
+					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
 			}
 		},

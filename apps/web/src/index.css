@@ -697,14 +697,6 @@ input:-webkit-autofill:active {
     display: none;
   }
 
-  .kaneo-mermaid-preview[data-state="error"] {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    text-align: left;
-    white-space: pre-wrap;
-    color: var(--destructive);
-  }
-
   .kaneo-tiptap-content .ProseMirror blockquote {
     margin: 0.5rem 0;
     border-left: 2px solid var(--border);

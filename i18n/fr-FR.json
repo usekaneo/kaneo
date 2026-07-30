@@ -1406,6 +1406,9 @@
 						"onlyYoutube": "Seuls les liens YouTube peuvent être intégrés."
 					},
 					"onlyYoutubeInline": "Seuls les liens YouTube peuvent être intégrés. Utilisez le mode lien à la place."
+				},
+				"mermaid": {
+					"renderFailed": "Impossible d'afficher le diagramme Mermaid"
 				}
 			}
 		},

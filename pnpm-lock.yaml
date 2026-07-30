@@ -419,6 +419,9 @@ importers:
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
+      dompurify:
+        specifier: ^3.4.12
+        version: 3.4.12
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5

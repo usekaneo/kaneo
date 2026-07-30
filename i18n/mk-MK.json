@@ -1398,6 +1398,9 @@
 						"onlyYoutube": "Само YouTube линкови може да се вградат."
 					},
 					"onlyYoutubeInline": "Само YouTube URL може да се вградат. Користи режим на линк наместо тоа."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid дијаграмот не можеше да се прикаже"
 				}
 			}
 		},
