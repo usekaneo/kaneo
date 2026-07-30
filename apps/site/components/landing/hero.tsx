@@ -59,24 +59,13 @@ export function Hero() {
               <Button
                 variant="outline"
                 size="lg"
-                className="gap-2 border-[#da552f]/40 bg-[#da552f]/8 text-foreground hover:bg-[#da552f]/14"
-                render={
-                  <a
-                    href="https://www.producthunt.com/products/kaneo"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="View Kaneo on Product Hunt"
-                  >
-                    <img
-                      src="/images/product-hunt.svg"
-                      alt=""
-                      className="size-5"
-                      aria-hidden="true"
-                    />
-                    Product Hunt
-                  </a>
-                }
-              />
+                className="gap-2"
+                onClick={() => {
+                  window.location.href = "/pricing";
+                }}
+              >
+                Pricing
+              </Button>
             </div>
           </FadeIn>
         </div>

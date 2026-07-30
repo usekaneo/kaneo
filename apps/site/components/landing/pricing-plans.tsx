@@ -22,8 +22,8 @@ const plans: Plan[] = [
   {
     name: "Self-hosted",
     tagline: "Run it on your own servers",
-    monthly: { price: "€0", suffix: "forever", note: "MIT licensed" },
-    annual: { price: "€0", suffix: "forever", note: "MIT licensed" },
+    monthly: { price: "$0", suffix: "forever", note: "MIT licensed" },
+    annual: { price: "$0", suffix: "forever", note: "MIT licensed" },
     features: [
       "Unlimited users and projects",
       "Every feature, including SSO",
@@ -36,11 +36,11 @@ const plans: Plan[] = [
     name: "Cloud Personal",
     tagline: "Managed hosting for one",
     checkout: "personal",
-    monthly: { price: "€4", suffix: "/ month", note: "Billed monthly" },
+    monthly: { price: "$4", suffix: "/ month", note: "Billed monthly" },
     annual: {
-      price: "€40",
+      price: "$40",
       suffix: "/ year",
-      note: "€3.33 / month, billed yearly",
+      note: "$3.33 / month, billed yearly",
     },
     features: [
       "Single user",
@@ -54,11 +54,11 @@ const plans: Plan[] = [
     name: "Cloud Team",
     tagline: "Managed hosting for teams",
     checkout: "team",
-    monthly: { price: "€5", suffix: "/ user / month", note: "Billed monthly" },
+    monthly: { price: "$5", suffix: "/ user / month", note: "Billed monthly" },
     annual: {
-      price: "€50",
+      price: "$50",
       suffix: "/ user / year",
-      note: "€4.17 / user / month, billed yearly",
+      note: "$4.17 / user / month, billed yearly",
     },
     features: [
       "Unlimited team members",

@@ -36,11 +36,11 @@ const PLANS: {
     plan: "personal",
     name: "Personal",
     tagline: "For individuals",
-    monthly: { price: "€4", suffix: "/ month", note: "Billed monthly" },
+    monthly: { price: "$4", suffix: "/ month", note: "Billed monthly" },
     annual: {
-      price: "€40",
+      price: "$40",
       suffix: "/ year",
-      note: "€3.33 / month, billed yearly",
+      note: "$3.33 / month, billed yearly",
     },
     features: [
       "Single user",
@@ -53,11 +53,11 @@ const PLANS: {
     plan: "team",
     name: "Team",
     tagline: "For teams working together",
-    monthly: { price: "€5", suffix: "/ user / month", note: "Billed monthly" },
+    monthly: { price: "$5", suffix: "/ user / month", note: "Billed monthly" },
     annual: {
-      price: "€50",
+      price: "$50",
       suffix: "/ user / year",
-      note: "€4.17 / user / month, billed yearly",
+      note: "$4.17 / user / month, billed yearly",
     },
     features: [
       "Unlimited team members",
@@ -215,8 +215,8 @@ function RouteComponent() {
                   </div>
                   <p className="text-muted-foreground text-sm">
                     {billing.plan === "team"
-                      ? `€${billing.billingInterval === "annual" ? 50 : 5} / user / ${pricePer}`
-                      : `€${billing.billingInterval === "annual" ? 40 : 4} / ${pricePer}`}
+                      ? `$${billing.billingInterval === "annual" ? 50 : 5} / user / ${pricePer}`
+                      : `$${billing.billingInterval === "annual" ? 40 : 4} / ${pricePer}`}
                     {billing.seats > 1 ? ` · ${billing.seats} seats` : null}
                   </p>
                 </div>
@@ -392,7 +392,7 @@ function RouteComponent() {
 
             <p className="text-muted-foreground text-xs">
               {canManage
-                ? "Payments are securely processed by Creem. Prices exclude VAT where applicable."
+                ? "Payments are securely processed by Creem. Prices exclude tax where applicable."
                 : "Only workspace owners and admins can manage billing."}
             </p>
           </div>

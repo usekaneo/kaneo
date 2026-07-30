@@ -16,7 +16,7 @@ export const comparisons: Record<string, Comparison> = {
       { feature: "Learning curve", kaneo: "Minutes", them: "Steep" },
       {
         feature: "Cloud pricing",
-        kaneo: "From €4/mo",
+        kaneo: "From $4/mo",
         them: "Per user, higher",
       },
     ],
@@ -31,7 +31,7 @@ export const comparisons: Record<string, Comparison> = {
       },
       {
         title: "Fair, honest pricing",
-        body: "Free forever to self-host, including SSO. Managed cloud starts at €4/month with no per-feature paywalls.",
+        body: "Free forever to self-host, including SSO. Managed cloud starts at $4/month with no per-feature paywalls.",
       },
     ],
     honestNote:
@@ -50,7 +50,7 @@ export const comparisons: Record<string, Comparison> = {
       { feature: "Backlog & workflows", kaneo: true, them: "Power-Ups" },
       { feature: "Free to self-host", kaneo: true, them: false },
       { feature: "SSO included", kaneo: "Free", them: "Enterprise" },
-      { feature: "Cloud pricing", kaneo: "From €4/mo", them: "Per user" },
+      { feature: "Cloud pricing", kaneo: "From $4/mo", them: "Per user" },
     ],
     reasons: [
       {
@@ -81,7 +81,7 @@ export const comparisons: Record<string, Comparison> = {
       { feature: "Fast, focused UI", kaneo: true, them: true },
       { feature: "Free to self-host", kaneo: true, them: false },
       { feature: "SSO included", kaneo: "Free", them: "Paid plans" },
-      { feature: "Cloud pricing", kaneo: "From €4/mo", them: "Per user" },
+      { feature: "Cloud pricing", kaneo: "From $4/mo", them: "Per user" },
     ],
     reasons: [
       {
@@ -94,7 +94,7 @@ export const comparisons: Record<string, Comparison> = {
       },
       {
         title: "Honest pricing",
-        body: "Free forever to self-host with every feature, including SSO. Managed cloud from €4/month, with no seats-gated features.",
+        body: "Free forever to self-host with every feature, including SSO. Managed cloud from $4/month, with no seats-gated features.",
       },
     ],
     honestNote:
