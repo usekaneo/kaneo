@@ -1,3 +1,18 @@
+# [2.10.0](https://github.com/usekaneo/kaneo/compare/v2.9.10...v2.10.0) (2026-07-30)
+
+
+### Bug Fixes
+
+* add Saturday translations for all locales ([0f53ab9](https://github.com/usekaneo/kaneo/commit/0f53ab93e3855b507212eaf15ddaf44b93b2b6a6))
+* address week-start validation and i18n feedback ([6353097](https://github.com/usekaneo/kaneo/commit/63530974de8fcf345617909b6df0c2486f756102))
+* **i18n:** correct Greek Saturday translation ([c7bc126](https://github.com/usekaneo/kaneo/commit/c7bc126058f771315d1f7f325d01e95704bda752))
+
+
+### Features
+
+* add Saturday week-start option ([23327e3](https://github.com/usekaneo/kaneo/commit/23327e3803cb41cd3f3c5668e7e708f1759b95e5))
+* **billing:** add Kaneo Cloud subscriptions via Creem ([093995d](https://github.com/usekaneo/kaneo/commit/093995d09f5185c71ef143078a2d16acd52a9f4e))
+* **billing:** polish billing settings page UI ([eda0d05](https://github.com/usekaneo/kaneo/commit/eda0d055960e4785dc0a706c3310edfc64291cba))
 ## [2.9.10](https://github.com/usekaneo/kaneo/compare/v2.9.9...v2.9.10) (2026-07-28)
 
 
