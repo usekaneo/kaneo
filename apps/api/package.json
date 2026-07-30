@@ -46,6 +46,7 @@
     "@valibot/to-json-schema": "^1.7.1",
     "bcryptjs": "^3.0.2",
     "better-auth": "^1.6.9",
+    "creem": "^1.6.0",
     "croner": "^10.0.1",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",

@@ -246,6 +246,13 @@
 			"when": 1785240609705,
 			"tag": "0034_icy_cable",
 			"breakpoints": true
+		},
+		{
+			"idx": 35,
+			"version": "7",
+			"when": 1785258280966,
+			"tag": "0035_swift_captain_cross",
+			"breakpoints": true
 		}
 	]
 }

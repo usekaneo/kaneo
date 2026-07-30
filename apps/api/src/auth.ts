@@ -34,6 +34,7 @@ import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
 import { count, eq, sql } from "drizzle-orm";
+import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
@@ -383,6 +384,20 @@ export const auth = betterAuth({
             ownerEmail: user.name,
             ownerId: user.id,
           });
+        },
+        afterAddMember: async ({ member }) => {
+          if (member?.organizationId) {
+            void syncWorkspaceSeats(member.organizationId).catch((error) => {
+              console.error("Seat sync after member add failed:", error);
+            });
+          }
+        },
+        afterRemoveMember: async ({ member }) => {
+          if (member?.organizationId) {
+            void syncWorkspaceSeats(member.organizationId).catch((error) => {
+              console.error("Seat sync after member remove failed:", error);
+            });
+          }
         },
       },
       async sendInvitationEmail(data) {

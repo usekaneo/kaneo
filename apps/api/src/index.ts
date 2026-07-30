@@ -20,6 +20,7 @@ import {
 import * as v from "valibot";
 import activity from "./activity";
 import { auth } from "./auth";
+import billing from "./billing";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
@@ -523,7 +524,11 @@ export function createApp() {
 
   api.use("*", async (c, next) => {
     const path = c.req.path;
-    if (path.startsWith("/api/mcp") || path.startsWith("/api/.well-known/")) {
+    if (
+      path.startsWith("/api/mcp") ||
+      path.startsWith("/api/.well-known/") ||
+      path === "/api/billing/webhook"
+    ) {
       return next();
     }
     try {
@@ -545,6 +550,7 @@ export function createApp() {
 
   const oauthApi = api.route("/oauth", oauth);
 
+  const billingApi = api.route("/billing", billing);
   const projectApi = api.route("/project", project);
   const taskApi = api.route("/task", task);
   const columnApi = api.route("/column", column);
@@ -721,6 +727,7 @@ export function createApp() {
     api,
     injectWebSocket,
     activityApi,
+    billingApi,
     columnApi,
     commentApi,
     configApi,
@@ -837,6 +844,7 @@ const {
   app,
   injectWebSocket,
   activityApi,
+  billingApi,
   columnApi,
   commentApi,
   configApi,
@@ -872,6 +880,7 @@ if (isMainModule) {
 }
 
 export type AppType =
+  | typeof billingApi
   | typeof configApi
   | typeof projectApi
   | typeof taskApi
