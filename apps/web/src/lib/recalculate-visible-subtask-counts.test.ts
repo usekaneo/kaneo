@@ -74,7 +74,9 @@ describe("recalculateVisibleSubtaskCounts", () => {
     } as ProjectWithTasks;
 
     const result = recalculateVisibleSubtaskCounts(project);
-    const parent = result.columns[0]?.tasks.find((task) => task.id === "parent");
+    const parent = result.columns[0]?.tasks.find(
+      (task) => task.id === "parent",
+    );
 
     expect(parent?.directSubtaskCount).toBe(1);
     expect(parent?.completedSubtaskCount).toBe(0);
@@ -127,7 +129,9 @@ describe("recalculateVisibleSubtaskCounts", () => {
     } as ProjectWithTasks;
 
     const result = recalculateVisibleSubtaskCounts(project);
-    const parent = result.columns[0]?.tasks.find((task) => task.id === "parent");
+    const parent = result.columns[0]?.tasks.find(
+      (task) => task.id === "parent",
+    );
 
     expect(parent?.directSubtaskCount).toBe(1);
     expect(parent?.completedSubtaskCount).toBe(1);

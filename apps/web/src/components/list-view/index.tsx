@@ -46,11 +46,7 @@ type ListViewProps = {
   disableDragDrop?: boolean;
 };
 
-function ListView({
-  project,
-  sort,
-  disableDragDrop = false,
-}: ListViewProps) {
+function ListView({ project, sort, disableDragDrop = false }: ListViewProps) {
   const { t } = useTranslation();
   const { setProject } = useProjectStore();
   const { hierarchyMode } = useUserPreferencesStore();
@@ -131,8 +127,7 @@ function ListView({
   ]);
 
   useEffect(() => {
-    const previousFocusedId =
-      useBulkSelectionStore.getState().focusedTaskId;
+    const previousFocusedId = useBulkSelectionStore.getState().focusedTaskId;
 
     setAvailableTasks(visibleTaskIds);
 
@@ -141,8 +136,7 @@ function ListView({
     if (previousFocusedId && !visibleTaskIds.includes(previousFocusedId)) {
       navigate({
         to: ".",
-        search: (prev) =>
-          prev.taskId === previousFocusedId ? {} : prev,
+        search: (prev) => (prev.taskId === previousFocusedId ? {} : prev),
       });
     }
   }, [navigate, setAvailableTasks, visibleTaskIds]);

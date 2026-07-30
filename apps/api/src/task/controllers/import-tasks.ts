@@ -8,7 +8,7 @@ import {
   coerceStatus,
   getValidTaskStatuses,
 } from "../validate-task-fields";
-import getNextTaskNumber from "./get-next-task-number";
+import claimTaskNumbers from "./claim-task-numbers";
 
 export type ImportTask = {
   title: string;
@@ -35,7 +35,10 @@ async function importTasks(
     });
   }
 
-  let taskNumber = await getNextTaskNumber(projectId);
+  let taskNumber =
+    tasksToImport.length > 0
+      ? (await claimTaskNumbers(projectId, tasksToImport.length)) - 1
+      : 0;
   const validStatuses = await getValidTaskStatuses(projectId);
 
   const results = [];

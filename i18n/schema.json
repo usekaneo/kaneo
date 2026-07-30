@@ -1738,6 +1738,9 @@
 						"weekStartsOnMonday": {
 							"type": "string"
 						},
+						"weekStartsOnSaturday": {
+							"type": "string"
+						},
 						"defaultView": {
 							"type": "string"
 						},
@@ -1818,6 +1821,7 @@
 						"selectFirstDayOfWeek",
 						"weekStartsOnSunday",
 						"weekStartsOnMonday",
+						"weekStartsOnSaturday",
 						"defaultView",
 						"defaultViewDescription",
 						"selectViewMode",

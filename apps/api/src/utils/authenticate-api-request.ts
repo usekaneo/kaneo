@@ -1,13 +1,33 @@
+import { APIError } from "better-auth/api";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { verifyApiKey } from "./verify-api-key";
 
+function isAuthRejection(error: unknown) {
+  if (!(error instanceof APIError)) {
+    return false;
+  }
+  const status = typeof error.statusCode === "number" ? error.statusCode : 0;
+  return status >= 400 && status < 500;
+}
+
+async function getSession(headers: Headers) {
+  try {
+    return await auth.api.getSession({ headers });
+  } catch (error) {
+    if (isAuthRejection(error)) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 async function getSessionFromBearerOnlyHeaders(c: Context) {
   const headers = new Headers(c.req.raw.headers);
   headers.delete("cookie");
 
-  return auth.api.getSession({ headers });
+  return getSession(headers);
 }
 
 function parseBearerToken(authHeader: string | undefined): {
@@ -86,9 +106,7 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
     throw new HTTPException(401, { message: "Unauthorized" });
   }
 
-  const sessionResult = await auth.api.getSession({
-    headers: c.req.raw.headers,
-  });
+  const sessionResult = await getSession(c.req.raw.headers);
   c.set("user", sessionResult?.user ?? null);
   c.set("session", sessionResult?.session ?? null);
   c.set("userId", sessionResult?.user?.id ?? "");
@@ -135,9 +153,7 @@ export async function resolveAssetBearerOrCookie(c: Context): Promise<{
     throw new HTTPException(401, { message: "Unauthorized" });
   }
 
-  const sessionResult = await auth.api.getSession({
-    headers: c.req.raw.headers,
-  });
+  const sessionResult = await getSession(c.req.raw.headers);
   if (!sessionResult?.user) {
     throw new HTTPException(401, { message: "Unauthorized" });
   }

@@ -53,7 +53,9 @@ describe("getBoardVisibleSubtaskCounts", () => {
   });
 
   it("counts children whose status was loaded outside the paginated page", () => {
-    const childrenMap = new Map([["parent", ["child-on-page", "child-off-page"]]]);
+    const childrenMap = new Map([
+      ["parent", ["child-on-page", "child-off-page"]],
+    ]);
     const taskStatusMap = new Map([
       ["parent", "to-do"],
       ["child-on-page", "to-do"],

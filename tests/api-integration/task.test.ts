@@ -60,6 +60,10 @@ describe("API integration: task creation", () => {
       number: 1,
       position: 1,
     });
+    await db
+      .update(schema.projectTable)
+      .set({ lastTaskNumber: 1 })
+      .where(eq(schema.projectTable.id, project.id));
 
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
