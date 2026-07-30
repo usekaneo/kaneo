@@ -41,6 +41,24 @@ export function Footer() {
               >
                 Pricing
               </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/jira-alternative"
+              >
+                vs Jira
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/trello-alternative"
+              >
+                vs Trello
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/linear-alternative"
+              >
+                vs Linear
+              </a>
             </div>
 
             <div className="space-y-3 text-sm">
