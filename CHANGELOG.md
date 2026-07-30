@@ -1,3 +1,9 @@
+# [2.11.0](https://github.com/usekaneo/kaneo/compare/v2.10.0...v2.11.0) (2026-07-30)
+
+
+### Features
+
+* **web:** add dismissible trial nudge in sidebar ([e299f54](https://github.com/usekaneo/kaneo/commit/e299f543416ff774a3d29ae2764cc4a2f5803cb5))
 # [2.10.0](https://github.com/usekaneo/kaneo/compare/v2.9.10...v2.10.0) (2026-07-30)
 
 
