@@ -35,7 +35,7 @@ export const comparisons: Record<string, Comparison> = {
       },
     ],
     honestNote:
-      "If you're a large organization that needs deep enterprise workflows, advanced permission schemes, and a big marketplace of add-ons — and you have the time to configure it — Jira is built for exactly that. Kaneo is for teams who want to manage work, not administer a tool.",
+      "If you're a large organization that needs deep enterprise workflows, advanced permission schemes, and a big marketplace of add-ons, and you have the time to configure it, Jira is built for exactly that. Kaneo is for teams who want to manage work, not administer a tool.",
   },
   trello: {
     competitor: "Trello",
@@ -55,7 +55,7 @@ export const comparisons: Record<string, Comparison> = {
     reasons: [
       {
         title: "Just as simple",
-        body: "A clean board you can use in minutes — no manual, no onboarding wizard. Kaneo keeps the thing people love about Trello.",
+        body: "A clean board you can use in minutes, with no manual and no onboarding wizard. Kaneo keeps the thing people love about Trello.",
       },
       {
         title: "Room to grow",
@@ -86,7 +86,7 @@ export const comparisons: Record<string, Comparison> = {
     reasons: [
       {
         title: "Clean and focused",
-        body: "Kaneo is built around the same idea Linear popularized — a fast, uncluttered way to plan and execute — without the SaaS lock-in.",
+        body: "Kaneo is built around the same idea Linear popularized: a fast, uncluttered way to plan and execute, without the SaaS lock-in.",
       },
       {
         title: "Open and self-hostable",
@@ -94,7 +94,7 @@ export const comparisons: Record<string, Comparison> = {
       },
       {
         title: "Honest pricing",
-        body: "Free forever to self-host with every feature, including SSO. Managed cloud from €4/month — no seats-gated features.",
+        body: "Free forever to self-host with every feature, including SSO. Managed cloud from €4/month, with no seats-gated features.",
       },
     ],
     honestNote:
