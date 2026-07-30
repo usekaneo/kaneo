@@ -57,13 +57,43 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
     return label;
   }
 
-  const previousTaskId =
-    label.taskId && label.taskId !== taskId ? label.taskId : null;
-  const previousName = label.name;
+  type InsertionResult = {
+    taskLabel: LabelRow;
+    inserted: boolean;
+    previousTaskId: string | null;
+    previousName: string;
+  };
+  const { taskLabel, inserted, previousTaskId, previousName } =
+    await db.transaction<InsertionResult>(async (tx) => {
+      const currentLabel = await tx.query.labelTable.findFirst({
+        where: (label, { eq }) => eq(label.id, id),
+      });
 
-  type InsertionResult = { taskLabel: LabelRow; inserted: boolean };
-  const { taskLabel, inserted } = await db.transaction<InsertionResult>(
-    async (tx) => {
+      if (!currentLabel) {
+        throw new HTTPException(404, {
+          message: "Label not found",
+        });
+      }
+
+      if (
+        currentLabel.workspaceId &&
+        currentLabel.workspaceId !== task.workspaceId
+      ) {
+        throw new HTTPException(400, {
+          message: "Label and task must belong to the same workspace",
+        });
+      }
+
+      if (currentLabel.taskId === taskId) {
+        return {
+          taskLabel: currentLabel,
+          inserted: false,
+          previousTaskId: null,
+          previousName: currentLabel.name,
+        };
+      }
+
+      const previousTaskId = currentLabel.taskId;
       if (previousTaskId) {
         await tx.delete(labelTable).where(eq(labelTable.id, id));
       }
@@ -71,8 +101,8 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
       const [insertedRow] = await tx
         .insert(labelTable)
         .values({
-          name: label.name,
-          color: label.color,
+          name: currentLabel.name,
+          color: currentLabel.color,
           taskId,
           workspaceId: task.workspaceId,
         })
@@ -82,13 +112,18 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
         .returning();
 
       if (insertedRow) {
-        return { taskLabel: insertedRow, inserted: true };
+        return {
+          taskLabel: insertedRow,
+          inserted: true,
+          previousTaskId,
+          previousName: currentLabel.name,
+        };
       }
 
       const existing = await tx.query.labelTable.findFirst({
         where: and(
           eq(labelTable.taskId, taskId),
-          eq(labelTable.name, label.name),
+          eq(labelTable.name, currentLabel.name),
         ),
       });
 
@@ -98,9 +133,13 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
         });
       }
 
-      return { taskLabel: existing, inserted: false };
-    },
-  );
+      return {
+        taskLabel: existing,
+        inserted: false,
+        previousTaskId,
+        previousName: currentLabel.name,
+      };
+    });
 
   if (previousTaskId) {
     removeLabelFromGitHub(previousTaskId, previousName).catch((error) => {

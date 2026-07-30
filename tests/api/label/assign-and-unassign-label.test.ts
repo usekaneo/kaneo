@@ -18,8 +18,8 @@ const mockRemoveLabelFromGitea = vi.fn();
 const mockSyncLabelToGitHub = vi.fn();
 const mockSyncLabelToGitea = vi.fn();
 
-const mockTransaction = vi.fn(async (cb: (tx: unknown) => unknown) =>
-  cb({
+function createMockTxContext() {
+  return {
     insert: (...args: unknown[]) => mockInsert(...args),
     delete: (...args: unknown[]) => mockDelete(...args),
     query: {
@@ -27,7 +27,11 @@ const mockTransaction = vi.fn(async (cb: (tx: unknown) => unknown) =>
         findFirst: (...args: unknown[]) => mockFindFirst(...args),
       },
     },
-  }),
+  };
+}
+
+const mockTransaction = vi.fn(async (cb: (tx: unknown) => unknown) =>
+  cb(createMockTxContext()),
 );
 
 vi.mock("../../../apps/api/src/database", () => ({
@@ -127,15 +131,7 @@ describe("unassignLabelFromTask", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockTransaction.mockImplementation(async (cb: (tx: unknown) => unknown) =>
-      cb({
-        insert: (...args: unknown[]) => mockInsert(...args),
-        delete: (...args: unknown[]) => mockDelete(...args),
-        query: {
-          labelTable: {
-            findFirst: (...args: unknown[]) => mockFindFirst(...args),
-          },
-        },
-      }),
+      cb(createMockTxContext()),
     );
   });
 
@@ -190,15 +186,7 @@ describe("assignLabelToTask", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockTransaction.mockImplementation(async (cb: (tx: unknown) => unknown) =>
-      cb({
-        insert: (...args: unknown[]) => mockInsert(...args),
-        delete: (...args: unknown[]) => mockDelete(...args),
-        query: {
-          labelTable: {
-            findFirst: (...args: unknown[]) => mockFindFirst(...args),
-          },
-        },
-      }),
+      cb(createMockTxContext()),
     );
   });
 
@@ -207,7 +195,7 @@ describe("assignLabelToTask", () => {
   });
 
   it("creates a task-level copy without mutating the workspace definition", async () => {
-    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
+    mockFindFirst.mockResolvedValue(WORKSPACE_LABEL);
     mockSelect.mockReturnValue(makeSelectMock([TASK]));
     const insertedCopy = { ...TASK_LABEL, id: "label-task-2" };
     const insertChain = makeInsertMock(insertedCopy);
@@ -257,7 +245,7 @@ describe("assignLabelToTask", () => {
 
   it("removes the stale task copy when moving the label to a different task", async () => {
     const stale = { ...TASK_LABEL, taskId: "task-old" };
-    mockFindFirst.mockResolvedValueOnce(stale);
+    mockFindFirst.mockResolvedValue(stale);
     mockSelect.mockReturnValue(makeSelectMock([TASK]));
     mockDelete.mockReturnValue(makeDeleteMock(stale));
     const insertedCopy = { ...TASK_LABEL, id: "label-task-2" };
@@ -290,6 +278,7 @@ describe("assignLabelToTask", () => {
     mockSelect.mockReturnValue(makeSelectMock([TASK]));
     const insertChain = makeInsertMock(undefined);
     mockInsert.mockReturnValue(insertChain);
+    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
     mockFindFirst.mockResolvedValueOnce(TASK_LABEL);
 
     const result = await assignLabelToTask("label-ws-1", "task-1", "user-1");
@@ -306,13 +295,14 @@ describe("assignLabelToTask", () => {
     mockSelect.mockReturnValue(makeSelectMock([TASK]));
     const insertChain = makeInsertMock(undefined);
     mockInsert.mockReturnValue(insertChain);
+    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
     mockFindFirst.mockResolvedValueOnce(TASK_LABEL);
 
     await assignLabelToTask("label-ws-1", "task-1", "user-1");
 
     expect(mockTransaction).toHaveBeenCalledTimes(1);
     expect(mockInsert).toHaveBeenCalledTimes(1);
-    expect(mockFindFirst).toHaveBeenCalledTimes(2);
+    expect(mockFindFirst).toHaveBeenCalledTimes(3);
   });
 
   it("throws HTTP 500 when the insert and fallback lookup both return no row", async () => {
@@ -320,6 +310,7 @@ describe("assignLabelToTask", () => {
     mockSelect.mockReturnValue(makeSelectMock([TASK]));
     const insertChain = makeInsertMock(undefined);
     mockInsert.mockReturnValue(insertChain);
+    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
     mockFindFirst.mockResolvedValueOnce(undefined);
 
     await expect(
@@ -331,5 +322,20 @@ describe("assignLabelToTask", () => {
     expect(mockSyncLabelToGitHub).not.toHaveBeenCalled();
     expect(mockSyncLabelToGitea).not.toHaveBeenCalled();
     expect(mockPublishEvent).not.toHaveBeenCalled();
+  });
+
+  it("throws HTTP 404 when the label is removed before the transaction begins", async () => {
+    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
+    mockFindFirst.mockResolvedValueOnce(undefined);
+    mockSelect.mockReturnValue(makeSelectMock([TASK]));
+
+    await expect(
+      assignLabelToTask("label-ws-1", "task-1", "user-1"),
+    ).rejects.toMatchObject({
+      status: 404,
+    });
+
+    expect(mockDelete).not.toHaveBeenCalled();
+    expect(mockInsert).not.toHaveBeenCalled();
   });
 });
