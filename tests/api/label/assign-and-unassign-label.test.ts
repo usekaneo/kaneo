@@ -296,7 +296,7 @@ describe("assignLabelToTask", () => {
     const insertChain = makeInsertMock(undefined);
     mockInsert.mockReturnValue(insertChain);
     mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
-    mockFindFirst.mockResolvedValueOnce(TASK_LABEL);
+    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
 
     await assignLabelToTask("label-ws-1", "task-1", "user-1");
 
