@@ -170,7 +170,7 @@
 	},
 	"integrations": {
 		"plausible": {
-			"domain": "kaneo.app/docs",
+			"domain": "kaneo.app",
 			"server": "plausible.kaneo.app"
 		}
 	}

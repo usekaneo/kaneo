@@ -1,3 +1,28 @@
+## [2.9.10](https://github.com/usekaneo/kaneo/compare/v2.9.9...v2.9.10) (2026-07-28)
+
+
+### Bug Fixes
+
+* **api:** allocate task numbers atomically via per-project counter ([a2e5132](https://github.com/usekaneo/kaneo/commit/a2e51329d9ba53ea1a524a13018fdaf464811e7b))
+* **api:** return 401 instead of 500 for invalid API keys ([bf7cb38](https://github.com/usekaneo/kaneo/commit/bf7cb38656533b88685513acfbcc531b026a87da))
+
+
+### Features
+
+* **site:** add pricing, privacy policy, and terms pages ([cbe93a0](https://github.com/usekaneo/kaneo/commit/cbe93a0755b6a4d04e2a532ac080c041badc13ae))
+## [2.9.9](https://github.com/usekaneo/kaneo/compare/v2.9.8...v2.9.9) (2026-07-27)
+
+
+### Bug Fixes
+
+* **mcp:** emit type declarations for the package exports entry ([09a1367](https://github.com/usekaneo/kaneo/commit/09a1367094f36bfb687258ed294e830b0f67f0c5))
+
+
+### Features
+
+* **api:** add optional Sentry error tracking via SENTRY_DSN ([47fd67f](https://github.com/usekaneo/kaneo/commit/47fd67fcd0ed92bf7bf835cf99bc0148a00e6719))
+* **site:** add homepage sponsors section with public sponsor sync ([6c8fb8f](https://github.com/usekaneo/kaneo/commit/6c8fb8f5d71664ca2fb4e401ef309f610fd5773a))
+* **site:** make founding sponsorship a badge for all early backers ([91829ab](https://github.com/usekaneo/kaneo/commit/91829ab6ef86b0726a8fc35ff7881c44674848be))
 ## [2.9.8](https://github.com/usekaneo/kaneo/compare/v2.9.7...v2.9.8) (2026-07-19)
 
 

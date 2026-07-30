@@ -8,7 +8,7 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
-import getNextTaskNumber from "./get-next-task-number";
+import { claimTaskNumber } from "./claim-task-numbers";
 
 type DbOrTx = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -133,7 +133,7 @@ async function moveTask({
 
   const movedTask = await db.transaction(async (tx) => {
     const [nextTaskNumber, nextPosition] = await Promise.all([
-      getNextTaskNumber(destinationProjectId, tx),
+      claimTaskNumber(destinationProjectId, tx),
       getNextTaskPosition(
         tx,
         destinationProjectId,
@@ -148,7 +148,7 @@ async function moveTask({
         projectId: destinationProjectId,
         status: resolvedColumn.slug,
         columnId: resolvedColumn.id,
-        number: nextTaskNumber + 1,
+        number: nextTaskNumber,
         position: nextPosition,
       })
       .where(eq(taskTable.id, taskId))

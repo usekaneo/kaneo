@@ -248,6 +248,7 @@ export const projectTable = pgTable(
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     isPublic: boolean("is_public").default(false),
     archivedAt: timestamp("archived_at", { mode: "date" }),
+    lastTaskNumber: integer("last_task_number").notNull().default(0),
   },
   (table) => [
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
