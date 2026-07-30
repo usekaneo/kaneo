@@ -1,8 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
-import { createApp } from "../../apps/api/src/index";
 import { subscribeToEvent } from "../../apps/api/src/events";
+import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -60,7 +60,11 @@ describe("API integration: label detach/attach", () => {
     const { project } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
-    const [task] = await seedTask(member.user.id, member.workspace.id, project.id);
+    const [task] = await seedTask(
+      member.user.id,
+      member.workspace.id,
+      project.id,
+    );
 
     const [workspaceLabel] = await db
       .insert(schema.labelTable)
@@ -95,7 +99,11 @@ describe("API integration: label detach/attach", () => {
     const { project } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
-    const [task] = await seedTask(member.user.id, member.workspace.id, project.id);
+    const [task] = await seedTask(
+      member.user.id,
+      member.workspace.id,
+      project.id,
+    );
 
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
@@ -145,7 +153,11 @@ describe("API integration: label detach/attach", () => {
     const { project } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
-    const [task] = await seedTask(member.user.id, member.workspace.id, project.id);
+    const [task] = await seedTask(
+      member.user.id,
+      member.workspace.id,
+      project.id,
+    );
 
     const [label] = await db
       .insert(schema.labelTable)
@@ -189,7 +201,11 @@ describe("API integration: label detach/attach", () => {
     const { project } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
-    const [task] = await seedTask(member.user.id, member.workspace.id, project.id);
+    const [task] = await seedTask(
+      member.user.id,
+      member.workspace.id,
+      project.id,
+    );
 
     const [workspaceLabel] = await db
       .insert(schema.labelTable)
@@ -214,10 +230,9 @@ describe("API integration: label detach/attach", () => {
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
 
-    const detachResponse = await app.request(
-      `/api/label/${taskCopy.id}/task`,
-      { method: "DELETE" },
-    );
+    const detachResponse = await app.request(`/api/label/${taskCopy.id}/task`, {
+      method: "DELETE",
+    });
     expect(detachResponse.status).toBe(200);
 
     const remaining = await db.query.labelTable.findMany({
@@ -233,7 +248,11 @@ describe("API integration: label detach/attach", () => {
     const { project } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
-    const [task] = await seedTask(member.user.id, member.workspace.id, project.id);
+    const [task] = await seedTask(
+      member.user.id,
+      member.workspace.id,
+      project.id,
+    );
 
     const [workspaceLabel] = await db
       .insert(schema.labelTable)
@@ -258,10 +277,9 @@ describe("API integration: label detach/attach", () => {
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
 
-    const detachResponse = await app.request(
-      `/api/label/${taskCopy.id}/task`,
-      { method: "DELETE" },
-    );
+    const detachResponse = await app.request(`/api/label/${taskCopy.id}/task`, {
+      method: "DELETE",
+    });
     expect(detachResponse.status).toBe(200);
 
     const workspaceRows = await db.query.labelTable.findMany({
@@ -275,14 +293,12 @@ describe("API integration: label detach/attach", () => {
     expect(workspaceDefinitions[0].id).toBe(workspaceLabel.id);
 
     await expect(
-      db
-        .insert(schema.labelTable)
-        .values({
-          name: "Bug",
-          color: "#ef4444",
-          workspaceId: member.workspace.id,
-          taskId: task.id,
-        }),
+      db.insert(schema.labelTable).values({
+        name: "Bug",
+        color: "#ef4444",
+        workspaceId: member.workspace.id,
+        taskId: task.id,
+      }),
     ).resolves.toBeDefined();
   });
 
@@ -291,7 +307,11 @@ describe("API integration: label detach/attach", () => {
     const { project } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
-    const [task] = await seedTask(member.user.id, member.workspace.id, project.id);
+    const [task] = await seedTask(
+      member.user.id,
+      member.workspace.id,
+      project.id,
+    );
 
     const [label] = await db
       .insert(schema.labelTable)

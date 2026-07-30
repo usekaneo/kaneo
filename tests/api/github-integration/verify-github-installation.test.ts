@@ -1,12 +1,5 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
 import * as v from "valibot";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockGetRepoInstallation = vi.fn();
 const mockReposGet = vi.fn();

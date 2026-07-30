@@ -53,8 +53,8 @@ vi.mock(
   }),
 );
 
-import unassignLabelFromTask from "../../../apps/api/src/label/controllers/unassign-label-from-task";
 import assignLabelToTask from "../../../apps/api/src/label/controllers/assign-label-to-task";
+import unassignLabelFromTask from "../../../apps/api/src/label/controllers/unassign-label-from-task";
 
 const WORKSPACE_LABEL = {
   id: "label-ws-1",
@@ -152,11 +152,11 @@ describe("unassignLabelFromTask", () => {
   it("rejects when the label is a workspace definition (taskId is null)", async () => {
     mockFindFirst.mockResolvedValue(WORKSPACE_LABEL);
 
-    await expect(unassignLabelFromTask("label-ws-1", "user-1")).rejects.toMatchObject(
-      {
-        status: 400,
-      },
-    );
+    await expect(
+      unassignLabelFromTask("label-ws-1", "user-1"),
+    ).rejects.toMatchObject({
+      status: 400,
+    });
     expect(mockDelete).not.toHaveBeenCalled();
     expect(mockPublishEvent).not.toHaveBeenCalled();
   });
