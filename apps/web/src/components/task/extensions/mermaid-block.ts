@@ -11,6 +11,7 @@ import { isDarkTheme, SHIKI_CODEBLOCK_REFRESH_META } from "./shiki-code-block";
 
 const MERMAID_LANGUAGE = "mermaid";
 const MERMAID_REFRESH_META = "mermaid-refresh";
+const DEFAULT_ERROR_KEY = "tasks:detail.editor.mermaid.renderFailed";
 const RENDER_DEBOUNCE_MS = 250;
 const RENDER_CACHE_LIMIT = 20;
 const mermaidPluginKey = new PluginKey("mermaid-block");
@@ -18,6 +19,10 @@ const mermaidPluginKey = new PluginKey("mermaid-block");
 type RenderState =
   | { status: "done"; svg: string }
   | { status: "error"; message: string };
+
+type MermaidBlockOptions = {
+  errorKey: string;
+};
 
 type Scheduler = {
   want: (
@@ -83,7 +88,7 @@ async function renderMermaid(code: string, dark: boolean) {
   });
 }
 
-function createScheduler(onSettled: () => void): Scheduler {
+function createScheduler(errorKey: string, onSettled: () => void): Scheduler {
   const wanted = new Map<
     string,
     { code: string; dark: boolean; explicit: boolean }
@@ -109,9 +114,7 @@ function createScheduler(onSettled: () => void): Scheduler {
             error instanceof Error ? error.message : String(error);
           cacheRender(key, { status: "error", message });
           if (explicit && active) {
-            toast.error(i18n.t("tasks:detail.editor.mermaid.renderFailed"), {
-              description: message,
-            });
+            toast.error(i18n.t(errorKey), { description: message });
           }
         }
       }),
@@ -122,7 +125,11 @@ function createScheduler(onSettled: () => void): Scheduler {
 
   return {
     want: (cacheKey, code, dark, explicit) =>
-      wanted.set(cacheKey, { code, dark, explicit }),
+      wanted.set(cacheKey, {
+        code,
+        dark,
+        explicit: explicit || wanted.get(cacheKey)?.explicit === true,
+      }),
     reset: () => wanted.clear(),
     flush: () => {
       if (wanted.size > 0) flush();
@@ -192,13 +199,17 @@ function getDecorations(doc: ProseMirrorNode, scheduler: Scheduler) {
   return DecorationSet.create(doc, decorations);
 }
 
-export const MermaidBlock = Extension.create({
+export const MermaidBlock = Extension.create<MermaidBlockOptions>({
   name: "mermaidBlock",
+
+  addOptions() {
+    return { errorKey: DEFAULT_ERROR_KEY };
+  },
 
   addProseMirrorPlugins() {
     const editor = this.editor;
 
-    const scheduler = createScheduler(() => {
+    const scheduler = createScheduler(this.options.errorKey, () => {
       const { view } = editor;
       if (!view || view.isDestroyed) return;
       view.dispatch(view.state.tr.setMeta(MERMAID_REFRESH_META, true));

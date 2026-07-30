@@ -1410,6 +1410,9 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"mermaid": {
+					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
 			}
 		}

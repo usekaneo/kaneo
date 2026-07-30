@@ -5551,6 +5551,16 @@
 										"typescript",
 										"yaml"
 									]
+								},
+								"mermaid": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"renderFailed": {
+											"type": "string"
+										}
+									},
+									"required": ["renderFailed"]
 								}
 							},
 							"required": [
@@ -5601,7 +5611,8 @@
 								"copied",
 								"dropImageToUpload",
 								"previewImageAlt",
-								"codeLang"
+								"codeLang",
+								"mermaid"
 							]
 						}
 					},

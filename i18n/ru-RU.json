@@ -1270,6 +1270,9 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"mermaid": {
+					"renderFailed": "Не удалось отобразить диаграмму Mermaid"
 				}
 			}
 		}

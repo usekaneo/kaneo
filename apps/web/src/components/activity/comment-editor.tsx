@@ -623,7 +623,9 @@ export default function CommentEditor({
           themeDark: "github-dark",
           themeLight: "github-light",
         }),
-        MermaidBlock,
+        MermaidBlock.configure({
+          errorKey: "activity:comment.editor.mermaid.renderFailed",
+        }),
         EmbedBlock,
         AttachmentCard,
         KaneoIssueLink,
