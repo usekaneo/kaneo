@@ -78,11 +78,11 @@ export default function TermsPage() {
                 . Paid plans start with a 14-day free trial. Payments are
                 processed by Creem as merchant of record. Creem is the seller of
                 record and handles payment collection, invoices, and applicable
-                taxes such as VAT. Subscriptions renew automatically (monthly or
-                annually) until cancelled. You can cancel anytime; your plan
-                remains active until the end of the paid period. If you believe
-                a charge is in error, contact us within 14 days and we will work
-                with you on a refund where appropriate.
+                taxes. Subscriptions renew automatically (monthly or annually)
+                until cancelled. You can cancel anytime; your plan remains
+                active until the end of the paid period. If you believe a charge
+                is in error, contact us within 14 days and we will work with you
+                on a refund where appropriate.
               </p>
               <p>
                 Accounts created before paid plans were introduced keep free
