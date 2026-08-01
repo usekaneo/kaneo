@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
@@ -19,6 +19,11 @@ type WorkspaceIdSource =
         | "comment"
         | "column"
         | "workflowRule";
+      idKey: string;
+    }
+  | {
+      type: "lookupMany";
+      resource: "task";
       idKey: string;
     };
 
@@ -65,6 +70,26 @@ export function workspaceAccessMiddleware(
           c.req.param(source.idKey) || c.req.query(source.idKey) || idFromBody;
         if (id) {
           workspaceId = await lookupWorkspaceId(source.resource, id);
+        }
+      } else if (source.type === "lookupMany") {
+        const body = await readJsonObjectBody(c);
+        const ids = body[source.idKey];
+        if (Array.isArray(ids)) {
+          const taskIds = ids.filter(
+            (id): id is string => typeof id === "string",
+          );
+          if (taskIds.length > 0) {
+            const [task] = await db
+              .select({ workspaceId: schema.projectTable.workspaceId })
+              .from(schema.taskTable)
+              .innerJoin(
+                schema.projectTable,
+                eq(schema.taskTable.projectId, schema.projectTable.id),
+              )
+              .where(inArray(schema.taskTable.id, taskIds))
+              .limit(1);
+            workspaceId = task?.workspaceId || null;
+          }
         }
       }
 
@@ -267,6 +292,11 @@ export const workspaceAccess = {
         { type: "lookup", resource: "task", idKey },
         { type: "query", key: "workspaceId" },
       ],
+    }),
+
+  fromTasks: (idKey = "taskIds") =>
+    workspaceAccessMiddleware({
+      sources: [{ type: "lookupMany", resource: "task", idKey }],
     }),
 
   fromLabel: (idKey = "id") =>

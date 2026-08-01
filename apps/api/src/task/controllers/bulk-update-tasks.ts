@@ -226,6 +226,12 @@ async function bulkUpdateTasks({
         throw new HTTPException(404, { message: "Label not found" });
       }
 
+      if (label.workspaceId && label.workspaceId !== workspaceId) {
+        throw new HTTPException(400, {
+          message: "Label and tasks must belong to the same workspace",
+        });
+      }
+
       for (const task of tasks) {
         const existingAssignment = await db.query.labelTable.findFirst({
           where: and(
