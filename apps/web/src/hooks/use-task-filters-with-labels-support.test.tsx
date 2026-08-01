@@ -104,7 +104,7 @@ describe("useTaskFiltersWithLabelsSupport", () => {
     );
   });
 
-  it.each(["#123", "proj-123"])(
+  it.each(["#123", "proj-123", "proj-"])(
     "matches a task by its issue identifier when searching for %s",
     (textQuery) => {
       const project = {
@@ -135,6 +135,26 @@ describe("useTaskFiltersWithLabelsSupport", () => {
                 startDate: null,
                 dueDate: null,
                 position: 0,
+                createdAt: "2026-04-16T00:00:00.000Z",
+                updatedAt: "2026-04-16T00:00:00.000Z",
+                userId: null,
+                assigneeId: null,
+                assigneeName: null,
+                assigneeImage: null,
+                projectId: "project-1",
+                labels: [],
+                externalLinks: [],
+              },
+              {
+                id: "task-without-number",
+                title: "Another unrelated title",
+                number: null,
+                description: null,
+                status: "todo",
+                priority: null,
+                startDate: null,
+                dueDate: null,
+                position: 1,
                 createdAt: "2026-04-16T00:00:00.000Z",
                 updatedAt: "2026-04-16T00:00:00.000Z",
                 userId: null,

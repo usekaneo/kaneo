@@ -81,7 +81,9 @@ export function useTaskFiltersWithLabelsSupport(
           const description = task.description?.toLowerCase() ?? "";
           const taskNumber = task.number?.toString() ?? "";
           const taskIdentifier =
-            `${project?.slug ?? ""}-${taskNumber}`.toLowerCase();
+            taskNumber && project?.slug
+              ? `${project.slug}-${taskNumber}`.toLowerCase()
+              : "";
           const taskShortIdentifier = taskNumber ? `#${taskNumber}` : "";
           const matchesText =
             title.includes(normalizedTextQuery) ||
