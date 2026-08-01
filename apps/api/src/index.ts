@@ -55,10 +55,8 @@ import task from "./task";
 import taskRelation from "./task-relation";
 import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
-import {
-  authenticateApiRequest,
-  resolveAssetBearerOrCookie,
-} from "./utils/authenticate-api-request";
+import { authenticateApiRequest } from "./utils/authenticate-api-request";
+import { authorizeAssetAccess } from "./utils/authorize-asset-access";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateNotificationPreferencesSchema } from "./utils/migrate-notification-preferences-schema";
@@ -312,13 +310,7 @@ export function createApp() {
         throw new HTTPException(404, { message: "Asset not found" });
       }
 
-      const { userId, apiKeyId } = await resolveAssetBearerOrCookie(c);
-
-      if (userId) {
-        await validateWorkspaceAccess(userId, asset.workspaceId, apiKeyId);
-      } else if (!asset.isPublic) {
-        throw new HTTPException(401, { message: "Unauthorized" });
-      }
+      await authorizeAssetAccess(c, asset);
 
       try {
         const object = await getPrivateObject(asset.objectKey);
