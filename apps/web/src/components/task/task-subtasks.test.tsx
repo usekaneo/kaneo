@@ -5,12 +5,13 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TaskSubtasks from "./task-subtasks";
 
 const mocks = vi.hoisted(() => ({
   createTask: vi.fn(),
   createRelation: vi.fn(),
+  getColumns: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
@@ -33,12 +34,7 @@ vi.mock("@/hooks/mutations/task/use-update-task-status", () => ({
   useUpdateTaskStatus: () => ({ mutateAsync: vi.fn() }),
 }));
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
-  useGetColumns: () => ({
-    data: [
-      { id: "todo", slug: "to-do", name: "To Do", isFinal: false },
-      { id: "done", slug: "done", name: "Done", isFinal: true },
-    ],
-  }),
+  useGetColumns: () => mocks.getColumns(),
 }));
 vi.mock("@/hooks/queries/task-relation/use-get-task-relations", () => ({
   default: () => ({ data: [] }),
@@ -56,6 +52,16 @@ vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({ canManageTasks: () => true }),
 }));
 vi.mock("@/lib/toast", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+
+beforeEach(() => {
+  mocks.getColumns.mockReturnValue({
+    data: [
+      { id: "todo", slug: "to-do", name: "To Do", isFinal: false },
+      { id: "done", slug: "done", name: "Done", isFinal: true },
+    ],
+    isLoading: false,
+  });
+});
 
 afterEach(() => {
   cleanup();
@@ -76,7 +82,11 @@ describe("TaskSubtasks", () => {
       />,
     );
 
-    fireEvent.click(screen.getAllByRole("button")[1]);
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "tasks:subtasks.addAction tasks:subtasks.title",
+      }),
+    );
     fireEvent.change(
       screen.getByPlaceholderText("tasks:subtasks.inputPlaceholder"),
       { target: { value: "Design login form" } },
@@ -104,7 +114,11 @@ describe("TaskSubtasks", () => {
       />,
     );
 
-    fireEvent.click(screen.getAllByRole("button")[1]);
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "tasks:subtasks.addAction tasks:subtasks.title",
+      }),
+    );
     fireEvent.change(
       screen.getByPlaceholderText("tasks:subtasks.inputPlaceholder"),
       { target: { value: "Implement login form" } },
@@ -117,5 +131,24 @@ describe("TaskSubtasks", () => {
     expect(mocks.createTask).toHaveBeenCalledWith(
       expect.objectContaining({ status: "to-do" }),
     );
+  });
+
+  it("blocks active-parent creation until project columns are available", () => {
+    mocks.getColumns.mockReturnValue({ data: [], isLoading: true });
+
+    render(
+      <TaskSubtasks
+        taskId="parent-3"
+        projectId="project-1"
+        workspaceId="workspace-1"
+        parentStatus="in-progress"
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", {
+        name: "tasks:subtasks.addAction tasks:subtasks.title",
+      }),
+    ).toBeDisabled();
   });
 });
