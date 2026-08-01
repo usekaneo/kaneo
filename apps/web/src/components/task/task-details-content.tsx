@@ -88,11 +88,14 @@ export default function TaskDetailsContent({
         </div>
       )}
       <div className="mt-4">
-        <TaskSubtasks
-          taskId={taskId}
-          projectId={projectId}
-          workspaceId={workspaceId}
-        />
+        {task && (
+          <TaskSubtasks
+            taskId={taskId}
+            projectId={projectId}
+            workspaceId={workspaceId}
+            parentStatus={task.status}
+          />
+        )}
       </div>
       <div className="mt-2">
         <TaskRelations

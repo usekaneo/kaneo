@@ -38,12 +38,14 @@ type TaskSubtasksProps = {
   taskId: string;
   projectId: string;
   workspaceId: string;
+  parentStatus: string;
 };
 
 export default function TaskSubtasks({
   taskId,
   projectId,
   workspaceId,
+  parentStatus,
 }: TaskSubtasksProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -260,7 +262,7 @@ export default function TaskSubtasks({
         title: newTitle.trim(),
         description: "",
         projectId,
-        status: "to-do",
+        status: parentStatus === "planned" ? "planned" : todoSlug,
         priority: "no-priority",
       });
 
