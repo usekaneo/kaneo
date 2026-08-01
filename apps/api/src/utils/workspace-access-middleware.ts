@@ -79,16 +79,18 @@ export function workspaceAccessMiddleware(
             (id): id is string => typeof id === "string",
           );
           if (taskIds.length > 0) {
-            const [task] = await db
+            const tasks = await db
               .select({ workspaceId: schema.projectTable.workspaceId })
               .from(schema.taskTable)
               .innerJoin(
                 schema.projectTable,
                 eq(schema.taskTable.projectId, schema.projectTable.id),
               )
-              .where(inArray(schema.taskTable.id, taskIds))
-              .limit(1);
-            workspaceId = task?.workspaceId || null;
+              .where(inArray(schema.taskTable.id, taskIds));
+            const workspaceIds = [
+              ...new Set(tasks.map((task) => task.workspaceId)),
+            ];
+            workspaceId = workspaceIds.length === 1 ? workspaceIds[0] : null;
           }
         }
       }
