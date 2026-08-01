@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -275,6 +275,62 @@ describe("API integration: workspace RBAC enforcement", () => {
         where: eq(schema.taskTable.id, task.id),
       });
       expect(persisted?.priority).toBe("high");
+    });
+
+    it("preserves the not-found response for unknown tasks", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [randomUUID()],
+          operation: "updatePriority",
+          value: "high",
+        }),
+      });
+      expect(response.status).toBe(404);
+    });
+
+    it("rejects bulk mutations that span workspaces", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const foreign = await createWorkspaceMember({ role: "admin" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const { project: foreignProject, columns: foreignColumns } =
+        await createProjectFixture({ workspaceId: foreign.workspace.id });
+      const task = await seedTask(project.id, columns.todo.id);
+      const foreignTask = await seedTask(
+        foreignProject.id,
+        foreignColumns.todo.id,
+      );
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [task.id, foreignTask.id],
+          operation: "updatePriority",
+          value: "high",
+        }),
+      });
+      expect(response.status).toBe(400);
+
+      const persistedTasks = await db
+        .select({ priority: schema.taskTable.priority })
+        .from(schema.taskTable)
+        .where(inArray(schema.taskTable.id, [task.id, foreignTask.id]));
+      expect(persistedTasks).toHaveLength(2);
+      expect(persistedTasks.every((task) => task.priority === "medium")).toBe(
+        true,
+      );
     });
 
     it("blocks a member from deleting a task in bulk", async () => {

@@ -90,7 +90,15 @@ export function workspaceAccessMiddleware(
             const workspaceIds = [
               ...new Set(tasks.map((task) => task.workspaceId)),
             ];
-            workspaceId = workspaceIds.length === 1 ? workspaceIds[0] : null;
+            if (workspaceIds.length === 0) {
+              throw new HTTPException(404, { message: "No tasks found" });
+            }
+            if (workspaceIds.length > 1) {
+              throw new HTTPException(400, {
+                message: "All tasks must belong to the same workspace",
+              });
+            }
+            workspaceId = workspaceIds[0];
           }
         }
       }
