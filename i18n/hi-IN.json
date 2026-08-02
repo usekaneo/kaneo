@@ -1195,8 +1195,8 @@
 		},
 		"externalLinks": {
 			"resources": "संसाधन",
-			"issue": "Issue",
-			"branch": "Branch",
+			"issue": "इश्यू",
+			"branch": "ब्रांच",
 			"merged": "मर्ज किया",
 			"draft": "ड्राफ़्ट",
 			"open": "खुला"
