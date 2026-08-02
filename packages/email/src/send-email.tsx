@@ -17,14 +17,16 @@ import WorkspaceInvitationEmail, {
 
 config();
 
+const smtpAuth =
+  process.env.SMTP_USER && process.env.SMTP_PASSWORD
+    ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD }
+    : undefined;
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   secure: process.env.SMTP_SECURE !== "false",
   port: Number(process.env.SMTP_PORT),
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
-  },
+  auth: smtpAuth,
   requireTLS: process.env.SMTP_REQUIRE_TLS === "true",
   ignoreTLS: process.env.SMTP_IGNORE_TLS === "true",
 });

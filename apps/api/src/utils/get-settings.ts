@@ -14,9 +14,7 @@ function getSettings() {
     hasSmtp:
       Boolean(process.env.SMTP_HOST) &&
       Boolean(process.env.SMTP_PORT) &&
-      Boolean(process.env.SMTP_SECURE) &&
-      Boolean(process.env.SMTP_USER) &&
-      Boolean(process.env.SMTP_PASSWORD),
+      Boolean(process.env.SMTP_SECURE),
     hasGithubSignIn: isGithubSsoConfigured(),
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&
