@@ -121,18 +121,16 @@ export function PublicTaskCard({
 
         {task.dueDate && (
           <div
-            className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+            className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, task.status === "done")]}`}
           >
-            {getDueDateStatus(task.dueDate) === "overdue" && (
-              <CalendarX className="w-3 h-3" />
-            )}
-            {getDueDateStatus(task.dueDate) === "due-soon" && (
-              <CalendarClock className="w-3 h-3" />
-            )}
-            {(getDueDateStatus(task.dueDate) === "far-future" ||
-              getDueDateStatus(task.dueDate) === "no-due-date") && (
-              <Calendar className="w-3 h-3" />
-            )}
+            {getDueDateStatus(task.dueDate, task.status === "done") ===
+              "overdue" && <CalendarX className="w-3 h-3" />}
+            {getDueDateStatus(task.dueDate, task.status === "done") ===
+              "due-soon" && <CalendarClock className="w-3 h-3" />}
+            {(getDueDateStatus(task.dueDate, task.status === "done") ===
+              "far-future" ||
+              getDueDateStatus(task.dueDate, task.status === "done") ===
+                "no-due-date") && <Calendar className="w-3 h-3" />}
             <span>{format(new Date(task.dueDate), "MMM d")}</span>
           </div>
         )}
