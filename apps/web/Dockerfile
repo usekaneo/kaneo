@@ -64,7 +64,8 @@ RUN chown -R appuser:appuser /etc/nginx/conf.d
 
 # Copy and set permissions for environment script
 COPY --chown=appuser:appuser apps/web/env.sh /docker-entrypoint.d/env.sh
-RUN chmod +x /docker-entrypoint.d/env.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.d/env.sh && \
+  chmod +x /docker-entrypoint.d/env.sh
 
 # Switch to non-root user
 USER appuser

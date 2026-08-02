@@ -14,7 +14,41 @@ services:
       timeout: 5s
       retries: 5
 
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    env_file:
+      - .env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  createbuckets:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    env_file:
+      - .env
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 $${MINIO_ROOT_USER:-kaneo-local} $${MINIO_ROOT_PASSWORD:-kaneo-local-secret};
+      /usr/bin/mc mb myminio/$${S3_BUCKET:-kaneo-uploads} --ignore-existing;
+      exit 0;
+      "
+
   kaneo:
+    build:
+      context: .
+      dockerfile: Dockerfile.kaneo
     image: ghcr.io/usekaneo/kaneo:latest
     ports:
       - "5173:5173"
@@ -22,6 +56,8 @@ services:
       - .env
     depends_on:
       postgres:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -39,3 +75,5 @@ services:
 
 volumes:
   postgres_data:
+  minio_data:
+

@@ -105,7 +105,8 @@ RUN chown -R appuser:appuser /etc/nginx/conf.d
 COPY --chown=appuser:appuser apps/web/env.sh /docker-entrypoint.d/env.sh
 COPY --chown=appuser:appuser deploy/kaneo-entrypoint.sh /usr/local/bin/kaneo-entrypoint.sh
 
-RUN chmod +x /docker-entrypoint.d/env.sh /usr/local/bin/kaneo-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.d/env.sh /usr/local/bin/kaneo-entrypoint.sh && \
+  chmod +x /docker-entrypoint.d/env.sh /usr/local/bin/kaneo-entrypoint.sh
 
 ENV NODE_ENV=production
 
