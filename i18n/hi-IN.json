@@ -1,0 +1,1162 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "रद्द करें",
+			"close": "बंद करें",
+			"clearAll": "सभी साफ़ करें",
+			"delete": "हटाएँ",
+			"deleting": "हटा रहे हैं...",
+			"markAllRead": "सभी पढ़ा हुआ करें",
+			"remove": "निकालें",
+			"reset": "रीसेट करें",
+			"filter": "फ़िल्टर",
+			"clearAllFilters": "सभी फ़िल्टर साफ़ करें"
+		},
+		"a11y": {
+			"toggleSidebar": "साइडबार टॉगल करें"
+		},
+		"sidebar": {
+			"title": "साइडबार",
+			"mobileDescription": "मोबाइल साइडबार दिखाता है।"
+		},
+		"empty": {
+			"loading": "लोड हो रहा है..."
+		},
+		"pagination": {
+			"label": "पेजिनेशन",
+			"previous": "पिछला",
+			"next": "अगला",
+			"previousPage": "पिछले पेज पर जाएँ",
+			"nextPage": "अगले पेज पर जाएँ",
+			"morePages": "और पेज"
+		},
+		"breadcrumb": {
+			"label": "ब्रेडक्रंब",
+			"more": "और"
+		},
+		"language": {
+			"english": "अंग्रेज़ी",
+			"german": "जर्मन",
+			"greek": "ग्रीक",
+			"macedonian": "मैसेडोनियन",
+			"french": "फ़्रेंच",
+			"spanish": "स्पेनिश",
+			"dutch": "डच",
+			"korean": "कोरियन",
+			"hindi": "हिन्दी"
+		},
+		"people": {
+			"someone": "कोई",
+			"unknown": "अज्ञात"
+		},
+		"error": {
+			"title": "कुछ गलत हो गया",
+			"troubleshooting": "समस्या निवारण कदम:",
+			"tryAgain": "पुनः प्रयास करें",
+			"viewDeploymentGuide": "डिप्लॉयमेंट गाइड देखें",
+			"refreshPage": "पेज रिफ़्रेश करें"
+		},
+		"formats": {
+			"never": "कभी नहीं"
+		},
+		"modals": {
+			"createProject": {
+				"title": "नया प्रोजेक्ट बनाएँ",
+				"breadcrumbNew": "नया प्रोजेक्ट बनाएँ",
+				"workspaceFallback": "वर्कस्पेस",
+				"description": "अपने वर्कस्पेस में नाम, कुंजी और आइकन चुनकर एक नया प्रोजेक्ट बनाएँ।",
+				"pickIcon": "आइकन चुनें",
+				"searchIcons": "आइकन खोजें...",
+				"projectName": "प्रोजेक्ट का नाम",
+				"keyLabel": "कुंजी:",
+				"keyHint": "टिकट ID के लिए उपयोग (जैसे, {{example}}-123)",
+				"createButton": "प्रोजेक्ट बनाएँ",
+				"successToast": "प्रोजेक्ट सफलतापूर्वक बनाया गया",
+				"errorToast": "प्रोजेक्ट बनाने में विफल"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "नया वर्कस्पेस बनाएँ",
+				"description": "अपने वर्कस्पेस के लिए नाम देकर एक नया वर्कस्पेस बनाएँ।",
+				"namePlaceholder": "वर्कस्पेस का नाम",
+				"descriptionPlaceholder": "विवरण जोड़ें...",
+				"createButton": "वर्कस्पेस बनाएँ",
+				"successToast": "वर्कस्पेस सफलतापूर्वक बनाया गया",
+				"errorToast": "वर्कस्पेस बनाने में विफल"
+			},
+			"createTask": {
+				"breadcrumbTask": "कार्य",
+				"title": "नया कार्य",
+				"description": "शीर्षक, विवरण और अन्य विवरण देकर एक नया कार्य बनाएँ।",
+				"taskTitlePlaceholder": "कार्य का शीर्षक",
+				"descriptionPlaceholder": "अपने कार्य के लिए विवरण जोड़ें...",
+				"chooseProjectForImages": "चित्र अपलोड करने से पहले प्रोजेक्ट चुनें।",
+				"prepareTaskError": "कार्य तैयार करने में विफल",
+				"successCreated": "कार्य सफलतापूर्वक बनाया गया",
+				"successUpdated": "कार्य सफलतापूर्वक अपडेट किया गया",
+				"createError": "कार्य बनाने में विफल",
+				"priority": "प्राथमिकता",
+				"statusFallback": "प्रगति में",
+				"startDate": "शुरू की तारीख",
+				"dueDate": "नियत तारीख",
+				"clearStartDate": "शुरू की तारीख साफ़ करें",
+				"clearDueDate": "नियत तारीख साफ़ करें",
+				"assign": "सौंपें",
+				"assignUnassigned": "असाइन नहीं",
+				"assignUnassignedTitle": "असाइन नहीं",
+				"labels": "लेबल",
+				"searchLabels": "लेबल खोजें...",
+				"noLabelsFound": "कोई लेबल नहीं मिला",
+				"createLabel": "\"{{name}}\" बनाएँ",
+				"chooseColor": "रंग चुनें",
+				"labelCreated": "लेबल बनाया गया",
+				"labelCreateError": "लेबल बनाने में विफल",
+				"createMore": "और बनाएँ",
+				"createButton": "कार्य बनाएँ",
+				"untitledTask": "बिना शीर्षक कार्य",
+				"labelColors": {
+					"stone": "पत्थर",
+					"slate": "स्लेट",
+					"lavender": "लैवेंडर",
+					"sage": "सेज",
+					"forest": "वन",
+					"amber": "एम्बर",
+					"terracotta": "टेराकोटा",
+					"rose": "गुलाब",
+					"crimson": "किरमिज़ी"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "साइन इन",
+			"title": "वापस स्वागत है",
+			"subtitle": "अपने वर्कस्पेस तक पहुँचने के लिए अपनी जानकारी दर्ज करें",
+			"invitationSubtitle": "अपना निमंत्रण स्वीकार करने के लिए साइन इन करें",
+			"invitationAlert": "साइन इन करने के बाद, आप अपना वर्कस्पेस निमंत्रण स्वीकार कर सकेंगे।",
+			"signingIn": "साइन इन हो रहा है...",
+			"continueWithGoogle": "Google से जारी रखें",
+			"continueWithGithub": "GitHub से जारी रखें",
+			"continueWithDiscord": "Discord से जारी रखें",
+			"continueWithOidc": "OIDC से जारी रखें",
+			"lastUsed": "पिछली बार उपयोग किया",
+			"registrationDisabled": "सार्वजनिक पंजीकरण अक्षम है। खाता बनाने के लिए निमंत्रण का उपयोग करें।",
+			"passwordRegistrationDisabled": "पासवर्ड पंजीकरण अक्षम है। खाता बनाने के लिए कॉन्फ़िगर की गई सामाजिक या OIDC साइन-इन विधि का उपयोग करें।",
+			"toggleMessage": "खाता नहीं है?",
+			"toggleLink": "खाता बनाएँ",
+			"guestSuccess": "अतिथि के रूप में साइन इन किया",
+			"guestError": "अतिथि के रूप में साइन इन विफल",
+			"oidcError": "OIDC से साइन इन विफल",
+			"googleError": "Google से साइन इन विफल",
+			"githubError": "GitHub से साइन इन विफल",
+			"discordError": "Discord से साइन इन विफल",
+			"errors": {
+				"account_not_linked": "यह पहचान मौजूदा खाते से लिंक नहीं हो सकी। खाते की पुष्टि के लिए ईमेल से साइन इन करें, फिर SSO पुनः प्रयास करें। यदि ईमेल साइन-इन उपलब्ध नहीं है, तो अपने व्यवस्थापक से संपर्क करें।",
+				"oauth_code_verification_failed": "OAuth सत्यापन विफल। कृपया पुनः प्रयास करें।",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "पंजीकरण वर्तमान में अक्षम है। खाता बनाने के लिए आपको वैध निमंत्रण चाहिए।"
+			}
+		},
+		"providers": {
+			"google": "Google",
+			"discord": "Discord"
+		},
+		"forms": {
+			"or": "या",
+			"email": "ईमेल",
+			"password": "पासवर्ड",
+			"emailPlaceholder": "me@example.com",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "पासवर्ड दिखाएँ",
+			"hidePassword": "पासवर्ड छिपाएँ"
+		},
+		"checkEmail": {
+			"pageTitle": "अपना ईमेल जाँचें",
+			"title": "अपना ईमेल जाँचें",
+			"inboxMessage": "हमने आपको एक अस्थायी लॉगिन लिंक भेजा है। कृपया <email>{{email}}</email> पर अपना इनबॉक्स जाँचें।",
+			"emailFallback": "आपका ईमेल पता",
+			"backToLogin": "लॉगिन पर वापस जाएँ"
+		},
+		"signUp": {
+			"pageTitle": "खाता बनाएँ",
+			"title": "खाता बनाएँ",
+			"subtitleInvitation": "अपना निमंत्रण स्वीकार करने के लिए खाता बनाएँ",
+			"subtitleRegistrationDisabled": "पंजीकरण के लिए निमंत्रण आवश्यक है",
+			"subtitlePasswordDisabled": "खाता बनाने के लिए सामाजिक या OIDC साइन-इन का उपयोग करें",
+			"subtitleDefault": "अपने वर्कस्पेस के साथ शुरू करें",
+			"invitationAlert": "खाता बनाने के बाद, आप अपना वर्कस्पेस निमंत्रण स्वीकार कर सकेंगे।",
+			"registrationDisabledAlert": "पंजीकरण वर्तमान में अक्षम है। यदि आपको निमंत्रित किया गया था, तो वह ईमेल पता दर्ज करें जिसे निमंत्रण मिला था।",
+			"passwordDisabledAlert": "पासवर्ड-आधारित खाता निर्माण अक्षम है। साइन-इन पेज से कॉन्फ़िगर की गई सामाजिक या OIDC साइन-इन विधि का उपयोग करें।",
+			"signingIn": "साइन इन हो रहा है...",
+			"continueAsGuest": "अतिथि के रूप में जारी रखें",
+			"toggleMessage": "पहले से खाता है?",
+			"toggleLink": "साइन इन करें"
+		},
+		"verifyOtp": {
+			"pageTitle": "कोड सत्यापित करें",
+			"title": "सत्यापन कोड दर्ज करें",
+			"subtitle": "जारी रखने के लिए अपने ईमेल पर भेजे गए 6 अंकों के कोड का उपयोग करें",
+			"codeSentTo": "कोड {{email}} पर भेजा गया",
+			"verificationCodeLabel": "सत्यापन कोड",
+			"verifying": "सत्यापित हो रहा है...",
+			"verifyAndSignIn": "सत्यापित करें और साइन इन करें",
+			"changeEmail": "ईमेल बदलें",
+			"resend": "पुनः भेजें",
+			"validation": {
+				"codeLength": "कोड 6 अंकों का होना चाहिए"
+			},
+			"toast": {
+				"invalidCode": "अमान्य सत्यापन कोड",
+				"signedInSuccess": "सफलतापूर्वक साइन इन किया!",
+				"verifyFailed": "कोड सत्यापित करने में विफल",
+				"resendFailed": "कोड पुनः भेजने में विफल",
+				"resendSuccess": "नया सत्यापन कोड भेजा गया!"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "सत्यापन कोड भेजने में विफल",
+			"codeSent": "सत्यापन कोड भेजा गया! अपना ईमेल जाँचें।",
+			"sending": "भेज रहे हैं...",
+			"sendVerificationCode": "सत्यापन कोड भेजें"
+		},
+		"signInForm": {
+			"failedSignIn": "साइन इन विफल",
+			"signedInSuccess": "सफलतापूर्वक साइन इन किया",
+			"signingIn": "साइन इन हो रहा है...",
+			"signIn": "साइन इन"
+		},
+		"signUpForm": {
+			"fullName": "पूरा नाम",
+			"namePlaceholder": "राहुल शर्मा",
+			"failedSignUp": "साइन अप विफल",
+			"accountCreated": "खाता सफलतापूर्वक बनाया गया",
+			"passwordTooShort": "पासवर्ड बहुत छोटा है",
+			"creatingAccount": "खाता बना रहे हैं...",
+			"createAccount": "खाता बनाएँ"
+		},
+		"invitation": {
+			"pageTitleAccept": "निमंत्रण स्वीकार करें",
+			"pageTitleError": "निमंत्रण त्रुटि",
+			"pageTitleInvalid": "अमान्य निमंत्रण",
+			"loadingTitle": "निमंत्रण लोड हो रहा है...",
+			"errorTitle": "निमंत्रण त्रुटि",
+			"invalidTitle": "अमान्य निमंत्रण",
+			"invitationExpired": "निमंत्रण समाप्त हो गया",
+			"errorLoadDescription": "निमंत्रण विवरण लोड करने में विफल। निमंत्रण अमान्य या समाप्त हो सकता है।",
+			"goToSignIn": "साइन इन पर जाएँ",
+			"workspaceLabel": "वर्कस्पेस: {{workspaceName}}",
+			"joinWorkspace": "{{workspaceName}} में शामिल हों",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> ने आपको अपने वर्कस्पेस में शामिल होने का निमंत्रण दिया है।",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> ने आपको Kaneo पर अपने वर्कस्पेस में शामिल होने का निमंत्रण दिया है।",
+			"signInToAccept": "इस निमंत्रण को स्वीकार करने के लिए साइन इन करें।",
+			"accepting": "स्वीकार हो रहा है...",
+			"acceptInvitation": "निमंत्रण स्वीकार करें",
+			"goToDashboard": "डैशबोर्ड पर जाएँ",
+			"signedInAs": "<email>{{email}}</email> के रूप में साइन इन",
+			"youveBeenInvited": "आपको निमंत्रित किया गया है!",
+			"invitationFor": "निमंत्रण: <email>{{email}}</email> के लिए",
+			"signIn": "साइन इन",
+			"toast": {
+				"acceptFailed": "निमंत्रण स्वीकार करने में विफल",
+				"acceptSuccess": "निमंत्रण स्वीकार किया! टीम में स्वागत है।"
+			}
+		},
+		"onboarding": {
+			"pageTitle": "Kaneo में आपका स्वागत है",
+			"workspacePageTitle": "वर्कस्पेस बनाएँ",
+			"createWorkspaceTitle": "वर्कस्पेस बनाएँ",
+			"createWorkspaceSubtitle": "प्रोजेक्ट प्रबंधित करना शुरू करने के लिए अपना वर्कस्पेस सेटअप करें",
+			"workspaceName": "वर्कस्पेस का नाम",
+			"workspaceNamePlaceholder": "जैसे Acme Inc, मेरी टीम",
+			"descriptionOptional": "विवरण (वैकल्पिक)",
+			"descriptionPlaceholder": "आपकी टीम किस पर काम करती है?",
+			"creating": "बना रहे हैं...",
+			"createWorkspace": "वर्कस्पेस बनाएँ",
+			"workspaceCreatedTitle": "वर्कस्पेस बनाया गया",
+			"redirectingToWorkspace": "आपको <name>{{name}}</name> पर ले जा रहे हैं...",
+			"toast": {
+				"workspaceCreated": "वर्कस्पेस सफलतापूर्वक बनाया गया",
+				"createFailed": "वर्कस्पेस बनाने में विफल"
+			},
+			"validation": {
+				"workspaceNameRequired": "वर्कस्पेस का नाम आवश्यक है"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "प्रोफ़ाइल पूरा करें",
+			"completeTitle": "अपनी प्रोफ़ाइल पूरी करें",
+			"subtitle": "शुरू करने के लिए कृपया अपना नाम दर्ज करें",
+			"yourName": "आपका नाम",
+			"namePlaceholder": "जैसे राहुल शर्मा",
+			"saving": "सहेज रहे हैं...",
+			"continue": "जारी रखें",
+			"welcome": "स्वागत है, {{name}}!",
+			"redirecting": "आपको अपने डैशबोर्ड पर ले जा रहे हैं...",
+			"toast": {
+				"updateSuccess": "प्रोफ़ाइल सफलतापूर्वक अपडेट की गई",
+				"updateFailed": "प्रोफ़ाइल अपडेट करने में विफल"
+			},
+			"validation": {
+				"nameRequired": "नाम आवश्यक है",
+				"nameShort": "नाम कम से कम 2 अक्षरों का होना चाहिए"
+			}
+		}
+	},
+	"settings": {
+		"account": "खाता",
+		"developer": "डेवलपर",
+		"information": "जानकारी",
+		"notifications": "सूचनाएँ",
+		"preferences": "प्राथमिकताएँ",
+		"apiKeys": "API कुंजियाँ",
+		"informationPage": {
+			"pageTitle": "व्यक्तिगत जानकारी",
+			"title": "व्यक्तिगत जानकारी",
+			"subtitle": "अपने व्यक्तिगत विवरण और खाता जानकारी प्रबंधित करें।",
+			"sectionTitle": "खाता जानकारी",
+			"sectionSubtitle": "अपनी प्रोफ़ाइल और खाता विवरण प्रबंधित करें।",
+			"profilePicture": "प्रोफ़ाइल चित्र",
+			"fullName": "पूरा नाम",
+			"fullNamePlaceholder": "अपना नाम दर्ज करें",
+			"email": "ईमेल",
+			"emailPlaceholder": "अपना ईमेल दर्ज करें",
+			"updateSuccess": "प्रोफ़ाइल सफलतापूर्वक अपडेट की गई",
+			"updateError": "प्रोफ़ाइल अपडेट करने में विफल",
+			"validation": {
+				"nameRequired": "नाम आवश्यक है",
+				"nameShort": "नाम कम से कम 2 अक्षरों का होना चाहिए",
+				"invalidEmail": "अमान्य ईमेल पता"
+			}
+		},
+		"notificationsPage": {
+			"pageTitle": "सूचनाएँ",
+			"title": "सूचनाएँ",
+			"subtitle": "चुनें कि Kaneo आपकी खाता सूचनाएँ कैसे वितरित करे और कौन से चैनल उपयोग करे।",
+			"statusConnected": "जुड़ा हुआ",
+			"statusPaused": "रुका हुआ",
+			"emailTitle": "ईमेल",
+			"emailDescription": "सूचनाओं के लिए अपने खाते के ईमेल का उपयोग करें।",
+			"accountEmailLabel": "खाते का ईमेल",
+			"accountEmailNoAddress": "कोई खाता ईमेल उपलब्ध नहीं",
+			"accountEmailHint": "ईमेल डिलीवरी हमेशा साइन-इन खाते के ईमेल पर जाती है।",
+			"saveChanges": "परिवर्तन सहेजें",
+			"disconnect": "डिस्कनेक्ट करें",
+			"ntfyTitle": "ntfy",
+			"ntfyDescription": "खाता सूचनाएँ ntfy टॉपिक पर प्रकाशित करें।",
+			"serverUrl": "सर्वर URL",
+			"topic": "टॉपिक",
+			"token": "टोकन",
+			"ntfyServerPlaceholder": "https://ntfy.example.com",
+			"ntfyTopicPlaceholder": "team-alerts",
+			"ntfyTokenPlaceholder": "वैकल्पिक बेयरर टोकन",
+			"ntfyTokenHintConfigured": "टोकन पहले से कॉन्फ़िगर है ({{masked}})। बदलने के लिए नया टोकन दर्ज करें।",
+			"ntfyTokenHintOptional": "वैकल्पिक। यदि आपके ntfy सर्वर को प्रमाणीकरण की आवश्यकता है तो टोकन प्रदान करें।",
+			"connectNtfy": "ntfy कनेक्ट करें",
+			"gotifyTitle": "Gotify",
+			"gotifyDescription": "खाता सूचनाएँ अपने Gotify सर्वर पर भेजें।",
+			"gotifyTokenLabel": "ऐप टोकन",
+			"gotifyServerPlaceholder": "https://gotify.example.com",
+			"gotifyTokenPlaceholder": "Gotify ऐप टोकन",
+			"gotifyTokenHintConfigured": "ऐप टोकन पहले से कॉन्फ़िगर है ({{masked}})। बदलने के लिए नया टोकन दर्ज करें।",
+			"gotifyTokenHintRequired": "आवश्यक। अपने Gotify सर्वर से एक एप्लिकेशन टोकन का उपयोग करें।",
+			"connectGotify": "Gotify कनेक्ट करें",
+			"webhookTitle": "कस्टम वेबहुक",
+			"webhookDescription": "खाता सूचनाएँ JSON के रूप में अपने एंडपॉइंट पर भेजें।",
+			"endpointUrl": "एंडपॉइंट URL",
+			"signingSecret": "साइनिंग सीक्रेट",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookSecretPlaceholder": "वैकल्पिक शेयर्ड सीक्रेट",
+			"webhookSecretHintConfigured": "साइनिंग सीक्रेट पहले से कॉन्फ़िगर है ({{masked}})। बदलने के लिए नया दर्ज करें।",
+			"webhookSecretHintOptional": "वैकल्पिक। सीक्रेट सेट होने पर Kaneo अनुरोध बॉडी पर हस्ताक्षर करता है।",
+			"connectWebhook": "वेबहुक कनेक्ट करें",
+			"workspaceRulesTitle": "वर्कस्पेस डिलीवरी नियम",
+			"workspaceRulesDescription": "अपने वैश्विक चैनल पुनः उपयोग करें, फिर तय करें कि कौन से वर्कस्पेस और प्रोजेक्ट खाता सूचनाएँ भेज सकते हैं।",
+			"workspaceCardHint": "चुनें कि यह वर्कस्पेस खाता सूचनाओं के लिए कौन से चैनल उपयोग कर सकता है।",
+			"workspaceEnabledLabel": "{{workspaceName}} के लिए सूचनाएँ सक्षम करें",
+			"eventPreferencesTitle": "इन विषयों पर सूचित करें",
+			"eventPreferencesDescription": "चुनें कि कौन से कार्य इवेंट इन-ऐप सूचनाएँ बनाएँ और आपके जुड़े चैनलों पर वितरित किए जा सकें।",
+			"eventTaskAssignments": "कार्य असाइनमेंट",
+			"eventComments": "टिप्पणियाँ और उल्लेख",
+			"eventCommentsHint": "आपको असाइन किए गए कार्यों पर नई टिप्पणियाँ और सीधे @उल्लेख शामिल हैं।",
+			"eventStatusChanges": "कार्य स्थिति परिवर्तन",
+			"eventDueDateReminders": "नियत तारीख अनुस्मारक",
+			"reminderLeadTimeLabel": "नियत तारीख से पहले मुझे याद दिलाएँ",
+			"reminderLeadTimeHint": "1 घंटे से 30 दिन पहले तक। अतिदेय सूचनाएँ अलग से भेजी जाती हैं।",
+			"reminderLeadTimeUnitHours": "घंटे",
+			"reminderLeadTimeUnitDays": "दिन",
+			"reminderLeadTimeInvalid": "1 से {{max}} के बीच पूर्ण संख्या दर्ज करें।",
+			"saveEventPreferences": "सूचना प्रकार सहेजें",
+			"workspaceCardLabelEmail": "ईमेल",
+			"workspaceCardLabelNtfy": "ntfy",
+			"workspaceCardLabelGotify": "Gotify",
+			"workspaceCardLabelWebhook": "कस्टम वेबहुक",
+			"emailChannelHintEnabled": "मिलान वर्कस्पेस सूचनाएँ ईमेल से भेजें।",
+			"emailChannelHintDisabled": "पहले ईमेल को वैश्विक रूप से कॉन्फ़िगर और सक्षम करें।",
+			"ntfyChannelHintEnabled": "मिलान वर्कस्पेस सूचनाएँ ntfy पर भेजें।",
+			"ntfyChannelHintDisabled": "पहले ntfy को वैश्विक रूप से कॉन्फ़िगर और सक्षम करें।",
+			"gotifyChannelHintEnabled": "मिलान वर्कस्पेस सूचनाएँ Gotify पर भेजें।",
+			"gotifyChannelHintDisabled": "पहले Gotify को वैश्विक रूप से कॉन्फ़िगर और सक्षम करें।",
+			"webhookChannelHintEnabled": "मिलान वर्कस्पेस सूचनाएँ अपने वेबहुक पर भेजें।",
+			"webhookChannelHintDisabled": "पहले वेबहुक को वैश्विक रूप से कॉन्फ़िगर और सक्षम करें।",
+			"projectScope": "प्रोजेक्ट स्कोप",
+			"projectScopeDescription": "सभी प्रोजेक्ट डिफ़ॉल्ट रूप से शामिल हैं। यदि इस वर्कस्पेस को केवल चयनित प्रोजेक्ट से सूचनाएँ भेजनी चाहिए तो सीमित करें।",
+			"allProjects": "सभी प्रोजेक्ट",
+			"allProjectsDescription": "इस वर्कस्पेस के हर प्रोजेक्ट से सूचनाएँ वितरित करें।",
+			"selectedProjects": "चयनित प्रोजेक्ट",
+			"selectedProjectsDescription": "केवल चुने गए प्रोजेक्ट से सूचनाएँ वितरित करें।",
+			"noProjectsInWorkspace": "इस वर्कस्पेस के लिए अभी तक कोई प्रोजेक्ट उपलब्ध नहीं।",
+			"createRule": "नियम बनाएँ",
+			"removeRule": "नियम हटाएँ",
+			"toastEmailSaved": "ईमेल सूचना सेटिंग सहेजी गई",
+			"toastEmailSaveFailed": "ईमेल सेटिंग सहेजने में विफल",
+			"toastNtfySaved": "ntfy सेटिंग सहेजी गई",
+			"toastNtfySaveFailed": "ntfy सेटिंग सहेजने में विफल",
+			"toastNtfyDisconnected": "ntfy डिस्कनेक्ट किया गया",
+			"toastNtfyDisconnectFailed": "ntfy डिस्कनेक्ट करने में विफल",
+			"toastGotifySaved": "Gotify सेटिंग सहेजी गई",
+			"toastGotifySaveFailed": "Gotify सेटिंग सहेजने में विफल",
+			"toastGotifyDisconnected": "Gotify डिस्कनेक्ट किया गया",
+			"toastGotifyDisconnectFailed": "Gotify डिस्कनेक्ट करने में विफल",
+			"toastWebhookSaved": "वेबहुक सेटिंग सहेजी गई",
+			"toastWebhookSaveFailed": "वेबहुक सेटिंग सहेजने में विफल",
+			"toastWebhookDisconnected": "वेबहुक डिस्कनेक्ट किया गया",
+			"toastWebhookDisconnectFailed": "वेबहुक डिस्कनेक्ट करने में विफल",
+			"toastRuleSaved": "{{workspaceName}} के लिए सूचना नियम सहेजा गया",
+			"toastRuleSaveFailed": "वर्कस्पेस सूचना नियम सहेजने में विफल",
+			"toastRuleRemoved": "{{workspaceName}} के लिए सूचना नियम हटाया गया",
+			"toastRuleRemoveFailed": "वर्कस्पेस सूचना नियम हटाने में विफल",
+			"toastPreferencesSaved": "सूचना प्राथमिकताएँ सहेजी गईं",
+			"toastPreferencesSaveFailed": "सूचना प्राथमिकताएँ सहेजने में विफल",
+			"toastRuleSavedGeneric": "वर्कस्पेस सूचना नियम सहेजा गया",
+			"toastRuleRemovedGeneric": "वर्कस्पेस सूचना नियम हटाया गया"
+		},
+		"preferencesPage": {
+			"title": "प्राथमिकताएँ",
+			"subtitle": "अपने Kaneo अनुभव को अनुकूलित करें।",
+			"appearanceTitle": "दिखावट",
+			"appearanceSubtitle": "दृश्य सेटिंग और लेआउट प्राथमिकताएँ।",
+			"theme": "थीम",
+			"themeDescription": "अपनी पसंदीदा रंग योजना चुनें",
+			"selectTheme": "थीम चुनें",
+			"themeLight": "लाइट",
+			"themeDark": "डार्क",
+			"themeSystem": "सिस्टम",
+			"language": "भाषा",
+			"languageDescription": "अपनी पसंदीदा इंटरफ़ेस भाषा चुनें",
+			"selectLanguage": "भाषा चुनें",
+			"firstDayOfWeek": "सप्ताह का पहला दिन",
+			"firstDayOfWeekDescription": "चुनें कि कैलेंडर और साप्ताहिक श्रेणियाँ किस दिन से शुरू हों",
+			"selectFirstDayOfWeek": "पहला दिन चुनें",
+			"weekStartsOnSunday": "रविवार",
+			"weekStartsOnMonday": "सोमवार",
+			"weekStartsOnSaturday": "शनिवार",
+			"defaultView": "डिफ़ॉल्ट दृश्य",
+			"defaultViewDescription": "अपना पसंदीदा कार्य दृश्य मोड चुनें",
+			"selectViewMode": "दृश्य मोड चुनें",
+			"board": "बोर्ड",
+			"list": "सूची",
+			"gantt": "गैंट",
+			"sidebarDefault": "साइडबार डिफ़ॉल्ट",
+			"sidebarDefaultDescription": "शुरुआत पर साइडबार विस्तारित रखें",
+			"displayOptions": "प्रदर्शन विकल्प",
+			"displayOptionsDescription": "चुनें कि कार्य दृश्यों में कौन सी जानकारी दिखाई जाए",
+			"taskNumbers": "कार्य संख्याएँ",
+			"taskNumbersDescription": "कार्य ID और संख्याएँ दिखाएँ",
+			"assignees": "सौंपे गए लोग",
+			"assigneesDescription": "दिखाएँ कि कार्य किसे सौंपे गए हैं",
+			"dueDates": "नियत तारीखें",
+			"dueDatesDescription": "कार्य की समय सीमा दिखाएँ",
+			"labels": "लेबल",
+			"labelsDescription": "कार्य लेबल और टैग दिखाएँ",
+			"priority": "प्राथमिकता",
+			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ"
+		},
+		"developerPage": {
+			"pageTitle": "डेवलपर सेटिंग",
+			"title": "डेवलपर सेटिंग",
+			"subtitle": "अपनी API कुंजियाँ और डेवलपर संसाधन प्रबंधित करें।",
+			"apiKeysCardTitle": "API कुंजियाँ",
+			"apiKeysCardDescription": "Kaneo तक प्रोग्रामेटिक पहुँच के लिए API कुंजियाँ बनाएँ और प्रबंधित करें।",
+			"createApiKey": "API कुंजी बनाएँ",
+			"unnamedKey": "अनाम कुंजी"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "API कुंजी बनाई गई",
+				"description": "आपकी API कुंजी \"{{keyName}}\" सफलतापूर्वक बनाई गई है।",
+				"yourApiKey": "आपकी API कुंजी",
+				"copy": "कॉपी करें",
+				"copied": "कॉपी किया",
+				"toastCopied": "API कुंजी क्लिपबोर्ड पर कॉपी की गई",
+				"alertTitle": "सफल! आपकी API कुंजी बनाई गई है",
+				"alertDescription": "इस कुंजी को अभी कॉपी करें। आप इसे दोबारा नहीं देख पाएँगे।",
+				"done": "हो गया",
+				"copyToContinue": "जारी रखने के लिए कुंजी कॉपी करें"
+			},
+			"table": {
+				"loading": "API कुंजियाँ लोड हो रही हैं...",
+				"empty": "अभी तक कोई API कुंजी नहीं। शुरू करने के लिए एक बनाएँ।",
+				"columnName": "नाम",
+				"columnKey": "कुंजी",
+				"columnCreated": "बनाया गया",
+				"columnExpires": "समाप्ति",
+				"columnActions": "कार्रवाइयाँ",
+				"unnamedKey": "अनाम कुंजी",
+				"expiredBadge": "समाप्त {{label}}",
+				"deleteConfirmTitle": "API कुंजी हटाएँ?",
+				"deleteConfirmDescription": "यह कार्रवाई पूर्ववत नहीं की जा सकती। यह {{name}} को स्थायी रूप से हटा देगी।",
+				"deleteFallbackName": "यह API कुंजी",
+				"delete": "हटाएँ",
+				"deleting": "हटा रहे हैं...",
+				"deleteAria": "{{name}} हटाएँ",
+				"deleteAriaFallback": "API कुंजी",
+				"toastDeleted": "API कुंजी सफलतापूर्वक हटाई गई",
+				"toastDeleteError": "API कुंजी हटाने में विफल"
+			},
+			"createDialog": {
+				"title": "API कुंजी बनाएँ",
+				"description": "Kaneo API को प्रोग्रामेटिक रूप से एक्सेस करने के लिए नई API कुंजी बनाएँ।",
+				"nameLabel": "नाम",
+				"namePlaceholder": "मेरी API कुंजी",
+				"nameDescription": "इस API कुंजी के लिए विवरणात्मक नाम",
+				"expirationLabel": "समाप्ति",
+				"expirationPlaceholder": "समाप्ति चुनें",
+				"expirationDescription": "चुनें कि यह API कुंजी कितने समय तक वैध रहे। कभी नहीं एक बिना स्वचालित समाप्ति की कुंजी बनाएगा।",
+				"expiration1d": "1 दिन",
+				"expiration7d": "7 दिन",
+				"expiration30d": "30 दिन",
+				"expiration90d": "90 दिन",
+				"expirationNever": "कभी नहीं",
+				"create": "बनाएँ",
+				"creating": "बना रहे हैं...",
+				"failedCreate": "API कुंजी बनाने में विफल",
+				"validation": {
+					"nameRequired": "नाम आवश्यक है",
+					"nameShort": "नाम कम से कम 3 अक्षरों का होना चाहिए",
+					"expirationRequired": "समाप्ति आवश्यक है"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "सामान्य सेटिंग",
+			"title": "सामान्य सेटिंग",
+			"subtitle": "अपने वर्कस्पेस का नाम और विवरण प्रबंधित करें।",
+			"workspaceInfoTitle": "वर्कस्पेस जानकारी",
+			"workspaceInfoSubtitle": "अपने वर्कस्पेस का विवरण और प्राथमिकताएँ कॉन्फ़िगर करें।",
+			"nameLabel": "वर्कस्पेस का नाम",
+			"nameHint": "आपके वर्कस्पेस का नाम",
+			"namePlaceholder": "वर्कस्पेस का नाम दर्ज करें",
+			"descriptionLabel": "विवरण",
+			"descriptionHint": "आपके वर्कस्पेस का संक्षिप्त विवरण",
+			"descriptionPlaceholder": "वर्कस्पेस विवरण दर्ज करें",
+			"dangerZone": "खतरनाक ज़ोन",
+			"dangerZoneSubtitle": "अपरिवर्तनीय और विनाशकारी कार्रवाइयाँ।",
+			"deleteWorkspace": "वर्कस्पेस हटाएँ",
+			"deleteWorkspaceDescription": "वर्कस्पेस को स्थायी रूप से हटाने के लिए शेड्यूल करें",
+			"deleteModalTitle": "वर्कस्पेस हटाएँ?",
+			"deleteModalDescription": "यह वर्कस्पेस \"{{name}}\" और इसके सभी डेटा को स्थायी रूप से हटा देगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+			"deleteModalConfirm": "वर्कस्पेस हटाएँ",
+			"toastUpdated": "वर्कस्पेस सफलतापूर्वक अपडेट किया गया",
+			"toastUpdateError": "वर्कस्पेस अपडेट करने में विफल",
+			"toastDeleted": "वर्कस्पेस सफलतापूर्वक हटाया गया",
+			"toastDeleteError": "वर्कस्पेस हटाने में विफल",
+			"validation": {
+				"nameRequired": "वर्कस्पेस का नाम आवश्यक है",
+				"nameShort": "वर्कस्पेस का नाम कम से कम 2 अक्षरों का होना चाहिए"
+			}
+		},
+		"projectGeneral": {
+			"pageTitle": "प्रोजेक्ट सेटिंग",
+			"title": "सामान्य सेटिंग",
+			"subtitle": "अपने प्रोजेक्ट का नाम, कुंजी, आइकन और विवरण प्रबंधित करें।",
+			"projectInfoTitle": "प्रोजेक्ट जानकारी",
+			"projectInfoSubtitle": "अपने प्रोजेक्ट का विवरण और प्राथमिकताएँ कॉन्फ़िगर करें।",
+			"iconLabel": "आइकन",
+			"iconHint": "साइडबार और प्रोजेक्ट सतहों में प्रदर्शित।",
+			"pickIconTitle": "आइकन चुनें",
+			"searchIconsPlaceholder": "आइकन खोजें...",
+			"projectNameLabel": "प्रोजेक्ट का नाम",
+			"projectNameHint": "आपके प्रोजेक्ट का नाम",
+			"projectNamePlaceholder": "प्रोजेक्ट का नाम दर्ज करें",
+			"keyLabel": "कुंजी",
+			"keyHint": "टिकट ID के लिए उपयोग (जैसे, {{slug}}-123)",
+			"keyPlaceholder": "PRO",
+			"descriptionLabel": "विवरण",
+			"descriptionHint": "आपके प्रोजेक्ट का संक्षिप्त विवरण",
+			"descriptionPlaceholder": "प्रोजेक्ट विवरण दर्ज करें",
+			"dangerZone": "खतरनाक ज़ोन",
+			"dangerZoneSubtitle": "अपरिवर्तनीय और विनाशकारी कार्रवाइयाँ।",
+			"deleteProject": "प्रोजेक्ट हटाएँ",
+			"deleteProjectDescription": "प्रोजेक्ट को स्थायी रूप से हटाने के लिए शेड्यूल करें",
+			"deleteModalTitle": "प्रोजेक्ट हटाएँ?",
+			"deleteModalDescription": "यह प्रोजेक्ट \"{{name}}\" और इसके सभी डेटा को स्थायी रूप से हटा देगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+			"deleteModalConfirm": "प्रोजेक्ट हटाएँ",
+			"toastUpdated": "प्रोजेक्ट सफलतापूर्वक अपडेट किया गया",
+			"toastUpdateError": "प्रोजेक्ट अपडेट करने में विफल",
+			"toastDeleted": "प्रोजेक्ट सफलतापूर्वक हटाया गया",
+			"toastDeleteError": "प्रोजेक्ट हटाने में विफल",
+			"validation": {
+				"nameRequired": "प्रोजेक्ट का नाम आवश्यक है",
+				"nameShort": "प्रोजेक्ट का नाम कम से कम 2 अक्षरों का होना चाहिए",
+				"keyRequired": "कुंजी आवश्यक है",
+				"keyShort": "कुंजी कम से कम 2 अक्षरों की होनी चाहिए",
+				"keyMax": "कुंजी अधिकतम 8 अक्षरों की होनी चाहिए",
+				"iconRequired": "आइकन आवश्यक है"
+			},
+			"importExportTasks": "आयात/निर्यात",
+			"importExportTasksDescription": "कार्यों को आयात और निर्यात करें।"
+		},
+		"tasksImportExport": {
+			"exportTasks": "कार्य निर्यात करें",
+			"importTasks": "कार्य आयात करें",
+			"dialogTitle": "कार्य आयात करें",
+			"dialogDescription": "इस प्रोजेक्ट में आयात करने के लिए कार्यों वाली JSON फ़ाइल अपलोड करें।",
+			"expectedFormat": "अपेक्षित प्रारूप:",
+			"dropHint": "अपनी JSON फ़ाइल यहाँ खींचें और छोड़ें",
+			"selectFile": "फ़ाइल चुनें",
+			"exporting": "कार्य निर्यात हो रहे हैं...",
+			"exportSuccess": "कार्य सफलतापूर्वक निर्यात किए गए",
+			"exportError": "कार्य निर्यात करने में विफल",
+			"importing": "कार्य आयात हो रहे हैं...",
+			"importSuccess": "{{count}} कार्य सफलतापूर्वक आयात किए गए",
+			"importPartialError": "{{count}} कार्य आयात करने में विफल",
+			"importError": "कार्य आयात करने में विफल",
+			"invalidFormat": "अमान्य आयात फ़ाइल प्रारूप",
+			"noFileDropped": "कोई फ़ाइल नहीं छोड़ी गई",
+			"notJsonFile": "कृपया JSON फ़ाइल अपलोड करें"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "सुझाव",
+			"commands": "कमांड",
+			"projects": "प्रोजेक्ट",
+			"search": "खोजें",
+			"members": "सदस्य",
+			"createTask": "कार्य बनाएँ",
+			"createProject": "प्रोजेक्ट बनाएँ",
+			"createWorkspace": "वर्कस्पेस बनाएँ",
+			"lightTheme": "लाइट थीम",
+			"darkTheme": "डार्क थीम",
+			"systemTheme": "सिस्टम थीम",
+			"keyboardShortcuts": "कीबोर्ड शॉर्टकट",
+			"inputPlaceholder": "ऐप्स और कमांड खोजें...",
+			"empty": "कोई परिणाम नहीं मिला।",
+			"footer": {
+				"navigate": "नेविगेट करें",
+				"open": "खोलें",
+				"close": "बंद करें"
+			}
+		},
+		"notifications": "सूचनाएँ",
+		"sidebar": {
+			"overview": "अवलोकन",
+			"projects": "प्रोजेक्ट",
+			"members": "सदस्य",
+			"invitations": "निमंत्रण",
+			"more": "और",
+			"backToBoard": "बोर्ड पर वापस जाएँ"
+		},
+		"search": {
+			"inputPlaceholder": "कार्य, प्रोजेक्ट, टिप्पणियाँ खोजें...",
+			"minCharsHint": "खोजने के लिए कम से कम 3 अक्षर टाइप करें",
+			"groups": {
+				"task": "कार्य",
+				"project": "प्रोजेक्ट",
+				"workspace": "वर्कस्पेस",
+				"comment": "टिप्पणियाँ",
+				"activity": "गतिविधियाँ",
+				"fallback": "परिणाम"
+			}
+		},
+		"userMenu": {
+			"signedOutSuccess": "सफलतापूर्वक साइन आउट किया",
+			"signOutFailed": "साइन आउट विफल",
+			"unnamedUser": "उपयोगकर्ता",
+			"settings": "सेटिंग",
+			"signingOut": "साइन आउट हो रहा है...",
+			"logOut": "लॉग आउट"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "वर्कस्पेस",
+			"switching": "बदल रहे हैं...",
+			"addWorkspace": "वर्कस्पेस जोड़ें",
+			"selectWorkspace": "वर्कस्पेस चुनें"
+		},
+		"page": {
+			"projectsTitle": "प्रोजेक्ट",
+			"settingsTitle": "सेटिंग",
+			"backToWorkspace": "वर्कस्पेस पर वापस जाएँ",
+			"settingsWorkspaceTab": "वर्कस्पेस"
+		},
+		"settingsLayout": {
+			"toggleSidebar": "साइडबार टॉगल करें",
+			"back": "वापस"
+		},
+		"projectList": {
+			"viewProject": "प्रोजेक्ट देखें",
+			"shareProject": "प्रोजेक्ट साझा करें",
+			"projectSettings": "प्रोजेक्ट सेटिंग",
+			"linkCopied": "प्रोजेक्ट लिंक क्लिपबोर्ड पर कॉपी किया गया",
+			"addProject": "प्रोजेक्ट जोड़ें",
+			"deleteConfirmTitle": "प्रोजेक्ट हटाएँ?",
+			"deleteConfirmDescription": "यह प्रोजेक्ट और इसका सभी डेटा स्थायी रूप से हटा दिया जाएगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+			"deletedToast": "प्रोजेक्ट हटाया गया",
+			"deleteProject": "प्रोजेक्ट हटाएँ"
+		},
+		"projectSettings": {
+			"projectLabel": "प्रोजेक्ट"
+		},
+		"keyboardShortcuts": {
+			"title": "कीबोर्ड शॉर्टकट",
+			"subtitle": "कीबोर्ड शॉर्टकट से अपने कार्यप्रवाह को तेज़ करें",
+			"searchPlaceholder": "शॉर्टकट खोजें...",
+			"footer": "बंद करने के लिए <kbd>Escape</kbd> दबाएँ",
+			"categories": {
+				"general": "सामान्य",
+				"create": "बनाएँ",
+				"views": "दृश्य",
+				"navigation": "नेविगेशन",
+				"quickSelect": "त्वरित चयन (पॉपओवर में)"
+			},
+			"items": {
+				"openCommandPalette": "कमांड पैलेट खोलें",
+				"globalSearch": "वैश्विक खोज",
+				"toggleSidebar": "साइडबार टॉगल करें",
+				"showShortcuts": "कीबोर्ड शॉर्टकट दिखाएँ",
+				"closeModal": "मोडल/पॉपओवर बंद करें",
+				"createTask": "कार्य बनाएँ",
+				"createProject": "प्रोजेक्ट बनाएँ",
+				"createWorkspace": "वर्कस्पेस बनाएँ",
+				"boardView": "बोर्ड दृश्य पर स्विच करें",
+				"listView": "सूची दृश्य पर स्विच करें",
+				"backlogView": "बैकलॉग दृश्य पर स्विच करें",
+				"nextTask": "अगला कार्य",
+				"prevTask": "पिछला कार्य",
+				"openTask": "चयनित कार्य खोलें",
+				"quickSelectNumber": "संख्या द्वारा विकल्प चुनें"
+			}
+		}
+	},
+	"notifications": {
+		"title": "सूचनाएँ",
+		"newCount_one": "{{count}} नई",
+		"newCount_other": "{{count}} नई",
+		"emptyTitle": "अभी तक कोई सूचना नहीं",
+		"emptySubtitle": "आप यहाँ अपडेट और गतिविधि देखेंगे।",
+		"clearAll": "सभी सूचनाएँ साफ़ करें",
+		"clearDialogTitle": "सभी सूचनाएँ साफ़ करें?",
+		"clearDialogDescription": "यह सभी सूचनाओं को स्थायी रूप से हटा देगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+		"shortcuts": {
+			"open": "सूचनाएँ खोलें"
+		},
+		"events": {
+			"task_created": {
+				"title": "नया कार्य बनाया गया",
+				"content": "कार्य \"{{taskTitle}}\" बनाया गया"
+			},
+			"workspace_created": {
+				"title": "वर्कस्पेस बनाया गया",
+				"content": "आपका वर्कस्पेस \"{{workspaceName}}\" सफलतापूर्वक बनाया गया है"
+			},
+			"task_status_changed": {
+				"title": "कार्य स्थिति बदली",
+				"content": "कार्य \"{{taskTitle}}\" की स्थिति \"{{oldStatus}}\" से \"{{newStatus}}\" में बदली"
+			},
+			"task_assignee_changed": {
+				"title": "कार्य आपको सौंपा गया",
+				"content": "आपको कार्य असाइन किया गया है: {{taskTitle}}"
+			},
+			"task_mention": {
+				"title": "{{mentionerName}} ने आपका उल्लेख किया",
+				"content": "{{mentionerName}} ने आपका उल्लेख किया: {{taskTitle}} में"
+			},
+			"task_comment": {
+				"title": "{{commenterName}} ने आपके कार्य पर टिप्पणी की",
+				"content": "{{taskTitle}} पर नई टिप्पणी: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "कार्य जल्द ही देय है",
+				"content": "{{taskTitle}} {{leadTime}} में देय है"
+			},
+			"task_overdue": {
+				"title": "कार्य अतिदेय है",
+				"content": "{{taskTitle}} अपनी नियत तारीख से आगे है"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "कार्य खुद को सौंपा",
+		"unassigned": "कार्य असाइन हटाया",
+		"assignedTo": "कार्य {{name}} को सौंपा",
+		"changedStatus": "स्थिति {{from}} से {{to}} में बदली",
+		"changedPriority": "प्राथमिकता {{from}} से {{to}} में बदली",
+		"clearedDueDate": "नियत तारीख साफ़ की",
+		"setDueDate": "नियत तारीख {{date}} सेट की",
+		"changedDueDate": "नियत तारीख {{from}} से {{to}} में बदली",
+		"changedTitle": "शीर्षक \"{{from}}\" से \"{{to}}\" में बदला",
+		"moved": "कार्य \"{{from}}\" से \"{{to}}\" में ले गए",
+		"created": "यह कार्य बनाया",
+		"githubUser": "GitHub उपयोगकर्ता",
+		"comment": {
+			"github": "GitHub",
+			"viewGithubProfile": "GitHub प्रोफ़ाइल देखें",
+			"commentedOnGithub": "GitHub पर टिप्पणी की",
+			"cannotBeEmpty": "टिप्पणी खाली नहीं हो सकती",
+			"mustBeLoggedInToEdit": "टिप्पणियाँ संपादित करने के लिए लॉग इन होना चाहिए",
+			"updated": "टिप्पणी अपडेट की गई",
+			"failedToUpdate": "टिप्पणी अपडेट करने में विफल",
+			"edit": "टिप्पणी संपादित करें",
+			"editPlaceholder": "टिप्पणी संपादित करें...",
+			"save": "सहेजें",
+			"added": "टिप्पणी जोड़ी गई",
+			"failedToAdd": "टिप्पणी जोड़ने में विफल",
+			"leavePlaceholder": "टिप्पणी छोड़ें...",
+			"attachFile": "फ़ाइल संलग्न करें",
+			"submitShortcut": "टिप्पणी सबमिट करें"
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "स्थिति",
+			"to-do": "करना है",
+			"in-progress": "प्रगति में",
+			"in-review": "समीक्षा में",
+			"done": "पूरा हुआ",
+			"archived": "संग्रहित",
+			"planned": "नियोजित"
+		},
+		"priority": {
+			"label": "प्राथमिकता",
+			"no-priority": "कोई प्राथमिकता नहीं",
+			"low": "कम",
+			"medium": "मध्यम",
+			"high": "उच्च",
+			"urgent": "अत्यावश्यक"
+		},
+		"boardSearchPlaceholder": "टिकट खोजें...",
+		"view": {
+			"board": "बोर्ड",
+			"list": "सूची"
+		},
+		"common": {
+			"selectTask": "कार्य चुनें",
+			"loadingTask": "कार्य लोड हो रहा है...",
+			"taskNotFound": "कार्य नहीं मिला",
+			"taskNotFoundDescription": "जो कार्य आप खोज रहे हैं वह मौजूद नहीं है या हटा दिया गया है।"
+		},
+		"detail": {
+			"subtaskOf": "उप-कार्य",
+			"activity": "गतिविधि",
+			"noActivity": "कोई गतिविधि नहीं मिली",
+			"openInFullPage": "पूरे पेज में खोलें",
+			"titlePlaceholder": "शीर्षक जोड़ने के लिए क्लिक करें",
+			"addDescription": "विवरण जोड़ें..."
+		},
+		"entity": {
+			"task": "कार्य"
+		},
+		"relations": {
+			"title": "संबंध",
+			"tasksInProject": "प्रोजेक्ट में कार्य",
+			"linkError": "कार्य लिंक करने में विफल",
+			"empty": "कोई संबंधित कार्य नहीं",
+			"searchPlaceholder": "लिंक करने के लिए कार्य खोजें...",
+			"noTasksFound": "कोई कार्य नहीं मिला",
+			"openTask": "कार्य खोलें",
+			"removeRelation": "संबंध हटाएँ",
+			"related": "संबंधित",
+			"blocks": "ब्लॉक करता है",
+			"selectTask": "लिंक करने के लिए कार्य चुनें",
+			"types": {
+				"blocks": "ब्लॉक करता है",
+				"blocked_by": "ब्लॉक किया गया",
+				"related": "संबंधित है"
+			}
+		},
+		"subtasks": {
+			"title": "उप-कार्य",
+			"inputPlaceholder": "उप-कार्य शीर्षक...",
+			"addAction": "जोड़ें",
+			"empty": "अभी तक कोई उप-कार्य नहीं",
+			"createError": "उप-कार्य बनाने में विफल",
+			"deleteSuccess": "कार्य सफलतापूर्वक हटाया गया",
+			"deleteError": "कार्य हटाने में विफल",
+			"deleteDialogTitle": "कार्य हटाएँ?",
+			"deleteDialogDescription": "यह कार्य और इसका सभी डेटा स्थायी रूप से हटा दिया जाएगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+			"deleteAction": "कार्य हटाएँ"
+		},
+		"properties": {
+			"title": "गुण",
+			"labels": "लेबल",
+			"copyTaskLink": "कार्य लिंक कॉपी करें",
+			"copyTaskBranch": "कार्य शाखा कॉपी करें",
+			"start": "शुरू",
+			"startDate": "शुरू की तारीख",
+			"noDate": "कोई तारीख नहीं"
+		},
+		"move": {
+			"title": "कार्य ले जाएँ",
+			"projectLabel": "गंतव्य प्रोजेक्ट",
+			"projectPlaceholder": "प्रोजेक्ट चुनें",
+			"statusLabel": "गंतव्य स्थिति",
+			"statusHintKeep": "इस प्रोजेक्ट का वर्कफ़्लो पहले से वर्तमान स्थिति का समर्थन करता है।",
+			"statusHintAdjust": "गंतव्य प्रोजेक्ट में उपयोग करने के लिए स्थिति चुनें।",
+			"action": "कार्य ले जाएँ",
+			"success": "कार्य सफलतापूर्वक ले जाया गया",
+			"error": "कार्य ले जाने में विफल"
+		},
+		"delete": {
+			"title": "कार्य हटाएँ?",
+			"description": "यह कार्य और इसका सभी डेटा स्थायी रूप से हटा दिया जाएगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+			"action": "कार्य हटाएँ",
+			"success": "कार्य सफलतापूर्वक हटाया गया",
+			"error": "कार्य हटाने में विफल"
+		},
+		"archive": {
+			"success": "{{count}} कार्य संग्रहित किए गए"
+		},
+		"listView": {
+			"addTask": "कार्य जोड़ें",
+			"archiveAllTooltip": "सभी पूर्ण कार्य संग्रहित करें",
+			"noTasks": "कोई कार्य नहीं"
+		},
+		"kanban": {
+			"addTask": "कार्य जोड़ें"
+		},
+		"assignee": {
+			"label": "सौंपा गया",
+			"unassigned": "असाइन नहीं"
+		},
+		"dueDate": {
+			"label": "नियत तारीख",
+			"clear": "तारीख साफ़ करें",
+			"updateSuccess": "कार्य की नियत तारीख सफलतापूर्वक अपडेट की गई",
+			"updateError": "कार्य की नियत तारीख अपडेट करने में विफल",
+			"clearSuccess": "कार्य की नियत तारीख साफ़ की गई",
+			"clearError": "नियत तारीख साफ़ करने में विफल"
+		},
+		"labels": {
+			"label": "लेबल",
+			"empty": "कोई लेबल उपलब्ध नहीं"
+		},
+		"update": {
+			"success": "कार्य सफलतापूर्वक अपडेट किया गया",
+			"error": "कार्य अपडेट करने में विफल"
+		},
+		"contextMenu": {
+			"copyLink": "लिंक कॉपी करें",
+			"copyLinkSuccess": "कार्य लिंक कॉपी किया गया!"
+		},
+		"actions": {
+			"archive": "संग्रहित करें",
+			"markAsPlanned": "नियोजित चिह्नित करें",
+			"delete": "हटाएँ..."
+		},
+		"sort": {
+			"label": "क्रमबद्ध करें",
+			"by": "इसके अनुसार",
+			"direction": "दिशा",
+			"ascending": "आरोही",
+			"descending": "अवरोही",
+			"fields": {
+				"position": "मैनुअल (स्थिति)",
+				"createdAt": "बनाने की तारीख",
+				"priority": "प्राथमिकता",
+				"dueDate": "नियत तारीख",
+				"title": "शीर्षक",
+				"number": "कार्य संख्या"
+			}
+		},
+		"bulk": {
+			"selectedCount": "{{count}} चयनित",
+			"moveToBacklog": "बैकलॉग में ले जाएँ",
+			"moveToBacklogSuccess": "{{count}} कार्य बैकलॉग में ले जाए गए",
+			"moveToBacklogError": "कार्य बैकलॉग में ले जाने में विफल",
+			"moveToBoard": "बोर्ड पर ले जाएँ",
+			"moveToBoardSuccess": "{{count}} कार्य बोर्ड पर ले जाए गए",
+			"moveToBoardError": "कार्य बोर्ड पर ले जाने में विफल",
+			"delete": "कार्य हटाएँ",
+			"deleteConfirm": "{{count}} कार्य हटाएँ? यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+			"deleteSuccess": "{{count}} कार्य हटाए गए",
+			"deleteError": "कार्य हटाने में विफल",
+			"archive": "कार्य संग्रहित करें",
+			"archiveSuccess": "{{count}} कार्य संग्रहित किए गए",
+			"archiveError": "कार्य संग्रहित करने में विफल",
+			"updateSuccess": "{{count}} कार्य अपडेट किए गए",
+			"updateError": "कार्य अपडेट करने में विफल",
+			"assignTo": "को सौंपें",
+			"assignSuccess": "{{count}} कार्य सौंपे गए",
+			"assignError": "कार्य सौंपने में विफल",
+			"setPriority": "प्राथमिकता सेट करें",
+			"updatePriorityError": "प्राथमिकता अपडेट करने में विफल",
+			"addLabel": "लेबल जोड़ें",
+			"addLabelSuccess": "{{count}} कार्यों में लेबल जोड़ा गया",
+			"addLabelError": "लेबल जोड़ने में विफल",
+			"setDueDate": "नियत तारीख सेट करें",
+			"updateDueDateError": "नियत तारीख अपडेट करने में विफल",
+			"actions": "कार्रवाइयाँ",
+			"searchActions": "कार्रवाइयाँ खोजें...",
+			"noActionsFound": "कोई कार्रवाई नहीं मिली।",
+			"changeStatus": "स्थिति बदलें"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "प्रोजेक्ट",
+			"createProject": "प्रोजेक्ट बनाएँ",
+			"title": "शीर्षक",
+			"progress": "प्रगति",
+			"targetDate": "लक्ष्य तारीख",
+			"dueDate": "नियत तारीख",
+			"status": "स्थिति",
+			"emptyTitle": "अभी तक कोई प्रोजेक्ट नहीं",
+			"emptyDescription": "अपना पहला प्रोजेक्ट बनाकर शुरू करें।",
+			"emptyDescriptionReadOnly": "इस वर्कस्पेस में अभी तक कोई प्रोजेक्ट नहीं है। एडमिन से एक बनाने को कहें।",
+			"projectStatus": {
+				"notStarted": "शुरू नहीं हुआ",
+				"complete": "पूर्ण",
+				"inProgress": "प्रगति में"
+			},
+			"noDueDate": "कोई नियत तारीख नहीं"
+		},
+		"search": {
+			"pageTitle": "खोजें",
+			"backToDashboard": "डैशबोर्ड पर वापस जाएँ",
+			"placeholder": "शीर्षक या शॉर्ट ID (जैसे DEP-23) से कार्य खोजें...",
+			"hint": "इस वर्कस्पेस के सभी प्रोजेक्ट में खोजें। विशिष्ट कार्य खोजने के लिए DEP-23 जैसे शॉर्ट ID उपयोग करें।",
+			"searching": "खोज रहे हैं...",
+			"resultsFound_one": "{{count}} परिणाम मिला",
+			"resultsFound_other": "{{count}} परिणाम मिले",
+			"noResultsTitle": "कोई परिणाम नहीं मिला",
+			"noResultsDescription": "अपने खोज शब्दों को समायोजित करें या कुछ और खोजें",
+			"startTitle": "खोज शुरू करें",
+			"startDescription": "सभी प्रोजेक्ट में कार्य खोजने के लिए खोज शब्द दर्ज करें",
+			"quickSearchesLabel": "त्वरित खोज:",
+			"suggestionHighPriority": "उच्च प्राथमिकता",
+			"suggestionBug": "बग",
+			"suggestionFeature": "फ़ीचर",
+			"suggestionInProgress": "प्रगति में",
+			"suggestionCompleted": "पूर्ण"
+		},
+		"create": {
+			"pageTitle": "वर्कस्पेस बनाएँ",
+			"heading": "नया वर्कस्पेस बनाएँ",
+			"subtitle": "वर्कस्पेस साझा वातावरण हैं जहाँ टीमें प्रोजेक्ट, साइकल और मुद्दों पर काम कर सकती हैं।",
+			"nameLabel": "वर्कस्पेस का नाम",
+			"namePlaceholder": "वर्कस्पेस का नाम दर्ज करें",
+			"descriptionLabel": "विवरण (वैकल्पिक)",
+			"descriptionPlaceholder": "अपने वर्कस्पेस के लिए विवरण जोड़ें",
+			"required": "आवश्यक",
+			"creating": "बना रहे हैं...",
+			"submit": "वर्कस्पेस बनाएँ",
+			"success": "वर्कस्पेस सफलतापूर्वक बनाया गया",
+			"error": "वर्कस्पेस बनाने में विफल"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "मालिक",
+			"admin": "व्यवस्थापक",
+			"member": "सदस्य",
+			"viewer": "दर्शक"
+		},
+		"members": {
+			"pageTitle": "सदस्य",
+			"inviteMember": "सदस्य आमंत्रित करें",
+			"you": "आप"
+		},
+		"invitations": {
+			"pendingBadge": "लंबित",
+			"expires": "{{date}} को समाप्त होता है"
+		},
+		"inviteModal": {
+			"title": "टीम सदस्य आमंत्रित करें",
+			"emailLabel": "ईमेल",
+			"emailPlaceholder": "colleague@company.com",
+			"sendInvitation": "निमंत्रण भेजें",
+			"success": "निमंत्रण सफलतापूर्वक भेजा गया",
+			"error": "टीम सदस्य आमंत्रित करने में विफल"
+		},
+		"membersTable": {
+			"emptyTitle": "अभी तक कोई टीम सदस्य नहीं",
+			"emptyDescription": "शुरू करने के लिए अपने पहले टीम सदस्य को आमंत्रित करें।",
+			"columns": {
+				"name": "नाम",
+				"role": "भूमिका",
+				"joined": "शामिल हुए",
+				"actions": "कार्रवाइयाँ"
+			},
+			"memberRolePending": "{{role}} (लंबित)",
+			"ariaCancelInvitation": "निमंत्रण रद्द करें",
+			"ariaRemoveMember": "सदस्य हटाएँ",
+			"removeDialogTitle": "टीम सदस्य हटाएँ?",
+			"removeDialogDescription": "क्या आप वाकई {{name}} को वर्कस्पेस से हटाना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+			"cancelDialogTitle": "निमंत्रण रद्द करें?",
+			"cancelDialogDescription": "क्या आप वाकई {{email}} के लिए निमंत्रण रद्द करना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+			"removeMember": "सदस्य हटाएँ",
+			"cancelInvitation": "निमंत्रण रद्द करें",
+			"removeSuccess": "टीम सदस्य सफलतापूर्वक हटाया गया",
+			"removeError": "टीम सदस्य हटाने में विफल",
+			"cancelInviteSuccess": "निमंत्रण सफलतापूर्वक रद्द किया गया",
+			"cancelInviteError": "निमंत्रण रद्द करने में विफल",
+			"roleUpdateSuccess": "भूमिका अपडेट की गई",
+			"roleUpdateError": "भूमिका अपडेट करने में विफल"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "सार्वजनिक दृश्य",
+		"badge": "सार्वजनिक",
+		"readOnly": "केवल-पढ़ें",
+		"error": {
+			"title": "प्रोजेक्ट नहीं मिला",
+			"description": "यह प्रोजेक्ट मौजूद नहीं है या सार्वजनिक रूप से उपलब्ध नहीं है।"
+		},
+		"taskDetail": {
+			"labels": "लेबल",
+			"externalLinks": "बाहरी लिंक",
+			"pullRequestFallback": "पुल अनुरोध",
+			"issueFallback": "मुद्दा",
+			"prStatusMerged": "मर्ज किया गया",
+			"prStatusDraft": "ड्राफ़्ट",
+			"prStatusOpen": "खुला",
+			"dueWithDate": "{{date}} तक देय",
+			"created": "बनाया गया",
+			"dueDateLabel": "नियत तारीख"
+		},
+		"theme": {
+			"switchToLight": "लाइट मोड पर स्विच करें",
+			"switchToDark": "डार्क मोड पर स्विच करें"
+		},
+		"copyUrl": {
+			"successToast": "URL कॉपी किया गया",
+			"errorToast": "URL कॉपी करने में विफल",
+			"copied": "कॉपी किया",
+			"share": "साझा करें"
+		},
+		"branding": {
+			"poweredBy": "द्वारा संचालित"
+		}
+	},
+	"invitations": {
+		"pageTitle": "निमंत्रण",
+		"pendingInvitations": "लंबित निमंत्रण",
+		"acceptSubtitle": "वर्कस्पेस में शामिल होने के लिए निमंत्रण स्वीकार करें",
+		"noPendingTitle": "कोई लंबित निमंत्रण नहीं",
+		"noPendingDescription": "इस समय आपके पास कोई लंबित वर्कस्पेस निमंत्रण नहीं है।",
+		"continueToSetup": "सेटअप जारी रखें",
+		"skipForNow": "अभी के लिए छोड़ें",
+		"table": {
+			"workspace": "वर्कस्पेस",
+			"invitedBy": "द्वारा आमंत्रित",
+			"expires": "समाप्ति"
+		},
+		"toast": {
+			"acceptError": "निमंत्रण स्वीकार करने में विफल",
+			"acceptSuccess": "निमंत्रण स्वीकार किया! टीम में स्वागत है।",
+			"rejectError": "निमंत्रण अस्वीकार करने में विफल",
+			"rejectSuccess": "निमंत्रण अस्वीकार किया गया"
+		}
+	}
+}
