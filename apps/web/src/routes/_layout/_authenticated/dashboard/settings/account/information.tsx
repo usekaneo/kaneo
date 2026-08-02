@@ -1,13 +1,15 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef } from "react";
+import { Github } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import useUpdateUserProfile from "@/hooks/mutations/use-update-user-profile";
+import { authClient } from "@/lib/auth-client";
 import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 
@@ -56,6 +59,45 @@ function RouteComponent() {
   const isSavingRef = useRef(false);
   const queuedSaveRef = useRef<ProfileFormValues | null>(null);
   const lastSavedRef = useRef<NormalizedProfileValues | null>(null);
+
+  const [accounts, setAccounts] = useState<Array<{ provider: string }> | null>(
+    null,
+  );
+  const [isLinkingGithub, setIsLinkingGithub] = useState(false);
+
+  useEffect(() => {
+    authClient.listAccounts().then((res) => {
+      if (res.data) {
+        setAccounts(res.data);
+      }
+    });
+  }, []);
+
+  const isGithubLinked = accounts?.some(
+    (acc: { providerId?: string; provider?: string }) =>
+      acc.providerId === "github" || acc.provider === "github",
+  );
+
+  const handleLinkGithub = async () => {
+    setIsLinkingGithub(true);
+    try {
+      const res = await authClient.linkSocial({
+        provider: "github",
+        callbackURL: window.location.href,
+      });
+      if (res?.error) {
+        toast.error(res.error.message);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:informationPage.updateError"),
+      );
+    } finally {
+      setIsLinkingGithub(false);
+    }
+  };
   const profileSchema = z.object({
     name: z
       .string()
@@ -264,6 +306,51 @@ function RouteComponent() {
                 />
               </form>
             </Form>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-md font-medium">
+              {t("settings:informationPage.linkedAccountsTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("settings:informationPage.linkedAccountsSubtitle")}
+            </p>
+          </div>
+
+          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Github className="h-5 w-5" />
+                <div>
+                  <p className="text-sm font-medium">GitHub</p>
+                  <p className="text-xs text-muted-foreground">
+                    {isGithubLinked
+                      ? user?.email
+                      : t("settings:informationPage.linkedAccountsSubtitle")}
+                  </p>
+                </div>
+              </div>
+
+              {isGithubLinked ? (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  {t("settings:informationPage.githubLinked")}
+                </span>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLinkGithub}
+                  disabled={isLinkingGithub}
+                >
+                  <Github className="h-4 w-4 mr-2" />
+                  {isLinkingGithub
+                    ? t("settings:informationPage.linking")
+                    : t("settings:informationPage.linkGithub")}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

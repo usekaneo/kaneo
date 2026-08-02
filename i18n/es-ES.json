@@ -318,6 +318,11 @@
 			"emailPlaceholder": "Introduce tu correo electrónico",
 			"updateSuccess": "Perfil actualizado correctamente",
 			"updateError": "Error al actualizar tu perfil",
+			"linkedAccountsTitle": "Cuentas vinculadas",
+			"linkedAccountsSubtitle": "Conecta tus cuentas de redes sociales para iniciar sesión con un solo clic.",
+			"linkGithub": "Vincular con GitHub",
+			"githubLinked": "Vinculado",
+			"linking": "Vinculando...",
 			"validation": {
 				"nameRequired": "El nombre es obligatorio",
 				"nameShort": "Tu nombre debe tener al menos 2 caracteres",

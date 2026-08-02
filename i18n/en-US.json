@@ -322,6 +322,11 @@
 			"emailPlaceholder": "Enter your email",
 			"updateSuccess": "Profile updated successfully",
 			"updateError": "Failed to update profile",
+			"linkedAccountsTitle": "Linked accounts",
+			"linkedAccountsSubtitle": "Connect your social accounts to sign in with one click.",
+			"linkGithub": "Link GitHub account",
+			"githubLinked": "Linked",
+			"linking": "Linking...",
 			"validation": {
 				"nameRequired": "Name is required",
 				"nameShort": "Name must be at least 2 characters",
