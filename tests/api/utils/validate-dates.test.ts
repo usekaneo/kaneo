@@ -18,21 +18,21 @@ describe("validateAndParseDate", () => {
   });
 
   it("should throw on an invalid date string", () => {
-    expect(() =>
-      validateAndParseDate("not-a-date", "dueDate"),
-    ).toThrowError(/Invalid dueDate/);
+    expect(() => validateAndParseDate("not-a-date", "dueDate")).toThrowError(
+      /Invalid dueDate/,
+    );
   });
 
   it("should throw on an empty string", () => {
-    expect(() =>
-      validateAndParseDate("", "startDate"),
-    ).toThrowError(/Invalid startDate/);
+    expect(() => validateAndParseDate("", "startDate")).toThrowError(
+      /Invalid startDate/,
+    );
   });
 
   it("should throw on a gibberish string", () => {
-    expect(() =>
-      validateAndParseDate("abc123xyz", "dueDate"),
-    ).toThrowError(/Invalid dueDate/);
+    expect(() => validateAndParseDate("abc123xyz", "dueDate")).toThrowError(
+      /Invalid dueDate/,
+    );
   });
 });
 

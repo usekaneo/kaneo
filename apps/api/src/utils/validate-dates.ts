@@ -4,10 +4,7 @@ import { HTTPException } from "hono/http-exception";
  * Validates and parses a date string. Throws an HTTPException if the string
  * cannot be parsed into a valid Date.
  */
-export function validateAndParseDate(
-  dateStr: string,
-  fieldName: string,
-): Date {
+export function validateAndParseDate(dateStr: string, fieldName: string): Date {
   const parsed = new Date(dateStr);
   if (Number.isNaN(parsed.getTime())) {
     throw new HTTPException(400, {
