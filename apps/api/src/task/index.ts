@@ -20,6 +20,10 @@ import {
 } from "../storage/s3";
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  validateAndParseDate,
+  validateDateRange,
+} from "../utils/validate-dates";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import bulkUpdateTasks from "./controllers/bulk-update-tasks";
 import createTask from "./controllers/create-task";
@@ -202,14 +206,23 @@ const task = new Hono<{
         userId,
       } = c.req.valid("json");
 
+      const parsedStartDate = startDate
+        ? validateAndParseDate(startDate, "startDate")
+        : undefined;
+      const parsedDueDate = dueDate
+        ? validateAndParseDate(dueDate, "dueDate")
+        : undefined;
+
+      validateDateRange(parsedStartDate, parsedDueDate);
+
       const task = await createTask({
         projectId,
         currentUserId: c.get("userId"),
         userId: userId,
         title,
         description,
-        startDate: startDate ? new Date(startDate) : undefined,
-        dueDate: dueDate ? new Date(dueDate) : undefined,
+        startDate: parsedStartDate,
+        dueDate: parsedDueDate,
         priority,
         status,
       });
@@ -340,12 +353,21 @@ const task = new Hono<{
 
       const currentUserId = c.get("userId");
 
+      const parsedStartDate = startDate
+        ? validateAndParseDate(startDate, "startDate")
+        : undefined;
+      const parsedDueDate = dueDate
+        ? validateAndParseDate(dueDate, "dueDate")
+        : undefined;
+
+      validateDateRange(parsedStartDate, parsedDueDate);
+
       const task = await updateTask(
         id,
         title,
         status,
-        startDate ? new Date(startDate) : undefined,
-        dueDate ? new Date(dueDate) : undefined,
+        parsedStartDate,
+        parsedDueDate,
         projectId,
         description,
         priority,
