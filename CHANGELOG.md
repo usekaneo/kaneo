@@ -1,3 +1,16 @@
+## [2.12.1](https://github.com/usekaneo/kaneo/compare/v2.12.0...v2.12.1) (2026-07-30)
+
+
+### Features
+
+* **site:** add Jira, Trello, and Linear comparison pages for SEO ([f282e1f](https://github.com/usekaneo/kaneo/commit/f282e1f81d60a2823cc232ceaad1edbe87a7b80b))
+* switch Cloud pricing to USD and replace Product Hunt button with Pricing ([3db23c9](https://github.com/usekaneo/kaneo/commit/3db23c972fffe736b37b1753de80af353e22c3a8))
+# [2.12.0](https://github.com/usekaneo/kaneo/compare/v2.11.0...v2.12.0) (2026-07-30)
+
+
+### Features
+
+* deep-link pricing CTAs through signup to checkout ([b2ba8e4](https://github.com/usekaneo/kaneo/commit/b2ba8e467f286e33ef074c7a2f50c6c6fef361bf))
 # [2.11.0](https://github.com/usekaneo/kaneo/compare/v2.10.0...v2.11.0) (2026-07-30)
 
 
