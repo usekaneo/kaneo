@@ -1,19 +1,65 @@
 import { HTTPException } from "hono/http-exception";
-import { getGithubApp } from "../../plugins/github/utils/github-app";
+import {
+  getGithubApp,
+  getGithubOctokit,
+} from "../../plugins/github/utils/github-app";
 
 async function verifyGithubInstallation({
   repositoryOwner,
   repositoryName,
+  userId,
 }: {
   repositoryOwner: string;
   repositoryName: string;
+  userId?: string;
 }) {
+  const userOctokit = await getGithubOctokit(userId);
+
+  if (userOctokit) {
+    try {
+      const { data: repo } = await userOctokit.rest.repos.get({
+        owner: repositoryOwner,
+        repo: repositoryName,
+      });
+
+      return {
+        isInstalled: true,
+        installationId: 1,
+        repositoryExists: true,
+        repositoryPrivate: repo.private,
+        permissions: repo.permissions,
+        hasRequiredPermissions: true,
+        missingPermissions: [],
+        message: "GitHub repository is connected and accessible via OAuth",
+        settingsUrl: `https://github.com/${repositoryOwner}/${repositoryName}`,
+      };
+    } catch (error) {
+      const githubError = error as { status?: number; message?: string };
+      if (githubError.status === 404) {
+        return {
+          isInstalled: false,
+          installationId: null,
+          repositoryExists: false,
+          repositoryPrivate: null,
+          permissions: null,
+          hasRequiredPermissions: false,
+          missingPermissions: [],
+          message:
+            "Repository does not exist or is not accessible with your GitHub account",
+        };
+      }
+      throw new HTTPException(500, {
+        message: `Failed to verify repository: ${githubError.message || "Unknown error"}`,
+      });
+    }
+  }
+
   const githubApp = getGithubApp();
 
   try {
     if (!githubApp) {
-      throw new HTTPException(500, {
-        message: "GitHub app not configured",
+      throw new HTTPException(400, {
+        message: "GitHub connection not found. Please link your GitHub account.",
       });
     }
 
@@ -75,8 +121,8 @@ async function verifyGithubInstallation({
     if (githubError.status === 404) {
       try {
         if (!githubApp) {
-          throw new HTTPException(500, {
-            message: "GitHub app not configured",
+          throw new HTTPException(400, {
+            message: "GitHub connection not found",
           });
         }
 

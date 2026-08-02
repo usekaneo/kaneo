@@ -215,7 +215,7 @@ export const auth = betterAuth({
     github: {
       clientId: githubSso.clientId,
       clientSecret: githubSso.clientSecret,
-      scope: ["user:email"],
+      scope: ["read:user", "user:email", "repo"],
     },
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",

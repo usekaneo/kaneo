@@ -1,5 +1,7 @@
 import { config } from "dotenv-mono";
-import { App } from "octokit";
+import { and, eq } from "drizzle-orm";
+import { App, Octokit } from "octokit";
+import db, { schema } from "../../../database";
 
 config();
 
@@ -52,12 +54,51 @@ export function getGithubApp(): App | null {
   return githubAppInstance;
 }
 
-export async function getInstallationOctokit(installationId: number) {
-  const app = getGithubApp();
-  if (!app) {
-    throw new Error("GitHub App not configured");
+export async function getGithubOctokit(userId?: string): Promise<Octokit | null> {
+  if (userId) {
+    const account = await db.query.accountTable.findFirst({
+      where: and(
+        eq(schema.accountTable.userId, userId),
+        eq(schema.accountTable.providerId, "github"),
+      ),
+    });
+    if (account?.accessToken) {
+      return new Octokit({ auth: account.accessToken });
+    }
   }
-  return app.getInstallationOctokit(installationId);
+
+  const anyAccount = await db.query.accountTable.findFirst({
+    where: eq(schema.accountTable.providerId, "github"),
+  });
+  if (anyAccount?.accessToken) {
+    return new Octokit({ auth: anyAccount.accessToken });
+  }
+
+  const app = getGithubApp();
+  if (app) {
+    return app.octokit as unknown as Octokit;
+  }
+
+  return null;
+}
+
+export async function getInstallationOctokit(
+  installationId?: number | null,
+  userId?: string,
+) {
+  if (installationId) {
+    const app = getGithubApp();
+    if (app) {
+      return app.getInstallationOctokit(installationId);
+    }
+  }
+  const userOctokit = await getGithubOctokit(userId);
+  if (userOctokit) {
+    return userOctokit;
+  }
+  throw new Error(
+    "GitHub client not configured (neither GitHub App nor GitHub OAuth token found)",
+  );
 }
 
 export async function getInstallationIdForRepo(
@@ -66,14 +107,18 @@ export async function getInstallationIdForRepo(
 ): Promise<number> {
   const app = getGithubApp();
   if (!app) {
-    throw new Error("GitHub App not configured");
+    return 0;
   }
 
-  const { data: installation } =
-    await app.octokit.rest.apps.getRepoInstallation({
-      owner,
-      repo,
-    });
+  try {
+    const { data: installation } =
+      await app.octokit.rest.apps.getRepoInstallation({
+        owner,
+        repo,
+      });
 
-  return installation.id;
+    return installation.id;
+  } catch {
+    return 0;
+  }
 }

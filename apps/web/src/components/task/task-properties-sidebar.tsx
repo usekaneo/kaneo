@@ -7,7 +7,9 @@ import {
   GitBranch,
   Plus,
 } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,6 +91,11 @@ export default function TaskPropertiesSidebar({
   const { data: githubIntegration } = useGetGithubIntegration(projectId);
   const { data: giteaIntegration } = useGetGiteaIntegration(projectId);
   const { data: workspaceProjects = [] } = useGetProjects({ workspaceId });
+  const [repoModalOpen, setRepoModalOpen] = useState(false);
+  const [selectedRepo, setSelectedRepo] = useState<{
+    owner: string;
+    name: string;
+  } | null>(null);
   const canMoveTask =
     Boolean(task) && workspaceProjects.some((p) => p.id !== task?.projectId);
   const statusColumn = columns.find(
@@ -693,6 +700,21 @@ export default function TaskPropertiesSidebar({
                     </Button>
                   </TaskDueDatePopover>
                 )}
+                {task && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5 w-full"
+                    onClick={() => setRepoModalOpen(true)}
+                  >
+                    <GitBranch className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs font-semibold truncate">
+                      {selectedRepo
+                        ? `${selectedRepo.owner}/${selectedRepo.name}`
+                        : "Repositorio GitHub"}
+                    </span>
+                  </Button>
+                )}
               </div>
             </div>
           </>
@@ -748,6 +770,20 @@ export default function TaskPropertiesSidebar({
             </div>
           </div>
         </div>
+
+        <RepositoryBrowserModal
+          open={repoModalOpen}
+          onOpenChange={setRepoModalOpen}
+          onSelectRepository={(repo) => {
+            setSelectedRepo(repo);
+            toast.success(`Repositorio ${repo.owner}/${repo.name} asignado`);
+          }}
+          selectedRepository={
+            selectedRepo
+              ? `${selectedRepo.owner}/${selectedRepo.name}`
+              : undefined
+          }
+        />
       </div>
     </div>
   );

@@ -92,12 +92,6 @@ export async function importIssues(projectId: string): Promise<ImportResult> {
 
   const config = JSON.parse(integration.config) as GitHubConfig;
 
-  if (!config.installationId) {
-    throw new HTTPException(400, {
-      message: "GitHub installation ID not configured",
-    });
-  }
-
   const octokit = await getInstallationOctokit(config.installationId);
 
   const allIssues: GitHubIssue[] = [];

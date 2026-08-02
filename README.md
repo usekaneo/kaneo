@@ -1,42 +1,40 @@
+<h1 align="center">Vaneo</h1>
+
 <p align="center">
-  <a href="https://kaneo.app">
-    <img src="https://assets.kaneo.app/logo-text.png" alt="Kaneo's logo" width="450" />
+  <a href="https://github.com/MiguelVivar/Vaneo">
+    <img src="https://assets.kaneo.app/logo-text.png" alt="Vaneo's logo" width="450" />
   </a>
 </p>
 
 <div align="center">
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/usekaneo/kaneo/ci.yml?branch=main)](https://github.com/usekaneo/kaneo/actions)
-[![Discord](https://img.shields.io/discord/1326250681530843178?color=7389D8&label=&logo=discord&logoColor=ffffff)](https://discord.gg/rU4tSyhXXU)
-[![Sponsors](https://img.shields.io/github/sponsors/andrejsshell)](https://github.com/sponsors/andrejsshell)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MiguelVivar/Vaneo/ci.yml?branch=main)](https://github.com/MiguelVivar/Vaneo/actions)
 
 </div>
 
 <div align="center">
   <h3>
-    <a href="https://kaneo.app/docs/core">Quick Start</a>
+    <a href="#getting-started">Quick Start</a>
     <span> | </span>
-    <a href="https://kaneo.app">Website</a>
-    <span> | </span>
-    <a href="https://cloud.kaneo.app">Cloud</a>
-    <span> | </span>
-    <a href="https://discord.gg/rU4tSyhXXU">Discord</a>
+    <a href="https://github.com/MiguelVivar/Vaneo">Website</a>
   </h3>
 </div>
 
 
 <p align="center">
-  <img src="https://assets.kaneo.app/readme.png" alt="Kaneo Dashboard" />
+  <img src="https://assets.kaneo.app/readme.png" alt="Vaneo Dashboard" />
 </p>
 
-## Why Kaneo?
+## Why Vaneo?
 
-After years of using bloated, overcomplicated project management platforms that distracted from actual work, we built Kaneo to be different.
+Vaneo is an open source project management platform focused on simplicity, speed, and efficiency (forked from Kaneo).
+
+After years of using bloated, overcomplicated project management platforms that distracted from actual work, Vaneo was created to be different.
 
 The problem with most tools isn't that they lack features—it's that they have **too many**. Every notification, every unnecessary button, every complex workflow pulls your team away from what matters: **building great products**.
 
-We believe the best tools are **invisible**. They should amplify your team's natural workflow, not force you to adapt to theirs. Kaneo is built on the principle that **less is more**—every feature exists because it solves a real problem, not because it looks impressive in a demo.
+We believe the best tools are **invisible**. They should amplify your team's natural workflow, not force you to adapt to theirs. Vaneo is built on the principle that **less is more**—every feature exists because it solves a real problem, not because it looks impressive in a demo.
 
 **What makes it different:**
 - **Clean interface** that focuses on your work, not the tool
@@ -44,32 +42,11 @@ We believe the best tools are **invisible**. They should amplify your team's nat
 - **Actually fast** because we care about performance
 - **Open source** with a permissive MIT license
 
-Learn more about Kaneo's features and capabilities in our [documentation](https://kaneo.app/docs/core).
-
-## Sponsors
-
-Kaneo is open source. If you find it useful, consider [sponsoring the project](https://github.com/sponsors/andrejsshell) to help support ongoing development.
-
-<!-- sponsors --><a href="https://github.com/danielsada"><img src="https:&#x2F;&#x2F;github.com&#x2F;danielsada.png" width="60px" alt="User avatar: Daniel Sada" /></a><a href="https://github.com/randoneering"><img src="https:&#x2F;&#x2F;github.com&#x2F;randoneering.png" width="60px" alt="User avatar: (justin)randoneering" /></a><!-- sponsors -->
-
 ## Getting Started
-
-### One-Click Deployment with drim
-
-For straightforward deployments, use [drim](https://github.com/usekaneo/drim) - a CLI tool that handles everything for you:
-
-```bash
-curl -fsSL https://assets.kaneo.app/install.sh | sh
-drim setup
-```
-
-That's it. Your Kaneo instance will be running with automatic HTTPS, database setup, and all services configured.
-
-Perfect for quick deployments and production setups where you want things to just work.
 
 ### Quick Start with Docker Compose
 
-The fastest way to try Kaneo is with Docker Compose. This sets up Kaneo and PostgreSQL with a single Kaneo container:
+The fastest way to try Vaneo is with Docker Compose. This sets up Vaneo and PostgreSQL:
 
 ```yaml
 services:
@@ -83,13 +60,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      test: ["CMD-SHELL", "pg_isready -U vaneo -d vaneo"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  kaneo:
-    image: ghcr.io/usekaneo/kaneo:latest
+  vaneo:
+    image: ghcr.io/miguelvivar/vaneo:latest
     ports:
       - "5173:5173"
     env_file:
@@ -103,12 +80,10 @@ volumes:
   postgres_data:
 ```
 
-Save this as `compose.yml`, copy `.env.sample` to `.env`, uncomment `KANEO_CLIENT_URL=http://localhost:5173`, and set `POSTGRES_PASSWORD=<password>` and `AUTH_SECRET=<output of openssl rand -hex 32>`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
+Save this as `compose.yml`, copy `.env.sample` to `.env`, uncomment `VANEO_CLIENT_URL=http://localhost:5173`, and set `POSTGRES_PASSWORD=<password>` and `AUTH_SECRET=<output of openssl rand -hex 32>`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
-In Docker Compose, the bundled Kaneo container reaches PostgreSQL at the service hostname `postgres`.
+In Docker Compose, the bundled Vaneo container reaches PostgreSQL at the service hostname `postgres`.
 If you run the API on your host instead of inside Compose, use `localhost` or set `DATABASE_URL` explicitly.
-
-> **Important:** See our [full documentation](https://kaneo.app/docs/core) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
 
 ### Development Setup
 
@@ -116,23 +91,17 @@ For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for det
 
 ### Configuration
 
-Kaneo requires several environment variables to be configured. The Docker Compose setup above handles the database automatically, but you'll need to configure environment variables for the API and web services.
-
-For complete configuration instructions, including all required environment variables, database setup for non-Docker deployments, and advanced settings, see the [documentation](https://kaneo.app/docs/core). Advanced deployments can still use the separate `ghcr.io/usekaneo/api` and `ghcr.io/usekaneo/web` images.
-
-## Kubernetes Deployment
-
-If you're running Kubernetes, we provide a comprehensive Helm chart. Check out the [Helm chart documentation](./charts/kaneo/README.md) for detailed installation instructions, production configuration examples, TLS setup, and more.
+Vaneo requires several environment variables to be configured. The Docker Compose setup above handles the database automatically, but you'll need to configure environment variables for the API and web services.
 
 ## Development
 
-Want to hack on Kaneo? See our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions on configuring environment variables and troubleshooting common issues like CORS problems.
+Want to hack on Vaneo? See our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions on configuring environment variables and troubleshooting common issues like CORS problems.
 
 Quick start:
 ```bash
 # Clone and install dependencies
-git clone https://github.com/usekaneo/kaneo.git
-cd kaneo
+git clone https://github.com/MiguelVivar/Vaneo.git
+cd Vaneo
 pnpm install
 
 # Create a .env file in the root with required environment variables
@@ -142,13 +111,11 @@ pnpm install
 pnpm dev
 ```
 
-For contributing guidelines, code structure, and development best practices, check out our [contributing guide](CONTRIBUTING.md) and [documentation](https://kaneo.app/docs/core).
+For contributing guidelines, code structure, and development best practices, check out our [contributing guide](CONTRIBUTING.md).
 
 ## Community
 
-- **[Discord](https://discord.gg/rU4tSyhXXU)** - Chat with users and contributors
-- **[GitHub Issues](https://github.com/usekaneo/kaneo/issues)** - Bug reports and feature requests
-- **[Documentation](https://kaneo.app/docs/core)** - Detailed guides, API docs, and tutorials
+- **[GitHub Issues](https://github.com/MiguelVivar/Vaneo/issues)** - Bug reports and feature requests
 
 ## Contributing
 
@@ -156,7 +123,6 @@ We're always looking for help, whether that's:
 - Reporting bugs or suggesting features
 - Improving documentation
 - Contributing code
-- Helping other users on Discord
 
 Check out [CONTRIBUTING.md](CONTRIBUTING.md) for the details on how to get involved.
 
@@ -166,10 +132,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-<div align="center">
-  <img src="https://repobeats.axiom.co/api/embed/3e8367ec2b2350e4fc48662df33c81dac657b833.svg" alt="Repobeats analytics image" />
-</div>
-
 <p align="center">
-  Built with ❤️ by the Kaneo team and <a href="#contributors">contributors</a>
+  Built with ❤️ by the Vaneo team and <a href="#contributors">contributors</a> (Fork of <a href="https://github.com/usekaneo/kaneo">Kaneo</a>)
 </p>

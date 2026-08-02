@@ -98,7 +98,8 @@ const githubIntegration = new Hono<{
       },
     }),
     async (c) => {
-      const repositories = await listUserRepositories();
+      const userId = c.get("userId");
+      const repositories = await listUserRepositories(userId);
       return c.json(repositories);
     },
   )
@@ -125,11 +126,13 @@ const githubIntegration = new Hono<{
       }),
     ),
     async (c) => {
+      const userId = c.get("userId");
       const { repositoryOwner, repositoryName } = c.req.valid("json");
 
       const verification = await verifyGithubInstallation({
         repositoryOwner,
         repositoryName,
+        userId,
       });
 
       return c.json(verification);
@@ -184,6 +187,7 @@ const githubIntegration = new Hono<{
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
+      const userId = c.get("userId");
       const { projectId } = c.req.valid("param");
       const { repositoryOwner, repositoryName } = c.req.valid("json");
 
@@ -191,6 +195,7 @@ const githubIntegration = new Hono<{
         projectId,
         repositoryOwner,
         repositoryName,
+        userId,
       });
 
       return c.json(integration);

@@ -3,6 +3,7 @@ import { produce } from "immer";
 import {
   CalendarIcon,
   Check,
+  GitBranch,
   Plus,
   Search,
   Tag,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -190,6 +192,12 @@ function CreateTaskModal({
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
 
+  const [selectedRepo, setSelectedRepo] = useState<{
+    owner: string;
+    name: string;
+  } | null>(null);
+  const [repoModalOpen, setRepoModalOpen] = useState(false);
+
   const [labelsOpen, setLabelsOpen] = useState(false);
   const [labelsStep, setLabelsStep] = useState<PopoverStep>("select");
   const [searchValue, setSearchValue] = useState("");
@@ -241,6 +249,8 @@ function CreateTaskModal({
     setDueDate(undefined);
     setCreateMore(false);
     setLabels([]);
+    setSelectedRepo(null);
+    setRepoModalOpen(false);
     setLabelsStep("select");
     setSearchValue("");
     setSelectedColor("gray");
@@ -1013,8 +1023,37 @@ function CreateTaskModal({
                   )}
                 </PopoverContent>
               </Popover>
+
+              <button
+                type="button"
+                onClick={() => setRepoModalOpen(true)}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                  selectedRepo
+                    ? "bg-accent/30 text-foreground"
+                    : "text-muted-foreground",
+                )}
+              >
+                <GitBranch className="w-3.5 h-3.5" />
+                <span>
+                  {selectedRepo
+                    ? `${selectedRepo.owner}/${selectedRepo.name}`
+                    : "Repositorio"}
+                </span>
+              </button>
             </div>
           </div>
+
+          <RepositoryBrowserModal
+            open={repoModalOpen}
+            onOpenChange={setRepoModalOpen}
+            onSelectRepository={(repo) => setSelectedRepo(repo)}
+            selectedRepository={
+              selectedRepo
+                ? `${selectedRepo.owner}/${selectedRepo.name}`
+                : undefined
+            }
+          />
 
           <DialogFooter className="flex-shrink-0 border-t border-border bg-background px-6 py-4">
             <div className="flex items-center gap-3 mr-auto">

@@ -3,22 +3,29 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { integrationTable, projectTable } from "../../database/schema";
 import { defaultGitHubConfig } from "../../plugins/github/config";
-import { getGithubApp } from "../../plugins/github/utils/github-app";
+import {
+  getGithubApp,
+  getGithubOctokit,
+} from "../../plugins/github/utils/github-app";
 
 async function createGithubIntegration({
   projectId,
   repositoryOwner,
   repositoryName,
+  userId,
 }: {
   projectId: string;
   repositoryOwner: string;
   repositoryName: string;
+  userId?: string;
 }) {
+  const octokit = await getGithubOctokit(userId);
   const githubApp = getGithubApp();
 
-  if (!githubApp) {
-    throw new HTTPException(500, {
-      message: "GitHub app not configured",
+  if (!octokit && !githubApp) {
+    throw new HTTPException(400, {
+      message:
+        "GitHub not connected. Please link your GitHub account or configure GitHub App.",
     });
   }
 
