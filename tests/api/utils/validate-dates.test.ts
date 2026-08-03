@@ -25,7 +25,13 @@ describe("validateAndParseDate", () => {
 
   it("should throw on an empty string", () => {
     expect(() => validateAndParseDate("", "startDate")).toThrowError(
-      /Invalid startDate/,
+      /startDate cannot be an empty string/,
+    );
+  });
+
+  it("should throw on a whitespace-only string", () => {
+    expect(() => validateAndParseDate("   ", "dueDate")).toThrowError(
+      /dueDate cannot be an empty string/,
     );
   });
 

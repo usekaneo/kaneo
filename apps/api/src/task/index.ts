@@ -206,12 +206,14 @@ const task = new Hono<{
         userId,
       } = c.req.valid("json");
 
-      const parsedStartDate = startDate
-        ? validateAndParseDate(startDate, "startDate")
-        : undefined;
-      const parsedDueDate = dueDate
-        ? validateAndParseDate(dueDate, "dueDate")
-        : undefined;
+      const parsedStartDate =
+        startDate !== undefined
+          ? validateAndParseDate(startDate, "startDate")
+          : undefined;
+      const parsedDueDate =
+        dueDate !== undefined
+          ? validateAndParseDate(dueDate, "dueDate")
+          : undefined;
 
       validateDateRange(parsedStartDate, parsedDueDate);
 
@@ -353,12 +355,14 @@ const task = new Hono<{
 
       const currentUserId = c.get("userId");
 
-      const parsedStartDate = startDate
-        ? validateAndParseDate(startDate, "startDate")
-        : undefined;
-      const parsedDueDate = dueDate
-        ? validateAndParseDate(dueDate, "dueDate")
-        : undefined;
+      const parsedStartDate =
+        startDate !== undefined
+          ? validateAndParseDate(startDate, "startDate")
+          : undefined;
+      const parsedDueDate =
+        dueDate !== undefined
+          ? validateAndParseDate(dueDate, "dueDate")
+          : undefined;
 
       validateDateRange(parsedStartDate, parsedDueDate);
 
