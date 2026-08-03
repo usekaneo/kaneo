@@ -34,7 +34,7 @@ export const member = ac.newRole({
   task: ["create", "read", "update"],
   label: ["create", "read", "update", "delete"],
   item_type: ["read"],
-  saved_view: ["create", "read", "update", "delete"],
+  saved_view: ["read"],
   workspace: ["read"],
 });
 

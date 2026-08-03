@@ -69,7 +69,7 @@ describe("addMissingDefaultRoleResources", () => {
         permission: JSON.stringify({
           task: ["read"],
           item_type: ["read"],
-          saved_view: ["create", "read", "update", "delete"],
+          saved_view: ["read"],
         }),
       }),
     );

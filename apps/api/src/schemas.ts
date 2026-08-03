@@ -22,6 +22,30 @@ export const itemTypeSchema = v.object({
   updatedAt: v.date(),
 });
 
+export const savedViewSchema = v.object({
+  id: v.string(),
+  workspaceId: v.string(),
+  projectId: v.nullable(v.string()),
+  userId: v.nullable(v.string()),
+  key: v.string(),
+  name: v.string(),
+  type: v.picklist(["board", "list", "gantt"] as const),
+  position: v.number(),
+  enabled: v.boolean(),
+  configuration: v.record(v.string(), v.unknown()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
+export const resolvedSavedViewSchema = v.object({
+  key: v.string(),
+  name: v.string(),
+  type: v.picklist(["board", "list", "gantt"] as const),
+  position: v.number(),
+  enabled: v.boolean(),
+  configuration: v.record(v.string(), v.unknown()),
+});
+
 export const projectSchema = v.object({
   id: v.string(),
   workspaceId: v.string(),

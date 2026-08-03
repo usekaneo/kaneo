@@ -39,6 +39,12 @@ describe("API integration: openapi", () => {
         put: { operationId: "updateItemType" },
         delete: { operationId: "archiveItemType" },
       },
+      "/saved-view": {
+        post: { operationId: "upsertSavedView" },
+      },
+      "/saved-view/workspace/{workspaceId}/project/{projectId}": {
+        get: { operationId: "listSavedViews" },
+      },
     });
   });
 });

@@ -72,12 +72,7 @@ describe("built-in role privileges", () => {
     expect(member.statements.project).not.toContain("delete");
     expect(member.statements.workspace).toEqual(["read"]);
     expect(member.statements.item_type).toEqual(["read"]);
-    expect(member.statements.saved_view).toEqual([
-      "create",
-      "read",
-      "update",
-      "delete",
-    ]);
+    expect(member.statements.saved_view).toEqual(["read"]);
   });
 
   it("admin can delete tasks and manage workspace settings but cannot delete the workspace", () => {

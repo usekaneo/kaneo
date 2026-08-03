@@ -21,7 +21,7 @@ describe("createDefaultWorkspaceRoleInsert", () => {
     expect(JSON.parse(row.permission)).toEqual(
       expect.objectContaining({
         item_type: ["read"],
-        saved_view: ["create", "read", "update", "delete"],
+        saved_view: ["read"],
       }),
     );
   });
