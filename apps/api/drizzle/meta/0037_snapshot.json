@@ -1,5 +1,5 @@
 {
-  "id": "6b631931-26e3-44f2-819b-b53ce6296f2f",
+  "id": "136e2e83-c785-4846-a717-5cb01146a8db",
   "prevId": "6a7e7824-d4b4-4ed0-a164-14fb010b8e7c",
   "version": "7",
   "dialect": "postgresql",
@@ -1771,6 +1771,14 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "item_type_workspace_id_id_unique": {
+          "name": "item_type_workspace_id_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "workspace_id",
+            "id"
+          ]
+        },
         "item_type_workspace_key_unique": {
           "name": "item_type_workspace_key_unique",
           "nullsNotDistinct": false,
@@ -2373,39 +2381,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "saved_view_scope_key_unique": {
-          "name": "saved_view_scope_key_unique",
-          "columns": [
-            {
-              "expression": "workspace_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "coalesce(\"project_id\", '')",
-              "asc": true,
-              "isExpression": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "coalesce(\"user_id\", '')",
-              "asc": true,
-              "isExpression": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -2415,19 +2390,6 @@
           "tableTo": "workspace",
           "columnsFrom": [
             "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "saved_view_project_id_project_id_fk": {
-          "name": "saved_view_project_id_project_id_fk",
-          "tableFrom": "saved_view",
-          "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
           ],
           "columnsTo": [
             "id"
@@ -2447,10 +2409,36 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
+        },
+        "saved_view_workspace_project_fk": {
+          "name": "saved_view_workspace_project_fk",
+          "tableFrom": "saved_view",
+          "tableTo": "project",
+          "columnsFrom": [
+            "workspace_id",
+            "project_id"
+          ],
+          "columnsTo": [
+            "workspace_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "saved_view_scope_key_unique": {
+          "name": "saved_view_scope_key_unique",
+          "nullsNotDistinct": true,
+          "columns": [
+            "workspace_id",
+            "project_id",
+            "user_id",
+            "key"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -2775,6 +2763,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "item_type_workspace_id": {
+          "name": "item_type_workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "item_type_id": {
           "name": "item_type_id",
           "type": "text",
@@ -2876,11 +2870,38 @@
           "method": "btree",
           "with": {}
         },
-        "task_itemTypeId_idx": {
-          "name": "task_itemTypeId_idx",
+        "task_itemType_idx": {
+          "name": "task_itemType_idx",
           "columns": [
             {
+              "expression": "item_type_workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
               "expression": "item_type_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "task_itemTypeWorkspaceProject_idx": {
+          "name": "task_itemTypeWorkspaceProject_idx",
+          "columns": [
+            {
+              "expression": "item_type_workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "project_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -2951,19 +2972,6 @@
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "task_item_type_id_item_type_id_fk": {
-          "name": "task_item_type_id_item_type_id_fk",
-          "tableFrom": "task",
-          "tableTo": "item_type",
-          "columnsFrom": [
-            "item_type_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
         "task_assignee_id_user_id_fk": {
           "name": "task_assignee_id_user_id_fk",
           "tableFrom": "task",
@@ -2989,6 +2997,36 @@
           ],
           "onDelete": "set null",
           "onUpdate": "cascade"
+        },
+        "task_item_type_workspace_project_fk": {
+          "name": "task_item_type_workspace_project_fk",
+          "tableFrom": "task",
+          "tableTo": "project",
+          "columnsFrom": [
+            "item_type_workspace_id",
+            "project_id"
+          ],
+          "columnsTo": [
+            "workspace_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "task_item_type_fk": {
+          "name": "task_item_type_fk",
+          "tableFrom": "task",
+          "tableTo": "item_type",
+          "columnsFrom": [
+            "item_type_workspace_id",
+            "item_type_id"
+          ],
+          "columnsTo": [
+            "workspace_id",
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -3003,7 +3041,12 @@
         }
       },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "task_item_type_pair_check": {
+          "name": "task_item_type_pair_check",
+          "value": "(\"task\".\"item_type_workspace_id\" is null) = (\"task\".\"item_type_id\" is null)"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.team": {

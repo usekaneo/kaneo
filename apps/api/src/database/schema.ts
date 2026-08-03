@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   foreignKey,
   index,
   integer,
@@ -384,6 +385,7 @@ export const itemTypeTable = pgTable(
   },
   (table) => [
     index("item_type_workspaceId_idx").on(table.workspaceId),
+    unique("item_type_workspace_id_id_unique").on(table.workspaceId, table.id),
     unique("item_type_workspace_key_unique").on(table.workspaceId, table.key),
   ],
 );
@@ -400,10 +402,8 @@ export const taskTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    itemTypeId: text("item_type_id").references(() => itemTypeTable.id, {
-      onDelete: "set null",
-      onUpdate: "cascade",
-    }),
+    itemTypeWorkspaceId: text("item_type_workspace_id"),
+    itemTypeId: text("item_type_id"),
     position: integer("position").default(0),
     number: integer("number").default(1),
     userId: text("assignee_id").references(() => userTable.id, {
@@ -427,8 +427,30 @@ export const taskTable = pgTable(
       .notNull(),
   },
   (table) => [
+    foreignKey({
+      name: "task_item_type_workspace_project_fk",
+      columns: [table.itemTypeWorkspaceId, table.projectId],
+      foreignColumns: [projectTable.workspaceId, projectTable.id],
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
+    foreignKey({
+      name: "task_item_type_fk",
+      columns: [table.itemTypeWorkspaceId, table.itemTypeId],
+      foreignColumns: [itemTypeTable.workspaceId, itemTypeTable.id],
+    })
+      .onDelete("set null")
+      .onUpdate("cascade"),
+    check(
+      "task_item_type_pair_check",
+      sql`(${table.itemTypeWorkspaceId} is null) = (${table.itemTypeId} is null)`,
+    ),
     index("task_projectId_idx").on(table.projectId),
-    index("task_itemTypeId_idx").on(table.itemTypeId),
+    index("task_itemType_idx").on(table.itemTypeWorkspaceId, table.itemTypeId),
+    index("task_itemTypeWorkspaceProject_idx").on(
+      table.itemTypeWorkspaceId,
+      table.projectId,
+    ),
     index("task_dueDate_idx").on(table.dueDate),
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),
@@ -448,10 +470,7 @@ export const savedViewTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    projectId: text("project_id").references(() => projectTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+    projectId: text("project_id"),
     userId: text("user_id").references(() => userTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
@@ -472,15 +491,19 @@ export const savedViewTable = pgTable(
       .notNull(),
   },
   (table) => [
+    foreignKey({
+      name: "saved_view_workspace_project_fk",
+      columns: [table.workspaceId, table.projectId],
+      foreignColumns: [projectTable.workspaceId, projectTable.id],
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
     index("saved_view_workspaceId_idx").on(table.workspaceId),
     index("saved_view_projectId_idx").on(table.projectId),
     index("saved_view_userId_idx").on(table.userId),
-    uniqueIndex("saved_view_scope_key_unique").on(
-      table.workspaceId,
-      sql`coalesce(${table.projectId}, '')`,
-      sql`coalesce(${table.userId}, '')`,
-      table.key,
-    ),
+    unique("saved_view_scope_key_unique")
+      .on(table.workspaceId, table.projectId, table.userId, table.key)
+      .nullsNotDistinct(),
   ],
 );
 

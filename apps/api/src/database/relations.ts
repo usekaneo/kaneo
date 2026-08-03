@@ -165,8 +165,8 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
     references: [columnTable.id],
   }),
   itemType: one(itemTypeTable, {
-    fields: [taskTable.itemTypeId],
-    references: [itemTypeTable.id],
+    fields: [taskTable.itemTypeWorkspaceId, taskTable.itemTypeId],
+    references: [itemTypeTable.workspaceId, itemTypeTable.id],
   }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
@@ -185,8 +185,8 @@ export const savedViewTableRelations = relations(savedViewTable, ({ one }) => ({
     references: [workspaceTable.id],
   }),
   project: one(projectTable, {
-    fields: [savedViewTable.projectId],
-    references: [projectTable.id],
+    fields: [savedViewTable.workspaceId, savedViewTable.projectId],
+    references: [projectTable.workspaceId, projectTable.id],
   }),
   user: one(userTable, {
     fields: [savedViewTable.userId],
