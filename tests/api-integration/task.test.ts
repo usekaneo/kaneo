@@ -106,6 +106,7 @@ describe("API integration: task creation", () => {
       number: 2,
       position: 2,
       assigneeName: member.user.name,
+      itemTypeId: null,
     });
 
     const persistedTask = await db.query.taskTable.findFirst({
@@ -122,6 +123,8 @@ describe("API integration: task creation", () => {
       status: "to-do",
       number: 2,
       position: 2,
+      itemTypeId: null,
+      itemTypeWorkspaceId: null,
     });
   });
 
@@ -278,6 +281,279 @@ describe("API integration: task creation", () => {
       status: "planned",
       columnId: null,
       position: 1,
+    });
+  });
+
+  it("creates a task with an active item type from the project workspace", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [itemType] = await db
+      .insert(schema.itemTypeTable)
+      .values({
+        workspaceId: member.workspace.id,
+        key: "bug",
+        name: "Bug",
+      })
+      .returning();
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Fix assignment",
+        description: "Same workspace",
+        priority: "high",
+        status: "to-do",
+        itemTypeId: itemType.id,
+      }),
+    });
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      id: string;
+      itemTypeId: string;
+    };
+    expect(payload.itemTypeId).toBe(itemType.id);
+    const persisted = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, payload.id),
+    });
+    expect(persisted).toMatchObject({
+      itemTypeId: itemType.id,
+      itemTypeWorkspaceId: member.workspace.id,
+    });
+  });
+
+  it("rejects cross-workspace and archived item type assignments", async () => {
+    const member = await createWorkspaceMember();
+    const other = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [crossWorkspaceType] = await db
+      .insert(schema.itemTypeTable)
+      .values({ workspaceId: other.workspace.id, key: "bug", name: "Bug" })
+      .returning();
+    const [archivedType] = await db
+      .insert(schema.itemTypeTable)
+      .values({
+        workspaceId: member.workspace.id,
+        key: "archived",
+        name: "Archived",
+        archivedAt: new Date(),
+      })
+      .returning();
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    for (const itemTypeId of [crossWorkspaceType.id, archivedType.id]) {
+      const response = await app.request(`/api/task/${project.id}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Invalid assignment",
+          description: "Must not persist",
+          priority: "medium",
+          status: "to-do",
+          itemTypeId,
+        }),
+      });
+      expect(response.status).toBe(400);
+    }
+
+    expect(
+      await db.query.taskTable.findMany({
+        where: eq(schema.taskTable.projectId, project.id),
+      }),
+    ).toHaveLength(0);
+  });
+
+  it("rejects an empty item type id when creating a task", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Invalid assignment",
+        description: "Empty item type",
+        priority: "medium",
+        status: "to-do",
+        itemTypeId: "",
+      }),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects an empty item type id when updating a task", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Task",
+        description: "Description",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        status: task.status,
+        projectId: task.projectId,
+        position: task.position,
+        itemTypeId: "",
+      }),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("revalidates an explicitly supplied archived item type on update", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [itemType] = await db
+      .insert(schema.itemTypeTable)
+      .values({
+        workspaceId: member.workspace.id,
+        key: "archived",
+        name: "Archived",
+        archivedAt: new Date(),
+      })
+      .returning();
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        itemTypeWorkspaceId: member.workspace.id,
+        itemTypeId: itemType.id,
+        title: "Historical task",
+        description: "Description",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        status: task.status,
+        projectId: task.projectId,
+        position: task.position,
+        itemTypeId: itemType.id,
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    const persisted = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+    expect(persisted).toMatchObject({
+      itemTypeWorkspaceId: member.workspace.id,
+      itemTypeId: itemType.id,
+    });
+  });
+
+  it("updates and removes an item type assignment as an atomic pair", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [itemType] = await db
+      .insert(schema.itemTypeTable)
+      .values({ workspaceId: member.workspace.id, key: "bug", name: "Bug" })
+      .returning();
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        userId: member.user.id,
+        title: "Task",
+        description: "Description",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const assign = await app.request(`/api/task/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        status: task.status,
+        projectId: task.projectId,
+        position: task.position,
+        userId: task.userId,
+        itemTypeId: itemType.id,
+      }),
+    });
+    expect(assign.status).toBe(200);
+    expect(await assign.json()).toMatchObject({ itemTypeId: itemType.id });
+
+    const remove = await app.request(`/api/task/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        status: task.status,
+        projectId: task.projectId,
+        position: task.position,
+        userId: task.userId,
+        itemTypeId: null,
+      }),
+    });
+    expect(remove.status).toBe(200);
+    expect(await remove.json()).toMatchObject({ itemTypeId: null });
+
+    const persisted = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+    expect(persisted).toMatchObject({
+      itemTypeId: null,
+      itemTypeWorkspaceId: null,
     });
   });
 });

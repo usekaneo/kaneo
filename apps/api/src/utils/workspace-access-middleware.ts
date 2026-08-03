@@ -14,6 +14,7 @@ type WorkspaceIdSource =
         | "project"
         | "task"
         | "label"
+        | "itemType"
         | "timeEntry"
         | "activity"
         | "comment"
@@ -95,6 +96,7 @@ async function lookupWorkspaceId(
     | "project"
     | "task"
     | "label"
+    | "itemType"
     | "timeEntry"
     | "activity"
     | "comment"
@@ -135,6 +137,15 @@ async function lookupWorkspaceId(
           .where(eq(schema.labelTable.id, id))
           .limit(1);
         return label?.workspaceId || null;
+      }
+
+      case "itemType": {
+        const [itemType] = await db
+          .select({ workspaceId: schema.itemTypeTable.workspaceId })
+          .from(schema.itemTypeTable)
+          .where(eq(schema.itemTypeTable.id, id))
+          .limit(1);
+        return itemType?.workspaceId || null;
       }
 
       case "timeEntry": {
@@ -275,6 +286,11 @@ export const workspaceAccess = {
         { type: "lookup", resource: "label", idKey },
         { type: "query", key: "workspaceId" },
       ],
+    }),
+
+  fromItemType: (idKey = "id") =>
+    workspaceAccessMiddleware({
+      sources: [{ type: "lookup", resource: "itemType", idKey }],
     }),
 
   fromTimeEntry: (idKey = "id") =>

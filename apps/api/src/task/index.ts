@@ -38,6 +38,10 @@ import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
+const optionalItemTypeIdSchema = v.optional(
+  v.nullable(v.pipe(v.string(), v.minLength(1))),
+);
+
 const task = new Hono<{
   Variables: {
     userId: string;
@@ -185,6 +189,7 @@ const task = new Hono<{
         priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
         userId: v.optional(v.string()),
+        itemTypeId: optionalItemTypeIdSchema,
       }),
     ),
     workspaceAccess.fromProject("projectId"),
@@ -200,12 +205,14 @@ const task = new Hono<{
         priority,
         status,
         userId,
+        itemTypeId,
       } = c.req.valid("json");
 
       const task = await createTask({
         projectId,
         currentUserId: c.get("userId"),
         userId: userId,
+        itemTypeId,
         title,
         description,
         startDate: startDate ? new Date(startDate) : undefined,
@@ -319,6 +326,7 @@ const task = new Hono<{
         projectId: v.string(),
         position: v.number(),
         userId: v.optional(v.string()),
+        itemTypeId: optionalItemTypeIdSchema,
       }),
     ),
     workspaceAccess.fromTask(),
@@ -336,6 +344,7 @@ const task = new Hono<{
         projectId,
         position,
         userId,
+        itemTypeId,
       } = c.req.valid("json");
 
       const currentUserId = c.get("userId");
@@ -351,6 +360,7 @@ const task = new Hono<{
         priority,
         position,
         userId,
+        itemTypeId,
         currentUserId,
       );
 

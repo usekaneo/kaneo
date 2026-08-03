@@ -37,6 +37,7 @@ import githubIntegration, {
 } from "./github-integration";
 import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
+import itemType from "./item-type";
 import label from "./label";
 import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
 import { migrateColumns } from "./migrations/column-migration";
@@ -558,6 +559,7 @@ export function createApp() {
   const commentApi = api.route("/comment", comment);
   const timeEntryApi = api.route("/time-entry", timeEntry);
   const labelApi = api.route("/label", label);
+  const itemTypeApi = api.route("/item-type", itemType);
   const notificationApi = api.route("/notification", notification);
   const notificationPreferencesApi = api.route(
     "/notification-preferences",
@@ -738,6 +740,7 @@ export function createApp() {
     giteaIntegrationApi,
     invitationApi,
     invitationPublicApi,
+    itemTypeApi,
     labelApi,
     notificationApi,
     notificationPreferencesApi,
@@ -855,6 +858,7 @@ const {
   giteaIntegrationApi,
   invitationApi,
   invitationPublicApi,
+  itemTypeApi,
   labelApi,
   notificationApi,
   notificationPreferencesApi,
@@ -889,6 +893,7 @@ export type AppType =
   | typeof commentApi
   | typeof timeEntryApi
   | typeof labelApi
+  | typeof itemTypeApi
   | typeof notificationApi
   | typeof notificationPreferencesApi
   | typeof searchApi

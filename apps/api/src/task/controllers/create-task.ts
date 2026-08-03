@@ -1,7 +1,13 @@
-import { and, eq, max } from "drizzle-orm";
+import { and, eq, isNull, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable, userTable } from "../../database/schema";
+import {
+  columnTable,
+  itemTypeTable,
+  projectTable,
+  taskTable,
+  userTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import { assertValidTaskStatus } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
@@ -16,6 +22,7 @@ async function createTask({
   dueDate,
   description,
   priority,
+  itemTypeId,
 }: {
   projectId: string;
   currentUserId: string;
@@ -26,6 +33,7 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  itemTypeId?: string | null;
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
@@ -58,6 +66,30 @@ async function createTask({
 
   const nextPosition = (maxPositionResult?.maxPosition ?? 0) + 1;
 
+  let itemTypeWorkspaceId: string | null = null;
+  if (itemTypeId !== undefined && itemTypeId !== null) {
+    const [itemType] = await db
+      .select({ workspaceId: itemTypeTable.workspaceId })
+      .from(projectTable)
+      .innerJoin(
+        itemTypeTable,
+        and(
+          eq(itemTypeTable.workspaceId, projectTable.workspaceId),
+          eq(itemTypeTable.id, itemTypeId),
+          isNull(itemTypeTable.archivedAt),
+        ),
+      )
+      .where(eq(projectTable.id, projectId))
+      .limit(1);
+
+    if (!itemType) {
+      throw new HTTPException(400, {
+        message: "Item type must be active and belong to the project workspace",
+      });
+    }
+    itemTypeWorkspaceId = itemType.workspaceId;
+  }
+
   const createdTask = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
 
@@ -65,6 +97,8 @@ async function createTask({
       .insert(taskTable)
       .values({
         projectId,
+        itemTypeWorkspaceId,
+        itemTypeId: itemTypeId ?? null,
         userId: userId || null,
         title: title || "",
         status: resolvedStatus,

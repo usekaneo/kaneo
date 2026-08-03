@@ -1,7 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable } from "../../database/schema";
+import {
+  columnTable,
+  itemTypeTable,
+  projectTable,
+  taskTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 import { assertValidTaskStatus } from "../validate-task-fields";
@@ -17,6 +22,7 @@ async function updateTask(
   priority: string,
   position: number,
   userId?: string,
+  itemTypeId?: string | null,
   currentUserId?: string,
 ) {
   const [existingTask] = await db
@@ -25,6 +31,8 @@ async function updateTask(
       description: taskTable.description,
       status: taskTable.status,
       projectId: taskTable.projectId,
+      itemTypeWorkspaceId: taskTable.itemTypeWorkspaceId,
+      itemTypeId: taskTable.itemTypeId,
     })
     .from(taskTable)
     .where(eq(taskTable.id, id))
@@ -51,10 +59,43 @@ async function updateTask(
     ),
   });
 
+  let resolvedItemTypeId = existingTask.itemTypeId;
+  let resolvedItemTypeWorkspaceId = existingTask.itemTypeWorkspaceId;
+
+  if (itemTypeId === null) {
+    resolvedItemTypeId = null;
+    resolvedItemTypeWorkspaceId = null;
+  } else if (itemTypeId !== undefined) {
+    const [itemType] = await db
+      .select({ workspaceId: itemTypeTable.workspaceId })
+      .from(projectTable)
+      .innerJoin(
+        itemTypeTable,
+        and(
+          eq(itemTypeTable.workspaceId, projectTable.workspaceId),
+          eq(itemTypeTable.id, itemTypeId),
+          isNull(itemTypeTable.archivedAt),
+        ),
+      )
+      .where(eq(projectTable.id, projectId))
+      .limit(1);
+
+    if (!itemType) {
+      throw new HTTPException(400, {
+        message: "Item type must be active and belong to the project workspace",
+      });
+    }
+
+    resolvedItemTypeId = itemTypeId;
+    resolvedItemTypeWorkspaceId = itemType.workspaceId;
+  }
+
   const [updatedTask] = await db
     .update(taskTable)
     .set({
       title,
+      itemTypeWorkspaceId: resolvedItemTypeWorkspaceId,
+      itemTypeId: resolvedItemTypeId,
       status,
       columnId: column?.id ?? null,
       startDate: startDate || null,

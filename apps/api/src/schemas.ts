@@ -9,6 +9,19 @@ export const labelSchema = v.object({
   workspaceId: v.nullable(v.string()),
 });
 
+export const itemTypeSchema = v.object({
+  id: v.string(),
+  workspaceId: v.string(),
+  key: v.string(),
+  name: v.string(),
+  icon: v.string(),
+  description: v.nullable(v.string()),
+  position: v.number(),
+  archivedAt: v.nullable(v.date()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
 export const projectSchema = v.object({
   id: v.string(),
   workspaceId: v.string(),
@@ -24,6 +37,7 @@ export const projectSchema = v.object({
 export const taskSchema = v.object({
   id: v.string(),
   projectId: v.string(),
+  itemTypeId: v.nullable(v.string()),
   position: v.nullable(v.number()),
   number: v.nullable(v.number()),
   userId: v.nullable(v.string()),
