@@ -97,6 +97,28 @@ describe("configuration schema tenant constraints", () => {
     });
   });
 
+  it("rejects an item type id outside the supplied item type workspace", async () => {
+    await createWorkspace("workspace-a");
+    await createWorkspace("workspace-b");
+    await createProject("project-a", "workspace-a");
+    await createItemType("item-type-b", "workspace-b");
+
+    await expect(
+      db.insert(schema.taskTable).values({
+        id: "mismatched-item-type-task",
+        projectId: "project-a",
+        itemTypeWorkspaceId: "workspace-a",
+        itemTypeId: "item-type-b",
+        title: "Mismatched item type task",
+      }),
+    ).rejects.toMatchObject({
+      cause: {
+        code: "23503",
+        constraint: "task_item_type_fk",
+      },
+    });
+  });
+
   it("accepts an item type from the task project's workspace", async () => {
     await createWorkspace("workspace-a");
     await createProject("project-a", "workspace-a");

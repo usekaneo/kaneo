@@ -4,7 +4,7 @@
 
 **Goal:** Add configurable workspace item types and inherited saved project views without changing the familiar Kaneo board experience.
 
-**Architecture:** Introduce two focused domains: `item-type` stores workspace definitions attached optionally to tasks, and `saved-view` stores workspace, project, or personal view configuration. Resolution is a pure function with `workspace -> project -> user` precedence; existing tasks and routes continue to behave as ordinary tasks when `itemTypeId` is null.
+**Architecture:** Introduce two focused domains: `item-type` stores workspace definitions attached optionally to tasks, and `saved-view` stores workspace, project, or personal view configuration. Tasks persist or clear `itemTypeWorkspaceId` and `itemTypeId` as one nullable pair so composite foreign keys enforce tenant boundaries without a breaking backfill. Resolution is a pure function with `workspace -> project -> user` precedence; existing tasks and routes continue to behave as ordinary tasks when both item type columns are null.
 
 **Tech Stack:** PostgreSQL, Drizzle ORM, Hono, Valibot, React 19, TanStack Router/Query, Tailwind CSS v4, Radix UI, Vitest, pnpm/Turbo.
 
@@ -35,7 +35,7 @@ This plan is the first independently deployable slice of the approved design. It
 - Create `apps/api/src/saved-view/controllers/list-saved-views.ts`: fetch applicable rows.
 - Create `apps/api/src/saved-view/resolve-view-config.ts`: pure precedence resolver.
 - Modify `apps/api/src/index.ts`: mount and export both APIs.
-- Modify `apps/api/src/task/index.ts`: accept optional `itemTypeId` on task creation/update.
+- Modify `apps/api/src/task/index.ts`: accept optional `itemTypeId` on task creation/update; controllers derive its workspace and persist or clear the database pair.
 - Modify `apps/api/src/task/controllers/create-task.ts`: persist item type after workspace validation.
 - Modify `apps/api/src/task/controllers/update-task.ts`: persist item type after workspace validation.
 
@@ -151,6 +151,7 @@ git commit -m "feat: add configurable work permissions"
 - Modify: `apps/api/src/database/schema.ts`
 - Modify: `apps/api/src/database/relations.ts`
 - Create: generated migration under `apps/api/drizzle/`
+- Create: `tests/api-integration/configuration-schema-constraints.test.ts`
 
 - [ ] **Step 1: Add schema compile-time usage before the tables exist**
 
@@ -203,21 +204,46 @@ export const itemTypeTable = pgTable(
   },
   (table) => [
     index("item_type_workspaceId_idx").on(table.workspaceId),
+    unique("item_type_workspace_id_id_unique").on(table.workspaceId, table.id),
     unique("item_type_workspace_key_unique").on(table.workspaceId, table.key),
   ],
 );
 ```
 
-Add this nullable field to `taskTable` so existing rows remain valid:
+Add this nullable pair to `taskTable` so existing rows remain valid:
 
 ```typescript
-itemTypeId: text("item_type_id").references(() => itemTypeTable.id, {
-  onDelete: "set null",
-  onUpdate: "cascade",
-}),
+itemTypeWorkspaceId: text("item_type_workspace_id"),
+itemTypeId: text("item_type_id"),
 ```
 
-Add `index("task_itemTypeId_idx").on(table.itemTypeId)` to the task indexes.
+Add the composite foreign keys, pair-consistency check, and supporting indexes to the task table configuration:
+
+```typescript
+foreignKey({
+  name: "task_item_type_workspace_project_fk",
+  columns: [table.itemTypeWorkspaceId, table.projectId],
+  foreignColumns: [projectTable.workspaceId, projectTable.id],
+})
+  .onDelete("cascade")
+  .onUpdate("cascade"),
+foreignKey({
+  name: "task_item_type_fk",
+  columns: [table.itemTypeWorkspaceId, table.itemTypeId],
+  foreignColumns: [itemTypeTable.workspaceId, itemTypeTable.id],
+})
+  .onDelete("set null")
+  .onUpdate("cascade"),
+check(
+  "task_item_type_pair_check",
+  sql`(${table.itemTypeWorkspaceId} is null) = (${table.itemTypeId} is null)`,
+),
+index("task_itemType_idx").on(table.itemTypeWorkspaceId, table.itemTypeId),
+index("task_itemTypeWorkspaceProject_idx").on(
+  table.itemTypeWorkspaceId,
+  table.projectId,
+),
+```
 
 Add the saved view table after `taskTable`:
 
@@ -232,10 +258,7 @@ export const savedViewTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    projectId: text("project_id").references(() => projectTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+    projectId: text("project_id"),
     userId: text("user_id").references(() => userTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
@@ -256,15 +279,19 @@ export const savedViewTable = pgTable(
       .notNull(),
   },
   (table) => [
+    foreignKey({
+      name: "saved_view_workspace_project_fk",
+      columns: [table.workspaceId, table.projectId],
+      foreignColumns: [projectTable.workspaceId, projectTable.id],
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
     index("saved_view_workspaceId_idx").on(table.workspaceId),
     index("saved_view_projectId_idx").on(table.projectId),
     index("saved_view_userId_idx").on(table.userId),
-    uniqueIndex("saved_view_scope_key_unique").on(
-      table.workspaceId,
-      sql`coalesce(${table.projectId}, '')`,
-      sql`coalesce(${table.userId}, '')`,
-      table.key,
-    ),
+    unique("saved_view_scope_key_unique")
+      .on(table.workspaceId, table.projectId, table.userId, table.key)
+      .nullsNotDistinct(),
   ],
 );
 ```
@@ -288,8 +315,8 @@ export const savedViewTableRelations = relations(savedViewTable, ({ one }) => ({
     references: [workspaceTable.id],
   }),
   project: one(projectTable, {
-    fields: [savedViewTable.projectId],
-    references: [projectTable.id],
+    fields: [savedViewTable.workspaceId, savedViewTable.projectId],
+    references: [projectTable.workspaceId, projectTable.id],
   }),
   user: one(userTable, {
     fields: [savedViewTable.userId],
@@ -298,24 +325,31 @@ export const savedViewTableRelations = relations(savedViewTable, ({ one }) => ({
 }));
 ```
 
-Add `itemType` to `taskTableRelations`, and collections to workspace, project, and user relations.
+Add this composite `itemType` relation to `taskTableRelations`, and collections to workspace, project, and user relations:
+
+```typescript
+itemType: one(itemTypeTable, {
+  fields: [taskTable.itemTypeWorkspaceId, taskTable.itemTypeId],
+  references: [itemTypeTable.workspaceId, itemTypeTable.id],
+}),
+```
 
 - [ ] **Step 5: Generate and inspect the migration**
 
 Run: `pnpm --filter @kaneo/api db:generate`
 
-Expected: one new SQL migration containing `item_type`, `saved_view`, nullable `task.item_type_id`, foreign keys, indexes, and unique constraints. Inspect it with `git diff -- apps/api/drizzle apps/api/src/database` and confirm there is no destructive statement against existing task data.
+Expected: one new SQL migration containing `item_type`, `saved_view`, nullable `task.item_type_workspace_id` plus `task.item_type_id`, both composite foreign keys, the pair check, supporting indexes, and `saved_view_scope_key_unique` as `UNIQUE NULLS NOT DISTINCT`. Inspect it with `git diff -- apps/api/drizzle apps/api/src/database` and confirm there is no destructive statement against existing task data or sentinel expression for null scopes.
 
 - [ ] **Step 6: Run the schema test and API build**
 
-Run: `pnpm --filter @kaneo/api test -- ../../../tests/api/database/configuration-schema.test.ts && pnpm --filter @kaneo/api build`
+Run: `pnpm --filter @kaneo/api test -- ../../../tests/api/database/configuration-schema.test.ts && pnpm --filter @kaneo/api test:integration -- ../../tests/api-integration/configuration-schema-constraints.test.ts && pnpm --filter @kaneo/api build`
 
-Expected: PASS and successful build.
+Expected: PASS, including rejection of both cross-workspace composite-FK cases, same-workspace acceptance, and a legacy task with both item type columns null; build succeeds.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add apps/api/src/database apps/api/drizzle tests/api/database/configuration-schema.test.ts
+git add apps/api/src/database apps/api/drizzle tests/api/database/configuration-schema.test.ts tests/api-integration/configuration-schema-constraints.test.ts
 git commit -m "feat: add configurable work schema"
 ```
 
@@ -505,9 +539,19 @@ if (itemTypeId && !itemType) {
     message: "Item type is not available in this workspace",
   });
 }
+
+const itemTypeReference = itemType
+  ? {
+      itemTypeWorkspaceId: itemType.workspaceId,
+      itemTypeId: itemType.id,
+    }
+  : {
+      itemTypeWorkspaceId: null,
+      itemTypeId: null,
+    };
 ```
 
-Derive `workspaceId` by joining the task/project context already used by the routes; do not trust a client-supplied workspace ID.
+Derive `workspaceId` by joining the task/project context already used by the routes; do not trust a client-supplied workspace ID. Include `...itemTypeReference` in both task inserts and updates so assignment writes both database columns and clearing an assignment nulls both columns atomically. The public request continues to accept only `itemTypeId`.
 
 - [ ] **Step 4: Mount typed routes**
 
@@ -592,7 +636,27 @@ Rules:
 - `userId === authenticatedUserId` is personal scope, with or without project.
 - A referenced project must belong to `workspaceId`.
 - Shared scope writes require `saved_view:update`; personal scope writes require membership and must ignore any other submitted user ID.
-- Upsert uses `saved_view_scope_key_unique` with the same `coalesce(project_id, '')` and `coalesce(user_id, '')` conflict target, preventing duplicate defaults even when scope columns are null, and returns the stored row.
+- `saved_view_scope_key_unique` is `UNIQUE NULLS NOT DISTINCT (workspace_id, project_id, user_id, key)`, so null scopes compare equal without sentinel values.
+- Upsert uses the matching column conflict target and returns the stored row:
+
+```typescript
+.onConflictDoUpdate({
+  target: [
+    savedViewTable.workspaceId,
+    savedViewTable.projectId,
+    savedViewTable.userId,
+    savedViewTable.key,
+  ],
+  set: {
+    name: input.name,
+    type: input.type,
+    position: input.position,
+    enabled: input.enabled,
+    configuration: input.configuration,
+    updatedAt: new Date(),
+  },
+})
+```
 
 - [ ] **Step 4: Implement resolved listing**
 
@@ -825,7 +889,7 @@ git commit -m "feat: render configurable project views"
 
 - [ ] **Step 1: Write interaction tests**
 
-Assert that a workspace with no custom types preserves the current creation modal unchanged. With active types, assert an optional `Type` property appears in the existing properties area, defaults to `Task`, and submits `itemTypeId` only when selected. In task details, changing the type must call the existing task update mutation with `{ itemTypeId: selectedId }`.
+Assert that a workspace with no custom types preserves the current creation modal unchanged. With active types, assert an optional `Type` property appears in the existing properties area, defaults to `Task`, and submits `itemTypeId` only when selected. In task details, changing the type must call the existing task update mutation with `{ itemTypeId: selectedId }`. The client never submits `itemTypeWorkspaceId`; the API derives it from the validated item type and persists or clears the two-column database pair.
 
 - [ ] **Step 2: Run and verify failure**
 
@@ -875,7 +939,7 @@ Expected: PASS for all Turbo packages.
 
 - [ ] **Step 4: Verify migration compatibility in a copied local database**
 
-Start the existing local compose stack against a disposable database volume, create a legacy task before applying the new migration, restart with the new image, and verify the task remains visible with `itemTypeId: null`. Create an item type, assign it, archive it, and verify the historical task still displays it.
+Start the existing local compose stack against a disposable database volume, create a legacy task before applying the new migration, restart with the new image, and verify the task remains visible with `itemTypeWorkspaceId: null` and `itemTypeId: null`. Create an item type, assign it, verify both columns contain the same workspace-qualified reference, archive it, and verify the historical task still displays it.
 
 - [ ] **Step 5: Verify the UI in desktop and mobile widths**
 
