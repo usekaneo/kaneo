@@ -11,7 +11,7 @@ const scopePrecedence: Record<ViewConfigScope, number> = {
   user: 2,
 };
 
-export function resolveViewConfig(
+export default function resolveViewConfig(
   layers: ViewConfigLayer[],
 ): Record<string, unknown> {
   return Object.assign(

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  resolveViewConfig,
+import resolveViewConfig, {
   type ViewConfigLayer,
 } from "../../../apps/api/src/saved-view/resolve-view-config";
 
