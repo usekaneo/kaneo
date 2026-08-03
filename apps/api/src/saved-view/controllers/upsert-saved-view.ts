@@ -21,7 +21,9 @@ type ErrorWithDatabaseMetadata = {
   constraint?: unknown;
 };
 
-function rethrowSavedViewDatabaseError(error: unknown): never {
+const SAVED_VIEW_SCOPE_KEY_CONSTRAINT = "saved_view_scope_key_unique";
+
+export function rethrowSavedViewDatabaseError(error: unknown): never {
   const visited = new Set<unknown>();
   let current = error;
 
@@ -33,7 +35,10 @@ function rethrowSavedViewDatabaseError(error: unknown): never {
     visited.add(current);
     const candidate = current as ErrorWithDatabaseMetadata;
 
-    if (candidate.code === "23505") {
+    if (
+      candidate.code === "23505" &&
+      candidate.constraint === SAVED_VIEW_SCOPE_KEY_CONSTRAINT
+    ) {
       throw new HTTPException(409, {
         message: "A saved view with this scope and key already exists",
       });

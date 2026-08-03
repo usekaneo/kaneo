@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
@@ -42,6 +42,15 @@ async function createUserInWorkspace(workspaceId: string, role = "member") {
   });
 
   return user;
+}
+
+async function hashApiKeyForTest(key: string) {
+  const hash = createHash("sha256").update(key).digest();
+  return hash
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
 }
 
 function upsertSavedView(
@@ -175,6 +184,47 @@ describe("API integration: saved views", () => {
       userId: member.user.id,
     });
     expect(personalResponse.status).toBe(200);
+  });
+
+  it("rejects a personal write through a read-only API key", async () => {
+    const member = await createWorkspaceMember({ role: "member" });
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const rawKey = `kaneo_test_${randomUUID()}`;
+    const now = new Date();
+    await db.insert(schema.apikeyTable).values({
+      referenceId: member.user.id,
+      userId: member.user.id,
+      key: await hashApiKeyForTest(rawKey),
+      name: "saved view read-only key",
+      permissions: JSON.stringify({ saved_view: ["read"] }),
+      createdAt: now,
+      updatedAt: now,
+    });
+    const { app } = createApp();
+
+    const response = await app.request("/api/saved-view", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${rawKey}`,
+      },
+      body: JSON.stringify({
+        workspaceId: member.workspace.id,
+        projectId: project.id,
+        userId: member.user.id,
+        key: "mine",
+        name: "Mine",
+        type: "board",
+        position: 0,
+        enabled: true,
+        configuration: {},
+      }),
+    });
+
+    expect(response.status).toBe(403);
+    expect(await db.query.savedViewTable.findMany()).toHaveLength(0);
   });
 
   it("rejects another user's personal scope", async () => {

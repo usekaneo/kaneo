@@ -131,6 +131,14 @@ export async function hasWorkspacePermission(
   return Boolean(statements && satisfies(statements, permissions));
 }
 
+export function hasApiKeyPermission(c: Context, permissions: PermissionMap) {
+  const apiKey = c.get("apiKey") as
+    | { permissions?: Record<string, string[]> | null }
+    | undefined;
+
+  return !apiKey?.permissions || satisfies(apiKey.permissions, permissions);
+}
+
 export function requireWorkspacePermission(permissions: PermissionMap) {
   return async (c: Context, next: Next) => {
     if (!c.get("workspaceId")) {

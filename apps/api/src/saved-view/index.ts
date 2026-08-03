@@ -3,7 +3,10 @@ import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { resolvedSavedViewSchema, savedViewSchema } from "../schemas";
-import { hasWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  hasApiKeyPermission,
+  hasWorkspacePermission,
+} from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import listSavedViews from "./controllers/list-saved-views";
 import upsertSavedView from "./controllers/upsert-saved-view";
@@ -68,6 +71,10 @@ const savedView = new Hono<{
     async (c) => {
       const input = c.req.valid("json");
       const authenticatedUserId = c.get("userId");
+
+      if (!hasApiKeyPermission(c, { saved_view: ["update"] })) {
+        throw new HTTPException(403, { message: "Insufficient API key scope" });
+      }
 
       if (input.userId && input.userId !== authenticatedUserId) {
         throw new HTTPException(403, {
