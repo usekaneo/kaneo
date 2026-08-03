@@ -93,8 +93,8 @@ function AcceptInvitation() {
     });
   };
 
-  // Invitees without an account need the sign-up page, not sign-in: it is the
-  // only flow that forwards the invitation id, which is what allows account
+  // Invitees without an account need the sign-up page: sign-in cannot create
+  // one. Both flows forward the invitation id, which is what allows account
   // creation on instances running with DISABLE_REGISTRATION=true.
   const handleCreateAccount = () => {
     const email = invitationData?.invitation?.email;

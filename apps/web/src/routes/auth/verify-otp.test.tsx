@@ -6,7 +6,15 @@ import {
   waitFor,
 } from "@testing-library/react";
 import type { ComponentType, ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { Route } from "./verify-otp";
 
 // The OTP input measures itself on mount, which jsdom cannot do.
@@ -73,6 +81,12 @@ afterEach(() => {
   emailOtp.mockReset();
   push.mockReset();
   search = { email: "invitee@kaneo.test" };
+});
+
+// The ResizeObserver stub is installed at module scope, so restore it rather
+// than leaking it into other test files sharing this worker.
+afterAll(() => {
+  vi.unstubAllGlobals();
 });
 
 describe("VerifyOtp", () => {
