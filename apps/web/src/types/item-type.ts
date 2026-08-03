@@ -1,10 +1,7 @@
-export type ItemType = {
-  id: string;
-  workspaceId: string;
-  key: string;
-  name: string;
-  icon: string;
-  description: string | null;
-  position: number;
-  archivedAt: string | null;
-};
+import type { client } from "@kaneo/libs";
+import type { InferResponseType } from "hono/client";
+
+export type ItemType = InferResponseType<
+  (typeof client)["item-type"]["workspace"][":workspaceId"]["$get"],
+  200
+>[number];

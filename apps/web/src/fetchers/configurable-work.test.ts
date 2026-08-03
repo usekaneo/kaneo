@@ -5,6 +5,8 @@ import getItemTypes from "@/fetchers/item-type/get-item-types";
 import updateItemType from "@/fetchers/item-type/update-item-type";
 import getResolvedViews from "@/fetchers/saved-view/get-resolved-views";
 import upsertSavedView from "@/fetchers/saved-view/upsert-saved-view";
+import type { ItemType } from "@/types/item-type";
+import type { ResolvedSavedView, SavedViewType } from "@/types/saved-view";
 
 const mocks = vi.hoisted(() => ({
   archiveItemType: vi.fn(),
@@ -62,7 +64,18 @@ describe("configurable work fetchers", () => {
   });
 
   it("sends item type requests through the typed Hono client", async () => {
-    const itemType = { id: "type-1" };
+    const itemType: ItemType = {
+      id: "type-1",
+      workspaceId: "workspace-1",
+      key: "bug",
+      name: "Bug",
+      icon: "bug",
+      description: null,
+      position: 1,
+      archivedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
     mocks.createItemType.mockResolvedValue(okResponse(itemType));
     mocks.getItemTypes.mockResolvedValue(okResponse([itemType]));
     mocks.updateItemType.mockResolvedValue(okResponse(itemType));
@@ -122,16 +135,21 @@ describe("configurable work fetchers", () => {
   });
 
   it("sends saved view requests with their complete API payload", async () => {
-    const view = { key: "board", name: "Board" };
+    const viewType: SavedViewType = "board";
+    const view: ResolvedSavedView = {
+      key: "board",
+      name: "Board",
+      type: viewType,
+      position: 0,
+      enabled: true,
+      configuration: { groupBy: "status" },
+    };
     mocks.getResolvedSavedViews.mockResolvedValue(okResponse([view]));
     mocks.upsertSavedView.mockResolvedValue(okResponse(view));
 
-    await expect(
-      getResolvedViews({
-        workspaceId: "workspace-1",
-        projectId: "project-1",
-      }),
-    ).resolves.toEqual([view]);
+    await expect(getResolvedViews("workspace-1", "project-1")).resolves.toEqual(
+      [view],
+    );
     await expect(
       upsertSavedView({
         workspaceId: "workspace-1",
@@ -196,7 +214,7 @@ describe("configurable work fetchers", () => {
     [
       "get saved views",
       mocks.getResolvedSavedViews,
-      () => getResolvedViews({ workspaceId: "w", projectId: "p" }),
+      () => getResolvedViews("w", "p"),
     ],
     [
       "upsert saved view",

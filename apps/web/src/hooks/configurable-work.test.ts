@@ -100,10 +100,10 @@ describe("configurable work query hooks", () => {
     ]);
     expect(options.enabled).toBe(true);
     await options.queryFn();
-    expect(mocks.getResolvedViews).toHaveBeenCalledWith({
-      workspaceId: "workspace-1",
-      projectId: "project-1",
-    });
+    expect(mocks.getResolvedViews).toHaveBeenCalledWith(
+      "workspace-1",
+      "project-1",
+    );
   });
 
   it("disables resolved view queries if either scope id is missing", () => {

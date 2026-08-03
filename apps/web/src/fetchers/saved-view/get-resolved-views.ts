@@ -1,14 +1,10 @@
 import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import type { ResolvedSavedView } from "@/types/saved-view";
 
-export type GetResolvedViewsRequest = InferRequestType<
-  (typeof client)["saved-view"]["workspace"][":workspaceId"]["project"][":projectId"]["$get"]
->["param"];
-
-async function getResolvedViews({
-  workspaceId,
-  projectId,
-}: GetResolvedViewsRequest) {
+async function getResolvedViews(
+  workspaceId: string,
+  projectId: string,
+): Promise<ResolvedSavedView[]> {
   const response = await client["saved-view"].workspace[":workspaceId"].project[
     ":projectId"
   ].$get({

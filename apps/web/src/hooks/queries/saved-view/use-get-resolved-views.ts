@@ -11,7 +11,7 @@ function useGetResolvedViews({
   return useQuery({
     enabled: Boolean(workspaceId && projectId),
     queryKey: ["saved-views", workspaceId, projectId],
-    queryFn: () => getResolvedViews({ workspaceId, projectId }),
+    queryFn: () => getResolvedViews(workspaceId, projectId),
   });
 }
 
