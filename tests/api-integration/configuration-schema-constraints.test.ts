@@ -1,6 +1,9 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
-import { resetTestDatabase } from "./helpers/database";
+import {
+  ensureTestDatabaseMigrated,
+  resetTestDatabase,
+} from "./helpers/database";
 
 async function createWorkspace(id: string) {
   await db.insert(schema.workspaceTable).values({
@@ -30,9 +33,13 @@ async function createItemType(id: string, workspaceId: string) {
 }
 
 describe("configuration schema tenant constraints", () => {
+  beforeAll(async () => {
+    await ensureTestDatabaseMigrated();
+  }, 60_000);
+
   beforeEach(async () => {
     await resetTestDatabase();
-  });
+  }, 30_000);
 
   it("rejects a saved view scoped to a project in another workspace", async () => {
     await createWorkspace("workspace-a");
