@@ -8,6 +8,9 @@ type ResolvedSavedViewResponse = InferResponseType<
 
 export type SavedViewType = ResolvedSavedViewResponse["type"];
 
-export type ResolvedSavedView = Omit<ResolvedSavedViewResponse, "type"> & {
+export type ResolvedSavedView = Pick<
+  ResolvedSavedViewResponse,
+  "key" | "name" | "type" | "position" | "enabled" | "configuration"
+> & {
   type: SavedViewType;
 };

@@ -73,8 +73,6 @@ describe("configurable work fetchers", () => {
       description: null,
       position: 1,
       archivedAt: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
     mocks.createItemType.mockResolvedValue(okResponse(itemType));
     mocks.getItemTypes.mockResolvedValue(okResponse([itemType]));
