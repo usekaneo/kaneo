@@ -10,30 +10,25 @@ const WORKSPACE_BY_TASK: Record<string, string> = {
   "task-in-other-workspace": "workspace-theirs",
 };
 
-// The `lookup` sources resolve a workspace with a single `... where(eq(id))`
-// query, so reading the bound parameter back off that condition tells us which
-// id the middleware actually authorized against.
-function readBoundId(condition: unknown): string | undefined {
-  const chunks = (condition as { queryChunks?: unknown[] })?.queryChunks ?? [];
-  for (const chunk of chunks) {
-    const value = (chunk as { value?: unknown })?.value;
-    if (typeof value === "string") {
-      return value;
-    }
-  }
-  return undefined;
-}
-
 vi.mock("../../../apps/api/src/database", async () => {
   const schema = await import("../../../apps/api/src/database/schema");
+  const { PgDialect } = await import("drizzle-orm/pg-core");
 
+  // `sqlToQuery` is the dialect method drizzle's own `.toSQL()` is built on, so
+  // the bound parameters come back through a supported surface rather than by
+  // reaching into the condition object's internals.
+  const dialect = new PgDialect();
   let boundId: string | undefined;
+
   const chain = {
     select: () => chain,
     from: () => chain,
     innerJoin: () => chain,
-    where: (condition: unknown) => {
-      boundId = readBoundId(condition);
+    where: (condition: Parameters<typeof dialect.sqlToQuery>[0]) => {
+      // The `task` lookup filters on a single id; joins contribute no
+      // parameters because they compare two columns.
+      const [id] = dialect.sqlToQuery(condition).params;
+      boundId = typeof id === "string" ? id : undefined;
       return chain;
     },
     limit: async () => {
@@ -104,6 +99,7 @@ describe("workspaceAccess lookup sources", () => {
     const res = await post("", { taskId: "task-in-other-workspace" });
 
     expect(res.status).toBe(403);
+    expect(state.lookedUpIds).toEqual(["task-in-other-workspace"]);
   });
 
   it("does not let a query id override the body id the handler acts on", async () => {
