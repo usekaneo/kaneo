@@ -28,6 +28,13 @@ describe("@kaneo/permissions statement surface", () => {
       "assign",
     ]);
     expect(statement.label).toEqual(["create", "read", "update", "delete"]);
+    expect(statement.item_type).toEqual(["create", "read", "update", "delete"]);
+    expect(statement.saved_view).toEqual([
+      "create",
+      "read",
+      "update",
+      "delete",
+    ]);
     expect(statement.workspace).toEqual([
       "read",
       "update",
@@ -52,6 +59,8 @@ describe("built-in role privileges", () => {
     expect(viewer.statements.project).toEqual(["read"]);
     expect(viewer.statements.task).toEqual(["read"]);
     expect(viewer.statements.label).toEqual(["read"]);
+    expect(viewer.statements.item_type).toEqual(["read"]);
+    expect(viewer.statements.saved_view).toEqual(["read"]);
     expect(viewer.statements.workspace).toEqual(["read"]);
   });
 
@@ -62,6 +71,13 @@ describe("built-in role privileges", () => {
     expect(member.statements.project).toContain("create");
     expect(member.statements.project).not.toContain("delete");
     expect(member.statements.workspace).toEqual(["read"]);
+    expect(member.statements.item_type).toEqual(["read"]);
+    expect(member.statements.saved_view).toEqual([
+      "create",
+      "read",
+      "update",
+      "delete",
+    ]);
   });
 
   it("admin can delete tasks and manage workspace settings but cannot delete the workspace", () => {
@@ -71,6 +87,18 @@ describe("built-in role privileges", () => {
     expect(admin.statements.project).toContain("share");
     expect(admin.statements.workspace).toContain("manage_settings");
     expect(admin.statements.workspace).not.toContain("delete");
+    expect(admin.statements.item_type).toEqual([
+      "create",
+      "read",
+      "update",
+      "delete",
+    ]);
+    expect(admin.statements.saved_view).toEqual([
+      "create",
+      "read",
+      "update",
+      "delete",
+    ]);
   });
 
   it("owner has every Kaneo resource action including workspace:delete", () => {
@@ -83,6 +111,18 @@ describe("built-in role privileges", () => {
     expect(owner.statements.workspace).toEqual(
       expect.arrayContaining(["read", "update", "delete", "manage_settings"]),
     );
+    expect(owner.statements.item_type).toEqual([
+      "create",
+      "read",
+      "update",
+      "delete",
+    ]);
+    expect(owner.statements.saved_view).toEqual([
+      "create",
+      "read",
+      "update",
+      "delete",
+    ]);
   });
 
   it("groups all four roles under builtInRoles by name", () => {
