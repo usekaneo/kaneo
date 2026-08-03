@@ -14,13 +14,21 @@ const scopePrecedence: Record<ViewConfigScope, number> = {
 export default function resolveViewConfig(
   layers: ViewConfigLayer[],
 ): Record<string, unknown> {
-  return Object.assign(
-    {},
-    ...[...layers]
-      .sort(
-        (left, right) =>
-          scopePrecedence[left.scope] - scopePrecedence[right.scope],
-      )
-      .map((layer) => layer.configuration),
-  );
+  return [...layers]
+    .sort(
+      (left, right) =>
+        scopePrecedence[left.scope] - scopePrecedence[right.scope],
+    )
+    .reduce((configuration, layer) => {
+      for (const [key, value] of Object.entries(layer.configuration)) {
+        Object.defineProperty(configuration, key, {
+          configurable: true,
+          enumerable: true,
+          value,
+          writable: true,
+        });
+      }
+
+      return configuration;
+    }, {});
 }

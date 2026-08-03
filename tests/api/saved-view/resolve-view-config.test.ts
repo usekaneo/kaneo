@@ -58,6 +58,18 @@ describe("resolveViewConfig", () => {
     expect(layers[0]?.configuration).not.toBe(originalLayers[0]?.configuration);
   });
 
+  it("preserves an enumerable __proto__ key without changing the result prototype", () => {
+    const configuration = JSON.parse(
+      '{"__proto__":{"unexpected":"value"}}',
+    ) as Record<string, unknown>;
+
+    const result = resolveViewConfig([{ scope: "workspace", configuration }]);
+
+    expect(Object.hasOwn(result, "__proto__")).toBe(true);
+    expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+    expect(result.unexpected).toBeUndefined();
+  });
+
   it("returns a new empty configuration when there are no layers", () => {
     expect(resolveViewConfig([])).toEqual({});
   });
