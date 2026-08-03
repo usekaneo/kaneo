@@ -10,29 +10,27 @@ import { ItemTypesSettingsPage } from "./item-types";
 
 const mocks = vi.hoisted(() => ({
   archiveItemType: vi.fn(),
+  canManageItemTypes: true,
   createItemType: vi.fn(),
-  itemTypes: [
-    {
-      id: "type-active",
-      workspaceId: "workspace-1",
-      key: "task",
-      name: "Task",
-      icon: "circle-check",
-      description: "Work that needs to be completed",
-      position: 0,
-      archivedAt: null,
-    },
-    {
-      id: "type-archived",
-      workspaceId: "workspace-1",
-      key: "incident",
-      name: "Incident",
-      icon: "triangle-alert",
-      description: null,
-      position: 1,
-      archivedAt: new Date("2026-01-01T00:00:00.000Z"),
-    },
-  ],
+  itemTypesQuery: {
+    data: [
+      {
+        id: "type-active",
+        workspaceId: "workspace-1",
+        key: "task",
+        name: "Task",
+        icon: "circle-check",
+        description: "Work that needs to be completed",
+        position: 0,
+        archivedAt: null,
+      },
+    ],
+    error: null as Error | null,
+    isError: false,
+    isFetching: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  },
   toastError: vi.fn(),
   updateItemType: vi.fn(),
 }));
@@ -54,12 +52,12 @@ vi.mock("@/components/page-title", () => ({ default: () => null }));
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     workspace: { id: "workspace-1", name: "Acme" },
-    isAdmin: true,
+    canManageItemTypes: () => mocks.canManageItemTypes,
   }),
 }));
 
 vi.mock("@/hooks/queries/item-type/use-get-item-types", () => ({
-  default: () => ({ data: mocks.itemTypes, isLoading: false }),
+  default: () => mocks.itemTypesQuery,
 }));
 
 vi.mock("@/hooks/mutations/item-type/use-create-item-type", () => ({
@@ -83,18 +81,38 @@ describe("ItemTypesSettingsPage", () => {
     vi.clearAllMocks();
     mocks.archiveItemType.mockResolvedValue(undefined);
     mocks.createItemType.mockResolvedValue(undefined);
+    mocks.canManageItemTypes = true;
+    mocks.itemTypesQuery.data = [
+      {
+        id: "type-active",
+        workspaceId: "workspace-1",
+        key: "task",
+        name: "Task",
+        icon: "circle-check",
+        description: "Work that needs to be completed",
+        position: 0,
+        archivedAt: null,
+      },
+    ];
+    mocks.itemTypesQuery.error = null;
+    mocks.itemTypesQuery.isError = false;
+    mocks.itemTypesQuery.isFetching = false;
+    mocks.itemTypesQuery.isLoading = false;
+    mocks.itemTypesQuery.refetch.mockResolvedValue({ error: null });
     mocks.updateItemType.mockResolvedValue(undefined);
   });
 
   afterEach(cleanup);
 
-  it("shows active and archived item types while keeping the create form hidden", () => {
+  it("shows active item types with separate icon and description while keeping the create form hidden", () => {
     render(<ItemTypesSettingsPage />);
 
-    expect(screen.getByText("Active item types")).toBeTruthy();
-    expect(screen.getByText("Archived item types")).toBeTruthy();
     expect(screen.getByText("Task")).toBeTruthy();
-    expect(screen.getByText("Incident")).toBeTruthy();
+    expect(
+      screen.getByTitle("circle-check").querySelector(".lucide-circle-check"),
+    ).toBeTruthy();
+    expect(screen.getByText("Work that needs to be completed")).toBeTruthy();
+    expect(screen.queryByText("Archived item types")).toBeNull();
     expect(
       screen.getByRole("button", { name: "Create item type" }),
     ).toBeTruthy();
@@ -114,11 +132,14 @@ describe("ItemTypesSettingsPage", () => {
       target: { value: "Bad key" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Create" }));
-    expect(
-      screen.getByText(
-        "Use 2-32 lowercase letters, numbers, or hyphens, starting with a letter.",
-      ),
-    ).toBeTruthy();
+    const keyError = screen.getByText(
+      "Use 2-32 lowercase letters, numbers, or hyphens, starting with a letter.",
+    );
+    expect(keyError).toHaveAttribute("role", "alert");
+    expect(screen.getByLabelText("Key")).toHaveAttribute(
+      "aria-describedby",
+      keyError.id,
+    );
     expect(mocks.createItemType).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByLabelText("Key"), {
@@ -139,7 +160,7 @@ describe("ItemTypesSettingsPage", () => {
         name: "Bug",
         icon: "bug",
         description: "Needs attention",
-        position: 2,
+        position: 1,
       }),
     );
 
@@ -159,6 +180,44 @@ describe("ItemTypesSettingsPage", () => {
     await waitFor(() =>
       expect(mocks.toastError).toHaveBeenCalledWith("Duplicate key"),
     );
+  });
+
+  it("preserves loading and query error feedback with retry", async () => {
+    mocks.itemTypesQuery.isLoading = true;
+    const { rerender } = render(<ItemTypesSettingsPage />);
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Loading item types...",
+    );
+    expect(screen.queryByText("No item types yet.")).toBeNull();
+
+    mocks.itemTypesQuery.isLoading = false;
+    mocks.itemTypesQuery.isError = true;
+    mocks.itemTypesQuery.error = new Error("Network unavailable");
+    mocks.itemTypesQuery.refetch.mockResolvedValueOnce({
+      error: new Error("Still offline"),
+    });
+    rerender(<ItemTypesSettingsPage />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Network unavailable");
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    await waitFor(() =>
+      expect(mocks.itemTypesQuery.refetch).toHaveBeenCalledTimes(1),
+    );
+    await waitFor(() =>
+      expect(mocks.toastError).toHaveBeenCalledWith("Still offline"),
+    );
+  });
+
+  it("uses item type permissions for management actions", () => {
+    mocks.canManageItemTypes = false;
+    render(<ItemTypesSettingsPage />);
+
+    expect(
+      screen.queryByRole("button", { name: "Create item type" }),
+    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Edit Task" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Archive Task" })).toBeNull();
   });
 
   it("edits an active item type and preserves its position", async () => {
@@ -197,7 +256,7 @@ describe("ItemTypesSettingsPage", () => {
     expect(screen.getByText("Archive Task?")).toBeTruthy();
     expect(
       screen.getByText(
-        "Historical tasks keep this item type, but it cannot be assigned to new tasks.",
+        "Existing tasks keep this type; it will no longer be available for new assignments.",
       ),
     ).toBeTruthy();
 

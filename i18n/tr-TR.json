@@ -1040,13 +1040,9 @@
 			"open": "Açık"
 		},
 		"workspaceItemTypes": {
-			"activeEmpty": "No active item types.",
-			"activeTitle": "Active item types",
 			"archiveAction": "Archive",
-			"archiveConfirmDescription": "Historical tasks keep this item type, but it cannot be assigned to new tasks.",
+			"archiveConfirmDescription": "Existing tasks keep this type; it will no longer be available for new assignments.",
 			"archiveConfirmTitle": "Archive {{name}}?",
-			"archivedEmpty": "No archived item types.",
-			"archivedTitle": "Archived item types",
 			"archiveError": "Failed to archive item type",
 			"archiveItemType": "Archive {{name}}",
 			"archiveSuccess": "Item type archived",
@@ -1075,7 +1071,11 @@
 			"subtitle": "Define the kinds of work your workspace can create and track.",
 			"title": "Item types",
 			"updateError": "Failed to update item type",
-			"updateSuccess": "Item type updated"
+			"updateSuccess": "Item type updated",
+			"empty": "No item types yet.",
+			"loadError": "Could not load item types.",
+			"loading": "Loading item types...",
+			"retry": "Retry"
 		},
 		"workspaceLabels": {
 			"cardDescription": "Manage labels that can be assigned to tasks.",

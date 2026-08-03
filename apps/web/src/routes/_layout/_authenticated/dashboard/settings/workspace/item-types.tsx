@@ -1,5 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Archive, Boxes, Pencil, Plus } from "lucide-react";
+import {
+  Archive,
+  Bookmark,
+  Boxes,
+  Bug,
+  CircleCheck,
+  CircleHelp,
+  ClipboardList,
+  FileText,
+  Flag,
+  Lightbulb,
+  ListTodo,
+  type LucideIcon,
+  Pencil,
+  Plus,
+  Rocket,
+  TriangleAlert,
+  Wrench,
+  Zap,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
@@ -55,6 +74,22 @@ const emptyForm: ItemTypeForm = {
   description: "",
 };
 
+const ITEM_TYPE_ICONS: Record<string, LucideIcon> = {
+  bookmark: Bookmark,
+  bug: Bug,
+  "circle-check": CircleCheck,
+  "circle-help": CircleHelp,
+  "clipboard-list": ClipboardList,
+  "file-text": FileText,
+  flag: Flag,
+  lightbulb: Lightbulb,
+  "list-todo": ListTodo,
+  rocket: Rocket,
+  "triangle-alert": TriangleAlert,
+  wrench: Wrench,
+  zap: Zap,
+};
+
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace/item-types",
 )({
@@ -63,15 +98,20 @@ export const Route = createFileRoute(
 
 export function ItemTypesSettingsPage() {
   const { t } = useTranslation();
-  const { workspace, isAdmin } = useWorkspacePermission();
+  const { workspace, canManageItemTypes } = useWorkspacePermission();
+  const canEdit = canManageItemTypes();
   const workspaceId = workspace?.id ?? "";
-  const { data: itemTypes = [] } = useGetItemTypes(workspaceId);
+  const {
+    data: itemTypes,
+    error: itemTypesError,
+    isError: itemTypesFailed,
+    isFetching: itemTypesFetching,
+    isLoading: itemTypesLoading,
+    refetch: refetchItemTypes,
+  } = useGetItemTypes(workspaceId);
   const createItemType = useCreateItemType();
   const updateItemType = useUpdateItemType();
   const archiveItemType = useArchiveItemType();
-
-  const activeItemTypes = itemTypes.filter((itemType) => !itemType.archivedAt);
-  const archivedItemTypes = itemTypes.filter((itemType) => itemType.archivedAt);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<ItemTypeForm>(emptyForm);
@@ -140,7 +180,7 @@ export function ItemTypesSettingsPage() {
         icon: createForm.icon.trim(),
         description: createForm.description.trim() || null,
         position:
-          itemTypes.reduce(
+          (itemTypes ?? []).reduce(
             (highest, itemType) => Math.max(highest, itemType.position),
             -1,
           ) + 1,
@@ -229,6 +269,19 @@ export function ItemTypesSettingsPage() {
     }
   };
 
+  const handleRetry = async () => {
+    const result = await refetchItemTypes();
+    if (result.error) {
+      toast.error(
+        result.error instanceof Error
+          ? result.error.message
+          : t("settings:workspaceItemTypes.loadError", {
+              defaultValue: "Could not load item types.",
+            }),
+      );
+    }
+  };
+
   return (
     <>
       <PageTitle
@@ -266,7 +319,7 @@ export function ItemTypesSettingsPage() {
                     "Manage the names, keys, icons, and descriptions used to classify work.",
                 })}
               </CardDescription>
-              {isAdmin && (
+              {canEdit && !itemTypesLoading && !itemTypesFailed && (
                 <CardAction>
                   <Button onClick={openCreate} className="gap-2">
                     <Plus className="size-4" />
@@ -280,46 +333,67 @@ export function ItemTypesSettingsPage() {
           </Card>
 
           <Card className="!rounded-none">
-            <CardPanel className="space-y-6 p-4">
-              <ItemTypeSection
-                title={t("settings:workspaceItemTypes.activeTitle", {
-                  defaultValue: "Active item types",
-                })}
-                emptyMessage={t("settings:workspaceItemTypes.activeEmpty", {
-                  defaultValue: "No active item types.",
-                })}
-                itemTypes={activeItemTypes}
-                canEdit={isAdmin}
-                onEdit={openEdit}
-                onArchive={setArchivingItemType}
-                editLabel={(name) =>
-                  t("settings:workspaceItemTypes.editItemType", {
-                    defaultValue: `Edit ${name}`,
-                    name,
-                  })
-                }
-                archiveLabel={(name) =>
-                  t("settings:workspaceItemTypes.archiveItemType", {
-                    defaultValue: `Archive ${name}`,
-                    name,
-                  })
-                }
-              />
-
-              <ItemTypeSection
-                title={t("settings:workspaceItemTypes.archivedTitle", {
-                  defaultValue: "Archived item types",
-                })}
-                emptyMessage={t("settings:workspaceItemTypes.archivedEmpty", {
-                  defaultValue: "No archived item types.",
-                })}
-                itemTypes={archivedItemTypes}
-                canEdit={false}
-                onEdit={openEdit}
-                onArchive={setArchivingItemType}
-                editLabel={() => ""}
-                archiveLabel={() => ""}
-              />
+            <CardPanel className="p-4">
+              {itemTypesLoading ? (
+                <div
+                  role="status"
+                  className="py-8 text-center text-sm text-muted-foreground"
+                >
+                  {t("settings:workspaceItemTypes.loading", {
+                    defaultValue: "Loading item types...",
+                  })}
+                </div>
+              ) : itemTypesFailed ? (
+                <div
+                  role="alert"
+                  className="space-y-3 py-8 text-center text-sm"
+                >
+                  <div className="space-y-1">
+                    <p className="font-medium">
+                      {t("settings:workspaceItemTypes.loadError", {
+                        defaultValue: "Could not load item types.",
+                      })}
+                    </p>
+                    {itemTypesError instanceof Error && (
+                      <p className="text-muted-foreground">
+                        {itemTypesError.message}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRetry}
+                    disabled={itemTypesFetching}
+                  >
+                    {t("settings:workspaceItemTypes.retry", {
+                      defaultValue: "Retry",
+                    })}
+                  </Button>
+                </div>
+              ) : (
+                <ItemTypeList
+                  emptyMessage={t("settings:workspaceItemTypes.empty", {
+                    defaultValue: "No item types yet.",
+                  })}
+                  itemTypes={itemTypes ?? []}
+                  canEdit={canEdit}
+                  onEdit={openEdit}
+                  onArchive={setArchivingItemType}
+                  editLabel={(name) =>
+                    t("settings:workspaceItemTypes.editItemType", {
+                      defaultValue: `Edit ${name}`,
+                      name,
+                    })
+                  }
+                  archiveLabel={(name) =>
+                    t("settings:workspaceItemTypes.archiveItemType", {
+                      defaultValue: `Archive ${name}`,
+                      name,
+                    })
+                  }
+                />
+              )}
             </CardPanel>
           </Card>
         </CardFrame>
@@ -343,6 +417,7 @@ export function ItemTypesSettingsPage() {
         onChange={updateCreateField}
         onSubmit={handleCreate}
         isPending={createItemType.isPending}
+        idPrefix="create-item-type"
       />
 
       <ItemTypeDialog
@@ -363,6 +438,7 @@ export function ItemTypesSettingsPage() {
         onChange={updateEditField}
         onSubmit={handleEdit}
         isPending={updateItemType.isPending}
+        idPrefix="edit-item-type"
       />
 
       <AlertDialog
@@ -380,7 +456,7 @@ export function ItemTypesSettingsPage() {
             <AlertDialogDescription>
               {t("settings:workspaceItemTypes.archiveConfirmDescription", {
                 defaultValue:
-                  "Historical tasks keep this item type, but it cannot be assigned to new tasks.",
+                  "Existing tasks keep this type; it will no longer be available for new assignments.",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -407,8 +483,7 @@ export function ItemTypesSettingsPage() {
   );
 }
 
-function ItemTypeSection({
-  title,
+function ItemTypeList({
   emptyMessage,
   itemTypes,
   canEdit,
@@ -417,7 +492,6 @@ function ItemTypeSection({
   editLabel,
   archiveLabel,
 }: {
-  title: string;
   emptyMessage: string;
   itemTypes: ItemType[];
   canEdit: boolean;
@@ -427,57 +501,72 @@ function ItemTypeSection({
   archiveLabel: (name: string) => string;
 }) {
   return (
-    <section className="space-y-2">
-      <h2 className="text-sm font-medium">{title}</h2>
+    <div>
       {itemTypes.length === 0 ? (
         <p className="rounded-md border border-dashed px-3 py-4 text-sm text-muted-foreground">
           {emptyMessage}
         </p>
       ) : (
         <div className="divide-y divide-border rounded-md border">
-          {itemTypes.map((itemType) => (
-            <div
-              key={itemType.id}
-              className="flex items-center justify-between gap-4 px-3 py-3"
-            >
-              <div className="min-w-0 space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">{itemType.name}</span>
-                  <code className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                    {itemType.key}
-                  </code>
+          {itemTypes.map((itemType) => {
+            const ItemIcon = ITEM_TYPE_ICONS[itemType.icon] ?? Boxes;
+
+            return (
+              <div
+                key={itemType.id}
+                className="flex items-center justify-between gap-4 px-3 py-3"
+              >
+                <div className="flex min-w-0 items-start gap-3">
+                  <span
+                    title={itemType.icon}
+                    className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground"
+                  >
+                    <ItemIcon className="size-4" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">
+                        {itemType.name}
+                      </span>
+                      <code className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                        {itemType.key}
+                      </code>
+                    </div>
+                    {itemType.description && (
+                      <p className="truncate text-xs text-muted-foreground">
+                        {itemType.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <p className="truncate text-xs text-muted-foreground">
-                  {itemType.description || itemType.icon}
-                </p>
+                {canEdit && (
+                  <div className="flex flex-shrink-0 items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      aria-label={editLabel(itemType.name)}
+                      onClick={() => onEdit(itemType)}
+                    >
+                      <Pencil className="size-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      aria-label={archiveLabel(itemType.name)}
+                      onClick={() => onArchive(itemType)}
+                    >
+                      <Archive className="size-3.5" />
+                    </Button>
+                  </div>
+                )}
               </div>
-              {canEdit && (
-                <div className="flex flex-shrink-0 items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    aria-label={editLabel(itemType.name)}
-                    onClick={() => onEdit(itemType)}
-                  >
-                    <Pencil className="size-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                    aria-label={archiveLabel(itemType.name)}
-                    onClick={() => onArchive(itemType)}
-                  >
-                    <Archive className="size-3.5" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -492,6 +581,7 @@ function ItemTypeDialog({
   onChange,
   onSubmit,
   isPending,
+  idPrefix,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -503,9 +593,9 @@ function ItemTypeDialog({
   onChange: (field: keyof ItemTypeForm, value: string) => void;
   onSubmit: () => void;
   isPending: boolean;
+  idPrefix: string;
 }) {
   const { t } = useTranslation();
-  const fieldIdPrefix = submitLabel.toLowerCase().split(" ").join("-");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -524,13 +614,13 @@ function ItemTypeDialog({
             ] as const
           ).map(([field, label, placeholder]) => (
             <div key={field} className="space-y-2">
-              <Label htmlFor={`${fieldIdPrefix}-${field}`}>
+              <Label htmlFor={`${idPrefix}-${field}`}>
                 {t(`settings:workspaceItemTypes.${field}Label`, {
                   defaultValue: label,
                 })}
               </Label>
               <Input
-                id={`${fieldIdPrefix}-${field}`}
+                id={`${idPrefix}-${field}`}
                 value={form[field]}
                 onChange={(event) => onChange(field, event.target.value)}
                 placeholder={t(
@@ -538,9 +628,18 @@ function ItemTypeDialog({
                   { defaultValue: placeholder },
                 )}
                 aria-invalid={Boolean(errors[field])}
+                aria-describedby={
+                  errors[field] ? `${idPrefix}-${field}-error` : undefined
+                }
               />
               {errors[field] && (
-                <p className="text-sm text-destructive">{errors[field]}</p>
+                <p
+                  id={`${idPrefix}-${field}-error`}
+                  role="alert"
+                  className="text-sm text-destructive"
+                >
+                  {errors[field]}
+                </p>
               )}
             </div>
           ))}

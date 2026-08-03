@@ -3008,16 +3008,16 @@
 						"editDescription": {
 							"type": "string"
 						},
-						"activeTitle": {
+						"empty": {
 							"type": "string"
 						},
-						"archivedTitle": {
+						"loading": {
 							"type": "string"
 						},
-						"activeEmpty": {
+						"loadError": {
 							"type": "string"
 						},
-						"archivedEmpty": {
+						"retry": {
 							"type": "string"
 						},
 						"editItemType": {
@@ -3102,10 +3102,10 @@
 						"createDescription",
 						"editTitle",
 						"editDescription",
-						"activeTitle",
-						"archivedTitle",
-						"activeEmpty",
-						"archivedEmpty",
+						"empty",
+						"loading",
+						"loadError",
+						"retry",
 						"editItemType",
 						"archiveItemType",
 						"nameLabel",
