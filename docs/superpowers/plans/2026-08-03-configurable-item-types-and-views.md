@@ -171,7 +171,7 @@ describe("configuration schema", () => {
 
 - [ ] **Step 2: Run the test and verify failure**
 
-Run: `pnpm --filter @kaneo/api test -- ../../../tests/api/database/configuration-schema.test.ts`
+Run: `pnpm --filter @kaneo/api test -- ../../tests/api/database/configuration-schema.test.ts`
 
 Expected: FAIL because both exports are missing.
 
@@ -342,7 +342,7 @@ Expected: one new SQL migration containing `item_type`, `saved_view`, nullable `
 
 - [ ] **Step 6: Run the schema test and API build**
 
-Run: `pnpm --filter @kaneo/api test -- ../../../tests/api/database/configuration-schema.test.ts && pnpm --filter @kaneo/api test:integration -- ../../tests/api-integration/configuration-schema-constraints.test.ts && pnpm --filter @kaneo/api build`
+Run: `pnpm --filter @kaneo/api test -- ../../tests/api/database/configuration-schema.test.ts && pnpm --filter @kaneo/api test:integration -- ../../tests/api-integration/configuration-schema-constraints.test.ts && pnpm --filter @kaneo/api build`
 
 Expected: PASS, including rejection of both cross-workspace composite-FK cases, same-workspace acceptance, and a legacy task with both item type columns null; build succeeds.
 
@@ -397,7 +397,7 @@ describe("resolveViewConfig", () => {
 
 - [ ] **Step 2: Run and verify failure**
 
-Run: `pnpm --filter @kaneo/api test -- ../../../tests/api/saved-view/resolve-view-config.test.ts`
+Run: `pnpm --filter @kaneo/api test -- ../../tests/api/saved-view/resolve-view-config.test.ts`
 
 Expected: FAIL because the resolver does not exist.
 
@@ -431,7 +431,7 @@ export default function resolveViewConfig(
 
 - [ ] **Step 4: Run and verify success**
 
-Run: `pnpm --filter @kaneo/api test -- ../../../tests/api/saved-view/resolve-view-config.test.ts`
+Run: `pnpm --filter @kaneo/api test -- ../../tests/api/saved-view/resolve-view-config.test.ts`
 
 Expected: PASS.
 
