@@ -2,6 +2,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { itemTypeTable } from "../../database/schema";
+import { rethrowItemTypeKeyConflict } from "../item-type-key-conflict";
 
 type UpdateItemTypeInput = {
   key: string;
@@ -35,11 +36,16 @@ async function updateItemType(id: string, input: UpdateItemTypeInput) {
     });
   }
 
-  const [itemType] = await db
-    .update(itemTypeTable)
-    .set(input)
-    .where(eq(itemTypeTable.id, id))
-    .returning();
+  let itemType: typeof itemTypeTable.$inferSelect | undefined;
+  try {
+    [itemType] = await db
+      .update(itemTypeTable)
+      .set(input)
+      .where(eq(itemTypeTable.id, id))
+      .returning();
+  } catch (error) {
+    rethrowItemTypeKeyConflict(error);
+  }
 
   if (!itemType) {
     throw new HTTPException(404, { message: "Item type not found" });

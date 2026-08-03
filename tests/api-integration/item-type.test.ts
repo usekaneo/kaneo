@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -13,6 +13,23 @@ const itemTypePayload = {
   description: "General work",
   position: 2,
 };
+
+async function waitForBlockedItemTypeUpdates() {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const result = await db.execute(sql`
+      select count(*)::int as count
+      from pg_stat_activity
+      where datname = current_database()
+        and wait_event_type = 'Lock'
+        and query like '%update "item_type"%'
+    `);
+    if (Number(result.rows[0]?.count ?? 0) >= 2) {
+      return true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  return false;
+}
 
 describe("API integration: item types", () => {
   beforeEach(async () => {
@@ -182,6 +199,71 @@ describe("API integration: item types", () => {
       description: null,
       position: 4,
     });
+  });
+
+  it("returns conflict when concurrent updates claim the same workspace key", async () => {
+    const admin = await createWorkspaceMember({ role: "admin" });
+    const itemTypes = await db
+      .insert(schema.itemTypeTable)
+      .values([
+        { workspaceId: admin.workspace.id, key: "alpha", name: "Alpha" },
+        { workspaceId: admin.workspace.id, key: "bravo", name: "Bravo" },
+      ])
+      .returning();
+    mockAuthenticatedSession(admin.user);
+    const { app } = createApp();
+
+    let releaseRows: (() => void) | undefined;
+    let rowsLocked: (() => void) | undefined;
+    const locked = new Promise<void>((resolve) => {
+      rowsLocked = resolve;
+    });
+    const release = new Promise<void>((resolve) => {
+      releaseRows = resolve;
+    });
+    const lockTransaction = db.transaction(async (tx) => {
+      await tx
+        .select({ id: schema.itemTypeTable.id })
+        .from(schema.itemTypeTable)
+        .where(
+          inArray(
+            schema.itemTypeTable.id,
+            itemTypes.map(({ id }) => id),
+          ),
+        )
+        .for("update");
+      rowsLocked?.();
+      await release;
+    });
+    await locked;
+
+    const responsePromise = Promise.all(
+      itemTypes.map((itemType) =>
+        app.request(`/api/item-type/${itemType.id}`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            key: "shared-key",
+            name: itemType.name,
+            icon: itemType.icon,
+            description: itemType.description,
+            position: itemType.position,
+          }),
+        }),
+      ),
+    );
+    const updatesBlocked = await waitForBlockedItemTypeUpdates();
+    releaseRows?.();
+
+    const responses = await responsePromise;
+    await lockTransaction;
+
+    expect(updatesBlocked).toBe(true);
+    expect(responses.map(({ status }) => status).sort()).toEqual([200, 409]);
+    const persisted = await db.query.itemTypeTable.findMany({
+      where: eq(schema.itemTypeTable.workspaceId, admin.workspace.id),
+    });
+    expect(persisted.filter(({ key }) => key === "shared-key")).toHaveLength(1);
   });
 
   it("archives instead of deleting and omits archived entries from the list", async () => {
