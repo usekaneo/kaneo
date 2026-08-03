@@ -1043,6 +1043,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Platte tekst",
 					"python": "Python",
 					"rust": "Rust",
@@ -1050,6 +1051,9 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
 			}
 		}
@@ -1151,6 +1155,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1182,6 +1187,9 @@
 						"onlyYoutube": "Alleen YouTube-links kunnen worden ingesloten."
 					},
 					"onlyYoutubeInline": "Alleen YouTube URL's kunnen worden ingesloten. Gebruik link-modus."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
 			}
 		},

@@ -5505,6 +5505,9 @@
 										"markdown": {
 											"type": "string"
 										},
+										"mermaid": {
+											"type": "string"
+										},
 										"plaintext": {
 											"type": "string"
 										},
@@ -5539,6 +5542,7 @@
 										"java",
 										"javascript",
 										"markdown",
+										"mermaid",
 										"plaintext",
 										"python",
 										"rust",
@@ -5547,6 +5551,16 @@
 										"typescript",
 										"yaml"
 									]
+								},
+								"mermaid": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"renderFailed": {
+											"type": "string"
+										}
+									},
+									"required": ["renderFailed"]
 								}
 							},
 							"required": [
@@ -5597,7 +5611,8 @@
 								"copied",
 								"dropImageToUpload",
 								"previewImageAlt",
-								"codeLang"
+								"codeLang",
+								"mermaid"
 							]
 						}
 					},
@@ -5976,6 +5991,9 @@
 										"markdown": {
 											"type": "string"
 										},
+										"mermaid": {
+											"type": "string"
+										},
 										"ocaml": {
 											"type": "string"
 										},
@@ -6046,6 +6064,7 @@
 										"kotlin",
 										"makefile",
 										"markdown",
+										"mermaid",
 										"ocaml",
 										"php",
 										"perl",
@@ -6063,6 +6082,16 @@
 										"xml",
 										"yaml"
 									]
+								},
+								"mermaid": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"renderFailed": {
+											"type": "string"
+										}
+									},
+									"required": ["renderFailed"]
 								},
 								"embed": {
 									"type": "object",
@@ -6136,7 +6165,8 @@
 								"upload",
 								"slash",
 								"languages",
-								"embed"
+								"embed",
+								"mermaid"
 							]
 						}
 					},

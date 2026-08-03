@@ -1257,6 +1257,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Απλό κείμενο",
 					"python": "Python",
 					"rust": "Rust",
@@ -1264,6 +1265,9 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"mermaid": {
+					"renderFailed": "Δεν ήταν δυνατή η απόδοση του διαγράμματος Mermaid"
 				}
 			}
 		}
@@ -1365,6 +1369,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1396,6 +1401,9 @@
 						"onlyYoutube": "Μόνο σύνδεσμοι YouTube μπορούν να ενσωματωθούν."
 					},
 					"onlyYoutubeInline": "Μόνο URLs YouTube μπορούν να ενσωματωθούν. Χρησιμοποιήστε λειτουργία συνδέσμου."
+				},
+				"mermaid": {
+					"renderFailed": "Δεν ήταν δυνατή η απόδοση του διαγράμματος Mermaid"
 				}
 			}
 		},

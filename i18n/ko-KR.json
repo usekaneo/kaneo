@@ -1259,6 +1259,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "일반 텍스트",
 					"python": "Python",
 					"rust": "Rust",
@@ -1266,6 +1267,9 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
 			}
 		}
@@ -1367,6 +1371,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1398,6 +1403,9 @@
 						"onlyYoutube": "YouTube 링크만 임베드할 수 있습니다."
 					},
 					"onlyYoutubeInline": "YouTube URL만 임베드할 수 있습니다. 대신 링크 모드를 사용하세요."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
 			}
 		},

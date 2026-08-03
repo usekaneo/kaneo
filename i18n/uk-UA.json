@@ -1256,6 +1256,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Звичайний текст",
 					"python": "Python",
 					"rust": "Rust",
@@ -1263,6 +1264,9 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"mermaid": {
+					"renderFailed": "Не вдалося відобразити діаграму Mermaid"
 				}
 			}
 		}
@@ -1362,6 +1366,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1393,6 +1398,9 @@
 						"onlyYoutube": "Можна вбудовувати лише посилання YouTube."
 					},
 					"onlyYoutubeInline": "Можна вбудовувати лише URL-адреси YouTube. Натомість використовуйте режим посилання."
+				},
+				"mermaid": {
+					"renderFailed": "Не вдалося відобразити діаграму Mermaid"
 				}
 			}
 		},

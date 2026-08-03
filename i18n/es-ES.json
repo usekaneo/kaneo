@@ -1042,6 +1042,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Plaintext",
 					"python": "Python",
 					"rust": "Rust",
@@ -1049,6 +1050,9 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"mermaid": {
+					"renderFailed": "No se pudo renderizar el diagrama de Mermaid"
 				}
 			}
 		}
@@ -1150,6 +1154,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1181,6 +1186,9 @@
 						"onlyYoutube": "Sólo los enlaces de YouTube pueden ser incrustados."
 					},
 					"onlyYoutubeInline": "Sólo los enlaces de YouTube pueden ser incrustados. Añádelo como enlace."
+				},
+				"mermaid": {
+					"renderFailed": "No se pudo renderizar el diagrama de Mermaid"
 				}
 			}
 		},
