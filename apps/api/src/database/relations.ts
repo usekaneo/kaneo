@@ -10,9 +10,11 @@ import {
   githubIntegrationTable,
   integrationTable,
   invitationTable,
+  itemTypeTable,
   labelTable,
   notificationTable,
   projectTable,
+  savedViewTable,
   sessionTable,
   taskRelationTable,
   taskReminderSentTable,
@@ -47,6 +49,7 @@ export const userTableRelations = relations(userTable, ({ many, one }) => ({
   notificationWorkspaceRules: many(userNotificationWorkspaceRuleTable),
   sentInvitations: many(invitationTable),
   apikeys: many(apikeyTable),
+  savedViews: many(savedViewTable),
 }));
 
 export const sessionTableRelations = relations(sessionTable, ({ one }) => ({
@@ -76,6 +79,8 @@ export const workspaceTableRelations = relations(
     projects: many(projectTable),
     assets: many(assetTable),
     invitations: many(invitationTable),
+    itemTypes: many(itemTypeTable),
+    savedViews: many(savedViewTable),
     notificationWorkspaceRules: many(userNotificationWorkspaceRuleTable),
   }),
 );
@@ -107,6 +112,7 @@ export const projectTableRelations = relations(
     workflowRules: many(workflowRuleTable),
     githubIntegration: many(githubIntegrationTable),
     integrations: many(integrationTable),
+    savedViews: many(savedViewTable),
     notificationWorkspaceProjects: many(userNotificationWorkspaceProjectTable),
   }),
 );
@@ -134,6 +140,17 @@ export const workflowRuleTableRelations = relations(
   }),
 );
 
+export const itemTypeTableRelations = relations(
+  itemTypeTable,
+  ({ one, many }) => ({
+    workspace: one(workspaceTable, {
+      fields: [itemTypeTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
+    tasks: many(taskTable),
+  }),
+);
+
 export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   project: one(projectTable, {
     fields: [taskTable.projectId],
@@ -147,6 +164,10 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
     fields: [taskTable.columnId],
     references: [columnTable.id],
   }),
+  itemType: one(itemTypeTable, {
+    fields: [taskTable.itemTypeId],
+    references: [itemTypeTable.id],
+  }),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   comments: many(commentTable),
@@ -156,6 +177,21 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   sourceRelations: many(taskRelationTable, { relationName: "sourceTask" }),
   targetRelations: many(taskRelationTable, { relationName: "targetTask" }),
   remindersSent: many(taskReminderSentTable),
+}));
+
+export const savedViewTableRelations = relations(savedViewTable, ({ one }) => ({
+  workspace: one(workspaceTable, {
+    fields: [savedViewTable.workspaceId],
+    references: [workspaceTable.id],
+  }),
+  project: one(projectTable, {
+    fields: [savedViewTable.projectId],
+    references: [projectTable.id],
+  }),
+  user: one(userTable, {
+    fields: [savedViewTable.userId],
+    references: [userTable.id],
+  }),
 }));
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({

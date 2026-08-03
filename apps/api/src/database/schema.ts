@@ -358,6 +358,36 @@ export const workflowRuleTable = pgTable(
   ],
 );
 
+export const itemTypeTable = pgTable(
+  "item_type",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    icon: text("icon").default("SquareCheckBig").notNull(),
+    description: text("description"),
+    position: integer("position").default(0).notNull(),
+    archivedAt: timestamp("archived_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("item_type_workspaceId_idx").on(table.workspaceId),
+    unique("item_type_workspace_key_unique").on(table.workspaceId, table.key),
+  ],
+);
+
 export const taskTable = pgTable(
   "task",
   {
@@ -370,6 +400,10 @@ export const taskTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
+    itemTypeId: text("item_type_id").references(() => itemTypeTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
     position: integer("position").default(0),
     number: integer("number").default(1),
     userId: text("assignee_id").references(() => userTable.id, {
@@ -394,10 +428,59 @@ export const taskTable = pgTable(
   },
   (table) => [
     index("task_projectId_idx").on(table.projectId),
+    index("task_itemTypeId_idx").on(table.itemTypeId),
     index("task_dueDate_idx").on(table.dueDate),
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),
     unique("task_project_number_unique").on(table.projectId, table.number),
+  ],
+);
+
+export const savedViewTable = pgTable(
+  "saved_view",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    projectId: text("project_id").references(() => projectTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    type: text("type").notNull(),
+    position: integer("position").default(0).notNull(),
+    enabled: boolean("enabled").default(true).notNull(),
+    configuration: jsonb("configuration")
+      .$type<Record<string, unknown>>()
+      .default({})
+      .notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("saved_view_workspaceId_idx").on(table.workspaceId),
+    index("saved_view_projectId_idx").on(table.projectId),
+    index("saved_view_userId_idx").on(table.userId),
+    uniqueIndex("saved_view_scope_key_unique").on(
+      table.workspaceId,
+      sql`coalesce(${table.projectId}, '')`,
+      sql`coalesce(${table.userId}, '')`,
+      table.key,
+    ),
   ],
 );
 
