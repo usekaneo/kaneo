@@ -1754,13 +1754,22 @@
 			"pageTitle": "멤버",
 			"inviteMember": "멤버 초대"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "팀 멤버 초대",
 			"emailLabel": "이메일",
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "초대 전송",
 			"success": "초대가 전송되었습니다",
-			"error": "팀 멤버 초대에 실패했습니다"
+			"error": "팀 멤버 초대에 실패했습니다",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "아직 팀 멤버가 없습니다",
@@ -1783,7 +1792,8 @@
 			"removeSuccess": "팀 멤버가 제거되었습니다",
 			"removeError": "팀 멤버 제거에 실패했습니다",
 			"cancelInviteSuccess": "초대가 취소되었습니다",
-			"cancelInviteError": "초대 취소에 실패했습니다"
+			"cancelInviteError": "초대 취소에 실패했습니다",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

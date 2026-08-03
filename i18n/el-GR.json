@@ -1752,13 +1752,22 @@
 			"pageTitle": "Μέλη",
 			"inviteMember": "Πρόσκληση μέλους"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Πρόσκληση μέλους ομάδας",
 			"emailLabel": "Email",
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "Αποστολή πρόσκλησης",
 			"success": "Η πρόσκληση στάλθηκε με επιτυχία",
-			"error": "Αποτυχία πρόσκλησης μέλους ομάδας"
+			"error": "Αποτυχία πρόσκλησης μέλους ομάδας",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Δεν υπάρχουν ακόμα μέλη ομάδας",
@@ -1781,7 +1790,8 @@
 			"removeSuccess": "Το μέλος της ομάδας αφαιρέθηκε με επιτυχία",
 			"removeError": "Αποτυχία αφαίρεσης μέλους ομάδας",
 			"cancelInviteSuccess": "Η πρόσκληση ακυρώθηκε με επιτυχία",
-			"cancelInviteError": "Αποτυχία ακύρωσης πρόσκλησης"
+			"cancelInviteError": "Αποτυχία ακύρωσης πρόσκλησης",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

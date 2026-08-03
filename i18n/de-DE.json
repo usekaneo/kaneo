@@ -1794,13 +1794,22 @@
 			"pageTitle": "Mitglieder",
 			"inviteMember": "Mitglied einladen"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Teammitglied einladen",
 			"emailLabel": "E-Mail",
 			"emailPlaceholder": "kollege@firma.com",
 			"sendInvitation": "Einladung senden",
 			"success": "Einladung erfolgreich gesendet",
-			"error": "Teammitglied konnte nicht eingeladen werden"
+			"error": "Teammitglied konnte nicht eingeladen werden",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Noch keine Teammitglieder",
@@ -1823,7 +1832,8 @@
 			"removeSuccess": "Teammitglied erfolgreich entfernt",
 			"removeError": "Teammitglied konnte nicht entfernt werden",
 			"cancelInviteSuccess": "Einladung erfolgreich abgebrochen",
-			"cancelInviteError": "Einladung konnte nicht abgebrochen werden"
+			"cancelInviteError": "Einladung konnte nicht abgebrochen werden",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

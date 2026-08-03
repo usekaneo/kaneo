@@ -1766,7 +1766,11 @@
 		},
 		"invitations": {
 			"pendingBadge": "En attente",
-			"expires": "Expire {{date}}"
+			"expires": "Expire {{date}}",
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Inviter un membre de l'équipe",
@@ -1774,7 +1778,10 @@
 			"emailPlaceholder": "collegue@entreprise.fr",
 			"sendInvitation": "Envoyer l'invitation",
 			"success": "Invitation envoyée avec succès",
-			"error": "Échec de l'envoi de l'invitation"
+			"error": "Échec de l'envoi de l'invitation",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Aucun membre de l'équipe pour le moment",
@@ -1799,7 +1806,8 @@
 			"cancelInviteSuccess": "Invitation annulée avec succès",
 			"cancelInviteError": "Échec de l'annulation de l'invitation",
 			"roleUpdateSuccess": "Rôle mis à jour",
-			"roleUpdateError": "Échec de la mise à jour du rôle"
+			"roleUpdateError": "Échec de la mise à jour du rôle",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

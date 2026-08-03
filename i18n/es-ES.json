@@ -1526,13 +1526,22 @@
 			"pageTitle": "Miembros",
 			"inviteMember": "Invitar miembro"
 		},
+		"invitations": {
+			"linkLabel": "Enlace de invitación",
+			"copyLink": "Copiar enlace",
+			"linkCopied": "Enlace de invitación copiado",
+			"copyFailed": "No se pudo copiar automáticamente. Seleccioná el enlace y presioná Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Invitar miembro al equipo",
 			"emailLabel": "Email",
 			"emailPlaceholder": "compi@company.com",
 			"sendInvitation": "Enviar invitación",
 			"success": "Invitación enviada correctamente",
-			"error": "Error al invitar miembro al equipo"
+			"error": "Error al invitar miembro al equipo",
+			"createdTitle": "Invitación creada",
+			"shareLinkDescription": "Compartí este enlace con {{email}} para que se una al espacio de trabajo.",
+			"done": "Listo"
 		},
 		"membersTable": {
 			"emptyTitle": "No hay miembros en el equipo aún",
@@ -1545,6 +1554,7 @@
 			},
 			"memberRolePending": "{{role}} (Pendiente)",
 			"ariaCancelInvitation": "Cancelar invitacion",
+			"ariaInvitationActions": "Acciones de invitación",
 			"ariaRemoveMember": "Eliminar miembro",
 			"removeDialogTitle": "¿Eliminar miembro del equipo?",
 			"removeDialogDescription": "¿Estás seguro de que quieres eliminar a {{name}} del espacio de trabajo? Esta acción no puede deshacerse.",

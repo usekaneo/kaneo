@@ -1753,13 +1753,22 @@
 			"pageTitle": "Учасники",
 			"inviteMember": "Запросити учасника"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Запросити учасника команди",
 			"emailLabel": "Електронна пошта",
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "Надіслати запрошення",
 			"success": "Запрошення успішно надіслано",
-			"error": "Не вдалося запросити учасника команди"
+			"error": "Не вдалося запросити учасника команди",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Учасників команди ще немає",
@@ -1782,7 +1791,8 @@
 			"removeSuccess": "Учасника команди успішно видалено",
 			"removeError": "Не вдалося видалити учасника команди",
 			"cancelInviteSuccess": "Запрошення успішно скасовано",
-			"cancelInviteError": "Не вдалося скасувати запрошення"
+			"cancelInviteError": "Не вдалося скасувати запрошення",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

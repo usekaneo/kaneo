@@ -1527,13 +1527,22 @@
 			"pageTitle": "Leden",
 			"inviteMember": "Lid uitnodigen"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Teamlid uitnodigen",
 			"emailLabel": "E-mailadres",
 			"emailPlaceholder": "collega@bedrijf.nl",
 			"sendInvitation": "Uitnodiging versturen",
 			"success": "Uitnodiging succesvol verzonden",
-			"error": "Uitnodigen teamlid mislukt"
+			"error": "Uitnodigen teamlid mislukt",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Nog geen teamleden",
@@ -1556,7 +1565,8 @@
 			"removeSuccess": "Teamlid succesvol verwijderd",
 			"removeError": "Verwijderen teamlid mislukt",
 			"cancelInviteSuccess": "Uitnodiging succesvol geannuleerd",
-			"cancelInviteError": "Annuleren uitnodiging mislukt"
+			"cancelInviteError": "Annuleren uitnodiging mislukt",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {
