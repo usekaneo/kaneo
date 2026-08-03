@@ -1,10 +1,12 @@
 import { DEFAULT_ROLE_NAMES, defaultRolePayloads } from "@kaneo/permissions";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import db, { schema } from "../database";
+import {
+  createDefaultWorkspaceRoleInsert,
+  DEFAULT_ROLE_PERMISSION_UPGRADE_VERSION,
+} from "./default-workspace-role";
 
 type PermissionPayload = Record<string, unknown>;
-
-const CONFIGURABLE_WORK_PERMISSION_UPGRADE_VERSION = 1;
 
 /**
  * Adds only newly introduced default resources to an existing role payload.
@@ -131,7 +133,7 @@ export async function seedDefaultWorkspaceRoles() {
           for (const existingRow of existingRowsForRole) {
             if (
               existingRow.permissionUpgradeVersion >=
-              CONFIGURABLE_WORK_PERMISSION_UPGRADE_VERSION
+              DEFAULT_ROLE_PERMISSION_UPGRADE_VERSION
             ) {
               continue;
             }
@@ -143,15 +145,7 @@ export async function seedDefaultWorkspaceRoles() {
           }
           continue;
         }
-        rows.push({
-          workspaceId,
-          role: name,
-          permission: JSON.stringify(defaultRolePayloads[name]),
-          permissionUpgradeVersion:
-            CONFIGURABLE_WORK_PERMISSION_UPGRADE_VERSION,
-          createdAt: now,
-          updatedAt: now,
-        });
+        rows.push(createDefaultWorkspaceRoleInsert(workspaceId, name, now));
       }
     }
 
@@ -173,8 +167,7 @@ export async function seedDefaultWorkspaceRoles() {
         .update(schema.workspaceRoleTable)
         .set({
           ...(update.permission ? { permission: update.permission } : {}),
-          permissionUpgradeVersion:
-            CONFIGURABLE_WORK_PERMISSION_UPGRADE_VERSION,
+          permissionUpgradeVersion: DEFAULT_ROLE_PERMISSION_UPGRADE_VERSION,
           updatedAt: now,
         })
         .where(eq(schema.workspaceRoleTable.id, update.id));

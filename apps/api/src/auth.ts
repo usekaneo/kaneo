@@ -4,12 +4,7 @@ import {
   sendOtpEmail,
   sendWorkspaceInvitationEmail,
 } from "@kaneo/email";
-import {
-  ac,
-  DEFAULT_ROLE_NAMES,
-  defaultRolePayloads,
-  owner,
-} from "@kaneo/permissions";
+import { ac, DEFAULT_ROLE_NAMES, owner } from "@kaneo/permissions";
 import bcrypt from "bcryptjs";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -40,6 +35,7 @@ import { publishEvent } from "./events";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
+import { createDefaultWorkspaceRoleInsert } from "./utils/default-workspace-role";
 import { generateDemoName } from "./utils/generate-demo-name";
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
@@ -360,13 +356,9 @@ export const auth = betterAuth({
             const now = new Date();
             const rows = DEFAULT_ROLE_NAMES.filter(
               (name) => !taken.has(name),
-            ).map((name) => ({
-              workspaceId: organization.id,
-              role: name,
-              permission: JSON.stringify(defaultRolePayloads[name]),
-              createdAt: now,
-              updatedAt: now,
-            }));
+            ).map((name) =>
+              createDefaultWorkspaceRoleInsert(organization.id, name, now),
+            );
             if (rows.length > 0) {
               await db.insert(schema.workspaceRoleTable).values(rows);
             }
