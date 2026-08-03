@@ -1,6 +1,39 @@
 import { DEFAULT_ROLE_NAMES, defaultRolePayloads } from "@kaneo/permissions";
-import { and, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import db, { schema } from "../database";
+
+type PermissionPayload = Record<string, unknown>;
+
+/**
+ * Adds only newly introduced default resources to an existing role payload.
+ * Existing resources (including their actions) are never changed so workspace
+ * administrators retain all custom permission choices.
+ */
+export function addMissingDefaultRoleResources(
+  permission: string,
+  newResources: Record<string, readonly string[]>,
+): string | null {
+  let payload: PermissionPayload;
+  try {
+    const parsed: unknown = JSON.parse(permission);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+    payload = parsed as PermissionPayload;
+  } catch {
+    return null;
+  }
+
+  const merged = { ...payload };
+  let changed = false;
+  for (const [resource, actions] of Object.entries(newResources)) {
+    if (Object.hasOwn(payload, resource)) continue;
+    merged[resource] = [...actions];
+    changed = true;
+  }
+
+  return changed ? JSON.stringify(merged) : null;
+}
 
 /**
  * Backfill the editable default roles (viewer/member/admin) for every
@@ -14,7 +47,8 @@ import db, { schema } from "../database";
  * better-auth's dynamic-access-control resolution would treat them as
  * having an empty permission set on existing workspaces.
  *
- * Idempotent: only inserts rows that aren't already present.
+ * Idempotent: inserts missing rows and adds only newly introduced resources to
+ * existing default-role rows without overwriting customized resources.
  */
 export async function seedDefaultWorkspaceRoles() {
   try {
@@ -48,8 +82,10 @@ export async function seedDefaultWorkspaceRoles() {
 
     const existingRows = await db
       .select({
+        id: schema.workspaceRoleTable.id,
         workspaceId: schema.workspaceRoleTable.workspaceId,
         role: schema.workspaceRoleTable.role,
+        permission: schema.workspaceRoleTable.permission,
       })
       .from(schema.workspaceRoleTable)
       .where(
@@ -62,15 +98,37 @@ export async function seedDefaultWorkspaceRoles() {
         ),
       );
 
-    const present = new Set(
-      existingRows.map((r) => `${r.workspaceId}:${r.role}`),
-    );
+    const existingRowsByRole = new Map<string, typeof existingRows>();
+    for (const row of existingRows) {
+      const key = `${row.workspaceId}:${row.role}`;
+      existingRowsByRole.set(key, [
+        ...(existingRowsByRole.get(key) ?? []),
+        row,
+      ]);
+    }
 
     const now = new Date();
     const rows: Array<typeof schema.workspaceRoleTable.$inferInsert> = [];
+    const updates: Array<{ id: string; permission: string }> = [];
     for (const workspaceId of workspaceIds) {
       for (const name of DEFAULT_ROLE_NAMES) {
-        if (present.has(`${workspaceId}:${name}`)) continue;
+        const existingRowsForRole = existingRowsByRole.get(
+          `${workspaceId}:${name}`,
+        );
+        if (existingRowsForRole) {
+          const newResources = {
+            item_type: defaultRolePayloads[name].item_type,
+            saved_view: defaultRolePayloads[name].saved_view,
+          };
+          for (const existingRow of existingRowsForRole) {
+            const permission = addMissingDefaultRoleResources(
+              existingRow.permission,
+              newResources,
+            );
+            if (permission) updates.push({ id: existingRow.id, permission });
+          }
+          continue;
+        }
         rows.push({
           workspaceId,
           role: name,
@@ -81,7 +139,7 @@ export async function seedDefaultWorkspaceRoles() {
       }
     }
 
-    if (rows.length === 0) {
+    if (rows.length === 0 && updates.length === 0) {
       return;
     }
 
@@ -94,8 +152,14 @@ export async function seedDefaultWorkspaceRoles() {
         .insert(schema.workspaceRoleTable)
         .values(rows.slice(i, i + BATCH_SIZE));
     }
+    for (const update of updates) {
+      await db
+        .update(schema.workspaceRoleTable)
+        .set({ permission: update.permission, updatedAt: now })
+        .where(eq(schema.workspaceRoleTable.id, update.id));
+    }
     console.log(
-      `✅ Seeded ${rows.length} default workspace role row(s) across ${workspaceIds.length} workspace(s).`,
+      `✅ Seeded ${rows.length} and upgraded ${updates.length} default workspace role row(s) across ${workspaceIds.length} workspace(s).`,
     );
   } catch (error) {
     console.error("❌ Failed to seed default workspace roles:", error);
