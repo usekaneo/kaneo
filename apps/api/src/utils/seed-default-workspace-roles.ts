@@ -4,6 +4,8 @@ import db, { schema } from "../database";
 
 type PermissionPayload = Record<string, unknown>;
 
+const CONFIGURABLE_WORK_PERMISSION_UPGRADE_VERSION = 1;
+
 /**
  * Adds only newly introduced default resources to an existing role payload.
  * Existing resources (including their actions) are never changed so workspace
@@ -86,6 +88,8 @@ export async function seedDefaultWorkspaceRoles() {
         workspaceId: schema.workspaceRoleTable.workspaceId,
         role: schema.workspaceRoleTable.role,
         permission: schema.workspaceRoleTable.permission,
+        permissionUpgradeVersion:
+          schema.workspaceRoleTable.permissionUpgradeVersion,
       })
       .from(schema.workspaceRoleTable)
       .where(
@@ -109,23 +113,33 @@ export async function seedDefaultWorkspaceRoles() {
 
     const now = new Date();
     const rows: Array<typeof schema.workspaceRoleTable.$inferInsert> = [];
-    const updates: Array<{ id: string; permission: string }> = [];
+    const updates: Array<{ id: string; permission: string | null }> = [];
     for (const workspaceId of workspaceIds) {
       for (const name of DEFAULT_ROLE_NAMES) {
         const existingRowsForRole = existingRowsByRole.get(
           `${workspaceId}:${name}`,
         );
         if (existingRowsForRole) {
-          const newResources = {
-            item_type: defaultRolePayloads[name].item_type,
-            saved_view: defaultRolePayloads[name].saved_view,
+          const { item_type, saved_view } = defaultRolePayloads[name];
+          if (!item_type || !saved_view) {
+            continue;
+          }
+          const newResources: Record<string, readonly string[]> = {
+            item_type,
+            saved_view,
           };
           for (const existingRow of existingRowsForRole) {
+            if (
+              existingRow.permissionUpgradeVersion >=
+              CONFIGURABLE_WORK_PERMISSION_UPGRADE_VERSION
+            ) {
+              continue;
+            }
             const permission = addMissingDefaultRoleResources(
               existingRow.permission,
               newResources,
             );
-            if (permission) updates.push({ id: existingRow.id, permission });
+            updates.push({ id: existingRow.id, permission });
           }
           continue;
         }
@@ -133,6 +147,8 @@ export async function seedDefaultWorkspaceRoles() {
           workspaceId,
           role: name,
           permission: JSON.stringify(defaultRolePayloads[name]),
+          permissionUpgradeVersion:
+            CONFIGURABLE_WORK_PERMISSION_UPGRADE_VERSION,
           createdAt: now,
           updatedAt: now,
         });
@@ -155,7 +171,12 @@ export async function seedDefaultWorkspaceRoles() {
     for (const update of updates) {
       await db
         .update(schema.workspaceRoleTable)
-        .set({ permission: update.permission, updatedAt: now })
+        .set({
+          ...(update.permission ? { permission: update.permission } : {}),
+          permissionUpgradeVersion:
+            CONFIGURABLE_WORK_PERMISSION_UPGRADE_VERSION,
+          updatedAt: now,
+        })
         .where(eq(schema.workspaceRoleTable.id, update.id));
     }
     console.log(

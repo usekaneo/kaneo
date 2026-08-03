@@ -74,4 +74,49 @@ describe("addMissingDefaultRoleResources", () => {
       }),
     );
   });
+
+  it("does not restore a resource a user removes after the one-time upgrade", async () => {
+    const selectFrom = vi
+      .fn()
+      .mockResolvedValueOnce([{ id: "workspace-1" }])
+      .mockReturnValueOnce({
+        where: vi.fn().mockResolvedValue([
+          {
+            id: "role-1",
+            workspaceId: "workspace-1",
+            role: "member",
+            permission: JSON.stringify({ task: ["read"] }),
+            permissionUpgradeVersion: 0,
+          },
+        ]),
+      })
+      .mockResolvedValueOnce([{ id: "workspace-1" }])
+      .mockReturnValueOnce({
+        where: vi.fn().mockResolvedValue([
+          {
+            id: "role-1",
+            workspaceId: "workspace-1",
+            role: "member",
+            permission: JSON.stringify({ task: ["read"] }),
+            permissionUpgradeVersion: 1,
+          },
+        ]),
+      });
+    const set = vi
+      .fn()
+      .mockReturnValue({ where: vi.fn().mockResolvedValue({}) });
+
+    execute.mockResolvedValue({ rows: [{ exists: true }] });
+    select.mockReturnValue({ from: selectFrom });
+    update.mockReturnValue({ set });
+    insert.mockReturnValue({ values: vi.fn().mockResolvedValue({}) });
+
+    await seedDefaultWorkspaceRoles();
+    await seedDefaultWorkspaceRoles();
+
+    expect(set).toHaveBeenCalledTimes(1);
+    expect(set).toHaveBeenCalledWith(
+      expect.objectContaining({ permissionUpgradeVersion: 1 }),
+    );
+  });
 });

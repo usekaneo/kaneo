@@ -1,0 +1,1 @@
+ALTER TABLE "workspace_role" ADD COLUMN "permission_upgrade_version" integer DEFAULT 0 NOT NULL;
