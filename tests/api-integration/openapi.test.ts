@@ -28,5 +28,17 @@ describe("API integration: openapi", () => {
     expect(payload.components?.securitySchemes).toMatchObject({
       bearerAuth: expect.any(Object),
     });
+    expect(payload.paths).toMatchObject({
+      "/item-type": {
+        post: { operationId: "createItemType" },
+      },
+      "/item-type/workspace/{workspaceId}": {
+        get: { operationId: "listItemTypes" },
+      },
+      "/item-type/{id}": {
+        put: { operationId: "updateItemType" },
+        delete: { operationId: "archiveItemType" },
+      },
+    });
   });
 });

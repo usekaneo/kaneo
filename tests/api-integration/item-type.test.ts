@@ -85,6 +85,28 @@ describe("API integration: item types", () => {
     ]);
   });
 
+  it("allows a workspace member without item type read permission to list", async () => {
+    const member = await createWorkspaceMember({
+      role: "custom-no-permissions",
+    });
+    await db.insert(schema.itemTypeTable).values({
+      workspaceId: member.workspace.id,
+      key: "existing",
+      name: "Existing",
+    });
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(
+      `/api/item-type/workspace/${member.workspace.id}`,
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject([
+      { key: "existing", name: "Existing" },
+    ]);
+  });
+
   it("rejects invalid and duplicate keys", async () => {
     const admin = await createWorkspaceMember({ role: "admin" });
     mockAuthenticatedSession(admin.user);

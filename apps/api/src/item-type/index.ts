@@ -34,7 +34,6 @@ const itemType = new Hono<{
     }),
     validator("param", v.object({ workspaceId: v.string() })),
     workspaceAccess.fromParam(),
-    requireWorkspacePermission({ item_type: ["read"] }),
     async (c) => {
       const { workspaceId } = c.req.valid("param");
       return c.json(await listItemTypes(workspaceId));
