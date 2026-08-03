@@ -5,7 +5,7 @@ import {
   redirect,
   useLocation,
 } from "@tanstack/react-router";
-import { CreditCard, Settings, Shield, Tag } from "lucide-react";
+import { Boxes, CreditCard, Settings, Shield, Tag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,13 @@ function RouteComponent() {
       title: t("settings:workspaceLabels.title", { defaultValue: "Labels" }),
       url: "/dashboard/settings/workspace/labels",
       icon: Tag,
+    },
+    {
+      title: t("settings:workspaceItemTypes.title", {
+        defaultValue: "Item types",
+      }),
+      url: "/dashboard/settings/workspace/item-types",
+      icon: Boxes,
     },
     ...(config?.billingEnabled
       ? [
