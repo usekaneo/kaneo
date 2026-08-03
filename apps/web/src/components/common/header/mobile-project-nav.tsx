@@ -1,4 +1,12 @@
-import { CalendarDays, Check, Menu, Plus, SquareKanban } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  type LucideIcon,
+  Menu,
+  Plus,
+  SquareKanban,
+  SquircleDashed,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -8,11 +16,46 @@ import {
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
+import type { ResolvedSavedView, SavedViewType } from "@/types/saved-view";
+
+const defaultMobileViews: ResolvedSavedView[] = [
+  {
+    key: "backlog",
+    name: "Backlog",
+    type: "list",
+    position: 0,
+    enabled: true,
+    configuration: {},
+  },
+  {
+    key: "board",
+    name: "Board",
+    type: "board",
+    position: 1,
+    enabled: true,
+    configuration: {},
+  },
+  {
+    key: "gantt",
+    name: "Gantt",
+    type: "gantt",
+    position: 2,
+    enabled: true,
+    configuration: {},
+  },
+];
+
+const viewIcons: Record<SavedViewType, LucideIcon> = {
+  list: SquircleDashed,
+  board: SquareKanban,
+  gantt: CalendarDays,
+};
 
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
   activeView: "backlog" | "board" | "gantt";
+  views?: ResolvedSavedView[];
   onSelectBoard: () => void;
   onSelectBacklog: () => void;
   onSelectGantt: () => void;
@@ -24,6 +67,7 @@ export default function MobileProjectNav({
   workspaceId,
   projectId,
   activeView,
+  views = defaultMobileViews,
   onSelectBoard,
   onSelectBacklog,
   onSelectGantt,
@@ -31,6 +75,11 @@ export default function MobileProjectNav({
   onAddProject,
 }: MobileProjectNavProps) {
   const { data: projects = [] } = useGetProjects({ workspaceId });
+  const selectHandlers: Record<SavedViewType, () => void> = {
+    list: onSelectBacklog,
+    board: onSelectBoard,
+    gantt: onSelectGantt,
+  };
 
   return (
     <Popover>
@@ -52,44 +101,37 @@ export default function MobileProjectNav({
               View
             </p>
             <div className="grid grid-cols-3 gap-1">
-              <button
-                type="button"
-                onClick={onSelectBacklog}
-                className={cn(
-                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
-                  activeView === "backlog"
-                    ? "border-border bg-secondary text-foreground"
-                    : "border-transparent text-muted-foreground hover:bg-accent",
-                )}
-              >
-                Backlog
-              </button>
-              <button
-                type="button"
-                onClick={onSelectBoard}
-                className={cn(
-                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
-                  activeView === "board"
-                    ? "border-border bg-secondary text-foreground"
-                    : "border-transparent text-muted-foreground hover:bg-accent",
-                )}
-              >
-                <SquareKanban className="size-3.5" />
-                Board
-              </button>
-              <button
-                type="button"
-                onClick={onSelectGantt}
-                className={cn(
-                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
-                  activeView === "gantt"
-                    ? "border-border bg-secondary text-foreground"
-                    : "border-transparent text-muted-foreground hover:bg-accent",
-                )}
-              >
-                <CalendarDays className="size-3.5" />
-                Gantt
-              </button>
+              {views
+                .filter((view) => view.enabled)
+                .map((view) => {
+                  const Icon = viewIcons[view.type] ?? SquircleDashed;
+                  const isActive =
+                    activeView ===
+                    (view.type === "list" ? "backlog" : view.type);
+
+                  return (
+                    <button
+                      key={view.key}
+                      type="button"
+                      aria-current={isActive ? "page" : undefined}
+                      onClick={selectHandlers[view.type] ?? onSelectBoard}
+                      className={cn(
+                        "flex min-w-0 w-full items-center justify-center gap-1 overflow-hidden whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                        isActive
+                          ? "border-border bg-secondary text-foreground"
+                          : "border-transparent text-muted-foreground hover:bg-accent",
+                      )}
+                    >
+                      <Icon className="size-3.5 shrink-0" />
+                      <span
+                        className="min-w-0 max-w-full truncate"
+                        title={view.name}
+                      >
+                        {view.name}
+                      </span>
+                    </button>
+                  );
+                })}
             </div>
           </div>
 

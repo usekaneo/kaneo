@@ -47,6 +47,7 @@ export default function ProjectViewSwitcher({
             variant={isActive ? "secondary" : "ghost"}
             size="xs"
             data-active={isActive}
+            aria-current={isActive ? "page" : undefined}
             onClick={() => onSelect(view.type)}
             className={cn(
               "h-6 gap-1.5 rounded-md px-2 text-xs",
@@ -54,7 +55,9 @@ export default function ProjectViewSwitcher({
             )}
           >
             <Icon className="size-3.5" />
-            {view.name}
+            <span className="max-w-32 truncate" title={view.name}>
+              {view.name}
+            </span>
           </Button>
         );
       })}

@@ -184,6 +184,7 @@ export default function ProjectLayout({
                 workspaceId={workspaceId}
                 projectId={projectId}
                 activeView={resolvedView}
+                views={views}
                 onSelectBacklog={handleNavigateToBacklog}
                 onSelectBoard={handleNavigateToBoard}
                 onSelectGantt={handleNavigateToGantt}

@@ -6,6 +6,7 @@ import ProjectLayout from "./project-layout";
 import ProjectViewSwitcher from "./project-view-switcher";
 
 const mocks = vi.hoisted(() => ({
+  mobileProjectNav: vi.fn(),
   navigate: vi.fn(),
   useGetResolvedViews: vi.fn(),
 }));
@@ -16,7 +17,10 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("@/components/common/header/mobile-project-nav", () => ({
-  default: () => null,
+  default: (props: unknown) => {
+    mocks.mobileProjectNav(props);
+    return null;
+  },
 }));
 
 vi.mock("@/components/common/header/project-crumb-select", () => ({
@@ -115,6 +119,10 @@ describe("ProjectViewSwitcher", () => {
       "data-active",
       "true",
     );
+    expect(screen.getByRole("button", { name: "Tasks" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
   });
 
   it("hides disabled views", () => {
@@ -144,6 +152,21 @@ describe("ProjectViewSwitcher", () => {
     fireEvent.click(backlogButton);
     expect(onSelect).toHaveBeenCalledWith("list");
   });
+
+  it("contains long labels while preserving their accessible name", () => {
+    const longName = "A very long custom planning view name";
+    render(
+      <ProjectViewSwitcher
+        activeView="backlog"
+        views={[{ ...views[0], name: longName }]}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    const label = screen.getByText(longName);
+    expect(label).toHaveClass("max-w-32", "truncate");
+    expect(label).toHaveAttribute("title", longName);
+  });
 });
 
 describe("ProjectLayout view integration", () => {
@@ -165,6 +188,9 @@ describe("ProjectLayout view integration", () => {
       workspaceId: "workspace-1",
       projectId: "project-1",
     });
+    expect(mocks.mobileProjectNav).toHaveBeenCalledWith(
+      expect.objectContaining({ views: [{ ...views[0], name: "Planning" }] }),
+    );
     expect(mocks.navigate).toHaveBeenCalledWith({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
       params: { workspaceId: "workspace-1", projectId: "project-1" },
