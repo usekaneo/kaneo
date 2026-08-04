@@ -78,6 +78,7 @@ jobs:
       - name: Publish @kaneo/mcp
         if: ${{ steps.version_check.outputs.already_published == 'false' }}
         run: |
+          npm install -g npm@latest
           cd packages/mcp
           npm publish --access public --provenance
         env:
