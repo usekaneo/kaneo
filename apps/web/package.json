@@ -73,7 +73,7 @@
 		"file-saver": "^2.0.5",
 		"framer-motion": "^12.42.2",
 		"highlight.js": "^11.11.1",
-		"hono": "^4.12.31",
+		"hono": "^4.12.34",
 		"i18next": "^25.5.3",
 		"immer": "^11.1.15",
 		"input-otp": "^1.4.2",
