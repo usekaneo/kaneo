@@ -43,7 +43,7 @@
 		"test:watch": "vitest --config vitest.config.ts"
 	},
 	"dependencies": {
-		"@modelcontextprotocol/sdk": "^1.29.0",
+		"@modelcontextprotocol/sdk": "^1.30.0",
 		"open": "^11.0.0",
 		"prompts": "^2.4.2",
 		"zod": "^4.4.3"
