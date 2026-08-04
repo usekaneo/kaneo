@@ -546,7 +546,7 @@ describe("API integration: workspace RBAC enforcement", () => {
     });
 
     it("falls back to built-in role when no workspace_role row exists for the name", async () => {
-      // No workspace_role row, role is the compiled-in "admin" — should work.
+      // No workspace_role row, role is the compiled-in "admin"; should work.
       const member = await createWorkspaceMember({ role: "admin" });
       const { project } = await createProjectFixture({
         workspaceId: member.workspace.id,
@@ -975,7 +975,7 @@ describe("API integration: workspace RBAC enforcement", () => {
 
   describe("resource coverage: workspace:manage_settings", () => {
     // The integration endpoints (slack/discord/etc.) all gate on
-    // workspace:manage_settings. Use Slack as the canonical surface — the
+    // workspace:manage_settings. Use Slack as the canonical surface; the
     // 403 fires in middleware before the handler ever tries to call out.
     it("blocks a member from creating a Slack integration", async () => {
       const member = await createWorkspaceMember({ role: "member" });
@@ -1063,7 +1063,7 @@ describe("API integration: workspace RBAC enforcement", () => {
 
     it("does not bypass for users with no role set", async () => {
       const member = await createWorkspaceMember({ role: "viewer" });
-      // Explicitly null role on the user table — should NOT bypass.
+      // Explicitly null role on the user table; should NOT bypass.
       await db
         .update(schema.userTable)
         .set({ role: null })

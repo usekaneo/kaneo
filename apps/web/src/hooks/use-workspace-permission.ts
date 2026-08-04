@@ -8,7 +8,7 @@ export type PermissionLevel = "owner" | "admin" | "member";
 
 // Capabilities are named permission bundles checked against the SERVER via
 // better-auth's `/organization/has-permission` endpoint. Going through the
-// server is what makes custom workspace roles work in the UI — the local
+// server is what makes custom workspace roles work in the UI: the local
 // `checkRolePermission` only knows about the four static roles compiled
 // into the auth client, so it would silently return false for any custom
 // role that grants the permission.
@@ -46,8 +46,8 @@ export function useWorkspacePermission() {
   const role = activeMember?.role as string | undefined;
 
   // One query that fans out to all capability checks in parallel and caches
-  // the resulting map by (workspaceId, role). Refetches when either changes
-  // — e.g., when the admin edits the role's permissions in the Roles UI and
+  // the resulting map by (workspaceId, role). Refetches when either changes,
+  // e.g., when the admin edits the role's permissions in the Roles UI and
   // we invalidate this key.
   const {
     data: capabilities,

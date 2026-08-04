@@ -63,7 +63,7 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
       getRedisSub().off("pmessage", this._pmessageHandler);
       this._pmessageHandler = null;
     }
-    // Unsubscribe from the pattern — covers all project channels
+    // Unsubscribe from the pattern, which covers all project channels
     await getRedisSub().punsubscribe(CHANNEL_PATTERN);
     this.subscribed = false;
     await closeRedis();

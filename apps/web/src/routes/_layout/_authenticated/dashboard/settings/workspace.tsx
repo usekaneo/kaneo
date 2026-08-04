@@ -30,7 +30,7 @@ export const Route = createFileRoute(
   // have no route param to identify "which workspace". They rely on the
   // session's active organization. A user who deep-links here (or refreshes)
   // before ever visiting a workspace dashboard would otherwise see an empty
-  // sidebar ("WS / Roles.Undefined") and a stuck "Loading…" — pick the first
+  // sidebar ("WS / Roles.Undefined") and a stuck "Loading…", so pick the first
   // workspace as active so the layout has something to render.
   beforeLoad: async () => {
     const session = await authClient.getSession();

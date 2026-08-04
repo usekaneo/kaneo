@@ -39,7 +39,7 @@ async function startMcpServer(): Promise<void> {
 }
 
 function printMainHelp(): void {
-  console.log(`kaneo-mcp — Kaneo MCP server (stdio transport)
+  console.log(`kaneo-mcp: Kaneo MCP server (stdio transport)
 
 Usage:
   npx @kaneo/mcp         Interactive installer (terminal only; no global install)

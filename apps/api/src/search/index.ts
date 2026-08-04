@@ -72,7 +72,7 @@ const search = new Hono<{
           v.minValue(1, "Limit must be at least 1"),
           v.maxValue(50, "Limit must not exceed 50"),
         ),
-        20,
+        "20",
       ),
       userEmail: v.optional(v.pipe(v.string(), v.email())),
     }),

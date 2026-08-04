@@ -4,7 +4,7 @@ import { checkWorkspaceName } from "../../../apps/api/src/utils/check-workspace-
 describe("checkWorkspaceName", () => {
   it("accepts normal workspace names", () => {
     expect(checkWorkspaceName("Acme Inc.").ok).toBe(true);
-    expect(checkWorkspaceName("My Team — Project").ok).toBe(true);
+    expect(checkWorkspaceName("My Team – Project").ok).toBe(true);
     expect(checkWorkspaceName("Crypto Snack").ok).toBe(true);
   });
 

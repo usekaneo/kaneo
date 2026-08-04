@@ -44,6 +44,7 @@
 			"spanish": "Spagnolo",
 			"dutch": "Olandese",
 			"korean": "Coreano",
+			"chinese": "Cinese",
 			"italian": "Italiano"
 		},
 		"people": {
@@ -249,7 +250,8 @@
 			"joinWorkspace": "Unisciti a {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> ti ha invitato a unirti al suo workspace.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> ti ha invitato a unirti al suo workspace su Kaneo.",
-			"signInToAccept": "Accedi per accettare questo invito.",
+			"createAccountOrSignIn": "Crea un account per accettare questo invito, oppure accedi se ne hai già uno.",
+			"createAccount": "Crea Account",
 			"accepting": "Accettazione in corso...",
 			"acceptInvitation": "Accetta Invito",
 			"goToDashboard": "Vai alla Dashboard",
@@ -588,7 +590,7 @@
 			"discard": "Annulla",
 			"createRole": "Crea ruolo",
 			"deleteRole": "Elimina ruolo",
-			"defaultRoleHelp": "Ruolo predefinito — il nome è riservato e la riga non può essere eliminata.",
+			"defaultRoleHelp": "Ruolo predefinito: il nome è riservato e la riga non può essere eliminata.",
 			"unsavedChanges": "Hai modifiche non salvate",
 			"allChangesSaved": "Tutte le modifiche salvate",
 			"saveChanges": "Salva modifiche",
@@ -760,9 +762,7 @@
 			"toastDeleteError": "Eliminazione progetto fallita",
 			"validation": {
 				"nameRequired": "Il nome del progetto è obbligatorio",
-				"nameShort": "Il nome del progetto deve essere di almeno 2 caratteri",
 				"keyRequired": "La chiave è obbligatoria",
-				"keyShort": "La chiave deve essere di almeno 2 caratteri",
 				"keyMax": "La chiave deve essere al massimo di 8 caratteri",
 				"iconRequired": "L'icona è obbligatoria"
 			},
@@ -913,7 +913,7 @@
 				"verifyError": "Verifica accesso Gitea fallita",
 				"tokenRequired": "Il token di accesso personale è obbligatorio",
 				"tokenRequiredVerify": "Inserisci un token per verificare",
-				"verifyFirst": "Verifica accesso fallita — controlla URL, token e repository",
+				"verifyFirst": "Verifica accesso fallita. Controlla URL, token e repository",
 				"updated": "Integrazione Gitea salvata",
 				"updateError": "Salvataggio integrazione Gitea fallito",
 				"removed": "Integrazione Gitea rimossa",
@@ -1765,7 +1765,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Cronologia Gantt",
 			"searchPlaceholder": "Cerca ticket programmati...",
 			"hideTasks": "Nascondi attività",
@@ -1778,7 +1778,7 @@
 			"updateDatesError": "Aggiornamento date attività fallito",
 			"resizeStart": "Ridimensiona data inizio",
 			"resizeDue": "Ridimensiona data scadenza",
-			"taskAriaLabel": "{{title}} — apri o trascina per spostare"
+			"taskAriaLabel": "{{title}}: apri o trascina per spostare"
 		},
 		"delete": {
 			"title": "Eliminare l'Attività?",
@@ -1965,7 +1965,11 @@
 		},
 		"invitations": {
 			"pendingBadge": "in sospeso",
-			"expires": "Scade {{date}}"
+			"expires": "Scade {{date}}",
+			"linkLabel": "Link di invito",
+			"copyLink": "Copia link",
+			"linkCopied": "Link di invito copiato",
+			"copyFailed": "Impossibile copiare automaticamente. Seleziona il link e premi Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Invita Membro del Team",
@@ -1973,7 +1977,10 @@
 			"emailPlaceholder": "collega@azienda.com",
 			"sendInvitation": "Invia Invito",
 			"success": "Invito inviato con successo",
-			"error": "Invito membro del team fallito"
+			"error": "Invito membro del team fallito",
+			"createdTitle": "Invito creato",
+			"shareLinkDescription": "Condividi questo link con {{email}} così potrà unirsi al workspace.",
+			"done": "Fatto"
 		},
 		"membersTable": {
 			"emptyTitle": "Nessun membro del team ancora",
@@ -1986,6 +1993,7 @@
 			},
 			"memberRolePending": "{{role}} (In sospeso)",
 			"ariaCancelInvitation": "Annulla invito",
+			"ariaInvitationActions": "Azioni invito",
 			"ariaRemoveMember": "Rimuovi membro",
 			"removeDialogTitle": "Rimuovere il Membro del Team?",
 			"removeDialogDescription": "Sei sicuro di voler rimuovere {{name}} dal workspace? Questa azione non può essere annullata.",

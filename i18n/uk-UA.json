@@ -44,7 +44,8 @@
 			"spanish": "Іспанська",
 			"dutch": "Нідерландська",
 			"korean": "Корейська",
-			"chinese": "Chinese"
+			"chinese": "Китайська",
+			"italian": "Італійська"
 		},
 		"people": {
 			"someone": "Хтось",
@@ -247,8 +248,8 @@
 			"joinWorkspace": "Приєднатися до {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> запросив вас приєднатися до свого робочого простору.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> запросив вас приєднатися до свого робочого простору в Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Створіть обліковий запис, щоб прийняти це запрошення, або увійдіть, якщо він у вас вже є.",
+			"createAccount": "Створити обліковий запис",
 			"accepting": "Приймається...",
 			"acceptInvitation": "Прийняти запрошення",
 			"goToDashboard": "Перейти до панелі керування",
@@ -732,7 +733,7 @@
 				"verifyError": "Не вдалося перевірити доступ до Gitea",
 				"tokenRequired": "Персональний токен доступу є обов'язковим",
 				"tokenRequiredVerify": "Введіть токен для перевірки",
-				"verifyFirst": "Перевірка доступу не вдалася — перевірте URL, токен та репозиторій",
+				"verifyFirst": "Перевірка доступу не вдалася. Перевірте URL, токен та репозиторій",
 				"updated": "Інтеґрацію з Gitea збережено",
 				"updateError": "Не вдалося зберегти інтеґрацію з Gitea",
 				"removed": "Інтеґрацію з Gitea видалено",
@@ -1554,7 +1555,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Ґант",
+			"pageTitle": "{{name}} – Ґант",
 			"title": "Часова шкала Ґанта",
 			"searchPlaceholder": "Пошук запланованих тікетів...",
 			"hideTasks": "Сховати завдання",
@@ -1567,7 +1568,7 @@
 			"updateDatesError": "Не вдалося оновити дати завдання",
 			"resizeStart": "Змінити дату початку",
 			"resizeDue": "Змінити дату завершення",
-			"taskAriaLabel": "{{title}} — відкрити або перетягнути для переміщення"
+			"taskAriaLabel": "{{title}}: відкрити або перетягнути для переміщення"
 		},
 		"delete": {
 			"title": "Видалити завдання?",
@@ -1731,7 +1732,7 @@
 		"create": {
 			"pageTitle": "Створення робочого простору",
 			"heading": "Створити новий робочий простір",
-			"subtitle": "Робочі простори — це спільні середовища, де команди можуть працювати над проєктами, циклами та завданнями.",
+			"subtitle": "Робочі простори є спільними середовищами, де команди можуть працювати над проєктами, циклами та завданнями.",
 			"nameLabel": "Назва робочого простору",
 			"namePlaceholder": "Введіть назву робочого простору",
 			"descriptionLabel": "Опис (необов'язково)",
@@ -1754,10 +1755,10 @@
 			"inviteMember": "Запросити учасника"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Посилання на запрошення",
+			"copyLink": "Копіювати посилання",
+			"linkCopied": "Посилання на запрошення скопійовано",
+			"copyFailed": "Не вдалося скопіювати автоматично. Виділіть посилання та натисніть Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Запросити учасника команди",
@@ -1766,9 +1767,9 @@
 			"sendInvitation": "Надіслати запрошення",
 			"success": "Запрошення успішно надіслано",
 			"error": "Не вдалося запросити учасника команди",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Запрошення створено",
+			"shareLinkDescription": "Поділіться цим посиланням з {{email}}, щоб вони могли приєднатися до робочого простору.",
+			"done": "Готово"
 		},
 		"membersTable": {
 			"emptyTitle": "Учасників команди ще немає",
@@ -1792,7 +1793,7 @@
 			"removeError": "Не вдалося видалити учасника команди",
 			"cancelInviteSuccess": "Запрошення успішно скасовано",
 			"cancelInviteError": "Не вдалося скасувати запрошення",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Дії із запрошенням"
 		}
 	},
 	"publicProject": {

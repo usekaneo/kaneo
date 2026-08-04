@@ -1,6 +1,6 @@
 # Kaneo MCP server
 
-`@kaneo/mcp` is a local stdio MCP server for Kaneo.
+[`@kaneo/mcp`](https://www.npmjs.com/package/@kaneo/mcp) is the official MCP (Model Context Protocol) server for [Kaneo](https://kaneo.app), the open source project management platform. It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and published to npm by the Kaneo team.
 
 It runs over stdio, signs in with Kaneo's device flow, and then calls the Kaneo API with a bearer token. The package lives in `packages/mcp` in this monorepo and exposes the `kaneo-mcp` CLI.
 
@@ -25,7 +25,7 @@ DEVICE_AUTH_CLIENT_IDS=kaneo-cli,kaneo-mcp,your-client-id
 |----------|-------------|
 | `KANEO_API_URL` | Kaneo API origin (default `http://localhost:1337`). Do not include `/api`. |
 | `KANEO_MCP_CLIENT_ID` | Device-flow client id (default `kaneo-mcp`). Must match `DEVICE_AUTH_CLIENT_IDS` on the server. |
-| `KANEO_API_KEY` | **Optional.** A Kaneo API key (create one under Settings → Account → Developer). When set, the server authenticates with it as a Bearer token and skips the interactive device flow — use this for headless/Docker setups. |
+| `KANEO_API_KEY` | **Optional.** A Kaneo API key (create one under Settings → Account → Developer). When set, the server authenticates with it as a Bearer token and skips the interactive device flow. Use this for headless/Docker setups. |
 
 ## Install
 

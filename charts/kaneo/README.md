@@ -97,7 +97,7 @@ When CPU autoscaling is enabled, set `kaneo.resources.requests.cpu`; Kubernetes 
 | `kaneo.service.port`                | Kaneo service port                                                                                                 | `5173`                          |
 | `kaneo.service.targetPort`          | Kaneo container port                                                                                               | `5173`                          |
 | `kaneo.env`                         | Environment variables for the Kaneo container                                                                      | See `values.yaml`               |
-| `kaneo.env.clientUrl`               | Public URL of the Kaneo instance. **Required for any non-localhost deployment** — sets `KANEO_CLIENT_URL`. Omitting this causes "invalid origin" errors on login. Note: this key is case-sensitive (`clientUrl`, not `clientURL`). | `""` |
+| `kaneo.env.clientUrl`               | Public URL of the Kaneo instance. **Required for any non-localhost deployment**; sets `KANEO_CLIENT_URL`. Omitting this causes "invalid origin" errors on login. Note: this key is case-sensitive (`clientUrl`, not `clientURL`). | `""` |
 | `kaneo.env.corsOrigins`             | Allowed CORS origins as a comma-separated string or YAML list                                                      | `[]`                            |
 | `kaneo.env.authSecret`              | Required Better Auth secret (minimum 32 characters), ignored if existingSecret is enabled                           | `""` |
 | `kaneo.env.existingSecret.enabled`  | Whether to use an existing secret for `AUTH_SECRET`                                                                | `false`                         |
@@ -355,7 +355,7 @@ kaneo:
     clientUrl: "https://kaneo.your-domain.com"
 ```
 
-> **Note:** The key is `clientUrl` (camelCase). `clientURL` (all-caps) is silently ignored — the env var will be empty and login will fail with no helpful error.
+> **Note:** The key is `clientUrl` (camelCase). `clientURL` (all-caps) is silently ignored; the env var will be empty and login will fail with no helpful error.
 
 ### Pods crash immediately after upgrading to use `existingSecret`
 If pods enter `CrashLoopBackOff` after switching to an existing secret for the external database, the connection URI in the secret is likely wrong. Check what the pod is actually using:

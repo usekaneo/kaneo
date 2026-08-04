@@ -44,7 +44,8 @@
 			"spanish": "Испанский",
 			"dutch": "Нидерландский",
 			"korean": "Корейский",
-			"chinese": "Chinese"
+			"chinese": "Китайский",
+			"italian": "Итальянский"
 		},
 		"people": {
 			"someone": "Кто-то",
@@ -247,8 +248,8 @@
 			"joinWorkspace": "Присоединиться к {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> приглашает вас присоединиться к рабочей области.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> приглашает вас присоединиться к рабочей области в Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Создайте аккаунт, чтобы принять это приглашение, или войдите, если он у вас уже есть.",
+			"createAccount": "Создать аккаунт",
 			"accepting": "Принятие...",
 			"acceptInvitation": "Принять приглашение",
 			"goToDashboard": "Перейти к панели управления",
@@ -732,7 +733,7 @@
 				"verifyError": "Не удалось проверить доступ к Gitea",
 				"tokenRequired": "Требуется персональный токен доступа",
 				"tokenRequiredVerify": "Введите токен для проверки",
-				"verifyFirst": "Проверка доступа не удалась — проверьте URL, токен и репозиторий",
+				"verifyFirst": "Проверка доступа не удалась. Проверьте URL, токен и репозиторий",
 				"updated": "Интеграция с Gitea сохранена",
 				"updateError": "Не удалось сохранить интеграцию с Gitea",
 				"removed": "Интеграция с Gitea удалена",
@@ -1499,7 +1500,7 @@
 			}
 		},
 		"backlog": {
-			"pageTitle": "Бэклог — {{name}}",
+			"pageTitle": "Бэклог – {{name}}",
 			"noTasksToMove": "Нет запланированных задач для перемещения",
 			"moveAllConfirm": "Переместить все {{count}} запланированных задач в «К выполнению»?",
 			"moveAllSuccess_one": "{{count}} задача перемещена в «К выполнению»",
@@ -1566,7 +1567,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Гант",
+			"pageTitle": "{{name}} – Гант",
 			"title": "Временная шкала Ганта",
 			"searchPlaceholder": "Поиск запланированных задач...",
 			"hideTasks": "Скрыть задачи",
@@ -1579,7 +1580,7 @@
 			"updateDatesError": "Не удалось обновить даты задачи",
 			"resizeStart": "Изменить дату начала",
 			"resizeDue": "Изменить срок выполнения",
-			"taskAriaLabel": "{{title}} — откройте или перетащите для перемещения"
+			"taskAriaLabel": "{{title}}: откройте или перетащите для перемещения"
 		},
 		"delete": {
 			"title": "Удалить задачу?",
@@ -1773,7 +1774,7 @@
 		"create": {
 			"pageTitle": "Создание рабочей области",
 			"heading": "Создать новую рабочую область",
-			"subtitle": "Рабочие области — это общие среды, где команды могут работать над проектами, циклами и задачами.",
+			"subtitle": "Рабочие области представляют собой общие среды, где команды могут работать над проектами, циклами и задачами.",
 			"nameLabel": "Название рабочей области",
 			"namePlaceholder": "Введите название рабочей области",
 			"descriptionLabel": "Описание (необязательно)",
@@ -1796,10 +1797,10 @@
 			"inviteMember": "Пригласить участника"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Ссылка для приглашения",
+			"copyLink": "Скопировать ссылку",
+			"linkCopied": "Ссылка для приглашения скопирована",
+			"copyFailed": "Не удалось скопировать автоматически. Выделите ссылку и нажмите Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Пригласить участника команды",
@@ -1808,9 +1809,9 @@
 			"sendInvitation": "Отправить приглашение",
 			"success": "Приглашение успешно отправлено",
 			"error": "Не удалось пригласить участника команды",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Приглашение создано",
+			"shareLinkDescription": "Поделитесь этой ссылкой с {{email}}, чтобы этот пользователь мог присоединиться к рабочей области.",
+			"done": "Готово"
 		},
 		"membersTable": {
 			"emptyTitle": "Участников команды пока нет",
@@ -1834,7 +1835,7 @@
 			"removeError": "Не удалось удалить участника команды",
 			"cancelInviteSuccess": "Приглашение успешно отменено",
 			"cancelInviteError": "Не удалось отменить приглашение",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Действия с приглашением"
 		}
 	},
 	"publicProject": {

@@ -44,7 +44,8 @@
 			"spanish": "Шпански",
 			"dutch": "Холандски",
 			"korean": "Корејски",
-			"chinese": "Chinese"
+			"chinese": "Кинески",
+			"italian": "Италијански"
 		},
 		"people": {
 			"someone": "Некој",
@@ -247,8 +248,8 @@
 			"joinWorkspace": "Приклучи се на {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор на Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Креирај сметка за да ја прифатиш оваа покана, или најави се ако веќе имаш.",
+			"createAccount": "Креирај сметка",
 			"accepting": "Се прифаќа...",
 			"acceptInvitation": "Прифати покана",
 			"goToDashboard": "Оди на контролна табла",
@@ -734,7 +735,7 @@
 				"verifyError": "Failed to verify Gitea access",
 				"tokenRequired": "Personal access token is required",
 				"tokenRequiredVerify": "Enter a token to verify",
-				"verifyFirst": "Verify access failed — check URL, token, and repository",
+				"verifyFirst": "Verify access failed. Check URL, token, and repository",
 				"updated": "Gitea integration saved",
 				"updateError": "Failed to save Gitea integration",
 				"removed": "Gitea integration removed",
@@ -1557,7 +1558,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt временска линија",
 			"searchPlaceholder": "Пребарај закажани тикети...",
 			"hideTasks": "Сокриј задачи",
@@ -1570,7 +1571,7 @@
 			"updateDatesError": "Неуспешно ажурирање на датуми на задача",
 			"resizeStart": "Промени почетен датум",
 			"resizeDue": "Промени краен рок",
-			"taskAriaLabel": "{{title}} — отвори или повлечи за преместување"
+			"taskAriaLabel": "{{title}}: отвори или повлечи за преместување"
 		},
 		"delete": {
 			"title": "Избриши задача?",
@@ -1753,10 +1754,10 @@
 			"inviteMember": "Покани член"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Линк за покана",
+			"copyLink": "Копирај линк",
+			"linkCopied": "Линкот за покана е копиран",
+			"copyFailed": "Не можеше да се копира автоматски. Избери го линкот и притисни Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Покани член на тим",
@@ -1765,9 +1766,9 @@
 			"sendInvitation": "Испрати покана",
 			"success": "Поканата е успешно испратена",
 			"error": "Неуспешно поканување на член на тим",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Поканата е креирана",
+			"shareLinkDescription": "Сподели го овој линк со {{email}} за да може да се приклучи на работниот простор.",
+			"done": "Готово"
 		},
 		"membersTable": {
 			"emptyTitle": "Нема членови на тим засега",
@@ -1791,7 +1792,7 @@
 			"removeError": "Неуспешно отстранување на член на тим",
 			"cancelInviteSuccess": "Поканата е успешно откажана",
 			"cancelInviteError": "Неуспешно откажување на покана",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Акции за поканата"
 		}
 	},
 	"publicProject": {

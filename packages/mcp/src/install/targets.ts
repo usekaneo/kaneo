@@ -37,7 +37,7 @@ export const INSTALL_TARGETS = [
   {
     id: "cursor-user",
     label: "Cursor (user-wide)",
-    description: "~/.cursor/mcp.json — available in all projects",
+    description: "~/.cursor/mcp.json, available in all projects",
   },
   {
     id: "cursor-project",

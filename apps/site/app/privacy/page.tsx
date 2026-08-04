@@ -41,9 +41,9 @@ export default function PrivacyPage() {
                 This policy describes how the Kaneo website (kaneo.app) and the
                 managed Kaneo Cloud service (cloud.kaneo.app) handle your data.
                 The service is operated by Andrej Acevski (sole proprietor,
-                North Macedonia), referred to as “we” below. If you self-host
-                Kaneo, this policy does not apply: your instance is under your
-                control and we receive no data from it.
+                Macedonia), referred to as “we” below. If you self-host Kaneo,
+                this policy does not apply: your instance is under your control
+                and we receive no data from it.
               </p>
             </div>
 

@@ -38,14 +38,7 @@ function useWorkspaceRoles(workspaceId: string | undefined) {
         query: { organizationId: workspaceId },
       });
       if (result.error) throw new Error(result.error.message);
-      const roles = (result.data ?? []) as Array<{
-        id: string;
-        organizationId: string;
-        role: string;
-        permission: string;
-        createdAt: Date | string;
-        updatedAt?: Date | string | null;
-      }>;
+      const roles = result.data ?? [];
 
       return roles.map((r) => ({
         id: r.id,

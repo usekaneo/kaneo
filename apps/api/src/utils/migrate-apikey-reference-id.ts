@@ -25,7 +25,7 @@ export async function migrateApiKeyReferenceId() {
       tableExists.rows[0]?.exists === true ||
       tableExists.rows[0]?.exists === "t";
     if (!exists) {
-      console.log("🛈 apikey table does not exist — skipping migration.");
+      console.log("🛈 apikey table does not exist; skipping migration.");
       return;
     }
 

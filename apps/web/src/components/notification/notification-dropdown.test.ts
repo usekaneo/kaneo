@@ -5,10 +5,7 @@ import {
   getNotificationTitle,
 } from "./notification-dropdown";
 
-const t = (
-  key: string,
-  options?: Record<string, number | string | undefined>,
-) => {
+const t = (key: string, options?: Record<string, unknown>) => {
   if (key === "notifications:reminderLeadTime.days") {
     return `${options?.count} days`;
   }

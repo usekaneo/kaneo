@@ -44,7 +44,8 @@
 			"spanish": "Ισπανικά",
 			"dutch": "Ολλανδικά",
 			"korean": "Κορεατικά",
-			"chinese": "Chinese"
+			"chinese": "Κινεζικά",
+			"italian": "Ιταλικά"
 		},
 		"people": {
 			"someone": "Κάποιος",
@@ -247,8 +248,8 @@
 			"joinWorkspace": "Συμμετοχή στο {{workspaceName}}",
 			"inviteBodySignedIn": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της.",
 			"inviteBodySignedOut": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της στο Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Δημιουργήστε λογαριασμό για να αποδεχτείτε αυτήν την πρόσκληση ή συνδεθείτε αν έχετε ήδη.",
+			"createAccount": "Δημιουργία λογαριασμού",
 			"accepting": "Γίνεται αποδοχή...",
 			"acceptInvitation": "Αποδοχή πρόσκλησης",
 			"goToDashboard": "Μετάβαση στον πίνακα ελέγχου",
@@ -734,7 +735,7 @@
 				"verifyError": "Failed to verify Gitea access",
 				"tokenRequired": "Personal access token is required",
 				"tokenRequiredVerify": "Enter a token to verify",
-				"verifyFirst": "Verify access failed — check URL, token, and repository",
+				"verifyFirst": "Verify access failed. Check URL, token, and repository",
 				"updated": "Gitea integration saved",
 				"updateError": "Failed to save Gitea integration",
 				"removed": "Gitea integration removed",
@@ -1557,7 +1558,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Χρονοδιάγραμμα Gantt",
 			"searchPlaceholder": "Αναζήτηση προγραμματισμένων αιτημάτων...",
 			"hideTasks": "Απόκρυψη εργασιών",
@@ -1570,7 +1571,7 @@
 			"updateDatesError": "Αποτυχία ενημέρωσης ημερομηνιών εργασίας",
 			"resizeStart": "Αλλαγή μεγέθους ημερομηνίας έναρξης",
 			"resizeDue": "Αλλαγή μεγέθους ημερομηνίας λήξης",
-			"taskAriaLabel": "{{title}} — άνοιγμα ή σύρσιμο για μετακίνηση"
+			"taskAriaLabel": "{{title}}: άνοιγμα ή σύρσιμο για μετακίνηση"
 		},
 		"delete": {
 			"title": "Διαγραφή εργασίας;",
@@ -1753,10 +1754,10 @@
 			"inviteMember": "Πρόσκληση μέλους"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Σύνδεσμος πρόσκλησης",
+			"copyLink": "Αντιγραφή συνδέσμου",
+			"linkCopied": "Ο σύνδεσμος της πρόσκλησης αντιγράφηκε",
+			"copyFailed": "Δεν ήταν δυνατή η αυτόματη αντιγραφή. Επιλέξτε τον σύνδεσμο και πατήστε Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Πρόσκληση μέλους ομάδας",
@@ -1765,9 +1766,9 @@
 			"sendInvitation": "Αποστολή πρόσκλησης",
 			"success": "Η πρόσκληση στάλθηκε με επιτυχία",
 			"error": "Αποτυχία πρόσκλησης μέλους ομάδας",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Η πρόσκληση δημιουργήθηκε",
+			"shareLinkDescription": "Μοιραστείτε αυτόν τον σύνδεσμο με τον/την {{email}} για να συμμετάσχει στον χώρο εργασίας.",
+			"done": "Ολοκλήρωση"
 		},
 		"membersTable": {
 			"emptyTitle": "Δεν υπάρχουν ακόμα μέλη ομάδας",
@@ -1791,7 +1792,7 @@
 			"removeError": "Αποτυχία αφαίρεσης μέλους ομάδας",
 			"cancelInviteSuccess": "Η πρόσκληση ακυρώθηκε με επιτυχία",
 			"cancelInviteError": "Αποτυχία ακύρωσης πρόσκλησης",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Ενέργειες πρόσκλησης"
 		}
 	},
 	"publicProject": {

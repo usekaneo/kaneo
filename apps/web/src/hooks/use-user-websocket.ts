@@ -17,7 +17,7 @@ const WS_PING_INTERVAL_MS = 30_000;
 /**
  * Maintains a user-scoped WebSocket connection for receiving user-targeted
  * real-time events (e.g. NOTIFICATION_CREATED). Invalidates TanStack Query
- * caches as needed — no polling required.
+ * caches as needed, so no polling is required.
  */
 export function useUserWebSocket() {
   const queryClient = useQueryClient();

@@ -58,14 +58,14 @@ export function workspaceAccessMiddleware(
         workspaceId = c.req.query(source.key) || null;
       } else if (source.type === "body") {
         const body = await readJsonObjectBody(c);
-        workspaceId =
-          typeof body[source.key] === "string" ? body[source.key] : null;
+        const bodyValue = body[source.key];
+        workspaceId = typeof bodyValue === "string" ? bodyValue : null;
       } else if (source.type === "param") {
         workspaceId = c.req.param(source.key) || null;
       } else if (source.type === "lookup") {
         const body = await readJsonObjectBody(c);
-        const idFromBody =
-          typeof body[source.idKey] === "string" ? body[source.idKey] : null;
+        const bodyId = body[source.idKey];
+        const idFromBody = typeof bodyId === "string" ? bodyId : null;
         // Only accept the id from the same place the handler will read it
         // (path param or JSON body). Accepting it from the query string let a
         // caller authorize against one resource (`?taskId=<mine>`) while the
@@ -101,7 +101,7 @@ export function workspaceAccessMiddleware(
                 message: "All tasks must belong to the same workspace",
               });
             }
-            workspaceId = workspaceIds[0];
+            workspaceId = workspaceIds[0] ?? null;
           }
         }
       }

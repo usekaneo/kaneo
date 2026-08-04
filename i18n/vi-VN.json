@@ -43,7 +43,9 @@
 			"french": "Tiếng Pháp",
 			"spanish": "Tiếng Tây Ban Nha",
 			"dutch": "Tiếng Hà Lan",
-			"korean": "Tiếng Hàn"
+			"korean": "Tiếng Hàn",
+			"chinese": "Tiếng Trung",
+			"italian": "Tiếng Ý"
 		},
 		"people": {
 			"someone": "Ai đó",
@@ -248,7 +250,8 @@
 			"joinWorkspace": "Tham gia {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> đã mời bạn tham gia không gian làm việc của họ.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> đã mời bạn tham gia không gian làm việc của họ trên Kaneo.",
-			"signInToAccept": "Đăng nhập để chấp nhận lời mời này.",
+			"createAccountOrSignIn": "Tạo tài khoản để chấp nhận lời mời này, hoặc đăng nhập nếu bạn đã có tài khoản.",
+			"createAccount": "Tạo tài khoản",
 			"accepting": "Đang chấp nhận...",
 			"acceptInvitation": "Chấp nhận lời mời",
 			"goToDashboard": "Đến bảng điều khiển",
@@ -587,7 +590,7 @@
 			"discard": "Hủy bỏ",
 			"createRole": "Tạo vai trò",
 			"deleteRole": "Xóa vai trò",
-			"defaultRoleHelp": "Vai trò mặc định — tên đã được giữ trước và không thể xóa hàng này.",
+			"defaultRoleHelp": "Vai trò mặc định: tên đã được giữ trước và không thể xóa hàng này.",
 			"unsavedChanges": "Bạn có thay đổi chưa lưu",
 			"allChangesSaved": "Đã lưu tất cả thay đổi",
 			"saveChanges": "Lưu thay đổi",
@@ -759,9 +762,7 @@
 			"toastDeleteError": "Không thể xóa dự án",
 			"validation": {
 				"nameRequired": "Cần có tên dự án",
-				"nameShort": "Tên dự án phải có ít nhất 2 ký tự",
 				"keyRequired": "Cần có mã",
-				"keyShort": "Mã phải có ít nhất 2 ký tự",
 				"keyMax": "Mã tối đa 8 ký tự",
 				"iconRequired": "Cần có biểu tượng"
 			},
@@ -912,7 +913,7 @@
 				"verifyError": "Không thể xác minh quyền truy cập Gitea",
 				"tokenRequired": "Cần có personal access token",
 				"tokenRequiredVerify": "Nhập token để xác minh",
-				"verifyFirst": "Xác minh quyền truy cập thất bại — hãy kiểm tra URL, token và kho lưu trữ",
+				"verifyFirst": "Xác minh quyền truy cập thất bại. Hãy kiểm tra URL, token và kho lưu trữ",
 				"updated": "Đã lưu tích hợp Gitea",
 				"updateError": "Không thể lưu tích hợp Gitea",
 				"removed": "Đã gỡ bỏ tích hợp Gitea",
@@ -1764,7 +1765,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Dòng thời gian Gantt",
 			"searchPlaceholder": "Tìm phiếu đã lên lịch...",
 			"hideTasks": "Ẩn công việc",
@@ -1777,7 +1778,7 @@
 			"updateDatesError": "Không thể cập nhật ngày của công việc",
 			"resizeStart": "Thay đổi kích thước ngày bắt đầu",
 			"resizeDue": "Thay đổi kích thước ngày đến hạn",
-			"taskAriaLabel": "{{title}} — mở hoặc kéo để di chuyển"
+			"taskAriaLabel": "{{title}}: mở hoặc kéo để di chuyển"
 		},
 		"delete": {
 			"title": "Xóa công việc?",
@@ -1964,7 +1965,11 @@
 		},
 		"invitations": {
 			"pendingBadge": "đang chờ",
-			"expires": "Hết hạn {{date}}"
+			"expires": "Hết hạn {{date}}",
+			"linkLabel": "Liên kết lời mời",
+			"copyLink": "Sao chép liên kết",
+			"linkCopied": "Đã sao chép liên kết lời mời",
+			"copyFailed": "Không thể sao chép tự động. Hãy chọn liên kết và nhấn Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Mời thành viên nhóm",
@@ -1972,7 +1977,10 @@
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "Gửi lời mời",
 			"success": "Gửi lời mời thành công",
-			"error": "Không thể mời thành viên nhóm"
+			"error": "Không thể mời thành viên nhóm",
+			"createdTitle": "Đã tạo lời mời",
+			"shareLinkDescription": "Chia sẻ liên kết này với {{email}} để họ có thể tham gia không gian làm việc.",
+			"done": "Xong"
 		},
 		"membersTable": {
 			"emptyTitle": "Chưa có thành viên nhóm nào",
@@ -1985,6 +1993,7 @@
 			},
 			"memberRolePending": "{{role}} (Đang chờ)",
 			"ariaCancelInvitation": "Hủy lời mời",
+			"ariaInvitationActions": "Hành động lời mời",
 			"ariaRemoveMember": "Gỡ thành viên",
 			"removeDialogTitle": "Gỡ thành viên nhóm?",
 			"removeDialogDescription": "Bạn có chắc muốn gỡ {{name}} khỏi không gian làm việc? Hành động này không thể hoàn tác.",

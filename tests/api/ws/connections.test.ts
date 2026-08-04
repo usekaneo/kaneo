@@ -77,7 +77,7 @@ describe("addConnection / removeConnection", () => {
 
   it("removeConnection does not throw for unknown project", () => {
     const conn = trackAdd("proj-1", "user-1", "init-1");
-    // Remove from a project that doesn't match — should not throw
+    // Remove from a project that doesn't match; it should not throw
     expect(() => removeConnection("nonexistent", conn)).not.toThrow();
   });
 

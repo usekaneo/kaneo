@@ -2,7 +2,7 @@
  * Copies text to the clipboard, degrading gracefully outside secure contexts.
  *
  * navigator.clipboard is only defined over HTTPS or on localhost. A self-hosted
- * instance reached over plain HTTP — a normal deployment for this project — has
+ * instance reached over plain HTTP (a normal deployment for this project) has
  * no such API, so the deprecated execCommand path is the only one that works
  * there and is kept deliberately.
  *
@@ -14,7 +14,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text);
       return true;
     } catch {
-      // Permission denied or a transient failure — fall through to the legacy path.
+      // Permission denied or a transient failure: fall through to the legacy path.
     }
   }
 

@@ -40,10 +40,10 @@ export default function TermsPage() {
               <p className="mt-5 text-foreground/85 text-base leading-relaxed">
                 These terms govern your use of the managed Kaneo Cloud service
                 at cloud.kaneo.app, operated by Andrej Acevski (sole proprietor,
-                North Macedonia), referred to as “we” or “us”. By creating an
-                account you agree to these terms. The open-source Kaneo software
-                itself is separately licensed under the MIT license, and
-                self-hosted installations are not covered by these terms.
+                Macedonia), referred to as “we” or “us”. By creating an account
+                you agree to these terms. The open-source Kaneo software itself
+                is separately licensed under the MIT license, and self-hosted
+                installations are not covered by these terms.
               </p>
             </div>
 
@@ -149,9 +149,8 @@ export default function TermsPage() {
               <p>
                 We may update these terms; material changes will be announced to
                 registered users by email at least 30 days in advance. These
-                terms are governed by the laws of North Macedonia, without
-                affecting mandatory consumer protections of your country of
-                residence.
+                terms are governed by the laws of Macedonia, without affecting
+                mandatory consumer protections of your country of residence.
               </p>
             </Section>
           </div>

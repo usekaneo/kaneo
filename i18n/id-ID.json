@@ -44,7 +44,8 @@
 			"spanish": "Spanyol",
 			"dutch": "Belanda",
 			"korean": "Korea",
-			"chinese": "Chinese"
+			"chinese": "Mandarin",
+			"italian": "Italia"
 		},
 		"people": {
 			"someone": "Seseorang",
@@ -249,8 +250,8 @@
 			"joinWorkspace": "Gabung {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> mengundang Anda untuk bergabung ke ruang kerjanya.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> mengundang Anda untuk bergabung ke ruang kerjanya di Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Buat akun untuk menerima undangan ini, atau masuk jika Anda sudah memilikinya.",
+			"createAccount": "Buat Akun",
 			"accepting": "Menerima...",
 			"acceptInvitation": "Terima Undangan",
 			"goToDashboard": "Buka Dasbor",
@@ -736,7 +737,7 @@
 				"verifyError": "Gagal memverifikasi akses Gitea",
 				"tokenRequired": "Token akses pribadi wajib diisi",
 				"tokenRequiredVerify": "Masukkan token untuk memverifikasi",
-				"verifyFirst": "Verifikasi akses gagal — periksa URL, token, dan repositori",
+				"verifyFirst": "Verifikasi akses gagal. Periksa URL, token, dan repositori",
 				"updated": "Integrasi Gitea disimpan",
 				"updateError": "Gagal menyimpan integrasi Gitea",
 				"removed": "Integrasi Gitea dihapus",
@@ -1703,7 +1704,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Linimasa Gantt",
 			"searchPlaceholder": "Cari tiket terjadwal...",
 			"hideTasks": "Sembunyikan tugas",
@@ -1716,7 +1717,7 @@
 			"updateDatesError": "Gagal memperbarui tanggal tugas",
 			"resizeStart": "Ubah ukuran tanggal mulai",
 			"resizeDue": "Ubah ukuran tenggat",
-			"taskAriaLabel": "{{title}} — buka atau seret untuk memindahkan"
+			"taskAriaLabel": "{{title}}: buka atau seret untuk memindahkan"
 		},
 		"delete": {
 			"title": "Hapus Tugas?",
@@ -1901,10 +1902,10 @@
 			"inviteMember": "Undang anggota"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Tautan undangan",
+			"copyLink": "Salin tautan",
+			"linkCopied": "Tautan undangan disalin",
+			"copyFailed": "Tidak dapat menyalin secara otomatis. Pilih tautan lalu tekan Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Undang Anggota Tim",
@@ -1913,9 +1914,9 @@
 			"sendInvitation": "Kirim Undangan",
 			"success": "Undangan berhasil dikirim",
 			"error": "Gagal mengundang anggota tim",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Undangan dibuat",
+			"shareLinkDescription": "Bagikan tautan ini kepada {{email}} agar mereka dapat bergabung ke ruang kerja.",
+			"done": "Selesai"
 		},
 		"membersTable": {
 			"emptyTitle": "Belum ada anggota tim",
@@ -1941,7 +1942,7 @@
 			"cancelInviteError": "Gagal membatalkan undangan",
 			"roleUpdateSuccess": "Peran diperbarui",
 			"roleUpdateError": "Gagal memperbarui peran",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Tindakan undangan"
 		}
 	},
 	"publicProject": {

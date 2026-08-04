@@ -31,7 +31,7 @@ function useUpdateWorkspaceUserRole() {
     },
     onSuccess: (_data, variables) => {
       // The members page reads from useGetFullWorkspace which keys by
-      // ["workspace", "full", workspaceId] — invalidate that exact prefix
+      // ["workspace", "full", workspaceId], so invalidate that exact prefix
       // so the table re-renders with the new role.
       queryClient.invalidateQueries({
         queryKey: ["workspace", "full", variables.workspaceId],

@@ -70,7 +70,7 @@ export function Hero() {
           </FadeIn>
         </div>
 
-        {/* ── App preview — interactive mock of the real Kaneo UI ── */}
+        {/* ── App preview: interactive mock of the real Kaneo UI ── */}
         <FadeIn delay={240} distance={32}>
           <AppPreview />
         </FadeIn>
