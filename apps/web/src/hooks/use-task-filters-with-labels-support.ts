@@ -89,8 +89,8 @@ export function useTaskFiltersWithLabelsSupport(
             title.includes(normalizedTextQuery) ||
             description.includes(normalizedTextQuery) ||
             taskNumber.includes(normalizedTextQuery) ||
-            taskIdentifier.includes(normalizedTextQuery) ||
-            taskShortIdentifier.includes(normalizedTextQuery);
+            taskIdentifier.startsWith(normalizedTextQuery) ||
+            taskShortIdentifier.startsWith(normalizedTextQuery);
 
           if (!matchesText) {
             return false;

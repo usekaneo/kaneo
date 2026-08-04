@@ -606,7 +606,7 @@ const task = new Hono<{
 
       const task = await updateTaskDueDate({
         id,
-        dueDate: dueDate ? new Date(dueDate) : null,
+        dueDate: dueDate ? validateAndParseDate(dueDate, "dueDate") : null,
         currentUserId,
       });
 
