@@ -165,6 +165,9 @@
 						},
 						"korean": {
 							"type": "string"
+						},
+						"chinese": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -175,7 +178,8 @@
 						"french",
 						"spanish",
 						"dutch",
-						"korean"
+						"korean",
+						"chinese"
 					]
 				},
 				"people": {
