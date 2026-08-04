@@ -74,7 +74,7 @@
 		"framer-motion": "^12.43.0",
 		"highlight.js": "^11.11.1",
 		"hono": "^4.12.34",
-		"i18next": "^25.5.3",
+		"i18next": "^26.3.6",
 		"immer": "^11.1.15",
 		"input-otp": "^1.4.2",
 		"lowlight": "^3.3.0",
