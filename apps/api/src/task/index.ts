@@ -29,6 +29,11 @@ import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
+import {
+  requireBulkTaskEntitlement,
+  requireBulkTaskPermission,
+  requireTaskAssigneePermission,
+} from "./controllers/require-task-permission";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
@@ -132,6 +137,9 @@ const task = new Hono<{
         value: v.optional(v.nullable(v.string())),
       }),
     ),
+    workspaceAccess.fromTasks(),
+    requireBulkTaskPermission,
+    requireBulkTaskEntitlement,
     async (c) => {
       const { taskIds, operation, value } = c.req.valid("json");
       const userId = c.get("userId");
@@ -323,6 +331,7 @@ const task = new Hono<{
     ),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
+    requireTaskAssigneePermission,
     requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");

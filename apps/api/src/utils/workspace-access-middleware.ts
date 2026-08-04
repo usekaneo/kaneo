@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
@@ -19,6 +19,11 @@ type WorkspaceIdSource =
         | "comment"
         | "column"
         | "workflowRule";
+      idKey: string;
+    }
+  | {
+      type: "lookupMany";
+      resource: "task";
       idKey: string;
     };
 
@@ -68,6 +73,36 @@ export function workspaceAccessMiddleware(
         const id = c.req.param(source.idKey) || idFromBody;
         if (id) {
           workspaceId = await lookupWorkspaceId(source.resource, id);
+        }
+      } else if (source.type === "lookupMany") {
+        const body = await readJsonObjectBody(c);
+        const ids = body[source.idKey];
+        if (Array.isArray(ids)) {
+          const taskIds = ids.filter(
+            (id): id is string => typeof id === "string",
+          );
+          if (taskIds.length > 0) {
+            const tasks = await db
+              .select({ workspaceId: schema.projectTable.workspaceId })
+              .from(schema.taskTable)
+              .innerJoin(
+                schema.projectTable,
+                eq(schema.taskTable.projectId, schema.projectTable.id),
+              )
+              .where(inArray(schema.taskTable.id, taskIds));
+            const workspaceIds = [
+              ...new Set(tasks.map((task) => task.workspaceId)),
+            ];
+            if (workspaceIds.length === 0) {
+              throw new HTTPException(404, { message: "No tasks found" });
+            }
+            if (workspaceIds.length > 1) {
+              throw new HTTPException(400, {
+                message: "All tasks must belong to the same workspace",
+              });
+            }
+            workspaceId = workspaceIds[0];
+          }
         }
       }
 
@@ -270,6 +305,11 @@ export const workspaceAccess = {
         { type: "lookup", resource: "task", idKey },
         { type: "query", key: "workspaceId" },
       ],
+    }),
+
+  fromTasks: (idKey = "taskIds") =>
+    workspaceAccessMiddleware({
+      sources: [{ type: "lookupMany", resource: "task", idKey }],
     }),
 
   fromLabel: (idKey = "id") =>
