@@ -44,7 +44,8 @@
 			"spanish": "Іспанська",
 			"dutch": "Нідерландська",
 			"korean": "Корейська",
-			"chinese": "Chinese"
+			"chinese": "Китайська",
+			"italian": "Італійська"
 		},
 		"people": {
 			"someone": "Хтось",
@@ -247,8 +248,8 @@
 			"joinWorkspace": "Приєднатися до {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> запросив вас приєднатися до свого робочого простору.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> запросив вас приєднатися до свого робочого простору в Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Створіть обліковий запис, щоб прийняти це запрошення, або увійдіть, якщо він у вас вже є.",
+			"createAccount": "Створити обліковий запис",
 			"accepting": "Приймається...",
 			"acceptInvitation": "Прийняти запрошення",
 			"goToDashboard": "Перейти до панелі керування",
@@ -1754,10 +1755,10 @@
 			"inviteMember": "Запросити учасника"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Посилання на запрошення",
+			"copyLink": "Копіювати посилання",
+			"linkCopied": "Посилання на запрошення скопійовано",
+			"copyFailed": "Не вдалося скопіювати автоматично. Виділіть посилання та натисніть Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Запросити учасника команди",
@@ -1766,9 +1767,9 @@
 			"sendInvitation": "Надіслати запрошення",
 			"success": "Запрошення успішно надіслано",
 			"error": "Не вдалося запросити учасника команди",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Запрошення створено",
+			"shareLinkDescription": "Поділіться цим посиланням з {{email}}, щоб вони могли приєднатися до робочого простору.",
+			"done": "Готово"
 		},
 		"membersTable": {
 			"emptyTitle": "Учасників команди ще немає",
@@ -1792,7 +1793,7 @@
 			"removeError": "Не вдалося видалити учасника команди",
 			"cancelInviteSuccess": "Запрошення успішно скасовано",
 			"cancelInviteError": "Не вдалося скасувати запрошення",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Дії із запрошенням"
 		}
 	},
 	"publicProject": {

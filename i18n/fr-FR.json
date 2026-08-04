@@ -44,7 +44,8 @@
 			"spanish": "Espagnol",
 			"dutch": "Néerlandais",
 			"korean": "Coréen",
-			"chinese": "Chinese"
+			"chinese": "Chinois",
+			"italian": "Italien"
 		},
 		"people": {
 			"someone": "Quelqu'un",
@@ -249,8 +250,8 @@
 			"joinWorkspace": "Rejoindre {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> vous a invité à rejoindre son espace de travail.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> vous a invité à rejoindre son espace de travail sur Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Créez un compte pour accepter cette invitation, ou connectez-vous si vous en avez déjà un.",
+			"createAccount": "Créer un compte",
 			"accepting": "Acceptation...",
 			"acceptInvitation": "Accepter l'invitation",
 			"goToDashboard": "Aller au tableau de bord",
@@ -1767,10 +1768,10 @@
 		"invitations": {
 			"pendingBadge": "En attente",
 			"expires": "Expire {{date}}",
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Lien d'invitation",
+			"copyLink": "Copier le lien",
+			"linkCopied": "Lien d'invitation copié",
+			"copyFailed": "Impossible de copier automatiquement. Sélectionnez le lien et appuyez sur Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Inviter un membre de l'équipe",
@@ -1779,9 +1780,9 @@
 			"sendInvitation": "Envoyer l'invitation",
 			"success": "Invitation envoyée avec succès",
 			"error": "Échec de l'envoi de l'invitation",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Invitation créée",
+			"shareLinkDescription": "Partagez ce lien avec {{email}} pour qu'il puisse rejoindre l'espace de travail.",
+			"done": "Terminé"
 		},
 		"membersTable": {
 			"emptyTitle": "Aucun membre de l'équipe pour le moment",
@@ -1807,7 +1808,7 @@
 			"cancelInviteError": "Échec de l'annulation de l'invitation",
 			"roleUpdateSuccess": "Rôle mis à jour",
 			"roleUpdateError": "Échec de la mise à jour du rôle",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Actions de l'invitation"
 		}
 	},
 	"publicProject": {

@@ -42,6 +42,7 @@
 			"french": "法语",
 			"german": "德语",
 			"greek": "希腊语",
+			"italian": "意大利语",
 			"korean": "韩语",
 			"macedonian": "马其顿语",
 			"spanish": "西班牙语"
@@ -249,7 +250,8 @@
 			"joinWorkspace": "加入 {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> 邀请你加入他们的工作区。",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> 邀请你加入他们 Kaneo 上的工作区。",
-			"signInToAccept": "登录以接受此邀请。",
+			"createAccountOrSignIn": "创建账户以接受此邀请；如已有账户，请直接登录。",
+			"createAccount": "创建账户",
 			"accepting": "接受中…",
 			"acceptInvitation": "接受邀请",
 			"goToDashboard": "前往控制台",
@@ -760,9 +762,7 @@
 			"toastDeleteError": "删除项目失败",
 			"validation": {
 				"nameRequired": "项目名称不能为空",
-				"nameShort": "项目名称至少需要 2 个字符",
 				"keyRequired": "标识不能为空",
-				"keyShort": "标识至少需要 2 个字符",
 				"keyMax": "标识最多 8 个字符",
 				"iconRequired": "图标不能为空"
 			},
@@ -1965,7 +1965,11 @@
 		},
 		"invitations": {
 			"pendingBadge": "待处理",
-			"expires": "{{date}} 过期"
+			"expires": "{{date}} 过期",
+			"linkLabel": "邀请链接",
+			"copyLink": "复制链接",
+			"linkCopied": "邀请链接已复制",
+			"copyFailed": "无法自动复制，请选中链接后按 Ctrl+C。"
 		},
 		"inviteModal": {
 			"title": "邀请团队成员",
@@ -1973,7 +1977,10 @@
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "发送邀请",
 			"success": "邀请已成功发送",
-			"error": "邀请团队成员失败"
+			"error": "邀请团队成员失败",
+			"createdTitle": "邀请已创建",
+			"shareLinkDescription": "将此链接分享给 {{email}}，以便对方加入工作区。",
+			"done": "完成"
 		},
 		"membersTable": {
 			"emptyTitle": "暂无团队成员",
@@ -1986,6 +1993,7 @@
 			},
 			"memberRolePending": "{{role}}（待处理）",
 			"ariaCancelInvitation": "取消邀请",
+			"ariaInvitationActions": "邀请操作",
 			"ariaRemoveMember": "移除成员",
 			"removeDialogTitle": "移除团队成员？",
 			"removeDialogDescription": "确定要从工作区中移除 {{name}} 吗？此操作不可撤销。",

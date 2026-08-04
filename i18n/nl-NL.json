@@ -43,7 +43,8 @@
 			"macedonian": "Macedonisch",
 			"french": "Frans",
 			"korean": "Koreaans",
-			"chinese": "Chinese"
+			"chinese": "Chinees",
+			"italian": "Italiaans"
 		},
 		"people": {
 			"someone": "Iemand",
@@ -246,8 +247,8 @@
 			"joinWorkspace": "Deelnemen aan {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd voor hun werkruimte.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd om deel te nemen aan hun werkruimte op Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Maak een account aan om deze uitnodiging te accepteren, of log in als je er al een hebt.",
+			"createAccount": "Account aanmaken",
 			"accepting": "Accepteren...",
 			"acceptInvitation": "Uitnodiging accepteren",
 			"goToDashboard": "Naar dashboard",
@@ -1528,10 +1529,10 @@
 			"inviteMember": "Lid uitnodigen"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Uitnodigingslink",
+			"copyLink": "Link kopiëren",
+			"linkCopied": "Uitnodigingslink gekopieerd",
+			"copyFailed": "Automatisch kopiëren mislukt. Selecteer de link en druk op Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Teamlid uitnodigen",
@@ -1540,9 +1541,9 @@
 			"sendInvitation": "Uitnodiging versturen",
 			"success": "Uitnodiging succesvol verzonden",
 			"error": "Uitnodigen teamlid mislukt",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Uitnodiging aangemaakt",
+			"shareLinkDescription": "Deel deze link met {{email}} zodat diegene lid kan worden van de werkruimte.",
+			"done": "Klaar"
 		},
 		"membersTable": {
 			"emptyTitle": "Nog geen teamleden",
@@ -1566,7 +1567,7 @@
 			"removeError": "Verwijderen teamlid mislukt",
 			"cancelInviteSuccess": "Uitnodiging succesvol geannuleerd",
 			"cancelInviteError": "Annuleren uitnodiging mislukt",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Uitnodigingsacties"
 		}
 	},
 	"publicProject": {

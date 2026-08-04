@@ -44,7 +44,8 @@
 			"spanish": "Испанский",
 			"dutch": "Нидерландский",
 			"korean": "Корейский",
-			"chinese": "Chinese"
+			"chinese": "Китайский",
+			"italian": "Итальянский"
 		},
 		"people": {
 			"someone": "Кто-то",
@@ -247,8 +248,8 @@
 			"joinWorkspace": "Присоединиться к {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> приглашает вас присоединиться к рабочей области.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> приглашает вас присоединиться к рабочей области в Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Создайте аккаунт, чтобы принять это приглашение, или войдите, если он у вас уже есть.",
+			"createAccount": "Создать аккаунт",
 			"accepting": "Принятие...",
 			"acceptInvitation": "Принять приглашение",
 			"goToDashboard": "Перейти к панели управления",
@@ -1796,10 +1797,10 @@
 			"inviteMember": "Пригласить участника"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Ссылка для приглашения",
+			"copyLink": "Скопировать ссылку",
+			"linkCopied": "Ссылка для приглашения скопирована",
+			"copyFailed": "Не удалось скопировать автоматически. Выделите ссылку и нажмите Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Пригласить участника команды",
@@ -1808,9 +1809,9 @@
 			"sendInvitation": "Отправить приглашение",
 			"success": "Приглашение успешно отправлено",
 			"error": "Не удалось пригласить участника команды",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Приглашение создано",
+			"shareLinkDescription": "Поделитесь этой ссылкой с {{email}}, чтобы этот пользователь мог присоединиться к рабочей области.",
+			"done": "Готово"
 		},
 		"membersTable": {
 			"emptyTitle": "Участников команды пока нет",
@@ -1834,7 +1835,7 @@
 			"removeError": "Не удалось удалить участника команды",
 			"cancelInviteSuccess": "Приглашение успешно отменено",
 			"cancelInviteError": "Не удалось отменить приглашение",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Действия с приглашением"
 		}
 	},
 	"publicProject": {

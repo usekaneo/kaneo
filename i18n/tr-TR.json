@@ -44,7 +44,8 @@
 			"spanish": "İspanyolca",
 			"dutch": "Hollandaca",
 			"korean": "Korece",
-			"chinese": "Chinese"
+			"chinese": "Çince",
+			"italian": "İtalyanca"
 		},
 		"people": {
 			"someone": "Biri",
@@ -248,8 +249,8 @@
 			"joinWorkspace": "{{workspaceName}} çalışma alanına katıl",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> sizi çalışma alanına katılmaya davet etti.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> sizi Kaneo üzerindeki çalışma alanına katılmaya davet etti.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Bu daveti kabul etmek için bir hesap oluşturun veya zaten hesabınız varsa giriş yapın.",
+			"createAccount": "Hesap Oluştur",
 			"accepting": "Kabul ediliyor...",
 			"acceptInvitation": "Daveti Kabul Et",
 			"goToDashboard": "Panele Git",
@@ -1753,10 +1754,10 @@
 			"inviteMember": "Üye davet et"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "Davet bağlantısı",
+			"copyLink": "Bağlantıyı kopyala",
+			"linkCopied": "Davet bağlantısı kopyalandı",
+			"copyFailed": "Otomatik olarak kopyalanamadı. Bağlantıyı seçip Ctrl+C tuşlarına basın."
 		},
 		"inviteModal": {
 			"title": "Ekip Üyesi Davet Et",
@@ -1765,9 +1766,9 @@
 			"sendInvitation": "Davet Gönder",
 			"success": "Davet başarıyla gönderildi",
 			"error": "Ekip üyesi davet edilemedi",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "Davet oluşturuldu",
+			"shareLinkDescription": "Bu bağlantıyı {{email}} ile paylaşın, böylece çalışma alanına katılabilir.",
+			"done": "Bitti"
 		},
 		"membersTable": {
 			"emptyTitle": "Henüz ekip üyesi yok",
@@ -1793,7 +1794,7 @@
 			"cancelInviteError": "Davet iptal edilemedi",
 			"roleUpdateSuccess": "Rol güncellendi",
 			"roleUpdateError": "Rol güncellenemedi",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "Davet işlemleri"
 		}
 	},
 	"publicProject": {

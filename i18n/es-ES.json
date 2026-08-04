@@ -43,7 +43,8 @@
 			"french": "Francés",
 			"spanish": "Español",
 			"korean": "Coreano",
-			"chinese": "Chinese"
+			"chinese": "Chino",
+			"italian": "Italiano"
 		},
 		"people": {
 			"someone": "Alguien",
@@ -246,8 +247,8 @@
 			"joinWorkspace": "Unirse a {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> te ha invitado a unirse a su espacio de trabajo.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> te ha invitado a unirse a su espacio de trabajo en Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "Crea una cuenta para aceptar esta invitación o inicia sesión si ya tienes una.",
+			"createAccount": "Crear cuenta",
 			"accepting": "Aceptando...",
 			"acceptInvitation": "Aceptar invitación",
 			"goToDashboard": "Ir al Panel de Control",
@@ -1530,7 +1531,7 @@
 			"linkLabel": "Enlace de invitación",
 			"copyLink": "Copiar enlace",
 			"linkCopied": "Enlace de invitación copiado",
-			"copyFailed": "No se pudo copiar automáticamente. Seleccioná el enlace y presioná Ctrl+C."
+			"copyFailed": "No se pudo copiar automáticamente. Selecciona el enlace y presiona Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Invitar miembro al equipo",
@@ -1540,7 +1541,7 @@
 			"success": "Invitación enviada correctamente",
 			"error": "Error al invitar miembro al equipo",
 			"createdTitle": "Invitación creada",
-			"shareLinkDescription": "Compartí este enlace con {{email}} para que se una al espacio de trabajo.",
+			"shareLinkDescription": "Comparte este enlace con {{email}} para que se una al espacio de trabajo.",
 			"done": "Listo"
 		},
 		"membersTable": {

@@ -44,7 +44,8 @@
 			"spanish": "스페인어",
 			"dutch": "네덜란드어",
 			"korean": "한국어",
-			"chinese": "Chinese"
+			"chinese": "중국어",
+			"italian": "이탈리아어"
 		},
 		"people": {
 			"someone": "누군가",
@@ -247,8 +248,8 @@
 			"joinWorkspace": "{{workspaceName}} 참여",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter>님이 워크스페이스에 초대했습니다.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter>님이 Kaneo 워크스페이스에 초대했습니다.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"createAccountOrSignIn": "초대를 수락하려면 계정을 만들거나, 이미 계정이 있다면 로그인하세요.",
+			"createAccount": "계정 만들기",
 			"accepting": "수락 중...",
 			"acceptInvitation": "초대 수락",
 			"goToDashboard": "대시보드로 이동",
@@ -1755,10 +1756,10 @@
 			"inviteMember": "멤버 초대"
 		},
 		"invitations": {
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"linkLabel": "초대 링크",
+			"copyLink": "링크 복사",
+			"linkCopied": "초대 링크가 복사되었습니다",
+			"copyFailed": "자동으로 복사하지 못했습니다. 링크를 선택한 후 Ctrl+C를 누르세요."
 		},
 		"inviteModal": {
 			"title": "팀 멤버 초대",
@@ -1767,9 +1768,9 @@
 			"sendInvitation": "초대 전송",
 			"success": "초대가 전송되었습니다",
 			"error": "팀 멤버 초대에 실패했습니다",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"createdTitle": "초대가 생성되었습니다",
+			"shareLinkDescription": "{{email}}님이 워크스페이스에 참여할 수 있도록 이 링크를 공유하세요.",
+			"done": "완료"
 		},
 		"membersTable": {
 			"emptyTitle": "아직 팀 멤버가 없습니다",
@@ -1793,7 +1794,7 @@
 			"removeError": "팀 멤버 제거에 실패했습니다",
 			"cancelInviteSuccess": "초대가 취소되었습니다",
 			"cancelInviteError": "초대 취소에 실패했습니다",
-			"ariaInvitationActions": "Invitation actions"
+			"ariaInvitationActions": "초대 작업"
 		}
 	},
 	"publicProject": {

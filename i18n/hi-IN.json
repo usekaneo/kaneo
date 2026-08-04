@@ -43,7 +43,9 @@
 			"french": "फ़्रेंच",
 			"spanish": "स्पेनिश",
 			"dutch": "डच",
-			"korean": "कोरियन"
+			"korean": "कोरियन",
+			"chinese": "चीनी",
+			"italian": "इतालवी"
 		},
 		"people": {
 			"someone": "कोई",
@@ -248,7 +250,8 @@
 			"joinWorkspace": "{{workspaceName}} में शामिल हों",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> ने आपको अपने वर्कस्पेस में शामिल होने का निमंत्रण दिया है।",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> ने आपको Kaneo पर अपने वर्कस्पेस में शामिल होने का निमंत्रण दिया है।",
-			"signInToAccept": "इस निमंत्रण को स्वीकार करने के लिए साइन इन करें।",
+			"createAccountOrSignIn": "इस निमंत्रण को स्वीकार करने के लिए खाता बनाएँ, या यदि आपके पास पहले से खाता है तो साइन इन करें।",
+			"createAccount": "खाता बनाएँ",
 			"accepting": "स्वीकार हो रहा है...",
 			"acceptInvitation": "निमंत्रण स्वीकार करें",
 			"goToDashboard": "डैशबोर्ड पर जाएँ",
@@ -759,9 +762,7 @@
 			"toastDeleteError": "प्रोजेक्ट हटाने में विफल",
 			"validation": {
 				"nameRequired": "प्रोजेक्ट का नाम आवश्यक है",
-				"nameShort": "प्रोजेक्ट का नाम कम से कम 2 अक्षरों का होना चाहिए",
 				"keyRequired": "कुंजी आवश्यक है",
-				"keyShort": "कुंजी कम से कम 2 अक्षरों की होनी चाहिए",
 				"keyMax": "कुंजी अधिकतम 8 अक्षरों की होनी चाहिए",
 				"iconRequired": "आइकन आवश्यक है"
 			},
@@ -1964,7 +1965,11 @@
 		},
 		"invitations": {
 			"pendingBadge": "लंबित",
-			"expires": "{{date}} को समाप्त होता है"
+			"expires": "{{date}} को समाप्त होता है",
+			"linkLabel": "निमंत्रण लिंक",
+			"copyLink": "लिंक कॉपी करें",
+			"linkCopied": "निमंत्रण लिंक कॉपी किया गया",
+			"copyFailed": "स्वचालित रूप से कॉपी नहीं हो सका। लिंक चुनें और Ctrl+C दबाएँ।"
 		},
 		"inviteModal": {
 			"title": "टीम सदस्य आमंत्रित करें",
@@ -1972,7 +1977,10 @@
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "निमंत्रण भेजें",
 			"success": "निमंत्रण सफलतापूर्वक भेजा गया",
-			"error": "टीम सदस्य आमंत्रित करने में विफल"
+			"error": "टीम सदस्य आमंत्रित करने में विफल",
+			"createdTitle": "निमंत्रण बनाया गया",
+			"shareLinkDescription": "यह लिंक {{email}} के साथ साझा करें ताकि वे वर्कस्पेस में शामिल हो सकें।",
+			"done": "हो गया"
 		},
 		"membersTable": {
 			"emptyTitle": "अभी तक कोई टीम सदस्य नहीं",
@@ -1985,6 +1993,7 @@
 			},
 			"memberRolePending": "{{role}} (लंबित)",
 			"ariaCancelInvitation": "निमंत्रण रद्द करें",
+			"ariaInvitationActions": "निमंत्रण कार्रवाइयाँ",
 			"ariaRemoveMember": "सदस्य हटाएँ",
 			"removeDialogTitle": "टीम सदस्य हटाएँ?",
 			"removeDialogDescription": "क्या आप वाकई {{name}} को वर्कस्पेस से हटाना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।",
