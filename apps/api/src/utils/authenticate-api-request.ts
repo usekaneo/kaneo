@@ -48,7 +48,7 @@ function parseBearerToken(authHeader: string | undefined): {
   }
 
   return {
-    token: match[1],
+    token: match[1] ?? null,
     malformed: false,
   };
 }

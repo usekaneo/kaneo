@@ -79,6 +79,11 @@ async function deleteLabel(id: string, userId: string) {
     });
   }
 
+  // Label without a workspace: the cascade filter below could never match
+  if (label.workspaceId === null) {
+    return deletedLabel;
+  }
+
   // Capture affected task-level labels before cascading so we have data
   // for events and provider sync
   const affectedLabels = await db

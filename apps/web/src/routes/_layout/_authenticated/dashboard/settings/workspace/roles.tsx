@@ -60,9 +60,9 @@ const BUILT_IN_RESOURCES = new Set([
   "invitation",
   "ac",
 ]);
-const CUSTOM_RESOURCES = (Object.keys(statement) as string[]).filter(
-  (key) => !BUILT_IN_RESOURCES.has(key),
-);
+const CUSTOM_RESOURCES = (
+  Object.keys(statement) as (keyof typeof statement)[]
+).filter((key) => !BUILT_IN_RESOURCES.has(key));
 
 const RESOURCE_LABELS: Record<string, string> = {
   project: "Projects",
@@ -309,7 +309,7 @@ function RouteComponent() {
               </Empty>
             ) : (
               <Accordion
-                openMultiple
+                multiple
                 value={openCustom}
                 onValueChange={(value) =>
                   setOpenCustom(Array.isArray(value) ? value : [value])

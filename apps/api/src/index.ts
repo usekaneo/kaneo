@@ -136,7 +136,7 @@ function buildContentDisposition(filename: string, inline: boolean) {
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[\\/]/g, "-")
-      .replace(/[^\x20-\u7E]+/g, "_")
+      .replace(/[^\x20-\x7E]+/g, "_")
       .replace(/\s+/g, " ")
       .trim() || "file";
   const encodedFilename = encodeURIComponent(safeFilename).replace(
@@ -414,7 +414,7 @@ export function createApp() {
   });
 
   // Better Auth serves GET /auth/device as JSON. Browsers that open the API URL
-  // directly expect a page — redirect full document navigations to the web app.
+  // directly expect a page, so redirect full document navigations to the web app.
   const authDeviceQuerySchema = v.object({
     user_code: v.optional(v.string()),
     ui: v.optional(v.picklist(["1"])),
@@ -485,9 +485,9 @@ export function createApp() {
   api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", async (c) => {
     const authHeader = c.req.header("Authorization");
     const apiKeyHeader = c.req.header("x-api-key");
-    const bearerMatch = authHeader?.match(/^Bearer\s+(\S+)$/i);
+    const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];
 
-    if (bearerMatch && !apiKeyHeader) {
+    if (bearerToken && !apiKeyHeader) {
       const session = await auth.api.getSession({
         headers: c.req.raw.headers,
       });
@@ -500,7 +500,7 @@ export function createApp() {
       const headers = new Headers(c.req.raw.headers);
 
       // Better Auth API key plugin validates from x-api-key by default.
-      headers.set("x-api-key", bearerMatch[1]);
+      headers.set("x-api-key", bearerToken);
 
       return auth.handler(
         new Request(c.req.raw, {
@@ -590,7 +590,7 @@ export function createApp() {
     ),
   );
 
-  // User-scoped WebSocket endpoint — MUST be registered before /ws/:projectId
+  // User-scoped WebSocket endpoint; MUST be registered before /ws/:projectId
   // so the literal path "user" isn't consumed by the param route.
   api.get(
     "/ws/user",
@@ -625,7 +625,7 @@ export function createApp() {
             if (raw) {
               const msg = JSON.parse(raw) as { type?: string };
               if (msg?.type === "ping") {
-                // keepalive — no-op
+                // keepalive, no-op
               }
             }
           } catch {
@@ -863,9 +863,11 @@ const {
   oauthApi,
 } = createdApp;
 
+const entrypoint = process.argv[1];
 const isMainModule =
-  Boolean(process.argv[1]) &&
-  import.meta.url === pathToFileURL(process.argv[1]).href;
+  entrypoint !== undefined &&
+  entrypoint !== "" &&
+  import.meta.url === pathToFileURL(entrypoint).href;
 
 if (isMainModule) {
   void startServer(injectWebSocket);

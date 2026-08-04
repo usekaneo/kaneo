@@ -850,6 +850,12 @@ const task = new Hono<{
               id: assetTable.id,
             });
 
+      if (!asset) {
+        throw new HTTPException(500, {
+          message: "Failed to save asset",
+        });
+      }
+
       const apiBaseUrl = normalizeApiServerUrl(
         process.env.KANEO_API_URL || new URL(c.req.url).origin,
       );

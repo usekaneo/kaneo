@@ -361,7 +361,7 @@ export const auth = betterAuth({
           // role's permissions are derived from the compiled-in defaults
           // in `@kaneo/permissions`; admins can later replace them in the
           // Roles UI. We skip names that somehow already exist (this hook
-          // is best-effort idempotent — the boot-time backfill is the
+          // is best-effort idempotent; the boot-time backfill is the
           // belt-and-braces path).
           try {
             const existing = await db
@@ -429,7 +429,6 @@ export const auth = betterAuth({
           {
             inviterEmail: data.inviter.user.email,
             inviterName: data.inviter.user.name,
-            locale,
             workspaceName: data.organization.name,
             invitationLink: inviteLink,
             to: data.email,
@@ -521,13 +520,14 @@ export const auth = betterAuth({
           }
 
           // Allow the very first signup through even when registration
-          // is disabled — that's the instance-admin bootstrap flow.
+          // is disabled: that's the instance-admin bootstrap flow.
           // Otherwise a fresh instance with DISABLE_REGISTRATION=true
           // could never be set up because `checkRegistrationAllowed`
           // would reject the first user (qodo bot #3).
-          const [{ value: existingUserCount }] = await db
+          const [userCountRow] = await db
             .select({ value: count() })
             .from(schema.userTable);
+          const existingUserCount = userCountRow?.value ?? 0;
           if (existingUserCount === 0) {
             return;
           }
@@ -572,8 +572,8 @@ export const auth = betterAuth({
           // transaction then sees totalUserCount > 1 and skips.
           //
           // Note: we count total users (not admins) so that upgrading
-          // an existing instance — where every existing user has
-          // role=NULL from the new column — doesn't promote the next
+          // an existing instance (where every existing user has
+          // role=NULL from the new column) doesn't promote the next
           // signup to admin (qodo bot #4).
           await db.transaction(async (tx) => {
             await tx.execute(sql`SELECT pg_advisory_xact_lock(2026)`);
@@ -613,7 +613,7 @@ export const auth = betterAuth({
       // shuts that path off without affecting self-hosted instances.
       if (ctx.path === "/organization/invite-member" && isCloud()) {
         // `before` hooks don't auto-populate ctx.context.session; load it
-        // explicitly. `disableRefresh` keeps this gate cheap — we only need
+        // explicitly. `disableRefresh` keeps this gate cheap: we only need
         // the user record, not a session refresh side-effect.
         const session = await getSessionFromCtx(ctx, {
           disableRefresh: true,
