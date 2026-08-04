@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - packages/mcp/package.json
+      - packages/mcp/server.json
 
 permissions:
   contents: write
@@ -81,10 +82,15 @@ jobs:
           npm publish --access public --provenance
 
       - name: Publish to the MCP Registry
-        if: ${{ steps.version_check.outputs.already_published == 'false' }}
         run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
           PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
+          IN_REGISTRY=$(curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.usekaneo/kaneo" \
+            | jq -r --arg v "$PACKAGE_VERSION" '[.servers[]? | (.server // .) | select(.name == "io.github.usekaneo/kaneo" and .version == $v)] | length')
+          if [ "$IN_REGISTRY" != "0" ]; then
+            echo "io.github.usekaneo/kaneo@${PACKAGE_VERSION} is already in the MCP Registry; skipping."
+            exit 0
+          fi
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
           cd packages/mcp
           jq --arg v "$PACKAGE_VERSION" '.version = $v | .packages[0].version = $v' server.json > server.tmp && mv server.tmp server.json
           ../../mcp-publisher login github-oidc

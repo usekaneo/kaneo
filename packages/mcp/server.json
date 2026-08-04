@@ -1,7 +1,7 @@
 {
 	"$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
 	"name": "io.github.usekaneo/kaneo",
-	"description": "Official MCP (Model Context Protocol) server for Kaneo, the open source project management platform: manage tasks, projects, and labels from Claude, Cursor, and other MCP clients",
+	"description": "Official MCP server for Kaneo: manage tasks, projects, and labels from Claude and other MCP clients",
 	"repository": {
 		"url": "https://github.com/usekaneo/kaneo",
 		"source": "github"
