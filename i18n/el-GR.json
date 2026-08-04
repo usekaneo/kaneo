@@ -43,7 +43,8 @@
 			"french": "Γαλλικά",
 			"spanish": "Ισπανικά",
 			"dutch": "Ολλανδικά",
-			"korean": "Κορεατικά"
+			"korean": "Κορεατικά",
+			"chinese": "Chinese"
 		},
 		"people": {
 			"someone": "Κάποιος",
@@ -246,7 +247,8 @@
 			"joinWorkspace": "Συμμετοχή στο {{workspaceName}}",
 			"inviteBodySignedIn": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της.",
 			"inviteBodySignedOut": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της στο Kaneo.",
-			"signInToAccept": "Συνδεθείτε για να αποδεχτείτε αυτήν την πρόσκληση.",
+			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
+			"createAccount": "Create Account",
 			"accepting": "Γίνεται αποδοχή...",
 			"acceptInvitation": "Αποδοχή πρόσκλησης",
 			"goToDashboard": "Μετάβαση στον πίνακα ελέγχου",
@@ -581,9 +583,7 @@
 			"toastDeleteError": "Αποτυχία διαγραφής έργου",
 			"validation": {
 				"nameRequired": "Το όνομα έργου είναι υποχρεωτικό",
-				"nameShort": "Το όνομα έργου πρέπει να έχει τουλάχιστον 2 χαρακτήρες",
 				"keyRequired": "Το κλειδί είναι υποχρεωτικό",
-				"keyShort": "Το κλειδί πρέπει να έχει τουλάχιστον 2 χαρακτήρες",
 				"keyMax": "Το κλειδί πρέπει να έχει το πολύ 8 χαρακτήρες",
 				"iconRequired": "Το εικονίδιο είναι υποχρεωτικό"
 			},
@@ -1752,13 +1752,22 @@
 			"pageTitle": "Μέλη",
 			"inviteMember": "Πρόσκληση μέλους"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Πρόσκληση μέλους ομάδας",
 			"emailLabel": "Email",
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "Αποστολή πρόσκλησης",
 			"success": "Η πρόσκληση στάλθηκε με επιτυχία",
-			"error": "Αποτυχία πρόσκλησης μέλους ομάδας"
+			"error": "Αποτυχία πρόσκλησης μέλους ομάδας",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Δεν υπάρχουν ακόμα μέλη ομάδας",
@@ -1781,7 +1790,8 @@
 			"removeSuccess": "Το μέλος της ομάδας αφαιρέθηκε με επιτυχία",
 			"removeError": "Αποτυχία αφαίρεσης μέλους ομάδας",
 			"cancelInviteSuccess": "Η πρόσκληση ακυρώθηκε με επιτυχία",
-			"cancelInviteError": "Αποτυχία ακύρωσης πρόσκλησης"
+			"cancelInviteError": "Αποτυχία ακύρωσης πρόσκλησης",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

@@ -84,12 +84,12 @@ function RouteComponent() {
       z.object({
         name: z
           .string()
-          .min(1, t("settings:projectGeneral.validation.nameRequired"))
-          .min(2, t("settings:projectGeneral.validation.nameShort")),
+          .trim()
+          .min(1, t("settings:projectGeneral.validation.nameRequired")),
         slug: z
           .string()
+          .trim()
           .min(1, t("settings:projectGeneral.validation.keyRequired"))
-          .min(2, t("settings:projectGeneral.validation.keyShort"))
           .max(8, t("settings:projectGeneral.validation.keyMax")),
         description: z.string().optional(),
         icon: z

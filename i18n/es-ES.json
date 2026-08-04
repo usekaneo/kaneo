@@ -42,7 +42,8 @@
 			"macedonian": "Macedonio",
 			"french": "Francés",
 			"spanish": "Español",
-			"korean": "Coreano"
+			"korean": "Coreano",
+			"chinese": "Chinese"
 		},
 		"people": {
 			"someone": "Alguien",
@@ -245,7 +246,8 @@
 			"joinWorkspace": "Unirse a {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> te ha invitado a unirse a su espacio de trabajo.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> te ha invitado a unirse a su espacio de trabajo en Kaneo.",
-			"signInToAccept": "Inicia sesión para aceptar esta invitación.",
+			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
+			"createAccount": "Create Account",
 			"accepting": "Aceptando...",
 			"acceptInvitation": "Aceptar invitación",
 			"goToDashboard": "Ir al Panel de Control",
@@ -491,9 +493,7 @@
 			"toastDeleteError": "Error al eliminar proyecto",
 			"validation": {
 				"nameRequired": "El nombre del proyecto es obligatorio",
-				"nameShort": "El nombre del proyecto debe contener al menos 2 caracteres",
 				"keyRequired": "El identificador es obligatorio",
-				"keyShort": "El identificador debe contener al menos 2 caracteres",
 				"keyMax": "El identificador debe contener como máximo 8 caracteres",
 				"iconRequired": "El icono es obligatorio"
 			},
@@ -1526,13 +1526,22 @@
 			"pageTitle": "Miembros",
 			"inviteMember": "Invitar miembro"
 		},
+		"invitations": {
+			"linkLabel": "Enlace de invitación",
+			"copyLink": "Copiar enlace",
+			"linkCopied": "Enlace de invitación copiado",
+			"copyFailed": "No se pudo copiar automáticamente. Seleccioná el enlace y presioná Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Invitar miembro al equipo",
 			"emailLabel": "Email",
 			"emailPlaceholder": "compi@company.com",
 			"sendInvitation": "Enviar invitación",
 			"success": "Invitación enviada correctamente",
-			"error": "Error al invitar miembro al equipo"
+			"error": "Error al invitar miembro al equipo",
+			"createdTitle": "Invitación creada",
+			"shareLinkDescription": "Compartí este enlace con {{email}} para que se una al espacio de trabajo.",
+			"done": "Listo"
 		},
 		"membersTable": {
 			"emptyTitle": "No hay miembros en el equipo aún",
@@ -1545,6 +1554,7 @@
 			},
 			"memberRolePending": "{{role}} (Pendiente)",
 			"ariaCancelInvitation": "Cancelar invitacion",
+			"ariaInvitationActions": "Acciones de invitación",
 			"ariaRemoveMember": "Eliminar miembro",
 			"removeDialogTitle": "¿Eliminar miembro del equipo?",
 			"removeDialogDescription": "¿Estás seguro de que quieres eliminar a {{name}} del espacio de trabajo? Esta acción no puede deshacerse.",

@@ -43,7 +43,8 @@
 			"french": "Prancis",
 			"spanish": "Spanyol",
 			"dutch": "Belanda",
-			"korean": "Korea"
+			"korean": "Korea",
+			"chinese": "Chinese"
 		},
 		"people": {
 			"someone": "Seseorang",
@@ -248,7 +249,8 @@
 			"joinWorkspace": "Gabung {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> mengundang Anda untuk bergabung ke ruang kerjanya.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> mengundang Anda untuk bergabung ke ruang kerjanya di Kaneo.",
-			"signInToAccept": "Masuk untuk menerima undangan ini.",
+			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
+			"createAccount": "Create Account",
 			"accepting": "Menerima...",
 			"acceptInvitation": "Terima Undangan",
 			"goToDashboard": "Buka Dasbor",
@@ -583,9 +585,7 @@
 			"toastDeleteError": "Gagal menghapus proyek",
 			"validation": {
 				"nameRequired": "Nama proyek wajib diisi",
-				"nameShort": "Nama proyek harus minimal 2 karakter",
 				"keyRequired": "Key wajib diisi",
-				"keyShort": "Key harus minimal 2 karakter",
 				"keyMax": "Key maksimal 8 karakter",
 				"iconRequired": "Ikon wajib diisi"
 			},
@@ -1900,13 +1900,22 @@
 			"pageTitle": "Anggota",
 			"inviteMember": "Undang anggota"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Undang Anggota Tim",
 			"emailLabel": "Email",
 			"emailPlaceholder": "rekan@perusahaan.com",
 			"sendInvitation": "Kirim Undangan",
 			"success": "Undangan berhasil dikirim",
-			"error": "Gagal mengundang anggota tim"
+			"error": "Gagal mengundang anggota tim",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Belum ada anggota tim",
@@ -1931,7 +1940,8 @@
 			"cancelInviteSuccess": "Undangan berhasil dibatalkan",
 			"cancelInviteError": "Gagal membatalkan undangan",
 			"roleUpdateSuccess": "Peran diperbarui",
-			"roleUpdateError": "Gagal memperbarui peran"
+			"roleUpdateError": "Gagal memperbarui peran",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

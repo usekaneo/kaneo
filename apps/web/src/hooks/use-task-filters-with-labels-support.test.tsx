@@ -103,4 +103,82 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       "task-1",
     );
   });
+
+  it.each(["#123", "proj-123", "proj-"])(
+    "matches a task by its issue identifier when searching for %s",
+    (textQuery) => {
+      const project = {
+        id: "project-1",
+        name: "Project",
+        slug: "PROJ",
+        icon: null,
+        description: null,
+        isPublic: false,
+        createdAt: "2026-04-16T00:00:00.000Z",
+        updatedAt: "2026-04-16T00:00:00.000Z",
+        workspaceId: "workspace-1",
+        columns: [
+          {
+            id: "todo",
+            slug: "todo",
+            name: "Todo",
+            icon: null,
+            isFinal: false,
+            tasks: [
+              {
+                id: "task-123",
+                title: "Unrelated title",
+                number: 123,
+                description: null,
+                status: "todo",
+                priority: null,
+                startDate: null,
+                dueDate: null,
+                position: 0,
+                createdAt: "2026-04-16T00:00:00.000Z",
+                updatedAt: "2026-04-16T00:00:00.000Z",
+                userId: null,
+                assigneeId: null,
+                assigneeName: null,
+                assigneeImage: null,
+                projectId: "project-1",
+                labels: [],
+                externalLinks: [],
+              },
+              {
+                id: "task-without-number",
+                title: "Another unrelated title",
+                number: null,
+                description: null,
+                status: "todo",
+                priority: null,
+                startDate: null,
+                dueDate: null,
+                position: 1,
+                createdAt: "2026-04-16T00:00:00.000Z",
+                updatedAt: "2026-04-16T00:00:00.000Z",
+                userId: null,
+                assigneeId: null,
+                assigneeName: null,
+                assigneeImage: null,
+                projectId: "project-1",
+                labels: [],
+                externalLinks: [],
+              },
+            ],
+          },
+        ],
+        plannedTasks: [],
+        archivedTasks: [],
+      };
+
+      const { result } = renderHook(() =>
+        useTaskFiltersWithLabelsSupport(project, "project-1", textQuery),
+      );
+
+      expect(result.current.filteredProject?.columns[0]?.tasks).toEqual([
+        expect.objectContaining({ id: "task-123" }),
+      ]);
+    },
+  );
 });

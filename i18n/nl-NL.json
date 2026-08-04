@@ -42,7 +42,8 @@
 			"greek": "Grieks",
 			"macedonian": "Macedonisch",
 			"french": "Frans",
-			"korean": "Koreaans"
+			"korean": "Koreaans",
+			"chinese": "Chinese"
 		},
 		"people": {
 			"someone": "Iemand",
@@ -245,7 +246,8 @@
 			"joinWorkspace": "Deelnemen aan {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd voor hun werkruimte.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd om deel te nemen aan hun werkruimte op Kaneo.",
-			"signInToAccept": "Log in om deze uitnodiging te accepteren.",
+			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
+			"createAccount": "Create Account",
 			"accepting": "Accepteren...",
 			"acceptInvitation": "Uitnodiging accepteren",
 			"goToDashboard": "Naar dashboard",
@@ -491,9 +493,7 @@
 			"toastDeleteError": "Verwijderen project mislukt",
 			"validation": {
 				"nameRequired": "Projectnaam is verplicht",
-				"nameShort": "Projectnaam moet minimaal 2 tekens bevatten",
 				"keyRequired": "Sleutel is verplicht",
-				"keyShort": "Sleutel moet minimaal 2 tekens bevatten",
 				"keyMax": "Sleutel mag maximaal 8 tekens bevatten",
 				"iconRequired": "Icoon is verplicht"
 			},
@@ -1527,13 +1527,22 @@
 			"pageTitle": "Leden",
 			"inviteMember": "Lid uitnodigen"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Teamlid uitnodigen",
 			"emailLabel": "E-mailadres",
 			"emailPlaceholder": "collega@bedrijf.nl",
 			"sendInvitation": "Uitnodiging versturen",
 			"success": "Uitnodiging succesvol verzonden",
-			"error": "Uitnodigen teamlid mislukt"
+			"error": "Uitnodigen teamlid mislukt",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Nog geen teamleden",
@@ -1556,7 +1565,8 @@
 			"removeSuccess": "Teamlid succesvol verwijderd",
 			"removeError": "Verwijderen teamlid mislukt",
 			"cancelInviteSuccess": "Uitnodiging succesvol geannuleerd",
-			"cancelInviteError": "Annuleren uitnodiging mislukt"
+			"cancelInviteError": "Annuleren uitnodiging mislukt",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

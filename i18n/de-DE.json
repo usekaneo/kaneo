@@ -43,7 +43,8 @@
 			"french": "Französisch",
 			"spanish": "Spanisch",
 			"dutch": "Niederländisch",
-			"korean": "Koreanisch"
+			"korean": "Koreanisch",
+			"chinese": "Chinese"
 		},
 		"people": {
 			"someone": "Jemand",
@@ -246,7 +247,8 @@
 			"joinWorkspace": "{{workspaceName}} beitreten",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace beizutreten.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace auf Kaneo beizutreten.",
-			"signInToAccept": "Melde dich an, um die Einladung anzunehmen.",
+			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
+			"createAccount": "Create Account",
 			"accepting": "Wird angenommen...",
 			"acceptInvitation": "Einladung annehmen",
 			"goToDashboard": "Zum Dashboard",
@@ -595,9 +597,7 @@
 			"toastDeleteError": "Projekt konnte nicht gelöscht werden",
 			"validation": {
 				"nameRequired": "Projektname ist erforderlich",
-				"nameShort": "Der Projektname muss mindestens 2 Zeichen lang sein",
 				"keyRequired": "Schlüssel ist erforderlich",
-				"keyShort": "Der Schlüssel muss mindestens 2 Zeichen lang sein",
 				"keyMax": "Der Schlüssel darf höchstens 8 Zeichen lang sein",
 				"iconRequired": "Symbol ist erforderlich"
 			},
@@ -1794,13 +1794,22 @@
 			"pageTitle": "Mitglieder",
 			"inviteMember": "Mitglied einladen"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Teammitglied einladen",
 			"emailLabel": "E-Mail",
 			"emailPlaceholder": "kollege@firma.com",
 			"sendInvitation": "Einladung senden",
 			"success": "Einladung erfolgreich gesendet",
-			"error": "Teammitglied konnte nicht eingeladen werden"
+			"error": "Teammitglied konnte nicht eingeladen werden",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Noch keine Teammitglieder",
@@ -1823,7 +1832,8 @@
 			"removeSuccess": "Teammitglied erfolgreich entfernt",
 			"removeError": "Teammitglied konnte nicht entfernt werden",
 			"cancelInviteSuccess": "Einladung erfolgreich abgebrochen",
-			"cancelInviteError": "Einladung konnte nicht abgebrochen werden"
+			"cancelInviteError": "Einladung konnte nicht abgebrochen werden",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

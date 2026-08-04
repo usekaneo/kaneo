@@ -39,34 +39,35 @@ async function unassignLabelFromTask(id: string, userId: string) {
     });
   }
 
-  const [updatedLabel] = await db
-    .update(labelTable)
-    .set({ taskId: null })
+  const [deletedLabel] = await db
+    .delete(labelTable)
     .where(eq(labelTable.id, id))
     .returning();
 
-  if (!updatedLabel) {
+  if (!deletedLabel) {
     throw new HTTPException(500, {
       message: "Failed to detach label from task",
     });
   }
 
-  if (label.taskId) {
-    removeLabelFromGitHub(label.taskId, label.name).catch((error) => {
-      console.error("Failed to remove label from GitHub:", error);
-    });
+  if (deletedLabel.taskId) {
+    removeLabelFromGitHub(deletedLabel.taskId, deletedLabel.name).catch(
+      (error) => {
+        console.error("Failed to remove label from GitHub:", error);
+      },
+    );
   }
 
   await publishEvent("task.label_unassigned", {
-    label: updatedLabel,
+    label: deletedLabel,
     task,
     projectId: task.projectId,
-    taskId: label.taskId,
+    taskId: deletedLabel.taskId,
     userId,
     type: "label_unassigned",
   });
 
-  return updatedLabel;
+  return deletedLabel;
 }
 
 export default unassignLabelFromTask;

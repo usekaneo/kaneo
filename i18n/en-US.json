@@ -43,7 +43,9 @@
 			"french": "French",
 			"spanish": "Spanish",
 			"dutch": "Dutch",
-			"korean": "Korean"
+			"korean": "Korean",
+			"chinese": "Chinese",
+			"italian": "Italian"
 		},
 		"people": {
 			"someone": "Someone",
@@ -248,7 +250,8 @@
 			"joinWorkspace": "Join {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace on Kaneo.",
-			"signInToAccept": "Sign in to accept this invitation.",
+			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
+			"createAccount": "Create Account",
 			"accepting": "Accepting...",
 			"acceptInvitation": "Accept Invitation",
 			"goToDashboard": "Go to Dashboard",
@@ -759,9 +762,7 @@
 			"toastDeleteError": "Failed to delete project",
 			"validation": {
 				"nameRequired": "Project name is required",
-				"nameShort": "Project name must be at least 2 characters",
 				"keyRequired": "Key is required",
-				"keyShort": "Key must be at least 2 characters",
 				"keyMax": "Key must be at most 8 characters",
 				"iconRequired": "Icon is required"
 			},
@@ -1964,7 +1965,11 @@
 		},
 		"invitations": {
 			"pendingBadge": "pending",
-			"expires": "Expires {{date}}"
+			"expires": "Expires {{date}}",
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
 		},
 		"inviteModal": {
 			"title": "Invite Team Member",
@@ -1972,7 +1977,10 @@
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "Send Invitation",
 			"success": "Invitation sent successfully",
-			"error": "Failed to invite team member"
+			"error": "Failed to invite team member",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "No team members yet",
@@ -1985,6 +1993,7 @@
 			},
 			"memberRolePending": "{{role}} (Pending)",
 			"ariaCancelInvitation": "Cancel invitation",
+			"ariaInvitationActions": "Invitation actions",
 			"ariaRemoveMember": "Remove member",
 			"removeDialogTitle": "Remove Team Member?",
 			"removeDialogDescription": "Are you sure you want to remove {{name}} from the workspace? This action cannot be undone.",

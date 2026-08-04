@@ -165,6 +165,9 @@
 						},
 						"korean": {
 							"type": "string"
+						},
+						"chinese": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -175,7 +178,8 @@
 						"french",
 						"spanish",
 						"dutch",
-						"korean"
+						"korean",
+						"chinese"
 					]
 				},
 				"people": {
@@ -977,7 +981,10 @@
 						"inviteBodySignedOut": {
 							"type": "string"
 						},
-						"signInToAccept": {
+						"createAccountOrSignIn": {
+							"type": "string"
+						},
+						"createAccount": {
 							"type": "string"
 						},
 						"accepting": {
@@ -1029,7 +1036,8 @@
 						"joinWorkspace",
 						"inviteBodySignedIn",
 						"inviteBodySignedOut",
-						"signInToAccept",
+						"createAccountOrSignIn",
+						"createAccount",
 						"accepting",
 						"acceptInvitation",
 						"goToDashboard",
@@ -2825,13 +2833,7 @@
 								"nameRequired": {
 									"type": "string"
 								},
-								"nameShort": {
-									"type": "string"
-								},
 								"keyRequired": {
-									"type": "string"
-								},
-								"keyShort": {
 									"type": "string"
 								},
 								"keyMax": {
@@ -2843,9 +2845,7 @@
 							},
 							"required": [
 								"nameRequired",
-								"nameShort",
 								"keyRequired",
-								"keyShort",
 								"keyMax",
 								"iconRequired"
 							]

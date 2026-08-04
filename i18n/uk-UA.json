@@ -43,7 +43,8 @@
 			"french": "Французька",
 			"spanish": "Іспанська",
 			"dutch": "Нідерландська",
-			"korean": "Корейська"
+			"korean": "Корейська",
+			"chinese": "Chinese"
 		},
 		"people": {
 			"someone": "Хтось",
@@ -246,7 +247,8 @@
 			"joinWorkspace": "Приєднатися до {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> запросив вас приєднатися до свого робочого простору.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> запросив вас приєднатися до свого робочого простору в Kaneo.",
-			"signInToAccept": "Увійдіть, щоб прийняти це запрошення.",
+			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
+			"createAccount": "Create Account",
 			"accepting": "Приймається...",
 			"acceptInvitation": "Прийняти запрошення",
 			"goToDashboard": "Перейти до панелі керування",
@@ -581,9 +583,7 @@
 			"toastDeleteError": "Не вдалося видалити проєкт",
 			"validation": {
 				"nameRequired": "Назва проєкту є обов'язковою",
-				"nameShort": "Назва проєкту має містити щонайменше 2 символи",
 				"keyRequired": "Ключ є обов'язковим",
-				"keyShort": "Ключ має містити щонайменше 2 символи",
 				"keyMax": "Ключ може містити не більше 8 символів",
 				"iconRequired": "Іконка є обов'язковою"
 			}
@@ -1753,13 +1753,22 @@
 			"pageTitle": "Учасники",
 			"inviteMember": "Запросити учасника"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Запросити учасника команди",
 			"emailLabel": "Електронна пошта",
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "Надіслати запрошення",
 			"success": "Запрошення успішно надіслано",
-			"error": "Не вдалося запросити учасника команди"
+			"error": "Не вдалося запросити учасника команди",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Учасників команди ще немає",
@@ -1782,7 +1791,8 @@
 			"removeSuccess": "Учасника команди успішно видалено",
 			"removeError": "Не вдалося видалити учасника команди",
 			"cancelInviteSuccess": "Запрошення успішно скасовано",
-			"cancelInviteError": "Не вдалося скасувати запрошення"
+			"cancelInviteError": "Не вдалося скасувати запрошення",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {
