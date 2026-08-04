@@ -9,10 +9,11 @@
     "i18n:check:fix": "node ./scripts/i18n/check.mjs --fix",
     "i18n:report": "node ./scripts/i18n/report.mjs",
     "i18n:report:fix": "node ./scripts/i18n/report.mjs --fix",
-    "i18n:schema": "node ./scripts/i18n/schema.mjs",
+    "i18n:schema": "node ./scripts/i18n/schema.mjs && biome format --write i18n/schema.json",
     "lint": "turbo lint",
     "test": "turbo test",
     "test:integration": "turbo test:integration",
+    "typecheck": "turbo typecheck",
     "prepare": "husky"
   },
   "devDependencies": {

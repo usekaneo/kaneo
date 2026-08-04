@@ -9,12 +9,17 @@
 		},
 
 		"dev": {
+			"dependsOn": ["^build"],
 			"cache": false,
 			"persistent": true
 		},
 		"lint": {
 			"cache": false,
 			"persistent": true
+		},
+		"typecheck": {
+			"dependsOn": ["^build"],
+			"outputs": []
 		},
 		"test": {
 			"dependsOn": ["^build"],

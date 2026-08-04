@@ -21,6 +21,9 @@ pnpm dev
 # Lint and auto-fix code (Biome)
 pnpm lint
 
+# Typecheck all packages (tsc, enforced in CI)
+pnpm typecheck
+
 # Build all packages
 pnpm build
 ```
@@ -164,8 +167,8 @@ Husky enforces commit message format via commitlint.
 
 ### Pre-commit Hooks
 The pre-commit hook (`.husky/pre-commit`) runs two checks:
-1. `biome ci .` — linting and formatting validation
-2. `pnpm run build` — full monorepo build
+1. `biome ci .` for linting and formatting validation
+2. `pnpm run build` for a full monorepo build
 
 Commits will be slow due to the build step. Ensure code compiles before committing.
 
