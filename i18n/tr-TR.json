@@ -1751,13 +1751,22 @@
 			"pageTitle": "Üyeler",
 			"inviteMember": "Üye davet et"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Ekip Üyesi Davet Et",
 			"emailLabel": "E-posta",
 			"emailPlaceholder": "arkadas@sirket.com",
 			"sendInvitation": "Davet Gönder",
 			"success": "Davet başarıyla gönderildi",
-			"error": "Ekip üyesi davet edilemedi"
+			"error": "Ekip üyesi davet edilemedi",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Henüz ekip üyesi yok",
@@ -1782,7 +1791,8 @@
 			"cancelInviteSuccess": "Davet başarıyla iptal edildi",
 			"cancelInviteError": "Davet iptal edilemedi",
 			"roleUpdateSuccess": "Rol güncellendi",
-			"roleUpdateError": "Rol güncellenemedi"
+			"roleUpdateError": "Rol güncellenemedi",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

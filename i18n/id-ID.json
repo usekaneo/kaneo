@@ -1899,13 +1899,22 @@
 			"pageTitle": "Anggota",
 			"inviteMember": "Undang anggota"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Undang Anggota Tim",
 			"emailLabel": "Email",
 			"emailPlaceholder": "rekan@perusahaan.com",
 			"sendInvitation": "Kirim Undangan",
 			"success": "Undangan berhasil dikirim",
-			"error": "Gagal mengundang anggota tim"
+			"error": "Gagal mengundang anggota tim",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Belum ada anggota tim",
@@ -1930,7 +1939,8 @@
 			"cancelInviteSuccess": "Undangan berhasil dibatalkan",
 			"cancelInviteError": "Gagal membatalkan undangan",
 			"roleUpdateSuccess": "Peran diperbarui",
-			"roleUpdateError": "Gagal memperbarui peran"
+			"roleUpdateError": "Gagal memperbarui peran",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

@@ -1794,13 +1794,22 @@
 			"pageTitle": "Участники",
 			"inviteMember": "Пригласить участника"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Пригласить участника команды",
 			"emailLabel": "Электронная почта",
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "Отправить приглашение",
 			"success": "Приглашение успешно отправлено",
-			"error": "Не удалось пригласить участника команды"
+			"error": "Не удалось пригласить участника команды",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Участников команды пока нет",
@@ -1823,7 +1832,8 @@
 			"removeSuccess": "Участник команды успешно удалён",
 			"removeError": "Не удалось удалить участника команды",
 			"cancelInviteSuccess": "Приглашение успешно отменено",
-			"cancelInviteError": "Не удалось отменить приглашение"
+			"cancelInviteError": "Не удалось отменить приглашение",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {

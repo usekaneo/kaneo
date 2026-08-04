@@ -1751,13 +1751,22 @@
 			"pageTitle": "Членови",
 			"inviteMember": "Покани член"
 		},
+		"invitations": {
+			"linkLabel": "Invitation link",
+			"copyLink": "Copy link",
+			"linkCopied": "Invitation link copied",
+			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+		},
 		"inviteModal": {
 			"title": "Покани член на тим",
 			"emailLabel": "Е-пошта",
 			"emailPlaceholder": "kolega@kompanija.com",
 			"sendInvitation": "Испрати покана",
 			"success": "Поканата е успешно испратена",
-			"error": "Неуспешно поканување на член на тим"
+			"error": "Неуспешно поканување на член на тим",
+			"createdTitle": "Invitation created",
+			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
+			"done": "Done"
 		},
 		"membersTable": {
 			"emptyTitle": "Нема членови на тим засега",
@@ -1780,7 +1789,8 @@
 			"removeSuccess": "Членот на тимот е успешно отстранет",
 			"removeError": "Неуспешно отстранување на член на тим",
 			"cancelInviteSuccess": "Поканата е успешно откажана",
-			"cancelInviteError": "Неуспешно откажување на покана"
+			"cancelInviteError": "Неуспешно откажување на покана",
+			"ariaInvitationActions": "Invitation actions"
 		}
 	},
 	"publicProject": {
