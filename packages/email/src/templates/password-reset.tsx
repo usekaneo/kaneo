@@ -44,7 +44,8 @@ const messages = {
     subtitleDefault: "Hãy dùng nút bên dưới để đặt mật khẩu mới.",
     cta: "Đặt lại mật khẩu",
     expiry: "Liên kết đặt lại này sẽ hết hạn sau 1 giờ.",
-    ignore: "Nếu bạn không yêu cầu điều này, sẽ không có thay đổi nào được thực hiện.",
+    ignore:
+      "Nếu bạn không yêu cầu điều này, sẽ không có thay đổi nào được thực hiện.",
     footer: "Email bảo mật Kaneo",
   },
 } as const;
