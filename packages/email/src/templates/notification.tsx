@@ -27,6 +27,12 @@ const messages = {
     footer: "Kaneo-Benachrichtigung",
     actionLabel: "In Kaneo oeffnen",
   },
+  vi: {
+    preview: "Bạn có thông báo mới từ Kaneo",
+    subtitle: "Một thông báo khớp với tùy chọn nhận thông báo của bạn.",
+    footer: "Thông báo Kaneo",
+    actionLabel: "Mở trong Kaneo",
+  },
 } as const;
 
 const NotificationEmail = ({

@@ -31,6 +31,15 @@ const messages = {
       "Wenn du das nicht angefordert hast, kannst du diese E-Mail ignorieren.",
     footer: "Kaneo Sicherheits-E-Mail",
   },
+  vi: {
+    preview: "Đăng nhập vào Kaneo",
+    title: "Liên kết đăng nhập an toàn của bạn",
+    subtitle: "Dùng liên kết này để tiếp tục vào không gian làm việc Kaneo.",
+    cta: "Đăng nhập vào Kaneo",
+    expiry: "Vì lý do bảo mật, liên kết này sẽ hết hạn sau 5 phút.",
+    ignore: "Nếu bạn không yêu cầu điều này, bạn có thể bỏ qua email này.",
+    footer: "Email bảo mật Kaneo",
+  },
 } as const;
 
 const MagicLinkEmail = ({ magicLink, locale }: MagicLinkEmailProps) => {
