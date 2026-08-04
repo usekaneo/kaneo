@@ -1,6 +1,7 @@
 import { render } from "@react-email/components";
 import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
+import { getSmtpTransportOptions, isSmtpConfigured } from "./smtp-config";
 import type { MagicLinkEmailProps } from "./templates/magic-link";
 import MagicLinkEmail from "./templates/magic-link";
 import NotificationEmail, {
@@ -17,17 +18,7 @@ import WorkspaceInvitationEmail, {
 
 config();
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  secure: process.env.SMTP_SECURE !== "false",
-  port: Number(process.env.SMTP_PORT),
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
-  },
-  requireTLS: process.env.SMTP_REQUIRE_TLS === "true",
-  ignoreTLS: process.env.SMTP_IGNORE_TLS === "true",
-});
+const transporter = nodemailer.createTransport(getSmtpTransportOptions());
 
 export const sendMagicLinkEmail = async (
   to: string,
@@ -93,7 +84,7 @@ export const sendWorkspaceInvitationEmail = async (
   subject: string,
   data: WorkspaceInvitationEmailProps,
 ): Promise<EmailResult> => {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_FROM) {
+  if (!isSmtpConfigured()) {
     return { success: false, reason: "SMTP_NOT_CONFIGURED" };
   }
 
@@ -119,7 +110,7 @@ export const sendNotificationEmail = async (
   subject: string,
   data: NotificationEmailProps,
 ): Promise<EmailResult> => {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_FROM) {
+  if (!isSmtpConfigured()) {
     return { success: false, reason: "SMTP_NOT_CONFIGURED" };
   }
 
