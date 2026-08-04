@@ -491,9 +491,7 @@
 			"toastDeleteError": "Error al eliminar proyecto",
 			"validation": {
 				"nameRequired": "El nombre del proyecto es obligatorio",
-				"nameShort": "El nombre del proyecto debe contener al menos 2 caracteres",
 				"keyRequired": "El identificador es obligatorio",
-				"keyShort": "El identificador debe contener al menos 2 caracteres",
 				"keyMax": "El identificador debe contener como máximo 8 caracteres",
 				"iconRequired": "El icono es obligatorio"
 			},

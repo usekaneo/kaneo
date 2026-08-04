@@ -2825,13 +2825,7 @@
 								"nameRequired": {
 									"type": "string"
 								},
-								"nameShort": {
-									"type": "string"
-								},
 								"keyRequired": {
-									"type": "string"
-								},
-								"keyShort": {
 									"type": "string"
 								},
 								"keyMax": {
@@ -2843,9 +2837,7 @@
 							},
 							"required": [
 								"nameRequired",
-								"nameShort",
 								"keyRequired",
-								"keyShort",
 								"keyMax",
 								"iconRequired"
 							]
