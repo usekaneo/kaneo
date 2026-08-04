@@ -35,7 +35,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20.19.0
+          node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
@@ -78,7 +78,6 @@ jobs:
       - name: Publish @kaneo/mcp
         if: ${{ steps.version_check.outputs.already_published == 'false' }}
         run: |
-          npm install -g npm@latest
           cd packages/mcp
           npm publish --access public --provenance
         env:
