@@ -146,7 +146,7 @@ export default function TaskSubtasks({
     try {
       await updateTaskStatus({
         ...taskObj,
-        status: isCompleted(taskObj.status) ? todoSlug : doneSlug,
+        status: isCompleted(taskObj.status) ? (todoSlug ?? "to-do") : doneSlug,
       });
     } catch (error) {
       toast.error(

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   validateAndParseDate,
   validateDateRange,
-} from "../../apps/api/src/utils/validate-dates";
+} from "../../../apps/api/src/utils/validate-dates";
 
 describe("validateAndParseDate", () => {
   it("should parse a valid ISO date string", () => {
