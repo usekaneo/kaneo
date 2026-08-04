@@ -76,7 +76,7 @@ This plan is the first independently deployable slice of the approved design. It
 - Modify: `packages/permissions/src/index.ts`
 - Modify: `packages/permissions/src/index.test.ts`
 
-- [ ] **Step 1: Write failing permission expectations**
+- [x] **Step 1: Write failing permission expectations**
 
 Add these assertions to the existing role test cases:
 
@@ -94,13 +94,13 @@ expect(owner.statements.item_type).toEqual(["create", "read", "update", "delete"
 expect(owner.statements.saved_view).toEqual(["create", "read", "update", "delete"]);
 ```
 
-- [ ] **Step 2: Run the focused test and verify failure**
+- [x] **Step 2: Run the focused test and verify failure**
 
 Run: `pnpm --filter @kaneo/permissions test -- src/index.test.ts`
 
 Expected: FAIL because `item_type` and `saved_view` do not exist.
 
-- [ ] **Step 3: Add the permission statements**
+- [x] **Step 3: Add the permission statements**
 
 Extend `statement` and the four roles exactly as follows:
 
@@ -132,13 +132,13 @@ item_type: ["create", "read", "update", "delete"],
 saved_view: ["create", "read", "update", "delete"],
 ```
 
-- [ ] **Step 4: Run the focused test and verify success**
+- [x] **Step 4: Run the focused test and verify success**
 
 Run: `pnpm --filter @kaneo/permissions test -- src/index.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/permissions/src/index.ts packages/permissions/src/index.test.ts
@@ -153,7 +153,7 @@ git commit -m "feat: add configurable work permissions"
 - Create: generated migration under `apps/api/drizzle/`
 - Create: `tests/api-integration/configuration-schema-constraints.test.ts`
 
-- [ ] **Step 1: Add schema compile-time usage before the tables exist**
+- [x] **Step 1: Add schema compile-time usage before the tables exist**
 
 Create `tests/api/database/configuration-schema.test.ts`:
 
@@ -169,13 +169,13 @@ describe("configuration schema", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test and verify failure**
+- [x] **Step 2: Run the test and verify failure**
 
 Run: `pnpm --filter @kaneo/api test -- ../../tests/api/database/configuration-schema.test.ts`
 
 Expected: FAIL because both exports are missing.
 
-- [ ] **Step 3: Add the tables and task reference**
+- [x] **Step 3: Add the tables and task reference**
 
 Insert `itemTypeTable` before `taskTable`:
 
@@ -296,7 +296,7 @@ export const savedViewTable = pgTable(
 );
 ```
 
-- [ ] **Step 4: Add relations**
+- [x] **Step 4: Add relations**
 
 Import both tables in `relations.ts`, then add:
 
@@ -334,19 +334,19 @@ itemType: one(itemTypeTable, {
 }),
 ```
 
-- [ ] **Step 5: Generate and inspect the migration**
+- [x] **Step 5: Generate and inspect the migration**
 
 Run: `pnpm --filter @kaneo/api db:generate`
 
 Expected: one new SQL migration containing `item_type`, `saved_view`, nullable `task.item_type_workspace_id` plus `task.item_type_id`, both composite foreign keys, the pair check, supporting indexes, and `saved_view_scope_key_unique` as `UNIQUE NULLS NOT DISTINCT`. Inspect it with `git diff -- apps/api/drizzle apps/api/src/database` and confirm there is no destructive statement against existing task data or sentinel expression for null scopes.
 
-- [ ] **Step 6: Run the schema test and API build**
+- [x] **Step 6: Run the schema test and API build**
 
 Run: `pnpm --filter @kaneo/api test -- ../../tests/api/database/configuration-schema.test.ts && pnpm --filter @kaneo/api test:integration -- ../../tests/api-integration/configuration-schema-constraints.test.ts && pnpm --filter @kaneo/api build`
 
 Expected: PASS, including rejection of both cross-workspace composite-FK cases, same-workspace acceptance, and a legacy task with both item type columns null; build succeeds.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/api/src/database apps/api/drizzle tests/api/database/configuration-schema.test.ts tests/api-integration/configuration-schema-constraints.test.ts
@@ -359,7 +359,7 @@ git commit -m "feat: add configurable work schema"
 - Create: `apps/api/src/saved-view/resolve-view-config.ts`
 - Create: `tests/api/saved-view/resolve-view-config.test.ts`
 
-- [ ] **Step 1: Write failing resolver tests**
+- [x] **Step 1: Write failing resolver tests**
 
 ```typescript
 import { describe, expect, it } from "vitest";
@@ -395,13 +395,13 @@ describe("resolveViewConfig", () => {
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm --filter @kaneo/api test -- ../../tests/api/saved-view/resolve-view-config.test.ts`
 
 Expected: FAIL because the resolver does not exist.
 
-- [ ] **Step 3: Implement the resolver**
+- [x] **Step 3: Implement the resolver**
 
 ```typescript
 export type ViewConfigScope = "workspace" | "project" | "user";
@@ -429,13 +429,13 @@ export default function resolveViewConfig(
 }
 ```
 
-- [ ] **Step 4: Run and verify success**
+- [x] **Step 4: Run and verify success**
 
 Run: `pnpm --filter @kaneo/api test -- ../../tests/api/saved-view/resolve-view-config.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/api/src/saved-view/resolve-view-config.ts tests/api/saved-view/resolve-view-config.test.ts
@@ -457,7 +457,7 @@ git commit -m "feat: resolve inherited view settings"
 - Create: `tests/api-integration/item-type.test.ts`
 - Modify: `tests/api-integration/task.test.ts`
 
-- [ ] **Step 1: Write integration tests for role and workspace boundaries**
+- [x] **Step 1: Write integration tests for role and workspace boundaries**
 
 Use existing authenticated request helpers and fixtures to assert these exact behaviors:
 
@@ -511,13 +511,13 @@ it("rejects assigning a type from another workspace", async () => {
 
 Adapt only the fixture variable construction to the existing helpers; keep the assertions and payload semantics unchanged.
 
-- [ ] **Step 2: Run the integration tests and verify failure**
+- [x] **Step 2: Run the integration tests and verify failure**
 
 Run: `pnpm test:integration -- item-type.test.ts task.test.ts`
 
 Expected: FAIL because routes and task field are not wired.
 
-- [ ] **Step 3: Implement validated controllers**
+- [x] **Step 3: Implement validated controllers**
 
 All create/update controllers must trim names, validate `key` with `/^[a-z][a-z0-9-]{1,31}$/`, use `HTTPException(400)` for invalid or cross-workspace references, and archive with `archivedAt: new Date()` instead of deleting. `listItemTypes(workspaceId)` must return active types ordered by `position`, then `name`.
 
@@ -553,7 +553,7 @@ const itemTypeReference = itemType
 
 Derive `workspaceId` by joining the task/project context already used by the routes; do not trust a client-supplied workspace ID. Include `...itemTypeReference` in both task inserts and updates so assignment writes both database columns and clearing an assignment nulls both columns atomically. The public request continues to accept only `itemTypeId`.
 
-- [ ] **Step 4: Mount typed routes**
+- [x] **Step 4: Mount typed routes**
 
 Use `workspaceAccess.fromBody()` for create, `workspaceAccess.fromParam()` for list, and an item-type lookup middleware equivalent to the existing label lookup for id routes. Protect writes with `requireWorkspacePermission({ item_type: ["create"] })`, `update`, or `delete`; reads require authenticated workspace access.
 
@@ -565,13 +565,13 @@ const itemTypeApi = api.route("/item-type", itemType);
 
 Add `typeof itemTypeApi` to `AppType`.
 
-- [ ] **Step 5: Run integration, OpenAPI, and build checks**
+- [x] **Step 5: Run integration, OpenAPI, and build checks**
 
 Run: `pnpm test:integration -- item-type.test.ts task.test.ts openapi.test.ts && pnpm --filter @kaneo/api build`
 
 Expected: PASS; OpenAPI includes item-type operations.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/api/src/item-type apps/api/src/task apps/api/src/index.ts tests/api-integration/item-type.test.ts tests/api-integration/task.test.ts
@@ -587,7 +587,7 @@ git commit -m "feat: manage configurable item types"
 - Modify: `apps/api/src/index.ts`
 - Create: `tests/api-integration/saved-view.test.ts`
 
-- [ ] **Step 1: Write integration tests**
+- [x] **Step 1: Write integration tests**
 
 Test three rows with the same key `tasks`: workspace `{ density: "comfortable" }`, project `{ density: "compact", groupBy: "status" }`, and current user `{ groupBy: "assignee" }`. Assert the resolved endpoint returns:
 
@@ -605,13 +605,13 @@ expect(await response.json()).toMatchObject({
 
 Also assert a different user receives the project `groupBy: "status"`, and a member cannot write a shared workspace or project row but can write a row whose `userId` is the authenticated user.
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm test:integration -- saved-view.test.ts`
 
 Expected: FAIL because the API does not exist.
 
-- [ ] **Step 3: Implement scope-safe upsert**
+- [x] **Step 3: Implement scope-safe upsert**
 
 Accept this validated payload:
 
@@ -658,11 +658,11 @@ Rules:
 })
 ```
 
-- [ ] **Step 4: Implement resolved listing**
+- [x] **Step 4: Implement resolved listing**
 
 `GET /saved-view/workspace/:workspaceId/project/:projectId` loads enabled rows applicable to the workspace, project, and authenticated user, groups by `key`, calls `resolveViewConfig`, and orders results by resolved `position`, then `name`. Workspace rows form defaults; project and personal rows may override them.
 
-- [ ] **Step 5: Mount and verify**
+- [x] **Step 5: Mount and verify**
 
 Mount `/saved-view`, add it to `AppType`, then run:
 
@@ -670,7 +670,7 @@ Mount `/saved-view`, add it to `AppType`, then run:
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/api/src/saved-view apps/api/src/index.ts tests/api-integration/saved-view.test.ts
@@ -690,7 +690,7 @@ git commit -m "feat: add inherited project views"
 - Create: `apps/web/src/fetchers/saved-view/upsert-saved-view.ts`
 - Create: corresponding hooks under `apps/web/src/hooks/queries/` and `apps/web/src/hooks/mutations/`
 
-- [ ] **Step 1: Define stable frontend types**
+- [x] **Step 1: Define stable frontend types**
 
 ```typescript
 export type ItemType = {
@@ -718,7 +718,7 @@ export type ResolvedSavedView = {
 };
 ```
 
-- [ ] **Step 2: Implement typed fetchers using the generated Hono client**
+- [x] **Step 2: Implement typed fetchers using the generated Hono client**
 
 Follow the existing label fetchers exactly: call `client["item-type"]` or `client["saved-view"]`, throw `new Error(await response.text())` when `!response.ok`, and return `response.json()`.
 
@@ -737,17 +737,17 @@ export default async function getResolvedViews(
 }
 ```
 
-- [ ] **Step 3: Implement query keys and invalidation**
+- [x] **Step 3: Implement query keys and invalidation**
 
 Use keys `['item-types', workspaceId]` and `['saved-views', workspaceId, projectId]`. Each successful mutation invalidates its full domain key. Personal saved-view changes must not overwrite shared cached rows manually.
 
-- [ ] **Step 4: Type-check and test web hooks**
+- [x] **Step 4: Type-check and test web hooks**
 
 Run: `pnpm --filter @kaneo/web test && pnpm --filter @kaneo/web build`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/web/src/types apps/web/src/fetchers/item-type apps/web/src/fetchers/saved-view apps/web/src/hooks/queries apps/web/src/hooks/mutations
@@ -762,7 +762,7 @@ git commit -m "feat: add configurable work data hooks"
 - Modify: `i18n/en-US.json`
 - Modify: generated locale/schema files via i18n scripts
 
-- [ ] **Step 1: Write a route component test for progressive disclosure**
+- [x] **Step 1: Write a route component test for progressive disclosure**
 
 Create `apps/web/src/routes/_layout/_authenticated/dashboard/settings/workspace/item-types.test.tsx` and mock query/mutation hooks. Assert the page initially shows existing types and a single `Create item type` button, while the form fields are absent until the button is clicked.
 
@@ -773,35 +773,35 @@ await user.click(screen.getByRole("button", { name: "Create item type" }));
 expect(screen.getByLabelText("Name")).toBeVisible();
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm --filter @kaneo/web test -- item-types.test.tsx`
 
 Expected: FAIL because the route does not exist.
 
-- [ ] **Step 3: Build the page from existing Kaneo components**
+- [x] **Step 3: Build the page from existing Kaneo components**
 
 Use `PageTitle`, `CardFrame`, `Card`, `CardHeader`, `CardPanel`, `Dialog`, `Input`, `Button`, and `AlertDialog`, matching `settings/workspace/labels.tsx`. Display name, icon, key, and description. Keep create/edit forms inside dialogs. Archive requires confirmation and uses the copy “Existing tasks keep this type; it will no longer be available for new assignments.”
 
 Do not add dense tables, permanent side panels, or controls to the board.
 
-- [ ] **Step 4: Add navigation and English source strings**
+- [x] **Step 4: Add navigation and English source strings**
 
 Add an Item Types settings entry next to Labels. Add keys under `settings.workspaceItemTypes` for title, subtitle, create, edit, archive, validation, empty state, and success/error toasts.
 
-- [ ] **Step 5: Synchronize locale schemas**
+- [x] **Step 5: Synchronize locale schemas**
 
 Run: `pnpm i18n:check:fix && pnpm i18n:schema`
 
 Expected: locale files and schema are consistent; no missing keys.
 
-- [ ] **Step 6: Run focused tests and visual build**
+- [x] **Step 6: Run focused tests and visual build**
 
 Run: `pnpm --filter @kaneo/web test -- item-types.test.tsx && pnpm --filter @kaneo/web build`
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/web/src/routes/_layout/_authenticated/dashboard/settings/workspace.tsx apps/web/src/routes/_layout/_authenticated/dashboard/settings/workspace/item-types.tsx apps/web/src/routes/_layout/_authenticated/dashboard/settings/workspace/item-types.test.tsx i18n
@@ -815,7 +815,7 @@ git commit -m "feat: manage item types in workspace settings"
 - Create: `apps/web/src/components/common/project-view-switcher.test.tsx`
 - Modify: `apps/web/src/components/common/project-layout.tsx`
 
-- [ ] **Step 1: Write component tests**
+- [x] **Step 1: Write component tests**
 
 ```typescript
 it("preserves the compact Kaneo view switcher", () => {
@@ -840,17 +840,17 @@ it("hides disabled views", () => {
 });
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm --filter @kaneo/web test -- project-view-switcher.test.tsx`
 
 Expected: FAIL because the component does not exist.
 
-- [ ] **Step 3: Extract the existing markup**
+- [x] **Step 3: Extract the existing markup**
 
 Move the current `h-8`, `gap-0.5`, `rounded-lg`, `border-border/80`, `p-0.5`, `h-6`, and `text-xs` button styling unchanged into `ProjectViewSwitcher`. Map icons by type: `list -> SquircleDashed`, `board -> SquareKanban`, `gantt -> CalendarDays`. Set `data-active={activeView === view.type}`.
 
-- [ ] **Step 4: Wire resolved views with backward-compatible defaults**
+- [x] **Step 4: Wire resolved views with backward-compatible defaults**
 
 In `ProjectLayout`, query saved views. While loading, on error, or when no rows exist, use:
 
@@ -864,13 +864,13 @@ const defaultViews: ResolvedSavedView[] = [
 
 Map `list` to `/backlog`, `board` to `/board`, and `gantt` to `/gantt`. This preserves all current URLs.
 
-- [ ] **Step 5: Run tests and build**
+- [x] **Step 5: Run tests and build**
 
 Run: `pnpm --filter @kaneo/web test -- project-view-switcher.test.tsx && pnpm --filter @kaneo/web build`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/web/src/components/common/project-view-switcher.tsx apps/web/src/components/common/project-view-switcher.test.tsx apps/web/src/components/common/project-layout.tsx
@@ -887,27 +887,27 @@ git commit -m "feat: render configurable project views"
 - Modify: `apps/web/src/types/task/index.ts`
 - Create: `apps/web/src/components/task/task-item-type.test.tsx`
 
-- [ ] **Step 1: Write interaction tests**
+- [x] **Step 1: Write interaction tests**
 
 Assert that a workspace with no custom types preserves the current creation modal unchanged. With active types, assert an optional `Type` property appears in the existing properties area, defaults to `Task`, and submits `itemTypeId` only when selected. In task details, changing the type must call the existing task update mutation with `{ itemTypeId: selectedId }`. The client never submits `itemTypeWorkspaceId`; the API derives it from the validated item type and persists or clears the two-column database pair.
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm --filter @kaneo/web test -- task-item-type.test.tsx`
 
 Expected: FAIL because item type controls do not exist.
 
-- [ ] **Step 3: Add progressive item type controls**
+- [x] **Step 3: Add progressive item type controls**
 
 Reuse the current property row and popover/select components. Show the selected icon and name. Do not add a new permanent toolbar or enlarge task cards. If a task has an archived type, display it read-only with an `Archived` badge and allow choosing an active replacement.
 
-- [ ] **Step 4: Run focused and full web checks**
+- [x] **Step 4: Run focused and full web checks**
 
 Run: `pnpm --filter @kaneo/web test -- task-item-type.test.tsx && pnpm --filter @kaneo/web test && pnpm --filter @kaneo/web build`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/web/src/components/shared/modals/create-task-modal.tsx apps/web/src/components/task apps/web/src/fetchers/task apps/web/src/types
@@ -919,29 +919,29 @@ git commit -m "feat: assign configurable task types"
 **Files:**
 - Modify only files required to fix failures introduced by Tasks 1-9.
 
-- [ ] **Step 1: Run formatting and static checks**
+- [x] **Step 1: Run formatting and static checks**
 
 Run: `pnpm lint && pnpm i18n:check`
 
 Expected: PASS with no formatting or translation schema errors.
 
-- [ ] **Step 2: Run unit and integration suites**
+- [x] **Step 2: Run unit and integration suites**
 
 Run: `pnpm test && pnpm test:integration`
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the production build**
+- [x] **Step 3: Run the production build**
 
 Run: `pnpm build`
 
 Expected: PASS for all Turbo packages.
 
-- [ ] **Step 4: Verify migration compatibility in a copied local database**
+- [x] **Step 4: Verify migration compatibility in a copied local database**
 
 Start the existing local compose stack against a disposable database volume, create a legacy task before applying the new migration, restart with the new image, and verify the task remains visible with `itemTypeWorkspaceId: null` and `itemTypeId: null`. Create an item type, assign it, verify both columns contain the same workspace-qualified reference, archive it, and verify the historical task still displays it.
 
-- [ ] **Step 5: Verify the UI in desktop and mobile widths**
+- [x] **Step 5: Verify the UI in desktop and mobile widths**
 
 Check the existing Tasks, Backlog, and Gantt routes plus Workspace Settings and task creation at 1440x900 and 390x844. Acceptance evidence:
 
@@ -951,11 +951,11 @@ Check the existing Tasks, Backlog, and Gantt routes plus Workspace Settings and 
 - Item type selection does not increase task-card density.
 - Dark and light themes have legible focus, hover, selected, and archived states.
 
-- [ ] **Step 6: Record verification**
+- [x] **Step 6: Record verification**
 
 Add a concise verification section to the pull request or handoff containing commands, pass counts, migration result, and screenshots of the settings page, task property, and unchanged board header.
 
-- [ ] **Step 7: Commit any verification fixes**
+- [x] **Step 7: Commit any verification fixes**
 
 ```bash
 git status --short
@@ -978,3 +978,41 @@ After this plan is complete and locally approved, create separate implementation
 5. Automation engine and configurable dashboards.
 
 Each follow-up must reuse stable IDs, saved-view inheritance, existing Kaneo routes, and the progressive-disclosure visual rules established here.
+
+---
+
+## Verification record (2026-08-04)
+
+All 10 tasks implemented and verified complete on `feat/configurable-work-foundation` (commit `8d1746f`).
+
+**Commands and pass counts:**
+
+- `pnpm --filter @kaneo/web test -- task-item-type.test.tsx` — 70/70 passed.
+- `pnpm test` — 9/9 package tasks passed (API unit 226/226, web, libs, permissions, mcp).
+- `pnpm test:integration` — 103/103 passed.
+- `pnpm build` — 6/6 Turbo packages built.
+- `pnpm lint` — clean (`biome ci .`).
+- `pnpm i18n:check` — pre-existing plural-key gaps in `ru-RU` unrelated to this plan (present on `main` before this branch); no new gaps introduced.
+
+**Migration compatibility (disposable database):**
+
+Applied legacy migrations `0000`–`0035` to a fresh database, inserted a legacy task, then applied the new `0036_peaceful_shape.sql` and `0037_concerned_juggernaut.sql`. Verified:
+
+- Legacy task survives with `item_type_workspace_id: null` and `item_type_id: null`.
+- Creating an item type and assigning it to the task produces a matching workspace-qualified pair (`item_type_workspace_id = item_type.workspace_id`).
+- Archiving the item type leaves the historical task's `item_type_id` intact.
+- Setting only one column of the pair to null is rejected by `task_item_type_pair_check`.
+
+**UI verification (local dev instance, disposable workspace/project):**
+
+Driven through the browser at 1440x900 and 390x844:
+
+- Board header, view switcher, and card layout are visually unchanged; the task card for an assigned item type shows no icon/badge (density preserved).
+- Item type management is reachable only via Workspace Settings → Item types; hidden elsewhere until requested.
+- Create Task modal shows no `Type` control when the workspace has no active item types; shows a `Type: Task` control defaulting to none once a type exists.
+- Selecting `Bug` in the create modal persists `itemTypeId`; the task detail sidebar shows `Type: Bug` and offers `Task`/`Bug`/`Story`.
+- Changing the type from the task detail popover (`Bug` → `Story`) updates the database immediately via the existing task update mutation.
+- Archiving `Story` removes it from the create/assignment list; the previously assigned task now shows `Type: Archived` (badge, read-only) and offers only active replacements (`Task`, `Bug`).
+- Backlog, Tasks/Gantt, and Settings routes load without console errors at both viewports.
+
+No code changes were required as a result of verification (Task 10, Step 7 skipped per plan).
