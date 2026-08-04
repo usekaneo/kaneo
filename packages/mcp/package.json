@@ -62,7 +62,7 @@
 		"@types/node": "^25.3.5",
 		"@types/prompts": "^2.4.9",
 		"tsx": "^4.23.1",
-		"typescript": "^5.9.3",
+		"typescript": "^7.0.2",
 		"vitest": "^4.1.10"
 	}
 }
