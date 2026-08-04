@@ -1,9 +1,10 @@
 {
 	"name": "@kaneo/mcp",
-	"version": "0.1.6",
-	"description": "Model Context Protocol (stdio) server for Kaneo: tasks, projects, labels, and device authorization",
+	"version": "0.1.7",
+	"description": "Official MCP (Model Context Protocol) server for Kaneo, the open source project management platform: manage tasks, projects, and labels from Claude, Cursor, and other MCP clients",
 	"license": "MIT",
-	"homepage": "https://github.com/usekaneo/kaneo/",
+	"author": "Kaneo (https://kaneo.app)",
+	"homepage": "https://docs.kaneo.app/core/integrations/mcp",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/usekaneo/kaneo/",
@@ -29,8 +30,15 @@
 	],
 	"keywords": [
 		"mcp",
+		"mcp-server",
 		"model-context-protocol",
 		"kaneo",
+		"kaneo-mcp",
+		"project-management",
+		"tasks",
+		"kanban",
+		"ai-agents",
+		"claude",
 		"stdio"
 	],
 	"scripts": {

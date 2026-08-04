@@ -1,6 +1,6 @@
 # Kaneo MCP server
 
-`@kaneo/mcp` is a local stdio MCP server for Kaneo.
+[`@kaneo/mcp`](https://www.npmjs.com/package/@kaneo/mcp) is the official MCP (Model Context Protocol) server for [Kaneo](https://kaneo.app), the open source project management platform. It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and published to npm by the Kaneo team.
 
 It runs over stdio, signs in with Kaneo's device flow, and then calls the Kaneo API with a bearer token. The package lives in `packages/mcp` in this monorepo and exposes the `kaneo-mcp` CLI.
 

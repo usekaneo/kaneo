@@ -144,6 +144,10 @@ pnpm dev
 
 For contributing guidelines, code structure, and development best practices, check out our [contributing guide](CONTRIBUTING.md) and [documentation](https://kaneo.app/docs/core).
 
+## MCP Server
+
+Kaneo has an official [MCP (Model Context Protocol) server](https://docs.kaneo.app/core/integrations/mcp), so AI tools like Claude, Cursor, and other MCP clients can manage your tasks, projects, and labels. Every instance ships a built-in HTTP MCP endpoint at `/api/mcp`, and for stdio clients there is the official [@kaneo/mcp](https://www.npmjs.com/package/@kaneo/mcp) package on npm (`npx -y @kaneo/mcp`).
+
 ## Community
 
 - **[Discord](https://discord.gg/rU4tSyhXXU)** - Chat with users and contributors
