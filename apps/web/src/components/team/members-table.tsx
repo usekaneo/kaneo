@@ -70,7 +70,7 @@ const AVATAR_TONES = [
   "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300",
 ] as const;
 
-// Names that are NOT "truly custom" — viewer/member/admin are seeded as
+// Names that are NOT "truly custom": viewer/member/admin are seeded as
 // editable workspace_role rows on every workspace creation, and owner is a
 // static built-in. The Select already lists them as built-ins, so we filter
 // them out of the custom-roles tail to avoid duplicate options.
@@ -273,7 +273,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                         {/* Owner is intentionally NOT offered here: the better-auth
                             organization plugin requires an explicit ownership
                             transfer flow (a workspace must have exactly one owner).
-                            That UI lives in workspace settings — TODO. */}
+                            That UI lives in workspace settings (TODO). */}
                         {customRoles.map((r) => (
                           <SelectItem key={r.id} value={r.role}>
                             {capitalize(r.role)}
@@ -290,7 +290,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                   )}
                 </TableCell>
                 <TableCell className="py-3 text-sm text-muted-foreground tabular-nums">
-                  {member.createdAt ? formatDateMedium(member.createdAt) : "—"}
+                  {member.createdAt ? formatDateMedium(member.createdAt) : "–"}
                 </TableCell>
                 <TableCell className="pe-6 py-3 text-right">
                   {!isSelf && canRemove ? (
@@ -348,7 +348,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                             defaultValue: "Expires {{date}}",
                             date: formatDateMedium(invitation.expiresAt),
                           })
-                        : "—"}
+                        : "–"}
                     </div>
                   </div>
                 </div>
@@ -361,7 +361,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                 </Badge>
               </TableCell>
               <TableCell className="py-3 text-sm text-muted-foreground">
-                —
+                –
               </TableCell>
               <TableCell className="pe-6 py-3 text-right">
                 {canInvite ? (

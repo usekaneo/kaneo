@@ -97,7 +97,7 @@ export function parsePositiveInt(value: string | undefined, fallback: number) {
  * Returns the explicit credentials only when BOTH the access key id and secret
  * are provided. When neither is set, returns `undefined` so the AWS SDK falls
  * back to its default credential provider chain (EC2 instance profile, ECS task
- * role, EKS IRSA, environment variables, or shared config) — enabling
+ * role, EKS IRSA, environment variables, or shared config), enabling
  * IAM-role-based access without static keys.
  *
  * Throws when exactly one of the two is set, since that is almost always a

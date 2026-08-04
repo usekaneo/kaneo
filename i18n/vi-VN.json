@@ -590,7 +590,7 @@
 			"discard": "Hủy bỏ",
 			"createRole": "Tạo vai trò",
 			"deleteRole": "Xóa vai trò",
-			"defaultRoleHelp": "Vai trò mặc định — tên đã được giữ trước và không thể xóa hàng này.",
+			"defaultRoleHelp": "Vai trò mặc định: tên đã được giữ trước và không thể xóa hàng này.",
 			"unsavedChanges": "Bạn có thay đổi chưa lưu",
 			"allChangesSaved": "Đã lưu tất cả thay đổi",
 			"saveChanges": "Lưu thay đổi",
@@ -913,7 +913,7 @@
 				"verifyError": "Không thể xác minh quyền truy cập Gitea",
 				"tokenRequired": "Cần có personal access token",
 				"tokenRequiredVerify": "Nhập token để xác minh",
-				"verifyFirst": "Xác minh quyền truy cập thất bại — hãy kiểm tra URL, token và kho lưu trữ",
+				"verifyFirst": "Xác minh quyền truy cập thất bại. Hãy kiểm tra URL, token và kho lưu trữ",
 				"updated": "Đã lưu tích hợp Gitea",
 				"updateError": "Không thể lưu tích hợp Gitea",
 				"removed": "Đã gỡ bỏ tích hợp Gitea",
@@ -1765,7 +1765,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Dòng thời gian Gantt",
 			"searchPlaceholder": "Tìm phiếu đã lên lịch...",
 			"hideTasks": "Ẩn công việc",
@@ -1778,7 +1778,7 @@
 			"updateDatesError": "Không thể cập nhật ngày của công việc",
 			"resizeStart": "Thay đổi kích thước ngày bắt đầu",
 			"resizeDue": "Thay đổi kích thước ngày đến hạn",
-			"taskAriaLabel": "{{title}} — mở hoặc kéo để di chuyển"
+			"taskAriaLabel": "{{title}}: mở hoặc kéo để di chuyển"
 		},
 		"delete": {
 			"title": "Xóa công việc?",

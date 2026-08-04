@@ -590,7 +590,7 @@
 			"discard": "放弃",
 			"createRole": "创建角色",
 			"deleteRole": "删除角色",
-			"defaultRoleHelp": "默认角色 — 名称已保留且该行不可删除。",
+			"defaultRoleHelp": "默认角色：名称已保留且该行不可删除。",
 			"unsavedChanges": "有未保存的更改",
 			"allChangesSaved": "所有更改已保存",
 			"saveChanges": "保存更改",
@@ -913,7 +913,7 @@
 				"verifyError": "验证 Gitea 访问失败",
 				"tokenRequired": "个人访问令牌不能为空",
 				"tokenRequiredVerify": "输入令牌以验证",
-				"verifyFirst": "访问验证失败 — 请检查 URL、令牌和仓库",
+				"verifyFirst": "访问验证失败，请检查 URL、令牌和仓库",
 				"updated": "Gitea 集成已保存",
 				"updateError": "保存 Gitea 集成失败",
 				"removed": "Gitea 集成已移除",
@@ -1765,7 +1765,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — 甘特图",
+			"pageTitle": "{{name}} – 甘特图",
 			"title": "甘特图时间线",
 			"searchPlaceholder": "搜索已排期工单…",
 			"hideTasks": "隐藏任务",
@@ -1778,7 +1778,7 @@
 			"updateDatesError": "更新任务日期失败",
 			"resizeStart": "调整开始日期",
 			"resizeDue": "调整截止日期",
-			"taskAriaLabel": "{{title}} — 打开或拖动以移动"
+			"taskAriaLabel": "{{title}}：打开或拖动以移动"
 		},
 		"delete": {
 			"title": "删除任务？",

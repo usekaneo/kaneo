@@ -1,4 +1,4 @@
-# 001 — Establish motion tokens and easing discipline
+# 001: Establish motion tokens and easing discipline
 
 - **Status**: DONE
 - **Commit**: 813dcb36
@@ -39,4 +39,4 @@ In `apps/web/src/index.css` inside the existing `@theme` block, override Tailwin
 ## Verification
 
 - Mechanical: `pnpm --filter @kaneo/web build` passes; `grep -rn "tailwindcss-animate\|tw-animate-css\|\"tailwind-animate\"" apps/web` returns nothing.
-- Feel: open the create-task dialog — it should arrive fast and settle (no slow start). Collapse the sidebar — motion eases, no constant-speed feel.
+- Feel: open the create-task dialog; it should arrive fast and settle (no slow start). Collapse the sidebar: motion eases, no constant-speed feel.

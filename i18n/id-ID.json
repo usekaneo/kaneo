@@ -737,7 +737,7 @@
 				"verifyError": "Gagal memverifikasi akses Gitea",
 				"tokenRequired": "Token akses pribadi wajib diisi",
 				"tokenRequiredVerify": "Masukkan token untuk memverifikasi",
-				"verifyFirst": "Verifikasi akses gagal — periksa URL, token, dan repositori",
+				"verifyFirst": "Verifikasi akses gagal. Periksa URL, token, dan repositori",
 				"updated": "Integrasi Gitea disimpan",
 				"updateError": "Gagal menyimpan integrasi Gitea",
 				"removed": "Integrasi Gitea dihapus",
@@ -1704,7 +1704,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Linimasa Gantt",
 			"searchPlaceholder": "Cari tiket terjadwal...",
 			"hideTasks": "Sembunyikan tugas",
@@ -1717,7 +1717,7 @@
 			"updateDatesError": "Gagal memperbarui tanggal tugas",
 			"resizeStart": "Ubah ukuran tanggal mulai",
 			"resizeDue": "Ubah ukuran tenggat",
-			"taskAriaLabel": "{{title}} — buka atau seret untuk memindahkan"
+			"taskAriaLabel": "{{title}}: buka atau seret untuk memindahkan"
 		},
 		"delete": {
 			"title": "Hapus Tugas?",

@@ -1268,7 +1268,7 @@
 ### Bug Fixes
 
 * Fix Status not updating when moved in the grid ([#638](https://github.com/usekaneo/kaneo/issues/638)) ([b51af1a](https://github.com/usekaneo/kaneo/commit/b51af1a5f4c8e2acff08c8e8bf371d7b4e4d9b75))
-* standardize title separator from ⎯ to — across metadata and layout files ([c9979ad](https://github.com/usekaneo/kaneo/commit/c9979adb09453f24f7b1f0a6f5b60e4c56733c69))
+* standardize title separator from ⎯ to em dash across metadata and layout files ([c9979ad](https://github.com/usekaneo/kaneo/commit/c9979adb09453f24f7b1f0a6f5b60e4c56733c69))
 
 
 ### Features

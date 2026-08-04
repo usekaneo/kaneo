@@ -735,7 +735,7 @@
 				"verifyError": "Gitea 접근 확인에 실패했습니다",
 				"tokenRequired": "개인 액세스 토큰은 필수입니다",
 				"tokenRequiredVerify": "확인하려면 토큰을 입력하세요",
-				"verifyFirst": "접근 확인 실패 — URL, 토큰, 저장소를 확인하세요",
+				"verifyFirst": "접근 확인 실패. URL, 토큰, 저장소를 확인하세요",
 				"updated": "Gitea 연동이 저장되었습니다",
 				"updateError": "Gitea 연동 저장에 실패했습니다",
 				"removed": "Gitea 연동이 제거되었습니다",
@@ -1560,7 +1560,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — 간트",
+			"pageTitle": "{{name}} – 간트",
 			"title": "간트 타임라인",
 			"searchPlaceholder": "예약된 티켓 검색...",
 			"hideTasks": "작업 숨기기",
@@ -1573,7 +1573,7 @@
 			"updateDatesError": "작업 날짜 업데이트에 실패했습니다",
 			"resizeStart": "시작일 크기 조정",
 			"resizeDue": "마감일 크기 조정",
-			"taskAriaLabel": "{{title}} — 열거나 드래그하여 이동"
+			"taskAriaLabel": "{{title}}: 열거나 드래그하여 이동"
 		},
 		"delete": {
 			"title": "작업을 삭제하시겠습니까?",

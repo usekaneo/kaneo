@@ -64,7 +64,7 @@ describe("authorizeAssetAccess", () => {
     );
 
     expect(status).toBe(200);
-    // The credential check must be skipped entirely — it throws for anonymous
+    // The credential check must be skipped entirely: it throws for anonymous
     // callers, which is what made the public branch unreachable.
     expect(state.resolveCalls).toBe(0);
   });

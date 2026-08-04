@@ -737,7 +737,7 @@
 				"verifyError": "Failed to verify Gitea access",
 				"tokenRequired": "Personal access token is required",
 				"tokenRequiredVerify": "Enter a token to verify",
-				"verifyFirst": "Verify access failed — check URL, token, and repository",
+				"verifyFirst": "Verify access failed. Check URL, token, and repository",
 				"updated": "Gitea integration saved",
 				"updateError": "Failed to save Gitea integration",
 				"removed": "Gitea integration removed",
@@ -1567,7 +1567,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Chronologie de Gantt",
 			"searchPlaceholder": "Rechercher des tâches planifiées...",
 			"hideTasks": "Masquer les tâches",
@@ -1580,7 +1580,7 @@
 			"updateDatesError": "Échec de la mise à jour des dates de la tâche",
 			"resizeStart": "Redimensionner la date de début",
 			"resizeDue": "Redimensionner la date d'échéance",
-			"taskAriaLabel": "{{title}} — ouvrir ou déplacer"
+			"taskAriaLabel": "{{title}} : ouvrir ou déplacer"
 		},
 		"delete": {
 			"title": "Supprimer la tâche ?",

@@ -590,7 +590,7 @@
 			"discard": "Discard",
 			"createRole": "Create role",
 			"deleteRole": "Delete role",
-			"defaultRoleHelp": "Default role — name is reserved and the row can't be deleted.",
+			"defaultRoleHelp": "Default role: name is reserved and the row can't be deleted.",
 			"unsavedChanges": "You have unsaved changes",
 			"allChangesSaved": "All changes saved",
 			"saveChanges": "Save changes",
@@ -913,7 +913,7 @@
 				"verifyError": "Failed to verify Gitea access",
 				"tokenRequired": "Personal access token is required",
 				"tokenRequiredVerify": "Enter a token to verify",
-				"verifyFirst": "Verify access failed — check URL, token, and repository",
+				"verifyFirst": "Verify access failed. Check URL, token, and repository",
 				"updated": "Gitea integration saved",
 				"updateError": "Failed to save Gitea integration",
 				"removed": "Gitea integration removed",
@@ -1765,7 +1765,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt Timeline",
 			"searchPlaceholder": "Search scheduled tickets...",
 			"hideTasks": "Hide tasks",
@@ -1778,7 +1778,7 @@
 			"updateDatesError": "Failed to update task dates",
 			"resizeStart": "Resize start date",
 			"resizeDue": "Resize due date",
-			"taskAriaLabel": "{{title}} — open or drag to move"
+			"taskAriaLabel": "{{title}}: open or drag to move"
 		},
 		"delete": {
 			"title": "Delete Task?",

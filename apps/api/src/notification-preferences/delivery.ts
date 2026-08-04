@@ -313,7 +313,7 @@ async function sendGotifyNotification(input: {
 }) {
   await assertPublicWebhookDestination(input.serverUrl);
 
-  // Gotify expects the app token in the query string; that can surface in logs, proxies, and browser history — factor this into Gotify placement and log handling.
+  // Gotify expects the app token in the query string; that can surface in logs, proxies, and browser history, so factor this into Gotify placement and log handling.
   const response = await fetchWithTimeout(
     `${input.serverUrl.replace(/\/+$/, "")}/message?token=${encodeURIComponent(
       input.token,

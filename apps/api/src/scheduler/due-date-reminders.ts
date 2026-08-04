@@ -94,7 +94,7 @@ async function processReminder(
 ) {
   if (!task.userId) return;
 
-  // Insert sent record first — if it already exists, skip notification
+  // Insert sent record first; if it already exists, skip notification
   try {
     const [inserted] = await db
       .insert(taskReminderSentTable)

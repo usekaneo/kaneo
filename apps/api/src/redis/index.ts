@@ -46,15 +46,15 @@ export function parseNodeList(
       } else {
         const colonCount = entry.split(":").length - 1;
         if (colonCount > 1) {
-          // Multiple colons — bare IPv6 address without brackets (e.g. "::1")
+          // Multiple colons: bare IPv6 address without brackets (e.g. "::1")
           host = entry;
         } else if (colonCount === 1) {
-          // Exactly one colon — standard host:port
+          // Exactly one colon: standard host:port
           const colonIdx = entry.indexOf(":");
           host = entry.slice(0, colonIdx);
           portStr = entry.slice(colonIdx + 1);
         } else {
-          // No colons — hostname only
+          // No colons: hostname only
           host = entry;
         }
       }

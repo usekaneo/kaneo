@@ -1332,7 +1332,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Diagrama de Gantt",
 			"searchPlaceholder": "Buscar tickets planificados...",
 			"hideTasks": "Esconder tareas",
@@ -1345,7 +1345,7 @@
 			"updateDatesError": "Error al actualizar las fechas de la tarea",
 			"resizeStart": "Cambiar la fecha de comienzo",
 			"resizeDue": "Cambiar la fecha de vencimiento",
-			"taskAriaLabel": "{{title}} — abrir o arrastrar para mover"
+			"taskAriaLabel": "{{title}}: abrir o arrastrar para mover"
 		},
 		"delete": {
 			"title": "¿Eliminar tarea?",

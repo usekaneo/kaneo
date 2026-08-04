@@ -29,7 +29,7 @@ export function FadeIn({
 
     // After hydration: hide first (no transition), then set up the observer.
     // The 50ms gap ensures the browser commits the hidden paint before we
-    // start observing — otherwise elements already in view skip the animation.
+    // start observing; otherwise elements already in view skip the animation.
     setPhase("hidden");
 
     const timer = setTimeout(() => {
@@ -57,7 +57,7 @@ export function FadeIn({
       className={cn(className)}
       style={
         phase === "ssr"
-          ? // SSR / no-JS: fully visible — crawlers see normal content
+          ? // SSR / no-JS: fully visible, so crawlers see normal content
             undefined
           : {
               opacity: isHidden ? 0 : 1,

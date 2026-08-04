@@ -25,7 +25,7 @@ DEVICE_AUTH_CLIENT_IDS=kaneo-cli,kaneo-mcp,your-client-id
 |----------|-------------|
 | `KANEO_API_URL` | Kaneo API origin (default `http://localhost:1337`). Do not include `/api`. |
 | `KANEO_MCP_CLIENT_ID` | Device-flow client id (default `kaneo-mcp`). Must match `DEVICE_AUTH_CLIENT_IDS` on the server. |
-| `KANEO_API_KEY` | **Optional.** A Kaneo API key (create one under Settings → Account → Developer). When set, the server authenticates with it as a Bearer token and skips the interactive device flow — use this for headless/Docker setups. |
+| `KANEO_API_KEY` | **Optional.** A Kaneo API key (create one under Settings → Account → Developer). When set, the server authenticates with it as a Bearer token and skips the interactive device flow. Use this for headless/Docker setups. |
 
 ## Install
 

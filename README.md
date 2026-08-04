@@ -34,9 +34,9 @@
 
 After years of using bloated, overcomplicated project management platforms that distracted from actual work, we built Kaneo to be different.
 
-The problem with most tools isn't that they lack features—it's that they have **too many**. Every notification, every unnecessary button, every complex workflow pulls your team away from what matters: **building great products**.
+The problem with most tools isn't that they lack features, it's that they have **too many**. Every notification, every unnecessary button, every complex workflow pulls your team away from what matters: **building great products**.
 
-We believe the best tools are **invisible**. They should amplify your team's natural workflow, not force you to adapt to theirs. Kaneo is built on the principle that **less is more**—every feature exists because it solves a real problem, not because it looks impressive in a demo.
+We believe the best tools are **invisible**. They should amplify your team's natural workflow, not force you to adapt to theirs. Kaneo is built on the principle that **less is more**: every feature exists because it solves a real problem, not because it looks impressive in a demo.
 
 **What makes it different:**
 - **Clean interface** that focuses on your work, not the tool

@@ -1333,7 +1333,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt-tijdlijn",
 			"searchPlaceholder": "Zoek geplande tickets...",
 			"hideTasks": "Taken verbergen",
@@ -1346,7 +1346,7 @@
 			"updateDatesError": "Bijwerken taakdatums mislukt",
 			"resizeStart": "Startdatum wijzigen",
 			"resizeDue": "Einddatum wijzigen",
-			"taskAriaLabel": "{{title}} — openen of slepen om te verplaatsen"
+			"taskAriaLabel": "{{title}}: openen of slepen om te verplaatsen"
 		},
 		"delete": {
 			"title": "Taak verwijderen?",

@@ -736,7 +736,7 @@
 				"verifyError": "Gitea erişimi doğrulanamadı",
 				"tokenRequired": "Kişisel erişim belirteci gereklidir",
 				"tokenRequiredVerify": "Doğrulamak için bir belirteç girin",
-				"verifyFirst": "Erişim doğrulanamadı — URL, belirteç ve depoyu kontrol edin",
+				"verifyFirst": "Erişim doğrulanamadı. URL, belirteç ve depoyu kontrol edin",
 				"updated": "Gitea entegrasyonu kaydedildi",
 				"updateError": "Gitea entegrasyonu kaydedilemedi",
 				"removed": "Gitea entegrasyonu kaldırıldı",
@@ -1566,7 +1566,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt Zaman Çizelgesi",
 			"searchPlaceholder": "Zamanlanmış talep ara...",
 			"hideTasks": "Talepleri gizle",
@@ -1579,7 +1579,7 @@
 			"updateDatesError": "Talep tarihleri güncellenemedi",
 			"resizeStart": "Başlangıç tarihini yeniden boyutlandır",
 			"resizeDue": "Bitiş tarihini yeniden boyutlandır",
-			"taskAriaLabel": "{{title}} — açmak veya taşımak için sürükleyin"
+			"taskAriaLabel": "{{title}}: açmak veya taşımak için sürükleyin"
 		},
 		"delete": {
 			"title": "Talep Silinsin mi?",

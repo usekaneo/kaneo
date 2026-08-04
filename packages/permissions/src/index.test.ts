@@ -123,7 +123,7 @@ describe("default-role seed payloads", () => {
         expect([...payload[resource]].sort()).toEqual([...actions].sort());
       }
 
-      // Round-trips through JSON without loss — the API stores these as text.
+      // Round-trips through JSON without loss; the API stores these as text.
       const roundTripped = JSON.parse(JSON.stringify(payload));
       expect(roundTripped).toEqual(payload);
     }

@@ -590,7 +590,7 @@
 			"discard": "Annulla",
 			"createRole": "Crea ruolo",
 			"deleteRole": "Elimina ruolo",
-			"defaultRoleHelp": "Ruolo predefinito — il nome è riservato e la riga non può essere eliminata.",
+			"defaultRoleHelp": "Ruolo predefinito: il nome è riservato e la riga non può essere eliminata.",
 			"unsavedChanges": "Hai modifiche non salvate",
 			"allChangesSaved": "Tutte le modifiche salvate",
 			"saveChanges": "Salva modifiche",
@@ -913,7 +913,7 @@
 				"verifyError": "Verifica accesso Gitea fallita",
 				"tokenRequired": "Il token di accesso personale è obbligatorio",
 				"tokenRequiredVerify": "Inserisci un token per verificare",
-				"verifyFirst": "Verifica accesso fallita — controlla URL, token e repository",
+				"verifyFirst": "Verifica accesso fallita. Controlla URL, token e repository",
 				"updated": "Integrazione Gitea salvata",
 				"updateError": "Salvataggio integrazione Gitea fallito",
 				"removed": "Integrazione Gitea rimossa",
@@ -1765,7 +1765,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Cronologia Gantt",
 			"searchPlaceholder": "Cerca ticket programmati...",
 			"hideTasks": "Nascondi attività",
@@ -1778,7 +1778,7 @@
 			"updateDatesError": "Aggiornamento date attività fallito",
 			"resizeStart": "Ridimensiona data inizio",
 			"resizeDue": "Ridimensiona data scadenza",
-			"taskAriaLabel": "{{title}} — apri o trascina per spostare"
+			"taskAriaLabel": "{{title}}: apri o trascina per spostare"
 		},
 		"delete": {
 			"title": "Eliminare l'Attività?",

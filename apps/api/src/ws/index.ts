@@ -20,7 +20,7 @@ type UserConnection = {
 };
 
 /**
- * User-scoped connections — tracks WebSocket connections keyed by userId.
+ * User-scoped connections: tracks WebSocket connections keyed by userId.
  * Used for delivering user-targeted events like NOTIFICATION_CREATED.
  */
 const userConnections = new Map<string, Set<UserConnection>>();
@@ -65,7 +65,7 @@ export function broadcastToUser(
 }
 
 /**
- * Local connections — Each instance tracks only its own WebSocket connections.
+ * Local connections: each instance tracks only its own WebSocket connections.
  */
 const projectConnections = new Map<string, Set<ProjectConnection>>();
 

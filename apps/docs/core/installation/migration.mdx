@@ -5,13 +5,13 @@ description: How to upgrade from the two-container setup (api + web) to the comb
 
 ## What changed in v2.6.0
 
-This release replaces the separate `api` and `web` containers with a single `kaneo` container. nginx runs on port 5173 and proxies `/api/` requests to the internal Node API. Everything else — the database, volumes, environment variables — works the same.
+This release replaces the separate `api` and `web` containers with a single `kaneo` container. nginx runs on port 5173 and proxies `/api/` requests to the internal Node API. Everything else (the database, volumes, environment variables) works the same.
 
 Three areas require changes when upgrading:
 
-1. Docker Compose — replace the `api` and `web` services with `kaneo`
-2. Environment variables — `KANEO_API_URL` and `DATABASE_URL` are now optional
-3. Helm chart — all `api.*` and `web.*` values moved under `kaneo.*` (chart version 0.3.0)
+1. Docker Compose: replace the `api` and `web` services with `kaneo`
+2. Environment variables: `KANEO_API_URL` and `DATABASE_URL` are now optional
+3. Helm chart: all `api.*` and `web.*` values moved under `kaneo.*` (chart version 0.3.0)
 
 ---
 
@@ -89,7 +89,7 @@ volumes:
   postgres_data:
 ```
 
-Remove the `api` and `web` service blocks and add the `kaneo` service. The `postgres` service is unchanged except for the added healthcheck — `kaneo` waits for it before starting.
+Remove the `api` and `web` service blocks and add the `kaneo` service. The `postgres` service is unchanged except for the added healthcheck, which `kaneo` waits for before starting.
 
 ---
 
@@ -182,7 +182,7 @@ Chart version 0.3.0 is a breaking change. All `api.*` and `web.*` value keys hav
 | `api.env.database` | `kaneo.env.database` |
 | `api.livenessProbe` | `kaneo.livenessProbe` |
 | `api.readinessProbe` | `kaneo.readinessProbe` |
-| `web.*` | removed — web is bundled in the kaneo image |
+| `web.*` | removed, web is bundled in the kaneo image |
 
 ### Example values migration
 

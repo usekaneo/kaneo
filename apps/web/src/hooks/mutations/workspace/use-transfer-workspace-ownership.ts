@@ -16,8 +16,8 @@ type TransferOwnershipRequest = {
 //      owner" check passes)
 //
 // Order matters: if we demoted first, step 2 would 403 because no owner
-// would be left. If step 2 fails, the workspace ends up with two owners —
-// recoverable by re-running the demote.
+// would be left. If step 2 fails, the workspace ends up with two owners,
+// which is recoverable by re-running the demote.
 function useTransferWorkspaceOwnership() {
   const queryClient = useQueryClient();
   return useMutation({

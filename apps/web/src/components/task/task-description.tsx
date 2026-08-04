@@ -768,7 +768,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   }, [editor, shikiHighlighter]);
 
   // Toggle Tiptap's editable flag based on workspace permission. When the
-  // user can't manage tasks, the description renders as read-only — slash
+  // user can't manage tasks, the description renders as read-only: slash
   // menus, paste handlers, and toolbar buttons all become no-ops because
   // the editor refuses content mutations.
   useEffect(() => {
