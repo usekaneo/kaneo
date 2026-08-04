@@ -556,8 +556,8 @@ importers:
         specifier: ^25.8.0
         version: 25.8.0
       '@types/nodemailer':
-        specifier: ^7.0.11
-        version: 7.0.11
+        specifier: ^8.0.1
+        version: 8.0.1
       nodemailer:
         specifier: ^9.0.3
         version: 9.0.3
@@ -4067,8 +4067,8 @@ packages:
   '@types/node@26.1.2':
     resolution: {integrity: sha512-Vu4a5UFA9rIIFJ7rB/Vaafh9lrCQszopTCx6KjFboXTGQbPNasehVR5TEiithSDGyd1DEiUByggTZsg8jukeIg==}
 
-  '@types/nodemailer@7.0.11':
-    resolution: {integrity: sha512-E+U4RzR2dKrx+u3N4DlsmLaDC6mMZOM/TPROxA0UAPiTgI0y4CEFBmZE+coGWTjakDriRsXG368lNk1u9Q0a2g==}
+  '@types/nodemailer@8.0.1':
+    resolution: {integrity: sha512-PxpaInm8V1JQDd4j0ds5HfvWQk8JupS1C0Picb96QJsrrRDjBH+DlK7L4ZdNSqNULhiZRQHc40nLVShaGxXAMw==}
 
   '@types/pg@8.20.3':
     resolution: {integrity: sha512-4Tvg+HO6+oQaAkpT8GTYoSExzpGGZz532GXgbbCElWJQeQdMozBWxEKNBhJJpHFjWXsMxqPbyypvj/89FWNoSQ==}
@@ -11120,7 +11120,7 @@ snapshots:
     dependencies:
       undici-types: 8.3.0
 
-  '@types/nodemailer@7.0.11':
+  '@types/nodemailer@8.0.1':
     dependencies:
       '@types/node': 25.8.0
 
