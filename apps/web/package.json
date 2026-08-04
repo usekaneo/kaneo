@@ -109,7 +109,7 @@
 		"@types/react-dom": "^19.2.3",
 		"globals": "^17.7.0",
 		"jsdom": "^29.1.1",
-		"postcss": "^8.5.19",
+		"postcss": "^8.5.23",
 		"tailwindcss": "^4.3.3",
 		"typescript": "~5.8.3",
 		"vite": "^7.3.5",
