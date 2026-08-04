@@ -61,8 +61,11 @@ export function workspaceAccessMiddleware(
         const body = await readJsonObjectBody(c);
         const idFromBody =
           typeof body[source.idKey] === "string" ? body[source.idKey] : null;
-        const id =
-          c.req.param(source.idKey) || c.req.query(source.idKey) || idFromBody;
+        // Only accept the id from the same place the handler will read it
+        // (path param or JSON body). Accepting it from the query string let a
+        // caller authorize against one resource (`?taskId=<mine>`) while the
+        // handler acted on another (`{"taskId": "<someone else's>"}`).
+        const id = c.req.param(source.idKey) || idFromBody;
         if (id) {
           workspaceId = await lookupWorkspaceId(source.resource, id);
         }
