@@ -327,6 +327,46 @@ describe("API integration: task creation", () => {
     });
   });
 
+  it("returns an archived item type assignment when loading task details", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [itemType] = await db
+      .insert(schema.itemTypeTable)
+      .values({
+        workspaceId: member.workspace.id,
+        key: "historical-type",
+        name: "Historical type",
+        archivedAt: new Date(),
+      })
+      .returning();
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        columnId: columns.todo.id,
+        itemTypeWorkspaceId: member.workspace.id,
+        itemTypeId: itemType.id,
+        title: "Historical assignment",
+        description: "Keeps its archived type",
+        status: "to-do",
+        priority: "medium",
+        position: 1,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const response = await app.request(`/api/task/${task.id}`);
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      id: task.id,
+      itemTypeId: itemType.id,
+    });
+  });
+
   it("rejects cross-workspace and archived item type assignments", async () => {
     const member = await createWorkspaceMember();
     const other = await createWorkspaceMember();

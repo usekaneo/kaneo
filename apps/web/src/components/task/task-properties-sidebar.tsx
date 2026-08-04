@@ -34,9 +34,9 @@ import { formatDateShort } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
-import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
+import TaskItemTypePopover from "./task-item-type-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskMovePopover from "./task-move-popover";
 import TaskPriorityPopover from "./task-priority-popover";
@@ -207,6 +207,9 @@ export default function TaskPropertiesSidebar({
                     </span>
                   </Button>
                 </TaskStatusPopover>
+              )}
+              {task && (
+                <TaskItemTypePopover task={task} workspaceId={workspaceId} />
               )}
               {task && (
                 <TaskPriorityPopover task={task}>
@@ -394,6 +397,9 @@ export default function TaskPropertiesSidebar({
                       </span>
                     </Button>
                   </TaskStatusPopover>
+                )}
+                {task && (
+                  <TaskItemTypePopover task={task} workspaceId={workspaceId} />
                 )}
                 {task && (
                   <TaskPriorityPopover task={task}>
@@ -584,6 +590,13 @@ export default function TaskPropertiesSidebar({
                       </span>
                     </Button>
                   </TaskStatusPopover>
+                )}
+                {task && (
+                  <TaskItemTypePopover
+                    task={task}
+                    workspaceId={workspaceId}
+                    className="w-full"
+                  />
                 )}
                 {task && (
                   <TaskPriorityPopover task={task}>

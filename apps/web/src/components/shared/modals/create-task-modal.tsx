@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import ItemTypeIcon from "@/components/task/item-type-icon";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +41,7 @@ import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetItemTypes from "@/hooks/queries/item-type/use-get-item-types";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -169,6 +171,7 @@ function CreateTaskModal({
   );
   const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
+  const { data: itemTypes = [] } = useGetItemTypes(workspace?.id || "");
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id || "",
   );
@@ -184,6 +187,7 @@ function CreateTaskModal({
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
   const [assigneeId, setAssigneeId] = useState("");
+  const [itemTypeId, setItemTypeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
@@ -237,6 +241,7 @@ function CreateTaskModal({
     setDescription("");
     setPriority("no-priority");
     setAssigneeId("");
+    setItemTypeId("");
     setStartDate(undefined);
     setDueDate(undefined);
     setCreateMore(false);
@@ -337,6 +342,7 @@ function CreateTaskModal({
       startDate: startDate ? startDate.toISOString() : undefined,
       dueDate: dueDate ? dueDate.toISOString() : undefined,
       status: draftStatus,
+      ...(itemTypeId ? { itemTypeId } : {}),
     }).then((task) => normalizeTask(task));
 
     draftCreationPromiseRef.current = draftPromise;
@@ -366,6 +372,7 @@ function CreateTaskModal({
     resolvedProjectId,
     title,
     t,
+    itemTypeId,
   ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -388,6 +395,11 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : null,
               dueDate: dueDate ? dueDate.toISOString() : null,
               projectId: resolvedProjectId,
+              ...(itemTypeId
+                ? { itemTypeId }
+                : draftTask.itemTypeId
+                  ? { itemTypeId: null }
+                  : {}),
             }),
           )
         : normalizeTask(
@@ -400,6 +412,7 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : undefined,
               dueDate: dueDate ? dueDate.toISOString() : undefined,
               status: taskStatus,
+              ...(itemTypeId ? { itemTypeId } : {}),
             }),
           );
 
@@ -429,6 +442,7 @@ function CreateTaskModal({
         setDescription("");
         setPriority("no-priority");
         setAssigneeId("");
+        setItemTypeId("");
         setStartDate(undefined);
         setDueDate(undefined);
         setLabels([]);
@@ -464,6 +478,16 @@ function CreateTaskModal({
   );
 
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
+  const activeItemTypes = itemTypes.filter((itemType) => !itemType.archivedAt);
+  const selectedItemType = activeItemTypes.find(
+    (itemType) => itemType.id === itemTypeId,
+  );
+  const itemTypePropertyLabel = t("tasks:properties.type", {
+    defaultValue: "Type",
+  });
+  const defaultItemTypeLabel = t("tasks:properties.defaultType", {
+    defaultValue: "Task",
+  });
 
   const statusLabel = useMemo(() => {
     if (status) {
@@ -668,6 +692,61 @@ function CreateTaskModal({
                 <div className="w-1.5 h-1.5 bg-foreground rounded-full" />
                 {statusLabel}
               </div>
+
+              {activeItemTypes.length > 0 && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={`${itemTypePropertyLabel}: ${selectedItemType?.name ?? defaultItemTypeLabel}`}
+                      className={cn(
+                        "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                        selectedItemType
+                          ? "bg-accent/30 text-foreground"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      <ItemTypeIcon
+                        icon={selectedItemType?.icon}
+                        className="h-3.5 w-3.5"
+                      />
+                      <span>
+                        {selectedItemType?.name ?? defaultItemTypeLabel}
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-1" align="start">
+                    <div className="space-y-1">
+                      <button
+                        type="button"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
+                        onClick={() => setItemTypeId("")}
+                      >
+                        <ItemTypeIcon className="h-4 w-4" />
+                        <span className="text-sm">{defaultItemTypeLabel}</span>
+                        {!itemTypeId && <Check className="ml-auto h-4 w-4" />}
+                      </button>
+                      {activeItemTypes.map((itemType) => (
+                        <button
+                          key={itemType.id}
+                          type="button"
+                          className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
+                          onClick={() => setItemTypeId(itemType.id)}
+                        >
+                          <ItemTypeIcon
+                            icon={itemType.icon}
+                            className="h-4 w-4"
+                          />
+                          <span className="text-sm">{itemType.name}</span>
+                          {itemTypeId === itemType.id && (
+                            <Check className="ml-auto h-4 w-4" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
 
               <Popover>
                 <PopoverTrigger asChild>

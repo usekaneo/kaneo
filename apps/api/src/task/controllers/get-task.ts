@@ -7,6 +7,7 @@ async function getTask(taskId: string) {
   const task = await db
     .select({
       id: taskTable.id,
+      itemTypeId: taskTable.itemTypeId,
       title: taskTable.title,
       number: taskTable.number,
       description: taskTable.description,

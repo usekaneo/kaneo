@@ -1,3 +1,11 @@
+import type { client } from "@kaneo/libs";
+import type { InferResponseType } from "hono/client";
+
+type TaskResponse = InferResponseType<
+  (typeof client)["task"][":id"]["$get"],
+  200
+>;
+
 type TaskLabel = {
   id: string;
   name: string;
@@ -18,6 +26,7 @@ type TaskExternalLink = {
 type Task = {
   id: string;
   title: string;
+  itemTypeId?: TaskResponse["itemTypeId"];
   number: number | null;
   description: string | null;
   status: string;
