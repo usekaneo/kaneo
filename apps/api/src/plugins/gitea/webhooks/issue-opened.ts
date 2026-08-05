@@ -126,17 +126,8 @@ export async function handleGiteaIssueOpened(
       continue;
     }
 
-    await publishEvent("task.created", {
-      ...createdTask,
-      taskId: createdTask.id,
-      userId: createdTask.userId ?? "",
-      type: "task",
-      content: null,
-      source: "gitea",
-      externalId: issue.number.toString(),
-      actor: issue.user?.login ?? issue.user?.username ?? "gitea-webhook",
-    });
-
+    // Must run before task.created: the plugin's onTaskCreated uses link
+    // existence to skip self-originated tasks, else it duplicates the issue.
     await createExternalLink({
       taskId: createdTask.id,
       integrationId: integration.id,
@@ -149,6 +140,17 @@ export async function handleGiteaIssueOpened(
         createdFrom: "gitea",
         author: issue.user?.login ?? issue.user?.username,
       },
+    });
+
+    await publishEvent("task.created", {
+      ...createdTask,
+      taskId: createdTask.id,
+      userId: createdTask.userId ?? "",
+      type: "task",
+      content: null,
+      source: "gitea",
+      externalId: issue.number.toString(),
+      actor: issue.user?.login ?? issue.user?.username ?? "gitea-webhook",
     });
 
     const project = await db.query.projectTable.findFirst({
