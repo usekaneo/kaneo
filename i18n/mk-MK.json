@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "ЗАДАЧА",
+				"selectProject": "Избери проект",
 				"title": "Нова задача",
 				"description": "Креирај нова задача со наслов, опис и други детали.",
 				"taskTitlePlaceholder": "Наслов на задача",

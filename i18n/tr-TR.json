@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "TALEP",
+				"selectProject": "Proje seçin",
 				"title": "Yeni Talep",
 				"description": "Bir başlık, açıklama ve diğer ayrıntıları girerek yeni bir talep oluşturun.",
 				"taskTitlePlaceholder": "Talep başlığı",

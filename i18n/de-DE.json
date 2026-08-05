@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "AUFGABE",
+				"selectProject": "Projekt auswählen",
 				"title": "Neue Aufgabe",
 				"description": "Erstelle eine neue Aufgabe, indem du einen Titel, eine Beschreibung und weitere Details angibst.",
 				"taskTitlePlaceholder": "Aufgabentitel",

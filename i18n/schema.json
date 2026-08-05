@@ -344,6 +344,9 @@
 								"breadcrumbTask": {
 									"type": "string"
 								},
+								"selectProject": {
+									"type": "string"
+								},
 								"title": {
 									"type": "string"
 								},
@@ -475,6 +478,7 @@
 							},
 							"required": [
 								"breadcrumbTask",
+								"selectProject",
 								"title",
 								"description",
 								"taskTitlePlaceholder",
