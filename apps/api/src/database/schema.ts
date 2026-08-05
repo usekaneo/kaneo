@@ -974,6 +974,47 @@ export const deviceCodeTable = pgTable(
   ],
 );
 
+export const mcpOAuthClientTable = pgTable("mcp_oauth_client", {
+  id: text("id").primaryKey(),
+  redirectUris: jsonb("redirect_uris").$type<string[]>().notNull(),
+  name: text("name"),
+  issuedAt: timestamp("issued_at", { mode: "date" }).notNull(),
+});
+
+export const mcpOAuthAuthorizationRequestTable = pgTable(
+  "mcp_oauth_authorization_request",
+  {
+    id: text("id").primaryKey(),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => mcpOAuthClientTable.id, { onDelete: "cascade" }),
+    codeChallenge: text("code_challenge").notNull(),
+    redirectUri: text("redirect_uri").notNull(),
+    state: text("state"),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  },
+  (table) => [
+    index("mcp_oauth_authorization_request_expires_at_idx").on(table.expiresAt),
+  ],
+);
+
+export const mcpOAuthCodeTable = pgTable(
+  "mcp_oauth_code",
+  {
+    id: text("id").primaryKey(),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => mcpOAuthClientTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    codeChallenge: text("code_challenge").notNull(),
+    redirectUri: text("redirect_uri").notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  },
+  (table) => [index("mcp_oauth_code_expires_at_idx").on(table.expiresAt)],
+);
+
 // Auth-schema compatible aliases in schema.ts
 export const user = userTable;
 export const session = sessionTable;

@@ -1,21 +1,19 @@
 import { createHash, randomUUID } from "node:crypto";
 import { createId } from "@paralleldrive/cuid2";
+import { and, eq, gt, lt, sql } from "drizzle-orm";
 import db from "../database";
-import { sessionTable } from "../database/schema";
+import {
+  mcpOAuthAuthorizationRequestTable,
+  mcpOAuthClientTable,
+  mcpOAuthCodeTable,
+  sessionTable,
+} from "../database/schema";
 
 type RegisteredClient = {
   clientId: string;
   redirectUris: string[];
   clientName?: string;
   issuedAt: number;
-};
-
-type AuthCode = {
-  clientId: string;
-  userId: string;
-  codeChallenge: string;
-  redirectUri: string;
-  expiresAt: number;
 };
 
 export type AuthorizationRequest = {
@@ -26,90 +24,135 @@ export type AuthorizationRequest = {
   expiresAt: number;
 };
 
-const clients = new Map<string, RegisteredClient>();
-const codes = new Map<string, AuthCode>();
-const authorizationRequests = new Map<string, AuthorizationRequest>();
 const maxAuthorizationRequests = 10_000;
 
-function pruneAuthorizationRequests(now = Date.now()): void {
-  for (const [requestId, request] of authorizationRequests) {
-    if (request.expiresAt < now) authorizationRequests.delete(requestId);
-  }
-
-  while (authorizationRequests.size >= maxAuthorizationRequests) {
-    const oldestRequestId = authorizationRequests.keys().next().value;
-    if (!oldestRequestId) break;
-    authorizationRequests.delete(oldestRequestId);
-  }
+export async function getClient(
+  clientId: string,
+): Promise<RegisteredClient | undefined> {
+  const [client] = await db
+    .select()
+    .from(mcpOAuthClientTable)
+    .where(eq(mcpOAuthClientTable.id, clientId))
+    .limit(1);
+  if (!client) return undefined;
+  return {
+    clientId: client.id,
+    redirectUris: client.redirectUris,
+    clientName: client.name ?? undefined,
+    issuedAt: Math.floor(client.issuedAt.getTime() / 1000),
+  };
 }
 
-export function getClient(clientId: string): RegisteredClient | undefined {
-  return clients.get(clientId);
-}
-
-export function registerClient(params: {
+export async function registerClient(params: {
   redirectUris: string[];
   clientName?: string;
-}): RegisteredClient {
+}): Promise<RegisteredClient> {
   const clientId = randomUUID();
+  const issuedAt = new Date();
   const client: RegisteredClient = {
     clientId,
     redirectUris: [...params.redirectUris],
     clientName: params.clientName,
-    issuedAt: Math.floor(Date.now() / 1000),
+    issuedAt: Math.floor(issuedAt.getTime() / 1000),
   };
-  clients.set(clientId, client);
+  await db.insert(mcpOAuthClientTable).values({
+    id: clientId,
+    redirectUris: client.redirectUris,
+    name: client.clientName,
+    issuedAt,
+  });
   return client;
 }
 
-export function createAuthCode(params: {
+export async function createAuthCode(params: {
   clientId: string;
   userId: string;
   codeChallenge: string;
   redirectUri: string;
-}): string {
+}): Promise<string> {
   const code = randomUUID();
-  codes.set(code, {
+  await db
+    .delete(mcpOAuthCodeTable)
+    .where(lt(mcpOAuthCodeTable.expiresAt, new Date()));
+  await db.insert(mcpOAuthCodeTable).values({
+    id: code,
     ...params,
-    expiresAt: Date.now() + 5 * 60 * 1000,
+    expiresAt: new Date(Date.now() + 5 * 60 * 1000),
   });
   return code;
 }
 
-export function createAuthorizationRequest(params: {
+export async function createAuthorizationRequest(params: {
   clientId: string;
   codeChallenge: string;
   redirectUri: string;
   state?: string;
-}): string {
-  pruneAuthorizationRequests();
+}): Promise<string> {
   const requestId = randomUUID();
-  authorizationRequests.set(requestId, {
+  const now = new Date();
+  await db
+    .delete(mcpOAuthAuthorizationRequestTable)
+    .where(lt(mcpOAuthAuthorizationRequestTable.expiresAt, now));
+  await db.insert(mcpOAuthAuthorizationRequestTable).values({
+    id: requestId,
     ...params,
-    expiresAt: Date.now() + 10 * 60 * 1000,
+    expiresAt: new Date(now.getTime() + 10 * 60 * 1000),
   });
+  await db.execute(sql`
+    DELETE FROM ${mcpOAuthAuthorizationRequestTable}
+    WHERE ${mcpOAuthAuthorizationRequestTable.id} IN (
+      SELECT ${mcpOAuthAuthorizationRequestTable.id}
+      FROM ${mcpOAuthAuthorizationRequestTable}
+      ORDER BY ${mcpOAuthAuthorizationRequestTable.expiresAt} DESC
+      OFFSET ${maxAuthorizationRequests}
+    )
+  `);
   return requestId;
 }
 
-export function getAuthorizationRequest(
+export async function getAuthorizationRequest(
   requestId: string,
-): AuthorizationRequest | undefined {
-  const request = authorizationRequests.get(requestId);
+): Promise<AuthorizationRequest | undefined> {
+  const [request] = await db
+    .select()
+    .from(mcpOAuthAuthorizationRequestTable)
+    .where(
+      and(
+        eq(mcpOAuthAuthorizationRequestTable.id, requestId),
+        gt(mcpOAuthAuthorizationRequestTable.expiresAt, new Date()),
+      ),
+    )
+    .limit(1);
   if (!request) return undefined;
-  if (request.expiresAt < Date.now()) {
-    authorizationRequests.delete(requestId);
-    return undefined;
-  }
-  return request;
+  return {
+    clientId: request.clientId,
+    codeChallenge: request.codeChallenge,
+    redirectUri: request.redirectUri,
+    state: request.state ?? undefined,
+    expiresAt: request.expiresAt.getTime(),
+  };
 }
 
-export function consumeAuthorizationRequest(
+export async function consumeAuthorizationRequest(
   requestId: string,
-): AuthorizationRequest | undefined {
-  const request = getAuthorizationRequest(requestId);
+): Promise<AuthorizationRequest | undefined> {
+  const [request] = await db
+    .delete(mcpOAuthAuthorizationRequestTable)
+    .where(
+      and(
+        eq(mcpOAuthAuthorizationRequestTable.id, requestId),
+        gt(mcpOAuthAuthorizationRequestTable.expiresAt, new Date()),
+      ),
+    )
+    .returning();
   if (!request) return undefined;
-  authorizationRequests.delete(requestId);
-  return request;
+  return {
+    clientId: request.clientId,
+    codeChallenge: request.codeChallenge,
+    redirectUri: request.redirectUri,
+    state: request.state ?? undefined,
+    expiresAt: request.expiresAt.getTime(),
+  };
 }
 
 function base64url(buf: Buffer): string {
@@ -127,13 +170,15 @@ export async function exchangeCode(
   codeVerifier: string,
   redirectUri: string,
 ): Promise<{ accessToken: string; expiresIn: number } | null> {
-  const stored = codes.get(code);
+  const [stored] = await db
+    .delete(mcpOAuthCodeTable)
+    .where(eq(mcpOAuthCodeTable.id, code))
+    .returning();
   if (!stored) return null;
-  codes.delete(code);
 
   if (stored.clientId !== clientId) return null;
   if (stored.redirectUri !== redirectUri) return null;
-  if (stored.expiresAt < Date.now()) return null;
+  if (stored.expiresAt.getTime() < Date.now()) return null;
   if (!verifyPkce(codeVerifier, stored.codeChallenge)) return null;
 
   const sessionToken = randomUUID();

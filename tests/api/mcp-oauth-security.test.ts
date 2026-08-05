@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   const insertedSessions: Array<Record<string, unknown>> = [];
@@ -19,7 +19,53 @@ const mocks = vi.hoisted(() => {
       return row;
     }),
   }));
-  return { getSession, insert, insertedSessions };
+  const clients = new Map<
+    string,
+    {
+      clientId: string;
+      redirectUris: string[];
+      clientName?: string;
+      issuedAt: number;
+    }
+  >();
+  const authorizationRequests = new Map<
+    string,
+    {
+      clientId: string;
+      codeChallenge: string;
+      redirectUri: string;
+      state?: string;
+      expiresAt: number;
+    }
+  >();
+  const codes = new Map<
+    string,
+    {
+      clientId: string;
+      userId: string;
+      codeChallenge: string;
+      redirectUri: string;
+      expiresAt: number;
+    }
+  >();
+  let nextId = 0;
+  const newId = () => `oauth-test-${nextId++}`;
+  const resetOAuthState = () => {
+    clients.clear();
+    authorizationRequests.clear();
+    codes.clear();
+    insertedSessions.length = 0;
+  };
+  return {
+    authorizationRequests,
+    clients,
+    codes,
+    getSession,
+    insert,
+    insertedSessions,
+    newId,
+    resetOAuthState,
+  };
 });
 
 vi.mock("../../apps/api/src/auth", () => ({
@@ -28,6 +74,97 @@ vi.mock("../../apps/api/src/auth", () => ({
 
 vi.mock("../../apps/api/src/database", () => ({
   default: { insert: mocks.insert },
+}));
+
+vi.mock("../../apps/api/src/mcp/oauth", () => ({
+  registerClient: async (params: {
+    redirectUris: string[];
+    clientName?: string;
+  }) => {
+    const client = {
+      clientId: mocks.newId(),
+      redirectUris: [...params.redirectUris],
+      clientName: params.clientName,
+      issuedAt: Math.floor(Date.now() / 1000),
+    };
+    mocks.clients.set(client.clientId, client);
+    return client;
+  },
+  getClient: async (clientId: string) => mocks.clients.get(clientId),
+  createAuthorizationRequest: async (params: {
+    clientId: string;
+    codeChallenge: string;
+    redirectUri: string;
+    state?: string;
+  }) => {
+    for (const [id, request] of mocks.authorizationRequests) {
+      if (request.expiresAt < Date.now()) {
+        mocks.authorizationRequests.delete(id);
+      }
+    }
+    const requestId = mocks.newId();
+    mocks.authorizationRequests.set(requestId, {
+      ...params,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    });
+    return requestId;
+  },
+  getAuthorizationRequest: async (requestId: string) => {
+    const request = mocks.authorizationRequests.get(requestId);
+    if (!request || request.expiresAt < Date.now()) return undefined;
+    return request;
+  },
+  consumeAuthorizationRequest: async (requestId: string) => {
+    const request = mocks.authorizationRequests.get(requestId);
+    if (!request || request.expiresAt < Date.now()) return undefined;
+    mocks.authorizationRequests.delete(requestId);
+    return request;
+  },
+  createAuthCode: async (params: {
+    clientId: string;
+    userId: string;
+    codeChallenge: string;
+    redirectUri: string;
+  }) => {
+    const code = mocks.newId();
+    mocks.codes.set(code, {
+      ...params,
+      expiresAt: Date.now() + 5 * 60 * 1000,
+    });
+    return code;
+  },
+  exchangeCode: async (
+    code: string,
+    clientId: string,
+    codeVerifier: string,
+    redirectUri: string,
+  ) => {
+    const stored = mocks.codes.get(code);
+    if (!stored) return null;
+    mocks.codes.delete(code);
+    const { createHash } = await import("node:crypto");
+    const challenge = createHash("sha256")
+      .update(codeVerifier)
+      .digest("base64url");
+    if (
+      stored.clientId !== clientId ||
+      stored.redirectUri !== redirectUri ||
+      stored.expiresAt < Date.now() ||
+      stored.codeChallenge !== challenge
+    ) {
+      return null;
+    }
+    const expiresIn = 30 * 24 * 60 * 60;
+    await mocks.insert().values({
+      id: mocks.newId(),
+      token: mocks.newId(),
+      userId: stored.userId,
+      expiresAt: new Date(Date.now() + expiresIn * 1000),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    return { accessToken: mocks.newId(), expiresIn };
+  },
 }));
 
 vi.mock("../../apps/api/src/mcp/tools", () => ({
@@ -115,6 +252,10 @@ async function decideAuthorization(params: {
 }
 
 describe("MCP OAuth security", () => {
+  beforeEach(() => {
+    mocks.resetOAuthState();
+  });
+
   it("rejects empty and unsafe redirect URI registrations", async () => {
     const empty = await mcpRoutes.request("/mcp/register", {
       method: "POST",
@@ -296,25 +437,27 @@ describe("MCP OAuth security", () => {
     expect((await redeem(verifier)).status).toBe(400);
   });
 
-  it("sweeps expired authorization requests when creating a new one", () => {
+  it("sweeps expired authorization requests when creating a new one", async () => {
     const now = Date.now();
     vi.useFakeTimers();
     try {
       vi.setSystemTime(now);
-      const expiredRequestId = createAuthorizationRequest({
+      const expiredRequestId = await createAuthorizationRequest({
         clientId: "client-expired",
         redirectUri: "https://client.example/expired",
         codeChallenge: "challenge",
       });
 
       vi.setSystemTime(now + 10 * 60 * 1000 + 1);
-      createAuthorizationRequest({
+      await createAuthorizationRequest({
         clientId: "client-current",
         redirectUri: "https://client.example/current",
         codeChallenge: "challenge",
       });
 
-      expect(getAuthorizationRequest(expiredRequestId)).toBeUndefined();
+      await expect(
+        getAuthorizationRequest(expiredRequestId),
+      ).resolves.toBeUndefined();
     } finally {
       vi.useRealTimers();
     }
