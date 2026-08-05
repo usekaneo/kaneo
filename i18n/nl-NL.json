@@ -1346,7 +1346,22 @@
 			"updateDatesError": "Bijwerken taakdatums mislukt",
 			"resizeStart": "Startdatum wijzigen",
 			"resizeDue": "Einddatum wijzigen",
-			"taskAriaLabel": "{{title}} — openen of slepen om te verplaatsen"
+			"taskAriaLabel": "{{title}} — openen of slepen om te verplaatsen",
+			"sortLabel": "Taken sorteren",
+			"sortOptions": {
+				"start": "Startdatum",
+				"end": "Vervaldatum",
+				"priority": "Prioriteit",
+				"title": "Titel"
+			},
+			"statusFilterLabel": "Filteren op status",
+			"allStatuses": "Alle statussen",
+			"priorityFilterLabel": "Filteren op prioriteit",
+			"allPriorities": "Alle prioriteiten",
+			"noPriority": "Geen prioriteit",
+			"assigneeFilterLabel": "Filteren op toegewezen persoon",
+			"allAssignees": "Alle toegewezen personen",
+			"unassigned": "Niet toegewezen"
 		},
 		"delete": {
 			"title": "Taak verwijderen?",

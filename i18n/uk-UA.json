@@ -1568,7 +1568,22 @@
 			"updateDatesError": "Не вдалося оновити дати завдання",
 			"resizeStart": "Змінити дату початку",
 			"resizeDue": "Змінити дату завершення",
-			"taskAriaLabel": "{{title}} — відкрити або перетягнути для переміщення"
+			"taskAriaLabel": "{{title}} — відкрити або перетягнути для переміщення",
+			"sortLabel": "Сортувати завдання",
+			"sortOptions": {
+				"start": "Дата початку",
+				"end": "Термін виконання",
+				"priority": "Пріоритет",
+				"title": "Назва"
+			},
+			"statusFilterLabel": "Фільтр за статусом",
+			"allStatuses": "Усі статуси",
+			"priorityFilterLabel": "Фільтр за пріоритетом",
+			"allPriorities": "Усі пріоритети",
+			"noPriority": "Без пріоритету",
+			"assigneeFilterLabel": "Фільтр за виконавцем",
+			"allAssignees": "Усі виконавці",
+			"unassigned": "Не призначено"
 		},
 		"delete": {
 			"title": "Видалити завдання?",

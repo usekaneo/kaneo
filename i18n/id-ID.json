@@ -1717,7 +1717,22 @@
 			"updateDatesError": "Gagal memperbarui tanggal tugas",
 			"resizeStart": "Ubah ukuran tanggal mulai",
 			"resizeDue": "Ubah ukuran tenggat",
-			"taskAriaLabel": "{{title}} — buka atau seret untuk memindahkan"
+			"taskAriaLabel": "{{title}} — buka atau seret untuk memindahkan",
+			"sortLabel": "Urutkan tugas",
+			"sortOptions": {
+				"start": "Tanggal mulai",
+				"end": "Tanggal jatuh tempo",
+				"priority": "Prioritas",
+				"title": "Judul"
+			},
+			"statusFilterLabel": "Saring berdasarkan status",
+			"allStatuses": "Semua status",
+			"priorityFilterLabel": "Saring berdasarkan prioritas",
+			"allPriorities": "Semua prioritas",
+			"noPriority": "Tanpa prioritas",
+			"assigneeFilterLabel": "Saring berdasarkan penerima",
+			"allAssignees": "Semua penerima",
+			"unassigned": "Belum ditugaskan"
 		},
 		"delete": {
 			"title": "Hapus Tugas?",

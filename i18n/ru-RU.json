@@ -1580,7 +1580,22 @@
 			"updateDatesError": "Не удалось обновить даты задачи",
 			"resizeStart": "Изменить дату начала",
 			"resizeDue": "Изменить срок выполнения",
-			"taskAriaLabel": "{{title}} — откройте или перетащите для перемещения"
+			"taskAriaLabel": "{{title}} — откройте или перетащите для перемещения",
+			"sortLabel": "Сортировать задачи",
+			"sortOptions": {
+				"start": "Дата начала",
+				"end": "Срок выполнения",
+				"priority": "Приоритет",
+				"title": "Название"
+			},
+			"statusFilterLabel": "Фильтр по статусу",
+			"allStatuses": "Все статусы",
+			"priorityFilterLabel": "Фильтр по приоритету",
+			"allPriorities": "Все приоритеты",
+			"noPriority": "Без приоритета",
+			"assigneeFilterLabel": "Фильтр по исполнителю",
+			"allAssignees": "Все исполнители",
+			"unassigned": "Не назначен"
 		},
 		"delete": {
 			"title": "Удалить задачу?",

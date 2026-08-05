@@ -1613,7 +1613,22 @@
 			"updateDatesError": "Aufgabendaten konnten nicht aktualisiert werden",
 			"resizeStart": "Startdatum anpassen",
 			"resizeDue": "Fälligkeitsdatum anpassen",
-			"taskAriaLabel": "{{title}} — öffnen oder ziehen zum Verschieben"
+			"taskAriaLabel": "{{title}} — öffnen oder ziehen zum Verschieben",
+			"sortLabel": "Aufgaben sortieren",
+			"sortOptions": {
+				"start": "Startdatum",
+				"end": "Fälligkeitsdatum",
+				"priority": "Priorität",
+				"title": "Titel"
+			},
+			"statusFilterLabel": "Nach Status filtern",
+			"allStatuses": "Alle Status",
+			"priorityFilterLabel": "Nach Priorität filtern",
+			"allPriorities": "Alle Prioritäten",
+			"noPriority": "Keine Priorität",
+			"assigneeFilterLabel": "Nach Zuständigem filtern",
+			"allAssignees": "Alle Zuständigen",
+			"unassigned": "Nicht zugewiesen"
 		},
 		"delete": {
 			"title": "Aufgabe löschen?",

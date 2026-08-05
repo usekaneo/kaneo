@@ -6817,6 +6817,52 @@
 						},
 						"taskAriaLabel": {
 							"type": "string"
+						},
+						"sortLabel": {
+							"type": "string"
+						},
+						"sortOptions": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"start": {
+									"type": "string"
+								},
+								"end": {
+									"type": "string"
+								},
+								"priority": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								}
+							},
+							"required": ["start", "end", "priority", "title"]
+						},
+						"statusFilterLabel": {
+							"type": "string"
+						},
+						"allStatuses": {
+							"type": "string"
+						},
+						"priorityFilterLabel": {
+							"type": "string"
+						},
+						"allPriorities": {
+							"type": "string"
+						},
+						"noPriority": {
+							"type": "string"
+						},
+						"assigneeFilterLabel": {
+							"type": "string"
+						},
+						"allAssignees": {
+							"type": "string"
+						},
+						"unassigned": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -6833,7 +6879,17 @@
 						"updateDatesError",
 						"resizeStart",
 						"resizeDue",
-						"taskAriaLabel"
+						"taskAriaLabel",
+						"sortLabel",
+						"sortOptions",
+						"statusFilterLabel",
+						"allStatuses",
+						"priorityFilterLabel",
+						"allPriorities",
+						"noPriority",
+						"assigneeFilterLabel",
+						"allAssignees",
+						"unassigned"
 					]
 				},
 				"delete": {

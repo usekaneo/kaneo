@@ -1579,7 +1579,22 @@
 			"updateDatesError": "Talep tarihleri güncellenemedi",
 			"resizeStart": "Başlangıç tarihini yeniden boyutlandır",
 			"resizeDue": "Bitiş tarihini yeniden boyutlandır",
-			"taskAriaLabel": "{{title}} — açmak veya taşımak için sürükleyin"
+			"taskAriaLabel": "{{title}} — açmak veya taşımak için sürükleyin",
+			"sortLabel": "Görevleri sırala",
+			"sortOptions": {
+				"start": "Başlangıç tarihi",
+				"end": "Bitiş tarihi",
+				"priority": "Öncelik",
+				"title": "Başlık"
+			},
+			"statusFilterLabel": "Duruma göre filtrele",
+			"allStatuses": "Tüm durumlar",
+			"priorityFilterLabel": "Önceliğe göre filtrele",
+			"allPriorities": "Tüm öncelikler",
+			"noPriority": "Öncelik yok",
+			"assigneeFilterLabel": "Atanan kişiye göre filtrele",
+			"allAssignees": "Tüm atanan kişiler",
+			"unassigned": "Atanmamış"
 		},
 		"delete": {
 			"title": "Talep Silinsin mi?",

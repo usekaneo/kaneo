@@ -11,7 +11,13 @@ import {
   startOfWeek,
   subDays,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import {
+  ArrowDownUp,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Search,
+} from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ProjectLayout from "@/components/common/project-layout";
@@ -20,11 +26,28 @@ import PageTitle from "@/components/page-title";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectItem,
+  SelectPopup,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
-import { getStatusLabel } from "@/lib/i18n/domain";
+import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
 import { useUserPreferencesStore } from "@/store/user-preferences";
+
+type GanttSort = "start" | "end" | "priority" | "title";
+
+const PRIORITY_ORDER: Record<string, number> = {
+  urgent: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+  none: 4,
+};
 
 type GanttSearchParams = {
   taskId?: string;
@@ -53,6 +76,10 @@ function RouteComponent() {
   const { data: project } = useGetTasks(projectId);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<GanttSort>("start");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
   const isMobile = useIsMobile();
   const [isTaskRailOpen, setIsTaskRailOpen] = useState(false);
 
@@ -106,11 +133,53 @@ function RouteComponent() {
       );
   }, [allTasks]);
 
+  const availableStatuses = useMemo(() => {
+    const set = new Set<string>();
+    parsedTasks.forEach((task) => {
+      set.add(task.status);
+    });
+    return Array.from(set).sort();
+  }, [parsedTasks]);
+
+  const availablePriorities = useMemo(() => {
+    const set = new Set<string>();
+    parsedTasks.forEach((task) => {
+      if (task.priority) set.add(task.priority);
+    });
+    return Array.from(set).sort();
+  }, [parsedTasks]);
+
+  const availableAssignees = useMemo(() => {
+    const map = new Map<string, string>();
+    parsedTasks.forEach((task) => {
+      if (task.assigneeId) {
+        map.set(task.assigneeId, task.assigneeName ?? task.assigneeId);
+      }
+    });
+    return Array.from(map.entries()).sort((left, right) =>
+      left[1].localeCompare(right[1], undefined, { sensitivity: "base" }),
+    );
+  }, [parsedTasks]);
+
   const scheduledTasks = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-    if (!normalizedQuery) return parsedTasks;
-
-    return parsedTasks.filter((task) => {
+    const filtered = parsedTasks.filter((task) => {
+      if (statusFilter !== "all" && task.status !== statusFilter) return false;
+      if (priorityFilter !== "all") {
+        if (priorityFilter === "none") {
+          if (task.priority) return false;
+        } else if (task.priority !== priorityFilter) {
+          return false;
+        }
+      }
+      if (assigneeFilter !== "all") {
+        if (assigneeFilter === "none") {
+          if (task.assigneeId) return false;
+        } else if (task.assigneeId !== assigneeFilter) {
+          return false;
+        }
+      }
+      if (!normalizedQuery) return true;
       return (
         task.title.toLowerCase().includes(normalizedQuery) ||
         `${project?.slug ?? ""}-${task.number ?? ""}`
@@ -119,7 +188,49 @@ function RouteComponent() {
         task.status.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [parsedTasks, project?.slug, searchQuery]);
+
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case "end":
+        sorted.sort(
+          (left, right) =>
+            left.scheduleEnd.getTime() - right.scheduleEnd.getTime(),
+        );
+        break;
+      case "priority":
+        sorted.sort((left, right) => {
+          const leftOrder =
+            PRIORITY_ORDER[left.priority ?? "none"] ?? PRIORITY_ORDER.none;
+          const rightOrder =
+            PRIORITY_ORDER[right.priority ?? "none"] ?? PRIORITY_ORDER.none;
+          if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+          return left.scheduleStart.getTime() - right.scheduleStart.getTime();
+        });
+        break;
+      case "title":
+        sorted.sort((left, right) =>
+          left.title.localeCompare(right.title, undefined, {
+            sensitivity: "base",
+          }),
+        );
+        break;
+      default:
+        sorted.sort(
+          (left, right) =>
+            left.scheduleStart.getTime() - right.scheduleStart.getTime(),
+        );
+        break;
+    }
+    return sorted;
+  }, [
+    parsedTasks,
+    project?.slug,
+    searchQuery,
+    sortBy,
+    statusFilter,
+    priorityFilter,
+    assigneeFilter,
+  ]);
 
   const timeline = useMemo(() => {
     if (parsedTasks.length === 0) return null;
@@ -179,22 +290,12 @@ function RouteComponent() {
         hideAppName
       />
       <div className="flex h-full min-h-0 flex-col bg-background">
-        <div className="border-b border-border/80 px-3 py-3 sm:px-4">
+        <div className="space-y-3 border-b border-border/80 px-3 py-3 sm:px-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-1">
               <h1 className="text-sm font-semibold text-foreground">
                 {t("tasks:gantt.title")}
               </h1>
-            </div>
-
-            <div className="relative w-full max-w-sm">
-              <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder={t("tasks:gantt.searchPlaceholder")}
-                className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
-              />
             </div>
 
             <Button
@@ -213,6 +314,168 @@ function RouteComponent() {
                 : t("tasks:gantt.showTasks")}
             </Button>
           </div>
+
+          {parsedTasks.length > 0 ? (
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="relative w-full sm:max-w-sm sm:flex-1">
+                <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder={t("tasks:gantt.searchPlaceholder")}
+                  className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+                <Select
+                  value={sortBy}
+                  onValueChange={(value) => {
+                    if (
+                      value === "start" ||
+                      value === "end" ||
+                      value === "priority" ||
+                      value === "title"
+                    ) {
+                      setSortBy(value);
+                    }
+                  }}
+                >
+                  <SelectTrigger
+                    size="sm"
+                    aria-label={t("tasks:gantt.sortLabel")}
+                    className="min-h-11 sm:min-h-8 sm:w-44"
+                  >
+                    <ArrowDownUp className="size-3.5 text-muted-foreground" />
+                    <SelectValue>
+                      {t(`tasks:gantt.sortOptions.${sortBy}`)}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectPopup>
+                    <SelectItem value="start">
+                      {t("tasks:gantt.sortOptions.start")}
+                    </SelectItem>
+                    <SelectItem value="end">
+                      {t("tasks:gantt.sortOptions.end")}
+                    </SelectItem>
+                    <SelectItem value="priority">
+                      {t("tasks:gantt.sortOptions.priority")}
+                    </SelectItem>
+                    <SelectItem value="title">
+                      {t("tasks:gantt.sortOptions.title")}
+                    </SelectItem>
+                  </SelectPopup>
+                </Select>
+
+                {availableStatuses.length > 1 ? (
+                  <Select
+                    value={statusFilter}
+                    onValueChange={(value) => setStatusFilter(value)}
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      aria-label={t("tasks:gantt.statusFilterLabel")}
+                      className="min-h-11 sm:min-h-8 sm:w-44"
+                    >
+                      <Filter className="size-3.5 text-muted-foreground" />
+                      <SelectValue>
+                        {statusFilter === "all"
+                          ? t("tasks:gantt.allStatuses")
+                          : getStatusLabel(statusFilter)}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectPopup>
+                      <SelectItem value="all">
+                        {t("tasks:gantt.allStatuses")}
+                      </SelectItem>
+                      {availableStatuses.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {getStatusLabel(status)}
+                        </SelectItem>
+                      ))}
+                    </SelectPopup>
+                  </Select>
+                ) : null}
+
+                {availablePriorities.length > 1 ? (
+                  <Select
+                    value={priorityFilter}
+                    onValueChange={(value) => setPriorityFilter(value)}
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      aria-label={t("tasks:gantt.priorityFilterLabel")}
+                      className="min-h-11 sm:min-h-8 sm:w-44"
+                    >
+                      <Filter className="size-3.5 text-muted-foreground" />
+                      <SelectValue>
+                        {priorityFilter === "all"
+                          ? t("tasks:gantt.allPriorities")
+                          : priorityFilter === "none"
+                            ? t("tasks:gantt.noPriority")
+                            : getPriorityLabel(priorityFilter)}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectPopup>
+                      <SelectItem value="all">
+                        {t("tasks:gantt.allPriorities")}
+                      </SelectItem>
+                      {availablePriorities.map((priority) => (
+                        <SelectItem key={priority} value={priority}>
+                          {getPriorityLabel(priority)}
+                        </SelectItem>
+                      ))}
+                      {!availablePriorities.includes("none") &&
+                      parsedTasks.some((task) => !task.priority) ? (
+                        <SelectItem value="none">
+                          {t("tasks:gantt.noPriority")}
+                        </SelectItem>
+                      ) : null}
+                    </SelectPopup>
+                  </Select>
+                ) : null}
+
+                {availableAssignees.length > 0 ? (
+                  <Select
+                    value={assigneeFilter}
+                    onValueChange={(value) => setAssigneeFilter(value)}
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      aria-label={t("tasks:gantt.assigneeFilterLabel")}
+                      className="min-h-11 sm:min-h-8 sm:w-44"
+                    >
+                      <Filter className="size-3.5 text-muted-foreground" />
+                      <SelectValue>
+                        {assigneeFilter === "all"
+                          ? t("tasks:gantt.allAssignees")
+                          : assigneeFilter === "none"
+                            ? t("tasks:gantt.unassigned")
+                            : (availableAssignees.find(
+                                ([id]) => id === assigneeFilter,
+                              )?.[1] ?? assigneeFilter)}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectPopup>
+                      <SelectItem value="all">
+                        {t("tasks:gantt.allAssignees")}
+                      </SelectItem>
+                      {availableAssignees.map(([id, name]) => (
+                        <SelectItem key={id} value={id}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                      {parsedTasks.some((task) => !task.assigneeId) ? (
+                        <SelectItem value="none">
+                          {t("tasks:gantt.unassigned")}
+                        </SelectItem>
+                      ) : null}
+                    </SelectPopup>
+                  </Select>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {!timeline || parsedTasks.length === 0 ? (

@@ -1573,7 +1573,22 @@
 			"updateDatesError": "작업 날짜 업데이트에 실패했습니다",
 			"resizeStart": "시작일 크기 조정",
 			"resizeDue": "마감일 크기 조정",
-			"taskAriaLabel": "{{title}} — 열거나 드래그하여 이동"
+			"taskAriaLabel": "{{title}} — 열거나 드래그하여 이동",
+			"sortLabel": "작업 정렬",
+			"sortOptions": {
+				"start": "시작일",
+				"end": "마감일",
+				"priority": "우선순위",
+				"title": "제목"
+			},
+			"statusFilterLabel": "상태별 필터",
+			"allStatuses": "모든 상태",
+			"priorityFilterLabel": "우선순위별 필터",
+			"allPriorities": "모든 우선순위",
+			"noPriority": "우선순위 없음",
+			"assigneeFilterLabel": "담당자별 필터",
+			"allAssignees": "모든 담당자",
+			"unassigned": "담당자 없음"
 		},
 		"delete": {
 			"title": "작업을 삭제하시겠습니까?",

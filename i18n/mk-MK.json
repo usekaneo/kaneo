@@ -1571,7 +1571,22 @@
 			"updateDatesError": "Неуспешно ажурирање на датуми на задача",
 			"resizeStart": "Промени почетен датум",
 			"resizeDue": "Промени краен рок",
-			"taskAriaLabel": "{{title}} — отвори или повлечи за преместување"
+			"taskAriaLabel": "{{title}} — отвори или повлечи за преместување",
+			"sortLabel": "Подреди задачи",
+			"sortOptions": {
+				"start": "Датум на почеток",
+				"end": "Датум на завршување",
+				"priority": "Приоритет",
+				"title": "Наслов"
+			},
+			"statusFilterLabel": "Филтрирај по статус",
+			"allStatuses": "Сите статуси",
+			"priorityFilterLabel": "Филтрирај по приоритет",
+			"allPriorities": "Сите приоритети",
+			"noPriority": "Без приоритет",
+			"assigneeFilterLabel": "Филтрирај по извршител",
+			"allAssignees": "Сите извршители",
+			"unassigned": "Неназначено"
 		},
 		"delete": {
 			"title": "Избриши задача?",

@@ -1345,7 +1345,22 @@
 			"updateDatesError": "Error al actualizar las fechas de la tarea",
 			"resizeStart": "Cambiar la fecha de comienzo",
 			"resizeDue": "Cambiar la fecha de vencimiento",
-			"taskAriaLabel": "{{title}} — abrir o arrastrar para mover"
+			"taskAriaLabel": "{{title}} — abrir o arrastrar para mover",
+			"sortLabel": "Ordenar tareas",
+			"sortOptions": {
+				"start": "Fecha de inicio",
+				"end": "Fecha de vencimiento",
+				"priority": "Prioridad",
+				"title": "Título"
+			},
+			"statusFilterLabel": "Filtrar por estado",
+			"allStatuses": "Todos los estados",
+			"priorityFilterLabel": "Filtrar por prioridad",
+			"allPriorities": "Todas las prioridades",
+			"noPriority": "Sin prioridad",
+			"assigneeFilterLabel": "Filtrar por asignado",
+			"allAssignees": "Todos los asignados",
+			"unassigned": "Sin asignar"
 		},
 		"delete": {
 			"title": "¿Eliminar tarea?",

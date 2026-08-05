@@ -1778,7 +1778,22 @@
 			"updateDatesError": "更新任务日期失败",
 			"resizeStart": "调整开始日期",
 			"resizeDue": "调整截止日期",
-			"taskAriaLabel": "{{title}} — 打开或拖动以移动"
+			"taskAriaLabel": "{{title}} — 打开或拖动以移动",
+			"sortLabel": "排序任务",
+			"sortOptions": {
+				"start": "开始日期",
+				"end": "截止日期",
+				"priority": "优先级",
+				"title": "标题"
+			},
+			"statusFilterLabel": "按状态筛选",
+			"allStatuses": "所有状态",
+			"priorityFilterLabel": "按优先级筛选",
+			"allPriorities": "所有优先级",
+			"noPriority": "无优先级",
+			"assigneeFilterLabel": "按分配人筛选",
+			"allAssignees": "所有分配人",
+			"unassigned": "未分配"
 		},
 		"delete": {
 			"title": "删除任务？",

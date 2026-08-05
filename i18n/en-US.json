@@ -1778,7 +1778,22 @@
 			"updateDatesError": "Failed to update task dates",
 			"resizeStart": "Resize start date",
 			"resizeDue": "Resize due date",
-			"taskAriaLabel": "{{title}} — open or drag to move"
+			"taskAriaLabel": "{{title}} — open or drag to move",
+			"sortLabel": "Sort tasks",
+			"sortOptions": {
+				"start": "Start date",
+				"end": "Due date",
+				"priority": "Priority",
+				"title": "Title"
+			},
+			"statusFilterLabel": "Filter by status",
+			"allStatuses": "All statuses",
+			"priorityFilterLabel": "Filter by priority",
+			"allPriorities": "All priorities",
+			"noPriority": "No priority",
+			"assigneeFilterLabel": "Filter by assignee",
+			"allAssignees": "All assignees",
+			"unassigned": "Unassigned"
 		},
 		"delete": {
 			"title": "Delete Task?",
