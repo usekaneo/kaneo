@@ -9,6 +9,8 @@ export function isWeekStartDay(value: number): value is WeekStartDay {
 }
 
 type UserPreferencesStore = {
+  calendarMode: "month" | "week";
+  setCalendarMode: (mode: "month" | "week") => void;
   theme: "light" | "dark" | "system";
   setTheme: (
     theme: "light" | "dark" | "system",
@@ -48,6 +50,8 @@ type UserPreferencesStore = {
 export const useUserPreferencesStore = create<UserPreferencesStore>()(
   persist(
     (set) => ({
+      calendarMode: "month",
+      setCalendarMode: (calendarMode) => set({ calendarMode }),
       theme: "dark",
       setTheme: (
         theme: "light" | "dark" | "system",

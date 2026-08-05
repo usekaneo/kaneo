@@ -6977,6 +6977,32 @@
 						"operators"
 					]
 				},
+				"calendar": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": { "type": "string" },
+						"month": { "type": "string" },
+						"week": { "type": "string" },
+						"previous": { "type": "string" },
+						"next": { "type": "string" },
+						"today": { "type": "string" },
+						"empty": { "type": "string" },
+						"updateError": { "type": "string" },
+						"taskAriaLabel": { "type": "string" }
+					},
+					"required": [
+						"pageTitle",
+						"month",
+						"week",
+						"previous",
+						"next",
+						"today",
+						"empty",
+						"updateError",
+						"taskAriaLabel"
+					]
+				},
 				"gantt": {
 					"type": "object",
 					"additionalProperties": false,

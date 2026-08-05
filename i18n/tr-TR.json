@@ -1667,6 +1667,17 @@
 			"searchActions": "İşlem ara...",
 			"noActionsFound": "İşlem bulunamadı.",
 			"changeStatus": "Durumu Değiştir"
+		},
+		"calendar": {
+			"pageTitle": "{{name}} – Calendar",
+			"month": "Month",
+			"week": "Week",
+			"previous": "Previous month",
+			"next": "Next month",
+			"today": "Today",
+			"empty": "No dated tasks yet. Add a start date or due date to see tasks here.",
+			"updateError": "Failed to update task dates",
+			"taskAriaLabel": "{{title}}: drag to reschedule or open task details"
 		}
 	},
 	"invitations": {

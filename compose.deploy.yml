@@ -1,0 +1,38 @@
+# Deployment compose for VPS using an EXTERNAL PostgreSQL.
+# Your existing postgres-benchmark container (postgres:16-alpine at 192.168.30.3:5432)
+# serves as the database — no postgres service is started here.
+#
+# Prerequisites on VPS:
+#   1. Create kaneo database + user in your existing postgres:
+#        docker exec -it postgres-benchmark psql -U postgres -c \
+#          "CREATE USER kaneo WITH PASSWORD 'your_strong_password';"
+#        docker exec -it postgres-benchmark psql -U postgres -c \
+#          "CREATE DATABASE kaneo OWNER kaneo;"
+#   2. Copy .env.deploy.sample to .env.deploy and fill in values.
+#   3. Build and start:
+#        docker compose -f compose.deploy.yml up -d --build
+#
+# Port mapping: host 8082 -> container 5173
+# Access: http://YOUR_VPS_IP:8082
+
+services:
+  kaneo:
+    build:
+      context: .
+      dockerfile: Dockerfile.kaneo
+    image: kaneo:local
+    container_name: kaneo
+    ports:
+      - "8082:5173"
+    env_file:
+      - .env.deploy
+    # Allow container to reach host services (e.g. postgres at 192.168.30.3)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5173/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3

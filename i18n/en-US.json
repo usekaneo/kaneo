@@ -1780,6 +1780,17 @@
 			"resizeDue": "Resize due date",
 			"taskAriaLabel": "{{title}}: open or drag to move"
 		},
+		"calendar": {
+			"pageTitle": "{{name}} – Calendar",
+			"month": "Month",
+			"week": "Week",
+			"previous": "Previous month",
+			"next": "Next month",
+			"today": "Today",
+			"empty": "No dated tasks yet. Add a start date or due date to see tasks here.",
+			"updateError": "Failed to update task dates",
+			"taskAriaLabel": "{{title}}: drag to reschedule or open task details"
+		},
 		"delete": {
 			"title": "Delete Task?",
 			"description": "This will permanently remove the task and all its data. You can't undo this action.",

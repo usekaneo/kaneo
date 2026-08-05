@@ -54,3 +54,9 @@ compose.override.yml
 
 # TanStack Router generated cache
 apps/web/.tanstack/
+
+# JCE context index runtime state
+.opencode-jce/context/
+
+# Deployment env (compose.deploy.yml)
+.env.deploy

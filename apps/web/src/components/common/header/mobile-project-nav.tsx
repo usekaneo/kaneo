@@ -1,4 +1,11 @@
-import { CalendarDays, Check, Menu, Plus, SquareKanban } from "lucide-react";
+import {
+  Calendar,
+  CalendarDays,
+  Check,
+  Menu,
+  Plus,
+  SquareKanban,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -12,10 +19,11 @@ import { cn } from "@/lib/cn";
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
-  activeView: "backlog" | "board" | "gantt";
+  activeView: "backlog" | "board" | "gantt" | "calendar";
   onSelectBoard: () => void;
   onSelectBacklog: () => void;
   onSelectGantt: () => void;
+  onSelectCalendar: () => void;
   onSelectProject: (projectId: string) => void;
   onAddProject: () => void;
 };
@@ -27,6 +35,7 @@ export default function MobileProjectNav({
   onSelectBoard,
   onSelectBacklog,
   onSelectGantt,
+  onSelectCalendar,
   onSelectProject,
   onAddProject,
 }: MobileProjectNavProps) {
@@ -51,7 +60,20 @@ export default function MobileProjectNav({
             <p className="px-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
               View
             </p>
-            <div className="grid grid-cols-3 gap-1">
+            <div className="grid grid-cols-4 gap-1">
+              <button
+                type="button"
+                onClick={onSelectCalendar}
+                className={cn(
+                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                  activeView === "calendar"
+                    ? "border-border bg-secondary text-foreground"
+                    : "border-transparent text-muted-foreground hover:bg-accent",
+                )}
+              >
+                <Calendar className="size-3.5" />
+                Calendar
+              </button>
               <button
                 type="button"
                 onClick={onSelectBacklog}
