@@ -7,7 +7,7 @@ import {
 import { Bell, Code, Settings, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
-import SettingsSidebar from "@/components/settings-sidebar";
+import SettingsSidebar from "@/components/SettingsSidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,9 +60,11 @@ function RouteComponent() {
                 {getInitials(user?.name)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <p className="text-sm">{user?.name}</p>
-              <p className="text-xs text-sidebar-foreground/70">
+            <div className="flex min-w-0 flex-col md:min-w-fit">
+              <p className="truncate text-sm md:overflow-visible md:text-clip md:whitespace-normal">
+                {user?.name}
+              </p>
+              <p className="truncate text-xs text-sidebar-foreground/70 md:overflow-visible md:text-clip md:whitespace-normal">
                 {user?.email}
               </p>
             </div>

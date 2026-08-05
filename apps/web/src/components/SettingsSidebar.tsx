@@ -1,6 +1,11 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
-import type { ReactNode } from "react";
+import {
+  createContext,
+  type ReactElement,
+  type ReactNode,
+  useContext,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,12 +14,31 @@ import {
   SheetPopup,
   SheetTitle,
 } from "@/components/ui/sheet";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
-export default function SettingsSidebar({ children }: { children: ReactNode }) {
+const SettingsWorkspaceIdContext = createContext<string | undefined>(undefined);
+
+export function SettingsSidebarProvider({
+  children,
+  workspaceId,
+}: {
+  children: ReactNode;
+  workspaceId?: string;
+}): ReactElement {
+  return (
+    <SettingsWorkspaceIdContext.Provider value={workspaceId}>
+      {children}
+    </SettingsWorkspaceIdContext.Provider>
+  );
+}
+
+export default function SettingsSidebar({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: workspace } = useActiveWorkspace();
+  const workspaceId = useContext(SettingsWorkspaceIdContext);
 
   return (
     <>
@@ -33,13 +57,16 @@ export default function SettingsSidebar({ children }: { children: ReactNode }) {
           <Button
             variant="ghost"
             size="sm"
+            disabled={!workspaceId}
             className="w-full justify-start text-sm font-normal"
-            onClick={() =>
+            onClick={() => {
+              if (!workspaceId) return;
+
               navigate({
                 to: "/dashboard/workspace/$workspaceId",
-                params: { workspaceId: workspace?.id ?? "" },
-              })
-            }
+                params: { workspaceId },
+              });
+            }}
           >
             <ChevronLeft aria-hidden="true" className="size-4" />
             {t("navigation:page.backToWorkspace")}

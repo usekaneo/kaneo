@@ -5,9 +5,10 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { ChevronLeft, PanelLeftIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
+import { SettingsSidebarProvider } from "@/components/SettingsSidebar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -54,7 +55,7 @@ function SettingsLayout() {
     }
   }, [location.pathname]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isMobile) {
       setSettingsMenuOpen(false);
     }
@@ -65,7 +66,7 @@ function SettingsLayout() {
       <PageTitle title={t("navigation:page.settingsTitle")} />
 
       <div className="flex h-full w-full flex-col bg-sidebar p-2 sm:p-4">
-        <div className="relative flex h-full min-h-0 flex-col gap-4 overflow-hidden rounded-md border border-border bg-card p-3 sm:p-4">
+        <div className="relative flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-md border border-border bg-card p-3 md:gap-4 sm:p-4">
           <div className="shrink-0">
             <div className="flex items-center">
               <SheetTrigger
@@ -93,15 +94,16 @@ function SettingsLayout() {
               <Button
                 variant="ghost"
                 size="sm"
+                disabled={!workspace?.id}
                 className="hidden md:inline-flex"
-                onClick={() =>
+                onClick={() => {
+                  if (!workspace?.id) return;
+
                   navigate({
                     to: "/dashboard/workspace/$workspaceId",
-                    params: {
-                      workspaceId: workspace?.id ?? "",
-                    },
-                  })
-                }
+                    params: { workspaceId: workspace.id },
+                  });
+                }}
               >
                 <ChevronLeft />
 
@@ -113,7 +115,10 @@ function SettingsLayout() {
               {t("navigation:page.settingsTitle")}
             </h1>
 
-            <Tabs value={activeTab} className="w-[400px] pt-2">
+            <Tabs
+              value={activeTab}
+              className="w-full pt-4 md:w-[400px] md:pt-2"
+            >
               <TabsList className="bg-sidebar gap-2">
                 <TabsTrigger
                   value="account"
@@ -154,7 +159,9 @@ function SettingsLayout() {
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <Outlet />
+            <SettingsSidebarProvider workspaceId={workspace?.id}>
+              <Outlet />
+            </SettingsSidebarProvider>
           </div>
         </div>
       </div>
