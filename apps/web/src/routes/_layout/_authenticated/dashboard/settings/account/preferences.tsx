@@ -37,19 +37,7 @@ function getLocaleLabel(locale: AppLocale) {
     const languageDisplayNames = new Intl.DisplayNames([locale], {
       type: "language",
     });
-    const regionDisplayNames = new Intl.DisplayNames([locale], {
-      type: "region",
-    });
-    const languageLabel = languageDisplayNames.of(localeObj.language) ?? locale;
-
-    if (!localeObj.region) {
-      return languageLabel;
-    }
-
-    const regionLabel =
-      regionDisplayNames.of(localeObj.region) ?? localeObj.region;
-
-    return `${languageLabel} (${regionLabel})`;
+    return languageDisplayNames.of(localeObj.language) ?? locale;
   } catch {
     return locale;
   }
