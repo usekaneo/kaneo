@@ -1,3 +1,4 @@
+import { assertPublicDestination } from "../../../utils/assert-public-destination";
 import type { GiteaConfig } from "../config";
 import { normalizeGiteaBaseUrl } from "../config";
 
@@ -68,6 +69,8 @@ export async function giteaFetch<T>(
   const root = normalizeGiteaBaseUrl(baseUrl);
   const url = `${root}/api/v1${path.startsWith("/") ? path : `/${path}`}`;
 
+  await assertPublicDestination(root, "Gitea");
+
   const controller = new AbortController();
   let timedOut = false;
   const timeoutId = setTimeout(() => {
@@ -88,11 +91,18 @@ export async function giteaFetch<T>(
     const res = await fetch(url, {
       ...init,
       signal: controller.signal,
+      // Following redirects would let a public host bounce the request to an
+      // internal address after the destination check has already passed.
+      redirect: "manual",
       headers: {
         ...authHeaders(token),
         ...init?.headers,
       },
     });
+
+    if (res.status >= 300 && res.status < 400) {
+      throw new GiteaApiError("Gitea request was redirected", res.status);
+    }
 
     const text = await res.text();
     clearTimeout(timeoutId);
