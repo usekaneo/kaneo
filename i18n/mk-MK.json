@@ -1418,6 +1418,19 @@
 			"types": {
 				"blocks": "блокира",
 				"related": "е поврзана со"
+			},
+			"subtask": {
+				"makeSubtask": "Направи подзадача на...",
+				"changeParent": "Промени родител...",
+				"pickParent": "Избери родителска задача",
+				"searchPlaceholder": "Барај задачи за родител...",
+				"subtaskCount_one": "{{count}} подзадача",
+				"subtaskCount_other": "{{count}} подзадачи",
+				"linkSuccess": "Задачата е поврзана како подзадача",
+				"linkError": "Неуспешно поврзување на подзадача",
+				"unlink": "Отстрани родител",
+				"unlinkNotSupported": "Отворете ја задачата за да го отстраните родителот",
+				"subtaskBadge": "Подзадача"
 			}
 		},
 		"subtasks": {

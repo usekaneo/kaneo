@@ -1,5 +1,5 @@
-import { X } from "lucide-react";
-import { useMemo } from "react";
+import { CornerDownRight, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
@@ -30,6 +30,7 @@ import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import SubtaskParentPicker from "./subtask-parent-picker";
 
 type TaskCardContext = {
   worskpaceId: string;
@@ -77,6 +78,7 @@ export default function TaskCardContextMenuContent({
   const { canManageTasks, canAssignTasks } = useWorkspacePermission();
   const canEdit = canManageTasks();
   const canAssign = canAssignTasks();
+  const [isParentPickerOpen, setIsParentPickerOpen] = useState(false);
 
   const usersOptions = useMemo(() => {
     return workspaceUsers?.members?.map((member) => ({
@@ -136,6 +138,17 @@ export default function TaskCardContextMenuContent({
       <ContextMenuItem onClick={handleCopyTaskLink}>
         <span>{t("tasks:contextMenu.copyLink")}</span>
       </ContextMenuItem>
+
+      {canEdit ? (
+        <ContextMenuItem onClick={() => setIsParentPickerOpen(true)}>
+          <CornerDownRight className="size-3.5 text-muted-foreground" />
+          <span>
+            {task.parentTaskId
+              ? t("tasks:relations.subtask.changeParent")
+              : t("tasks:relations.subtask.makeSubtask")}
+          </span>
+        </ContextMenuItem>
+      ) : null}
 
       {(canEdit || canAssign) && <ContextMenuSeparator />}
 
@@ -320,6 +333,12 @@ export default function TaskCardContextMenuContent({
           </ContextMenuItem>
         </>
       )}
+
+      <SubtaskParentPicker
+        task={task}
+        open={isParentPickerOpen}
+        onOpenChange={setIsParentPickerOpen}
+      />
     </ContextMenuContent>
   );
 }

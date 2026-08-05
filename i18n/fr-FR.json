@@ -1427,6 +1427,19 @@
 				"blocks": "bloqué",
 				"blocked_by": "bloqué par",
 				"related": "relatif à"
+			},
+			"subtask": {
+				"makeSubtask": "Définir comme sous-tâche de...",
+				"changeParent": "Changer la tâche parente...",
+				"pickParent": "Choisir une tâche parente",
+				"searchPlaceholder": "Rechercher une tâche parente...",
+				"subtaskCount_one": "{{count}} sous-tâche",
+				"subtaskCount_other": "{{count}} sous-tâches",
+				"linkSuccess": "Tâche liée comme sous-tâche",
+				"linkError": "Impossible de lier la sous-tâche",
+				"unlink": "Détacher la tâche parente",
+				"unlinkNotSupported": "Ouvrez la tâche pour détacher son parent",
+				"subtaskBadge": "Sous-tâche"
 			}
 		},
 		"subtasks": {

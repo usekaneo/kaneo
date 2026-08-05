@@ -6,6 +6,7 @@ import {
   gte,
   inArray,
   lte,
+  or,
   type SQL,
   sql,
 } from "drizzle-orm";
@@ -16,6 +17,7 @@ import {
   externalLinkTable,
   labelTable,
   projectTable,
+  taskRelationTable,
   taskTable,
   userTable,
 } from "../../database/schema";
@@ -221,6 +223,52 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     .where(eq(columnTable.projectId, projectId))
     .orderBy(asc(columnTable.position));
 
+  const subtaskRelations =
+    taskIds.length > 0
+      ? await db
+          .select({
+            id: taskRelationTable.id,
+            sourceTaskId: taskRelationTable.sourceTaskId,
+            targetTaskId: taskRelationTable.targetTaskId,
+          })
+          .from(taskRelationTable)
+          .where(
+            and(
+              eq(taskRelationTable.relationType, "subtask"),
+              or(
+                inArray(taskRelationTable.sourceTaskId, taskIds),
+                inArray(taskRelationTable.targetTaskId, taskIds),
+              ),
+            ),
+          )
+      : [];
+
+  // Build per-task subtask list and parentTaskId map.
+  // Convention: `subtask` relations point from the parent to the child
+  // (sourceTaskId = parent, targetTaskId = child). This makes the parent's
+  // subtasks list trivial to build and lets a child find its parent in O(1).
+  const subtaskIdsByParent = new Map<string, string[]>();
+  const parentIdByChild = new Map<string, string>();
+  for (const rel of subtaskRelations) {
+    const list = subtaskIdsByParent.get(rel.sourceTaskId) ?? [];
+    list.push(rel.targetTaskId);
+    subtaskIdsByParent.set(rel.sourceTaskId, list);
+    parentIdByChild.set(rel.targetTaskId, rel.sourceTaskId);
+  }
+
+  const attachSubtaskInfo = <
+    T extends {
+      id: string;
+      status: string;
+    },
+  >(
+    task: T,
+  ): T & { parentTaskId: string | null; subtasks: string[] } => ({
+    ...task,
+    parentTaskId: parentIdByChild.get(task.id) ?? null,
+    subtasks: subtaskIdsByParent.get(task.id) ?? [],
+  });
+
   const columns = projectColumns.map((column) => ({
     id: column.slug,
     slug: column.slug,
@@ -230,7 +278,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     tasks: paginatedTasks
       .filter((task) => task.status === column.slug)
       .map((task) => ({
-        ...task,
+        ...attachSubtaskInfo(task),
         labels: taskLabelsMap.get(task.id) || [],
         externalLinks: taskExternalLinksMap.get(task.id) || [],
       })),
@@ -239,7 +287,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
   const archivedTasks = paginatedTasks
     .filter((task) => task.status === "archived")
     .map((task) => ({
-      ...task,
+      ...attachSubtaskInfo(task),
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
     }));
@@ -247,7 +295,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
   const plannedTasks = paginatedTasks
     .filter((task) => task.status === "planned")
     .map((task) => ({
-      ...task,
+      ...attachSubtaskInfo(task),
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
     }));

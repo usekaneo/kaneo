@@ -1420,6 +1420,19 @@
 			"types": {
 				"blocks": "차단함",
 				"related": "관련됨"
+			},
+			"subtask": {
+				"makeSubtask": "하위 작업으로 만들기...",
+				"changeParent": "상위 작업 변경...",
+				"pickParent": "상위 작업 선택",
+				"searchPlaceholder": "상위 작업을 검색...",
+				"subtaskCount_one": "하위 작업 {{count}}개",
+				"subtaskCount_other": "하위 작업 {{count}}개",
+				"linkSuccess": "하위 작업으로 연결됨",
+				"linkError": "하위 작업 연결 실패",
+				"unlink": "상위 작업 연결 해제",
+				"unlinkNotSupported": "상위 작업을 해제하려면 작업을 여세요",
+				"subtaskBadge": "하위 작업"
 			}
 		},
 		"subtasks": {

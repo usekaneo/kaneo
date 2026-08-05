@@ -6216,6 +6216,58 @@
 								}
 							},
 							"required": ["blocks", "blocked_by", "related"]
+						},
+						"subtask": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"makeSubtask": {
+									"type": "string"
+								},
+								"changeParent": {
+									"type": "string"
+								},
+								"pickParent": {
+									"type": "string"
+								},
+								"searchPlaceholder": {
+									"type": "string"
+								},
+								"subtaskCount_one": {
+									"type": "string"
+								},
+								"subtaskCount_other": {
+									"type": "string"
+								},
+								"subtaskBadge": {
+									"type": "string"
+								},
+								"linkSuccess": {
+									"type": "string"
+								},
+								"linkError": {
+									"type": "string"
+								},
+								"unlink": {
+									"type": "string"
+								},
+								"unlinkNotSupported": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"makeSubtask",
+								"changeParent",
+								"pickParent",
+								"searchPlaceholder",
+								"subtaskCount_one",
+								"subtaskCount_other",
+								"subtaskBadge",
+								"linkSuccess",
+								"linkError",
+								"unlink",
+								"unlinkNotSupported"
+							]
 						}
 					},
 					"required": [
@@ -6230,7 +6282,8 @@
 						"related",
 						"blocks",
 						"selectTask",
-						"types"
+						"types",
+						"subtask"
 					]
 				},
 				"subtasks": {

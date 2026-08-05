@@ -581,6 +581,7 @@ function RouteComponent() {
 
                 <div className="relative z-10 flex flex-col">
                   {scheduledTasks.map((task) => {
+                    const isSubtask = task.parentTaskId !== null;
                     return (
                       <div
                         key={task.id}
@@ -598,6 +599,13 @@ function RouteComponent() {
                             <button
                               type="button"
                               className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left transition-colors hover:bg-muted sm:min-h-0 sm:px-3 sm:py-1.5"
+                              style={{
+                                paddingLeft: isSubtask
+                                  ? isMobile
+                                    ? "1.5rem"
+                                    : "1.75rem"
+                                  : undefined,
+                              }}
                               onClick={() =>
                                 navigate({
                                   to: ".",
@@ -613,6 +621,12 @@ function RouteComponent() {
                                 <span className="truncate text-[10px] text-muted-foreground">
                                   {project?.slug}-{task.number}
                                 </span>
+                                {task.subtasks && task.subtasks.length > 0 ? (
+                                  <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                                    <CornerDownRight className="size-3" />
+                                    {task.subtasks.length}
+                                  </span>
+                                ) : null}
                               </div>
                               <p className="w-full line-clamp-1 text-xs font-medium leading-tight text-foreground">
                                 {task.title}

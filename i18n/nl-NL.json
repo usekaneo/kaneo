@@ -1204,6 +1204,19 @@
 			"types": {
 				"blocks": "blokkeert",
 				"related": "is gerelateerd aan"
+			},
+			"subtask": {
+				"makeSubtask": "Maak tot subtaak van...",
+				"changeParent": "Bovenliggende taak wijzigen...",
+				"pickParent": "Kies een bovenliggende taak",
+				"searchPlaceholder": "Zoek bovenliggende taken...",
+				"subtaskCount_one": "{{count}} subtaak",
+				"subtaskCount_other": "{{count}} subtaken",
+				"linkSuccess": "Taak gekoppeld als subtaak",
+				"linkError": "Kon subtaak niet koppelen",
+				"unlink": "Bovenliggende taak ontkoppelen",
+				"unlinkNotSupported": "Open de taak om de bovenliggende taak te ontkoppelen",
+				"subtaskBadge": "Subtaak"
 			}
 		},
 		"subtasks": {

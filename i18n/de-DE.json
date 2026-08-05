@@ -1460,6 +1460,19 @@
 			"types": {
 				"blocks": "blockiert",
 				"related": "steht in Beziehung zu"
+			},
+			"subtask": {
+				"makeSubtask": "Zu Unteraufgabe machen...",
+				"changeParent": "Übergeordnete Aufgabe ändern...",
+				"pickParent": "Übergeordnete Aufgabe wählen",
+				"searchPlaceholder": "Aufgaben suchen, um überzuordnen...",
+				"subtaskCount_one": "{{count}} Unteraufgabe",
+				"subtaskCount_other": "{{count}} Unteraufgaben",
+				"linkSuccess": "Als Unteraufgabe verknüpft",
+				"linkError": "Unteraufgabe konnte nicht verknüpft werden",
+				"unlink": "Übergeordnete Aufgabe lösen",
+				"unlinkNotSupported": "Aufgabe öffnen, um die übergeordnete Aufgabe zu lösen",
+				"subtaskBadge": "Unteraufgabe"
 			}
 		},
 		"subtasks": {

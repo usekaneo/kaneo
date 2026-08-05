@@ -1625,6 +1625,19 @@
 				"blocks": "阻塞",
 				"blocked_by": "被阻塞",
 				"related": "关联"
+			},
+			"subtask": {
+				"makeSubtask": "设为子任务...",
+				"changeParent": "更改父任务...",
+				"pickParent": "选择父任务",
+				"searchPlaceholder": "搜索任务以设为父任务...",
+				"subtaskCount_one": "{{count}} 个子任务",
+				"subtaskCount_other": "{{count}} 个子任务",
+				"linkSuccess": "已链接为子任务",
+				"linkError": "链接子任务失败",
+				"unlink": "解除父任务",
+				"unlinkNotSupported": "请打开任务以解除父任务",
+				"subtaskBadge": "子任务"
 			}
 		},
 		"subtasks": {

@@ -1564,6 +1564,19 @@
 				"blocks": "memblokir",
 				"blocked_by": "diblokir oleh",
 				"related": "terkait dengan"
+			},
+			"subtask": {
+				"makeSubtask": "Jadikan subtugas dari...",
+				"changeParent": "Ubah tugas induk...",
+				"pickParent": "Pilih tugas induk",
+				"searchPlaceholder": "Cari tugas untuk dijadikan induk...",
+				"subtaskCount_one": "{{count}} subtugas",
+				"subtaskCount_other": "{{count}} subtugas",
+				"linkSuccess": "Tugas tertaut sebagai subtugas",
+				"linkError": "Gagal menautkan subtugas",
+				"unlink": "Lepas induk",
+				"unlinkNotSupported": "Buka tugas untuk melepas induk",
+				"subtaskBadge": "Subtugas"
 			}
 		},
 		"subtasks": {

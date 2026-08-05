@@ -1203,6 +1203,19 @@
 			"types": {
 				"blocks": "bloquea",
 				"related": "relacionada con"
+			},
+			"subtask": {
+				"makeSubtask": "Convertir en subtarea de...",
+				"changeParent": "Cambiar tarea padre...",
+				"pickParent": "Elige una tarea padre",
+				"searchPlaceholder": "Buscar tareas para asignar padre...",
+				"subtaskCount_one": "{{count}} subtarea",
+				"subtaskCount_other": "{{count}} subtareas",
+				"linkSuccess": "Tarea vinculada como subtarea",
+				"linkError": "No se pudo vincular la subtarea",
+				"unlink": "Desvincular tarea padre",
+				"unlinkNotSupported": "Abre la tarea para desvincular su padre",
+				"subtaskBadge": "Subtarea"
 			}
 		},
 		"subtasks": {

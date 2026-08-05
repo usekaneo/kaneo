@@ -1625,6 +1625,19 @@
 				"blocks": "blocks",
 				"blocked_by": "blocked by",
 				"related": "relates to"
+			},
+			"subtask": {
+				"makeSubtask": "Make subtask of...",
+				"changeParent": "Change parent...",
+				"pickParent": "Pick a parent task",
+				"searchPlaceholder": "Search tasks to make a parent...",
+				"subtaskCount_one": "{{count}} subtask",
+				"subtaskCount_other": "{{count}} subtasks",
+				"subtaskBadge": "Subtask",
+				"linkSuccess": "Task linked as subtask",
+				"linkError": "Failed to link subtask",
+				"unlink": "Unlink parent",
+				"unlinkNotSupported": "Open the task to unlink its parent"
 			}
 		},
 		"subtasks": {

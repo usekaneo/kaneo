@@ -35,6 +35,11 @@ type Task = {
   columnId?: string | null;
   labels?: TaskLabel[];
   externalLinks?: TaskExternalLink[];
+  // Parent/subtask bookkeeping. Populated by the backend when a project
+  // task list is fetched so the UI can render parent-child links without a
+  // second round-trip per card. `parentTaskId` is null for top-level tasks.
+  parentTaskId?: string | null;
+  subtasks?: string[];
 };
 
 export default Task;

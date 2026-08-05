@@ -6,6 +6,7 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
+  CornerDownRight,
   GitMerge,
   GitPullRequest,
 } from "lucide-react";
@@ -206,6 +207,16 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
               </div>
             )}
 
+            {task.parentTaskId ? (
+              <div
+                className="mb-1.5 flex items-center gap-1 text-[10px] text-muted-foreground"
+                title={t("tasks:relations.subtask.subtaskBadge")}
+              >
+                <CornerDownRight className="size-3" />
+                <span>{t("tasks:relations.subtask.subtaskBadge")}</span>
+              </div>
+            ) : null}
+
             {showAssignees && (
               <div className="absolute top-3 right-3">
                 {task.userId ? (
@@ -258,6 +269,15 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                   {getPriorityIcon(task.priority ?? "")}
                 </span>
               )}
+
+              {task.subtasks && task.subtasks.length > 0 ? (
+                <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                  <CornerDownRight className="size-3" />
+                  {t("tasks:relations.subtask.subtaskCount", {
+                    count: task.subtasks.length,
+                  })}
+                </span>
+              ) : null}
 
               {showDueDates && task.dueDate && (
                 <div

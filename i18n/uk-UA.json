@@ -1415,6 +1415,19 @@
 			"types": {
 				"blocks": "блокує",
 				"related": "пов'язано з"
+			},
+			"subtask": {
+				"makeSubtask": "Зробити підзадачею...",
+				"changeParent": "Змінити батьківську задачу...",
+				"pickParent": "Виберіть батьківську задачу",
+				"searchPlaceholder": "Шукати батьківську задачу...",
+				"subtaskCount_one": "{{count}} підзадача",
+				"subtaskCount_other": "{{count}} підзадач",
+				"linkSuccess": "Задачу прив'язано як підзадачу",
+				"linkError": "Не вдалося прив'язати підзадачу",
+				"unlink": "Відв'язати батька",
+				"unlinkNotSupported": "Відкрийте задачу, щоб відв'язати батька",
+				"subtaskBadge": "Підзадача"
 			}
 		},
 		"subtasks": {

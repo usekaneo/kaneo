@@ -1426,6 +1426,19 @@
 				"blocks": "engeller",
 				"blocked_by": "engellenen",
 				"related": "ilişkilidir"
+			},
+			"subtask": {
+				"makeSubtask": "Alt görev yap...",
+				"changeParent": "Üst görevi değiştir...",
+				"pickParent": "Üst görev seç",
+				"searchPlaceholder": "Üst görev ara...",
+				"subtaskCount_one": "{{count}} alt görev",
+				"subtaskCount_other": "{{count}} alt görev",
+				"linkSuccess": "Görev alt görev olarak bağlandı",
+				"linkError": "Alt görev bağlanamadı",
+				"unlink": "Üst görevi kaldır",
+				"unlinkNotSupported": "Üst görevi kaldırmak için görevi aç",
+				"subtaskBadge": "Alt görev"
 			}
 		},
 		"subtasks": {

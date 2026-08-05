@@ -6,6 +6,7 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
+  CornerDownRight,
   GitMerge,
   GitPullRequest,
 } from "lucide-react";
@@ -209,6 +210,16 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
               </div>
             )}
 
+            {task.parentTaskId ? (
+              <div
+                className="flex items-center gap-1 text-[10px] text-muted-foreground flex-shrink-0"
+                title={t("tasks:relations.subtask.subtaskBadge")}
+              >
+                <CornerDownRight className="size-3" />
+                <span>{t("tasks:relations.subtask.subtaskBadge")}</span>
+              </div>
+            ) : null}
+
             <div className="flex-1 min-w-0 flex items-center gap-2">
               <div className="flex items-center gap-2 justify-between w-full">
                 <span className="text-sm text-foreground truncate">
@@ -216,6 +227,20 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                 </span>
                 <div className="flex items-center gap-1">
                   {showLabels && <TaskCardLabels taskId={task.id} />}
+
+                  {task.subtasks && task.subtasks.length > 0 ? (
+                    <span
+                      className="inline-flex items-center gap-1 text-[10px] text-muted-foreground px-2 py-1 rounded border border-border/70 bg-muted/55"
+                      title={t("tasks:relations.subtask.subtaskCount", {
+                        count: task.subtasks.length,
+                      })}
+                    >
+                      <CornerDownRight className="size-3" />
+                      {t("tasks:relations.subtask.subtaskCount", {
+                        count: task.subtasks.length,
+                      })}
+                    </span>
+                  ) : null}
 
                   {pullRequests.length === 1 && (
                     <HoverCard openDelay={200} closeDelay={100}>

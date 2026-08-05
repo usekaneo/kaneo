@@ -1418,6 +1418,19 @@
 			"types": {
 				"blocks": "μπλοκάρει",
 				"related": "σχετίζεται με"
+			},
+			"subtask": {
+				"makeSubtask": "Υποκατασκευή σε...",
+				"changeParent": "Αλλαγή γονικής εργασίας...",
+				"pickParent": "Επιλέξτε γονική εργασία",
+				"searchPlaceholder": "Αναζήτηση εργασιών για γονική...",
+				"subtaskCount_one": "{{count}} υποεργασία",
+				"subtaskCount_other": "{{count}} υποεργασίες",
+				"linkSuccess": "Η εργασία συνδέθηκε ως υποεργασία",
+				"linkError": "Αποτυχία σύνδεσης υποεργασίας",
+				"unlink": "Αποσύνδεση γονικής",
+				"unlinkNotSupported": "Ανοίξτε την εργασία για αποσύνδεση γονικής",
+				"subtaskBadge": "Υποεργασία"
 			}
 		},
 		"subtasks": {
