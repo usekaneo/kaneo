@@ -324,7 +324,15 @@ export function assertTaskImageKeyMatchesContext(
   const config = getStorageConfig();
   const objectPrefix = buildObjectKeyPrefix(context);
   const fullPrefix = `${applyKeyPrefix(config.keyPrefix, objectPrefix)}/`;
-  return key.startsWith(fullPrefix);
+
+  if (!key.startsWith(fullPrefix)) {
+    return false;
+  }
+
+  // The prefix alone is not enough: gateways that normalize paths would let
+  // a traversal suffix walk back out into another workspace's objects.
+  const suffix = key.slice(fullPrefix.length);
+  return /^[A-Za-z0-9._-]+$/.test(suffix) && !suffix.startsWith(".");
 }
 
 export async function getPrivateObject(key: string): Promise<AssetObject> {
