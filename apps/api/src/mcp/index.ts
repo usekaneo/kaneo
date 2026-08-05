@@ -28,7 +28,12 @@ const apiUrl = (process.env.KANEO_API_URL || "http://localhost:1337").replace(
   "",
 );
 
-const sessions = new Map<string, WebStandardStreamableHTTPServerTransport>();
+type McpSession = {
+  transport: WebStandardStreamableHTTPServerTransport;
+  userId: string;
+};
+
+const sessions = new Map<string, McpSession>();
 
 function createMcpServerForUser(token: string): McpServer {
   const server = new McpServer({
@@ -274,8 +279,10 @@ mcp.all("/mcp", async (c) => {
 
   if (sessionId) {
     const existing = sessions.get(sessionId);
-    if (existing) {
-      return existing.handleRequest(c.req.raw);
+    // A mismatched owner is reported as missing rather than forbidden so the
+    // response cannot confirm that someone else's session id is valid.
+    if (existing && existing.userId === authResult.userId) {
+      return existing.transport.handleRequest(c.req.raw);
     }
     return c.json({ error: "Session not found" }, 404);
   }
@@ -299,7 +306,10 @@ mcp.all("/mcp", async (c) => {
   const response = await transport.handleRequest(c.req.raw);
 
   if (transport.sessionId) {
-    sessions.set(transport.sessionId, transport);
+    sessions.set(transport.sessionId, {
+      transport,
+      userId: authResult.userId,
+    });
   }
 
   return response;
