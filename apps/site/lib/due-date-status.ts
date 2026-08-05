@@ -4,8 +4,12 @@ export type DueDateStatus =
   | "far-future"
   | "no-due-date";
 
-export function getDueDateStatus(dueDate: string | null): DueDateStatus {
+export function getDueDateStatus(
+  dueDate: string | null,
+  isCompleted = false,
+): DueDateStatus {
   if (!dueDate) return "no-due-date";
+  if (isCompleted) return "far-future";
 
   const now = new Date();
   const due = new Date(dueDate);
