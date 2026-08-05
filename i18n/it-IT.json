@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "ATTIVITÀ",
+				"selectProject": "Seleziona progetto",
 				"title": "Nuova Attività",
 				"description": "Crea una nuova attività fornendo titolo, descrizione e altri dettagli.",
 				"taskTitlePlaceholder": "Titolo attività",

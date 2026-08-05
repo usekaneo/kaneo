@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "TÂCHE",
+				"selectProject": "Sélectionner un projet",
 				"title": "Nouvelle tâche",
 				"description": "Créez une nouvelle tâche en fournissant un titre, une description et d'autres détails.",
 				"taskTitlePlaceholder": "Titre de la tâche",

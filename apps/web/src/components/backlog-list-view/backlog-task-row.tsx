@@ -30,7 +30,7 @@ import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
-import TaskCardLabels from "../kanban-board/task-labels";
+import { TaskLabels } from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 
 type BacklogTaskRowProps = {
@@ -171,7 +171,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
                 </span>
                 {showLabels && (
                   <div className="flex items-center gap-1">
-                    <TaskCardLabels taskId={task.id} />
+                    <TaskLabels labels={task.labels ?? []} />
                   </div>
                 )}
               </div>

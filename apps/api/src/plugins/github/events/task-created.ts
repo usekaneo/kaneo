@@ -1,3 +1,6 @@
+import { eq } from "drizzle-orm";
+import db from "../../../database";
+import { projectTable } from "../../../database/schema";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
 import type { GitHubConfig } from "../config";
 import {
@@ -73,6 +76,26 @@ export async function handleTaskCreated(
         createdFrom: "kaneo",
       },
     });
+
+    if (config.commentTaskLinkOnGitHubIssue !== false) {
+      const project = await db.query.projectTable.findFirst({
+        where: eq(projectTable.id, event.projectId),
+      });
+
+      if (project) {
+        const clientUrl =
+          process.env.KANEO_CLIENT_URL || "http://localhost:5173";
+        const taskUrl = `${clientUrl}/dashboard/workspace/${project.workspaceId}/project/${event.projectId}/task/${event.taskId}`;
+        const taskIdentifier = `${project.slug.toUpperCase()}-${event.number}`;
+
+        await octokit.rest.issues.createComment({
+          owner: repositoryOwner,
+          repo: repositoryName,
+          issue_number: createdIssue.data.number,
+          body: `[${taskIdentifier}](${taskUrl})`,
+        });
+      }
+    }
   } catch (error) {
     console.error("Failed to create GitHub issue:", error);
   }

@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "任务",
+				"selectProject": "选择项目",
 				"title": "新建任务",
 				"description": "通过提供标题、描述等详细信息来创建新任务。",
 				"taskTitlePlaceholder": "任务标题",

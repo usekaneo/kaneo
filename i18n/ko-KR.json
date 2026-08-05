@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "작업",
+				"selectProject": "프로젝트 선택",
 				"title": "새 작업",
 				"description": "제목, 설명 및 기타 세부 정보를 지정하여 새 작업을 만듭니다.",
 				"taskTitlePlaceholder": "작업 제목",

@@ -174,13 +174,23 @@ export function createApp() {
     .map((origin) => origin.trim())
     .filter(Boolean);
 
+  const reflectUnconfiguredOrigins = process.env.NODE_ENV !== "production";
+
+  if (!corsOrigins && !reflectUnconfiguredOrigins) {
+    console.warn(
+      "[cors] Neither CORS_ORIGINS nor KANEO_CLIENT_URL is set, so cross-origin requests are refused. Same-origin deployments (the bundled image) are unaffected; set KANEO_CLIENT_URL if the web app is served from another origin.",
+    );
+  }
+
   app.use(
     "*",
     cors({
       credentials: true,
       origin: (origin) => {
+        // Reflecting an arbitrary origin alongside credentials lets any site
+        // read authenticated responses, so it stays a development convenience.
         if (!corsOrigins) {
-          return origin || "*";
+          return reflectUnconfiguredOrigins ? origin || "*" : null;
         }
 
         if (!origin) {

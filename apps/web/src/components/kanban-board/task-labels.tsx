@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import type Task from "@/types/task";
 
 const labelColors = [
@@ -60,11 +59,3 @@ export function TaskLabels({
     </div>
   );
 }
-
-function TaskCardLabels({ taskId }: { taskId: string }) {
-  const { data: labels = [] } = useGetLabelsByTask(taskId);
-
-  return <TaskLabels labels={labels} />;
-}
-
-export default TaskCardLabels;

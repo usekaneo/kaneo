@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "CÔNG VIỆC",
+				"selectProject": "Chọn dự án",
 				"title": "Công việc mới",
 				"description": "Tạo một công việc mới bằng cách cung cấp tiêu đề, mô tả và các chi tiết khác.",
 				"taskTitlePlaceholder": "Tiêu đề công việc",

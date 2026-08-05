@@ -87,6 +87,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "TAAK",
+				"selectProject": "Project selecteren",
 				"title": "Nieuwe taak",
 				"description": "Maak een nieuwe taak aan door een titel, beschrijving en andere details op te geven.",
 				"taskTitlePlaceholder": "Taaknaam",

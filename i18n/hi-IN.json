@@ -88,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "कार्य",
+				"selectProject": "प्रोजेक्ट चुनें",
 				"title": "नया कार्य",
 				"description": "शीर्षक, विवरण और अन्य विवरण देकर एक नया कार्य बनाएँ।",
 				"taskTitlePlaceholder": "कार्य का शीर्षक",

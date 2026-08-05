@@ -49,7 +49,9 @@ const externalLink = new Hono<{
     const links = await db.query.externalLinkTable.findMany({
       where: eq(externalLinkTable.taskId, taskId),
       with: {
-        integration: true,
+        // Never widen this: integration.config holds plaintext provider
+        // secrets and this route is reachable by any workspace member.
+        integration: { columns: { id: true, type: true } },
       },
     });
 

@@ -1,3 +1,28 @@
+# [2.13.0](https://github.com/usekaneo/kaneo/compare/v2.12.2...v2.13.0) (2026-08-05)
+
+
+### Bug Fixes
+
+* **api:** block SSRF through the Gitea integration endpoints ([26ae20f](https://github.com/usekaneo/kaneo/commit/26ae20fff617f6dc28fe8d6ec26066c05ad4656b))
+* **api:** reject traversal in finalized task image keys ([704daeb](https://github.com/usekaneo/kaneo/commit/704daeb43c1d4299f2320fb11cf2f297ab192aab))
+* **api:** stop reflecting arbitrary origins in production ([99571c9](https://github.com/usekaneo/kaneo/commit/99571c9a4e14abfd0af55137524649897c6270df))
+* **api:** stop returning integration secrets from the external-link route ([3ac5aa9](https://github.com/usekaneo/kaneo/commit/3ac5aa97fd73c930196952eeb0b2fdfd9925ab54))
+* **gitea:** record the external link before publishing task.created ([2d5447a](https://github.com/usekaneo/kaneo/commit/2d5447ab0ccbaf196eae773d310152d155ed2614)), closes [#1393](https://github.com/usekaneo/kaneo/issues/1393)
+* **github:** comment the task link on issues created from Kaneo ([dc31480](https://github.com/usekaneo/kaneo/commit/dc31480a1e22860d9064e9f6dee9bb40b3965efa)), closes [#1406](https://github.com/usekaneo/kaneo/issues/1406)
+* **mcp:** bind streamable sessions to the user that created them ([86ee7fc](https://github.com/usekaneo/kaneo/commit/86ee7fca64b5a54a34710ae2f3162b5099d6aabf))
+* **mcp:** store OAuth state in Postgres so multiple replicas work ([18ad8f5](https://github.com/usekaneo/kaneo/commit/18ad8f533591305cccf001ab1d519d0a3c922af0)), closes [#1484](https://github.com/usekaneo/kaneo/issues/1484)
+* **web:** reject non-http URLs in attachment and issue-link nodes ([700da1b](https://github.com/usekaneo/kaneo/commit/700da1b2cef45da57b3a515df250e12977216b9f))
+* **web:** show language names without region in the locale picker ([5540043](https://github.com/usekaneo/kaneo/commit/554004305d7081c76057e4b9eb14f9f124519e8f))
+
+
+### Features
+
+* **web:** pick a project in the create-task modal when none is in scope ([7d20a3f](https://github.com/usekaneo/kaneo/commit/7d20a3fc5349944c3468e2e7afefebdc51c27d2f)), closes [#1418](https://github.com/usekaneo/kaneo/issues/1418)
+
+
+### Performance Improvements
+
+* **web:** render list and backlog rows from the task payload ([6fc3f44](https://github.com/usekaneo/kaneo/commit/6fc3f44fb8566c6b76109dec06aa9b1df6a99cc1)), closes [#1475](https://github.com/usekaneo/kaneo/issues/1475) [#1422](https://github.com/usekaneo/kaneo/issues/1422)
 ## [2.12.2](https://github.com/usekaneo/kaneo/compare/v2.12.1...v2.12.2) (2026-08-04)
 
 

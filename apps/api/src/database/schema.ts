@@ -974,6 +974,28 @@ export const deviceCodeTable = pgTable(
   ],
 );
 
+export const mcpOauthStateTable = pgTable(
+  "mcp_oauth_state",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    kind: text("kind").notNull(),
+    key: text("key").notNull(),
+    payload: jsonb("payload").notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("mcp_oauth_state_kind_key_uidx").on(table.kind, table.key),
+    index("mcp_oauth_state_expiresAt_idx").on(table.expiresAt),
+  ],
+);
+
 // Auth-schema compatible aliases in schema.ts
 export const user = userTable;
 export const session = sessionTable;
