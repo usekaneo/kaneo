@@ -66,6 +66,7 @@
 						"pages": [
 							"core/installation/index",
 							"core/installation/drim",
+							"core/installation/drim-migration",
 							"core/installation/docker-compose",
 							"core/installation/object-storage-and-image-uploads",
 							"core/installation/storage-backends",
