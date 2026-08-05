@@ -7,6 +7,7 @@ import {
 import { Bell, Code, Settings, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
+import SettingsSidebar from "@/components/settings-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,7 +51,7 @@ function RouteComponent() {
 
   return (
     <div className="flex gap-6 h-full">
-      <aside className="w-64 flex-shrink-0">
+      <SettingsSidebar>
         <div className="p-2">
           <div className="mb-1 flex items-center gap-3 rounded-md px-2 py-2">
             <Avatar className="h-9 w-9">
@@ -119,7 +120,7 @@ function RouteComponent() {
             </SidebarGroupContent>
           </SidebarGroup>
         </div>
-      </aside>
+      </SettingsSidebar>
 
       <div className="flex-1 min-w-0 overflow-y-auto">
         <Outlet />
