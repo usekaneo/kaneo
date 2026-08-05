@@ -1430,7 +1430,9 @@
 				"linkError": "Неуспешно поврзување на подзадача",
 				"unlink": "Отстрани родител",
 				"unlinkNotSupported": "Отворете ја задачата за да го отстраните родителот",
-				"subtaskBadge": "Подзадача"
+				"subtaskBadge": "Подзадача",
+				"waitingOnSubtasks": "Се чекаат подзадачи",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

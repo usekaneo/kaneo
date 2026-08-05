@@ -214,6 +214,14 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
               >
                 <CornerDownRight className="size-3" />
                 <span>{t("tasks:relations.subtask.subtaskBadge")}</span>
+                {task.hasOpenSubtasks ? (
+                  <span
+                    className="ml-1 text-warning-foreground"
+                    title={t("tasks:relations.subtask.waitingOnSubtasks")}
+                  >
+                    {t("tasks:relations.subtask.waitingDot")}
+                  </span>
+                ) : null}
               </div>
             ) : null}
 

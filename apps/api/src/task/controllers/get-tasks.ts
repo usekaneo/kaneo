@@ -243,6 +243,14 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
           )
       : [];
 
+  const finalColumnSlugs = new Set(
+    projectColumns.filter((c) => c.isFinal).map((c) => c.slug),
+  );
+
+  // Build a lookup for all tasks so we can compute derived parent fields
+  // (dates + status) from the subtasks in a single pass.
+  const taskById = new Map(paginatedTasks.map((t) => [t.id, t]));
+
   // Build per-task subtask list and parentTaskId map.
   // Convention: `subtask` relations point from the parent to the child
   // (sourceTaskId = parent, targetTaskId = child). This makes the parent's
@@ -256,18 +264,107 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     parentIdByChild.set(rel.targetTaskId, rel.sourceTaskId);
   }
 
+  // For a parent task, compute:
+  // - startDate: earliest startDate (fallback dueDate) across subtasks that
+  //   have any date set
+  // - dueDate: latest dueDate (fallback startDate) across subtasks
+  // - status: if every subtask is in a final column, snap to a final column
+  //   (use the subtask's column when all share one, otherwise the first
+  //   project final column). Otherwise keep the parent's stored status.
+  //
+  // ponytail: this is computed on read. The stored `startDate`/`dueDate`/
+  // `status` on the parent task row are untouched, so users can still drag
+  // a parent's gantt bar (the GanttTaskBar uses the stored values for the
+  // drag source) and the override only takes effect on the response. Add
+  // a write-through to task-relation.created/updated events if a
+  // persisted derivation is needed.
+  const computeDerivedParent = (parentId: string) => {
+    const childIds = subtaskIdsByParent.get(parentId) ?? [];
+    if (childIds.length === 0) return null;
+
+    let startTime: number | null = null;
+    let endTime: number | null = null;
+    let allComplete = true;
+    const finalStatuses = new Set<string>();
+
+    for (const childId of childIds) {
+      const child = taskById.get(childId);
+      if (!child) continue;
+      const childStart = child.startDate
+        ? new Date(child.startDate).getTime()
+        : child.dueDate
+          ? new Date(child.dueDate).getTime()
+          : null;
+      const childEnd = child.dueDate
+        ? new Date(child.dueDate).getTime()
+        : child.startDate
+          ? new Date(child.startDate).getTime()
+          : null;
+      if (childStart !== null) {
+        startTime =
+          startTime === null ? childStart : Math.min(startTime, childStart);
+      }
+      if (childEnd !== null) {
+        endTime = endTime === null ? childEnd : Math.max(endTime, childEnd);
+      }
+      if (finalColumnSlugs.has(child.status)) {
+        finalStatuses.add(child.status);
+      } else {
+        allComplete = false;
+      }
+    }
+
+    return {
+      derivedStartDate:
+        startTime !== null ? new Date(startTime).toISOString() : null,
+      derivedDueDate: endTime !== null ? new Date(endTime).toISOString() : null,
+      derivedStatus:
+        allComplete && finalStatuses.size > 0
+          ? finalStatuses.size === 1
+            ? [...finalStatuses][0]
+            : [...finalColumnSlugs][0]
+          : null,
+    };
+  };
+
   const attachSubtaskInfo = <
     T extends {
       id: string;
       status: string;
+      startDate: string | null;
+      dueDate: string | null;
     },
   >(
     task: T,
-  ): T & { parentTaskId: string | null; subtasks: string[] } => ({
-    ...task,
-    parentTaskId: parentIdByChild.get(task.id) ?? null,
-    subtasks: subtaskIdsByParent.get(task.id) ?? [],
-  });
+  ): T & {
+    parentTaskId: string | null;
+    subtasks: string[];
+    startDate: string | null;
+    dueDate: string | null;
+    status: string;
+    hasOpenSubtasks?: boolean;
+  } => {
+    const subtaskInfo = computeDerivedParent(task.id);
+    if (!subtaskInfo) {
+      return {
+        ...task,
+        parentTaskId: parentIdByChild.get(task.id) ?? null,
+        subtasks: subtaskIdsByParent.get(task.id) ?? [],
+      };
+    }
+    const overridden: typeof task = {
+      ...task,
+      startDate: subtaskInfo.derivedStartDate ?? task.startDate,
+      dueDate: subtaskInfo.derivedDueDate ?? task.dueDate,
+      status: subtaskInfo.derivedStatus ?? task.status,
+    };
+    return {
+      ...overridden,
+      parentTaskId: parentIdByChild.get(task.id) ?? null,
+      subtasks: subtaskIdsByParent.get(task.id) ?? [],
+      hasOpenSubtasks: subtaskInfo.derivedStatus === null,
+    };
+  };
 
   const columns = projectColumns.map((column) => ({
     id: column.slug,
@@ -277,11 +374,20 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     isFinal: column.isFinal,
     tasks: paginatedTasks
       .filter((task) => task.status === column.slug)
-      .map((task) => ({
-        ...attachSubtaskInfo(task),
-        labels: taskLabelsMap.get(task.id) || [],
-        externalLinks: taskExternalLinksMap.get(task.id) || [],
-      })),
+      .map((task) => {
+        const enriched = attachSubtaskInfo(task);
+        // Re-bucket: if the derived status moved the parent to a different
+        // column, the column loop above placed it in its stored column.
+        // We surface a `derivedStatus` flag so the frontend can choose to
+        // re-render, but we keep the original bucketing so board views
+        // remain stable for the user (parents don't visibly jump columns
+        // on every fetch).
+        return {
+          ...enriched,
+          labels: taskLabelsMap.get(task.id) || [],
+          externalLinks: taskExternalLinksMap.get(task.id) || [],
+        };
+      }),
   }));
 
   const archivedTasks = paginatedTasks

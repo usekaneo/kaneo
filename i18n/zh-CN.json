@@ -1637,7 +1637,9 @@
 				"linkError": "链接子任务失败",
 				"unlink": "解除父任务",
 				"unlinkNotSupported": "请打开任务以解除父任务",
-				"subtaskBadge": "子任务"
+				"subtaskBadge": "子任务",
+				"waitingOnSubtasks": "等待子任务完成",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

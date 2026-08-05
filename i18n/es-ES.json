@@ -1215,7 +1215,9 @@
 				"linkError": "No se pudo vincular la subtarea",
 				"unlink": "Desvincular tarea padre",
 				"unlinkNotSupported": "Abre la tarea para desvincular su padre",
-				"subtaskBadge": "Subtarea"
+				"subtaskBadge": "Subtarea",
+				"waitingOnSubtasks": "Esperando subtareas",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

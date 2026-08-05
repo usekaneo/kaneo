@@ -1430,7 +1430,9 @@
 				"linkError": "Αποτυχία σύνδεσης υποεργασίας",
 				"unlink": "Αποσύνδεση γονικής",
 				"unlinkNotSupported": "Ανοίξτε την εργασία για αποσύνδεση γονικής",
-				"subtaskBadge": "Υποεργασία"
+				"subtaskBadge": "Υποεργασία",
+				"waitingOnSubtasks": "Αναμονή υποεργασιών",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

@@ -1576,7 +1576,9 @@
 				"linkError": "Gagal menautkan subtugas",
 				"unlink": "Lepas induk",
 				"unlinkNotSupported": "Buka tugas untuk melepas induk",
-				"subtaskBadge": "Subtugas"
+				"subtaskBadge": "Subtugas",
+				"waitingOnSubtasks": "Menunggu subtugas",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

@@ -1427,7 +1427,9 @@
 				"linkError": "Не вдалося прив'язати підзадачу",
 				"unlink": "Відв'язати батька",
 				"unlinkNotSupported": "Відкрийте задачу, щоб відв'язати батька",
-				"subtaskBadge": "Підзадача"
+				"subtaskBadge": "Підзадача",
+				"waitingOnSubtasks": "Очікування підзадач",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

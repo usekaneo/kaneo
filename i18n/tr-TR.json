@@ -1438,7 +1438,9 @@
 				"linkError": "Alt görev bağlanamadı",
 				"unlink": "Üst görevi kaldır",
 				"unlinkNotSupported": "Üst görevi kaldırmak için görevi aç",
-				"subtaskBadge": "Alt görev"
+				"subtaskBadge": "Alt görev",
+				"waitingOnSubtasks": "Alt görevler bekleniyor",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

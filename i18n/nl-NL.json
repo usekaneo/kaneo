@@ -1216,7 +1216,9 @@
 				"linkError": "Kon subtaak niet koppelen",
 				"unlink": "Bovenliggende taak ontkoppelen",
 				"unlinkNotSupported": "Open de taak om de bovenliggende taak te ontkoppelen",
-				"subtaskBadge": "Subtaak"
+				"subtaskBadge": "Subtaak",
+				"waitingOnSubtasks": "Wachten op subtaken",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

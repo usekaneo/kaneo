@@ -1439,7 +1439,9 @@
 				"linkError": "Impossible de lier la sous-tâche",
 				"unlink": "Détacher la tâche parente",
 				"unlinkNotSupported": "Ouvrez la tâche pour détacher son parent",
-				"subtaskBadge": "Sous-tâche"
+				"subtaskBadge": "Sous-tâche",
+				"waitingOnSubtasks": "En attente des sous-tâches",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

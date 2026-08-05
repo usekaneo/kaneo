@@ -40,6 +40,9 @@ type Task = {
   // second round-trip per card. `parentTaskId` is null for top-level tasks.
   parentTaskId?: string | null;
   subtasks?: string[];
+  // True when the parent has at least one subtask not in a final column.
+  // Lets the UI surface a "waiting on subtasks" hint without re-deriving.
+  hasOpenSubtasks?: boolean;
 };
 
 export default Task;

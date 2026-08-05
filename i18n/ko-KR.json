@@ -1432,7 +1432,9 @@
 				"linkError": "하위 작업 연결 실패",
 				"unlink": "상위 작업 연결 해제",
 				"unlinkNotSupported": "상위 작업을 해제하려면 작업을 여세요",
-				"subtaskBadge": "하위 작업"
+				"subtaskBadge": "하위 작업",
+				"waitingOnSubtasks": "하위 작업 대기 중",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

@@ -1433,7 +1433,9 @@
 				"linkError": "Не удалось привязать подзадачу",
 				"unlink": "Отвязать родителя",
 				"unlinkNotSupported": "Откройте задачу, чтобы отвязать родителя",
-				"subtaskBadge": "Подзадача"
+				"subtaskBadge": "Подзадача",
+				"waitingOnSubtasks": "Ожидание подзадач",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

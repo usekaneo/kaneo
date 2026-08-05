@@ -6242,6 +6242,12 @@
 								"subtaskBadge": {
 									"type": "string"
 								},
+								"waitingOnSubtasks": {
+									"type": "string"
+								},
+								"waitingDot": {
+									"type": "string"
+								},
 								"linkSuccess": {
 									"type": "string"
 								},
@@ -6263,6 +6269,8 @@
 								"subtaskCount_one",
 								"subtaskCount_other",
 								"subtaskBadge",
+								"waitingOnSubtasks",
+								"waitingDot",
 								"linkSuccess",
 								"linkError",
 								"unlink",

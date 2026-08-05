@@ -1637,7 +1637,9 @@
 				"linkSuccess": "Task linked as subtask",
 				"linkError": "Failed to link subtask",
 				"unlink": "Unlink parent",
-				"unlinkNotSupported": "Open the task to unlink its parent"
+				"unlinkNotSupported": "Open the task to unlink its parent",
+				"waitingOnSubtasks": "Waiting on subtasks",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {

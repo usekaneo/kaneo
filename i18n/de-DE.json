@@ -1472,7 +1472,9 @@
 				"linkError": "Unteraufgabe konnte nicht verknüpft werden",
 				"unlink": "Übergeordnete Aufgabe lösen",
 				"unlinkNotSupported": "Aufgabe öffnen, um die übergeordnete Aufgabe zu lösen",
-				"subtaskBadge": "Unteraufgabe"
+				"subtaskBadge": "Unteraufgabe",
+				"waitingOnSubtasks": "Wartet auf Unteraufgaben",
+				"waitingDot": "·"
 			}
 		},
 		"subtasks": {
