@@ -80,7 +80,7 @@ jobs:
       actions: write
     steps:
       - name: Trigger Helm chart publish
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           VERSION: ${{ inputs.version }}
         with:
