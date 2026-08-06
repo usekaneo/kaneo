@@ -6,7 +6,6 @@ CREATE TABLE "custom_field_definition" (
 	"required" boolean DEFAULT false NOT NULL,
 	"default_value" text,
 	"options" jsonb,
-	"position" integer DEFAULT 0 NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

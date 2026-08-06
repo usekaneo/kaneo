@@ -1110,7 +1110,6 @@ export const customFieldDefinitionTable = pgTable(
     required: boolean("required").default(false).notNull(),
     defaultValue: text("default_value"),
     options: jsonb("options"),
-    position: integer("position").default(0).notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()
