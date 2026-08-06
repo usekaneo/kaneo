@@ -78,7 +78,7 @@
 		"immer": "^11.1.15",
 		"input-otp": "^1.4.2",
 		"lowlight": "^3.3.0",
-		"lucide-react": "^0.577.0",
+		"lucide-react": "^1.28.0",
 		"marked": "^17.0.4",
 		"nanostores": "^1.4.2",
 		"radix-ui": "^1.6.7",
