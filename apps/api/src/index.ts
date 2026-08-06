@@ -24,6 +24,7 @@ import billing from "./billing";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
+import customField from "./custom-field";
 import db, { getDatabase, schema } from "./database";
 import { prepareDatabaseStartup } from "./database/prepare-database-startup";
 import { waitForDatabase } from "./database/wait-for-database";
@@ -55,8 +56,10 @@ import task from "./task";
 import taskRelation from "./task-relation";
 import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
-import { authenticateApiRequest } from "./utils/authenticate-api-request";
-import { authorizeAssetAccess } from "./utils/authorize-asset-access";
+import {
+  authenticateApiRequest,
+  resolveAssetBearerOrCookie,
+} from "./utils/authenticate-api-request";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateNotificationPreferencesSchema } from "./utils/migrate-notification-preferences-schema";
@@ -320,7 +323,13 @@ export function createApp() {
         throw new HTTPException(404, { message: "Asset not found" });
       }
 
-      await authorizeAssetAccess(c, asset);
+      const { userId, apiKeyId } = await resolveAssetBearerOrCookie(c);
+
+      if (userId) {
+        await validateWorkspaceAccess(userId, asset.workspaceId, apiKeyId);
+      } else if (!asset.isPublic) {
+        throw new HTTPException(401, { message: "Unauthorized" });
+      }
 
       try {
         const object = await getPrivateObject(asset.objectKey);
@@ -589,6 +598,7 @@ export function createApp() {
   const workflowRuleApi = api.route("/workflow-rule", workflowRule);
   const invitationApi = api.route("/invitation", invitation);
   const workspaceApi = api.route("/workspace", workspace);
+  const customFieldApi = api.route("/custom-field", customField);
 
   app.route(
     "/",
@@ -753,6 +763,7 @@ export function createApp() {
     timeEntryApi,
     workflowRuleApi,
     workspaceApi,
+    customFieldApi,
     oauthApi,
   };
 }
@@ -870,6 +881,7 @@ const {
   timeEntryApi,
   workflowRuleApi,
   workspaceApi,
+  customFieldApi,
   oauthApi,
 } = createdApp;
 
@@ -907,6 +919,7 @@ export type AppType =
   | typeof workflowRuleApi
   | typeof invitationApi
   | typeof workspaceApi
+  | typeof customFieldApi
   | typeof publicProjectApi
   | typeof invitationPublicApi
   | typeof oauthApi;

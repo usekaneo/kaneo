@@ -1,18 +1,11 @@
 import { DEFAULT_ROLE_NAMES } from "@kaneo/permissions";
-import {
-  CopyIcon,
-  EllipsisIcon,
-  MailIcon,
-  ShieldIcon,
-  TrashIcon,
-} from "lucide-react";
+import { EllipsisIcon, MailIcon, ShieldIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-invitation";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
 import useUpdateWorkspaceUserRole from "@/hooks/mutations/workspace-user/use-update-workspace-user-role";
 import useWorkspaceRoles from "@/hooks/queries/workspace/use-workspace-roles";
-import { useCopyInvitationLink } from "@/hooks/use-copy-invitation-link";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
@@ -104,7 +97,6 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
   const { mutateAsync: cancelInvitation, isPending: isCancelling } =
     useCancelInvitation();
   const { mutateAsync: updateMemberRole } = useUpdateWorkspaceUserRole();
-  const { copy: copyInvitationLink } = useCopyInvitationLink();
   const { data: allWorkspaceRoles = [] } = useWorkspaceRoles(workspaceId);
   const { canManageTeam, canRemoveMembers, canInviteUsers } =
     useWorkspacePermission();
@@ -365,36 +357,15 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
               </TableCell>
               <TableCell className="pe-6 py-3 text-right">
                 {canInvite ? (
-                  <Menu>
-                    <MenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground"
-                          aria-label={t(
-                            "team:membersTable.ariaInvitationActions",
-                          )}
-                        />
-                      }
-                    >
-                      <EllipsisIcon className="size-4" />
-                    </MenuTrigger>
-                    <MenuPopup align="end">
-                      <MenuItem
-                        onClick={() => copyInvitationLink(invitation.id)}
-                      >
-                        <CopyIcon className="size-4" />
-                        {t("team:invitations.copyLink")}
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => setInvitationToCancel(invitation)}
-                      >
-                        <TrashIcon className="size-4" />
-                        {t("team:membersTable.cancelInvitation")}
-                      </MenuItem>
-                    </MenuPopup>
-                  </Menu>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setInvitationToCancel(invitation)}
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    aria-label={t("team:membersTable.ariaCancelInvitation")}
+                  >
+                    <TrashIcon className="size-4" />
+                  </Button>
                 ) : null}
               </TableCell>
             </TableRow>

@@ -7,10 +7,13 @@ import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
+import type { CustomFieldDefinition } from "@/components/project/custom-field-editor";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Input } from "@/components/ui/input";
 import { shortcuts } from "@/constants/shortcuts";
+import useGetCustomFieldFilterValues from "@/hooks/queries/custom-field/use-get-custom-field-filter-values";
+import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -93,6 +96,31 @@ function RouteComponent() {
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
 
+  // Données brutes du hook (options: JSONValue)
+  const { data: rawCustomFields = [] } = useGetCustomFieldsByProject(projectId);
+
+  // Valeurs réellement utilisées dans les tasks, récupérées depuis l'API
+  const { data: filterValuesData = [] } =
+    useGetCustomFieldFilterValues(projectId);
+
+  // Normalisation JSONValue → CustomFieldDefinition (options: string[] | null)
+  const customFieldDefinitions = useMemo<CustomFieldDefinition[]>(
+    () =>
+      rawCustomFields.map((f) => ({
+        ...f,
+        type: f.type as CustomFieldDefinition["type"],
+        options: Array.isArray(f.options) ? (f.options as string[]) : null,
+      })),
+    [rawCustomFields],
+  );
+
+  // Construit un Record<fieldId, string[]> depuis la réponse API
+  const usedCustomFieldValues = useMemo<Record<string, string[]>>(() => {
+    return Object.fromEntries(
+      filterValuesData.map((f) => [f.fieldId, f.values]),
+    );
+  }, [filterValuesData]);
+
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
@@ -140,13 +168,10 @@ function RouteComponent() {
     const onKeyDown = (event: KeyboardEvent) => {
       const isFindShortcut =
         (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "f";
-
       if (!isFindShortcut) return;
-
       event.preventDefault();
       openBoardSearch();
     };
-
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [openBoardSearch]);
@@ -160,6 +185,7 @@ function RouteComponent() {
     filters,
     updateFilter,
     updateLabelFilter,
+    updateCustomFieldFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,
@@ -222,6 +248,7 @@ function RouteComponent() {
           filters={filters}
           updateFilter={updateFilter}
           updateLabelFilter={updateLabelFilter}
+          updateCustomFieldFilter={updateCustomFieldFilter}
           clearFilters={clearFilters}
           hasActiveFilters={hasActiveFilters}
           users={users}
@@ -230,6 +257,8 @@ function RouteComponent() {
           setViewMode={setViewMode}
           sort={sort}
           onSortChange={setSort}
+          customFieldDefinitions={customFieldDefinitions}
+          usedCustomFieldValues={usedCustomFieldValues}
         />
 
         <div className="flex h-full flex-1 overflow-hidden bg-background">

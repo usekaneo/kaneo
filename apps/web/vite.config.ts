@@ -11,11 +11,7 @@ export default defineConfig({
   },
   base: "/",
   plugins: [
-    tanstackRouter({
-      autoCodeSplitting: true,
-      // Keep co-located route tests out of the generated route tree.
-      routeFileIgnorePattern: "\\.test\\.tsx?$",
-    }),
+    tanstackRouter({ autoCodeSplitting: true }),
     tailwindcss(),
     react({
       babel: {

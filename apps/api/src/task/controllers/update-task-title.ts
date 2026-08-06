@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { activityTable, taskTable } from "../../database/schema";
+import { taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 
 async function updateTaskTitle({
@@ -23,34 +23,17 @@ async function updateTaskTitle({
     });
   }
 
-  if (existingTask.title === title) return existingTask;
+  const [updatedTask] = await db
+    .update(taskTable)
+    .set({ title })
+    .where(eq(taskTable.id, id))
+    .returning();
 
-  // Audit history is not best-effort. Commit the title and its immutable
-  // history row atomically; event subscribers remain notifications/integrations
-  // only and cannot make the audit trail disappear.
-  const updatedTask = await db.transaction(async (tx) => {
-    const [task] = await tx
-      .update(taskTable)
-      .set({ title })
-      .where(eq(taskTable.id, id))
-      .returning();
-
-    if (!task) {
-      throw new HTTPException(500, {
-        message: "Failed to update task title",
-      });
-    }
-
-    await tx.insert(activityTable).values({
-      taskId: task.id,
-      type: "title_changed",
-      userId: currentUserId,
-      content: null,
-      eventData: { oldTitle: existingTask.title, newTitle: title },
+  if (!updatedTask) {
+    throw new HTTPException(500, {
+      message: "Failed to update task title",
     });
-
-    return task;
-  });
+  }
 
   await publishEvent("task.title_changed", {
     taskId: updatedTask.id,

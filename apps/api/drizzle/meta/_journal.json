@@ -260,6 +260,13 @@
 			"when": 1785921085773,
 			"tag": "0036_strong_pandemic",
 			"breakpoints": true
+		},
+		{
+			"idx": 36,
+			"version": "7",
+			"when": 1785688996461,
+			"tag": "0036_glorious_pestilence",
+			"breakpoints": true
 		}
 	]
 }

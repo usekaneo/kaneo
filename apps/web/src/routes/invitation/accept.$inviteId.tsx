@@ -10,7 +10,6 @@ import {
   Clock,
   Loader2,
   LogIn,
-  UserPlus,
   Users,
   XCircle,
 } from "lucide-react";
@@ -89,17 +88,6 @@ function AcceptInvitation() {
     const email = invitationData?.invitation?.email;
     navigate({
       to: "/auth/sign-in",
-      search: { invitationId: inviteId, email },
-    });
-  };
-
-  // Invitees without an account need the sign-up page: sign-in cannot create
-  // one. Both flows forward the invitation id, which is what allows account
-  // creation on instances running with DISABLE_REGISTRATION=true.
-  const handleCreateAccount = () => {
-    const email = invitationData?.invitation?.email;
-    navigate({
-      to: "/auth/sign-up",
       search: { invitationId: inviteId, email },
     });
   };
@@ -298,17 +286,12 @@ function AcceptInvitation() {
               />
             </p>
             <p className="text-sm text-muted-foreground">
-              {t("auth:invitation.createAccountOrSignIn")}
+              {t("auth:invitation.signInToAccept")}
             </p>
           </div>
 
           <div className="space-y-3 pt-2">
-            <Button onClick={handleCreateAccount} className="w-full">
-              <UserPlus className="w-4 h-4 mr-2" />
-              {t("auth:invitation.createAccount")}
-            </Button>
-
-            <Button onClick={handleSignIn} variant="outline" className="w-full">
+            <Button onClick={handleSignIn} className="w-full">
               <LogIn className="w-4 h-4 mr-2" />
               {t("auth:invitation.signIn")}
             </Button>

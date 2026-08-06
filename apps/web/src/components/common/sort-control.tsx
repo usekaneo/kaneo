@@ -32,6 +32,7 @@ function CheckSlot({ checked }: { checked: boolean }) {
 
 export default function SortControl({ sort, onSortChange }: SortControlProps) {
   const { t } = useTranslation();
+
   const sortFields: { field: SortField; label: string }[] = [
     { field: "position", label: t("tasks:sort.fields.position") },
     { field: "createdAt", label: t("tasks:sort.fields.createdAt") },
@@ -40,6 +41,7 @@ export default function SortControl({ sort, onSortChange }: SortControlProps) {
     { field: "title", label: t("tasks:sort.fields.title") },
     { field: "number", label: t("tasks:sort.fields.number") },
   ];
+
   const isActive = sort.field !== "position";
   const activeLabel = sortFields.find((f) => f.field === sort.field)?.label;
 

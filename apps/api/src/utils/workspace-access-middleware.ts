@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
@@ -18,12 +18,8 @@ type WorkspaceIdSource =
         | "activity"
         | "comment"
         | "column"
-        | "workflowRule";
-      idKey: string;
-    }
-  | {
-      type: "lookupMany";
-      resource: "task";
+        | "workflowRule"
+        | "customField";
       idKey: string;
     };
 
@@ -66,43 +62,10 @@ export function workspaceAccessMiddleware(
         const body = await readJsonObjectBody(c);
         const bodyId = body[source.idKey];
         const idFromBody = typeof bodyId === "string" ? bodyId : null;
-        // Only accept the id from the same place the handler will read it
-        // (path param or JSON body). Accepting it from the query string let a
-        // caller authorize against one resource (`?taskId=<mine>`) while the
-        // handler acted on another (`{"taskId": "<someone else's>"}`).
-        const id = c.req.param(source.idKey) || idFromBody;
+        const id =
+          c.req.param(source.idKey) || c.req.query(source.idKey) || idFromBody;
         if (id) {
           workspaceId = await lookupWorkspaceId(source.resource, id);
-        }
-      } else if (source.type === "lookupMany") {
-        const body = await readJsonObjectBody(c);
-        const ids = body[source.idKey];
-        if (Array.isArray(ids)) {
-          const taskIds = ids.filter(
-            (id): id is string => typeof id === "string",
-          );
-          if (taskIds.length > 0) {
-            const tasks = await db
-              .select({ workspaceId: schema.projectTable.workspaceId })
-              .from(schema.taskTable)
-              .innerJoin(
-                schema.projectTable,
-                eq(schema.taskTable.projectId, schema.projectTable.id),
-              )
-              .where(inArray(schema.taskTable.id, taskIds));
-            const workspaceIds = [
-              ...new Set(tasks.map((task) => task.workspaceId)),
-            ];
-            if (workspaceIds.length === 0) {
-              throw new HTTPException(404, { message: "No tasks found" });
-            }
-            if (workspaceIds.length > 1) {
-              throw new HTTPException(400, {
-                message: "All tasks must belong to the same workspace",
-              });
-            }
-            workspaceId = workspaceIds[0] ?? null;
-          }
         }
       }
 
@@ -137,7 +100,8 @@ async function lookupWorkspaceId(
     | "activity"
     | "comment"
     | "column"
-    | "workflowRule",
+    | "workflowRule"
+    | "customField",
   id: string,
 ): Promise<string | null> {
   try {
@@ -267,6 +231,24 @@ async function lookupWorkspaceId(
         return workflowRule?.workspaceId || null;
       }
 
+      case "customField": {
+        const [field] = await db
+          .select({
+            workspaceId: schema.projectTable.workspaceId,
+          })
+          .from(schema.customFieldDefinitionTable)
+          .innerJoin(
+            schema.projectTable,
+            eq(
+              schema.customFieldDefinitionTable.projectId,
+              schema.projectTable.id,
+            ),
+          )
+          .where(eq(schema.customFieldDefinitionTable.id, id))
+          .limit(1);
+        return field?.workspaceId || null;
+      }
+
       default:
         return null;
     }
@@ -305,11 +287,6 @@ export const workspaceAccess = {
         { type: "lookup", resource: "task", idKey },
         { type: "query", key: "workspaceId" },
       ],
-    }),
-
-  fromTasks: (idKey = "taskIds") =>
-    workspaceAccessMiddleware({
-      sources: [{ type: "lookupMany", resource: "task", idKey }],
     }),
 
   fromLabel: (idKey = "id") =>
@@ -356,6 +333,22 @@ export const workspaceAccess = {
     workspaceAccessMiddleware({
       sources: [
         { type: "lookup", resource: "workflowRule", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
+    }),
+
+  fromCustomField: (idKey = "id") =>
+    workspaceAccessMiddleware({
+      sources: [
+        { type: "lookup", resource: "customField", idKey },
+        { type: "query", key: "workspaceId" },
+      ],
+    }),
+
+  fromProjectId: (idKey = "projectId") =>
+    workspaceAccessMiddleware({
+      sources: [
+        { type: "lookup", resource: "project", idKey },
         { type: "query", key: "workspaceId" },
       ],
     }),

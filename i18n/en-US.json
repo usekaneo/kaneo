@@ -43,9 +43,7 @@
 			"french": "French",
 			"spanish": "Spanish",
 			"dutch": "Dutch",
-			"korean": "Korean",
-			"chinese": "Chinese",
-			"italian": "Italian"
+			"korean": "Korean"
 		},
 		"people": {
 			"someone": "Someone",
@@ -89,6 +87,7 @@
 			"createTask": {
 				"breadcrumbTask": "TASK",
 				"selectProject": "Select project",
+				"selectOptionPlaceholder": "Select an option",
 				"title": "New Task",
 				"description": "Create a new task by providing a title, description, and other details.",
 				"taskTitlePlaceholder": "Task title",
@@ -251,8 +250,7 @@
 			"joinWorkspace": "Join {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace on Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
+			"signInToAccept": "Sign in to accept this invitation.",
 			"accepting": "Accepting...",
 			"acceptInvitation": "Accept Invitation",
 			"goToDashboard": "Go to Dashboard",
@@ -763,7 +761,9 @@
 			"toastDeleteError": "Failed to delete project",
 			"validation": {
 				"nameRequired": "Project name is required",
+				"nameShort": "Project name must be at least 2 characters",
 				"keyRequired": "Key is required",
+				"keyShort": "Key must be at least 2 characters",
 				"keyMax": "Key must be at most 8 characters",
 				"iconRequired": "Icon is required"
 			},
@@ -836,6 +836,34 @@
 			"off": "Off",
 			"newColumnPlaceholder": "New column name...",
 			"add": "Add"
+		},
+		"customFields": {
+			"heading": "Custom fields",
+			"hint": "Create additional task fields for this project workflow.",
+			"namePlaceholder": "Field name",
+			"typePlaceholder": "Select field type",
+			"noOptionsPlaceholder": "No options",
+			"defaultValuePlaceholder": "Default value",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"addButton": "Add",
+			"creating": "Creating...",
+			"loading": "Loading custom fields...",
+			"empty": "No custom fields configured yet.",
+			"defaultLabel": "Default",
+			"createSuccess": "Custom field created.",
+			"createError": "Failed to create custom field.",
+			"deleteButton": "Delete",
+			"deleting": "Deleting...",
+			"deleteSuccess": "Custom field deleted.",
+			"deleteError": "Failed to delete custom field.",
+			"types": {
+				"text": "Text",
+				"number": "Number",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"boolean": "Boolean"
+			}
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1503,10 +1531,13 @@
 			"selectTask": "Select task",
 			"loadingTask": "Loading task...",
 			"taskNotFound": "Task not found",
-			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted."
+			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Subtask of",
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option",
 			"activity": "Activity",
 			"noActivity": "No activity found",
 			"openInFullPage": "Open in full page",
@@ -1752,7 +1783,11 @@
 			"allAssignees": "All assignees",
 			"allDueDates": "All due dates",
 			"allLabels": "All labels",
+			"noValuesUsedYet": "No values used yet",
+			"noCustomFieldValues": "No custom field values",
+			"allCustomFieldValues": "All values",
 			"selectedCount": "{{count}} selected",
+			"all": "All",
 			"subjects": {
 				"status": "Status",
 				"priority": "Priority",
@@ -1966,11 +2001,7 @@
 		},
 		"invitations": {
 			"pendingBadge": "pending",
-			"expires": "Expires {{date}}",
-			"linkLabel": "Invitation link",
-			"copyLink": "Copy link",
-			"linkCopied": "Invitation link copied",
-			"copyFailed": "Couldn't copy automatically. Select the link and press Ctrl+C."
+			"expires": "Expires {{date}}"
 		},
 		"inviteModal": {
 			"title": "Invite Team Member",
@@ -1978,10 +2009,7 @@
 			"emailPlaceholder": "colleague@company.com",
 			"sendInvitation": "Send Invitation",
 			"success": "Invitation sent successfully",
-			"error": "Failed to invite team member",
-			"createdTitle": "Invitation created",
-			"shareLinkDescription": "Share this link with {{email}} so they can join the workspace.",
-			"done": "Done"
+			"error": "Failed to invite team member"
 		},
 		"membersTable": {
 			"emptyTitle": "No team members yet",
@@ -1994,7 +2022,6 @@
 			},
 			"memberRolePending": "{{role}} (Pending)",
 			"ariaCancelInvitation": "Cancel invitation",
-			"ariaInvitationActions": "Invitation actions",
 			"ariaRemoveMember": "Remove member",
 			"removeDialogTitle": "Remove Team Member?",
 			"removeDialogDescription": "Are you sure you want to remove {{name}} from the workspace? This action cannot be undone.",

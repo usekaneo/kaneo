@@ -23,7 +23,3 @@ export async function sendWorkspaceInvitationEmail(
 ): Promise<EmailResult> {
   return { success: true };
 }
-
-export function isSmtpConfigured(): boolean {
-  return false;
-}

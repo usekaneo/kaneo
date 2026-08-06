@@ -15,6 +15,7 @@ async function createTask(
   startDate: Date | undefined,
   dueDate: Date | undefined,
   priority: CreateTaskRequest["priority"],
+  customFields?: { fieldId: string; value: string }[],
 ) {
   if (!projectId) {
     throw new Error("No project selected for task creation");
@@ -29,6 +30,7 @@ async function createTask(
       startDate: startDate?.toISOString() || undefined,
       dueDate: dueDate?.toISOString() || undefined,
       priority,
+      customFields,
     },
     param: { projectId },
   });
@@ -39,7 +41,6 @@ async function createTask(
   }
 
   const data = await response.json();
-
   return data;
 }
 

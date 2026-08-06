@@ -84,11 +84,7 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
                   try {
                     await upsertRule({
                       projectId,
-                      data: {
-                        integrationType,
-                        eventType,
-                        columnId: value,
-                      },
+                      data: { integrationType, eventType, columnId: value },
                     });
                     toast.success(t("settings:workflowEditor.toastUpdated"));
                   } catch (error) {

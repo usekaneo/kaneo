@@ -8,6 +8,7 @@ import {
   CalendarX,
   GitMerge,
   GitPullRequest,
+  SlidersHorizontal,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,6 +28,8 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import useGetCustomFieldValuesByTask from "@/hooks/queries/custom-field/use-get-custom-field-values-by-task";
+import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
@@ -70,15 +73,15 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     showTaskNumbers,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
+  const { data: externalLinks } = useExternalLinks(task.id);
   const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
   const isTaskFocused = isFocused(task.id);
 
   const pullRequests = useMemo(() => {
-    return (task.externalLinks ?? []).filter(
-      (link) => link.resourceType === "pull_request",
-    );
-  }, [task.externalLinks]);
+    if (!externalLinks) return [];
+    return externalLinks.filter((link) => link.resourceType === "pull_request");
+  }, [externalLinks]);
 
   const getPRInfo = (pr: (typeof pullRequests)[number]) => {
     const isMerged = pr.metadata?.merged === true;
@@ -119,6 +122,14 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
   );
+
+  const { data: customFieldValues = [] } = useGetCustomFieldValuesByTask(
+    task.id,
+  );
+
+  const activeCustomFieldValues = useMemo(() => {
+    return customFieldValues.filter((f) => f.value !== null && f.value !== "");
+  }, [customFieldValues]);
 
   const assignee = useMemo(() => {
     return workspaceUsers?.members?.find(
@@ -256,6 +267,39 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                 <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground">
                   {getPriorityIcon(task.priority ?? "")}
                 </span>
+              )}
+
+              {activeCustomFieldValues.length > 0 && (
+                <HoverCard openDelay={200} closeDelay={100}>
+                  <HoverCardTrigger asChild>
+                    <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default">
+                      <SlidersHorizontal className="w-3 h-3" />
+                      <span>{activeCustomFieldValues.length}</span>
+                    </span>
+                  </HoverCardTrigger>
+                  <HoverCardContent
+                    className="w-fit p-2.5"
+                    side="bottom"
+                    onClick={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
+                    <div className="space-y-1.5">
+                      {activeCustomFieldValues.map((field) => (
+                        <div
+                          key={field.id}
+                          className="flex items-center justify-between gap-2 text-xs"
+                        >
+                          <span className="font-medium text-muted-foreground truncate">
+                            {field.fieldName}
+                          </span>
+                          <span className="text-foreground truncate max-w-24">
+                            {field.value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
               )}
 
               {showDueDates && task.dueDate && (

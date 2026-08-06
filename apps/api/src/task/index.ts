@@ -20,10 +20,6 @@ import {
 } from "../storage/s3";
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
-import {
-  validateAndParseDate,
-  validateDateRange,
-} from "../utils/validate-dates";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import bulkUpdateTasks from "./controllers/bulk-update-tasks";
 import createTask from "./controllers/create-task";
@@ -33,11 +29,6 @@ import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
-import {
-  requireBulkTaskEntitlement,
-  requireBulkTaskPermission,
-  requireTaskAssigneePermission,
-} from "./controllers/require-task-permission";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
@@ -141,9 +132,6 @@ const task = new Hono<{
         value: v.optional(v.nullable(v.string())),
       }),
     ),
-    workspaceAccess.fromTasks(),
-    requireBulkTaskPermission,
-    requireBulkTaskEntitlement,
     async (c) => {
       const { taskIds, operation, value } = c.req.valid("json");
       const userId = c.get("userId");
@@ -197,6 +185,14 @@ const task = new Hono<{
         priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
         userId: v.optional(v.string()),
+        customFields: v.optional(
+          v.array(
+            v.object({
+              fieldId: v.string(),
+              value: v.string(),
+            }),
+          ),
+        ),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
@@ -212,29 +208,20 @@ const task = new Hono<{
         priority,
         status,
         userId,
+        customFields,
       } = c.req.valid("json");
-
-      const parsedStartDate =
-        startDate !== undefined
-          ? validateAndParseDate(startDate, "startDate")
-          : undefined;
-      const parsedDueDate =
-        dueDate !== undefined
-          ? validateAndParseDate(dueDate, "dueDate")
-          : undefined;
-
-      validateDateRange(parsedStartDate, parsedDueDate);
 
       const task = await createTask({
         projectId,
         currentUserId: c.get("userId"),
-        userId: userId,
+        userId,
         title,
         description,
-        startDate: parsedStartDate,
-        dueDate: parsedDueDate,
+        startDate: startDate ? new Date(startDate) : undefined,
+        dueDate: dueDate ? new Date(dueDate) : undefined,
         priority,
         status,
+        customFields,
       });
 
       return c.json(task);
@@ -342,11 +329,18 @@ const task = new Hono<{
         projectId: v.string(),
         position: v.number(),
         userId: v.optional(v.string()),
+        customFields: v.optional(
+          v.array(
+            v.object({
+              fieldId: v.string(),
+              value: v.string(),
+            }),
+          ),
+        ),
       }),
     ),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
-    requireTaskAssigneePermission,
     requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
@@ -364,23 +358,12 @@ const task = new Hono<{
 
       const currentUserId = c.get("userId");
 
-      const parsedStartDate =
-        startDate !== undefined
-          ? validateAndParseDate(startDate, "startDate")
-          : undefined;
-      const parsedDueDate =
-        dueDate !== undefined
-          ? validateAndParseDate(dueDate, "dueDate")
-          : undefined;
-
-      validateDateRange(parsedStartDate, parsedDueDate);
-
       const task = await updateTask(
         id,
         title,
         status,
-        parsedStartDate,
-        parsedDueDate,
+        startDate ? new Date(startDate) : undefined,
+        dueDate ? new Date(dueDate) : undefined,
         projectId,
         description,
         priority,
@@ -606,7 +589,7 @@ const task = new Hono<{
 
       const task = await updateTaskDueDate({
         id,
-        dueDate: dueDate ? validateAndParseDate(dueDate, "dueDate") : null,
+        dueDate: dueDate ? new Date(dueDate) : null,
         currentUserId,
       });
 

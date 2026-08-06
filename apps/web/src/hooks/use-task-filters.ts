@@ -10,6 +10,7 @@ export type BoardFilters = {
   assignee: string[] | null;
   dueDate: string[] | null;
   labels: string[] | null;
+  customFields: Record<string, string[]> | null;
 };
 
 export const DUE_DATE_FILTER_VALUES = {
@@ -24,6 +25,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   assignee: null,
   dueDate: null,
   labels: null,
+  customFields: null,
 };
 
 const FILTER_KEYS: Array<keyof BoardFilters> = [
@@ -32,6 +34,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "assignee",
   "dueDate",
   "labels",
+  "customFields",
 ];
 
 function normalizeFilters(raw: unknown): BoardFilters {
@@ -43,10 +46,18 @@ function normalizeFilters(raw: unknown): BoardFilters {
   const normalized = { ...DEFAULT_FILTERS };
 
   for (const key of FILTER_KEYS) {
-    const value = candidate[key];
+    if (key === "customFields") {
+      const value = candidate.customFields;
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        normalized.customFields = value as Record<string, string[]>;
+      }
+      continue;
+    }
+    const value = candidate[key as keyof Omit<BoardFilters, "customFields">];
     if (Array.isArray(value)) {
       const values = value.filter((v): v is string => typeof v === "string");
-      normalized[key] = values.length > 0 ? values : null;
+      (normalized as Record<string, unknown>)[key] =
+        values.length > 0 ? values : null;
     }
   }
 
@@ -112,16 +123,10 @@ export function useTaskFilters(
       if (filters.dueDate && filters.dueDate.length > 0) {
         const today = new Date();
         const taskDate = task.dueDate ? new Date(task.dueDate) : null;
-
         const matchesAnyDueDate = filters.dueDate.some((dueDateFilter) => {
-          if (dueDateFilter === DUE_DATE_FILTER_VALUES.noDueDate) {
+          if (dueDateFilter === DUE_DATE_FILTER_VALUES.noDueDate)
             return !task.dueDate;
-          }
-
-          if (!taskDate) {
-            return false;
-          }
-
+          if (!taskDate) return false;
           switch (dueDateFilter) {
             case DUE_DATE_FILTER_VALUES.dueThisWeek: {
               const weekStart = startOfWeek(today, { weekStartsOn });
@@ -147,9 +152,19 @@ export function useTaskFilters(
               return false;
           }
         });
+        if (!matchesAnyDueDate) return false;
+      }
 
-        if (!matchesAnyDueDate) {
-          return false;
+      if (
+        filters.customFields &&
+        Object.keys(filters.customFields).length > 0
+      ) {
+        for (const [fieldId, values] of Object.entries(filters.customFields)) {
+          if (values.length === 0) continue;
+          const taskValue =
+            task.customFieldValues?.find((v) => v.fieldId === fieldId)?.value ??
+            null;
+          if (!taskValue || !values.includes(taskValue)) return false;
         }
       }
 
@@ -172,22 +187,17 @@ export function useTaskFilters(
     (filter) => filter !== null,
   );
 
-  const clearFilters = () => {
-    setFilters(DEFAULT_FILTERS);
-  };
+  const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
   const updateFilter = (
     key: keyof BoardFilters,
     value: BoardFilters[keyof BoardFilters],
-  ) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
+  ) => setFilters((prev) => ({ ...prev, [key]: value }));
 
   const updateLabelFilter = (labelId: string) => {
     setFilters((prev) => {
       const currentLabels = prev.labels || [];
       const isSelected = currentLabels.includes(labelId);
-
       let newLabels: string[] | null;
       if (isSelected) {
         newLabels = currentLabels.filter((id) => id !== labelId);
@@ -195,8 +205,24 @@ export function useTaskFilters(
       } else {
         newLabels = [...currentLabels, labelId];
       }
-
       return { ...prev, labels: newLabels };
+    });
+  };
+
+  const updateCustomFieldFilter = (fieldId: string, value: string) => {
+    setFilters((prev) => {
+      const current = prev.customFields ?? {};
+      const existing = current[fieldId] ?? [];
+      const isSelected = existing.includes(value);
+      const next = isSelected
+        ? existing.filter((v) => v !== value)
+        : [...existing, value];
+      const updated = { ...current, [fieldId]: next };
+      if (updated[fieldId].length === 0) delete updated[fieldId];
+      return {
+        ...prev,
+        customFields: Object.keys(updated).length > 0 ? updated : null,
+      };
     });
   };
 
@@ -205,6 +231,7 @@ export function useTaskFilters(
     setFilters,
     updateFilter,
     updateLabelFilter,
+    updateCustomFieldFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,

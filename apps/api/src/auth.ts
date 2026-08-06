@@ -120,33 +120,19 @@ async function getUserLocale(email: string) {
 }
 
 function getLocaleKey(locale?: string | null) {
-  const normalized = locale?.toLowerCase();
-  if (normalized?.startsWith("de")) return "de";
-  if (normalized?.startsWith("vi")) return "vi";
-  return "en";
+  return locale?.toLowerCase().startsWith("de") ? "de" : "en";
 }
 
 function getAuthEmailCopy(locale?: string | null) {
-  const localeKey = getLocaleKey(locale);
-
-  if (localeKey === "de") {
-    return {
-      magicLinkSubject: "Anmeldelink fuer Kaneo",
-      otpSubject: "Bestaetigungscode fuer Kaneo",
-    };
-  }
-
-  if (localeKey === "vi") {
-    return {
-      magicLinkSubject: "Liên kết đăng nhập Kaneo",
-      otpSubject: "Mã xác minh Kaneo",
-    };
-  }
-
-  return {
-    magicLinkSubject: "Login for Kaneo",
-    otpSubject: "Authentication code for Kaneo",
-  };
+  return getLocaleKey(locale) === "de"
+    ? {
+        magicLinkSubject: "Anmeldelink fuer Kaneo",
+        otpSubject: "Bestaetigungscode fuer Kaneo",
+      }
+    : {
+        magicLinkSubject: "Login for Kaneo",
+        otpSubject: "Authentication code for Kaneo",
+      };
 }
 
 function getDeviceAuthClientIds(): Set<string> {
