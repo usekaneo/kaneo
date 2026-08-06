@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -97,7 +97,7 @@ jobs:
         run: git push origin HEAD:${{ github.ref }} --tags
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3.0.1
+        uses: softprops/action-gh-release@v3.0.2
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           tag_name: v${{ steps.new_version.outputs.version }}
@@ -107,7 +107,7 @@ jobs:
           prerelease: false
 
       - name: Trigger Docker Build
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
