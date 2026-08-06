@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -80,7 +80,7 @@ jobs:
       actions: write
     steps:
       - name: Trigger Helm chart publish
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           VERSION: ${{ inputs.version }}
         with:

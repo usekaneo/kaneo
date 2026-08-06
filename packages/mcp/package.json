@@ -61,7 +61,7 @@
 		"@kaneo/typescript-config": "workspace:*",
 		"@types/node": "^25.3.5",
 		"@types/prompts": "^2.4.9",
-		"tsx": "^4.23.1",
+		"tsx": "^4.23.9",
 		"typescript": "^5.9.3",
 		"vitest": "^4.1.10"
 	}
