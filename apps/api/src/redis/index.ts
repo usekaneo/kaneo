@@ -154,7 +154,7 @@ export { isRedisConfigured };
 export function getRedisPub(): RedisClient {
   if (!_redisPub) {
     _redisPub = createRedisClient();
-    _redisPub.on("error", (err) =>
+    (_redisPub as Redis).on("error", (err: Error) =>
       console.error("Redis pub client error:", err),
     );
   }
@@ -164,7 +164,7 @@ export function getRedisPub(): RedisClient {
 export function getRedisSub(): RedisClient {
   if (!_redisSub) {
     _redisSub = createRedisClient();
-    _redisSub.on("error", (err) =>
+    (_redisSub as Redis).on("error", (err: Error) =>
       console.error("Redis sub client error:", err),
     );
   }
