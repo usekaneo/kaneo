@@ -3126,6 +3126,237 @@
         "summary": "Delete Column"
       }
     },
+    "/custom-field/project/{projectId}": {
+      "get": {
+        "operationId": "getCustomFieldsByProject",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get fields by project",
+        "description": "Get all custom field definitions for a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldDefinition"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/task/{taskId}": {
+      "get": {
+        "operationId": "getCustomFieldValuesByTask",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get field values by task",
+        "description": "Get all custom field values for a task",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field values with their definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldValue"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/project/{projectId}/filter-values": {
+      "get": {
+        "operationId": "getCustomFieldFilterValues",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get custom field filter values",
+        "description": "Get distinct values actually used by tasks for each custom field of a project (for filters)",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom fields with their distinct used values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldFilterValues"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/": {
+      "post": {
+        "operationId": "createCustomField",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Create a custom field",
+        "description": "Create a new custom field definition for a project",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomFieldBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Custom field created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/value": {
+      "put": {
+        "operationId": "setCustomFieldValue",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Set a custom field value",
+        "description": "Set (create or update) a custom field value for a task",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCustomFieldValueBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Custom field value set successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldValueResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error (required field empty, invalid dropdown option, invalid number, invalid boolean)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Custom field not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/{id}": {
+      "delete": {
+        "operationId": "deleteCustomField",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Delete a custom field",
+        "description": "Delete a custom field definition by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Custom field deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Custom field not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/activity/{taskId}": {
       "get": {
         "operationId": "getActivities",
@@ -4953,237 +5184,6 @@
           }
         ],
         "summary": "Detach Label From Task"
-      }
-    },
-    "/custom-field/project/{projectId}": {
-      "get": {
-        "operationId": "getCustomFieldsByProject",
-        "tags": [
-          "Custom Fields"
-        ],
-        "summary": "Get fields by project",
-        "description": "Get all custom field definitions for a project",
-        "parameters": [
-          {
-            "name": "projectId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of custom field definitions",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CustomFieldDefinition"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/custom-field/task/{taskId}": {
-      "get": {
-        "operationId": "getCustomFieldValuesByTask",
-        "tags": [
-          "Custom Fields"
-        ],
-        "summary": "Get field values by task",
-        "description": "Get all custom field values for a task",
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of custom field values with their definitions",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CustomFieldValue"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/custom-field/project/{projectId}/filter-values": {
-      "get": {
-        "operationId": "getCustomFieldFilterValues",
-        "tags": [
-          "Custom Fields"
-        ],
-        "summary": "Get custom field filter values",
-        "description": "Get distinct values actually used by tasks for each custom field of a project (for filters)",
-        "parameters": [
-          {
-            "name": "projectId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of custom fields with their distinct used values",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CustomFieldFilterValues"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/custom-field/": {
-      "post": {
-        "operationId": "createCustomField",
-        "tags": [
-          "Custom Fields"
-        ],
-        "summary": "Create a custom field",
-        "description": "Create a new custom field definition for a project",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCustomFieldBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Custom field created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CustomFieldDefinition"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/custom-field/value": {
-      "put": {
-        "operationId": "setCustomFieldValue",
-        "tags": [
-          "Custom Fields"
-        ],
-        "summary": "Set a custom field value",
-        "description": "Set (create or update) a custom field value for a task",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetCustomFieldValueBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Custom field value set successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CustomFieldValueResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error (required field empty, invalid dropdown option, invalid number, invalid boolean)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Custom field not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/custom-field/{id}": {
-      "delete": {
-        "operationId": "deleteCustomField",
-        "tags": [
-          "Custom Fields"
-        ],
-        "summary": "Delete a custom field",
-        "description": "Delete a custom field definition by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Custom field deleted successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CustomFieldDefinition"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Custom field not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/notification": {
