@@ -96,6 +96,7 @@ export async function resetTestDatabase() {
         "integration",
         "invitation",
         "label",
+        "mcp_oauth_state",
         "notification",
         "project",
         "session",
