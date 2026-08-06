@@ -7,6 +7,7 @@
 	"scripts": {
 		"lint": "biome check --write .",
 		"test": "vitest run --config vitest.config.ts",
+		"typecheck": "tsc --noEmit -p tsconfig.json",
 		"test:watch": "vitest --config vitest.config.ts"
 	},
 	"devDependencies": {
@@ -16,7 +17,7 @@
 		"hono": "^4.12.34",
 		"react": "^19.2.8",
 		"@kaneo/typescript-config": "workspace:*",
-		"typescript": "^5.9.2",
+		"typescript": "^7.0.2",
 		"vite": "^8.2.0",
 		"vitest": "^4.1.10"
 	}

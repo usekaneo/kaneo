@@ -28,6 +28,5 @@
 		}
 	},
 	"include": ["src", "../../i18n"],
-	"exclude": ["../api/**/*", "../docs/**/*", "../../packages/**/*"],
-	"baseUrl": "."
+	"exclude": ["../api/**/*", "../docs/**/*", "../../packages/**/*"]
 }
