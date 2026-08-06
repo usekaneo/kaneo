@@ -59,6 +59,7 @@ vi.mock("../../apps/api/src/mcp/oauth-store", () => {
       if (row.expiresAt.getTime() < Date.now()) return null;
       return row.payload;
     },
+    enforceStateCap: async () => {},
     deleteExpiredStates: async () => {
       const now = Date.now();
       for (const [key, row] of rows) {
