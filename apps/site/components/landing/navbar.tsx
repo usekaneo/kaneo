@@ -79,7 +79,7 @@ const navigationLinks: NavigationLink[] = [
       { href: "/docs/core", label: "Quick Start" },
       { href: "/docs/core/installation", label: "Installation" },
       { href: "/docs/core/functional", label: "Functional Guide" },
-      { href: "/docs/api", label: "API Reference" },
+      { href: "/docs/api-reference/introduction", label: "API Reference" },
     ],
     label: "Docs",
     submenu: true,
