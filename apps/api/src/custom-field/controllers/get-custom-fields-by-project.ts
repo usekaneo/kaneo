@@ -7,7 +7,7 @@ async function getCustomFieldsByProject(projectId: string) {
     .select()
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId))
-    .orderBy(asc(customFieldDefinitionTable.position));
+    .orderBy(asc(customFieldDefinitionTable.createdAt));
 }
 
 export default getCustomFieldsByProject;

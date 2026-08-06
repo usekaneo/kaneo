@@ -4,7 +4,7 @@ import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
-import { customFieldDefinitionTable, projectTable } from "../database/schema";
+import { customFieldDefinitionTable, projectTable, taskTable } from "../database/schema";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createCustomField from "./controllers/create-custom-field";
@@ -213,13 +213,23 @@ const customField = new Hono<{
     async (c) => {
       const { taskId, fieldId, value } = c.req.valid("json");
 
+      const [task] = await db
+        .select({ projectId: taskTable.projectId })
+        .from(taskTable)
+        .where(eq(taskTable.id, taskId))
+        .limit(1);
+
+      if (!task) {
+        throw new HTTPException(404, { message: "Task not found" });
+      }
+
       const [field] = await db
         .select()
         .from(customFieldDefinitionTable)
         .where(eq(customFieldDefinitionTable.id, fieldId))
         .limit(1);
 
-      if (!field) {
+      if (!field || field.projectId !== task.projectId) {
         throw new HTTPException(404, {
           message: "Custom field not found",
         });

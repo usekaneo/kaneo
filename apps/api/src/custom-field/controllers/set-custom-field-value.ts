@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import db from "../../database";
 import { customFieldValueTable } from "../../database/schema";
 
@@ -7,32 +7,18 @@ async function setCustomFieldValue(
   fieldId: string,
   value: string,
 ) {
-  const [existing] = await db
-    .select()
-    .from(customFieldValueTable)
-    .where(
-      and(
-        eq(customFieldValueTable.taskId, taskId),
-        eq(customFieldValueTable.fieldId, fieldId),
-      ),
-    )
-    .limit(1);
-
-  if (existing) {
-    const [updated] = await db
-      .update(customFieldValueTable)
-      .set({ value })
-      .where(eq(customFieldValueTable.id, existing.id))
-      .returning();
-    return updated;
-  }
-
-  const [inserted] = await db
+  const [result] = await db
     .insert(customFieldValueTable)
     .values({ taskId, fieldId, value })
+    .onConflictDoUpdate({
+      target: [customFieldValueTable.taskId, customFieldValueTable.fieldId],
+      set: {
+        value: sql`excluded.value`,
+      },
+    })
     .returning();
 
-  return inserted;
+  return result;
 }
 
 export default setCustomFieldValue;
