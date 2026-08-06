@@ -2,7 +2,11 @@ import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import {
+  dueDateStatusColors,
+  getDueDateStatus,
+  isTaskCompleted,
+} from "@/lib/due-date-status";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -23,6 +27,7 @@ export function PublicTaskCard({
   projectSlug,
   onTaskClick,
 }: PublicTaskCardProps) {
+  const taskIsCompleted = isTaskCompleted(task.status);
   const labels = task.labels || [];
   const externalLinks = task.externalLinks || [];
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(
@@ -121,18 +126,18 @@ export function PublicTaskCard({
 
         {task.dueDate && (
           <div
-            className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+            className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
           >
-            {getDueDateStatus(task.dueDate) === "overdue" && (
+            {getDueDateStatus(task.dueDate, taskIsCompleted) === "overdue" && (
               <CalendarX className="w-3 h-3" />
             )}
-            {getDueDateStatus(task.dueDate) === "due-soon" && (
+            {getDueDateStatus(task.dueDate, taskIsCompleted) === "due-soon" && (
               <CalendarClock className="w-3 h-3" />
             )}
-            {(getDueDateStatus(task.dueDate) === "far-future" ||
-              getDueDateStatus(task.dueDate) === "no-due-date") && (
-              <Calendar className="w-3 h-3" />
-            )}
+            {(getDueDateStatus(task.dueDate, taskIsCompleted) ===
+              "far-future" ||
+              getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                "no-due-date") && <Calendar className="w-3 h-3" />}
             <span>{format(new Date(task.dueDate), "MMM d")}</span>
           </div>
         )}

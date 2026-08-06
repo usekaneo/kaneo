@@ -29,7 +29,11 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
-import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import {
+  dueDateStatusColors,
+  getDueDateStatus,
+  isTaskCompleted,
+} from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
@@ -84,6 +88,7 @@ export default function TaskPropertiesSidebar({
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: columns = [] } = useGetColumns(projectId);
+  const taskIsCompleted = isTaskCompleted(task?.status ?? "", columns);
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId ?? "");
   const { data: githubIntegration } = useGetGithubIntegration(projectId);
@@ -284,20 +289,24 @@ export default function TaskPropertiesSidebar({
                   >
                     {task.dueDate ? (
                       <>
-                        {getDueDateStatus(task.dueDate) === "overdue" && (
+                        {getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                          "overdue" && (
                           <CalendarX
-                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                           />
                         )}
-                        {getDueDateStatus(task.dueDate) === "due-soon" && (
+                        {getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                          "due-soon" && (
                           <CalendarClock
-                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                           />
                         )}
-                        {(getDueDateStatus(task.dueDate) === "far-future" ||
-                          getDueDateStatus(task.dueDate) === "no-due-date") && (
+                        {(getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                          "far-future" ||
+                          getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                            "no-due-date") && (
                           <Calendar
-                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                           />
                         )}
                         <span className="text-xs font-semibold">
@@ -471,21 +480,24 @@ export default function TaskPropertiesSidebar({
                     >
                       {task.dueDate ? (
                         <>
-                          {getDueDateStatus(task.dueDate) === "overdue" && (
+                          {getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                            "overdue" && (
                             <CalendarX
-                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                             />
                           )}
-                          {getDueDateStatus(task.dueDate) === "due-soon" && (
+                          {getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                            "due-soon" && (
                             <CalendarClock
-                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                             />
                           )}
-                          {(getDueDateStatus(task.dueDate) === "far-future" ||
-                            getDueDateStatus(task.dueDate) ===
+                          {(getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                            "far-future" ||
+                            getDueDateStatus(task.dueDate, taskIsCompleted) ===
                               "no-due-date") && (
                             <Calendar
-                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                             />
                           )}
                           <span className="text-xs font-semibold">
@@ -661,21 +673,24 @@ export default function TaskPropertiesSidebar({
                     >
                       {task.dueDate ? (
                         <>
-                          {getDueDateStatus(task.dueDate) === "overdue" && (
+                          {getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                            "overdue" && (
                             <CalendarX
-                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                             />
                           )}
-                          {getDueDateStatus(task.dueDate) === "due-soon" && (
+                          {getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                            "due-soon" && (
                             <CalendarClock
-                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                             />
                           )}
-                          {(getDueDateStatus(task.dueDate) === "far-future" ||
-                            getDueDateStatus(task.dueDate) ===
+                          {(getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                            "far-future" ||
+                            getDueDateStatus(task.dueDate, taskIsCompleted) ===
                               "no-due-date") && (
                             <Calendar
-                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                              className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                             />
                           )}
                           <span className="text-xs font-semibold">
