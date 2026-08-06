@@ -4,7 +4,6 @@ import {
   CheckCircle,
   ExternalLink,
   GitBranch,
-  Github,
   Import,
   Link,
   RefreshCw,
@@ -15,6 +14,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
+import { GithubIcon } from "@/components/icons/github-icon";
 import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -310,7 +310,7 @@ export function GitHubIntegrationSettings({
                 </p>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Github className="w-4 h-4" />
+                <GithubIcon className="w-4 h-4" />
                 <span className="font-medium">
                   {integration.repositoryOwner}/{integration.repositoryName}
                 </span>

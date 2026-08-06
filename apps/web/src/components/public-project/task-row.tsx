@@ -1,7 +1,11 @@
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import {
+  dueDateStatusColors,
+  getDueDateStatus,
+  isTaskCompleted,
+} from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
@@ -24,6 +28,7 @@ export function PublicTaskRow({
   projectSlug,
   onTaskClick,
 }: PublicTaskRowProps) {
+  const taskIsCompleted = isTaskCompleted(task.status);
   const { t } = useTranslation();
   const labels = task.labels || [];
   const externalLinks = task.externalLinks || [];
@@ -69,18 +74,18 @@ export function PublicTaskRow({
 
         {task.dueDate && (
           <div
-            className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+            className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
           >
-            {getDueDateStatus(task.dueDate) === "overdue" && (
+            {getDueDateStatus(task.dueDate, taskIsCompleted) === "overdue" && (
               <CalendarX className="w-3 h-3" />
             )}
-            {getDueDateStatus(task.dueDate) === "due-soon" && (
+            {getDueDateStatus(task.dueDate, taskIsCompleted) === "due-soon" && (
               <CalendarClock className="w-3 h-3" />
             )}
-            {(getDueDateStatus(task.dueDate) === "far-future" ||
-              getDueDateStatus(task.dueDate) === "no-due-date") && (
-              <Calendar className="w-3 h-3" />
-            )}
+            {(getDueDateStatus(task.dueDate, taskIsCompleted) ===
+              "far-future" ||
+              getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                "no-due-date") && <Calendar className="w-3 h-3" />}
             <span>{formatDateShort(task.dueDate)}</span>
           </div>
         )}

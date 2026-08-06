@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   ChevronDown,
   FolderGit,
-  Github,
   MessageCircle,
   Radio,
   Send,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { GithubIcon } from "@/components/icons/github-icon";
 import PageTitle from "@/components/page-title";
 import { DiscordIntegrationSettings } from "@/components/project/discord-integration-settings";
 import { GenericWebhookIntegrationSettings } from "@/components/project/generic-webhook-integration-settings";
@@ -48,7 +48,7 @@ function RouteComponent() {
 
         <div className="space-y-6">
           <IntegrationSection
-            icon={<Github className="size-4" />}
+            icon={<GithubIcon className="size-4" />}
             subtitle={t("settings:projectIntegrations.githubSectionSubtitle")}
             title={t("settings:projectIntegrations.githubSectionTitle")}
           >
