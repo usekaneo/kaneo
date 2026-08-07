@@ -97,6 +97,16 @@ Hosted multi-tenant instances should enable the cloud abuse gates. Self-hosted i
 - `KANEO_TURNSTILE_SITE_KEY` - Cloudflare Turnstile site key, on the **web container**. The production web image bakes the literal placeholder `KANEO_TURNSTILE_SITE_KEY` into the bundle; `apps/web/env.sh` swaps it for the runtime value when the container starts.
 - `VITE_TURNSTILE_SITE_KEY` - Local dev only. Set in `apps/web/.env` when running `pnpm dev`; Vite reads this at build/dev time. Not used in the production image.
 
+#### Sentry (error monitoring)
+
+All Sentry integration is opt-in; leave these unset for zero telemetry.
+
+- `SENTRY_DSN` - Sentry DSN for the API. When unset, the Sentry SDK never initializes.
+- `SENTRY_ENVIRONMENT` - Environment tag for API events (defaults to `NODE_ENV`).
+- `SENTRY_TRACES_SAMPLE_RATE` - Fraction of API requests to trace for performance monitoring, `0`-`1` (default: `0`, tracing off).
+- `KANEO_SENTRY_DSN` - Sentry DSN for the **web container** (browser errors, tracing, session replay). Same runtime-placeholder mechanism as `KANEO_TURNSTILE_SITE_KEY`.
+- `VITE_SENTRY_DSN` - Local dev only. Set in `apps/web/.env` when running `pnpm dev`.
+
 For a complete list of all environment variables, their descriptions, and configuration options, see the [official documentation](https://kaneo.app/docs/core/installation/environment-variables).
 
 ## Common Issues & Troubleshooting
