@@ -5,6 +5,7 @@ import { sessionTable } from "../database/schema";
 import {
   consumeState,
   deleteExpiredStates,
+  enforceStateCap,
   getState,
   putState,
 } from "./oauth-store";
@@ -34,6 +35,8 @@ export type AuthorizationRequest = {
 const clientTtlMs = 30 * 24 * 60 * 60 * 1000;
 const codeTtlMs = 5 * 60 * 1000;
 const requestTtlMs = 10 * 60 * 1000;
+// Same bound the in-memory store enforced; authorize is reachable without a session.
+const maxAuthorizationRequests = 10_000;
 
 export async function getClient(
   clientId: string,
@@ -71,6 +74,7 @@ export async function createAuthorizationRequest(
   params: AuthorizationRequest,
 ): Promise<string> {
   await deleteExpiredStates();
+  await enforceStateCap("request", maxAuthorizationRequests);
   const requestId = randomUUID();
   await putState(
     "request",

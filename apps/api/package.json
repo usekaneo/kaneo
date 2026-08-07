@@ -65,7 +65,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "esbuild": "0.28.1",
     "tsx": "^4.23.9",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   }
 }
