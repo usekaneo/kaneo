@@ -5,8 +5,6 @@ const tracesSampleRate = Number.parseFloat(
   process.env.SENTRY_TRACES_SAMPLE_RATE ?? "",
 );
 
-// The monorepo root package.json sits three levels up from both src/ (dev)
-// and dist/ (the esbuild bundle), locally and in the Docker image.
 function readAppVersion() {
   try {
     const pkg = JSON.parse(
