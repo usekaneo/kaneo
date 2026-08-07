@@ -146,27 +146,27 @@ export function PrivateListView({
                         {/* Due date */}
                         {task.dueDate && (
                           <div
-                            className={`shrink-0 flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, task.status === "done")]}`}
+                            className={`shrink-0 flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, column.isFinal)]}`}
                           >
                             {getDueDateStatus(
                               task.dueDate,
-                              task.status === "done",
+                              column.isFinal,
                             ) === "overdue" && (
                               <CalendarX className="w-3 h-3" />
                             )}
                             {getDueDateStatus(
                               task.dueDate,
-                              task.status === "done",
+                              column.isFinal,
                             ) === "due-soon" && (
                               <CalendarClock className="w-3 h-3" />
                             )}
                             {(getDueDateStatus(
                               task.dueDate,
-                              task.status === "done",
+                              column.isFinal,
                             ) === "far-future" ||
                               getDueDateStatus(
                                 task.dueDate,
-                                task.status === "done",
+                                column.isFinal,
                               ) === "no-due-date") && (
                               <Calendar className="w-3 h-3" />
                             )}

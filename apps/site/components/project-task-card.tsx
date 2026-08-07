@@ -15,12 +15,14 @@ type PublicTaskCardProps = {
     externalLinks?: Array<ExternalLink>;
   };
   projectSlug: string;
+  isCompleted?: boolean;
   onTaskClick: (task: Task) => void;
 };
 
 export function PublicTaskCard({
   task,
   projectSlug,
+  isCompleted = false,
   onTaskClick,
 }: PublicTaskCardProps) {
   const labels = task.labels || [];
@@ -121,15 +123,15 @@ export function PublicTaskCard({
 
         {task.dueDate && (
           <div
-            className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, task.status === "done")]}`}
+            className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, isCompleted)]}`}
           >
-            {getDueDateStatus(task.dueDate, task.status === "done") ===
+            {getDueDateStatus(task.dueDate, isCompleted) ===
               "overdue" && <CalendarX className="w-3 h-3" />}
-            {getDueDateStatus(task.dueDate, task.status === "done") ===
+            {getDueDateStatus(task.dueDate, isCompleted) ===
               "due-soon" && <CalendarClock className="w-3 h-3" />}
-            {(getDueDateStatus(task.dueDate, task.status === "done") ===
+            {(getDueDateStatus(task.dueDate, isCompleted) ===
               "far-future" ||
-              getDueDateStatus(task.dueDate, task.status === "done") ===
+              getDueDateStatus(task.dueDate, isCompleted) ===
                 "no-due-date") && <Calendar className="w-3 h-3" />}
             <span>{format(new Date(task.dueDate), "MMM d")}</span>
           </div>

@@ -60,6 +60,7 @@ export function PrivateKanbanView({
                     key={task.id}
                     task={task}
                     projectSlug={project.slug}
+                    isCompleted={column.isFinal}
                     onTaskClick={onTaskClick}
                   />
                 ))}

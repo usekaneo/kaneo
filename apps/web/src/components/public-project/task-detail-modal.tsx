@@ -29,6 +29,7 @@ type PublicTaskDetailModalProps = {
       })
     | null;
   projectSlug: string;
+  isCompleted?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -36,6 +37,7 @@ type PublicTaskDetailModalProps = {
 export function PublicTaskDetailModal({
   task,
   projectSlug,
+  isCompleted = false,
   open,
   onOpenChange,
 }: PublicTaskDetailModalProps) {
@@ -124,16 +126,16 @@ export function PublicTaskDetailModal({
 
                 {task.dueDate && (
                   <div
-                    className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md ${dueDateStatusColors[getDueDateStatus(task.dueDate, isCompleted)]}`}
                   >
-                    {getDueDateStatus(task.dueDate) === "overdue" && (
+                    {getDueDateStatus(task.dueDate, isCompleted) === "overdue" && (
                       <CalendarX className="w-3 h-3" />
                     )}
-                    {getDueDateStatus(task.dueDate) === "due-soon" && (
+                    {getDueDateStatus(task.dueDate, isCompleted) === "due-soon" && (
                       <CalendarClock className="w-3 h-3" />
                     )}
-                    {(getDueDateStatus(task.dueDate) === "far-future" ||
-                      getDueDateStatus(task.dueDate) === "no-due-date") && (
+                    {(getDueDateStatus(task.dueDate, isCompleted) === "far-future" ||
+                      getDueDateStatus(task.dueDate, isCompleted) === "no-due-date") && (
                       <Calendar className="w-3 h-3" />
                     )}
                     <span>

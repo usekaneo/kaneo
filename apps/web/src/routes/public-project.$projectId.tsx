@@ -144,6 +144,13 @@ function RouteComponent() {
         <PublicTaskDetailModal
           task={selectedTask}
           projectSlug={project.slug}
+          isCompleted={
+            project.columns?.find(
+              (column) =>
+                column.slug === selectedTask?.status ||
+                column.id === selectedTask?.status,
+            )?.isFinal ?? false
+          }
           open={isTaskModalOpen}
           onOpenChange={handleTaskModalClose}
         />

@@ -64,6 +64,10 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const { project } = useProjectStore();
   const { data: workspace } = useActiveWorkspace();
+  const isTaskCompleted =
+    project?.columns?.find(
+      (column) => column.slug === task.status || column.id === task.status,
+    )?.isFinal ?? task.status === "done";
   const {
     showAssignees,
     showPriority,
@@ -333,15 +337,15 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
             {showDueDates && task.dueDate && (
               <div
-                className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded flex-shrink-0 ${dueDateStatusColors[getDueDateStatus(task.dueDate, task.status === "done")]}`}
+                className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded flex-shrink-0 ${dueDateStatusColors[getDueDateStatus(task.dueDate, isTaskCompleted)]}`}
               >
-                {getDueDateStatus(task.dueDate, task.status === "done") ===
+                {getDueDateStatus(task.dueDate, isTaskCompleted) ===
                   "overdue" && <CalendarX className="w-3 h-3" />}
-                {getDueDateStatus(task.dueDate, task.status === "done") ===
+                {getDueDateStatus(task.dueDate, isTaskCompleted) ===
                   "due-soon" && <CalendarClock className="w-3 h-3" />}
-                {(getDueDateStatus(task.dueDate, task.status === "done") ===
+                {(getDueDateStatus(task.dueDate, isTaskCompleted) ===
                   "far-future" ||
-                  getDueDateStatus(task.dueDate, task.status === "done") ===
+                  getDueDateStatus(task.dueDate, isTaskCompleted) ===
                     "no-due-date") && <Calendar className="w-3 h-3" />}
                 <span>{format(new Date(task.dueDate), "MMM d")}</span>
               </div>

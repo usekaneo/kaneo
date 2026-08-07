@@ -12,10 +12,14 @@ describe("getDueDateStatus", () => {
   });
 
   it("does not mark completed tasks as overdue", () => {
-    expect(getDueDateStatus("2026-07-31T12:00:00Z", true)).toBe("far-future");
+    const status = getDueDateStatus("2026-07-31T12:00:00Z", true);
+
+    expect(status).toBe("far-future");
   });
 
   it("does not mark completed tasks as due soon", () => {
-    expect(getDueDateStatus("2026-08-03T12:00:00Z", true)).toBe("far-future");
+    const status = getDueDateStatus("2026-08-03T12:00:00Z", true);
+
+    expect(status).toBe("far-future");
   });
 });
