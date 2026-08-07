@@ -1,3 +1,21 @@
+## [2.13.1](https://github.com/usekaneo/kaneo/compare/v2.13.0...v2.13.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **deps:** drop the next override so the site really gets next 16 ([a3ee7ad](https://github.com/usekaneo/kaneo/commit/a3ee7ad553cc425ec445f90331a14cff0a176c36))
+* **deps:** patch 16 disclosed advisories through the overrides ([39fc9fc](https://github.com/usekaneo/kaneo/commit/39fc9fc1edaf59467c0d329083e607e6316431ab))
+* **deps:** sync lockfile with the babel override ([c5e74f0](https://github.com/usekaneo/kaneo/commit/c5e74f0deed7571fe5284dc16a6a35e4eb434753))
+* **mcp:** cap pending OAuth authorization requests ([3da2ac5](https://github.com/usekaneo/kaneo/commit/3da2ac5f31bfdc60b20f96c624e747f1271b5403))
+* **mcp:** correct the docs URL in package metadata ([c4427a6](https://github.com/usekaneo/kaneo/commit/c4427a6d5283202ded926e22d8e3f4b4004df4b9))
+* **web:** correct link to the API reference in the nav menu ([e8f8f8a](https://github.com/usekaneo/kaneo/commit/e8f8f8a35e65324ea2e68c96c194b3032c3c9099))
+* **web:** stop warning about due dates on completed tasks ([3f3dd13](https://github.com/usekaneo/kaneo/commit/3f3dd1360bad21b5121d04494282f682d02e1b50)), closes [#1465](https://github.com/usekaneo/kaneo/issues/1465)
+* **web:** use Shiki's JavaScript regex engine to avoid WebAssembly ([09fb5d4](https://github.com/usekaneo/kaneo/commit/09fb5d446d687d3383e8006d9f15243832d4a252))
+
+
+### Features
+
+* add web Sentry SDK with session replay and opt-in API tracing ([284d78b](https://github.com/usekaneo/kaneo/commit/284d78b352640025859bcb4bcc708b6815b7753b))
 # [2.13.0](https://github.com/usekaneo/kaneo/compare/v2.12.2...v2.13.0) (2026-08-05)
 
 
