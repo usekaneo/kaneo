@@ -619,6 +619,9 @@
 								"oauth_code_verification_failed",
 								"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_"
 							]
+						},
+						"instanceStatusError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -643,7 +646,8 @@
 						"googleError",
 						"githubError",
 						"discordError",
-						"errors"
+						"errors",
+						"instanceStatusError"
 					]
 				},
 				"providers": {
@@ -765,6 +769,15 @@
 						},
 						"toggleLink": {
 							"type": "string"
+						},
+						"instanceStatusError": {
+							"type": "string"
+						},
+						"instanceAdminTitle": {
+							"type": "string"
+						},
+						"instanceAdminSubtitle": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -780,7 +793,10 @@
 						"signingIn",
 						"continueAsGuest",
 						"toggleMessage",
-						"toggleLink"
+						"toggleLink",
+						"instanceStatusError",
+						"instanceAdminTitle",
+						"instanceAdminSubtitle"
 					]
 				},
 				"verifyOtp": {
@@ -2238,6 +2254,66 @@
 								}
 							},
 							"required": ["nameRequired", "nameShort"]
+						},
+						"transferOwnership": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"toastSuccess": {
+									"type": "string"
+								},
+								"toastError": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"subtitle": {
+									"type": "string"
+								},
+								"pickerLabel": {
+									"type": "string"
+								},
+								"noEligibleMembers": {
+									"type": "string"
+								},
+								"pickerHint": {
+									"type": "string"
+								},
+								"pickerPlaceholder": {
+									"type": "string"
+								},
+								"button": {
+									"type": "string"
+								},
+								"dialogTitle": {
+									"type": "string"
+								},
+								"dialogDescription": {
+									"type": "string"
+								},
+								"transferring": {
+									"type": "string"
+								},
+								"confirm": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"toastSuccess",
+								"toastError",
+								"title",
+								"subtitle",
+								"pickerLabel",
+								"noEligibleMembers",
+								"pickerHint",
+								"pickerPlaceholder",
+								"button",
+								"dialogTitle",
+								"dialogDescription",
+								"transferring",
+								"confirm"
+							]
 						}
 					},
 					"required": [
@@ -2263,7 +2339,8 @@
 						"toastUpdateError",
 						"toastDeleted",
 						"toastDeleteError",
-						"validation"
+						"validation",
+						"transferOwnership"
 					]
 				},
 				"workspaceRoles": {
@@ -5760,6 +5837,42 @@
 										"typescript",
 										"yaml"
 									]
+								},
+								"table": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"addColumnBefore": {
+											"type": "string"
+										},
+										"addColumnAfter": {
+											"type": "string"
+										},
+										"deleteColumn": {
+											"type": "string"
+										},
+										"addRowBefore": {
+											"type": "string"
+										},
+										"addRowAfter": {
+											"type": "string"
+										},
+										"deleteRow": {
+											"type": "string"
+										},
+										"deleteTable": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"addColumnBefore",
+										"addColumnAfter",
+										"deleteColumn",
+										"addRowBefore",
+										"addRowAfter",
+										"deleteRow",
+										"deleteTable"
+									]
 								}
 							},
 							"required": [
@@ -5810,7 +5923,8 @@
 								"copied",
 								"dropImageToUpload",
 								"previewImageAlt",
-								"codeLang"
+								"codeLang",
+								"table"
 							]
 						}
 					},
@@ -6475,6 +6589,9 @@
 						},
 						"deleteAction": {
 							"type": "string"
+						},
+						"completeAria": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -6487,7 +6604,8 @@
 						"deleteError",
 						"deleteDialogTitle",
 						"deleteDialogDescription",
-						"deleteAction"
+						"deleteAction",
+						"completeAria"
 					]
 				},
 				"properties": {
@@ -7362,6 +7480,49 @@
 						"noActionsFound",
 						"changeStatus"
 					]
+				},
+				"editor": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"table": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"addColumnBefore": {
+									"type": "string"
+								},
+								"addColumnAfter": {
+									"type": "string"
+								},
+								"deleteColumn": {
+									"type": "string"
+								},
+								"addRowBefore": {
+									"type": "string"
+								},
+								"addRowAfter": {
+									"type": "string"
+								},
+								"deleteRow": {
+									"type": "string"
+								},
+								"deleteTable": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"addColumnBefore",
+								"addColumnAfter",
+								"deleteColumn",
+								"addRowBefore",
+								"addRowAfter",
+								"deleteRow",
+								"deleteTable"
+							]
+						}
+					},
+					"required": ["table"]
 				}
 			},
 			"required": [
@@ -7392,7 +7553,8 @@
 				"update",
 				"contextMenu",
 				"actions",
-				"bulk"
+				"bulk",
+				"editor"
 			]
 		},
 		"invitations": {

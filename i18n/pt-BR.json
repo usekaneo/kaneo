@@ -158,7 +158,8 @@
 				"account_not_linked": "Não foi possível vincular você a uma conta existente. Entre por e-mail para verificar a conta e tente o SSO novamente. Se o login por e-mail não estiver disponível, entre em contato com seu administrador.",
 				"oauth_code_verification_failed": "Falha na verificação do OAuth. Tente novamente.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "O cadastro está atualmente desativado. Você precisa de um convite válido para criar uma conta."
-			}
+			},
+			"instanceStatusError": "Não foi possível acessar o servidor. Tente novamente em alguns instantes."
 		},
 		"providers": {
 			"google": "Google",
@@ -193,7 +194,10 @@
 			"signingIn": "Entrando...",
 			"continueAsGuest": "Continuar como convidado",
 			"toggleMessage": "Já tem uma conta?",
-			"toggleLink": "Entrar"
+			"toggleLink": "Entrar",
+			"instanceStatusError": "Não foi possível acessar o servidor. Tente novamente em alguns instantes.",
+			"instanceAdminTitle": "Configure sua instância do Kaneo",
+			"instanceAdminSubtitle": "Esta conta se torna o administrador da instância, com acesso total."
 		},
 		"verifyOtp": {
 			"pageTitle": "Verificar código",
@@ -567,6 +571,21 @@
 			"validation": {
 				"nameRequired": "O nome do espaço de trabalho é obrigatório",
 				"nameShort": "O nome do espaço de trabalho deve ter pelo menos 2 caracteres"
+			},
+			"transferOwnership": {
+				"toastSuccess": "Propriedade transferida",
+				"toastError": "Falha ao transferir propriedade",
+				"title": "Transferir propriedade",
+				"subtitle": "Transfira este espaço de trabalho para outro membro. Você será rebaixado a administrador e perderá as permissões exclusivas de proprietário.",
+				"pickerLabel": "Novo proprietário",
+				"noEligibleMembers": "Convide pelo menos um outro membro antes de poder transferir a propriedade.",
+				"pickerHint": "Ele se tornará o único proprietário deste espaço de trabalho.",
+				"pickerPlaceholder": "Selecione um membro",
+				"button": "Transferir",
+				"dialogTitle": "Transferir propriedade?",
+				"dialogDescription": "{{name}} se tornará o único proprietário de {{workspace}}. Você manterá o acesso de administrador, mas perderá as permissões exclusivas de proprietário, como excluir o espaço de trabalho ou transferi-lo novamente.",
+				"transferring": "Transferindo…",
+				"confirm": "Transferir propriedade"
 			}
 		},
 		"workspaceRoles": {
@@ -1472,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "Inserir coluna à esquerda",
+					"addColumnAfter": "Inserir coluna à direita",
+					"deleteColumn": "Excluir coluna",
+					"addRowBefore": "Inserir linha acima",
+					"addRowAfter": "Inserir linha abaixo",
+					"deleteRow": "Excluir linha",
+					"deleteTable": "Excluir tabela"
 				}
 			}
 		}
@@ -1638,7 +1666,8 @@
 			"deleteError": "Falha ao excluir tarefa",
 			"deleteDialogTitle": "Excluir tarefa?",
 			"deleteDialogDescription": "Isso removerá permanentemente a tarefa e todos os seus dados. Você não pode desfazer esta ação.",
-			"deleteAction": "Excluir tarefa"
+			"deleteAction": "Excluir tarefa",
+			"completeAria": "Marcar subtarefa como concluída"
 		},
 		"properties": {
 			"title": "Propriedades",
@@ -1867,6 +1896,17 @@
 			"searchActions": "Buscar ações...",
 			"noActionsFound": "Nenhuma ação encontrada.",
 			"changeStatus": "Mudar status"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "Inserir coluna à esquerda",
+				"addColumnAfter": "Inserir coluna à direita",
+				"deleteColumn": "Excluir coluna",
+				"addRowBefore": "Inserir linha acima",
+				"addRowAfter": "Inserir linha abaixo",
+				"deleteRow": "Excluir linha",
+				"deleteTable": "Excluir tabela"
+			}
 		}
 	},
 	"invitations": {

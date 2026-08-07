@@ -155,8 +155,11 @@
 			"githubError": "GitHub 로그인에 실패했습니다",
 			"discordError": "Discord 로그인에 실패했습니다",
 			"errors": {
-				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
-			}
+				"account_not_linked": "이 자격 증명을 기존 계정에 연결할 수 없습니다. 이메일로 로그인하여 계정을 확인한 후 SSO를 다시 시도하세요. 이메일 로그인을 사용할 수 없는 경우 관리자에게 문의하세요.",
+				"oauth_code_verification_failed": "OAuth 인증에 실패했습니다. 다시 시도하세요.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "회원가입이 현재 비활성화되어 있습니다. 계정을 만들려면 유효한 초대가 필요합니다."
+			},
+			"instanceStatusError": "서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요."
 		},
 		"providers": {
 			"google": "Google",
@@ -191,7 +194,10 @@
 			"signingIn": "로그인 중...",
 			"continueAsGuest": "게스트로 계속하기",
 			"toggleMessage": "이미 계정이 있으신가요?",
-			"toggleLink": "로그인"
+			"toggleLink": "로그인",
+			"instanceStatusError": "서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.",
+			"instanceAdminTitle": "Kaneo 인스턴스 설정",
+			"instanceAdminSubtitle": "이 계정은 전체 권한을 가진 인스턴스 관리자가 됩니다."
 		},
 		"verifyOtp": {
 			"pageTitle": "인증 코드 확인",
@@ -416,7 +422,21 @@
 			"toastPreferencesSaved": "알림 환경설정이 저장되었습니다",
 			"toastPreferencesSaveFailed": "알림 환경설정 저장에 실패했습니다",
 			"toastRuleSavedGeneric": "워크스페이스 알림 규칙이 저장되었습니다",
-			"toastRuleRemovedGeneric": "워크스페이스 알림 규칙이 제거되었습니다"
+			"toastRuleRemovedGeneric": "워크스페이스 알림 규칙이 제거되었습니다",
+			"workspaceEnabledLabel": "{{workspaceName}} 알림 활성화",
+			"eventPreferencesTitle": "알림 받을 항목",
+			"eventPreferencesDescription": "어떤 작업 이벤트가 인앱 알림을 생성하고 연결된 채널로 전달될 수 있는지 선택합니다.",
+			"eventTaskAssignments": "작업 할당",
+			"eventComments": "댓글 및 멘션",
+			"eventCommentsHint": "나에게 할당된 작업의 새 댓글과 직접 @멘션이 포함됩니다.",
+			"eventStatusChanges": "작업 상태 변경",
+			"eventDueDateReminders": "마감일 미리 알림",
+			"reminderLeadTimeLabel": "마감일 전에 미리 알림 받기",
+			"reminderLeadTimeHint": "마감 1시간 전부터 30일 전까지 설정할 수 있습니다. 기한 초과 알림은 별도로 전송됩니다.",
+			"reminderLeadTimeUnitHours": "시간",
+			"reminderLeadTimeUnitDays": "일",
+			"reminderLeadTimeInvalid": "1에서 {{max}} 사이의 정수를 입력하세요.",
+			"saveEventPreferences": "알림 유형 저장"
 		},
 		"preferencesPage": {
 			"title": "환경설정",
@@ -551,6 +571,21 @@
 			"validation": {
 				"nameRequired": "워크스페이스 이름은 필수입니다",
 				"nameShort": "워크스페이스 이름은 2자 이상이어야 합니다"
+			},
+			"transferOwnership": {
+				"toastSuccess": "소유권이 이전되었습니다",
+				"toastError": "소유권 이전에 실패했습니다",
+				"title": "소유권 이전",
+				"subtitle": "이 워크스페이스를 다른 멤버에게 이전합니다. 이후 관리자로 변경되며 소유자 전용 권한을 잃게 됩니다.",
+				"pickerLabel": "새 소유자",
+				"noEligibleMembers": "소유권을 이전하려면 먼저 다른 멤버를 한 명 이상 초대하세요.",
+				"pickerHint": "선택한 멤버가 이 워크스페이스의 단독 소유자가 됩니다.",
+				"pickerPlaceholder": "멤버 선택",
+				"button": "이전",
+				"dialogTitle": "소유권을 이전하시겠습니까?",
+				"dialogDescription": "{{name}}님이 {{workspace}}의 단독 소유자가 됩니다. 관리자 권한은 유지되지만 워크스페이스 삭제나 재이전 같은 소유자 전용 기능은 잃게 됩니다.",
+				"transferring": "이전 중...",
+				"confirm": "소유권 이전"
 			}
 		},
 		"projectGeneral": {
@@ -645,12 +680,12 @@
 			"toastFinalOn": "컬럼이 완료로 표시되었습니다",
 			"toastFinalOff": "컬럼의 완료 표시가 해제되었습니다",
 			"toastUpdateError": "컬럼 업데이트에 실패했습니다",
-			"toastIconUpdated": "Column icon updated",
+			"toastIconUpdated": "컬럼 아이콘이 업데이트되었습니다",
 			"toastDeleted": "컬럼이 삭제되었습니다",
 			"toastDeleteError": "컬럼 삭제에 실패했습니다",
 			"loading": "컬럼 로딩 중...",
-			"pickIconTitle": "Pick column icon",
-			"searchIconsPlaceholder": "Search icons...",
+			"pickIconTitle": "컬럼 아이콘 선택",
+			"searchIconsPlaceholder": "아이콘 검색...",
 			"doneColumnTooltip": "이를 완료 컬럼으로 처리",
 			"doneColumn": "완료 컬럼",
 			"markDoneAria": "{{name}}을(를) 완료 컬럼으로 표시",
@@ -907,11 +942,13 @@
 				"taskMoved": "작업 이동",
 				"taskDueDateChanged": "마감일 변경",
 				"taskAssigneeChanged": "담당자 변경",
-				"taskUnassigned": "할당 해제"
+				"taskUnassigned": "할당 해제",
+				"dueDateReminder": "마감일 미리 알림"
 			},
 			"connect": "웹훅 연결",
 			"saveChanges": "변경사항 저장",
-			"disconnect": "연결 해제"
+			"disconnect": "연결 해제",
+			"reminderLeadTimeLabel": "마감 몇 시간 전에 웹훅 전송"
 		},
 		"telegramIntegration": {
 			"validation": {
@@ -943,7 +980,7 @@
 			"threadIdPlaceholder": "선택 사항 - 토픽 ID",
 			"threadIdHint": "선택 사항. Telegram 그룹 내 포럼 토픽에 사용하세요.",
 			"chatLabelLabel": "채팅 라벨",
-			"chatLabelPlaceholder": "Engineering Updates",
+			"chatLabelPlaceholder": "엔지니어링 업데이트",
 			"chatLabelHint": "Kaneo 내부 참고용 선택 라벨입니다.",
 			"eventsTitle": "이벤트 알림",
 			"eventsHint": "Telegram에 게시할 프로젝트 변경 사항을 선택합니다.",
@@ -1022,6 +1059,168 @@
 			"merged": "병합됨",
 			"draft": "초안",
 			"open": "열림"
+		},
+		"workspaceRoles": {
+			"pageTitle": "역할",
+			"title": "역할",
+			"subtitle": "{{workspaceName}}에서 멤버가 수행할 수 있는 작업을 정의합니다.",
+			"thisWorkspace": "이 워크스페이스",
+			"noAccess": "워크스페이스 역할을 관리하려면 관리자 또는 소유자 권한이 필요합니다.",
+			"sectionTitle": "워크스페이스 역할",
+			"sectionSubtitle": "기본 역할을 편집하거나 맞춤 역할을 추가하세요. 편집해도 멤버에게 할당된 역할 이름은 유지됩니다.",
+			"newRole": "새 역할",
+			"loading": "로딩 중...",
+			"loadError": "역할을 불러오지 못했습니다.",
+			"emptyTitle": "아직 역할이 없습니다",
+			"emptyDescription": "이 워크스페이스에 기본 역할이 생성되면 여기에 표시됩니다.",
+			"defaultBadge": "기본",
+			"permissionCount_one": "권한 {{count}}개",
+			"permissionCount_other": "권한 {{count}}개",
+			"nameLabel": "이름",
+			"nameHint": "소문자로 입력하세요. 나중에 변경할 수 없습니다.",
+			"namePlaceholder": "예: reviewer",
+			"discard": "취소",
+			"createRole": "역할 만들기",
+			"deleteRole": "역할 삭제",
+			"defaultRoleHelp": "기본 역할: 이름이 예약되어 있으며 행을 삭제할 수 없습니다.",
+			"unsavedChanges": "저장되지 않은 변경사항이 있습니다",
+			"allChangesSaved": "모든 변경사항이 저장되었습니다",
+			"saveChanges": "변경사항 저장",
+			"defaultRoleDescriptions": {
+				"viewer": "작업을 보고 댓글을 달 수 있습니다.",
+				"member": "작업과 프로젝트를 만들고 관리할 수 있습니다.",
+				"admin": "워크스페이스에 대한 전체 권한을 가집니다."
+			},
+			"resources": {
+				"project": "프로젝트",
+				"task": "작업",
+				"label": "라벨",
+				"workspace": "워크스페이스"
+			},
+			"permissions": {
+				"project": {
+					"create": {
+						"label": "만들기",
+						"description": "새 프로젝트를 만들 수 있습니다"
+					},
+					"read": {
+						"label": "읽기",
+						"description": "프로젝트를 볼 수 있습니다"
+					},
+					"update": {
+						"label": "수정",
+						"description": "프로젝트 설정을 편집할 수 있습니다"
+					},
+					"delete": {
+						"label": "삭제",
+						"description": "프로젝트를 삭제할 수 있습니다"
+					},
+					"share": {
+						"label": "공유",
+						"description": "프로젝트를 공유할 수 있습니다"
+					}
+				},
+				"task": {
+					"create": {
+						"label": "만들기",
+						"description": "작업을 만들 수 있습니다"
+					},
+					"read": {
+						"label": "읽기",
+						"description": "작업을 볼 수 있습니다"
+					},
+					"update": {
+						"label": "수정",
+						"description": "작업을 편집할 수 있습니다"
+					},
+					"delete": {
+						"label": "삭제",
+						"description": "작업을 삭제할 수 있습니다"
+					},
+					"assign": {
+						"label": "할당",
+						"description": "멤버에게 작업을 할당할 수 있습니다"
+					}
+				},
+				"label": {
+					"create": {
+						"label": "만들기",
+						"description": "라벨을 만들 수 있습니다"
+					},
+					"read": {
+						"label": "읽기",
+						"description": "라벨을 볼 수 있습니다"
+					},
+					"update": {
+						"label": "수정",
+						"description": "라벨을 편집할 수 있습니다"
+					},
+					"delete": {
+						"label": "삭제",
+						"description": "라벨을 삭제할 수 있습니다"
+					}
+				},
+				"workspace": {
+					"read": {
+						"label": "읽기",
+						"description": "워크스페이스 설정을 볼 수 있습니다"
+					},
+					"update": {
+						"label": "수정",
+						"description": "워크스페이스 설정을 업데이트할 수 있습니다"
+					},
+					"delete": {
+						"label": "삭제",
+						"description": "워크스페이스를 삭제할 수 있습니다"
+					},
+					"manage_settings": {
+						"label": "설정 관리",
+						"description": "워크스페이스 설정을 관리할 수 있습니다"
+					}
+				}
+			},
+			"validation": {
+				"nameRequired": "역할 이름은 필수입니다",
+				"nameExists": "같은 이름의 역할이 이미 있습니다",
+				"permissionRequired": "최소 한 개의 권한을 선택해야 합니다"
+			},
+			"toast": {
+				"created": "역할이 생성되었습니다",
+				"createError": "역할 생성에 실패했습니다",
+				"updated": "역할이 업데이트되었습니다",
+				"updateError": "역할 업데이트에 실패했습니다",
+				"deleted": "역할이 삭제되었습니다",
+				"deleteError": "역할 삭제에 실패했습니다"
+			},
+			"deleteDialog": {
+				"title": "역할 삭제",
+				"description": "역할 \"{{role}}\"이(가) 영구적으로 삭제됩니다. 이 역할이 할당된 멤버는 해당 권한을 잃게 됩니다."
+			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "라벨 설정",
+			"title": "라벨",
+			"subtitle": "워크스페이스 수준 라벨을 만들고, 편집하고, 삭제합니다.",
+			"cardDescription": "작업에 할당할 수 있는 라벨을 관리합니다.",
+			"createLabel": "라벨 만들기",
+			"editLabel": "라벨 편집",
+			"deleteLabel": "삭제",
+			"saveLabel": "저장",
+			"nameLabel": "라벨 이름",
+			"namePlaceholder": "라벨 이름 입력",
+			"colorLabel": "색상",
+			"createDescription": "이 워크스페이스의 작업 전반에서 사용할 수 있는 새 라벨을 만듭니다.",
+			"editDescription": "이 라벨의 이름이나 색상을 업데이트합니다.",
+			"deleteConfirmTitle": "이 라벨을 삭제하시겠습니까?",
+			"deleteConfirmDescription": "모든 작업에서 이 라벨이 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
+			"empty": "아직 라벨이 없습니다. 첫 라벨을 만들어 시작하세요.",
+			"createSuccess": "라벨이 생성되었습니다",
+			"updateSuccess": "라벨이 업데이트되었습니다",
+			"deleteSuccess": "라벨이 삭제되었습니다",
+			"createError": "라벨 생성에 실패했습니다",
+			"updateError": "라벨 업데이트에 실패했습니다",
+			"deleteError": "라벨 삭제에 실패했습니다",
+			"nameRequired": "라벨 이름은 필수입니다"
 		}
 	},
 	"navigation": {
@@ -1169,7 +1368,31 @@
 				"title": "시간 추적 시작됨",
 				"contentWithTask": "다음 작업의 시간 추적이 시작되었습니다: {{taskTitle}}",
 				"contentWithoutTask": "작업의 시간 추적이 시작되었습니다"
+			},
+			"task_mention": {
+				"title": "{{mentionerName}}님이 나를 멘션했습니다",
+				"content": "{{mentionerName}}님이 다음에서 나를 멘션했습니다: {{taskTitle}}"
+			},
+			"task_comment": {
+				"title": "{{commenterName}}님이 내 작업에 댓글을 남겼습니다",
+				"content": "{{taskTitle}}의 새 댓글: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "작업 마감 임박",
+				"content": "{{taskTitle}}이(가) {{leadTime}} 후에 마감됩니다"
+			},
+			"task_overdue": {
+				"title": "작업 기한 초과",
+				"content": "{{taskTitle}}이(가) 마감일을 지났습니다"
 			}
+		},
+		"reminderLeadTime": {
+			"minutes_one": "{{count}}분",
+			"minutes_other": "{{count}}분",
+			"hours_one": "{{count}}시간",
+			"hours_other": "{{count}}시간",
+			"days_one": "{{count}}일",
+			"days_other": "{{count}}일"
 		}
 	},
 	"activity": {
@@ -1268,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "왼쪽에 열 삽입",
+					"addColumnAfter": "오른쪽에 열 삽입",
+					"deleteColumn": "열 삭제",
+					"addRowBefore": "위에 행 삽입",
+					"addRowAfter": "아래에 행 삽입",
+					"deleteRow": "행 삭제",
+					"deleteTable": "표 삭제"
 				}
 			}
 		}
@@ -1420,7 +1652,8 @@
 			"selectTask": "연결할 작업 선택",
 			"types": {
 				"blocks": "차단함",
-				"related": "관련됨"
+				"related": "관련됨",
+				"blocked_by": "차단됨"
 			}
 		},
 		"subtasks": {
@@ -1433,7 +1666,8 @@
 			"deleteError": "작업 삭제에 실패했습니다",
 			"deleteDialogTitle": "작업을 삭제하시겠습니까?",
 			"deleteDialogDescription": "작업과 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
-			"deleteAction": "작업 삭제"
+			"deleteAction": "작업 삭제",
+			"completeAria": "하위 작업을 완료로 표시"
 		},
 		"properties": {
 			"title": "속성",
@@ -1662,18 +1896,29 @@
 			"searchActions": "작업 검색...",
 			"noActionsFound": "작업을 찾을 수 없습니다.",
 			"changeStatus": "상태 변경"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "왼쪽에 열 삽입",
+				"addColumnAfter": "오른쪽에 열 삽입",
+				"deleteColumn": "열 삭제",
+				"addRowBefore": "위에 행 삽입",
+				"addRowAfter": "아래에 행 삽입",
+				"deleteRow": "행 삭제",
+				"deleteTable": "표 삭제"
+			}
 		}
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
-			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
-			"cta": "Accept invitation",
-			"sameEmail": "You can accept with the same email that received this message.",
-			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"subject": "{{inviterName}}님이 Kaneo의 {{workspaceName}}에 초대했습니다",
+			"preview": "Kaneo의 {{workspaceName}}에 초대되었습니다",
+			"title": "{{workspaceName}}에 참여하세요",
+			"subtitle": "{{inviterName}}님({{inviterEmail}})이 Kaneo에서 함께 협업하도록 초대했습니다.",
+			"cta": "초대 수락",
+			"sameEmail": "이 메시지를 받은 이메일과 동일한 이메일로 수락할 수 있습니다.",
+			"ignore": "예상하지 못한 초대라면 이 이메일을 무시하셔도 됩니다.",
+			"footer": "Kaneo 워크스페이스 초대"
 		},
 		"pageTitle": "초대",
 		"pendingInvitations": "대기 중인 초대",
@@ -1710,7 +1955,8 @@
 				"complete": "완료",
 				"inProgress": "진행 중"
 			},
-			"noDueDate": "마감일 없음"
+			"noDueDate": "마감일 없음",
+			"emptyDescriptionReadOnly": "이 워크스페이스에 아직 프로젝트가 없습니다. 관리자에게 프로젝트 생성을 요청하세요."
 		},
 		"search": {
 			"pageTitle": "검색",
@@ -1750,17 +1996,21 @@
 		"roles": {
 			"owner": "소유자",
 			"admin": "관리자",
-			"member": "멤버"
+			"member": "멤버",
+			"viewer": "뷰어"
 		},
 		"members": {
 			"pageTitle": "멤버",
-			"inviteMember": "멤버 초대"
+			"inviteMember": "멤버 초대",
+			"you": "나"
 		},
 		"invitations": {
 			"linkLabel": "초대 링크",
 			"copyLink": "링크 복사",
 			"linkCopied": "초대 링크가 복사되었습니다",
-			"copyFailed": "자동으로 복사하지 못했습니다. 링크를 선택한 후 Ctrl+C를 누르세요."
+			"copyFailed": "자동으로 복사하지 못했습니다. 링크를 선택한 후 Ctrl+C를 누르세요.",
+			"pendingBadge": "대기 중",
+			"expires": "{{date}} 만료"
 		},
 		"inviteModal": {
 			"title": "팀 멤버 초대",
@@ -1795,7 +2045,9 @@
 			"removeError": "팀 멤버 제거에 실패했습니다",
 			"cancelInviteSuccess": "초대가 취소되었습니다",
 			"cancelInviteError": "초대 취소에 실패했습니다",
-			"ariaInvitationActions": "초대 작업"
+			"ariaInvitationActions": "초대 작업",
+			"roleUpdateSuccess": "역할이 업데이트되었습니다",
+			"roleUpdateError": "역할 업데이트에 실패했습니다"
 		}
 	},
 	"publicProject": {

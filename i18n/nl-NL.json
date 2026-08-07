@@ -44,7 +44,8 @@
 			"french": "Frans",
 			"korean": "Koreaans",
 			"chinese": "Chinees",
-			"italian": "Italiaans"
+			"italian": "Italiaans",
+			"spanish": "Spaans"
 		},
 		"people": {
 			"someone": "Iemand",
@@ -154,8 +155,11 @@
 			"githubError": "Inloggen met GitHub mislukt",
 			"discordError": "Inloggen met Discord mislukt",
 			"errors": {
-				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
-			}
+				"account_not_linked": "Deze identiteit kon niet aan het bestaande account worden gekoppeld. Log in met e-mail om het account te verifiëren en probeer SSO daarna opnieuw. Als inloggen met e-mail niet beschikbaar is, neem dan contact op met je beheerder.",
+				"oauth_code_verification_failed": "OAuth-verificatie mislukt. Probeer het opnieuw.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registratie is momenteel uitgeschakeld. Je hebt een geldige uitnodiging nodig om een account aan te maken."
+			},
+			"instanceStatusError": "Kan de server niet bereiken. Probeer het over een moment opnieuw."
 		},
 		"providers": {
 			"google": "Google",
@@ -190,7 +194,10 @@
 			"signingIn": "Inloggen...",
 			"continueAsGuest": "Doorgaan als gast",
 			"toggleMessage": "Heb je al een account?",
-			"toggleLink": "Inloggen"
+			"toggleLink": "Inloggen",
+			"instanceStatusError": "Kan de server niet bereiken. Probeer het over een moment opnieuw.",
+			"instanceAdminTitle": "Stel je Kaneo-instantie in",
+			"instanceAdminSubtitle": "Dit account wordt de instantiebeheerder met volledige toegang."
 		},
 		"verifyOtp": {
 			"pageTitle": "Code verifiëren",
@@ -461,6 +468,21 @@
 			"validation": {
 				"nameRequired": "Werkruimtenaam is verplicht",
 				"nameShort": "Werkruimtenaam moet minimaal 2 tekens bevatten"
+			},
+			"transferOwnership": {
+				"toastSuccess": "Eigendom overgedragen",
+				"toastError": "Overdragen eigendom mislukt",
+				"title": "Eigendom overdragen",
+				"subtitle": "Draag deze werkruimte over aan een ander lid. Je wordt teruggezet naar beheerder en verliest rechten die alleen eigenaren hebben.",
+				"pickerLabel": "Nieuwe eigenaar",
+				"noEligibleMembers": "Nodig eerst minstens één ander lid uit voordat je het eigendom kunt overdragen.",
+				"pickerHint": "Diegene wordt de enige eigenaar van deze werkruimte.",
+				"pickerPlaceholder": "Selecteer een lid",
+				"button": "Overdragen",
+				"dialogTitle": "Eigendom overdragen?",
+				"dialogDescription": "{{name}} wordt de enige eigenaar van {{workspace}}. Je behoudt beheerderstoegang, maar verliest rechten die alleen eigenaren hebben, zoals het verwijderen of opnieuw overdragen van de werkruimte.",
+				"transferring": "Overdragen…",
+				"confirm": "Eigendom overdragen"
 			}
 		},
 		"projectGeneral": {
@@ -513,7 +535,11 @@
 			"genericWebhookSectionTitle": "Generieke Webhooks",
 			"genericWebhookSectionSubtitle": "Verstuur updates van projecttaken als JSON naar elk gewenst HTTP-eindpunt.",
 			"slackSectionTitle": "Slack Integratie",
-			"slackSectionSubtitle": "Verstuur updates van projecttaken naar een Slack-kanaal met een binnenkomende webhook."
+			"slackSectionSubtitle": "Verstuur updates van projecttaken naar een Slack-kanaal met een binnenkomende webhook.",
+			"giteaSectionTitle": "Gitea Integratie",
+			"giteaSectionSubtitle": "Synchroniseer taken met een zelf-gehoste Gitea-instantie (issues, PR's, webhooks).",
+			"telegramSectionTitle": "Telegram Integratie",
+			"telegramSectionSubtitle": "Verstuur updates van projecttaken naar een Telegram-chat of -topic met een bot."
 		},
 		"projectVisibility": {
 			"pageTitle": "Projectzichtbaarheid",
@@ -551,12 +577,12 @@
 			"toastFinalOn": "Kolom gemarkeerd als voltooid-stadium",
 			"toastFinalOff": "Kolom niet meer gemarkeerd als voltooid-stadium",
 			"toastUpdateError": "Bijwerken kolom mislukt",
-			"toastIconUpdated": "Column icon updated",
+			"toastIconUpdated": "Kolomicoon bijgewerkt",
 			"toastDeleted": "Kolom verwijderd",
 			"toastDeleteError": "Verwijderen kolom mislukt",
 			"loading": "Kolommen laden...",
-			"pickIconTitle": "Pick column icon",
-			"searchIconsPlaceholder": "Search icons...",
+			"pickIconTitle": "Kolomicoon kiezen",
+			"searchIconsPlaceholder": "Iconen zoeken...",
 			"doneColumnTooltip": "Behandel dit als een 'Gereed' kolom",
 			"doneColumn": "Gereed-kolom",
 			"markDoneAria": "Markeer {{name}} als gereed-kolom",
@@ -739,11 +765,13 @@
 				"taskMoved": "Taak verplaatst",
 				"taskDueDateChanged": "Einddatum gewijzigd",
 				"taskAssigneeChanged": "Toewijzing gewijzigd",
-				"taskUnassigned": "Toewijzing verwijderd"
+				"taskUnassigned": "Toewijzing verwijderd",
+				"dueDateReminder": "Einddatum-herinneringen"
 			},
 			"connect": "Webhook verbinden",
 			"saveChanges": "Wijzigingen opslaan",
-			"disconnect": "Ontkoppelen"
+			"disconnect": "Ontkoppelen",
+			"reminderLeadTimeLabel": "Verstuur de webhook dit aantal uren van tevoren"
 		},
 		"repositoryBrowser": {
 			"title": "Selecteer Repository",
@@ -797,7 +825,9 @@
 				"pr_merged": "PR Samengevoegd",
 				"issue_opened": "Issue Geopend",
 				"issue_closed": "Issue Gesloten"
-			}
+			},
+			"giteaHeading": "Gitea",
+			"giteaHint": "Wanneer een Gitea-webhookgebeurtenis plaatsvindt, verplaats de gekoppelde taak naar een kolom."
 		},
 		"externalLinks": {
 			"resources": "Bronnen",
@@ -806,6 +836,391 @@
 			"merged": "Samengevoegd",
 			"draft": "Concept",
 			"open": "Open"
+		},
+		"notifications": "Meldingen",
+		"notificationsPage": {
+			"pageTitle": "Meldingen",
+			"title": "Meldingen",
+			"subtitle": "Kies hoe Kaneo je accountmeldingen bezorgt en welke kanalen worden gebruikt.",
+			"statusConnected": "Verbonden",
+			"statusPaused": "Gepauzeerd",
+			"emailTitle": "E-mail",
+			"emailDescription": "Gebruik je account-e-mailadres als bestemming voor meldingen.",
+			"accountEmailLabel": "Account-e-mailadres",
+			"accountEmailNoAddress": "Geen account-e-mailadres beschikbaar",
+			"accountEmailHint": "E-mails worden altijd bezorgd op het e-mailadres van het ingelogde account.",
+			"saveChanges": "Wijzigingen opslaan",
+			"disconnect": "Ontkoppelen",
+			"ntfyTitle": "ntfy",
+			"ntfyDescription": "Publiceer accountmeldingen naar een ntfy-topic.",
+			"serverUrl": "Server-URL",
+			"topic": "Topic",
+			"token": "Token",
+			"ntfyServerPlaceholder": "https://ntfy.example.com",
+			"ntfyTopicPlaceholder": "team-alerts",
+			"ntfyTokenPlaceholder": "Optioneel bearer-token",
+			"ntfyTokenHintConfigured": "Er is al een token geconfigureerd ({{masked}}). Voer een nieuw token in om het te vervangen.",
+			"ntfyTokenHintOptional": "Optioneel. Geef een token op als je ntfy-server authenticatie vereist.",
+			"connectNtfy": "Verbind ntfy",
+			"gotifyTitle": "Gotify",
+			"gotifyDescription": "Stuur accountmeldingen naar je Gotify-server.",
+			"gotifyTokenLabel": "App-token",
+			"gotifyServerPlaceholder": "https://gotify.example.com",
+			"gotifyTokenPlaceholder": "Gotify app-token",
+			"gotifyTokenHintConfigured": "Er is al een app-token geconfigureerd ({{masked}}). Voer een nieuw token in om het te vervangen.",
+			"gotifyTokenHintRequired": "Verplicht. Gebruik een applicatietoken van je Gotify-server.",
+			"connectGotify": "Verbind Gotify",
+			"webhookTitle": "Aangepaste webhook",
+			"webhookDescription": "Stuur accountmeldingen als JSON naar je eigen eindpunt.",
+			"endpointUrl": "Eindpunt-URL",
+			"signingSecret": "Ondertekeningsgeheim",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookSecretPlaceholder": "Optioneel gedeeld geheim",
+			"webhookSecretHintConfigured": "Er is al een ondertekeningsgeheim geconfigureerd ({{masked}}). Voer een nieuwe in om deze te vervangen.",
+			"webhookSecretHintOptional": "Optioneel. Kaneo ondertekent de verzoektekst wanneer er een geheim is ingesteld.",
+			"connectWebhook": "Webhook verbinden",
+			"workspaceRulesTitle": "Bezorgingsregels per werkruimte",
+			"workspaceRulesDescription": "Hergebruik je globale kanalen en bepaal vervolgens welke werkruimtes en projecten accountmeldingen mogen versturen.",
+			"workspaceCardHint": "Kies welke kanalen deze werkruimte mag gebruiken voor accountmeldingen.",
+			"workspaceEnabledLabel": "Meldingen inschakelen voor {{workspaceName}}",
+			"eventPreferencesTitle": "Stuur mij meldingen over",
+			"eventPreferencesDescription": "Kies welke taakgebeurtenissen in-app meldingen aanmaken en naar je verbonden kanalen bezorgd kunnen worden.",
+			"eventTaskAssignments": "Taaktoewijzingen",
+			"eventComments": "Reacties en vermeldingen",
+			"eventCommentsHint": "Omvat nieuwe reacties op taken die aan jou zijn toegewezen en directe @vermeldingen.",
+			"eventStatusChanges": "Statuswijzigingen van taken",
+			"eventDueDateReminders": "Einddatum-herinneringen",
+			"reminderLeadTimeLabel": "Herinner mij vóór de einddatum",
+			"reminderLeadTimeHint": "Tussen 1 uur en 30 dagen van tevoren. Meldingen over verstreken einddatums worden apart verzonden.",
+			"reminderLeadTimeUnitHours": "Uren",
+			"reminderLeadTimeUnitDays": "Dagen",
+			"reminderLeadTimeInvalid": "Voer een geheel getal in tussen 1 en {{max}}.",
+			"saveEventPreferences": "Meldingstypen opslaan",
+			"workspaceCardLabelEmail": "E-mail",
+			"workspaceCardLabelNtfy": "ntfy",
+			"workspaceCardLabelGotify": "Gotify",
+			"workspaceCardLabelWebhook": "Aangepaste webhook",
+			"emailChannelHintEnabled": "Verstuur overeenkomende werkruimtemeldingen per e-mail.",
+			"emailChannelHintDisabled": "Configureer en schakel e-mail eerst globaal in.",
+			"ntfyChannelHintEnabled": "Verstuur overeenkomende werkruimtemeldingen naar ntfy.",
+			"ntfyChannelHintDisabled": "Configureer en schakel ntfy eerst globaal in.",
+			"gotifyChannelHintEnabled": "Verstuur overeenkomende werkruimtemeldingen naar Gotify.",
+			"gotifyChannelHintDisabled": "Configureer en schakel Gotify eerst globaal in.",
+			"webhookChannelHintEnabled": "Verstuur overeenkomende werkruimtemeldingen naar je webhook.",
+			"webhookChannelHintDisabled": "Configureer en schakel de webhook eerst globaal in.",
+			"projectScope": "Projectbereik",
+			"projectScopeDescription": "Alle projecten zijn standaard inbegrepen. Beperk dit als deze werkruimte alleen meldingen uit geselecteerde projecten mag versturen.",
+			"allProjects": "Alle projecten",
+			"allProjectsDescription": "Bezorg meldingen van elk project in deze werkruimte.",
+			"selectedProjects": "Geselecteerde projecten",
+			"selectedProjectsDescription": "Bezorg alleen meldingen van gekozen projecten.",
+			"noProjectsInWorkspace": "Nog geen projecten beschikbaar voor deze werkruimte.",
+			"createRule": "Regel aanmaken",
+			"removeRule": "Regel verwijderen",
+			"toastEmailSaved": "E-mailmeldingsinstellingen opgeslagen",
+			"toastEmailSaveFailed": "Opslaan e-mailinstellingen mislukt",
+			"toastNtfySaved": "ntfy-instellingen opgeslagen",
+			"toastNtfySaveFailed": "Opslaan ntfy-instellingen mislukt",
+			"toastNtfyDisconnected": "ntfy ontkoppeld",
+			"toastNtfyDisconnectFailed": "Ontkoppelen ntfy mislukt",
+			"toastGotifySaved": "Gotify-instellingen opgeslagen",
+			"toastGotifySaveFailed": "Opslaan Gotify-instellingen mislukt",
+			"toastGotifyDisconnected": "Gotify ontkoppeld",
+			"toastGotifyDisconnectFailed": "Ontkoppelen Gotify mislukt",
+			"toastWebhookSaved": "Webhook-instellingen opgeslagen",
+			"toastWebhookSaveFailed": "Opslaan webhook-instellingen mislukt",
+			"toastWebhookDisconnected": "Webhook ontkoppeld",
+			"toastWebhookDisconnectFailed": "Ontkoppelen webhook mislukt",
+			"toastRuleSaved": "Meldingsregel opgeslagen voor {{workspaceName}}",
+			"toastRuleSaveFailed": "Opslaan werkruimte-meldingsregel mislukt",
+			"toastRuleRemoved": "Meldingsregel verwijderd voor {{workspaceName}}",
+			"toastRuleRemoveFailed": "Verwijderen werkruimte-meldingsregel mislukt",
+			"toastPreferencesSaved": "Meldingsvoorkeuren opgeslagen",
+			"toastPreferencesSaveFailed": "Opslaan meldingsvoorkeuren mislukt",
+			"toastRuleSavedGeneric": "Werkruimte-meldingsregel opgeslagen",
+			"toastRuleRemovedGeneric": "Werkruimte-meldingsregel verwijderd"
+		},
+		"workspaceRoles": {
+			"pageTitle": "Rollen",
+			"title": "Rollen",
+			"subtitle": "Bepaal welke acties leden mogen uitvoeren in {{workspaceName}}.",
+			"thisWorkspace": "deze werkruimte",
+			"noAccess": "Je hebt beheerder- of eigenaarrechten nodig om werkruimterollen te beheren.",
+			"sectionTitle": "Werkruimterollen",
+			"sectionSubtitle": "Bewerk de standaardrollen of voeg een eigen rol toe. Leden behouden hun toegewezen rolnaam bij wijzigingen.",
+			"newRole": "Nieuwe rol",
+			"loading": "Laden…",
+			"loadError": "Laden van rollen mislukt.",
+			"emptyTitle": "Nog geen rollen",
+			"emptyDescription": "Standaardrollen verschijnen hier zodra ze voor deze werkruimte zijn aangemaakt.",
+			"defaultBadge": "Standaard",
+			"permissionCount_one": "{{count}} permissie",
+			"permissionCount_other": "{{count}} permissies",
+			"nameLabel": "Naam",
+			"nameHint": "Kleine letters. Kan later niet worden gewijzigd.",
+			"namePlaceholder": "bijv. reviewer",
+			"discard": "Verwerpen",
+			"createRole": "Rol aanmaken",
+			"deleteRole": "Rol verwijderen",
+			"defaultRoleHelp": "Standaardrol: de naam is gereserveerd en de rij kan niet worden verwijderd.",
+			"unsavedChanges": "Je hebt niet-opgeslagen wijzigingen",
+			"allChangesSaved": "Alle wijzigingen opgeslagen",
+			"saveChanges": "Wijzigingen opslaan",
+			"defaultRoleDescriptions": {
+				"viewer": "Kan taken bekijken en erop reageren.",
+				"member": "Kan taken en projecten aanmaken en beheren.",
+				"admin": "Heeft volledige toegang tot de werkruimte."
+			},
+			"resources": {
+				"project": "Projecten",
+				"task": "Taken",
+				"label": "Labels",
+				"workspace": "Werkruimte"
+			},
+			"permissions": {
+				"project": {
+					"create": {
+						"label": "Aanmaken",
+						"description": "Kan nieuwe projecten aanmaken"
+					},
+					"read": {
+						"label": "Lezen",
+						"description": "Kan projecten bekijken"
+					},
+					"update": {
+						"label": "Bijwerken",
+						"description": "Kan projectinstellingen bewerken"
+					},
+					"delete": {
+						"label": "Verwijderen",
+						"description": "Kan projecten verwijderen"
+					},
+					"share": {
+						"label": "Delen",
+						"description": "Kan projecten delen"
+					}
+				},
+				"task": {
+					"create": {
+						"label": "Aanmaken",
+						"description": "Kan taken aanmaken"
+					},
+					"read": {
+						"label": "Lezen",
+						"description": "Kan taken bekijken"
+					},
+					"update": {
+						"label": "Bijwerken",
+						"description": "Kan taken bewerken"
+					},
+					"delete": {
+						"label": "Verwijderen",
+						"description": "Kan taken verwijderen"
+					},
+					"assign": {
+						"label": "Toewijzen",
+						"description": "Kan taken toewijzen aan leden"
+					}
+				},
+				"label": {
+					"create": {
+						"label": "Aanmaken",
+						"description": "Kan labels aanmaken"
+					},
+					"read": {
+						"label": "Lezen",
+						"description": "Kan labels bekijken"
+					},
+					"update": {
+						"label": "Bijwerken",
+						"description": "Kan labels bewerken"
+					},
+					"delete": {
+						"label": "Verwijderen",
+						"description": "Kan labels verwijderen"
+					}
+				},
+				"workspace": {
+					"read": {
+						"label": "Lezen",
+						"description": "Kan werkruimte-instellingen bekijken"
+					},
+					"update": {
+						"label": "Bijwerken",
+						"description": "Kan werkruimte-instellingen bijwerken"
+					},
+					"delete": {
+						"label": "Verwijderen",
+						"description": "Kan werkruimte verwijderen"
+					},
+					"manage_settings": {
+						"label": "Instellingen beheren",
+						"description": "Kan werkruimte-instellingen beheren"
+					}
+				}
+			},
+			"validation": {
+				"nameRequired": "Rolnaam is verplicht",
+				"nameExists": "Er bestaat al een rol met deze naam",
+				"permissionRequired": "Er moet minimaal één permissie geselecteerd zijn"
+			},
+			"toast": {
+				"created": "Rol aangemaakt",
+				"createError": "Aanmaken rol mislukt",
+				"updated": "Rol bijgewerkt",
+				"updateError": "Bijwerken rol mislukt",
+				"deleted": "Rol verwijderd",
+				"deleteError": "Verwijderen rol mislukt"
+			},
+			"deleteDialog": {
+				"title": "Rol verwijderen",
+				"description": "Dit zal de rol \"{{role}}\" permanent verwijderen. Leden met deze rol verliezen de bijbehorende permissies."
+			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "Labelinstellingen",
+			"title": "Labels",
+			"subtitle": "Maak, bewerk en verwijder labels op werkruimteniveau.",
+			"cardDescription": "Beheer labels die aan taken kunnen worden toegewezen.",
+			"createLabel": "Label aanmaken",
+			"editLabel": "Label bewerken",
+			"deleteLabel": "Verwijderen",
+			"saveLabel": "Opslaan",
+			"nameLabel": "Labelnaam",
+			"namePlaceholder": "Voer labelnaam in",
+			"colorLabel": "Kleur",
+			"createDescription": "Maak een nieuw label aan dat gebruikt kan worden voor taken in deze werkruimte.",
+			"editDescription": "Werk de naam of kleur van dit label bij.",
+			"deleteConfirmTitle": "Dit label verwijderen?",
+			"deleteConfirmDescription": "Dit zal dit label permanent van alle taken verwijderen. Dit kan niet ongedaan worden gemaakt.",
+			"empty": "Nog geen labels. Maak je eerste label aan om te beginnen.",
+			"createSuccess": "Label aangemaakt",
+			"updateSuccess": "Label bijgewerkt",
+			"deleteSuccess": "Label verwijderd",
+			"createError": "Aanmaken label mislukt",
+			"updateError": "Bijwerken label mislukt",
+			"deleteError": "Verwijderen label mislukt",
+			"nameRequired": "Labelnaam is verplicht"
+		},
+		"giteaIntegration": {
+			"validation": {
+				"baseUrlRequired": "Gitea basis-URL is verplicht",
+				"baseUrlInvalid": "Voer een geldige URL in (bijv. https://gitea.example.com)",
+				"ownerRequired": "Eigenaar van repository is verplicht",
+				"ownerInvalid": "Ongeldig formaat voor eigenaar",
+				"nameRequired": "Repositorynaam is verplicht",
+				"nameInvalid": "Ongeldig formaat voor repositorynaam"
+			},
+			"toast": {
+				"verifyOk": "Gitea-token heeft toegang tot deze repository",
+				"verifyWarning": "Controleer tokenpermissies of repositorytoegang",
+				"repoNotFound": "Repository niet gevonden of niet toegankelijk",
+				"verifyError": "Verifiëren van Gitea-toegang mislukt",
+				"tokenRequired": "Persoonlijk toegangstoken is verplicht",
+				"tokenRequiredVerify": "Voer een token in om te verifiëren",
+				"verifyFirst": "Toegangsverificatie mislukt. Controleer URL, token en repository",
+				"updated": "Gitea-integratie opgeslagen",
+				"updateError": "Opslaan Gitea-integratie mislukt",
+				"removed": "Gitea-integratie verwijderd",
+				"removeError": "Verwijderen Gitea-integratie mislukt",
+				"issuesImported": "Issues succesvol geïmporteerd",
+				"importError": "Importeren issues mislukt",
+				"commentOnEnabled": "Kaneo zal reageren met een taaklink op nieuwe issues",
+				"commentOnDisabled": "Reacties met taaklinks op nieuwe issues staan uit",
+				"settingsUpdateError": "Bijwerken Gitea-integratie mislukt",
+				"secretCopied": "Gekopieerd",
+				"unableToCopySecret": "Kopiëren van geheim mislukt"
+			},
+			"webhookShow": "Tonen",
+			"webhookHide": "Verbergen",
+			"webhookCopy": "Kopiëren",
+			"connectionStatus": "Verbindingsstatus",
+			"connectedActive": "Repository verbonden en actief",
+			"notConnectedHint": "Geen Gitea-repository verbonden",
+			"badgeConnected": "Verbonden",
+			"badgeNotConnected": "Niet verbonden",
+			"repository": "Repository",
+			"repositoryHint": "Gekoppelde Gitea-repository",
+			"commentTaskLinkTitle": "Reageer met Kaneo-link op nieuwe issues",
+			"commentTaskLinkHint": "Wanneer ingeschakeld, plaatst Kaneo een reactie op elke nieuwe issue met een link naar de taak.",
+			"webhookTitle": "Webhook",
+			"webhookHint": "Voeg in je Gitea-repository een webhook toe met deze URL en dit geheim. Schakel push, pull request, issues, issue-reacties en create (voor labels) in.",
+			"webhookSecretLabel": "Geheim (moet overeenkomen met het webhook-geheim in Gitea)",
+			"baseUrlLabel": "Gitea-URL",
+			"baseUrlHint": "Basis-URL van je Gitea-instantie",
+			"tokenLabel": "Persoonlijk toegangstoken",
+			"tokenHint": "Token met toegang tot repo en issues",
+			"tokenPlaceholder": "Plak token",
+			"tokenPlaceholderUpdate": "Plak een nieuw token om te rouleren",
+			"currentToken": "opgeslagen",
+			"ownerLabel": "Eigenaar",
+			"ownerHint": "Naam van gebruiker of organisatie",
+			"repoNameLabel": "Repositorynaam",
+			"repoNameHint": "Alleen de repositorynaam (zonder eigenaar)",
+			"actionsTitle": "Acties",
+			"actionsHint": "Verifieer toegang en verbind",
+			"browse": "Bladeren",
+			"verify": "Verifiëren",
+			"update": "Bijwerken",
+			"connect": "Verbinden",
+			"disconnect": "Ontkoppelen",
+			"importSectionTitle": "Gitea issues importeren",
+			"importSectionHint": "Importeer open issues en pull requests uit de repository",
+			"importing": "Importeren…",
+			"importIssues": "Issues importeren",
+			"importDisabledHint": "Verifieer de repository hierboven om importeren mogelijk te maken",
+			"browseModalTitle": "Je repositories",
+			"browseModalHint": "Repositories waar je token toegang toe heeft",
+			"searchRepos": "Zoeken…",
+			"browseNeedsCredentials": "Voer Gitea-URL en token in om te bladeren",
+			"loadingRepos": "Repositories laden…",
+			"retry": "Opnieuw proberen"
+		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "Voer een geldig Telegram-bottoken in",
+				"chatIdRequired": "Chat-ID is verplicht",
+				"threadIdInvalid": "Voer een geldig Telegram topic-thread-ID in"
+			},
+			"toast": {
+				"saved": "Telegram-integratie succesvol opgeslagen",
+				"saveError": "Opslaan Telegram-integratie mislukt",
+				"enabled": "Telegram-meldingen ingeschakeld",
+				"disabled": "Telegram-meldingen gepauzeerd",
+				"updateError": "Bijwerken Telegram-integratie mislukt",
+				"removed": "Telegram-integratie succesvol verwijderd",
+				"removeError": "Verwijderen Telegram-integratie mislukt"
+			},
+			"connectionTitle": "Telegram-botverbinding",
+			"connectionHint": "Gebruik een Telegram-bottoken en chat-ID om updates van projecttaken naar een chat of topic te versturen.",
+			"connected": "Verbonden",
+			"paused": "Gepauzeerd",
+			"botTokenLabel": "Bottoken",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "Maak een bot aan met BotFather en plak het token hier.",
+			"botTokenHintConfigured": "Er is al een bottoken geconfigureerd ({{token}}). Voer een nieuwe in om deze te vervangen.",
+			"chatIdLabel": "Chat-ID",
+			"chatIdPlaceholder": "-1001234567890 of @team_updates",
+			"chatIdHint": "Voer de Telegram chat-ID of kanaalgebruikersnaam in waar updates geplaatst moeten worden.",
+			"threadIdLabel": "Topic-thread-ID",
+			"threadIdPlaceholder": "Optioneel topic-ID",
+			"threadIdHint": "Optioneel. Gebruik dit voor forumtopics binnen Telegram-groepen.",
+			"chatLabelLabel": "Chatlabel",
+			"chatLabelPlaceholder": "Engineering-updates",
+			"chatLabelHint": "Optioneel label voor eigen referentie binnen Kaneo.",
+			"eventsTitle": "Gebeurtenis-meldingen",
+			"eventsHint": "Kies welke projectwijzigingen naar Telegram gepost moeten worden.",
+			"events": {
+				"taskCreated": "Nieuwe taken",
+				"taskStatusChanged": "Statuswijzigingen",
+				"taskPriorityChanged": "Prioriteitswijzigingen",
+				"taskTitleChanged": "Titelwijzigingen",
+				"taskDescriptionChanged": "Beschrijvingswijzigingen",
+				"taskCommentCreated": "Nieuwe reacties"
+			},
+			"connect": "Verbind Telegram",
+			"saveChanges": "Wijzigingen opslaan",
+			"disconnect": "Ontkoppelen"
 		}
 	},
 	"navigation": {
@@ -953,7 +1368,31 @@
 				"title": "Tijdregistratie gestart",
 				"contentWithTask": "Tijdregistratie gestart voor taak: {{taskTitle}}",
 				"contentWithoutTask": "Tijdregistratie gestart voor een taak"
+			},
+			"task_mention": {
+				"title": "{{mentionerName}} heeft je vermeld",
+				"content": "{{mentionerName}} heeft je vermeld in: {{taskTitle}}"
+			},
+			"task_comment": {
+				"title": "{{commenterName}} heeft gereageerd op je taak",
+				"content": "Nieuwe reactie op {{taskTitle}}: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "Taak vervalt binnenkort",
+				"content": "{{taskTitle}} vervalt over {{leadTime}}"
+			},
+			"task_overdue": {
+				"title": "Taak te laat",
+				"content": "{{taskTitle}} is over de einddatum heen"
 			}
+		},
+		"reminderLeadTime": {
+			"minutes_one": "{{count}} minuut",
+			"minutes_other": "{{count}} minuten",
+			"hours_one": "{{count}} uur",
+			"hours_other": "{{count}} uur",
+			"days_one": "{{count}} dag",
+			"days_other": "{{count}} dagen"
 		}
 	},
 	"activity": {
@@ -1052,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "Kolom links invoegen",
+					"addColumnAfter": "Kolom rechts invoegen",
+					"deleteColumn": "Kolom verwijderen",
+					"addRowBefore": "Rij erboven invoegen",
+					"addRowAfter": "Rij eronder invoegen",
+					"deleteRow": "Rij verwijderen",
+					"deleteTable": "Tabel verwijderen"
 				}
 			}
 		}
@@ -1204,7 +1652,8 @@
 			"selectTask": "Selecteer een taak om te koppelen",
 			"types": {
 				"blocks": "blokkeert",
-				"related": "is gerelateerd aan"
+				"related": "is gerelateerd aan",
+				"blocked_by": "geblokkeerd door"
 			}
 		},
 		"subtasks": {
@@ -1217,7 +1666,8 @@
 			"deleteError": "Verwijderen taak mislukt",
 			"deleteDialogTitle": "Taak verwijderen?",
 			"deleteDialogDescription": "Dit zal de taak en alle data permanent verwijderen. Dit kan niet ongedaan worden gemaakt.",
-			"deleteAction": "Taak verwijderen"
+			"deleteAction": "Taak verwijderen",
+			"completeAria": "Markeer subtaak als voltooid"
 		},
 		"properties": {
 			"title": "Eigenschappen",
@@ -1435,18 +1885,40 @@
 			"searchActions": "Acties zoeken...",
 			"noActionsFound": "Geen acties gevonden.",
 			"changeStatus": "Status wijzigen"
+		},
+		"move": {
+			"title": "Taak verplaatsen",
+			"projectLabel": "Doelproject",
+			"projectPlaceholder": "Selecteer een project",
+			"statusLabel": "Doelstatus",
+			"statusHintKeep": "De workflow van dit project ondersteunt de huidige status al.",
+			"statusHintAdjust": "Kies de status die in het doelproject gebruikt moet worden.",
+			"action": "Taak verplaatsen",
+			"success": "Taak succesvol verplaatst",
+			"error": "Verplaatsen taak mislukt"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "Kolom links invoegen",
+				"addColumnAfter": "Kolom rechts invoegen",
+				"deleteColumn": "Kolom verwijderen",
+				"addRowBefore": "Rij erboven invoegen",
+				"addRowAfter": "Rij eronder invoegen",
+				"deleteRow": "Rij verwijderen",
+				"deleteTable": "Tabel verwijderen"
+			}
 		}
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
-			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
-			"cta": "Accept invitation",
-			"sameEmail": "You can accept with the same email that received this message.",
-			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"subject": "{{inviterName}} heeft je uitgenodigd voor {{workspaceName}} op Kaneo",
+			"preview": "Je bent uitgenodigd voor {{workspaceName}} op Kaneo",
+			"title": "Word lid van {{workspaceName}}",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) heeft je uitgenodigd om samen te werken in Kaneo.",
+			"cta": "Uitnodiging accepteren",
+			"sameEmail": "Je kunt accepteren met hetzelfde e-mailadres waarop dit bericht is ontvangen.",
+			"ignore": "Verwachtte je deze e-mail niet, dan kun je deze veilig negeren.",
+			"footer": "Kaneo werkruimte-uitnodiging"
 		},
 		"pageTitle": "Uitnodigingen",
 		"pendingInvitations": "Openstaande uitnodigingen",
@@ -1483,7 +1955,8 @@
 				"complete": "Voltooid",
 				"inProgress": "In behandeling"
 			},
-			"noDueDate": "Geen einddatum"
+			"noDueDate": "Geen einddatum",
+			"emptyDescriptionReadOnly": "Er zijn nog geen projecten in deze werkruimte. Vraag een beheerder om er een aan te maken."
 		},
 		"search": {
 			"pageTitle": "Zoeken",
@@ -1523,17 +1996,21 @@
 		"roles": {
 			"owner": "Eigenaar",
 			"admin": "Beheerder",
-			"member": "Lid"
+			"member": "Lid",
+			"viewer": "Kijker"
 		},
 		"members": {
 			"pageTitle": "Leden",
-			"inviteMember": "Lid uitnodigen"
+			"inviteMember": "Lid uitnodigen",
+			"you": "Jij"
 		},
 		"invitations": {
 			"linkLabel": "Uitnodigingslink",
 			"copyLink": "Link kopiëren",
 			"linkCopied": "Uitnodigingslink gekopieerd",
-			"copyFailed": "Automatisch kopiëren mislukt. Selecteer de link en druk op Ctrl+C."
+			"copyFailed": "Automatisch kopiëren mislukt. Selecteer de link en druk op Ctrl+C.",
+			"pendingBadge": "in afwachting",
+			"expires": "Verloopt op {{date}}"
 		},
 		"inviteModal": {
 			"title": "Teamlid uitnodigen",
@@ -1568,7 +2045,9 @@
 			"removeError": "Verwijderen teamlid mislukt",
 			"cancelInviteSuccess": "Uitnodiging succesvol geannuleerd",
 			"cancelInviteError": "Annuleren uitnodiging mislukt",
-			"ariaInvitationActions": "Uitnodigingsacties"
+			"ariaInvitationActions": "Uitnodigingsacties",
+			"roleUpdateSuccess": "Rol bijgewerkt",
+			"roleUpdateError": "Bijwerken rol mislukt"
 		}
 	},
 	"publicProject": {

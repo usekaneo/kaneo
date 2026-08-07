@@ -158,7 +158,8 @@
 				"account_not_linked": "Không thể liên kết danh tính này với tài khoản hiện có. Hãy đăng nhập bằng email để xác minh tài khoản, sau đó thử SSO lại. Nếu không thể đăng nhập bằng email, hãy liên hệ quản trị viên của bạn.",
 				"oauth_code_verification_failed": "Xác minh OAuth thất bại. Vui lòng thử lại.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Đăng ký hiện đang bị tắt. Bạn cần có lời mời hợp lệ để tạo tài khoản."
-			}
+			},
+			"instanceStatusError": "Không thể kết nối đến máy chủ. Vui lòng thử lại sau giây lát."
 		},
 		"providers": {
 			"google": "Google",
@@ -193,7 +194,10 @@
 			"signingIn": "Đang đăng nhập...",
 			"continueAsGuest": "Tiếp tục với tư cách khách",
 			"toggleMessage": "Đã có tài khoản?",
-			"toggleLink": "Đăng nhập"
+			"toggleLink": "Đăng nhập",
+			"instanceStatusError": "Không thể kết nối đến máy chủ. Vui lòng thử lại sau giây lát.",
+			"instanceAdminTitle": "Thiết lập phiên bản Kaneo của bạn",
+			"instanceAdminSubtitle": "Tài khoản này sẽ trở thành quản trị viên của phiên bản với toàn quyền truy cập."
 		},
 		"verifyOtp": {
 			"pageTitle": "Xác minh mã",
@@ -567,6 +571,21 @@
 			"validation": {
 				"nameRequired": "Cần có tên không gian làm việc",
 				"nameShort": "Tên không gian làm việc phải có ít nhất 2 ký tự"
+			},
+			"transferOwnership": {
+				"toastSuccess": "Đã chuyển quyền sở hữu",
+				"toastError": "Không thể chuyển quyền sở hữu",
+				"title": "Chuyển quyền sở hữu",
+				"subtitle": "Bàn giao không gian làm việc này cho một thành viên khác. Bạn sẽ bị hạ xuống quản trị viên và mất các quyền chỉ dành cho chủ sở hữu.",
+				"pickerLabel": "Chủ sở hữu mới",
+				"noEligibleMembers": "Hãy mời ít nhất một thành viên khác trước khi bạn có thể chuyển quyền sở hữu.",
+				"pickerHint": "Họ sẽ trở thành chủ sở hữu duy nhất của không gian làm việc này.",
+				"pickerPlaceholder": "Chọn một thành viên",
+				"button": "Chuyển",
+				"dialogTitle": "Chuyển quyền sở hữu?",
+				"dialogDescription": "{{name}} sẽ trở thành chủ sở hữu duy nhất của {{workspace}}. Bạn sẽ giữ quyền quản trị viên nhưng mất các quyền chỉ dành cho chủ sở hữu như xóa không gian làm việc hoặc chuyển quyền sở hữu lần nữa.",
+				"transferring": "Đang chuyển…",
+				"confirm": "Chuyển quyền sở hữu"
 			}
 		},
 		"workspaceRoles": {
@@ -1472,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "Chèn cột bên trái",
+					"addColumnAfter": "Chèn cột bên phải",
+					"deleteColumn": "Xóa cột",
+					"addRowBefore": "Chèn hàng phía trên",
+					"addRowAfter": "Chèn hàng phía dưới",
+					"deleteRow": "Xóa hàng",
+					"deleteTable": "Xóa bảng"
 				}
 			}
 		}
@@ -1638,7 +1666,8 @@
 			"deleteError": "Không thể xóa công việc",
 			"deleteDialogTitle": "Xóa công việc?",
 			"deleteDialogDescription": "Thao tác này sẽ xóa vĩnh viễn công việc và toàn bộ dữ liệu của nó. Bạn không thể hoàn tác hành động này.",
-			"deleteAction": "Xóa công việc"
+			"deleteAction": "Xóa công việc",
+			"completeAria": "Đánh dấu hoàn thành công việc con"
 		},
 		"properties": {
 			"title": "Thuộc tính",
@@ -1867,6 +1896,17 @@
 			"searchActions": "Tìm hành động...",
 			"noActionsFound": "Không tìm thấy hành động nào.",
 			"changeStatus": "Đổi trạng thái"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "Chèn cột bên trái",
+				"addColumnAfter": "Chèn cột bên phải",
+				"deleteColumn": "Xóa cột",
+				"addRowBefore": "Chèn hàng phía trên",
+				"addRowAfter": "Chèn hàng phía dưới",
+				"deleteRow": "Xóa hàng",
+				"deleteTable": "Xóa bảng"
+			}
 		}
 	},
 	"invitations": {
