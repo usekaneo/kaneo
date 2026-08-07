@@ -149,7 +149,7 @@ function RouteComponent() {
               (column) =>
                 column.slug === selectedTask?.status ||
                 column.id === selectedTask?.status,
-            )?.isFinal ?? false
+            )?.isFinal ?? selectedTask?.status === "done"
           }
           open={isTaskModalOpen}
           onOpenChange={handleTaskModalClose}

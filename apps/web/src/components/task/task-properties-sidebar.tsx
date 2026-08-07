@@ -98,7 +98,7 @@ export default function TaskPropertiesSidebar({
     task?.status ?? "",
     statusColumn?.name,
   );
-  const statusIsFinal = statusColumn?.isFinal ?? false;
+  const statusIsFinal = statusColumn?.isFinal ?? task?.status === "done";
   const statusIcon = statusColumn?.icon;
 
   const projectSlug = project?.slug;
