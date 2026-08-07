@@ -1,3 +1,9 @@
+## [2.13.2](https://github.com/usekaneo/kaneo/compare/v2.13.1...v2.13.2) (2026-08-07)
+
+
+### Features
+
+* **api:** tag Sentry events with the app release ([33270e3](https://github.com/usekaneo/kaneo/commit/33270e37a76e8507eb358c59fa58a81425683c90))
 ## [2.13.1](https://github.com/usekaneo/kaneo/compare/v2.13.0...v2.13.1) (2026-08-07)
 
 
