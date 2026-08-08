@@ -190,7 +190,7 @@ describe("API integration: project reorder", () => {
     expect(projects.map((project) => project.position)).toEqual([0, 1, 2]);
   });
 
-  it("appends workspace projects missing from the payload", async () => {
+  it("keeps workspace projects missing from the payload in place", async () => {
     const member = await createWorkspaceMember({ role: "admin" });
     const { project: first } = await createProjectFixture({
       workspaceId: member.workspace.id,
@@ -231,13 +231,15 @@ describe("API integration: project reorder", () => {
       workspaceId: member.workspace.id,
       name: "First",
     });
-    const { project: second } = await createProjectFixture({
-      workspaceId: member.workspace.id,
-      name: "Second",
-    });
+    // Deliberately in the middle: an archived project seeded last would be
+    // indistinguishable from one the controller shunted to the end.
     const { project: archived } = await createProjectFixture({
       workspaceId: member.workspace.id,
       name: "Archived",
+    });
+    const { project: second } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Second",
     });
 
     mockAuthenticatedSession(member.user);
@@ -245,7 +247,7 @@ describe("API integration: project reorder", () => {
     expect((await archiveRequest(archived.id)).status).toBe(200);
 
     // The client never sees the archived project, so it cannot send it. The
-    // controller has to keep it in the workspace ordering anyway.
+    // controller has to leave it where it is and slot the payload around it.
     const response = await reorderRequest(member.workspace.id, [
       { id: second.id, position: 0 },
       { id: first.id, position: 1 },
@@ -262,8 +264,8 @@ describe("API integration: project reorder", () => {
     const allProjects = await listProjects(member.workspace.id, true);
     expect(allProjects.map((project) => project.id)).toEqual([
       second.id,
-      first.id,
       archived.id,
+      first.id,
     ]);
     expect(allProjects.map((project) => project.position)).toEqual([0, 1, 2]);
   });

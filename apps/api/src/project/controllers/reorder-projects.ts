@@ -25,8 +25,9 @@ async function reorderProjects(
     );
 
     // The whole workspace, not just the payload: the client only ever sees
-    // non-archived projects, so archived ones have to keep their place in the
-    // ordering without being sent.
+    // non-archived projects, so archived ones have to hold their place in the
+    // ordering without being sent. Ordering here defines each project's current
+    // rank, which is what the renumbering below pins them to.
     const existing = await tx
       .select({ id: projectTable.id, position: projectTable.position })
       .from(projectTable)
@@ -56,10 +57,19 @@ async function reorderProjects(
       .sort((a, b) => a.position - b.position)
       .map((project) => project.id);
     const requestedIds = new Set(requestedOrder);
-    const remaining = existing
-      .filter((project) => !requestedIds.has(project.id))
-      .map((project) => project.id);
-    const finalOrder = [...requestedOrder, ...remaining];
+
+    // Projects the payload omits keep the rank they already hold, and the
+    // payload fills the slots around them in the order it asked for. Appending
+    // them instead would sink an archived project to the bottom of the
+    // workspace the first time anyone dragged a visible one.
+    const requested = requestedOrder[Symbol.iterator]();
+    const finalOrder = existing.map((project) =>
+      requestedIds.has(project.id)
+        ? // Every requested id was matched against `existing` above, so the
+          // slots and the payload are the same length and this never falls back.
+          (requested.next().value ?? project.id)
+        : project.id,
+    );
 
     const currentPositions = new Map(
       existing.map((project) => [project.id, project.position]),
