@@ -787,7 +787,17 @@
 				"iconRequired": "L'icona è obbligatoria"
 			},
 			"importExportTasks": "Importa/Esporta",
-			"importExportTasksDescription": "Importa ed esporta attività."
+			"importExportTasksDescription": "Importa ed esporta attività.",
+			"moveModalConfirm": "Sposta progetto",
+			"moveModalDescription": "Questa azione sposterà il progetto \"{{name}}\" e tutte le sue attività in \"{{workspace}}\". Le attività assegnate a persone che non sono membri di quel workspace resteranno senza assegnatario e le iscrizioni alle notifiche per questo progetto verranno eliminate.",
+			"moveModalTitle": "Spostare il progetto?",
+			"moveProject": "Sposta in un altro workspace",
+			"moveProjectAction": "Sposta",
+			"moveProjectDescription": "Sposta questo progetto, con tutte le sue attività, in un altro workspace.",
+			"moveProjectPlaceholder": "Seleziona workspace",
+			"toastMoved": "Progetto spostato con successo",
+			"toastMovedWithUnassigned": "Progetto spostato con successo. {{taskCount}} attività sono rimaste senza assegnatario.",
+			"toastMoveError": "Impossibile spostare il progetto"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrazioni Progetto",

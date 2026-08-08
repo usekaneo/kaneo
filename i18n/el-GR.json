@@ -625,7 +625,17 @@
 				"iconRequired": "Το εικονίδιο είναι υποχρεωτικό"
 			},
 			"importExportTasks": "Εισαγωγή/Εξαγωγή",
-			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών"
+			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών",
+			"moveModalConfirm": "Μετακίνηση έργου",
+			"moveModalDescription": "Αυτό θα μετακινήσει το έργο \"{{name}}\" και όλες τις εργασίες του στο \"{{workspace}}\". Οι εργασίες που έχουν ανατεθεί σε άτομα που δεν είναι μέλη αυτού του χώρου εργασίας θα αποδεσμευτούν και οι συνδρομές ειδοποιήσεων για αυτό το έργο θα διαγραφούν.",
+			"moveModalTitle": "Μετακίνηση έργου;",
+			"moveProject": "Μετακίνηση σε χώρο εργασίας",
+			"moveProjectAction": "Μετακίνηση",
+			"moveProjectDescription": "Μετακινήστε αυτό το έργο, μαζί με όλες τις εργασίες του, σε άλλο χώρο εργασίας.",
+			"moveProjectPlaceholder": "Επιλέξτε χώρο εργασίας",
+			"toastMoved": "Το έργο μετακινήθηκε με επιτυχία",
+			"toastMovedWithUnassigned": "Το έργο μετακινήθηκε με επιτυχία. Αφαιρέθηκε η ανάθεση από {{taskCount}} εργασίες.",
+			"toastMoveError": "Αποτυχία μετακίνησης του έργου"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Ενσωματώσεις έργου",

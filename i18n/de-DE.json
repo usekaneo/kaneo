@@ -625,7 +625,17 @@
 				"iconRequired": "Symbol ist erforderlich"
 			},
 			"importExportTasks": "Import/Export",
-			"importExportTasksDescription": "Importieren und Exportieren von Aufgaben."
+			"importExportTasksDescription": "Importieren und Exportieren von Aufgaben.",
+			"moveModalConfirm": "Projekt verschieben",
+			"moveModalDescription": "Dadurch werden das Projekt \"{{name}}\" und alle zugehörigen Aufgaben nach \"{{workspace}}\" verschoben. Bei Aufgaben, die Personen zugewiesen sind, die kein Mitglied dieses Workspaces sind, wird die Zuweisung aufgehoben, und Benachrichtigungs-Abonnements für dieses Projekt werden entfernt.",
+			"moveModalTitle": "Projekt verschieben?",
+			"moveProject": "In Workspace verschieben",
+			"moveProjectAction": "Verschieben",
+			"moveProjectDescription": "Verschiebe dieses Projekt mit allen zugehörigen Aufgaben in einen anderen Workspace.",
+			"moveProjectPlaceholder": "Workspace auswählen",
+			"toastMoved": "Projekt erfolgreich verschoben",
+			"toastMovedWithUnassigned": "Projekt erfolgreich verschoben. Bei {{taskCount}} Aufgabe(n) wurde die Zuweisung aufgehoben.",
+			"toastMoveError": "Projekt konnte nicht verschoben werden"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Projektintegrationen",

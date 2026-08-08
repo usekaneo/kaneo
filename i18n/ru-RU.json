@@ -625,7 +625,17 @@
 				"iconRequired": "Иконка обязательна"
 			},
 			"importExportTasks": "Импорт/Экспорт",
-			"importExportTasksDescription": "Импортируйте и экспортируйте задачи."
+			"importExportTasksDescription": "Импортируйте и экспортируйте задачи.",
+			"moveModalConfirm": "Переместить проект",
+			"moveModalDescription": "Проект «{{name}}» и все его задачи будут перемещены в «{{workspace}}». С задач, назначенных пользователям, которые не состоят в этой рабочей области, назначение будет снято, а подписки на уведомления по этому проекту будут удалены.",
+			"moveModalTitle": "Переместить проект?",
+			"moveProject": "Переместить в другую рабочую область",
+			"moveProjectAction": "Переместить",
+			"moveProjectDescription": "Переместите этот проект вместе со всеми задачами в другую рабочую область.",
+			"moveProjectPlaceholder": "Выберите рабочую область",
+			"toastMoved": "Проект успешно перемещён",
+			"toastMovedWithUnassigned": "Проект успешно перемещён. С {{taskCount}} задач(и) снято назначение.",
+			"toastMoveError": "Не удалось переместить проект"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции проекта",

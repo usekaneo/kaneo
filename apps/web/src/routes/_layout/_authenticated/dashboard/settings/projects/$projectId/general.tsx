@@ -35,12 +35,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
+import useMoveProject from "@/hooks/mutations/project/use-move-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
+import { useWorkspacesWithPermission } from "@/hooks/queries/workspace/use-workspaces-with-permission";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -51,6 +61,11 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
 });
+
+// Module-level so their identity stays stable across renders.
+const PROJECT_CREATE = { project: ["create"] };
+const PROJECT_UPDATE = { project: ["update"] };
+const PROJECT_DELETE = { project: ["delete"] };
 
 type ProjectFormValues = {
   name: string;
@@ -108,6 +123,10 @@ function RouteComponent() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
+  // Deliberately outside `projectForm`: the form auto-saves on every change,
+  // and the target workspace must only be applied from the confirm dialog.
+  const [targetWorkspaceId, setTargetWorkspaceId] = useState("");
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
 
   const { data: workspace } = useActiveWorkspace();
   const { projectId: rawProjectId } = useParams({ strict: false });
@@ -124,6 +143,51 @@ function RouteComponent() {
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
+  const { mutateAsync: moveProject, isPending: isMoving } = useMoveProject();
+  const { data: workspaces } = useGetWorkspaces();
+  // Filtered against the project's own workspace rather than the active one:
+  // this route has no `workspaceId` param, so `useActiveWorkspace` falls back
+  // to the last-active organization, which can differ from where the project
+  // actually lives (deep link, bookmark, back after a workspace switch).
+  const moveCandidates = useMemo(
+    () => (workspaces ?? []).filter((item) => item.id !== project?.workspaceId),
+    [workspaces, project?.workspaceId],
+  );
+  // The endpoint also requires `project:create` in the target, so a workspace
+  // the user can't create in would only fail server-side after they picked it.
+  const moveCandidateIds = useMemo(
+    () => moveCandidates.map((item) => item.id),
+    [moveCandidates],
+  );
+  const canCreateIn = useWorkspacesWithPermission(
+    moveCandidateIds,
+    PROJECT_CREATE,
+  );
+  const moveTargets = useMemo(
+    () => moveCandidates.filter((item) => canCreateIn.has(item.id)),
+    [moveCandidates, canCreateIn],
+  );
+  // The API authorizes the move against the project's own workspace, which
+  // isn't necessarily the active one `useWorkspacePermission` answers for. It
+  // requires `delete` there on top of `update`, since a move takes the project
+  // out of that workspace.
+  const sourceWorkspaceIds = useMemo(
+    () => (project?.workspaceId ? [project.workspaceId] : []),
+    [project?.workspaceId],
+  );
+  const canUpdateSource = useWorkspacesWithPermission(
+    sourceWorkspaceIds,
+    PROJECT_UPDATE,
+  );
+  const canDeleteSource = useWorkspacesWithPermission(
+    sourceWorkspaceIds,
+    PROJECT_DELETE,
+  );
+  const canMoveFromSource = Boolean(
+    project?.workspaceId &&
+      canUpdateSource.has(project.workspaceId) &&
+      canDeleteSource.has(project.workspaceId),
+  );
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
   const canDelete = canDeleteProjects();
@@ -297,6 +361,45 @@ function RouteComponent() {
       })();
     };
   }, []);
+
+  const handleMoveProject = useCallback(async () => {
+    if (!project?.id || !targetWorkspaceId) return;
+
+    try {
+      const moved = await moveProject({
+        id: project.id,
+        workspaceId: targetWorkspaceId,
+      });
+
+      // `["projects"]` prefix-matches both the source and target listings.
+      // `["tasks", id]` backs the project store, which still carries the old
+      // workspace id that other views build links from.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["projects"] }),
+        queryClient.invalidateQueries({ queryKey: ["tasks", project.id] }),
+      ]);
+
+      toast.success(
+        moved.unassignedTaskCount > 0
+          ? t("settings:projectGeneral.toastMovedWithUnassigned", {
+              taskCount: moved.unassignedTaskCount,
+            })
+          : t("settings:projectGeneral.toastMoved"),
+      );
+
+      // The current URL still carries the old workspace id.
+      navigate({
+        to: "/dashboard/workspace/$workspaceId/project/$projectId",
+        params: { workspaceId: targetWorkspaceId, projectId: project.id },
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:projectGeneral.toastMoveError"),
+      );
+    }
+  }, [project?.id, targetWorkspaceId, moveProject, queryClient, navigate, t]);
 
   const handleDeleteProject = useCallback(async () => {
     if (!project?.id) return;
@@ -550,6 +653,59 @@ function RouteComponent() {
               </div>
               {project && <TasksImportExport project={project} />}
             </div>
+
+            {canMoveFromSource && moveTargets.length > 0 && (
+              <>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">
+                      {t("settings:projectGeneral.moveProject")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("settings:projectGeneral.moveProjectDescription")}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={targetWorkspaceId}
+                      onValueChange={(value) =>
+                        setTargetWorkspaceId(value ?? "")
+                      }
+                    >
+                      <SelectTrigger className="w-48 h-8 text-sm">
+                        <SelectValue
+                          placeholder={t(
+                            "settings:projectGeneral.moveProjectPlaceholder",
+                          )}
+                        >
+                          {moveTargets.find(
+                            (item) => item.id === targetWorkspaceId,
+                          )?.name ??
+                            t("settings:projectGeneral.moveProjectPlaceholder")}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {moveTargets.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      type="button"
+                      disabled={!targetWorkspaceId || !project || isMoving}
+                      onClick={() => setIsMoveModalOpen(true)}
+                    >
+                      {t("settings:projectGeneral.moveProjectAction")}
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -588,6 +744,36 @@ function RouteComponent() {
             </div>
           </div>
         )}
+
+        <AlertDialog open={isMoveModalOpen} onOpenChange={setIsMoveModalOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t("settings:projectGeneral.moveModalTitle")}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("settings:projectGeneral.moveModalDescription", {
+                  name: project?.name ?? "",
+                  workspace:
+                    moveTargets.find((item) => item.id === targetWorkspaceId)
+                      ?.name ?? "",
+                })}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogClose>
+                <Button variant="outline" size="sm">
+                  {t("common:actions.cancel")}
+                </Button>
+              </AlertDialogClose>
+              <AlertDialogClose onClick={handleMoveProject} disabled={isMoving}>
+                <Button size="sm" disabled={isMoving}>
+                  {t("settings:projectGeneral.moveModalConfirm")}
+                </Button>
+              </AlertDialogClose>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <AlertDialog
           open={isDeleteModalOpen}

@@ -625,7 +625,17 @@
 				"iconRequired": "Simge gereklidir"
 			},
 			"importExportTasks": "İçe/Dışa Aktar",
-			"importExportTasksDescription": "Talepleri içe ve dışa aktarın."
+			"importExportTasksDescription": "Talepleri içe ve dışa aktarın.",
+			"moveModalConfirm": "Projeyi taşı",
+			"moveModalDescription": "Bu işlem \"{{name}}\" projesini ve tüm görevlerini \"{{workspace}}\" alanına taşır. O çalışma alanının üyesi olmayan kişilere atanmış görevlerin ataması kaldırılır ve bu projeye ait bildirim abonelikleri silinir.",
+			"moveModalTitle": "Proje taşınsın mı?",
+			"moveProject": "Çalışma alanına taşı",
+			"moveProjectAction": "Taşı",
+			"moveProjectDescription": "Bu projeyi tüm görevleriyle birlikte başka bir çalışma alanına taşıyın.",
+			"moveProjectPlaceholder": "Çalışma alanı seçin",
+			"toastMoved": "Proje başarıyla taşındı",
+			"toastMovedWithUnassigned": "Proje başarıyla taşındı. {{taskCount}} görevin ataması kaldırıldı.",
+			"toastMoveError": "Proje taşınamadı"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Proje Entegrasyonları",
