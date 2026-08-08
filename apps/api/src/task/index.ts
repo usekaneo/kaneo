@@ -197,6 +197,14 @@ const task = new Hono<{
         priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
         userId: v.optional(v.string()),
+        customFields: v.optional(
+          v.array(
+            v.object({
+              fieldId: v.string(),
+              value: v.string(),
+            }),
+          ),
+        ),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
@@ -212,6 +220,7 @@ const task = new Hono<{
         priority,
         status,
         userId,
+        customFields,
       } = c.req.valid("json");
 
       const parsedStartDate =
@@ -235,6 +244,7 @@ const task = new Hono<{
         dueDate: parsedDueDate,
         priority,
         status,
+        customFields,
       });
 
       return c.json(task);
@@ -342,6 +352,14 @@ const task = new Hono<{
         projectId: v.string(),
         position: v.number(),
         userId: v.optional(v.string()),
+        customFields: v.optional(
+          v.array(
+            v.object({
+              fieldId: v.string(),
+              value: v.string(),
+            }),
+          ),
+        ),
       }),
     ),
     workspaceAccess.fromTask(),
@@ -816,39 +834,39 @@ const task = new Hono<{
 
       const [asset] = existingAsset
         ? await db
-            .update(assetTable)
-            .set({
-              workspaceId: taskContext.workspaceId,
-              projectId: taskContext.projectId,
-              taskId: taskContext.taskId,
-              filename,
-              mimeType: contentType,
-              size,
-              kind: isImageContentType(contentType) ? "image" : "attachment",
-              surface,
-              createdBy: userId || null,
-            })
-            .where(eq(assetTable.id, existingAsset.id))
-            .returning({
-              id: assetTable.id,
-            })
+          .update(assetTable)
+          .set({
+            workspaceId: taskContext.workspaceId,
+            projectId: taskContext.projectId,
+            taskId: taskContext.taskId,
+            filename,
+            mimeType: contentType,
+            size,
+            kind: isImageContentType(contentType) ? "image" : "attachment",
+            surface,
+            createdBy: userId || null,
+          })
+          .where(eq(assetTable.id, existingAsset.id))
+          .returning({
+            id: assetTable.id,
+          })
         : await db
-            .insert(assetTable)
-            .values({
-              workspaceId: taskContext.workspaceId,
-              projectId: taskContext.projectId,
-              taskId: taskContext.taskId,
-              objectKey: normalizedKey,
-              filename,
-              mimeType: contentType,
-              size,
-              kind: isImageContentType(contentType) ? "image" : "attachment",
-              surface,
-              createdBy: userId || null,
-            })
-            .returning({
-              id: assetTable.id,
-            });
+          .insert(assetTable)
+          .values({
+            workspaceId: taskContext.workspaceId,
+            projectId: taskContext.projectId,
+            taskId: taskContext.taskId,
+            objectKey: normalizedKey,
+            filename,
+            mimeType: contentType,
+            size,
+            kind: isImageContentType(contentType) ? "image" : "attachment",
+            surface,
+            createdBy: userId || null,
+          })
+          .returning({
+            id: assetTable.id,
+          });
 
       if (!asset) {
         throw new HTTPException(500, {

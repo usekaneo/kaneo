@@ -2,6 +2,7 @@ import { Filter, PanelsTopLeft, Rows3, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import SortControl from "@/components/common/sort-control";
+import type { CustomFieldDefinition } from "@/components/project/custom-field-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -51,6 +52,7 @@ type BoardToolbarProps = {
     value: BoardFilters[keyof BoardFilters],
   ) => void;
   updateLabelFilter: (labelId: string) => void;
+  updateCustomFieldFilter: (fieldId: string, value: string) => void;
   clearFilters: () => void;
   hasActiveFilters: boolean;
   users?: ActiveUsers;
@@ -59,6 +61,8 @@ type BoardToolbarProps = {
   setViewMode: (mode: "board" | "list") => void;
   sort: SortConfig;
   onSortChange: (sort: SortConfig) => void;
+  customFieldDefinitions?: CustomFieldDefinition[];
+  usedCustomFieldValues?: Record<string, string[]>;
 };
 
 function CheckSlot({ checked }: { checked: boolean }) {
@@ -121,7 +125,9 @@ function StackedIcons({
       {items.slice(0, 3).map((item) => (
         <span
           key={item.id}
-          className={`inline-flex size-4 items-center justify-center rounded-full bg-background ${itemClassName ?? ""}`}
+          className={`inline-flex size-4 items-center justify-center rounded-full bg-background ${
+            itemClassName ?? ""
+          }`}
         >
           {item.node}
         </span>
@@ -135,6 +141,7 @@ export default function BoardToolbar({
   filters,
   updateFilter,
   updateLabelFilter,
+  updateCustomFieldFilter,
   clearFilters,
   hasActiveFilters,
   users,
@@ -143,12 +150,23 @@ export default function BoardToolbar({
   setViewMode,
   sort,
   onSortChange,
+  customFieldDefinitions = [],
+  usedCustomFieldValues = {},
 }: BoardToolbarProps) {
   const { t } = useTranslation();
   const selectedStatusIds = filters.status ?? [];
   const selectedPriorityIds = filters.priority ?? [];
   const selectedAssigneeIds = filters.assignee ?? [];
   const selectedDueDateFilters = filters.dueDate ?? [];
+
+  const filterableCustomFields = customFieldDefinitions;
+
+  const activeCustomFieldCount = filters.customFields
+    ? Object.values(filters.customFields).reduce(
+        (sum, vals) => sum + (vals?.length ?? 0),
+        0,
+      )
+    : 0;
 
   const getStatusDisplayName = (statusId: string) => {
     const column = project?.columns?.find((col) => col.id === statusId);
@@ -249,6 +267,20 @@ export default function BoardToolbar({
   const clearLabelFilters = () => {
     if (!filters.labels || filters.labels.length === 0) return;
     for (const labelId of filters.labels) updateLabelFilter(labelId);
+  };
+
+  const clearCustomFieldFilter = (fieldId: string) => {
+    const current = filters.customFields ?? {};
+    const updated = { ...current };
+    delete updated[fieldId];
+    updateFilter(
+      "customFields",
+      Object.keys(updated).length > 0 ? updated : null,
+    );
+  };
+
+  const clearAllCustomFieldFilters = () => {
+    updateFilter("customFields", null);
   };
 
   return (
@@ -514,6 +546,131 @@ export default function BoardToolbar({
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
 
+
+                {/* ── Custom Fields (grouped) ── */}
+                {filterableCustomFields.length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
+                      <span className="flex flex-1 items-center justify-between gap-2">
+                        <span>{t("tasks:common.customFields")}</span>
+                        {activeCustomFieldCount > 0 && (
+                          <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                            {activeCustomFieldCount}
+                          </span>
+                        )}
+                      </span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-52">
+                      {activeCustomFieldCount > 0 && (
+                        <>
+                          <button
+                            className="inline-flex h-7 w-full items-center gap-1.5 rounded-md px-2 text-left text-xs text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                            onClick={clearAllCustomFieldFilters}
+                            type="button"
+                          >
+                            {t("common:actions.clearAllFilters", {
+                              defaultValue: "Clear all",
+                            })}
+                          </button>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+
+                      {filterableCustomFields.map((field) => {
+                        const selectedValues =
+                          filters.customFields?.[field.id] ?? [];
+
+                        let displayOptions: string[] = [];
+                        if (field.type === "dropdown") {
+                          displayOptions = field.options ?? [];
+                        } else if (field.type === "boolean") {
+                          displayOptions = ["true", "false"];
+                        } else {
+                          displayOptions =
+                            usedCustomFieldValues[field.id] ?? [];
+                        }
+
+                        const labelForOption = (opt: string) => {
+                          if (field.type === "boolean")
+                            return opt === "true" ? "True" : "False";
+                          return opt;
+                        };
+
+                        return (
+                          <DropdownMenuSub key={field.id}>
+                            <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
+                              <span className="flex flex-1 items-center justify-between gap-2">
+                                <span className="truncate">{field.name}</span>
+                                {selectedValues.length > 0 && (
+                                  <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                                    {selectedValues.length}
+                                  </span>
+                                )}
+                              </span>
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="w-48">
+                              <div className="grid grid-cols-1 gap-1 p-1">
+                                {/* Reset */}
+                                <button
+                                  className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
+                                    selectedValues.length === 0
+                                      ? "bg-accent text-accent-foreground"
+                                      : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
+                                  }`}
+                                  onClick={() =>
+                                    clearCustomFieldFilter(field.id)
+                                  }
+                                  type="button"
+                                >
+                                  <CheckSlot
+                                    checked={selectedValues.length === 0}
+                                  />
+                                  {t("tasks:boardFilters.all")}
+                                </button>
+                                {displayOptions.length === 0 ? (
+                                  <>
+                                    <DropdownMenuSeparator />
+                                    <span className="px-2 py-1 text-xs text-muted-foreground">
+                                      {t("tasks:boardFilters.noValuesUsedYet")}
+                                    </span>
+                                  </>
+                                ) : (
+                                  displayOptions.map((option) => (
+                                    <button
+                                      key={option}
+                                      className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
+                                        selectedValues.includes(option)
+                                          ? "bg-accent text-accent-foreground"
+                                          : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
+                                      }`}
+                                      onClick={() =>
+                                        updateCustomFieldFilter(
+                                          field.id,
+                                          option,
+                                        )
+                                      }
+                                      type="button"
+                                    >
+                                      <CheckSlot
+                                        checked={selectedValues.includes(
+                                          option,
+                                        )}
+                                      />
+                                      <span className="truncate">
+                                        {labelForOption(option)}
+                                      </span>
+                                    </button>
+                                  ))
+                                )}
+                              </div>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                        );
+                      })}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+
                 {hasActiveFilters && (
                   <>
                     <DropdownMenuSeparator />
@@ -641,6 +798,30 @@ export default function BoardToolbar({
                 onClear={clearLabelFilters}
               />
             )}
+
+            {/* Active filter chips — Custom Fields (un chip par champ actif) */}
+            {filters.customFields &&
+              Object.entries(filters.customFields).map(([fieldId, values]) => {
+                if (!values || values.length === 0) return null;
+                const fieldDef = customFieldDefinitions.find(
+                  (f) => f.id === fieldId,
+                );
+                return (
+                  <ActiveFilterChip
+                    key={fieldId}
+                    subject={fieldDef?.name ?? fieldId}
+                    operator={t("tasks:boardFilters.operators.isAnyOf")}
+                    value={
+                      values.length === 1
+                        ? values[0]
+                        : t("tasks:boardFilters.selectedCount", {
+                            count: values.length,
+                          })
+                    }
+                    onClear={() => clearCustomFieldFilter(fieldId)}
+                  />
+                );
+              })}
           </div>
 
           <div className="inline-flex items-center gap-1">

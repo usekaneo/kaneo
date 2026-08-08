@@ -1,9 +1,17 @@
 import { and, eq, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable, userTable } from "../../database/schema";
+import {
+  columnTable,
+  customFieldValueTable,
+  taskTable,
+  userTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
-import { assertValidTaskStatus } from "../validate-task-fields";
+import {
+  assertRequiredCustomFields,
+  assertValidTaskStatus,
+} from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
 
 async function createTask({
@@ -16,6 +24,7 @@ async function createTask({
   dueDate,
   description,
   priority,
+  customFields,
 }: {
   projectId: string;
   currentUserId: string;
@@ -26,11 +35,13 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  customFields?: { fieldId: string; value: string }[];
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
 
   await assertValidTaskStatus(resolvedStatus, projectId);
+  await assertRequiredCustomFields(projectId, customFields);
 
   const [assignee] = await db
     .select({ name: userTable.name })
@@ -77,6 +88,16 @@ async function createTask({
         position: nextPosition,
       })
       .returning();
+
+    if (customFields && customFields.length > 0 && task) {
+      await tx.insert(customFieldValueTable).values(
+        customFields.map((f) => ({
+          taskId: task.id,
+          fieldId: f.fieldId,
+          value: f.value,
+        })),
+      );
+    }
 
     return task;
   });
