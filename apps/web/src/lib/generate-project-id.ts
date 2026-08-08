@@ -36,7 +36,7 @@ function generateProjectSlug(projectName: string) {
 
 // Stripping punctuation can leave a word whose first code point is a combining
 // mark, which is not an initial anyone would recognize.
-function firstLetterOrNumber(word: string): string {
+function firstLetterOrNumber(word: string) {
   for (const char of word) {
     if (/[\p{L}\p{N}]/u.test(char)) {
       return char;
