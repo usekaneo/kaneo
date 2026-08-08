@@ -65,6 +65,7 @@ export const Route = createFileRoute(
 // Module-level so their identity stays stable across renders.
 const PROJECT_CREATE = { project: ["create"] };
 const PROJECT_UPDATE = { project: ["update"] };
+const PROJECT_DELETE = { project: ["delete"] };
 
 type ProjectFormValues = {
   name: string;
@@ -167,7 +168,9 @@ function RouteComponent() {
     [moveCandidates, canCreateIn],
   );
   // The API authorizes the move against the project's own workspace, which
-  // isn't necessarily the active one `useWorkspacePermission` answers for.
+  // isn't necessarily the active one `useWorkspacePermission` answers for. It
+  // requires `delete` there on top of `update`, since a move takes the project
+  // out of that workspace.
   const sourceWorkspaceIds = useMemo(
     () => (project?.workspaceId ? [project.workspaceId] : []),
     [project?.workspaceId],
@@ -176,8 +179,14 @@ function RouteComponent() {
     sourceWorkspaceIds,
     PROJECT_UPDATE,
   );
+  const canDeleteSource = useWorkspacesWithPermission(
+    sourceWorkspaceIds,
+    PROJECT_DELETE,
+  );
   const canMoveFromSource = Boolean(
-    project?.workspaceId && canUpdateSource.has(project.workspaceId),
+    project?.workspaceId &&
+      canUpdateSource.has(project.workspaceId) &&
+      canDeleteSource.has(project.workspaceId),
   );
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
