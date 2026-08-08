@@ -274,32 +274,7 @@ const customField = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
-    async (c, next) => {
-      const { id } = c.req.valid("param");
-
-      const [field] = await db
-        .select({ projectId: customFieldDefinitionTable.projectId })
-        .from(customFieldDefinitionTable)
-        .where(eq(customFieldDefinitionTable.id, id))
-        .limit(1);
-
-      if (!field) {
-        throw new HTTPException(404, { message: "Custom field not found" });
-      }
-
-      const [project] = await db
-        .select({ workspaceId: projectTable.workspaceId })
-        .from(projectTable)
-        .where(eq(projectTable.id, field.projectId))
-        .limit(1);
-
-      if (!project) {
-        throw new HTTPException(404, { message: "Project not found" });
-      }
-
-      c.set("workspaceId", project.workspaceId);
-      await next();
-    },
+    workspaceAccess.fromCustomField(),
     requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");

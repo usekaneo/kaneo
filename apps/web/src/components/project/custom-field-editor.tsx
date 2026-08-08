@@ -234,6 +234,7 @@ export default function CustomFieldEditor({
               (t) => t.value === field.type,
             );
             const FieldIcon = FieldType?.icon || Type;
+            // biome-ignore lint/a11y/useSemanticElements: false positive for role="listitem"
             return (
               <div
                 key={field.id}
@@ -267,7 +268,7 @@ export default function CustomFieldEditor({
                             {t("settings:customFields.options", "options")}
                           </span>
                         </HoverCardTrigger>
-                        <HoverCardContent className="w-64" align="start">
+                        <HoverCardContent className="w-64 max-w-[calc(100vw-3rem)]" align="start">
                           <div className="space-y-1.5">
                             <div className="text-xs font-medium text-muted-foreground">
                               {t(
@@ -275,11 +276,12 @@ export default function CustomFieldEditor({
                                 "Available options",
                               )}
                             </div>
-                            <div className="grid auto-cols-min grid-cols-7 gap-1.5">
+
+                            <div className="flex max-h-48 flex-wrap gap-1.5 overflow-y-auto">
                               {field.options.map((option) => (
                                 <span
                                   key={`field_${field.id}_option_${option}`}
-                                  className="inline-flex items-center rounded bg-secondary px-2.5 py-1 text-xs"
+                                  className="max-w-full whitespace-normal break-words rounded bg-secondary px-2.5 py-1 text-xs"
                                 >
                                   {option}
                                 </span>

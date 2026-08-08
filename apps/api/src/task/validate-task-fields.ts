@@ -49,16 +49,15 @@ export async function assertRequiredCustomFields(
         message: `Custom field "${def.name}" expects a valid ISO 8601 date, got "${cf.value}".`,
       });
     }
-    if (def.type === "dropdown" && def.options) {
-      const options: string[] = Array.isArray(def.options)
-        ? def.options
-        : typeof def.options === "string"
-          ? JSON.parse(def.options)
-          : Array.isArray(def.options)
-            ? def.options
+    if (def.type === "dropdown") {
+      const options: string[] =
+        Array.isArray(def.options)
+          ? def.options
+          : typeof def.options === "string"
+            ? JSON.parse(def.options)
             : [];
 
-      if (!options.includes(cf.value)) {
+      if (!options.includes(cf.value.trim())) {
         throw new HTTPException(400, {
           message: `Custom field "${def.name}" expects one of: ${options.join(", ")}, got "${cf.value}".`,
         });

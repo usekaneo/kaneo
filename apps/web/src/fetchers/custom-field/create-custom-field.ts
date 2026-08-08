@@ -7,7 +7,6 @@ export type CreateCustomFieldRequest = InferRequestType<
 
 async function createCustomField({
   projectId,
-  workspaceId,
   name,
   type,
   required,
@@ -17,7 +16,6 @@ async function createCustomField({
   const response = await client["custom-field"].$post({
     json: {
       projectId,
-      workspaceId,
       name,
       type,
       required,

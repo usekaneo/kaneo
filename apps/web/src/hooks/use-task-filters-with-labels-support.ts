@@ -36,8 +36,19 @@ function normalizeFilters(raw: unknown): BoardFilters {
     if (key === "customFields") {
       const value = candidate.customFields;
       if (value && typeof value === "object" && !Array.isArray(value)) {
-        normalized.customFields = value as Record<string, string[]>;
+        const customFields = Object.fromEntries(
+          Object.entries(value).filter(
+            ([, values]) =>
+              Array.isArray(values) &&
+              values.length > 0 &&
+              values.every((item) => typeof item === "string"),
+          ),
+        ) as Record<string, string[]>;
+
+        normalized.customFields =
+          Object.keys(customFields).length > 0 ? customFields : null;
       }
+
       continue;
     }
     const value = candidate[key];

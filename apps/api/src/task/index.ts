@@ -378,6 +378,7 @@ const task = new Hono<{
         projectId,
         position,
         userId,
+        
       } = c.req.valid("json");
 
       const currentUserId = c.get("userId");

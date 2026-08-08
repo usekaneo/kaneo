@@ -383,8 +383,7 @@ export const workspaceAccess = {
   fromCustomField: (idKey = "id") =>
     workspaceAccessMiddleware({
       sources: [
-        { type: "lookup", resource: "customField", idKey },
-        { type: "query", key: "workspaceId" },
+        { type: "lookup", resource: "customField", idKey }
       ],
     }),
 
