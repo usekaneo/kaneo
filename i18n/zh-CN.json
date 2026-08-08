@@ -158,7 +158,8 @@
 				"account_not_linked": "该身份无法关联到现有账户。请先用邮箱登录以验证账户，然后再尝试 SSO。如果无法使用邮箱登录，请联系管理员。",
 				"oauth_code_verification_failed": "OAuth 校验失败，请重试。",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "已关闭注册。创建账户需要有效的邀请。"
-			}
+			},
+			"instanceStatusError": "无法连接服务器，请稍后重试。"
 		},
 		"providers": {
 			"google": "Google",
@@ -193,7 +194,10 @@
 			"signingIn": "正在登录…",
 			"continueAsGuest": "以访客身份继续",
 			"toggleMessage": "已经有账户？",
-			"toggleLink": "登录"
+			"toggleLink": "登录",
+			"instanceStatusError": "无法连接服务器，请稍后重试。",
+			"instanceAdminTitle": "设置你的 Kaneo 实例",
+			"instanceAdminSubtitle": "此账户将成为拥有完整权限的实例管理员。"
 		},
 		"verifyOtp": {
 			"pageTitle": "验证码",
@@ -244,7 +248,7 @@
 			"loadingTitle": "正在加载邀请…",
 			"errorTitle": "邀请出错",
 			"invalidTitle": "邀请无效",
-			"invitationExpired": "Invitation Expired",
+			"invitationExpired": "邀请已过期",
 			"errorLoadDescription": "加载邀请详情失败，邀请可能无效或已过期。",
 			"goToSignIn": "前往登录",
 			"workspaceLabel": "工作区：{{workspaceName}}",
@@ -567,6 +571,21 @@
 			"validation": {
 				"nameRequired": "工作区名称不能为空",
 				"nameShort": "工作区名称至少需要 2 个字符"
+			},
+			"transferOwnership": {
+				"toastSuccess": "所有权已转移",
+				"toastError": "转移所有权失败",
+				"title": "转移所有权",
+				"subtitle": "将此工作区移交给其他成员。你将降级为管理员，并失去所有者专属权限。",
+				"pickerLabel": "新所有者",
+				"noEligibleMembers": "请先邀请至少一名其他成员，才能转移所有权。",
+				"pickerHint": "对方将成为此工作区的唯一所有者。",
+				"pickerPlaceholder": "选择成员",
+				"button": "转移",
+				"dialogTitle": "转移所有权？",
+				"dialogDescription": "{{name}} 将成为 {{workspace}} 的唯一所有者。你将保留管理员权限，但会失去删除工作区或再次转移等所有者专属权限。",
+				"transferring": "正在转移…",
+				"confirm": "转移所有权"
 			}
 		},
 		"workspaceRoles": {
@@ -938,7 +957,7 @@
 			"repository": "仓库",
 			"repositoryHint": "已关联的 Gitea 仓库",
 			"commentTaskLinkTitle": "在新 Issue 上评论 Kaneo 链接",
-			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"commentTaskLinkHint": "启用后，Kaneo 会在每个新 Issue 上发布一条包含任务链接的评论。",
 			"webhookTitle": "Webhook",
 			"webhookHint": "在你的 Gitea 仓库中，添加使用此 URL 和密钥的 Webhook。启用 push、pull request、issues、issue comments 和 create（用于标签）。",
 			"webhookSecretLabel": "密钥（必须与 Gitea 中的 Webhook 密钥一致）",
@@ -1032,9 +1051,9 @@
 			"webhookHint": "在 Discord 中创建频道 Webhook，然后粘贴生成的 URL。",
 			"channelLabel": "频道名称",
 			"channelPlaceholder": "#team-updates",
-			"channelHint": "Optional label for your reference. Discord controls the actual destination channel from the webhook setup.",
+			"channelHint": "可选参考标签。实际的目标频道由 Discord 在 Webhook 设置中控制。",
 			"eventsTitle": "事件通知",
-			"eventsHint": "Choose which project changes should post to Discord.",
+			"eventsHint": "选择哪些项目变更会发布到 Discord。",
 			"events": {
 				"taskCreated": "新任务",
 				"taskStatusChanged": "状态变更",
@@ -1067,7 +1086,7 @@
 			"paused": "已暂停",
 			"webhookLabel": "端点 URL",
 			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
-			"webhookHint": "Kaneo sends POST requests with a JSON payload for each enabled event.",
+			"webhookHint": "Kaneo 会为每个已启用的事件发送带 JSON 负载的 POST 请求。",
 			"secretLabel": "签名密钥",
 			"secretPlaceholder": "可选的共享密钥",
 			"secretHint": "可选。提供后，Kaneo 会对请求体进行签名，并通过 X-Kaneo-Signature 头发送十六进制摘要。",
@@ -1242,7 +1261,7 @@
 			"linkCopied": "项目链接已复制到剪贴板",
 			"addProject": "添加项目",
 			"deleteConfirmTitle": "删除项目？",
-			"deleteConfirmDescription": "This will permanently remove the project and all its data. You can't undo this action.",
+			"deleteConfirmDescription": "这将永久删除项目及其所有数据，此操作不可撤销。",
 			"deletedToast": "项目已删除",
 			"deleteProject": "删除项目"
 		},
@@ -1286,7 +1305,7 @@
 			"projectLabel": "Project"
 		},
 		"keyboardShortcuts": {
-			"title": "Keyboard Shortcuts",
+			"title": "键盘快捷键",
 			"subtitle": "使用键盘快捷键提升效率",
 			"searchPlaceholder": "搜索快捷键…",
 			"footer": "按 <kbd>Esc</kbd> 关闭",
@@ -1427,7 +1446,7 @@
 				"slashTable": "表格",
 				"slashFile": "文件",
 				"searchParagraph": "文本 段落 普通",
-				"searchHeading": "heading title h2",
+				"searchHeading": "标题 heading h2",
 				"searchBulletList": "列表 项目 无序",
 				"searchTaskList": "待办 清单 复选框 任务列表",
 				"searchOrderedList": "列表 有序 编号",
@@ -1472,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "在左侧插入列",
+					"addColumnAfter": "在右侧插入列",
+					"deleteColumn": "删除列",
+					"addRowBefore": "在上方插入行",
+					"addRowAfter": "在下方插入行",
+					"deleteRow": "删除行",
+					"deleteTable": "删除表格"
 				}
 			}
 		}
@@ -1596,7 +1624,7 @@
 						"keepAsLink": "保留为链接"
 					},
 					"inputPlaceholder": "粘贴 URL",
-					"embeddedContent": "Embedded content",
+					"embeddedContent": "嵌入内容",
 					"asLink": "作为链接",
 					"submit": "嵌入",
 					"errors": {
@@ -1638,7 +1666,8 @@
 			"deleteError": "删除任务失败",
 			"deleteDialogTitle": "删除任务？",
 			"deleteDialogDescription": "这将永久删除任务及其所有数据，此操作不可撤销。",
-			"deleteAction": "删除任务"
+			"deleteAction": "删除任务",
+			"completeAria": "将子任务标记为完成"
 		},
 		"properties": {
 			"title": "属性",
@@ -1867,6 +1896,17 @@
 			"searchActions": "搜索操作…",
 			"noActionsFound": "未找到操作。",
 			"changeStatus": "更改状态"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "在左侧插入列",
+				"addColumnAfter": "在右侧插入列",
+				"deleteColumn": "删除列",
+				"addRowBefore": "在上方插入行",
+				"addRowAfter": "在下方插入行",
+				"deleteRow": "删除行",
+				"deleteTable": "删除表格"
+			}
 		}
 	},
 	"invitations": {

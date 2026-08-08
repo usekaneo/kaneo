@@ -155,8 +155,11 @@
 			"githubError": "Αποτυχία σύνδεσης με GitHub",
 			"discordError": "Αποτυχία σύνδεσης με Discord",
 			"errors": {
-				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
-			}
+				"account_not_linked": "Αυτή η ταυτότητα δεν ήταν δυνατό να συνδεθεί με τον υπάρχοντα λογαριασμό. Συνδεθείτε με email για να επαληθεύσετε τον λογαριασμό και έπειτα δοκιμάστε ξανά το SSO. Αν η σύνδεση με email δεν είναι διαθέσιμη, επικοινωνήστε με τον διαχειριστή σας.",
+				"oauth_code_verification_failed": "Η επαλήθευση OAuth απέτυχε. Δοκιμάστε ξανά.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Η εγγραφή είναι προς το παρόν απενεργοποιημένη. Χρειάζεστε έγκυρη πρόσκληση για να δημιουργήσετε λογαριασμό."
+			},
+			"instanceStatusError": "Δεν ήταν δυνατή η επικοινωνία με τον διακομιστή. Δοκιμάστε ξανά σε λίγο."
 		},
 		"providers": {
 			"google": "Google",
@@ -191,7 +194,10 @@
 			"signingIn": "Γίνεται σύνδεση...",
 			"continueAsGuest": "Συνέχεια ως επισκέπτης",
 			"toggleMessage": "Έχετε ήδη λογαριασμό;",
-			"toggleLink": "Σύνδεση"
+			"toggleLink": "Σύνδεση",
+			"instanceStatusError": "Δεν ήταν δυνατή η επικοινωνία με τον διακομιστή. Δοκιμάστε ξανά σε λίγο.",
+			"instanceAdminTitle": "Ρυθμίστε την εγκατάσταση Kaneo σας",
+			"instanceAdminSubtitle": "Αυτός ο λογαριασμός γίνεται ο διαχειριστής της εγκατάστασης με πλήρη πρόσβαση."
 		},
 		"verifyOtp": {
 			"pageTitle": "Επαλήθευση κωδικού",
@@ -308,7 +314,7 @@
 		"account": "Λογαριασμός",
 		"developer": "Προγραμματιστής",
 		"information": "Πληροφορίες",
-		"notifications": "Notifications",
+		"notifications": "Ειδοποιήσεις",
 		"preferences": "Προτιμήσεις",
 		"apiKeys": "Κλειδιά API",
 		"informationPage": {
@@ -331,92 +337,106 @@
 			}
 		},
 		"notificationsPage": {
-			"pageTitle": "Notifications",
-			"title": "Notifications",
-			"subtitle": "Choose how Kaneo delivers your account notifications and which channels to use.",
+			"pageTitle": "Ειδοποιήσεις",
+			"title": "Ειδοποιήσεις",
+			"subtitle": "Επιλέξτε πώς παραδίδει το Kaneo τις ειδοποιήσεις του λογαριασμού σας και ποια κανάλια θα χρησιμοποιούνται.",
 			"statusConnected": "Connected",
 			"statusPaused": "Paused",
 			"emailTitle": "Email",
-			"emailDescription": "Use your account email as the destination for notifications.",
-			"accountEmailLabel": "Account email",
-			"accountEmailNoAddress": "No account email available",
-			"accountEmailHint": "Email delivery always goes to the signed-in account email.",
+			"emailDescription": "Χρησιμοποιήστε το email του λογαριασμού σας ως προορισμό για τις ειδοποιήσεις.",
+			"accountEmailLabel": "Email λογαριασμού",
+			"accountEmailNoAddress": "Δεν υπάρχει διαθέσιμο email λογαριασμού",
+			"accountEmailHint": "Η παράδοση email γίνεται πάντα στο email του συνδεδεμένου λογαριασμού.",
 			"saveChanges": "Save changes",
 			"disconnect": "Disconnect",
 			"ntfyTitle": "ntfy",
-			"ntfyDescription": "Publish account notifications to an ntfy topic.",
+			"ntfyDescription": "Δημοσιεύστε τις ειδοποιήσεις λογαριασμού σε ένα θέμα ntfy.",
 			"serverUrl": "Server URL",
 			"topic": "Topic",
 			"token": "Token",
 			"ntfyServerPlaceholder": "https://ntfy.example.com",
 			"ntfyTopicPlaceholder": "team-alerts",
-			"ntfyTokenPlaceholder": "Optional bearer token",
-			"ntfyTokenHintConfigured": "A token is already configured ({{masked}}). Enter a new token to replace it.",
-			"ntfyTokenHintOptional": "Optional. Provide a token if your ntfy server requires authentication.",
+			"ntfyTokenPlaceholder": "Προαιρετικό bearer token",
+			"ntfyTokenHintConfigured": "Ένα token έχει ήδη ρυθμιστεί ({{masked}}). Εισαγάγετε νέο token για να το αντικαταστήσετε.",
+			"ntfyTokenHintOptional": "Προαιρετικό. Δώστε token αν ο διακομιστής ntfy σας απαιτεί έλεγχο ταυτότητας.",
 			"connectNtfy": "Connect ntfy",
 			"gotifyTitle": "Gotify",
-			"gotifyDescription": "Send account notifications to your Gotify server.",
+			"gotifyDescription": "Στείλτε τις ειδοποιήσεις λογαριασμού στον διακομιστή Gotify σας.",
 			"gotifyTokenLabel": "App token",
 			"gotifyServerPlaceholder": "https://gotify.example.com",
-			"gotifyTokenPlaceholder": "Gotify app token",
-			"gotifyTokenHintConfigured": "An app token is already configured ({{masked}}). Enter a new token to replace it.",
-			"gotifyTokenHintRequired": "Required. Use an application token from your Gotify server.",
-			"connectGotify": "Connect Gotify",
-			"webhookTitle": "Custom webhook",
-			"webhookDescription": "Send account notifications to your own endpoint as JSON.",
+			"gotifyTokenPlaceholder": "Token εφαρμογής Gotify",
+			"gotifyTokenHintConfigured": "Ένα token εφαρμογής έχει ήδη ρυθμιστεί ({{masked}}). Εισαγάγετε νέο token για να το αντικαταστήσετε.",
+			"gotifyTokenHintRequired": "Υποχρεωτικό. Χρησιμοποιήστε token εφαρμογής από τον διακομιστή Gotify σας.",
+			"connectGotify": "Σύνδεση Gotify",
+			"webhookTitle": "Προσαρμοσμένο webhook",
+			"webhookDescription": "Στείλτε τις ειδοποιήσεις λογαριασμού στο δικό σας endpoint ως JSON.",
 			"endpointUrl": "Endpoint URL",
-			"signingSecret": "Signing secret",
+			"signingSecret": "Μυστικό υπογραφής",
 			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
-			"webhookSecretPlaceholder": "Optional shared secret",
-			"webhookSecretHintConfigured": "A signing secret is already configured ({{masked}}). Enter a new one to replace it.",
-			"webhookSecretHintOptional": "Optional. Kaneo signs the request body when a secret is set.",
-			"connectWebhook": "Connect webhook",
-			"workspaceRulesTitle": "Workspace delivery rules",
-			"workspaceRulesDescription": "Reuse your global channels, then decide which workspaces and projects are allowed to send account notifications.",
-			"workspaceCardHint": "Choose which channels this workspace can use for account notifications.",
+			"webhookSecretPlaceholder": "Προαιρετικό κοινόχρηστο μυστικό",
+			"webhookSecretHintConfigured": "Ένα μυστικό υπογραφής έχει ήδη ρυθμιστεί ({{masked}}). Εισαγάγετε νέο για να το αντικαταστήσετε.",
+			"webhookSecretHintOptional": "Προαιρετικό. Το Kaneo υπογράφει το σώμα του αιτήματος όταν έχει οριστεί μυστικό.",
+			"connectWebhook": "Σύνδεση webhook",
+			"workspaceRulesTitle": "Κανόνες παράδοσης χώρων εργασίας",
+			"workspaceRulesDescription": "Επαναχρησιμοποιήστε τα καθολικά σας κανάλια και έπειτα αποφασίστε ποιοι χώροι εργασίας και ποια έργα επιτρέπεται να στέλνουν ειδοποιήσεις λογαριασμού.",
+			"workspaceCardHint": "Επιλέξτε ποια κανάλια μπορεί να χρησιμοποιεί αυτός ο χώρος εργασίας για ειδοποιήσεις λογαριασμού.",
 			"workspaceCardLabelEmail": "Email",
 			"workspaceCardLabelNtfy": "ntfy",
 			"workspaceCardLabelGotify": "Gotify",
-			"workspaceCardLabelWebhook": "Custom webhook",
-			"emailChannelHintEnabled": "Send matching workspace notifications by email.",
-			"emailChannelHintDisabled": "Configure and enable email globally first.",
-			"ntfyChannelHintEnabled": "Send matching workspace notifications to ntfy.",
-			"ntfyChannelHintDisabled": "Configure and enable ntfy globally first.",
-			"gotifyChannelHintEnabled": "Send matching workspace notifications to Gotify.",
-			"gotifyChannelHintDisabled": "Configure and enable Gotify globally first.",
-			"webhookChannelHintEnabled": "Send matching workspace notifications to your webhook.",
-			"webhookChannelHintDisabled": "Configure and enable the webhook globally first.",
-			"projectScope": "Project scope",
-			"projectScopeDescription": "All projects are included by default. Narrow it down if this workspace should only send notifications from selected projects.",
+			"workspaceCardLabelWebhook": "Προσαρμοσμένο webhook",
+			"emailChannelHintEnabled": "Αποστολή των αντίστοιχων ειδοποιήσεων χώρου εργασίας μέσω email.",
+			"emailChannelHintDisabled": "Ρυθμίστε και ενεργοποιήστε πρώτα το email καθολικά.",
+			"ntfyChannelHintEnabled": "Αποστολή των αντίστοιχων ειδοποιήσεων χώρου εργασίας στο ntfy.",
+			"ntfyChannelHintDisabled": "Ρυθμίστε και ενεργοποιήστε πρώτα το ntfy καθολικά.",
+			"gotifyChannelHintEnabled": "Αποστολή των αντίστοιχων ειδοποιήσεων χώρου εργασίας στο Gotify.",
+			"gotifyChannelHintDisabled": "Ρυθμίστε και ενεργοποιήστε πρώτα το Gotify καθολικά.",
+			"webhookChannelHintEnabled": "Αποστολή των αντίστοιχων ειδοποιήσεων χώρου εργασίας στο webhook σας.",
+			"webhookChannelHintDisabled": "Ρυθμίστε και ενεργοποιήστε πρώτα το webhook καθολικά.",
+			"projectScope": "Εύρος έργων",
+			"projectScopeDescription": "Όλα τα έργα περιλαμβάνονται από προεπιλογή. Περιορίστε το αν αυτός ο χώρος εργασίας πρέπει να στέλνει ειδοποιήσεις μόνο από επιλεγμένα έργα.",
 			"allProjects": "All projects",
-			"allProjectsDescription": "Deliver notifications from every project in this workspace.",
-			"selectedProjects": "Selected projects",
-			"selectedProjectsDescription": "Only deliver notifications from chosen projects.",
-			"noProjectsInWorkspace": "No projects available for this workspace yet.",
+			"allProjectsDescription": "Παράδοση ειδοποιήσεων από κάθε έργο αυτού του χώρου εργασίας.",
+			"selectedProjects": "Επιλεγμένα έργα",
+			"selectedProjectsDescription": "Παράδοση ειδοποιήσεων μόνο από τα επιλεγμένα έργα.",
+			"noProjectsInWorkspace": "Δεν υπάρχουν ακόμα διαθέσιμα έργα για αυτόν τον χώρο εργασίας.",
 			"createRule": "Create rule",
 			"removeRule": "Remove rule",
-			"toastEmailSaved": "Email notification settings saved",
-			"toastEmailSaveFailed": "Failed to save email settings",
-			"toastNtfySaved": "ntfy settings saved",
-			"toastNtfySaveFailed": "Failed to save ntfy settings",
-			"toastNtfyDisconnected": "ntfy disconnected",
-			"toastNtfyDisconnectFailed": "Failed to disconnect ntfy",
-			"toastGotifySaved": "Gotify settings saved",
-			"toastGotifySaveFailed": "Failed to save Gotify settings",
-			"toastGotifyDisconnected": "Gotify disconnected",
-			"toastGotifyDisconnectFailed": "Failed to disconnect Gotify",
-			"toastWebhookSaved": "Webhook settings saved",
-			"toastWebhookSaveFailed": "Failed to save webhook settings",
-			"toastWebhookDisconnected": "Webhook disconnected",
-			"toastWebhookDisconnectFailed": "Failed to disconnect webhook",
-			"toastRuleSaved": "Saved notification rule for {{workspaceName}}",
-			"toastRuleSaveFailed": "Failed to save workspace notification rule",
-			"toastRuleRemoved": "Removed notification rule for {{workspaceName}}",
-			"toastRuleRemoveFailed": "Failed to remove workspace notification rule",
-			"toastPreferencesSaved": "Notification preferences saved",
-			"toastPreferencesSaveFailed": "Failed to save notification preferences",
-			"toastRuleSavedGeneric": "Workspace notification rule saved",
-			"toastRuleRemovedGeneric": "Workspace notification rule removed"
+			"toastEmailSaved": "Οι ρυθμίσεις ειδοποιήσεων email αποθηκεύτηκαν",
+			"toastEmailSaveFailed": "Αποτυχία αποθήκευσης ρυθμίσεων email",
+			"toastNtfySaved": "Οι ρυθμίσεις ntfy αποθηκεύτηκαν",
+			"toastNtfySaveFailed": "Αποτυχία αποθήκευσης ρυθμίσεων ntfy",
+			"toastNtfyDisconnected": "Το ntfy αποσυνδέθηκε",
+			"toastNtfyDisconnectFailed": "Αποτυχία αποσύνδεσης ntfy",
+			"toastGotifySaved": "Οι ρυθμίσεις Gotify αποθηκεύτηκαν",
+			"toastGotifySaveFailed": "Αποτυχία αποθήκευσης ρυθμίσεων Gotify",
+			"toastGotifyDisconnected": "Το Gotify αποσυνδέθηκε",
+			"toastGotifyDisconnectFailed": "Αποτυχία αποσύνδεσης Gotify",
+			"toastWebhookSaved": "Οι ρυθμίσεις webhook αποθηκεύτηκαν",
+			"toastWebhookSaveFailed": "Αποτυχία αποθήκευσης ρυθμίσεων webhook",
+			"toastWebhookDisconnected": "Το webhook αποσυνδέθηκε",
+			"toastWebhookDisconnectFailed": "Αποτυχία αποσύνδεσης webhook",
+			"toastRuleSaved": "Ο κανόνας ειδοποιήσεων για το {{workspaceName}} αποθηκεύτηκε",
+			"toastRuleSaveFailed": "Αποτυχία αποθήκευσης κανόνα ειδοποιήσεων χώρου εργασίας",
+			"toastRuleRemoved": "Ο κανόνας ειδοποιήσεων για το {{workspaceName}} αφαιρέθηκε",
+			"toastRuleRemoveFailed": "Αποτυχία αφαίρεσης κανόνα ειδοποιήσεων χώρου εργασίας",
+			"toastPreferencesSaved": "Οι προτιμήσεις ειδοποιήσεων αποθηκεύτηκαν",
+			"toastPreferencesSaveFailed": "Αποτυχία αποθήκευσης προτιμήσεων ειδοποιήσεων",
+			"toastRuleSavedGeneric": "Ο κανόνας ειδοποιήσεων χώρου εργασίας αποθηκεύτηκε",
+			"toastRuleRemovedGeneric": "Ο κανόνας ειδοποιήσεων χώρου εργασίας αφαιρέθηκε",
+			"workspaceEnabledLabel": "Ενεργοποίηση ειδοποιήσεων για {{workspaceName}}",
+			"eventPreferencesTitle": "Να ειδοποιούμαι για",
+			"eventPreferencesDescription": "Επιλέξτε ποια γεγονότα εργασιών δημιουργούν ειδοποιήσεις εντός εφαρμογής και μπορούν να παραδίδονται στα συνδεδεμένα κανάλια σας.",
+			"eventTaskAssignments": "Αναθέσεις εργασιών",
+			"eventComments": "Σχόλια και αναφορές",
+			"eventCommentsHint": "Περιλαμβάνει νέα σχόλια σε εργασίες που σας έχουν ανατεθεί και άμεσες @αναφορές.",
+			"eventStatusChanges": "Αλλαγές κατάστασης εργασιών",
+			"eventDueDateReminders": "Υπενθυμίσεις ημερομηνίας λήξης",
+			"reminderLeadTimeLabel": "Υπενθύμιση πριν από την ημερομηνία λήξης",
+			"reminderLeadTimeHint": "Από 1 ώρα έως 30 ημέρες πριν. Οι ειδοποιήσεις εκπρόθεσμων εργασιών αποστέλλονται ξεχωριστά.",
+			"reminderLeadTimeUnitHours": "Ώρες",
+			"reminderLeadTimeUnitDays": "Ημέρες",
+			"reminderLeadTimeInvalid": "Εισαγάγετε ακέραιο αριθμό μεταξύ 1 και {{max}}.",
+			"saveEventPreferences": "Αποθήκευση τύπων ειδοποιήσεων"
 		},
 		"preferencesPage": {
 			"title": "Προτιμήσεις",
@@ -551,6 +571,21 @@
 			"validation": {
 				"nameRequired": "Το όνομα χώρου εργασίας είναι υποχρεωτικό",
 				"nameShort": "Το όνομα χώρου εργασίας πρέπει να έχει τουλάχιστον 2 χαρακτήρες"
+			},
+			"transferOwnership": {
+				"toastSuccess": "Η ιδιοκτησία μεταβιβάστηκε",
+				"toastError": "Αποτυχία μεταβίβασης ιδιοκτησίας",
+				"title": "Μεταβίβαση ιδιοκτησίας",
+				"subtitle": "Παραδώστε αυτόν τον χώρο εργασίας σε άλλο μέλος. Θα υποβιβαστείτε σε διαχειριστή και θα χάσετε τις δυνατότητες που έχει μόνο ο ιδιοκτήτης.",
+				"pickerLabel": "Νέος ιδιοκτήτης",
+				"noEligibleMembers": "Προσκαλέστε τουλάχιστον ένα ακόμα μέλος πριν μπορέσετε να μεταβιβάσετε την ιδιοκτησία.",
+				"pickerHint": "Θα γίνει ο μοναδικός ιδιοκτήτης αυτού του χώρου εργασίας.",
+				"pickerPlaceholder": "Επιλέξτε μέλος",
+				"button": "Μεταβίβαση",
+				"dialogTitle": "Μεταβίβαση ιδιοκτησίας;",
+				"dialogDescription": "Ο/Η {{name}} θα γίνει ο μοναδικός ιδιοκτήτης του {{workspace}}. Θα διατηρήσετε πρόσβαση διαχειριστή αλλά θα χάσετε τις δυνατότητες ιδιοκτήτη, όπως τη διαγραφή του χώρου εργασίας ή τη νέα μεταβίβασή του.",
+				"transferring": "Γίνεται μεταβίβαση…",
+				"confirm": "Μεταβίβαση ιδιοκτησίας"
 			}
 		},
 		"projectGeneral": {
@@ -645,12 +680,12 @@
 			"toastFinalOn": "Η στήλη επισημάνθηκε ως τελική",
 			"toastFinalOff": "Η στήλη αποεπισημάνθηκε ως τελική",
 			"toastUpdateError": "Αποτυχία ενημέρωσης στήλης",
-			"toastIconUpdated": "Column icon updated",
+			"toastIconUpdated": "Το εικονίδιο στήλης ενημερώθηκε",
 			"toastDeleted": "Η στήλη διαγράφηκε",
 			"toastDeleteError": "Αποτυχία διαγραφής στήλης",
 			"loading": "Φόρτωση στηλών...",
-			"pickIconTitle": "Pick column icon",
-			"searchIconsPlaceholder": "Search icons...",
+			"pickIconTitle": "Επιλογή εικονιδίου στήλης",
+			"searchIconsPlaceholder": "Αναζήτηση εικονιδίων...",
 			"doneColumnTooltip": "Αντιμετώπιση αυτής ως στήλη ολοκλήρωσης",
 			"doneColumn": "Στήλη ολοκλήρωσης",
 			"markDoneAria": "Επισήμανση του {{name}} ως στήλη ολοκλήρωσης",
@@ -722,76 +757,76 @@
 		},
 		"giteaIntegration": {
 			"validation": {
-				"baseUrlRequired": "Gitea base URL is required",
-				"baseUrlInvalid": "Enter a valid URL (e.g. https://gitea.example.com)",
-				"ownerRequired": "Repository owner is required",
-				"ownerInvalid": "Invalid repository owner format",
-				"nameRequired": "Repository name is required",
-				"nameInvalid": "Invalid repository name format"
+				"baseUrlRequired": "Το βασικό URL του Gitea είναι υποχρεωτικό",
+				"baseUrlInvalid": "Εισαγάγετε έγκυρο URL (π.χ. https://gitea.example.com)",
+				"ownerRequired": "Ο κάτοχος του αποθετηρίου είναι υποχρεωτικός",
+				"ownerInvalid": "Μη έγκυρη μορφή κατόχου αποθετηρίου",
+				"nameRequired": "Το όνομα του αποθετηρίου είναι υποχρεωτικό",
+				"nameInvalid": "Μη έγκυρη μορφή ονόματος αποθετηρίου"
 			},
 			"toast": {
-				"verifyOk": "Gitea token can access this repository",
-				"verifyWarning": "Check token permissions or repository access",
-				"repoNotFound": "Repository not found or not accessible",
-				"verifyError": "Failed to verify Gitea access",
-				"tokenRequired": "Personal access token is required",
-				"tokenRequiredVerify": "Enter a token to verify",
-				"verifyFirst": "Verify access failed. Check URL, token, and repository",
-				"updated": "Gitea integration saved",
-				"updateError": "Failed to save Gitea integration",
-				"removed": "Gitea integration removed",
-				"removeError": "Failed to remove Gitea integration",
-				"issuesImported": "Issues imported successfully",
-				"importError": "Failed to import issues",
-				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
-				"commentOnDisabled": "Task link comments on new issues are turned off",
-				"settingsUpdateError": "Failed to update Gitea integration",
+				"verifyOk": "Το token Gitea έχει πρόσβαση σε αυτό το αποθετήριο",
+				"verifyWarning": "Ελέγξτε τα δικαιώματα του token ή την πρόσβαση στο αποθετήριο",
+				"repoNotFound": "Το αποθετήριο δεν βρέθηκε ή δεν είναι προσβάσιμο",
+				"verifyError": "Αποτυχία επαλήθευσης πρόσβασης Gitea",
+				"tokenRequired": "Το προσωπικό token πρόσβασης είναι υποχρεωτικό",
+				"tokenRequiredVerify": "Εισαγάγετε token για επαλήθευση",
+				"verifyFirst": "Η επαλήθευση πρόσβασης απέτυχε. Ελέγξτε το URL, το token και το αποθετήριο",
+				"updated": "Η ενσωμάτωση Gitea αποθηκεύτηκε",
+				"updateError": "Αποτυχία αποθήκευσης ενσωμάτωσης Gitea",
+				"removed": "Η ενσωμάτωση Gitea αφαιρέθηκε",
+				"removeError": "Αποτυχία αφαίρεσης ενσωμάτωσης Gitea",
+				"issuesImported": "Τα issues εισήχθησαν με επιτυχία",
+				"importError": "Αποτυχία εισαγωγής issues",
+				"commentOnEnabled": "Το Kaneo θα δημοσιεύει σχόλιο με σύνδεσμο εργασίας στα νέα issues",
+				"commentOnDisabled": "Τα σχόλια με σύνδεσμο εργασίας στα νέα issues είναι απενεργοποιημένα",
+				"settingsUpdateError": "Αποτυχία ενημέρωσης ενσωμάτωσης Gitea",
 				"secretCopied": "Copied",
-				"unableToCopySecret": "Unable to copy secret"
+				"unableToCopySecret": "Δεν ήταν δυνατή η αντιγραφή του μυστικού"
 			},
 			"webhookShow": "Show",
 			"webhookHide": "Hide",
 			"webhookCopy": "Copy",
-			"connectionStatus": "Connection status",
-			"connectedActive": "Repository connected and active",
-			"notConnectedHint": "No Gitea repository connected",
+			"connectionStatus": "Κατάσταση σύνδεσης",
+			"connectedActive": "Το αποθετήριο είναι συνδεδεμένο και ενεργό",
+			"notConnectedHint": "Δεν έχει συνδεθεί αποθετήριο Gitea",
 			"badgeConnected": "Connected",
-			"badgeNotConnected": "Not connected",
+			"badgeNotConnected": "Μη συνδεδεμένο",
 			"repository": "Repository",
-			"repositoryHint": "Linked Gitea repository",
-			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
-			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"repositoryHint": "Συνδεδεμένο αποθετήριο Gitea",
+			"commentTaskLinkTitle": "Σχολιασμός με σύνδεσμο Kaneo σε νέα issues",
+			"commentTaskLinkHint": "Όταν είναι ενεργό, το Kaneo δημοσιεύει σχόλιο σε κάθε νέο issue με σύνδεσμο προς την εργασία.",
 			"webhookTitle": "Webhook",
-			"webhookHint": "In your Gitea repository, add a webhook with this URL and secret. Enable push, pull request, issues, issue comments, and create (for labels).",
-			"webhookSecretLabel": "Secret (must match the webhook secret in Gitea)",
+			"webhookHint": "Στο αποθετήριό σας στο Gitea, προσθέστε ένα webhook με αυτό το URL και το μυστικό. Ενεργοποιήστε push, pull request, issues, σχόλια issues και create (για ετικέτες).",
+			"webhookSecretLabel": "Μυστικό (πρέπει να ταιριάζει με το μυστικό του webhook στο Gitea)",
 			"baseUrlLabel": "Gitea URL",
-			"baseUrlHint": "Root URL of your Gitea instance",
-			"tokenLabel": "Personal access token",
-			"tokenHint": "Token with repo and issues access",
+			"baseUrlHint": "Το ριζικό URL της εγκατάστασης Gitea σας",
+			"tokenLabel": "Προσωπικό token πρόσβασης",
+			"tokenHint": "Token με πρόσβαση σε αποθετήρια και issues",
 			"tokenPlaceholder": "Paste token",
-			"tokenPlaceholderUpdate": "Paste new token to rotate",
+			"tokenPlaceholderUpdate": "Επικολλήστε νέο token για αντικατάσταση",
 			"currentToken": "stored",
 			"ownerLabel": "Owner",
-			"ownerHint": "User or organization name",
-			"repoNameLabel": "Repository name",
-			"repoNameHint": "Repository name only (no owner)",
+			"ownerHint": "Όνομα χρήστη ή οργανισμού",
+			"repoNameLabel": "Όνομα αποθετηρίου",
+			"repoNameHint": "Μόνο το όνομα του αποθετηρίου (χωρίς κάτοχο)",
 			"actionsTitle": "Actions",
-			"actionsHint": "Verify access and connect",
+			"actionsHint": "Επαληθεύστε την πρόσβαση και συνδεθείτε",
 			"browse": "Browse",
 			"verify": "Verify",
 			"update": "Update",
 			"connect": "Connect",
 			"disconnect": "Disconnect",
-			"importSectionTitle": "Import Gitea issues",
-			"importSectionHint": "Import open issues and pull requests from the repository",
+			"importSectionTitle": "Εισαγωγή issues Gitea",
+			"importSectionHint": "Εισαγάγετε ανοιχτά issues και pull requests από το αποθετήριο",
 			"importing": "Importing…",
-			"importIssues": "Import issues",
-			"importDisabledHint": "Verify the repository above to enable importing",
-			"browseModalTitle": "Your repositories",
-			"browseModalHint": "Repositories your token can access",
+			"importIssues": "Εισαγωγή issues",
+			"importDisabledHint": "Επαληθεύστε το αποθετήριο παραπάνω για να ενεργοποιήσετε την εισαγωγή",
+			"browseModalTitle": "Τα αποθετήριά σας",
+			"browseModalHint": "Αποθετήρια στα οποία έχει πρόσβαση το token σας",
 			"searchRepos": "Search…",
-			"browseNeedsCredentials": "Enter Gitea URL and token to browse",
-			"loadingRepos": "Loading repositories…",
+			"browseNeedsCredentials": "Εισαγάγετε URL και token Gitea για περιήγηση",
+			"loadingRepos": "Φόρτωση αποθετηρίων…",
 			"retry": "Retry"
 		},
 		"slackIntegration": {
@@ -887,7 +922,8 @@
 				"taskPriorityChanged": "Αλλαγές προτεραιότητας",
 				"taskStatusChanged": "Αλλαγές κατάστασης",
 				"taskTitleChanged": "Αλλαγές τίτλου",
-				"taskUnassigned": "Αφαίρεση ανάθεσης"
+				"taskUnassigned": "Αφαίρεση ανάθεσης",
+				"dueDateReminder": "Υπενθυμίσεις ημερομηνίας λήξης"
 			},
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα ενεργοποιούν εξερχόμενα webhooks.",
 			"eventsTitle": "Ειδοποιήσεις γεγονότων",
@@ -911,7 +947,8 @@
 			},
 			"webhookHint": "Το Kaneo στέλνει αιτήματα POST με JSON payload για κάθε ενεργοποιημένο γεγονός.",
 			"webhookLabel": "URL endpoint",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo"
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"reminderLeadTimeLabel": "Αποστολή του webhook τόσες ώρες πριν από τη λήξη"
 		},
 		"telegramIntegration": {
 			"validation": {
@@ -943,7 +980,7 @@
 			"threadIdPlaceholder": "Προαιρετικό αναγνωριστικό θέματος",
 			"threadIdHint": "Προαιρετικό. Χρησιμοποιήστε το για θέματα forum μέσα σε ομάδες Telegram.",
 			"chatLabelLabel": "Ετικέτα συνομιλίας",
-			"chatLabelPlaceholder": "Engineering Updates",
+			"chatLabelPlaceholder": "Ενημερώσεις ομάδας μηχανικών",
 			"chatLabelHint": "Προαιρετική ετικέτα για δική σας αναφορά μέσα στο Kaneo.",
 			"eventsTitle": "Ειδοποιήσεις συμβάντων",
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα δημοσιεύονται στο Telegram.",
@@ -1011,7 +1048,9 @@
 				"pr_merged": "Συγχώνευση PR",
 				"issue_opened": "Άνοιγμα issue",
 				"issue_closed": "Κλείσιμο issue"
-			}
+			},
+			"giteaHeading": "Gitea",
+			"giteaHint": "Όταν συμβαίνει ένα γεγονός webhook του Gitea, μετακινήστε τη συνδεδεμένη εργασία σε μια στήλη."
 		},
 		"externalLinks": {
 			"resources": "Πόροι",
@@ -1020,6 +1059,168 @@
 			"merged": "Συγχωνευμένο",
 			"draft": "Πρόχειρο",
 			"open": "Ανοιχτό"
+		},
+		"workspaceRoles": {
+			"pageTitle": "Ρόλοι",
+			"title": "Ρόλοι",
+			"subtitle": "Ορίστε ποιες ενέργειες μπορούν να εκτελούν τα μέλη στο {{workspaceName}}.",
+			"thisWorkspace": "αυτόν τον χώρο εργασίας",
+			"noAccess": "Χρειάζεστε δικαιώματα διαχειριστή ή ιδιοκτήτη για να διαχειριστείτε τους ρόλους του χώρου εργασίας.",
+			"sectionTitle": "Ρόλοι χώρου εργασίας",
+			"sectionSubtitle": "Επεξεργαστείτε τους προεπιλεγμένους ρόλους ή προσθέστε έναν προσαρμοσμένο. Τα μέλη διατηρούν το όνομα του ρόλου που τους έχει ανατεθεί μετά τις αλλαγές.",
+			"newRole": "Νέος ρόλος",
+			"loading": "Φόρτωση…",
+			"loadError": "Αποτυχία φόρτωσης ρόλων.",
+			"emptyTitle": "Δεν υπάρχουν ακόμα ρόλοι",
+			"emptyDescription": "Οι προεπιλεγμένοι ρόλοι θα εμφανιστούν εδώ μόλις δημιουργηθούν για αυτόν τον χώρο εργασίας.",
+			"defaultBadge": "Προεπιλογή",
+			"permissionCount_one": "{{count}} δικαίωμα",
+			"permissionCount_other": "{{count}} δικαιώματα",
+			"nameLabel": "Όνομα",
+			"nameHint": "Πεζά γράμματα. Δεν μπορεί να αλλάξει αργότερα.",
+			"namePlaceholder": "π.χ. reviewer",
+			"discard": "Απόρριψη",
+			"createRole": "Δημιουργία ρόλου",
+			"deleteRole": "Διαγραφή ρόλου",
+			"defaultRoleHelp": "Προεπιλεγμένος ρόλος: το όνομα είναι δεσμευμένο και η γραμμή δεν μπορεί να διαγραφεί.",
+			"unsavedChanges": "Έχετε μη αποθηκευμένες αλλαγές",
+			"allChangesSaved": "Όλες οι αλλαγές αποθηκεύτηκαν",
+			"saveChanges": "Αποθήκευση αλλαγών",
+			"defaultRoleDescriptions": {
+				"viewer": "Μπορεί να βλέπει και να σχολιάζει εργασίες.",
+				"member": "Μπορεί να δημιουργεί και να διαχειρίζεται εργασίες και έργα.",
+				"admin": "Έχει πλήρη πρόσβαση στον χώρο εργασίας."
+			},
+			"resources": {
+				"project": "Έργα",
+				"task": "Εργασίες",
+				"label": "Ετικέτες",
+				"workspace": "Χώρος εργασίας"
+			},
+			"permissions": {
+				"project": {
+					"create": {
+						"label": "Δημιουργία",
+						"description": "Μπορεί να δημιουργεί νέα έργα"
+					},
+					"read": {
+						"label": "Ανάγνωση",
+						"description": "Μπορεί να βλέπει έργα"
+					},
+					"update": {
+						"label": "Ενημέρωση",
+						"description": "Μπορεί να επεξεργάζεται τις ρυθμίσεις έργου"
+					},
+					"delete": {
+						"label": "Διαγραφή",
+						"description": "Μπορεί να διαγράφει έργα"
+					},
+					"share": {
+						"label": "Κοινοποίηση",
+						"description": "Μπορεί να κοινοποιεί έργα"
+					}
+				},
+				"task": {
+					"create": {
+						"label": "Δημιουργία",
+						"description": "Μπορεί να δημιουργεί εργασίες"
+					},
+					"read": {
+						"label": "Ανάγνωση",
+						"description": "Μπορεί να βλέπει εργασίες"
+					},
+					"update": {
+						"label": "Ενημέρωση",
+						"description": "Μπορεί να επεξεργάζεται εργασίες"
+					},
+					"delete": {
+						"label": "Διαγραφή",
+						"description": "Μπορεί να διαγράφει εργασίες"
+					},
+					"assign": {
+						"label": "Ανάθεση",
+						"description": "Μπορεί να αναθέτει εργασίες σε μέλη"
+					}
+				},
+				"label": {
+					"create": {
+						"label": "Δημιουργία",
+						"description": "Μπορεί να δημιουργεί ετικέτες"
+					},
+					"read": {
+						"label": "Ανάγνωση",
+						"description": "Μπορεί να βλέπει ετικέτες"
+					},
+					"update": {
+						"label": "Ενημέρωση",
+						"description": "Μπορεί να επεξεργάζεται ετικέτες"
+					},
+					"delete": {
+						"label": "Διαγραφή",
+						"description": "Μπορεί να διαγράφει ετικέτες"
+					}
+				},
+				"workspace": {
+					"read": {
+						"label": "Ανάγνωση",
+						"description": "Μπορεί να βλέπει τις ρυθμίσεις του χώρου εργασίας"
+					},
+					"update": {
+						"label": "Ενημέρωση",
+						"description": "Μπορεί να ενημερώνει τις ρυθμίσεις του χώρου εργασίας"
+					},
+					"delete": {
+						"label": "Διαγραφή",
+						"description": "Μπορεί να διαγράφει τον χώρο εργασίας"
+					},
+					"manage_settings": {
+						"label": "Διαχείριση ρυθμίσεων",
+						"description": "Μπορεί να διαχειρίζεται τις ρυθμίσεις του χώρου εργασίας"
+					}
+				}
+			},
+			"validation": {
+				"nameRequired": "Το όνομα ρόλου είναι υποχρεωτικό",
+				"nameExists": "Υπάρχει ήδη ρόλος με αυτό το όνομα",
+				"permissionRequired": "Πρέπει να επιλεγεί τουλάχιστον ένα δικαίωμα"
+			},
+			"toast": {
+				"created": "Ο ρόλος δημιουργήθηκε",
+				"createError": "Αποτυχία δημιουργίας ρόλου",
+				"updated": "Ο ρόλος ενημερώθηκε",
+				"updateError": "Αποτυχία ενημέρωσης ρόλου",
+				"deleted": "Ο ρόλος διαγράφηκε",
+				"deleteError": "Αποτυχία διαγραφής ρόλου"
+			},
+			"deleteDialog": {
+				"title": "Διαγραφή ρόλου",
+				"description": "Αυτό θα διαγράψει οριστικά τον ρόλο \"{{role}}\". Τα μέλη με αυτόν τον ρόλο θα χάσουν τα δικαιώματά του."
+			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "Ρυθμίσεις ετικετών",
+			"title": "Ετικέτες",
+			"subtitle": "Δημιουργήστε, επεξεργαστείτε και διαγράψτε ετικέτες σε επίπεδο χώρου εργασίας.",
+			"cardDescription": "Διαχειριστείτε τις ετικέτες που μπορούν να ανατεθούν σε εργασίες.",
+			"createLabel": "Δημιουργία ετικέτας",
+			"editLabel": "Επεξεργασία ετικέτας",
+			"deleteLabel": "Διαγραφή",
+			"saveLabel": "Αποθήκευση",
+			"nameLabel": "Όνομα ετικέτας",
+			"namePlaceholder": "Εισαγάγετε όνομα ετικέτας",
+			"colorLabel": "Χρώμα",
+			"createDescription": "Δημιουργήστε μια νέα ετικέτα που μπορεί να χρησιμοποιείται στις εργασίες αυτού του χώρου εργασίας.",
+			"editDescription": "Ενημερώστε το όνομα ή το χρώμα αυτής της ετικέτας.",
+			"deleteConfirmTitle": "Διαγραφή αυτής της ετικέτας;",
+			"deleteConfirmDescription": "Αυτό θα αφαιρέσει οριστικά την ετικέτα από όλες τις εργασίες. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
+			"empty": "Δεν υπάρχουν ακόμα ετικέτες. Δημιουργήστε την πρώτη σας ετικέτα για να ξεκινήσετε.",
+			"createSuccess": "Η ετικέτα δημιουργήθηκε",
+			"updateSuccess": "Η ετικέτα ενημερώθηκε",
+			"deleteSuccess": "Η ετικέτα διαγράφηκε",
+			"createError": "Αποτυχία δημιουργίας ετικέτας",
+			"updateError": "Αποτυχία ενημέρωσης ετικέτας",
+			"deleteError": "Αποτυχία διαγραφής ετικέτας",
+			"nameRequired": "Το όνομα ετικέτας είναι υποχρεωτικό"
 		}
 	},
 	"navigation": {
@@ -1167,7 +1368,31 @@
 				"title": "Η χρονομέτρηση ξεκίνησε",
 				"contentWithTask": "Η χρονομέτρηση ξεκίνησε για την εργασία: {{taskTitle}}",
 				"contentWithoutTask": "Η χρονομέτρηση ξεκίνησε για μια εργασία"
+			},
+			"task_mention": {
+				"title": "Ο/Η {{mentionerName}} σας ανέφερε",
+				"content": "Ο/Η {{mentionerName}} σας ανέφερε στην εργασία: {{taskTitle}}"
+			},
+			"task_comment": {
+				"title": "Ο/Η {{commenterName}} σχολίασε την εργασία σας",
+				"content": "Νέο σχόλιο στην εργασία {{taskTitle}}: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "Η εργασία λήγει σύντομα",
+				"content": "Η εργασία {{taskTitle}} λήγει σε {{leadTime}}"
+			},
+			"task_overdue": {
+				"title": "Εκπρόθεσμη εργασία",
+				"content": "Η εργασία {{taskTitle}} έχει ξεπεράσει την ημερομηνία λήξης της"
 			}
+		},
+		"reminderLeadTime": {
+			"minutes_one": "{{count}} λεπτό",
+			"minutes_other": "{{count}} λεπτά",
+			"hours_one": "{{count}} ώρα",
+			"hours_other": "{{count}} ώρες",
+			"days_one": "{{count}} ημέρα",
+			"days_other": "{{count}} ημέρες"
 		}
 	},
 	"activity": {
@@ -1223,7 +1448,7 @@
 				"searchParagraph": "κανονική παράγραφος κειμένου",
 				"searchHeading": "επικεφαλίδα τίτλος h2",
 				"searchBulletList": "λίστα κουκκίδων μη ταξινομημένη",
-				"searchTaskList": "todo to-do checklist checkbox task list",
+				"searchTaskList": "εκκρεμότητες λίστα εργασιών checklist πλαίσιο επιλογής todo",
 				"searchOrderedList": "λίστα αριθμημένη",
 				"searchQuote": "παράθεση blockquote",
 				"searchCodeBlock": "απόσπασμα κώδικα",
@@ -1266,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "Εισαγωγή στήλης αριστερά",
+					"addColumnAfter": "Εισαγωγή στήλης δεξιά",
+					"deleteColumn": "Διαγραφή στήλης",
+					"addRowBefore": "Εισαγωγή γραμμής επάνω",
+					"addRowAfter": "Εισαγωγή γραμμής κάτω",
+					"deleteRow": "Διαγραφή γραμμής",
+					"deleteTable": "Διαγραφή πίνακα"
 				}
 			}
 		}
@@ -1418,7 +1652,8 @@
 			"selectTask": "Επιλέξτε εργασία για σύνδεση",
 			"types": {
 				"blocks": "μπλοκάρει",
-				"related": "σχετίζεται με"
+				"related": "σχετίζεται με",
+				"blocked_by": "μπλοκάρεται από"
 			}
 		},
 		"subtasks": {
@@ -1431,7 +1666,8 @@
 			"deleteError": "Αποτυχία διαγραφής εργασίας",
 			"deleteDialogTitle": "Διαγραφή εργασίας;",
 			"deleteDialogDescription": "Αυτό θα αφαιρέσει οριστικά την εργασία και όλα τα δεδομένα της. Δεν μπορείτε να αναιρέσετε αυτήν την ενέργεια.",
-			"deleteAction": "Διαγραφή εργασίας"
+			"deleteAction": "Διαγραφή εργασίας",
+			"completeAria": "Επισήμανση υποεργασίας ως ολοκληρωμένης"
 		},
 		"properties": {
 			"title": "Ιδιότητες",
@@ -1660,18 +1896,29 @@
 			"searchActions": "Αναζήτηση ενεργειών...",
 			"noActionsFound": "Δεν βρέθηκαν ενέργειες.",
 			"changeStatus": "Αλλαγή κατάστασης"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "Εισαγωγή στήλης αριστερά",
+				"addColumnAfter": "Εισαγωγή στήλης δεξιά",
+				"deleteColumn": "Διαγραφή στήλης",
+				"addRowBefore": "Εισαγωγή γραμμής επάνω",
+				"addRowAfter": "Εισαγωγή γραμμής κάτω",
+				"deleteRow": "Διαγραφή γραμμής",
+				"deleteTable": "Διαγραφή πίνακα"
+			}
 		}
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
-			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
-			"cta": "Accept invitation",
-			"sameEmail": "You can accept with the same email that received this message.",
-			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"subject": "Ο/Η {{inviterName}} σας προσκάλεσε να συμμετάσχετε στο {{workspaceName}} στο Kaneo",
+			"preview": "Έχετε πρόσκληση για το {{workspaceName}} στο Kaneo",
+			"title": "Συμμετοχή στο {{workspaceName}}",
+			"subtitle": "Ο/Η {{inviterName}} ({{inviterEmail}}) σας προσκάλεσε να συνεργαστείτε στο Kaneo.",
+			"cta": "Αποδοχή πρόσκλησης",
+			"sameEmail": "Μπορείτε να αποδεχτείτε την πρόσκληση με το ίδιο email που έλαβε αυτό το μήνυμα.",
+			"ignore": "Αν δεν το περιμένατε, μπορείτε να αγνοήσετε με ασφάλεια αυτό το email.",
+			"footer": "Πρόσκληση χώρου εργασίας Kaneo"
 		},
 		"pageTitle": "Προσκλήσεις",
 		"pendingInvitations": "Εκκρεμείς προσκλήσεις",
@@ -1708,7 +1955,8 @@
 				"complete": "Ολοκληρωμένο",
 				"inProgress": "Σε εξέλιξη"
 			},
-			"noDueDate": "Χωρίς ημερομηνία λήξης"
+			"noDueDate": "Χωρίς ημερομηνία λήξης",
+			"emptyDescriptionReadOnly": "Δεν υπάρχουν ακόμα έργα σε αυτόν τον χώρο εργασίας. Ζητήστε από έναν διαχειριστή να δημιουργήσει ένα."
 		},
 		"search": {
 			"pageTitle": "Αναζήτηση",
@@ -1748,17 +1996,21 @@
 		"roles": {
 			"owner": "Ιδιοκτήτης",
 			"admin": "Διαχειριστής",
-			"member": "Μέλος"
+			"member": "Μέλος",
+			"viewer": "Θεατής"
 		},
 		"members": {
 			"pageTitle": "Μέλη",
-			"inviteMember": "Πρόσκληση μέλους"
+			"inviteMember": "Πρόσκληση μέλους",
+			"you": "Εσείς"
 		},
 		"invitations": {
 			"linkLabel": "Σύνδεσμος πρόσκλησης",
 			"copyLink": "Αντιγραφή συνδέσμου",
 			"linkCopied": "Ο σύνδεσμος της πρόσκλησης αντιγράφηκε",
-			"copyFailed": "Δεν ήταν δυνατή η αυτόματη αντιγραφή. Επιλέξτε τον σύνδεσμο και πατήστε Ctrl+C."
+			"copyFailed": "Δεν ήταν δυνατή η αυτόματη αντιγραφή. Επιλέξτε τον σύνδεσμο και πατήστε Ctrl+C.",
+			"pendingBadge": "σε εκκρεμότητα",
+			"expires": "Λήγει {{date}}"
 		},
 		"inviteModal": {
 			"title": "Πρόσκληση μέλους ομάδας",
@@ -1793,7 +2045,9 @@
 			"removeError": "Αποτυχία αφαίρεσης μέλους ομάδας",
 			"cancelInviteSuccess": "Η πρόσκληση ακυρώθηκε με επιτυχία",
 			"cancelInviteError": "Αποτυχία ακύρωσης πρόσκλησης",
-			"ariaInvitationActions": "Ενέργειες πρόσκλησης"
+			"ariaInvitationActions": "Ενέργειες πρόσκλησης",
+			"roleUpdateSuccess": "Ο ρόλος ενημερώθηκε",
+			"roleUpdateError": "Αποτυχία ενημέρωσης ρόλου"
 		}
 	},
 	"publicProject": {

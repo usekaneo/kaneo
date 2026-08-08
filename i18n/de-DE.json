@@ -155,8 +155,11 @@
 			"githubError": "Anmeldung mit GitHub fehlgeschlagen",
 			"discordError": "Anmeldung mit Discord fehlgeschlagen",
 			"errors": {
-				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator."
-			}
+				"account_not_linked": "Diese Identität konnte nicht mit dem bestehenden Konto verknüpft werden. Melde dich per E-Mail an, um das Konto zu bestätigen, und versuche SSO danach erneut. Falls die Anmeldung per E-Mail nicht verfügbar ist, wende dich an deinen Administrator.",
+				"oauth_code_verification_failed": "OAuth-Verifizierung fehlgeschlagen. Bitte versuche es erneut.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Die Registrierung ist derzeit deaktiviert. Du benötigst eine gültige Einladung, um ein Konto zu erstellen."
+			},
+			"instanceStatusError": "Der Server konnte nicht erreicht werden. Bitte versuche es gleich noch einmal."
 		},
 		"providers": {
 			"google": "Google",
@@ -191,7 +194,10 @@
 			"signingIn": "Anmeldung läuft...",
 			"continueAsGuest": "Als Gast fortfahren",
 			"toggleMessage": "Du hast bereits ein Konto?",
-			"toggleLink": "Anmelden"
+			"toggleLink": "Anmelden",
+			"instanceStatusError": "Der Server konnte nicht erreicht werden. Bitte versuche es gleich noch einmal.",
+			"instanceAdminTitle": "Richte deine Kaneo-Instanz ein",
+			"instanceAdminSubtitle": "Dieses Konto wird zum Instanz-Administrator mit vollem Zugriff."
 		},
 		"verifyOtp": {
 			"pageTitle": "Code verifizieren",
@@ -565,6 +571,21 @@
 			"validation": {
 				"nameRequired": "Workspace-Name ist erforderlich",
 				"nameShort": "Der Workspace-Name muss mindestens 2 Zeichen lang sein"
+			},
+			"transferOwnership": {
+				"toastSuccess": "Eigentümerschaft übertragen",
+				"toastError": "Eigentümerschaft konnte nicht übertragen werden",
+				"title": "Eigentümerschaft übertragen",
+				"subtitle": "Übergib diesen Workspace an ein anderes Mitglied. Du wirst zum Admin herabgestuft und verlierst die Rechte, die nur Eigentümern vorbehalten sind.",
+				"pickerLabel": "Neuer Eigentümer",
+				"noEligibleMembers": "Lade mindestens ein weiteres Mitglied ein, bevor du die Eigentümerschaft übertragen kannst.",
+				"pickerHint": "Diese Person wird alleiniger Eigentümer dieses Workspaces.",
+				"pickerPlaceholder": "Mitglied auswählen",
+				"button": "Übertragen",
+				"dialogTitle": "Eigentümerschaft übertragen?",
+				"dialogDescription": "{{name}} wird alleiniger Eigentümer von {{workspace}}. Du behältst Admin-Zugriff, verlierst aber Rechte, die nur Eigentümern vorbehalten sind, etwa das Löschen des Workspaces oder eine erneute Übertragung.",
+				"transferring": "Wird übertragen…",
+				"confirm": "Eigentümerschaft übertragen"
 			}
 		},
 		"projectGeneral": {
@@ -612,8 +633,8 @@
 			"subtitle": "Verbinde dein Projekt mit externen Tools und Diensten, um deinen Workflow zu optimieren.",
 			"githubSectionTitle": "GitHub-Integration",
 			"githubSectionSubtitle": "Synchronisiere Aufgaben mit GitHub-Issues und aktiviere die bidirektionale Synchronisierung.",
-			"giteaSectionTitle": "Gitea Integration",
-			"giteaSectionSubtitle": "Synchronize tasks with a self-hosted Gitea instance (issues, PRs, webhooks).",
+			"giteaSectionTitle": "Gitea-Integration",
+			"giteaSectionSubtitle": "Synchronisiere Aufgaben mit einer selbst gehosteten Gitea-Instanz (Issues, PRs, Webhooks).",
 			"discordSectionTitle": "Discord-Integration",
 			"discordSectionSubtitle": "Sende Projektaktualisierungen per Webhook in einen Discord-Kanal.",
 			"genericWebhookSectionTitle": "Generische Webhooks",
@@ -736,76 +757,76 @@
 		},
 		"giteaIntegration": {
 			"validation": {
-				"baseUrlRequired": "Gitea base URL is required",
-				"baseUrlInvalid": "Enter a valid URL (e.g. https://gitea.example.com)",
-				"ownerRequired": "Repository owner is required",
-				"ownerInvalid": "Invalid repository owner format",
-				"nameRequired": "Repository name is required",
-				"nameInvalid": "Invalid repository name format"
+				"baseUrlRequired": "Gitea-Basis-URL ist erforderlich",
+				"baseUrlInvalid": "Gib eine gültige URL ein (z. B. https://gitea.example.com)",
+				"ownerRequired": "Repository-Eigentümer ist erforderlich",
+				"ownerInvalid": "Ungültiges Format für den Repository-Eigentümer",
+				"nameRequired": "Repository-Name ist erforderlich",
+				"nameInvalid": "Ungültiges Format für den Repository-Namen"
 			},
 			"toast": {
-				"verifyOk": "Gitea token can access this repository",
-				"verifyWarning": "Check token permissions or repository access",
-				"repoNotFound": "Repository not found or not accessible",
-				"verifyError": "Failed to verify Gitea access",
-				"tokenRequired": "Personal access token is required",
-				"tokenRequiredVerify": "Enter a token to verify",
-				"verifyFirst": "Verify access failed. Check URL, token, and repository",
-				"updated": "Gitea integration saved",
-				"updateError": "Failed to save Gitea integration",
-				"removed": "Gitea integration removed",
-				"removeError": "Failed to remove Gitea integration",
-				"issuesImported": "Issues imported successfully",
-				"importError": "Failed to import issues",
-				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
-				"commentOnDisabled": "Task link comments on new issues are turned off",
-				"settingsUpdateError": "Failed to update Gitea integration",
+				"verifyOk": "Der Gitea-Token kann auf dieses Repository zugreifen",
+				"verifyWarning": "Prüfe die Token-Berechtigungen oder den Repository-Zugriff",
+				"repoNotFound": "Repository nicht gefunden oder nicht zugänglich",
+				"verifyError": "Gitea-Zugriff konnte nicht überprüft werden",
+				"tokenRequired": "Persönlicher Zugriffstoken ist erforderlich",
+				"tokenRequiredVerify": "Gib einen Token ein, um ihn zu prüfen",
+				"verifyFirst": "Zugriffsprüfung fehlgeschlagen. Prüfe URL, Token und Repository",
+				"updated": "Gitea-Integration gespeichert",
+				"updateError": "Gitea-Integration konnte nicht gespeichert werden",
+				"removed": "Gitea-Integration entfernt",
+				"removeError": "Gitea-Integration konnte nicht entfernt werden",
+				"issuesImported": "Issues erfolgreich importiert",
+				"importError": "Issues konnten nicht importiert werden",
+				"commentOnEnabled": "Kaneo kommentiert bei neuen Issues mit einem Aufgabenlink",
+				"commentOnDisabled": "Aufgabenlink-Kommentare bei neuen Issues sind deaktiviert",
+				"settingsUpdateError": "Gitea-Integration konnte nicht aktualisiert werden",
 				"secretCopied": "Kopiert",
 				"unableToCopySecret": "Geheimnis konnte nicht kopiert werden"
 			},
 			"webhookShow": "Anzeigen",
 			"webhookHide": "Ausblenden",
 			"webhookCopy": "Kopieren",
-			"connectionStatus": "Connection status",
-			"connectedActive": "Repository connected and active",
-			"notConnectedHint": "No Gitea repository connected",
+			"connectionStatus": "Verbindungsstatus",
+			"connectedActive": "Repository verbunden und aktiv",
+			"notConnectedHint": "Kein Gitea-Repository verbunden",
 			"badgeConnected": "Connected",
-			"badgeNotConnected": "Not connected",
+			"badgeNotConnected": "Nicht verbunden",
 			"repository": "Repository",
-			"repositoryHint": "Linked Gitea repository",
-			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
-			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"repositoryHint": "Verbundenes Gitea-Repository",
+			"commentTaskLinkTitle": "Kaneo-Link bei neuen Issues kommentieren",
+			"commentTaskLinkHint": "Wenn aktiviert, veröffentlicht Kaneo bei jedem neuen Issue einen Kommentar mit einem Link zur Aufgabe.",
 			"webhookTitle": "Webhook",
-			"webhookHint": "In your Gitea repository, add a webhook with this URL and secret. Enable push, pull request, issues, issue comments, and create (for labels).",
-			"webhookSecretLabel": "Secret (must match the webhook secret in Gitea)",
+			"webhookHint": "Füge in deinem Gitea-Repository einen Webhook mit dieser URL und diesem Geheimnis hinzu. Aktiviere Push, Pull Request, Issues, Issue-Kommentare und Create (für Labels).",
+			"webhookSecretLabel": "Geheimnis (muss mit dem Webhook-Geheimnis in Gitea übereinstimmen)",
 			"baseUrlLabel": "Gitea URL",
-			"baseUrlHint": "Root URL of your Gitea instance",
-			"tokenLabel": "Personal access token",
-			"tokenHint": "Token with repo and issues access",
+			"baseUrlHint": "Basis-URL deiner Gitea-Instanz",
+			"tokenLabel": "Persönlicher Zugriffstoken",
+			"tokenHint": "Token mit Zugriff auf Repositorys und Issues",
 			"tokenPlaceholder": "Paste token",
-			"tokenPlaceholderUpdate": "Paste new token to rotate",
+			"tokenPlaceholderUpdate": "Neuen Token einfügen, um ihn zu ersetzen",
 			"currentToken": "stored",
 			"ownerLabel": "Owner",
-			"ownerHint": "User or organization name",
-			"repoNameLabel": "Repository name",
-			"repoNameHint": "Repository name only (no owner)",
+			"ownerHint": "Benutzer- oder Organisationsname",
+			"repoNameLabel": "Repository-Name",
+			"repoNameHint": "Nur der Repository-Name (ohne Eigentümer)",
 			"actionsTitle": "Actions",
-			"actionsHint": "Verify access and connect",
+			"actionsHint": "Zugriff prüfen und verbinden",
 			"browse": "Browse",
 			"verify": "Verify",
 			"update": "Update",
 			"connect": "Connect",
 			"disconnect": "Disconnect",
-			"importSectionTitle": "Import Gitea issues",
-			"importSectionHint": "Import open issues and pull requests from the repository",
+			"importSectionTitle": "Gitea-Issues importieren",
+			"importSectionHint": "Importiere offene Issues und Pull Requests aus dem Repository",
 			"importing": "Importing…",
-			"importIssues": "Import issues",
-			"importDisabledHint": "Verify the repository above to enable importing",
-			"browseModalTitle": "Your repositories",
-			"browseModalHint": "Repositories your token can access",
+			"importIssues": "Issues importieren",
+			"importDisabledHint": "Prüfe das Repository oben, um den Import zu aktivieren",
+			"browseModalTitle": "Deine Repositorys",
+			"browseModalHint": "Repositorys, auf die dein Token zugreifen kann",
 			"searchRepos": "Search…",
-			"browseNeedsCredentials": "Enter Gitea URL and token to browse",
-			"loadingRepos": "Loading repositories…",
+			"browseNeedsCredentials": "Gib Gitea-URL und Token ein, um zu durchsuchen",
+			"loadingRepos": "Repositorys werden geladen…",
 			"retry": "Retry"
 		},
 		"slackIntegration": {
@@ -1019,7 +1040,7 @@
 			"githubHeading": "GitHub",
 			"githubHint": "Wenn ein GitHub-Ereignis eintritt, verschiebe die verknüpfte Aufgabe in eine Spalte.",
 			"giteaHeading": "Gitea",
-			"giteaHint": "When a Gitea webhook event occurs, move the linked task to a column.",
+			"giteaHint": "Wenn ein Gitea-Webhook-Ereignis eintritt, verschiebe die verknüpfte Aufgabe in eine Spalte.",
 			"selectColumnPlaceholder": "Spalte auswählen...",
 			"toastUpdated": "Workflow-Regel aktualisiert",
 			"toastError": "Workflow-Regel konnte nicht aktualisiert werden",
@@ -1038,6 +1059,168 @@
 			"merged": "Zusammengeführt",
 			"draft": "Entwurf",
 			"open": "Offen"
+		},
+		"workspaceRoles": {
+			"pageTitle": "Rollen",
+			"title": "Rollen",
+			"subtitle": "Lege fest, welche Aktionen Mitglieder in {{workspaceName}} ausführen können.",
+			"thisWorkspace": "diesem Workspace",
+			"noAccess": "Du benötigst Admin- oder Eigentümerrechte, um Workspace-Rollen zu verwalten.",
+			"sectionTitle": "Workspace-Rollen",
+			"sectionSubtitle": "Bearbeite die Standardrollen oder füge eine maßgeschneiderte hinzu. Mitglieder behalten ihren zugewiesenen Rollennamen über Änderungen hinweg.",
+			"newRole": "Neue Rolle",
+			"loading": "Lädt…",
+			"loadError": "Rollen konnten nicht geladen werden.",
+			"emptyTitle": "Noch keine Rollen",
+			"emptyDescription": "Standardrollen erscheinen hier, sobald sie für diesen Workspace angelegt wurden.",
+			"defaultBadge": "Standard",
+			"permissionCount_one": "{{count}} Berechtigung",
+			"permissionCount_other": "{{count}} Berechtigungen",
+			"nameLabel": "Name",
+			"nameHint": "Kleinbuchstaben. Kann später nicht geändert werden.",
+			"namePlaceholder": "z. B. reviewer",
+			"discard": "Verwerfen",
+			"createRole": "Rolle erstellen",
+			"deleteRole": "Rolle löschen",
+			"defaultRoleHelp": "Standardrolle: Der Name ist reserviert und die Zeile kann nicht gelöscht werden.",
+			"unsavedChanges": "Du hast ungespeicherte Änderungen",
+			"allChangesSaved": "Alle Änderungen gespeichert",
+			"saveChanges": "Änderungen speichern",
+			"defaultRoleDescriptions": {
+				"viewer": "Kann Aufgaben ansehen und kommentieren.",
+				"member": "Kann Aufgaben und Projekte erstellen und verwalten.",
+				"admin": "Hat vollen Zugriff auf den Workspace."
+			},
+			"resources": {
+				"project": "Projekte",
+				"task": "Aufgaben",
+				"label": "Labels",
+				"workspace": "Workspace"
+			},
+			"permissions": {
+				"project": {
+					"create": {
+						"label": "Erstellen",
+						"description": "Kann neue Projekte erstellen"
+					},
+					"read": {
+						"label": "Lesen",
+						"description": "Kann Projekte ansehen"
+					},
+					"update": {
+						"label": "Aktualisieren",
+						"description": "Kann Projekteinstellungen bearbeiten"
+					},
+					"delete": {
+						"label": "Löschen",
+						"description": "Kann Projekte löschen"
+					},
+					"share": {
+						"label": "Teilen",
+						"description": "Kann Projekte teilen"
+					}
+				},
+				"task": {
+					"create": {
+						"label": "Erstellen",
+						"description": "Kann Aufgaben erstellen"
+					},
+					"read": {
+						"label": "Lesen",
+						"description": "Kann Aufgaben ansehen"
+					},
+					"update": {
+						"label": "Aktualisieren",
+						"description": "Kann Aufgaben bearbeiten"
+					},
+					"delete": {
+						"label": "Löschen",
+						"description": "Kann Aufgaben löschen"
+					},
+					"assign": {
+						"label": "Zuweisen",
+						"description": "Kann Aufgaben Mitgliedern zuweisen"
+					}
+				},
+				"label": {
+					"create": {
+						"label": "Erstellen",
+						"description": "Kann Labels erstellen"
+					},
+					"read": {
+						"label": "Lesen",
+						"description": "Kann Labels ansehen"
+					},
+					"update": {
+						"label": "Aktualisieren",
+						"description": "Kann Labels bearbeiten"
+					},
+					"delete": {
+						"label": "Löschen",
+						"description": "Kann Labels löschen"
+					}
+				},
+				"workspace": {
+					"read": {
+						"label": "Lesen",
+						"description": "Kann Workspace-Einstellungen ansehen"
+					},
+					"update": {
+						"label": "Aktualisieren",
+						"description": "Kann Workspace-Einstellungen aktualisieren"
+					},
+					"delete": {
+						"label": "Löschen",
+						"description": "Kann den Workspace löschen"
+					},
+					"manage_settings": {
+						"label": "Einstellungen verwalten",
+						"description": "Kann Workspace-Einstellungen verwalten"
+					}
+				}
+			},
+			"validation": {
+				"nameRequired": "Rollenname ist erforderlich",
+				"nameExists": "Eine Rolle mit diesem Namen existiert bereits",
+				"permissionRequired": "Mindestens eine Berechtigung muss ausgewählt werden"
+			},
+			"toast": {
+				"created": "Rolle erstellt",
+				"createError": "Rolle konnte nicht erstellt werden",
+				"updated": "Rolle aktualisiert",
+				"updateError": "Rolle konnte nicht aktualisiert werden",
+				"deleted": "Rolle gelöscht",
+				"deleteError": "Rolle konnte nicht gelöscht werden"
+			},
+			"deleteDialog": {
+				"title": "Rolle löschen",
+				"description": "Dadurch wird die Rolle \"{{role}}\" dauerhaft gelöscht. Mitglieder mit dieser Rolle verlieren deren Berechtigungen."
+			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "Label-Einstellungen",
+			"title": "Labels",
+			"subtitle": "Erstelle, bearbeite und lösche Labels auf Workspace-Ebene.",
+			"cardDescription": "Verwalte Labels, die Aufgaben zugewiesen werden können.",
+			"createLabel": "Label erstellen",
+			"editLabel": "Label bearbeiten",
+			"deleteLabel": "Löschen",
+			"saveLabel": "Speichern",
+			"nameLabel": "Label-Name",
+			"namePlaceholder": "Label-Namen eingeben",
+			"colorLabel": "Farbe",
+			"createDescription": "Erstelle ein neues Label, das für Aufgaben in diesem Workspace verwendet werden kann.",
+			"editDescription": "Aktualisiere den Namen oder die Farbe dieses Labels.",
+			"deleteConfirmTitle": "Dieses Label löschen?",
+			"deleteConfirmDescription": "Dadurch wird dieses Label dauerhaft von allen Aufgaben entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+			"empty": "Noch keine Labels. Erstelle dein erstes Label, um loszulegen.",
+			"createSuccess": "Label erstellt",
+			"updateSuccess": "Label aktualisiert",
+			"deleteSuccess": "Label gelöscht",
+			"createError": "Label konnte nicht erstellt werden",
+			"updateError": "Label konnte nicht aktualisiert werden",
+			"deleteError": "Label konnte nicht gelöscht werden",
+			"nameRequired": "Label-Name ist erforderlich"
 		}
 	},
 	"navigation": {
@@ -1308,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "Spalte links einfügen",
+					"addColumnAfter": "Spalte rechts einfügen",
+					"deleteColumn": "Spalte löschen",
+					"addRowBefore": "Zeile oberhalb einfügen",
+					"addRowAfter": "Zeile unterhalb einfügen",
+					"deleteRow": "Zeile löschen",
+					"deleteTable": "Tabelle löschen"
 				}
 			}
 		}
@@ -1460,7 +1652,8 @@
 			"selectTask": "Wähle eine Aufgabe zum Verknüpfen aus",
 			"types": {
 				"blocks": "blockiert",
-				"related": "steht in Beziehung zu"
+				"related": "steht in Beziehung zu",
+				"blocked_by": "blockiert von"
 			}
 		},
 		"subtasks": {
@@ -1473,7 +1666,8 @@
 			"deleteError": "Aufgabe konnte nicht gelöscht werden",
 			"deleteDialogTitle": "Aufgabe löschen?",
 			"deleteDialogDescription": "Dadurch wird die Aufgabe und alle zugehörigen Daten dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
-			"deleteAction": "Aufgabe löschen"
+			"deleteAction": "Aufgabe löschen",
+			"completeAria": "Teilaufgabe als erledigt markieren"
 		},
 		"properties": {
 			"title": "Eigenschaften",
@@ -1702,6 +1896,17 @@
 			"searchActions": "Aktionen suchen...",
 			"noActionsFound": "Keine Aktionen gefunden.",
 			"changeStatus": "Status ändern"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "Spalte links einfügen",
+				"addColumnAfter": "Spalte rechts einfügen",
+				"deleteColumn": "Spalte löschen",
+				"addRowBefore": "Zeile oberhalb einfügen",
+				"addRowAfter": "Zeile unterhalb einfügen",
+				"deleteRow": "Zeile löschen",
+				"deleteTable": "Tabelle löschen"
+			}
 		}
 	},
 	"invitations": {
@@ -1750,7 +1955,8 @@
 				"complete": "Abgeschlossen",
 				"inProgress": "In Bearbeitung"
 			},
-			"noDueDate": "Kein Fälligkeitsdatum"
+			"noDueDate": "Kein Fälligkeitsdatum",
+			"emptyDescriptionReadOnly": "In diesem Workspace gibt es noch keine Projekte. Bitte einen Admin, eines zu erstellen."
 		},
 		"search": {
 			"pageTitle": "Suche",
@@ -1790,17 +1996,21 @@
 		"roles": {
 			"owner": "Eigentümer",
 			"admin": "Admin",
-			"member": "Mitglied"
+			"member": "Mitglied",
+			"viewer": "Betrachter"
 		},
 		"members": {
 			"pageTitle": "Mitglieder",
-			"inviteMember": "Mitglied einladen"
+			"inviteMember": "Mitglied einladen",
+			"you": "Du"
 		},
 		"invitations": {
 			"linkLabel": "Einladungslink",
 			"copyLink": "Link kopieren",
 			"linkCopied": "Einladungslink kopiert",
-			"copyFailed": "Automatisches Kopieren fehlgeschlagen. Markiere den Link und drücke Strg+C."
+			"copyFailed": "Automatisches Kopieren fehlgeschlagen. Markiere den Link und drücke Strg+C.",
+			"pendingBadge": "ausstehend",
+			"expires": "Läuft ab am {{date}}"
 		},
 		"inviteModal": {
 			"title": "Teammitglied einladen",
@@ -1835,7 +2045,9 @@
 			"removeError": "Teammitglied konnte nicht entfernt werden",
 			"cancelInviteSuccess": "Einladung erfolgreich abgebrochen",
 			"cancelInviteError": "Einladung konnte nicht abgebrochen werden",
-			"ariaInvitationActions": "Einladungsaktionen"
+			"ariaInvitationActions": "Einladungsaktionen",
+			"roleUpdateSuccess": "Rolle aktualisiert",
+			"roleUpdateError": "Rolle konnte nicht aktualisiert werden"
 		}
 	},
 	"publicProject": {

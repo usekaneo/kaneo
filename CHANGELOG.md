@@ -1,3 +1,22 @@
+# [2.14.0](https://github.com/usekaneo/kaneo/compare/v2.13.2...v2.14.0) (2026-08-07)
+
+
+### Bug Fixes
+
+* **helm:** set postgresql Deployment update strategy to Recreate ([01511cd](https://github.com/usekaneo/kaneo/commit/01511cdca82feab527136a6ab3690b9757990c4b))
+* **i18n:** complete translations for all locales ([bea10b2](https://github.com/usekaneo/kaneo/commit/bea10b219f413eb9b41a6e7d8cd79ead0ab1b78b))
+* **i18n:** use pt-BR copy for workspace invitation emails ([804817d](https://github.com/usekaneo/kaneo/commit/804817dd6e8f479a1cc0fdab9c3065c8d539ccc8))
+
+
+### Features
+
+* **i18n:** add Brazilian Portuguese (pt-BR) locale ([fb656d4](https://github.com/usekaneo/kaneo/commit/fb656d42258acdf0b21e4d67229b7f39d0fe8120))
+## [2.13.2](https://github.com/usekaneo/kaneo/compare/v2.13.1...v2.13.2) (2026-08-07)
+
+
+### Features
+
+* **api:** tag Sentry events with the app release ([33270e3](https://github.com/usekaneo/kaneo/commit/33270e37a76e8507eb358c59fa58a81425683c90))
 ## [2.13.1](https://github.com/usekaneo/kaneo/compare/v2.13.0...v2.13.1) (2026-08-07)
 
 

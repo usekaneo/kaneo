@@ -9,6 +9,7 @@ import itIT from "./it-IT.json";
 import koKR from "./ko-KR.json";
 import mkMK from "./mk-MK.json";
 import nlNL from "./nl-NL.json";
+import ptBR from "./pt-BR.json";
 import ruRU from "./ru-RU.json";
 import trTR from "./tr-TR.json";
 import ukUA from "./uk-UA.json";
@@ -27,6 +28,7 @@ export const supportedLocales = [
   "id-ID",
   "it-IT",
   "ko-KR",
+  "pt-BR",
   "ru-RU",
   "tr-TR",
   "uk-UA",
@@ -50,6 +52,7 @@ export const resources = {
   "it-IT": itIT,
   "es-ES": esES,
   "ko-KR": koKR,
+  "pt-BR": ptBR,
   "ru-RU": ruRU,
   "tr-TR": trTR,
   "uk-UA": ukUA,

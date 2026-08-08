@@ -158,7 +158,8 @@
 				"account_not_linked": "Questa identità non può essere collegata all'account esistente. Accedi via email per verificare l'account, poi riprova con SSO. Se l'accesso via email non è disponibile, contatta l'amministratore.",
 				"oauth_code_verification_failed": "Verifica OAuth fallita. Riprova.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "La registrazione è attualmente disabilitata. Hai bisogno di un invito valido per creare un account."
-			}
+			},
+			"instanceStatusError": "Impossibile raggiungere il server. Riprova tra un momento."
 		},
 		"providers": {
 			"google": "Google",
@@ -193,7 +194,10 @@
 			"signingIn": "Accesso in corso...",
 			"continueAsGuest": "Continua come ospite",
 			"toggleMessage": "Hai già un account?",
-			"toggleLink": "Accedi"
+			"toggleLink": "Accedi",
+			"instanceStatusError": "Impossibile raggiungere il server. Riprova tra un momento.",
+			"instanceAdminTitle": "Configura la tua istanza Kaneo",
+			"instanceAdminSubtitle": "Questo account diventa l'amministratore dell'istanza con accesso completo."
 		},
 		"verifyOtp": {
 			"pageTitle": "Verifica Codice",
@@ -567,6 +571,21 @@
 			"validation": {
 				"nameRequired": "Il nome del workspace è obbligatorio",
 				"nameShort": "Il nome del workspace deve essere di almeno 2 caratteri"
+			},
+			"transferOwnership": {
+				"toastSuccess": "Proprietà trasferita",
+				"toastError": "Trasferimento proprietà fallito",
+				"title": "Trasferisci proprietà",
+				"subtitle": "Cedi questo workspace a un altro membro. Verrai retrocesso ad amministratore e perderai i privilegi riservati al proprietario.",
+				"pickerLabel": "Nuovo proprietario",
+				"noEligibleMembers": "Invita almeno un altro membro prima di poter trasferire la proprietà.",
+				"pickerHint": "Diventerà l'unico proprietario di questo workspace.",
+				"pickerPlaceholder": "Seleziona un membro",
+				"button": "Trasferisci",
+				"dialogTitle": "Trasferire la proprietà?",
+				"dialogDescription": "{{name}} diventerà l'unico proprietario di {{workspace}}. Manterrai l'accesso come amministratore ma perderai i privilegi riservati al proprietario, come eliminare il workspace o trasferirlo di nuovo.",
+				"transferring": "Trasferimento in corso…",
+				"confirm": "Trasferisci proprietà"
 			}
 		},
 		"workspaceRoles": {
@@ -1472,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "Inserisci colonna a sinistra",
+					"addColumnAfter": "Inserisci colonna a destra",
+					"deleteColumn": "Elimina colonna",
+					"addRowBefore": "Inserisci riga sopra",
+					"addRowAfter": "Inserisci riga sotto",
+					"deleteRow": "Elimina riga",
+					"deleteTable": "Elimina tabella"
 				}
 			}
 		}
@@ -1638,7 +1666,8 @@
 			"deleteError": "Eliminazione attività fallita",
 			"deleteDialogTitle": "Eliminare l'Attività?",
 			"deleteDialogDescription": "Questo rimuoverà permanentemente l'attività e tutti i suoi dati. Non puoi annullare questa azione.",
-			"deleteAction": "Elimina Attività"
+			"deleteAction": "Elimina Attività",
+			"completeAria": "Segna sotto-attività come completata"
 		},
 		"properties": {
 			"title": "Proprietà",
@@ -1867,6 +1896,17 @@
 			"searchActions": "Cerca azioni...",
 			"noActionsFound": "Nessuna azione trovata.",
 			"changeStatus": "Cambia Stato"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "Inserisci colonna a sinistra",
+				"addColumnAfter": "Inserisci colonna a destra",
+				"deleteColumn": "Elimina colonna",
+				"addRowBefore": "Inserisci riga sopra",
+				"addRowAfter": "Inserisci riga sotto",
+				"deleteRow": "Elimina riga",
+				"deleteTable": "Elimina tabella"
+			}
 		}
 	},
 	"invitations": {

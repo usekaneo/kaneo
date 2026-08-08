@@ -158,7 +158,8 @@
 				"account_not_linked": "यह पहचान मौजूदा खाते से लिंक नहीं हो सकी। खाते की पुष्टि के लिए ईमेल से साइन इन करें, फिर SSO पुनः प्रयास करें। यदि ईमेल साइन-इन उपलब्ध नहीं है, तो अपने व्यवस्थापक से संपर्क करें।",
 				"oauth_code_verification_failed": "OAuth सत्यापन विफल। कृपया पुनः प्रयास करें।",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "पंजीकरण वर्तमान में अक्षम है। खाता बनाने के लिए आपको वैध निमंत्रण चाहिए।"
-			}
+			},
+			"instanceStatusError": "सर्वर से संपर्क नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।"
 		},
 		"providers": {
 			"google": "Google",
@@ -193,7 +194,10 @@
 			"signingIn": "साइन इन हो रहा है...",
 			"continueAsGuest": "अतिथि के रूप में जारी रखें",
 			"toggleMessage": "पहले से खाता है?",
-			"toggleLink": "साइन इन करें"
+			"toggleLink": "साइन इन करें",
+			"instanceStatusError": "सर्वर से संपर्क नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।",
+			"instanceAdminTitle": "अपना Kaneo इंस्टेंस सेट अप करें",
+			"instanceAdminSubtitle": "यह खाता पूर्ण पहुँच के साथ इंस्टेंस व्यवस्थापक बन जाता है।"
 		},
 		"verifyOtp": {
 			"pageTitle": "कोड सत्यापित करें",
@@ -567,6 +571,21 @@
 			"validation": {
 				"nameRequired": "वर्कस्पेस का नाम आवश्यक है",
 				"nameShort": "वर्कस्पेस का नाम कम से कम 2 अक्षरों का होना चाहिए"
+			},
+			"transferOwnership": {
+				"toastSuccess": "स्वामित्व स्थानांतरित किया गया",
+				"toastError": "स्वामित्व स्थानांतरित करने में विफल",
+				"title": "स्वामित्व स्थानांतरित करें",
+				"subtitle": "यह वर्कस्पेस किसी अन्य सदस्य को सौंपें। आपकी भूमिका घटकर एडमिन हो जाएगी और आप केवल मालिक को उपलब्ध क्षमताएँ खो देंगे।",
+				"pickerLabel": "नया मालिक",
+				"noEligibleMembers": "स्वामित्व स्थानांतरित करने से पहले कम से कम एक अन्य सदस्य को आमंत्रित करें।",
+				"pickerHint": "वे इस वर्कस्पेस के एकमात्र मालिक बन जाएँगे।",
+				"pickerPlaceholder": "सदस्य चुनें",
+				"button": "स्थानांतरित करें",
+				"dialogTitle": "स्वामित्व स्थानांतरित करें?",
+				"dialogDescription": "{{name}} {{workspace}} के एकमात्र मालिक बन जाएँगे। आपकी एडमिन पहुँच बनी रहेगी, लेकिन वर्कस्पेस हटाने या उसे फिर से स्थानांतरित करने जैसी केवल मालिक को उपलब्ध क्षमताएँ आप खो देंगे।",
+				"transferring": "स्थानांतरित हो रहा है…",
+				"confirm": "स्वामित्व स्थानांतरित करें"
 			}
 		},
 		"workspaceRoles": {
@@ -1426,15 +1445,15 @@
 				"slashCodeBlock": "कोड ब्लॉक",
 				"slashTable": "तालिका",
 				"slashFile": "फ़ाइल",
-				"searchParagraph": "text paragraph normal",
-				"searchHeading": "heading title h2",
-				"searchBulletList": "list bullet unordered",
-				"searchTaskList": "todo to-do checklist checkbox task list",
-				"searchOrderedList": "list ordered numbered",
-				"searchQuote": "quote blockquote",
+				"searchParagraph": "पाठ अनुच्छेद पैराग्राफ़ सामान्य text paragraph normal",
+				"searchHeading": "शीर्षक हेडिंग heading title h2",
+				"searchBulletList": "सूची बुलेट list bullet unordered",
+				"searchTaskList": "कार्य सूची चेकलिस्ट todo to-do checklist checkbox task list",
+				"searchOrderedList": "सूची क्रमांकित list ordered numbered",
+				"searchQuote": "उद्धरण quote blockquote",
 				"searchCodeBlock": "code snippet",
 				"searchTable": "table grid",
-				"searchFile": "file attachment image photo picture upload",
+				"searchFile": "फ़ाइल संलग्नक चित्र फ़ोटो अपलोड file attachment image photo upload",
 				"embedErrorInvalidUrl": "वैध URL दर्ज करें",
 				"embedErrorYoutubeOnly": "केवल YouTube लिंक एम्बेड किए जा सकते हैं।",
 				"embedVideo": "वीडियो एम्बेड करें",
@@ -1472,6 +1491,15 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "बाईं ओर कॉलम जोड़ें",
+					"addColumnAfter": "दाईं ओर कॉलम जोड़ें",
+					"deleteColumn": "कॉलम हटाएँ",
+					"addRowBefore": "ऊपर पंक्ति जोड़ें",
+					"addRowAfter": "नीचे पंक्ति जोड़ें",
+					"deleteRow": "पंक्ति हटाएँ",
+					"deleteTable": "तालिका हटाएँ"
 				}
 			}
 		}
@@ -1638,7 +1666,8 @@
 			"deleteError": "कार्य हटाने में विफल",
 			"deleteDialogTitle": "कार्य हटाएँ?",
 			"deleteDialogDescription": "यह कार्य और इसका सभी डेटा स्थायी रूप से हटा दिया जाएगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
-			"deleteAction": "कार्य हटाएँ"
+			"deleteAction": "कार्य हटाएँ",
+			"completeAria": "उप-कार्य को पूर्ण चिह्नित करें"
 		},
 		"properties": {
 			"title": "गुण",
@@ -1805,7 +1834,7 @@
 			"open": "खुला",
 			"label": "पुल अनुरोध",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PRs"
+			"count_other": "{{count}} PR"
 		},
 		"assignee": {
 			"label": "सौंपा गया",
@@ -1867,6 +1896,17 @@
 			"searchActions": "कार्रवाइयाँ खोजें...",
 			"noActionsFound": "कोई कार्रवाई नहीं मिली।",
 			"changeStatus": "स्थिति बदलें"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "बाईं ओर कॉलम जोड़ें",
+				"addColumnAfter": "दाईं ओर कॉलम जोड़ें",
+				"deleteColumn": "कॉलम हटाएँ",
+				"addRowBefore": "ऊपर पंक्ति जोड़ें",
+				"addRowAfter": "नीचे पंक्ति जोड़ें",
+				"deleteRow": "पंक्ति हटाएँ",
+				"deleteTable": "तालिका हटाएँ"
+			}
 		}
 	},
 	"invitations": {

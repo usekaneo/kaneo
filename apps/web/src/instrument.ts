@@ -2,8 +2,7 @@ import * as Sentry from "@sentry/react";
 
 const dsn = import.meta.env.VITE_SENTRY_DSN;
 
-// In Docker builds the DSN is the literal "KANEO_SENTRY_DSN" placeholder until
-// env.sh substitutes it at container start; skip init if it was never replaced.
+// skip init if env.sh never replaced the "KANEO_SENTRY_DSN" placeholder
 if (dsn && !dsn.startsWith("KANEO_")) {
   Sentry.init({
     dsn,
