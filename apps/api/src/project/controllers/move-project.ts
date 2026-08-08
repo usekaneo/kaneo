@@ -1,4 +1,4 @@
-import { and, eq, inArray, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, ne, notInArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -24,6 +24,9 @@ async function moveProject(
   }
 
   const { movedProject, unassignedTasks } = await db.transaction(async (tx) => {
+    // Locked for the life of the transaction: the request was authorized
+    // against the source workspace, so a concurrent move would invalidate that
+    // basis while this one is still deciding what side data to rewrite.
     const [existingProject] = await tx
       .select()
       .from(projectTable)
@@ -32,7 +35,8 @@ async function moveProject(
           eq(projectTable.id, id),
           eq(projectTable.workspaceId, sourceWorkspaceId),
         ),
-      );
+      )
+      .for("update");
 
     if (!existingProject) {
       throw new HTTPException(404, {
@@ -71,7 +75,15 @@ async function moveProject(
     // since the rule stays behind in the source workspace.
     await tx
       .delete(userNotificationWorkspaceProjectTable)
-      .where(eq(userNotificationWorkspaceProjectTable.projectId, id));
+      .where(
+        and(
+          eq(userNotificationWorkspaceProjectTable.projectId, id),
+          eq(
+            userNotificationWorkspaceProjectTable.workspaceId,
+            sourceWorkspaceId,
+          ),
+        ),
+      );
 
     const tasks = await tx
       .select({
@@ -81,8 +93,6 @@ async function moveProject(
       })
       .from(taskTable)
       .where(eq(taskTable.projectId, id));
-
-    const taskIds = tasks.map((task) => task.id);
 
     let unassigned: typeof tasks = [];
     const assigneeIds = [
@@ -112,13 +122,19 @@ async function moveProject(
       );
 
       if (unassigned.length > 0) {
+        // Predicated on the assignees rather than the task ids: the member set
+        // is bounded by workspace size, while the task list isn't, and Postgres
+        // caps a statement at 65535 bind parameters.
         await tx
           .update(taskTable)
           .set({ userId: null })
           .where(
-            inArray(
-              taskTable.id,
-              unassigned.map((task) => task.id),
+            and(
+              eq(taskTable.projectId, id),
+              isNotNull(taskTable.userId),
+              memberIds.size > 0
+                ? notInArray(taskTable.userId, [...memberIds])
+                : undefined,
             ),
           );
       }
@@ -127,8 +143,19 @@ async function moveProject(
     const [movedProject] = await tx
       .update(projectTable)
       .set({ workspaceId: targetWorkspaceId })
-      .where(eq(projectTable.id, id))
+      .where(
+        and(
+          eq(projectTable.id, id),
+          eq(projectTable.workspaceId, sourceWorkspaceId),
+        ),
+      )
       .returning();
+
+    if (!movedProject) {
+      throw new HTTPException(409, {
+        message: "Project was moved to another workspace, please try again",
+      });
+    }
 
     // Assets and task labels denormalize the project's workspace.
     await tx
@@ -136,12 +163,20 @@ async function moveProject(
       .set({ workspaceId: targetWorkspaceId })
       .where(eq(assetTable.projectId, id));
 
-    if (taskIds.length > 0) {
-      await tx
-        .update(labelTable)
-        .set({ workspaceId: targetWorkspaceId })
-        .where(inArray(labelTable.taskId, taskIds));
-    }
+    // Subquery rather than a materialized id list: this one scales with the
+    // project's total task count.
+    await tx
+      .update(labelTable)
+      .set({ workspaceId: targetWorkspaceId })
+      .where(
+        inArray(
+          labelTable.taskId,
+          tx
+            .select({ id: taskTable.id })
+            .from(taskTable)
+            .where(eq(taskTable.projectId, id)),
+        ),
+      );
 
     return { movedProject, unassignedTasks: unassigned };
   });

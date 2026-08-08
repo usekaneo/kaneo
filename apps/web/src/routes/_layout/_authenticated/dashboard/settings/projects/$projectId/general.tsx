@@ -50,6 +50,7 @@ import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
+import useProjectCreateWorkspaces from "@/hooks/queries/workspace/use-project-create-workspaces";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -143,9 +144,20 @@ function RouteComponent() {
   // this route has no `workspaceId` param, so `useActiveWorkspace` falls back
   // to the last-active organization, which can differ from where the project
   // actually lives (deep link, bookmark, back after a workspace switch).
-  const moveTargets = useMemo(
+  const moveCandidates = useMemo(
     () => (workspaces ?? []).filter((item) => item.id !== project?.workspaceId),
     [workspaces, project?.workspaceId],
+  );
+  // The endpoint also requires `project:create` in the target, so a workspace
+  // the user can't create in would only fail server-side after they picked it.
+  const moveCandidateIds = useMemo(
+    () => moveCandidates.map((item) => item.id),
+    [moveCandidates],
+  );
+  const canCreateIn = useProjectCreateWorkspaces(moveCandidateIds);
+  const moveTargets = useMemo(
+    () => moveCandidates.filter((item) => canCreateIn.has(item.id)),
+    [moveCandidates, canCreateIn],
   );
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();

@@ -420,4 +420,68 @@ describe("API integration: moving a project between workspaces", () => {
       .where(eq(schema.activityTable.taskId, keptTask.id));
     expect(keptActivities).toHaveLength(0);
   });
+
+  // The unassignment is predicated on the target's member set rather than a
+  // list of task ids, so an empty member set drops that term entirely — the
+  // remaining predicate still has to stay scoped to this project.
+  it("unassigns every task when no assignee is a member of the target", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const outsider = await createWorkspaceMember({ role: "member" });
+    const target = await createTargetWorkspace();
+    await addMember(target.id, owner.user.id, "owner");
+    await addMember(owner.workspace.id, outsider.user.id, "member");
+
+    const { project, columns } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    const other = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+
+    const [movedTask] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Loses its assignee",
+        columnId: columns.todo.id,
+        number: 1,
+        userId: outsider.user.id,
+      })
+      .returning();
+
+    const [untouchedTask] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: other.project.id,
+        title: "Belongs to another project",
+        columnId: other.columns.todo.id,
+        number: 1,
+        userId: outsider.user.id,
+      })
+      .returning();
+
+    mockAuthenticatedSession(owner.user);
+    const { app } = createApp();
+
+    const response = await app.request(
+      `/api/project/${project.id}/move`,
+      moveRequest(target.id),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as { unassignedTaskCount: number };
+    expect(payload.unassignedTaskCount).toBe(1);
+
+    const [moved] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, movedTask.id));
+    expect(moved.userId).toBeNull();
+
+    const [untouched] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, untouchedTask.id));
+    expect(untouched.userId).toBe(outsider.user.id);
+  });
 });
