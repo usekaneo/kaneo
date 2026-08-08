@@ -10,10 +10,19 @@ import {
 
 type ProjectListEntry = typeof schema.projectTable.$inferSelect;
 
-async function listProjects(workspaceId: string) {
+async function listProjects(workspaceId: string, includeArchived = false) {
   const { app } = createApp();
-  const response = await app.request(`/api/project?workspaceId=${workspaceId}`);
+  const response = await app.request(
+    `/api/project?workspaceId=${workspaceId}${
+      includeArchived ? "&includeArchived=true" : ""
+    }`,
+  );
   return (await response.json()) as ProjectListEntry[];
+}
+
+function archiveRequest(projectId: string) {
+  const { app } = createApp();
+  return app.request(`/api/project/${projectId}/archive`, { method: "PUT" });
 }
 
 function reorderRequest(
@@ -214,6 +223,49 @@ describe("API integration: project reorder", () => {
       omitted.id,
     ]);
     expect(projects.map((project) => project.position)).toEqual([0, 1, 2]);
+  });
+
+  it("keeps an archived project's slot in the ordering", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    const { project: first } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "First",
+    });
+    const { project: second } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Second",
+    });
+    const { project: archived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Archived",
+    });
+
+    mockAuthenticatedSession(member.user);
+
+    expect((await archiveRequest(archived.id)).status).toBe(200);
+
+    // The client never sees the archived project, so it cannot send it. The
+    // controller has to keep it in the workspace ordering anyway.
+    const response = await reorderRequest(member.workspace.id, [
+      { id: second.id, position: 0 },
+      { id: first.id, position: 1 },
+    ]);
+
+    expect(response.status).toBe(200);
+
+    const visibleProjects = await listProjects(member.workspace.id);
+    expect(visibleProjects.map((project) => project.id)).toEqual([
+      second.id,
+      first.id,
+    ]);
+
+    const allProjects = await listProjects(member.workspace.id, true);
+    expect(allProjects.map((project) => project.id)).toEqual([
+      second.id,
+      first.id,
+      archived.id,
+    ]);
+    expect(allProjects.map((project) => project.position)).toEqual([0, 1, 2]);
   });
 
   it("rejects an empty payload", async () => {

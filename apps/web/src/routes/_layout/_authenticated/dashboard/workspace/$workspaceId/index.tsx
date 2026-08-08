@@ -96,11 +96,13 @@ function SortableProjectRow({
       <TableCell className="w-8 py-3 pe-0">
         {canReorder && (
           // The row itself navigates on click, so only the handle activates a
-          // drag.
+          // drag. It stays visible below `md`: `TouchSensor` is registered, and
+          // touch devices never hover, so hiding it there strands the
+          // affordance.
           <button
             type="button"
             ref={setActivatorNodeRef}
-            className="flex cursor-grab items-center text-muted-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover/row:opacity-100 hover:text-foreground"
+            className="flex cursor-grab items-center text-muted-foreground opacity-100 transition-opacity md:opacity-0 focus-visible:opacity-100 group-hover/row:opacity-100 hover:text-foreground"
             onClick={(event) => event.stopPropagation()}
             {...attributes}
             {...listeners}

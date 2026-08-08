@@ -101,10 +101,12 @@ function SortableProjectItem({
         // Only the handle activates a drag. Spreading the sortable props over
         // the whole item would make it a role="button" tab stop wrapping the
         // menu and dropdown buttons, and would let Enter start a drag.
+        // The handle stays visible below `md`: `TouchSensor` is registered, and
+        // touch devices never hover, so hiding it there strands the affordance.
         <button
           type="button"
           ref={setActivatorNodeRef}
-          className="absolute top-1.5 end-6 z-10 flex aspect-square w-5 cursor-grab items-center justify-center rounded-lg p-0 text-sidebar-foreground opacity-0 outline-hidden ring-sidebar-ring transition-opacity hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:opacity-100 focus-visible:ring-2 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100"
+          className="absolute top-1.5 end-6 z-10 flex aspect-square w-5 cursor-grab items-center justify-center rounded-lg p-0 text-sidebar-foreground opacity-100 outline-hidden md:opacity-0 ring-sidebar-ring transition-opacity hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:opacity-100 focus-visible:ring-2 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100"
           onClick={(event) => event.stopPropagation()}
           {...attributes}
           {...listeners}
