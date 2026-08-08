@@ -787,7 +787,17 @@
 				"iconRequired": "O ícone é obrigatório"
 			},
 			"importExportTasks": "Importar/Exportar",
-			"importExportTasksDescription": "Importe e exporte tarefas."
+			"importExportTasksDescription": "Importe e exporte tarefas.",
+			"moveModalConfirm": "Mover projeto",
+			"moveModalDescription": "Isso moverá o projeto \"{{name}}\" e todas as suas tarefas para \"{{workspace}}\". As tarefas atribuídas a pessoas que não são membros desse espaço de trabalho ficarão sem responsável, e as inscrições de notificação deste projeto serão removidas.",
+			"moveModalTitle": "Mover projeto?",
+			"moveProject": "Mover para outro espaço de trabalho",
+			"moveProjectAction": "Mover",
+			"moveProjectDescription": "Mova este projeto, com todas as suas tarefas, para outro espaço de trabalho.",
+			"moveProjectPlaceholder": "Selecione um espaço de trabalho",
+			"toastMoved": "Projeto movido com sucesso",
+			"toastMovedWithUnassigned": "Projeto movido com sucesso. {{taskCount}} tarefa(s) ficaram sem responsável.",
+			"toastMoveError": "Falha ao mover o projeto"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrações do projeto",

@@ -625,7 +625,17 @@
 				"iconRequired": "Ikon wajib diisi"
 			},
 			"importExportTasks": "Impor/Ekspor",
-			"importExportTasksDescription": "Impor dan ekspor tugas."
+			"importExportTasksDescription": "Impor dan ekspor tugas.",
+			"moveModalConfirm": "Pindahkan proyek",
+			"moveModalDescription": "Tindakan ini akan memindahkan proyek \"{{name}}\" beserta semua tugasnya ke \"{{workspace}}\". Tugas yang ditugaskan kepada orang yang bukan anggota ruang kerja tersebut akan dilepas penugasannya, dan langganan notifikasi untuk proyek ini akan dihapus.",
+			"moveModalTitle": "Pindahkan proyek?",
+			"moveProject": "Pindahkan ke ruang kerja",
+			"moveProjectAction": "Pindahkan",
+			"moveProjectDescription": "Pindahkan proyek ini, beserta semua tugasnya, ke ruang kerja lain.",
+			"moveProjectPlaceholder": "Pilih ruang kerja",
+			"toastMoved": "Proyek berhasil dipindahkan",
+			"toastMovedWithUnassigned": "Proyek berhasil dipindahkan. {{taskCount}} tugas dilepas penugasannya.",
+			"toastMoveError": "Gagal memindahkan proyek"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrasi Proyek",
