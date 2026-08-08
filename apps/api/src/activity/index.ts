@@ -11,6 +11,8 @@ import deleteComment from "./controllers/delete-comment";
 import getActivities from "./controllers/get-activities";
 import updateComment from "./controllers/update-comment";
 
+const activityCommentContentSchema = v.pipe(v.string(), v.maxLength(10_000));
+
 const activity = new Hono<{
   Variables: {
     userId: string;
@@ -97,7 +99,7 @@ const activity = new Hono<{
       "json",
       v.object({
         taskId: v.string(),
-        comment: v.string(),
+        comment: activityCommentContentSchema,
       }),
     ),
     workspaceAccess.fromTaskId(),
@@ -129,7 +131,7 @@ const activity = new Hono<{
       "json",
       v.object({
         activityId: v.string(),
-        comment: v.string(),
+        comment: activityCommentContentSchema,
       }),
     ),
     workspaceAccess.fromActivity("activityId"),
