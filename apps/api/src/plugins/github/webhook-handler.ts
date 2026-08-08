@@ -4,6 +4,7 @@ import { handleIssueCommentCreated } from "./webhooks/issue-comment-created";
 import { handleIssueEdited } from "./webhooks/issue-edited";
 import { handleIssueLabeled } from "./webhooks/issue-labeled";
 import { handleIssueOpened } from "./webhooks/issue-opened";
+import { handleIssueReopened } from "./webhooks/issue-reopened";
 import { handleLabelCreated } from "./webhooks/label-created";
 import { handlePullRequestClosed } from "./webhooks/pull-request-closed";
 import { handlePullRequestOpened } from "./webhooks/pull-request-opened";
@@ -82,6 +83,19 @@ export function setupWebhookHandlers() {
       console.log("[GitHub Webhook] issues.closed handled successfully");
     } catch (error) {
       console.error("[GitHub Webhook] issues.closed handler error:", error);
+      throw error;
+    }
+  });
+
+  githubApp.webhooks.on("issues.reopened", async ({ payload }) => {
+    console.log("[GitHub Webhook] Handling issues.reopened");
+    try {
+      await handleIssueReopened(
+        payload as Parameters<typeof handleIssueReopened>[0],
+      );
+      console.log("[GitHub Webhook] issues.reopened handled successfully");
+    } catch (error) {
+      console.error("[GitHub Webhook] issues.reopened handler error:", error);
       throw error;
     }
   });
