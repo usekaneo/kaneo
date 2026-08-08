@@ -694,6 +694,34 @@
 			"newColumnPlaceholder": "Nouveau nom de colonne...",
 			"add": "Ajouter"
 		},
+		"customFields": {
+			"heading": "Champs personnalisés",
+			"hint": "Ajoutez des champs de tâches supplémentaires pour ce projet.",
+			"namePlaceholder": "Nom du champ",
+			"typePlaceholder": "Sélectionnez le type de champ",
+			"noOptionsPlaceholder": "Aucune option",
+			"defaultValuePlaceholder": "Valeur par défaut",
+			"optionsPlaceholder": "Options séparées par des virgules",
+			"required": "Obligatoire",
+			"addButton": "Ajouter",
+			"creating": "Création...",
+			"loading": "Chargement des champs personnalisés...",
+			"empty": "Aucun champ personnalisé configuré pour le moment.",
+			"defaultLabel": "Défaut",
+			"createSuccess": "Champs personnalisé créé.",
+			"createError": "Échec de la création du champ personnalisé.",
+			"deleteButton": "Supprimer",
+			"deleting": "Suppression...",
+			"deleteSuccess": "Champs personnalisé supprimé.",
+			"deleteError": "Échec de la suppression du champ personnalisé.",
+			"types": {
+				"text": "Texte",
+				"number": "Nombre",
+				"date": "Date",
+				"dropdown": "Menu déroulant",
+				"boolean": "Booléen"
+			}
+		},
 		"githubIntegration": {
 			"validation": {
 				"ownerRequired": "Le propriétaire du dépôt est requis",
@@ -1531,10 +1559,13 @@
 			"selectTask": "Sélectionner une tâche",
 			"loadingTask": "Chargement de la tâche...",
 			"taskNotFound": "Tâche non trouvée",
-			"taskNotFoundDescription": "La tâche que vous recherchez n'existe pas ou a été supprimée."
+			"taskNotFoundDescription": "La tâche que vous recherchez n'existe pas ou a été supprimée.",
+			"customFields": "Champs personnalisés"
 		},
 		"detail": {
 			"subtaskOf": "Sous-tâche de",
+			"customFieldUpdated": "Champ mis à jour",
+			"selectOption": "Sélectionner une option",
 			"activity": "Activité",
 			"noActivity": "Aucune activité trouvée",
 			"openInFullPage": "Ouvrir en plein écran",
@@ -1781,7 +1812,11 @@
 			"allAssignees": "Tous les assignés",
 			"allDueDates": "Toutes les dates d'échéance",
 			"allLabels": "Tous les labels",
+			"noValuesUsedYet": "Aucune valeur utilisée pour le moment",
+			"noCustomFieldValues": "Aucune valeur de champ personnalisé",
+			"allCustomFieldValues": "Toutes les valeurs",
 			"selectedCount": "{{count}} sélectionné",
+			"all": "Tous",
 			"subjects": {
 				"status": "Statut",
 				"priority": "Priorité",
