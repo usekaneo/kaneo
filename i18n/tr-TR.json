@@ -1956,7 +1956,9 @@
 				"complete": "Tamamlandı",
 				"inProgress": "Devam ediyor"
 			},
-			"noDueDate": "Bitiş tarihi yok"
+			"noDueDate": "Bitiş tarihi yok",
+			"reorderHandle": "Projeyi yeniden sırala",
+			"reorderError": "Projeler yeniden sıralanamadı"
 		},
 		"search": {
 			"pageTitle": "Ara",

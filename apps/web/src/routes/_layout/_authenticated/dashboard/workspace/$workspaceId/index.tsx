@@ -1,6 +1,24 @@
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LayoutGrid, Plus } from "lucide-react";
-import { useState } from "react";
+import { GripVertical, LayoutGrid, Plus } from "lucide-react";
+import { type CSSProperties, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import PageTitle from "@/components/page-title";
@@ -27,16 +45,79 @@ import {
 } from "@/components/ui/table";
 import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
+import useReorderProjects from "@/hooks/mutations/project/use-reorder-projects";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { formatDateMedium } from "@/lib/format";
+import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/",
 )({
   component: RouteComponent,
 });
+
+function SortableProjectRow({
+  id,
+  canReorder,
+  onClick,
+  children,
+}: {
+  id: string;
+  canReorder: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  const { t } = useTranslation();
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, disabled: !canReorder });
+
+  const style: CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      className="group/row cursor-pointer"
+      onClick={onClick}
+    >
+      <TableCell className="w-8 py-3 pe-0">
+        {canReorder && (
+          // The row itself navigates on click, so only the handle activates a
+          // drag. It stays visible below `md`: `TouchSensor` is registered, and
+          // touch devices never hover, so hiding it there strands the
+          // affordance.
+          <button
+            type="button"
+            ref={setActivatorNodeRef}
+            className="flex cursor-grab items-center text-muted-foreground opacity-100 transition-opacity md:opacity-0 focus-visible:opacity-100 group-hover/row:opacity-100 hover:text-foreground"
+            onClick={(event) => event.stopPropagation()}
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4" />
+            <span className="sr-only">
+              {t("workspace:projects.reorderHandle")}
+            </span>
+          </button>
+        )}
+      </TableCell>
+      {children}
+    </TableRow>
+  );
+}
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -46,8 +127,54 @@ function RouteComponent() {
   const { data: projects, isLoading } = useGetProjects({
     workspaceId,
   });
-  const { canCreateProjects } = useWorkspacePermission();
+  const { mutate: reorderProjects } = useReorderProjects();
+  const { canCreateProjects, canUpdateProjects } = useWorkspacePermission();
   const canCreate = canCreateProjects();
+  // Matches the API, which gates /project/reorder on `project: ["update"]`
+  // alone — not the create+update+delete bundle.
+  const canReorder = canUpdateProjects();
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 8 },
+    }),
+    // Without the sortable coordinate getter, a keyboard drag nudges a virtual
+    // pointer by fixed pixel steps instead of moving between list positions.
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !projects) return;
+
+    const oldIndex = projects.findIndex((project) => project.id === active.id);
+    const newIndex = projects.findIndex((project) => project.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(projects, oldIndex, newIndex);
+
+    reorderProjects(
+      {
+        workspaceId,
+        projects: reordered.map((project, index) => ({
+          id: project.id,
+          position: index,
+        })),
+      },
+      {
+        onError: () => {
+          toast.error(t("workspace:projects.reorderError"));
+        },
+      },
+    );
+  };
 
   const handleCreateProject = () => {
     if (!canCreate) return;
@@ -92,6 +219,7 @@ function RouteComponent() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8" />
                 <TableHead className="text-foreground font-medium">
                   {t("workspace:projects.title")}
                 </TableHead>
@@ -109,6 +237,7 @@ function RouteComponent() {
             <TableBody>
               {[1, 2, 3].map((i) => (
                 <TableRow key={i}>
+                  <TableCell className="w-8 py-3 pe-0" />
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
                       <Skeleton className="h-5 w-5" />
@@ -203,85 +332,99 @@ function RouteComponent() {
           ) : null
         }
       >
-        <Table>
-          <TableHeader className="p-4">
-            <TableRow>
-              <TableHead className="text-foreground font-medium">
-                {t("workspace:projects.title")}
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                {t("workspace:projects.progress")}
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                {t("workspace:projects.dueDate")}
-              </TableHead>
-              <TableHead className="text-foreground font-medium">
-                {t("workspace:projects.status")}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {projects?.map((project) => {
-              if (!project || !project.id || !project.statistics) return null;
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <Table>
+            <TableHeader className="p-4">
+              <TableRow>
+                <TableHead className="w-8" />
+                <TableHead className="text-foreground font-medium">
+                  {t("workspace:projects.title")}
+                </TableHead>
+                <TableHead className="text-foreground font-medium">
+                  {t("workspace:projects.progress")}
+                </TableHead>
+                <TableHead className="text-foreground font-medium">
+                  {t("workspace:projects.dueDate")}
+                </TableHead>
+                <TableHead className="text-foreground font-medium">
+                  {t("workspace:projects.status")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <SortableContext
+                items={projects?.map((project) => project.id) ?? []}
+                strategy={verticalListSortingStrategy}
+              >
+                {projects?.map((project) => {
+                  if (!project || !project.id || !project.statistics)
+                    return null;
 
-              const IconComponent =
-                icons[project.icon as keyof typeof icons] || icons.Layout;
+                  const IconComponent =
+                    icons[project.icon as keyof typeof icons] || icons.Layout;
 
-              const getStatusText = () => {
-                if (project.statistics.totalTasks === 0)
-                  return t("workspace:projects.projectStatus.notStarted");
-                if (project.statistics.completionPercentage === 100)
-                  return t("workspace:projects.projectStatus.complete");
-                return t("workspace:projects.projectStatus.inProgress");
-              };
+                  const getStatusText = () => {
+                    if (project.statistics.totalTasks === 0)
+                      return t("workspace:projects.projectStatus.notStarted");
+                    if (project.statistics.completionPercentage === 100)
+                      return t("workspace:projects.projectStatus.complete");
+                    return t("workspace:projects.projectStatus.inProgress");
+                  };
 
-              const getStatusVariant = () => {
-                if (project.statistics.totalTasks === 0) return "secondary";
-                if (project.statistics.completionPercentage === 100)
-                  return "default";
-                return "outline";
-              };
+                  const getStatusVariant = () => {
+                    if (project.statistics.totalTasks === 0) return "secondary";
+                    if (project.statistics.completionPercentage === 100)
+                      return "default";
+                    return "outline";
+                  };
 
-              return (
-                <TableRow
-                  key={project.id}
-                  className="cursor-pointer"
-                  onClick={() => handleProjectClick(project.id)}
-                >
-                  <TableCell className="py-3">
-                    <div className="flex items-center gap-3">
-                      <IconComponent className="w-5 h-5 text-muted-foreground" />
-                      <span className="font-medium">{project.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-3">
-                    <div className="flex items-center gap-2">
-                      <Progress
-                        value={project.statistics.completionPercentage}
-                        className="w-16 h-2"
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        {project.statistics.completionPercentage}%
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-3">
-                    <span className="text-sm text-muted-foreground">
-                      {project.statistics.dueDate
-                        ? formatDateMedium(project.statistics.dueDate)
-                        : t("workspace:projects.noDueDate")}
-                    </span>
-                  </TableCell>
-                  <TableCell className="py-3">
-                    <Badge variant={getStatusVariant()}>
-                      {getStatusText()}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                  return (
+                    <SortableProjectRow
+                      key={project.id}
+                      id={project.id}
+                      canReorder={canReorder}
+                      onClick={() => handleProjectClick(project.id)}
+                    >
+                      <TableCell className="py-3">
+                        <div className="flex items-center gap-3">
+                          <IconComponent className="w-5 h-5 text-muted-foreground" />
+                          <span className="font-medium">{project.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <div className="flex items-center gap-2">
+                          <Progress
+                            value={project.statistics.completionPercentage}
+                            className="w-16 h-2"
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            {project.statistics.completionPercentage}%
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <span className="text-sm text-muted-foreground">
+                          {project.statistics.dueDate
+                            ? formatDateMedium(project.statistics.dueDate)
+                            : t("workspace:projects.noDueDate")}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <Badge variant={getStatusVariant()}>
+                          {getStatusText()}
+                        </Badge>
+                      </TableCell>
+                    </SortableProjectRow>
+                  );
+                })}
+              </SortableContext>
+            </TableBody>
+          </Table>
+        </DndContext>
       </WorkspaceLayout>
 
       <CreateProjectModal
