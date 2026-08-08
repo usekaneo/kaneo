@@ -35,4 +35,32 @@ describe("parseLinkMetadata", () => {
       source: "issue_closed",
     });
   });
+
+  it("keeps the row out of the warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    // The row can hold a task description synced from Kaneo, so the log gets
+    // the link id to find it by and not the content itself.
+    parseLinkMetadata(
+      '{"lastSync":{"description":"segredo do cliente"',
+      context,
+    );
+    expect(JSON.stringify(warn.mock.calls[0])).not.toContain(
+      "segredo do cliente",
+    );
+  });
+
+  it("ignores a row that parses to something other than an object", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    // `JSON.parse` answers these without throwing, so they used to reach the
+    // handlers typed as metadata. `null` is the one that bites: reading
+    // `metadata.createdFrom` off it throws inside the webhook.
+    expect(parseLinkMetadata("null", context)).toEqual({});
+    expect(parseLinkMetadata('"kaneo"', context)).toEqual({});
+    expect(parseLinkMetadata("42", context)).toEqual({});
+    expect(parseLinkMetadata("true", context)).toEqual({});
+    expect(parseLinkMetadata('["kaneo"]', context)).toEqual({});
+    expect(warn).toHaveBeenCalledTimes(5);
+  });
 });

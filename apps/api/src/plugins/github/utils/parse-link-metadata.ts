@@ -14,15 +14,36 @@ export function parseLinkMetadata<T extends object = Record<string, unknown>>(
     return {};
   }
 
+  let parsed: unknown;
+
   try {
-    return JSON.parse(raw) as Partial<T>;
+    parsed = JSON.parse(raw);
   } catch (error) {
     console.warn("Failed to parse GitHub external link metadata", {
       ...context,
-      metadata: raw,
       error,
     });
 
     return {};
   }
+
+  // Parsing succeeding is not the same as the row holding metadata. The
+  // literal `null` parses to `null`, `"kaneo"` to a string, and either would
+  // pass the return type on to a caller that reads a named field off it, which
+  // is the crash this helper exists to prevent. An array is not what any writer
+  // here produces either, and spreading one forward would turn its indices into
+  // keys. Both take the same exit as a row that will not parse.
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    console.warn(
+      "Ignoring GitHub external link metadata that is not an object",
+      {
+        ...context,
+        metadataType: parsed === null ? "null" : typeof parsed,
+      },
+    );
+
+    return {};
+  }
+
+  return parsed as Partial<T>;
 }
