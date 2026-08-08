@@ -6,6 +6,21 @@ import { findAllIntegrationsByRepo } from "../services/task-service";
 import { formatTaskDescriptionFromIssue } from "../utils/format";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
 
+// What this handler reads back out of the row. Every field is optional,
+// because the row may predate any of them.
+type SyncStamp = {
+  timestamp?: string;
+  source?: string;
+  value?: string;
+};
+
+type IssueEditedMetadata = {
+  lastSync?: {
+    title?: SyncStamp;
+    description?: SyncStamp;
+  };
+};
+
 type IssueEditedPayload = {
   action: string;
   issue: {
@@ -64,13 +79,16 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
       continue;
     }
 
-    const metadata = parseLinkMetadata(externalLink.metadata, {
-      externalLinkId: externalLink.id,
-      source: "issue_edited",
-    });
+    const metadata = parseLinkMetadata<IssueEditedMetadata>(
+      externalLink.metadata,
+      {
+        externalLinkId: externalLink.id,
+        source: "issue_edited",
+      },
+    );
 
     const updateData: Record<string, unknown> = {};
-    const updatedMetadata = { ...metadata };
+    const updatedMetadata: IssueEditedMetadata = { ...metadata };
 
     if (!updatedMetadata.lastSync) {
       updatedMetadata.lastSync = {};
@@ -91,7 +109,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         }
 
         const timeSinceLastSync =
-          Date.now() - new Date(lastTitleSync.timestamp).getTime();
+          Date.now() - new Date(lastTitleSync.timestamp ?? 0).getTime();
         if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
           console.log(
             `Skipping title update - recent sync detected (${timeSinceLastSync}ms ago)`,
@@ -131,7 +149,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         }
 
         const timeSinceLastSync =
-          Date.now() - new Date(lastDescSync.timestamp).getTime();
+          Date.now() - new Date(lastDescSync.timestamp ?? 0).getTime();
         if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
           console.log(
             `Skipping description update - recent sync detected (${timeSinceLastSync}ms ago)`,
