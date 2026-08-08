@@ -48,7 +48,7 @@ describe("branch names round trip", () => {
   // script leaves nothing where {title} goes. Four of the eight patterns
   // offered in the integration settings carry {title}.
   const pattern = "{slug}-{number}-{title}";
-  const config: GitHubConfig = { ...baseConfig, branchPattern: pattern };
+  const config = { ...baseConfig, branchPattern: pattern };
 
   it.each([
     ["Проверка входа", "Cyrillic"],
