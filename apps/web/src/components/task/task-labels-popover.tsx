@@ -15,6 +15,7 @@ import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { getTaskLabelOptions } from "@/lib/get-task-label-options";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
@@ -81,29 +82,25 @@ export default function TaskLabelsPopover({
     [taskLabels],
   );
 
+  const workspaceLevelLabels = useMemo(
+    () => workspaceLabels.filter((label) => label.taskId === null),
+    [workspaceLabels],
+  );
+
   const filteredLabels = useMemo(() => {
-    const searchFiltered = workspaceLabels.filter((label) =>
+    const selectableLabels = getTaskLabelOptions(workspaceLabels, task.id);
+    return selectableLabels.filter((label) =>
       label.name.toLowerCase().includes(searchValue.toLowerCase()),
     );
-
-    const labelMap = new Map<string, (typeof workspaceLabels)[0]>();
-    for (const label of searchFiltered) {
-      const existing = labelMap.get(label.name);
-      if (!existing || (label.taskId === null && existing.taskId !== null)) {
-        labelMap.set(label.name, label);
-      }
-    }
-
-    return Array.from(labelMap.values());
-  }, [workspaceLabels, searchValue]);
+  }, [workspaceLabels, searchValue, task.id]);
 
   const isCreatingNewLabel = useMemo(
     () =>
       searchValue &&
-      !workspaceLabels.some(
+      !workspaceLevelLabels.some(
         (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
       ),
-    [workspaceLabels, searchValue],
+    [workspaceLevelLabels, searchValue],
   );
 
   useEffect(() => {
@@ -141,6 +138,7 @@ export default function TaskLabelsPopover({
           toast.success(t("tasks:popover.labels.removeSuccess"));
         }
       } else {
+        if (workspaceLabel.taskId !== null) return;
         await attachLabel({
           labelId: workspaceLabel.id,
           taskId: task.id,
