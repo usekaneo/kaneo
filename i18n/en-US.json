@@ -1688,6 +1688,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			}
 		},

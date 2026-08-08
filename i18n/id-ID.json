@@ -1665,6 +1665,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Diagram Mermaid tidak dapat dirender"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			}
 		},

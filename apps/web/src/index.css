@@ -729,6 +729,74 @@ input:-webkit-autofill:active {
     width: 100%;
   }
 
+  .kaneo-resizable-image {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .kaneo-resizable-image-controls {
+    position: absolute;
+    top: 1.25rem;
+    left: 0.5rem;
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+    border-radius: calc(var(--radius) - 2px);
+    background: var(--popover);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 12%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms ease-in-out;
+  }
+
+  /* Clicking the image opens the preview dialog, so the controls reveal on
+     hover rather than on selection. */
+  .kaneo-resizable-image:hover .kaneo-resizable-image-controls,
+  .kaneo-resizable-image-controls:focus-within {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .kaneo-resizable-image-controls button {
+    padding: 0.125rem 0.375rem;
+    border-radius: calc(var(--radius) - 4px);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--popover-foreground);
+    cursor: pointer;
+  }
+
+  .kaneo-resizable-image-controls button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  .kaneo-resizable-image-controls button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .kaneo-resizable-image-handle {
+    position: absolute;
+    right: 0.25rem;
+    bottom: 1rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 1px solid var(--background);
+    border-radius: 9999px;
+    background: var(--primary);
+    opacity: 0;
+    cursor: ew-resize;
+    transition: opacity 120ms ease-in-out;
+  }
+
+  .kaneo-resizable-image:hover .kaneo-resizable-image-handle,
+  .kaneo-resizable-image-handle:focus-visible,
+  .kaneo-resizable-image-handle-active {
+    opacity: 1;
+  }
+
   .kaneo-tiptap-content .ProseMirror .is-editor-empty:first-child::before {
     pointer-events: none;
     content: attr(data-placeholder);

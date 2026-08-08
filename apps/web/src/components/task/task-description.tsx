@@ -1,5 +1,4 @@
 import type { Editor } from "@tiptap/core";
-import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
@@ -80,6 +79,7 @@ import { AttachmentCard } from "./extensions/attachment-card";
 import { EmbedBlock } from "./extensions/embed-block";
 import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
 import { MermaidBlock } from "./extensions/mermaid-block";
+import { ResizableImage } from "./extensions/resizable-image";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -647,7 +647,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         AttachmentCard,
         KaneoIssueLink,
         TaskList,
-        Image.configure({
+        ResizableImage.configure({
           HTMLAttributes: {
             class: "kaneo-editor-image",
             loading: "lazy",
