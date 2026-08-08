@@ -8,6 +8,7 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
+import { TASK_SHORT_ID_PATTERN } from "../task-short-id";
 
 type SearchParams = {
   query: string;
@@ -147,7 +148,7 @@ async function globalSearch(params: SearchParams): Promise<{
     : inArray(projectTable.workspaceId, accessibleWorkspaceIds);
 
   // Check if query matches short-id pattern (e.g. "DEP-23")
-  const shortIdMatch = query.match(/^([A-Za-z][\w-]*)-(\d+)$/);
+  const shortIdMatch = query.match(TASK_SHORT_ID_PATTERN);
 
   if (type === "all" || type === "tasks") {
     const seenTaskIds = new Set<string>();

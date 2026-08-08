@@ -17,14 +17,26 @@ function generateProjectSlug(projectName: string) {
     return "";
   }
 
+  // Iterate by code point, not by UTF-16 unit. A letter outside the basic
+  // multilingual plane is two units, so `word[0]` would hand back half a
+  // surrogate pair and `slice(0, 3)` would cut one in half.
   if (words.length === 1) {
-    return words[0].slice(0, 3);
+    return Array.from(words[0]).slice(0, 3).join("");
   }
 
-  return words
-    .slice(0, 3)
-    .map((word) => word[0])
-    .join("");
+  return words.slice(0, 3).map(firstLetterOrNumber).join("");
+}
+
+// Stripping punctuation can leave a word whose first code point is a combining
+// mark, which is not an initial anyone would recognize.
+function firstLetterOrNumber(word: string): string {
+  for (const char of word) {
+    if (/[\p{L}\p{N}]/u.test(char)) {
+      return char;
+    }
+  }
+
+  return "";
 }
 
 export default generateProjectSlug;

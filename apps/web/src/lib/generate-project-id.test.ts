@@ -32,6 +32,17 @@ describe("generateProjectSlug", () => {
     expect(generateProjectSlug("ＡＢＣ")).toBe("ABC");
   });
 
+  it("counts code points, not UTF-16 units", () => {
+    // Each of these is one letter made of two UTF-16 units, so indexing by
+    // unit would return half a surrogate pair.
+    expect(generateProjectSlug("𠀀𠀁𠀂𠀃")).toBe("𠀀𠀁𠀂");
+    expect(generateProjectSlug("𐌰lpha 𐌱eta")).toBe("𐌰𐌱");
+  });
+
+  it("skips a leading combining mark when taking an initial", () => {
+    expect(generateProjectSlug("́alpha ́beta")).toBe("AB");
+  });
+
   it("returns an empty key when the name has no letters or numbers", () => {
     expect(generateProjectSlug("!!!")).toBe("");
     expect(generateProjectSlug("   ")).toBe("");
