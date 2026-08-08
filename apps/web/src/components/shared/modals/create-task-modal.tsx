@@ -301,6 +301,13 @@ function CreateTaskModal({
       (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
     );
 
+  const buildDefaultCustomFieldValues = useCallback(() => {
+    return customFields.reduce<Record<string, string>>((acc, field) => {
+      acc[field.id] = field.defaultValue ?? "";
+      return acc;
+    }, {});
+  }, [customFields]);
+
   const handleClose = () => {
     const shouldDeleteDraft = draftTask && !didSubmitRef.current;
 
@@ -319,7 +326,7 @@ function CreateTaskModal({
     draftCreationPromiseRef.current = null;
     didSubmitRef.current = false;
     setDraftTask(null);
-    setCustomFieldValues({});
+    setCustomFieldValues(buildDefaultCustomFieldValues());
     onClose();
 
     if (shouldDeleteDraft) {
@@ -506,15 +513,11 @@ function CreateTaskModal({
 
       for (const [fieldId, value] of Object.entries(customFieldValues)) {
         if (value) {
-          try {
-            await setCustomFieldValue({
-              taskId: savedTask.id,
-              fieldId,
-              value: String(value),
-            });
-          } catch (error) {
-            console.error(`Failed to set custom field ${fieldId}:`, error);
-          }
+          await setCustomFieldValue({
+            taskId: savedTask.id,
+            fieldId,
+            value: String(value),
+          });
         }
       }
 
@@ -541,7 +544,7 @@ function CreateTaskModal({
         draftCreationPromiseRef.current = null;
         didSubmitRef.current = false;
         setDraftTask(null);
-        setCustomFieldValues({});
+        setCustomFieldValues(buildDefaultCustomFieldValues());
       } else {
         handleClose();
       }

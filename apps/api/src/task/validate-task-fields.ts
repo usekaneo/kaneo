@@ -14,6 +14,7 @@ export async function assertRequiredCustomFields(
       type: customFieldDefinitionTable.type,
       required: customFieldDefinitionTable.required,
       defaultValue: customFieldDefinitionTable.defaultValue,
+      options: customFieldDefinitionTable.options,
     })
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId));
@@ -47,6 +48,21 @@ export async function assertRequiredCustomFields(
       throw new HTTPException(400, {
         message: `Custom field "${def.name}" expects a valid ISO 8601 date, got "${cf.value}".`,
       });
+    }
+    if (def.type === "dropdown" && def.options) {
+      const options: string[] = Array.isArray(def.options)
+        ? def.options
+        : typeof def.options === "string"
+          ? JSON.parse(def.options)
+          : Array.isArray(def.options)
+            ? def.options
+            : [];
+
+      if (!options.includes(cf.value)) {
+        throw new HTTPException(400, {
+          message: `Custom field "${def.name}" expects one of: ${options.join(", ")}, got "${cf.value}".`,
+        });
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import { and, eq, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+
 import db from "../../database";
 import {
   columnTable,
@@ -13,6 +14,27 @@ import {
   assertValidTaskStatus,
 } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
+
+type CustomFieldInput = {
+  fieldId: string;
+  value: string;
+};
+
+function deduplicateCustomFields(
+  customFields?: CustomFieldInput[],
+): CustomFieldInput[] | undefined {
+  if (!customFields) {
+    return undefined;
+  }
+
+  const fieldsById = new Map<string, CustomFieldInput>();
+
+  for (const customField of customFields) {
+    fieldsById.set(customField.fieldId, customField);
+  }
+
+  return Array.from(fieldsById.values());
+}
 
 async function createTask({
   projectId,
@@ -35,16 +57,23 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
-  customFields?: { fieldId: string; value: string }[];
+  customFields?: CustomFieldInput[];
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
+  const normalizedCustomFields = deduplicateCustomFields(customFields);
 
   await assertValidTaskStatus(resolvedStatus, projectId);
-  await assertRequiredCustomFields(projectId, customFields);
+
+  await assertRequiredCustomFields(
+    projectId,
+    normalizedCustomFields,
+  );
 
   const [assignee] = await db
-    .select({ name: userTable.name })
+    .select({
+      name: userTable.name,
+    })
     .from(userTable)
     .where(eq(userTable.id, userId ?? ""));
 
@@ -56,7 +85,9 @@ async function createTask({
   });
 
   const [maxPositionResult] = await db
-    .select({ maxPosition: max(taskTable.position) })
+    .select({
+      maxPosition: max(taskTable.position),
+    })
     .from(taskTable)
     .where(
       and(
@@ -89,12 +120,12 @@ async function createTask({
       })
       .returning();
 
-    if (customFields && customFields.length > 0 && task) {
+    if (task && normalizedCustomFields?.length) {
       await tx.insert(customFieldValueTable).values(
-        customFields.map((f) => ({
+        normalizedCustomFields.map(({ fieldId, value }) => ({
           taskId: task.id,
-          fieldId: f.fieldId,
-          value: f.value,
+          fieldId,
+          value,
         })),
       );
     }
@@ -112,7 +143,7 @@ async function createTask({
     ...createdTask,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
-    currentUserId: currentUserId,
+    currentUserId,
     type: "created",
     content: null,
   });

@@ -158,7 +158,7 @@ const customField = new Hono<{
       }),
     ),
     workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ task: ["update"] }),
+    requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { projectId, name, type, required, defaultValue, options } =
         c.req.valid("json");
@@ -300,7 +300,7 @@ const customField = new Hono<{
       c.set("workspaceId", project.workspaceId);
       await next();
     },
-    requireWorkspacePermission({ task: ["update"] }),
+    requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
       const field = await deleteCustomField(id);
