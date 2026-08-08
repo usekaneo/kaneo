@@ -43,6 +43,12 @@ describe("generateProjectSlug", () => {
     expect(generateProjectSlug("́alpha ́beta")).toBe("AB");
   });
 
+  it("skips a leading combining mark on a single word too", () => {
+    // A key starting with a mark cannot be typed back as a task short id,
+    // because the pattern wants a letter first.
+    expect(generateProjectSlug("́alpha")).toBe("ALP");
+  });
+
   it("returns an empty key when the name has no letters or numbers", () => {
     expect(generateProjectSlug("!!!")).toBe("");
     expect(generateProjectSlug("   ")).toBe("");
