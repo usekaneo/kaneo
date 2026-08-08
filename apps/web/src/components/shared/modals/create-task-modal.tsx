@@ -178,9 +178,9 @@ function CreateTaskModal({
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id || "",
   );
-  const { canCreateTasks, canManageLabels } = useWorkspacePermission();
+  const { canCreateTasks, canCreateLabels } = useWorkspacePermission();
   const canCreateTaskCapability = canCreateTasks();
-  const canCreateLabelCapability = canManageLabels();
+  const canCreateLabelCapability = canCreateLabels();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
