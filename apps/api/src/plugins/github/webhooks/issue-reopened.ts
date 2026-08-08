@@ -53,9 +53,21 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
       continue;
     }
 
-    const existingMetadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
+    let existingMetadata: Record<string, unknown> = {};
+    if (externalLink.metadata) {
+      try {
+        existingMetadata = JSON.parse(externalLink.metadata) as Record<
+          string,
+          unknown
+        >;
+      } catch (error) {
+        console.warn("Failed to parse GitHub issue metadata for reopen sync", {
+          externalLinkId: externalLink.id,
+          metadata: externalLink.metadata,
+          error,
+        });
+      }
+    }
 
     if (existingMetadata.createdFrom === "kaneo") {
       continue;
@@ -90,7 +102,5 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
         state: "open",
       },
     });
-
-    return;
   }
 }
