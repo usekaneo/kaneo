@@ -50,7 +50,7 @@ import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
-import useProjectCreateWorkspaces from "@/hooks/queries/workspace/use-project-create-workspaces";
+import { useWorkspacesWithPermission } from "@/hooks/queries/workspace/use-workspaces-with-permission";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -61,6 +61,10 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
 });
+
+// Module-level so their identity stays stable across renders.
+const PROJECT_CREATE = { project: ["create"] };
+const PROJECT_UPDATE = { project: ["update"] };
 
 type ProjectFormValues = {
   name: string;
@@ -154,10 +158,26 @@ function RouteComponent() {
     () => moveCandidates.map((item) => item.id),
     [moveCandidates],
   );
-  const canCreateIn = useProjectCreateWorkspaces(moveCandidateIds);
+  const canCreateIn = useWorkspacesWithPermission(
+    moveCandidateIds,
+    PROJECT_CREATE,
+  );
   const moveTargets = useMemo(
     () => moveCandidates.filter((item) => canCreateIn.has(item.id)),
     [moveCandidates, canCreateIn],
+  );
+  // The API authorizes the move against the project's own workspace, which
+  // isn't necessarily the active one `useWorkspacePermission` answers for.
+  const sourceWorkspaceIds = useMemo(
+    () => (project?.workspaceId ? [project.workspaceId] : []),
+    [project?.workspaceId],
+  );
+  const canUpdateSource = useWorkspacesWithPermission(
+    sourceWorkspaceIds,
+    PROJECT_UPDATE,
+  );
+  const canMoveFromSource = Boolean(
+    project?.workspaceId && canUpdateSource.has(project.workspaceId),
   );
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
@@ -625,7 +645,7 @@ function RouteComponent() {
               {project && <TasksImportExport project={project} />}
             </div>
 
-            {canEdit && moveTargets.length > 0 && (
+            {canMoveFromSource && moveTargets.length > 0 && (
               <>
                 <Separator />
                 <div className="flex items-center justify-between">
