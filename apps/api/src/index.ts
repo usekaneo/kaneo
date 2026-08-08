@@ -38,6 +38,7 @@ import githubIntegration, {
 import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
+import mattermostIntegration from "./mattermost-integration";
 import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
@@ -579,6 +580,10 @@ export function createApp() {
     "/discord-integration",
     discordIntegration,
   );
+  const mattermostIntegrationApi = api.route(
+    "/mattermost-integration",
+    mattermostIntegration,
+  );
   const slackIntegrationApi = api.route("/slack-integration", slackIntegration);
   const telegramIntegrationApi = api.route(
     "/telegram-integration",
@@ -746,6 +751,7 @@ export function createApp() {
     projectApi,
     publicProjectApi,
     searchApi,
+    mattermostIntegrationApi,
     slackIntegrationApi,
     taskApi,
     taskRelationApi,
@@ -858,6 +864,7 @@ const {
   invitationApi,
   invitationPublicApi,
   labelApi,
+  mattermostIntegrationApi,
   notificationApi,
   notificationPreferencesApi,
   projectApi,
@@ -900,6 +907,7 @@ export type AppType =
   | typeof giteaIntegrationApi
   | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
+  | typeof mattermostIntegrationApi
   | typeof slackIntegrationApi
   | typeof telegramIntegrationApi
   | typeof taskRelationApi
