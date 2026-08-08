@@ -11,6 +11,7 @@ import {
 import {
   arrayMove,
   SortableContext,
+  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -82,6 +83,7 @@ function SortableProjectItem({
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -101,6 +103,7 @@ function SortableProjectItem({
         // menu and dropdown buttons, and would let Enter start a drag.
         <button
           type="button"
+          ref={setActivatorNodeRef}
           className="absolute top-1.5 end-6 z-10 flex aspect-square w-5 cursor-grab items-center justify-center rounded-lg p-0 text-sidebar-foreground opacity-0 outline-hidden ring-sidebar-ring transition-opacity hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:opacity-100 focus-visible:ring-2 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100"
           onClick={(event) => event.stopPropagation()}
           {...attributes}
@@ -127,11 +130,13 @@ export function NavProjects() {
   const queryClient = useQueryClient();
   const { mutateAsync: deleteProject } = useDeleteProject();
   const { mutate: reorderProjects } = useReorderProjects();
-  const { canCreateProjects, canDeleteProjects, canManageProjects } =
+  const { canCreateProjects, canDeleteProjects, canUpdateProjects } =
     useWorkspacePermission();
   const canCreate = canCreateProjects();
   const canDeleteProject = canDeleteProjects();
-  const canReorder = canManageProjects();
+  // Matches the API, which gates /project/reorder on `project: ["update"]`
+  // alone — not the create+update+delete bundle.
+  const canReorder = canUpdateProjects();
   const navigate = useNavigate();
   const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
     useParams({
@@ -171,7 +176,11 @@ export function NavProjects() {
     useSensor(TouchSensor, {
       activationConstraint: { delay: 200, tolerance: 8 },
     }),
-    useSensor(KeyboardSensor),
+    // Without the sortable coordinate getter, a keyboard drag nudges a virtual
+    // pointer by fixed pixel steps instead of moving between list positions.
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {

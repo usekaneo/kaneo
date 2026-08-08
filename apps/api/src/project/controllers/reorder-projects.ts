@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
@@ -8,46 +8,79 @@ async function reorderProjects(
   projects: Array<{ id: string; position: number }>,
 ) {
   const ids = projects.map((project) => project.id);
+  const uniqueIds = new Set(ids);
 
-  // Verify ownership of the whole batch before writing anything, so a smuggled
-  // foreign id cannot leave the workspace half-renumbered.
-  const owned = ids.length
-    ? await db
-        .select({ id: projectTable.id })
-        .from(projectTable)
-        .where(
-          and(
-            eq(projectTable.workspaceId, workspaceId),
-            inArray(projectTable.id, ids),
-          ),
-        )
-    : [];
-
-  const ownedIds = new Set(owned.map((project) => project.id));
-  const foreignId = ids.find((id) => !ownedIds.has(id));
-
-  if (foreignId) {
+  if (uniqueIds.size !== ids.length) {
     throw new HTTPException(400, {
-      message: `Project ${foreignId} does not belong to this workspace`,
+      message: "Duplicate project ids in reorder payload",
     });
   }
 
   return db.transaction(async (tx) => {
-    for (const project of projects) {
+    // Serialize ordering writes per workspace so a concurrent create (which
+    // appends at max(position) + 1) cannot interleave with a renumber.
+    // `createProject` takes the same lock with the same key.
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(1524, hashtext(${workspaceId}))`,
+    );
+
+    // The whole workspace, not just the payload: the client only ever sees
+    // non-archived projects, so archived ones have to keep their place in the
+    // ordering without being sent.
+    const existing = await tx
+      .select({ id: projectTable.id, position: projectTable.position })
+      .from(projectTable)
+      .where(eq(projectTable.workspaceId, workspaceId))
+      .orderBy(
+        asc(projectTable.position),
+        asc(projectTable.createdAt),
+        asc(projectTable.id),
+      );
+
+    // Verify ownership of the whole batch before writing anything, so a
+    // smuggled foreign id cannot leave the workspace half-renumbered.
+    const ownedIds = new Set(existing.map((project) => project.id));
+    const foreignId = ids.find((id) => !ownedIds.has(id));
+
+    if (foreignId) {
+      throw new HTTPException(400, {
+        message: `Project ${foreignId} does not belong to this workspace`,
+      });
+    }
+
+    // Positions are derived server-side rather than trusted from the client:
+    // the payload only expresses a relative order. This keeps stored positions
+    // in 0..n-1, so they can't drift out of the integer column's range and
+    // can't develop duplicates or gaps.
+    const requestedOrder = [...projects]
+      .sort((a, b) => a.position - b.position)
+      .map((project) => project.id);
+    const requestedIds = new Set(requestedOrder);
+    const remaining = existing
+      .filter((project) => !requestedIds.has(project.id))
+      .map((project) => project.id);
+    const finalOrder = [...requestedOrder, ...remaining];
+
+    const currentPositions = new Map(
+      existing.map((project) => [project.id, project.position]),
+    );
+
+    for (const [position, id] of finalOrder.entries()) {
+      if (currentPositions.get(id) === position) continue;
+
       await tx
         .update(projectTable)
-        .set({ position: project.position })
-        .where(
-          and(
-            eq(projectTable.id, project.id),
-            eq(projectTable.workspaceId, workspaceId),
-          ),
-        );
+        .set({ position })
+        .where(eq(projectTable.id, id));
     }
 
     return tx.query.projectTable.findMany({
       where: eq(projectTable.workspaceId, workspaceId),
-      orderBy: [asc(projectTable.position), asc(projectTable.createdAt)],
+      orderBy: [
+        asc(projectTable.position),
+        asc(projectTable.createdAt),
+        asc(projectTable.id),
+      ],
     });
   });
 }

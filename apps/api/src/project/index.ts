@@ -130,11 +130,16 @@ const project = new Hono<{
     validator(
       "json",
       v.object({
-        projects: v.array(
-          v.object({
-            id: v.string(),
-            position: v.pipe(v.number(), v.integer()),
-          }),
+        // Positions express a relative order only; the controller renumbers
+        // the workspace to 0..n-1, so the values just have to be sane.
+        projects: v.pipe(
+          v.array(
+            v.object({
+              id: v.string(),
+              position: v.pipe(v.number(), v.integer(), v.minValue(0)),
+            }),
+          ),
+          v.minLength(1),
         ),
       }),
     ),

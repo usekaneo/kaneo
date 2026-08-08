@@ -11,6 +11,7 @@ import {
 import {
   arrayMove,
   SortableContext,
+  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -73,10 +74,11 @@ function SortableProjectRow({
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
-  } = useSortable({ id });
+  } = useSortable({ id, disabled: !canReorder });
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -97,6 +99,7 @@ function SortableProjectRow({
           // drag.
           <button
             type="button"
+            ref={setActivatorNodeRef}
             className="flex cursor-grab items-center text-muted-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover/row:opacity-100 hover:text-foreground"
             onClick={(event) => event.stopPropagation()}
             {...attributes}
@@ -123,9 +126,11 @@ function RouteComponent() {
     workspaceId,
   });
   const { mutate: reorderProjects } = useReorderProjects();
-  const { canCreateProjects, canManageProjects } = useWorkspacePermission();
+  const { canCreateProjects, canUpdateProjects } = useWorkspacePermission();
   const canCreate = canCreateProjects();
-  const canReorder = canManageProjects();
+  // Matches the API, which gates /project/reorder on `project: ["update"]`
+  // alone — not the create+update+delete bundle.
+  const canReorder = canUpdateProjects();
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -134,7 +139,11 @@ function RouteComponent() {
     useSensor(TouchSensor, {
       activationConstraint: { delay: 200, tolerance: 8 },
     }),
-    useSensor(KeyboardSensor),
+    // Without the sortable coordinate getter, a keyboard drag nudges a virtual
+    // pointer by fixed pixel steps instead of moving between list positions.
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {

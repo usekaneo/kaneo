@@ -113,6 +113,120 @@ describe("API integration: project reorder", () => {
     expect(response.status).toBe(400);
   });
 
+  it("rejects a negative position", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+
+    const response = await reorderRequest(member.workspace.id, [
+      { id: project.id, position: -1 },
+    ]);
+
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects a duplicated project id", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+
+    const response = await reorderRequest(member.workspace.id, [
+      { id: project.id, position: 0 },
+      { id: project.id, position: 1 },
+    ]);
+
+    expect(response.status).toBe(400);
+  });
+
+  it("normalizes out-of-range and sparse positions to 0..n-1", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    const { project: first } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "First",
+    });
+    const { project: second } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Second",
+    });
+    const { project: third } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Third",
+    });
+
+    mockAuthenticatedSession(member.user);
+
+    // A client-supplied position near the integer ceiling must not be stored
+    // verbatim: `createProject` appends at max(position) + 1, so persisting it
+    // would overflow the column on the next create in this workspace.
+    const response = await reorderRequest(member.workspace.id, [
+      { id: third.id, position: 0 },
+      { id: first.id, position: 5 },
+      { id: second.id, position: 2_000_000_000 },
+    ]);
+
+    expect(response.status).toBe(200);
+
+    const projects = await listProjects(member.workspace.id);
+    expect(projects.map((project) => project.id)).toEqual([
+      third.id,
+      first.id,
+      second.id,
+    ]);
+    expect(projects.map((project) => project.position)).toEqual([0, 1, 2]);
+  });
+
+  it("appends workspace projects missing from the payload", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    const { project: first } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "First",
+    });
+    const { project: second } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Second",
+    });
+    // Clients only ever see non-archived projects, so a partial payload is
+    // legitimate; the omitted project keeps a slot in the ordering.
+    const { project: omitted } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Omitted",
+    });
+
+    mockAuthenticatedSession(member.user);
+
+    const response = await reorderRequest(member.workspace.id, [
+      { id: second.id, position: 0 },
+      { id: first.id, position: 1 },
+    ]);
+
+    expect(response.status).toBe(200);
+
+    const projects = await listProjects(member.workspace.id);
+    expect(projects.map((project) => project.id)).toEqual([
+      second.id,
+      first.id,
+      omitted.id,
+    ]);
+    expect(projects.map((project) => project.position)).toEqual([0, 1, 2]);
+  });
+
+  it("rejects an empty payload", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    await createProjectFixture({ workspaceId: member.workspace.id });
+
+    mockAuthenticatedSession(member.user);
+
+    const response = await reorderRequest(member.workspace.id, []);
+
+    expect(response.status).toBe(400);
+  });
+
   it("rejects a member without project update permission", async () => {
     const viewer = await createWorkspaceMember({ role: "viewer" });
     const { project } = await createProjectFixture({
