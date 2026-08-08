@@ -89,6 +89,7 @@ export async function resetTestDatabase() {
         "account",
         "apikey",
         "asset",
+        "billing_event",
         "column",
         "comment",
         "external_link",
