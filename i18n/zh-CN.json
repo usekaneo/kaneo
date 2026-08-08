@@ -1956,7 +1956,9 @@
 				"complete": "已完成",
 				"inProgress": "进行中"
 			},
-			"noDueDate": "无截止日期"
+			"noDueDate": "无截止日期",
+			"reorderHandle": "重新排序项目",
+			"reorderError": "重新排序项目失败"
 		},
 		"search": {
 			"pageTitle": "搜索",

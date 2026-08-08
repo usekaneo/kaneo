@@ -1956,7 +1956,9 @@
 				"complete": "पूर्ण",
 				"inProgress": "प्रगति में"
 			},
-			"noDueDate": "कोई नियत तारीख नहीं"
+			"noDueDate": "कोई नियत तारीख नहीं",
+			"reorderHandle": "प्रोजेक्ट का क्रम बदलें",
+			"reorderError": "प्रोजेक्ट का क्रम बदलने में विफल"
 		},
 		"search": {
 			"pageTitle": "खोजें",

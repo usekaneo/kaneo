@@ -70,6 +70,10 @@ async function getProjects(workspaceId: string, includeArchived = false) {
           eq(projectTable.workspaceId, workspaceId),
           isNull(projectTable.archivedAt),
         ),
+    orderBy: (project, { asc }) => [
+      asc(project.position),
+      asc(project.createdAt),
+    ],
   });
 
   const statisticsByProject = await getProjectStatistics(

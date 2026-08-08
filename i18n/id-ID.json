@@ -1956,7 +1956,9 @@
 				"complete": "Selesai",
 				"inProgress": "Sedang berjalan"
 			},
-			"noDueDate": "Tanpa tenggat"
+			"noDueDate": "Tanpa tenggat",
+			"reorderHandle": "Ubah urutan proyek",
+			"reorderError": "Gagal mengubah urutan proyek"
 		},
 		"search": {
 			"pageTitle": "Cari",

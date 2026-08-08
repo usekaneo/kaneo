@@ -1956,6 +1956,8 @@
 				"inProgress": "En progreso"
 			},
 			"noDueDate": "Sin fecha de vencimiento",
+			"reorderHandle": "Reordenar proyecto",
+			"reorderError": "No se pudieron reordenar los proyectos",
 			"emptyDescriptionReadOnly": "Todavía no hay proyectos en este espacio de trabajo. Pide a un admin que cree uno."
 		},
 		"search": {

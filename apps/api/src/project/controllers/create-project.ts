@@ -1,3 +1,4 @@
+import { eq, max } from "drizzle-orm";
 import db from "../../database";
 import { columnTable, projectTable } from "../../database/schema";
 
@@ -15,6 +16,12 @@ async function createProject(
   slug: string,
 ) {
   return db.transaction(async (tx) => {
+    // New projects go to the bottom of the workspace's ordering.
+    const [{ maxPosition } = { maxPosition: null }] = await tx
+      .select({ maxPosition: max(projectTable.position) })
+      .from(projectTable)
+      .where(eq(projectTable.workspaceId, workspaceId));
+
     const [createdProject] = await tx
       .insert(projectTable)
       .values({
@@ -22,6 +29,7 @@ async function createProject(
         name,
         icon,
         slug,
+        position: maxPosition === null ? 0 : maxPosition + 1,
       })
       .returning();
 
