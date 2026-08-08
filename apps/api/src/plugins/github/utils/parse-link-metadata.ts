@@ -1,0 +1,25 @@
+// An external link's metadata is a JSON string in the database, so a row
+// written by an older version, or truncated, is not the caller's fault and
+// should not take the webhook delivery down with it. The Gitea handlers already
+// warn and carry on with an empty object; this is the same behaviour in one
+// place, since the GitHub side needs it in four.
+export function parseLinkMetadata(
+  raw: string | null | undefined,
+  context: { externalLinkId: string; source: string },
+): Record<string, unknown> {
+  if (!raw) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch (error) {
+    console.warn("Failed to parse GitHub external link metadata", {
+      ...context,
+      metadata: raw,
+      error,
+    });
+
+    return {};
+  }
+}

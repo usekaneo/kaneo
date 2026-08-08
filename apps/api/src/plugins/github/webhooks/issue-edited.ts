@@ -4,6 +4,7 @@ import { taskTable } from "../../../database/schema";
 import { findExternalLink, updateExternalLink } from "../services/link-manager";
 import { findAllIntegrationsByRepo } from "../services/task-service";
 import { formatTaskDescriptionFromIssue } from "../utils/format";
+import { parseLinkMetadata } from "../utils/parse-link-metadata";
 
 type IssueEditedPayload = {
   action: string;
@@ -63,9 +64,10 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
       continue;
     }
 
-    const metadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
+    const metadata = parseLinkMetadata(externalLink.metadata, {
+      externalLinkId: externalLink.id,
+      source: "issue_edited",
+    });
 
     const updateData: Record<string, unknown> = {};
     const updatedMetadata = { ...metadata };
