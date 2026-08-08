@@ -13,6 +13,10 @@ function isDisallowedIpv4(ip: string): boolean {
     a === 0 ||
     a === 10 ||
     a === 127 ||
+    // 100.64.0.0/10, RFC 6598. Several hosted Kubernetes offerings put pod
+    // and service networks in here, where it reaches the same neighbours
+    // 10/8 does on a plain VPC.
+    (a === 100 && b >= 64 && b <= 127) ||
     (a === 169 && b === 254) ||
     (a === 172 && b >= 16 && b <= 31) ||
     (a === 192 && b === 168)
