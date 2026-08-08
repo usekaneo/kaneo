@@ -1,3 +1,14 @@
+# [2.15.0](https://github.com/usekaneo/kaneo/compare/v2.14.0...v2.15.0) (2026-08-08)
+
+
+### Bug Fixes
+
+* **billing:** keep failed webhooks replayable and preserve subscription dates ([b539c76](https://github.com/usekaneo/kaneo/commit/b539c7624fac1370b47061e6a53bc65b08b206ad))
+
+
+### Features
+
+* **billing:** reconcile drifted seat counts hourly ([55f1d38](https://github.com/usekaneo/kaneo/commit/55f1d387f25b5463ca1efbd8004887b5cbf91354))
 # [2.14.0](https://github.com/usekaneo/kaneo/compare/v2.13.2...v2.14.0) (2026-08-07)
 
 
