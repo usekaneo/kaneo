@@ -206,15 +206,21 @@ export function useTaskFiltersWithLabelsSupport(
           Object.keys(filters.customFields).length > 0
         ) {
           const taskFieldValues = getValuesForTask(task.id);
+
           const matchesAllFields = Object.entries(filters.customFields).every(
             ([fieldId, allowedValues]) => {
               const fieldEntry = taskFieldValues.find(
                 (v) => v.fieldId === fieldId,
               );
-              if (!fieldEntry?.value) return false;
+
+              if (!fieldEntry || fieldEntry.value == null) {
+                return true;
+              }
+
               return allowedValues.includes(fieldEntry.value);
             },
           );
+
           if (!matchesAllFields) return false;
         }
 
