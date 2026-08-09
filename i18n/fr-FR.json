@@ -1484,6 +1484,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Plaintext",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1501,9 @@
 					"addRowAfter": "Insérer une ligne en dessous",
 					"deleteRow": "Supprimer la ligne",
 					"deleteTable": "Supprimer le tableau"
+				},
+				"mermaid": {
+					"renderFailed": "Impossible d'afficher le diagramme Mermaid"
 				}
 			}
 		}
@@ -1601,6 +1605,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1637,9 @@
 						"onlyYoutube": "Seuls les liens YouTube peuvent être intégrés."
 					},
 					"onlyYoutubeInline": "Seuls les liens YouTube peuvent être intégrés. Utilisez le mode lien à la place."
+				},
+				"mermaid": {
+					"renderFailed": "Impossible d'afficher le diagramme Mermaid"
 				}
 			}
 		},

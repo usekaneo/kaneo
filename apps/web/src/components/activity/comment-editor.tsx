@@ -43,6 +43,7 @@ import { KaneoIssueLink } from "@/components/task/extensions/kaneo-issue-link";
 import { KaneoMention } from "@/components/task/extensions/kaneo-mention";
 import type { MentionMember } from "@/components/task/extensions/mention-list";
 import { MentionSuggestion } from "@/components/task/extensions/mention-suggestion";
+import { MermaidBlock } from "@/components/task/extensions/mermaid-block";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -133,6 +134,7 @@ const CODE_LANG_VALUES = [
   "java",
   "javascript",
   "markdown",
+  "mermaid",
   "plaintext",
   "python",
   "rust",
@@ -620,6 +622,9 @@ export default function CommentEditor({
           resolveLanguage: toShikiLanguage,
           themeDark: "github-dark",
           themeLight: "github-light",
+        }),
+        MermaidBlock.configure({
+          errorKey: "activity:comment.editor.mermaid.renderFailed",
         }),
         EmbedBlock,
         AttachmentCard,
