@@ -1,6 +1,7 @@
 import { HTTPException } from "hono/http-exception";
 import { normalizeGiteaBaseUrl } from "../../plugins/gitea/config";
 import {
+  GiteaApiError,
   createGiteaClient,
   verifyGiteaToken,
 } from "../../plugins/gitea/utils/gitea-api";
@@ -42,6 +43,21 @@ async function verifyGiteaAccess({
     };
   } catch (error) {
     const err = error as { status?: number; message?: string };
+
+    if (
+      error instanceof GiteaApiError &&
+      (error.message.includes("invalid JSON") ||
+        error.message.includes("was redirected"))
+    ) {
+      return {
+        isInstalled: false,
+        hasRequiredPermissions: false,
+        repositoryExists: false,
+        repositoryPrivate: null,
+        missingPermissions: [] as string[],
+        message: "The URL does not point to a Gitea instance.",
+      };
+    }
 
     if (err.status === 404) {
       return {
