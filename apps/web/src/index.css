@@ -59,6 +59,12 @@ input:-webkit-autofill:active {
   [data-slot="sidebar-menu-badge"] {
     transition: none !important;
   }
+
+  /* dnd-kit writes the shuffle transition inline, so this needs !important. The
+     dragged element still tracks the pointer; only the reflow is neutralized. */
+  [data-kaneo-sortable] {
+    transition: none !important;
+  }
 }
 
 
@@ -1339,6 +1345,12 @@ input:-webkit-autofill:active {
 
   .kaneo-tiptap-content .ProseMirror ::selection {
     background: color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+
+  /* Descendants too, or the cursor reverts to that of the row under it. */
+  body.kaneo-dragging,
+  body.kaneo-dragging * {
+    cursor: grabbing !important;
   }
 
 }

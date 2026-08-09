@@ -2,23 +2,31 @@ import {
   closestCenter,
   DndContext,
   type DragEndEvent,
-  KeyboardSensor,
   MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import {
+  restrictToParentElement,
+  restrictToVerticalAxis,
+} from "@dnd-kit/modifiers";
+import {
   arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { GripVertical, LayoutGrid, Plus } from "lucide-react";
-import { type CSSProperties, type ReactNode, useState } from "react";
+import { LayoutGrid, Plus } from "lucide-react";
+import {
+  type CSSProperties,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import PageTitle from "@/components/page-title";
@@ -51,6 +59,7 @@ import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { formatDateMedium } from "@/lib/format";
 import { toast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/",
@@ -69,51 +78,44 @@ function SortableProjectRow({
   onClick: () => void;
   children: ReactNode;
 }) {
-  const { t } = useTranslation();
   const {
-    attributes,
     listeners,
     setNodeRef,
-    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
-  } = useSortable({ id, disabled: !canReorder });
+    isSorting,
+  } = useSortable({
+    id,
+    disabled: !canReorder,
+    // The reorder already moves the row; animating the index change too
+    // replays the same move from a stale offset.
+    animateLayoutChanges: () => false,
+    // dnd-kit defaults to `ease`; this is the app's curve.
+    transition: { duration: 200, easing: "var(--ease-out)" },
+  });
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+    // Only while a drag is live, or the dropped row eases back from the drop
+    // point over a list that has already reordered.
+    transition: isSorting ? transition : undefined,
   };
 
   return (
+    // `listeners` without `attributes`: the latter puts role="button" and a tab
+    // stop on the row.
     <TableRow
       ref={setNodeRef}
       style={style}
-      className="group/row cursor-pointer"
+      data-kaneo-sortable=""
+      className={cn(
+        "group/row cursor-pointer",
+        isDragging && "relative z-10 bg-muted shadow-md",
+      )}
       onClick={onClick}
+      {...(canReorder ? listeners : {})}
     >
-      <TableCell className="w-8 py-3 pe-0">
-        {canReorder && (
-          // The row itself navigates on click, so only the handle activates a
-          // drag. It stays visible below `md`: `TouchSensor` is registered, and
-          // touch devices never hover, so hiding it there strands the
-          // affordance.
-          <button
-            type="button"
-            ref={setActivatorNodeRef}
-            className="flex cursor-grab items-center text-muted-foreground opacity-100 transition-opacity md:opacity-0 focus-visible:opacity-100 group-hover/row:opacity-100 hover:text-foreground"
-            onClick={(event) => event.stopPropagation()}
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical className="h-4 w-4" />
-            <span className="sr-only">
-              {t("workspace:projects.reorderHandle")}
-            </span>
-          </button>
-        )}
-      </TableCell>
       {children}
     </TableRow>
   );
@@ -127,13 +129,41 @@ function RouteComponent() {
   const { data: projects, isLoading } = useGetProjects({
     workspaceId,
   });
-  const { mutate: reorderProjects } = useReorderProjects();
+  const reorderProjects = useReorderProjects();
+
+  // React state, not the query cache: dnd-kit clears its transforms with a
+  // setState in the same handler, while a cache write notifies a task later,
+  // leaving a frame with the transforms gone and the rows not yet moved.
+  const [droppedOrder, setDroppedOrder] = useState<string[] | null>(null);
+
+  const orderedProjects = useMemo(() => {
+    if (!projects || !droppedOrder) return projects;
+
+    const rank = new Map(droppedOrder.map((id, index) => [id, index]));
+
+    return [...projects].sort(
+      (a, b) =>
+        (rank.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+        (rank.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+    );
+  }, [projects, droppedOrder]);
+
+  // Released once the server agrees, or a reorder made elsewhere stays pinned.
+  useEffect(() => {
+    if (!droppedOrder || !projects) return;
+    if (projects.map((project) => project.id).join() === droppedOrder.join()) {
+      setDroppedOrder(null);
+    }
+  }, [projects, droppedOrder]);
+
   const { canCreateProjects, canUpdateProjects } = useWorkspacePermission();
   const canCreate = canCreateProjects();
   // Matches the API, which gates /project/reorder on `project: ["update"]`
   // alone — not the create+update+delete bundle.
   const canReorder = canUpdateProjects();
 
+  // Below these thresholds the row is still a link and the page still scrolls;
+  // above them the gesture becomes a drag.
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: { distance: 8 },
@@ -141,39 +171,38 @@ function RouteComponent() {
     useSensor(TouchSensor, {
       activationConstraint: { delay: 200, tolerance: 8 },
     }),
-    // Without the sortable coordinate getter, a keyboard drag nudges a virtual
-    // pointer by fixed pixel steps instead of moving between list positions.
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
   );
+
+  const handleDragStart = () => {
+    document.body.classList.add("kaneo-dragging");
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (!over || active.id === over.id || !projects) return;
+    document.body.classList.remove("kaneo-dragging");
 
-    const oldIndex = projects.findIndex((project) => project.id === active.id);
-    const newIndex = projects.findIndex((project) => project.id === over.id);
+    if (!over || active.id === over.id || !orderedProjects) return;
+
+    const oldIndex = orderedProjects.findIndex(
+      (project) => project.id === active.id,
+    );
+    const newIndex = orderedProjects.findIndex(
+      (project) => project.id === over.id,
+    );
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const reordered = arrayMove(projects, oldIndex, newIndex);
+    const reordered = arrayMove(orderedProjects, oldIndex, newIndex);
 
-    reorderProjects(
-      {
-        workspaceId,
-        projects: reordered.map((project, index) => ({
-          id: project.id,
-          position: index,
-        })),
+    setDroppedOrder(reordered.map((project) => project.id));
+
+    reorderProjects(workspaceId, reordered, {
+      onError: () => {
+        setDroppedOrder(null);
+        toast.error(t("workspace:projects.reorderError"));
       },
-      {
-        onError: () => {
-          toast.error(t("workspace:projects.reorderError"));
-        },
-      },
-    );
+    });
   };
 
   const handleCreateProject = () => {
@@ -219,7 +248,6 @@ function RouteComponent() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-8" />
                 <TableHead className="text-foreground font-medium">
                   {t("workspace:projects.title")}
                 </TableHead>
@@ -237,7 +265,6 @@ function RouteComponent() {
             <TableBody>
               {[1, 2, 3].map((i) => (
                 <TableRow key={i}>
-                  <TableCell className="w-8 py-3 pe-0" />
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
                       <Skeleton className="h-5 w-5" />
@@ -335,12 +362,14 @@ function RouteComponent() {
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
+          onDragCancel={() => document.body.classList.remove("kaneo-dragging")}
         >
           <Table>
             <TableHeader className="p-4">
               <TableRow>
-                <TableHead className="w-8" />
                 <TableHead className="text-foreground font-medium">
                   {t("workspace:projects.title")}
                 </TableHead>
@@ -357,10 +386,10 @@ function RouteComponent() {
             </TableHeader>
             <TableBody>
               <SortableContext
-                items={projects?.map((project) => project.id) ?? []}
+                items={orderedProjects?.map((project) => project.id) ?? []}
                 strategy={verticalListSortingStrategy}
               >
-                {projects?.map((project) => {
+                {orderedProjects?.map((project) => {
                   if (!project || !project.id || !project.statistics)
                     return null;
 
