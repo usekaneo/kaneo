@@ -1,8 +1,8 @@
 import { HTTPException } from "hono/http-exception";
 import { normalizeGiteaBaseUrl } from "../../plugins/gitea/config";
 import {
-  GiteaApiError,
   createGiteaClient,
+  GiteaApiError,
   verifyGiteaToken,
 } from "../../plugins/gitea/utils/gitea-api";
 
@@ -40,23 +40,35 @@ async function verifyGiteaAccess({
       message: hasIssuesWrite
         ? "Token can access the repository."
         : "Token may not have sufficient permissions to manage issues.",
+      failureReason: null,
     };
   } catch (error) {
     const err = error as { status?: number; message?: string };
 
-    if (
-      error instanceof GiteaApiError &&
-      (error.message.includes("invalid JSON") ||
-        error.message.includes("was redirected"))
-    ) {
-      return {
-        isInstalled: false,
-        hasRequiredPermissions: false,
-        repositoryExists: false,
-        repositoryPrivate: null,
-        missingPermissions: [] as string[],
-        message: "The URL does not point to a Gitea instance.",
-      };
+    if (error instanceof GiteaApiError) {
+      if (error.kind === "REDIRECT") {
+        return {
+          isInstalled: false,
+          hasRequiredPermissions: false,
+          repositoryExists: false,
+          repositoryPrivate: null,
+          missingPermissions: [] as string[],
+          message: `The Gitea URL redirected (HTTP ${error.status}). This usually means the server forces HTTPS. Please use the final URL directly.`,
+          failureReason: "redirected",
+        };
+      }
+
+      if (error.kind === "INVALID_JSON") {
+        return {
+          isInstalled: false,
+          hasRequiredPermissions: false,
+          repositoryExists: false,
+          repositoryPrivate: null,
+          missingPermissions: [] as string[],
+          message: "The URL does not point to a Gitea instance.",
+          failureReason: "not_a_gitea_instance",
+        };
+      }
     }
 
     if (err.status === 404) {
@@ -67,6 +79,7 @@ async function verifyGiteaAccess({
         repositoryPrivate: null,
         missingPermissions: [] as string[],
         message: "Repository not found or not accessible with this token.",
+        failureReason: "repository_not_found",
       };
     }
 

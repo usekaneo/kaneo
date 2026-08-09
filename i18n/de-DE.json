@@ -782,7 +782,9 @@
 				"commentOnDisabled": "Aufgabenlink-Kommentare bei neuen Issues sind deaktiviert",
 				"settingsUpdateError": "Gitea-Integration konnte nicht aktualisiert werden",
 				"secretCopied": "Kopiert",
-				"unableToCopySecret": "Geheimnis konnte nicht kopiert werden"
+				"unableToCopySecret": "Geheimnis konnte nicht kopiert werden",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Anzeigen",
 			"webhookHide": "Ausblenden",

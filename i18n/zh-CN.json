@@ -944,7 +944,9 @@
 				"commentOnDisabled": "新 Issue 的任务链接评论已关闭",
 				"settingsUpdateError": "更新 Gitea 集成失败",
 				"secretCopied": "已复制",
-				"unableToCopySecret": "无法复制密钥"
+				"unableToCopySecret": "无法复制密钥",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "显示",
 			"webhookHide": "隐藏",
@@ -1490,7 +1492,8 @@
 					"sql": "SQL",
 					"swift": "Swift",
 					"typescript": "TypeScript",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"table": {
 					"addColumnBefore": "在左侧插入列",
@@ -1500,6 +1503,9 @@
 					"addRowAfter": "在下方插入行",
 					"deleteRow": "删除行",
 					"deleteTable": "删除表格"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		}
@@ -1616,7 +1622,8 @@
 					"terraform": "Terraform",
 					"typescript": "TypeScript",
 					"xml": "XML",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"embed": {
 					"choice": {
@@ -1632,6 +1639,9 @@
 						"onlyYoutube": "只能嵌入 YouTube 链接。"
 					},
 					"onlyYoutubeInline": "仅支持嵌入 YouTube URL，请改用链接模式。"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		},

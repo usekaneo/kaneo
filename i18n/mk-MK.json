@@ -782,7 +782,9 @@
 				"commentOnDisabled": "Коментарите со линк до задачата на новите issues се исклучени",
 				"settingsUpdateError": "Неуспешно ажурирање на Gitea интеграцијата",
 				"secretCopied": "Copied",
-				"unableToCopySecret": "Не можеше да се копира тајната"
+				"unableToCopySecret": "Не можеше да се копира тајната",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Show",
 			"webhookHide": "Hide",

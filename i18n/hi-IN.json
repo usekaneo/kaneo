@@ -944,7 +944,9 @@
 				"commentOnDisabled": "नई issues पर कार्य लिंक टिप्पणियाँ बंद हैं",
 				"settingsUpdateError": "Gitea एकीकरण अपडेट करने में विफल",
 				"secretCopied": "कॉपी किया",
-				"unableToCopySecret": "सीक्रेट कॉपी करने में असमर्थ"
+				"unableToCopySecret": "सीक्रेट कॉपी करने में असमर्थ",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "दिखाएँ",
 			"webhookHide": "छिपाएँ",
@@ -1490,7 +1492,8 @@
 					"sql": "SQL",
 					"swift": "Swift",
 					"typescript": "TypeScript",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"table": {
 					"addColumnBefore": "बाईं ओर कॉलम जोड़ें",
@@ -1500,6 +1503,9 @@
 					"addRowAfter": "नीचे पंक्ति जोड़ें",
 					"deleteRow": "पंक्ति हटाएँ",
 					"deleteTable": "तालिका हटाएँ"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		}
@@ -1616,7 +1622,8 @@
 					"terraform": "Terraform",
 					"typescript": "TypeScript",
 					"xml": "XML",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"embed": {
 					"choice": {
@@ -1632,6 +1639,9 @@
 						"onlyYoutube": "केवल YouTube लिंक एम्बेड किए जा सकते हैं।"
 					},
 					"onlyYoutubeInline": "केवल YouTube URL एम्बेड किए जा सकते हैं। इसके बजाय लिंक मोड का उपयोग करें।"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		},

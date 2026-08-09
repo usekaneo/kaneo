@@ -43,6 +43,9 @@ const verificationResultSchema = v.object({
   repositoryPrivate: v.nullable(v.boolean()),
   missingPermissions: v.array(v.string()),
   message: v.string(),
+  failureReason: v.nullable(
+    v.picklist(["not_a_gitea_instance", "redirected", "repository_not_found"]),
+  ),
 });
 
 const importResultSchema = v.object({
