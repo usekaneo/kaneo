@@ -280,4 +280,41 @@ describe("API integration: task creation", () => {
       position: 1,
     });
   });
+
+  it("rejects task creation when the assignee userId does not exist", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const missingAssigneeId = `user-${randomUUID()}`;
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "Ghost assignee task",
+        description: "Should fail because the assignee does not exist",
+        priority: "low",
+        status: "to-do",
+        userId: missingAssigneeId,
+      }),
+    });
+
+    expect(response.status).toBe(404);
+    await expect(response.text()).resolves.toContain("Assignee not found");
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: and(
+        eq(schema.taskTable.projectId, project.id),
+        eq(schema.taskTable.title, "Ghost assignee task"),
+      ),
+    });
+
+    expect(persistedTask).toBeUndefined();
+  });
 });

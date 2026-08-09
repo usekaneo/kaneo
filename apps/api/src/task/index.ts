@@ -196,7 +196,7 @@ const task = new Hono<{
         dueDate: v.optional(v.string()),
         priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
-        userId: v.optional(v.string()),
+        userId: v.optional(v.pipe(v.string(), v.minLength(1))),
       }),
     ),
     workspaceAccess.fromProject("projectId"),

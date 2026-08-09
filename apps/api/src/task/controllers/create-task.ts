@@ -30,14 +30,22 @@ async function createTask({
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
 
+  const normalizedUserId = userId?.trim();
+
+  if (userId !== undefined && normalizedUserId === "") {
+    throw new HTTPException(400, {
+      message: "Assignee id cannot be empty",
+    });
+  }
+
   await assertValidTaskStatus(resolvedStatus, projectId);
 
   const [assignee] = await db
     .select({ name: userTable.name })
     .from(userTable)
-    .where(eq(userTable.id, userId ?? ""));
+    .where(eq(userTable.id, normalizedUserId ?? ""));
 
-  if (userId && !assignee) {
+  if (normalizedUserId && !assignee) {
     throw new HTTPException(404, {
       message: "Assignee not found",
     });
@@ -71,7 +79,7 @@ async function createTask({
       .insert(taskTable)
       .values({
         projectId,
-        userId: userId || null,
+        userId: normalizedUserId ?? null,
         title: title || "",
         status: resolvedStatus,
         columnId: column?.id ?? null,
