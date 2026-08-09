@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer as LegacyMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import {
+  isLegacyRequest,
+  type McpServer as ModernMcpServer,
+} from "@modelcontextprotocol/server";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { auth } from "../auth";
@@ -10,6 +14,7 @@ import {
   getMcpAuthorizationRequest,
   registerMcpClient,
 } from "./controllers/oauth-consent";
+import { createModernMcpHandler } from "./modern";
 import { exchangeCode } from "./oauth";
 import {
   authorizationDecisionResponseSchema,
@@ -35,12 +40,12 @@ type McpSession = {
 
 const sessions = new Map<string, McpSession>();
 
-function createMcpServerForUser(token: string): McpServer {
-  const server = new McpServer({
+function createMcpServerForUser(token: string): LegacyMcpServer {
+  const server = new LegacyMcpServer({
     name: "kaneo-mcp",
     version: "1.0.0",
   });
-  registerMcpTools(server, apiUrl, token);
+  registerMcpTools(server as unknown as ModernMcpServer, apiUrl, token);
   return server;
 }
 
@@ -276,6 +281,11 @@ mcp.all("/mcp", async (c) => {
   }
 
   const sessionId = c.req.header("mcp-session-id");
+
+  if (!(await isLegacyRequest(c.req.raw.clone()))) {
+    const modern = createModernMcpHandler(authResult.token, apiUrl);
+    return modern.fetch(c.req.raw);
+  }
 
   if (sessionId) {
     const existing = sessions.get(sessionId);

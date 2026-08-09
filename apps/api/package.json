@@ -39,6 +39,7 @@
     "@kaneo/email": "workspace:*",
     "@kaneo/permissions": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/server": "2.0.0",
     "@octokit/webhooks": "^14.2.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
