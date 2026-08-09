@@ -558,7 +558,11 @@ function RouteComponent() {
             <AlertDialogFooter>
               <AlertDialogClose
                 render={
-                  <Button variant="outline" size="sm" disabled={isTransferring} />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isTransferring}
+                  />
                 }
               >
                 {t("common:actions.cancel")}
