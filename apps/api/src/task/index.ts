@@ -352,14 +352,6 @@ const task = new Hono<{
         projectId: v.string(),
         position: v.number(),
         userId: v.optional(v.string()),
-        customFields: v.optional(
-          v.array(
-            v.object({
-              fieldId: v.string(),
-              value: v.string(),
-            }),
-          ),
-        ),
       }),
     ),
     workspaceAccess.fromTask(),
