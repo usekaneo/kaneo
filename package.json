@@ -19,7 +19,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.6",
     "@commitlint/cli": "^19.6.1",
-    "@commitlint/config-conventional": "^19.6.0",
+    "@commitlint/config-conventional": "^21.2.0",
     "esbuild": "0.28.1",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.3",
