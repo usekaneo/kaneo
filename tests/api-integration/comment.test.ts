@@ -200,5 +200,9 @@ describe("API integration: task comments", () => {
     });
 
     expect(response.status).toBe(400);
+    expect(response.headers.get("content-type")).toContain("application/json");
+    expect(await response.json()).toEqual({
+      message: "Use the comment endpoint to create comments",
+    });
   });
 });

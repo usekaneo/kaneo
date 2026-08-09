@@ -13,6 +13,7 @@ import getActivities from "./controllers/get-activities";
 import updateComment from "./controllers/update-comment";
 
 const activityCommentContentSchema = v.pipe(v.string(), v.maxLength(10_000));
+const activityErrorSchema = v.object({ message: v.string() });
 
 const activity = new Hono<{
   Variables: {
@@ -55,6 +56,12 @@ const activity = new Hono<{
             "application/json": { schema: resolver(activitySchema) },
           },
         },
+        400: {
+          description: "Comment activities must use the comment endpoint",
+          content: {
+            "application/json": { schema: resolver(activityErrorSchema) },
+          },
+        },
       },
     }),
     validator(
@@ -73,7 +80,10 @@ const activity = new Hono<{
       const { taskId, userId, message, type, eventData } = c.req.valid("json");
       if (type === "comment") {
         throw new HTTPException(400, {
-          message: "Use the comment endpoint to create comments",
+          res: c.json(
+            { message: "Use the comment endpoint to create comments" },
+            400,
+          ),
         });
       }
       const activity = await createActivity(
