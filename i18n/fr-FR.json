@@ -1956,7 +1956,9 @@
 				"complete": "Terminé",
 				"inProgress": "En cours"
 			},
-			"noDueDate": "Pas de date d'échéance"
+			"noDueDate": "Pas de date d'échéance",
+			"reorderHandle": "Réorganiser le projet",
+			"reorderError": "Échec de la réorganisation des projets"
 		},
 		"search": {
 			"pageTitle": "Rechercher",

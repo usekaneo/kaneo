@@ -1,14 +1,33 @@
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
   ChevronRight,
   Folder,
   Forward,
+  GripVertical,
   MoreHorizontal,
   Settings,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { type CSSProperties, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Collapsible,
@@ -32,6 +51,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
+import useReorderProjects from "@/hooks/mutations/project/use-reorder-projects";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -49,6 +69,59 @@ import {
 } from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 
+function SortableProjectItem({
+  id,
+  canReorder,
+  children,
+}: {
+  id: string;
+  canReorder: boolean;
+  children: ReactNode;
+}) {
+  const { t } = useTranslation();
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, disabled: !canReorder });
+
+  const style: CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <SidebarMenuItem ref={setNodeRef} style={style}>
+      {canReorder && (
+        // Only the handle activates a drag. Spreading the sortable props over
+        // the whole item would make it a role="button" tab stop wrapping the
+        // menu and dropdown buttons, and would let Enter start a drag.
+        // The handle stays visible below `md`: `TouchSensor` is registered, and
+        // touch devices never hover, so hiding it there strands the affordance.
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          className="absolute top-1.5 end-6 z-10 flex aspect-square w-5 cursor-grab items-center justify-center rounded-lg p-0 text-sidebar-foreground opacity-100 outline-hidden md:opacity-0 ring-sidebar-ring transition-opacity hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:opacity-100 focus-visible:ring-2 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100"
+          onClick={(event) => event.stopPropagation()}
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4" />
+          <span className="sr-only">
+            {t("workspace:projects.reorderHandle")}
+          </span>
+        </button>
+      )}
+      {children}
+    </SidebarMenuItem>
+  );
+}
+
 export function NavProjects() {
   const { t } = useTranslation();
   const { isMobile } = useSidebar();
@@ -58,9 +131,14 @@ export function NavProjects() {
   });
   const queryClient = useQueryClient();
   const { mutateAsync: deleteProject } = useDeleteProject();
-  const { canCreateProjects, canDeleteProjects } = useWorkspacePermission();
+  const { mutate: reorderProjects } = useReorderProjects();
+  const { canCreateProjects, canDeleteProjects, canUpdateProjects } =
+    useWorkspacePermission();
   const canCreate = canCreateProjects();
   const canDeleteProject = canDeleteProjects();
+  // Matches the API, which gates /project/reorder on `project: ["update"]`
+  // alone — not the create+update+delete bundle.
+  const canReorder = canUpdateProjects();
   const navigate = useNavigate();
   const { workspaceId: currentWorkspaceId, projectId: currentProjectId } =
     useParams({
@@ -91,6 +169,50 @@ export function NavProjects() {
     });
   };
 
+  // Distance/delay thresholds keep a tap on the handle from being read as a
+  // drag; permission gating lives on the handle and `useSortable`'s `disabled`.
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 8 },
+    }),
+    // Without the sortable coordinate getter, a keyboard drag nudges a virtual
+    // pointer by fixed pixel steps instead of moving between list positions.
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !projects || !workspace) return;
+
+    const oldIndex = projects.findIndex((project) => project.id === active.id);
+    const newIndex = projects.findIndex((project) => project.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(projects, oldIndex, newIndex);
+
+    reorderProjects(
+      {
+        workspaceId: workspace.id,
+        projects: reordered.map((project, index) => ({
+          id: project.id,
+          position: index,
+        })),
+      },
+      {
+        onError: () => {
+          toast.error(t("workspace:projects.reorderError"));
+        },
+      },
+    );
+  };
+
   if (!workspace) return null;
 
   return (
@@ -109,98 +231,115 @@ export function NavProjects() {
           <CollapsiblePanel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">
-                {projects?.map((project) => {
-                  return (
-                    <SidebarMenuItem key={project.id}>
-                      <SidebarMenuButton
-                        isActive={isCurrentProject(project.id)}
-                        size="default"
-                        className="h-8 gap-0 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
-                        onClick={() => handleProjectClick(project)}
-                      >
-                        <span>{project.name}</span>
-                      </SidebarMenuButton>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          render={
-                            <button
-                              type="button"
-                              className="absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
-                            />
-                          }
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={projects?.map((project) => project.id) ?? []}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {projects?.map((project) => {
+                      return (
+                        <SortableProjectItem
+                          key={project.id}
+                          id={project.id}
+                          canReorder={canReorder}
                         >
-                          <MoreHorizontal />
-                          <span className="sr-only">
-                            {t("navigation:sidebar.more")}
-                          </span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          className="w-44 rounded-lg"
-                          side={isMobile ? "bottom" : "right"}
-                          align={isMobile ? "end" : "start"}
-                        >
-                          <DropdownMenuItem
-                            className="h-7 items-start cursor-pointer text-sm"
+                          <SidebarMenuButton
+                            isActive={isCurrentProject(project.id)}
+                            size="default"
+                            className="h-8 gap-0 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
                             onClick={() => handleProjectClick(project)}
                           >
-                            <Folder className="text-muted-foreground" />
-                            <span>
-                              {t("navigation:projectList.viewProject")}
-                            </span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="h-7 items-start cursor-pointer text-sm"
-                            onClick={() => {
-                              navigator.clipboard.writeText(
-                                `${window.location.origin}/dashboard/workspace/${workspace?.id}/project/${project.id}`,
-                              );
-                              toast.success(
-                                t("navigation:projectList.linkCopied"),
-                              );
-                            }}
-                          >
-                            <Forward className="text-muted-foreground" />
-                            <span>
-                              {t("navigation:projectList.shareProject")}
-                            </span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="h-7 items-start cursor-pointer text-sm"
-                            onClick={() => {
-                              navigate({
-                                to: "/dashboard/settings/projects/$projectId/general",
-                                params: { projectId: project.id },
-                              });
-                            }}
-                          >
-                            <Settings className="text-muted-foreground" />
-                            <span>
-                              {t("navigation:projectList.projectSettings")}
-                            </span>
-                          </DropdownMenuItem>
-                          {canDeleteProject && (
-                            <>
-                              <DropdownMenuSeparator />
+                            <span>{project.name}</span>
+                          </SidebarMenuButton>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={
+                                <button
+                                  type="button"
+                                  className="absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
+                                />
+                              }
+                            >
+                              <MoreHorizontal />
+                              <span className="sr-only">
+                                {t("navigation:sidebar.more")}
+                              </span>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              className="w-44 rounded-lg"
+                              side={isMobile ? "bottom" : "right"}
+                              align={isMobile ? "end" : "start"}
+                            >
                               <DropdownMenuItem
-                                className="h-7 items-start text-destructive cursor-pointer text-sm"
-                                onClick={() => {
-                                  setProjectToDeleteID(project.id);
-                                  setIsDeleteProjectModalOpen(true);
-                                }}
+                                className="h-7 items-start cursor-pointer text-sm"
+                                onClick={() => handleProjectClick(project)}
                               >
-                                <Trash2 className="text-destructive" />
+                                <Folder className="text-muted-foreground" />
                                 <span>
-                                  {t("navigation:projectList.deleteProject")}
+                                  {t("navigation:projectList.viewProject")}
                                 </span>
                               </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </SidebarMenuItem>
-                  );
-                })}
+                              <DropdownMenuItem
+                                className="h-7 items-start cursor-pointer text-sm"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(
+                                    `${window.location.origin}/dashboard/workspace/${workspace?.id}/project/${project.id}`,
+                                  );
+                                  toast.success(
+                                    t("navigation:projectList.linkCopied"),
+                                  );
+                                }}
+                              >
+                                <Forward className="text-muted-foreground" />
+                                <span>
+                                  {t("navigation:projectList.shareProject")}
+                                </span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="h-7 items-start cursor-pointer text-sm"
+                                onClick={() => {
+                                  navigate({
+                                    to: "/dashboard/settings/projects/$projectId/general",
+                                    params: { projectId: project.id },
+                                  });
+                                }}
+                              >
+                                <Settings className="text-muted-foreground" />
+                                <span>
+                                  {t("navigation:projectList.projectSettings")}
+                                </span>
+                              </DropdownMenuItem>
+                              {canDeleteProject && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="h-7 items-start text-destructive cursor-pointer text-sm"
+                                    onClick={() => {
+                                      setProjectToDeleteID(project.id);
+                                      setIsDeleteProjectModalOpen(true);
+                                    }}
+                                  >
+                                    <Trash2 className="text-destructive" />
+                                    <span>
+                                      {t(
+                                        "navigation:projectList.deleteProject",
+                                      )}
+                                    </span>
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </SortableProjectItem>
+                      );
+                    })}
+                  </SortableContext>
+                </DndContext>
 
                 {canCreate && (
                   <SidebarMenuItem className="mt-1">

@@ -1956,7 +1956,9 @@
 				"complete": "Hoàn thành",
 				"inProgress": "Đang thực hiện"
 			},
-			"noDueDate": "Không có ngày đến hạn"
+			"noDueDate": "Không có ngày đến hạn",
+			"reorderHandle": "Sắp xếp lại dự án",
+			"reorderError": "Không thể sắp xếp lại dự án"
 		},
 		"search": {
 			"pageTitle": "Tìm kiếm",

@@ -1956,6 +1956,8 @@
 				"inProgress": "In behandeling"
 			},
 			"noDueDate": "Geen einddatum",
+			"reorderHandle": "Project opnieuw ordenen",
+			"reorderError": "Projecten opnieuw ordenen mislukt",
 			"emptyDescriptionReadOnly": "Er zijn nog geen projecten in deze werkruimte. Vraag een beheerder om er een aan te maken."
 		},
 		"search": {

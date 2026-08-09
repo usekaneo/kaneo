@@ -1956,6 +1956,8 @@
 				"inProgress": "In Bearbeitung"
 			},
 			"noDueDate": "Kein Fälligkeitsdatum",
+			"reorderHandle": "Projekt neu anordnen",
+			"reorderError": "Projekte konnten nicht neu angeordnet werden",
 			"emptyDescriptionReadOnly": "In diesem Workspace gibt es noch keine Projekte. Bitte einen Admin, eines zu erstellen."
 		},
 		"search": {
