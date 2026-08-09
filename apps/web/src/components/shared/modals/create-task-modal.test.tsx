@@ -1,6 +1,28 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import CreateTaskModal from "./create-task-modal";
+
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+}
+
+function createWrapper() {
+  const queryClient = createTestQueryClient();
+
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+  };
+}
 
 const useLocation = vi.fn();
 const createTask = vi.fn(async (input: Record<string, unknown>) => ({
@@ -91,7 +113,9 @@ describe("CreateTaskModal project picker", () => {
       pathname: "/dashboard/workspace/workspace-1",
     });
 
-    render(<CreateTaskModal open onClose={vi.fn()} />);
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
 
     const pickerTrigger = screen.getByText(
       "common:modals.createTask.selectProject",
@@ -122,7 +146,9 @@ describe("CreateTaskModal project picker", () => {
       pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
     });
 
-    render(<CreateTaskModal open onClose={vi.fn()} />);
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
 
     expect(
       screen.queryByText("common:modals.createTask.selectProject"),

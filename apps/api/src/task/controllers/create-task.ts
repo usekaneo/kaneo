@@ -1,10 +1,39 @@
 import { and, eq, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable, userTable } from "../../database/schema";
+import {
+  columnTable,
+  customFieldValueTable,
+  taskTable,
+  userTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
-import { assertValidTaskStatus } from "../validate-task-fields";
+import {
+  assertRequiredCustomFields,
+  assertValidTaskStatus,
+} from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
+
+type CustomFieldInput = {
+  fieldId: string;
+  value: string;
+};
+
+function deduplicateCustomFields(
+  customFields?: CustomFieldInput[],
+): CustomFieldInput[] | undefined {
+  if (!customFields) {
+    return undefined;
+  }
+
+  const fieldsById = new Map<string, CustomFieldInput>();
+
+  for (const customField of customFields) {
+    fieldsById.set(customField.fieldId, customField);
+  }
+
+  return Array.from(fieldsById.values());
+}
 
 async function createTask({
   projectId,
@@ -16,6 +45,7 @@ async function createTask({
   dueDate,
   description,
   priority,
+  customFields,
 }: {
   projectId: string;
   currentUserId: string;
@@ -26,11 +56,15 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  customFields?: CustomFieldInput[];
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
+  const normalizedCustomFields = deduplicateCustomFields(customFields);
 
   await assertValidTaskStatus(resolvedStatus, projectId);
+
+  await assertRequiredCustomFields(projectId, normalizedCustomFields);
 
   const [assignee] = await db
     .select({ name: userTable.name })
@@ -77,6 +111,16 @@ async function createTask({
         position: nextPosition,
       })
       .returning();
+
+    if (task && normalizedCustomFields?.length) {
+      await tx.insert(customFieldValueTable).values(
+        normalizedCustomFields.map(({ fieldId, value }) => ({
+          taskId: task.id,
+          fieldId,
+          value,
+        })),
+      );
+    }
 
     return task;
   });

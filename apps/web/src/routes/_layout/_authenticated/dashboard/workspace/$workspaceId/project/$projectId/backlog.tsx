@@ -20,11 +20,17 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
 import labelColors from "@/constants/label-colors";
 import { shortcuts } from "@/constants/shortcuts";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetCachedCustomFieldValues from "@/hooks/queries/custom-field/use-get-all-custom-field-values-by-project";
+import useGetCustomFieldFilterValues from "@/hooks/queries/custom-field/use-get-custom-field-filter-values";
+import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -71,6 +77,17 @@ function RouteComponent() {
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
   const queryClient = useQueryClient();
 
+  const { data: rawCustomFields = [] } = useGetCustomFieldsByProject(projectId);
+  const { data: filterValuesData = [] } =
+    useGetCustomFieldFilterValues(projectId);
+  const { getValuesForTask } = useGetCachedCustomFieldValues();
+
+  const usedCustomFieldValues = useMemo<Record<string, string[]>>(
+    () =>
+      Object.fromEntries(filterValuesData.map((f) => [f.fieldId, f.values])),
+    [filterValuesData],
+  );
+
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
@@ -114,6 +131,7 @@ function RouteComponent() {
     assignee: null as string | null,
     dueDate: null as string | null,
     labels: [] as string[],
+    customFields: {} as Record<string, string[]>,
   });
 
   const updateFilter = (key: string, value: string | null) => {
@@ -129,18 +147,51 @@ function RouteComponent() {
     }));
   };
 
+  const updateCustomFieldFilter = (fieldId: string, value: string) => {
+    setFilters((prev) => {
+      const existing = prev.customFields[fieldId] ?? [];
+      const next = existing.includes(value)
+        ? existing.filter((v) => v !== value)
+        : [...existing, value];
+      const updated = { ...prev.customFields };
+      if (next.length > 0) {
+        updated[fieldId] = next;
+      } else {
+        delete updated[fieldId];
+      }
+      return { ...prev, customFields: updated };
+    });
+  };
+
+  const clearCustomFieldFilter = (fieldId: string) => {
+    setFilters((prev) => {
+      const updated = { ...prev.customFields };
+      delete updated[fieldId];
+      return { ...prev, customFields: updated };
+    });
+  };
+
   const clearFilters = () => {
     setFilters({
       priority: null,
       assignee: null,
       dueDate: null,
       labels: [],
+      customFields: {},
     });
   };
 
-  const hasActiveFilters = Object.values(filters).some((filter) =>
-    Array.isArray(filter) ? filter.length > 0 : filter !== null,
-  );
+  const hasActiveFilters = Object.values(filters).some((filter) => {
+    if (Array.isArray(filter)) {
+      return filter.length > 0;
+    }
+
+    if (filter && typeof filter === "object") {
+      return Object.keys(filter).length > 0;
+    }
+
+    return filter !== null && filter !== undefined;
+  });
 
   useEffect(() => {
     if (data) {
@@ -234,6 +285,18 @@ function RouteComponent() {
           }
         }
 
+        if (Object.keys(filters.customFields).length > 0) {
+          const taskFieldValues = getValuesForTask(task.id);
+          const allMatch = Object.entries(filters.customFields).every(
+            ([fieldId, selectedVals]) => {
+              if (!selectedVals.length) return true;
+              const entry = taskFieldValues.find((v) => v.fieldId === fieldId);
+              return entry?.value != null && selectedVals.includes(entry.value);
+            },
+          );
+          if (!allMatch) return false;
+        }
+
         return true;
       });
     };
@@ -243,7 +306,7 @@ function RouteComponent() {
       plannedTasks: filterTasks(project.plannedTasks || []),
       archivedTasks: filterTasks(project.archivedTasks || []),
     };
-  }, [project, filters, getTaskLabels]);
+  }, [project, filters, getTaskLabels, getValuesForTask]);
 
   const uniqueLabels = workspaceLabels.reduce(
     (
@@ -518,6 +581,46 @@ function RouteComponent() {
                       </Button>
                     ))}
 
+                {Object.entries(filters.customFields).map(([fieldId, vals]) => {
+                  if (!vals.length) return null;
+                  const field = rawCustomFields.find((f) => f.id === fieldId);
+                  if (!field) return null;
+                  return (
+                    <Button
+                      key={fieldId}
+                      variant="secondary"
+                      size="xs"
+                      className="h-7 rounded-md px-2 text-xs font-medium gap-1.5"
+                    >
+                      <span>{field.name}</span>
+                      <span className="text-muted-foreground">:</span>
+                      <span>
+                        {vals.length === 1
+                          ? field.type === "boolean"
+                            ? vals[0] === "true"
+                              ? "True"
+                              : "False"
+                            : vals[0]
+                          : t("tasks:boardFilters.selectedCount", {
+                              count: vals.length,
+                              defaultValue: `${vals.length} selected`,
+                            })}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearCustomFieldFilter(fieldId);
+                        }}
+                      >
+                        <X className="h-2.5 w-2.5" />
+                      </Button>
+                    </Button>
+                  );
+                })}
+
                 <SortControl sort={sort} onSortChange={setSort} />
 
                 <DropdownMenu>
@@ -679,6 +782,97 @@ function RouteComponent() {
                       >
                         <span>{t("tasks:labels.empty")}</span>
                       </DropdownMenuItem>
+                    )}
+                    {rawCustomFields.length > 0 && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
+                            Custom Fields
+                          </DropdownMenuLabel>
+                        </DropdownMenuGroup>
+
+                        {rawCustomFields.map((field) => {
+                          const selectedVals =
+                            filters.customFields[field.id] ?? [];
+
+                          let displayOptions: string[] = [];
+                          if (field.type === "dropdown") {
+                            displayOptions = Array.isArray(field.options)
+                              ? (field.options as string[])
+                              : [];
+                          } else if (field.type === "boolean") {
+                            displayOptions = ["true", "false"];
+                          } else {
+                            displayOptions =
+                              usedCustomFieldValues[field.id] ?? [];
+                          }
+
+                          const labelForOption = (opt: string) => {
+                            if (field.type === "boolean")
+                              return opt === "true" ? "True" : "False";
+                            return opt;
+                          };
+
+                          return (
+                            <DropdownMenuSub key={field.id}>
+                              <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
+                                <span className="flex flex-1 items-center justify-between gap-2">
+                                  <span className="truncate">{field.name}</span>
+                                  {selectedVals.length > 0 && (
+                                    <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                                      {selectedVals.length}
+                                    </span>
+                                  )}
+                                </span>
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent className="w-48">
+                                {selectedVals.length > 0 && (
+                                  <>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        clearCustomFieldFilter(field.id)
+                                      }
+                                      className="h-8 rounded-md text-sm text-muted-foreground"
+                                    >
+                                      {t("common:actions.clearAllFilters", {
+                                        defaultValue: "Clear",
+                                      })}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                  </>
+                                )}
+                                {displayOptions.length === 0 ? (
+                                  <DropdownMenuItem
+                                    disabled
+                                    className="h-8 rounded-md text-sm text-muted-foreground"
+                                  >
+                                    {t("tasks:boardFilters.noValuesUsedYet")}
+                                  </DropdownMenuItem>
+                                ) : (
+                                  displayOptions.map((option) => (
+                                    <DropdownMenuCheckboxItem
+                                      key={option}
+                                      checked={selectedVals.includes(option)}
+                                      onCheckedChange={() =>
+                                        updateCustomFieldFilter(
+                                          field.id,
+                                          option,
+                                        )
+                                      }
+                                      className="h-8 rounded-md text-sm"
+                                    >
+                                      <span className="truncate">
+                                        {labelForOption(option)}
+                                      </span>
+                                    </DropdownMenuCheckboxItem>
+                                  ))
+                                )}
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
+                          );
+                        })}
+                      </>
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>

@@ -856,6 +856,34 @@
 			"newColumnPlaceholder": "New column name...",
 			"add": "Add"
 		},
+		"customFields": {
+			"heading": "Custom fields",
+			"hint": "Create additional task fields for this project.",
+			"namePlaceholder": "Field name",
+			"typePlaceholder": "Select field type",
+			"noOptionsPlaceholder": "No options",
+			"defaultValuePlaceholder": "Default value",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"addButton": "Add",
+			"creating": "Creating...",
+			"loading": "Loading custom fields...",
+			"empty": "No custom fields configured yet.",
+			"defaultLabel": "Default",
+			"createSuccess": "Custom field created.",
+			"createError": "Failed to create custom field.",
+			"deleteButton": "Delete",
+			"deleting": "Deleting...",
+			"deleteSuccess": "Custom field deleted.",
+			"deleteError": "Failed to delete custom field.",
+			"types": {
+				"text": "Text",
+				"number": "Number",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"boolean": "Boolean"
+			}
+		},
 		"githubIntegration": {
 			"validation": {
 				"ownerRequired": "Repository owner is required",
@@ -1535,10 +1563,13 @@
 			"selectTask": "Select task",
 			"loadingTask": "Loading task...",
 			"taskNotFound": "Task not found",
-			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted."
+			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Subtask of",
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option",
 			"activity": "Activity",
 			"noActivity": "No activity found",
 			"openInFullPage": "Open in full page",
@@ -1789,7 +1820,11 @@
 			"allAssignees": "All assignees",
 			"allDueDates": "All due dates",
 			"allLabels": "All labels",
+			"noValuesUsedYet": "No values used yet",
+			"noCustomFieldValues": "No custom field values",
+			"allCustomFieldValues": "All values",
 			"selectedCount": "{{count}} selected",
+			"all": "All",
 			"subjects": {
 				"status": "Status",
 				"priority": "Priority",
