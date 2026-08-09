@@ -26,8 +26,15 @@ async function createCustomField(
     throw new HTTPException(404, { message: "Project not found" });
   }
 
-  if (required && (defaultValue === undefined || defaultValue === null || defaultValue.trim() === "")) {
-    throw new HTTPException(400, { message: "Required fields must have a default value" });
+  if (
+    required &&
+    (defaultValue === undefined ||
+      defaultValue === null ||
+      defaultValue.trim() === "")
+  ) {
+    throw new HTTPException(400, {
+      message: "Required fields must have a default value",
+    });
   }
 
   if (defaultValue !== undefined && defaultValue !== null) {

@@ -1,11 +1,11 @@
-import { HTTPException } from "hono/http-exception";
 import { eq, sql } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 
 import db from "../../database";
 import {
-  taskTable,
   customFieldDefinitionTable,
   customFieldValueTable,
+  taskTable,
 } from "../../database/schema";
 
 async function setCustomFieldValue(
@@ -87,10 +87,7 @@ async function setCustomFieldValue(
       value: normalizedValue,
     })
     .onConflictDoUpdate({
-      target: [
-        customFieldValueTable.taskId,
-        customFieldValueTable.fieldId,
-      ],
+      target: [customFieldValueTable.taskId, customFieldValueTable.fieldId],
       set: {
         value: sql`excluded.value`,
       },

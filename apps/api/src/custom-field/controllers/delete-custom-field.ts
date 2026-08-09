@@ -1,7 +1,10 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { customFieldDefinitionTable, projectTable } from "../../database/schema";
+import {
+  customFieldDefinitionTable,
+  projectTable,
+} from "../../database/schema";
 
 async function deleteCustomField(id: string) {
   const [field] = await db
