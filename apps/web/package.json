@@ -102,7 +102,7 @@
 		"zustand": "^5.0.14"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.29.7",
+		"@babel/core": "^8.0.1",
 		"@kaneo/libs": "workspace:*",
 		"@kaneo/permissions": "workspace:*",
 		"@rolldown/plugin-babel": "^0.2.3",
