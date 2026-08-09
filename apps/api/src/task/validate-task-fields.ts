@@ -50,11 +50,17 @@ export async function assertRequiredCustomFields(
       });
     }
     if (def.type === "dropdown") {
-      const options: string[] = Array.isArray(def.options)
-        ? def.options
-        : typeof def.options === "string"
-          ? JSON.parse(def.options)
-          : [];
+      let options: string[] = Array.isArray(def.options) ? def.options : [];
+
+      if (typeof def.options === "string") {
+        try {
+          options = JSON.parse(def.options);
+        } catch {
+          throw new HTTPException(400, {
+            message: `Custom field "${def.name}" has invalid dropdown options.`,
+          });
+        }
+      }
 
       if (!options.includes(cf.value.trim())) {
         throw new HTTPException(400, {
