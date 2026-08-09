@@ -105,7 +105,7 @@
 		"@kaneo/permissions": "workspace:*",
 		"@rolldown/plugin-babel": "^0.2.3",
 		"@tailwindcss/postcss": "^4.3.3",
-		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/jest-dom": "^7.0.0",
 		"@testing-library/react": "^16.3.2",
 		"@types/babel__core": "^7.20.5",
 		"@types/node": "^25.5.0",
