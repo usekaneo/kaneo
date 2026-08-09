@@ -71,7 +71,7 @@ function RouteComponent() {
           </div>
 
           <SidebarGroup className="gap-1 p-1">
-            <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
+            <SidebarGroupLabel className="h-7 px-2 text-xs uppercase tracking-wide text-sidebar-foreground/70">
               {t("settings:account")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -83,7 +83,7 @@ function RouteComponent() {
                       variant="ghost"
                       size="sm"
                       className={cn(
-                        "h-8 w-full justify-start gap-2 rounded-lg px-2 text-[11px] font-normal text-sidebar-foreground/80",
+                        "h-8 w-full justify-start gap-2 rounded-lg px-2 text-sm font-normal text-sidebar-foreground/80",
                         isActivePath(item.url) &&
                           "bg-sidebar-accent text-sidebar-accent-foreground",
                       )}
@@ -98,7 +98,7 @@ function RouteComponent() {
           </SidebarGroup>
 
           <SidebarGroup className="gap-1 p-1">
-            <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
+            <SidebarGroupLabel className="h-7 px-2 text-xs uppercase tracking-wide text-sidebar-foreground/70">
               {t("settings:developer")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -109,7 +109,7 @@ function RouteComponent() {
                     variant="ghost"
                     size="sm"
                     className={cn(
-                      "h-8 w-full justify-start gap-2 rounded-lg px-2 text-[11px] font-normal text-sidebar-foreground/80",
+                      "h-8 w-full justify-start gap-2 rounded-lg px-2 text-sm font-normal text-sidebar-foreground/80",
                       isActivePath("/dashboard/settings/account/developer") &&
                         "bg-sidebar-accent text-sidebar-accent-foreground",
                     )}

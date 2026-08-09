@@ -93,7 +93,7 @@ function RouteComponent() {
                 src={workspace?.logo ?? ""}
                 alt={workspace?.name || ""}
               />
-              <AvatarFallback className="border border-sidebar-border/70 bg-sidebar-accent/70 text-[11px] font-medium text-sidebar-accent-foreground">
+              <AvatarFallback className="border border-sidebar-border/70 bg-sidebar-accent/70 text-xs font-medium text-sidebar-accent-foreground">
                 {workspaceInitials}
               </AvatarFallback>
             </Avatar>
@@ -101,14 +101,14 @@ function RouteComponent() {
               <p className="truncate text-sm md:overflow-visible md:text-clip md:whitespace-normal">
                 {workspace?.name}
               </p>
-              <p className="truncate text-[11px] text-sidebar-foreground/60 capitalize md:overflow-visible md:text-clip md:whitespace-normal">
+              <p className="truncate text-xs text-sidebar-foreground/60 capitalize md:overflow-visible md:text-clip md:whitespace-normal">
                 {t(`team:roles.${role}`, { defaultValue: role })}
               </p>
             </div>
           </div>
 
           <SidebarGroup className="gap-1 p-1">
-            <SidebarGroupLabel className="h-7 px-2 text-[11px] uppercase tracking-wide text-sidebar-foreground/70">
+            <SidebarGroupLabel className="h-7 px-2 text-xs uppercase tracking-wide text-sidebar-foreground/70">
               {t("navigation:page.settingsWorkspaceTab")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -120,7 +120,7 @@ function RouteComponent() {
                       variant="ghost"
                       size="sm"
                       className={cn(
-                        "h-8 w-full justify-start gap-2 rounded-lg px-2 text-[11px] font-normal text-sidebar-foreground/80",
+                        "h-8 w-full justify-start gap-2 rounded-lg px-2 text-sm font-normal text-sidebar-foreground/80",
                         isActivePath(item.url) &&
                           "bg-sidebar-accent text-sidebar-accent-foreground",
                       )}
