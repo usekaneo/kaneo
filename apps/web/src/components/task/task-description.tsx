@@ -532,6 +532,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const debouncedUpdate = useCallback(
     debounce(async (markdown: string) => {
+      if (!canEditRef.current) return;
+
       const currentTask = taskRef.current;
       const updateTaskFn = updateTaskRef.current;
       if (!currentTask || !updateTaskFn) return;
