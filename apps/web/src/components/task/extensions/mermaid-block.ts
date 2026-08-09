@@ -53,11 +53,18 @@ function isMermaid(code: string) {
   return opener !== undefined && MERMAID_OPENERS.test(opener);
 }
 
-function cacheRender(cacheKey: string, state: RenderState) {
+// `inUse` is never evicted, so the limit is a floor rather than a ceiling: a
+// document holding more diagrams than the limit grows the cache to fit instead
+// of evicting entries the same pass still needs. Evicting them would leave
+// `getDecorations` wanting them again on the refresh that follows every render,
+// which never settles.
+function cacheRender(cacheKey: string, state: RenderState, inUse: Set<string>) {
   renderCache.set(cacheKey, state);
-  if (renderCache.size > RENDER_CACHE_LIMIT) {
-    const oldest = renderCache.keys().next().value;
-    if (oldest !== undefined) renderCache.delete(oldest);
+
+  for (const key of renderCache.keys()) {
+    if (renderCache.size <= RENDER_CACHE_LIMIT) return;
+    if (inUse.has(key)) continue;
+    renderCache.delete(key);
   }
 }
 
@@ -101,18 +108,27 @@ function createScheduler(errorKey: string, onSettled: () => void): Scheduler {
     const batch = [...wanted].filter(([key]) => !renderCache.has(key));
     if (batch.length === 0) return;
 
+    // Every key the document is currently showing, not just the ones being
+    // rendered now: an entry already cached and still on screen must survive
+    // this pass too.
+    const inUse = new Set(wanted.keys());
+
     await Promise.all(
       batch.map(async ([key, { code, dark, explicit }]) => {
         renderCache.set(key, null);
         try {
-          cacheRender(key, {
-            status: "done",
-            svg: await renderMermaid(code, dark),
-          });
+          cacheRender(
+            key,
+            {
+              status: "done",
+              svg: await renderMermaid(code, dark),
+            },
+            inUse,
+          );
         } catch (error) {
           const message =
             error instanceof Error ? error.message : String(error);
-          cacheRender(key, { status: "error", message });
+          cacheRender(key, { status: "error", message }, inUse);
           if (explicit && active) {
             toast.error(i18n.t(errorKey), { description: message });
           }
