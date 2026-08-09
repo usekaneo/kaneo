@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { subscribeToEvent } from "../events";
@@ -70,6 +71,11 @@ const activity = new Hono<{
     requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { taskId, userId, message, type, eventData } = c.req.valid("json");
+      if (type === "comment") {
+        throw new HTTPException(400, {
+          message: "Use the comment endpoint to create comments",
+        });
+      }
       const activity = await createActivity(
         taskId,
         type,

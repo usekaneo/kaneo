@@ -34,6 +34,14 @@ describe("normalizeCommentMarkdown", () => {
     expect(result).toBe("Text  `code&nbsp;\u00A0value` more text");
   });
 
+  it("preserves non-breaking spaces inside multiline inline code", () => {
+    const markdown = "Text&nbsp; `code\n&nbsp;\u00A0value` more\u00A0text";
+
+    const result = normalizeCommentMarkdown(markdown);
+
+    expect(result).toBe("Text  `code\n&nbsp;\u00A0value` more text");
+  });
+
   it("preserves non-breaking spaces inside fenced code blocks", () => {
     const markdown =
       "Before&nbsp;\n```html\n<div>&nbsp;\u00A0</div>\n```\nAfter\u00A0";

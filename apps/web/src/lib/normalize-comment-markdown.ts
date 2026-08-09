@@ -66,38 +66,44 @@ export function normalizeCommentMarkdown(markdown: string) {
   const normalizedNewlines = markdown.replace(/\r\n/g, "\n");
   const lines = normalizedNewlines.match(/[^\n]*(?:\n|$)/g) ?? [];
   let fence: { marker: string; length: number } | null = null;
+  let textSegment = "";
+  let output = "";
 
-  return lines
-    .map((lineWithEnding) => {
-      const line = lineWithEnding.endsWith("\n")
-        ? lineWithEnding.slice(0, -1)
-        : lineWithEnding;
+  for (const lineWithEnding of lines) {
+    const line = lineWithEnding.endsWith("\n")
+      ? lineWithEnding.slice(0, -1)
+      : lineWithEnding;
 
-      if (fence) {
-        const closingFence = /^ {0,3}(`{3,}|~{3,})[\t ]*$/.exec(line);
-        if (
-          closingFence &&
-          closingFence[1][0] === fence.marker &&
-          closingFence[1].length >= fence.length
-        ) {
-          fence = null;
-        }
-        return lineWithEnding;
-      }
-
-      const openingFence = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+    if (fence) {
+      output += lineWithEnding;
+      const closingFence = /^ {0,3}(`{3,}|~{3,})[\t ]*$/.exec(line);
       if (
-        openingFence &&
-        (openingFence[1][0] === "~" || !openingFence[2].includes("`"))
+        closingFence &&
+        closingFence[1][0] === fence.marker &&
+        closingFence[1].length >= fence.length
       ) {
-        fence = {
-          marker: openingFence[1][0],
-          length: openingFence[1].length,
-        };
-        return lineWithEnding;
+        fence = null;
       }
+      continue;
+    }
 
-      return normalizeInlineMarkdown(lineWithEnding);
-    })
-    .join("");
+    const openingFence = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+    if (
+      openingFence &&
+      (openingFence[1][0] === "~" || !openingFence[2].includes("`"))
+    ) {
+      output += normalizeInlineMarkdown(textSegment);
+      textSegment = "";
+      fence = {
+        marker: openingFence[1][0],
+        length: openingFence[1].length,
+      };
+      output += lineWithEnding;
+      continue;
+    }
+
+    textSegment += lineWithEnding;
+  }
+
+  return output + normalizeInlineMarkdown(textSegment);
 }
