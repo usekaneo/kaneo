@@ -60,7 +60,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^25.3.5",
+    "@types/node": "^26.1.2",
     "@types/pg": "^8.20.3",
     "@vitest/coverage-v8": "^4.1.10",
     "esbuild": "0.28.1",
