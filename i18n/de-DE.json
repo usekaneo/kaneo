@@ -1484,6 +1484,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Klartext",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1501,9 @@
 					"addRowAfter": "Zeile unterhalb einfügen",
 					"deleteRow": "Zeile löschen",
 					"deleteTable": "Tabelle löschen"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid-Diagramm konnte nicht gerendert werden"
 				}
 			}
 		}
@@ -1601,6 +1605,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1637,9 @@
 						"onlyYoutube": "Nur YouTube-Links können eingebettet werden."
 					},
 					"onlyYoutubeInline": "Nur YouTube-URLs können eingebettet werden. Verwende stattdessen den Link-Modus."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid-Diagramm konnte nicht gerendert werden"
 				}
 			}
 		},
@@ -1956,6 +1964,8 @@
 				"inProgress": "In Bearbeitung"
 			},
 			"noDueDate": "Kein Fälligkeitsdatum",
+			"reorderHandle": "Projekt neu anordnen",
+			"reorderError": "Projekte konnten nicht neu angeordnet werden",
 			"emptyDescriptionReadOnly": "In diesem Workspace gibt es noch keine Projekte. Bitte einen Admin, eines zu erstellen."
 		},
 		"search": {

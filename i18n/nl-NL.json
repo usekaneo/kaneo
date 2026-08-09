@@ -1484,6 +1484,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Platte tekst",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1501,9 @@
 					"addRowAfter": "Rij eronder invoegen",
 					"deleteRow": "Rij verwijderen",
 					"deleteTable": "Tabel verwijderen"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
 			}
 		}
@@ -1601,6 +1605,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1637,9 @@
 						"onlyYoutube": "Alleen YouTube-links kunnen worden ingesloten."
 					},
 					"onlyYoutubeInline": "Alleen YouTube URL's kunnen worden ingesloten. Gebruik link-modus."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
 			}
 		},
@@ -1956,6 +1964,8 @@
 				"inProgress": "In behandeling"
 			},
 			"noDueDate": "Geen einddatum",
+			"reorderHandle": "Project opnieuw ordenen",
+			"reorderError": "Projecten opnieuw ordenen mislukt",
 			"emptyDescriptionReadOnly": "Er zijn nog geen projecten in deze werkruimte. Vraag een beheerder om er een aan te maken."
 		},
 		"search": {

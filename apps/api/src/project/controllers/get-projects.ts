@@ -70,6 +70,13 @@ async function getProjects(workspaceId: string, includeArchived = false) {
           eq(projectTable.workspaceId, workspaceId),
           isNull(projectTable.archivedAt),
         ),
+    // `id` is the deterministic tie-breaker: without it, rows sharing both a
+    // position and a createdAt come back in an unspecified order.
+    orderBy: (project, { asc }) => [
+      asc(project.position),
+      asc(project.createdAt),
+      asc(project.id),
+    ],
   });
 
   const statisticsByProject = await getProjectStatistics(

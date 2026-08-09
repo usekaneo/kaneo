@@ -1512,6 +1512,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Plaintext",
 					"python": "Python",
 					"rust": "Rust",
@@ -1528,6 +1529,9 @@
 					"addRowAfter": "Insert row below",
 					"deleteRow": "Delete row",
 					"deleteTable": "Delete table"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		}
@@ -1632,6 +1636,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1663,6 +1668,9 @@
 						"onlyYoutube": "Only YouTube links can be embedded."
 					},
 					"onlyYoutubeInline": "Only YouTube URLs can be embedded. Use link mode instead."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		},
@@ -1991,7 +1999,9 @@
 				"complete": "Complete",
 				"inProgress": "In progress"
 			},
-			"noDueDate": "No due date"
+			"noDueDate": "No due date",
+			"reorderHandle": "Reorder project",
+			"reorderError": "Failed to reorder projects"
 		},
 		"search": {
 			"pageTitle": "Search",

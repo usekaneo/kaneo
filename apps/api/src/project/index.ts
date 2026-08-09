@@ -10,6 +10,7 @@ import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
 import getProjectCtrl from "./controllers/get-project";
 import getProjectsCtrl from "./controllers/get-projects";
+import reorderProjectsCtrl from "./controllers/reorder-projects";
 import unarchiveProjectCtrl from "./controllers/unarchive-project";
 import updateProjectCtrl from "./controllers/update-project";
 
@@ -108,6 +109,47 @@ const project = new Hono<{
       const workspaceId = c.get("workspaceId");
       const projectData = await getProjectCtrl(id, workspaceId);
       return c.json(projectData);
+    },
+  )
+  .put(
+    "/reorder",
+    describeRoute({
+      operationId: "reorderProjects",
+      tags: ["Projects"],
+      description: "Reorder projects in a workspace",
+      responses: {
+        200: {
+          description: "Projects reordered successfully",
+          content: {
+            "application/json": { schema: resolver(v.array(projectSchema)) },
+          },
+        },
+      },
+    }),
+    validator("query", v.object({ workspaceId: v.string() })),
+    validator(
+      "json",
+      v.object({
+        // Positions express a relative order only; the controller renumbers
+        // the workspace to 0..n-1, so the values just have to be sane.
+        projects: v.pipe(
+          v.array(
+            v.object({
+              id: v.string(),
+              position: v.pipe(v.number(), v.integer(), v.minValue(0)),
+            }),
+          ),
+          v.minLength(1),
+        ),
+      }),
+    ),
+    workspaceAccess.fromQuery(),
+    requireWorkspacePermission({ project: ["update"] }),
+    async (c) => {
+      const workspaceId = c.get("workspaceId");
+      const { projects } = c.req.valid("json");
+      const reordered = await reorderProjectsCtrl(workspaceId, projects);
+      return c.json(reordered);
     },
   )
   .put(

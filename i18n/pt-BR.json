@@ -1956,7 +1956,9 @@
 				"complete": "Concluído",
 				"inProgress": "Em andamento"
 			},
-			"noDueDate": "Sem data de vencimento"
+			"noDueDate": "Sem data de vencimento",
+			"reorderHandle": "Reordenar projeto",
+			"reorderError": "Falha ao reordenar os projetos"
 		},
 		"search": {
 			"pageTitle": "Buscar",

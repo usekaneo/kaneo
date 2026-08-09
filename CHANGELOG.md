@@ -1,3 +1,25 @@
+# [2.16.0](https://github.com/usekaneo/kaneo/compare/v2.15.0...v2.16.0) (2026-08-09)
+
+
+### Bug Fixes
+
+* polish mobile settings layout ([a79a83c](https://github.com/usekaneo/kaneo/commit/a79a83c32bf48f3a09176a55daba8eecc552a4a3))
+* **projects:** address reorder review findings ([de1518f](https://github.com/usekaneo/kaneo/commit/de1518f882aa4723390491aec9161440de9b0ed2))
+* **projects:** keep omitted projects at their existing rank on reorder ([c6b8768](https://github.com/usekaneo/kaneo/commit/c6b87687327238e8eae89684abbaa9ea9c994449))
+* **projects:** rework project drag-and-drop interaction ([c6046d8](https://github.com/usekaneo/kaneo/commit/c6046d8b5d78faf1f1cc1127b236c6bd65d64988)), closes [#1524](https://github.com/usekaneo/kaneo/issues/1524)
+* **projects:** show reorder handle on touch and cover archived ordering ([2b1f92f](https://github.com/usekaneo/kaneo/commit/2b1f92f2687969405fab9dc7d62cd107bf4ea291))
+* **web:** make settings rows responsive and align their typography ([1099a15](https://github.com/usekaneo/kaneo/commit/1099a1596c7dd35d90311b60c495ee0c02697e62))
+* **web:** stop the mermaid render cache evicting diagrams still on screen ([7e14a7d](https://github.com/usekaneo/kaneo/commit/7e14a7d27ee8b755d74e620b9480ea99c25fce9d))
+* **web:** use column isFinal for due-date badges on public views ([ca8c827](https://github.com/usekaneo/kaneo/commit/ca8c8274ec7612b171e2df2adad916ff291e45b2))
+
+
+### Features
+
+* **projects:** add drag-and-drop project reordering ([8b88c7d](https://github.com/usekaneo/kaneo/commit/8b88c7d7979b188d362021ae9a48a80b806d3f2b))
+* refactor settings layout to use Sheet component and improve mobile responsiveness ([bfe834a](https://github.com/usekaneo/kaneo/commit/bfe834ab17a0199a1bf17b1594b909eb35947eda))
+* **web:** add Mermaid diagram preview support ([f856419](https://github.com/usekaneo/kaneo/commit/f8564199c82e90b404387fdb5ee61f6c639b68fb))
+* **web:** improve Mermaid diagram rendering and error handling ([d19da38](https://github.com/usekaneo/kaneo/commit/d19da38dab1317d13ce0c31c3bbade168c8d14c4))
+* **web:** localize Mermaid rendering errors ([efe5353](https://github.com/usekaneo/kaneo/commit/efe53531ece596d396013efe8ef942d9453378e9))
 # [2.15.0](https://github.com/usekaneo/kaneo/compare/v2.14.0...v2.15.0) (2026-08-08)
 
 

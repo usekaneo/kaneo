@@ -290,9 +290,14 @@ export const projectTable = pgTable(
     isPublic: boolean("is_public").default(false),
     archivedAt: timestamp("archived_at", { mode: "date" }),
     lastTaskNumber: integer("last_task_number").notNull().default(0),
+    position: integer("position").notNull().default(0),
   },
   (table) => [
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
+    index("project_workspaceId_position_idx").on(
+      table.workspaceId,
+      table.position,
+    ),
   ],
 );
 

@@ -1484,6 +1484,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Düz Metin",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1501,9 @@
 					"addRowAfter": "Alta satır ekle",
 					"deleteRow": "Satırı sil",
 					"deleteTable": "Tabloyu sil"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diyagramı oluşturulamadı"
 				}
 			}
 		}
@@ -1601,6 +1605,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1637,9 @@
 						"onlyYoutube": "Yalnızca YouTube bağlantıları gömülebilir."
 					},
 					"onlyYoutubeInline": "Yalnızca YouTube URL'leri gömülebilir. Bağlantı modunu kullanın."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diyagramı oluşturulamadı"
 				}
 			}
 		},
@@ -1956,7 +1964,9 @@
 				"complete": "Tamamlandı",
 				"inProgress": "Devam ediyor"
 			},
-			"noDueDate": "Bitiş tarihi yok"
+			"noDueDate": "Bitiş tarihi yok",
+			"reorderHandle": "Projeyi yeniden sırala",
+			"reorderError": "Projeler yeniden sıralanamadı"
 		},
 		"search": {
 			"pageTitle": "Ara",

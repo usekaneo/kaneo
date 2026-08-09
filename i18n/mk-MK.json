@@ -1484,6 +1484,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Обичен текст",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1501,9 @@
 					"addRowAfter": "Вметни ред под",
 					"deleteRow": "Избриши ред",
 					"deleteTable": "Избриши табела"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid дијаграмот не можеше да се прикаже"
 				}
 			}
 		}
@@ -1601,6 +1605,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1637,9 @@
 						"onlyYoutube": "Само YouTube линкови може да се вградат."
 					},
 					"onlyYoutubeInline": "Само YouTube URL може да се вградат. Користи режим на линк наместо тоа."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid дијаграмот не можеше да се прикаже"
 				}
 			}
 		},
@@ -1956,6 +1964,8 @@
 				"inProgress": "Во тек"
 			},
 			"noDueDate": "Без краен рок",
+			"reorderHandle": "Прередување на проектот",
+			"reorderError": "Прередувањето на проектите не успеа",
 			"emptyDescriptionReadOnly": "Сè уште нема проекти во овој работен простор. Замоли администратор да креира еден."
 		},
 		"search": {

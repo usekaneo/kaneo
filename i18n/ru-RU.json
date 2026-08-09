@@ -1500,6 +1500,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Простой текст",
 					"python": "Python",
 					"rust": "Rust",
@@ -1516,6 +1517,9 @@
 					"addRowAfter": "Вставить строку ниже",
 					"deleteRow": "Удалить строку",
 					"deleteTable": "Удалить таблицу"
+				},
+				"mermaid": {
+					"renderFailed": "Не удалось отобразить диаграмму Mermaid"
 				}
 			}
 		},
@@ -1619,6 +1623,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1650,6 +1655,9 @@
 						"onlyYoutube": "Можно встраивать только ссылки YouTube."
 					},
 					"onlyYoutubeInline": "Можно встраивать только URL YouTube. Используйте режим ссылки."
+				},
+				"mermaid": {
+					"renderFailed": "Не удалось отобразить диаграмму Mermaid"
 				}
 			}
 		},
@@ -2024,6 +2032,8 @@
 				"inProgress": "В работе"
 			},
 			"noDueDate": "Без срока",
+			"reorderHandle": "Изменить порядок проекта",
+			"reorderError": "Не удалось изменить порядок проектов",
 			"emptyDescriptionReadOnly": "В этой рабочей области пока нет проектов. Попросите администратора создать проект."
 		},
 		"search": {
