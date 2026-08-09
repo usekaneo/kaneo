@@ -55,8 +55,12 @@ export async function assertRequiredCustomFields(
       if (typeof def.options === "string") {
         try {
           options = JSON.parse(def.options);
-    if (def.type === "dropdown") {
-      const options = parseDropdownOptions(def.options);
+        } catch {
+          throw new HTTPException(400, {
+            message: `Custom field "${def.name}" has invalid dropdown options.`,
+          });
+        }
+      }
 
       if (!options.includes(cf.value.trim())) {
         throw new HTTPException(400, {
