@@ -1,3 +1,10 @@
+## [2.16.1](https://github.com/usekaneo/kaneo/compare/v2.16.0...v2.16.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* address placeholder cleanup reviews ([dee61c1](https://github.com/usekaneo/kaneo/commit/dee61c13c918deddb03545f3ef525573870ac9bf))
+* strip quoted runtime placeholders ([f983f34](https://github.com/usekaneo/kaneo/commit/f983f34e3ccb3bd0ccc85655b6cfaa2ae6463712))
 # [2.16.0](https://github.com/usekaneo/kaneo/compare/v2.15.0...v2.16.0) (2026-08-09)
 
 
