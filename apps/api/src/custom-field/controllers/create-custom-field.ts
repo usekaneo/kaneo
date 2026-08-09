@@ -98,42 +98,49 @@ async function createCustomField(
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId));
 
-  const [field] = await db
-    .insert(customFieldDefinitionTable)
-    .values({
-      projectId,
-      name,
-      type,
-      required,
-      defaultValue: defaultValue ?? null,
-      options: options ?? null,
-      position: (maxPositionResult?.maxPosition ?? 0) + 1,
-    })
-    .returning();
+  const field = await db.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(customFieldDefinitionTable)
+      .values({
+        projectId,
+        name,
+        type,
+        required,
+        defaultValue: defaultValue ?? null,
+        options: options ?? null,
+        position: (maxPositionResult?.maxPosition ?? 0) + 1,
+      })
+      .returning();
 
-  if (!field) {
-    throw new HTTPException(500, { message: "Failed to create custom field" });
-  }
-
-  if (defaultValue !== undefined && defaultValue !== null) {
-    const tasks = await db
-      .select({ id: taskTable.id })
-      .from(taskTable)
-      .where(eq(taskTable.projectId, projectId));
-
-    if (tasks.length > 0) {
-      const valuesToInsert = tasks.map((task) => ({
-        taskId: task.id,
-        fieldId: field.id,
-        value: defaultValue,
-      }));
-
-      await db
-        .insert(customFieldValueTable)
-        .values(valuesToInsert)
-        .onConflictDoNothing();
+    if (!created) {
+      throw new HTTPException(500, {
+        message: "Failed to create custom field",
+      });
     }
-  }
+
+    if (defaultValue != null && defaultValue.trim() !== "") {
+      const tasks = await tx
+        .select({ id: taskTable.id })
+        .from(taskTable)
+        .where(eq(taskTable.projectId, projectId));
+
+      const CHUNK_SIZE = 500;
+      for (let i = 0; i < tasks.length; i += CHUNK_SIZE) {
+        await tx
+          .insert(customFieldValueTable)
+          .values(
+            tasks.slice(i, i + CHUNK_SIZE).map((task) => ({
+              taskId: task.id,
+              fieldId: created.id,
+              value: defaultValue,
+            })),
+          )
+          .onConflictDoNothing();
+      }
+    }
+
+    return created;
+  });
 
   return field;
 }
