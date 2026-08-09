@@ -37,6 +37,12 @@ async function createTask({
     .from(userTable)
     .where(eq(userTable.id, userId ?? ""));
 
+  if (userId && !assignee) {
+    throw new HTTPException(404, {
+      message: "Assignee not found",
+    });
+  }
+
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, projectId),
