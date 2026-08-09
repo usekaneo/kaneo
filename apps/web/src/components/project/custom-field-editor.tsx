@@ -234,8 +234,8 @@ export default function CustomFieldEditor({
               (t) => t.value === field.type,
             );
             const FieldIcon = FieldType?.icon || Type;
-            // biome-ignore lint/a11y/useSemanticElements: false positive for role="listitem"
             return (
+              // biome-ignore lint/a11y/useSemanticElements: false positive for role="listitem"
               <div
                 key={field.id}
                 role="listitem"
