@@ -117,7 +117,7 @@ async function createTask({
         normalizedCustomFields.map(({ fieldId, value }) => ({
           taskId: task.id,
           fieldId,
-          value,
+          value: value.trim(),
         })),
       );
     }
