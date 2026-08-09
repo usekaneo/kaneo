@@ -59,7 +59,7 @@
 	},
 	"devDependencies": {
 		"@kaneo/typescript-config": "workspace:*",
-		"@types/node": "^25.3.5",
+		"@types/node": "^26.1.2",
 		"@types/prompts": "^2.4.9",
 		"tsx": "^4.23.9",
 		"typescript": "^7.0.2",
