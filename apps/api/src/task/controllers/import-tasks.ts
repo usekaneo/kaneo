@@ -96,6 +96,7 @@ async function importTasks(
                 name: label.name,
                 color: label.color,
                 taskId: task.id,
+                workspaceId: project.workspaceId,
               })),
             )
             .onConflictDoNothing();
