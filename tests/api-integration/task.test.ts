@@ -317,4 +317,89 @@ describe("API integration: task creation", () => {
 
     expect(persistedTask).toBeUndefined();
   });
+
+  it("creates a task when the assignee userId is surrounded by whitespace", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const paddedAssigneeId = `  ${member.user.id}  `;
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "Padded assignee task",
+        description: "Whitespace around userId should be trimmed",
+        priority: "medium",
+        status: "to-do",
+        userId: paddedAssigneeId,
+      }),
+    });
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      id: string;
+      userId: string;
+      assigneeName?: string;
+    };
+
+    expect(payload.userId).toBe(member.user.id);
+    expect(payload.assigneeName).toBe(member.user.name);
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, payload.id),
+    });
+
+    expect(persistedTask).toMatchObject({
+      id: payload.id,
+      projectId: project.id,
+      columnId: columns.todo.id,
+      userId: member.user.id,
+      title: "Padded assignee task",
+    });
+  });
+
+  it("rejects task creation when the assignee userId is whitespace only", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "Blank assignee task",
+        description: "Whitespace-only userId should be rejected",
+        priority: "low",
+        status: "to-do",
+        userId: "   ",
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    await expect(response.text()).resolves.toContain(
+      "Assignee id cannot be empty",
+    );
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: and(
+        eq(schema.taskTable.projectId, project.id),
+        eq(schema.taskTable.title, "Blank assignee task"),
+      ),
+    });
+
+    expect(persistedTask).toBeUndefined();
+  });
 });
