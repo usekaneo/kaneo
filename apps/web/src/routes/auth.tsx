@@ -3,7 +3,13 @@ import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/auth")({
   beforeLoad: async () => {
-    const { data: session } = await authClient.getSession();
+    let session = null;
+    try {
+      const { data } = await authClient.getSession();
+      session = data;
+    } catch {
+      // getSession() rejected — treat as unauthenticated, allow auth pages to render
+    }
     if (session) {
       throw redirect({
         to: "/dashboard",
