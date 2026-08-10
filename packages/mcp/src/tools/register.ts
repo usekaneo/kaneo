@@ -742,7 +742,7 @@ export function registerTools(
     "update_time_entry",
     {
       description:
-        "Update a time entry. startTime is required; omit endTime to reopen the entry.",
+        "Update a time entry. startTime is required; omitting endTime keeps the stored one. startTime cannot be later than the end time.",
       inputSchema: z.object({
         id: nonEmptyString,
         startTime: isoDateTimeSchema,

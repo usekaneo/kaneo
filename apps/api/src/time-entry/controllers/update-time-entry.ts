@@ -26,7 +26,13 @@ async function updateTimeEntry(params: UpdateTimeEntryParams) {
 
   const effectiveEndTime = endTime ?? existingTimeEntry.endTime;
 
-  // Calculate duration if the entry has an endTime after this update.
+  if (effectiveEndTime && startTime.getTime() > effectiveEndTime.getTime()) {
+    throw new HTTPException(400, {
+      message:
+        "Start time cannot be after end time. Please adjust the time range.",
+    });
+  }
+
   let duration: number | null = null;
   if (effectiveEndTime) {
     duration = Math.floor(

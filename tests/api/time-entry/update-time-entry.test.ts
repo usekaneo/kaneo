@@ -70,4 +70,83 @@ describe("updateTimeEntry", () => {
       description: "renamed",
     });
   });
+
+  it("rejects a startTime later than the preserved endTime", async () => {
+    const updateChain = makeUpdateMock({});
+
+    mockSelect.mockReturnValue(
+      makeSelectMock([
+        {
+          id: "time-entry-1",
+          startTime: new Date("2026-08-10T10:00:00.000Z"),
+          endTime: new Date("2026-08-10T11:00:00.000Z"),
+          duration: 3600,
+        },
+      ]),
+    );
+    mockUpdate.mockReturnValue(updateChain);
+
+    await expect(
+      updateTimeEntry({
+        timeEntryId: "time-entry-1",
+        startTime: new Date("2026-08-10T12:00:00.000Z"),
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+
+    expect(updateChain.set).not.toHaveBeenCalled();
+  });
+
+  it("rejects a startTime later than an endTime supplied in the same update", async () => {
+    const updateChain = makeUpdateMock({});
+
+    mockSelect.mockReturnValue(
+      makeSelectMock([
+        {
+          id: "time-entry-1",
+          startTime: new Date("2026-08-10T10:00:00.000Z"),
+          endTime: null,
+          duration: null,
+        },
+      ]),
+    );
+    mockUpdate.mockReturnValue(updateChain);
+
+    await expect(
+      updateTimeEntry({
+        timeEntryId: "time-entry-1",
+        startTime: new Date("2026-08-10T12:00:00.000Z"),
+        endTime: new Date("2026-08-10T11:00:00.000Z"),
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+
+    expect(updateChain.set).not.toHaveBeenCalled();
+  });
+
+  it("still allows an open entry to have its startTime moved forward", async () => {
+    const nextStartTime = new Date("2026-08-10T12:00:00.000Z");
+    const updateChain = makeUpdateMock({ id: "time-entry-1" });
+
+    mockSelect.mockReturnValue(
+      makeSelectMock([
+        {
+          id: "time-entry-1",
+          startTime: new Date("2026-08-10T10:00:00.000Z"),
+          endTime: null,
+          duration: null,
+        },
+      ]),
+    );
+    mockUpdate.mockReturnValue(updateChain);
+
+    await updateTimeEntry({
+      timeEntryId: "time-entry-1",
+      startTime: nextStartTime,
+    });
+
+    expect(updateChain.set).toHaveBeenCalledWith({
+      startTime: nextStartTime,
+      endTime: null,
+      duration: null,
+    });
+  });
 });
