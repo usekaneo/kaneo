@@ -930,6 +930,8 @@
 				"verifyOk": "Gitea token can access this repository",
 				"verifyWarning": "Check token permissions or repository access",
 				"repoNotFound": "Repository not found or not accessible",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly.",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
 				"verifyError": "Failed to verify Gitea access",
 				"tokenRequired": "Personal access token is required",
 				"tokenRequiredVerify": "Enter a token to verify",

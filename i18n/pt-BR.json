@@ -944,7 +944,9 @@
 				"commentOnDisabled": "Os comentários com link da tarefa em novas issues estão desativados",
 				"settingsUpdateError": "Falha ao atualizar a integração com o Gitea",
 				"secretCopied": "Copiado",
-				"unableToCopySecret": "Não foi possível copiar o segredo"
+				"unableToCopySecret": "Não foi possível copiar o segredo",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Mostrar",
 			"webhookHide": "Ocultar",
@@ -1490,7 +1492,8 @@
 					"sql": "SQL",
 					"swift": "Swift",
 					"typescript": "TypeScript",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"table": {
 					"addColumnBefore": "Inserir coluna à esquerda",
@@ -1500,6 +1503,9 @@
 					"addRowAfter": "Inserir linha abaixo",
 					"deleteRow": "Excluir linha",
 					"deleteTable": "Excluir tabela"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		}
@@ -1616,7 +1622,8 @@
 					"terraform": "Terraform",
 					"typescript": "TypeScript",
 					"xml": "XML",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"embed": {
 					"choice": {
@@ -1632,6 +1639,9 @@
 						"onlyYoutube": "Somente links do YouTube podem ser incorporados."
 					},
 					"onlyYoutubeInline": "Somente URLs do YouTube podem ser incorporadas. Use o modo de link."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		},

@@ -605,20 +605,22 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose>
-                <Button variant="outline" size="sm">
-                  {t("common:actions.cancel")}
-                </Button>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
               </AlertDialogClose>
               <AlertDialogClose
-                onClick={handleDeleteProject}
-                disabled={isDeleting}
+                render={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isDeleting}
+                    onClick={handleDeleteProject}
+                  />
+                }
               >
-                <Button variant="destructive" size="sm" disabled={isDeleting}>
-                  {isDeleting
-                    ? t("common:actions.deleting")
-                    : t("settings:projectGeneral.deleteModalConfirm")}
-                </Button>
+                {isDeleting
+                  ? t("common:actions.deleting")
+                  : t("settings:projectGeneral.deleteModalConfirm")}
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>
