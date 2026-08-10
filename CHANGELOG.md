@@ -1,3 +1,18 @@
+## [2.16.2](https://github.com/usekaneo/kaneo/compare/v2.16.1...v2.16.2) (2026-08-10)
+
+
+### Bug Fixes
+
+* **ci:** failure in ci after fix ([4a24d74](https://github.com/usekaneo/kaneo/commit/4a24d74b261222c008576c2e3044b24ea551fc4c))
+* **gitea-integration:** handle invalid JSON from non-Gitea URLs ([097aedd](https://github.com/usekaneo/kaneo/commit/097aeddbdc80e812d14f5c7241c6575b6fbcf0a6))
+* **gitea-integration:** structured failure response and test coverage ([49eac38](https://github.com/usekaneo/kaneo/commit/49eac382cc8f8e1875ef46ea75cdce52651ee298))
+* **gitea:** classify /user 404 as not-a-gitea-instance ([364f5e3](https://github.com/usekaneo/kaneo/commit/364f5e373ea8947a7436e114be89875723b815c2))
+* **pr:** responding to AI pr reviews ([cb2f333](https://github.com/usekaneo/kaneo/commit/cb2f3337d513979ff845ee3b39d7c68dd412bda3))
+* **task:** validate assignee existence on task creation ([b0133ee](https://github.com/usekaneo/kaneo/commit/b0133ee01b03b838ffdc7a1765ceb1a80b438233))
+* **web:** avoid nested buttons in alert dialog footers ([16481e3](https://github.com/usekaneo/kaneo/commit/16481e3bb98fba4f6de15d26a8917bee02efa2f4))
+* **web:** handle unhandled promise rejection from authClient.getSession() ([494f1fb](https://github.com/usekaneo/kaneo/commit/494f1fbc90290636d77c6b1f3fae07b2112a255b))
+* **web:** preserve full location in auth redirect ([a277274](https://github.com/usekaneo/kaneo/commit/a2772742e0059a1c884661c651ba6a369af779ff))
+* **web:** prevent TypeError when relatedTarget is not an Element ([51131c1](https://github.com/usekaneo/kaneo/commit/51131c10ebe3ad19da5a24b4c3bce996ca139723))
 ## [2.16.1](https://github.com/usekaneo/kaneo/compare/v2.16.0...v2.16.1) (2026-08-09)
 
 
