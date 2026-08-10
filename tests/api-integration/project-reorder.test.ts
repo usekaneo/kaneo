@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { schema } from "../../apps/api/src/database";
+import type { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
