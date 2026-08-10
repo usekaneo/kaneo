@@ -783,8 +783,8 @@
 				"settingsUpdateError": "Αποτυχία ενημέρωσης ενσωμάτωσης Gitea",
 				"secretCopied": "Copied",
 				"unableToCopySecret": "Δεν ήταν δυνατή η αντιγραφή του μυστικού",
-				"notGiteaInstance": "The URL does not point to a Gitea instance",
-				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
+				"notGiteaInstance": "Η διεύθυνση URL δεν οδηγεί σε παρουσία Gitea",
+				"redirected": "Η διεύθυνση URL του Gitea ανακατευθύνθηκε (συνήθως σε HTTPS). Χρησιμοποιήστε απευθείας την τελική διεύθυνση."
 			},
 			"webhookShow": "Show",
 			"webhookHide": "Hide",

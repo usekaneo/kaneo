@@ -945,8 +945,8 @@
 				"settingsUpdateError": "Aggiornamento integrazione Gitea fallito",
 				"secretCopied": "Copiato",
 				"unableToCopySecret": "Impossibile copiare il segreto",
-				"notGiteaInstance": "The URL does not point to a Gitea instance",
-				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
+				"notGiteaInstance": "L'URL non punta a un'istanza Gitea",
+				"redirected": "L'URL di Gitea è stata reindirizzata (di solito verso HTTPS). Usa direttamente l'URL finale."
 			},
 			"webhookShow": "Mostra",
 			"webhookHide": "Nascondi",
@@ -1505,7 +1505,7 @@
 					"deleteTable": "Elimina tabella"
 				},
 				"mermaid": {
-					"renderFailed": "Mermaid diagram couldn't be rendered"
+					"renderFailed": "Impossibile eseguire il rendering del diagramma Mermaid"
 				}
 			}
 		}
@@ -1641,7 +1641,7 @@
 					"onlyYoutubeInline": "Solo gli URL YouTube possono essere incorporati. Usa invece la modalità link."
 				},
 				"mermaid": {
-					"renderFailed": "Mermaid diagram couldn't be rendered"
+					"renderFailed": "Impossibile eseguire il rendering del diagramma Mermaid"
 				}
 			}
 		},

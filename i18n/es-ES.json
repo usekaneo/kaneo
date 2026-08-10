@@ -1130,8 +1130,8 @@
 				"settingsUpdateError": "Error al actualizar la integración con Gitea",
 				"secretCopied": "Copiado",
 				"unableToCopySecret": "No se pudo copiar el secreto",
-				"notGiteaInstance": "The URL does not point to a Gitea instance",
-				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
+				"notGiteaInstance": "La URL no apunta a una instancia de Gitea",
+				"redirected": "La URL de Gitea se ha redirigido (normalmente a HTTPS). Usa la URL final directamente."
 			},
 			"webhookShow": "Mostrar",
 			"webhookHide": "Ocultar",

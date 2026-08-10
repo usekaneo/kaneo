@@ -19,7 +19,25 @@ async function verifyGiteaAccess({
 }) {
   try {
     const normalized = normalizeGiteaBaseUrl(baseUrl);
-    await verifyGiteaToken(normalized, accessToken);
+    try {
+      await verifyGiteaToken(normalized, accessToken);
+    } catch (error) {
+      // A 404 from /user means the URL does not point at a Gitea instance
+      // (or the token endpoint is misrouted), not a repository lookup
+      // failure. Treat it like any other non-Gitea-instance signal.
+      if (error instanceof GiteaApiError && error.status === 404) {
+        return {
+          isInstalled: false,
+          hasRequiredPermissions: false,
+          repositoryExists: false,
+          repositoryPrivate: null,
+          missingPermissions: [] as string[],
+          message: "The URL does not point to a Gitea instance.",
+          failureReason: "not_a_gitea_instance",
+        };
+      }
+      throw error;
+    }
 
     const client = createGiteaClient({
       baseUrl: normalized,

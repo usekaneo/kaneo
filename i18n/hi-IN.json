@@ -945,8 +945,8 @@
 				"settingsUpdateError": "Gitea एकीकरण अपडेट करने में विफल",
 				"secretCopied": "कॉपी किया",
 				"unableToCopySecret": "सीक्रेट कॉपी करने में असमर्थ",
-				"notGiteaInstance": "The URL does not point to a Gitea instance",
-				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
+				"notGiteaInstance": "यह URL किसी Gitea इंस्टेंस की ओर इंगित नहीं करता",
+				"redirected": "Gitea URL पुनः निर्देशित किया गया (आमतौर पर HTTPS पर). अंतिम URL सीधे उपयोग करें।"
 			},
 			"webhookShow": "दिखाएँ",
 			"webhookHide": "छिपाएँ",
@@ -1505,7 +1505,7 @@
 					"deleteTable": "तालिका हटाएँ"
 				},
 				"mermaid": {
-					"renderFailed": "Mermaid diagram couldn't be rendered"
+					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
 			}
 		}
@@ -1641,7 +1641,7 @@
 					"onlyYoutubeInline": "केवल YouTube URL एम्बेड किए जा सकते हैं। इसके बजाय लिंक मोड का उपयोग करें।"
 				},
 				"mermaid": {
-					"renderFailed": "Mermaid diagram couldn't be rendered"
+					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
 			}
 		},

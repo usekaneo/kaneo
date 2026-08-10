@@ -137,7 +137,7 @@ describe("verifyGiteaAccess — fetch integration", () => {
     );
   });
 
-  it("returns the repository-not-found message when /user responds with 404", async () => {
+  it("returns the not-a-gitea-instance message when /user responds with 404", async () => {
     const fetchMock = vi.fn().mockResolvedValue(makeResponse(404, "Not Found"));
     vi.stubGlobal("fetch", fetchMock as unknown as typeof fetch);
 
@@ -149,9 +149,7 @@ describe("verifyGiteaAccess — fetch integration", () => {
     });
 
     expect(result.isInstalled).toBe(false);
-    expect(result.failureReason).toBe("repository_not_found");
-    expect(result.message).toBe(
-      "Repository not found or not accessible with this token.",
-    );
+    expect(result.failureReason).toBe("not_a_gitea_instance");
+    expect(result.message).toBe("The URL does not point to a Gitea instance.");
   });
 });
