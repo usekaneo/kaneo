@@ -1,3 +1,9 @@
+## [2.16.3](https://github.com/usekaneo/kaneo/compare/v2.16.2...v2.16.3) (2026-08-10)
+
+
+### Bug Fixes
+
+* **task:** treat blank assignee id as unassigned on task creation ([f5b3717](https://github.com/usekaneo/kaneo/commit/f5b3717fc0213542834a3d9c8169f2689f5c0580)), closes [#1543](https://github.com/usekaneo/kaneo/issues/1543)
 ## [2.16.2](https://github.com/usekaneo/kaneo/compare/v2.16.1...v2.16.2) (2026-08-10)
 
 
