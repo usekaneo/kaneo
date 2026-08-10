@@ -30,13 +30,7 @@ async function createTask({
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
 
-  const normalizedUserId = userId?.trim();
-
-  if (userId !== undefined && normalizedUserId === "") {
-    throw new HTTPException(400, {
-      message: "Assignee id cannot be empty",
-    });
-  }
+  const normalizedUserId = userId?.trim() || undefined;
 
   await assertValidTaskStatus(resolvedStatus, projectId);
 

@@ -365,41 +365,52 @@ describe("API integration: task creation", () => {
     });
   });
 
-  it("rejects task creation when the assignee userId is whitespace only", async () => {
-    const member = await createWorkspaceMember();
-    const { project } = await createProjectFixture({
-      workspaceId: member.workspace.id,
-    });
+  it.each([
+    ["empty", ""],
+    ["whitespace only", "   "],
+  ])(
+    "creates an unassigned task when the assignee userId is %s",
+    async (label, userId) => {
+      const member = await createWorkspaceMember();
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
 
-    mockAuthenticatedSession(member.user);
-    const { app } = createApp();
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
 
-    const response = await app.request(`/api/task/${project.id}`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        title: "Blank assignee task",
-        description: "Whitespace-only userId should be rejected",
-        priority: "low",
-        status: "to-do",
-        userId: "   ",
-      }),
-    });
+      const title = `Blank assignee task (${label})`;
+      const response = await app.request(`/api/task/${project.id}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          description: "Blank userId means unassigned",
+          priority: "low",
+          status: "to-do",
+          userId,
+        }),
+      });
 
-    expect(response.status).toBe(400);
-    await expect(response.text()).resolves.toContain(
-      "Assignee id cannot be empty",
-    );
+      expect(response.status).toBe(200);
+      const payload = (await response.json()) as {
+        userId: string | null;
+        assigneeName?: string;
+      };
 
-    const persistedTask = await db.query.taskTable.findFirst({
-      where: and(
-        eq(schema.taskTable.projectId, project.id),
-        eq(schema.taskTable.title, "Blank assignee task"),
-      ),
-    });
+      expect(payload.userId).toBeNull();
+      expect(payload.assigneeName).toBeUndefined();
 
-    expect(persistedTask).toBeUndefined();
-  });
+      const persistedTask = await db.query.taskTable.findFirst({
+        where: and(
+          eq(schema.taskTable.projectId, project.id),
+          eq(schema.taskTable.title, title),
+        ),
+      });
+
+      expect(persistedTask?.userId).toBeNull();
+    },
+  );
 });
