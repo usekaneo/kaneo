@@ -1,3 +1,16 @@
+# [2.17.0](https://github.com/usekaneo/kaneo/compare/v2.16.4...v2.17.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **mcp:** guard media type and share the tool registrar ([1167ec6](https://github.com/usekaneo/kaneo/commit/1167ec6a980385a6658230831ba80254429b3db3))
+* **web:** omit unassigned userId when creating tasks ([#1552](https://github.com/usekaneo/kaneo/issues/1552)) ([b69fae3](https://github.com/usekaneo/kaneo/commit/b69fae35a3a3b25241d6b3e348bb594bc442a26a))
+
+
+### Features
+
+* **mcp:** expose members, search, columns, time and activity tools ([37b2fc3](https://github.com/usekaneo/kaneo/commit/37b2fc3138c3c1cac682590530342c5d852a7020))
+* **mcp:** support stateless 2026 protocol ([#1540](https://github.com/usekaneo/kaneo/issues/1540)) ([7fe3610](https://github.com/usekaneo/kaneo/commit/7fe3610d6b949e3a8acc4158ba6e4185335efcb8))
 ## [2.16.4](https://github.com/usekaneo/kaneo/compare/v2.16.3...v2.16.4) (2026-08-10)
 
 
