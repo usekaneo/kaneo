@@ -782,7 +782,9 @@
 				"commentOnDisabled": "Komentar tautan tugas pada issue baru dimatikan",
 				"settingsUpdateError": "Gagal memperbarui integrasi Gitea",
 				"secretCopied": "Disalin",
-				"unableToCopySecret": "Tidak dapat menyalin rahasia"
+				"unableToCopySecret": "Tidak dapat menyalin rahasia",
+				"notGiteaInstance": "URL tidak menunjuk ke instance Gitea",
+				"redirected": "URL Gitea dialihkan (biasanya ke HTTPS). Gunakan URL akhir secara langsung."
 			},
 			"webhookShow": "Tampilkan",
 			"webhookHide": "Sembunyikan",

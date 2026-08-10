@@ -782,7 +782,9 @@
 				"commentOnDisabled": "새 이슈의 작업 링크 댓글이 꺼져 있습니다",
 				"settingsUpdateError": "Gitea 연동 업데이트에 실패했습니다",
 				"secretCopied": "복사됨",
-				"unableToCopySecret": "시크릿을 복사할 수 없습니다"
+				"unableToCopySecret": "시크릿을 복사할 수 없습니다",
+				"notGiteaInstance": "URL이 Gitea 인스턴스를 가리키지 않습니다",
+				"redirected": "Gitea URL이 리디렉션되었습니다(보통 HTTPS로). 최종 URL을 직접 사용하세요."
 			},
 			"webhookShow": "표시",
 			"webhookHide": "숨기기",
