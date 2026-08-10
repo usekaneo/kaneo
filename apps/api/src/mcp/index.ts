@@ -1,7 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { McpServer as LegacyMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { isLegacyRequest } from "@modelcontextprotocol/server";
+import {
+  isJsonContentType,
+  isLegacyRequest,
+} from "@modelcontextprotocol/server";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { auth } from "../auth";
@@ -23,7 +26,7 @@ import {
   clientRegistrationSchema,
   oauthErrorSchema,
 } from "./schemas";
-import { registerMcpTools } from "./tools";
+import { registerMcpTools, toMcpToolRegistrar } from "./tools";
 
 const apiUrl = (process.env.KANEO_API_URL || "http://localhost:1337").replace(
   /\/api\/?$/,
@@ -42,21 +45,7 @@ function createMcpServerForUser(token: string): LegacyMcpServer {
     name: "kaneo-mcp",
     version: "1.0.0",
   });
-  registerMcpTools(
-    {
-      registerTool: (name, config, callback) =>
-        server.registerTool(
-          name,
-          {
-            description: config.description,
-            inputSchema: config.inputSchema.shape,
-          },
-          (args) => callback(args),
-        ),
-    },
-    apiUrl,
-    token,
-  );
+  registerMcpTools(toMcpToolRegistrar(server), apiUrl, token);
   return server;
 }
 
@@ -305,6 +294,10 @@ mcp.all("/mcp", async (c) => {
 
   if (c.req.method !== "POST") {
     return c.json({ error: "Method not allowed" }, 405);
+  }
+
+  if (!isJsonContentType(c.req.header("content-type"))) {
+    return c.json({ error: "Unsupported Media Type" }, 415);
   }
 
   if (!(await isLegacyRequest(c.req.raw.clone()))) {

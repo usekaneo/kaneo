@@ -306,4 +306,66 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     );
     expect(authMocks.getSession).toHaveBeenCalledTimes(3);
   });
+
+  it.each([
+    ["text/plain", "text/plain"],
+    ["a form post", "application/x-www-form-urlencoded"],
+    ["a missing header", undefined],
+  ])(
+    "rejects %s with 415 before either era is dispatched",
+    async (_label, contentType) => {
+      const response = await mcpRoutes.request("/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          authorization: "Bearer test-token",
+          ...(contentType ? { "content-type": contentType } : {}),
+        },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+      });
+
+      expect(response.status).toBe(415);
+    },
+  );
+
+  it("accepts a parameterised json media type", async () => {
+    const response = await mcpRoutes.request("/mcp", {
+      method: "POST",
+      headers: {
+        accept: "application/json, text/event-stream",
+        authorization: "Bearer test-token",
+        "content-type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion: "2025-06-18",
+          capabilities: {},
+          clientInfo: { name: "kaneo-test", version: "1.0.0" },
+        },
+      }),
+    });
+
+    expect(response.status).toBe(200);
+  });
+
+  it("returns a tool error rather than throwing when arguments fail validation", async () => {
+    const handler = createModernMcpHandler("test-token", "http://api.test");
+
+    const response = await handler.fetch(
+      modernRequest("tools/call", 1, {
+        name: "get_task",
+        arguments: { taskId: "" },
+      }),
+    );
+    const body = (await rpcBody(response)) as unknown as {
+      result: { content: Array<{ text: string }>; isError?: boolean };
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.result.isError).toBe(true);
+    expect(body.result.content[0].text).toContain("taskId");
+  });
 });

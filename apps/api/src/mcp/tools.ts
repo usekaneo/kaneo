@@ -17,6 +17,28 @@ export type McpToolRegistrar = {
   ): unknown;
 };
 
+type ShapeToolServer = {
+  registerTool(
+    name: string,
+    config: { description: string; inputSchema: z.ZodRawShape },
+    callback: (args: unknown) => Promise<McpToolResult>,
+  ): unknown;
+};
+
+export function toMcpToolRegistrar(server: ShapeToolServer): McpToolRegistrar {
+  return {
+    registerTool: (name, config, callback) =>
+      server.registerTool(
+        name,
+        {
+          description: config.description,
+          inputSchema: config.inputSchema.shape,
+        },
+        (args) => callback(args),
+      ),
+  };
+}
+
 class ApiClient {
   constructor(
     private baseUrl: string,
@@ -200,9 +222,13 @@ export function registerMcpTools(
     config: { description: string; inputSchema: InputSchema },
     callback: (args: z.output<InputSchema>) => Promise<McpToolResult>,
   ) =>
-    server.registerTool(name, config, (args) =>
-      callback(config.inputSchema.parse(args)),
-    );
+    server.registerTool(name, config, async (args) => {
+      const parsed = config.inputSchema.safeParse(args);
+      if (!parsed.success) {
+        return errorResult(z.prettifyError(parsed.error));
+      }
+      return callback(parsed.data);
+    });
 
   registerTool(
     "whoami",
