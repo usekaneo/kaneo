@@ -1502,6 +1502,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Звичайний текст",
 					"python": "Python",
 					"rust": "Rust",
@@ -1518,6 +1519,9 @@
 					"addRowAfter": "Вставити рядок нижче",
 					"deleteRow": "Видалити рядок",
 					"deleteTable": "Видалити таблицю"
+				},
+				"mermaid": {
+					"renderFailed": "Не вдалося відобразити діаграму Mermaid"
 				}
 			}
 		},
@@ -1621,6 +1625,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1652,6 +1657,9 @@
 						"onlyYoutube": "Можна вбудовувати лише посилання YouTube."
 					},
 					"onlyYoutubeInline": "Можна вбудовувати лише URL-адреси YouTube. Натомість використовуйте режим посилання."
+				},
+				"mermaid": {
+					"renderFailed": "Не вдалося відобразити діаграму Mermaid"
 				}
 			}
 		},
@@ -1978,6 +1986,8 @@
 				"inProgress": "В роботі"
 			},
 			"noDueDate": "Без дати завершення",
+			"reorderHandle": "Змінити порядок проєкту",
+			"reorderError": "Не вдалося змінити порядок проєктів",
 			"emptyDescriptionReadOnly": "У цьому робочому просторі ще немає проєктів. Попросіть адміністратора створити проєкт."
 		},
 		"search": {

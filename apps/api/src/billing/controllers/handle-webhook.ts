@@ -32,6 +32,8 @@ export type BillingWebhookEvent = {
   data: WebhookObject;
 };
 
+type DbOrTx = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 function parseDate(value: string | null | undefined) {
   if (!value) {
     return null;
@@ -51,19 +53,46 @@ const SUBSCRIPTION_EVENT_STATUS: Record<string, string> = {
   "subscription.paused": "paused",
 };
 
-async function handleWebhook(event: BillingWebhookEvent) {
-  if (event.id) {
-    const [claimed] = await db
-      .insert(billingEventTable)
-      .values({ id: event.id, eventType: event.type })
-      .onConflictDoNothing({ target: billingEventTable.id })
-      .returning();
+export function buildSubscriptionUpdates(event: BillingWebhookEvent) {
+  const object = event.data;
+  const productId = object.product?.id;
+  const mapped = productId ? planForProductId(productId) : null;
+  const units = object.items?.[0]?.units;
 
-    if (!claimed) {
-      return { processed: false, duplicate: true };
-    }
+  const updates: Partial<typeof workspaceBillingTable.$inferInsert> = {
+    status: object.status ?? SUBSCRIPTION_EVENT_STATUS[event.type] ?? undefined,
+  };
+
+  const periodEnd =
+    object.current_period_end_date !== undefined
+      ? object.current_period_end_date
+      : object.currentPeriodEndDate;
+  if (periodEnd !== undefined) {
+    updates.currentPeriodEnd = parseDate(periodEnd);
   }
 
+  const canceledAt =
+    object.canceled_at !== undefined ? object.canceled_at : object.canceledAt;
+  if (canceledAt !== undefined) {
+    updates.canceledAt = parseDate(canceledAt);
+  }
+
+  if (productId) {
+    updates.creemProductId = productId;
+    updates.plan = mapped?.plan ?? null;
+    updates.billingInterval = mapped?.interval ?? null;
+  }
+  if (typeof units === "number" && units > 0) {
+    updates.seats = units;
+  }
+  if (object.customer?.id) {
+    updates.creemCustomerId = object.customer.id;
+  }
+
+  return updates;
+}
+
+async function applyEvent(event: BillingWebhookEvent, tx: DbOrTx) {
   const object = event.data;
 
   if (event.type === "checkout.completed") {
@@ -78,7 +107,7 @@ async function handleWebhook(event: BillingWebhookEvent) {
     const productId = object.product?.id ?? object.subscription?.product?.id;
     const mapped = productId ? planForProductId(productId) : null;
 
-    await db
+    await tx
       .update(workspaceBillingTable)
       .set({
         creemCustomerId:
@@ -99,38 +128,16 @@ async function handleWebhook(event: BillingWebhookEvent) {
       return { processed: false, duplicate: false };
     }
 
-    const productId = object.product?.id;
-    const mapped = productId ? planForProductId(productId) : null;
-    const units = object.items?.[0]?.units;
+    const updates = buildSubscriptionUpdates(event);
 
-    const updates: Partial<typeof workspaceBillingTable.$inferInsert> = {
-      status:
-        object.status ?? SUBSCRIPTION_EVENT_STATUS[event.type] ?? undefined,
-      currentPeriodEnd: parseDate(
-        object.current_period_end_date ?? object.currentPeriodEndDate,
-      ),
-      canceledAt: parseDate(object.canceled_at ?? object.canceledAt),
-    };
-    if (productId) {
-      updates.creemProductId = productId;
-      updates.plan = mapped?.plan ?? null;
-      updates.billingInterval = mapped?.interval ?? null;
-    }
-    if (typeof units === "number" && units > 0) {
-      updates.seats = units;
-    }
-    if (object.customer?.id) {
-      updates.creemCustomerId = object.customer.id;
-    }
-
-    const updated = await db
+    const updated = await tx
       .update(workspaceBillingTable)
       .set(updates)
       .where(eq(workspaceBillingTable.creemSubscriptionId, subscriptionId))
       .returning({ id: workspaceBillingTable.id });
 
     if (updated.length === 0 && object.metadata?.workspaceId) {
-      await db
+      await tx
         .update(workspaceBillingTable)
         .set({ ...updates, creemSubscriptionId: subscriptionId })
         .where(
@@ -141,6 +148,28 @@ async function handleWebhook(event: BillingWebhookEvent) {
   }
 
   return { processed: true, duplicate: false };
+}
+
+async function handleWebhook(event: BillingWebhookEvent) {
+  const eventId = event.id;
+  if (!eventId) {
+    return applyEvent(event, db);
+  }
+
+  // A claim that outlives a failed apply makes the retry look like a duplicate.
+  return db.transaction(async (tx) => {
+    const [claimed] = await tx
+      .insert(billingEventTable)
+      .values({ id: eventId, eventType: event.type })
+      .onConflictDoNothing({ target: billingEventTable.id })
+      .returning();
+
+    if (!claimed) {
+      return { processed: false, duplicate: true };
+    }
+
+    return applyEvent(event, tx);
+  });
 }
 
 export default handleWebhook;

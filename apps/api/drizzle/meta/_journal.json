@@ -260,6 +260,13 @@
 			"when": 1785921085773,
 			"tag": "0036_strong_pandemic",
 			"breakpoints": true
+		},
+		{
+			"idx": 37,
+			"version": "7",
+			"when": 1786185172966,
+			"tag": "0037_tiny_raza",
+			"breakpoints": true
 		}
 	]
 }
