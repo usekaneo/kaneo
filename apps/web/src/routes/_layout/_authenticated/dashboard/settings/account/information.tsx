@@ -212,7 +212,7 @@ function RouteComponent() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
                             {t("settings:informationPage.fullName")}
@@ -220,7 +220,7 @@ function RouteComponent() {
                         </div>
                         <FormControl>
                           <Input
-                            className="w-48"
+                            className="w-full sm:w-48"
                             placeholder={t(
                               "settings:informationPage.fullNamePlaceholder",
                             )}
@@ -240,7 +240,7 @@ function RouteComponent() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
                             {t("settings:informationPage.email")}
@@ -248,7 +248,7 @@ function RouteComponent() {
                         </div>
                         <FormControl>
                           <Input
-                            className="w-48"
+                            className="w-full sm:w-48"
                             placeholder={t(
                               "settings:informationPage.emailPlaceholder",
                             )}

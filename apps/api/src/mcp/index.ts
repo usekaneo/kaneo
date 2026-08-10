@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer as LegacyMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import {
+  isJsonContentType,
+  isLegacyRequest,
+} from "@modelcontextprotocol/server";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { auth } from "../auth";
@@ -10,6 +14,7 @@ import {
   getMcpAuthorizationRequest,
   registerMcpClient,
 } from "./controllers/oauth-consent";
+import { createModernMcpHandler } from "./modern";
 import { exchangeCode } from "./oauth";
 import {
   authorizationDecisionResponseSchema,
@@ -21,7 +26,7 @@ import {
   clientRegistrationSchema,
   oauthErrorSchema,
 } from "./schemas";
-import { registerMcpTools } from "./tools";
+import { registerMcpTools, toMcpToolRegistrar } from "./tools";
 
 const apiUrl = (process.env.KANEO_API_URL || "http://localhost:1337").replace(
   /\/api\/?$/,
@@ -35,12 +40,12 @@ type McpSession = {
 
 const sessions = new Map<string, McpSession>();
 
-function createMcpServerForUser(token: string): McpServer {
-  const server = new McpServer({
+function createMcpServerForUser(token: string): LegacyMcpServer {
+  const server = new LegacyMcpServer({
     name: "kaneo-mcp",
     version: "1.0.0",
   });
-  registerMcpTools(server, apiUrl, token);
+  registerMcpTools(toMcpToolRegistrar(server), apiUrl, token);
   return server;
 }
 
@@ -289,6 +294,15 @@ mcp.all("/mcp", async (c) => {
 
   if (c.req.method !== "POST") {
     return c.json({ error: "Method not allowed" }, 405);
+  }
+
+  if (!isJsonContentType(c.req.header("content-type"))) {
+    return c.json({ error: "Unsupported Media Type" }, 415);
+  }
+
+  if (!(await isLegacyRequest(c.req.raw.clone()))) {
+    const modern = createModernMcpHandler(authResult.token, apiUrl);
+    return modern.fetch(c.req.raw);
   }
 
   const transport = new WebStandardStreamableHTTPServerTransport({

@@ -43,6 +43,7 @@ import { KaneoIssueLink } from "@/components/task/extensions/kaneo-issue-link";
 import { KaneoMention } from "@/components/task/extensions/kaneo-mention";
 import type { MentionMember } from "@/components/task/extensions/mention-list";
 import { MentionSuggestion } from "@/components/task/extensions/mention-suggestion";
+import { MermaidBlock } from "@/components/task/extensions/mermaid-block";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -69,6 +70,7 @@ import {
   isYouTubeUrl,
   normalizeUrl,
 } from "@/lib/editor-url-utils";
+import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
 import { normalizeCommentMarkdown } from "@/lib/normalize-comment-markdown";
 import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 import { toast } from "@/lib/toast";
@@ -134,6 +136,7 @@ const CODE_LANG_VALUES = [
   "java",
   "javascript",
   "markdown",
+  "mermaid",
   "plaintext",
   "python",
   "rust",
@@ -612,6 +615,9 @@ export default function CommentEditor({
           resolveLanguage: toShikiLanguage,
           themeDark: "github-dark",
           themeLight: "github-light",
+        }),
+        MermaidBlock.configure({
+          errorKey: "activity:comment.editor.mermaid.renderFailed",
         }),
         EmbedBlock,
         AttachmentCard,
@@ -1354,8 +1360,8 @@ export default function CommentEditor({
 
   const handleEditorMouseLeave = useCallback(
     (event: ReactMouseEvent<HTMLElement>) => {
-      const relatedTarget = event.relatedTarget as HTMLElement | null;
-      if (relatedTarget?.closest(".kaneo-codeblock-language")) return;
+      const relatedTarget = event.relatedTarget;
+      if (isInCodeBlockLanguagePicker(relatedTarget)) return;
       if (isCodeLanguageMenuOpen) return;
 
       if (codeLanguageHideTimeoutRef.current !== null) {

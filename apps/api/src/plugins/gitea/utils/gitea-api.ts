@@ -40,10 +40,18 @@ export type GiteaPullRequest = {
   merged_at?: string | null;
 };
 
+export type GiteaApiErrorKind =
+  | "REDIRECT"
+  | "INVALID_JSON"
+  | "HTTP_ERROR"
+  | "TIMEOUT"
+  | "EMPTY_RESPONSE";
+
 export class GiteaApiError extends Error {
   constructor(
     message: string,
     public status: number,
+    public kind: GiteaApiErrorKind,
     public body?: string,
   ) {
     super(message);
@@ -101,7 +109,11 @@ export async function giteaFetch<T>(
     });
 
     if (res.status >= 300 && res.status < 400) {
-      throw new GiteaApiError("Gitea request was redirected", res.status);
+      throw new GiteaApiError(
+        `Gitea request was redirected (HTTP ${res.status})`,
+        res.status,
+        "REDIRECT",
+      );
     }
 
     const text = await res.text();
@@ -111,6 +123,7 @@ export async function giteaFetch<T>(
       throw new GiteaApiError(
         `Gitea API error ${res.status}`,
         res.status,
+        "HTTP_ERROR",
         text,
       );
     }
@@ -125,6 +138,7 @@ export async function giteaFetch<T>(
       throw new GiteaApiError(
         "Gitea API returned invalid JSON",
         res.status,
+        "INVALID_JSON",
         text,
       );
     }
@@ -138,6 +152,7 @@ export async function giteaFetch<T>(
         throw new GiteaApiError(
           `Gitea request timed out after ${GITEA_FETCH_TIMEOUT_MS}ms`,
           408,
+          "TIMEOUT",
         );
       }
       throw error;
@@ -172,7 +187,11 @@ export function createGiteaClient(
         permissions?: { admin?: boolean; push?: boolean; pull?: boolean };
       }>(baseUrl, accessToken, owner(repositoryOwner, repositoryName));
       if (!repo) {
-        throw new GiteaApiError("Gitea repository response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea repository response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return repo;
     },
@@ -201,7 +220,11 @@ export function createGiteaClient(
         }>
       >(baseUrl, accessToken, `/user/repos?page=${page}&limit=${limit}`);
       if (!repos) {
-        throw new GiteaApiError("Gitea repositories response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea repositories response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return repos;
     },
@@ -221,7 +244,11 @@ export function createGiteaClient(
         },
       );
       if (!issue) {
-        throw new GiteaApiError("Gitea create issue response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea create issue response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return issue;
     },
@@ -242,7 +269,11 @@ export function createGiteaClient(
         },
       );
       if (!issue) {
-        throw new GiteaApiError("Gitea update issue response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea update issue response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return issue;
     },
@@ -260,7 +291,11 @@ export function createGiteaClient(
         `${owner(repositoryOwner, repositoryName)}/issues/${index}/comments?page=${page}&limit=${limit}`,
       );
       if (!comments) {
-        throw new GiteaApiError("Gitea comments response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea comments response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return comments;
     },
@@ -281,7 +316,11 @@ export function createGiteaClient(
         },
       );
       if (!comment) {
-        throw new GiteaApiError("Gitea create comment response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea create comment response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return comment;
     },
@@ -296,7 +335,11 @@ export function createGiteaClient(
         `${owner(repositoryOwner, repositoryName)}/labels`,
       );
       if (!labels) {
-        throw new GiteaApiError("Gitea labels response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea labels response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return labels;
     },
@@ -320,7 +363,11 @@ export function createGiteaClient(
         },
       );
       if (!label) {
-        throw new GiteaApiError("Gitea create label response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea create label response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return label;
     },
@@ -387,7 +434,11 @@ export function createGiteaClient(
         `${owner(repositoryOwner, repositoryName)}/issues/${index}`,
       );
       if (!issue) {
-        throw new GiteaApiError("Gitea issue response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea issue response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return issue;
     },
@@ -404,7 +455,11 @@ export function createGiteaClient(
         `${owner(repositoryOwner, repositoryName)}/issues?state=${state}&page=${page}&limit=100`,
       );
       if (!issues) {
-        throw new GiteaApiError("Gitea issues response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea issues response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return issues;
     },
@@ -420,7 +475,11 @@ export function createGiteaClient(
         `${owner(repositoryOwner, repositoryName)}/pulls?state=open&page=${page}&limit=100`,
       );
       if (!pulls) {
-        throw new GiteaApiError("Gitea pull requests response was empty", 500);
+        throw new GiteaApiError(
+          "Gitea pull requests response was empty",
+          500,
+          "EMPTY_RESPONSE",
+        );
       }
       return pulls;
     },
@@ -434,7 +493,11 @@ export async function verifyGiteaToken(baseUrl: string, token: string) {
     "/user",
   );
   if (!user) {
-    throw new GiteaApiError("Gitea user response was empty", 500);
+    throw new GiteaApiError(
+      "Gitea user response was empty",
+      500,
+      "EMPTY_RESPONSE",
+    );
   }
   return user;
 }

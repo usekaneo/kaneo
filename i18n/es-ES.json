@@ -1129,7 +1129,9 @@
 				"commentOnDisabled": "Los comentarios con enlace a la tarea en nuevas issues están desactivados",
 				"settingsUpdateError": "Error al actualizar la integración con Gitea",
 				"secretCopied": "Copiado",
-				"unableToCopySecret": "No se pudo copiar el secreto"
+				"unableToCopySecret": "No se pudo copiar el secreto",
+				"notGiteaInstance": "La URL no apunta a una instancia de Gitea",
+				"redirected": "La URL de Gitea se ha redirigido (normalmente a HTTPS). Usa la URL final directamente."
 			},
 			"webhookShow": "Mostrar",
 			"webhookHide": "Ocultar",
@@ -1484,6 +1486,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Plaintext",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1503,9 @@
 					"addRowAfter": "Insertar fila debajo",
 					"deleteRow": "Eliminar fila",
 					"deleteTable": "Eliminar tabla"
+				},
+				"mermaid": {
+					"renderFailed": "No se pudo renderizar el diagrama de Mermaid"
 				}
 			}
 		}
@@ -1601,6 +1607,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1639,9 @@
 						"onlyYoutube": "Sólo los enlaces de YouTube pueden ser incrustados."
 					},
 					"onlyYoutubeInline": "Sólo los enlaces de YouTube pueden ser incrustados. Añádelo como enlace."
+				},
+				"mermaid": {
+					"renderFailed": "No se pudo renderizar el diagrama de Mermaid"
 				}
 			}
 		},
@@ -1956,6 +1966,8 @@
 				"inProgress": "En progreso"
 			},
 			"noDueDate": "Sin fecha de vencimiento",
+			"reorderHandle": "Reordenar proyecto",
+			"reorderError": "No se pudieron reordenar los proyectos",
 			"emptyDescriptionReadOnly": "Todavía no hay proyectos en este espacio de trabajo. Pide a un admin que cree uno."
 		},
 		"search": {
