@@ -1,3 +1,12 @@
+## [2.17.1](https://github.com/usekaneo/kaneo/compare/v2.17.0...v2.17.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* **github:** match a branch whose title segment is empty ([#1522](https://github.com/usekaneo/kaneo/issues/1522)) ([829f5ad](https://github.com/usekaneo/kaneo/commit/829f5addf2759bd0bfc10e0c231a8a0762f85262))
+* preserve time entry end time ([#1554](https://github.com/usekaneo/kaneo/issues/1554)) ([5e02130](https://github.com/usekaneo/kaneo/commit/5e0213009a6a35659a69543e6708b56c4d5593be))
+* **security:** block the shared address space in webhook destinations ([#1523](https://github.com/usekaneo/kaneo/issues/1523)) ([028c905](https://github.com/usekaneo/kaneo/commit/028c905fd505c7f2bc787c529d156088dd118d8b))
+* **time-entry:** reject a start time later than the end time ([99e41ad](https://github.com/usekaneo/kaneo/commit/99e41ad8efcd12b06f17dab8096ef39902596130)), closes [#1554](https://github.com/usekaneo/kaneo/issues/1554)
 # [2.17.0](https://github.com/usekaneo/kaneo/compare/v2.16.4...v2.17.0) (2026-08-10)
 
 
