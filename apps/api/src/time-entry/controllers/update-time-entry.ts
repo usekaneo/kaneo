@@ -24,17 +24,21 @@ async function updateTimeEntry(params: UpdateTimeEntryParams) {
     });
   }
 
-  // Calculate duration if both startTime and endTime are provided
+  const effectiveEndTime = endTime ?? existingTimeEntry.endTime;
+
+  // Calculate duration if the entry has an endTime after this update.
   let duration: number | null = null;
-  if (endTime) {
-    duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000); // duration in seconds
+  if (effectiveEndTime) {
+    duration = Math.floor(
+      (effectiveEndTime.getTime() - startTime.getTime()) / 1000,
+    ); // duration in seconds
   }
 
   const [updatedTimeEntry] = await db
     .update(timeEntryTable)
     .set({
       startTime,
-      endTime: endTime || null,
+      endTime: effectiveEndTime,
       duration,
       ...(description !== undefined && { description }),
     })
