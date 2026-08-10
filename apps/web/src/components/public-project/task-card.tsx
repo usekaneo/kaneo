@@ -20,15 +20,19 @@ type PublicTaskCardProps = {
     externalLinks?: Array<ExternalLink>;
   };
   projectSlug: string;
+  // Passed by views that hold the column, so completion comes from isFinal
+  // rather than the slug fallback.
+  isCompleted?: boolean;
   onTaskClick: (task: Task) => void;
 };
 
 export function PublicTaskCard({
   task,
   projectSlug,
+  isCompleted,
   onTaskClick,
 }: PublicTaskCardProps) {
-  const taskIsCompleted = isTaskCompleted(task.status);
+  const taskIsCompleted = isCompleted ?? isTaskCompleted(task.status);
   const labels = task.labels || [];
   const externalLinks = task.externalLinks || [];
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(

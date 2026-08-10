@@ -209,6 +209,42 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     expect(await isLegacyRequest(modernRequest("tools/list", 2))).toBe(false);
   });
 
+  it("rejects non-POST requests before cloning for protocol classification", async () => {
+    const request = new Request("http://mcp.test/mcp", {
+      method: "GET",
+      headers: { authorization: "Bearer test-token" },
+    });
+    const clone = vi.spyOn(request, "clone");
+
+    const response = await mcpRoutes.request(request);
+
+    expect(response.status).toBe(405);
+    expect(clone).not.toHaveBeenCalled();
+  });
+
+  it("routes an existing session ID before cloning for classification", async () => {
+    const request = new Request("http://mcp.test/mcp", {
+      method: "POST",
+      headers: {
+        authorization: "Bearer test-token",
+        "content-type": "application/json",
+        "mcp-session-id": "missing-session",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "tools/list",
+        params: {},
+      }),
+    });
+    const clone = vi.spyOn(request, "clone");
+
+    const response = await mcpRoutes.request(request);
+
+    expect(response.status).toBe(404);
+    expect(clone).not.toHaveBeenCalled();
+  });
+
   it("preserves the legacy session ID across separate requests", async () => {
     const initialize = await mcpRoutes.request("/mcp", {
       method: "POST",
