@@ -1,6 +1,21 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+
+type McpToolResult = {
+  content: Array<{ type: "text"; text: string }>;
+  isError?: boolean;
+};
+
+/** Minimal tool-registration contract shared by legacy and modern MCP servers. */
+export type McpToolRegistrar = {
+  registerTool(
+    name: string,
+    config: {
+      description: string;
+      inputSchema: z.ZodObject;
+    },
+    callback: (args: unknown) => Promise<McpToolResult>,
+  ): unknown;
+};
 
 class ApiClient {
   constructor(
@@ -44,17 +59,17 @@ class ApiClient {
   }
 }
 
-function textResult(data: unknown, isError = false): CallToolResult {
+function textResult(data: unknown, isError = false): McpToolResult {
   const text =
     typeof data === "string" ? data : (JSON.stringify(data, null, 2) ?? "");
   return { content: [{ type: "text", text }], isError };
 }
 
-function errorResult(message: string): CallToolResult {
+function errorResult(message: string): McpToolResult {
   return textResult({ error: message }, true);
 }
 
-function run(fn: () => Promise<unknown>): Promise<CallToolResult> {
+function run(fn: () => Promise<unknown>): Promise<McpToolResult> {
   return fn()
     .then((data) => textResult(data))
     .catch((e: unknown) =>
@@ -173,14 +188,23 @@ const hexColorSchema = z
     "Expected a hex color like #FF6600",
   );
 
+/** Register Kaneo's authenticated tool catalog on an MCP server adapter. */
 export function registerMcpTools(
-  server: McpServer,
+  server: McpToolRegistrar,
   baseUrl: string,
   token: string,
 ): void {
   const client = new ApiClient(baseUrl, token);
+  const registerTool = <InputSchema extends z.ZodObject>(
+    name: string,
+    config: { description: string; inputSchema: InputSchema },
+    callback: (args: z.output<InputSchema>) => Promise<McpToolResult>,
+  ) =>
+    server.registerTool(name, config, (args) =>
+      callback(config.inputSchema.parse(args)),
+    );
 
-  server.registerTool(
+  registerTool(
     "whoami",
     {
       description: "Return the current Kaneo session and user.",
@@ -190,7 +214,7 @@ export function registerMcpTools(
       run(() => client.json("/api/auth/get-session", { method: "GET" })),
   );
 
-  server.registerTool(
+  registerTool(
     "list_workspaces",
     {
       description: "List workspaces the signed-in user can access.",
@@ -200,7 +224,7 @@ export function registerMcpTools(
       run(() => client.json("/api/auth/organization/list", { method: "GET" })),
   );
 
-  server.registerTool(
+  registerTool(
     "list_projects",
     {
       description: "List projects in a workspace.",
@@ -221,7 +245,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "get_project",
     {
       description: "Get a single project by ID.",
@@ -231,7 +255,7 @@ export function registerMcpTools(
       run(() => client.json(`/api/project/${encodeURIComponent(args.id)}`)),
   );
 
-  server.registerTool(
+  registerTool(
     "create_project",
     {
       description: "Create a project in a workspace.",
@@ -256,7 +280,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_project",
     {
       description:
@@ -311,7 +335,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "list_tasks",
     {
       description: "List tasks for a project (optionally filtered/sorted).",
@@ -353,7 +377,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "get_task",
     {
       description: "Get a task by ID.",
@@ -367,7 +391,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_task",
     {
       description: "Create a task in a project.",
@@ -401,7 +425,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "update_task",
     {
       description:
@@ -435,7 +459,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "move_task",
     {
       description:
@@ -460,7 +484,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_task_status",
     {
       description: "Update only the status (column) of a task.",
@@ -475,7 +499,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_task_comments",
     {
       description: "List comments on a task.",
@@ -489,7 +513,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_task_comment",
     {
       description: "Add a comment to a task.",
@@ -507,7 +531,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_task_comment",
     {
       description: "Update one of your comments on a task.",
@@ -525,7 +549,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_task_comment",
     {
       description: "Delete one of your comments from a task.",
@@ -539,7 +563,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_workspace_labels",
     {
       description: "List labels defined in a workspace.",
@@ -554,7 +578,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_label",
     {
       description:
@@ -580,7 +604,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "attach_label_to_task",
     {
       description: "Attach an existing label to a task.",
@@ -598,7 +622,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "detach_label_from_task",
     {
       description: "Detach a label from its current task.",
@@ -612,7 +636,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_task_relation",
     {
       description:
@@ -636,7 +660,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "get_task_relations",
     {
       description:
@@ -651,7 +675,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_task_relation",
     {
       description: "Delete a task relation by its relation ID.",
@@ -665,7 +689,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_label",
     {
       description:

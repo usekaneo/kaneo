@@ -27,6 +27,11 @@ The endpoint implements OAuth 2.1 with PKCE for authentication. Discovery metada
 - `/.well-known/oauth-protected-resource/api/mcp`
 - `/.well-known/oauth-authorization-server/api`
 
+The endpoint serves both MCP protocol eras: modern `2026-07-28` requests are
+stateless and self-contained, while 2025-era clients keep the sessionful
+`initialize` flow. See [MCP 2026-07-28 stateless compatibility](/core/integrations/mcp-stateless)
+for the exact contract, tests, Codex configuration, limitations, and rollback.
+
 ## Stdio package
 
 The `@kaneo/mcp` package runs a local stdio MCP server and authenticates with Kaneo using device authorization. Use this when your MCP client requires stdio transport.
