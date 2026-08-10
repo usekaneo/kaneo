@@ -59,6 +59,12 @@ input:-webkit-autofill:active {
   [data-slot="sidebar-menu-badge"] {
     transition: none !important;
   }
+
+  /* dnd-kit writes the shuffle transition inline, so this needs !important. The
+     dragged element still tracks the pointer; only the reflow is neutralized. */
+  [data-kaneo-sortable] {
+    transition: none !important;
+  }
 }
 
 
@@ -676,6 +682,25 @@ input:-webkit-autofill:active {
     font-family: var(--font-mono);
     font-size: 0.85rem;
     color: var(--code-foreground);
+  }
+
+  .kaneo-mermaid-preview {
+    margin: 0.45rem 0;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 3px);
+    background: var(--code);
+    padding: 0.75rem 0.9rem;
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  .kaneo-mermaid-preview svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .kaneo-mermaid-preview[data-state="loading"] {
+    display: none;
   }
 
   .kaneo-tiptap-content .ProseMirror blockquote {
@@ -1339,6 +1364,12 @@ input:-webkit-autofill:active {
 
   .kaneo-tiptap-content .ProseMirror ::selection {
     background: color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+
+  /* Descendants too, or the cursor reverts to that of the row under it. */
+  body.kaneo-dragging,
+  body.kaneo-dragging * {
+    cursor: grabbing !important;
   }
 
 }

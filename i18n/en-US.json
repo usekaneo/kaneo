@@ -930,6 +930,8 @@
 				"verifyOk": "Gitea token can access this repository",
 				"verifyWarning": "Check token permissions or repository access",
 				"repoNotFound": "Repository not found or not accessible",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly.",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
 				"verifyError": "Failed to verify Gitea access",
 				"tokenRequired": "Personal access token is required",
 				"tokenRequiredVerify": "Enter a token to verify",
@@ -1484,6 +1486,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Plaintext",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1503,9 @@
 					"addRowAfter": "Insert row below",
 					"deleteRow": "Delete row",
 					"deleteTable": "Delete table"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		}
@@ -1601,6 +1607,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1639,9 @@
 						"onlyYoutube": "Only YouTube links can be embedded."
 					},
 					"onlyYoutubeInline": "Only YouTube URLs can be embedded. Use link mode instead."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		},
@@ -1956,7 +1966,9 @@
 				"complete": "Complete",
 				"inProgress": "In progress"
 			},
-			"noDueDate": "No due date"
+			"noDueDate": "No due date",
+			"reorderHandle": "Reorder project",
+			"reorderError": "Failed to reorder projects"
 		},
 		"search": {
 			"pageTitle": "Search",

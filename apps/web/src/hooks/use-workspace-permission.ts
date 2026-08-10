@@ -15,6 +15,7 @@ export type PermissionLevel = "owner" | "admin" | "member";
 const CAPABILITIES = {
   manageProjects: { project: ["create", "update", "delete"] },
   createProjects: { project: ["create"] },
+  updateProjects: { project: ["update"] },
   deleteProjects: { project: ["delete"] },
   updateTasks: { task: ["update"] },
   createTasks: { task: ["create"] },
@@ -92,6 +93,7 @@ export function useWorkspacePermission() {
     return {
       canManageProjects: () => can.manageProjects,
       canCreateProjects: () => can.createProjects,
+      canUpdateProjects: () => can.updateProjects,
       canDeleteProjects: () => can.deleteProjects,
       canUpdateTasks: () => can.updateTasks,
       canCreateTasks: () => can.createTasks,

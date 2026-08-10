@@ -20,15 +20,19 @@ type PublicTaskRowProps = {
     externalLinks?: Array<ExternalLink>;
   };
   projectSlug: string;
+  // Passed by views that hold the column, so completion comes from isFinal
+  // rather than the slug fallback.
+  isCompleted?: boolean;
   onTaskClick: (task: Task) => void;
 };
 
 export function PublicTaskRow({
   task,
   projectSlug,
+  isCompleted,
   onTaskClick,
 }: PublicTaskRowProps) {
-  const taskIsCompleted = isTaskCompleted(task.status);
+  const taskIsCompleted = isCompleted ?? isTaskCompleted(task.status);
   const { t } = useTranslation();
   const labels = task.labels || [];
   const externalLinks = task.externalLinks || [];

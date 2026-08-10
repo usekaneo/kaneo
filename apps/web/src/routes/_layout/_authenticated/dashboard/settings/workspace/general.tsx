@@ -342,7 +342,7 @@ function RouteComponent() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
                             {t("settings:workspaceGeneral.nameLabel")}
@@ -353,7 +353,7 @@ function RouteComponent() {
                         </div>
                         <FormControl>
                           <Input
-                            className="w-64"
+                            className="w-full sm:w-64"
                             placeholder={t(
                               "settings:workspaceGeneral.namePlaceholder",
                             )}
@@ -374,7 +374,7 @@ function RouteComponent() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-sm font-medium">
                             {t("settings:workspaceGeneral.descriptionLabel")}
@@ -385,7 +385,7 @@ function RouteComponent() {
                         </div>
                         <FormControl>
                           <Input
-                            className="w-64"
+                            className="w-full sm:w-64"
                             placeholder={t(
                               "settings:workspaceGeneral.descriptionPlaceholder",
                             )}
@@ -420,7 +420,7 @@ function RouteComponent() {
             </div>
 
             <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="space-y-0.5 min-w-0">
                   <p className="text-sm font-medium">
                     {t(
@@ -446,7 +446,7 @@ function RouteComponent() {
                         )}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex w-full items-center gap-2 sm:w-auto">
                   <Select
                     value={selectedNewOwnerId}
                     onValueChange={(value) => {
@@ -456,7 +456,7 @@ function RouteComponent() {
                     }}
                     disabled={eligibleNewOwners.length === 0}
                   >
-                    <SelectTrigger size="sm" className="w-56">
+                    <SelectTrigger size="sm" className="w-full sm:w-56">
                       <SelectValue
                         placeholder={t(
                           "settings:workspaceGeneral.transferOwnership.pickerPlaceholder",
@@ -506,7 +506,7 @@ function RouteComponent() {
             </div>
 
             <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">
                     {t("settings:workspaceGeneral.deleteWorkspace")}
@@ -556,25 +556,34 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose disabled={isTransferring}>
-                <Button variant="outline" size="sm" disabled={isTransferring}>
-                  {t("common:actions.cancel")}
-                </Button>
+              <AlertDialogClose
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isTransferring}
+                  />
+                }
+              >
+                {t("common:actions.cancel")}
               </AlertDialogClose>
               <AlertDialogClose
-                onClick={handleTransferOwnership}
-                disabled={isTransferring || !selectedMember}
+                render={
+                  <Button
+                    size="sm"
+                    disabled={isTransferring}
+                    onClick={handleTransferOwnership}
+                  />
+                }
               >
-                <Button size="sm" disabled={isTransferring}>
-                  {isTransferring
-                    ? t(
-                        "settings:workspaceGeneral.transferOwnership.transferring",
-                        { defaultValue: "Transferring…" },
-                      )
-                    : t("settings:workspaceGeneral.transferOwnership.confirm", {
-                        defaultValue: "Transfer ownership",
-                      })}
-                </Button>
+                {isTransferring
+                  ? t(
+                      "settings:workspaceGeneral.transferOwnership.transferring",
+                      { defaultValue: "Transferring…" },
+                    )
+                  : t("settings:workspaceGeneral.transferOwnership.confirm", {
+                      defaultValue: "Transfer ownership",
+                    })}
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -596,20 +605,22 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose>
-                <Button variant="outline" size="sm">
-                  {t("common:actions.cancel")}
-                </Button>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
               </AlertDialogClose>
               <AlertDialogClose
-                onClick={handleDeleteWorkspace}
-                disabled={isDeleting}
+                render={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isDeleting}
+                    onClick={handleDeleteWorkspace}
+                  />
+                }
               >
-                <Button variant="destructive" size="sm" disabled={isDeleting}>
-                  {isDeleting
-                    ? t("common:actions.deleting")
-                    : t("settings:workspaceGeneral.deleteModalConfirm")}
-                </Button>
+                {isDeleting
+                  ? t("common:actions.deleting")
+                  : t("settings:workspaceGeneral.deleteModalConfirm")}
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -66,12 +66,14 @@ import {
   isYouTubeUrl,
   normalizeUrl,
 } from "@/lib/editor-url-utils";
+import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
 import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 import { AttachmentCard } from "./extensions/attachment-card";
 import { EmbedBlock } from "./extensions/embed-block";
 import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
+import { MermaidBlock } from "./extensions/mermaid-block";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -147,6 +149,7 @@ const CODE_LANGUAGE_OPTIONS = [
   { value: "kotlin", label: "Kotlin" },
   { value: "makefile", label: "Makefile" },
   { value: "markdown", label: "Markdown" },
+  { value: "mermaid", label: "Mermaid" },
   { value: "ocaml", label: "OCaml" },
   { value: "php", label: "PHP" },
   { value: "perl", label: "Perl" },
@@ -579,6 +582,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           themeDark: "github-dark",
           themeLight: "github-light",
         }),
+        MermaidBlock,
         EmbedBlock,
         AttachmentCard,
         KaneoIssueLink,
@@ -1330,8 +1334,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const handleEditorMouseLeave = useCallback(
     (event: ReactMouseEvent<HTMLElement>) => {
-      const relatedTarget = event.relatedTarget as HTMLElement | null;
-      if (relatedTarget?.closest(".kaneo-codeblock-language")) return;
+      const relatedTarget = event.relatedTarget;
+      if (isInCodeBlockLanguagePicker(relatedTarget)) return;
       if (isCodeLanguageMenuOpen) return;
       hoveredCodeBlockElementRef.current = null;
       setHoveredCodeBlock(null);

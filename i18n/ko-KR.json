@@ -782,7 +782,9 @@
 				"commentOnDisabled": "새 이슈의 작업 링크 댓글이 꺼져 있습니다",
 				"settingsUpdateError": "Gitea 연동 업데이트에 실패했습니다",
 				"secretCopied": "복사됨",
-				"unableToCopySecret": "시크릿을 복사할 수 없습니다"
+				"unableToCopySecret": "시크릿을 복사할 수 없습니다",
+				"notGiteaInstance": "URL이 Gitea 인스턴스를 가리키지 않습니다",
+				"redirected": "Gitea URL이 리디렉션되었습니다(보통 HTTPS로). 최종 URL을 직접 사용하세요."
 			},
 			"webhookShow": "표시",
 			"webhookHide": "숨기기",
@@ -1484,6 +1486,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "일반 텍스트",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1503,9 @@
 					"addRowAfter": "아래에 행 삽입",
 					"deleteRow": "행 삭제",
 					"deleteTable": "표 삭제"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
 			}
 		}
@@ -1601,6 +1607,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1639,9 @@
 						"onlyYoutube": "YouTube 링크만 임베드할 수 있습니다."
 					},
 					"onlyYoutubeInline": "YouTube URL만 임베드할 수 있습니다. 대신 링크 모드를 사용하세요."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
 			}
 		},
@@ -1956,6 +1966,8 @@
 				"inProgress": "진행 중"
 			},
 			"noDueDate": "마감일 없음",
+			"reorderHandle": "프로젝트 순서 변경",
+			"reorderError": "프로젝트 순서를 변경하지 못했습니다",
 			"emptyDescriptionReadOnly": "이 워크스페이스에 아직 프로젝트가 없습니다. 관리자에게 프로젝트 생성을 요청하세요."
 		},
 		"search": {

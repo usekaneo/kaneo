@@ -44,4 +44,21 @@ describe("isTaskCompleted", () => {
     expect(isTaskCompleted("in-progress")).toBe(false);
     expect(isTaskCompleted("done", [])).toBe(true);
   });
+
+  // The public views hold the column, so they must not take the slug path: a
+  // project whose final column is named anything else warned on finished tasks.
+  it("resolves a final column that is not named done", () => {
+    const columns = [
+      { slug: "in-progress", isFinal: false },
+      { slug: "shipped", isFinal: true },
+    ];
+
+    expect(isTaskCompleted("shipped", columns)).toBe(true);
+    expect(
+      getDueDateStatus(YESTERDAY, isTaskCompleted("shipped", columns)),
+    ).toBe("far-future");
+    expect(getDueDateStatus(YESTERDAY, isTaskCompleted("shipped"))).toBe(
+      "overdue",
+    );
+  });
 });
