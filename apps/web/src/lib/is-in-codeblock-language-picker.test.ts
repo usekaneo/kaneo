@@ -6,13 +6,13 @@ describe("isInCodeBlockLanguagePicker", () => {
     expect(isInCodeBlockLanguagePicker(null)).toBe(false);
   });
 
-  it("does not throw and returns false when target is a non-Element EventTarget (Text node)", () => {
+  it("returns false when target is a non-Element EventTarget (Text node)", () => {
     // Regression: event.relatedTarget can be a Text node (when the pointer
     // moves between text runs). Calling .closest() on it throws TypeError,
-    // which used to crash handleEditorMouseLeave. The helper's
-    // `instanceof Element` guard must short-circuit first.
+    // which used to crash handleEditorMouseLeave. If the helper's
+    // `instanceof Element` guard is missing, this call throws and the
+    // assertion below fails on the thrown error.
     const text = document.createTextNode("x");
-    expect(() => isInCodeBlockLanguagePicker(text)).not.toThrow();
     expect(isInCodeBlockLanguagePicker(text)).toBe(false);
   });
 
