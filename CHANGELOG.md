@@ -1,3 +1,9 @@
+## [2.16.4](https://github.com/usekaneo/kaneo/compare/v2.16.3...v2.16.4) (2026-08-10)
+
+
+### Bug Fixes
+
+* **auth:** let invited users sign up with OAuth in invite-only mode ([737ec6e](https://github.com/usekaneo/kaneo/commit/737ec6e79f85e6906b0748501c27e1b1aa4ab914)), closes [#1551](https://github.com/usekaneo/kaneo/issues/1551)
 ## [2.16.3](https://github.com/usekaneo/kaneo/compare/v2.16.2...v2.16.3) (2026-08-10)
 
 
