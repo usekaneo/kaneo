@@ -790,15 +790,17 @@ function DeleteRoleConfirm({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogClose disabled={isPending}>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={isPending}
-            onClick={onCancel}
-          >
-            {t("common:actions.cancel")}
-          </Button>
+        <AlertDialogClose
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={onCancel}
+            />
+          }
+        >
+          {t("common:actions.cancel")}
         </AlertDialogClose>
         <Button
           variant="destructive"
