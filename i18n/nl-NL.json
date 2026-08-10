@@ -1129,7 +1129,9 @@
 				"commentOnDisabled": "Reacties met taaklinks op nieuwe issues staan uit",
 				"settingsUpdateError": "Bijwerken Gitea-integratie mislukt",
 				"secretCopied": "Gekopieerd",
-				"unableToCopySecret": "Kopiëren van geheim mislukt"
+				"unableToCopySecret": "Kopiëren van geheim mislukt",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Tonen",
 			"webhookHide": "Verbergen",

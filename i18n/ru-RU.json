@@ -782,7 +782,9 @@
 				"commentOnDisabled": "Комментарии со ссылками на задачи в новых issues отключены",
 				"settingsUpdateError": "Не удалось обновить интеграцию с Gitea",
 				"secretCopied": "Скопировано",
-				"unableToCopySecret": "Не удалось скопировать секрет"
+				"unableToCopySecret": "Не удалось скопировать секрет",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Показать",
 			"webhookHide": "Скрыть",
