@@ -478,7 +478,7 @@
 			"labelsDescription": "Прикажи етикети и тагови на задачите",
 			"priority": "Приоритет",
 			"priorityDescription": "Прикажи индикатори за приоритет",
-			"board3d": "3D board"
+			"board3d": "3D табла"
 		},
 		"developerPage": {
 			"pageTitle": "Програмерски поставки",
@@ -1921,8 +1921,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "влечење: поместување · ctrl/десно влечење: ротација · тркалце: зум",
+			"reset": "Ресетирај"
 		}
 	},
 	"invitations": {

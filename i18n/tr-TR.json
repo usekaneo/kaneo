@@ -478,7 +478,7 @@
 			"labelsDescription": "Talep etiketlerini ve etiketleri göster",
 			"priority": "Öncelik",
 			"priorityDescription": "Öncelik göstergelerini görüntüle",
-			"board3d": "3D board"
+			"board3d": "3B pano"
 		},
 		"developerPage": {
 			"pageTitle": "Geliştirici Ayarları",
@@ -1921,8 +1921,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "sürükle: kaydır · ctrl/sağ sürükle: döndür · tekerlek: yakınlaştır",
+			"reset": "Sıfırla"
 		}
 	},
 	"invitations": {

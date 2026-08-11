@@ -478,7 +478,7 @@
 			"labelsDescription": "작업 라벨과 태그를 표시합니다",
 			"priority": "우선순위",
 			"priorityDescription": "우선순위 표시기를 표시합니다",
-			"board3d": "3D board"
+			"board3d": "3D 보드"
 		},
 		"developerPage": {
 			"pageTitle": "개발자 설정",
@@ -1921,8 +1921,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "드래그: 이동 · Ctrl/우클릭 드래그: 회전 · 휠: 확대/축소",
+			"reset": "초기화"
 		}
 	},
 	"invitations": {

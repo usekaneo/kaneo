@@ -478,7 +478,7 @@
 			"labelsDescription": "कार्य लेबल और टैग दिखाएँ",
 			"priority": "प्राथमिकता",
 			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ",
-			"board3d": "3D board"
+			"board3d": "3D बोर्ड"
 		},
 		"developerPage": {
 			"pageTitle": "डेवलपर सेटिंग",
@@ -1921,8 +1921,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "खींचें: पैन · ctrl/दायाँ-खींचें: घुमाएँ · व्हील: ज़ूम",
+			"reset": "रीसेट"
 		}
 	},
 	"invitations": {

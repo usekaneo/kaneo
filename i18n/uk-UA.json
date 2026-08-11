@@ -478,7 +478,7 @@
 			"labelsDescription": "Показувати мітки та теґи завдань",
 			"priority": "Пріоритет",
 			"priorityDescription": "Відображати індикатори пріоритету",
-			"board3d": "3D board"
+			"board3d": "3D-дошка"
 		},
 		"developerPage": {
 			"pageTitle": "Налаштування розробника",
@@ -1933,8 +1933,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "перетягування: панорама · ctrl/праве перетягування: обертання · коліщатко: масштаб",
+			"reset": "Скинути"
 		}
 	},
 	"invitations": {

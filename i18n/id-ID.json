@@ -478,7 +478,7 @@
 			"labelsDescription": "Tampilkan label dan tag tugas",
 			"priority": "Prioritas",
 			"priorityDescription": "Tampilkan indikator prioritas",
-			"board3d": "3D board"
+			"board3d": "Papan 3D"
 		},
 		"developerPage": {
 			"pageTitle": "Pengaturan Pengembang",
@@ -1921,8 +1921,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "seret: geser · ctrl/seret kanan: putar · roda: zoom",
+			"reset": "Atur ulang"
 		}
 	},
 	"invitations": {

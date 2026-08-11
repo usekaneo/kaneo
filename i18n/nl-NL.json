@@ -375,7 +375,7 @@
 			"labelsDescription": "Toon taaklabels en tags",
 			"priority": "Prioriteit",
 			"priorityDescription": "Toon prioriteitsindicatoren",
-			"board3d": "3D board"
+			"board3d": "3D-bord"
 		},
 		"developerPage": {
 			"pageTitle": "Ontwikkelaarsinstellingen",
@@ -1921,8 +1921,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "slepen: verschuiven · ctrl/rechts slepen: draaien · scrollwiel: zoomen",
+			"reset": "Opnieuw instellen"
 		}
 	},
 	"invitations": {

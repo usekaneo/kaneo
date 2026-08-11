@@ -478,7 +478,7 @@
 			"labelsDescription": "Hiển thị nhãn và thẻ của công việc",
 			"priority": "Mức ưu tiên",
 			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên",
-			"board3d": "3D board"
+			"board3d": "Bảng 3D"
 		},
 		"developerPage": {
 			"pageTitle": "Cài đặt nhà phát triển",
@@ -1921,8 +1921,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "kéo: di chuyển · ctrl/kéo chuột phải: xoay · con lăn: thu phóng",
+			"reset": "Đặt lại"
 		}
 	},
 	"invitations": {

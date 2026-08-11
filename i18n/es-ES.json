@@ -375,7 +375,7 @@
 			"labelsDescription": "Mostrar descripción y etiquetas de las tareas",
 			"priority": "Prioridad",
 			"priorityDescription": "Mostrar indicador de prioridad",
-			"board3d": "3D board"
+			"board3d": "Tablero 3D"
 		},
 		"developerPage": {
 			"pageTitle": "Ajustes de Desarrollador",
@@ -1921,8 +1921,8 @@
 			}
 		},
 		"board3d": {
-			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
-			"reset": "Reset"
+			"hint": "arrastrar: desplazar · ctrl/arrastre derecho: rotar · rueda: zoom",
+			"reset": "Restablecer"
 		}
 	},
 	"invitations": {
