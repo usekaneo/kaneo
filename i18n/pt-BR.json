@@ -334,6 +334,15 @@
 				"nameRequired": "O nome é obrigatório",
 				"nameShort": "O nome deve ter pelo menos 2 caracteres",
 				"invalidEmail": "Endereço de e-mail inválido"
+			},
+			"deleteAccount": {
+				"button": "Delete Account",
+				"confirmDescription": "This action cannot be undone. Your account and all personal data will be permanently removed.",
+				"confirmTitle": "Delete your account?",
+				"errorToast": "Failed to delete account.",
+				"sectionDescription": "Permanently delete your account and all associated personal data.",
+				"sectionTitle": "Danger Zone",
+				"successToast": "Your account has been deleted."
 			}
 		},
 		"notificationsPage": {
