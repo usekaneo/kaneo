@@ -1,0 +1,2102 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "لغو",
+			"close": "بستن",
+			"clearAll": "پاک کردن همه",
+			"delete": "حذف",
+			"deleting": "در حال حذف...",
+			"markAllRead": "علامت‌گذاری همه به‌عنوان خوانده‌شده",
+			"remove": "حذف",
+			"reset": "بازنشانی",
+			"filter": "فیلتر",
+			"clearAllFilters": "پاک کردن همه فیلترها"
+		},
+		"a11y": {
+			"toggleSidebar": "تغییر وضعیت نوار کناری"
+		},
+		"sidebar": {
+			"title": "نوار کناری",
+			"mobileDescription": "نوار کناری موبایل را نمایش می‌دهد."
+		},
+		"empty": {
+			"loading": "در حال بارگذاری..."
+		},
+		"pagination": {
+			"label": "صفحه‌بندی",
+			"previous": "قبلی",
+			"next": "بعدی",
+			"previousPage": "رفتن به صفحه قبلی",
+			"nextPage": "رفتن به صفحه بعدی",
+			"morePages": "صفحات بیشتر"
+		},
+		"breadcrumb": {
+			"label": "مسیر راهنما",
+			"more": "بیشتر"
+		},
+		"language": {
+			"english": "انگلیسی",
+			"german": "آلمانی",
+			"greek": "یونانی",
+			"macedonian": "مقدونی",
+			"french": "فرانسوی",
+			"spanish": "اسپانیایی",
+			"dutch": "هلندی",
+			"korean": "کره‌ای",
+			"chinese": "چینی",
+			"italian": "ایتالیایی"
+		},
+		"people": {
+			"someone": "یک نفر",
+			"unknown": "ناشناس"
+		},
+		"error": {
+			"title": "مشکلی پیش آمد",
+			"troubleshooting": "مراحل عیب‌یابی:",
+			"tryAgain": "تلاش مجدد",
+			"viewDeploymentGuide": "مشاهده راهنمای استقرار",
+			"refreshPage": "بارگذاری مجدد صفحه"
+		},
+		"formats": {
+			"never": "هرگز"
+		},
+		"modals": {
+			"createProject": {
+				"title": "ایجاد پروژه جدید",
+				"breadcrumbNew": "ایجاد پروژه جدید",
+				"workspaceFallback": "فضای کاری",
+				"description": "با وارد کردن نام، کلید و انتخاب نماد، پروژه‌ای در فضای کاری خود ایجاد کنید.",
+				"pickIcon": "انتخاب نماد",
+				"searchIcons": "جستجوی نماد...",
+				"projectName": "نام پروژه",
+				"keyLabel": "کلید:",
+				"keyHint": "برای شناسه تیکت‌ها استفاده می‌شود (مثلاً {{example}}-123)",
+				"createButton": "ایجاد پروژه",
+				"successToast": "پروژه با موفقیت ایجاد شد",
+				"errorToast": "ایجاد پروژه ناموفق بود"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "ایجاد فضای کاری جدید",
+				"description": "با وارد کردن نام، فضای کاری جدیدی ایجاد کنید.",
+				"namePlaceholder": "نام فضای کاری",
+				"descriptionPlaceholder": "افزودن توضیحات...",
+				"createButton": "ایجاد فضای کاری",
+				"successToast": "فضای کاری با موفقیت ایجاد شد",
+				"errorToast": "ایجاد فضای کاری ناموفق بود"
+			},
+			"createTask": {
+				"breadcrumbTask": "تیکت",
+				"selectProject": "انتخاب پروژه",
+				"title": "تیکت جدید",
+				"description": "با وارد کردن عنوان، توضیحات و سایر جزئیات، تیکت جدیدی ایجاد کنید.",
+				"taskTitlePlaceholder": "عنوان تیکت",
+				"descriptionPlaceholder": "توضیحاتی برای تیکت خود اضافه کنید...",
+				"chooseProjectForImages": "قبل از آپلود تصویر، یک پروژه انتخاب کنید.",
+				"prepareTaskError": "آماده‌سازی تیکت ناموفق بود",
+				"successCreated": "تیکت با موفقیت ایجاد شد",
+				"successUpdated": "تیکت با موفقیت به‌روزرسانی شد",
+				"createError": "ایجاد تیکت ناموفق بود",
+				"priority": "اولویت",
+				"statusFallback": "در حال انجام",
+				"startDate": "تاریخ شروع",
+				"dueDate": "تاریخ سررسید",
+				"clearStartDate": "پاک کردن تاریخ شروع",
+				"clearDueDate": "پاک کردن تاریخ سررسید",
+				"assign": "اختصاص دادن",
+				"assignUnassigned": "اختصاص‌داده‌نشده",
+				"assignUnassignedTitle": "اختصاص‌داده‌نشده",
+				"labels": "برچسب‌ها",
+				"searchLabels": "جستجوی برچسب...",
+				"noLabelsFound": "برچسبی یافت نشد",
+				"createLabel": "ایجاد «{{name}}»",
+				"chooseColor": "انتخاب رنگ",
+				"labelCreated": "برچسب ایجاد شد",
+				"labelCreateError": "ایجاد برچسب ناموفق بود",
+				"createMore": "ایجاد بیشتر",
+				"createButton": "ایجاد تیکت",
+				"untitledTask": "تیکت بدون عنوان",
+				"labelColors": {
+					"stone": "سنگی",
+					"slate": "سفالی",
+					"lavender": "اسطوخودوس",
+					"sage": "مریم‌گلی",
+					"forest": "جنگلی",
+					"amber": "کهربایی",
+					"terracotta": "گِلی",
+					"rose": "صورتی",
+					"crimson": "سرخابی"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "ورود",
+			"title": "خوش آمدید",
+			"subtitle": "برای دسترسی به فضای کاری خود، اطلاعات ورود را وارد کنید",
+			"invitationSubtitle": "برای پذیرش دعوت‌نامه خود وارد شوید",
+			"invitationAlert": "پس از ورود، می‌توانید دعوت‌نامه فضای کاری خود را بپذیرید.",
+			"signingIn": "در حال ورود...",
+			"continueWithGoogle": "ادامه با گوگل",
+			"continueWithGithub": "ادامه با گیت‌هاب",
+			"continueWithDiscord": "ادامه با دیسکورد",
+			"continueWithOidc": "ادامه با OIDC",
+			"lastUsed": "آخرین استفاده",
+			"registrationDisabled": "ثبت‌نام عمومی غیرفعال است. برای ایجاد حساب از دعوت‌نامه استفاده کنید.",
+			"passwordRegistrationDisabled": "ثبت‌نام با رمز عبور غیرفعال است. برای ایجاد حساب از روش ورود اجتماعی یا OIDC پیکربندی‌شده استفاده کنید.",
+			"toggleMessage": "حساب کاربری ندارید؟",
+			"toggleLink": "ایجاد حساب",
+			"guestSuccess": "به‌عنوان مهمان وارد شدید",
+			"guestError": "ورود به‌عنوان مهمان ناموفق بود",
+			"oidcError": "ورود با OIDC ناموفق بود",
+			"googleError": "ورود با گوگل ناموفق بود",
+			"githubError": "ورود با گیت‌هاب ناموفق بود",
+			"discordError": "ورود با دیسکورد ناموفق بود",
+			"errors": {
+				"account_not_linked": "این هویت به حساب موجود مرتبط نشد. برای تأیید حساب با ایمیل وارد شوید، سپس SSO را دوباره امتحان کنید. اگر ورود با ایمیل در دسترس نیست، با مدیر تماس بگیرید.",
+				"oauth_code_verification_failed": "تأیید OAuth ناموفق بود. لطفاً دوباره تلاش کنید.",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "ثبت‌نام در حال حاضر غیرفعال است. برای ایجاد حساب به یک دعوت‌نامه معتبر نیاز دارید."
+			},
+			"instanceStatusError": "ارتباط با سرور برقرار نشد. لطفاً لحظاتی بعد دوباره تلاش کنید."
+		},
+		"providers": {
+			"google": "گوگل",
+			"discord": "دیسکورد"
+		},
+		"forms": {
+			"or": "یا",
+			"email": "ایمیل",
+			"password": "رمز عبور",
+			"emailPlaceholder": "me@example.com",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "نمایش رمز عبور",
+			"hidePassword": "پنهان کردن رمز عبور"
+		},
+		"checkEmail": {
+			"pageTitle": "ایمیل خود را بررسی کنید",
+			"title": "ایمیل خود را بررسی کنید",
+			"inboxMessage": "یک پیوند موقت ورود برای شما ارسال کرده‌ایم. لطفاً صندوق ورودی <email>{{email}}</email> را بررسی کنید.",
+			"emailFallback": "آدرس ایمیل شما",
+			"backToLogin": "بازگشت به ورود"
+		},
+		"signUp": {
+			"pageTitle": "ایجاد حساب",
+			"title": "ایجاد حساب",
+			"subtitleInvitation": "برای پذیرش دعوت‌نامه خود یک حساب ایجاد کنید",
+			"subtitleRegistrationDisabled": "ثبت‌نام نیازمند دعوت‌نامه است",
+			"subtitlePasswordDisabled": "برای ایجاد حساب از ورود اجتماعی یا OIDC استفاده کنید",
+			"subtitleDefault": "با فضای کاری خود شروع کنید",
+			"invitationAlert": "پس از ایجاد حساب، می‌توانید دعوت‌نامه فضای کاری خود را بپذیرید.",
+			"registrationDisabledAlert": "ثبت‌نام در حال حاضر غیرفعال است. اگر دعوت شده‌اید، آدرس ایمیلی را که دعوت‌نامه را دریافت کرده وارد کنید.",
+			"passwordDisabledAlert": "ایجاد حساب مبتنی بر رمز عبور غیرفعال است. از صفحه ورود، یک روش ورود اجتماعی یا OIDC پیکربندی‌شده استفاده کنید.",
+			"signingIn": "در حال ورود...",
+			"continueAsGuest": "ادامه به‌عنوان مهمان",
+			"toggleMessage": "حساب کاربری دارید؟",
+			"toggleLink": "ورود",
+			"instanceStatusError": "ارتباط با سرور برقرار نشد. لطفاً لحظاتی بعد دوباره تلاش کنید.",
+			"instanceAdminTitle": "راه‌اندازی نمونه Kaneo شما",
+			"instanceAdminSubtitle": "این حساب با دسترسی کامل، مدیر نمونه می‌شود."
+		},
+		"verifyOtp": {
+			"pageTitle": "تأیید کد",
+			"title": "کد تأیید را وارد کنید",
+			"subtitle": "برای ادامه، از کد ۶ رقمی ارسال‌شده به ایمیل خود استفاده کنید",
+			"codeSentTo": "کد به {{email}} ارسال شد",
+			"verificationCodeLabel": "کد تأیید",
+			"verifying": "در حال تأیید...",
+			"verifyAndSignIn": "تأیید و ورود",
+			"changeEmail": "تغییر ایمیل",
+			"resend": "ارسال مجدد",
+			"validation": {
+				"codeLength": "کد باید ۶ رقم باشد"
+			},
+			"toast": {
+				"invalidCode": "کد تأیید نامعتبر است",
+				"signedInSuccess": "با موفقیت وارد شدید!",
+				"verifyFailed": "تأیید کد ناموفق بود",
+				"resendFailed": "ارسال مجدد کد ناموفق بود",
+				"resendSuccess": "کد تأیید جدید ارسال شد!"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "ارسال کد تأیید ناموفق بود",
+			"codeSent": "کد تأیید ارسال شد! ایمیل خود را بررسی کنید.",
+			"sending": "در حال ارسال...",
+			"sendVerificationCode": "ارسال کد تأیید"
+		},
+		"signInForm": {
+			"failedSignIn": "ورود ناموفق بود",
+			"signedInSuccess": "با موفقیت وارد شدید",
+			"signingIn": "در حال ورود...",
+			"signIn": "ورود"
+		},
+		"signUpForm": {
+			"fullName": "نام کامل",
+			"namePlaceholder": "علی محمدی",
+			"failedSignUp": "ثبت‌نام ناموفق بود",
+			"accountCreated": "حساب با موفقیت ایجاد شد",
+			"passwordTooShort": "رمز عبور بیش از حد کوتاه است",
+			"creatingAccount": "در حال ایجاد حساب...",
+			"createAccount": "ایجاد حساب"
+		},
+		"invitation": {
+			"pageTitleAccept": "پذیرش دعوت‌نامه",
+			"pageTitleError": "خطای دعوت‌نامه",
+			"pageTitleInvalid": "دعوت‌نامه نامعتبر",
+			"loadingTitle": "در حال بارگذاری دعوت‌نامه...",
+			"errorTitle": "خطای دعوت‌نامه",
+			"invalidTitle": "دعوت‌نامه نامعتبر",
+			"invitationExpired": "دعوت‌نامه منقضی شده است",
+			"errorLoadDescription": "بارگذاری جزئیات دعوت‌نامه ناموفق بود. دعوت‌نامه ممکن است نامعتبر یا منقضی باشد.",
+			"goToSignIn": "رفتن به ورود",
+			"workspaceLabel": "فضای کاری: {{workspaceName}}",
+			"joinWorkspace": "پیوستن به {{workspaceName}}",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> شما را به پیوستن به فضای کاری خود دعوت کرده است.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> شما را به پیوستن به فضای کاری خود در Kaneo دعوت کرده است.",
+			"createAccountOrSignIn": "برای پذیرش این دعوت‌نامه یک حساب ایجاد کنید، یا اگر حساب دارید وارد شوید.",
+			"createAccount": "ایجاد حساب",
+			"accepting": "در حال پذیرش...",
+			"acceptInvitation": "پذیرش دعوت‌نامه",
+			"goToDashboard": "رفتن به داشبورد",
+			"signedInAs": "با <email>{{email}}</email> وارد شده‌اید",
+			"youveBeenInvited": "شما دعوت شده‌اید!",
+			"invitationFor": "دعوت‌نامه برای: <email>{{email}}</email>",
+			"signIn": "ورود",
+			"toast": {
+				"acceptFailed": "پذیرش دعوت‌نامه ناموفق بود",
+				"acceptSuccess": "دعوت‌نامه پذیرفته شد! به تیم خوش آمدید."
+			}
+		},
+		"onboarding": {
+			"pageTitle": "به Kaneo خوش آمدید",
+			"workspacePageTitle": "ایجاد فضای کاری",
+			"createWorkspaceTitle": "ایجاد فضای کاری",
+			"createWorkspaceSubtitle": "برای شروع مدیریت پروژه‌ها، فضای کاری خود را راه‌اندازی کنید",
+			"workspaceName": "نام فضای کاری",
+			"workspaceNamePlaceholder": "مثلاً شرکت آسمان، تیم من",
+			"descriptionOptional": "توضیحات (اختیاری)",
+			"descriptionPlaceholder": "تیم شما روی چه چیزی کار می‌کند؟",
+			"creating": "در حال ایجاد...",
+			"createWorkspace": "ایجاد فضای کاری",
+			"workspaceCreatedTitle": "فضای کاری ایجاد شد",
+			"redirectingToWorkspace": "در حال انتقال به <name>{{name}}</name>...",
+			"toast": {
+				"workspaceCreated": "فضای کاری با موفقیت ایجاد شد",
+				"createFailed": "ایجاد فضای کاری ناموفق بود"
+			},
+			"validation": {
+				"workspaceNameRequired": "نام فضای کاری الزامی است"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "تکمیل پروفایل",
+			"completeTitle": "پروفایل خود را تکمیل کنید",
+			"subtitle": "برای شروع، لطفاً نام خود را وارد کنید",
+			"yourName": "نام شما",
+			"namePlaceholder": "مثلاً علی محمدی",
+			"saving": "در حال ذخیره...",
+			"continue": "ادامه",
+			"welcome": "خوش آمدید، {{name}}!",
+			"redirecting": "در حال انتقال به داشبورد شما...",
+			"toast": {
+				"updateSuccess": "پروفایل با موفقیت به‌روزرسانی شد",
+				"updateFailed": "به‌روزرسانی پروفایل ناموفق بود"
+			},
+			"validation": {
+				"nameRequired": "نام الزامی است",
+				"nameShort": "نام باید حداقل ۲ کاراکتر باشد"
+			}
+		}
+	},
+	"settings": {
+		"account": "حساب",
+		"developer": "توسعه‌دهنده",
+		"information": "اطلاعات",
+		"notifications": "اعلان‌ها",
+		"preferences": "ترجیحات",
+		"apiKeys": "کلیدهای API",
+		"informationPage": {
+			"pageTitle": "اطلاعات شخصی",
+			"title": "اطلاعات شخصی",
+			"subtitle": "جزئیات شخصی و اطلاعات حساب خود را مدیریت کنید.",
+			"sectionTitle": "اطلاعات حساب",
+			"sectionSubtitle": "پروفایل و جزئیات حساب خود را مدیریت کنید.",
+			"profilePicture": "تصویر پروفایل",
+			"fullName": "نام کامل",
+			"fullNamePlaceholder": "نام خود را وارد کنید",
+			"email": "ایمیل",
+			"emailPlaceholder": "ایمیل خود را وارد کنید",
+			"updateSuccess": "پروفایل با موفقیت به‌روزرسانی شد",
+			"updateError": "به‌روزرسانی پروفایل ناموفق بود",
+			"validation": {
+				"nameRequired": "نام الزامی است",
+				"nameShort": "نام باید حداقل ۲ کاراکتر باشد",
+				"invalidEmail": "آدرس ایمیل نامعتبر است"
+			}
+		},
+		"notificationsPage": {
+			"pageTitle": "اعلان‌ها",
+			"title": "اعلان‌ها",
+			"subtitle": "انتخاب کنید Kaneo اعلان‌های حساب شما را چگونه و از طریق چه کانال‌هایی ارسال کند.",
+			"statusConnected": "متصل",
+			"statusPaused": "مکث",
+			"emailTitle": "ایمیل",
+			"emailDescription": "از ایمیل حساب خود به‌عنوان مقصد اعلان‌ها استفاده کنید.",
+			"accountEmailLabel": "ایمیل حساب",
+			"accountEmailNoAddress": "ایمیل حسابی در دسترس نیست",
+			"accountEmailHint": "ارسال ایمیل همیشه به ایمیل حساب واردشده انجام می‌شود.",
+			"saveChanges": "ذخیره تغییرات",
+			"disconnect": "قطع اتصال",
+			"ntfyTitle": "ntfy",
+			"ntfyDescription": "اعلان‌های حساب را در یک موضوع ntfy منتشر کنید.",
+			"serverUrl": "آدرس سرور",
+			"topic": "موضوع",
+			"token": "توکن",
+			"ntfyServerPlaceholder": "https://ntfy.example.com",
+			"ntfyTopicPlaceholder": "هشدارهای-تیم",
+			"ntfyTokenPlaceholder": "توکن Bearer اختیاری",
+			"ntfyTokenHintConfigured": "یک توکن از قبل پیکربندی شده است ({{masked}}). برای جایگزینی آن، توکن جدیدی وارد کنید.",
+			"ntfyTokenHintOptional": "اختیاری. اگر سرور ntfy شما نیاز به احراز هویت دارد، یک توکن وارد کنید.",
+			"connectNtfy": "اتصال به ntfy",
+			"gotifyTitle": "Gotify",
+			"gotifyDescription": "اعلان‌های حساب را به سرور Gotify خود ارسال کنید.",
+			"gotifyTokenLabel": "توکن برنامه",
+			"gotifyServerPlaceholder": "https://gotify.example.com",
+			"gotifyTokenPlaceholder": "توکن برنامه Gotify",
+			"gotifyTokenHintConfigured": "یک توکن برنامه از قبل پیکربندی شده است ({{masked}}). برای جایگزینی آن، توکن جدیدی وارد کنید.",
+			"gotifyTokenHintRequired": "الزامی. از سرور Gotify خود یک توکن برنامه استفاده کنید.",
+			"connectGotify": "اتصال به Gotify",
+			"webhookTitle": "وب‌هوک سفارشی",
+			"webhookDescription": "اعلان‌های حساب را به‌صورت JSON به نقطه‌پایان خود ارسال کنید.",
+			"endpointUrl": "آدرس نقطه‌پایان",
+			"signingSecret": "کلید امضای محرمانه",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookSecretPlaceholder": "کلید محرمانه مشترک اختیاری",
+			"webhookSecretHintConfigured": "یک کلید امضا از قبل پیکربندی شده است ({{masked}}). برای جایگزینی، کلید جدیدی وارد کنید.",
+			"webhookSecretHintOptional": "اختیاری. اگر کلیدی تنظیم شود، Kaneo بدنه درخواست را امضا می‌کند.",
+			"connectWebhook": "اتصال به وب‌هوک",
+			"workspaceRulesTitle": "قوانین تحویل فضای کاری",
+			"workspaceRulesDescription": "از کانال‌های سراسری خود دوباره استفاده کنید، سپس تصمیم بگیرید کدام فضاهای کاری و پروژه‌ها مجاز به ارسال اعلان حساب هستند.",
+			"workspaceCardHint": "انتخاب کنید این فضای کاری از کدام کانال‌ها برای اعلان‌های حساب استفاده کند.",
+			"workspaceEnabledLabel": "فعال‌سازی اعلان‌ها برای {{workspaceName}}",
+			"eventPreferencesTitle": "به من اطلاع بده",
+			"eventPreferencesDescription": "انتخاب کنید کدام رویدادهای تیکت اعلان درون‌برنامه‌ای ایجاد کنند و بتوانند به کانال‌های متصل شما ارسال شوند.",
+			"eventTaskAssignments": "اختصاص‌دادن تیکت",
+			"eventComments": "نظرات و اشاره‌ها",
+			"eventCommentsHint": "شامل نظرات جدید در تیکت‌های اختصاص‌داده‌شده به شما و اشاره‌های مستقیم با @ می‌شود.",
+			"eventStatusChanges": "تغییر وضعیت تیکت",
+			"eventDueDateReminders": "یادآوری تاریخ سررسید",
+			"reminderLeadTimeLabel": "قبل از تاریخ سررسید به من یادآوری کن",
+			"reminderLeadTimeHint": "بین ۱ ساعت تا ۳۰ روز قبل از سررسید. اعلان‌های دیرکرد جداگانه ارسال می‌شوند.",
+			"reminderLeadTimeUnitHours": "ساعت",
+			"reminderLeadTimeUnitDays": "روز",
+			"reminderLeadTimeInvalid": "عددی صحیح بین ۱ تا {{max}} وارد کنید.",
+			"saveEventPreferences": "ذخیره انواع اعلان",
+			"workspaceCardLabelEmail": "ایمیل",
+			"workspaceCardLabelNtfy": "ntfy",
+			"workspaceCardLabelGotify": "Gotify",
+			"workspaceCardLabelWebhook": "وب‌هوک سفارشی",
+			"emailChannelHintEnabled": "ارسال اعلان‌های فضای کاری مطابق با ایمیل.",
+			"emailChannelHintDisabled": "ابتدا ایمیل را به‌صورت سراسری پیکربندی و فعال کنید.",
+			"ntfyChannelHintEnabled": "ارسال اعلان‌های فضای کاری مطابق به ntfy.",
+			"ntfyChannelHintDisabled": "ابتدا ntfy را به‌صورت سراسری پیکربندی و فعال کنید.",
+			"gotifyChannelHintEnabled": "ارسال اعلان‌های فضای کاری مطابق به Gotify.",
+			"gotifyChannelHintDisabled": "ابتدا Gotify را به‌صورت سراسری پیکربندی و فعال کنید.",
+			"webhookChannelHintEnabled": "ارسال اعلان‌های فضای کاری مطابق به وب‌هوک شما.",
+			"webhookChannelHintDisabled": "ابتدا وب‌هوک را به‌صورت سراسری پیکربندی و فعال کنید.",
+			"projectScope": "محدوده پروژه",
+			"projectScopeDescription": "همه پروژه‌ها به‌صورت پیش‌فرض شامل می‌شوند. اگر این فضای کاری باید فقط از پروژه‌های انتخاب‌شده اعلان ارسال کند، آن را محدود کنید.",
+			"allProjects": "همه پروژه‌ها",
+			"allProjectsDescription": "ارسال اعلان‌ها از هر پروژه در این فضای کاری.",
+			"selectedProjects": "پروژه‌های انتخاب‌شده",
+			"selectedProjectsDescription": "فقط از پروژه‌های انتخاب‌شده اعلان ارسال کن.",
+			"noProjectsInWorkspace": "هنوز پروژه‌ای برای این فضای کاری موجود نیست.",
+			"createRule": "ایجاد قانون",
+			"removeRule": "حذف قانون",
+			"toastEmailSaved": "تنظیمات اعلان ایمیل ذخیره شد",
+			"toastEmailSaveFailed": "ذخیره تنظیمات ایمیل ناموفق بود",
+			"toastNtfySaved": "تنظیمات ntfy ذخیره شد",
+			"toastNtfySaveFailed": "ذخیره تنظیمات ntfy ناموفق بود",
+			"toastNtfyDisconnected": "اتصال ntfy قطع شد",
+			"toastNtfyDisconnectFailed": "قطع اتصال ntfy ناموفق بود",
+			"toastGotifySaved": "تنظیمات Gotify ذخیره شد",
+			"toastGotifySaveFailed": "ذخیره تنظیمات Gotify ناموفق بود",
+			"toastGotifyDisconnected": "اتصال Gotify قطع شد",
+			"toastGotifyDisconnectFailed": "قطع اتصال Gotify ناموفق بود",
+			"toastWebhookSaved": "تنظیمات وب‌هوک ذخیره شد",
+			"toastWebhookSaveFailed": "ذخیره تنظیمات وب‌هوک ناموفق بود",
+			"toastWebhookDisconnected": "اتصال وب‌هوک قطع شد",
+			"toastWebhookDisconnectFailed": "قطع اتصال وب‌هوک ناموفق بود",
+			"toastRuleSaved": "قانون اعلان برای {{workspaceName}} ذخیره شد",
+			"toastRuleSaveFailed": "ذخیره قانون اعلان فضای کاری ناموفق بود",
+			"toastRuleRemoved": "قانون اعلان برای {{workspaceName}} حذف شد",
+			"toastRuleRemoveFailed": "حذف قانون اعلان فضای کاری ناموفق بود",
+			"toastPreferencesSaved": "ترجیحات اعلان ذخیره شد",
+			"toastPreferencesSaveFailed": "ذخیره ترجیحات اعلان ناموفق بود",
+			"toastRuleSavedGeneric": "قانون اعلان فضای کاری ذخیره شد",
+			"toastRuleRemovedGeneric": "قانون اعلان فضای کاری حذف شد"
+		},
+		"preferencesPage": {
+			"title": "ترجیحات",
+			"subtitle": "تجربه Kaneo خود را سفارشی کنید.",
+			"appearanceTitle": "ظاهر",
+			"appearanceSubtitle": "تنظیمات بصری و ترجیحات چیدمان.",
+			"theme": "پوسته",
+			"themeDescription": "طرح رنگی موردنظر خود را انتخاب کنید",
+			"selectTheme": "انتخاب پوسته",
+			"themeLight": "روشن",
+			"themeDark": "تاریک",
+			"themeSystem": "سیستم",
+			"language": "زبان",
+			"languageDescription": "زبان رابط موردنظر خود را انتخاب کنید",
+			"selectLanguage": "انتخاب زبان",
+			"firstDayOfWeek": "اولین روز هفته",
+			"firstDayOfWeekDescription": "انتخاب کنید تقویم‌ها و بازه‌های هفتگی از چه روزی شروع شوند",
+			"selectFirstDayOfWeek": "انتخاب اولین روز",
+			"weekStartsOnSunday": "یکشنبه",
+			"weekStartsOnMonday": "دوشنبه",
+			"weekStartsOnSaturday": "شنبه",
+			"defaultView": "نمای پیش‌فرض",
+			"defaultViewDescription": "حالت نمای تیکت موردنظر خود را انتخاب کنید",
+			"selectViewMode": "انتخاب حالت نما",
+			"board": "برد",
+			"list": "فهرست",
+			"gantt": "گانت",
+			"sidebarDefault": "پیش‌فرض نوار کناری",
+			"sidebarDefaultDescription": "در هنگام راه‌اندازی، نوار کناری باز بماند",
+			"displayOptions": "گزینه‌های نمایش",
+			"displayOptionsDescription": "انتخاب کنید کدام اطلاعات در نماهای تیکت نشان داده شود",
+			"taskNumbers": "شماره تیکت‌ها",
+			"taskNumbersDescription": "نمایش شناسه و شماره تیکت‌ها",
+			"assignees": "مسئولین",
+			"assigneesDescription": "نمایش اینکه چه کسی به تیکت‌ها اختصاص داده شده",
+			"dueDates": "تاریخ سررسید",
+			"dueDatesDescription": "نمایش مهلت تیکت‌ها",
+			"labels": "برچسب‌ها",
+			"labelsDescription": "نمایش برچسب‌ها و تگ‌های تیکت",
+			"priority": "اولویت",
+			"priorityDescription": "نمایش شاخص‌های اولویت"
+		},
+		"developerPage": {
+			"pageTitle": "تنظیمات توسعه‌دهنده",
+			"title": "تنظیمات توسعه‌دهنده",
+			"subtitle": "کلیدهای API و منابع توسعه‌دهنده خود را مدیریت کنید.",
+			"apiKeysCardTitle": "کلیدهای API",
+			"apiKeysCardDescription": "برای دسترسی برنامه‌نویسی به Kaneo کلیدهای API ایجاد و مدیریت کنید.",
+			"createApiKey": "ایجاد کلید API",
+			"unnamedKey": "کلید بدون نام"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "کلید API ایجاد شد",
+				"description": "کلید API شما «{{keyName}}» با موفقیت ایجاد شد.",
+				"yourApiKey": "کلید API شما",
+				"copy": "کپی",
+				"copied": "کپی شد",
+				"toastCopied": "کلید API در کلیپ‌بورد کپی شد",
+				"alertTitle": "موفق! کلید API شما ایجاد شد",
+				"alertDescription": "همین حالا این کلید را کپی کنید. دیگر نمی‌توانید آن را ببینید.",
+				"done": "انجام شد",
+				"copyToContinue": "برای ادامه، کلید را کپی کنید"
+			},
+			"table": {
+				"loading": "در حال بارگذاری کلیدهای API...",
+				"empty": "هنوز کلید API ندارید. برای شروع، یکی ایجاد کنید.",
+				"columnName": "نام",
+				"columnKey": "کلید",
+				"columnCreated": "ایجاد شده",
+				"columnExpires": "انقضا",
+				"columnActions": "عملیات",
+				"unnamedKey": "کلید بدون نام",
+				"expiredBadge": "منقضی‌شده {{label}}",
+				"deleteConfirmTitle": "کلید API حذف شود؟",
+				"deleteConfirmDescription": "این عمل قابل بازگشت نیست. {{name}} به‌صورت دائمی حذف خواهد شد.",
+				"deleteFallbackName": "این کلید API",
+				"delete": "حذف",
+				"deleting": "در حال حذف...",
+				"deleteAria": "حذف {{name}}",
+				"deleteAriaFallback": "کلید API",
+				"toastDeleted": "کلید API با موفقیت حذف شد",
+				"toastDeleteError": "حذف کلید API ناموفق بود"
+			},
+			"createDialog": {
+				"title": "ایجاد کلید API",
+				"description": "برای دسترسی برنامه‌نویسی به API کینو، کلید API جدیدی ایجاد کنید.",
+				"nameLabel": "نام",
+				"namePlaceholder": "کلید API من",
+				"nameDescription": "نام توصیفی برای این کلید API",
+				"expirationLabel": "انقضا",
+				"expirationPlaceholder": "انتخاب زمان انقضا",
+				"expirationDescription": "انتخاب کنید این کلید API تا چه مدت معتبر بماند. «هرگز» کلیدی بدون انقضای خودکار ایجاد می‌کند.",
+				"expiration1d": "۱ روز",
+				"expiration7d": "۷ روز",
+				"expiration30d": "۳۰ روز",
+				"expiration90d": "۹۰ روز",
+				"expirationNever": "هرگز",
+				"create": "ایجاد",
+				"creating": "در حال ایجاد...",
+				"failedCreate": "ایجاد کلید API ناموفق بود",
+				"validation": {
+					"nameRequired": "نام الزامی است",
+					"nameShort": "نام باید حداقل ۳ کاراکتر باشد",
+					"expirationRequired": "انقضا الزامی است"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "تنظیمات عمومی",
+			"title": "تنظیمات عمومی",
+			"subtitle": "نام و توضیحات فضای کاری خود را مدیریت کنید.",
+			"workspaceInfoTitle": "اطلاعات فضای کاری",
+			"workspaceInfoSubtitle": "جزئیات و ترجیحات فضای کاری خود را پیکربندی کنید.",
+			"nameLabel": "نام فضای کاری",
+			"nameHint": "نام فضای کاری شما",
+			"namePlaceholder": "نام فضای کاری را وارد کنید",
+			"descriptionLabel": "توضیحات",
+			"descriptionHint": "توضیح کوتاهی درباره فضای کاری شما",
+			"descriptionPlaceholder": "توضیحات فضای کاری را وارد کنید",
+			"dangerZone": "منطقه خطر",
+			"dangerZoneSubtitle": "عملیات غیرقابل بازگشت و مخرب.",
+			"deleteWorkspace": "حذف فضای کاری",
+			"deleteWorkspaceDescription": "زمان‌بندی حذف دائمی فضای کاری",
+			"deleteModalTitle": "فضای کاری حذف شود؟",
+			"deleteModalDescription": "این فضای کاری «{{name}}» و تمام داده‌های آن به‌صورت دائمی حذف خواهد شد. این عمل قابل بازگشت نیست.",
+			"deleteModalConfirm": "حذف فضای کاری",
+			"toastUpdated": "فضای کاری با موفقیت به‌روزرسانی شد",
+			"toastUpdateError": "به‌روزرسانی فضای کاری ناموفق بود",
+			"toastDeleted": "فضای کاری با موفقیت حذف شد",
+			"toastDeleteError": "حذف فضای کاری ناموفق بود",
+			"validation": {
+				"nameRequired": "نام فضای کاری الزامی است",
+				"nameShort": "نام فضای کاری باید حداقل ۲ کاراکتر باشد"
+			},
+			"transferOwnership": {
+				"toastSuccess": "مالکیت منتقل شد",
+				"toastError": "انتقال مالکیت ناموفق بود",
+				"title": "انتقال مالکیت",
+				"subtitle": "این فضای کاری را به عضو دیگری بسپارید. شما به مدیر تنزل می‌یابید و قابلیت‌های مخصوص مالک را از دست می‌دهید.",
+				"pickerLabel": "مالک جدید",
+				"noEligibleMembers": "قبل از انتقال مالکیت، حداقل یک عضو دیگر دعوت کنید.",
+				"pickerHint": "آن‌ها مالک انحصاری این فضای کاری می‌شوند.",
+				"pickerPlaceholder": "انتخاب یک عضو",
+				"button": "انتقال",
+				"dialogTitle": "مالکیت منتقل شود؟",
+				"dialogDescription": "{{name}} مالک انحصاری {{workspace}} خواهد شد. شما دسترسی مدیر را حفظ می‌کنید اما قابلیت‌های مخصوص مالک مانند حذف فضای کاری یا انتقال مجدد آن را از دست می‌دهید.",
+				"transferring": "در حال انتقال…",
+				"confirm": "انتقال مالکیت"
+			}
+		},
+		"workspaceRoles": {
+			"pageTitle": "نقش‌ها",
+			"title": "نقش‌ها",
+			"subtitle": "تعریف کنید اعضا در {{workspaceName}} چه اقداماتی می‌توانند انجام دهند.",
+			"thisWorkspace": "این فضای کاری",
+			"noAccess": "برای مدیریت نقش‌های فضای کاری به مجوز مدیر یا مالک نیاز دارید.",
+			"sectionTitle": "نقش‌های فضای کاری",
+			"sectionSubtitle": "نقش‌های پیش‌فرض را ویرایش کنید یا نقش سفارشی اضافه کنید. اعضا در طول ویرایش‌ها، نام نقش اختصاص‌داده‌شده خود را حفظ می‌کنند.",
+			"newRole": "نقش جدید",
+			"loading": "در حال بارگذاری…",
+			"loadError": "بارگذاری نقش‌ها ناموفق بود.",
+			"emptyTitle": "هنوز نقشی نیست",
+			"emptyDescription": "پس از راه‌اندازی، نقش‌های پیش‌فرض در اینجا ظاهر می‌شوند.",
+			"defaultBadge": "پیش‌فرض",
+			"permissionCount_one": "{{count}} مجوز",
+			"permissionCount_other": "{{count}} مجوز",
+			"nameLabel": "نام",
+			"nameHint": "حروف کوچک. بعداً قابل تغییر نیست.",
+			"namePlaceholder": "مثلاً بازبین",
+			"discard": "رد کردن",
+			"createRole": "ایجاد نقش",
+			"deleteRole": "حذف نقش",
+			"defaultRoleHelp": "نقش پیش‌فرض: نام رزرو شده است و ردیف قابل حذف نیست.",
+			"unsavedChanges": "تغییرات ذخیره‌نشده دارید",
+			"allChangesSaved": "همه تغییرات ذخیره شد",
+			"saveChanges": "ذخیره تغییرات",
+			"defaultRoleDescriptions": {
+				"viewer": "می‌تواند تیکت‌ها را مشاهده و روی آن‌ها نظر دهد.",
+				"member": "می‌تواند تیکت‌ها و پروژه‌ها را ایجاد و مدیریت کند.",
+				"admin": "دسترسی کامل به فضای کاری دارد."
+			},
+			"resources": {
+				"project": "پروژه‌ها",
+				"task": "تیکت‌ها",
+				"label": "برچسب‌ها",
+				"workspace": "فضای کاری"
+			},
+			"permissions": {
+				"project": {
+					"create": {
+						"label": "ایجاد",
+						"description": "می‌تواند پروژه جدید ایجاد کند"
+					},
+					"read": {
+						"label": "خواندن",
+						"description": "می‌تواند پروژه‌ها را مشاهده کند"
+					},
+					"update": {
+						"label": "به‌روزرسانی",
+						"description": "می‌تواند تنظیمات پروژه را ویرایش کند"
+					},
+					"delete": {
+						"label": "حذف",
+						"description": "می‌تواند پروژه‌ها را حذف کند"
+					},
+					"share": {
+						"label": "اشتراک‌گذاری",
+						"description": "می‌تواند پروژه‌ها را به اشتراک بگذارد"
+					}
+				},
+				"task": {
+					"create": {
+						"label": "ایجاد",
+						"description": "می‌تواند تیکت ایجاد کند"
+					},
+					"read": {
+						"label": "خواندن",
+						"description": "می‌تواند تیکت‌ها را مشاهده کند"
+					},
+					"update": {
+						"label": "به‌روزرسانی",
+						"description": "می‌تواند تیکت‌ها را ویرایش کند"
+					},
+					"delete": {
+						"label": "حذف",
+						"description": "می‌تواند تیکت‌ها را حذف کند"
+					},
+					"assign": {
+						"label": "اختصاص‌دادن",
+						"description": "می‌تواند تیکت‌ها را به اعضا اختصاص دهد"
+					}
+				},
+				"label": {
+					"create": {
+						"label": "ایجاد",
+						"description": "می‌تواند برچسب ایجاد کند"
+					},
+					"read": {
+						"label": "خواندن",
+						"description": "می‌تواند برچسب‌ها را مشاهده کند"
+					},
+					"update": {
+						"label": "به‌روزرسانی",
+						"description": "می‌تواند برچسب‌ها را ویرایش کند"
+					},
+					"delete": {
+						"label": "حذف",
+						"description": "می‌تواند برچسب‌ها را حذف کند"
+					}
+				},
+				"workspace": {
+					"read": {
+						"label": "خواندن",
+						"description": "می‌تواند تنظیمات فضای کاری را مشاهده کند"
+					},
+					"update": {
+						"label": "به‌روزرسانی",
+						"description": "می‌تواند تنظیمات فضای کاری را به‌روزرسانی کند"
+					},
+					"delete": {
+						"label": "حذف",
+						"description": "می‌تواند فضای کاری را حذف کند"
+					},
+					"manage_settings": {
+						"label": "مدیریت تنظیمات",
+						"description": "می‌تواند تنظیمات فضای کاری را مدیریت کند"
+					}
+				}
+			},
+			"validation": {
+				"nameRequired": "نام نقش الزامی است",
+				"nameExists": "نقشی با این نام از قبل وجود دارد",
+				"permissionRequired": "حداقل یک مجوز باید انتخاب شود"
+			},
+			"toast": {
+				"created": "نقش ایجاد شد",
+				"createError": "ایجاد نقش ناموفق بود",
+				"updated": "نقش به‌روزرسانی شد",
+				"updateError": "به‌روزرسانی نقش ناموفق بود",
+				"deleted": "نقش حذف شد",
+				"deleteError": "حذف نقش ناموفق بود"
+			},
+			"deleteDialog": {
+				"title": "حذف نقش",
+				"description": "نقش «{{role}}» به‌صورت دائمی حذف خواهد شد. اعضای دارای این نقش، مجوزهای آن را از دست می‌دهند."
+			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "تنظیمات برچسب",
+			"title": "برچسب‌ها",
+			"subtitle": "برچسب‌های سطح فضای کاری را ایجاد، ویرایش و حذف کنید.",
+			"cardDescription": "مدیریت برچسب‌هایی که می‌توان به تیکت‌ها اختصاص داد.",
+			"createLabel": "ایجاد برچسب",
+			"editLabel": "ویرایش برچسب",
+			"deleteLabel": "حذف",
+			"saveLabel": "ذخیره",
+			"nameLabel": "نام برچسب",
+			"namePlaceholder": "نام برچسب را وارد کنید",
+			"colorLabel": "رنگ",
+			"createDescription": "برچسب جدیدی ایجاد کنید که در تیکت‌های این فضای کاری قابل استفاده باشد.",
+			"editDescription": "نام یا رنگ این برچسب را به‌روزرسانی کنید.",
+			"deleteConfirmTitle": "این برچسب حذف شود؟",
+			"deleteConfirmDescription": "این برچسب به‌صورت دائمی از همه تیکت‌ها حذف خواهد شد. این عمل قابل بازگشت نیست.",
+			"empty": "هنوز برچسبی نیست. برای شروع، اولین برچسب خود را ایجاد کنید.",
+			"createSuccess": "برچسب ایجاد شد",
+			"updateSuccess": "برچسب به‌روزرسانی شد",
+			"deleteSuccess": "برچسب حذف شد",
+			"createError": "ایجاد برچسب ناموفق بود",
+			"updateError": "به‌روزرسانی برچسب ناموفق بود",
+			"deleteError": "حذف برچسب ناموفق بود",
+			"nameRequired": "نام برچسب الزامی است"
+		},
+		"projectGeneral": {
+			"pageTitle": "تنظیمات پروژه",
+			"title": "تنظیمات عمومی",
+			"subtitle": "نام، کلید، نماد و توضیحات پروژه خود را مدیریت کنید.",
+			"projectInfoTitle": "اطلاعات پروژه",
+			"projectInfoSubtitle": "جزئیات و ترجیحات پروژه خود را پیکربندی کنید.",
+			"iconLabel": "نماد",
+			"iconHint": "در نوار کناری و سطوح پروژه نمایش داده می‌شود.",
+			"pickIconTitle": "انتخاب نماد",
+			"searchIconsPlaceholder": "جستجوی نماد...",
+			"projectNameLabel": "نام پروژه",
+			"projectNameHint": "نام پروژه شما",
+			"projectNamePlaceholder": "نام پروژه را وارد کنید",
+			"keyLabel": "کلید",
+			"keyHint": "برای شناسه تیکت‌ها استفاده می‌شود (مثلاً {{slug}}-123)",
+			"keyPlaceholder": "PRJ",
+			"descriptionLabel": "توضیحات",
+			"descriptionHint": "توضیح کوتاهی درباره پروژه شما",
+			"descriptionPlaceholder": "توضیحات پروژه را وارد کنید",
+			"dangerZone": "منطقه خطر",
+			"dangerZoneSubtitle": "عملیات غیرقابل بازگشت و مخرب.",
+			"deleteProject": "حذف پروژه",
+			"deleteProjectDescription": "زمان‌بندی حذف دائمی پروژه",
+			"deleteModalTitle": "پروژه حذف شود؟",
+			"deleteModalDescription": "پروژه «{{name}}» و تمام داده‌های آن به‌صورت دائمی حذف خواهد شد. این عمل قابل بازگشت نیست.",
+			"deleteModalConfirm": "حذف پروژه",
+			"toastUpdated": "پروژه با موفقیت به‌روزرسانی شد",
+			"toastUpdateError": "به‌روزرسانی پروژه ناموفق بود",
+			"toastDeleted": "پروژه با موفقیت حذف شد",
+			"toastDeleteError": "حذف پروژه ناموفق بود",
+			"validation": {
+				"nameRequired": "نام پروژه الزامی است",
+				"keyRequired": "کلید الزامی است",
+				"keyMax": "کلید باید حداکثر ۸ کاراکتر باشد",
+				"iconRequired": "نماد الزامی است"
+			},
+			"importExportTasks": "وارد/صادر کردن",
+			"importExportTasksDescription": "وارد و صادر کردن تیکت‌ها."
+		},
+		"projectIntegrations": {
+			"pageTitle": "ادغام‌های پروژه",
+			"title": "ادغام‌های پروژه",
+			"subtitle": "برای ساده‌سازی گردش کار خود، پروژه را به ابزارها و سرویس‌های خارجی متصل کنید.",
+			"githubSectionTitle": "ادغام گیت‌هاب",
+			"githubSectionSubtitle": "همگام‌سازی تیکت‌ها با ایشوهای گیت‌هاب و فعال‌سازی همگام‌سازی دوطرفه.",
+			"giteaSectionTitle": "ادغام Gitea",
+			"giteaSectionSubtitle": "همگام‌سازی تیکت‌ها با یک نمونه Gitea خودمیزبان (ایشوها، PRها، وب‌هوک‌ها).",
+			"discordSectionTitle": "ادغام دیسکورد",
+			"discordSectionSubtitle": "ارسال به‌روزرسانی‌های تیکت پروژه به یک کانال دیسکورد با وب‌هوک.",
+			"genericWebhookSectionTitle": "وب‌هوک‌های عمومی",
+			"genericWebhookSectionSubtitle": "ارسال رویدادهای تیکت پروژه به هر نقطه‌پایان HTTP به‌صورت JSON.",
+			"slackSectionTitle": "ادغام اسلک",
+			"slackSectionSubtitle": "ارسال به‌روزرسانی‌های تیکت پروژه به یک کانال اسلک با وب‌هوک ورودی.",
+			"telegramSectionTitle": "ادغام تلگرام",
+			"telegramSectionSubtitle": "ارسال به‌روزرسانی‌های تیکت پروژه به یک گفتگو یا موضوع تلگرام با ربات."
+		},
+		"projectVisibility": {
+			"pageTitle": "قابلیت مشاهده پروژه",
+			"title": "قابلیت مشاهده",
+			"subtitle": "کنترل کنید چه کسی می‌تواند پروژه شما را مشاهده و به آن دسترسی داشته باشد.",
+			"sectionTitle": "قابلیت مشاهده",
+			"sectionSubtitle": "دسترسی عمومی را تغییر دهید و آدرس عمومی را به اشتراک بگذارید.",
+			"publicAccess": "دسترسی عمومی",
+			"publicAccessHint": "به هر کسی با آدرس این اجازه را بدهید که این پروژه را مشاهده کند",
+			"publicUrl": "آدرس عمومی",
+			"publicUrlHint": "اگر پروژه عمومی است این پیوند را به اشتراک بگذارید",
+			"copy": "کپی",
+			"copiedToast": "کپی شد",
+			"toastUpdated": "قابلیت مشاهده به‌روزرسانی شد",
+			"toastUpdateError": "به‌روزرسانی قابلیت مشاهده ناموفق بود"
+		},
+		"projectWorkflow": {
+			"pageTitle": "تنظیمات گردش کار",
+			"title": "گردش کار",
+			"subtitle": "ستون‌های برد و قوانین خودکارسازی را برای این پروژه پیکربندی کنید.",
+			"columnsTitle": "ستون‌ها",
+			"columnsDescription": "ستون‌هایی را که در برد شما ظاهر می‌شوند مدیریت کنید. برای مرتب‌سازی مجدد بکشید. برای مراحلی که کار تکمیل‌شده را نشان می‌دهند، «ستون انجام‌شده» را فعال کنید.",
+			"automationTitle": "قوانین خودکارسازی",
+			"automationDescription": "رویدادهای ادغام را به ستون‌ها نگاشت کنید. وقتی رویدادی رخ می‌دهد، تیکت مرتبط به ستون مشخص‌شده منتقل می‌شود."
+		},
+		"projectSwitcher": {
+			"selectProject": "انتخاب پروژه",
+			"noProjects": "پروژه‌ای نیست"
+		},
+		"columnEditor": {
+			"toastCreated": "ستون ایجاد شد",
+			"toastCreateError": "ایجاد ستون ناموفق بود",
+			"toastRenamed": "ستون تغییر نام داد",
+			"toastRenameError": "به‌روزرسانی ستون ناموفق بود",
+			"toastFinalOn": "ستون به‌عنوان نهایی علامت‌گذاری شد",
+			"toastFinalOff": "علامت نهایی ستون برداشته شد",
+			"toastUpdateError": "به‌روزرسانی ستون ناموفق بود",
+			"toastIconUpdated": "نماد ستون به‌روزرسانی شد",
+			"toastDeleted": "ستون حذف شد",
+			"toastDeleteError": "حذف ستون ناموفق بود",
+			"loading": "در حال بارگذاری ستون‌ها...",
+			"pickIconTitle": "انتخاب نماد ستون",
+			"searchIconsPlaceholder": "جستجوی نماد...",
+			"doneColumnTooltip": "این را به‌عنوان ستون انجام‌شده در نظر بگیر",
+			"doneColumn": "ستون انجام‌شده",
+			"markDoneAria": "علامت‌گذاری {{name}} به‌عنوان ستون انجام‌شده",
+			"on": "روشن",
+			"off": "خاموش",
+			"newColumnPlaceholder": "نام ستون جدید...",
+			"add": "افزودن"
+		},
+		"githubIntegration": {
+			"validation": {
+				"ownerRequired": "مالک مخزن الزامی است",
+				"ownerInvalid": "قالب مالک مخزن نامعتبر است",
+				"nameRequired": "نام مخزن الزامی است",
+				"nameInvalid": "قالب نام مخزن نامعتبر است"
+			},
+			"toast": {
+				"installedOk": "برنامه گیت‌هاب به‌درستی نصب شده است!",
+				"installedMissingPerms": "برنامه گیت‌هاب نصب است اما مجوزهای لازم را ندارد",
+				"needsInstallOnRepo": "برنامه گیت‌هاب باید روی این مخزن نصب شود",
+				"repoNotFound": "مخزن یافت نشد یا در دسترس نیست",
+				"verifyError": "تأیید نصب گیت‌هاب ناموفق بود",
+				"installAppFirst": "لطفاً ابتدا برنامه گیت‌هاب را روی این مخزن نصب کنید",
+				"missingPermsDetail": "برنامه گیت‌هاب فاقد مجوزهای لازم است: {{list}}. لطفاً مجوزهای برنامه را به‌روزرسانی کنید.",
+				"updated": "ادغام گیت‌هاب با موفقیت به‌روزرسانی شد",
+				"updateError": "به‌روزرسانی ادغام گیت‌هاب ناموفق بود",
+				"removed": "ادغام گیت‌هاب با موفقیت حذف شد",
+				"removeError": "حذف ادغام گیت‌هاب ناموفق بود",
+				"issuesImported": "ایشوها با موفقیت وارد شدند",
+				"importError": "وارد کردن ایشوها ناموفق بود",
+				"commentOnEnabled": "Kaneo روی ایشوهای جدید با پیوند تیکت نظر می‌گذارد",
+				"commentOnDisabled": "نظرات پیوند تیکت روی ایشوهای جدید خاموش است",
+				"settingsUpdateError": "به‌روزرسانی ادغام گیت‌هاب ناموفق بود"
+			},
+			"connectionStatus": "وضعیت اتصال",
+			"connectedActive": "مخزن متصل و فعال",
+			"notConnectedHint": "مخزنی متصل نیست",
+			"badgeConnected": "متصل",
+			"badgeNotConnected": "متصل نیست",
+			"repository": "مخزن",
+			"repositoryHint": "مخزن گیت‌هاب متصل",
+			"commentTaskLinkTitle": "ارسال نظر با پیوند Kaneo روی ایشوهای جدید",
+			"commentTaskLinkHint": "وقتی فعال باشد، Kaneo روی هر ایشو جدید گیت‌هاب نظری با پیوند تیکت ارسال می‌کند.",
+			"appStatusTitle": "وضعیت برنامه گیت‌هاب",
+			"appStatusHint": "وضعیت نصب و مجوزها",
+			"statusProperlyConfigured": "به‌درستی پیکربندی شده",
+			"statusMissingPermissions": "مجوزها کم است",
+			"statusNotInstalled": "نصب نشده",
+			"ownerLabel": "مالک مخزن",
+			"ownerHint": "نام کاربری یا سازمان گیت‌هاب",
+			"ownerPlaceholder": "مثلاً octocat",
+			"repoNameLabel": "نام مخزن",
+			"repoNameHint": "نام مخزن",
+			"repoNamePlaceholder": "مثلاً my-project",
+			"actionsTitle": "عملیات",
+			"actionsHint": "اتصال مخزن خود را مدیریت کنید",
+			"browse": "مرور",
+			"verify": "تأیید",
+			"update": "به‌روزرسانی",
+			"connect": "اتصال",
+			"disconnect": "قطع اتصال",
+			"missingPermissionsLabel": "مجوزهای ازدست‌رفته:",
+			"updatePermissions": "به‌روزرسانی مجوزها",
+			"installGithubApp": "نصب برنامه گیت‌هاب",
+			"importSectionTitle": "وارد کردن ایشوهای گیت‌هاب",
+			"importSectionHint": "ایشوهای موجود را از مخزن گیت‌هاب خود به‌عنوان تیکت وارد کنید",
+			"importing": "در حال وارد کردن...",
+			"importIssues": "وارد کردن ایشوها",
+			"importDisabledHint": "برای فعال‌سازی وارد کردن، پیکربندی مخزن بالا را تکمیل کنید"
+		},
+		"giteaIntegration": {
+			"validation": {
+				"baseUrlRequired": "آدرس پایه Gitea الزامی است",
+				"baseUrlInvalid": "آدرس معتبری وارد کنید (مثلاً https://gitea.example.com)",
+				"ownerRequired": "مالک مخزن الزامی است",
+				"ownerInvalid": "قالب مالک مخزن نامعتبر است",
+				"nameRequired": "نام مخزن الزامی است",
+				"nameInvalid": "قالب نام مخزن نامعتبر است"
+			},
+			"toast": {
+				"verifyOk": "توکن Gitea می‌تواند به این مخزن دسترسی داشته باشد",
+				"verifyWarning": "مجوزهای توکن یا دسترسی مخزن را بررسی کنید",
+				"repoNotFound": "مخزن یافت نشد یا در دسترس نیست",
+				"redirected": "آدرس Gitea تغییر مسیر داد (معمولاً به HTTPS). مستقیماً از آدرس نهایی استفاده کنید.",
+				"notGiteaInstance": "این آدرس به یک نمونه Gitea اشاره نمی‌کند",
+				"verifyError": "تأیید دسترسی Gitea ناموفق بود",
+				"tokenRequired": "توکن دسترسی شخصی الزامی است",
+				"tokenRequiredVerify": "برای تأیید، یک توکن وارد کنید",
+				"verifyFirst": "تأیید دسترسی ناموفق بود. آدرس، توکن و مخزن را بررسی کنید",
+				"updated": "ادغام Gitea ذخیره شد",
+				"updateError": "ذخیره ادغام Gitea ناموفق بود",
+				"removed": "ادغام Gitea حذف شد",
+				"removeError": "حذف ادغام Gitea ناموفق بود",
+				"issuesImported": "ایشوها با موفقیت وارد شدند",
+				"importError": "وارد کردن ایشوها ناموفق بود",
+				"commentOnEnabled": "Kaneo روی ایشوهای جدید با پیوند تیکت نظر می‌گذارد",
+				"commentOnDisabled": "نظرات پیوند تیکت روی ایشوهای جدید خاموش است",
+				"settingsUpdateError": "به‌روزرسانی ادغام Gitea ناموفق بود",
+				"secretCopied": "کپی شد",
+				"unableToCopySecret": "کپی کردن کلید محرمانه ممکن نیست"
+			},
+			"webhookShow": "نمایش",
+			"webhookHide": "پنهان",
+			"webhookCopy": "کپی",
+			"connectionStatus": "وضعیت اتصال",
+			"connectedActive": "مخزن متصل و فعال",
+			"notConnectedHint": "مخزن Gitea متصلی نیست",
+			"badgeConnected": "متصل",
+			"badgeNotConnected": "متصل نیست",
+			"repository": "مخزن",
+			"repositoryHint": "مخزن Gitea متصل",
+			"commentTaskLinkTitle": "ارسال نظر با پیوند Kaneo روی ایشوهای جدید",
+			"commentTaskLinkHint": "وقتی فعال باشد، Kaneo روی هر ایشو جدید با پیوند تیکت نظر می‌گذارد.",
+			"webhookTitle": "وب‌هوک",
+			"webhookHint": "در مخزن Gitea خود، وب‌هوکی با این آدرس و کلید محرمانه اضافه کنید. رویدادهای push، pull request، ایشو، نظر ایشو و create (برای برچسب‌ها) را فعال کنید.",
+			"webhookSecretLabel": "کلید محرمانه (باید با کلید محرمانه وب‌هوک در Gitea مطابقت داشته باشد)",
+			"baseUrlLabel": "آدرس Gitea",
+			"baseUrlHint": "آدرس ریشه نمونه Gitea شما",
+			"tokenLabel": "توکن دسترسی شخصی",
+			"tokenHint": "توکن با دسترسی به مخزن و ایشوها",
+			"tokenPlaceholder": "چسباندن توکن",
+			"tokenPlaceholderUpdate": "برای تعویض، توکن جدیدی بچسبانید",
+			"currentToken": "ذخیره‌شده",
+			"ownerLabel": "مالک",
+			"ownerHint": "نام کاربر یا سازمان",
+			"repoNameLabel": "نام مخزن",
+			"repoNameHint": "فقط نام مخزن (بدون مالک)",
+			"actionsTitle": "عملیات",
+			"actionsHint": "دسترسی را تأیید و اتصال برقرار کنید",
+			"browse": "مرور",
+			"verify": "تأیید",
+			"update": "به‌روزرسانی",
+			"connect": "اتصال",
+			"disconnect": "قطع اتصال",
+			"importSectionTitle": "وارد کردن ایشوهای Gitea",
+			"importSectionHint": "ایشوهای باز و pull request‌ها را از مخزن وارد کنید",
+			"importing": "در حال وارد کردن…",
+			"importIssues": "وارد کردن ایشوها",
+			"importDisabledHint": "برای فعال‌سازی وارد کردن، مخزن بالا را تأیید کنید",
+			"browseModalTitle": "مخزن‌های شما",
+			"browseModalHint": "مخزن‌هایی که توکن شما به آن‌ها دسترسی دارد",
+			"searchRepos": "جستجو…",
+			"browseNeedsCredentials": "برای مرور، آدرس و توکن Gitea را وارد کنید",
+			"loadingRepos": "در حال بارگذاری مخزن‌ها…",
+			"retry": "تلاش مجدد"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "آدرس وب‌هوک معتبر اسلک را وارد کنید"
+			},
+			"toast": {
+				"saved": "ادغام اسلک با موفقیت ذخیره شد",
+				"saveError": "ذخیره ادغام اسلک ناموفق بود",
+				"enabled": "اعلان‌های اسلک فعال شد",
+				"disabled": "اعلان‌های اسلک مکث شد",
+				"updateError": "به‌روزرسانی ادغام اسلک ناموفق بود",
+				"removed": "ادغام اسلک با موفقیت حذف شد",
+				"removeError": "حذف ادغام اسلک ناموفق بود"
+			},
+			"connectionTitle": "اتصال وب‌هوک اسلک",
+			"connectionHint": "آدرس وب‌هوک ورودی اسلک را بچسبانید و انتخاب کنید کدام رویدادهای تیکت ارسال شوند.",
+			"connected": "متصل",
+			"paused": "مکث",
+			"webhookLabel": "آدرس وب‌هوک ورودی",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "در اسلک یک وب‌هوک ورودی ایجاد کنید و آدرس تولیدشده را اینجا بچسبانید.",
+			"channelLabel": "نام کانال",
+			"channelPlaceholder": "#به‌روزرسانی-تیم",
+			"channelHint": "برچسب اختیاری برای مرجع شما. اسلک کانال مقصد واقعی را از تنظیمات وب‌هوک کنترل می‌کند.",
+			"eventsTitle": "اعلان‌های رویداد",
+			"eventsHint": "انتخاب کنید کدام تغییرات پروژه به اسلک ارسال شوند.",
+			"events": {
+				"taskCreated": "تیکت‌های جدید",
+				"taskStatusChanged": "تغییر وضعیت",
+				"taskPriorityChanged": "تغییر اولویت",
+				"taskTitleChanged": "تغییر عنوان",
+				"taskDescriptionChanged": "تغییر توضیحات",
+				"taskCommentCreated": "نظرات جدید"
+			},
+			"connect": "اتصال به اسلک",
+			"saveChanges": "ذخیره تغییرات",
+			"update": "به‌روزرسانی اسلک",
+			"disconnect": "قطع اتصال"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "آدرس وب‌هوک معتبر دیسکورد را وارد کنید"
+			},
+			"toast": {
+				"saved": "ادغام دیسکورد با موفقیت ذخیره شد",
+				"saveError": "ذخیره ادغام دیسکورد ناموفق بود",
+				"enabled": "اعلان‌های دیسکورد فعال شد",
+				"disabled": "اعلان‌های دیسکورد مکث شد",
+				"updateError": "به‌روزرسانی ادغام دیسکورد ناموفق بود",
+				"removed": "ادغام دیسکورد با موفقیت حذف شد",
+				"removeError": "حذف ادغام دیسکورد ناموفق بود"
+			},
+			"connectionTitle": "اتصال وب‌هوک دیسکورد",
+			"connectionHint": "آدرس وب‌هوک دیسکورد را بچسبانید و انتخاب کنید کدام رویدادهای تیکت ارسال شوند.",
+			"connected": "متصل",
+			"paused": "مکث",
+			"webhookLabel": "آدرس وب‌هوک",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "یک وب‌هوک کانال دیسکورد ایجاد کنید و آدرس تولیدشده را اینجا بچسبانید.",
+			"channelLabel": "نام کانال",
+			"channelPlaceholder": "#به‌روزرسانی-تیم",
+			"channelHint": "برچسب اختیاری برای مرجع شما. دیسکورد کانال مقصد واقعی را از تنظیمات وب‌هوک کنترل می‌کند.",
+			"eventsTitle": "اعلان‌های رویداد",
+			"eventsHint": "انتخاب کنید کدام تغییرات پروژه به دیسکورد ارسال شوند.",
+			"events": {
+				"taskCreated": "تیکت‌های جدید",
+				"taskStatusChanged": "تغییر وضعیت",
+				"taskPriorityChanged": "تغییر اولویت",
+				"taskTitleChanged": "تغییر عنوان",
+				"taskDescriptionChanged": "تغییر توضیحات",
+				"taskCommentCreated": "نظرات جدید"
+			},
+			"connect": "اتصال به دیسکورد",
+			"saveChanges": "ذخیره تغییرات",
+			"update": "به‌روزرسانی دیسکورد",
+			"disconnect": "قطع اتصال"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "آدرس وب‌هوک معتبر را وارد کنید"
+			},
+			"toast": {
+				"saved": "ادغام وب‌هوک عمومی با موفقیت ذخیره شد",
+				"saveError": "ذخیره ادغام وب‌هوک عمومی ناموفق بود",
+				"enabled": "اعلان‌های وب‌هوک عمومی فعال شد",
+				"disabled": "اعلان‌های وب‌هوک عمومی مکث شد",
+				"updateError": "به‌روزرسانی ادغام وب‌هوک عمومی ناموفق بود",
+				"removed": "ادغام وب‌هوک عمومی با موفقیت حذف شد",
+				"removeError": "حذف ادغام وب‌هوک عمومی ناموفق بود"
+			},
+			"connectionTitle": "اتصال وب‌هوک خروجی",
+			"connectionHint": "رویدادهای تیکت را به‌صورت JSON به نقطه‌پایان خود ارسال کنید. وقتی کلید محرمانه پیکربندی شود، هدر امضاشده X-Kaneo-Signature شامل می‌شود.",
+			"connected": "متصل",
+			"paused": "مکث",
+			"webhookLabel": "آدرس نقطه‌پایان",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo برای هر رویداد فعال، درخواست POST با بار JSON ارسال می‌کند.",
+			"secretLabel": "کلید امضای محرمانه",
+			"secretPlaceholder": "کلید محرمانه مشترک اختیاری",
+			"secretHint": "اختیاری. اگر ارائه شود، Kaneo بدنه درخواست را امضا می‌کند و خلاصه hex را در هدر X-Kaneo-Signature ارسال می‌کند.",
+			"secretHintConfigured": "یک کلید امضا از قبل پیکربندی شده است ({{secret}}). برای جایگزینی، کلید جدیدی وارد کنید.",
+			"eventsTitle": "اعلان‌های رویداد",
+			"eventsHint": "انتخاب کنید کدام تغییرات پروژه وب‌هوک‌های خروجی را فعال کنند.",
+			"events": {
+				"taskCreated": "تیکت‌های جدید",
+				"taskStatusChanged": "تغییر وضعیت",
+				"taskPriorityChanged": "تغییر اولویت",
+				"taskTitleChanged": "تغییر عنوان",
+				"taskDescriptionChanged": "تغییر توضیحات",
+				"taskCommentCreated": "نظرات جدید",
+				"taskDeleted": "تیکت حذف شد",
+				"taskMoved": "تیکت منتقل شد",
+				"taskDueDateChanged": "تاریخ سررسید تغییر کرد",
+				"taskAssigneeChanged": "مسئول تغییر کرد",
+				"taskUnassigned": "اختصاص تیکت برداشته شد",
+				"dueDateReminder": "یادآوری تاریخ سررسید"
+			},
+			"reminderLeadTimeLabel": "ارسال وب‌هوک این چند ساعت قبل از سررسید",
+			"connect": "اتصال به وب‌هوک",
+			"saveChanges": "ذخیره تغییرات",
+			"disconnect": "قطع اتصال"
+		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "توکن معتبر ربات تلگرام را وارد کنید",
+				"chatIdRequired": "شناسه گفتگو الزامی است",
+				"threadIdInvalid": "شناسه موضوع معتبر تلگرام را وارد کنید"
+			},
+			"toast": {
+				"saved": "ادغام تلگرام با موفقیت ذخیره شد",
+				"saveError": "ذخیره ادغام تلگرام ناموفق بود",
+				"enabled": "اعلان‌های تلگرام فعال شد",
+				"disabled": "اعلان‌های تلگرام مکث شد",
+				"updateError": "به‌روزرسانی ادغام تلگرام ناموفق بود",
+				"removed": "ادغام تلگرام با موفقیت حذف شد",
+				"removeError": "حذف ادغام تلگرام ناموفق بود"
+			},
+			"connectionTitle": "اتصال ربات تلگرام",
+			"connectionHint": "برای ارسال به‌روزرسانی‌های تیکت پروژه به یک گفتگو یا موضوع، از توکن ربات و شناسه گفتگوی تلگرام استفاده کنید.",
+			"connected": "متصل",
+			"paused": "مکث",
+			"botTokenLabel": "توکن ربات",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "با BotFather یک ربات ایجاد کنید و توکن آن را اینجا بچسبانید.",
+			"botTokenHintConfigured": "یک توکن ربات از قبل پیکربندی شده است ({{token}}). برای جایگزینی، توکن جدیدی وارد کنید.",
+			"chatIdLabel": "شناسه گفتگو",
+			"chatIdPlaceholder": "-1001234567890 یا @tیم_به_روزرسانی",
+			"chatIdHint": "شناسه گفتگوی تلگرام یا نام کاربری کانالی را که باید به‌روزرسانی‌ها در آن ارسال شود وارد کنید.",
+			"threadIdLabel": "شناسه موضوع",
+			"threadIdPlaceholder": "شناسه موضوع اختیاری",
+			"threadIdHint": "اختیاری. برای موضوع‌های انجمن داخل گروه‌های تلگرام استفاده کنید.",
+			"chatLabelLabel": "برچسب گفتگو",
+			"chatLabelPlaceholder": "به‌روزرسانی‌های مهندسی",
+			"chatLabelHint": "برچسب اختیاری برای مرجع شما در داخل Kaneo.",
+			"eventsTitle": "اعلان‌های رویداد",
+			"eventsHint": "انتخاب کنید کدام تغییرات پروژه به تلگرام ارسال شوند.",
+			"events": {
+				"taskCreated": "تیکت‌های جدید",
+				"taskStatusChanged": "تغییر وضعیت",
+				"taskPriorityChanged": "تغییر اولویت",
+				"taskTitleChanged": "تغییر عنوان",
+				"taskDescriptionChanged": "تغییر توضیحات",
+				"taskCommentCreated": "نظرات جدید"
+			},
+			"connect": "اتصال به تلگرام",
+			"saveChanges": "ذخیره تغییرات",
+			"disconnect": "قطع اتصال"
+		},
+		"repositoryBrowser": {
+			"title": "انتخاب مخزن",
+			"description": "مخزنی را انتخاب کنید که برنامه گیت‌هاب شما روی آن نصب شده تا همگام‌سازی ایشو فعال شود.",
+			"searchPlaceholder": "جستجوی مخزن...",
+			"loadError": "بارگذاری مخزن‌ها ناموفق بود",
+			"tryAgain": "تلاش مجدد",
+			"emptyTitle": "مخزنی یافت نشد",
+			"emptyHint": "برای دیدن مخزن‌هایتان، برنامه گیت‌هاب را روی آن‌ها نصب کنید.",
+			"installGithubApp": "نصب برنامه گیت‌هاب",
+			"noSearchMatchTitle": "هیچ مخزنی با جستجوی شما مطابقت ندارد",
+			"noSearchMatchHint": "عبارات جستجو را تغییر دهید یا برای دیدن همه مخزن‌ها، جستجو را پاک کنید.",
+			"footerSummary": "{{repoCount}} مخزن در {{installationCount}} نصب",
+			"manageInstallations": "مدیریت نصب‌ها",
+			"updatedPrefix": "به‌روزرسانی‌شده",
+			"relativeJustNow": "همین الان",
+			"relativeMinutesAgo": "{{count}} دقیقه پیش",
+			"relativeHoursAgo": "{{count}} ساعت پیش",
+			"relativeDaysAgo": "{{count}} روز پیش"
+		},
+		"tasksImportExport": {
+			"exportTasks": "صادر کردن تیکت‌ها",
+			"importTasks": "وارد کردن تیکت‌ها",
+			"dialogTitle": "وارد کردن تیکت‌ها",
+			"dialogDescription": "برای وارد کردن به این پروژه، یک فایل JSON شامل تیکت‌ها را بارگذاری کنید.",
+			"expectedFormat": "قالب مورد انتظار:",
+			"dropHint": "فایل JSON خود را اینجا بکشید و رها کنید",
+			"selectFile": "انتخاب فایل",
+			"exporting": "در حال صادر کردن تیکت‌ها...",
+			"exportSuccess": "تیکت‌ها با موفقیت صادر شدند",
+			"exportError": "صادر کردن تیکت‌ها ناموفق بود",
+			"importing": "در حال وارد کردن تیکت‌ها...",
+			"importSuccess": "{{count}} تیکت با موفقیت وارد شد",
+			"importPartialError": "وارد کردن {{count}} تیکت ناموفق بود",
+			"importError": "وارد کردن تیکت‌ها ناموفق بود",
+			"invalidFormat": "قالب فایل ورودی نامعتبر است",
+			"noFileDropped": "فایلی رها نشد",
+			"notJsonFile": "لطفاً یک فایل JSON بارگذاری کنید"
+		},
+		"workflowEditor": {
+			"loading": "در حال بارگذاری...",
+			"createColumnsFirst": "برای پیکربندی قوانین خودکارسازی ابتدا ستون‌ها را ایجاد کنید.",
+			"githubHeading": "گیت‌هاب",
+			"githubHint": "وقتی رویدادی از گیت‌هاب رخ می‌دهد، تیکت مرتبط را به یک ستون منتقل کنید.",
+			"giteaHeading": "Gitea",
+			"giteaHint": "وقتی رویداد وب‌هوک Gitea رخ می‌دهد، تیکت مرتبط را به یک ستون منتقل کنید.",
+			"selectColumnPlaceholder": "انتخاب ستون...",
+			"toastUpdated": "قانون گردش کار به‌روزرسانی شد",
+			"toastError": "به‌روزرسانی قانون ناموفق بود",
+			"events": {
+				"branch_push": "Push شاخه",
+				"pr_opened": "PR باز شد",
+				"pr_merged": "PR ادغام شد",
+				"issue_opened": "ایشو باز شد",
+				"issue_closed": "ایشو بسته شد"
+			}
+		},
+		"externalLinks": {
+			"resources": "منابع",
+			"issue": "ایشو",
+			"branch": "شاخه",
+			"merged": "ادغام‌شده",
+			"draft": "پیش‌نویس",
+			"open": "باز"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "پیشنهادها",
+			"commands": "دستورها",
+			"projects": "پروژه‌ها",
+			"search": "جستجو",
+			"members": "اعضا",
+			"createTask": "ایجاد تیکت",
+			"createProject": "ایجاد پروژه",
+			"createWorkspace": "ایجاد فضای کاری",
+			"lightTheme": "پوسته روشن",
+			"darkTheme": "پوسته تاریک",
+			"systemTheme": "پوسته سیستم",
+			"keyboardShortcuts": "میان‌برهای صفحه‌کلید",
+			"inputPlaceholder": "جستجوی برنامه‌ها و دستورها...",
+			"empty": "نتیجه‌ای یافت نشد.",
+			"footer": {
+				"navigate": "پیمایش",
+				"open": "باز کردن",
+				"close": "بستن"
+			}
+		},
+		"notifications": "اعلان‌ها",
+		"sidebar": {
+			"overview": "نمای کلی",
+			"projects": "پروژه‌ها",
+			"members": "اعضا",
+			"invitations": "دعوت‌نامه‌ها",
+			"more": "بیشتر",
+			"backToBoard": "بازگشت به برد"
+		},
+		"projectList": {
+			"viewProject": "مشاهده پروژه",
+			"shareProject": "اشتراک‌گذاری پروژه",
+			"projectSettings": "تنظیمات پروژه",
+			"linkCopied": "پیوند پروژه در کلیپ‌بورد کپی شد",
+			"addProject": "افزودن پروژه",
+			"deleteConfirmTitle": "پروژه حذف شود؟",
+			"deleteConfirmDescription": "این پروژه و تمام داده‌های آن به‌صورت دائمی حذف خواهد شد. نمی‌توانید این عمل را بازگردانید.",
+			"deletedToast": "پروژه حذف شد",
+			"deleteProject": "حذف پروژه"
+		},
+		"search": {
+			"inputPlaceholder": "جستجوی تیکت‌ها، پروژه‌ها، نظرات...",
+			"minCharsHint": "برای جستجو حداقل ۳ کاراکتر تایپ کنید",
+			"groups": {
+				"task": "تیکت‌ها",
+				"project": "پروژه‌ها",
+				"workspace": "فضاهای کاری",
+				"comment": "نظرات",
+				"activity": "فعالیت‌ها",
+				"fallback": "نتایج"
+			}
+		},
+		"settingsLayout": {
+			"toggleSidebar": "تغییر وضعیت نوار کناری",
+			"back": "بازگشت"
+		},
+		"userMenu": {
+			"signedOutSuccess": "با موفقیت خارج شدید",
+			"signOutFailed": "خروج ناموفق بود",
+			"unnamedUser": "کاربر",
+			"settings": "تنظیمات",
+			"signingOut": "در حال خروج...",
+			"logOut": "خروج"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "فضاهای کاری",
+			"switching": "در حال جابه‌جایی...",
+			"addWorkspace": "افزودن فضای کاری",
+			"selectWorkspace": "انتخاب فضای کاری"
+		},
+		"page": {
+			"projectsTitle": "پروژه‌ها",
+			"settingsTitle": "تنظیمات",
+			"backToWorkspace": "بازگشت به فضای کاری",
+			"settingsWorkspaceTab": "فضای کاری"
+		},
+		"projectSettings": {
+			"projectLabel": "پروژه"
+		},
+		"keyboardShortcuts": {
+			"title": "میان‌برهای صفحه‌کلید",
+			"subtitle": "با میان‌برهای صفحه‌کلید، گردش کار خود را سرعت دهید",
+			"searchPlaceholder": "جستجوی میان‌بر...",
+			"footer": "برای بستن، <kbd>Escape</kbd> را فشار دهید",
+			"categories": {
+				"general": "عمومی",
+				"create": "ایجاد",
+				"views": "نماها",
+				"navigation": "پیمایش",
+				"quickSelect": "انتخاب سریع (در پاپ‌اورها)"
+			},
+			"items": {
+				"openCommandPalette": "باز کردن نوار فرمان",
+				"globalSearch": "جستجوی سراسری",
+				"toggleSidebar": "تغییر وضعیت نوار کناری",
+				"showShortcuts": "نمایش میان‌برهای صفحه‌کلید",
+				"closeModal": "بستن مودال/پاپ‌اور",
+				"createTask": "ایجاد تیکت",
+				"createProject": "ایجاد پروژه",
+				"createWorkspace": "ایجاد فضای کاری",
+				"boardView": "تغییر به نمای برد",
+				"listView": "تغییر به نمای فهرست",
+				"backlogView": "تغییر به نمای بک‌لاگ",
+				"nextTask": "تیکت بعدی",
+				"prevTask": "تیکت قبلی",
+				"openTask": "باز کردن تیکت انتخاب‌شده",
+				"quickSelectNumber": "انتخاب گزینه با شماره"
+			}
+		}
+	},
+	"notifications": {
+		"title": "اعلان‌ها",
+		"newCount_one": "{{count}} مورد جدید",
+		"newCount_other": "{{count}} مورد جدید",
+		"emptyTitle": "هنوز اعلانی نیست",
+		"emptySubtitle": "به‌روزرسانی‌ها و فعالیت‌ها را اینجا خواهید دید.",
+		"clearAll": "پاک کردن همه اعلان‌ها",
+		"clearDialogTitle": "همه اعلان‌ها پاک شوند؟",
+		"clearDialogDescription": "همه اعلان‌ها به‌صورت دائمی حذف خواهند شد. نمی‌توانید این عمل را بازگردانید.",
+		"shortcuts": {
+			"open": "باز کردن اعلان‌ها"
+		},
+		"reminderLeadTime": {
+			"minutes_one": "{{count}} دقیقه",
+			"minutes_other": "{{count}} دقیقه",
+			"hours_one": "{{count}} ساعت",
+			"hours_other": "{{count}} ساعت",
+			"days_one": "{{count}} روز",
+			"days_other": "{{count}} روز"
+		},
+		"events": {
+			"task_created": {
+				"title": "تیکت جدید ایجاد شد",
+				"content": "تیکت «{{taskTitle}}» ایجاد شد"
+			},
+			"workspace_created": {
+				"title": "فضای کاری ایجاد شد",
+				"content": "فضای کاری «{{workspaceName}}» شما با موفقیت ایجاد شد"
+			},
+			"task_status_changed": {
+				"title": "وضعیت تیکت تغییر کرد",
+				"content": "وضعیت تیکت «{{taskTitle}}» از «{{oldStatus}}» به «{{newStatus}}» تغییر کرد"
+			},
+			"task_assignee_changed": {
+				"title": "تیکت به شما اختصاص داده شد",
+				"content": "شما به تیکت اختصاص داده شده‌اید: {{taskTitle}}"
+			},
+			"task_mention": {
+				"title": "{{mentionerName}} به شما اشاره کرد",
+				"content": "{{mentionerName}} در تیکت به شما اشاره کرد: {{taskTitle}}"
+			},
+			"task_comment": {
+				"title": "{{commenterName}} روی تیکت شما نظر داد",
+				"content": "نظر جدید روی {{taskTitle}}: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "سررسید تیکت نزدیک است",
+				"content": "سررسید {{taskTitle}} تا {{leadTime}} دیگر است"
+			},
+			"task_overdue": {
+				"title": "سررسید تیکت گذشته است",
+				"content": "سررسید {{taskTitle}} گذشته است"
+			},
+			"time_entry_created": {
+				"title": "ردیابی زمان شروع شد",
+				"contentWithTask": "ردیابی زمان روی تیکت شروع شد: {{taskTitle}}",
+				"contentWithoutTask": "ردیابی زمان روی یک تیکت شروع شد"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "تیکت را به خودش اختصاص داد",
+		"unassigned": "اختصاص تیکت را برداشت",
+		"assignedTo": "تیکت را به {{name}} اختصاص داد",
+		"changedStatus": "وضعیت را از {{from}} به {{to}} تغییر داد",
+		"changedPriority": "اولویت را از {{from}} به {{to}} تغییر داد",
+		"clearedDueDate": "تاریخ سررسید را پاک کرد",
+		"setDueDate": "تاریخ سررسید را روی {{date}} تنظیم کرد",
+		"changedDueDate": "تاریخ سررسید را از {{from}} به {{to}} تغییر داد",
+		"changedTitle": "عنوان را از «{{from}}» به «{{to}}» تغییر داد",
+		"moved": "تیکت را از «{{from}}» به «{{to}}» منتقل کرد",
+		"created": "این تیکت را ایجاد کرد",
+		"githubUser": "کاربر گیت‌هاب",
+		"comment": {
+			"github": "گیت‌هاب",
+			"viewGithubProfile": "مشاهده پروفایل گیت‌هاب",
+			"commentedOnGithub": "در گیت‌هاب نظر داد",
+			"cannotBeEmpty": "نظر نمی‌تواند خالی باشد",
+			"mustBeLoggedInToEdit": "برای ویرایش نظرات باید وارد شده باشید",
+			"updated": "نظر به‌روزرسانی شد",
+			"failedToUpdate": "به‌روزرسانی نظر ناموفق بود",
+			"edit": "ویرایش نظر",
+			"editPlaceholder": "ویرایش نظر...",
+			"save": "ذخیره",
+			"added": "نظر اضافه شد",
+			"failedToAdd": "افزودن نظر ناموفق بود",
+			"leavePlaceholder": "نظر بگذارید...",
+			"attachFile": "پیوست فایل",
+			"submitShortcut": "ثبت نظر",
+			"editor": {
+				"uploadsOnlyOnSavedTasks": "بارگذاری فایل فقط در تیکت‌های ذخیره‌شده در دسترس است.",
+				"uploadingFile": "در حال بارگذاری فایل...",
+				"imageUploaded": "تصویر بارگذاری شد",
+				"fileAttached": "فایل پیوست شد",
+				"failedToUploadFile": "بارگذاری فایل ناموفق بود",
+				"enterUrl": "ورود آدرس",
+				"plaintext": "متن ساده",
+				"autoDetect": "تشخیص خودکار",
+				"slashGroupText": "متن",
+				"slashGroupLists": "فهرست‌ها",
+				"slashGroupInsert": "درج",
+				"slashParagraph": "متن",
+				"slashHeading": "عنوان",
+				"slashBulletList": "فهرست گلوله‌ای",
+				"slashTaskList": "فهرست انجام‌دادنی",
+				"slashOrderedList": "فهرست شماره‌دار",
+				"slashQuote": "نقل قول",
+				"slashCodeBlock": "بلوک کد",
+				"slashTable": "جدول",
+				"slashFile": "فایل",
+				"searchParagraph": "پاراگراف متن عادی",
+				"searchHeading": "عنوان تیتر h2",
+				"searchBulletList": "فهرست گلوله‌ای نامرتب",
+				"searchTaskList": "انجام‌دادنی چک‌لیست کادر تیکت",
+				"searchOrderedList": "فهرست مرتب شماره‌دار",
+				"searchQuote": "نقل قول بلوکی",
+				"searchCodeBlock": "قطعه کد",
+				"searchTable": "جدول شبکه",
+				"searchFile": "فایل پیوست تصویر عکس عکس آپلود",
+				"embedErrorInvalidUrl": "آدرس معتبری وارد کنید",
+				"embedErrorYoutubeOnly": "فقط پیوندهای یوتیوب قابل جاسازی هستند.",
+				"embedVideo": "جاسازی ویدیو",
+				"keepAsLink": "نگه داشتن به‌عنوان پیوند",
+				"hintTab": "Tab",
+				"hintEsc": "Esc",
+				"pasteUrl": "چسباندن آدرس",
+				"asLink": "به‌عنوان پیوند",
+				"embed": "جاسازی",
+				"noCommands": "دستوری نیست",
+				"ariaCommentContent": "محتوای نظر",
+				"ariaCommentEditor": "ویرایشگر نظر",
+				"ariaCopyCode": "کپی کد",
+				"ariaCopied": "کپی شد",
+				"copy": "کپی",
+				"copied": "کپی شد",
+				"dropImageToUpload": "برای بارگذاری، تصویر را رها کنید",
+				"previewImageAlt": "پیش‌نمایش تصویر",
+				"codeLang": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"markdown": "Markdown",
+					"mermaid": "Mermaid",
+					"plaintext": "متن ساده",
+					"python": "Python",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"typescript": "TypeScript",
+					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "درج ستون چپ",
+					"addColumnAfter": "درج ستون راست",
+					"deleteColumn": "حذف ستون",
+					"addRowBefore": "درج ردیف بالا",
+					"addRowAfter": "درج ردیف پایین",
+					"deleteRow": "حذف ردیف",
+					"deleteTable": "حذف جدول"
+				},
+				"mermaid": {
+					"renderFailed": "نمودار Mermaid قابل رندر نبود"
+				}
+			}
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "وضعیت",
+			"to-do": "برای انجام",
+			"in-progress": "در حال انجام",
+			"in-review": "در حال بازبینی",
+			"done": "انجام‌شده",
+			"archived": "بایگانی‌شده",
+			"planned": "برنامه‌ریزی‌شده"
+		},
+		"priority": {
+			"label": "اولویت",
+			"no-priority": "بدون اولویت",
+			"low": "کم",
+			"medium": "متوسط",
+			"high": "زیاد",
+			"urgent": "فوری"
+		},
+		"boardSearchPlaceholder": "جستجوی تیکت‌ها...",
+		"view": {
+			"board": "برد",
+			"list": "فهرست"
+		},
+		"common": {
+			"selectTask": "انتخاب تیکت",
+			"loadingTask": "در حال بارگذاری تیکت...",
+			"taskNotFound": "تیکت یافت نشد",
+			"taskNotFoundDescription": "تیکتی که به دنبال آن هستید وجود ندارد یا حذف شده است."
+		},
+		"detail": {
+			"subtaskOf": "زیرتیکت از",
+			"activity": "فعالیت",
+			"noActivity": "فعالیتی یافت نشد",
+			"openInFullPage": "باز کردن در صفحه کامل",
+			"titlePlaceholder": "برای افزودن عنوان کلیک کنید",
+			"addDescription": "افزودن توضیحات...",
+			"editor": {
+				"ariaLabel": "ویرایشگر توضیحات تیکت",
+				"placeholder": "یک توضیح بنویسید...",
+				"previewImage": "پیش‌نمایش تصویر",
+				"enterUrl": "ورود آدرس",
+				"autoDetect": "تشخیص خودکار",
+				"copyCode": "کپی کد",
+				"copy": "کپی",
+				"copied": "کپی شد",
+				"attachFile": "پیوست فایل",
+				"dropToUpload": "برای بارگذاری، تصویر را رها کنید",
+				"checkbox": {
+					"markIncomplete": "علامت‌گذاری تیکت به‌عنوان ناتمام",
+					"markComplete": "علامت‌گذاری تیکت به‌عنوان کامل"
+				},
+				"upload": {
+					"loading": "در حال بارگذاری فایل...",
+					"failed": "بارگذاری فایل ناموفق بود",
+					"imageSuccess": "تصویر بارگذاری شد",
+					"fileSuccess": "فایل پیوست شد"
+				},
+				"slash": {
+					"groups": {
+						"text": "متن",
+						"lists": "فهرست‌ها",
+						"insert": "درج"
+					},
+					"empty": "دستوری نیست",
+					"commands": {
+						"paragraph": "متن",
+						"heading-2": "عنوان",
+						"bullet-list": "فهرست گلوله‌ای",
+						"task-list": "فهرست انجام‌دادنی",
+						"ordered-list": "فهرست شماره‌دار",
+						"blockquote": "نقل قول",
+						"code-block": "بلوک کد",
+						"table": "جدول",
+						"file": "فایل"
+					}
+				},
+				"languages": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"clojure": "Clojure",
+					"cypher": "Cypher",
+					"dart": "Dart",
+					"diff": "Diff",
+					"elixir": "Elixir",
+					"excel": "Excel",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"haskell": "Haskell",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"kotlin": "Kotlin",
+					"makefile": "Makefile",
+					"markdown": "Markdown",
+					"mermaid": "Mermaid",
+					"ocaml": "OCaml",
+					"php": "PHP",
+					"perl": "Perl",
+					"plaintext": "متن ساده",
+					"python": "Python",
+					"r": "R",
+					"reasonml": "ReasonML",
+					"ruby": "Ruby",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"toml": "TOML",
+					"terraform": "Terraform",
+					"typescript": "TypeScript",
+					"xml": "XML",
+					"yaml": "YAML"
+				},
+				"embed": {
+					"choice": {
+						"embedVideo": "جاسازی ویدیو",
+						"keepAsLink": "نگه داشتن به‌عنوان پیوند"
+					},
+					"inputPlaceholder": "چسباندن آدرس",
+					"embeddedContent": "محتوای جاسازی‌شده",
+					"asLink": "به‌عنوان پیوند",
+					"submit": "جاسازی",
+					"errors": {
+						"invalidUrl": "آدرس معتبری وارد کنید",
+						"onlyYoutube": "فقط پیوندهای یوتیوب قابل جاسازی هستند."
+					},
+					"onlyYoutubeInline": "فقط آدرس‌های یوتیوب قابل جاسازی هستند. در عوض از حالت پیوند استفاده کنید."
+				},
+				"mermaid": {
+					"renderFailed": "نمودار Mermaid قابل رندر نبود"
+				}
+			}
+		},
+		"entity": {
+			"task": "تیکت"
+		},
+		"relations": {
+			"title": "روابط",
+			"tasksInProject": "تیکت‌های پروژه",
+			"linkError": "پیوند تیکت ناموفق بود",
+			"empty": "تیکت مرتبطی نیست",
+			"searchPlaceholder": "جستجوی تیکت برای پیوند...",
+			"noTasksFound": "تیکتی یافت نشد",
+			"openTask": "باز کردن تیکت",
+			"removeRelation": "حذف رابطه",
+			"related": "مرتبط",
+			"blocks": "مسدود می‌کند",
+			"selectTask": "تیکتی را برای پیوند انتخاب کنید",
+			"types": {
+				"blocks": "مسدود می‌کند",
+				"blocked_by": "مسدود شده توسط",
+				"related": "مرتبط با"
+			}
+		},
+		"subtasks": {
+			"title": "زیرتیکت‌ها",
+			"inputPlaceholder": "عنوان زیرتیکت...",
+			"addAction": "افزودن",
+			"empty": "هنوز زیرتیکتی نیست",
+			"createError": "ایجاد زیرتیکت ناموفق بود",
+			"deleteSuccess": "تیکت با موفقیت حذف شد",
+			"deleteError": "حذف تیکت ناموفق بود",
+			"deleteDialogTitle": "تیکت حذف شود؟",
+			"deleteDialogDescription": "این تیکت و تمام داده‌های آن به‌صورت دائمی حذف خواهد شد. نمی‌توانید این عمل را بازگردانید.",
+			"deleteAction": "حذف تیکت",
+			"completeAria": "علامت‌گذاری زیرتیکت به‌عنوان کامل"
+		},
+		"properties": {
+			"title": "ویژگی‌ها",
+			"labels": "برچسب‌ها",
+			"copyTaskLink": "کپی پیوند تیکت",
+			"copyTaskBranch": "کپی شاخه تیکت",
+			"start": "شروع",
+			"startDate": "تاریخ شروع",
+			"noDate": "بدون تاریخ"
+		},
+		"move": {
+			"title": "انتقال تیکت",
+			"projectLabel": "پروژه مقصد",
+			"projectPlaceholder": "انتخاب یک پروژه",
+			"statusLabel": "وضعیت مقصد",
+			"statusHintKeep": "گردش کار این پروژه از وضعیت فعلی پشتیبانی می‌کند.",
+			"statusHintAdjust": "وضعیتی را که باید در پروژه مقصد استفاده شود انتخاب کنید.",
+			"action": "انتقال تیکت",
+			"success": "تیکت با موفقیت منتقل شد",
+			"error": "انتقال تیکت ناموفق بود"
+		},
+		"popover": {
+			"assignee": {
+				"unassigned": "اختصاص‌داده‌نشده",
+				"updateError": "به‌روزرسانی مسئول تیکت ناموفق بود"
+			},
+			"status": {
+				"updateError": "به‌روزرسانی وضعیت تیکت ناموفق بود"
+			},
+			"priority": {
+				"updateError": "به‌روزرسانی اولویت تیکت ناموفق بود"
+			},
+			"dueDate": {
+				"updateSuccess": "تاریخ سررسید تیکت با موفقیت به‌روزرسانی شد",
+				"updateError": "به‌روزرسانی تاریخ سررسید تیکت ناموفق بود",
+				"clear": "پاک کردن تاریخ"
+			},
+			"startDate": {
+				"updateSuccess": "تاریخ شروع تیکت با موفقیت به‌روزرسانی شد",
+				"updateError": "به‌روزرسانی تاریخ شروع تیکت ناموفق بود",
+				"clear": "پاک کردن تاریخ شروع"
+			},
+			"labels": {
+				"searchPlaceholder": "جستجوی برچسب...",
+				"empty": "برچسبی یافت نشد",
+				"create": "ایجاد «{{name}}»",
+				"chooseColor": "انتخاب رنگ",
+				"addSuccess": "برچسب اضافه شد",
+				"removeSuccess": "برچسب حذف شد",
+				"updateError": "به‌روزرسانی برچسب ناموفق بود",
+				"createSuccess": "برچسب ایجاد و اضافه شد",
+				"createError": "ایجاد برچسب ناموفق بود",
+				"colors": {
+					"stone": "سنگی",
+					"slate": "سفالی",
+					"lavender": "اسطوخودوس",
+					"sage": "مریم‌گلی",
+					"forest": "جنگلی",
+					"amber": "کهربایی",
+					"terracotta": "گِلی",
+					"rose": "صورتی",
+					"crimson": "سرخابی"
+				}
+			}
+		},
+		"backlog": {
+			"pageTitle": "بک‌لاگ {{name}}",
+			"noTasksToMove": "تیکت برنامه‌ریزی‌شده‌ای برای انتقال نیست",
+			"moveAllConfirm": "هر {{count}} تیکت برنامه‌ریزی‌شده به «برای انجام» منتقل شود؟",
+			"moveAllSuccess": "{{count}} تیکت به «برای انجام» منتقل شد",
+			"plan": "برنامه‌ریزی",
+			"moveAllTooltip": "انتقال همه برنامه‌ریزی‌شده‌ها به «برای انجام»",
+			"moveAll": "انتقال همه",
+			"addTask": "افزودن تیکت",
+			"filter": "فیلتر",
+			"addFilter": "افزودن فیلتر...",
+			"sections": {
+				"planned": "برنامه‌ریزی‌شده",
+				"archived": "بایگانی‌شده"
+			},
+			"noTasksInSection": "تیکت {{section}}ای نیست",
+			"filters": {
+				"priority": "اولویت: {{name}}",
+				"assignee": "مسئول: {{name}}",
+				"due": "سررسید: {{date}}",
+				"label": "برچسب: {{name}}",
+				"dueThisWeek": "سررسید این هفته",
+				"dueNextWeek": "سررسید هفته آینده",
+				"noDueDate": "بدون تاریخ سررسید"
+			}
+		},
+		"sort": {
+			"label": "مرتب‌سازی",
+			"by": "مرتب‌سازی بر اساس",
+			"direction": "جهت",
+			"ascending": "صعودی",
+			"descending": "نزولی",
+			"fields": {
+				"position": "دستی (موقعیت)",
+				"createdAt": "تاریخ ایجاد",
+				"priority": "اولویت",
+				"dueDate": "تاریخ سررسید",
+				"title": "عنوان",
+				"number": "شماره تیکت"
+			}
+		},
+		"boardFilters": {
+			"filterBy": "فیلتر بر اساس",
+			"allStatuses": "همه وضعیت‌ها",
+			"allPriorities": "همه اولویت‌ها",
+			"allAssignees": "همه مسئولین",
+			"allDueDates": "همه تاریخ‌های سررسید",
+			"allLabels": "همه برچسب‌ها",
+			"selectedCount": "{{count}} مورد انتخاب‌شده",
+			"subjects": {
+				"status": "وضعیت",
+				"priority": "اولویت",
+				"assignee": "مسئول",
+				"dueDate": "تاریخ سررسید",
+				"labels": "برچسب‌ها"
+			},
+			"operators": {
+				"isAnyOf": "یکی از موارد است",
+				"includeAnyOf": "شامل هر یک از موارد است"
+			}
+		},
+		"gantt": {
+			"pageTitle": "{{name}} – گانت",
+			"title": "جدول زمانی گانت",
+			"searchPlaceholder": "جستجوی تیکت‌های زمان‌بندی‌شده...",
+			"hideTasks": "پنهان کردن تیکت‌ها",
+			"showTasks": "نمایش تیکت‌ها",
+			"noTasks": "تیکت زمان‌بندی‌شده‌ای نیست",
+			"noTasksSubtitle": "برای قرار دادن تیکت‌ها در جدول زمانی پروژه، تاریخ شروع، تاریخ سررسید یا هر دو را اضافه کنید.",
+			"noTasksFound": "تیکتی یافت نشد",
+			"noTasksMatch": "تیکت زمان‌بندی‌شده‌ای با «{{query}}» مطابقت ندارد",
+			"taskHeader": "تیکت",
+			"updateDatesError": "به‌روزرسانی تاریخ تیکت ناموفق بود",
+			"resizeStart": "تغییر اندازه تاریخ شروع",
+			"resizeDue": "تغییر اندازه تاریخ سررسید",
+			"taskAriaLabel": "{{title}}: باز کردن یا کشیدن برای انتقال"
+		},
+		"delete": {
+			"title": "تیکت حذف شود؟",
+			"description": "این تیکت و تمام داده‌های آن به‌صورت دائمی حذف خواهد شد. نمی‌توانید این عمل را بازگردانید.",
+			"action": "حذف تیکت",
+			"success": "تیکت با موفقیت حذف شد",
+			"error": "حذف تیکت ناموفق بود"
+		},
+		"archive": {
+			"success": "{{count}} تیکت بایگانی شد"
+		},
+		"listView": {
+			"addTask": "افزودن تیکت",
+			"archiveAllTooltip": "بایگانی همه تیکت‌های کامل",
+			"noTasks": "تیکتی نیست"
+		},
+		"kanban": {
+			"addTask": "افزودن تیکت"
+		},
+		"pr": {
+			"merged": "ادغام‌شده",
+			"draft": "پیش‌نویس",
+			"open": "باز",
+			"label": "Pull Request",
+			"count_one": "{{count}} PR",
+			"count_other": "{{count}} PR"
+		},
+		"assignee": {
+			"label": "مسئول",
+			"unassigned": "اختصاص‌داده‌نشده"
+		},
+		"dueDate": {
+			"label": "تاریخ سررسید",
+			"clear": "پاک کردن تاریخ",
+			"updateSuccess": "تاریخ سررسید تیکت با موفقیت به‌روزرسانی شد",
+			"updateError": "به‌روزرسانی تاریخ سررسید تیکت ناموفق بود",
+			"clearSuccess": "تاریخ سررسید تیکت پاک شد",
+			"clearError": "پاک کردن تاریخ سررسید ناموفق بود"
+		},
+		"labels": {
+			"label": "برچسب‌ها",
+			"empty": "برچسبی در دسترس نیست"
+		},
+		"update": {
+			"success": "تیکت با موفقیت به‌روزرسانی شد",
+			"error": "به‌روزرسانی تیکت ناموفق بود"
+		},
+		"contextMenu": {
+			"copyLink": "کپی پیوند",
+			"copyLinkSuccess": "پیوند تیکت کپی شد!"
+		},
+		"actions": {
+			"archive": "بایگانی",
+			"markAsPlanned": "علامت‌گذاری به‌عنوان برنامه‌ریزی‌شده",
+			"delete": "حذف..."
+		},
+		"bulk": {
+			"selectedCount": "{{count}} مورد انتخاب‌شده",
+			"moveToBacklog": "انتقال به بک‌لاگ",
+			"moveToBacklogSuccess": "{{count}} تیکت به بک‌لاگ منتقل شد",
+			"moveToBacklogError": "انتقال تیکت‌ها به بک‌لاگ ناموفق بود",
+			"moveToBoard": "انتقال به برد",
+			"moveToBoardSuccess": "{{count}} تیکت به برد منتقل شد",
+			"moveToBoardError": "انتقال تیکت‌ها به برد ناموفق بود",
+			"delete": "حذف تیکت‌ها",
+			"deleteConfirm": "{{count}} تیکت حذف شود؟ این عمل قابل بازگشت نیست.",
+			"deleteSuccess": "{{count}} تیکت حذف شد",
+			"deleteError": "حذف تیکت‌ها ناموفق بود",
+			"archive": "بایگانی تیکت‌ها",
+			"archiveSuccess": "{{count}} تیکت بایگانی شد",
+			"archiveError": "بایگانی تیکت‌ها ناموفق بود",
+			"updateSuccess": "{{count}} تیکت به‌روزرسانی شد",
+			"updateError": "به‌روزرسانی تیکت‌ها ناموفق بود",
+			"assignTo": "اختصاص به",
+			"assignSuccess": "{{count}} تیکت اختصاص داده شد",
+			"assignError": "اختصاص تیکت‌ها ناموفق بود",
+			"setPriority": "تنظیم اولویت",
+			"updatePriorityError": "به‌روزرسانی اولویت ناموفق بود",
+			"addLabel": "افزودن برچسب",
+			"addLabelSuccess": "برچسب به {{count}} تیکت اضافه شد",
+			"addLabelError": "افزودن برچسب ناموفق بود",
+			"setDueDate": "تنظیم تاریخ سررسید",
+			"updateDueDateError": "به‌روزرسانی تاریخ سررسید ناموفق بود",
+			"actions": "عملیات",
+			"searchActions": "جستجوی عملیات...",
+			"noActionsFound": "عملیاتی یافت نشد.",
+			"changeStatus": "تغییر وضعیت"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "درج ستون چپ",
+				"addColumnAfter": "درج ستون راست",
+				"deleteColumn": "حذف ستون",
+				"addRowBefore": "درج ردیف بالا",
+				"addRowAfter": "درج ردیف پایین",
+				"deleteRow": "حذف ردیف",
+				"deleteTable": "حذف جدول"
+			}
+		}
+	},
+	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} شما را به پیوستن به {{workspaceName}} در Kaneo دعوت کرد",
+			"preview": "شما به {{workspaceName}} در Kaneo دعوت شده‌اید",
+			"title": "پیوستن به {{workspaceName}}",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) شما را به همکاری در Kaneo دعوت کرده است.",
+			"cta": "پذیرش دعوت‌نامه",
+			"sameEmail": "می‌توانید با همان ایمیلی که این پیام را دریافت کرده بپذیرید.",
+			"ignore": "اگر این انتظار نمی‌رفت، می‌توانید با خیال راحت این ایمیل را نادیده بگیرید.",
+			"footer": "دعوت‌نامه فضای کاری Kaneo"
+		},
+		"pageTitle": "دعوت‌نامه‌ها",
+		"pendingInvitations": "دعوت‌نامه‌های در انتظار",
+		"acceptSubtitle": "برای پیوستن به فضاهای کاری، دعوت‌نامه‌ها را بپذیرید",
+		"noPendingTitle": "دعوت‌نامه‌ای در انتظار نیست",
+		"noPendingDescription": "در حال حاضر دعوت‌نامه فضای کاری در انتظاری ندارید.",
+		"continueToSetup": "ادامه به راه‌اندازی",
+		"skipForNow": "فعلاً رد شو",
+		"table": {
+			"workspace": "فضای کاری",
+			"invitedBy": "دعوت‌کننده",
+			"expires": "انقضا"
+		},
+		"toast": {
+			"acceptError": "پذیرش دعوت‌نامه ناموفق بود",
+			"acceptSuccess": "دعوت‌نامه پذیرفته شد! به تیم خوش آمدید.",
+			"rejectError": "رد دعوت‌نامه ناموفق بود",
+			"rejectSuccess": "دعوت‌نامه رد شد"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "پروژه‌ها",
+			"createProject": "ایجاد پروژه",
+			"title": "عنوان",
+			"progress": "پیشرفت",
+			"targetDate": "تاریخ هدف",
+			"dueDate": "تاریخ سررسید",
+			"status": "وضعیت",
+			"emptyTitle": "هنوز پروژه‌ای نیست",
+			"emptyDescription": "با ایجاد اولین پروژه خود شروع کنید.",
+			"emptyDescriptionReadOnly": "در این فضای کاری هنوز پروژه‌ای نیست. از یک مدیر بخواهید یکی ایجاد کند.",
+			"projectStatus": {
+				"notStarted": "شروع‌نشده",
+				"complete": "کامل",
+				"inProgress": "در حال انجام"
+			},
+			"noDueDate": "بدون تاریخ سررسید",
+			"reorderHandle": "مرتب‌سازی مجدد پروژه",
+			"reorderError": "مرتب‌سازی مجدد پروژه‌ها ناموفق بود"
+		},
+		"search": {
+			"pageTitle": "جستجو",
+			"backToDashboard": "بازگشت به داشبورد",
+			"placeholder": "جستجوی تیکت‌ها با عنوان یا شناسه کوتاه (مثلاً DEP-23)...",
+			"hint": "جستجو در همه پروژه‌های این فضای کاری. برای یافتن تیکت‌های خاص از شناسه‌های کوتاه مانند DEP-23 استفاده کنید.",
+			"searching": "در حال جستجو...",
+			"resultsFound_one": "{{count}} نتیجه یافت شد",
+			"resultsFound_other": "{{count}} نتیجه یافت شد",
+			"noResultsTitle": "نتیجه‌ای یافت نشد",
+			"noResultsDescription": "عبارات جستجوی خود را تغییر دهید یا چیز دیگری جستجو کنید",
+			"startTitle": "شروع جستجو",
+			"startDescription": "برای یافتن تیکت‌ها در همه پروژه‌ها، یک عبارت جستجو وارد کنید",
+			"quickSearchesLabel": "جستجوهای سریع:",
+			"suggestionHighPriority": "اولویت زیاد",
+			"suggestionBug": "باگ",
+			"suggestionFeature": "امکانات",
+			"suggestionInProgress": "در حال انجام",
+			"suggestionCompleted": "کامل‌شده"
+		},
+		"create": {
+			"pageTitle": "ایجاد فضای کاری",
+			"heading": "ایجاد فضای کاری جدید",
+			"subtitle": "فضاهای کاری محیط‌های مشترکی هستند که تیم‌ها می‌توانند روی پروژه‌ها، چرخه‌ها و ایشوها کار کنند.",
+			"nameLabel": "نام فضای کاری",
+			"namePlaceholder": "نام فضای کاری را وارد کنید",
+			"descriptionLabel": "توضیحات (اختیاری)",
+			"descriptionPlaceholder": "توضیحاتی برای فضای کاری خود اضافه کنید",
+			"required": "الزامی",
+			"creating": "در حال ایجاد...",
+			"submit": "ایجاد فضای کاری",
+			"success": "فضای کاری با موفقیت ایجاد شد",
+			"error": "ایجاد فضای کاری ناموفق بود"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "مالک",
+			"admin": "مدیر",
+			"member": "عضو",
+			"viewer": "بیننده"
+		},
+		"members": {
+			"pageTitle": "اعضا",
+			"inviteMember": "دعوت عضو",
+			"you": "شما"
+		},
+		"invitations": {
+			"pendingBadge": "در انتظار",
+			"expires": "انقضا {{date}}",
+			"linkLabel": "پیوند دعوت‌نامه",
+			"copyLink": "کپی پیوند",
+			"linkCopied": "پیوند دعوت‌نامه کپی شد",
+			"copyFailed": "کپی خودکار ممکن نشد. پیوند را انتخاب کرده و Ctrl+C را فشار دهید."
+		},
+		"inviteModal": {
+			"title": "دعوت عضو تیم",
+			"emailLabel": "ایمیل",
+			"emailPlaceholder": "hamkar@company.com",
+			"sendInvitation": "ارسال دعوت‌نامه",
+			"success": "دعوت‌نامه با موفقیت ارسال شد",
+			"error": "دعوت عضو تیم ناموفق بود",
+			"createdTitle": "دعوت‌نامه ایجاد شد",
+			"shareLinkDescription": "این پیوند را با {{email}} به اشتراک بگذارید تا بتواند به فضای کاری بپیوندد.",
+			"done": "انجام شد"
+		},
+		"membersTable": {
+			"emptyTitle": "هنوز عضو تیمی نیست",
+			"emptyDescription": "برای شروع، اولین عضو تیم خود را دعوت کنید.",
+			"columns": {
+				"name": "نام",
+				"role": "نقش",
+				"joined": "پیوست",
+				"actions": "عملیات"
+			},
+			"memberRolePending": "{{role}} (در انتظار)",
+			"ariaCancelInvitation": "لغو دعوت‌نامه",
+			"ariaInvitationActions": "عملیات دعوت‌نامه",
+			"ariaRemoveMember": "حذف عضو",
+			"removeDialogTitle": "عضو تیم حذف شود؟",
+			"removeDialogDescription": "مطمئن هستید می‌خواهید {{name}} را از فضای کاری حذف کنید؟ این عمل قابل بازگشت نیست.",
+			"cancelDialogTitle": "دعوت‌نامه لغو شود؟",
+			"cancelDialogDescription": "مطمئن هستید می‌خواهید دعوت‌نامه {{email}} را لغو کنید؟ این عمل قابل بازگشت نیست.",
+			"removeMember": "حذف عضو",
+			"cancelInvitation": "لغو دعوت‌نامه",
+			"removeSuccess": "عضو تیم با موفقیت حذف شد",
+			"removeError": "حذف عضو تیم ناموفق بود",
+			"cancelInviteSuccess": "دعوت‌نامه با موفقیت لغو شد",
+			"cancelInviteError": "لغو دعوت‌نامه ناموفق بود",
+			"roleUpdateSuccess": "نقش به‌روزرسانی شد",
+			"roleUpdateError": "به‌روزرسانی نقش ناموفق بود"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "نمای عمومی",
+		"badge": "عمومی",
+		"readOnly": "فقط‌خواندنی",
+		"error": {
+			"title": "پروژه یافت نشد",
+			"description": "این پروژه وجود ندارد یا به‌صورت عمومی در دسترس نیست."
+		},
+		"taskCard": {
+			"viewDetailsAria": "مشاهده جزئیات تیکت {{title}}"
+		},
+		"taskDetail": {
+			"labels": "برچسب‌ها",
+			"externalLinks": "پیوندهای خارجی",
+			"pullRequestFallback": "Pull Request",
+			"issueFallback": "ایشو",
+			"prStatusMerged": "ادغام‌شده",
+			"prStatusDraft": "پیش‌نویس",
+			"prStatusOpen": "باز",
+			"dueWithDate": "سررسید {{date}}",
+			"created": "ایجاد شده",
+			"dueDateLabel": "تاریخ سررسید"
+		},
+		"theme": {
+			"switchToLight": "تغییر به حالت روشن",
+			"switchToDark": "تغییر به حالت تاریک"
+		},
+		"copyUrl": {
+			"successToast": "آدرس کپی شد",
+			"errorToast": "کپی آدرس ناموفق بود",
+			"copied": "کپی شد",
+			"share": "اشتراک‌گذاری"
+		},
+		"branding": {
+			"poweredBy": "قدرت‌گرفته از"
+		}
+	}
+}

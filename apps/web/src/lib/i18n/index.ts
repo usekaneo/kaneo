@@ -40,6 +40,19 @@ export function getBrowserLocale(): string | null {
   return navigator.language || navigator.languages?.[0] || null;
 }
 
+function getLocaleDirectionFromScript(locale: AppLocale): "rtl" | "ltr" {
+  try {
+    const textInfo = new Intl.Locale(locale).getTextInfo?.();
+    return textInfo?.direction === "rtl" ? "rtl" : "ltr";
+  } catch {
+    return "ltr";
+  }
+}
+
+export function getLocaleDirection(locale: AppLocale): "rtl" | "ltr" {
+  return getLocaleDirectionFromScript(locale);
+}
+
 void i18n.use(initReactI18next).init({
   resources,
   lng: resolveLocale(null, getBrowserLocale()),

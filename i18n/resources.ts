@@ -2,6 +2,7 @@ import deDE from "./de-DE.json";
 import elGR from "./el-GR.json";
 import enUS from "./en-US.json";
 import esES from "./es-ES.json";
+import faIR from "./fa-IR.json";
 import frFR from "./fr-FR.json";
 import hiIN from "./hi-IN.json";
 import idID from "./id-ID.json";
@@ -23,6 +24,7 @@ export const supportedLocales = [
   "el-GR",
   "en-US",
   "es-ES",
+  "fa-IR",
   "fr-FR",
   "hi-IN",
   "id-ID",
@@ -51,6 +53,7 @@ export const resources = {
   "id-ID": idID,
   "it-IT": itIT,
   "es-ES": esES,
+  "fa-IR": faIR,
   "ko-KR": koKR,
   "pt-BR": ptBR,
   "ru-RU": ruRU,

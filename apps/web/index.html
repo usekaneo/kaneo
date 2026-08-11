@@ -34,6 +34,15 @@
   <link rel="canonical" href="https://kaneo.app">
 
   <script>
+    // Set the initial direction from the browser language before the app
+    // mounts, so right-to-left locales don't flash left-to-right.
+    (function () {
+      var lang = (navigator.language || "en").toLowerCase();
+      if (lang.startsWith("fa")) {
+        document.documentElement.setAttribute("dir", "rtl");
+      }
+    })();
+
     if (window.location.hostname === 'demo.kaneo.app') {
       const script = document.createElement('script');
       script.defer = true;
