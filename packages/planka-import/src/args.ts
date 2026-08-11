@@ -102,6 +102,8 @@ export function parseArgs(argv: string[]): ParsedArgs {
   return parsed;
 }
 
+export const DEFAULT_KANEO_URL = "https://cloud.kaneo.app";
+
 export const HELP_TEXT = `kaneo-planka-import: migrate PLANKA boards into Kaneo
 
 Usage:
@@ -117,7 +119,7 @@ PLANKA source:
                             password to log in with
 
 Kaneo target:
-  --kaneo-url <url>         Kaneo instance URL (default https://app.kaneo.app)
+  --kaneo-url <url>         Kaneo instance URL (default ${DEFAULT_KANEO_URL})
   --kaneo-api-key <key>     Kaneo API key (env KANEO_API_KEY)
   --workspace <id>          Target workspace ID (prompted if omitted)
 

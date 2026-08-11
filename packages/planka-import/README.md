@@ -18,7 +18,7 @@ plan looks right, add your Kaneo credentials and drop `--dry-run`:
 ```bash
 npx @kaneo/planka-import \
   --planka-url https://planka.example.com \
-  --kaneo-url https://app.kaneo.app \
+  --kaneo-url https://cloud.kaneo.app \
   --kaneo-api-key kaneo_xxx \
   --workspace ws_123
 ```
@@ -71,7 +71,7 @@ assignments come across on the first run.
 | `--planka-password <pass>` | Password (or set `PLANKA_PASSWORD`) |
 | `--planka-token <token>` | Use an existing access token instead of logging in |
 | `--planka-api-key <key>` | Use a PLANKA API key (or `PLANKA_API_KEY`). Works for SSO-only accounts |
-| `--kaneo-url <url>` | Kaneo instance URL (default `https://app.kaneo.app`) |
+| `--kaneo-url <url>` | Kaneo instance URL (default `https://cloud.kaneo.app`) |
 | `--kaneo-api-key <key>` | Kaneo API key (or set `KANEO_API_KEY`) |
 | `--workspace <id>` | Target workspace (prompted if omitted) |
 | `--project <name\|id>` | Migrate only this PLANKA project (repeatable) |
