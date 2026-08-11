@@ -1,6 +1,7 @@
 export type PlankaUser = {
   id: string;
-  email: string;
+  // PLANKA omits email unless the caller is an admin or the user themselves.
+  email?: string | null;
   name: string | null;
   username: string | null;
 };
@@ -59,6 +60,7 @@ export type PlankaTask = {
   name: string;
   isCompleted: boolean | null;
   position: number;
+  linkedCardId?: string | null;
 };
 export type PlankaAttachment = { id: string; cardId: string };
 export type PlankaComment = {

@@ -57,15 +57,25 @@ const comment = new Hono<{
     validator("param", v.object({ taskId: v.string() })),
     validator(
       "json",
-      v.object({ content: v.pipe(v.string(), v.minLength(1)) }),
+      v.object({
+        content: v.pipe(v.string(), v.minLength(1)),
+        externalUserName: v.optional(v.pipe(v.string(), v.maxLength(120))),
+        externalSource: v.optional(v.picklist(["planka", "trello", "jira"])),
+      }),
     ),
     workspaceAccess.fromTaskId(),
     requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { taskId } = c.req.valid("param");
-      const { content } = c.req.valid("json");
+      const { content, externalUserName, externalSource } = c.req.valid("json");
       const userId = c.get("userId");
-      const newComment = await createComment(taskId, userId, content);
+      // Both or neither: a name without a source would render as an
+      // unattributed impersonation of a real account.
+      const external =
+        externalUserName && externalSource
+          ? { userName: externalUserName, source: externalSource }
+          : undefined;
+      const newComment = await createComment(taskId, userId, content, external);
       return c.json(newComment);
     },
   )

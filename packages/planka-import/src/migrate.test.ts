@@ -48,8 +48,16 @@ function fakeKaneo(calls: Call[]) {
       record("createLabel", input);
       return { id: "l_1", name: "l", color: "#000000" };
     },
-    async createComment(taskId: string, content: string) {
-      record("createComment", taskId, content);
+    async createTaskRelation(input: unknown) {
+      record("createTaskRelation", input);
+      return {};
+    },
+    async createComment(
+      taskId: string,
+      content: string,
+      externalUserName?: string,
+    ) {
+      record("createComment", taskId, content, externalUserName);
       return {};
     },
   } as unknown as KaneoClient;
@@ -367,5 +375,131 @@ describe("migrate (write)", () => {
 
     expect(reports[0]?.failed).toBe(true);
     expect(reports[0]?.error).toBe("boom");
+  });
+
+  it("warns when PLANKA hid the assignee email instead of failing silently", async () => {
+    const calls: Call[] = [];
+    const [report] = await migrate({
+      planka: fakePlanka(
+        bundleWith({
+          cardMemberships: [{ cardId: "card1", userId: "pu1" }],
+          users: [{ id: "pu1", email: null, name: "Hidden", username: null }],
+        }),
+      ),
+      kaneo: fakeKaneo(calls),
+      workspaceId: "ws_1",
+      targets: [target],
+      dryRun: false,
+      skipComments: false,
+    });
+
+    expect(report?.assignees).toBe(0);
+    expect(report?.warnings.join(" ")).toContain("PLANKA admin account");
+  });
+
+  it("warns when the assignee is not in the target workspace", async () => {
+    const calls: Call[] = [];
+    const [report] = await migrate({
+      planka: fakePlanka(
+        bundleWith({
+          cardMemberships: [{ cardId: "card1", userId: "pu9" }],
+          users: [
+            {
+              id: "pu9",
+              email: "outsider@example.com",
+              name: "Outsider",
+              username: null,
+            },
+          ],
+        }),
+      ),
+      kaneo: fakeKaneo(calls),
+      workspaceId: "ws_1",
+      targets: [target],
+      dryRun: false,
+      skipComments: false,
+    });
+
+    expect(report?.warnings.join(" ")).toContain("Invite those people");
+  });
+
+  it("turns a linked checklist item into a task relation, not checkbox text", async () => {
+    const calls: Call[] = [];
+    const bundle = bundleWith({
+      taskLists: [{ id: "tl1", cardId: "card1", name: "Depends on" }],
+      tasks: [
+        {
+          id: "t1",
+          taskListId: "tl1",
+          name: "Blocked by card 2",
+          isCompleted: false,
+          position: 1,
+          linkedCardId: "card2",
+        },
+      ],
+    });
+    bundle.included.cards?.push({
+      id: "card2",
+      boardId: "b1",
+      listId: "l1",
+      name: "The dependency",
+      description: null,
+      position: 2,
+      dueDate: null,
+      isDueCompleted: null,
+      isClosed: null,
+      commentsTotal: 0,
+    });
+
+    const [report] = await migrate({
+      planka: fakePlanka(bundle),
+      kaneo: fakeKaneo(calls),
+      workspaceId: "ws_1",
+      targets: [target],
+      dryRun: false,
+      skipComments: false,
+    });
+
+    const relations = calls
+      .filter((call) => call.method === "createTaskRelation")
+      .map((call) => call.args[0]);
+    expect(relations).toEqual([
+      { sourceTaskId: "t_1", targetTaskId: "t_2", relationType: "subtask" },
+    ]);
+    expect(report?.relations).toBe(1);
+
+    const descriptions = calls
+      .filter((call) => call.method === "createTask")
+      .map((call) => (call.args[0] as { description: string }).description);
+    expect(descriptions.join(" ")).not.toContain("Blocked by card 2");
+  });
+
+  it("attributes imported comments to the original PLANKA author", async () => {
+    const calls: Call[] = [];
+    const bundle = bundleWith({
+      users: [{ id: "pu1", email: null, name: "Sam", username: null }],
+    });
+    const [firstCard] = bundle.included.cards ?? [];
+    if (firstCard) firstCard.commentsTotal = 1;
+
+    await migrate({
+      planka: fakePlanka(bundle, [
+        {
+          id: "cm1",
+          cardId: "card1",
+          userId: "pu1",
+          text: "Looks good",
+          createdAt: "2026-03-04T10:00:00.000Z",
+        },
+      ]),
+      kaneo: fakeKaneo(calls),
+      workspaceId: "ws_1",
+      targets: [target],
+      dryRun: false,
+      skipComments: false,
+    });
+
+    const comment = calls.find((call) => call.method === "createComment");
+    expect(comment?.args[2]).toBe("Sam");
   });
 });

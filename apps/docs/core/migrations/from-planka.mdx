@@ -82,6 +82,7 @@ passing secrets on the command line, where they end up in your shell history.
 | Card | Task |
 | Card description | Task description |
 | Checklists | Markdown checkboxes appended to the description |
+| Checklist items linked to another card | Task relations (subtask), not text |
 | Labels | Labels, with their original colors |
 | Card members | Assignee, matched by email |
 | Due date | Due date |
@@ -97,8 +98,10 @@ resulting Kaneo project is named `Project - Board`.
   you need from PLANKA before you switch it off.
 - **Archive and trash lists.** Skipped deliberately; only active and closed
   lists are migrated.
-- **Comment authorship.** Kaneo attributes imported comments to the owner of the
-  API key, so the original author and date are preserved in the comment body.
+- **Comment authorship.** The comment is created by the API key's owner, but the
+  original PLANKA author is recorded on it and shown in Kaneo, the same way
+  imported GitHub comments are. This needs Kaneo 2.17.6 or newer; against older
+  instances the comment still imports, just without the original author.
 - **Priorities.** PLANKA has no priority field, so every task starts at
   `no-priority`.
 - **Custom fields, stopwatches, and card subscriptions.** No Kaneo equivalent.

@@ -109,10 +109,30 @@ export class KaneoClient {
     });
   }
 
-  createComment(taskId: string, content: string): Promise<unknown> {
+  createTaskRelation(input: {
+    sourceTaskId: string;
+    targetTaskId: string;
+    relationType: "subtask" | "blocks" | "related";
+  }): Promise<unknown> {
+    return this.request("/api/task-relation", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  }
+
+  createComment(
+    taskId: string,
+    content: string,
+    externalUserName?: string,
+  ): Promise<unknown> {
     return this.request(`/api/comment/${encodeURIComponent(taskId)}`, {
       method: "POST",
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({
+        content,
+        ...(externalUserName
+          ? { externalUserName, externalSource: "planka" }
+          : {}),
+      }),
     });
   }
 
