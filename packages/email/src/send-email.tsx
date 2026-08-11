@@ -12,6 +12,9 @@ import OtpEmail from "./templates/otp";
 import PasswordResetEmail, {
   type PasswordResetEmailProps,
 } from "./templates/password-reset";
+import TrialReminderEmail, {
+  type TrialReminderEmailProps,
+} from "./templates/trial-reminder";
 import WorkspaceInvitationEmail, {
   type WorkspaceInvitationEmailProps,
 } from "./templates/workspace-invitation";
@@ -126,5 +129,23 @@ export const sendNotificationEmail = async (
   } catch (error) {
     console.error("Error sending notification email", error);
     throw error;
+  }
+};
+
+export const sendTrialReminderEmail = async (
+  to: string,
+  subject: string,
+  data: TrialReminderEmailProps,
+) => {
+  const emailTemplate = await render(TrialReminderEmail(data));
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+  } catch (error) {
+    console.error("Error sending trial reminder email", error);
   }
 };
