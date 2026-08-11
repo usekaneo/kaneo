@@ -1,5 +1,5 @@
 import { isSmtpConfigured, sendTrialReminderEmail } from "@kaneo/email";
-import { and, eq, gt, isNotNull, isNull, lte } from "drizzle-orm";
+import { and, asc, eq, gt, isNotNull, isNull, lte } from "drizzle-orm";
 import { isBillingEnabled } from "../billing/config";
 import db from "../database";
 import {
@@ -11,6 +11,24 @@ import {
 } from "../database/schema";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Sending is deliberately slow. The provider rate-limits per second and per
+// day, and a burst that trips either is silently dropped downstream: SMTP has
+// already accepted the message, so nothing surfaces as an error here.
+const DEFAULT_MAX_PER_RUN = 25;
+const SEND_SPACING_MS = 600;
+
+function maxPerRun() {
+  const parsed = Number.parseInt(
+    process.env.BILLING_REMINDER_MAX_PER_RUN ?? "",
+    10,
+  );
+  return Number.isNaN(parsed) || parsed <= 0 ? DEFAULT_MAX_PER_RUN : parsed;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 type ReminderType = "trial_ending" | "trial_expired";
 
@@ -89,7 +107,8 @@ async function getWorkspacesNeedingReminder(type: ReminderType, now: Date) {
         eq(userTable.banned, false),
       ),
     )
-    .limit(500);
+    .orderBy(asc(workspaceBillingTable.trialEndsAt))
+    .limit(maxPerRun());
 }
 
 export async function checkTrialReminders(): Promise<void> {
@@ -98,6 +117,7 @@ export async function checkTrialReminders(): Promise<void> {
   }
 
   const now = new Date();
+  let sent = 0;
 
   for (const reminder of REMINDERS) {
     let rows: Awaited<ReturnType<typeof getWorkspacesNeedingReminder>>;
@@ -139,6 +159,10 @@ export async function checkTrialReminders(): Promise<void> {
         Math.ceil((row.trialEndsAt.getTime() - now.getTime()) / DAY_MS),
       );
 
+      if (sent > 0) {
+        await sleep(SEND_SPACING_MS);
+      }
+
       await sendTrialReminderEmail(
         row.email,
         reminder.subject(row.workspaceName),
@@ -148,6 +172,11 @@ export async function checkTrialReminders(): Promise<void> {
           billingUrl: `${clientUrl()}/dashboard/settings/workspace/billing`,
         },
       );
+      sent++;
     }
+  }
+
+  if (sent > 0) {
+    console.log(`Sent ${sent} trial reminder email(s)`);
   }
 }

@@ -33,6 +33,7 @@ const CLOUD_ENV = {
   CREEM_WEBHOOK_SECRET: "whsec_dummy",
   SMTP_HOST: "smtp.example.com",
   SMTP_FROM: "kaneo@example.com",
+  BILLING_REMINDER_MAX_PER_RUN: "2",
 };
 const saved: Record<string, string | undefined> = {};
 
@@ -149,5 +150,25 @@ describe("trial reminder emails", () => {
 
     expect(rows).toHaveLength(1);
     expect(rows[0]?.reminderType).toBe("trial_expired");
+  });
+
+  it("caps how many it sends per run so the provider is not flooded", async () => {
+    for (let i = 0; i < 5; i++) {
+      await seedTrial(new Date(Date.now() - (i + 1) * DAY));
+    }
+
+    await checkTrialReminders();
+
+    expect(sendTrialReminderEmail).toHaveBeenCalledTimes(2);
+  });
+
+  it("sends the most urgent trials first", async () => {
+    const soonest = await seedTrial(new Date(Date.now() - 9 * DAY));
+    await seedTrial(new Date(Date.now() - 2 * DAY));
+    await seedTrial(new Date(Date.now() - 1 * DAY));
+
+    await checkTrialReminders();
+
+    expect(recipients()[0]).toBe(soonest.user.email);
   });
 });
