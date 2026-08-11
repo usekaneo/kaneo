@@ -1,3 +1,18 @@
+## [2.17.2](https://github.com/usekaneo/kaneo/compare/v2.17.1...v2.17.2) (2026-08-11)
+
+
+### Bug Fixes
+
+* **auth:** resolve the client IP behind multiple proxy hops ([9e8a448](https://github.com/usekaneo/kaneo/commit/9e8a44835768a70d6d2f68dc3e1add53e90bbc10))
+* **billing:** grant the trial once per owner, not per workspace ([14adb9d](https://github.com/usekaneo/kaneo/commit/14adb9dfd8af0d0dbe5951d0994d1bcf0fcdf8b1))
+* use internal URL for MCP tool requests ([#1556](https://github.com/usekaneo/kaneo/issues/1556)) ([7d9d9d2](https://github.com/usekaneo/kaneo/commit/7d9d9d212d13e98e9aa3d84c0179f4a49384b9fc))
+
+
+### Features
+
+* **planka-import:** add PLANKA to Kaneo migration CLI ([5c91feb](https://github.com/usekaneo/kaneo/commit/5c91febedf4e2cbb356c451676d4df3ae2acc6fa))
+* **planka-import:** authenticate with a PLANKA API key ([ff5e3fc](https://github.com/usekaneo/kaneo/commit/ff5e3fc6b91ae351c6002fb358d75265a0435dbd))
+* **site:** add PLANKA comparison page ([579a975](https://github.com/usekaneo/kaneo/commit/579a9752f7775e9239680053a6ed68d437d90e36))
 ## [2.17.1](https://github.com/usekaneo/kaneo/compare/v2.17.0...v2.17.1) (2026-08-10)
 
 
