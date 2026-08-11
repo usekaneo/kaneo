@@ -274,6 +274,13 @@
 			"when": 1786471413558,
 			"tag": "0038_supreme_dagger",
 			"breakpoints": true
+		},
+		{
+			"idx": 39,
+			"version": "7",
+			"when": 1786478671279,
+			"tag": "0039_gorgeous_jack_power",
+			"breakpoints": true
 		}
 	]
 }

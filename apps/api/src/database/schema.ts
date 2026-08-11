@@ -409,6 +409,12 @@ export const billingReminderSentTable = pgTable(
     id: text("id")
       .$defaultFn(() => createId())
       .primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspaceTable.id, {
@@ -425,8 +431,9 @@ export const billingReminderSentTable = pgTable(
   },
   (table) => [
     index("billing_reminder_sent_workspaceId_idx").on(table.workspaceId),
-    unique("billing_reminder_sent_workspace_type_unique").on(
-      table.workspaceId,
+    index("billing_reminder_sent_userId_idx").on(table.userId),
+    unique("billing_reminder_sent_user_type_unique").on(
+      table.userId,
       table.reminderType,
     ),
   ],

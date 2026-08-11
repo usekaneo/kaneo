@@ -51,6 +51,33 @@ afterAll(() => {
   }
 });
 
+async function addWorkspaceOwnedBy(userId: string, trialEndsAt: Date | null) {
+  const workspaceId = `workspace-${randomUUID()}`;
+  const [workspace] = await db
+    .insert(schema.workspaceTable)
+    .values({
+      id: workspaceId,
+      createdAt: new Date(),
+      name: `Extra-${randomUUID().slice(0, 6)}`,
+      slug: `workspace-${randomUUID()}`,
+    })
+    .returning();
+
+  await db.insert(schema.workspaceUserTable).values({
+    workspaceId: workspace.id,
+    userId,
+    role: "owner",
+    joinedAt: new Date(),
+  });
+
+  await db.insert(schema.workspaceBillingTable).values({
+    workspaceId: workspace.id,
+    trialEndsAt,
+  });
+
+  return workspace;
+}
+
 async function seedTrial(
   trialEndsAt: Date | null,
   overrides: Partial<typeof schema.workspaceBillingTable.$inferInsert> = {},
@@ -170,5 +197,28 @@ describe("trial reminder emails", () => {
     await checkTrialReminders();
 
     expect(recipients()[0]).toBe(soonest.user.email);
+  });
+
+  it("emails an owner once no matter how many workspaces they have", async () => {
+    const lapsed = new Date(Date.now() - DAY);
+    const { user } = await seedTrial(lapsed);
+    for (let i = 0; i < 19; i++) {
+      await addWorkspaceOwnedBy(user.id, lapsed);
+    }
+
+    await checkTrialReminders();
+
+    expect(sendTrialReminderEmail).toHaveBeenCalledTimes(1);
+    expect(recipients()).toEqual([user.email]);
+  });
+
+  it("still emails every distinct owner", async () => {
+    const lapsed = new Date(Date.now() - DAY);
+    const a = await seedTrial(lapsed);
+    const b = await seedTrial(lapsed);
+
+    await checkTrialReminders();
+
+    expect(recipients().sort()).toEqual([a.user.email, b.user.email].sort());
   });
 });

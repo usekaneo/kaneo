@@ -67,8 +67,13 @@ async function getWorkspacesNeedingReminder(type: ReminderType, now: Date) {
         )
       : lte(workspaceBillingTable.trialEndsAt, windowEnd);
 
-  return db
-    .select({
+  // One row per owner, not per workspace: trials are granted per owner, so a
+  // person with twenty workspaces must still get one email, not twenty.
+  // DISTINCT ON forces ORDER BY to lead with the owner, so urgency ordering
+  // has to happen outside it or the cap would drop the soonest expiries.
+  const owners = db
+    .selectDistinctOn([workspaceUserTable.userId], {
+      userId: workspaceUserTable.userId,
       workspaceId: workspaceTable.id,
       workspaceName: workspaceTable.name,
       trialEndsAt: workspaceBillingTable.trialEndsAt,
@@ -90,10 +95,7 @@ async function getWorkspacesNeedingReminder(type: ReminderType, now: Date) {
     .leftJoin(
       billingReminderSentTable,
       and(
-        eq(
-          billingReminderSentTable.workspaceId,
-          workspaceBillingTable.workspaceId,
-        ),
+        eq(billingReminderSentTable.userId, workspaceUserTable.userId),
         eq(billingReminderSentTable.reminderType, type),
       ),
     )
@@ -107,7 +109,16 @@ async function getWorkspacesNeedingReminder(type: ReminderType, now: Date) {
         eq(userTable.banned, false),
       ),
     )
-    .orderBy(asc(workspaceBillingTable.trialEndsAt))
+    .orderBy(
+      asc(workspaceUserTable.userId),
+      asc(workspaceBillingTable.trialEndsAt),
+    )
+    .as("owners");
+
+  return db
+    .select()
+    .from(owners)
+    .orderBy(asc(owners.trialEndsAt))
     .limit(maxPerRun());
 }
 
@@ -138,13 +149,14 @@ export async function checkTrialReminders(): Promise<void> {
       const [claimed] = await db
         .insert(billingReminderSentTable)
         .values({
+          userId: row.userId,
           workspaceId: row.workspaceId,
           reminderType: reminder.type,
           trialEndsAt: row.trialEndsAt,
         })
         .onConflictDoNothing({
           target: [
-            billingReminderSentTable.workspaceId,
+            billingReminderSentTable.userId,
             billingReminderSentTable.reminderType,
           ],
         })
