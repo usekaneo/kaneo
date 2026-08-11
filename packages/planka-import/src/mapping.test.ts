@@ -138,7 +138,7 @@ describe("buildDescription", () => {
 });
 
 describe("formatComment", () => {
-  it("preserves the original author and date", () => {
+  it("keeps the body clean and notes the original date", () => {
     const result = formatComment(
       {
         id: "c1",
@@ -150,12 +150,10 @@ describe("formatComment", () => {
       { id: "u1", email: "sam@example.com", name: "Sam", username: null },
     );
 
-    expect(result).toBe(
-      "**Sam** on 2026-03-04 (imported from PLANKA)\n\nLooks good",
-    );
+    expect(result).toBe("Looks good\n\n_Originally posted on 2026-03-04._");
   });
 
-  it("falls back when the author is unknown", () => {
+  it("returns the text unchanged when there is no date", () => {
     const result = formatComment(
       {
         id: "c1",
@@ -167,7 +165,7 @@ describe("formatComment", () => {
       undefined,
     );
 
-    expect(result).toBe("**Unknown user** (imported from PLANKA)\n\nOrphaned");
+    expect(result).toBe("Orphaned");
   });
 });
 

@@ -1,3 +1,9 @@
+## [2.17.6](https://github.com/usekaneo/kaneo/compare/v2.17.5...v2.17.6) (2026-08-11)
+
+
+### Bug Fixes
+
+* **planka-import:** explain unmatched assignees, keep dependencies, attribute comments ([15f6868](https://github.com/usekaneo/kaneo/commit/15f68683620b5fcfbed7970b77210b7cc706f74b))
 ## [2.17.5](https://github.com/usekaneo/kaneo/compare/v2.17.4...v2.17.5) (2026-08-11)
 
 

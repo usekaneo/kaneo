@@ -69,8 +69,10 @@ export function buildDescription(
   if (description) sections.push(description);
 
   for (const taskList of taskLists) {
+    // Items pointing at another card become task relations instead, so they
+    // are not also flattened into checkbox text.
     const items = tasks
-      .filter((task) => task.taskListId === taskList.id)
+      .filter((task) => task.taskListId === taskList.id && !task.linkedCardId)
       .sort((a, b) => a.position - b.position);
 
     if (items.length === 0) continue;
@@ -98,11 +100,10 @@ export function formatComment(
   const date = comment.createdAt
     ? new Date(comment.createdAt).toISOString().slice(0, 10)
     : null;
-  const attribution = date
-    ? `**${displayName(author)}** on ${date} (imported from PLANKA)`
-    : `**${displayName(author)}** (imported from PLANKA)`;
 
-  return `${attribution}\n\n${comment.text}`;
+  return date
+    ? `${comment.text}\n\n_Originally posted on ${date}._`
+    : comment.text;
 }
 
 /** PLANKA has no priority field; Kaneo requires one on create. */

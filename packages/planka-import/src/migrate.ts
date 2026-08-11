@@ -5,6 +5,7 @@ import {
   boardProjectName,
   buildDescription,
   DEFAULT_PRIORITY,
+  displayName,
   formatComment,
   planColumns,
   sortCards,
@@ -36,6 +37,7 @@ export type BoardReport = {
   comments: number;
   assignees: number;
   checklistItems: number;
+  relations: number;
   skippedLists: string[];
   skippedAttachments: number;
   warnings: string[];
@@ -100,6 +102,7 @@ export async function migrate(options: MigrateOptions): Promise<BoardReport[]> {
       comments: 0,
       assignees: 0,
       checklistItems: 0,
+      relations: 0,
       skippedLists: [],
       skippedAttachments: 0,
       warnings: [],
@@ -256,6 +259,10 @@ async function migrateBoard(context: {
     labelIdByPlankaId.set(label.id, { name, color });
   }
 
+  const taskIdByCardId = new Map<string, string>();
+  let noEmailFromPlanka = 0;
+  let notAWorkspaceMember = 0;
+
   let taskIndex = 0;
   for (const card of cards) {
     taskIndex++;
@@ -269,13 +276,19 @@ async function migrateBoard(context: {
     const cardChecklists = taskLists.filter((tl) => tl.cardId === card.id);
     const description = buildDescription(card, cardChecklists, checklistItems);
 
-    const assigneeId = resolveAssignee(
+    const assignee = resolveAssignee(
       card.id,
       cardMemberships,
       usersById,
       membersByEmail,
     );
-    if (assigneeId) report.assignees++;
+    if (assignee.userId) {
+      report.assignees++;
+    } else if (assignee.reason === "no_email") {
+      noEmailFromPlanka++;
+    } else if (assignee.reason === "not_a_member") {
+      notAWorkspaceMember++;
+    }
 
     const dueDate = toDueDate(card);
 
@@ -285,8 +298,10 @@ async function migrateBoard(context: {
       status,
       priority: DEFAULT_PRIORITY,
       ...(dueDate ? { dueDate } : {}),
-      ...(assigneeId ? { userId: assigneeId } : {}),
+      ...(assignee.userId ? { userId: assignee.userId } : {}),
     });
+
+    taskIdByCardId.set(card.id, task.id);
 
     for (const link of cardLabels) {
       if (link.cardId !== card.id) continue;
@@ -308,28 +323,85 @@ async function migrateBoard(context: {
 
     for (const comment of comments) {
       const author = comment.userId ? usersById.get(comment.userId) : undefined;
-      await kaneo.createComment(task.id, formatComment(comment, author));
+      await kaneo.createComment(
+        task.id,
+        formatComment(comment, author),
+        displayName(author),
+      );
       report.comments++;
     }
   }
+
+  // Relations need every task to exist first, so they run after the card loop.
+  for (const item of checklistItems) {
+    if (!item.linkedCardId) continue;
+
+    const parentCardId = taskLists.find(
+      (list) => list.id === item.taskListId,
+    )?.cardId;
+    if (!parentCardId) continue;
+
+    const sourceTaskId = taskIdByCardId.get(parentCardId);
+    const targetTaskId = taskIdByCardId.get(item.linkedCardId);
+    if (!sourceTaskId || !targetTaskId || sourceTaskId === targetTaskId) {
+      continue;
+    }
+
+    try {
+      await kaneo.createTaskRelation({
+        sourceTaskId,
+        targetTaskId,
+        relationType: "subtask",
+      });
+      report.relations++;
+    } catch (error) {
+      report.warnings.push(
+        `Could not link "${item.name}" as a subtask: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+  }
+
+  if (noEmailFromPlanka > 0) {
+    report.warnings.push(
+      `${noEmailFromPlanka} card assignment(s) were skipped because PLANKA did not return an email for those users. PLANKA only exposes email addresses to admins, so run the import with a PLANKA admin account to match assignees.`,
+    );
+  }
+  if (notAWorkspaceMember > 0) {
+    report.warnings.push(
+      `${notAWorkspaceMember} card assignment(s) were skipped because no member of this Kaneo workspace has a matching email. Invite those people to the workspace first, then re-run.`,
+    );
+  }
 }
+
+type AssigneeResolution = {
+  userId?: string;
+  reason?: "no_email" | "not_a_member";
+};
 
 function resolveAssignee(
   cardId: string,
   memberships: { cardId: string; userId: string }[],
   usersById: Map<string, PlankaUser>,
   membersByEmail: Map<string, string>,
-): string | undefined {
+): AssigneeResolution {
   // Kaneo has a single assignee; take the first member present in the workspace.
+  let reason: AssigneeResolution["reason"];
+
   for (const membership of memberships) {
     if (membership.cardId !== cardId) continue;
 
     const email = usersById.get(membership.userId)?.email?.toLowerCase();
-    if (!email) continue;
+    if (!email) {
+      reason ??= "no_email";
+      continue;
+    }
 
     const kaneoUserId = membersByEmail.get(email);
-    if (kaneoUserId) return kaneoUserId;
+    if (kaneoUserId) return { userId: kaneoUserId };
+    reason = "not_a_member";
   }
 
-  return undefined;
+  return reason ? { reason } : {};
 }

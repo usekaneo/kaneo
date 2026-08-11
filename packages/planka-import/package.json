@@ -1,6 +1,6 @@
 {
 	"name": "@kaneo/planka-import",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"description": "Migrate PLANKA boards into Kaneo: projects, lists, cards, labels, assignees, checklists and comments, over the public APIs of both",
 	"license": "MIT",
 	"author": "Kaneo (https://kaneo.app)",
