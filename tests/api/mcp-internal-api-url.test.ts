@@ -85,19 +85,22 @@ describe("MCP API URLs", () => {
     );
   });
 
-  it("uses a configured internal URL without duplicating the API path", async () => {
-    const apiFetch = vi.fn(async () =>
-      Response.json({ user: { id: "test-user" } }),
-    );
-    vi.stubGlobal("fetch", apiFetch);
-    const mcpRoutes = await loadMcpRoutes("http://api.internal:1337/api/");
+  it.each(["http://api.internal:1337/api/", "http://api.internal:1337/"])(
+    "uses the configured internal URL %s without duplicate slashes",
+    async (internalApiUrl) => {
+      const apiFetch = vi.fn(async () =>
+        Response.json({ user: { id: "test-user" } }),
+      );
+      vi.stubGlobal("fetch", apiFetch);
+      const mcpRoutes = await loadMcpRoutes(internalApiUrl);
 
-    const toolResponse = await mcpRoutes.request(toolRequest());
+      const toolResponse = await mcpRoutes.request(toolRequest());
 
-    expect(toolResponse.status).toBe(200);
-    expect(apiFetch).toHaveBeenCalledOnce();
-    expect(String(apiFetch.mock.calls[0]?.[0])).toBe(
-      "http://api.internal:1337/api/auth/get-session",
-    );
-  });
+      expect(toolResponse.status).toBe(200);
+      expect(apiFetch).toHaveBeenCalledOnce();
+      expect(String(apiFetch.mock.calls[0]?.[0])).toBe(
+        "http://api.internal:1337/api/auth/get-session",
+      );
+    },
+  );
 });

@@ -28,12 +28,14 @@ import {
 } from "./schemas";
 import { registerMcpTools, toMcpToolRegistrar } from "./tools";
 
-const publicApiUrl = (
-  process.env.KANEO_API_URL || "http://localhost:1337"
-).replace(/\/api\/?$/, "");
+const publicApiUrl = (process.env.KANEO_API_URL || "http://localhost:1337")
+  .replace(/\/api\/?$/, "")
+  .replace(/\/+$/, "");
 const internalApiUrl = (
   process.env.KANEO_INTERNAL_API_URL || "http://127.0.0.1:1337"
-).replace(/\/api\/?$/, "");
+)
+  .replace(/\/api\/?$/, "")
+  .replace(/\/+$/, "");
 
 type McpSession = {
   transport: WebStandardStreamableHTTPServerTransport;
