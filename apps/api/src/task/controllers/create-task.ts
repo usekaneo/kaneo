@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   columnTable,
+  customFieldDefinitionTable,
   customFieldValueTable,
   taskTable,
   userTable,
@@ -64,7 +65,29 @@ async function createTask({
 
   await assertValidTaskStatus(resolvedStatus, projectId);
 
-  await assertRequiredCustomFields(projectId, normalizedCustomFields);
+  const allFields = await db
+    .select()
+    .from(customFieldDefinitionTable)
+    .where(eq(customFieldDefinitionTable.projectId, projectId));
+
+  const mergedCustomFields: CustomFieldInput[] = normalizedCustomFields ?? [];
+  const providedFieldIds = new Set(mergedCustomFields.map((f) => f.fieldId));
+
+  for (const field of allFields) {
+    if (
+      !providedFieldIds.has(field.id) &&
+      field.required &&
+      field.defaultValue != null &&
+      field.defaultValue.trim() !== ""
+    ) {
+      mergedCustomFields.push({
+        fieldId: field.id,
+        value: field.defaultValue,
+      });
+    }
+  }
+
+  await assertRequiredCustomFields(projectId, mergedCustomFields);
 
   const [assignee] = await db
     .select({ name: userTable.name })
@@ -112,9 +135,9 @@ async function createTask({
       })
       .returning();
 
-    if (task && normalizedCustomFields?.length) {
+    if (task && mergedCustomFields.length) {
       await tx.insert(customFieldValueTable).values(
-        normalizedCustomFields.map(({ fieldId, value }) => ({
+        mergedCustomFields.map(({ fieldId, value }) => ({
           taskId: task.id,
           fieldId,
           value: value.trim(),
