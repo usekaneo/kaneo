@@ -35,10 +35,12 @@ describe("API integration: task comments", () => {
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
 
+    const formattedComment =
+      "First paragraph\n\n\n\n- List item\n\n\n\nAfter list";
     const uiResponse = await app.request("/api/activity/comment", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ taskId: task.id, comment: "Created in the UI" }),
+      body: JSON.stringify({ taskId: task.id, comment: formattedComment }),
     });
     expect(uiResponse.status).toBe(200);
 
@@ -46,7 +48,7 @@ describe("API integration: task comments", () => {
     expect(commentApiResponse.status).toBe(200);
     await expect(commentApiResponse.json()).resolves.toEqual([
       expect.objectContaining({
-        content: "Created in the UI",
+        content: formattedComment,
         taskId: task.id,
       }),
     ]);
@@ -67,7 +69,7 @@ describe("API integration: task comments", () => {
     expect(activities).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          content: "Created in the UI",
+          content: formattedComment,
           type: "comment",
         }),
         expect.objectContaining({
@@ -93,5 +95,114 @@ describe("API integration: task comments", () => {
       .from(schema.commentTable)
       .where(eq(schema.commentTable.taskId, task.id));
     expect(legacyComments).toHaveLength(0);
+  });
+
+  it("rejects creating comments over the activity API length limit", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Comment length limit",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const overlongComment = "x".repeat(10_001);
+    const response = await app.request("/api/activity/comment", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ taskId: task.id, comment: overlongComment }),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects updating comments over the activity API length limit", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Comment length limit",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const createResponse = await app.request("/api/activity/comment", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ taskId: task.id, comment: "Short comment" }),
+    });
+    expect(createResponse.status).toBe(200);
+    const createdComment = (await createResponse.json()) as { id: string };
+    const overlongComment = "x".repeat(10_001);
+
+    const response = await app.request("/api/activity/comment", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        activityId: createdComment.id,
+        comment: overlongComment,
+      }),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects comments through the generic activity endpoint", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Generic comment activity",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request("/api/activity/create", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        taskId: task.id,
+        userId: member.user.id,
+        message: "Comment through generic endpoint",
+        type: "comment",
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.headers.get("content-type")).toContain("application/json");
+    expect(await response.json()).toEqual({
+      message: "Use the comment endpoint to create comments",
+    });
   });
 });

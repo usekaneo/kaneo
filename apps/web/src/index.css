@@ -1129,6 +1129,11 @@ input:-webkit-autofill:active {
     margin: 0;
   }
 
+  .kaneo-comment-editor-prose > p + p,
+  .kaneo-comment-editor-prose > :is(ul, ol) + p {
+    margin-top: 0.75rem;
+  }
+
   .kaneo-comment-editor-prose h1,
   .kaneo-comment-editor-prose h2,
   .kaneo-comment-editor-prose h3 {

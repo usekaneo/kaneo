@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { subscribeToEvent } from "../events";
@@ -10,6 +11,9 @@ import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
 import getActivities from "./controllers/get-activities";
 import updateComment from "./controllers/update-comment";
+
+const activityCommentContentSchema = v.pipe(v.string(), v.maxLength(10_000));
+const activityErrorSchema = v.object({ message: v.string() });
 
 const activity = new Hono<{
   Variables: {
@@ -52,6 +56,12 @@ const activity = new Hono<{
             "application/json": { schema: resolver(activitySchema) },
           },
         },
+        400: {
+          description: "Comment activities must use the comment endpoint",
+          content: {
+            "application/json": { schema: resolver(activityErrorSchema) },
+          },
+        },
       },
     }),
     validator(
@@ -68,6 +78,14 @@ const activity = new Hono<{
     requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
       const { taskId, userId, message, type, eventData } = c.req.valid("json");
+      if (type === "comment") {
+        throw new HTTPException(400, {
+          res: c.json(
+            { message: "Use the comment endpoint to create comments" },
+            400,
+          ),
+        });
+      }
       const activity = await createActivity(
         taskId,
         type,
@@ -97,7 +115,7 @@ const activity = new Hono<{
       "json",
       v.object({
         taskId: v.string(),
-        comment: v.string(),
+        comment: activityCommentContentSchema,
       }),
     ),
     workspaceAccess.fromTaskId(),
@@ -129,7 +147,7 @@ const activity = new Hono<{
       "json",
       v.object({
         activityId: v.string(),
-        comment: v.string(),
+        comment: activityCommentContentSchema,
       }),
     ),
     workspaceAccess.fromActivity("activityId"),
