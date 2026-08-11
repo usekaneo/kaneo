@@ -1,3 +1,14 @@
+## [2.17.3](https://github.com/usekaneo/kaneo/compare/v2.17.2...v2.17.3) (2026-08-11)
+
+
+### Bug Fixes
+
+* **planka-import:** default to the real Kaneo Cloud host ([3863eb6](https://github.com/usekaneo/kaneo/commit/3863eb6ba1d5a6ec9833e4b4a383cffc3fa10fff))
+
+
+### Features
+
+* **billing:** email trial reminders before and after expiry ([0e481a9](https://github.com/usekaneo/kaneo/commit/0e481a9c8223f36b03a35ad0cbb7456af99466d9))
 ## [2.17.2](https://github.com/usekaneo/kaneo/compare/v2.17.1...v2.17.2) (2026-08-11)
 
 
