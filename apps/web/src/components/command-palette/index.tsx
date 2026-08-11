@@ -23,8 +23,10 @@ import {
 } from "@/components/ui/command";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { shortcuts } from "@/constants/shortcuts";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { authClient } from "@/lib/auth-client";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import CreateProjectModal from "../shared/modals/create-project-modal";
 
@@ -47,6 +49,10 @@ function CommandPalette() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: workspace } = useActiveWorkspace();
+  const { data: session } = authClient.useSession();
+  const { data: config } = useGetConfig();
+  const canCreateWorkspace =
+    !config?.disableWorkspaceCreation || session?.user?.role === "admin";
   const [open, setOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
@@ -147,12 +153,16 @@ function CommandPalette() {
         value: "commands",
         label: t("navigation:commandPalette.commands"),
         items: [
-          {
-            value: "create-workspace",
-            label: t("navigation:commandPalette.createWorkspace"),
-            shortcut: `${shortcuts.workspace.prefix} ${shortcuts.workspace.create}`,
-            onRun: () => setIsCreateWorkspaceOpen(true),
-          },
+          ...(canCreateWorkspace
+            ? [
+                {
+                  value: "create-workspace",
+                  label: t("navigation:commandPalette.createWorkspace"),
+                  shortcut: `${shortcuts.workspace.prefix} ${shortcuts.workspace.create}`,
+                  onRun: () => setIsCreateWorkspaceOpen(true),
+                },
+              ]
+            : []),
           {
             value: "theme-light",
             label: t("navigation:commandPalette.lightTheme"),
@@ -183,7 +193,7 @@ function CommandPalette() {
         ],
       },
     ],
-    [navigate, setTheme, t, workspace?.id],
+    [navigate, setTheme, t, workspace?.id, canCreateWorkspace],
   );
 
   const shortcutHandlers = useMemo(() => {

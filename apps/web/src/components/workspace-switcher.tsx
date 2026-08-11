@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/user-avatar";
 import { shortcuts } from "@/constants/shortcuts";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
 import {
@@ -38,6 +39,10 @@ export function WorkspaceSwitcher() {
   // User-scoped WebSocket for real-time events (e.g. NOTIFICATION_CREATED)
   useUserWebSocket();
   const { data: workspaces } = useGetWorkspaces();
+  const { data: session } = authClient.useSession();
+  const { data: config } = useGetConfig();
+  const canCreateWorkspace =
+    !config?.disableWorkspaceCreation || session?.user?.role === "admin";
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isCreateWorkspaceModalOpen, setIsCreateWorkspaceModalOpen] =
@@ -100,7 +105,9 @@ export function WorkspaceSwitcher() {
           setIsOpen(true);
         },
         [shortcuts.workspace.create]: () => {
-          setIsCreateWorkspaceModalOpen(true);
+          if (canCreateWorkspace) {
+            setIsCreateWorkspaceModalOpen(true);
+          }
         },
       },
     },
@@ -172,16 +179,22 @@ export function WorkspaceSwitcher() {
                   </DropdownMenuItem>
                 ))}
 
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => {
-                    setIsCreateWorkspaceModalOpen(true);
-                    setIsOpen(false);
-                  }}
-                  className="h-7 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
-                >
-                  <span>{t("navigation:workspaceSwitcher.addWorkspace")}</span>
-                </DropdownMenuItem>
+                {canCreateWorkspace && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setIsCreateWorkspaceModalOpen(true);
+                        setIsOpen(false);
+                      }}
+                      className="h-7 text-sm data-highlighted:bg-sidebar-accent data-highlighted:text-sidebar-accent-foreground"
+                    >
+                      <span>
+                        {t("navigation:workspaceSwitcher.addWorkspace")}
+                      </span>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
