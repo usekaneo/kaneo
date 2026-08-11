@@ -67,6 +67,11 @@ function normalizeInvitationId(value: unknown): string | undefined {
   return normalized;
 }
 
+function isOAuthCallbackPath(path: unknown): boolean {
+  if (typeof path !== "string") return false;
+  return path.startsWith("/callback/") || path.startsWith("/oauth2/callback/");
+}
+
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
 const isHttps = apiUrl.startsWith("https://");
@@ -540,6 +545,7 @@ export const auth = betterAuth({
           const result = await checkRegistrationAllowed(
             user.email,
             invitationId,
+            { allowInvitationByEmail: isOAuthCallbackPath(ctx?.path) },
           );
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {

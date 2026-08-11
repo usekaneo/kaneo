@@ -782,7 +782,9 @@
 				"commentOnDisabled": "Yeni sorunlardaki talep bağlantısı yorumları kapatıldı",
 				"settingsUpdateError": "Gitea entegrasyonu güncellenemedi",
 				"secretCopied": "Kopyalandı",
-				"unableToCopySecret": "Gizli anahtar kopyalanamıyor"
+				"unableToCopySecret": "Gizli anahtar kopyalanamıyor",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Göster",
 			"webhookHide": "Gizle",

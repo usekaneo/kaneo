@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer as LegacyMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import {
+  isJsonContentType,
+  isLegacyRequest,
+} from "@modelcontextprotocol/server";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { auth } from "../auth";
@@ -10,6 +14,7 @@ import {
   getMcpAuthorizationRequest,
   registerMcpClient,
 } from "./controllers/oauth-consent";
+import { createModernMcpHandler } from "./modern";
 import { exchangeCode } from "./oauth";
 import {
   authorizationDecisionResponseSchema,
@@ -21,12 +26,16 @@ import {
   clientRegistrationSchema,
   oauthErrorSchema,
 } from "./schemas";
-import { registerMcpTools } from "./tools";
+import { registerMcpTools, toMcpToolRegistrar } from "./tools";
 
-const apiUrl = (process.env.KANEO_API_URL || "http://localhost:1337").replace(
-  /\/api\/?$/,
-  "",
-);
+const publicApiUrl = (process.env.KANEO_API_URL || "http://localhost:1337")
+  .replace(/\/api\/?$/, "")
+  .replace(/\/+$/, "");
+const internalApiUrl = (
+  process.env.KANEO_INTERNAL_API_URL || "http://127.0.0.1:1337"
+)
+  .replace(/\/api\/?$/, "")
+  .replace(/\/+$/, "");
 
 type McpSession = {
   transport: WebStandardStreamableHTTPServerTransport;
@@ -35,12 +44,12 @@ type McpSession = {
 
 const sessions = new Map<string, McpSession>();
 
-function createMcpServerForUser(token: string): McpServer {
-  const server = new McpServer({
+function createMcpServerForUser(token: string): LegacyMcpServer {
+  const server = new LegacyMcpServer({
     name: "kaneo-mcp",
     version: "1.0.0",
   });
-  registerMcpTools(server, apiUrl, token);
+  registerMcpTools(toMcpToolRegistrar(server), internalApiUrl, token);
   return server;
 }
 
@@ -243,17 +252,17 @@ mcp.post("/mcp/token", async (c) => {
 
 mcp.get("/.well-known/oauth-protected-resource/api/mcp", (c) =>
   c.json({
-    resource: `${apiUrl}/api/mcp`,
-    authorization_servers: [`${apiUrl}/api`],
+    resource: `${publicApiUrl}/api/mcp`,
+    authorization_servers: [`${publicApiUrl}/api`],
   }),
 );
 
 mcp.get("/.well-known/oauth-authorization-server/api", (c) =>
   c.json({
-    issuer: `${apiUrl}/api`,
-    authorization_endpoint: `${apiUrl}/api/mcp/authorize`,
-    token_endpoint: `${apiUrl}/api/mcp/token`,
-    registration_endpoint: `${apiUrl}/api/mcp/register`,
+    issuer: `${publicApiUrl}/api`,
+    authorization_endpoint: `${publicApiUrl}/api/mcp/authorize`,
+    token_endpoint: `${publicApiUrl}/api/mcp/token`,
+    registration_endpoint: `${publicApiUrl}/api/mcp/register`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code"],
     code_challenge_methods_supported: ["S256"],
@@ -264,7 +273,7 @@ mcp.get("/.well-known/oauth-authorization-server/api", (c) =>
 mcp.all("/mcp", async (c) => {
   const authResult = await validateBearerToken(c.req.raw);
   if (!authResult) {
-    const prmUrl = `${apiUrl}/api/.well-known/oauth-protected-resource/api/mcp`;
+    const prmUrl = `${publicApiUrl}/api/.well-known/oauth-protected-resource/api/mcp`;
     c.header("WWW-Authenticate", `Bearer resource_metadata="${prmUrl}"`);
     return c.json(
       {
@@ -289,6 +298,15 @@ mcp.all("/mcp", async (c) => {
 
   if (c.req.method !== "POST") {
     return c.json({ error: "Method not allowed" }, 405);
+  }
+
+  if (!isJsonContentType(c.req.header("content-type"))) {
+    return c.json({ error: "Unsupported Media Type" }, 415);
+  }
+
+  if (!(await isLegacyRequest(c.req.raw.clone()))) {
+    const modern = createModernMcpHandler(authResult.token, internalApiUrl);
+    return modern.fetch(c.req.raw);
   }
 
   const transport = new WebStandardStreamableHTTPServerTransport({

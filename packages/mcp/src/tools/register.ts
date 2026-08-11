@@ -567,4 +567,220 @@ export function registerTools(
         });
       }),
   );
+
+  server.registerTool(
+    "list_workspace_members",
+    {
+      description:
+        "List the members of a workspace. Use this to resolve the user ID an assignee tool expects.",
+      inputSchema: z.object({ workspaceId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/workspace/${encodeURIComponent(args.workspaceId)}/members`,
+        ),
+      ),
+  );
+
+  server.registerTool(
+    "search",
+    {
+      description:
+        "Search across tasks, projects, workspaces, comments, and activities.",
+      inputSchema: z.object({
+        q: nonEmptyString.describe("Search query"),
+        type: z
+          .enum([
+            "all",
+            "tasks",
+            "projects",
+            "workspaces",
+            "comments",
+            "activities",
+          ])
+          .optional()
+          .describe("Restrict results to one kind. Defaults to all."),
+        workspaceId: optionalNonEmptyString.describe("Limit to one workspace"),
+        projectId: optionalNonEmptyString.describe("Limit to one project"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(50)
+          .optional()
+          .describe("Maximum results, 1 to 50. Defaults to 20."),
+      }),
+    },
+    async (args) => {
+      const qs = new URLSearchParams({ q: args.q });
+      if (args.type) qs.set("type", args.type);
+      if (args.workspaceId) qs.set("workspaceId", args.workspaceId);
+      if (args.projectId) qs.set("projectId", args.projectId);
+      if (args.limit !== undefined) qs.set("limit", String(args.limit));
+      return run(() => client.json(`/api/search?${qs.toString()}`));
+    },
+  );
+
+  server.registerTool(
+    "list_project_columns",
+    {
+      description:
+        "List a project's columns. Their slugs are the values update_task_status and create_task accept as a status.",
+      inputSchema: z.object({ projectId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/column/${encodeURIComponent(args.projectId)}`),
+      ),
+  );
+
+  server.registerTool(
+    "delete_task",
+    {
+      description: "Delete a task by ID.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/${encodeURIComponent(args.taskId)}`, {
+          method: "DELETE",
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "update_task_assignee",
+    {
+      description:
+        "Assign a task to a workspace member, or pass a null userId to unassign it.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        userId: nonEmptyString
+          .nullable()
+          .describe("Member user ID, or null to unassign"),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/assignee/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify({ userId: args.userId }),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "update_task_due_date",
+    {
+      description: "Set a task's due date. Omit dueDate to clear it.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        dueDate: optionalIsoDateTimeSchema,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/due-date/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify(
+            args.dueDate === undefined ? {} : { dueDate: args.dueDate },
+          ),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "list_task_time_entries",
+    {
+      description: "List the time entries logged against a task.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/time-entry/task/${encodeURIComponent(args.taskId)}`),
+      ),
+  );
+
+  server.registerTool(
+    "get_time_entry",
+    {
+      description: "Get a single time entry by ID.",
+      inputSchema: z.object({ id: nonEmptyString }),
+    },
+    async (args) =>
+      run(() => client.json(`/api/time-entry/${encodeURIComponent(args.id)}`)),
+  );
+
+  server.registerTool(
+    "create_time_entry",
+    {
+      description:
+        "Log time against a task. Omit endTime to leave the entry running.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        startTime: isoDateTimeSchema,
+        endTime: optionalIsoDateTimeSchema,
+        description: optionalNonEmptyString,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json("/api/time-entry", {
+          method: "POST",
+          body: JSON.stringify({
+            taskId: args.taskId,
+            startTime: args.startTime,
+            ...(args.endTime ? { endTime: args.endTime } : {}),
+            ...(args.description ? { description: args.description } : {}),
+          }),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "update_time_entry",
+    {
+      description:
+        "Update a time entry. startTime is required; omitting endTime keeps the stored one. startTime cannot be later than the end time.",
+      inputSchema: z.object({
+        id: nonEmptyString,
+        startTime: isoDateTimeSchema,
+        endTime: optionalIsoDateTimeSchema,
+        description: optionalNonEmptyString,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/time-entry/${encodeURIComponent(args.id)}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            startTime: args.startTime,
+            ...(args.endTime ? { endTime: args.endTime } : {}),
+            ...(args.description ? { description: args.description } : {}),
+          }),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "list_task_activity",
+    {
+      description: "List a task's activity history.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/activity/${encodeURIComponent(args.taskId)}`),
+      ),
+  );
+
+  server.registerTool(
+    "list_notifications",
+    {
+      description: "List the signed-in user's notifications.",
+      inputSchema: z.object({}),
+    },
+    async () => run(() => client.json("/api/notification")),
+  );
 }
