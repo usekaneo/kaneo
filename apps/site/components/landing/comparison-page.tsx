@@ -15,6 +15,7 @@ export type Comparison = {
   rows: { feature: string; kaneo: Cell; them: Cell }[];
   reasons: { title: string; body: string }[];
   honestNote: string;
+  migration?: { body: string; href: string; linkText: string };
 };
 
 function CellValue({ value, emphasize }: { value: Cell; emphasize?: boolean }) {
@@ -124,6 +125,19 @@ export function ComparisonPage({ data }: { data: Comparison }) {
                   </div>
                 ))}
               </div>
+
+              {data.migration ? (
+                <p className="mt-14 max-w-2xl text-foreground/70 text-sm leading-relaxed">
+                  {data.migration.body}{" "}
+                  <a
+                    className="text-foreground underline underline-offset-4 transition-colors hover:text-primary"
+                    href={data.migration.href}
+                  >
+                    {data.migration.linkText}
+                  </a>
+                  .
+                </p>
+              ) : null}
 
               <div className="mt-14 max-w-2xl rounded-xl border border-border/70 bg-card/70 p-5">
                 <h3 className="font-medium text-sm">
