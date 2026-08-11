@@ -334,6 +334,15 @@
 				"nameRequired": "Name is required",
 				"nameShort": "Name must be at least 2 characters",
 				"invalidEmail": "Invalid email address"
+			},
+			"deleteAccount": {
+				"sectionTitle": "Danger Zone",
+				"sectionDescription": "Permanently delete your account and all associated personal data.",
+				"button": "Delete Account",
+				"confirmTitle": "Delete your account?",
+				"confirmDescription": "This action cannot be undone. Your account and all personal data will be permanently removed.",
+				"successToast": "Your account has been deleted.",
+				"errorToast": "Failed to delete account."
 			}
 		},
 		"notificationsPage": {

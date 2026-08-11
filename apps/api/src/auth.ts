@@ -196,6 +196,9 @@ export const auth = betterAuth({
     },
   }),
   user: {
+    deleteUser: {
+      enabled: process.env.DISABLE_ACCOUNT_DELETION !== "true",
+    },
     additionalFields: {
       locale: {
         type: "string",
