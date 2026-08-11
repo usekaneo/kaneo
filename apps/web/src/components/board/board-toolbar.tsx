@@ -666,7 +666,7 @@ export default function BoardToolbar({
               onClick={() => setViewMode("board3d")}
             >
               <Box className="h-3 w-3" />
-              3D
+              {t("tasks:view.board3d")}
             </button>
             <button
               type="button"

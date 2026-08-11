@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { RotateCcw } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
+import { type ReactElement, useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
@@ -31,7 +32,8 @@ function defaultCamera(): Camera {
   };
 }
 
-function KanbanBoard3D({ project }: KanbanBoard3DProps) {
+function KanbanBoard3D({ project }: KanbanBoard3DProps): ReactElement {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const viewportRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<HTMLDivElement>(null);
@@ -101,6 +103,21 @@ function KanbanBoard3D({ project }: KanbanBoard3DProps) {
     };
 
     const onWheel = (event: WheelEvent) => {
+      // wheel over an overflowing task list scrolls the list; the camera
+      // only zooms once the list cannot scroll further in that direction
+      const scroller = (event.target as Element | null)?.closest?.(
+        "[data-board3d-scroll]",
+      );
+      if (
+        scroller instanceof HTMLElement &&
+        scroller.scrollHeight > scroller.clientHeight
+      ) {
+        const atTop = scroller.scrollTop <= 0;
+        const atBottom =
+          scroller.scrollTop + scroller.clientHeight >=
+          scroller.scrollHeight - 1;
+        if (event.deltaY < 0 ? !atTop : !atBottom) return;
+      }
       event.preventDefault();
       const camera = cameraRef.current;
       camera.z += event.deltaY * 2;
@@ -145,7 +162,7 @@ function KanbanBoard3D({ project }: KanbanBoard3DProps) {
     <div
       ref={viewportRef}
       data-board3d-viewport
-      className="relative h-full w-full overflow-hidden bg-background cursor-grab touch-none select-none"
+      className="relative h-full w-full overflow-hidden bg-background cursor-grab select-none"
       style={{ perspective: `${PERSPECTIVE}px` }}
     >
       <div
@@ -184,7 +201,10 @@ function KanbanBoard3D({ project }: KanbanBoard3DProps) {
                     </span>
                   </div>
                 </div>
-                <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-2 py-2">
+                <div
+                  data-board3d-scroll
+                  className="min-h-0 flex-1 touch-pan-y space-y-2 overflow-y-auto px-2 py-2"
+                >
                   {column.tasks.map((task) => (
                     <button
                       key={task.id}
@@ -232,11 +252,11 @@ function KanbanBoard3D({ project }: KanbanBoard3DProps) {
           className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:bg-accent/60 hover:text-foreground"
         >
           <RotateCcw className="h-3 w-3" />
-          Reset
+          {t("tasks:board3d.reset")}
         </button>
       </div>
       <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-border/60 bg-card/80 px-2 py-1 text-[11px] text-muted-foreground backdrop-blur-sm">
-        drag: pan · ctrl/right-drag: rotate · wheel: zoom
+        {t("tasks:board3d.hint")}
       </div>
     </div>
   );

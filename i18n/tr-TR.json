@@ -477,7 +477,8 @@
 			"labels": "Etiketler",
 			"labelsDescription": "Talep etiketlerini ve etiketleri göster",
 			"priority": "Öncelik",
-			"priorityDescription": "Öncelik göstergelerini görüntüle"
+			"priorityDescription": "Öncelik göstergelerini görüntüle",
+			"board3d": "3D board"
 		},
 		"developerPage": {
 			"pageTitle": "Geliştirici Ayarları",
@@ -1531,7 +1532,8 @@
 		"boardSearchPlaceholder": "Talep ara...",
 		"view": {
 			"board": "Pano",
-			"list": "Liste"
+			"list": "Liste",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Talep seç",
@@ -1917,6 +1919,10 @@
 				"deleteRow": "Satırı sil",
 				"deleteTable": "Tabloyu sil"
 			}
+		},
+		"board3d": {
+			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
+			"reset": "Reset"
 		}
 	},
 	"invitations": {

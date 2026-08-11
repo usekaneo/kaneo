@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import BoardToolbar from "@/components/board/board-toolbar";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
-import KanbanBoard3D from "@/components/kanban-board-3d";
+import KanbanBoard3D from "@/components/kanban-board-3d/KanbanBoard3D";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
@@ -214,7 +214,7 @@ function RouteComponent() {
       headerActions={boardHeaderSearch}
     >
       <PageTitle
-        title={`${project?.name} · ${viewMode === "board" ? t("tasks:view.board") : viewMode === "board3d" ? "3D" : t("tasks:view.list")}`}
+        title={`${project?.name} · ${viewMode === "board" ? t("tasks:view.board") : viewMode === "board3d" ? t("tasks:view.board3d") : t("tasks:view.list")}`}
         hideAppName
       />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">

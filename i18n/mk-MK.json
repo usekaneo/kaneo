@@ -477,7 +477,8 @@
 			"labels": "Етикети",
 			"labelsDescription": "Прикажи етикети и тагови на задачите",
 			"priority": "Приоритет",
-			"priorityDescription": "Прикажи индикатори за приоритет"
+			"priorityDescription": "Прикажи индикатори за приоритет",
+			"board3d": "3D board"
 		},
 		"developerPage": {
 			"pageTitle": "Програмерски поставки",
@@ -1531,7 +1532,8 @@
 		"boardSearchPlaceholder": "Пребарај тикети...",
 		"view": {
 			"board": "Табла",
-			"list": "Листа"
+			"list": "Листа",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Избери задача",
@@ -1917,6 +1919,10 @@
 				"deleteRow": "Избриши ред",
 				"deleteTable": "Избриши табела"
 			}
+		},
+		"board3d": {
+			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
+			"reset": "Reset"
 		}
 	},
 	"invitations": {

@@ -1,12 +1,16 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProjectWithTasks } from "@/types/project";
-import KanbanBoard3D from "./index";
+import KanbanBoard3D from "./KanbanBoard3D";
 
 const navigateMock = vi.fn();
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => navigateMock,
+}));
+
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
 }));
 
 function makeTask(id: string, title: string, number: number) {
@@ -223,6 +227,38 @@ describe("KanbanBoard3D", () => {
     card.dispatchEvent(pointer("pointermove", { clientX: 40, clientY: 40 }));
 
     expect(world.style.transform).toContain("translate3d(0px, 0px, -1200px)");
+  });
+
+  it("lets the wheel scroll an overflowing task list instead of zooming", () => {
+    const { container } = render(<KanbanBoard3D project={project} />);
+    const world = getWorld(container);
+    const list = container.querySelector("[data-board3d-scroll]");
+    if (!(list instanceof HTMLElement)) throw new Error("no list");
+    Object.defineProperty(list, "scrollHeight", { value: 500 });
+    Object.defineProperty(list, "clientHeight", { value: 100 });
+    list.scrollTop = 0;
+
+    list.dispatchEvent(
+      new WheelEvent("wheel", { deltaY: 100, bubbles: true, cancelable: true }),
+    );
+
+    expect(world.style.transform).toContain("-1200px");
+  });
+
+  it("zooms once the overflowing list is at the edge of its scroll range", () => {
+    const { container } = render(<KanbanBoard3D project={project} />);
+    const world = getWorld(container);
+    const list = container.querySelector("[data-board3d-scroll]");
+    if (!(list instanceof HTMLElement)) throw new Error("no list");
+    Object.defineProperty(list, "scrollHeight", { value: 500 });
+    Object.defineProperty(list, "clientHeight", { value: 100 });
+    list.scrollTop = 400;
+
+    list.dispatchEvent(
+      new WheelEvent("wheel", { deltaY: 100, bubbles: true, cancelable: true }),
+    );
+
+    expect(world.style.transform).toContain("-1000px");
   });
 
   it("resets the camera with the reset button", () => {

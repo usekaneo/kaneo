@@ -1864,6 +1864,9 @@
 						},
 						"priorityDescription": {
 							"type": "string"
+						},
+						"board3d": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -1905,7 +1908,8 @@
 						"labels",
 						"labelsDescription",
 						"priority",
-						"priorityDescription"
+						"priorityDescription",
+						"board3d"
 					]
 				},
 				"developerPage": {
@@ -3639,6 +3643,12 @@
 								"repoNotFound": {
 									"type": "string"
 								},
+								"redirected": {
+									"type": "string"
+								},
+								"notGiteaInstance": {
+									"type": "string"
+								},
 								"verifyError": {
 									"type": "string"
 								},
@@ -3689,6 +3699,8 @@
 								"verifyOk",
 								"verifyWarning",
 								"repoNotFound",
+								"redirected",
+								"notGiteaInstance",
 								"verifyError",
 								"tokenRequired",
 								"tokenRequiredVerify",
@@ -6063,9 +6075,12 @@
 						},
 						"list": {
 							"type": "string"
+						},
+						"board3d": {
+							"type": "string"
 						}
 					},
-					"required": ["board", "list"]
+					"required": ["board", "list", "board3d"]
 				},
 				"common": {
 					"type": "object",
@@ -7553,6 +7568,19 @@
 						}
 					},
 					"required": ["table"]
+				},
+				"board3d": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"reset": {
+							"type": "string"
+						},
+						"hint": {
+							"type": "string"
+						}
+					},
+					"required": ["reset", "hint"]
 				}
 			},
 			"required": [
@@ -7584,7 +7612,8 @@
 				"contextMenu",
 				"actions",
 				"bulk",
-				"editor"
+				"editor",
+				"board3d"
 			]
 		},
 		"invitations": {

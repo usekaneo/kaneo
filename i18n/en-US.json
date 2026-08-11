@@ -477,7 +477,8 @@
 			"labels": "Labels",
 			"labelsDescription": "Show task labels and tags",
 			"priority": "Priority",
-			"priorityDescription": "Display priority indicators"
+			"priorityDescription": "Display priority indicators",
+			"board3d": "3D board"
 		},
 		"developerPage": {
 			"pageTitle": "Developer Settings",
@@ -1531,7 +1532,8 @@
 		"boardSearchPlaceholder": "Search tickets...",
 		"view": {
 			"board": "Board",
-			"list": "List"
+			"list": "List",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Select task",
@@ -1917,6 +1919,10 @@
 				"deleteRow": "Delete row",
 				"deleteTable": "Delete table"
 			}
+		},
+		"board3d": {
+			"reset": "Reset",
+			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom"
 		}
 	},
 	"invitations": {

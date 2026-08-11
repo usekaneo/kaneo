@@ -477,7 +477,8 @@
 			"labels": "Labels",
 			"labelsDescription": "Aufgabenlabels und Tags anzeigen",
 			"priority": "Priorität",
-			"priorityDescription": "Prioritätsindikatoren anzeigen"
+			"priorityDescription": "Prioritätsindikatoren anzeigen",
+			"board3d": "3D board"
 		},
 		"developerPage": {
 			"pageTitle": "Entwicklereinstellungen",
@@ -1531,7 +1532,8 @@
 		"boardSearchPlaceholder": "Tickets suchen...",
 		"view": {
 			"board": "Board",
-			"list": "Liste"
+			"list": "Liste",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Aufgabe auswählen",
@@ -1917,6 +1919,10 @@
 				"deleteRow": "Zeile löschen",
 				"deleteTable": "Tabelle löschen"
 			}
+		},
+		"board3d": {
+			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
+			"reset": "Reset"
 		}
 	},
 	"invitations": {

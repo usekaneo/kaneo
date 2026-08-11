@@ -477,7 +477,8 @@
 			"labels": "标签",
 			"labelsDescription": "显示任务的标签和标记",
 			"priority": "优先级",
-			"priorityDescription": "显示优先级指示"
+			"priorityDescription": "显示优先级指示",
+			"board3d": "3D board"
 		},
 		"developerPage": {
 			"pageTitle": "开发者设置",
@@ -1531,7 +1532,8 @@
 		"boardSearchPlaceholder": "搜索工单…",
 		"view": {
 			"board": "看板",
-			"list": "列表"
+			"list": "列表",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "选择任务",
@@ -1917,6 +1919,10 @@
 				"deleteRow": "删除行",
 				"deleteTable": "删除表格"
 			}
+		},
+		"board3d": {
+			"hint": "drag: pan · ctrl/right-drag: rotate · wheel: zoom",
+			"reset": "Reset"
 		}
 	},
 	"invitations": {
