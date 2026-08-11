@@ -1,3 +1,9 @@
+## [2.17.5](https://github.com/usekaneo/kaneo/compare/v2.17.4...v2.17.5) (2026-08-11)
+
+
+### Bug Fixes
+
+* **billing:** send one trial reminder per owner, not per workspace ([ae2e579](https://github.com/usekaneo/kaneo/commit/ae2e57919d4703b4fcb2e4452b2c7b171abedd97))
 ## [2.17.4](https://github.com/usekaneo/kaneo/compare/v2.17.3...v2.17.4) (2026-08-11)
 
 
