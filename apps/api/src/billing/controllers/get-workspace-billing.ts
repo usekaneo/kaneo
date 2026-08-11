@@ -1,7 +1,11 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNotNull, min } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { workspaceBillingTable, workspaceTable } from "../../database/schema";
+import {
+  workspaceBillingTable,
+  workspaceTable,
+  workspaceUserTable,
+} from "../../database/schema";
 import { foundingCutoff, isBillingEnabled, trialDays } from "../config";
 
 const ACTIVE_STATUSES = new Set([
@@ -10,6 +14,44 @@ const ACTIVE_STATUSES = new Set([
   "past_due",
   "scheduled_cancel",
 ]);
+
+export async function resolveTrialEndsAt(
+  workspaceId: string,
+): Promise<Date | null> {
+  const [owner] = await db
+    .select({ userId: workspaceUserTable.userId })
+    .from(workspaceUserTable)
+    .where(
+      and(
+        eq(workspaceUserTable.workspaceId, workspaceId),
+        eq(workspaceUserTable.role, "owner"),
+      ),
+    )
+    .limit(1);
+
+  if (owner) {
+    const [earlier] = await db
+      .select({ trialEndsAt: min(workspaceBillingTable.trialEndsAt) })
+      .from(workspaceBillingTable)
+      .innerJoin(
+        workspaceUserTable,
+        eq(workspaceUserTable.workspaceId, workspaceBillingTable.workspaceId),
+      )
+      .where(
+        and(
+          eq(workspaceUserTable.userId, owner.userId),
+          eq(workspaceUserTable.role, "owner"),
+          isNotNull(workspaceBillingTable.trialEndsAt),
+        ),
+      );
+
+    if (earlier?.trialEndsAt) {
+      return new Date(earlier.trialEndsAt);
+    }
+  }
+
+  return new Date(Date.now() + trialDays() * 24 * 60 * 60 * 1000);
+}
 
 export async function getOrCreateWorkspaceBilling(workspaceId: string) {
   const [existing] = await db
@@ -31,9 +73,7 @@ export async function getOrCreateWorkspaceBilling(workspaceId: string) {
 
   const cutoff = foundingCutoff();
   const isFounding = cutoff !== null && workspace.createdAt <= cutoff;
-  const trialEndsAt = isFounding
-    ? null
-    : new Date(Date.now() + trialDays() * 24 * 60 * 60 * 1000);
+  const trialEndsAt = isFounding ? null : await resolveTrialEndsAt(workspaceId);
 
   const [created] = await db
     .insert(workspaceBillingTable)
