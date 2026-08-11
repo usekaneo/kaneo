@@ -289,9 +289,15 @@ function RouteComponent() {
           const taskFieldValues = getValuesForTask(task.id);
           const allMatch = Object.entries(filters.customFields).every(
             ([fieldId, selectedVals]) => {
-              if (!selectedVals.length) return true;
+              if (!selectedVals || selectedVals.length === 0) return true;
+
               const entry = taskFieldValues.find((v) => v.fieldId === fieldId);
-              return entry?.value != null && selectedVals.includes(entry.value);
+
+              if (!entry || entry.value == null || entry.value === "") {
+                return false;
+              }
+
+              return selectedVals.includes(entry.value);
             },
           );
           if (!allMatch) return false;

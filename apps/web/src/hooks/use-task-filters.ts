@@ -168,11 +168,19 @@ export function useTaskFilters(
         Object.keys(filters.customFields).length > 0
       ) {
         for (const [fieldId, values] of Object.entries(filters.customFields)) {
-          if (values.length === 0) continue;
+          if (!values || values.length === 0) continue;
+
           const taskValue =
             task.customFieldValues?.find((v) => v.fieldId === fieldId)?.value ??
             null;
-          if (!taskValue || !values.includes(taskValue)) return false;
+
+          if (taskValue == null || taskValue === "") {
+            return false;
+          }
+
+          if (!values.includes(taskValue)) {
+            return false;
+          }
         }
       }
 

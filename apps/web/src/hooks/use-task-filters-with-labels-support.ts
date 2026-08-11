@@ -209,12 +209,18 @@ export function useTaskFiltersWithLabelsSupport(
 
           const matchesAllFields = Object.entries(filters.customFields).every(
             ([fieldId, allowedValues]) => {
+              if (!allowedValues || allowedValues.length === 0) return true;
+
               const fieldEntry = taskFieldValues.find(
                 (v) => v.fieldId === fieldId,
               );
 
-              if (!fieldEntry || fieldEntry.value == null) {
-                return true;
+              if (
+                !fieldEntry ||
+                fieldEntry.value == null ||
+                fieldEntry.value === ""
+              ) {
+                return false;
               }
 
               return allowedValues.includes(fieldEntry.value);
