@@ -9,6 +9,7 @@
 #
 # The only required environment variable is KANEO_CLIENT_URL (your public URL, without :5173).
 # AUTH_SECRET and the PostgreSQL password are auto-generated via Coolify magic variables.
+# Do NOT set KANEO_API_URL — the entrypoint derives it from KANEO_CLIENT_URL (public URL + /api).
 
 services:
   postgres:
