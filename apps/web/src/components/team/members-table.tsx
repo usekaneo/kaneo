@@ -434,19 +434,25 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose disabled={isDeleting}>
-              <Button variant="outline" size="sm" disabled={isDeleting}>
-                {t("common:actions.cancel")}
-              </Button>
+            <AlertDialogClose
+              render={
+                <Button variant="outline" size="sm" disabled={isDeleting} />
+              }
+            >
+              {t("common:actions.cancel")}
             </AlertDialogClose>
             <AlertDialogClose
-              onClick={handleDeleteMember}
-              disabled={isDeleting}
+              render={
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={isDeleting}
+                  onClick={handleDeleteMember}
+                />
+              }
             >
-              <Button variant="destructive" size="sm" disabled={isDeleting}>
-                <TrashIcon className="mr-2 size-4" />
-                {t("team:membersTable.removeMember")}
-              </Button>
+              <TrashIcon className="mr-2 size-4" />
+              {t("team:membersTable.removeMember")}
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -468,19 +474,25 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose disabled={isCancelling}>
-              <Button variant="outline" size="sm" disabled={isCancelling}>
-                {t("common:actions.cancel")}
-              </Button>
+            <AlertDialogClose
+              render={
+                <Button variant="outline" size="sm" disabled={isCancelling} />
+              }
+            >
+              {t("common:actions.cancel")}
             </AlertDialogClose>
             <AlertDialogClose
-              onClick={handleCancelInvitation}
-              disabled={isCancelling}
+              render={
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={isCancelling}
+                  onClick={handleCancelInvitation}
+                />
+              }
             >
-              <Button variant="destructive" size="sm" disabled={isCancelling}>
-                <TrashIcon className="mr-2 size-4" />
-                {t("team:membersTable.cancelInvitation")}
-              </Button>
+              <TrashIcon className="mr-2 size-4" />
+              {t("team:membersTable.cancelInvitation")}
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>

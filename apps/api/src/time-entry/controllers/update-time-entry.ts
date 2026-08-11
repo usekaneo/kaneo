@@ -24,17 +24,27 @@ async function updateTimeEntry(params: UpdateTimeEntryParams) {
     });
   }
 
-  // Calculate duration if both startTime and endTime are provided
+  const effectiveEndTime = endTime ?? existingTimeEntry.endTime;
+
+  if (effectiveEndTime && startTime.getTime() > effectiveEndTime.getTime()) {
+    throw new HTTPException(400, {
+      message:
+        "Start time cannot be after end time. Please adjust the time range.",
+    });
+  }
+
   let duration: number | null = null;
-  if (endTime) {
-    duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000); // duration in seconds
+  if (effectiveEndTime) {
+    duration = Math.floor(
+      (effectiveEndTime.getTime() - startTime.getTime()) / 1000,
+    ); // duration in seconds
   }
 
   const [updatedTimeEntry] = await db
     .update(timeEntryTable)
     .set({
       startTime,
-      endTime: endTime || null,
+      endTime: effectiveEndTime,
       duration,
       ...(description !== undefined && { description }),
     })

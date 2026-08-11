@@ -782,7 +782,9 @@
 				"commentOnDisabled": "Τα σχόλια με σύνδεσμο εργασίας στα νέα issues είναι απενεργοποιημένα",
 				"settingsUpdateError": "Αποτυχία ενημέρωσης ενσωμάτωσης Gitea",
 				"secretCopied": "Copied",
-				"unableToCopySecret": "Δεν ήταν δυνατή η αντιγραφή του μυστικού"
+				"unableToCopySecret": "Δεν ήταν δυνατή η αντιγραφή του μυστικού",
+				"notGiteaInstance": "Η διεύθυνση URL δεν οδηγεί σε παρουσία Gitea",
+				"redirected": "Η διεύθυνση URL του Gitea ανακατευθύνθηκε (συνήθως σε HTTPS). Χρησιμοποιήστε απευθείας την τελική διεύθυνση."
 			},
 			"webhookShow": "Show",
 			"webhookHide": "Hide",

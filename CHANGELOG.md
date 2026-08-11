@@ -1,3 +1,59 @@
+## [2.17.1](https://github.com/usekaneo/kaneo/compare/v2.17.0...v2.17.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* **github:** match a branch whose title segment is empty ([#1522](https://github.com/usekaneo/kaneo/issues/1522)) ([829f5ad](https://github.com/usekaneo/kaneo/commit/829f5addf2759bd0bfc10e0c231a8a0762f85262))
+* preserve time entry end time ([#1554](https://github.com/usekaneo/kaneo/issues/1554)) ([5e02130](https://github.com/usekaneo/kaneo/commit/5e0213009a6a35659a69543e6708b56c4d5593be))
+* **security:** block the shared address space in webhook destinations ([#1523](https://github.com/usekaneo/kaneo/issues/1523)) ([028c905](https://github.com/usekaneo/kaneo/commit/028c905fd505c7f2bc787c529d156088dd118d8b))
+* **time-entry:** reject a start time later than the end time ([99e41ad](https://github.com/usekaneo/kaneo/commit/99e41ad8efcd12b06f17dab8096ef39902596130)), closes [#1554](https://github.com/usekaneo/kaneo/issues/1554)
+# [2.17.0](https://github.com/usekaneo/kaneo/compare/v2.16.4...v2.17.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **mcp:** guard media type and share the tool registrar ([1167ec6](https://github.com/usekaneo/kaneo/commit/1167ec6a980385a6658230831ba80254429b3db3))
+* **web:** omit unassigned userId when creating tasks ([#1552](https://github.com/usekaneo/kaneo/issues/1552)) ([b69fae3](https://github.com/usekaneo/kaneo/commit/b69fae35a3a3b25241d6b3e348bb594bc442a26a))
+
+
+### Features
+
+* **mcp:** expose members, search, columns, time and activity tools ([37b2fc3](https://github.com/usekaneo/kaneo/commit/37b2fc3138c3c1cac682590530342c5d852a7020))
+* **mcp:** support stateless 2026 protocol ([#1540](https://github.com/usekaneo/kaneo/issues/1540)) ([7fe3610](https://github.com/usekaneo/kaneo/commit/7fe3610d6b949e3a8acc4158ba6e4185335efcb8))
+## [2.16.4](https://github.com/usekaneo/kaneo/compare/v2.16.3...v2.16.4) (2026-08-10)
+
+
+### Bug Fixes
+
+* **auth:** let invited users sign up with OAuth in invite-only mode ([737ec6e](https://github.com/usekaneo/kaneo/commit/737ec6e79f85e6906b0748501c27e1b1aa4ab914)), closes [#1551](https://github.com/usekaneo/kaneo/issues/1551)
+## [2.16.3](https://github.com/usekaneo/kaneo/compare/v2.16.2...v2.16.3) (2026-08-10)
+
+
+### Bug Fixes
+
+* **task:** treat blank assignee id as unassigned on task creation ([f5b3717](https://github.com/usekaneo/kaneo/commit/f5b3717fc0213542834a3d9c8169f2689f5c0580)), closes [#1543](https://github.com/usekaneo/kaneo/issues/1543)
+## [2.16.2](https://github.com/usekaneo/kaneo/compare/v2.16.1...v2.16.2) (2026-08-10)
+
+
+### Bug Fixes
+
+* **ci:** failure in ci after fix ([4a24d74](https://github.com/usekaneo/kaneo/commit/4a24d74b261222c008576c2e3044b24ea551fc4c))
+* **gitea-integration:** handle invalid JSON from non-Gitea URLs ([097aedd](https://github.com/usekaneo/kaneo/commit/097aeddbdc80e812d14f5c7241c6575b6fbcf0a6))
+* **gitea-integration:** structured failure response and test coverage ([49eac38](https://github.com/usekaneo/kaneo/commit/49eac382cc8f8e1875ef46ea75cdce52651ee298))
+* **gitea:** classify /user 404 as not-a-gitea-instance ([364f5e3](https://github.com/usekaneo/kaneo/commit/364f5e373ea8947a7436e114be89875723b815c2))
+* **pr:** responding to AI pr reviews ([cb2f333](https://github.com/usekaneo/kaneo/commit/cb2f3337d513979ff845ee3b39d7c68dd412bda3))
+* **task:** validate assignee existence on task creation ([b0133ee](https://github.com/usekaneo/kaneo/commit/b0133ee01b03b838ffdc7a1765ceb1a80b438233))
+* **web:** avoid nested buttons in alert dialog footers ([16481e3](https://github.com/usekaneo/kaneo/commit/16481e3bb98fba4f6de15d26a8917bee02efa2f4))
+* **web:** handle unhandled promise rejection from authClient.getSession() ([494f1fb](https://github.com/usekaneo/kaneo/commit/494f1fbc90290636d77c6b1f3fae07b2112a255b))
+* **web:** preserve full location in auth redirect ([a277274](https://github.com/usekaneo/kaneo/commit/a2772742e0059a1c884661c651ba6a369af779ff))
+* **web:** prevent TypeError when relatedTarget is not an Element ([51131c1](https://github.com/usekaneo/kaneo/commit/51131c10ebe3ad19da5a24b4c3bce996ca139723))
+## [2.16.1](https://github.com/usekaneo/kaneo/compare/v2.16.0...v2.16.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* address placeholder cleanup reviews ([dee61c1](https://github.com/usekaneo/kaneo/commit/dee61c13c918deddb03545f3ef525573870ac9bf))
+* strip quoted runtime placeholders ([f983f34](https://github.com/usekaneo/kaneo/commit/f983f34e3ccb3bd0ccc85655b6cfaa2ae6463712))
 # [2.16.0](https://github.com/usekaneo/kaneo/compare/v2.15.0...v2.16.0) (2026-08-09)
 
 

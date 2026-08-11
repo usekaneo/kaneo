@@ -944,7 +944,9 @@
 				"commentOnDisabled": "Đã tắt bình luận liên kết công việc trên issue mới",
 				"settingsUpdateError": "Không thể cập nhật tích hợp Gitea",
 				"secretCopied": "Đã sao chép",
-				"unableToCopySecret": "Không thể sao chép khóa bí mật"
+				"unableToCopySecret": "Không thể sao chép khóa bí mật",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Hiện",
 			"webhookHide": "Ẩn",
@@ -1490,7 +1492,8 @@
 					"sql": "SQL",
 					"swift": "Swift",
 					"typescript": "TypeScript",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"table": {
 					"addColumnBefore": "Chèn cột bên trái",
@@ -1500,6 +1503,9 @@
 					"addRowAfter": "Chèn hàng phía dưới",
 					"deleteRow": "Xóa hàng",
 					"deleteTable": "Xóa bảng"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		}
@@ -1616,7 +1622,8 @@
 					"terraform": "Terraform",
 					"typescript": "TypeScript",
 					"xml": "XML",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"embed": {
 					"choice": {
@@ -1632,6 +1639,9 @@
 						"onlyYoutube": "Chỉ có thể nhúng liên kết YouTube."
 					},
 					"onlyYoutubeInline": "Chỉ có thể nhúng URL YouTube. Hãy dùng chế độ liên kết thay thế."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		},

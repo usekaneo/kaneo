@@ -66,6 +66,7 @@ import {
   isYouTubeUrl,
   normalizeUrl,
 } from "@/lib/editor-url-utils";
+import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
 import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
@@ -1327,8 +1328,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const handleEditorMouseLeave = useCallback(
     (event: ReactMouseEvent<HTMLElement>) => {
-      const relatedTarget = event.relatedTarget as HTMLElement | null;
-      if (relatedTarget?.closest(".kaneo-codeblock-language")) return;
+      const relatedTarget = event.relatedTarget;
+      if (isInCodeBlockLanguagePicker(relatedTarget)) return;
       if (isCodeLanguageMenuOpen) return;
       hoveredCodeBlockElementRef.current = null;
       setHoveredCodeBlock(null);

@@ -556,25 +556,34 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose disabled={isTransferring}>
-                <Button variant="outline" size="sm" disabled={isTransferring}>
-                  {t("common:actions.cancel")}
-                </Button>
+              <AlertDialogClose
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isTransferring}
+                  />
+                }
+              >
+                {t("common:actions.cancel")}
               </AlertDialogClose>
               <AlertDialogClose
-                onClick={handleTransferOwnership}
-                disabled={isTransferring || !selectedMember}
+                render={
+                  <Button
+                    size="sm"
+                    disabled={isTransferring}
+                    onClick={handleTransferOwnership}
+                  />
+                }
               >
-                <Button size="sm" disabled={isTransferring}>
-                  {isTransferring
-                    ? t(
-                        "settings:workspaceGeneral.transferOwnership.transferring",
-                        { defaultValue: "Transferring…" },
-                      )
-                    : t("settings:workspaceGeneral.transferOwnership.confirm", {
-                        defaultValue: "Transfer ownership",
-                      })}
-                </Button>
+                {isTransferring
+                  ? t(
+                      "settings:workspaceGeneral.transferOwnership.transferring",
+                      { defaultValue: "Transferring…" },
+                    )
+                  : t("settings:workspaceGeneral.transferOwnership.confirm", {
+                      defaultValue: "Transfer ownership",
+                    })}
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -596,20 +605,22 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose>
-                <Button variant="outline" size="sm">
-                  {t("common:actions.cancel")}
-                </Button>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
               </AlertDialogClose>
               <AlertDialogClose
-                onClick={handleDeleteWorkspace}
-                disabled={isDeleting}
+                render={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isDeleting}
+                    onClick={handleDeleteWorkspace}
+                  />
+                }
               >
-                <Button variant="destructive" size="sm" disabled={isDeleting}>
-                  {isDeleting
-                    ? t("common:actions.deleting")
-                    : t("settings:workspaceGeneral.deleteModalConfirm")}
-                </Button>
+                {isDeleting
+                  ? t("common:actions.deleting")
+                  : t("settings:workspaceGeneral.deleteModalConfirm")}
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>

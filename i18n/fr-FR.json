@@ -782,7 +782,9 @@
 				"commentOnDisabled": "Les commentaires de lien de tâche sur les nouvelles issues sont désactivés",
 				"settingsUpdateError": "Échec de la mise à jour de l'intégration Gitea",
 				"secretCopied": "Copied",
-				"unableToCopySecret": "Impossible de copier le secret"
+				"unableToCopySecret": "Impossible de copier le secret",
+				"notGiteaInstance": "L'URL ne pointe pas vers une instance Gitea",
+				"redirected": "L'URL Gitea a été redirigée (généralement vers HTTPS). Utilisez directement l'URL finale."
 			},
 			"webhookShow": "Show",
 			"webhookHide": "Hide",

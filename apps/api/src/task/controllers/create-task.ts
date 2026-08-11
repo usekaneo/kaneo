@@ -63,6 +63,8 @@ async function createTask({
   const resolvedPriority = priority || "no-priority";
   const normalizedCustomFields = deduplicateCustomFields(customFields);
 
+  const normalizedUserId = userId?.trim() || undefined;
+
   await assertValidTaskStatus(resolvedStatus, projectId);
 
   const allFields = await db
@@ -92,7 +94,13 @@ async function createTask({
   const [assignee] = await db
     .select({ name: userTable.name })
     .from(userTable)
-    .where(eq(userTable.id, userId ?? ""));
+    .where(eq(userTable.id, normalizedUserId ?? ""));
+
+  if (normalizedUserId && !assignee) {
+    throw new HTTPException(404, {
+      message: "Assignee not found",
+    });
+  }
 
   const column = await db.query.columnTable.findFirst({
     where: and(
@@ -122,7 +130,7 @@ async function createTask({
       .insert(taskTable)
       .values({
         projectId,
-        userId: userId || null,
+        userId: normalizedUserId ?? null,
         title: title || "",
         status: resolvedStatus,
         columnId: column?.id ?? null,
