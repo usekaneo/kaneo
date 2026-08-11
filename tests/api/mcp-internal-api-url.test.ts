@@ -1,9 +1,4 @@
-import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
-
-vi.hoisted(() => {
-  vi.stubEnv("KANEO_API_URL", "http://public.test:5273/api");
-  vi.stubEnv("KANEO_INTERNAL_API_URL", undefined);
-});
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const authMocks = vi.hoisted(() => ({
   getSession: vi.fn(async () => ({ user: { id: "test-user" } })),
@@ -13,11 +8,9 @@ vi.mock("../../apps/api/src/auth", () => ({
   auth: { api: { getSession: authMocks.getSession } },
 }));
 
-import mcpRoutes from "../../apps/api/src/mcp";
-
 const protocolVersion = "2026-07-28";
 
-function toolRequest(): Request {
+function toolRequest() {
   return new Request("http://public.test:5273/mcp", {
     method: "POST",
     headers: {
@@ -48,13 +41,18 @@ function toolRequest(): Request {
   });
 }
 
+async function loadMcpRoutes(internalApiUrl?: string) {
+  vi.stubEnv("KANEO_API_URL", "http://public.test:5273/api");
+  vi.stubEnv("KANEO_INTERNAL_API_URL", internalApiUrl);
+  vi.resetModules();
+  return (await import("../../apps/api/src/mcp")).default;
+}
+
 afterEach(() => {
   vi.unstubAllGlobals();
-  authMocks.getSession.mockClear();
-});
-
-afterAll(() => {
   vi.unstubAllEnvs();
+  vi.resetModules();
+  authMocks.getSession.mockClear();
 });
 
 describe("MCP API URLs", () => {
@@ -63,6 +61,7 @@ describe("MCP API URLs", () => {
       Response.json({ user: { id: "test-user" } }),
     );
     vi.stubGlobal("fetch", apiFetch);
+    const mcpRoutes = await loadMcpRoutes();
 
     const metadataResponse = await mcpRoutes.request(
       "/.well-known/oauth-authorization-server/api",
@@ -83,6 +82,22 @@ describe("MCP API URLs", () => {
     expect(apiFetch).toHaveBeenCalledOnce();
     expect(String(apiFetch.mock.calls[0]?.[0])).toBe(
       "http://127.0.0.1:1337/api/auth/get-session",
+    );
+  });
+
+  it("uses a configured internal URL without duplicating the API path", async () => {
+    const apiFetch = vi.fn(async () =>
+      Response.json({ user: { id: "test-user" } }),
+    );
+    vi.stubGlobal("fetch", apiFetch);
+    const mcpRoutes = await loadMcpRoutes("http://api.internal:1337/api/");
+
+    const toolResponse = await mcpRoutes.request(toolRequest());
+
+    expect(toolResponse.status).toBe(200);
+    expect(apiFetch).toHaveBeenCalledOnce();
+    expect(String(apiFetch.mock.calls[0]?.[0])).toBe(
+      "http://api.internal:1337/api/auth/get-session",
     );
   });
 });
