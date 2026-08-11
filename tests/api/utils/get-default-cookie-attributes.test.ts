@@ -3,12 +3,12 @@ import { getDefaultCookieAttributes } from "../../../apps/api/src/utils/get-defa
 
 describe("getDefaultCookieAttributes", () => {
   it("marks same-domain HTTPS cookies as secure", () => {
-    expect(
-      getDefaultCookieAttributes({
-        apiUrl: "https://kaneo.example.com/api",
-        clientUrl: "https://kaneo.example.com",
-      }),
-    ).toEqual({
+    const attributes = getDefaultCookieAttributes({
+      apiUrl: "https://kaneo.example.com/api",
+      clientUrl: "https://kaneo.example.com",
+    });
+
+    expect(attributes).toEqual({
       sameSite: "lax",
       secure: true,
       partitioned: false,
@@ -17,13 +17,13 @@ describe("getDefaultCookieAttributes", () => {
   });
 
   it("uses cross-subdomain attributes for HTTPS deployments", () => {
-    expect(
-      getDefaultCookieAttributes({
-        apiUrl: "https://api.example.com",
-        clientUrl: "https://app.example.com",
-        cookieDomain: ".example.com",
-      }),
-    ).toEqual({
+    const attributes = getDefaultCookieAttributes({
+      apiUrl: "https://api.example.com",
+      clientUrl: "https://app.example.com",
+      cookieDomain: ".example.com",
+    });
+
+    expect(attributes).toEqual({
       sameSite: "none",
       secure: true,
       partitioned: true,
@@ -32,15 +32,29 @@ describe("getDefaultCookieAttributes", () => {
   });
 
   it("keeps local HTTP cookies compatible with development", () => {
-    expect(
-      getDefaultCookieAttributes({
-        apiUrl: "http://localhost:1337",
-        clientUrl: "http://localhost:5173",
-      }),
-    ).toEqual({
+    const attributes = getDefaultCookieAttributes({
+      apiUrl: "http://localhost:1337",
+      clientUrl: "http://localhost:5173",
+    });
+
+    expect(attributes).toEqual({
       sameSite: "lax",
       secure: false,
       partitioned: false,
+      domain: undefined,
+    });
+  });
+
+  it("handles uppercase HTTPS schemes", () => {
+    const attributes = getDefaultCookieAttributes({
+      apiUrl: "HTTPS://api.example.com",
+      clientUrl: "HTTPS://app.example.com",
+    });
+
+    expect(attributes).toEqual({
+      sameSite: "none",
+      secure: true,
+      partitioned: true,
       domain: undefined,
     });
   });

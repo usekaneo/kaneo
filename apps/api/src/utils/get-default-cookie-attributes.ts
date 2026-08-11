@@ -1,20 +1,28 @@
-interface CookieAttributeUrls {
+type CookieAttributeUrls = {
   apiUrl: string;
   clientUrl: string;
   cookieDomain?: string;
-}
+};
 
 export function getDefaultCookieAttributes({
   apiUrl,
   clientUrl,
   cookieDomain,
 }: CookieAttributeUrls) {
-  const isHttps = apiUrl.startsWith("https://");
+  const parsedApiUrl = (() => {
+    try {
+      return new URL(apiUrl);
+    } catch {
+      return undefined;
+    }
+  })();
+  const isHttps = parsedApiUrl?.protocol === "https:";
   const isCrossSubdomain = (() => {
     try {
-      const apiHost = new URL(apiUrl).hostname;
+      const apiHost = parsedApiUrl?.hostname;
       const clientHost = new URL(clientUrl).hostname;
       return (
+        apiHost !== undefined &&
         apiHost !== clientHost &&
         apiHost !== "localhost" &&
         clientHost !== "localhost"
