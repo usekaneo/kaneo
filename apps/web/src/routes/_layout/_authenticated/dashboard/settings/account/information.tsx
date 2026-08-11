@@ -150,6 +150,8 @@ function RouteComponent() {
 
   const debouncedSave = useCallback(
     (data: ProfileFormValues) => {
+      if (deleteOpen || isDeletingAccount) return;
+
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
@@ -158,18 +160,23 @@ function RouteComponent() {
         saveProfile(data);
       }, 1000);
     },
-    [saveProfile],
+    [saveProfile, deleteOpen, isDeletingAccount],
   );
 
   useEffect(() => {
     const subscription = profileForm.watch(() => {
-      if (profileForm.formState.isDirty && profileForm.formState.isValid) {
+      if (
+        profileForm.formState.isDirty &&
+        profileForm.formState.isValid &&
+        !deleteOpen &&
+        !isDeletingAccount
+      ) {
         debouncedSave(profileForm.getValues());
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [profileForm, debouncedSave]);
+  }, [profileForm, debouncedSave, deleteOpen, isDeletingAccount]);
 
   useEffect(() => {
     return () => {
@@ -180,6 +187,12 @@ function RouteComponent() {
   }, []);
 
   const handleDeleteAccount = async () => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+      debounceTimeoutRef.current = null;
+    }
+    queuedSaveRef.current = null;
+
     try {
       await deleteAccount();
       queryClient.clear();
