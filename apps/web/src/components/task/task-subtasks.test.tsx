@@ -49,7 +49,7 @@ vi.mock(
   }),
 );
 vi.mock("@/hooks/use-workspace-permission", () => ({
-  useWorkspacePermission: () => ({ canManageTasks: () => true }),
+  useWorkspacePermission: () => ({ canUpdateTasks: () => true }),
 }));
 vi.mock("@/lib/toast", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 

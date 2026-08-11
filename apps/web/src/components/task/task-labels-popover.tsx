@@ -71,8 +71,8 @@ export default function TaskLabelsPopover({
   // workspace label needs the label capability. We gate the popover trigger
   // on whichever is required: any flow needs at least task-edit since the
   // result lives on the task.
-  const { canManageTasks, canManageLabels } = useWorkspacePermission();
-  const canEdit = canManageTasks();
+  const { canUpdateTasks, canManageLabels } = useWorkspacePermission();
+  const canEdit = canUpdateTasks();
   const canCreateLabels = canManageLabels();
 
   const { data: taskLabels = [] } = useGetLabelsByTask(task.id);

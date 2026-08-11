@@ -68,8 +68,8 @@ export default function TaskSubtasks({
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { data: columns = [], isLoading: isLoadingColumns } =
     useGetColumns(projectId);
-  const { canManageTasks } = useWorkspacePermission();
-  const canEdit = canManageTasks();
+  const { canUpdateTasks } = useWorkspacePermission();
+  const canEdit = canUpdateTasks();
 
   // Map the completion checkbox to the project's actual column slugs (the API
   // validates status against columns). A subtask counts as completed when its

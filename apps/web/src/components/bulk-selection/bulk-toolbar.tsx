@@ -98,8 +98,10 @@ function BulkToolbar() {
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id ?? "",
   );
-  const { canManageTasks, canAssignTasks } = useWorkspacePermission();
-  const canEdit = canManageTasks();
+  const { canUpdateTasks, canDeleteTasks, canAssignTasks } =
+    useWorkspacePermission();
+  const canEdit = canUpdateTasks();
+  const canDelete = canDeleteTasks();
   const canAssign = canAssignTasks();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -266,29 +268,35 @@ function BulkToolbar() {
 
   const groupedItems = useMemo<BulkActionGroup[]>(() => {
     const groups: BulkActionGroup[] = [];
-    if (canEdit) {
+    if (canEdit || canDelete) {
+      const actionItems: BulkActionGroup["items"] = [];
+      if (canDelete) {
+        actionItems.push({
+          value: "bulk-delete",
+          label: t("tasks:bulk.delete"),
+          icon: <Trash2 className="h-4 w-4 text-muted-foreground" />,
+          onRun: () => {
+            void handleBulkDelete();
+          },
+        });
+      }
+      if (canEdit) {
+        actionItems.push({
+          value: "bulk-archive",
+          label: t("tasks:bulk.archive"),
+          icon: <Archive className="h-4 w-4 text-muted-foreground" />,
+          onRun: () => {
+            void handleBulkArchive();
+          },
+        });
+      }
       groups.push({
         value: "actions",
         label: t("tasks:bulk.actions"),
-        items: [
-          {
-            value: "bulk-delete",
-            label: t("tasks:bulk.delete"),
-            icon: <Trash2 className="h-4 w-4 text-muted-foreground" />,
-            onRun: () => {
-              void handleBulkDelete();
-            },
-          },
-          {
-            value: "bulk-archive",
-            label: t("tasks:bulk.archive"),
-            icon: <Archive className="h-4 w-4 text-muted-foreground" />,
-            onRun: () => {
-              void handleBulkArchive();
-            },
-          },
-        ],
+        items: actionItems,
       });
+    }
+    if (canEdit) {
       groups.push({
         value: "status",
         label: t("tasks:bulk.changeStatus"),
@@ -364,6 +372,7 @@ function BulkToolbar() {
     return groups;
   }, [
     canEdit,
+    canDelete,
     canAssign,
     project?.columns,
     workspaceUsers?.members,
@@ -380,7 +389,7 @@ function BulkToolbar() {
 
   if (selectedCount === 0) return null;
   // Nothing the user can do in bulk → no toolbar.
-  if (!canEdit && !canAssign) return null;
+  if (!canEdit && !canDelete && !canAssign) return null;
 
   return (
     <div className="-translate-x-1/2 fixed bottom-6 left-1/2 z-50 transition-[translate,opacity] duration-200 ease-out starting:translate-y-3 starting:opacity-0 motion-reduce:starting:translate-y-0">
