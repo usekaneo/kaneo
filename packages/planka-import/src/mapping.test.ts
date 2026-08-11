@@ -191,7 +191,7 @@ describe("boardProjectName", () => {
 
   it("qualifies with the board name when the project has several", () => {
     expect(boardProjectName("Marketing", "Campaigns", 3)).toBe(
-      "Marketing – Campaigns",
+      "Marketing - Campaigns",
     );
   });
 });

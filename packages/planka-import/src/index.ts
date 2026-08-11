@@ -128,7 +128,7 @@ async function main(): Promise<number> {
 
   if (args.dryRun) {
     await writeReport(args.report, preview);
-    log("Dry run — nothing was written to Kaneo.");
+    log("Dry run. Nothing was written to Kaneo.");
     return 0;
   }
 
@@ -251,12 +251,12 @@ function printPlan(reports: BoardReport[]): void {
     for (const warning of report.warnings) log(`      ! ${warning}`);
     if (report.skippedLists.length > 0) {
       log(
-        `      – skipping ${report.skippedLists.join(", ")} (archive/trash lists are not migrated)`,
+        `      - skipping ${report.skippedLists.join(", ")} (archive/trash lists are not migrated)`,
       );
     }
     if (report.skippedAttachments > 0) {
       log(
-        `      – ${report.skippedAttachments} attachment(s) will not be migrated`,
+        `      - ${report.skippedAttachments} attachment(s) will not be migrated`,
       );
     }
   }

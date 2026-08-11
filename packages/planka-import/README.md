@@ -44,7 +44,7 @@ Create a Kaneo API key under **Settings → API keys**. Self-hosting? Point
 
 One Kaneo project is created per PLANKA **board**, since the board is what holds
 lists and cards. If a PLANKA project has several boards, each Kaneo project is
-named `Project – Board`.
+named `Project - Board`.
 
 ## What doesn't
 

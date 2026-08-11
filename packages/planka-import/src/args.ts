@@ -100,7 +100,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
   return parsed;
 }
 
-export const HELP_TEXT = `kaneo-planka-import — migrate PLANKA boards into Kaneo
+export const HELP_TEXT = `kaneo-planka-import: migrate PLANKA boards into Kaneo
 
 Usage:
   npx @kaneo/planka-import --planka-url <url> --kaneo-api-key <key> [options]

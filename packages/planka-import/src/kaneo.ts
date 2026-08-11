@@ -161,7 +161,7 @@ export class KaneoClient {
 
 function describeError(body: unknown, status: number): string {
   if (status === 401) {
-    return "unauthorized (HTTP 401) — check your Kaneo API key";
+    return "unauthorized (HTTP 401), check your Kaneo API key";
   }
   if (typeof body === "object" && body !== null) {
     const record = body as Record<string, unknown>;

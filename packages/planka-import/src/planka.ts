@@ -258,7 +258,7 @@ function describeLoginFailure(error: PlankaHttpError): string {
 
 function describeError(body: unknown, status: number): string {
   if (status === 401) {
-    return "unauthorized (HTTP 401) — check your PLANKA credentials or token";
+    return "unauthorized (HTTP 401), check your PLANKA credentials or token";
   }
   if (typeof body === "object" && body !== null) {
     const record = body as Record<string, unknown>;

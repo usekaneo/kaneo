@@ -139,5 +139,5 @@ export function boardProjectName(
   boardCountInProject: number,
 ): string {
   if (boardCountInProject <= 1) return projectName;
-  return `${projectName} – ${boardName}`;
+  return `${projectName} - ${boardName}`;
 }
