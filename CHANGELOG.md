@@ -1,3 +1,9 @@
+## [2.17.4](https://github.com/usekaneo/kaneo/compare/v2.17.3...v2.17.4) (2026-08-11)
+
+
+### Bug Fixes
+
+* **billing:** throttle trial reminders so they cannot exhaust the quota ([c4150a8](https://github.com/usekaneo/kaneo/commit/c4150a89f826ce5a4f7bbf24346c313b7fd2c5d4))
 ## [2.17.3](https://github.com/usekaneo/kaneo/compare/v2.17.2...v2.17.3) (2026-08-11)
 
 
