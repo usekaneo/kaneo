@@ -15,8 +15,8 @@ type UserPreferencesStore = {
     coordinates?: { x: number; y: number },
   ) => void;
 
-  viewMode: "board" | "list";
-  setViewMode: (mode: "board" | "list") => void;
+  viewMode: "board" | "board3d" | "list";
+  setViewMode: (mode: "board" | "board3d" | "list") => void;
 
   compactMode: boolean;
   setCompactMode: (compact: boolean) => void;
