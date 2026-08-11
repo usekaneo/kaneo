@@ -13,6 +13,7 @@ The variables are split up into the following sections:
 - [General URLs](#general-urls)
 - [Database](#database)
 - [Authentication](#authentication)
+- [MCP](#mcp)
 - [Object Storage](#object-storage)
 - [Access Control](#access-control)
 - [GitHub SSO](#github-sso)
@@ -56,6 +57,12 @@ Name | Description |
 
 
 ## Optional variables
+
+### MCP
+
+Name | Description | Default |
+--- | --- | --- |
+| `KANEO_INTERNAL_API_URL` | API origin used only for server-side requests from the built-in HTTP MCP endpoint. Override it only if the API is not reachable at the default loopback address from its own process. | `http://127.0.0.1:1337` |
 
 ### Object Storage
 
