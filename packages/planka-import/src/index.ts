@@ -34,12 +34,15 @@ async function main(): Promise<number> {
     }));
   if (!plankaUrl) throw new Error("--planka-url is required");
 
+  const plankaApiKey = args.plankaApiKey ?? process.env.PLANKA_API_KEY;
+
   const planka = new PlankaClient({
     baseUrl: plankaUrl,
     ...(args.plankaToken ? { token: args.plankaToken } : {}),
+    ...(plankaApiKey ? { apiKey: plankaApiKey } : {}),
   });
 
-  if (!args.plankaToken) {
+  if (!planka.isAuthenticated) {
     const user =
       args.plankaUser ??
       (await ask(interactive, {
@@ -112,8 +115,6 @@ async function main(): Promise<number> {
     workspaceId = await selectWorkspace(kaneo, interactive);
   }
 
-  // The dry run reads PLANKA only, so it can run before a Kaneo key exists and
-  // is the honest way to show what an import would do.
   const preview = await migrate({
     planka,
     kaneo,

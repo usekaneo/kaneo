@@ -18,13 +18,8 @@ export type PlannedColumn = {
 
 const UNTITLED_COLUMN = "Untitled";
 
-/**
- * Turns PLANKA lists into the columns we will create, in board order.
- *
- * Kaneo derives a column's slug from its name and rejects duplicates and the
- * reserved virtual statuses, so a name that would collide has to be adjusted
- * here rather than fixed up after the fact.
- */
+// Kaneo rejects duplicate and reserved slugs, so a colliding name has to be
+// adjusted before the column is created.
 export function planColumns(lists: PlankaList[]): PlannedColumn[] {
   const ordered = [...lists].sort(
     (a, b) => (a.position ?? 0) - (b.position ?? 0),
@@ -60,15 +55,10 @@ export function planColumns(lists: PlankaList[]): PlannedColumn[] {
   return planned;
 }
 
-/** Cards in the order they appear on the board. */
 export function sortCards(cards: PlankaCard[]): PlankaCard[] {
   return [...cards].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 }
 
-/**
- * Kaneo has no checklist primitive, so PLANKA's task lists are appended to the
- * description as markdown checkboxes instead of being dropped.
- */
 export function buildDescription(
   card: PlankaCard,
   taskLists: PlankaTaskList[],
@@ -101,10 +91,6 @@ export function displayName(user: PlankaUser | undefined): string {
   );
 }
 
-/**
- * Comments are re-created under the API key's owner, so the original author and
- * date are preserved in the body rather than silently lost.
- */
 export function formatComment(
   comment: PlankaComment,
   author: PlankaUser | undefined,
@@ -128,11 +114,6 @@ export function toDueDate(card: PlankaCard): string | undefined {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
-/**
- * A Kaneo project maps to a PLANKA board, not a PLANKA project, because the
- * board is what holds lists and cards. The project name is only worth
- * prefixing when it would otherwise be ambiguous.
- */
 export function boardProjectName(
   projectName: string,
   boardName: string,

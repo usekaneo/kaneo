@@ -70,6 +70,7 @@ assignments come across on the first run.
 | `--planka-user <user>` | Email or username (prompted if omitted) |
 | `--planka-password <pass>` | Password (or set `PLANKA_PASSWORD`) |
 | `--planka-token <token>` | Use an existing access token instead of logging in |
+| `--planka-api-key <key>` | Use a PLANKA API key (or `PLANKA_API_KEY`). Works for SSO-only accounts |
 | `--kaneo-url <url>` | Kaneo instance URL (default `https://app.kaneo.app`) |
 | `--kaneo-api-key <key>` | Kaneo API key (or set `KANEO_API_KEY`) |
 | `--workspace <id>` | Target workspace (prompted if omitted) |
@@ -81,9 +82,9 @@ assignments come across on the first run.
 | `--report <path>` | Write a JSON report |
 | `-y, --yes` | Skip the confirmation prompt |
 
-If your PLANKA account has two-factor authentication enabled, password login
-won't work. Grab a token from your browser's dev tools and pass
-`--planka-token` instead.
+If your PLANKA account uses SSO or has two-factor authentication enabled, there
+is no password to log in with. Create a PLANKA API key for the account and pass
+`--planka-api-key` instead.
 
 ## Re-running
 

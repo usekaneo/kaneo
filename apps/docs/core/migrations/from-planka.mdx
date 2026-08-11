@@ -14,7 +14,9 @@ machine: the CLI talks to both servers itself, so no third party sees them.
 
 You need:
 
-- A PLANKA account that can see the boards you want to move.
+- A PLANKA account that can see the boards you want to move. If you sign in
+  through SSO and have no password, create a PLANKA API key and use
+  `--planka-api-key`.
 - A Kaneo workspace, and an API key from **Settings → API keys**.
 - Node.js 20 or newer.
 
@@ -106,9 +108,10 @@ resulting Kaneo project is named `Project - Board`.
 **"This PLANKA instance requires you to accept its terms"**: sign in through
 the PLANKA web UI once and accept them, then run the import again.
 
-**Two-factor authentication**: password login can't complete a TOTP challenge.
-Copy an access token from your browser's dev tools and pass `--planka-token`
-instead of a username and password.
+**Two-factor authentication, or an SSO-only account**: password login either
+can't complete a TOTP challenge, or there is no local password at all. Create a
+PLANKA API key for the account and pass `--planka-api-key` instead. This is the
+recommended credential: it doesn't expire the way a copied session token does.
 
 **A board failed partway**: failures are isolated per board, so the rest still
 import and the summary names the one that failed. Delete the half-created Kaneo
@@ -128,6 +131,7 @@ before retrying.
 | `--planka-user <user>` | Email or username |
 | `--planka-password <pass>` | Password, or set `PLANKA_PASSWORD` |
 | `--planka-token <token>` | Use an existing access token instead of logging in |
+| `--planka-api-key <key>` | Use a PLANKA API key, or set `PLANKA_API_KEY`. Works for SSO-only accounts |
 | `--kaneo-url <url>` | Kaneo instance URL (default `https://app.kaneo.app`) |
 | `--kaneo-api-key <key>` | Kaneo API key, or set `KANEO_API_KEY` |
 | `--workspace <id>` | Target workspace |

@@ -17,9 +17,7 @@ export type PlankaBoard = {
   position: number | null;
 };
 
-// active/closed are the kanban lists whose cards arrive in full from
-// GET /boards/:id. archive and trash are "endless" lists that paginate
-// separately, and we deliberately do not migrate them.
+// archive and trash paginate separately and never arrive with GET /boards/:id.
 export const MIGRATABLE_LIST_TYPES = ["active", "closed"];
 
 export type PlankaList = {
@@ -102,10 +100,16 @@ export function normalizeBaseUrl(url: string): string {
 export class PlankaClient {
   readonly baseUrl: string;
   private token: string | null;
+  private readonly apiKey: string | null;
 
-  constructor(options: { baseUrl: string; token?: string }) {
+  constructor(options: { baseUrl: string; token?: string; apiKey?: string }) {
     this.baseUrl = normalizeBaseUrl(options.baseUrl);
     this.token = options.token ?? null;
+    this.apiKey = options.apiKey ?? null;
+  }
+
+  get isAuthenticated(): boolean {
+    return this.token !== null || this.apiKey !== null;
   }
 
   async login(emailOrUsername: string, password: string): Promise<void> {
@@ -155,8 +159,6 @@ export class PlankaClient {
     const users = new Map<string, PlankaUser>();
     let beforeId: string | undefined;
 
-    // The endpoint is cursor-paginated and has no "total" to check against, so
-    // we walk until a page comes back empty or repeats the cursor.
     while (true) {
       const query = beforeId ? `?beforeId=${encodeURIComponent(beforeId)}` : "";
       const page = await this.request<{
@@ -177,15 +179,18 @@ export class PlankaClient {
       beforeId = oldest.id;
     }
 
-    // PLANKA returns newest first; replay them in the order they were written.
+    // PLANKA returns newest first.
     comments.reverse();
     return { comments, users: [...users.values()] };
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
     const headers = new Headers(init?.headers);
+    // An API key is rejected as a bearer; it only works in x-api-key.
     if (this.token) {
       headers.set("Authorization", `Bearer ${this.token}`);
+    } else if (this.apiKey) {
+      headers.set("x-api-key", this.apiKey);
     }
     headers.set("Accept", "application/json");
 
@@ -234,11 +239,6 @@ export class PlankaHttpError extends Error {
   }
 }
 
-/**
- * PLANKA answers a password login with 403 and a `step` when the account still
- * has something to clear (instance terms, or two-factor). Neither can be
- * completed non-interactively, so say which one it is and how to get past it.
- */
 function describeLoginFailure(error: PlankaHttpError): string {
   const step =
     typeof error.body === "object" && error.body !== null
@@ -250,7 +250,7 @@ function describeLoginFailure(error: PlankaHttpError): string {
   }
 
   if (step === "verify-totp") {
-    return "This PLANKA account has two-factor authentication enabled, which password login cannot complete. Copy an access token from your browser's dev tools and pass --planka-token instead.";
+    return "This PLANKA account has two-factor authentication enabled, which password login cannot complete. Create a PLANKA API key for the account and pass --planka-api-key instead.";
   }
 
   return error.message;

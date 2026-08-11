@@ -3,6 +3,7 @@ export type ParsedArgs = {
   plankaUser?: string;
   plankaPassword?: string;
   plankaToken?: string;
+  plankaApiKey?: string;
   kaneoUrl?: string;
   kaneoApiKey?: string;
   workspace?: string;
@@ -22,6 +23,7 @@ const STRING_FLAGS: Record<string, keyof ParsedArgs> = {
   "--planka-user": "plankaUser",
   "--planka-password": "plankaPassword",
   "--planka-token": "plankaToken",
+  "--planka-api-key": "plankaApiKey",
   "--kaneo-url": "kaneoUrl",
   "--kaneo-api-key": "kaneoApiKey",
   "--workspace": "workspace",
@@ -110,6 +112,9 @@ PLANKA source:
   --planka-user <user>      Email or username (prompted if omitted)
   --planka-password <pass>  Password (env PLANKA_PASSWORD, or prompted)
   --planka-token <token>    Use an existing access token instead of logging in
+  --planka-api-key <key>    Use a PLANKA user API key (env PLANKA_API_KEY).
+                            Best option for SSO-only accounts, which have no
+                            password to log in with
 
 Kaneo target:
   --kaneo-url <url>         Kaneo instance URL (default https://app.kaneo.app)

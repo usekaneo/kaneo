@@ -214,8 +214,6 @@ async function migrateBoard(context: {
   ).length;
 
   if (dryRun) {
-    // The comment count is the denormalized per-card total, so a dry run can
-    // report it without fetching every card's comment thread.
     report.comments = skipComments
       ? 0
       : cards.reduce((total, card) => total + (card.commentsTotal ?? 0), 0);
@@ -236,9 +234,7 @@ async function migrateBoard(context: {
   });
   report.kaneoProjectId = project.id;
 
-  // Kaneo seeds every new project with four default columns. They are empty at
-  // this point, so removing them before creating ours keeps the board a 1:1
-  // mirror of PLANKA instead of leaving unused columns behind.
+  // Kaneo seeds four default columns on create; drop them while still empty.
   for (const existing of await kaneo.listColumns(project.id)) {
     await kaneo.deleteColumn(existing.id);
   }
@@ -256,8 +252,6 @@ async function migrateBoard(context: {
 
     const name = label.name?.trim() || label.color;
     const color = labelColorToHex(label.color);
-    // Register the label at workspace level first so it shows up in Kaneo's
-    // label picker, not only on the tasks that happen to carry it.
     await kaneo.createLabel({ name, color, workspaceId });
     labelIdByPlankaId.set(label.id, { name, color });
   }
@@ -326,8 +320,7 @@ function resolveAssignee(
   usersById: Map<string, PlankaUser>,
   membersByEmail: Map<string, string>,
 ): string | undefined {
-  // PLANKA allows several members per card; Kaneo has a single assignee, so we
-  // take the first member who also exists in the target workspace.
+  // Kaneo has a single assignee; take the first member present in the workspace.
   for (const membership of memberships) {
     if (membership.cardId !== cardId) continue;
 

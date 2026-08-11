@@ -5,7 +5,6 @@ export type KaneoTask = { id: string; title: string; number: number };
 export type KaneoLabel = { id: string; name: string; color: string };
 export type KaneoMember = { id: string; name: string; email: string };
 
-/** Kaneo API base URL without trailing slash and without `/api` suffix. */
 export function normalizeBaseUrl(raw: string): string {
   const trimmed = raw.trim().replace(/\/+$/, "");
   try {
@@ -96,12 +95,8 @@ export class KaneoClient {
     );
   }
 
-  /**
-   * Idempotent in both scopes: without `taskId` it upserts the workspace-level
-   * label, with `taskId` it upserts the label on that task. We never use
-   * PUT /label/:id/task, which *moves* an existing label row and would detach
-   * it from whichever task already had it.
-   */
+  // Never use PUT /label/:id/task: it moves an existing label row off
+  // whichever task already had it. This upserts in both scopes.
   createLabel(input: {
     name: string;
     color: string;

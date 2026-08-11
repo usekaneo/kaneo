@@ -1,5 +1,4 @@
-// PLANKA stores label and list colors as names; Kaneo stores hex. Values are
-// read off PLANKA's own stylesheet so migrated labels keep their exact color.
+// Hex values taken from PLANKA's own stylesheet.
 const LABEL_COLORS: Record<string, string> = {
   "muddy-grey": "#69655a",
   "autumn-leafs": "#c9b037",

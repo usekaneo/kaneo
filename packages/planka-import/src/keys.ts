@@ -17,9 +17,6 @@ export const RESERVED_COLUMN_SLUGS = ["planned", "archived"];
 
 const PROJECT_KEY_MAX = 8;
 
-// Kaneo's project "key" is the short prefix on task references (ENG-14). PLANKA
-// has no equivalent, so we synthesise one: initials for multi-word names,
-// otherwise a prefix of the name.
 export function toProjectKey(name: string): string {
   const words = name
     .normalize("NFKC")
@@ -39,7 +36,6 @@ export function toProjectKey(name: string): string {
   return normalized.length > 0 ? normalized : "PROJ";
 }
 
-// Appends -2, -3, … until the candidate is free, respecting the field's cap.
 export function uniqueKey(
   candidate: string,
   taken: Set<string>,
