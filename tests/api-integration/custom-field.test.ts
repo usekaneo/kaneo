@@ -65,9 +65,17 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(createResponse.status).toBe(200);
+    const createResponseBody = await createResponse.text();
 
-    const field = await createResponse.json();
+    if (createResponse.status !== 200) {
+      console.error("Create failed:", createResponseBody);
+    }
+
+    expect(createResponse.status, `Create failed: ${createResponseBody}`).toBe(
+      200,
+    );
+
+    const field = JSON.parse(createResponseBody);
 
     expect(field).toMatchObject({
       projectId: project.id,
@@ -81,9 +89,15 @@ describe("custom fields API", () => {
       `/api/custom-field/project/${project.id}`,
     );
 
-    expect(listResponse.status).toBe(200);
+    const listResponseBody = await listResponse.text();
 
-    const fields = await listResponse.json();
+    if (listResponse.status !== 200) {
+      console.error("List failed:", listResponseBody);
+    }
+
+    expect(listResponse.status, `List failed: ${listResponseBody}`).toBe(200);
+
+    const fields = JSON.parse(listResponseBody);
 
     expect(fields).toHaveLength(1);
     expect(fields[0].id).toBe(field.id);
@@ -106,10 +120,11 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(response.status).toBe(400);
-
     const body = await response.text();
-
+    expect(
+      response.status,
+      `Expected 400, got ${response.status}: ${body}`,
+    ).toBe(400);
     expect(body).toContain("valid number");
   });
 
@@ -129,10 +144,11 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(response.status).toBe(400);
-
     const body = await response.text();
-
+    expect(
+      response.status,
+      `Expected 400, got ${response.status}: ${body}`,
+    ).toBe(400);
     expect(body).toContain("at least one option");
   });
 
@@ -152,10 +168,11 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(response.status).toBe(400);
-
     const body = await response.text();
-
+    expect(
+      response.status,
+      `Expected 400, got ${response.status}: ${body}`,
+    ).toBe(400);
     expect(body).toContain("default value");
   });
 
@@ -174,9 +191,12 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(fieldResponse.status).toBe(200);
+    const fieldBody = await fieldResponse.text();
+    expect(fieldResponse.status, `Field creation failed: ${fieldBody}`).toBe(
+      200,
+    );
 
-    const field = await fieldResponse.json();
+    const field = JSON.parse(fieldBody);
     const status = await getProjectStatus(project.id);
 
     const taskResponse = await app.request(`/api/task/${project.id}`, {
@@ -193,7 +213,6 @@ describe("custom fields API", () => {
     });
 
     const taskBody = await taskResponse.text();
-
     expect(taskResponse.status, `Task creation failed: ${taskBody}`).toBe(200);
 
     const task = JSON.parse(taskBody);
@@ -210,9 +229,10 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(valueResponse.status).toBe(200);
+    const valueBody = await valueResponse.text();
+    expect(valueResponse.status, `Value set failed: ${valueBody}`).toBe(200);
 
-    const value = await valueResponse.json();
+    const value = JSON.parse(valueBody);
 
     expect(value).toMatchObject({
       taskId: task.id,
@@ -222,9 +242,10 @@ describe("custom fields API", () => {
 
     const getResponse = await app.request(`/api/custom-field/task/${task.id}`);
 
-    expect(getResponse.status).toBe(200);
+    const getBody = await getResponse.text();
+    expect(getResponse.status, `Get values failed: ${getBody}`).toBe(200);
 
-    const values = await getResponse.json();
+    const values = JSON.parse(getBody);
 
     expect(values).toEqual(
       expect.arrayContaining([
@@ -254,9 +275,12 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(fieldResponse.status).toBe(200);
+    const fieldBody = await fieldResponse.text();
+    expect(fieldResponse.status, `Field creation failed: ${fieldBody}`).toBe(
+      200,
+    );
 
-    const field = await fieldResponse.json();
+    const field = JSON.parse(fieldBody);
     const status = await getProjectStatus(project.id);
 
     const taskResponse = await app.request(`/api/task/${project.id}`, {
@@ -273,7 +297,6 @@ describe("custom fields API", () => {
     });
 
     const taskBody = await taskResponse.text();
-
     expect(taskResponse.status, `Task creation failed: ${taskBody}`).toBe(200);
 
     const task = JSON.parse(taskBody);
@@ -290,10 +313,11 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(response.status).toBe(400);
-
     const body = await response.text();
-
+    expect(
+      response.status,
+      `Expected 400, got ${response.status}: ${body}`,
+    ).toBe(400);
     expect(body).toContain("true or false");
   });
 
@@ -320,9 +344,12 @@ describe("custom fields API", () => {
       }),
     });
 
-    expect(fieldResponse.status).toBe(200);
+    const fieldBody = await fieldResponse.text();
+    expect(fieldResponse.status, `Field creation failed: ${fieldBody}`).toBe(
+      200,
+    );
 
-    const field = await fieldResponse.json();
+    const field = JSON.parse(fieldBody);
     const secondStatus = await getProjectStatus(secondProject.id);
 
     mockAuthenticatedSession(secondMember.user);
@@ -344,7 +371,6 @@ describe("custom fields API", () => {
     );
 
     const taskBody = await taskResponse.text();
-
     expect(taskResponse.status, `Task creation failed: ${taskBody}`).toBe(200);
 
     const task = JSON.parse(taskBody);
@@ -362,8 +388,10 @@ describe("custom fields API", () => {
     });
 
     const responseBody = await response.text();
-
-    expect(response.status).toBe(404);
+    expect(
+      response.status,
+      `Expected 404, got ${response.status}: ${responseBody}`,
+    ).toBe(404);
     expect(responseBody).toContain("Custom field not found");
   });
 });
