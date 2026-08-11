@@ -264,19 +264,14 @@ function CreateTaskModal({
   };
 
   useEffect(() => {
-    if (customFields && customFields.length > 0) {
-      setCustomFieldValues((prev) => {
-        const next = { ...prev };
-        for (const field of customFields) {
-          if (next[field.id] === undefined) {
-            next[field.id] = field.defaultValue || "";
-          }
-        }
-        return next;
-      });
-    } else {
-      setCustomFieldValues({});
-    }
+    setCustomFieldValues((previousValues) =>
+      Object.fromEntries(
+        customFields.map((field) => [
+          field.id,
+          previousValues[field.id] ?? field.defaultValue ?? "",
+        ]),
+      ),
+    );
   }, [customFields]);
 
   const filteredLabels = (() => {
@@ -511,13 +506,15 @@ function CreateTaskModal({
         }
       }
 
-      for (const [fieldId, value] of Object.entries(customFieldValues)) {
-        if (value) {
-          await setCustomFieldValue({
-            taskId: savedTask.id,
-            fieldId,
-            value: String(value),
-          });
+      if (draftTask) {
+        for (const [fieldId, value] of Object.entries(customFieldValues)) {
+          if (value) {
+            await setCustomFieldValue({
+              taskId: savedTask.id,
+              fieldId,
+              value: String(value),
+            });
+          }
         }
       }
 

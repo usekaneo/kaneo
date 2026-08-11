@@ -3,6 +3,59 @@ import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import { columnTable, customFieldDefinitionTable } from "../database/schema";
 
+export function validateCustomFieldValue(
+  value: string,
+  type: "number" | "boolean" | "date" | "dropdown",
+  fieldName: string,
+  options?: unknown,
+): string | null {
+  if (type === "number") {
+    const num = Number(value);
+    if (!Number.isFinite(num)) {
+      return `Custom field "${fieldName}" expects a finite number, got "${value}".`;
+    }
+  }
+
+  if (type === "boolean") {
+    if (!["true", "false"].includes(value)) {
+      return `Custom field "${fieldName}" expects "true" or "false", got "${value}".`;
+    }
+  }
+
+  if (type === "date") {
+    const timestamp = Date.parse(value);
+    if (Number.isNaN(timestamp)) {
+      return `Custom field "${fieldName}" expects a valid ISO 8601 date, got "${value}".`;
+    }
+
+    const isoMatch =
+      /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:\d{2})?)?$/.test(
+        value,
+      );
+    if (!isoMatch) {
+      return `Custom field "${fieldName}" expects a date in YYYY-MM-DD or ISO 8601 format, got "${value}".`;
+    }
+  }
+
+  if (type === "dropdown") {
+    let parsedOptions: string[] = Array.isArray(options) ? options : [];
+
+    if (typeof options === "string") {
+      try {
+        parsedOptions = JSON.parse(options);
+      } catch {
+        return `Custom field "${fieldName}" has invalid dropdown options.`;
+      }
+    }
+
+    if (!parsedOptions.includes(value.trim())) {
+      return `Custom field "${fieldName}" expects one of: ${parsedOptions.join(", ")}, got "${value}".`;
+    }
+  }
+
+  return null;
+}
+
 export async function assertRequiredCustomFields(
   projectId: string,
   customFields: { fieldId: string; value: string }[] = [],
@@ -34,39 +87,15 @@ export async function assertRequiredCustomFields(
     const def = allFields.find((f) => f.id === cf.fieldId);
     if (!def) continue;
 
-    if (def.type === "number" && Number.isNaN(Number(cf.value))) {
-      throw new HTTPException(400, {
-        message: `Custom field "${def.name}" expects a number, got "${cf.value}".`,
-      });
-    }
-    if (def.type === "boolean" && !["true", "false"].includes(cf.value)) {
-      throw new HTTPException(400, {
-        message: `Custom field "${def.name}" expects "true" or "false", got "${cf.value}".`,
-      });
-    }
-    if (def.type === "date" && Number.isNaN(Date.parse(cf.value))) {
-      throw new HTTPException(400, {
-        message: `Custom field "${def.name}" expects a valid ISO 8601 date, got "${cf.value}".`,
-      });
-    }
-    if (def.type === "dropdown") {
-      let options: string[] = Array.isArray(def.options) ? def.options : [];
+    const error = validateCustomFieldValue(
+      cf.value,
+      def.type as "number" | "boolean" | "date" | "dropdown",
+      def.name,
+      def.options,
+    );
 
-      if (typeof def.options === "string") {
-        try {
-          options = JSON.parse(def.options);
-        } catch {
-          throw new HTTPException(400, {
-            message: `Custom field "${def.name}" has invalid dropdown options.`,
-          });
-        }
-      }
-
-      if (!options.includes(cf.value.trim())) {
-        throw new HTTPException(400, {
-          message: `Custom field "${def.name}" expects one of: ${options.join(", ")}, got "${cf.value}".`,
-        });
-      }
+    if (error) {
+      throw new HTTPException(400, { message: error });
     }
   }
 

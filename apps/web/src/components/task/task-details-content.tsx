@@ -138,6 +138,7 @@ export default function TaskDetailsContent({
 
       toast.success(t("tasks:detail.customFieldUpdated", "Field updated"));
     } catch (error) {
+      handleLocalChange(fieldId, existingVal);
       toast.error(
         error instanceof Error ? error.message : "Failed to update field",
       );

@@ -220,10 +220,24 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
             {activeCustomFieldValues.length > 0 && (
               <HoverCard openDelay={200} closeDelay={100}>
                 <HoverCardTrigger asChild>
-                  <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default focus:outline-none focus:ring-2 focus:ring-ring/50 focus:ring-offset-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    aria-label={t("tasks:customFields.ariaLabel", {
+                      count: activeCustomFieldValues.length,
+                    })}
+                  >
                     <SlidersHorizontal className="w-3 h-3" />
                     <span>{activeCustomFieldValues.length}</span>
-                  </span>
+                  </button>
                 </HoverCardTrigger>
                 <HoverCardContent
                   className="w-fit p-2.5"
