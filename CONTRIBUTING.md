@@ -45,7 +45,7 @@ pnpm install
 ```
 
 3. **Set up environment variables**:
-   Create a single `.env` file in the repository root. It is shared by the apps. See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for the required variables and local examples.
+   Create a `.env` file in the repository root for server configuration. The web app includes localhost development defaults; put local Vite overrides such as `VITE_API_URL` in `apps/web/.env.local`. See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for the required variables and examples.
 
 4. **Start everything up**:
 ```bash

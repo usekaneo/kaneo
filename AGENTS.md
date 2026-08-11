@@ -66,7 +66,7 @@ Not every change touches every surface. Make the decision deliberately rather th
 
 ## Safety and tooling
 
-- Use pnpm 10.32.1 and Node.js 20.19 or newer. Environment variables come from the root `.env` described in `ENVIRONMENT_SETUP.md`.
+- Use pnpm 10.32.1 and Node.js 20.19 or newer. Server environment variables come from the root `.env`; local Vite-only overrides belong in `apps/web/.env.local`. See `ENVIRONMENT_SETUP.md`.
 - Never use production databases, storage, or credentials for development or tests.
 - Preserve unrelated work in a dirty worktree. Do not delete data or generated files unless the task requires it and the target is verified.
 - Track processes you start and stop only those processes; never kill by broad name or path patterns.
