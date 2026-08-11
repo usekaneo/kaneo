@@ -43,10 +43,10 @@ function RouteComponent() {
         <div className="space-y-6">
           <div className="space-y-1">
             <h2 className="text-md font-medium">
-              {t("settings:customFields.heading")}
+              {t("settings:projectWorkflow.customFieldsTitle")}
             </h2>
             <p className="text-xs text-muted-foreground">
-              {t("settings:customFields.hint")}
+              {t("settings:projectWorkflow.customFieldsDescription")}
             </p>
           </div>
           <CustomFieldEditor projectId={projectId} />

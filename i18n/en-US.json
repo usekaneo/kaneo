@@ -827,6 +827,8 @@
 			"subtitle": "Configure board columns and automation rules for this project.",
 			"columnsTitle": "Columns",
 			"columnsDescription": "Manage the columns that appear on your board. Drag to reorder. Turn on \"Done column\" for stages that represent completed work.",
+			"customFieldsTitle": "Custom Fields",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
 			"automationTitle": "Automation Rules",
 			"automationDescription": "Map integration events to columns. When an event occurs, the linked task moves to the specified column."
 		},
@@ -857,8 +859,6 @@
 			"add": "Add"
 		},
 		"customFields": {
-			"heading": "Custom fields",
-			"hint": "Create additional task fields for this project.",
 			"namePlaceholder": "Field name",
 			"typePlaceholder": "Select field type",
 			"noOptionsPlaceholder": "No options",
