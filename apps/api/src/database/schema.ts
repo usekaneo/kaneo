@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  customType,
   foreignKey,
   index,
   integer,
@@ -12,6 +13,12 @@ import {
   unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+});
 
 export const userTable = pgTable("user", {
   id: text("id")
@@ -86,6 +93,31 @@ export const accountTable = pgTable(
       .notNull(),
   },
   (table) => [index("account_userId_idx").on(table.userId)],
+);
+
+export const userAvatarTable = pgTable(
+  "user_avatar",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .unique("user_avatar_user_id_unique")
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    mimeType: text("mime_type").notNull(),
+    size: integer("size").notNull(),
+    data: bytea("data").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("user_avatar_userId_idx").on(table.userId)],
 );
 
 export const verificationTable = pgTable(
@@ -175,6 +207,12 @@ export const workspaceBillingTable = pgTable(
   },
   (table) => [index("workspace_billing_workspaceId_idx").on(table.workspaceId)],
 );
+
+export const trialGrantTable = pgTable("trial_grant", {
+  emailHash: text("email_hash").primaryKey(),
+  trialEndsAt: timestamp("trial_ends_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
 
 export const billingEventTable = pgTable("billing_event", {
   id: text("id").primaryKey(),
@@ -375,7 +413,7 @@ export const taskTable = pgTable(
     position: integer("position").default(0),
     number: integer("number").default(1),
     userId: text("assignee_id").references(() => userTable.id, {
-      onDelete: "cascade",
+      onDelete: "set null",
       onUpdate: "cascade",
     }),
     title: text("title").notNull(),
@@ -480,7 +518,7 @@ export const timeEntryTable = pgTable(
         onUpdate: "cascade",
       }),
     userId: text("user_id").references(() => userTable.id, {
-      onDelete: "cascade",
+      onDelete: "set null",
       onUpdate: "cascade",
     }),
     description: text("description"),
@@ -518,7 +556,7 @@ export const activityTable = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
     userId: text("user_id").references(() => userTable.id, {
-      onDelete: "cascade",
+      onDelete: "set null",
       onUpdate: "cascade",
     }),
     content: text("content"),

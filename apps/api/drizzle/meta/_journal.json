@@ -281,6 +281,20 @@
 			"when": 1786478671279,
 			"tag": "0039_gorgeous_jack_power",
 			"breakpoints": true
+		},
+		{
+			"idx": 40,
+			"version": "7",
+			"when": 1786555508802,
+			"tag": "0040_clear_eternals",
+			"breakpoints": true
+		},
+		{
+			"idx": 41,
+			"version": "7",
+			"when": 1786557281986,
+			"tag": "0041_famous_cable",
+			"breakpoints": true
 		}
 	]
 }
