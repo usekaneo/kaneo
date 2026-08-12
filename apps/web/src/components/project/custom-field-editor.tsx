@@ -97,6 +97,7 @@ export default function CustomFieldEditor({
   const [pendingFields, setPendingFields] = useState<
     CustomFieldDefinition[] | null
   >(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   const dragPreviewRef = useRef<HTMLDivElement | null>(null);
 
@@ -167,6 +168,8 @@ export default function CustomFieldEditor({
     e: React.DragEvent<HTMLDivElement>,
     index: number,
   ) => {
+    if (isReordering) return;
+
     if (!pendingFields && customFields) {
       setPendingFields(customFields);
     }
@@ -226,6 +229,8 @@ export default function CustomFieldEditor({
   };
 
   const handleDragEnd = async () => {
+    if (isReordering) return;
+
     const finalFields = pendingFields ?? customFields;
 
     setDraggedIndex(null);
@@ -241,6 +246,7 @@ export default function CustomFieldEditor({
     if (pendingFields === null) {
       return;
     }
+    if (isReordering) return;
 
     try {
       const updates = finalFields.map((col, i) => ({
@@ -259,6 +265,8 @@ export default function CustomFieldEditor({
           ? error.message
           : t("settings:customFields.reorderError", "Failed to reorder fields"),
       );
+    } finally {
+      setIsReordering(false);
     }
   };
 
@@ -301,7 +309,7 @@ export default function CustomFieldEditor({
               <div
                 key={field.id}
                 role="listitem"
-                draggable
+                draggable={!isReordering}
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
