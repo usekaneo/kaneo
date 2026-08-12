@@ -403,6 +403,42 @@ export const taskTable = pgTable(
   ],
 );
 
+export const billingReminderSentTable = pgTable(
+  "billing_reminder_sent",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    reminderType: text("reminder_type").notNull(),
+    trialEndsAt: timestamp("trial_ends_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("billing_reminder_sent_workspaceId_idx").on(table.workspaceId),
+    index("billing_reminder_sent_userId_idx").on(table.userId),
+    unique("billing_reminder_sent_user_type_unique").on(
+      table.userId,
+      table.reminderType,
+    ),
+  ],
+);
+
 export const taskReminderSentTable = pgTable(
   "task_reminder_sent",
   {

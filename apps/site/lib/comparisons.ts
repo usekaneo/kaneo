@@ -100,4 +100,41 @@ export const comparisons: Record<string, Comparison> = {
     honestNote:
       "Linear sets the bar for polish, speed, and deep product-team features like cycles and triage. If you're committed to cloud SaaS and want that specific, highly-refined workflow, it's excellent. Kaneo is for teams who want a clean experience they can actually own.",
   },
+  planka: {
+    competitor: "PLANKA",
+    heading: "The PLANKA alternative with SSO included",
+    subheading:
+      "PLANKA 2.2 moved SSO into its paid Pro tier, and self-hosters who signed in with OIDC woke up to deactivated accounts. Kaneo is MIT-licensed, self-hostable, and ships SSO to everyone at no cost.",
+    rows: [
+      { feature: "License", kaneo: "MIT", them: "Fair Use (source-available)" },
+      { feature: "Self-hostable", kaneo: true, them: true },
+      { feature: "Own your data", kaneo: true, them: true },
+      { feature: "Kanban boards", kaneo: true, them: true },
+      { feature: "SSO / OIDC", kaneo: "Free", them: "Pro only" },
+      { feature: "Backlog & workflows", kaneo: true, them: false },
+      { feature: "Data export", kaneo: "Built in", them: false },
+      { feature: "Cloud pricing", kaneo: "From $4/mo", them: "Per user" },
+    ],
+    reasons: [
+      {
+        title: "SSO is not a premium feature",
+        body: "Connect Google, GitHub, Discord, or any OIDC provider on the free, self-hosted build. We think authentication is part of running software safely, not an upsell, and we don't plan to move it.",
+      },
+      {
+        title: "Genuinely MIT",
+        body: "Kaneo is MIT end to end, with no Pro-only files carved out of the repository. You can fork it, run it, and change it without checking which licence a given file falls under.",
+      },
+      {
+        title: "Your data stays portable",
+        body: "Every project exports to JSON from the UI, and the whole API is public and documented. Getting out of Kaneo is as easy as getting in, which is rather the point.",
+      },
+    ],
+    migration: {
+      body: "PLANKA has no export feature, so we wrote an importer that reads your boards straight from its API and recreates them in Kaneo: lists, cards, labels, assignees, checklists, and comments. Start with a dry run, which writes nothing.",
+      href: "https://kaneo.app/docs/core/migrations/from-planka",
+      linkText: "Read the migration guide",
+    },
+    honestNote:
+      "PLANKA is a good piece of software with a real team behind it, and paid tiers are a legitimate way to fund open-source work. If you're happy on the Community edition with password logins, or SSO is worth the Pro licence to you, there's no reason to move. Kaneo is for teams that need SSO and don't want it behind a paywall.",
+  },
 };

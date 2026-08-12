@@ -13,6 +13,7 @@ The variables are split up into the following sections:
 - [General URLs](#general-urls)
 - [Database](#database)
 - [Authentication](#authentication)
+- [MCP](#mcp)
 - [Object Storage](#object-storage)
 - [Access Control](#access-control)
 - [GitHub SSO](#github-sso)
@@ -57,6 +58,12 @@ Name | Description |
 
 ## Optional variables
 
+### MCP
+
+Name | Description | Default |
+--- | --- | --- |
+| `KANEO_INTERNAL_API_URL` | API origin used only for server-side requests from the built-in HTTP MCP endpoint. Override it only if the API is not reachable at the default loopback address from its own process. | `http://127.0.0.1:1337` |
+
 ### Object Storage
 
 Kaneo uses S3-compatible object storage for private uploads in task descriptions and task comments.
@@ -89,6 +96,16 @@ Name | Description | Default |
 
 <Warning>
   Before enabling SSO-only access with `DISABLE_LOGIN_FORM=true` or `CUSTOM_OAUTH_AUTO_LOGIN=true` on an existing installation, make sure existing local accounts have verified email addresses. OAuth/OIDC identities cannot be linked to an unverified local account, and affected users will receive `error=account_not_linked`. Keep the login form available until those users have signed in with an email OTP or magic link. If SSO-only access is already enabled, temporarily set both options to `false`, restart Kaneo, and let affected users complete an email sign-in before restoring the SSO-only settings.
+</Warning>
+
+### Proxies
+
+Name | Description | Default |
+--- | --- | --- |
+| `TRUSTED_PROXIES` | Comma-separated IPs or CIDR ranges of the reverse proxies in front of Kaneo. The forwarded header chain is walked right to left, trusted hops are skipped, and the first untrusted address is taken as the client IP. Only set this if your proxies sit outside the default ranges; the default covers loopback and private networks, which is correct for the standard Docker Compose setup. | `127.0.0.0/8, ::1/128, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16` |
+
+<Warning>
+  Only list addresses you control. Any host in this range can set `X-Forwarded-For` and have it believed, so do not include a range that clients can reach Kaneo from directly. The client IP is used for rate limiting and session records.
 </Warning>
 
 ### Notifications

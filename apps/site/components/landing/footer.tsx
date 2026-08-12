@@ -59,6 +59,12 @@ export function Footer() {
               >
                 vs Linear
               </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/planka-alternative"
+              >
+                vs PLANKA
+              </a>
             </div>
 
             <div className="space-y-3 text-sm">

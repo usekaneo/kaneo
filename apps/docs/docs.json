@@ -38,6 +38,12 @@
 		"light": "/logo/dark.svg",
 		"dark": "/logo/light.svg"
 	},
+	"redirects": [
+		{
+			"source": "/core/guide/migrating-from-v1",
+			"destination": "/core/installation/environment-variables"
+		}
+	],
 	"navigation": {
 		"tabs": [
 			{
@@ -112,7 +118,7 @@
 					},
 					{
 						"group": "Migration",
-						"pages": ["core/guide/migrating-from-v1"]
+						"pages": ["core/migrations/from-planka"]
 					}
 				]
 			},

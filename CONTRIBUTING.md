@@ -26,7 +26,7 @@ We want everyone to feel welcome here. Please be respectful and follow our [Code
 
 ### What You'll Need
 
-- **Node.js** (18 or newer)
+- **Node.js** (20.19 or newer)
 - **pnpm** (we use this instead of npm/yarn)
 - **Git**
 - **Docker** (optional, for testing full deployments)
@@ -45,7 +45,7 @@ pnpm install
 ```
 
 3. **Set up environment variables**:
-   Create `.env` files for both the API and web apps. See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for detailed instructions on all required environment variables.
+   Create a `.env` file in the repository root for server configuration. The web app includes localhost development defaults; put local Vite overrides such as `VITE_API_URL` in `apps/web/.env.local`. See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for the required variables and examples.
 
 4. **Start everything up**:
 ```bash
@@ -185,10 +185,17 @@ t("projects:greeting", { name: userName });
 kaneo/
 ├── apps/
 │   ├── api/          # Backend API (Node.js/Hono)
-│   ├── docs/         # Documentation site (Next.js)
+│   ├── docs/         # Product and API documentation content
+│   ├── site/         # Public website and documentation host (Next.js)
 │   └── web/          # Frontend app (React/Vite)
-├── packages/         # Shared code and configs
-└── charts/           # Kubernetes Helm charts
+├── packages/
+│   ├── email/        # Shared email utilities and templates
+│   ├── libs/         # Typed API client and shared runtime helpers
+│   ├── mcp/          # Published stdio MCP package
+│   ├── permissions/  # Shared permission vocabulary and built-in roles
+│   └── ...            # Import tooling and shared TypeScript configuration
+├── tests/            # API unit and integration tests
+└── charts/           # Kubernetes Helm chart
 ```
 
 ## Need Help?
