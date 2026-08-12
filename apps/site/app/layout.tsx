@@ -12,11 +12,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://kaneo.app"),
   title: {
-    default: "Kaneo - All you need. Nothing you don't.",
+    default: "Kaneo - Project management that doesn't become the project.",
     template: "%s | Kaneo",
   },
   description:
-    "All you need. Nothing you don't. Open source project management that works for you, not against you.",
+    "Fast, open-source project management for teams that want clear ownership without heavy process. Use Kaneo Cloud or host it yourself.",
   keywords: [
     "kaneo",
     "project management",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://kaneo.app",
     siteName: "Kaneo",
-    title: "Kaneo - All you need. Nothing you don't.",
+    title: "Kaneo - Project management that doesn't become the project.",
     description:
       "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
     images: [
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kaneo - All you need. Nothing you don't.",
+    title: "Kaneo - Project management that doesn't become the project.",
     description:
       "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
     images: ["/images/hero.png"],

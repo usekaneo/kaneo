@@ -37,7 +37,7 @@ console.log(`
   ///////                      
                    
   
-  All you need. Nothing you don't.
+  Project management that doesn't become the project.
 `);
 
 const router = createRouter({
