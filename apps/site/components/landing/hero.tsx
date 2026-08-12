@@ -32,7 +32,7 @@ export function Hero() {
                 size="lg"
                 className="gap-2"
                 onClick={() => {
-                  window.location.href = "https://cloud.kaneo.app";
+                  window.location.href = "https://cloud.kaneo.app/auth/sign-up";
                 }}
               >
                 Start for free
