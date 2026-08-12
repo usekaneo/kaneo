@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "Cancelar",
 			"close": "Cerrar",
@@ -76,7 +76,7 @@
 				"errorToast": "Hubo un error al crear el proyecto"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Crear un nuevo espacio de trabajo",
 				"description": "Crea un nuevo espacio de trabajo eligiendo un nombre.",
 				"namePlaceholder": "Nombre del espacio de trabajo",
@@ -597,7 +597,7 @@
 			"badgeNotConnected": "No connectado",
 			"repository": "Repositorio",
 			"repositoryHint": "Repositorio de GitHub conectado",
-			"commentTaskLinkTitle": "Comenta Kaneo link en issues nuevos",
+			"commentTaskLinkTitle": "Comenta ElseTasks link en issues nuevos",
 			"commentTaskLinkHint": "Si está activado, Kaneo añade un comentario en cada nuevo issue de GitHub vinculado con la tarea.",
 			"appStatusTitle": "Estado de la App de GitHub",
 			"appStatusHint": "Estado de instalación y permisos",
@@ -716,15 +716,15 @@
 				"removeError": "Error al eliminar la integración con webhook"
 			},
 			"connectionTitle": "Conexión de sálida a un webhook",
-			"connectionHint": "Envía eventos de las tareas a tu propio webhook como JSON. Una cabecera X-Kaneo-Signature se incluye si el secreto está configurado.",
+			"connectionHint": "Envía eventos de las tareas a tu propio webhook como JSON. Una cabecera X-ElseTasks-Signature se incluye si el secreto está configurado.",
 			"connected": "Conectado",
 			"paused": "Pausado",
 			"webhookLabel": "URL del webhook",
-			"webhookPlaceholder": "https://ejemplo.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://ejemplo.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo envía requests POST como JSON para cada evento activo.",
 			"secretLabel": "Secreto para la firma",
 			"secretPlaceholder": "Secreto opcional",
-			"secretHint": "Opcional. Si está configurado, Kaneo envía el cuerpo de la petición y añade la cabecera X-Kaneo-Signature.",
+			"secretHint": "Opcional. Si está configurado, Kaneo envía el cuerpo de la petición y añade la cabecera X-ElseTasks-Signature.",
 			"secretHintConfigured": "Ya hay un secreto configurado ({{secret}}). Introduce uno nuevo para reemplazarlo.",
 			"eventsTitle": "Notificaciones de eventos",
 			"eventsHint": "Elige qué cambios en el proyecto deben ser notificados a través de webhooks.",
@@ -1438,14 +1438,14 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on ElseTasks",
+			"preview": "You're invited to {{workspaceName}} on ElseTasks",
 			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in ElseTasks.",
 			"cta": "Accept invitation",
 			"sameEmail": "You can accept with the same email that received this message.",
 			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"footer": "ElseTasks workspace invitation"
 		},
 		"pageTitle": "Invitaciones",
 		"pendingInvitations": "Invitaciones pendientes",

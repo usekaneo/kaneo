@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "취소",
 			"close": "닫기",
@@ -77,7 +77,7 @@
 				"errorToast": "프로젝트 생성에 실패했습니다"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "새 워크스페이스 만들기",
 				"description": "워크스페이스 이름을 지정하여 새 워크스페이스를 만듭니다.",
 				"namePlaceholder": "워크스페이스 이름",
@@ -366,7 +366,7 @@
 			"webhookDescription": "계정 알림을 자체 엔드포인트로 JSON 형식으로 전송합니다.",
 			"endpointUrl": "엔드포인트 URL",
 			"signingSecret": "서명 시크릿",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "선택 사항 - 공유 시크릿",
 			"webhookSecretHintConfigured": "서명 시크릿이 이미 구성되어 있습니다 ({{masked}}). 교체하려면 새 시크릿을 입력하세요.",
 			"webhookSecretHintOptional": "선택 사항. 시크릿이 설정된 경우 Kaneo가 요청 본문에 서명합니다.",
@@ -884,15 +884,15 @@
 				"removeError": "일반 웹훅 연동 제거에 실패했습니다"
 			},
 			"connectionTitle": "발신 웹훅 연결",
-			"connectionHint": "작업 이벤트를 자체 엔드포인트로 JSON 형식으로 전송합니다. 시크릿이 구성된 경우 서명된 X-Kaneo-Signature 헤더가 포함됩니다.",
+			"connectionHint": "작업 이벤트를 자체 엔드포인트로 JSON 형식으로 전송합니다. 시크릿이 구성된 경우 서명된 X-ElseTasks-Signature 헤더가 포함됩니다.",
 			"connected": "연결됨",
 			"paused": "일시 중지됨",
 			"webhookLabel": "엔드포인트 URL",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo는 활성화된 각 이벤트에 대해 JSON 페이로드와 함께 POST 요청을 전송합니다.",
 			"secretLabel": "서명 시크릿",
 			"secretPlaceholder": "선택 사항 - 공유 시크릿",
-			"secretHint": "선택 사항. 입력하면 Kaneo가 요청 본문에 서명하고 16진수 다이제스트를 X-Kaneo-Signature 헤더로 전송합니다.",
+			"secretHint": "선택 사항. 입력하면 Kaneo가 요청 본문에 서명하고 16진수 다이제스트를 X-ElseTasks-Signature 헤더로 전송합니다.",
 			"secretHintConfigured": "서명 시크릿이 이미 구성되어 있습니다 ({{secret}}). 교체하려면 새 시크릿을 입력하세요.",
 			"eventsTitle": "이벤트 알림",
 			"eventsHint": "발신 웹훅을 트리거할 프로젝트 변경 사항을 선택합니다.",
@@ -1666,14 +1666,14 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on ElseTasks",
+			"preview": "You're invited to {{workspaceName}} on ElseTasks",
 			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in ElseTasks.",
 			"cta": "Accept invitation",
 			"sameEmail": "You can accept with the same email that received this message.",
 			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"footer": "ElseTasks workspace invitation"
 		},
 		"pageTitle": "초대",
 		"pendingInvitations": "대기 중인 초대",

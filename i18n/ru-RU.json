@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "Отмена",
 			"close": "Закрыть",
@@ -77,7 +77,7 @@
 				"errorToast": "Не удалось создать проект"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Создать новую рабочую область",
 				"description": "Создайте новую рабочую область, указав её название.",
 				"namePlaceholder": "Название рабочей области",
@@ -366,7 +366,7 @@
 			"webhookDescription": "Отправляйте уведомления аккаунта на ваш эндпоинт в формате JSON.",
 			"endpointUrl": "URL эндпоинта",
 			"signingSecret": "Секрет подписи",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "Необязательный общий секрет",
 			"webhookSecretHintConfigured": "Секрет подписи уже настроен ({{masked}}). Введите новый для замены.",
 			"webhookSecretHintOptional": "Необязательно. Kaneo подписывает тело запроса, если секрет задан.",
@@ -882,15 +882,15 @@
 				"removeError": "Не удалось удалить пользовательский вебхук"
 			},
 			"connectionTitle": "Исходящий вебхук",
-			"connectionHint": "Отправляйте события задач на ваш эндпоинт в формате JSON. Подписанный заголовок X-Kaneo-Signature включается, если настроен секрет.",
+			"connectionHint": "Отправляйте события задач на ваш эндпоинт в формате JSON. Подписанный заголовок X-ElseTasks-Signature включается, если настроен секрет.",
 			"connected": "Подключён",
 			"paused": "Приостановлен",
 			"webhookLabel": "URL эндпоинта",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo отправляет POST-запросы с JSON-данными для каждого включённого события.",
 			"secretLabel": "Секрет подписи",
 			"secretPlaceholder": "Необязательный общий секрет",
-			"secretHint": "Необязательно. Если задан, Kaneo подписывает тело запроса и отправляет hex-дайджест в заголовке X-Kaneo-Signature.",
+			"secretHint": "Необязательно. Если задан, Kaneo подписывает тело запроса и отправляет hex-дайджест в заголовке X-ElseTasks-Signature.",
 			"secretHintConfigured": "Секрет подписи уже настроен ({{secret}}). Введите новый для замены.",
 			"eventsTitle": "Уведомления о событиях",
 			"eventsHint": "Выберите, какие изменения проекта должны вызывать исходящие вебхуки.",
@@ -1705,14 +1705,14 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on ElseTasks",
+			"preview": "You're invited to {{workspaceName}} on ElseTasks",
 			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in ElseTasks.",
 			"cta": "Accept invitation",
 			"sameEmail": "You can accept with the same email that received this message.",
 			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"footer": "ElseTasks workspace invitation"
 		},
 		"pageTitle": "Приглашения",
 		"pendingInvitations": "Ожидающие приглашения",

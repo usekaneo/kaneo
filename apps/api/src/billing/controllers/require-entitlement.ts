@@ -19,7 +19,7 @@ export async function requireWorkspaceEntitlement(workspaceId: string) {
   if (!entitlement.active) {
     throw new HTTPException(402, {
       message:
-        "This workspace's Kaneo Cloud plan has expired. Subscribe to continue creating and editing.",
+        "This workspace's ElseTasks Cloud plan has expired. Subscribe to continue creating and editing.",
     });
   }
 }

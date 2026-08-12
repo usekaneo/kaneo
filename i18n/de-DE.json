@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "Abbrechen",
 			"close": "Schließen",
@@ -77,7 +77,7 @@
 				"errorToast": "Projekt konnte nicht erstellt werden"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Neuen Workspace erstellen",
 				"description": "Erstelle einen neuen Workspace, indem du einen Namen dafür angibst.",
 				"namePlaceholder": "Workspace-Name",
@@ -248,7 +248,7 @@
 			"workspaceLabel": "Workspace: {{workspaceName}}",
 			"joinWorkspace": "{{workspaceName}} beitreten",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace beizutreten.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace auf Kaneo beizutreten.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace auf ElseTasks beizutreten.",
 			"createAccountOrSignIn": "Erstelle ein Konto, um diese Einladung anzunehmen, oder melde dich an, falls du bereits eines hast.",
 			"createAccount": "Konto erstellen",
 			"accepting": "Wird angenommen...",
@@ -366,7 +366,7 @@
 			"webhookDescription": "Kontobenachrichtigungen als JSON an deinen eigenen Endpunkt senden.",
 			"endpointUrl": "Endpunkt-URL",
 			"signingSecret": "Signatur-Geheimnis",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "Optionales gemeinsames Geheimnis",
 			"webhookSecretHintConfigured": "Ein Signatur-Geheimnis ist bereits konfiguriert ({{masked}}). Gib ein neues ein, um es zu ersetzen.",
 			"webhookSecretHintOptional": "Optional. Kaneo signiert den Anfragetext, wenn ein Geheimnis gesetzt ist.",
@@ -478,7 +478,7 @@
 			"title": "Entwicklereinstellungen",
 			"subtitle": "Verwalte deine API-Schlüssel und Entwicklerressourcen.",
 			"apiKeysCardTitle": "API-Schlüssel",
-			"apiKeysCardDescription": "Erstelle und verwalte API-Schlüssel für den programmgesteuerten Zugriff auf Kaneo.",
+			"apiKeysCardDescription": "Erstelle und verwalte API-Schlüssel für den programmgesteuerten Zugriff auf ElseTasks.",
 			"createApiKey": "API-Schlüssel erstellen",
 			"unnamedKey": "Unbenannter Schlüssel"
 		},
@@ -757,7 +757,7 @@
 				"removeError": "Failed to remove Gitea integration",
 				"issuesImported": "Issues imported successfully",
 				"importError": "Failed to import issues",
-				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
+				"commentOnEnabled": "ElseTasks will comment with a task link on new issues",
 				"commentOnDisabled": "Task link comments on new issues are turned off",
 				"settingsUpdateError": "Failed to update Gitea integration",
 				"secretCopied": "Kopiert",
@@ -773,8 +773,8 @@
 			"badgeNotConnected": "Not connected",
 			"repository": "Repository",
 			"repositoryHint": "Linked Gitea repository",
-			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
-			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"commentTaskLinkTitle": "Comment ElseTasks link on new issues",
+			"commentTaskLinkHint": "When enabled, ElseTasks posts a comment on each new issue with a link to the task.",
 			"webhookTitle": "Webhook",
 			"webhookHint": "In your Gitea repository, add a webhook with this URL and secret. Enable push, pull request, issues, issue comments, and create (for labels).",
 			"webhookSecretLabel": "Secret (must match the webhook secret in Gitea)",
@@ -898,15 +898,15 @@
 				"removeError": "Generische Webhook-Integration konnte nicht entfernt werden"
 			},
 			"connectionTitle": "Ausgehende Webhook-Verbindung",
-			"connectionHint": "Sende Aufgabenereignisse als JSON an deinen eigenen Endpunkt. Wenn ein Secret konfiguriert ist, wird ein signierter X-Kaneo-Signature-Header mitgesendet.",
+			"connectionHint": "Sende Aufgabenereignisse als JSON an deinen eigenen Endpunkt. Wenn ein Secret konfiguriert ist, wird ein signierter X-ElseTasks-Signature-Header mitgesendet.",
 			"connected": "Verbunden",
 			"paused": "Pausiert",
 			"webhookLabel": "Endpunkt-URL",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo sendet POST-Anfragen mit einer JSON-Nutzlast für jedes aktivierte Ereignis.",
 			"secretLabel": "Signatur-Secret",
 			"secretPlaceholder": "Optionales gemeinsames Secret",
-			"secretHint": "Optional. Wenn gesetzt, signiert Kaneo den Request-Body und sendet den Hex-Digest im Header X-Kaneo-Signature.",
+			"secretHint": "Optional. Wenn gesetzt, signiert Kaneo den Request-Body und sendet den Hex-Digest im Header X-ElseTasks-Signature.",
 			"secretHintConfigured": "Ein Signatur-Secret ist bereits konfiguriert ({{secret}}). Gib ein neues ein, um es zu ersetzen.",
 			"eventsTitle": "Ereignisbenachrichtigungen",
 			"eventsHint": "Wähle aus, welche Projektänderungen ausgehende Webhooks auslösen sollen.",
@@ -1706,8 +1706,8 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} hat dich eingeladen, {{workspaceName}} auf Kaneo beizutreten",
-			"preview": "Du wurdest zu {{workspaceName}} auf Kaneo eingeladen",
+			"subject": "{{inviterName}} hat dich eingeladen, {{workspaceName}} auf ElseTasks beizutreten",
+			"preview": "Du wurdest zu {{workspaceName}} auf ElseTasks eingeladen",
 			"title": "{{workspaceName}} beitreten",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) hat dich eingeladen, in Kaneo zusammenzuarbeiten.",
 			"cta": "Einladung annehmen",

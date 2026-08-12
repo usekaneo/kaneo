@@ -14,6 +14,7 @@ import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DeviceRouteImport } from './routes/device'
 import { Route as TestErrorRouteImport } from './routes/test-error'
+import { Route as SetupRouteImport } from './routes/setup'
 import { Route as LayoutAuthenticatedRouteImport } from './routes/_layout/_authenticated'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
@@ -79,6 +80,11 @@ const DeviceRoute = DeviceRouteImport.update({
 const TestErrorRoute = TestErrorRouteImport.update({
   id: '/test-error',
   path: '/test-error',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LayoutAuthenticatedRoute = LayoutAuthenticatedRouteImport.update({
@@ -352,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/device': typeof DeviceRouteWithChildren
   '/test-error': typeof TestErrorRoute
+  '/setup': typeof SetupRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -398,6 +405,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/test-error': typeof TestErrorRoute
+  '/setup': typeof SetupRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -445,6 +453,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/device': typeof DeviceRouteWithChildren
   '/test-error': typeof TestErrorRoute
+  '/setup': typeof SetupRoute
   '/_layout/_authenticated': typeof LayoutAuthenticatedRouteWithChildren
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/sign-in': typeof AuthSignInRoute
@@ -495,6 +504,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/device'
     | '/test-error'
+    | '/setup'
     | '/auth/check-email'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -541,6 +551,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/test-error'
+    | '/setup'
     | '/auth/check-email'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -587,6 +598,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/device'
     | '/test-error'
+    | '/setup'
     | '/_layout/_authenticated'
     | '/auth/check-email'
     | '/auth/sign-in'
@@ -637,6 +649,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   DeviceRoute: typeof DeviceRouteWithChildren
   TestErrorRoute: typeof TestErrorRoute
+  SetupRoute: typeof SetupRoute
   McpAuthorizeRoute: typeof McpAuthorizeRoute
   PublicProjectProjectIdRoute: typeof PublicProjectProjectIdRoute
   InvitationAcceptInviteIdRoute: typeof InvitationAcceptInviteIdRoute
@@ -677,6 +690,13 @@ declare module '@tanstack/react-router' {
       path: '/test-error'
       fullPath: '/test-error'
       preLoaderRoute: typeof TestErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_layout/_authenticated': {
@@ -1196,6 +1216,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   DeviceRoute: DeviceRouteWithChildren,
   TestErrorRoute: TestErrorRoute,
+  SetupRoute: SetupRoute,
   McpAuthorizeRoute: McpAuthorizeRoute,
   PublicProjectProjectIdRoute: PublicProjectProjectIdRoute,
   InvitationAcceptInviteIdRoute: InvitationAcceptInviteIdRoute,

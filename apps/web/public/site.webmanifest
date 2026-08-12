@@ -1,6 +1,6 @@
 {
-	"name": "Kaneo",
-	"short_name": "Kaneo",
+	"name": "ElseTasks",
+	"short_name": "ElseTasks",
 	"icons": [
 		{
 			"src": "/web-app-manifest-192x192.png",
@@ -15,7 +15,7 @@
 			"purpose": "maskable"
 		}
 	],
-	"theme_color": "#141414",
-	"background_color": "#141414",
+	"theme_color": "#0F766E",
+	"background_color": "#0B1220",
 	"display": "standalone"
 }

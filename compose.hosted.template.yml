@@ -1,0 +1,63 @@
+# Template for ElseTasks Cloud (1 customer = 1 isolated stack).
+# Copy to deploy/customers/<slug>/compose.yml and fill env.
+
+name: elsetasks-${CUSTOMER_SLUG}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: elsetasks
+      POSTGRES_USER: elsetasks
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elsetasks -d elsetasks"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  elsetasks:
+    image: ${ELSETASKS_IMAGE:-elsetasks-app:local}
+    environment:
+      APP_NAME: ${APP_NAME:-ElseTasks}
+      APP_URL: https://${CUSTOMER_SLUG}.${ELSETASKS_BASE_DOMAIN}
+      APP_SUPPORT_EMAIL: ${APP_SUPPORT_EMAIL:-suporte@elsetasks.com}
+      APP_PRIMARY_COLOR: ${APP_PRIMARY_COLOR:-#0F766E}
+      KANEO_CLIENT_URL: https://${CUSTOMER_SLUG}.${ELSETASKS_BASE_DOMAIN}
+      POSTGRES_DB: elsetasks
+      POSTGRES_USER: elsetasks
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      AUTH_SECRET: ${AUTH_SECRET}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.elsetasks-${CUSTOMER_SLUG}.rule=Host(`${CUSTOMER_SLUG}.${ELSETASKS_BASE_DOMAIN}`)"
+      - "traefik.http.routers.elsetasks-${CUSTOMER_SLUG}.entrypoints=websecure"
+      - "traefik.http.routers.elsetasks-${CUSTOMER_SLUG}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.elsetasks-${CUSTOMER_SLUG}.loadbalancer.server.port=5173"
+    networks:
+      - internal
+      - proxy
+
+volumes:
+  postgres_data:
+
+networks:
+  internal:
+  proxy:
+    external: true

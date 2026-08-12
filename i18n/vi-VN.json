@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "Hủy",
 			"close": "Đóng",
@@ -77,7 +77,7 @@
 				"errorToast": "Không thể tạo dự án"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Tạo không gian làm việc mới",
 				"description": "Tạo một không gian làm việc mới bằng cách đặt tên cho nó.",
 				"namePlaceholder": "Tên không gian làm việc",
@@ -368,7 +368,7 @@
 			"webhookDescription": "Gửi thông báo tài khoản đến điểm cuối của riêng bạn dưới dạng JSON.",
 			"endpointUrl": "URL điểm cuối",
 			"signingSecret": "Khóa bí mật ký",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "Khóa bí mật dùng chung (không bắt buộc)",
 			"webhookSecretHintConfigured": "Đã cấu hình khóa bí mật ký ({{masked}}). Nhập khóa mới để thay thế.",
 			"webhookSecretHintOptional": "Không bắt buộc. Kaneo sẽ ký nội dung yêu cầu khi có thiết lập khóa bí mật.",
@@ -1062,15 +1062,15 @@
 				"removeError": "Không thể gỡ bỏ tích hợp webhook chung"
 			},
 			"connectionTitle": "Kết nối webhook gửi đi",
-			"connectionHint": "Gửi sự kiện công việc đến điểm cuối của riêng bạn dưới dạng JSON. Tiêu đề X-Kaneo-Signature đã ký sẽ được thêm vào khi có cấu hình khóa bí mật.",
+			"connectionHint": "Gửi sự kiện công việc đến điểm cuối của riêng bạn dưới dạng JSON. Tiêu đề X-ElseTasks-Signature đã ký sẽ được thêm vào khi có cấu hình khóa bí mật.",
 			"connected": "Đã kết nối",
 			"paused": "Đã tạm dừng",
 			"webhookLabel": "URL điểm cuối",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo gửi yêu cầu POST với nội dung JSON cho mỗi sự kiện đã bật.",
 			"secretLabel": "Khóa bí mật ký",
 			"secretPlaceholder": "Khóa bí mật dùng chung (không bắt buộc)",
-			"secretHint": "Không bắt buộc. Nếu được cung cấp, Kaneo sẽ ký nội dung yêu cầu và gửi mã băm hex trong tiêu đề X-Kaneo-Signature.",
+			"secretHint": "Không bắt buộc. Nếu được cung cấp, Kaneo sẽ ký nội dung yêu cầu và gửi mã băm hex trong tiêu đề X-ElseTasks-Signature.",
 			"secretHintConfigured": "Đã cấu hình khóa bí mật ký ({{secret}}). Nhập khóa mới để thay thế.",
 			"eventsTitle": "Thông báo sự kiện",
 			"eventsHint": "Chọn thay đổi dự án nào sẽ kích hoạt webhook gửi đi.",

@@ -1,0 +1,104 @@
+name: Deploy EC2 (ElseTasks POC)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ec2-poc
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Sync + rebuild on EC2
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate secrets
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          missing=0
+          for name in EC2_HOST EC2_USER EC2_SSH_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing repository secret: $name"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Configure SSH
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_PORT: ${{ secrets.EC2_PORT }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" | tr -d '\r' > ~/.ssh/ec2_deploy_key
+          chmod 600 ~/.ssh/ec2_deploy_key
+          PORT="${EC2_PORT:-22}"
+          ssh-keyscan -p "$PORT" -T 10 -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          {
+            echo "Host elsetasks-ec2"
+            echo "  HostName ${EC2_HOST}"
+            echo "  User ${EC2_USER}"
+            echo "  Port ${PORT}"
+            echo "  IdentityFile ~/.ssh/ec2_deploy_key"
+            echo "  StrictHostKeyChecking accept-new"
+            echo "  ServerAliveInterval 30"
+            echo "  ServerAliveCountMax 10"
+          } > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+      - name: Rsync app to EC2 (preserve remote .env)
+        run: |
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude '.env' \
+            --exclude '.env.*' \
+            --exclude '.env.bak*' \
+            --exclude 'node_modules/' \
+            --exclude '**/node_modules/' \
+            --exclude '.turbo/' \
+            --exclude 'dist/' \
+            --exclude 'apps/web/dist/' \
+            --exclude 'apps/api/dist/' \
+            --exclude 'coverage/' \
+            --exclude '.DS_Store' \
+            --exclude '*.pem' \
+            --exclude '.husky/_/' \
+            ./ elsetasks-ec2:/opt/elsetasks/
+
+      - name: Rebuild image and restart stack
+        run: |
+          ssh elsetasks-ec2 'chmod +x /opt/elsetasks/deploy/aws-poc/remote-deploy.sh && /opt/elsetasks/deploy/aws-poc/remote-deploy.sh'
+
+      - name: Smoke check public health
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          # Prefer app domain when DNS is pointed; fall back to Elastic IP
+          for url in \
+            "http://appelsetasks.elsesystems.com/api/health" \
+            "http://${EC2_HOST}/api/health"
+          do
+            if curl -fsS --max-time 15 "$url" >/dev/null; then
+              echo "OK: $url"
+              exit 0
+            fi
+            echo "retry: $url failed"
+          done
+          echo "::warning::Public smoke check failed (SSH deploy itself succeeded)."
+          exit 0

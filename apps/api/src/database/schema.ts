@@ -996,6 +996,70 @@ export const mcpOauthStateTable = pgTable(
   ],
 );
 
+/** Singleton-ish instance branding for client whitelabel (logo/colors/name). */
+export const instanceBrandingTable = pgTable("instance_branding", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  displayName: text("display_name").notNull().default("ElseTasks"),
+  logoUrl: text("logo_url"),
+  logoDarkUrl: text("logo_dark_url"),
+  faviconUrl: text("favicon_url"),
+  primaryColor: text("primary_color").notNull().default("#0F766E"),
+  accentColor: text("accent_color"),
+  setupCompleted: boolean("setup_completed").notNull().default(false),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+/** Local / Cloud Hosted license keys for ElseTasks SKUs. */
+export const licenseKeyTable = pgTable(
+  "license_key",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    key: text("key").notNull(),
+    sku: text("sku").notNull(), // local | cloud_monthly | cloud_yearly | support
+    status: text("status").notNull().default("unused"), // unused | active | revoked | expired
+    customerEmail: text("customer_email"),
+    activatedAt: timestamp("activated_at", { mode: "date" }),
+    expiresAt: timestamp("expires_at", { mode: "date" }),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [uniqueIndex("license_key_key_uidx").on(table.key)],
+);
+
+/** Active license on this instance (Local activation). */
+export const instanceLicenseTable = pgTable("instance_license", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  licenseKeyId: text("license_key_id").references(() => licenseKeyTable.id, {
+    onDelete: "set null",
+  }),
+  key: text("key").notNull(),
+  sku: text("sku").notNull(),
+  status: text("status").notNull().default("active"),
+  activatedAt: timestamp("activated_at", { mode: "date" })
+    .defaultNow()
+    .notNull(),
+  expiresAt: timestamp("expires_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 // Auth-schema compatible aliases in schema.ts
 export const user = userTable;
 export const session = sessionTable;

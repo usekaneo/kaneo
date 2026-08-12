@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "Annulla",
 			"close": "Chiudi",
@@ -77,7 +77,7 @@
 				"errorToast": "Creazione progetto fallita"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Crea un nuovo workspace",
 				"description": "Crea un nuovo workspace fornendo un nome.",
 				"namePlaceholder": "Nome workspace",
@@ -368,7 +368,7 @@
 			"webhookDescription": "Invia le notifiche dell'account al tuo endpoint come JSON.",
 			"endpointUrl": "URL Endpoint",
 			"signingSecret": "Segreto di firma",
-			"webhookUrlPlaceholder": "https://esempio.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://esempio.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "Segreto condiviso opzionale",
 			"webhookSecretHintConfigured": "Un segreto di firma è già configurato ({{masked}}). Inseriscine uno nuovo per sostituirlo.",
 			"webhookSecretHintOptional": "Opzionale. Kaneo firma il corpo della richiesta quando viene impostato un segreto.",
@@ -436,7 +436,7 @@
 		},
 		"preferencesPage": {
 			"title": "Preferenze",
-			"subtitle": "Personalizza la tua esperienza con Kaneo.",
+			"subtitle": "Personalizza la tua esperienza con ElseTasks.",
 			"appearanceTitle": "Aspetto",
 			"appearanceSubtitle": "Impostazioni visive e preferenze di layout.",
 			"theme": "Tema",
@@ -1062,15 +1062,15 @@
 				"removeError": "Rimozione integrazione webhook generico fallita"
 			},
 			"connectionTitle": "Connessione webhook in uscita",
-			"connectionHint": "Invia eventi delle attività al tuo endpoint come JSON. Un'intestazione X-Kaneo-Signature firmata è inclusa quando viene configurato un segreto.",
+			"connectionHint": "Invia eventi delle attività al tuo endpoint come JSON. Un'intestazione X-ElseTasks-Signature firmata è inclusa quando viene configurato un segreto.",
 			"connected": "Connesso",
 			"paused": "In pausa",
 			"webhookLabel": "URL Endpoint",
-			"webhookPlaceholder": "https://esempio.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://esempio.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo invia richieste POST con un payload JSON per ogni evento abilitato.",
 			"secretLabel": "Segreto di firma",
 			"secretPlaceholder": "Segreto condiviso opzionale",
-			"secretHint": "Opzionale. Se fornito, Kaneo firma il corpo della richiesta e invia l'hex digest nell'intestazione X-Kaneo-Signature.",
+			"secretHint": "Opzionale. Se fornito, Kaneo firma il corpo della richiesta e invia l'hex digest nell'intestazione X-ElseTasks-Signature.",
 			"secretHintConfigured": "Un segreto di firma è già configurato ({{secret}}). Inseriscine uno nuovo per sostituirlo.",
 			"eventsTitle": "Notifiche eventi",
 			"eventsHint": "Scegli quali modifiche del progetto dovrebbero attivare webhook in uscita.",

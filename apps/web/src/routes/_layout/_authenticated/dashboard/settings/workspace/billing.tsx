@@ -138,8 +138,8 @@ function RouteComponent() {
         <div className="mx-auto max-w-4xl space-y-2">
           <h1 className="font-semibold text-2xl">Billing</h1>
           <p className="text-muted-foreground text-sm">
-            Billing isn't enabled on this instance. Self-hosted Kaneo includes
-            every feature, free forever.
+            Billing isn't enabled on this instance. Self-hosted ElseTasks
+            includes every feature, free forever.
           </p>
         </div>
       </>
@@ -168,7 +168,7 @@ function RouteComponent() {
         <div className="space-y-2">
           <h1 className="font-semibold text-2xl">Billing</h1>
           <p className="text-muted-foreground">
-            Manage the Kaneo Cloud subscription for this workspace.
+            Manage the ElseTasks Cloud subscription for this workspace.
           </p>
         </div>
 
@@ -193,8 +193,8 @@ function RouteComponent() {
                     </Badge>
                   </div>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    This workspace has free access to Kaneo Cloud as an early
-                    supporter. Thank you for being here from the start.
+                    This workspace has free access to ElseTasks Cloud as an
+                    early supporter. Thank you for being here from the start.
                   </p>
                 </div>
               </div>
@@ -205,7 +205,7 @@ function RouteComponent() {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium text-sm">
-                      Kaneo Cloud {planLabel}
+                      ElseTasks Cloud {planLabel}
                     </h3>
                     {status ? (
                       <Badge variant={status.variant} size="sm">

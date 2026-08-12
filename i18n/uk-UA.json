@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "Скасувати",
 			"close": "Закрити",
@@ -77,7 +77,7 @@
 				"errorToast": "Не вдалося створити проєкт"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Створити новий робочий простір",
 				"description": "Створіть новий робочий простір, вказавши його назву.",
 				"namePlaceholder": "Назва робочого простору",
@@ -366,7 +366,7 @@
 			"webhookDescription": "Надсилайте сповіщення облікового запису на вашу кінцеву точку у форматі JSON.",
 			"endpointUrl": "URL кінцевої точки",
 			"signingSecret": "Секрет підпису",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "Необов'язковий спільний секрет",
 			"webhookSecretHintConfigured": "Секрет підпису вже налаштовано ({{masked}}). Введіть новий, щоб замінити його.",
 			"webhookSecretHintOptional": "Необов'язково. Kaneo підписує тіло запиту, коли секрет встановлено.",
@@ -882,15 +882,15 @@
 				"removeError": "Не вдалося видалити загальний вебхук"
 			},
 			"connectionTitle": "Підключення вихідного вебхука",
-			"connectionHint": "Надсилайте події завдань на вашу кінцеву точку у форматі JSON. Підписаний заголовок X-Kaneo-Signature включається, коли секрет налаштовано.",
+			"connectionHint": "Надсилайте події завдань на вашу кінцеву точку у форматі JSON. Підписаний заголовок X-ElseTasks-Signature включається, коли секрет налаштовано.",
 			"connected": "Підключено",
 			"paused": "Призупинено",
 			"webhookLabel": "URL кінцевої точки",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo надсилає POST-запити з JSON-тілом для кожної увімкненої події.",
 			"secretLabel": "Секрет підпису",
 			"secretPlaceholder": "Необов'язковий спільний секрет",
-			"secretHint": "Необов'язково. Якщо вказано, Kaneo підписує тіло запиту та надсилає hex-дайджест у заголовку X-Kaneo-Signature.",
+			"secretHint": "Необов'язково. Якщо вказано, Kaneo підписує тіло запиту та надсилає hex-дайджест у заголовку X-ElseTasks-Signature.",
 			"secretHintConfigured": "Секрет підпису вже налаштовано ({{secret}}). Введіть новий, щоб замінити його.",
 			"eventsTitle": "Сповіщення про події",
 			"eventsHint": "Оберіть, які зміни в проєкті мають ініціювати вихідні вебхуки.",
@@ -1663,14 +1663,14 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on ElseTasks",
+			"preview": "You're invited to {{workspaceName}} on ElseTasks",
 			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in ElseTasks.",
 			"cta": "Accept invitation",
 			"sameEmail": "You can accept with the same email that received this message.",
 			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"footer": "ElseTasks workspace invitation"
 		},
 		"pageTitle": "Запрошення",
 		"pendingInvitations": "Очікуючі запрошення",

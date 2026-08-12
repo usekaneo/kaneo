@@ -8,34 +8,17 @@ import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { KeyboardShortcutsHelp } from "./components/keyboard-shortcuts-help";
 import AuthProvider from "./components/providers/auth-provider";
 import { ThemeProvider } from "./components/providers/theme-provider";
+import { BrandingProvider } from "./hooks/use-branding";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
 import { captureCheckoutIntent } from "./lib/checkout-intent";
 import { AppI18nProvider } from "./lib/i18n/provider";
 import { routeTree } from "./routeTree.gen";
 
-// Capture a pricing-page `?checkout=<plan>-<interval>` deep link before the
-// router runs and strips it across the sign-up → onboarding redirect chain.
 captureCheckoutIntent();
 
 console.log(`
-                     ////////  
-              /////  ////////  
-            //////// ////////  
-  //////// ///////// ///////   
-  //////// ///////// //////    
-  //////// ///////// ////      
-  //////// ///////// ///       
-  //////// ///////// /////     
-  //////// ///////// //////    
-  //////// ///////// ////////  
-  //////// ///////// ////////  
-  //////// ///////// ////////  
-  //////// ////////            
-  ////////  /////              
-  ///////                      
-                   
-  
-  All you need. Nothing you don't.
+  ElseTasks
+  Project management that fits your team.
 `);
 
 const router = createRouter({
@@ -61,14 +44,16 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <AuthProvider>
-            <AppI18nProvider>
-              <KeyboardShortcutsProvider>
-                <App />
-                <KeyboardShortcutsHelp />
-              </KeyboardShortcutsProvider>
-            </AppI18nProvider>
-          </AuthProvider>
+          <BrandingProvider>
+            <AuthProvider>
+              <AppI18nProvider>
+                <KeyboardShortcutsProvider>
+                  <App />
+                  <KeyboardShortcutsHelp />
+                </KeyboardShortcutsProvider>
+              </AppI18nProvider>
+            </AuthProvider>
+          </BrandingProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>,

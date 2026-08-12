@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "取消",
 			"close": "关闭",
@@ -77,7 +77,7 @@
 				"errorToast": "项目创建失败"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "创建新工作区",
 				"description": "为你的工作区提供一个名称即可创建。",
 				"namePlaceholder": "工作区名称",
@@ -368,7 +368,7 @@
 			"webhookDescription": "将账户通知以 JSON 形式发送到你的端点。",
 			"endpointUrl": "端点 URL",
 			"signingSecret": "签名密钥",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "可选的共享密钥",
 			"webhookSecretHintConfigured": "已配置签名密钥（{{masked}}），输入新密钥以替换。",
 			"webhookSecretHintOptional": "可选。设置密钥后，Kaneo 会对请求体进行签名。",
@@ -938,7 +938,7 @@
 			"repository": "仓库",
 			"repositoryHint": "已关联的 Gitea 仓库",
 			"commentTaskLinkTitle": "在新 Issue 上评论 Kaneo 链接",
-			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"commentTaskLinkHint": "When enabled, ElseTasks posts a comment on each new issue with a link to the task.",
 			"webhookTitle": "Webhook",
 			"webhookHint": "在你的 Gitea 仓库中，添加使用此 URL 和密钥的 Webhook。启用 push、pull request、issues、issue comments 和 create（用于标签）。",
 			"webhookSecretLabel": "密钥（必须与 Gitea 中的 Webhook 密钥一致）",
@@ -1062,15 +1062,15 @@
 				"removeError": "移除通用 Webhook 集成失败"
 			},
 			"connectionTitle": "出站 Webhook 连接",
-			"connectionHint": "将任务事件以 JSON 形式发送到你的端点。配置密钥后会包含带签名的 X-Kaneo-Signature 头。",
+			"connectionHint": "将任务事件以 JSON 形式发送到你的端点。配置密钥后会包含带签名的 X-ElseTasks-Signature 头。",
 			"connected": "已连接",
 			"paused": "已暂停",
 			"webhookLabel": "端点 URL",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
-			"webhookHint": "Kaneo sends POST requests with a JSON payload for each enabled event.",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
+			"webhookHint": "ElseTasks sends POST requests with a JSON payload for each enabled event.",
 			"secretLabel": "签名密钥",
 			"secretPlaceholder": "可选的共享密钥",
-			"secretHint": "可选。提供后，Kaneo 会对请求体进行签名，并通过 X-Kaneo-Signature 头发送十六进制摘要。",
+			"secretHint": "可选。提供后，Kaneo 会对请求体进行签名，并通过 X-ElseTasks-Signature 头发送十六进制摘要。",
 			"secretHintConfigured": "已配置签名密钥（{{secret}}），输入新密钥以替换。",
 			"eventsTitle": "事件通知",
 			"eventsHint": "选择哪些项目变更会触发出站 Webhook。",

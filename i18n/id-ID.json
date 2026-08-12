@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "Batal",
 			"close": "Tutup",
@@ -77,7 +77,7 @@
 				"errorToast": "Gagal membuat proyek"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Buat ruang kerja baru",
 				"description": "Buat ruang kerja baru dengan memberikan nama untuk ruang kerja Anda.",
 				"namePlaceholder": "Nama ruang kerja",
@@ -368,7 +368,7 @@
 			"webhookDescription": "Kirim notifikasi akun ke endpoint Anda sendiri sebagai JSON.",
 			"endpointUrl": "URL endpoint",
 			"signingSecret": "Rahasia penandatanganan",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "Kunci rahasia bersama (opsional)",
 			"webhookSecretHintConfigured": "Signing secret sudah dikonfigurasi ({{masked}}). Masukkan yang baru untuk menggantinya.",
 			"webhookSecretHintOptional": "Opsional. Kaneo mendeteksi dan menandatangani isi request jika secret dikonfigurasi.",
@@ -886,15 +886,15 @@
 				"removeError": "Gagal menghapus integrasi webhook generik"
 			},
 			"connectionTitle": "Koneksi webhook keluar",
-			"connectionHint": "Kirim event tugas ke endpoint Anda sendiri sebagai JSON. Header X-Kaneo-Signature yang ditandatangani disertakan saat rahasia dikonfigurasi.",
+			"connectionHint": "Kirim event tugas ke endpoint Anda sendiri sebagai JSON. Header X-ElseTasks-Signature yang ditandatangani disertakan saat rahasia dikonfigurasi.",
 			"connected": "Terhubung",
 			"paused": "Dijeda",
 			"webhookLabel": "URL endpoint",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo mengirim request POST dengan payload JSON untuk setiap event yang diaktifkan.",
 			"secretLabel": "Rahasia penandatanganan",
 			"secretPlaceholder": "Rahasia bersama opsional",
-			"secretHint": "Opsional. Jika diberikan, Kaneo menandatangani body request dan mengirim digest hex di header X-Kaneo-Signature.",
+			"secretHint": "Opsional. Jika diberikan, Kaneo menandatangani body request dan mengirim digest hex di header X-ElseTasks-Signature.",
 			"secretHintConfigured": "Rahasia penandatanganan sudah dikonfigurasi ({{secret}}). Masukkan yang baru untuk menggantinya.",
 			"eventsTitle": "Notifikasi event",
 			"eventsHint": "Pilih perubahan proyek yang harus memicu webhook keluar.",
@@ -1810,14 +1810,14 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on ElseTasks",
+			"preview": "You're invited to {{workspaceName}} on ElseTasks",
 			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in ElseTasks.",
 			"cta": "Accept invitation",
 			"sameEmail": "You can accept with the same email that received this message.",
 			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"footer": "ElseTasks workspace invitation"
 		},
 		"pageTitle": "Undangan",
 		"pendingInvitations": "Undangan Tertunda",

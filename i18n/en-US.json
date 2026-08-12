@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "Cancel",
 			"close": "Close",
@@ -77,7 +77,7 @@
 				"errorToast": "Failed to create project"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Create a new workspace",
 				"description": "Create a new workspace by providing a name for your workspace.",
 				"namePlaceholder": "Workspace name",
@@ -250,7 +250,7 @@
 			"workspaceLabel": "Workspace: {{workspaceName}}",
 			"joinWorkspace": "Join {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace on Kaneo.",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace on ElseTasks.",
 			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
 			"createAccount": "Create Account",
 			"accepting": "Accepting...",
@@ -266,7 +266,7 @@
 			}
 		},
 		"onboarding": {
-			"pageTitle": "Welcome to Kaneo",
+			"pageTitle": "Welcome to ElseTasks",
 			"workspacePageTitle": "Create Workspace",
 			"createWorkspaceTitle": "Create workspace",
 			"createWorkspaceSubtitle": "Set up your workspace to start managing projects",
@@ -335,7 +335,7 @@
 		"notificationsPage": {
 			"pageTitle": "Notifications",
 			"title": "Notifications",
-			"subtitle": "Choose how Kaneo delivers your account notifications and which channels to use.",
+			"subtitle": "Choose how ElseTasks delivers your account notifications and which channels to use.",
 			"statusConnected": "Connected",
 			"statusPaused": "Paused",
 			"emailTitle": "Email",
@@ -368,10 +368,10 @@
 			"webhookDescription": "Send account notifications to your own endpoint as JSON.",
 			"endpointUrl": "Endpoint URL",
 			"signingSecret": "Signing secret",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "Optional shared secret",
 			"webhookSecretHintConfigured": "A signing secret is already configured ({{masked}}). Enter a new one to replace it.",
-			"webhookSecretHintOptional": "Optional. Kaneo signs the request body when a secret is set.",
+			"webhookSecretHintOptional": "Optional. ElseTasks signs the request body when a secret is set.",
 			"connectWebhook": "Connect webhook",
 			"workspaceRulesTitle": "Workspace delivery rules",
 			"workspaceRulesDescription": "Reuse your global channels, then decide which workspaces and projects are allowed to send account notifications.",
@@ -436,7 +436,7 @@
 		},
 		"preferencesPage": {
 			"title": "Preferences",
-			"subtitle": "Customize your Kaneo experience.",
+			"subtitle": "Customize your ElseTasks experience.",
 			"appearanceTitle": "Appearance",
 			"appearanceSubtitle": "Visual settings and layout preferences.",
 			"theme": "Theme",
@@ -480,7 +480,7 @@
 			"title": "Developer Settings",
 			"subtitle": "Manage your API keys and developer resources.",
 			"apiKeysCardTitle": "API Keys",
-			"apiKeysCardDescription": "Create and manage API keys for programmatic access to Kaneo.",
+			"apiKeysCardDescription": "Create and manage API keys for programmatic access to ElseTasks.",
 			"createApiKey": "Create API Key",
 			"unnamedKey": "Unnamed Key"
 		},
@@ -858,7 +858,7 @@
 				"removeError": "Failed to remove GitHub integration",
 				"issuesImported": "Issues imported successfully",
 				"importError": "Failed to import issues",
-				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
+				"commentOnEnabled": "ElseTasks will comment with a task link on new issues",
 				"commentOnDisabled": "Task link comments on new issues are turned off",
 				"settingsUpdateError": "Failed to update GitHub integration"
 			},
@@ -869,8 +869,8 @@
 			"badgeNotConnected": "Not Connected",
 			"repository": "Repository",
 			"repositoryHint": "Connected GitHub repository",
-			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
-			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new GitHub issue with a link to the task.",
+			"commentTaskLinkTitle": "Comment ElseTasks link on new issues",
+			"commentTaskLinkHint": "When enabled, ElseTasks posts a comment on each new GitHub issue with a link to the task.",
 			"appStatusTitle": "GitHub App Status",
 			"appStatusHint": "Installation and permissions status",
 			"statusProperlyConfigured": "Properly configured",
@@ -921,7 +921,7 @@
 				"removeError": "Failed to remove Gitea integration",
 				"issuesImported": "Issues imported successfully",
 				"importError": "Failed to import issues",
-				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
+				"commentOnEnabled": "ElseTasks will comment with a task link on new issues",
 				"commentOnDisabled": "Task link comments on new issues are turned off",
 				"settingsUpdateError": "Failed to update Gitea integration",
 				"secretCopied": "Copied",
@@ -937,8 +937,8 @@
 			"badgeNotConnected": "Not connected",
 			"repository": "Repository",
 			"repositoryHint": "Linked Gitea repository",
-			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
-			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"commentTaskLinkTitle": "Comment ElseTasks link on new issues",
+			"commentTaskLinkHint": "When enabled, ElseTasks posts a comment on each new issue with a link to the task.",
 			"webhookTitle": "Webhook",
 			"webhookHint": "In your Gitea repository, add a webhook with this URL and secret. Enable push, pull request, issues, issue comments, and create (for labels).",
 			"webhookSecretLabel": "Secret (must match the webhook secret in Gitea)",
@@ -1062,15 +1062,15 @@
 				"removeError": "Failed to remove generic webhook integration"
 			},
 			"connectionTitle": "Outgoing webhook connection",
-			"connectionHint": "Send task events to your own endpoint as JSON. A signed X-Kaneo-Signature header is included when a secret is configured.",
+			"connectionHint": "Send task events to your own endpoint as JSON. A signed X-ElseTasks-Signature header is included when a secret is configured.",
 			"connected": "Connected",
 			"paused": "Paused",
 			"webhookLabel": "Endpoint URL",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
-			"webhookHint": "Kaneo sends POST requests with a JSON payload for each enabled event.",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
+			"webhookHint": "ElseTasks sends POST requests with a JSON payload for each enabled event.",
 			"secretLabel": "Signing secret",
 			"secretPlaceholder": "Optional shared secret",
-			"secretHint": "Optional. If provided, Kaneo signs the request body and sends the hex digest in the X-Kaneo-Signature header.",
+			"secretHint": "Optional. If provided, ElseTasks signs the request body and sends the hex digest in the X-ElseTasks-Signature header.",
 			"secretHintConfigured": "A signing secret is already configured ({{secret}}). Enter a new one to replace it.",
 			"eventsTitle": "Event notifications",
 			"eventsHint": "Choose which project changes should trigger outgoing webhooks.",
@@ -1871,14 +1871,14 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
+			"subject": "{{inviterName}} invited you to join {{workspaceName}} on ElseTasks",
+			"preview": "You're invited to {{workspaceName}} on ElseTasks",
 			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in ElseTasks.",
 			"cta": "Accept invitation",
 			"sameEmail": "You can accept with the same email that received this message.",
 			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"footer": "ElseTasks workspace invitation"
 		},
 		"pageTitle": "Invitations",
 		"pendingInvitations": "Pending Invitations",

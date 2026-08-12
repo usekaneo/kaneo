@@ -104,7 +104,7 @@ function SignUp() {
         title={
           isInstanceAdminSetup
             ? t("auth:signUp.instanceAdminTitle", {
-                defaultValue: "Set up your Kaneo instance",
+                defaultValue: "Set up your ElseTasks instance",
               })
             : t("auth:signUp.title")
         }

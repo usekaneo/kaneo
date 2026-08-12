@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "İptal",
 			"close": "Kapat",
@@ -77,7 +77,7 @@
 				"errorToast": "Proje oluşturulamadı"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "Yeni çalışma alanı oluştur",
 				"description": "Çalışma alanınız için bir ad girerek yeni bir çalışma alanı oluşturun.",
 				"namePlaceholder": "Çalışma alanı adı",
@@ -367,7 +367,7 @@
 			"webhookDescription": "Hesap bildirimlerini kendi uç noktanıza JSON olarak gönderin.",
 			"endpointUrl": "Uç nokta URL'si",
 			"signingSecret": "İmzalama gizli anahtarı",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "İsteğe bağlı paylaşılan gizli anahtar",
 			"webhookSecretHintConfigured": "Bir imzalama gizli anahtarı zaten yapılandırılmış ({{masked}}). Değiştirmek için yeni bir tane girin.",
 			"webhookSecretHintOptional": "İsteğe bağlı. Bir gizli anahtar ayarlandığında Kaneo istek gövdesini imzalar.",
@@ -885,15 +885,15 @@
 				"removeError": "Genel webhook entegrasyonu kaldırılamadı"
 			},
 			"connectionTitle": "Giden webhook bağlantısı",
-			"connectionHint": "Talep olaylarını kendi uç noktanıza JSON olarak gönderin. Bir gizli anahtar yapılandırıldığında imzalı bir X-Kaneo-Signature başlığı dahil edilir.",
+			"connectionHint": "Talep olaylarını kendi uç noktanıza JSON olarak gönderin. Bir gizli anahtar yapılandırıldığında imzalı bir X-ElseTasks-Signature başlığı dahil edilir.",
 			"connected": "Bağlı",
 			"paused": "Duraklatıldı",
 			"webhookLabel": "Uç nokta URL'si",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo, etkinleştirilen her olay için JSON yükü ile POST istekleri gönderir.",
 			"secretLabel": "İmzalama gizli anahtarı",
 			"secretPlaceholder": "İsteğe bağlı paylaşılan gizli anahtar",
-			"secretHint": "İsteğe bağlı. Sağlanırsa, Kaneo istek gövdesini imzalar ve hex özetini X-Kaneo-Signature başlığında gönderir.",
+			"secretHint": "İsteğe bağlı. Sağlanırsa, Kaneo istek gövdesini imzalar ve hex özetini X-ElseTasks-Signature başlığında gönderir.",
 			"secretHintConfigured": "Bir imzalama gizli anahtarı zaten yapılandırılmış ({{secret}}). Değiştirmek için yeni bir tane girin.",
 			"eventsTitle": "Olay bildirimleri",
 			"eventsHint": "Hangi proje değişikliklerinin giden webhook'ları tetikleyeceğini seçin.",

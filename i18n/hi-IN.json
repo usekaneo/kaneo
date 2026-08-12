@@ -1,6 +1,6 @@
 {
 	"common": {
-		"appName": "Kaneo",
+		"appName": "ElseTasks",
 		"actions": {
 			"cancel": "रद्द करें",
 			"close": "बंद करें",
@@ -77,7 +77,7 @@
 				"errorToast": "प्रोजेक्ट बनाने में विफल"
 			},
 			"createWorkspace": {
-				"breadcrumbKaneo": "KANEO",
+				"breadcrumbKaneo": "ELSETASKS",
 				"title": "नया वर्कस्पेस बनाएँ",
 				"description": "अपने वर्कस्पेस के लिए नाम देकर एक नया वर्कस्पेस बनाएँ।",
 				"namePlaceholder": "वर्कस्पेस का नाम",
@@ -368,7 +368,7 @@
 			"webhookDescription": "खाता सूचनाएँ JSON के रूप में अपने एंडपॉइंट पर भेजें।",
 			"endpointUrl": "एंडपॉइंट URL",
 			"signingSecret": "साइनिंग सीक्रेट",
-			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookSecretPlaceholder": "वैकल्पिक शेयर्ड सीक्रेट",
 			"webhookSecretHintConfigured": "साइनिंग सीक्रेट पहले से कॉन्फ़िगर है ({{masked}})। बदलने के लिए नया दर्ज करें।",
 			"webhookSecretHintOptional": "वैकल्पिक। सीक्रेट सेट होने पर Kaneo अनुरोध बॉडी पर हस्ताक्षर करता है।",
@@ -1066,7 +1066,7 @@
 			"connected": "जुड़ा हुआ",
 			"paused": "रुका हुआ",
 			"webhookLabel": "एंडपॉइंट URL",
-			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookPlaceholder": "https://example.com/webhooks/elsetasks",
 			"webhookHint": "Kaneo प्रत्येक सक्षम इवेंट के लिए JSON पेलोड के साथ POST अनुरोध भेजता है।",
 			"secretLabel": "साइनिंग सीक्रेट",
 			"secretPlaceholder": "वैकल्पिक शेयर्ड सीक्रेट",

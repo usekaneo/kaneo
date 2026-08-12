@@ -3,6 +3,8 @@ import { resolveApiBaseUrl } from "@kaneo/libs";
 export type InstanceStatus = {
   hasUsers: boolean;
   hasAdmin: boolean;
+  setupCompleted: boolean;
+  appName: string;
 };
 
 export async function getInstanceStatus(): Promise<InstanceStatus> {

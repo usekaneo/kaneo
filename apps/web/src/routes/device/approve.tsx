@@ -138,7 +138,7 @@ function DeviceApprovePage() {
   return (
     <AuthLayout
       title="Approve device"
-      subtitle="A device is requesting access to your Kaneo account."
+      subtitle="A device is requesting access to your ElseTasks account."
     >
       <div className="space-y-4">
         <p className="text-center font-mono text-sm tracking-wide">

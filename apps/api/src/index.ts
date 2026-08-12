@@ -21,6 +21,7 @@ import * as v from "valibot";
 import activity from "./activity";
 import { auth } from "./auth";
 import billing from "./billing";
+import branding from "./branding";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
@@ -38,6 +39,7 @@ import githubIntegration, {
 import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
+import license from "./license";
 import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
@@ -225,6 +227,8 @@ export function createApp() {
                 v.object({
                   hasUsers: v.boolean(),
                   hasAdmin: v.boolean(),
+                  setupCompleted: v.boolean(),
+                  appName: v.string(),
                 }),
               ),
             },
@@ -357,22 +361,26 @@ export function createApp() {
   );
 
   const configApi = api.route("/config", config);
+  const brandingApi = api.route("/branding", branding);
+  const licenseApi = api.route("/license", license);
 
   const honoOpenApiHandler = openAPIRouteHandler(api, {
     documentation: {
       openapi: "3.0.3",
       info: {
-        title: "Kaneo API",
+        title: "ElseTasks API",
         version: "1.0.0",
         description:
-          "Kaneo Project Management API - Manage projects, tasks, labels, and more",
+          "ElseTasks Project Management API - Manage projects, tasks, labels, and more",
       },
       servers: [
         {
           url: normalizeApiServerUrl(
-            process.env.KANEO_API_URL || "https://cloud.kaneo.app",
+            process.env.APP_URL ||
+              process.env.KANEO_API_URL ||
+              "https://app.elsetasks.com",
           ),
-          description: "Kaneo API Server",
+          description: "ElseTasks API Server",
         },
       ],
       components: {
@@ -526,10 +534,18 @@ export function createApp() {
 
   api.use("*", async (c, next) => {
     const path = c.req.path;
+    const method = c.req.method;
     if (
       path.startsWith("/api/mcp") ||
       path.startsWith("/api/.well-known/") ||
-      path === "/api/billing/webhook"
+      path === "/api/billing/webhook" ||
+      path.endsWith("/instance/status") ||
+      path.endsWith("/config") ||
+      path.endsWith("/health") ||
+      path.endsWith("/openapi") ||
+      (path.endsWith("/branding") && (method === "GET" || method === "PUT")) ||
+      path.endsWith("/license/status") ||
+      (path.endsWith("/license/activate") && method === "POST")
     ) {
       return next();
     }
@@ -733,6 +749,8 @@ export function createApp() {
     columnApi,
     commentApi,
     configApi,
+    brandingApi,
+    licenseApi,
     discordIntegrationApi,
     externalLinkApi,
     genericWebhookIntegrationApi,

@@ -1,0 +1,121 @@
+# ElseTasks AWS POC — app + postgres always on; DocuSeal off by default.
+# Usage:
+#   docker compose up -d postgres elsetasks
+#   ./scripts/docuseal-wake.sh   # when contracts needed
+#   ./scripts/docuseal-sleep.sh
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-elsetasks}
+      POSTGRES_USER: ${POSTGRES_USER:-elsetasks}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - elsetasks_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-elsetasks} -d ${POSTGRES_DB:-elsetasks}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  docuseal:
+    image: docuseal/docuseal:latest
+    # Localhost only — not public; wake script health-checks 127.0.0.1:3000
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      SECRET_KEY_BASE: ${DOCUSEAL_SECRET_KEY_BASE:-change-me-docuseal-secret-key-base-32chars}
+      SMTP_ADDRESS: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_DOMAIN: gmail.com
+      SMTP_AUTHENTICATION: plain
+      SMTP_ENABLE_STARTTLS: "true"
+      WEBHOOK_URL: ${DOCUSEAL_WEBHOOK_URL:-http://elsetasks:5173/api/docuseal/webhook}
+      WEBHOOK_SECRET: ${DOCUSEAL_WEBHOOK_SECRET:-}
+    volumes:
+      - docuseal_data:/data
+      - ./docker/docuseal/elsetasks_submissions_controller.rb:/app/app/controllers/api/elsetasks_submissions_controller.rb:ro
+      - ./docker/docuseal/zz_elsetasks_routes.rb:/app/config/initializers/zz_elsetasks_routes.rb:ro
+      - ./docker/docuseal/zz_elsetasks_webhook.rb:/app/config/initializers/zz_elsetasks_webhook.rb:ro
+      - ./docker/docuseal/fonts:/usr/share/fonts/elsetasks:ro
+    restart: "no"
+    networks:
+      - internal
+
+  elsetasks:
+    image: ${ELSETASKS_IMAGE:-elsetasks-app:poc}
+    build:
+      context: .
+      dockerfile: Dockerfile.elsetasks
+    ports:
+      - "80:5173"
+    environment:
+      APP_NAME: ${APP_NAME:-ElseTasks}
+      APP_URL: ${APP_URL:-http://appelsetasks.elsesystems.com}
+      APP_SUPPORT_EMAIL: ${APP_SUPPORT_EMAIL:-suporte@elsetasks.com}
+      APP_PRIMARY_COLOR: ${APP_PRIMARY_COLOR:-#0F766E}
+      KANEO_CLIENT_URL: ${APP_URL:-http://appelsetasks.elsesystems.com}
+      KANEO_API_URL: ${KANEO_API_URL:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-${APP_URL:-http://appelsetasks.elsesystems.com}}
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-}
+      GITHUB_WEBHOOK_URL: ${GITHUB_WEBHOOK_URL:-}
+      POSTGRES_DB: ${POSTGRES_DB:-elsetasks}
+      POSTGRES_USER: ${POSTGRES_USER:-elsetasks}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET}
+      GITHUB_OAUTH_CLIENT_ID: ${GITHUB_OAUTH_CLIENT_ID:-}
+      GITHUB_OAUTH_CLIENT_SECRET: ${GITHUB_OAUTH_CLIENT_SECRET:-}
+      GITHUB_APP_ID: ${GITHUB_APP_ID:-}
+      GITHUB_APP_NAME: ${GITHUB_APP_NAME:-}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+      GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_REQUIRE_TLS: ${SMTP_REQUIRE_TLS:-true}
+      SMTP_IGNORE_TLS: ${SMTP_IGNORE_TLS:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      CALCOM_API_KEY: ${CALCOM_API_KEY:-}
+      CALCOM_USERNAME: ${CALCOM_USERNAME:-}
+      CALCOM_EVENT_TYPE_SLUG: ${CALCOM_EVENT_TYPE_SLUG:-}
+      CALCOM_EVENT_TYPE_ID: ${CALCOM_EVENT_TYPE_ID:-}
+      CALCOM_BASE_URL: ${CALCOM_BASE_URL:-}
+      CALCOM_API_BASE_URL: ${CALCOM_API_BASE_URL:-}
+      CALCOM_WEBHOOK_SECRET: ${CALCOM_WEBHOOK_SECRET:-}
+      DOCUSEAL_URL: http://docuseal:3000
+      DOCUSEAL_API_KEY: ${DOCUSEAL_API_KEY:-}
+      DOCUSEAL_WEBHOOK_SECRET: ${DOCUSEAL_WEBHOOK_SECRET:-}
+      CONTRACTS_STORAGE_PATH: /app/apps/api/data/contracts
+    volumes:
+      - elsetasks_contracts_data:/app/apps/api/data/contracts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5173/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+
+volumes:
+  elsetasks_postgres_data:
+  docuseal_data:
+  elsetasks_contracts_data:
+
+networks:
+  internal:

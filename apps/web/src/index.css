@@ -139,6 +139,8 @@ input:-webkit-autofill:active {
     "Courier New",
     monospace;
   --radius: 0.625rem;
+  --brand-primary: #0f766e;
+  --brand-accent: #14b8a6;
   --accent: --alpha(var(--color-black) / 4%);
   --accent-foreground: var(--color-neutral-800);
   --background: var(--color-white);
@@ -155,7 +157,7 @@ input:-webkit-autofill:active {
   --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-black));
   --popover: var(--color-white);
   --popover-foreground: var(--color-neutral-800);
-  --primary: var(--color-neutral-800);
+  --primary: var(--brand-primary);
   --primary-foreground: var(--color-neutral-50);
   --ring: var(--color-neutral-400);
   --secondary: --alpha(var(--color-black) / 4%);

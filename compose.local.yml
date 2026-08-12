@@ -1,59 +1,58 @@
+# ElseTasks Local — Docker Compose
+# Based on Kaneo (MIT). Keep LICENSE notice.
+
 services:
   postgres:
     image: postgres:16-alpine
-    env_file:
-      - .env.local
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-elsetasks}
+      POSTGRES_USER: ${POSTGRES_USER:-elsetasks}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - elsetasks_postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-elsetasks} -d ${POSTGRES_DB:-elsetasks}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  api:
+  elsetasks:
+    image: ${ELSETASKS_IMAGE:-elsetasks-app:local}
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: Dockerfile.elsetasks
     ports:
-      - "1337:1337"
-    env_file:
-      - .env.local
+      - "${APP_PORT:-5173}:5173"
+    environment:
+      APP_NAME: ${APP_NAME:-ElseTasks}
+      APP_URL: ${APP_URL:-http://localhost:5173}
+      APP_SUPPORT_EMAIL: ${APP_SUPPORT_EMAIL:-suporte@elsetasks.com}
+      APP_PRIMARY_COLOR: ${APP_PRIMARY_COLOR:-#0F766E}
+      KANEO_CLIENT_URL: ${APP_URL:-http://localhost:5173}
+      POSTGRES_DB: ${POSTGRES_DB:-elsetasks}
+      POSTGRES_USER: ${POSTGRES_USER:-elsetasks}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
-
-#  Optional
-#  redis:
-#    image: valkey/valkey
-#    ports:
-#      - "6379:6379"
-
-  web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-    ports:
-      - "5173:5173"
-    env_file:
-      - .env.local
-    depends_on:
-      - api
-    restart: unless-stopped
-
-  docs:
-    image: node:20-alpine
-    working_dir: /app/apps/docs
-    command: sh -c "npm install -g mintlify && mintlify dev --disable-openapi"
-    ports:
-      - "3421:3000"
-    volumes:
-      - ./apps/docs:/app/apps/docs
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5173/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
 
 volumes:
-  postgres_data:
+  elsetasks_postgres_data:
