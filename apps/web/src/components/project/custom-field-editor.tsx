@@ -40,6 +40,7 @@ import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
+
 export type CustomFieldDefinition = {
   id: string;
   projectId: string;
@@ -52,6 +53,7 @@ export type CustomFieldDefinition = {
   createdAt: string;
   updatedAt: string;
 };
+
 const CUSTOM_FIELD_TYPES: Array<{
   value: CustomFieldType;
   icon: React.ElementType;
@@ -62,30 +64,40 @@ const CUSTOM_FIELD_TYPES: Array<{
   { value: "dropdown", icon: List },
   { value: "boolean", icon: CheckSquare },
 ];
+
 type CustomFieldEditorProps = {
   projectId: string;
 };
+
 export default function CustomFieldEditor({
   projectId,
 }: CustomFieldEditorProps) {
   const { t } = useTranslation();
+
   const { data: customFields = [], isLoading: customFieldsLoading } =
     useGetCustomFieldsByProject(projectId) as {
       data: CustomFieldDefinition[] | undefined;
       isLoading: boolean;
     };
+
   const { mutateAsync: createCustomField, isPending: savingField } =
     useCreateCustomField();
   const { mutateAsync: deleteCustomField, isPending: deletingField } =
     useDeleteCustomField(projectId);
   const { mutateAsync: reorderCustomFields } = useReorderCustomFields();
+
   const [name, setName] = useState("");
   const [type, setType] = useState<CustomFieldType>("text");
   const [required, setRequired] = useState(false);
   const [defaultValue, setDefaultValue] = useState("");
   const [optionsText, setOptionsText] = useState("");
   const [deletingFieldId, setDeletingFieldId] = useState<string | null>(null);
+
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [pendingFields, setPendingFields] = useState<
+    CustomFieldDefinition[] | null
+  >(null);
+
   const dragPreviewRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -94,9 +106,14 @@ export default function CustomFieldEditor({
     };
   }, []);
 
+  useEffect(() => {
+    setPendingFields(null);
+  }, []);
+
   async function handleCreate() {
     try {
       if (!name.trim()) return;
+
       const options =
         type === "dropdown"
           ? optionsText
@@ -104,6 +121,7 @@ export default function CustomFieldEditor({
               .map((v) => v.trim())
               .filter(Boolean)
           : undefined;
+
       await createCustomField({
         projectId,
         name: name.trim(),
@@ -149,6 +167,10 @@ export default function CustomFieldEditor({
     e: React.DragEvent<HTMLDivElement>,
     index: number,
   ) => {
+    if (!pendingFields && customFields) {
+      setPendingFields(customFields);
+    }
+
     setDraggedIndex(index);
 
     dragPreviewRef.current?.remove();
@@ -189,33 +211,69 @@ export default function CustomFieldEditor({
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
-    if (draggedIndex === null || draggedIndex === index || !customFields)
-      return;
 
-    const reordered = [...customFields];
+    if (draggedIndex === null) return;
+
+    const currentFields = pendingFields ?? customFields;
+    if (!currentFields || draggedIndex === index) return;
+
+    const reordered = [...currentFields];
     const [removed] = reordered.splice(draggedIndex, 1);
     reordered.splice(index, 0, removed);
 
-    const updates = reordered.map((col, i) => ({ id: col.id, position: i }));
-    reorderCustomFields({ projectId, fields: updates });
+    setPendingFields(reordered);
     setDraggedIndex(index);
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = async () => {
+    const finalFields = pendingFields ?? customFields;
+
     setDraggedIndex(null);
 
     dragPreviewRef.current?.remove();
     dragPreviewRef.current = null;
+
+    if (!finalFields) {
+      setPendingFields(null);
+      return;
+    }
+
+    if (pendingFields === null) {
+      return;
+    }
+
+    try {
+      const updates = finalFields.map((col, i) => ({
+        id: col.id,
+        position: i,
+      }));
+
+      await reorderCustomFields({ projectId, fields: updates });
+
+      setPendingFields(null);
+    } catch (error) {
+      setPendingFields(null);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:customFields.reorderError", "Failed to reorder fields"),
+      );
+    }
   };
 
   const hasExtraInput =
     type === "dropdown" || type === "date" || type === "boolean";
+
   const dropdownOptions = optionsText
     .split(",")
     .map((v) => v.trim())
     .filter(Boolean);
+
   const currentType = CUSTOM_FIELD_TYPES.find((t) => t.value === type);
   const CurrentIcon = currentType?.icon || Type;
+
+  const fieldsToRender = pendingFields ?? customFields;
 
   return (
     <div className="space-y-3">
@@ -224,16 +282,20 @@ export default function CustomFieldEditor({
           <div className="text-sm text-muted-foreground">
             {t("settings:customFields.loading")}
           </div>
-        ) : customFields.length === 0 ? (
+        ) : fieldsToRender.length === 0 ? (
           <div className="text-sm text-muted-foreground border border-border rounded-md bg-sidebar p-4">
             {t("settings:customFields.empty")}
           </div>
         ) : (
-          customFields.map((field, index) => {
+          fieldsToRender.map((field, index) => {
             const FieldType = CUSTOM_FIELD_TYPES.find(
               (t) => t.value === field.type,
             );
             const FieldIcon = FieldType?.icon || Type;
+
+            const isDragging = draggedIndex === index;
+            const isHovered = draggedIndex !== null && draggedIndex !== index;
+
             return (
               // biome-ignore lint/a11y/useSemanticElements: false positive for role="listitem"
               <div
@@ -243,7 +305,12 @@ export default function CustomFieldEditor({
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
-                className="flex items-center gap-2 p-2 border border-border rounded-md bg-sidebar hover:bg-sidebar-accent/50 transition-colors active:cursor-grabbing"
+                className={cn(
+                  "flex items-center gap-2 p-2 border border-border rounded-md bg-sidebar transition-colors active:cursor-grabbing",
+                  isDragging && "opacity-50 cursor-grabbing",
+                  isHovered && "bg-sidebar-accent",
+                  !isDragging && "hover:bg-sidebar-accent/50",
+                )}
               >
                 <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab shrink-0" />
                 <div className="min-w-0 flex-1">
@@ -416,7 +483,7 @@ export default function CustomFieldEditor({
 
         {type === "boolean" ? (
           <Select
-            value={defaultValue || "false"}
+            value={defaultValue ?? "false"}
             onValueChange={(value) => setDefaultValue(value as string)}
           >
             <SelectTrigger className="h-8 w-48 flex-[2_0_0] text-sm">
