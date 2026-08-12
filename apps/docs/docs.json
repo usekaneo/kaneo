@@ -63,6 +63,7 @@
 							"core/functional/collaborate-with-team",
 							"core/functional/configure-workflows",
 							"core/functional/account-notifications",
+							"core/functional/manage-your-account",
 							"core/functional/personalize-your-workspace",
 							"core/functional/manage-workspace-labels"
 						]
