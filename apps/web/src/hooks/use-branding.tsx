@@ -60,14 +60,18 @@ function applyCssVars(branding: Branding) {
 }
 
 async function fetchBranding(): Promise<Branding> {
-  const baseUrl = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
-  const response = await fetch(`${baseUrl}/branding`, {
-    credentials: "include",
-  });
-  if (!response.ok) {
+  try {
+    const baseUrl = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
+    const response = await fetch(`${baseUrl}/branding`, {
+      credentials: "include",
+    });
+    if (!response.ok) {
+      return DEFAULT_BRANDING;
+    }
+    return response.json();
+  } catch {
     return DEFAULT_BRANDING;
   }
-  return response.json();
 }
 
 export function BrandingProvider({ children }: { children: ReactNode }) {

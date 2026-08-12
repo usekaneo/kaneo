@@ -15,6 +15,7 @@ import {
   it,
   vi,
 } from "vitest";
+import { BrandingProvider } from "@/hooks/use-branding";
 import { Route } from "./verify-otp";
 
 // The OTP input measures itself on mount, which jsdom cannot do.
@@ -66,7 +67,11 @@ vi.mock("react-i18next", () => ({
 const VerifyOtp = (Route as unknown as { component: ComponentType }).component;
 
 function submitCode() {
-  render(<VerifyOtp />);
+  render(
+    <BrandingProvider>
+      <VerifyOtp />
+    </BrandingProvider>,
+  );
   fireEvent.change(screen.getByRole("textbox"), {
     target: { value: "123456" },
   });

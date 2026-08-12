@@ -1,6 +1,7 @@
 # ElseTasks AWS POC — app + postgres always on; DocuSeal off by default.
+# Caddy terminates TLS (Let's Encrypt) on 80/443 and proxies to elsetasks.
 # Usage:
-#   docker compose up -d postgres elsetasks
+#   docker compose up -d postgres elsetasks caddy
 #   ./scripts/docuseal-wake.sh   # when contracts needed
 #   ./scripts/docuseal-sleep.sh
 
@@ -54,16 +55,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.elsetasks
+    # Bound to localhost only — public traffic goes through Caddy (80/443).
     ports:
-      - "80:5173"
+      - "127.0.0.1:8080:5173"
     environment:
       APP_NAME: ${APP_NAME:-ElseTasks}
-      APP_URL: ${APP_URL:-http://appelsetasks.elsesystems.com}
+      APP_URL: ${APP_URL:-https://appelsetasks.elsesystems.com}
       APP_SUPPORT_EMAIL: ${APP_SUPPORT_EMAIL:-suporte@elsetasks.com}
       APP_PRIMARY_COLOR: ${APP_PRIMARY_COLOR:-#0F766E}
-      KANEO_CLIENT_URL: ${APP_URL:-http://appelsetasks.elsesystems.com}
+      KANEO_CLIENT_URL: ${APP_URL:-https://appelsetasks.elsesystems.com}
       KANEO_API_URL: ${KANEO_API_URL:-}
-      CORS_ORIGINS: ${CORS_ORIGINS:-${APP_URL:-http://appelsetasks.elsesystems.com}}
+      CORS_ORIGINS: ${CORS_ORIGINS:-${APP_URL:-https://appelsetasks.elsesystems.com}}
       PUBLIC_APP_URL: ${PUBLIC_APP_URL:-}
       GITHUB_WEBHOOK_URL: ${GITHUB_WEBHOOK_URL:-}
       POSTGRES_DB: ${POSTGRES_DB:-elsetasks}
@@ -112,10 +114,32 @@ services:
       start_period: 60s
       retries: 3
 
+  caddy:
+    image: caddy:2.9-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      CADDY_DOMAIN: ${CADDY_DOMAIN:-appelsetasks.elsesystems.com}
+      CADDY_EMAIL: ${CADDY_EMAIL:-suporte@elsetasks.com}
+    volumes:
+      - ./deploy/aws-poc/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      elsetasks:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - internal
+
 volumes:
   elsetasks_postgres_data:
   docuseal_data:
   elsetasks_contracts_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   internal:

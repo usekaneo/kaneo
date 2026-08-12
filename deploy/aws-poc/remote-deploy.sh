@@ -29,16 +29,16 @@ echo "==> Building image ${IMAGE_TAG} (native ARM on host)…"
 # compose buildx on this AMI is too old; build with docker directly
 docker build -t "$IMAGE_TAG" -f Dockerfile.elsetasks .
 
-echo "==> Starting postgres + elsetasks (DocuSeal stays stopped)…"
-ELSETASKS_IMAGE="$IMAGE_TAG" docker compose up -d postgres elsetasks
+echo "==> Starting postgres + elsetasks + caddy (DocuSeal stays stopped)…"
+ELSETASKS_IMAGE="$IMAGE_TAG" docker compose up -d --remove-orphans postgres elsetasks caddy
 
 # Safety: never leave DocuSeal auto-started by a previous compose profile
 docker compose stop docuseal >/dev/null 2>&1 || true
 
 echo "==> Waiting for health…"
 for i in $(seq 1 36); do
-  if curl -fsS "http://127.0.0.1/api/health" >/dev/null 2>&1; then
-    echo "OK: /api/health healthy"
+  if curl -fsS "http://127.0.0.1:8080/api/health" >/dev/null 2>&1; then
+    echo "OK: /api/health healthy (app on :8080; public via Caddy :80/:443)"
     docker compose ps
     exit 0
   fi

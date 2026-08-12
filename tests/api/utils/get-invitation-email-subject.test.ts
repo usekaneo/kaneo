@@ -14,7 +14,7 @@ describe("getInvitationEmailSubject", () => {
     );
 
     expect(subject).toBe(
-      "Alice vous invite à rejoindre Équipe produit sur Kaneo",
+      "Alice vous invite à rejoindre Équipe produit sur ElseTasks",
     );
   });
 
@@ -30,7 +30,7 @@ describe("getInvitationEmailSubject", () => {
     );
 
     expect(subject).toBe(
-      "Alice hat dich eingeladen, Produkt auf Kaneo beizutreten",
+      "Alice hat dich eingeladen, Produkt auf ElseTasks beizutreten",
     );
   });
 
@@ -46,7 +46,7 @@ describe("getInvitationEmailSubject", () => {
     );
 
     expect(subject).toBe(
-      "Alice convidou você para participar de Equipe produto no Kaneo",
+      "Alice convidou você para participar de Equipe produto no ElseTasks",
     );
   });
 
@@ -61,6 +61,6 @@ describe("getInvitationEmailSubject", () => {
       workspaceName,
     );
 
-    expect(subject).toBe("Alice invited you to join Producto on Kaneo");
+    expect(subject).toBe("Alice invited you to join Producto on ElseTasks");
   });
 });

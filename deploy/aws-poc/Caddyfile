@@ -1,0 +1,8 @@
+{
+	email {$CADDY_EMAIL}
+}
+
+{$CADDY_DOMAIN} {
+	encode gzip zstd
+	reverse_proxy elsetasks:5173
+}
