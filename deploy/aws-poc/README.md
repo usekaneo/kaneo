@@ -6,7 +6,8 @@
 - ID: `i-01bfba6ff7572be2f`
 - Elastic IP: `18.204.10.255`
 - Key: `~/.ssh/elsetasks-poc.pem` (mesma chave usada no secret `EC2_SSH_KEY`)
-- SG: `elsetasks-poc-sg` (22 from operator IP; 80/443 public)
+- SG: `elsetasks-poc-sg` (22 from `0.0.0.0/0` for GitHub Actions + operator IP; 80/443 public)
+  - **Importante:** runners do Actions usam IPs dinâmicos — sem `:22` aberto (POC: `0.0.0.0/0`, auth só por chave), o deploy falha com SSH timeout. Regra sugerida: description `GitHub Actions deploy`.
 
 ## URLs
 - App: http://appelsetasks.elsesystems.com
