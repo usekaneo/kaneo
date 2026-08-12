@@ -5,7 +5,7 @@ alwaysApply: true
 ---
 # Project Overview
 
-Kaneo is a self-hosted project management platform built with a focus on simplicity and performance. This document provides an overview of the project structure and architecture.
+**ElseTasks** is a soft-fork of Kaneo (self-hosted project management) focused on Brazilian teams, whitelabel, and Local/Cloud delivery. Upstream architecture below still applies; packages may remain `@kaneo/*`.
 
 ## Project Structure
 

@@ -1,0 +1,21 @@
+---
+description: Padrões TypeScript, Biome, monorepo e copy pt-BR
+globs: apps/**/*.{ts,tsx},packages/**/*.{ts,tsx},biome.json
+alwaysApply: false
+---
+
+# Padrões de código
+
+- Monorepo pnpm: `apps/api` (Hono), `apps/web` (React/Vite), packages `@kaneo/*`.
+- Lint/format: Biome — `pnpm lint` / `pnpm exec biome ci .`
+- Typecheck: `pnpm typecheck` (CI enforce).
+- Prefer `type` a `interface`; Valibot nas rotas API; controllers finos.
+- UI copy: priorizar **pt-BR**; manter chaves i18n em `i18n/pt-BR.json` e `i18n/en-US.json`.
+- Nunca commit `.env`, `*.pem`, secrets. Use `.env.sample` para documentar vars.
+
+```typescript
+// Good: type + validation boundary
+type TaskInput = { title: string };
+// Bad: secrets in code
+const secret = "hardcoded-auth-secret";
+```

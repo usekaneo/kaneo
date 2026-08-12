@@ -10,9 +10,10 @@
   - **Importante:** runners do Actions usam IPs dinâmicos — sem `:22` aberto (POC: `0.0.0.0/0`, auth só por chave), o deploy falha com SSH timeout. Regra sugerida: description `GitHub Actions deploy`.
 
 ## URLs
-- App: http://appelsetasks.elsesystems.com
-- Health: http://appelsetasks.elsesystems.com/api/health
-- Fallback IP: http://18.204.10.255
+- App: https://appelsetasks.elsesystems.com
+- Health: https://appelsetasks.elsesystems.com/api/health
+- Webhook GitHub App: `https://appelsetasks.elsesystems.com/api/github-integration/webhook`
+- TLS: Caddy (Let's Encrypt) nas portas **80/443**; app Docker só em `127.0.0.1:8080`
 
 ## SSH
 ```bash
@@ -22,7 +23,8 @@ ssh -i ~/.ssh/elsetasks-poc.pem ec2-user@18.204.10.255
 ## Stack em `/opt/elsetasks`
 | Serviço     | Estado padrão | Notas |
 |-------------|---------------|-------|
-| `elsetasks` | running       | porta **80→5173** |
+| `elsetasks` | running       | `127.0.0.1:8080→5173` (interno) |
+| `caddy`     | running       | **80/443** → TLS + reverse proxy |
 | `postgres`  | running       | só rede interna |
 | `docuseal`  | **stopped**   | `restart: "no"`; porta só `127.0.0.1:3000` |
 
@@ -42,13 +44,13 @@ Arquivo: `.github/workflows/deploy-ec2.yml`
 
 Deploy e GitHub Actions rodam no fork:
 
-- **https://github.com/OFFsaber/kaneo** (`Settings` → `Secrets and variables` → `Actions`)
+- **https://github.com/OFFsaber/elsetasks** (`Settings` → `Secrets and variables` → `Actions`)
 
 Remote local esperado:
 
 ```bash
 # origin = fork de deploy; upstream = usekaneo/kaneo (opcional)
-git remote add origin https://github.com/OFFsaber/kaneo.git
+git remote add origin https://github.com/OFFsaber/elsetasks.git
 git remote -v
 ```
 
@@ -69,9 +71,9 @@ Opcional:
 Cadastro via CLI (não imprime o valor da key; **não** commitar PEM):
 
 ```bash
-gh secret set EC2_HOST --body "18.204.10.255" --repo OFFsaber/kaneo
-gh secret set EC2_USER --body "ec2-user" --repo OFFsaber/kaneo
-gh secret set EC2_SSH_KEY < ~/.ssh/elsetasks-poc.pem --repo OFFsaber/kaneo
+gh secret set EC2_HOST --body "18.204.10.255" --repo OFFsaber/elsetasks
+gh secret set EC2_USER --body "ec2-user" --repo OFFsaber/elsetasks
+gh secret set EC2_SSH_KEY < ~/.ssh/elsetasks-poc.pem --repo OFFsaber/elsetasks
 ```
 
 Alternativa UI: `pbcopy < ~/.ssh/elsetasks-poc.pem` e colar em `EC2_SSH_KEY` (inclui BEGIN/END).
@@ -90,7 +92,7 @@ A chave pública correspondente **já** está em `~/.ssh/authorized_keys` do `ec
 
 ### Como testar
 
-1. Cadastre os 3 secrets no GitHub (`OFFsaber/kaneo`)
+1. Cadastre os 3 secrets no GitHub (`OFFsaber/elsetasks`)
 2. Faça commit + push do workflow para `origin/main` **ou** rode `workflow_dispatch`
 3. Acompanhe em **Actions** → *Deploy EC2 (ElseTasks POC)*
 4. Confirme: http://appelsetasks.elsesystems.com/api/health

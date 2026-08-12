@@ -1,0 +1,19 @@
+---
+description: Sem secrets no git; OAuth vs GitHub App
+alwaysApply: true
+---
+
+# Segurança
+
+- **Proibido no git:** `.env`, `*.pem`, tokens, `AUTH_SECRET`, senhas DB, conteúdo de GitHub App private key.
+- Secrets de CI só em GitHub Actions Secrets; app secrets só no `.env` da EC2/host.
+- **OAuth** (login Google/GitHub/etc.): credenciais de *user* login no Better Auth — não confundir com GitHub App.
+- **GitHub App** (integração de repo/webhooks): App ID, webhook secret, private key — separado do OAuth de conta.
+- API: validar input (Valibot), checar sessão/`userId`, autorizar workspace antes de mutações.
+
+```typescript
+// Bad
+commitFile("~/.ssh/elsetasks-poc.pem");
+// Good
+process.env.AUTH_SECRET; // from host .env / secrets store
+```

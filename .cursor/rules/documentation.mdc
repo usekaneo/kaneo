@@ -1,0 +1,13 @@
+---
+description: Manuais, i18n e docs de deploy ElseTasks
+globs: manuais/**/*,apps/web/public/manuais/**/*,docs/**/*,README.md,deploy/**/*.md,i18n/**/*
+alwaysApply: false
+---
+
+# Documentação
+
+- Manuais do produto: `manuais/` — espelhar em `apps/web/public/manuais/` quando a UI servir os mesmos arquivos.
+- i18n: mínimo **pt-BR** + **en-US** (`i18n/`). Ao adicionar strings, atualize ambos.
+- README root: branding ElseTasks + quick start Local/Cloud.
+- Deploy AWS POC: `deploy/aws-poc/README.md` (secrets no repo `OFFsaber/elsetasks`).
+- Não documente caminhos de PEM reais em exemplos públicos além do já conhecido na POC; nunca cole conteúdo de chaves.

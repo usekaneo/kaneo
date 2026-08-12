@@ -1,0 +1,29 @@
+---
+description: Conventional commits, branches e PRs obrigatórios para main
+alwaysApply: true
+---
+
+# Git workflow
+
+## Commits
+
+Use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`). Husky + commitlint validam.
+
+```
+feat: add DocuSeal wake script
+fix: preserve EC2 .env during rsync deploy
+```
+
+## Branches
+
+- `main` — estável; protegida; deploy EC2 no push
+- `feat/*`, `fix/*`, `docs/*`, `chore/*`, `refactor/*`
+
+## Pull requests
+
+1. Branch a partir de `main` atualizado
+2. Abra PR → `main` (template em `.github/PULL_REQUEST_TEMPLATE.md`)
+3. CI `CI` (lint, typecheck, unit) deve passar — merge bloqueado se falhar
+4. Sem force-push destrutivo em `main`; sem `--no-verify`
+
+Não faça push direto em `main` salvo hotfixes acordados pelo time.

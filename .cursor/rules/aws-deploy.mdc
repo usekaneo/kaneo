@@ -1,0 +1,19 @@
+---
+description: Deploy AWS POC via Actions → EC2, .env e DocuSeal
+globs: .github/workflows/deploy-ec2.yml,deploy/aws-poc/**/*
+alwaysApply: false
+---
+
+# Deploy AWS (POC)
+
+- Workflow: `.github/workflows/deploy-ec2.yml` — só `push` em `main` ou `workflow_dispatch`.
+- Sync: rsync para `/opt/elsetasks` **excluindo** `.env` / `.env.*` / `*.pem`.
+- Rebuild na EC2 (ARM): `deploy/aws-poc/remote-deploy.sh` — não sobrescreve `.env`.
+- DocuSeal: `restart: "no"`; após deploy fica stopped; use `docuseal-wake.sh` / `docuseal-sleep.sh`.
+- PRs **não** disparam deploy EC2.
+- Secrets: `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY` em `OFFsaber/elsetasks` Actions secrets.
+
+```bash
+# Bom: editar .env só na EC2 via SSH
+# Bad: rsync incluindo .env ou commit de PEM
+```

@@ -1,0 +1,12 @@
+---
+description: Identidade do produto ElseTasks (soft-fork Kaneo MIT)
+alwaysApply: true
+---
+
+# ElseTasks — identidade
+
+- Produto: **ElseTasks** (UI/docs: "Else Tasks" / "ElseTasks"). Soft-fork MIT de Kaneo.
+- Repo: https://github.com/OFFsaber/elsetasks — packages internos `@kaneo/*` ok; **não** renomear em massa.
+- Preserve aviso MIT / atribuição ao Kaneo upstream.
+- Landing CTA pode apontar para `appelsetasks.elsesystems.com`.
+- Foque mudanças em branding visível (README, manuais, Actions URLs), não em rewrite do monorepo.
