@@ -40,7 +40,11 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Setup Pages
+        id: pages
         uses: actions/configure-pages@v6
+        with:
+          # Auto-create Pages site if missing (forks often lack Settings → Pages).
+          enablement: true
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
