@@ -274,6 +274,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
   const taskRef = useRef(task);
+  const taskIdRef = useRef(taskId);
   const updateTaskRef = useRef(updateTaskDescription);
   const activeTaskIdRef = useRef<string | null>(null);
   const lastEditorRef = useRef<Editor | null>(null);
@@ -308,8 +309,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   useEffect(() => {
     taskRef.current = task;
+    taskIdRef.current = taskId;
     updateTaskRef.current = updateTaskDescription;
-  }, [task, updateTaskDescription]);
+  }, [task, taskId, updateTaskDescription]);
 
   const shikiSupportedLanguages = useMemo(
     () => new Set([...Object.keys(bundledLanguages), "text"]),
@@ -405,7 +407,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
       try {
         const uploadedAsset = await uploadTaskImage({
-          taskId,
+          taskId: taskIdRef.current,
           surface: "description",
           file,
         });
@@ -426,7 +428,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         );
       }
     },
-    [insertUploadedAsset, t, taskId],
+    [insertUploadedAsset, t],
   );
 
   const openImagePicker = useCallback(
@@ -960,7 +962,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   );
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || editor.isDestroyed) return;
     if (lastEditorRef.current !== editor) {
       hasHydratedRef.current = false;
       lastEditorRef.current = editor;
