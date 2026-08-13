@@ -77,6 +77,7 @@ import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-pick
 import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
+import type Task from "@/types/task";
 import { AttachmentCard } from "./extensions/attachment-card";
 import { EmbedBlock } from "./extensions/embed-block";
 import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
@@ -576,22 +577,26 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   }, []);
 
   const debouncedUpdate = useCallback(
-    debounce(async (markdown: string) => {
-      if (!canEditRef.current) return;
+    debounce(
+      async (
+        markdown: string,
+        taskId: string | undefined,
+        currentTask: Task | undefined,
+      ) => {
+        const updateTaskFn = updateTaskRef.current;
+        if (!taskId || !currentTask || !updateTaskFn) return;
 
-      const currentTask = taskRef.current;
-      const updateTaskFn = updateTaskRef.current;
-      if (!currentTask || !updateTaskFn) return;
-
-      try {
-        await updateTaskFn({
-          ...currentTask,
-          description: markdown,
-        });
-      } catch (error) {
-        console.error("Failed to update description:", error);
-      }
-    }, 700),
+        try {
+          await updateTaskFn({
+            ...currentTask,
+            description: markdown,
+          });
+        } catch (error) {
+          console.error("Failed to update description:", error);
+        }
+      },
+      700,
+    ),
     [],
   );
 
@@ -806,7 +811,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         const markdown = formatMarkdown(activeEditor.getMarkdown());
         if (markdown === latestSyncedMarkdownRef.current) return;
         latestSyncedMarkdownRef.current = markdown;
-        debouncedUpdate(markdown);
+        debouncedUpdate(markdown, taskIdRef.current, taskRef.current);
       },
     },
     [getOverlayPosition, handleAssetFileUpload, t, toShikiLanguage],
