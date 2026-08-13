@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskAssigneeTable, taskTable, userTable } from "../../database/schema";
@@ -32,6 +32,17 @@ async function updateTaskAssignee({
     targetAssigneeIds = userId ? [userId] : [];
   } else {
     targetAssigneeIds = existingTask.userId ? [existingTask.userId] : [];
+  }
+
+  if (targetAssigneeIds.length > 0) {
+    const validUsers = await db
+      .select({ id: userTable.id })
+      .from(userTable)
+      .where(inArray(userTable.id, targetAssigneeIds));
+
+    if (validUsers.length !== targetAssigneeIds.length) {
+      throw new HTTPException(404, { message: "Assignee not found" });
+    }
   }
 
   const primaryAssigneeId =

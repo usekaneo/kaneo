@@ -1,4 +1,4 @@
-import { and, eq, max } from "drizzle-orm";
+import { and, eq, inArray, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -42,6 +42,17 @@ async function createTask({
     targetAssigneeIds = Array.from(new Set(assigneeIds.filter(Boolean)));
   } else if (userId?.trim()) {
     targetAssigneeIds = [userId.trim()];
+  }
+
+  if (targetAssigneeIds.length > 0) {
+    const validUsers = await db
+      .select({ id: userTable.id })
+      .from(userTable)
+      .where(inArray(userTable.id, targetAssigneeIds));
+
+    if (validUsers.length !== targetAssigneeIds.length) {
+      throw new HTTPException(404, { message: "Assignee not found" });
+    }
   }
 
   const primaryUserId =
@@ -131,7 +142,8 @@ async function createTask({
     ...createdTask,
     assignees: assigneesData,
     assigneeIds: targetAssigneeIds,
-    assigneeName: assigneesData[0]?.name ?? null,
+    assigneeName: assigneesData[0]?.name,
+    assigneeImage: assigneesData[0]?.image,
   };
 }
 
