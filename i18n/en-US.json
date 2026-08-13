@@ -1839,7 +1839,7 @@
 			"moreTasks": "+{{count}} more",
 			"loadError": "Failed to load tasks.",
 			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"taskAriaLabel": "{{title}}: open task"
+			"taskAriaLabel": "{{title}}, {{range}}: open task"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
