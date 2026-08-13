@@ -36,7 +36,12 @@ const PROTECTED_BRANCHES = [
 export async function handlePush(payload: PushPayload) {
   const { ref, repository, head_commit } = payload;
 
-  const branchName = ref.replace("refs/heads/", "");
+  if (!ref.startsWith("refs/heads/")) {
+    console.log(`[Push] Skipping non-branch ref: ${ref}`);
+    return;
+  }
+
+  const branchName = ref.slice("refs/heads/".length);
   console.log(`[Push] Processing branch: ${branchName}`);
 
   if (PROTECTED_BRANCHES.includes(branchName)) {
