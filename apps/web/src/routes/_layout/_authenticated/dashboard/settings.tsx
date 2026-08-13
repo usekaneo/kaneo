@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { SettingsSidebarProvider } from "@/components/SettingsSidebar";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -62,27 +61,24 @@ function SettingsLayout() {
   }, [isMobile]);
 
   return (
-    <Sheet open={settingsMenuOpen} onOpenChange={setSettingsMenuOpen}>
+    <>
       <PageTitle title={t("navigation:page.settingsTitle")} />
 
       <div className="flex h-full w-full flex-col bg-sidebar p-2 sm:p-4">
         <div className="relative flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-md border border-border bg-card p-3 md:gap-4 sm:p-4">
           <div className="shrink-0">
             <div className="flex items-center">
-              <SheetTrigger
-                render={
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    className="shrink-0 md:hidden"
-                    aria-label="Open settings menu"
-                    title="Open settings menu"
-                  />
-                }
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="shrink-0 md:hidden"
+                aria-label="Open settings menu"
+                title="Open settings menu"
+                onClick={() => setSettingsMenuOpen(true)}
               >
                 <PanelLeftIcon className="size-4" />
-              </SheetTrigger>
+              </Button>
 
               <div className="flex items-center gap-1 md:hidden">
                 <ChevronLeft className="size-4 text-muted-foreground" />
@@ -159,12 +155,16 @@ function SettingsLayout() {
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <SettingsSidebarProvider workspaceId={workspace?.id}>
+            <SettingsSidebarProvider
+              workspaceId={workspace?.id}
+              menuOpen={settingsMenuOpen}
+              setMenuOpen={setSettingsMenuOpen}
+            >
               <Outlet />
             </SettingsSidebarProvider>
           </div>
         </div>
       </div>
-    </Sheet>
+    </>
   );
 }

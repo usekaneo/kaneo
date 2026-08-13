@@ -34,9 +34,14 @@ import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
 import { count, eq, sql } from "drizzle-orm";
+import {
+  findBillableWorkspaces,
+  formatBillableWorkspacesMessage,
+} from "./billing/controllers/find-billable-workspaces";
 import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
+import deleteAccountData from "./user/controllers/delete-account-data";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
@@ -167,6 +172,25 @@ function getDeviceAuthClientIds(): Set<string> {
   return new Set(["kaneo-cli", "kaneo-mcp"]);
 }
 
+const DEFAULT_TRUSTED_PROXIES = [
+  "127.0.0.0/8",
+  "::1/128",
+  "10.0.0.0/8",
+  "172.16.0.0/12",
+  "192.168.0.0/16",
+];
+
+function trustedProxies(): string[] {
+  const raw = process.env.TRUSTED_PROXIES?.trim();
+  if (!raw) {
+    return DEFAULT_TRUSTED_PROXIES;
+  }
+  return raw
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
 function getDeviceAuthVerificationUri(): string {
   const base = clientUrl.replace(/\/$/, "");
   return `${base}/device`;
@@ -201,6 +225,12 @@ export const auth = betterAuth({
         type: "string",
         input: true,
         required: false,
+      },
+    },
+    deleteUser: {
+      enabled: true,
+      beforeDelete: async (user) => {
+        await deleteAccountData(user.id);
       },
     },
   },
@@ -403,6 +433,16 @@ export const auth = betterAuth({
             ownerEmail: user.name,
             ownerId: user.id,
           });
+        },
+        beforeDeleteOrganization: async ({ organization }) => {
+          const billable = await findBillableWorkspaces([organization.id]);
+          if (billable.length > 0) {
+            throw new APIError("CONFLICT", {
+              message: formatBillableWorkspacesMessage(
+                billable.map((workspace) => workspace.name),
+              ),
+            });
+          }
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
@@ -736,6 +776,10 @@ export const auth = betterAuth({
     }),
   },
   advanced: {
+    ipAddress: {
+      ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"],
+      trustedProxies: trustedProxies(),
+    },
     defaultCookieAttributes: {
       // For cross-subdomain auth with HTTPS, use sameSite: "none" with secure: true
       // For same-domain or HTTP deployments, use sameSite: "lax" with secure: false

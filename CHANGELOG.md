@@ -1,3 +1,58 @@
+# [2.18.0](https://github.com/usekaneo/kaneo/compare/v2.17.6...v2.18.0) (2026-08-12)
+
+
+### Bug Fixes
+
+* **web:** restore the backdrop behind settings modals ([71e429e](https://github.com/usekaneo/kaneo/commit/71e429e3482e4473508f170018057313b2d658a5))
+
+
+### Features
+
+* **account:** change avatar and delete account ([384eb00](https://github.com/usekaneo/kaneo/commit/384eb005c71fe6e9b99875556b370b033cd4d151))
+## [2.17.6](https://github.com/usekaneo/kaneo/compare/v2.17.5...v2.17.6) (2026-08-11)
+
+
+### Bug Fixes
+
+* **planka-import:** explain unmatched assignees, keep dependencies, attribute comments ([15f6868](https://github.com/usekaneo/kaneo/commit/15f68683620b5fcfbed7970b77210b7cc706f74b))
+## [2.17.5](https://github.com/usekaneo/kaneo/compare/v2.17.4...v2.17.5) (2026-08-11)
+
+
+### Bug Fixes
+
+* **billing:** send one trial reminder per owner, not per workspace ([ae2e579](https://github.com/usekaneo/kaneo/commit/ae2e57919d4703b4fcb2e4452b2c7b171abedd97))
+## [2.17.4](https://github.com/usekaneo/kaneo/compare/v2.17.3...v2.17.4) (2026-08-11)
+
+
+### Bug Fixes
+
+* **billing:** throttle trial reminders so they cannot exhaust the quota ([c4150a8](https://github.com/usekaneo/kaneo/commit/c4150a89f826ce5a4f7bbf24346c313b7fd2c5d4))
+## [2.17.3](https://github.com/usekaneo/kaneo/compare/v2.17.2...v2.17.3) (2026-08-11)
+
+
+### Bug Fixes
+
+* **planka-import:** default to the real Kaneo Cloud host ([3863eb6](https://github.com/usekaneo/kaneo/commit/3863eb6ba1d5a6ec9833e4b4a383cffc3fa10fff))
+
+
+### Features
+
+* **billing:** email trial reminders before and after expiry ([0e481a9](https://github.com/usekaneo/kaneo/commit/0e481a9c8223f36b03a35ad0cbb7456af99466d9))
+## [2.17.2](https://github.com/usekaneo/kaneo/compare/v2.17.1...v2.17.2) (2026-08-11)
+
+
+### Bug Fixes
+
+* **auth:** resolve the client IP behind multiple proxy hops ([9e8a448](https://github.com/usekaneo/kaneo/commit/9e8a44835768a70d6d2f68dc3e1add53e90bbc10))
+* **billing:** grant the trial once per owner, not per workspace ([14adb9d](https://github.com/usekaneo/kaneo/commit/14adb9dfd8af0d0dbe5951d0994d1bcf0fcdf8b1))
+* use internal URL for MCP tool requests ([#1556](https://github.com/usekaneo/kaneo/issues/1556)) ([7d9d9d2](https://github.com/usekaneo/kaneo/commit/7d9d9d212d13e98e9aa3d84c0179f4a49384b9fc))
+
+
+### Features
+
+* **planka-import:** add PLANKA to Kaneo migration CLI ([5c91feb](https://github.com/usekaneo/kaneo/commit/5c91febedf4e2cbb356c451676d4df3ae2acc6fa))
+* **planka-import:** authenticate with a PLANKA API key ([ff5e3fc](https://github.com/usekaneo/kaneo/commit/ff5e3fc6b91ae351c6002fb358d75265a0435dbd))
+* **site:** add PLANKA comparison page ([579a975](https://github.com/usekaneo/kaneo/commit/579a9752f7775e9239680053a6ed68d437d90e36))
 ## [2.17.1](https://github.com/usekaneo/kaneo/compare/v2.17.0...v2.17.1) (2026-08-10)
 
 

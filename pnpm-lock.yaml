@@ -693,6 +693,31 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.2)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.2.0))(msw@2.12.10(@types/node@26.1.2)(typescript@7.0.2))(vite@8.2.1(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.9))
 
+  packages/planka-import:
+    dependencies:
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@kaneo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^26.1.2
+        version: 26.1.2
+      '@types/prompts':
+        specifier: ^2.4.9
+        version: 2.4.9
+      tsx:
+        specifier: ^4.23.9
+        version: 4.23.9
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.2)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.2.0))(msw@2.12.10(@types/node@26.1.2)(typescript@7.0.2))(vite@8.2.1(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.9))
+
   packages/typescript-config: {}
 
 packages:

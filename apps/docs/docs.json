@@ -38,6 +38,12 @@
 		"light": "/logo/dark.svg",
 		"dark": "/logo/light.svg"
 	},
+	"redirects": [
+		{
+			"source": "/core/guide/migrating-from-v1",
+			"destination": "/core/installation/environment-variables"
+		}
+	],
 	"navigation": {
 		"tabs": [
 			{
@@ -57,6 +63,7 @@
 							"core/functional/collaborate-with-team",
 							"core/functional/configure-workflows",
 							"core/functional/account-notifications",
+							"core/functional/manage-your-account",
 							"core/functional/personalize-your-workspace",
 							"core/functional/manage-workspace-labels"
 						]
@@ -116,7 +123,7 @@
 					},
 					{
 						"group": "Migration",
-						"pages": ["core/guide/migrating-from-v1"]
+						"pages": ["core/migrations/from-planka"]
 					}
 				]
 			},

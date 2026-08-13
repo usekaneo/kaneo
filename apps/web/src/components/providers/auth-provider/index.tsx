@@ -8,13 +8,15 @@ const { useSession } = authClient;
 export const AuthContext = createContext<{
   user: User | null | undefined;
   isLoading: boolean;
+  refetchUser: () => Promise<void>;
 }>({
   user: undefined,
   isLoading: true,
+  refetchUser: async () => {},
 });
 
 function AuthProvider({ children }: PropsWithChildren) {
-  const { data, isPending } = useSession();
+  const { data, isPending, refetch } = useSession();
   // Only show the loading skeleton during the *first* session fetch. Better
   // Auth re-fetches the session on window focus; if we kept returning the
   // skeleton while those background fetches are pending we'd unmount the
@@ -34,6 +36,9 @@ function AuthProvider({ children }: PropsWithChildren) {
       value={{
         user: (data?.user as User | null | undefined) ?? null,
         isLoading: isPending,
+        refetchUser: async () => {
+          await refetch({ query: { disableCookieCache: true } });
+        },
       }}
     >
       {children}
