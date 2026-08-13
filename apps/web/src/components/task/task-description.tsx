@@ -40,7 +40,14 @@ import {
   Underline as UnderlineIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { bundledLanguages, type Highlighter } from "shiki";
 import { Button } from "@/components/ui/button";
@@ -281,6 +288,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
+    taskId: string;
   } | null>(null);
   const hasHydratedRef = useRef(false);
   const isSyncingExternalContentRef = useRef(false);
@@ -307,7 +315,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   } | null>(null);
   const slashMenuRef = useRef<SlashMenuState | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     taskRef.current = task;
     taskIdRef.current = taskId;
     updateTaskRef.current = updateTaskDescription;
@@ -401,16 +409,23 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         return;
       }
 
+      const uploadTaskId = taskIdRef.current;
       const loadingToast = toast.loading(
         t("tasks:detail.editor.upload.loading"),
       );
 
       try {
         const uploadedAsset = await uploadTaskImage({
-          taskId: taskIdRef.current,
+          taskId: uploadTaskId,
           surface: "description",
           file,
         });
+
+        if (activeEditor.isDestroyed || taskIdRef.current !== uploadTaskId) {
+          toast.dismiss(loadingToast);
+          return;
+        }
+
         insertUploadedAsset(activeEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
@@ -434,7 +449,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const openImagePicker = useCallback(
     (activeEditor?: Editor | null, range?: SlashRange) => {
       pendingImageInsertRef.current = activeEditor
-        ? { editor: activeEditor, range }
+        ? { editor: activeEditor, range, taskId: taskIdRef.current }
         : null;
       imageInputRef.current?.click();
     },
@@ -1358,17 +1373,20 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         className="sr-only"
         onChange={(event) => {
           const file = event.target.files?.[0];
+          event.target.value = "";
           if (!file) return;
 
           const pendingInsert = pendingImageInsertRef.current;
           pendingImageInsertRef.current = null;
+          if (!pendingInsert || pendingInsert.taskId !== taskIdRef.current) {
+            return;
+          }
+
           void handleAssetFileUpload(
             file,
-            pendingInsert?.editor,
-            pendingInsert?.range,
+            pendingInsert.editor,
+            pendingInsert.range,
           );
-
-          event.target.value = "";
         }}
       />
       {editor && hoveredCodeBlock && (
