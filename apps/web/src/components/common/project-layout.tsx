@@ -6,6 +6,7 @@ import {
   SquircleDashed,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 import MobileProjectNav from "@/components/common/header/mobile-project-nav";
 import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
 import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-select";
@@ -42,6 +43,7 @@ export default function ProjectLayout({
   showViewSwitcher = true,
   activeView,
 }: ProjectLayoutProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
@@ -193,7 +195,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <CalendarRange className="size-3.5" />
-                  Calendar
+                  {t("tasks:calendar.title")}
                 </Button>
                 <Button
                   variant={resolvedView === "gantt" ? "secondary" : "ghost"}

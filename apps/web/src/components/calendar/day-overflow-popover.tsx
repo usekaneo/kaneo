@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type JSX, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Popover,
@@ -23,7 +23,7 @@ export default function DayOverflowPopover({
   hiddenCount,
   projectSlug,
   onOpenTask,
-}: DayOverflowPopoverProps) {
+}: DayOverflowPopoverProps): JSX.Element {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 

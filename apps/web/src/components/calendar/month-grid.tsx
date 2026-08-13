@@ -1,4 +1,5 @@
 import { format, isSameMonth, isToday, isWeekend } from "date-fns";
+import { type JSX, useMemo } from "react";
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/format";
 import CalendarTaskBar, { type CalendarTask } from "./calendar-task-bar";
@@ -21,8 +22,12 @@ export default function MonthGrid({
   maxLanes,
   projectSlug,
   onOpenTask,
-}: MonthGridProps) {
+}: MonthGridProps): JSX.Element {
   const weekdayTemplate = weeks[0] ?? [];
+  const layouts = useMemo(
+    () => weeks.map((week) => packWeekLanes(week, tasks, maxLanes)),
+    [weeks, tasks, maxLanes],
+  );
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto overscroll-x-contain">
@@ -38,12 +43,8 @@ export default function MonthGrid({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        {weeks.map((week) => {
-          const { segments, hiddenCountByDay, tasksByDay } = packWeekLanes(
-            week,
-            tasks,
-            maxLanes,
-          );
+        {weeks.map((week, weekIndex) => {
+          const { segments, hiddenCountByDay, tasksByDay } = layouts[weekIndex];
 
           return (
             <div

@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
 import { formatDateShort } from "@/lib/format";
@@ -18,7 +19,7 @@ export default function CalendarTaskBar({
   segment,
   projectSlug,
   onOpenTask,
-}: CalendarTaskBarProps) {
+}: CalendarTaskBarProps): JSX.Element {
   const { t } = useTranslation();
   const {
     task,

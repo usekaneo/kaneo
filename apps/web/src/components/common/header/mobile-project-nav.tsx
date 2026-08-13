@@ -6,6 +6,7 @@ import {
   Plus,
   SquareKanban,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -39,6 +40,7 @@ export default function MobileProjectNav({
   onSelectProject,
   onAddProject,
 }: MobileProjectNavProps) {
+  const { t } = useTranslation();
   const { data: projects = [] } = useGetProjects({ workspaceId });
 
   return (
@@ -97,7 +99,7 @@ export default function MobileProjectNav({
                 )}
               >
                 <CalendarRange className="size-3.5" />
-                Calendar
+                {t("tasks:calendar.title")}
               </button>
               <button
                 type="button"

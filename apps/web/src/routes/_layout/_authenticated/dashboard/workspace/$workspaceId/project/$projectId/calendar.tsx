@@ -38,7 +38,7 @@ function RouteComponent() {
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
-  const { data: project } = useGetTasks(projectId);
+  const { data: project, isLoading, isError } = useGetTasks(projectId);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const setViewMode = useUserPreferencesStore((state) => state.setViewMode);
   const isMobile = useIsMobile();
@@ -128,7 +128,19 @@ function RouteComponent() {
           onToday={handleToday}
         />
 
-        {scheduledTasks.length === 0 ? (
+        {isLoading ? (
+          <div className="border-b border-border/80 px-4 py-3 text-center">
+            <p className="text-sm text-muted-foreground">
+              {t("common:empty.loading")}
+            </p>
+          </div>
+        ) : isError ? (
+          <div className="border-b border-border/80 px-4 py-3 text-center">
+            <p className="text-sm font-semibold text-destructive">
+              {t("tasks:calendar.loadError")}
+            </p>
+          </div>
+        ) : scheduledTasks.length === 0 ? (
           <div className="border-b border-border/80 px-4 py-3 text-center">
             <p className="text-sm font-semibold text-foreground">
               {t("tasks:calendar.noTasks")}
