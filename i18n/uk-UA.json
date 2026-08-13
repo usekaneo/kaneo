@@ -1962,7 +1962,7 @@
 			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
 			"pageTitle": "{{name}} – Calendar",
 			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}: open task",
+			"taskAriaLabel": "{{title}}, {{range}}: open task",
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
