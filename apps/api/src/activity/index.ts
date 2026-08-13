@@ -58,7 +58,6 @@ const activity = new Hono<{
       "json",
       v.object({
         taskId: v.string(),
-        userId: v.string(),
         message: v.nullable(v.string()),
         type: v.string(),
         eventData: v.optional(v.nullable(v.record(v.string(), v.unknown()))),
@@ -67,7 +66,8 @@ const activity = new Hono<{
     workspaceAccess.fromTaskId(),
     requireWorkspacePermission({ task: ["update"] }),
     async (c) => {
-      const { taskId, userId, message, type, eventData } = c.req.valid("json");
+      const { taskId, message, type, eventData } = c.req.valid("json");
+      const userId = c.get("userId");
       const activity = await createActivity(
         taskId,
         type,
