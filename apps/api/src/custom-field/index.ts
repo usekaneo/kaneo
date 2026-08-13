@@ -6,6 +6,7 @@ import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createCustomField from "./controllers/create-custom-field";
 import deleteCustomField from "./controllers/delete-custom-field";
 import getCustomFieldFilterValues from "./controllers/get-custom-field-filter-values";
+import getCustomFieldValuesByProject from "./controllers/get-custom-field-values-by-project";
 import getCustomFieldValuesByTask from "./controllers/get-custom-field-values-by-task";
 import getCustomFieldsByProject from "./controllers/get-custom-fields-by-project";
 import reorderCustomFields from "./controllers/reorder-custom-field";
@@ -63,6 +64,34 @@ const customField = new Hono<{
       const { projectId } = c.req.valid("param");
       const fields = await getCustomFieldsByProject(projectId);
       return c.json(fields);
+    },
+  )
+  .get(
+    "/project/:projectId/values",
+    describeRoute({
+      operationId: "getCustomFieldValuesByProject",
+      tags: ["Custom Fields"],
+      description: "Get all custom field values for a project",
+      responses: {
+        200: {
+          description:
+            "List of custom field values for all tasks in the project",
+          content: {
+            "application/json": {
+              schema: resolver(v.array(customFieldValueSchema)),
+            },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ projectId: v.string() })),
+    workspaceAccess.fromProject("projectId"),
+    async (c) => {
+      const { projectId } = c.req.valid("param");
+
+      const values = await getCustomFieldValuesByProject(projectId);
+
+      return c.json(values);
     },
   )
   .get(

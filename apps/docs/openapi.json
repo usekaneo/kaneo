@@ -3161,6 +3161,41 @@
         }
       }
     },
+    "/custom-field/project/{projectId}/values": {
+      "get": {
+        "operationId": "getCustomFieldValuesByProject",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get field values by project",
+        "description": "Get all custom field values for a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field values with their definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldValue"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/custom-field/task/{taskId}": {
       "get": {
         "operationId": "getCustomFieldValuesByTask",

@@ -27,7 +27,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import useGetCustomFieldValuesByTask from "@/hooks/queries/custom-field/use-get-custom-field-values-by-task";
+import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
@@ -91,13 +91,21 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
     );
   }, [workspaceUsers, task.userId]);
 
-  const { data: customFieldValues = [] } = useGetCustomFieldValuesByTask(
-    task.id,
+  const { data: projectCustomFieldValues = [] } =
+    useGetCustomFieldValuesByProject(task.projectId);
+
+  const customFieldValues = useMemo(
+    () => projectCustomFieldValues.filter((field) => field.taskId === task.id),
+    [projectCustomFieldValues, task.id],
   );
 
-  const activeCustomFieldValues = useMemo(() => {
-    return customFieldValues.filter((f) => f.value !== null && f.value !== "");
-  }, [customFieldValues]);
+  const activeCustomFieldValues = useMemo(
+    () =>
+      customFieldValues.filter(
+        (field) => field.value !== null && field.value !== "",
+      ),
+    [customFieldValues],
+  );
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
