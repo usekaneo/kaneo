@@ -515,14 +515,6 @@ export const auth = betterAuth({
   },
   databaseHooks: {
     user: {
-      delete: {
-        before: async (user) => {
-          await db
-            .update(schema.taskTable)
-            .set({ userId: null })
-            .where(eq(schema.taskTable.userId, user.id));
-        },
-      },
       create: {
         before: async (user, ctx) => {
           // The anonymous() plugin creates ephemeral users for guest
