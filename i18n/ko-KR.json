@@ -1839,7 +1839,7 @@
 			"moreTasks": "+{{count}}개",
 			"loadError": "작업을 불러오지 못했습니다.",
 			"dayTasksAriaLabel": "{{date}}의 모든 작업 보기",
-			"taskAriaLabel": "{{title}}: 작업 열기"
+			"taskAriaLabel": "{{title}}, {{range}}: 작업 열기"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 간트",
