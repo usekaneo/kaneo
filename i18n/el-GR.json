@@ -1952,7 +1952,8 @@
 			"previousMonth": "Previous month",
 			"taskAriaLabel": "{{title}}: open task",
 			"title": "Calendar",
-			"today": "Today"
+			"today": "Today",
+			"loadError": "Failed to load tasks."
 		}
 	},
 	"invitations": {
