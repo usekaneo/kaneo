@@ -23,17 +23,34 @@ export function validateCustomFieldValue(
   }
 
   if (type === "date") {
+    const isoMatch =
+      /^(\d{4})-(\d{2})-(\d{2})(T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:\d{2})?)?$/.exec(
+        value,
+      );
+
+    if (!isoMatch) {
+      return `Custom field "${fieldName}" expects a date in YYYY-MM-DD or ISO 8601 format, got "${value}".`;
+    }
+
     const timestamp = Date.parse(value);
     if (Number.isNaN(timestamp)) {
       return `Custom field "${fieldName}" expects a valid ISO 8601 date, got "${value}".`;
     }
 
-    const isoMatch =
-      /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:\d{2})?)?$/.test(
-        value,
-      );
-    if (!isoMatch) {
-      return `Custom field "${fieldName}" expects a date in YYYY-MM-DD or ISO 8601 format, got "${value}".`;
+    const year = Number(isoMatch[1]);
+    const month = Number(isoMatch[2]);
+    const day = Number(isoMatch[3]);
+
+    const calendarDate = new Date(0);
+    calendarDate.setUTCFullYear(year, month - 1, day);
+    calendarDate.setUTCHours(0, 0, 0, 0);
+
+    if (
+      calendarDate.getUTCFullYear() !== year ||
+      calendarDate.getUTCMonth() !== month - 1 ||
+      calendarDate.getUTCDate() !== day
+    ) {
+      return `Custom field "${fieldName}" expects a valid ISO 8601 date, got "${value}".`;
     }
   }
 
