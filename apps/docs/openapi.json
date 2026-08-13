@@ -3123,9 +3123,6 @@
                   "taskId": {
                     "type": "string"
                   },
-                  "userId": {
-                    "type": "string"
-                  },
                   "message": {
                     "type": "string",
                     "nullable": true
@@ -3141,7 +3138,6 @@
                 },
                 "required": [
                   "taskId",
-                  "userId",
                   "message",
                   "type"
                 ]
