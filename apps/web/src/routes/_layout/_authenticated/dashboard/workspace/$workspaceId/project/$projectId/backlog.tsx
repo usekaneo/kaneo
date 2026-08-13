@@ -98,6 +98,12 @@ function RouteComponent() {
             params: { workspaceId, projectId },
           });
         },
+        [shortcuts.view.calendar]: () => {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/calendar",
+            params: { workspaceId, projectId },
+          });
+        },
         [shortcuts.view.gantt]: () => {
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
