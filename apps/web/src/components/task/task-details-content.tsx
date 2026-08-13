@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { format, isValid, parseISO } from "date-fns";
-import { ArrowUpRight, CalendarIcon } from "lucide-react";
+import { ArrowUpRight, CalendarIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
@@ -242,6 +242,11 @@ export default function TaskDetailsContent({
                               />
                             </SelectTrigger>
                             <SelectContent>
+                              {!field.required && (
+                                <SelectItem key="empty" value="">
+                                  {t("tasks:detail.selectOption")}
+                                </SelectItem>
+                              )}
                               {(field.options || []).map((opt) => (
                                 <SelectItem key={opt} value={opt}>
                                   {opt}
@@ -250,47 +255,85 @@ export default function TaskDetailsContent({
                             </SelectContent>
                           </Select>
                         ) : field.type === "date" ? (
-                          <Popover>
-                            <PopoverTrigger
-                              render={
-                                <Button
-                                  variant="outline"
-                                  disabled={!canEdit}
-                                  className={cn(
-                                    "h-9 w-full justify-start bg-background text-left text-sm font-normal",
-                                    !val && "text-muted-foreground",
-                                  )}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-                                  {val && isValid(parseISO(val))
-                                    ? format(parseISO(val), "dd MMM yyyy")
-                                    : t("tasks:detail.pickDate", "Pick a date")}
-                                </Button>
-                              }
-                            />
-                            <PopoverContent
-                              side="bottom"
-                              align="start"
-                              className="w-auto p-0"
-                            >
-                              <Calendar
-                                mode="single"
-                                selected={
-                                  val && isValid(parseISO(val))
-                                    ? parseISO(val)
-                                    : undefined
+                          <div className="relative w-full">
+                            <Popover>
+                              <PopoverTrigger
+                                render={
+                                  <Button
+                                    variant="outline"
+                                    type="button"
+                                    disabled={!canEdit}
+                                    className={cn(
+                                      "h-10! w-full justify-start rounded-md bg-background pr-10 text-left text-sm font-normal",
+                                      !val && "text-muted-foreground",
+                                    )}
+                                  >
+                                    <CalendarIcon className="mr-2 size-4 shrink-0 opacity-70" />
+
+                                    <span className="truncate">
+                                      {val && isValid(parseISO(val))
+                                        ? format(parseISO(val), "dd MMM yyyy")
+                                        : t(
+                                            "tasks:detail.pickDate",
+                                            "Pick a date",
+                                          )}
+                                    </span>
+                                  </Button>
                                 }
-                                onSelect={(date) => {
-                                  const iso = date
-                                    ? format(date, "yyyy-MM-dd")
-                                    : "";
-                                  handleLocalChange(field.id, iso);
-                                  void handleSaveField(field.id, iso);
-                                }}
-                                captionLayout="dropdown"
                               />
-                            </PopoverContent>
-                          </Popover>
+
+                              <PopoverContent
+                                side="bottom"
+                                align="start"
+                                className="w-auto p-0"
+                              >
+                                <Calendar
+                                  mode="single"
+                                  selected={
+                                    val && isValid(parseISO(val))
+                                      ? parseISO(val)
+                                      : undefined
+                                  }
+                                  onSelect={(date) => {
+                                    const iso = date
+                                      ? format(date, "yyyy-MM-dd")
+                                      : "";
+
+                                    handleLocalChange(field.id, iso);
+                                    void handleSaveField(field.id, iso);
+                                  }}
+                                  captionLayout="dropdown"
+                                />
+                              </PopoverContent>
+                            </Popover>
+
+                            {!field.required && (
+                              <Button
+                                variant="ghost"
+                                type="button"
+                                disabled={!canEdit || !val}
+                                onClick={() => {
+                                  handleLocalChange(field.id, "");
+                                  void handleSaveField(field.id, "");
+                                }}
+                                className={cn(
+                                  "absolute right-1 top-1/2 z-10 size-8 -translate-y-1/2 rounded-md p-0 text-muted-foreground",
+                                  canEdit && val
+                                    ? "hover:bg-destructive/10 hover:text-destructive"
+                                    : "cursor-not-allowed",
+                                )}
+                                aria-label={t("reset", {
+                                  field: field.name ?? field.id,
+                                })}
+                              >
+                                <X
+                                  className="size-4"
+                                  strokeWidth={2.5}
+                                  aria-hidden="true"
+                                />
+                              </Button>
+                            )}
+                          </div>
                         ) : field.type === "number" ? (
                           <Input
                             type="number"
@@ -305,23 +348,51 @@ export default function TaskDetailsContent({
                         ) : field.type === "boolean" ? (
                           <div
                             className={cn(
-                              "flex h-9 w-full items-center justify-between rounded-md border border-input bg-muted px-3 text-sm",
-                              !canEdit && "cursor-not-allowed opacity-50",
+                              "flex h-10 w-full items-center gap-3 rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors",
+                              canEdit && "hover:bg-muted",
+                              !canEdit && "opacity-50",
                             )}
                           >
-                            <span className="text-sm text-foreground capitalize">
-                              {val}
+                            <span className="flex-1 truncate text-foreground">
+                              {t(`common:boolean.${val || "notSet"}`)}
                             </span>
 
                             <Switch
                               checked={val === "true"}
                               onCheckedChange={(checked) => {
                                 const nextValue = checked ? "true" : "false";
+
                                 handleLocalChange(field.id, nextValue);
                                 void handleSaveField(field.id, nextValue);
                               }}
                               disabled={!canEdit}
+                              aria-label={t("modify", {
+                                field: field.name ?? field.id,
+                              })}
                             />
+
+                            {!field.required && (
+                              <Button
+                                variant="ghost"
+                                type="button"
+                                disabled={!canEdit}
+                                onClick={() => {
+                                  handleLocalChange(field.id, "");
+                                  void handleSaveField(field.id, "");
+                                }}
+                                className={cn(
+                                  "inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors",
+                                  canEdit
+                                    ? "hover:bg-destructive/10 hover:text-destructive"
+                                    : "cursor-not-allowed",
+                                )}
+                                aria-label={t("reset", {
+                                  field: field.name ?? field.id,
+                                })}
+                              >
+                                <X className="size-4" />
+                              </Button>
+                            )}
                           </div>
                         ) : (
                           <Input

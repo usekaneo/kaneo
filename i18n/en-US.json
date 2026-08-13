@@ -35,6 +35,12 @@
 			"label": "Breadcrumb",
 			"more": "More"
 		},
+		"boolean": {
+			"true": "True",
+			"false": "False",
+			"undefined": "Undefined",
+			"notSet": "Not Set"
+		},
 		"language": {
 			"english": "English",
 			"german": "German",
