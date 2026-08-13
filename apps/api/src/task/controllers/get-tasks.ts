@@ -3,6 +3,7 @@ import {
   asc,
   desc,
   eq,
+  exists,
   gte,
   inArray,
   lte,
@@ -92,17 +93,22 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
   }
 
   if (options.assigneeId) {
-    const matchedTaskIds = await db
-      .select({ taskId: taskAssigneeTable.taskId })
-      .from(taskAssigneeTable)
-      .where(eq(taskAssigneeTable.userId, options.assigneeId));
-    const ids = matchedTaskIds.map((t) => t.taskId);
-    const orCondition = or(
+    const assigneeMatch = or(
       eq(taskTable.userId, options.assigneeId),
-      ids.length > 0 ? inArray(taskTable.id, ids) : sql`false`,
+      exists(
+        db
+          .select({ id: taskAssigneeTable.taskId })
+          .from(taskAssigneeTable)
+          .where(
+            and(
+              eq(taskAssigneeTable.taskId, taskTable.id),
+              eq(taskAssigneeTable.userId, options.assigneeId),
+            ),
+          ),
+      ),
     );
-    if (orCondition) {
-      conditions.push(orCondition);
+    if (assigneeMatch) {
+      conditions.push(assigneeMatch);
     }
   }
 

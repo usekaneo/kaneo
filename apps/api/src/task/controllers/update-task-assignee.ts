@@ -1,7 +1,13 @@
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskAssigneeTable, taskTable, userTable } from "../../database/schema";
+import {
+  projectTable,
+  taskAssigneeTable,
+  taskTable,
+  userTable,
+  workspaceUserTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 
 async function updateTaskAssignee({
@@ -27,21 +33,43 @@ async function updateTaskAssignee({
 
   let targetAssigneeIds: string[] = [];
   if (assigneeIds !== undefined) {
-    targetAssigneeIds = Array.from(new Set(assigneeIds.filter(Boolean)));
+    targetAssigneeIds = Array.from(
+      new Set(assigneeIds.map((id) => id.trim()).filter(Boolean)),
+    );
   } else if (userId !== undefined) {
-    targetAssigneeIds = userId ? [userId] : [];
+    targetAssigneeIds = userId?.trim() ? [userId.trim()] : [];
   } else {
     targetAssigneeIds = existingTask.userId ? [existingTask.userId] : [];
   }
 
   if (targetAssigneeIds.length > 0) {
-    const validUsers = await db
-      .select({ id: userTable.id })
-      .from(userTable)
-      .where(inArray(userTable.id, targetAssigneeIds));
+    const project = await db.query.projectTable.findFirst({
+      where: eq(projectTable.id, existingTask.projectId),
+    });
 
-    if (validUsers.length !== targetAssigneeIds.length) {
-      throw new HTTPException(404, { message: "Assignee not found" });
+    if (project) {
+      const validMembers = await db
+        .select({ userId: workspaceUserTable.userId })
+        .from(workspaceUserTable)
+        .where(
+          and(
+            eq(workspaceUserTable.workspaceId, project.workspaceId),
+            inArray(workspaceUserTable.userId, targetAssigneeIds),
+          ),
+        );
+
+      if (validMembers.length !== targetAssigneeIds.length) {
+        throw new HTTPException(404, { message: "Assignee not found" });
+      }
+    } else {
+      const validUsers = await db
+        .select({ id: userTable.id })
+        .from(userTable)
+        .where(inArray(userTable.id, targetAssigneeIds));
+
+      if (validUsers.length !== targetAssigneeIds.length) {
+        throw new HTTPException(404, { message: "Assignee not found" });
+      }
     }
   }
 

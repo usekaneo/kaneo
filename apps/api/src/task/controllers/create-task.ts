@@ -3,9 +3,11 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   columnTable,
+  projectTable,
   taskAssigneeTable,
   taskTable,
   userTable,
+  workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { assertValidTaskStatus } from "../validate-task-fields";
@@ -39,19 +41,41 @@ async function createTask({
 
   let targetAssigneeIds: string[] = [];
   if (assigneeIds && assigneeIds.length > 0) {
-    targetAssigneeIds = Array.from(new Set(assigneeIds.filter(Boolean)));
+    targetAssigneeIds = Array.from(
+      new Set(assigneeIds.map((id) => id.trim()).filter(Boolean)),
+    );
   } else if (userId?.trim()) {
     targetAssigneeIds = [userId.trim()];
   }
 
   if (targetAssigneeIds.length > 0) {
-    const validUsers = await db
-      .select({ id: userTable.id })
-      .from(userTable)
-      .where(inArray(userTable.id, targetAssigneeIds));
+    const project = await db.query.projectTable.findFirst({
+      where: eq(projectTable.id, projectId),
+    });
 
-    if (validUsers.length !== targetAssigneeIds.length) {
-      throw new HTTPException(404, { message: "Assignee not found" });
+    if (project) {
+      const validMembers = await db
+        .select({ userId: workspaceUserTable.userId })
+        .from(workspaceUserTable)
+        .where(
+          and(
+            eq(workspaceUserTable.workspaceId, project.workspaceId),
+            inArray(workspaceUserTable.userId, targetAssigneeIds),
+          ),
+        );
+
+      if (validMembers.length !== targetAssigneeIds.length) {
+        throw new HTTPException(404, { message: "Assignee not found" });
+      }
+    } else {
+      const validUsers = await db
+        .select({ id: userTable.id })
+        .from(userTable)
+        .where(inArray(userTable.id, targetAssigneeIds));
+
+      if (validUsers.length !== targetAssigneeIds.length) {
+        throw new HTTPException(404, { message: "Assignee not found" });
+      }
     }
   }
 
@@ -133,17 +157,22 @@ async function createTask({
     ...createdTask,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
+    assigneeIds: targetAssigneeIds,
     currentUserId: currentUserId,
     type: "created",
     content: null,
   });
 
+  const primaryAssignee = primaryUserId
+    ? assigneesData.find((a) => a.id === primaryUserId)
+    : undefined;
+
   return {
     ...createdTask,
     assignees: assigneesData,
     assigneeIds: targetAssigneeIds,
-    assigneeName: assigneesData[0]?.name,
-    assigneeImage: assigneesData[0]?.image,
+    assigneeName: primaryAssignee?.name,
+    assigneeImage: primaryAssignee?.image,
   };
 }
 
