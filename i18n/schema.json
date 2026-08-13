@@ -7263,6 +7263,9 @@
 						"moreTasks": {
 							"type": "string"
 						},
+						"loadError": {
+							"type": "string"
+						},
 						"dayTasksAriaLabel": {
 							"type": "string"
 						},
@@ -7279,6 +7282,7 @@
 						"noTasks",
 						"noTasksSubtitle",
 						"moreTasks",
+						"loadError",
 						"dayTasksAriaLabel",
 						"taskAriaLabel"
 					]
