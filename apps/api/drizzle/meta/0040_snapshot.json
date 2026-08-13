@@ -1,5 +1,5 @@
 {
-	"id": "c49f7fb6-2834-4638-8763-92c38a6103a7",
+	"id": "be3b55c3-33cd-4872-aa4d-b60bafead072",
 	"prevId": "45193339-f83e-45d4-8b3c-b210cd25239a",
 	"version": "7",
 	"dialect": "postgresql",
@@ -249,7 +249,7 @@
 					"tableTo": "user",
 					"columnsFrom": ["user_id"],
 					"columnsTo": ["id"],
-					"onDelete": "cascade",
+					"onDelete": "set null",
 					"onUpdate": "cascade"
 				}
 			},
@@ -1069,216 +1069,6 @@
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
-		"public.custom_field_definition": {
-			"name": "custom_field_definition",
-			"schema": "",
-			"columns": {
-				"id": {
-					"name": "id",
-					"type": "text",
-					"primaryKey": true,
-					"notNull": true
-				},
-				"project_id": {
-					"name": "project_id",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"name": {
-					"name": "name",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"type": {
-					"name": "type",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"required": {
-					"name": "required",
-					"type": "boolean",
-					"primaryKey": false,
-					"notNull": true,
-					"default": false
-				},
-				"default_value": {
-					"name": "default_value",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": false
-				},
-				"options": {
-					"name": "options",
-					"type": "jsonb",
-					"primaryKey": false,
-					"notNull": false
-				},
-				"position": {
-					"name": "position",
-					"type": "integer",
-					"primaryKey": false,
-					"notNull": true,
-					"default": 0
-				},
-				"created_at": {
-					"name": "created_at",
-					"type": "timestamp",
-					"primaryKey": false,
-					"notNull": true,
-					"default": "now()"
-				},
-				"updated_at": {
-					"name": "updated_at",
-					"type": "timestamp",
-					"primaryKey": false,
-					"notNull": true,
-					"default": "now()"
-				}
-			},
-			"indexes": {
-				"custom_field_def_projectId_idx": {
-					"name": "custom_field_def_projectId_idx",
-					"columns": [
-						{
-							"expression": "project_id",
-							"isExpression": false,
-							"asc": true,
-							"nulls": "last"
-						}
-					],
-					"isUnique": false,
-					"concurrently": false,
-					"method": "btree",
-					"with": {}
-				}
-			},
-			"foreignKeys": {
-				"custom_field_definition_project_id_project_id_fk": {
-					"name": "custom_field_definition_project_id_project_id_fk",
-					"tableFrom": "custom_field_definition",
-					"tableTo": "project",
-					"columnsFrom": ["project_id"],
-					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "cascade"
-				}
-			},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
-		"public.custom_field_value": {
-			"name": "custom_field_value",
-			"schema": "",
-			"columns": {
-				"id": {
-					"name": "id",
-					"type": "text",
-					"primaryKey": true,
-					"notNull": true
-				},
-				"task_id": {
-					"name": "task_id",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"field_id": {
-					"name": "field_id",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"value": {
-					"name": "value",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": false
-				},
-				"created_at": {
-					"name": "created_at",
-					"type": "timestamp",
-					"primaryKey": false,
-					"notNull": true,
-					"default": "now()"
-				},
-				"updated_at": {
-					"name": "updated_at",
-					"type": "timestamp",
-					"primaryKey": false,
-					"notNull": true,
-					"default": "now()"
-				}
-			},
-			"indexes": {
-				"custom_field_value_taskId_idx": {
-					"name": "custom_field_value_taskId_idx",
-					"columns": [
-						{
-							"expression": "task_id",
-							"isExpression": false,
-							"asc": true,
-							"nulls": "last"
-						}
-					],
-					"isUnique": false,
-					"concurrently": false,
-					"method": "btree",
-					"with": {}
-				},
-				"custom_field_value_fieldId_idx": {
-					"name": "custom_field_value_fieldId_idx",
-					"columns": [
-						{
-							"expression": "field_id",
-							"isExpression": false,
-							"asc": true,
-							"nulls": "last"
-						}
-					],
-					"isUnique": false,
-					"concurrently": false,
-					"method": "btree",
-					"with": {}
-				}
-			},
-			"foreignKeys": {
-				"custom_field_value_task_id_task_id_fk": {
-					"name": "custom_field_value_task_id_task_id_fk",
-					"tableFrom": "custom_field_value",
-					"tableTo": "task",
-					"columnsFrom": ["task_id"],
-					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "cascade"
-				},
-				"custom_field_value_field_id_custom_field_definition_id_fk": {
-					"name": "custom_field_value_field_id_custom_field_definition_id_fk",
-					"tableFrom": "custom_field_value",
-					"tableTo": "custom_field_definition",
-					"columnsFrom": ["field_id"],
-					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "cascade"
-				}
-			},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {
-				"custom_field_value_task_field_unique": {
-					"name": "custom_field_value_task_field_unique",
-					"nullsNotDistinct": false,
-					"columns": ["task_id", "field_id"]
-				}
-			},
 			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false
@@ -2908,7 +2698,7 @@
 					"tableTo": "user",
 					"columnsFrom": ["assignee_id"],
 					"columnsTo": ["id"],
-					"onDelete": "cascade",
+					"onDelete": "set null",
 					"onUpdate": "cascade"
 				},
 				"task_column_id_column_id_fk": {
@@ -3199,7 +2989,7 @@
 					"tableTo": "user",
 					"columnsFrom": ["user_id"],
 					"columnsTo": ["id"],
-					"onDelete": "cascade",
+					"onDelete": "set null",
 					"onUpdate": "cascade"
 				}
 			},
@@ -3304,6 +3094,95 @@
 					"name": "user_email_unique",
 					"nullsNotDistinct": false,
 					"columns": ["email"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.user_avatar": {
+			"name": "user_avatar",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"mime_type": {
+					"name": "mime_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"size": {
+					"name": "size",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"data": {
+					"name": "data",
+					"type": "bytea",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {
+				"user_avatar_userId_idx": {
+					"name": "user_avatar_userId_idx",
+					"columns": [
+						{
+							"expression": "user_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"user_avatar_user_id_user_id_fk": {
+					"name": "user_avatar_user_id_user_id_fk",
+					"tableFrom": "user_avatar",
+					"tableTo": "user",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"user_avatar_user_id_unique": {
+					"name": "user_avatar_user_id_unique",
+					"nullsNotDistinct": false,
+					"columns": ["user_id"]
 				}
 			},
 			"policies": {},

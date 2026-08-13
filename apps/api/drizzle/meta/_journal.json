@@ -285,8 +285,15 @@
 		{
 			"idx": 40,
 			"version": "7",
-			"when": 1786481860686,
-			"tag": "0040_big_valeria_richards",
+			"when": 1786555508802,
+			"tag": "0040_clear_eternals",
+			"breakpoints": true
+		},
+		{
+			"idx": 41,
+			"version": "7",
+			"when": 1786557281986,
+			"tag": "0041_famous_cable",
 			"breakpoints": true
 		}
 	]
