@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, ne } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, ne } from "drizzle-orm";
 import db from "../../database";
 import {
   customFieldDefinitionTable,
@@ -11,27 +11,35 @@ export default async function getCustomFieldFilterValues(projectId: string) {
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId));
 
-  const result = await Promise.all(
-    fields.map(async (field) => {
-      const rawValues = await db
-        .selectDistinct({ value: customFieldValueTable.value })
-        .from(customFieldValueTable)
-        .where(
-          and(
-            eq(customFieldValueTable.fieldId, field.id),
-            isNotNull(customFieldValueTable.value),
-            ne(customFieldValueTable.value, ""),
-          ),
-        );
-
-      return {
-        fieldId: field.id,
-        fieldName: field.name,
-        fieldType: field.type,
-        values: rawValues.map((r) => r.value as string),
-      };
-    }),
-  );
-
-  return result;
+  if (fields.length === 0) {
+    return [];
+  }
+  const rows = await db
+    .selectDistinct({
+      fieldId: customFieldValueTable.fieldId,
+      value: customFieldValueTable.value,
+    })
+    .from(customFieldValueTable)
+    .where(
+      and(
+        inArray(
+          customFieldValueTable.fieldId,
+          fields.map((field) => field.id),
+        ),
+        isNotNull(customFieldValueTable.value),
+        ne(customFieldValueTable.value, ""),
+      ),
+    );
+  const valuesByField = new Map<string, string[]>();
+  for (const row of rows) {
+    const bucket = valuesByField.get(row.fieldId) ?? [];
+    bucket.push(row.value as string);
+    valuesByField.set(row.fieldId, bucket);
+  }
+  return fields.map((field) => ({
+    fieldId: field.id,
+    fieldName: field.name,
+    fieldType: field.type,
+    values: valuesByField.get(field.id) ?? [],
+  }));
 }
