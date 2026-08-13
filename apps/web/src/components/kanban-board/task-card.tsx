@@ -211,15 +211,30 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
             )}
 
             {showAssignees && (
-              <div className="absolute top-3 right-3">
-                {task.userId ? (
-                  <Avatar className="h-5 w-5">
+              <div className="absolute top-3 right-3 flex items-center -space-x-1.5">
+                {task.assignees && task.assignees.length > 0 ? (
+                  task.assignees.slice(0, 3).map((assigneeUser) => (
+                    <Avatar
+                      key={assigneeUser.id}
+                      className="h-5 w-5 ring-1 ring-background"
+                    >
+                      <AvatarImage
+                        src={assigneeUser.image ?? ""}
+                        alt={assigneeUser.name || ""}
+                      />
+                      <AvatarFallback className="text-[9px] font-medium border border-border/30">
+                        {getInitials(assigneeUser.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))
+                ) : task.userId ? (
+                  <Avatar className="h-5 w-5 ring-1 ring-background">
                     <AvatarImage
-                      src={assignee?.user?.image ?? ""}
-                      alt={assignee?.user?.name || ""}
+                      src={assignee?.user?.image ?? task.assigneeImage ?? ""}
+                      alt={assignee?.user?.name || task.assigneeName || ""}
                     />
                     <AvatarFallback className="text-xs font-medium border border-border/30">
-                      {getInitials(assignee?.user?.name)}
+                      {getInitials(assignee?.user?.name || task.assigneeName)}
                     </AvatarFallback>
                   </Avatar>
                 ) : (
@@ -231,6 +246,11 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                       ?
                     </span>
                   </div>
+                )}
+                {task.assignees && task.assignees.length > 3 && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[9px] font-medium text-muted-foreground ring-1 ring-background">
+                    +{task.assignees.length - 3}
+                  </span>
                 )}
               </div>
             )}

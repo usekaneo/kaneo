@@ -50,14 +50,33 @@ export default function TaskAssigneePopover({
     }));
   }, [workspaceUsers]);
 
-  const handleAssigneeChange = useCallback(
-    async (newUserId: string) => {
+  const currentAssigneeIds = useMemo(() => {
+    if (task.assigneeIds && task.assigneeIds.length > 0)
+      return task.assigneeIds;
+    if (task.assignees && task.assignees.length > 0)
+      return task.assignees.map((a) => a.id);
+    if (task.userId) return [task.userId];
+    return [];
+  }, [task]);
+
+  const handleToggleAssignee = useCallback(
+    async (userIdToToggle: string) => {
       try {
+        let newAssigneeIds: string[];
+        if (!userIdToToggle) {
+          newAssigneeIds = [];
+        } else if (currentAssigneeIds.includes(userIdToToggle)) {
+          newAssigneeIds = currentAssigneeIds.filter(
+            (id) => id !== userIdToToggle,
+          );
+        } else {
+          newAssigneeIds = [...currentAssigneeIds, userIdToToggle];
+        }
         await updateTaskAssignee({
           ...task,
-          userId: newUserId,
+          userId: newAssigneeIds[0] || null,
+          assigneeIds: newAssigneeIds,
         });
-        setOpen(false);
       } catch (error) {
         toast.error(
           error instanceof Error
@@ -66,16 +85,16 @@ export default function TaskAssigneePopover({
         );
       }
     },
-    [t, task, updateTaskAssignee],
+    [t, task, currentAssigneeIds, updateTaskAssignee],
   );
 
   const shortcutOptions = useMemo(() => {
-    const unassignedOption = { onSelect: () => handleAssigneeChange("") };
+    const unassignedOption = { onSelect: () => handleToggleAssignee("") };
     const userOptions = (usersOptions || []).slice(0, 8).map((user) => ({
-      onSelect: () => handleAssigneeChange(user.value),
+      onSelect: () => handleToggleAssignee(user.value),
     }));
     return [unassignedOption, ...userOptions];
-  }, [usersOptions, handleAssigneeChange]);
+  }, [usersOptions, handleToggleAssignee]);
 
   const visibleUsersOptions = useMemo(() => {
     return usersOptions?.slice(0, visibleUsersCount) ?? [];
@@ -120,7 +139,7 @@ export default function TaskAssigneePopover({
             variant="ghost"
             size="sm"
             className="w-full justify-start gap-2 h-8 px-2"
-            onClick={() => handleAssigneeChange("")}
+            onClick={() => handleToggleAssignee("")}
           >
             <div
               className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
@@ -133,34 +152,37 @@ export default function TaskAssigneePopover({
             <span className="text-sm">
               {t("tasks:popover.assignee.unassigned")}
             </span>
-            {!task.userId ? (
+            {currentAssigneeIds.length === 0 ? (
               <Check className="ml-auto h-4 w-4" />
             ) : (
               <ShortcutNumber number={1} />
             )}
           </Button>
-          {visibleUsersOptions.map((user, index) => (
-            <Button
-              key={user.value}
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start gap-2 h-8 px-2"
-              onClick={() => handleAssigneeChange(user.value)}
-            >
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
-                <AvatarFallback className="text-xs font-medium border border-border/30">
-                  {getInitials(user.name)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm truncate">{user.label}</span>
-              {task.userId === user.value ? (
-                <Check className="ml-auto h-4 w-4 shrink-0" />
-              ) : index < 8 ? (
-                <ShortcutNumber number={index + 2} />
-              ) : null}
-            </Button>
-          ))}
+          {visibleUsersOptions.map((user, index) => {
+            const isSelected = currentAssigneeIds.includes(user.value);
+            return (
+              <Button
+                key={user.value}
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start gap-2 h-8 px-2"
+                onClick={() => handleToggleAssignee(user.value)}
+              >
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
+                  <AvatarFallback className="text-xs font-medium border border-border/30">
+                    {getInitials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm truncate">{user.label}</span>
+                {isSelected ? (
+                  <Check className="ml-auto h-4 w-4 shrink-0 text-primary" />
+                ) : index < 8 ? (
+                  <ShortcutNumber number={index + 2} />
+                ) : null}
+              </Button>
+            );
+          })}
         </div>
       </PopoverContent>
     </Popover>

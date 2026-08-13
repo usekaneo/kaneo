@@ -234,11 +234,30 @@ export default function TaskPropertiesSidebar({
                     size="sm"
                     className="justify-start h-7 px-1.5 gap-1.5"
                   >
-                    {task.userId ? (
+                    {task.assignees && task.assignees.length > 0 ? (
+                      <div className="flex items-center -space-x-1">
+                        {task.assignees.slice(0, 3).map((a) => (
+                          <Avatar
+                            key={a.id}
+                            className="h-[16px] w-[16px] ring-1 ring-background"
+                          >
+                            <AvatarImage
+                              src={a.image ?? ""}
+                              alt={a.name || ""}
+                            />
+                            <AvatarFallback className="text-[8px] font-medium border border-border/30">
+                              {getInitials(a.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                        ))}
+                      </div>
+                    ) : task.userId ? (
                       <Avatar className="h-[16px] w-[16px]">
                         <AvatarImage
-                          src={assignee?.user?.image ?? ""}
-                          alt={assignee?.user?.name || ""}
+                          src={
+                            assignee?.user?.image ?? task.assigneeImage ?? ""
+                          }
+                          alt={assignee?.user?.name || task.assigneeName || ""}
                         />
                         <AvatarFallback className="text-[9px] font-medium border border-border/30 flex-shrink-0 h-[16px] w-[16px]">
                           {getInitials(
@@ -254,10 +273,15 @@ export default function TaskPropertiesSidebar({
                         <span className="text-[8px] font-medium">?</span>
                       </div>
                     )}
-                    <span className="text-xs font-semibold truncate max-w-[100px]">
-                      {assignee?.user?.name ||
-                        task.assigneeName ||
-                        t("tasks:popover.assignee.unassigned")}
+                    <span className="text-xs font-semibold truncate max-w-[120px]">
+                      {task.assignees && task.assignees.length > 0
+                        ? task.assignees
+                            .map((a) => a.name)
+                            .filter(Boolean)
+                            .join(", ")
+                        : assignee?.user?.name ||
+                          task.assigneeName ||
+                          t("tasks:popover.assignee.unassigned")}
                     </span>
                   </Button>
                 </TaskAssigneePopover>

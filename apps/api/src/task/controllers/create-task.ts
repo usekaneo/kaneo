@@ -1,7 +1,12 @@
 import { and, eq, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable, userTable } from "../../database/schema";
+import {
+  columnTable,
+  taskAssigneeTable,
+  taskTable,
+  userTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import { assertValidTaskStatus } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
@@ -10,6 +15,7 @@ async function createTask({
   projectId,
   currentUserId,
   userId,
+  assigneeIds,
   title,
   status,
   startDate,
@@ -20,6 +26,7 @@ async function createTask({
   projectId: string;
   currentUserId: string;
   userId?: string;
+  assigneeIds?: string[];
   title: string;
   status: string;
   startDate?: Date;
@@ -30,20 +37,17 @@ async function createTask({
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
 
-  const normalizedUserId = userId?.trim() || undefined;
+  let targetAssigneeIds: string[] = [];
+  if (assigneeIds && assigneeIds.length > 0) {
+    targetAssigneeIds = Array.from(new Set(assigneeIds.filter(Boolean)));
+  } else if (userId?.trim()) {
+    targetAssigneeIds = [userId.trim()];
+  }
+
+  const primaryUserId =
+    targetAssigneeIds.length > 0 ? targetAssigneeIds[0] : null;
 
   await assertValidTaskStatus(resolvedStatus, projectId);
-
-  const [assignee] = await db
-    .select({ name: userTable.name })
-    .from(userTable)
-    .where(eq(userTable.id, normalizedUserId ?? ""));
-
-  if (normalizedUserId && !assignee) {
-    throw new HTTPException(404, {
-      message: "Assignee not found",
-    });
-  }
 
   const column = await db.query.columnTable.findFirst({
     where: and(
@@ -73,7 +77,7 @@ async function createTask({
       .insert(taskTable)
       .values({
         projectId,
-        userId: normalizedUserId ?? null,
+        userId: primaryUserId,
         title: title || "",
         status: resolvedStatus,
         columnId: column?.id ?? null,
@@ -86,6 +90,15 @@ async function createTask({
       })
       .returning();
 
+    if (task && targetAssigneeIds.length > 0) {
+      await tx.insert(taskAssigneeTable).values(
+        targetAssigneeIds.map((uId) => ({
+          taskId: task.id,
+          userId: uId,
+        })),
+      );
+    }
+
     return task;
   });
 
@@ -94,6 +107,16 @@ async function createTask({
       message: "Failed to create task",
     });
   }
+
+  const assigneesData = await db
+    .select({
+      id: userTable.id,
+      name: userTable.name,
+      image: userTable.image,
+    })
+    .from(taskAssigneeTable)
+    .innerJoin(userTable, eq(taskAssigneeTable.userId, userTable.id))
+    .where(eq(taskAssigneeTable.taskId, createdTask.id));
 
   await publishEvent("task.created", {
     ...createdTask,
@@ -106,7 +129,9 @@ async function createTask({
 
   return {
     ...createdTask,
-    assigneeName: assignee?.name,
+    assignees: assigneesData,
+    assigneeIds: targetAssigneeIds,
+    assigneeName: assigneesData[0]?.name ?? null,
   };
 }
 

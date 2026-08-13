@@ -5,6 +5,7 @@ import {
   columnTable,
   labelTable,
   projectTable,
+  taskAssigneeTable,
   taskTable,
   userTable,
   workspaceUserTable,
@@ -174,12 +175,27 @@ async function bulkUpdateTasks({
           )[0]?.name
         : undefined;
 
-      const result = await db
-        .update(taskTable)
-        .set({ userId: value || null })
-        .where(inArray(taskTable.id, foundIds));
+      await db.transaction(async (tx) => {
+        await tx
+          .update(taskTable)
+          .set({ userId: value || null })
+          .where(inArray(taskTable.id, foundIds));
 
-      updatedCount = result.rowCount ?? foundIds.length;
+        await tx
+          .delete(taskAssigneeTable)
+          .where(inArray(taskAssigneeTable.taskId, foundIds));
+
+        if (value) {
+          await tx.insert(taskAssigneeTable).values(
+            foundIds.map((tId) => ({
+              taskId: tId,
+              userId: value,
+            })),
+          );
+        }
+      });
+
+      updatedCount = foundIds.length;
 
       for (const task of tasks) {
         const eventType = value ? "task.assignee_changed" : "task.unassigned";
