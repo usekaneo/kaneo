@@ -334,6 +334,29 @@
 				"nameRequired": "Name is required",
 				"nameShort": "Name must be at least 2 characters",
 				"invalidEmail": "Invalid email address"
+			},
+			"avatar": {
+				"hint": "Click your picture to change or remove it. Cropped to a square and resized to 256x256.",
+				"remove": "Remove avatar",
+				"updateSuccess": "Profile picture updated",
+				"updateError": "Failed to update profile picture",
+				"removeSuccess": "Profile picture removed",
+				"removeError": "Failed to remove profile picture",
+				"edit": "Change your profile picture",
+				"change": "Change avatar"
+			},
+			"deleteAccount": {
+				"sectionTitle": "Danger zone",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"title": "Delete account",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"modalDescription": "This permanently deletes your account and cannot be undone.",
+				"confirmLabel": "Type {{email}} to confirm",
+				"confirm": "Delete account",
+				"success": "Your account has been deleted",
+				"error": "Failed to delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
