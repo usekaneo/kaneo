@@ -99,11 +99,9 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
       description: formatTaskDescriptionFromIssue(issue.body),
       status: targetStatus,
       columnId: targetColumn?.id ?? null,
-      priority: null,
+      priority: priority ?? "low",
       number: nextTaskNumber,
     };
-
-    if (priority) taskValues.priority = priority;
 
     const [createdTask] = await db
       .insert(taskTable)
