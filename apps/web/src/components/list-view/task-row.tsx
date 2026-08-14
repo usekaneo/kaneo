@@ -402,15 +402,19 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose>
-              <Button variant="outline" size="sm">
-                {t("common:actions.cancel")}
-              </Button>
+            <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+              {t("common:actions.cancel")}
             </AlertDialogClose>
-            <AlertDialogClose onClick={handleDeleteTask}>
-              <Button variant="destructive" size="sm">
-                {t("tasks:delete.action")}
-              </Button>
+            <AlertDialogClose
+              render={
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDeleteTask}
+                />
+              }
+            >
+              {t("tasks:delete.action")}
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>

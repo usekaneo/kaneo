@@ -334,6 +334,29 @@
 				"nameRequired": "이름은 필수입니다",
 				"nameShort": "이름은 2자 이상이어야 합니다",
 				"invalidEmail": "잘못된 이메일 주소입니다"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -792,7 +815,9 @@
 				"commentOnDisabled": "새 이슈의 작업 링크 댓글이 꺼져 있습니다",
 				"settingsUpdateError": "Gitea 연동 업데이트에 실패했습니다",
 				"secretCopied": "복사됨",
-				"unableToCopySecret": "시크릿을 복사할 수 없습니다"
+				"unableToCopySecret": "시크릿을 복사할 수 없습니다",
+				"notGiteaInstance": "URL이 Gitea 인스턴스를 가리키지 않습니다",
+				"redirected": "Gitea URL이 리디렉션되었습니다(보통 HTTPS로). 최종 URL을 직접 사용하세요."
 			},
 			"webhookShow": "표시",
 			"webhookHide": "숨기기",

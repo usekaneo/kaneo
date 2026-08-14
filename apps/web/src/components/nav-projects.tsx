@@ -396,31 +396,33 @@ export function NavProjects() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose>
-              <Button variant="outline" size="sm">
-                {t("common:actions.cancel")}
-              </Button>
+            <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+              {t("common:actions.cancel")}
             </AlertDialogClose>
             <AlertDialogClose
-              onClick={async () => {
-                await deleteProject({
-                  id: projectToDeleteId || "",
-                });
-                toast.success(t("navigation:projectList.deletedToast"));
-                queryClient.invalidateQueries({
-                  queryKey: ["projects"],
-                });
-                navigate({
-                  to: "/dashboard/workspace/$workspaceId",
-                  params: {
-                    workspaceId: workspace?.id || "",
-                  },
-                });
-              }}
+              render={
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={async () => {
+                    await deleteProject({
+                      id: projectToDeleteId || "",
+                    });
+                    toast.success(t("navigation:projectList.deletedToast"));
+                    queryClient.invalidateQueries({
+                      queryKey: ["projects"],
+                    });
+                    navigate({
+                      to: "/dashboard/workspace/$workspaceId",
+                      params: {
+                        workspaceId: workspace?.id || "",
+                      },
+                    });
+                  }}
+                />
+              }
             >
-              <Button variant="destructive" size="sm">
-                {t("navigation:projectList.deleteProject")}
-              </Button>
+              {t("navigation:projectList.deleteProject")}
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
