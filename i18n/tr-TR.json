@@ -1588,7 +1588,8 @@
 					"loading": "Dosya yükleniyor...",
 					"failed": "Dosya yüklenemedi",
 					"imageSuccess": "Görsel yüklendi",
-					"fileSuccess": "Dosya eklendi"
+					"fileSuccess": "Dosya eklendi",
+					"taskChanged": "Yükleme bitmeden görev değişti; dosya eklenmedi"
 				},
 				"slash": {
 					"groups": {

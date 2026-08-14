@@ -1588,7 +1588,8 @@
 					"loading": "Mengunggah file...",
 					"failed": "Gagal mengunggah file",
 					"imageSuccess": "Gambar diunggah",
-					"fileSuccess": "File dilampirkan"
+					"fileSuccess": "File dilampirkan",
+					"taskChanged": "Tugas berubah sebelum unggahan selesai; file tidak ditambahkan"
 				},
 				"slash": {
 					"groups": {

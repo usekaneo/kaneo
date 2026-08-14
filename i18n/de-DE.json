@@ -1588,7 +1588,8 @@
 					"loading": "Datei wird hochgeladen...",
 					"failed": "Datei konnte nicht hochgeladen werden",
 					"imageSuccess": "Bild hochgeladen",
-					"fileSuccess": "Datei angehängt"
+					"fileSuccess": "Datei angehängt",
+					"taskChanged": "Aufgabe geändert, bevor der Upload abgeschlossen wurde; Datei nicht hinzugefügt"
 				},
 				"slash": {
 					"groups": {

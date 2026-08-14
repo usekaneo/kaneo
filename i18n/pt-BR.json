@@ -1588,7 +1588,8 @@
 					"loading": "Enviando arquivo...",
 					"failed": "Falha ao enviar arquivo",
 					"imageSuccess": "Imagem enviada",
-					"fileSuccess": "Arquivo anexado"
+					"fileSuccess": "Arquivo anexado",
+					"taskChanged": "A tarefa mudou antes do upload terminar; arquivo não adicionado"
 				},
 				"slash": {
 					"groups": {

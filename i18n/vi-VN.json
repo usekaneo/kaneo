@@ -1588,7 +1588,8 @@
 					"loading": "Đang tải file lên...",
 					"failed": "Không thể tải file lên",
 					"imageSuccess": "Đã tải ảnh lên",
-					"fileSuccess": "Đã đính kèm file"
+					"fileSuccess": "Đã đính kèm file",
+					"taskChanged": "Nhiệm vụ đã thay đổi trước khi tải lên hoàn tất; tệp không được thêm"
 				},
 				"slash": {
 					"groups": {

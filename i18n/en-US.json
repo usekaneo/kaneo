@@ -1588,7 +1588,8 @@
 					"loading": "Uploading file...",
 					"failed": "Failed to upload file",
 					"imageSuccess": "Image uploaded",
-					"fileSuccess": "File attached"
+					"fileSuccess": "File attached",
+					"taskChanged": "Task changed before the upload finished; file not added"
 				},
 				"slash": {
 					"groups": {

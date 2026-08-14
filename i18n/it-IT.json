@@ -1588,7 +1588,8 @@
 					"loading": "Caricamento file in corso...",
 					"failed": "Caricamento file fallito",
 					"imageSuccess": "Immagine caricata",
-					"fileSuccess": "File allegato"
+					"fileSuccess": "File allegato",
+					"taskChanged": "L'attività è cambiata prima del termine del caricamento; file non aggiunto"
 				},
 				"slash": {
 					"groups": {

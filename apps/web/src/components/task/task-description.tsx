@@ -454,6 +454,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
         if (activeEditor.isDestroyed || taskIdRef.current !== uploadTaskId) {
           toast.dismiss(loadingToast);
+          toast.error(t("tasks:detail.editor.upload.taskChanged"));
           return;
         }
 
@@ -1442,6 +1443,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           const pendingInsert = pendingImageInsertRef.current;
           pendingImageInsertRef.current = null;
           if (!pendingInsert || pendingInsert.taskId !== taskIdRef.current) {
+            toast.error(t("tasks:detail.editor.upload.taskChanged"));
             return;
           }
 

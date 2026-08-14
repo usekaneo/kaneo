@@ -1588,7 +1588,8 @@
 					"loading": "Bestand uploaden...",
 					"failed": "Uploaden bestand mislukt",
 					"imageSuccess": "Afbeelding geüpload",
-					"fileSuccess": "Bestand bijgevoegd"
+					"fileSuccess": "Bestand bijgevoegd",
+					"taskChanged": "Taak gewijzigd voordat de upload was voltooid; bestand niet toegevoegd"
 				},
 				"slash": {
 					"groups": {

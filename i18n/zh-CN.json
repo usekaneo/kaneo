@@ -1588,7 +1588,8 @@
 					"loading": "正在上传文件…",
 					"failed": "上传文件失败",
 					"imageSuccess": "图片已上传",
-					"fileSuccess": "文件已附加"
+					"fileSuccess": "文件已附加",
+					"taskChanged": "上传完成前任务已更改；文件未添加"
 				},
 				"slash": {
 					"groups": {

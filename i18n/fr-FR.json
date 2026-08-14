@@ -1588,7 +1588,8 @@
 					"loading": "Téléversement du fichier...",
 					"failed": "Échec du téléversement du fichier",
 					"imageSuccess": "Image téléversée",
-					"fileSuccess": "Fichier joint"
+					"fileSuccess": "Fichier joint",
+					"taskChanged": "La tâche a changé avant la fin du téléversement ; le fichier n'a pas été ajouté"
 				},
 				"slash": {
 					"groups": {

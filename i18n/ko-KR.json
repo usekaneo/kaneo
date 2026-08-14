@@ -1588,7 +1588,8 @@
 					"loading": "파일 업로드 중...",
 					"failed": "파일 업로드에 실패했습니다",
 					"imageSuccess": "이미지가 업로드되었습니다",
-					"fileSuccess": "파일이 첨부되었습니다"
+					"fileSuccess": "파일이 첨부되었습니다",
+					"taskChanged": "업로드가 완료되기 전에 작업이 변경되었습니다. 파일이 추가되지 않았습니다"
 				},
 				"slash": {
 					"groups": {

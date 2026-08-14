@@ -1588,7 +1588,8 @@
 					"loading": "Subiendo fichero...",
 					"failed": "Error al subir fichero",
 					"imageSuccess": "Imagen subida",
-					"fileSuccess": "Fichero adjunto"
+					"fileSuccess": "Fichero adjunto",
+					"taskChanged": "La tarea cambió antes de que terminara la carga; el archivo no se agregó"
 				},
 				"slash": {
 					"groups": {
