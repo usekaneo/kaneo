@@ -334,6 +334,29 @@
 				"nameRequired": "Ad gereklidir",
 				"nameShort": "Ad en az 2 karakter olmalıdır",
 				"invalidEmail": "Geçersiz e-posta adresi"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -782,7 +805,9 @@
 				"commentOnDisabled": "Yeni sorunlardaki talep bağlantısı yorumları kapatıldı",
 				"settingsUpdateError": "Gitea entegrasyonu güncellenemedi",
 				"secretCopied": "Kopyalandı",
-				"unableToCopySecret": "Gizli anahtar kopyalanamıyor"
+				"unableToCopySecret": "Gizli anahtar kopyalanamıyor",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Göster",
 			"webhookHide": "Gizle",
@@ -1484,6 +1509,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Düz Metin",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1526,9 @@
 					"addRowAfter": "Alta satır ekle",
 					"deleteRow": "Satırı sil",
 					"deleteTable": "Tabloyu sil"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diyagramı oluşturulamadı"
 				}
 			}
 		}
@@ -1601,6 +1630,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1662,9 @@
 						"onlyYoutube": "Yalnızca YouTube bağlantıları gömülebilir."
 					},
 					"onlyYoutubeInline": "Yalnızca YouTube URL'leri gömülebilir. Bağlantı modunu kullanın."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diyagramı oluşturulamadı"
 				}
 			}
 		},
@@ -1956,7 +1989,9 @@
 				"complete": "Tamamlandı",
 				"inProgress": "Devam ediyor"
 			},
-			"noDueDate": "Bitiş tarihi yok"
+			"noDueDate": "Bitiş tarihi yok",
+			"reorderHandle": "Projeyi yeniden sırala",
+			"reorderError": "Projeler yeniden sıralanamadı"
 		},
 		"search": {
 			"pageTitle": "Ara",

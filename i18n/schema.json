@@ -5795,6 +5795,9 @@
 										"markdown": {
 											"type": "string"
 										},
+										"mermaid": {
+											"type": "string"
+										},
 										"plaintext": {
 											"type": "string"
 										},
@@ -5829,6 +5832,7 @@
 										"java",
 										"javascript",
 										"markdown",
+										"mermaid",
 										"plaintext",
 										"python",
 										"rust",
@@ -5873,6 +5877,16 @@
 										"deleteRow",
 										"deleteTable"
 									]
+								},
+								"mermaid": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"renderFailed": {
+											"type": "string"
+										}
+									},
+									"required": ["renderFailed"]
 								}
 							},
 							"required": [
@@ -5924,7 +5938,8 @@
 								"dropImageToUpload",
 								"previewImageAlt",
 								"codeLang",
-								"table"
+								"table",
+								"mermaid"
 							]
 						}
 					},
@@ -6303,6 +6318,9 @@
 										"markdown": {
 											"type": "string"
 										},
+										"mermaid": {
+											"type": "string"
+										},
 										"ocaml": {
 											"type": "string"
 										},
@@ -6373,6 +6391,7 @@
 										"kotlin",
 										"makefile",
 										"markdown",
+										"mermaid",
 										"ocaml",
 										"php",
 										"perl",
@@ -6446,6 +6465,16 @@
 										"errors",
 										"onlyYoutubeInline"
 									]
+								},
+								"mermaid": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"renderFailed": {
+											"type": "string"
+										}
+									},
+									"required": ["renderFailed"]
 								}
 							},
 							"required": [
@@ -6463,7 +6492,8 @@
 								"upload",
 								"slash",
 								"languages",
-								"embed"
+								"embed",
+								"mermaid"
 							]
 						}
 					},
@@ -7732,6 +7762,12 @@
 						},
 						"noDueDate": {
 							"type": "string"
+						},
+						"reorderHandle": {
+							"type": "string"
+						},
+						"reorderError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -7746,7 +7782,9 @@
 						"emptyDescription",
 						"emptyDescriptionReadOnly",
 						"projectStatus",
-						"noDueDate"
+						"noDueDate",
+						"reorderHandle",
+						"reorderError"
 					]
 				},
 				"search": {

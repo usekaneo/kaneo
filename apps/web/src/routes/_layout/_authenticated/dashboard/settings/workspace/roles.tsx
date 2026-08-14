@@ -602,7 +602,7 @@ function DraftEditor({
   return (
     <div>
       <div className="border-t border-border">
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
+        <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="space-y-0.5">
             <Label className="text-sm font-medium">
               {t("settings:workspaceRoles.nameLabel")}
@@ -615,7 +615,7 @@ function DraftEditor({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t("settings:workspaceRoles.namePlaceholder")}
-            className="w-64"
+            className="w-full sm:w-64"
             autoFocus
             disabled={isPending}
           />
@@ -790,15 +790,17 @@ function DeleteRoleConfirm({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogClose disabled={isPending}>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={isPending}
-            onClick={onCancel}
-          >
-            {t("common:actions.cancel")}
-          </Button>
+        <AlertDialogClose
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={onCancel}
+            />
+          }
+        >
+          {t("common:actions.cancel")}
         </AlertDialogClose>
         <Button
           variant="destructive"

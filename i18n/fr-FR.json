@@ -334,6 +334,29 @@
 				"nameRequired": "Le nom est requis",
 				"nameShort": "Le nom doit contenir au moins 2 caractères",
 				"invalidEmail": "Adresse email invalide"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -782,7 +805,9 @@
 				"commentOnDisabled": "Les commentaires de lien de tâche sur les nouvelles issues sont désactivés",
 				"settingsUpdateError": "Échec de la mise à jour de l'intégration Gitea",
 				"secretCopied": "Copied",
-				"unableToCopySecret": "Impossible de copier le secret"
+				"unableToCopySecret": "Impossible de copier le secret",
+				"notGiteaInstance": "L'URL ne pointe pas vers une instance Gitea",
+				"redirected": "L'URL Gitea a été redirigée (généralement vers HTTPS). Utilisez directement l'URL finale."
 			},
 			"webhookShow": "Show",
 			"webhookHide": "Hide",
@@ -1484,6 +1509,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Plaintext",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1526,9 @@
 					"addRowAfter": "Insérer une ligne en dessous",
 					"deleteRow": "Supprimer la ligne",
 					"deleteTable": "Supprimer le tableau"
+				},
+				"mermaid": {
+					"renderFailed": "Impossible d'afficher le diagramme Mermaid"
 				}
 			}
 		}
@@ -1601,6 +1630,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1662,9 @@
 						"onlyYoutube": "Seuls les liens YouTube peuvent être intégrés."
 					},
 					"onlyYoutubeInline": "Seuls les liens YouTube peuvent être intégrés. Utilisez le mode lien à la place."
+				},
+				"mermaid": {
+					"renderFailed": "Impossible d'afficher le diagramme Mermaid"
 				}
 			}
 		},
@@ -1956,7 +1989,9 @@
 				"complete": "Terminé",
 				"inProgress": "En cours"
 			},
-			"noDueDate": "Pas de date d'échéance"
+			"noDueDate": "Pas de date d'échéance",
+			"reorderHandle": "Réorganiser le projet",
+			"reorderError": "Échec de la réorganisation des projets"
 		},
 		"search": {
 			"pageTitle": "Rechercher",

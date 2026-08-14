@@ -24,6 +24,7 @@ const SHIKI_LANGUAGES = [
   "kotlin",
   "makefile",
   "markdown",
+  "mermaid",
   "ocaml",
   "php",
   "perl",

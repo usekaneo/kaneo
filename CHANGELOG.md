@@ -1,3 +1,136 @@
+# [2.18.0](https://github.com/usekaneo/kaneo/compare/v2.17.6...v2.18.0) (2026-08-12)
+
+
+### Bug Fixes
+
+* **web:** restore the backdrop behind settings modals ([71e429e](https://github.com/usekaneo/kaneo/commit/71e429e3482e4473508f170018057313b2d658a5))
+
+
+### Features
+
+* **account:** change avatar and delete account ([384eb00](https://github.com/usekaneo/kaneo/commit/384eb005c71fe6e9b99875556b370b033cd4d151))
+## [2.17.6](https://github.com/usekaneo/kaneo/compare/v2.17.5...v2.17.6) (2026-08-11)
+
+
+### Bug Fixes
+
+* **planka-import:** explain unmatched assignees, keep dependencies, attribute comments ([15f6868](https://github.com/usekaneo/kaneo/commit/15f68683620b5fcfbed7970b77210b7cc706f74b))
+## [2.17.5](https://github.com/usekaneo/kaneo/compare/v2.17.4...v2.17.5) (2026-08-11)
+
+
+### Bug Fixes
+
+* **billing:** send one trial reminder per owner, not per workspace ([ae2e579](https://github.com/usekaneo/kaneo/commit/ae2e57919d4703b4fcb2e4452b2c7b171abedd97))
+## [2.17.4](https://github.com/usekaneo/kaneo/compare/v2.17.3...v2.17.4) (2026-08-11)
+
+
+### Bug Fixes
+
+* **billing:** throttle trial reminders so they cannot exhaust the quota ([c4150a8](https://github.com/usekaneo/kaneo/commit/c4150a89f826ce5a4f7bbf24346c313b7fd2c5d4))
+## [2.17.3](https://github.com/usekaneo/kaneo/compare/v2.17.2...v2.17.3) (2026-08-11)
+
+
+### Bug Fixes
+
+* **planka-import:** default to the real Kaneo Cloud host ([3863eb6](https://github.com/usekaneo/kaneo/commit/3863eb6ba1d5a6ec9833e4b4a383cffc3fa10fff))
+
+
+### Features
+
+* **billing:** email trial reminders before and after expiry ([0e481a9](https://github.com/usekaneo/kaneo/commit/0e481a9c8223f36b03a35ad0cbb7456af99466d9))
+## [2.17.2](https://github.com/usekaneo/kaneo/compare/v2.17.1...v2.17.2) (2026-08-11)
+
+
+### Bug Fixes
+
+* **auth:** resolve the client IP behind multiple proxy hops ([9e8a448](https://github.com/usekaneo/kaneo/commit/9e8a44835768a70d6d2f68dc3e1add53e90bbc10))
+* **billing:** grant the trial once per owner, not per workspace ([14adb9d](https://github.com/usekaneo/kaneo/commit/14adb9dfd8af0d0dbe5951d0994d1bcf0fcdf8b1))
+* use internal URL for MCP tool requests ([#1556](https://github.com/usekaneo/kaneo/issues/1556)) ([7d9d9d2](https://github.com/usekaneo/kaneo/commit/7d9d9d212d13e98e9aa3d84c0179f4a49384b9fc))
+
+
+### Features
+
+* **planka-import:** add PLANKA to Kaneo migration CLI ([5c91feb](https://github.com/usekaneo/kaneo/commit/5c91febedf4e2cbb356c451676d4df3ae2acc6fa))
+* **planka-import:** authenticate with a PLANKA API key ([ff5e3fc](https://github.com/usekaneo/kaneo/commit/ff5e3fc6b91ae351c6002fb358d75265a0435dbd))
+* **site:** add PLANKA comparison page ([579a975](https://github.com/usekaneo/kaneo/commit/579a9752f7775e9239680053a6ed68d437d90e36))
+## [2.17.1](https://github.com/usekaneo/kaneo/compare/v2.17.0...v2.17.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* **github:** match a branch whose title segment is empty ([#1522](https://github.com/usekaneo/kaneo/issues/1522)) ([829f5ad](https://github.com/usekaneo/kaneo/commit/829f5addf2759bd0bfc10e0c231a8a0762f85262))
+* preserve time entry end time ([#1554](https://github.com/usekaneo/kaneo/issues/1554)) ([5e02130](https://github.com/usekaneo/kaneo/commit/5e0213009a6a35659a69543e6708b56c4d5593be))
+* **security:** block the shared address space in webhook destinations ([#1523](https://github.com/usekaneo/kaneo/issues/1523)) ([028c905](https://github.com/usekaneo/kaneo/commit/028c905fd505c7f2bc787c529d156088dd118d8b))
+* **time-entry:** reject a start time later than the end time ([99e41ad](https://github.com/usekaneo/kaneo/commit/99e41ad8efcd12b06f17dab8096ef39902596130)), closes [#1554](https://github.com/usekaneo/kaneo/issues/1554)
+# [2.17.0](https://github.com/usekaneo/kaneo/compare/v2.16.4...v2.17.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **mcp:** guard media type and share the tool registrar ([1167ec6](https://github.com/usekaneo/kaneo/commit/1167ec6a980385a6658230831ba80254429b3db3))
+* **web:** omit unassigned userId when creating tasks ([#1552](https://github.com/usekaneo/kaneo/issues/1552)) ([b69fae3](https://github.com/usekaneo/kaneo/commit/b69fae35a3a3b25241d6b3e348bb594bc442a26a))
+
+
+### Features
+
+* **mcp:** expose members, search, columns, time and activity tools ([37b2fc3](https://github.com/usekaneo/kaneo/commit/37b2fc3138c3c1cac682590530342c5d852a7020))
+* **mcp:** support stateless 2026 protocol ([#1540](https://github.com/usekaneo/kaneo/issues/1540)) ([7fe3610](https://github.com/usekaneo/kaneo/commit/7fe3610d6b949e3a8acc4158ba6e4185335efcb8))
+## [2.16.4](https://github.com/usekaneo/kaneo/compare/v2.16.3...v2.16.4) (2026-08-10)
+
+
+### Bug Fixes
+
+* **auth:** let invited users sign up with OAuth in invite-only mode ([737ec6e](https://github.com/usekaneo/kaneo/commit/737ec6e79f85e6906b0748501c27e1b1aa4ab914)), closes [#1551](https://github.com/usekaneo/kaneo/issues/1551)
+## [2.16.3](https://github.com/usekaneo/kaneo/compare/v2.16.2...v2.16.3) (2026-08-10)
+
+
+### Bug Fixes
+
+* **task:** treat blank assignee id as unassigned on task creation ([f5b3717](https://github.com/usekaneo/kaneo/commit/f5b3717fc0213542834a3d9c8169f2689f5c0580)), closes [#1543](https://github.com/usekaneo/kaneo/issues/1543)
+## [2.16.2](https://github.com/usekaneo/kaneo/compare/v2.16.1...v2.16.2) (2026-08-10)
+
+
+### Bug Fixes
+
+* **ci:** failure in ci after fix ([4a24d74](https://github.com/usekaneo/kaneo/commit/4a24d74b261222c008576c2e3044b24ea551fc4c))
+* **gitea-integration:** handle invalid JSON from non-Gitea URLs ([097aedd](https://github.com/usekaneo/kaneo/commit/097aeddbdc80e812d14f5c7241c6575b6fbcf0a6))
+* **gitea-integration:** structured failure response and test coverage ([49eac38](https://github.com/usekaneo/kaneo/commit/49eac382cc8f8e1875ef46ea75cdce52651ee298))
+* **gitea:** classify /user 404 as not-a-gitea-instance ([364f5e3](https://github.com/usekaneo/kaneo/commit/364f5e373ea8947a7436e114be89875723b815c2))
+* **pr:** responding to AI pr reviews ([cb2f333](https://github.com/usekaneo/kaneo/commit/cb2f3337d513979ff845ee3b39d7c68dd412bda3))
+* **task:** validate assignee existence on task creation ([b0133ee](https://github.com/usekaneo/kaneo/commit/b0133ee01b03b838ffdc7a1765ceb1a80b438233))
+* **web:** avoid nested buttons in alert dialog footers ([16481e3](https://github.com/usekaneo/kaneo/commit/16481e3bb98fba4f6de15d26a8917bee02efa2f4))
+* **web:** handle unhandled promise rejection from authClient.getSession() ([494f1fb](https://github.com/usekaneo/kaneo/commit/494f1fbc90290636d77c6b1f3fae07b2112a255b))
+* **web:** preserve full location in auth redirect ([a277274](https://github.com/usekaneo/kaneo/commit/a2772742e0059a1c884661c651ba6a369af779ff))
+* **web:** prevent TypeError when relatedTarget is not an Element ([51131c1](https://github.com/usekaneo/kaneo/commit/51131c10ebe3ad19da5a24b4c3bce996ca139723))
+## [2.16.1](https://github.com/usekaneo/kaneo/compare/v2.16.0...v2.16.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* address placeholder cleanup reviews ([dee61c1](https://github.com/usekaneo/kaneo/commit/dee61c13c918deddb03545f3ef525573870ac9bf))
+* strip quoted runtime placeholders ([f983f34](https://github.com/usekaneo/kaneo/commit/f983f34e3ccb3bd0ccc85655b6cfaa2ae6463712))
+# [2.16.0](https://github.com/usekaneo/kaneo/compare/v2.15.0...v2.16.0) (2026-08-09)
+
+
+### Bug Fixes
+
+* polish mobile settings layout ([a79a83c](https://github.com/usekaneo/kaneo/commit/a79a83c32bf48f3a09176a55daba8eecc552a4a3))
+* **projects:** address reorder review findings ([de1518f](https://github.com/usekaneo/kaneo/commit/de1518f882aa4723390491aec9161440de9b0ed2))
+* **projects:** keep omitted projects at their existing rank on reorder ([c6b8768](https://github.com/usekaneo/kaneo/commit/c6b87687327238e8eae89684abbaa9ea9c994449))
+* **projects:** rework project drag-and-drop interaction ([c6046d8](https://github.com/usekaneo/kaneo/commit/c6046d8b5d78faf1f1cc1127b236c6bd65d64988)), closes [#1524](https://github.com/usekaneo/kaneo/issues/1524)
+* **projects:** show reorder handle on touch and cover archived ordering ([2b1f92f](https://github.com/usekaneo/kaneo/commit/2b1f92f2687969405fab9dc7d62cd107bf4ea291))
+* **web:** make settings rows responsive and align their typography ([1099a15](https://github.com/usekaneo/kaneo/commit/1099a1596c7dd35d90311b60c495ee0c02697e62))
+* **web:** stop the mermaid render cache evicting diagrams still on screen ([7e14a7d](https://github.com/usekaneo/kaneo/commit/7e14a7d27ee8b755d74e620b9480ea99c25fce9d))
+* **web:** use column isFinal for due-date badges on public views ([ca8c827](https://github.com/usekaneo/kaneo/commit/ca8c8274ec7612b171e2df2adad916ff291e45b2))
+
+
+### Features
+
+* **projects:** add drag-and-drop project reordering ([8b88c7d](https://github.com/usekaneo/kaneo/commit/8b88c7d7979b188d362021ae9a48a80b806d3f2b))
+* refactor settings layout to use Sheet component and improve mobile responsiveness ([bfe834a](https://github.com/usekaneo/kaneo/commit/bfe834ab17a0199a1bf17b1594b909eb35947eda))
+* **web:** add Mermaid diagram preview support ([f856419](https://github.com/usekaneo/kaneo/commit/f8564199c82e90b404387fdb5ee61f6c639b68fb))
+* **web:** improve Mermaid diagram rendering and error handling ([d19da38](https://github.com/usekaneo/kaneo/commit/d19da38dab1317d13ce0c31c3bbade168c8d14c4))
+* **web:** localize Mermaid rendering errors ([efe5353](https://github.com/usekaneo/kaneo/commit/efe53531ece596d396013efe8ef942d9453378e9))
 # [2.15.0](https://github.com/usekaneo/kaneo/compare/v2.14.0...v2.15.0) (2026-08-08)
 
 

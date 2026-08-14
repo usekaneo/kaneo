@@ -33,6 +33,9 @@ type PublicTaskDetailModalProps = {
       })
     | null;
   projectSlug: string;
+  // The modal is opened from any column, so it resolves completion by slug
+  // rather than being told; without these it falls back to the slug heuristic.
+  columns?: Array<{ slug: string; isFinal: boolean }>;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -40,10 +43,11 @@ type PublicTaskDetailModalProps = {
 export function PublicTaskDetailModal({
   task,
   projectSlug,
+  columns,
   open,
   onOpenChange,
 }: PublicTaskDetailModalProps) {
-  const taskIsCompleted = isTaskCompleted(task?.status ?? "");
+  const taskIsCompleted = isTaskCompleted(task?.status ?? "", columns);
   const { t } = useTranslation();
 
   const getPRStatus = useMemo(

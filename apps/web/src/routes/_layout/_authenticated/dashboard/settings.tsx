@@ -4,13 +4,16 @@ import {
   useLocation,
   useNavigate,
 } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, PanelLeftIcon } from "lucide-react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
+import { SettingsSidebarProvider } from "@/components/SettingsSidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings",
@@ -22,6 +25,8 @@ function SettingsLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   const { data: workspace } = useActiveWorkspace();
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id ?? "",
@@ -43,46 +48,92 @@ function SettingsLayout() {
 
   const activeTab = getActiveTab();
 
+  useEffect(() => {
+    if (location.pathname) {
+      setSettingsMenuOpen(false);
+    }
+  }, [location.pathname]);
+
+  useLayoutEffect(() => {
+    if (!isMobile) {
+      setSettingsMenuOpen(false);
+    }
+  }, [isMobile]);
+
   return (
     <>
       <PageTitle title={t("navigation:page.settingsTitle")} />
-      <div className="flex flex-col gap-4 p-4 bg-sidebar w-full h-full">
-        <div className="flex flex-col gap-4 bg-card h-full border border-border rounded-md p-4 relative overflow-hidden">
-          <div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                navigate({
-                  to: "/dashboard/workspace/$workspaceId",
-                  params: { workspaceId: workspace?.id ?? "" },
-                })
-              }
-            >
-              <ChevronLeft className=" border border-border rounded-md p-1 size-6" />
-              {t("navigation:page.backToWorkspace")}
-            </Button>
 
-            <h1 className="text-2xl font-semibold pl-2 mt-2">
+      <div className="flex h-full w-full flex-col bg-sidebar p-2 sm:p-4">
+        <div className="relative flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-md border border-border bg-card p-3 md:gap-4 sm:p-4">
+          <div className="shrink-0">
+            <div className="flex items-center">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="shrink-0 md:hidden"
+                aria-label="Open settings menu"
+                title="Open settings menu"
+                onClick={() => setSettingsMenuOpen(true)}
+              >
+                <PanelLeftIcon className="size-4" />
+              </Button>
+
+              <div className="flex items-center gap-1 md:hidden">
+                <ChevronLeft className="size-4 text-muted-foreground" />
+                <span className="text-lg font-semibold">
+                  {t("navigation:page.settingsTitle")}
+                </span>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={!workspace?.id}
+                className="hidden md:inline-flex"
+                onClick={() => {
+                  if (!workspace?.id) return;
+
+                  navigate({
+                    to: "/dashboard/workspace/$workspaceId",
+                    params: { workspaceId: workspace.id },
+                  });
+                }}
+              >
+                <ChevronLeft />
+
+                {t("navigation:page.backToWorkspace")}
+              </Button>
+            </div>
+
+            <h1 className="mt-4 hidden pl-1 text-2xl font-semibold md:block">
               {t("navigation:page.settingsTitle")}
             </h1>
 
-            <Tabs value={activeTab} className="w-[400px] pt-2">
+            <Tabs
+              value={activeTab}
+              className="w-full pt-4 md:w-[400px] md:pt-2"
+            >
               <TabsList className="bg-sidebar gap-2">
                 <TabsTrigger
-                  className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"
                   value="account"
+                  className="[&[data-state=active]]:rounded-md [&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:bg-card"
                   onClick={() =>
-                    navigate({ to: "/dashboard/settings/account/information" })
+                    navigate({
+                      to: "/dashboard/settings/account/information",
+                    })
                   }
                 >
                   {t("settings:account")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="workspace"
-                  className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"
+                  className="[&[data-state=active]]:rounded-md [&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:bg-card"
                   onClick={() =>
-                    navigate({ to: "/dashboard/settings/workspace/general" })
+                    navigate({
+                      to: "/dashboard/settings/workspace/general",
+                    })
                   }
                 >
                   {t("navigation:page.settingsWorkspaceTab")}
@@ -90,9 +141,11 @@ function SettingsLayout() {
                 <TabsTrigger
                   disabled={projects?.length === 0}
                   value="project"
-                  className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"
+                  className="[&[data-state=active]]:rounded-md [&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:bg-card"
                   onClick={() =>
-                    navigate({ to: "/dashboard/settings/projects" })
+                    navigate({
+                      to: "/dashboard/settings/projects",
+                    })
                   }
                 >
                   {t("navigation:sidebar.projects")}
@@ -101,8 +154,14 @@ function SettingsLayout() {
             </Tabs>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
-            <Outlet />
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <SettingsSidebarProvider
+              workspaceId={workspace?.id}
+              menuOpen={settingsMenuOpen}
+              setMenuOpen={setSettingsMenuOpen}
+            >
+              <Outlet />
+            </SettingsSidebarProvider>
           </div>
         </div>
       </div>

@@ -17,9 +17,9 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.6",
-    "@commitlint/cli": "^19.6.1",
-    "@commitlint/config-conventional": "^19.6.0",
+    "@biomejs/biome": "2.5.7",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "esbuild": "0.28.1",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.3",
@@ -31,7 +31,7 @@
     "node": ">=20.19.0"
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.15.0",
+  "version": "2.18.0",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

@@ -144,6 +144,7 @@ function RouteComponent() {
         <PublicTaskDetailModal
           task={selectedTask}
           projectSlug={project.slug}
+          columns={project.columns}
           open={isTaskModalOpen}
           onOpenChange={handleTaskModalClose}
         />

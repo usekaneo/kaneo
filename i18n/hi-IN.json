@@ -334,6 +334,29 @@
 				"nameRequired": "नाम आवश्यक है",
 				"nameShort": "नाम कम से कम 2 अक्षरों का होना चाहिए",
 				"invalidEmail": "अमान्य ईमेल पता"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -944,7 +967,9 @@
 				"commentOnDisabled": "नई issues पर कार्य लिंक टिप्पणियाँ बंद हैं",
 				"settingsUpdateError": "Gitea एकीकरण अपडेट करने में विफल",
 				"secretCopied": "कॉपी किया",
-				"unableToCopySecret": "सीक्रेट कॉपी करने में असमर्थ"
+				"unableToCopySecret": "सीक्रेट कॉपी करने में असमर्थ",
+				"notGiteaInstance": "यह URL किसी Gitea इंस्टेंस की ओर इंगित नहीं करता",
+				"redirected": "Gitea URL पुनः निर्देशित किया गया (आमतौर पर HTTPS पर). अंतिम URL सीधे उपयोग करें।"
 			},
 			"webhookShow": "दिखाएँ",
 			"webhookHide": "छिपाएँ",
@@ -1490,7 +1515,8 @@
 					"sql": "SQL",
 					"swift": "Swift",
 					"typescript": "TypeScript",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"table": {
 					"addColumnBefore": "बाईं ओर कॉलम जोड़ें",
@@ -1500,6 +1526,9 @@
 					"addRowAfter": "नीचे पंक्ति जोड़ें",
 					"deleteRow": "पंक्ति हटाएँ",
 					"deleteTable": "तालिका हटाएँ"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
 			}
 		}
@@ -1616,7 +1645,8 @@
 					"terraform": "Terraform",
 					"typescript": "TypeScript",
 					"xml": "XML",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"embed": {
 					"choice": {
@@ -1632,6 +1662,9 @@
 						"onlyYoutube": "केवल YouTube लिंक एम्बेड किए जा सकते हैं।"
 					},
 					"onlyYoutubeInline": "केवल YouTube URL एम्बेड किए जा सकते हैं। इसके बजाय लिंक मोड का उपयोग करें।"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
 			}
 		},
@@ -1956,7 +1989,9 @@
 				"complete": "पूर्ण",
 				"inProgress": "प्रगति में"
 			},
-			"noDueDate": "कोई नियत तारीख नहीं"
+			"noDueDate": "कोई नियत तारीख नहीं",
+			"reorderHandle": "प्रोजेक्ट का क्रम बदलें",
+			"reorderError": "प्रोजेक्ट का क्रम बदलने में विफल"
 		},
 		"search": {
 			"pageTitle": "खोजें",

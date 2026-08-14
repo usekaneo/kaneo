@@ -334,6 +334,29 @@
 				"nameRequired": "Cần có tên",
 				"nameShort": "Tên phải có ít nhất 2 ký tự",
 				"invalidEmail": "Địa chỉ email không hợp lệ"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -944,7 +967,9 @@
 				"commentOnDisabled": "Đã tắt bình luận liên kết công việc trên issue mới",
 				"settingsUpdateError": "Không thể cập nhật tích hợp Gitea",
 				"secretCopied": "Đã sao chép",
-				"unableToCopySecret": "Không thể sao chép khóa bí mật"
+				"unableToCopySecret": "Không thể sao chép khóa bí mật",
+				"notGiteaInstance": "The URL does not point to a Gitea instance",
+				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
 			},
 			"webhookShow": "Hiện",
 			"webhookHide": "Ẩn",
@@ -1490,7 +1515,8 @@
 					"sql": "SQL",
 					"swift": "Swift",
 					"typescript": "TypeScript",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"table": {
 					"addColumnBefore": "Chèn cột bên trái",
@@ -1500,6 +1526,9 @@
 					"addRowAfter": "Chèn hàng phía dưới",
 					"deleteRow": "Xóa hàng",
 					"deleteTable": "Xóa bảng"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		}
@@ -1616,7 +1645,8 @@
 					"terraform": "Terraform",
 					"typescript": "TypeScript",
 					"xml": "XML",
-					"yaml": "YAML"
+					"yaml": "YAML",
+					"mermaid": "Mermaid"
 				},
 				"embed": {
 					"choice": {
@@ -1632,6 +1662,9 @@
 						"onlyYoutube": "Chỉ có thể nhúng liên kết YouTube."
 					},
 					"onlyYoutubeInline": "Chỉ có thể nhúng URL YouTube. Hãy dùng chế độ liên kết thay thế."
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
 		},
@@ -1956,7 +1989,9 @@
 				"complete": "Hoàn thành",
 				"inProgress": "Đang thực hiện"
 			},
-			"noDueDate": "Không có ngày đến hạn"
+			"noDueDate": "Không có ngày đến hạn",
+			"reorderHandle": "Sắp xếp lại dự án",
+			"reorderError": "Không thể sắp xếp lại dự án"
 		},
 		"search": {
 			"pageTitle": "Tìm kiếm",

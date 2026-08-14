@@ -19,6 +19,7 @@ type RegistrationCheckResult = {
 export async function checkRegistrationAllowed(
   email?: string,
   invitationId?: string,
+  options?: { allowInvitationByEmail?: boolean },
 ): Promise<RegistrationCheckResult> {
   const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 
@@ -29,7 +30,9 @@ export async function checkRegistrationAllowed(
     };
   }
 
-  if (!invitationId) {
+  const canMatchByEmail = Boolean(options?.allowInvitationByEmail && email);
+
+  if (!invitationId && !canMatchByEmail) {
     return {
       allowed: false,
       reason:
@@ -73,7 +76,7 @@ async function findValidInvitation(
     conditions.push(eq(invitationTable.email, email.toLowerCase()));
   }
 
-  if (!invitationId) {
+  if (!invitationId && !email) {
     return null;
   }
 

@@ -1,6 +1,6 @@
 {
 	"name": "@kaneo/mcp",
-	"version": "0.1.9",
+	"version": "0.1.11",
 	"mcpName": "io.github.usekaneo/kaneo",
 	"description": "Official MCP (Model Context Protocol) server for Kaneo, the open source project management platform: manage tasks, projects, and labels from Claude, Cursor, and other MCP clients",
 	"license": "MIT",
@@ -59,7 +59,7 @@
 	},
 	"devDependencies": {
 		"@kaneo/typescript-config": "workspace:*",
-		"@types/node": "^25.3.5",
+		"@types/node": "^26.1.2",
 		"@types/prompts": "^2.4.9",
 		"tsx": "^4.23.9",
 		"typescript": "^7.0.2",

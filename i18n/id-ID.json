@@ -334,6 +334,29 @@
 				"nameRequired": "Nama wajib diisi",
 				"nameShort": "Nama harus minimal 2 karakter",
 				"invalidEmail": "Alamat email tidak valid"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -782,7 +805,9 @@
 				"commentOnDisabled": "Komentar tautan tugas pada issue baru dimatikan",
 				"settingsUpdateError": "Gagal memperbarui integrasi Gitea",
 				"secretCopied": "Disalin",
-				"unableToCopySecret": "Tidak dapat menyalin rahasia"
+				"unableToCopySecret": "Tidak dapat menyalin rahasia",
+				"notGiteaInstance": "URL tidak menunjuk ke instance Gitea",
+				"redirected": "URL Gitea dialihkan (biasanya ke HTTPS). Gunakan URL akhir secara langsung."
 			},
 			"webhookShow": "Tampilkan",
 			"webhookHide": "Sembunyikan",
@@ -1484,6 +1509,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Teks biasa",
 					"python": "Python",
 					"rust": "Rust",
@@ -1500,6 +1526,9 @@
 					"addRowAfter": "Sisipkan baris di bawah",
 					"deleteRow": "Hapus baris",
 					"deleteTable": "Hapus tabel"
+				},
+				"mermaid": {
+					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
 			}
 		}
@@ -1601,6 +1630,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1632,6 +1662,9 @@
 						"onlyYoutube": "Hanya tautan YouTube yang dapat disematkan."
 					},
 					"onlyYoutubeInline": "Hanya URL YouTube yang dapat disematkan. Gunakan mode tautan."
+				},
+				"mermaid": {
+					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
 			}
 		},
@@ -1956,7 +1989,9 @@
 				"complete": "Selesai",
 				"inProgress": "Sedang berjalan"
 			},
-			"noDueDate": "Tanpa tenggat"
+			"noDueDate": "Tanpa tenggat",
+			"reorderHandle": "Ubah urutan proyek",
+			"reorderError": "Gagal mengubah urutan proyek"
 		},
 		"search": {
 			"pageTitle": "Cari",
