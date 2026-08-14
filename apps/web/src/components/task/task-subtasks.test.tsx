@@ -12,6 +12,8 @@ const mocks = vi.hoisted(() => ({
   createTask: vi.fn(),
   createRelation: vi.fn(),
   getColumns: vi.fn(),
+  canCreateTasks: vi.fn(() => true),
+  canUpdateTasks: vi.fn(() => true),
 }));
 
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
@@ -49,7 +51,10 @@ vi.mock(
   }),
 );
 vi.mock("@/hooks/use-workspace-permission", () => ({
-  useWorkspacePermission: () => ({ canUpdateTasks: () => true }),
+  useWorkspacePermission: () => ({
+    canCreateTasks: mocks.canCreateTasks,
+    canUpdateTasks: mocks.canUpdateTasks,
+  }),
 }));
 vi.mock("@/lib/toast", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
@@ -61,6 +66,8 @@ beforeEach(() => {
     ],
     isLoading: false,
   });
+  mocks.canCreateTasks.mockReturnValue(true);
+  mocks.canUpdateTasks.mockReturnValue(true);
 });
 
 afterEach(() => {
@@ -150,5 +157,24 @@ describe("TaskSubtasks", () => {
         name: "tasks:subtasks.addAction tasks:subtasks.title",
       }),
     ).toBeDisabled();
+  });
+
+  it("hides subtask creation without task:create permission", () => {
+    mocks.canCreateTasks.mockReturnValue(false);
+
+    render(
+      <TaskSubtasks
+        taskId="parent-4"
+        projectId="project-1"
+        workspaceId="workspace-1"
+        parentStatus="planned"
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", {
+        name: "tasks:subtasks.addAction tasks:subtasks.title",
+      }),
+    ).not.toBeInTheDocument();
   });
 });

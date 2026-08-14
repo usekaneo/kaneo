@@ -68,15 +68,16 @@ export default function TaskSubtasks({
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { data: columns = [], isLoading: isLoadingColumns } =
     useGetColumns(projectId);
-  const { canUpdateTasks } = useWorkspacePermission();
+  const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
+  const canCreateSubtasks = canCreateTasks() && canEdit;
 
   // Map the completion checkbox to the project's actual column slugs (the API
   // validates status against columns). A subtask counts as completed when its
   // status is a final column.
   const doneSlug = columns.find((c) => c.isFinal)?.slug ?? "done";
   const todoSlug = columns.find((c) => !c.isFinal)?.slug;
-  const canCreateSubtask =
+  const hasAvailableSubtaskStatus =
     parentStatus === "planned" || (!isLoadingColumns && Boolean(todoSlug));
   const isCompleted = (status: string) =>
     columns.length > 0
@@ -258,7 +259,7 @@ export default function TaskSubtasks({
   ]);
 
   const handleAddSubtask = async () => {
-    if (!newTitle.trim()) return;
+    if (!canCreateSubtasks || !newTitle.trim()) return;
     const initialStatus = parentStatus === "planned" ? "planned" : todoSlug;
     if (!initialStatus) return;
 
@@ -337,14 +338,14 @@ export default function TaskSubtasks({
               </span>
             )}
           </div>
-          {canEdit && (
+          {canCreateSubtasks && (
             <Button
               variant="ghost"
               size="xs"
               className="text-muted-foreground"
               aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:subtasks.title")}`}
               onClick={() => setIsAdding(true)}
-              disabled={!canCreateSubtask}
+              disabled={!hasAvailableSubtaskStatus}
             >
               <Plus className="size-3.5" />
             </Button>
@@ -420,7 +421,9 @@ export default function TaskSubtasks({
                 size="xs"
                 onClick={handleAddSubtask}
                 disabled={
-                  !newTitle.trim() || createTask.isPending || !canCreateSubtask
+                  !newTitle.trim() ||
+                  createTask.isPending ||
+                  !hasAvailableSubtaskStatus
                 }
               >
                 {t("tasks:subtasks.addAction")}

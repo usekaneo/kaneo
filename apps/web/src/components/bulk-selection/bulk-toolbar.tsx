@@ -98,11 +98,12 @@ function BulkToolbar() {
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id ?? "",
   );
-  const { canUpdateTasks, canDeleteTasks, canAssignTasks } =
+  const { canUpdateTasks, canDeleteTasks, canAssignTasks, canUpdateLabels } =
     useWorkspacePermission();
   const canEdit = canUpdateTasks();
   const canDelete = canDeleteTasks();
   const canAssign = canAssignTasks();
+  const canEditLabels = canUpdateLabels();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
@@ -347,6 +348,8 @@ function BulkToolbar() {
           },
         })),
       });
+    }
+    if (canEditLabels) {
       groups.push({
         value: "label",
         label: t("tasks:bulk.addLabel"),
@@ -374,6 +377,7 @@ function BulkToolbar() {
     canEdit,
     canDelete,
     canAssign,
+    canEditLabels,
     project?.columns,
     workspaceUsers?.members,
     uniqueLabels,
@@ -389,7 +393,7 @@ function BulkToolbar() {
 
   if (selectedCount === 0) return null;
   // Nothing the user can do in bulk → no toolbar.
-  if (!canEdit && !canDelete && !canAssign) return null;
+  if (!canEdit && !canDelete && !canAssign && !canEditLabels) return null;
 
   return (
     <div className="-translate-x-1/2 fixed bottom-6 left-1/2 z-50 transition-[translate,opacity] duration-200 ease-out starting:translate-y-3 starting:opacity-0 motion-reduce:starting:translate-y-0">

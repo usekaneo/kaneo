@@ -67,13 +67,9 @@ export default function TaskLabelsPopover({
 
   const { mutateAsync: createLabel } = useCreateLabel();
   const { mutateAsync: deleteLabel } = useDeleteLabel();
-  // Attaching/removing labels from a task is a task mutation; creating a new
-  // workspace label needs the label capability. We gate the popover trigger
-  // on whichever is required: any flow needs at least task-edit since the
-  // result lives on the task.
-  const { canUpdateTasks, canManageLabels } = useWorkspacePermission();
-  const canEdit = canUpdateTasks();
-  const canCreateLabels = canManageLabels();
+  const { canCreateLabels, canDeleteLabels } = useWorkspacePermission();
+  const canCreate = canCreateLabels();
+  const canDelete = canDeleteLabels();
 
   const { data: taskLabels = [] } = useGetLabelsByTask(task.id);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -134,6 +130,7 @@ export default function TaskLabelsPopover({
       const isCurrentlyAssigned = taskLabelNames.includes(workspaceLabel.name);
 
       if (isCurrentlyAssigned) {
+        if (!canDelete) return;
         // Remove label from task - find by name since IDs are different
         const taskLabel = taskLabels.find(
           (l) => l.name === workspaceLabel.name,
@@ -143,6 +140,7 @@ export default function TaskLabelsPopover({
           toast.success(t("tasks:popover.labels.removeSuccess"));
         }
       } else {
+        if (!canCreate) return;
         // Add label to task
         await createLabel({
           name: workspaceLabel.name,
@@ -226,34 +224,38 @@ export default function TaskLabelsPopover({
             {t("tasks:popover.labels.empty")}
           </span>
         )}
-        {filteredLabels.map((label) => (
-          <button
-            key={label.id}
-            type="button"
-            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
-            onClick={() => handleToggleLabel(label.id)}
-          >
-            <div className="flex-shrink-0 w-3 flex justify-center">
-              {taskLabelNames.includes(label.name) && (
-                <Check className="w-3 h-3" />
-              )}
-            </div>
-            <span
-              className="w-2 h-2 rounded-full flex-shrink-0"
-              style={{
-                backgroundColor:
-                  labelColors.find((c) => c.value === label.color)?.color ||
-                  "var(--color-neutral-400)",
-              }}
-            />
-            <span className="max-w-20 truncate">{label.name}</span>
-          </button>
-        ))}
+        {filteredLabels.map((label) => {
+          const isAssigned = taskLabelNames.includes(label.name);
+          const canToggle = isAssigned ? canDelete : canCreate;
 
-        {canCreateLabels && isCreatingNewLabel && filteredLabels.length > 0 && (
+          return (
+            <button
+              key={label.id}
+              type="button"
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => handleToggleLabel(label.id)}
+              disabled={!canToggle}
+            >
+              <div className="flex-shrink-0 w-3 flex justify-center">
+                {isAssigned && <Check className="w-3 h-3" />}
+              </div>
+              <span
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{
+                  backgroundColor:
+                    labelColors.find((c) => c.value === label.color)?.color ||
+                    "var(--color-neutral-400)",
+                }}
+              />
+              <span className="max-w-20 truncate">{label.name}</span>
+            </button>
+          );
+        })}
+
+        {canCreate && isCreatingNewLabel && filteredLabels.length > 0 && (
           <div className="border-t border-border my-1" />
         )}
-        {canCreateLabels && isCreatingNewLabel && (
+        {canCreate && isCreatingNewLabel && (
           <button
             type="button"
             className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
@@ -321,9 +323,8 @@ export default function TaskLabelsPopover({
     </div>
   );
 
-  // No task-edit permission → no label changes at all. The trigger renders
-  // as a plain element so users still see the existing labels.
-  if (!canEdit) return <>{children}</>;
+  // Keep existing labels visible when no label operation is permitted.
+  if (!canCreate && !canDelete) return <>{children}</>;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
