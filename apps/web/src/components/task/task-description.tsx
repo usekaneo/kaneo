@@ -65,7 +65,6 @@ import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
-import debounce from "@/lib/debounce";
 import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
 import {
   extractIssueKeyFromUrl,
@@ -321,6 +320,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const hasHydratedRef = useRef(false);
   const isSyncingExternalContentRef = useRef(false);
   const latestSyncedMarkdownRef = useRef("");
+  const descriptionUpdateTimersRef = useRef<Map<string, number>>(new Map());
   const hoveredCodeBlockElementRef = useRef<HTMLElement | null>(null);
   const [hoveredCodeBlock, setHoveredCodeBlock] =
     useState<HoveredCodeBlock | null>(null);
@@ -577,26 +577,36 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   }, []);
 
   const debouncedUpdate = useCallback(
-    debounce(
-      async (
-        markdown: string,
-        taskId: string | undefined,
-        currentTask: Task | undefined,
-      ) => {
-        const updateTaskFn = updateTaskRef.current;
-        if (!taskId || !currentTask || !updateTaskFn) return;
+    (
+      markdown: string,
+      taskId: string | undefined,
+      currentTask: Task | undefined,
+    ) => {
+      if (!taskId || !currentTask) return;
 
-        try {
-          await updateTaskFn({
-            ...currentTask,
-            description: markdown,
-          });
-        } catch (error) {
-          console.error("Failed to update description:", error);
-        }
-      },
-      700,
-    ),
+      const timers = descriptionUpdateTimersRef.current;
+      const existingTimer = timers.get(taskId);
+      if (existingTimer !== undefined) {
+        window.clearTimeout(existingTimer);
+      }
+
+      const timer = window.setTimeout(() => {
+        timers.delete(taskId);
+        void (async () => {
+          const updateTaskFn = updateTaskRef.current;
+          if (!updateTaskFn) return;
+          try {
+            await updateTaskFn({
+              ...currentTask,
+              description: markdown,
+            });
+          } catch (error) {
+            console.error("Failed to update description:", error);
+          }
+        })();
+      }, 700);
+      timers.set(taskId, timer);
+    },
     [],
   );
 
