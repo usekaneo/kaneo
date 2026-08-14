@@ -186,17 +186,24 @@ subscribeToEvent<{
       .limit(1);
 
     for (const notifyUserId of notifyUserIds) {
-      await createNotification({
-        userId: notifyUserId,
-        type: "task_created",
-        eventData: {
-          taskTitle: data.title,
-          projectId: data.projectId,
-          workspaceId: project?.workspaceId ?? null,
-        },
-        resourceId: data.taskId,
-        resourceType: "task",
-      });
+      try {
+        await createNotification({
+          userId: notifyUserId,
+          type: "task_created",
+          eventData: {
+            taskTitle: data.title,
+            projectId: data.projectId,
+            workspaceId: project?.workspaceId ?? null,
+          },
+          resourceId: data.taskId,
+          resourceType: "task",
+        });
+      } catch (err) {
+        console.error(
+          `Failed to create task_created notification for user ${notifyUserId}:`,
+          err,
+        );
+      }
     }
   }
 });
