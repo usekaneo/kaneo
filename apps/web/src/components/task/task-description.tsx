@@ -595,9 +595,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         void (async () => {
           const updateTaskFn = updateTaskRef.current;
           if (!updateTaskFn) return;
+          const latest = taskRef.current;
+          const base = latest?.id === taskId ? latest : currentTask;
           try {
             await updateTaskFn({
-              ...currentTask,
+              ...base,
               description: markdown,
             });
           } catch (error) {
