@@ -580,7 +580,7 @@ export function createApp() {
     ) {
       return next();
     }
-    return Sentry.withScope(async () => {
+    return Sentry.withIsolationScope(async () => {
       Sentry.setUser(null);
       try {
         await authenticateApiRequest(c);

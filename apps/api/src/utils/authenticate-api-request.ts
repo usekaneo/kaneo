@@ -5,9 +5,9 @@ import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { verifyApiKey } from "./verify-api-key";
 
-// User is tagged on Sentry's current scope; the per-request scope is forked
-// by Sentry.withScope in the api.use("*", ...) middleware, so this only
-// affects the in-flight request.
+// User is tagged on Sentry's isolation scope; the per-request isolation
+// scope is forked by Sentry.withIsolationScope in the api.use("*", ...)
+// middleware, so this only affects the in-flight request.
 function attachUserToScope(userId: string) {
   Sentry.setUser({ id: userId });
 }
