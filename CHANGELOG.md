@@ -1,3 +1,30 @@
+## [2.19.1](https://github.com/usekaneo/kaneo/compare/v2.19.0...v2.19.1) (2026-08-15)
+
+
+### Bug Fixes
+
+* **web:** save a description to the task it was typed in ([#1600](https://github.com/usekaneo/kaneo/issues/1600)) ([b11dc07](https://github.com/usekaneo/kaneo/commit/b11dc07f15b7142b67196af8db4d8ca035e7055a))
+# [2.19.0](https://github.com/usekaneo/kaneo/compare/v2.18.0...v2.19.0) (2026-08-15)
+
+
+### Bug Fixes
+
+* **api:** isolate Sentry user scope to per-request async context ([56e045b](https://github.com/usekaneo/kaneo/commit/56e045b5535e09edd626bba00ced899f9555355f))
+* **api:** scope Sentry user per-request via withIsolationScope ([654d03f](https://github.com/usekaneo/kaneo/commit/654d03f60cade95e1033618bef5fb9e755310780))
+* **api:** validate Sentry sample rate env vars are in 0..1 ([01e9933](https://github.com/usekaneo/kaneo/commit/01e9933329c8cdd8af71849c7dc06d68fa7bf330))
+* **auth:** secure cookies on HTTPS deployments ([#1560](https://github.com/usekaneo/kaneo/issues/1560)) ([6d37312](https://github.com/usekaneo/kaneo/commit/6d37312945e1cdabe64afe099e35dba60aa1c716))
+* derive a project key from non-Latin names ([#1517](https://github.com/usekaneo/kaneo/issues/1517)) ([fad758f](https://github.com/usekaneo/kaneo/commit/fad758f465b4ecab5d2b82a32accda6b24a1116f))
+* GitHub-imported tasks without priority label get priority=null and can never be edited ([#1583](https://github.com/usekaneo/kaneo/issues/1583)) ([37b47f8](https://github.com/usekaneo/kaneo/commit/37b47f852476c2ec5bc307ecbaf62bbf729db015)), closes [#1582](https://github.com/usekaneo/kaneo/issues/1582)
+* **github:** keep a webhook delivery alive when link metadata will not parse ([#1526](https://github.com/usekaneo/kaneo/issues/1526)) ([b95c0fd](https://github.com/usekaneo/kaneo/commit/b95c0fd2b0442d617dc20c451d9d6ffdd47f3ae8))
+* **task:** repair the null priority that blocks every edit, and move tasks by column slug ([#1594](https://github.com/usekaneo/kaneo/issues/1594)) ([7f5a0c0](https://github.com/usekaneo/kaneo/commit/7f5a0c02f44c0d15cd9cb444d1990e740c8f301b))
+* **web:** keep task description editor alive across task switches ([#1581](https://github.com/usekaneo/kaneo/issues/1581)) ([9b2a3fa](https://github.com/usekaneo/kaneo/commit/9b2a3fa027227a60c581b081a0fc3ea5397c34c5))
+* **web:** respect granular task permissions ([#1520](https://github.com/usekaneo/kaneo/issues/1520)) ([5472e6a](https://github.com/usekaneo/kaneo/commit/5472e6a3e02a1f245f4080c3abfc5e991811868f)), closes [#1505](https://github.com/usekaneo/kaneo/issues/1505)
+
+
+### Features
+
+* **api:** enrich Sentry with profiling and user attribution ([4797756](https://github.com/usekaneo/kaneo/commit/4797756a72117be8fae216bbc1a1e948148ce4e5))
+* **github:** move the task back when an issue is reopened ([#1518](https://github.com/usekaneo/kaneo/issues/1518)) ([f959398](https://github.com/usekaneo/kaneo/commit/f9593984e693a29077728104ea71cb31fabc7816))
 # [2.18.0](https://github.com/usekaneo/kaneo/compare/v2.17.6...v2.18.0) (2026-08-12)
 
 

@@ -31,7 +31,7 @@
     "node": ">=20.19.0"
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.18.0",
+  "version": "2.19.1",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

@@ -81,7 +81,7 @@ vi.mock(
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: () => true,
-    canManageLabels: () => true,
+    canCreateLabels: () => true,
   }),
 }));
 

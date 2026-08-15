@@ -8,6 +8,8 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
+import { escapeLikePattern } from "../like-pattern";
+import { TASK_SHORT_ID_PATTERN } from "../task-short-id";
 
 type SearchParams = {
   query: string;
@@ -146,8 +148,10 @@ async function globalSearch(params: SearchParams): Promise<{
     ? eq(projectTable.workspaceId, workspaceId)
     : inArray(projectTable.workspaceId, accessibleWorkspaceIds);
 
-  // Check if query matches short-id pattern (e.g. "DEP-23")
-  const shortIdMatch = query.match(/^([A-Za-z][\w-]*)-(\d+)$/);
+  // Check if query matches short-id pattern (e.g. "DEP-23"). `generateProjectSlug`
+  // normalizes to NFKC before it stores a key, so the query is normalized too,
+  // or a decomposed "ПА-23" would never reach the stored composed form.
+  const shortIdMatch = query.normalize("NFKC").match(TASK_SHORT_ID_PATTERN);
 
   if (type === "all" || type === "tasks") {
     const seenTaskIds = new Set<string>();
@@ -186,7 +190,11 @@ async function globalSearch(params: SearchParams): Promise<{
           and(
             workspaceFilter,
             projectId ? eq(taskTable.projectId, projectId) : undefined,
-            ilike(projectTable.slug, slug),
+            // A project key may hold `_`, which `ilike` reads as "any one
+            // character", so `DE_-23` would also match a task in `DEP` and the
+            // `limit(1)` below would pick whichever came back first. Escaping
+            // keeps the case-insensitive comparison and drops the wildcards.
+            ilike(projectTable.slug, escapeLikePattern(slug)),
             eq(taskTable.number, taskNumber),
           ),
         )

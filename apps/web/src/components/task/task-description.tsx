@@ -9,7 +9,7 @@ import TableRow from "@tiptap/extension-table-row";
 import TaskList from "@tiptap/extension-task-list";
 import { Markdown } from "@tiptap/markdown";
 import { Fragment, Slice } from "@tiptap/pm/model";
-import { TextSelection } from "@tiptap/pm/state";
+import { EditorState, TextSelection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
@@ -40,7 +40,14 @@ import {
   Underline as UnderlineIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { bundledLanguages, type Highlighter } from "shiki";
 import { Button } from "@/components/ui/button";
@@ -58,7 +65,6 @@ import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
-import debounce from "@/lib/debounce";
 import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
 import {
   extractIssueKeyFromUrl,
@@ -112,11 +118,38 @@ type SlashMenuState = {
   selectedIndex: number;
 };
 
+const DESCRIPTION_SAVE_DEBOUNCE_MS = 700;
+
 function formatMarkdown(markdown: string) {
   return markdown
     .replace(/\r\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/\n{2,}$/g, "\n");
+}
+
+function resetUndoHistory(editor: Editor) {
+  const { schema, plugins, doc } = editor.state;
+  editor.view.updateState(
+    EditorState.create({
+      schema,
+      plugins,
+      doc,
+    }),
+  );
+}
+
+function setContentWithoutUndoStep(editor: Editor, content: string) {
+  editor
+    .chain()
+    .command(({ tr }) => {
+      tr.setMeta("addToHistory", false);
+      return true;
+    })
+    .setContent(content, {
+      emitUpdate: false,
+      contentType: "markdown",
+    })
+    .run();
 }
 
 type EmbedComposerState = {
@@ -267,19 +300,23 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId);
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
-  const { canManageTasks } = useWorkspacePermission();
-  const canEdit = canManageTasks();
+  const { canUpdateTasks } = useWorkspacePermission();
+  const canEdit = canUpdateTasks();
+  const canEditRef = useRef(canEdit);
+  canEditRef.current = canEdit;
 
   const editorShellRef = useRef<HTMLDivElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
   const taskRef = useRef(task);
+  const taskIdRef = useRef(taskId);
   const updateTaskRef = useRef(updateTaskDescription);
   const activeTaskIdRef = useRef<string | null>(null);
   const lastEditorRef = useRef<Editor | null>(null);
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
+    taskId: string;
   } | null>(null);
   const hasHydratedRef = useRef(false);
   const isSyncingExternalContentRef = useRef(false);
@@ -306,10 +343,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   } | null>(null);
   const slashMenuRef = useRef<SlashMenuState | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     taskRef.current = task;
+    taskIdRef.current = taskId;
     updateTaskRef.current = updateTaskDescription;
-  }, [task, updateTaskDescription]);
+  }, [task, taskId, updateTaskDescription]);
 
   const shikiSupportedLanguages = useMemo(
     () => new Set([...Object.keys(bundledLanguages), "text"]),
@@ -392,6 +430,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const handleAssetFileUpload = useCallback(
     async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
+      if (!canEditRef.current) return;
       const activeEditor = targetEditor || lastEditorRef.current;
 
       if (!activeEditor) {
@@ -399,16 +438,23 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         return;
       }
 
+      const uploadTaskId = taskIdRef.current;
       const loadingToast = toast.loading(
         t("tasks:detail.editor.upload.loading"),
       );
 
       try {
         const uploadedAsset = await uploadTaskImage({
-          taskId,
+          taskId: uploadTaskId,
           surface: "description",
           file,
         });
+
+        if (activeEditor.isDestroyed || taskIdRef.current !== uploadTaskId) {
+          toast.dismiss(loadingToast);
+          return;
+        }
+
         insertUploadedAsset(activeEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
@@ -426,13 +472,14 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         );
       }
     },
-    [insertUploadedAsset, t, taskId],
+    [insertUploadedAsset, t],
   );
 
   const openImagePicker = useCallback(
     (activeEditor?: Editor | null, range?: SlashRange) => {
+      if (!canEditRef.current) return;
       pendingImageInsertRef.current = activeEditor
-        ? { editor: activeEditor, range }
+        ? { editor: activeEditor, range, taskId: taskIdRef.current }
         : null;
       imageInputRef.current?.click();
     },
@@ -447,7 +494,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const handleShellDragEnter = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (!taskId || !hasFileDrag(event)) return;
+      if (!canEditRef.current || !taskId || !hasFileDrag(event)) return;
       event.preventDefault();
       dragDepthRef.current += 1;
       setIsDragActive(true);
@@ -457,7 +504,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const handleShellDragOver = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (!taskId || !hasFileDrag(event)) return;
+      if (!canEditRef.current || !taskId || !hasFileDrag(event)) return;
       event.preventDefault();
       event.dataTransfer.dropEffect = "copy";
       if (!isDragActive) {
@@ -469,7 +516,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const handleShellDragLeave = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (!taskId || !hasFileDrag(event)) return;
+      if (!canEditRef.current || !taskId || !hasFileDrag(event)) return;
       event.preventDefault();
       dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
       if (dragDepthRef.current === 0) {
@@ -481,7 +528,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const handleShellDrop = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
-      if (!taskId || !hasFileDrag(event)) return;
+      if (!canEditRef.current || !taskId || !hasFileDrag(event)) return;
       dragDepthRef.current = 0;
       setIsDragActive(false);
     },
@@ -529,23 +576,42 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     };
   }, []);
 
-  const debouncedUpdate = useCallback(
-    debounce(async (markdown: string) => {
-      const currentTask = taskRef.current;
-      const updateTaskFn = updateTaskRef.current;
-      if (!currentTask || !updateTaskFn) return;
-
-      try {
-        await updateTaskFn({
-          ...currentTask,
-          description: markdown,
-        });
-      } catch (error) {
-        console.error("Failed to update description:", error);
-      }
-    }, 700),
-    [],
+  const pendingDescriptionSavesRef = useRef(
+    new Map<string, ReturnType<typeof setTimeout>>(),
   );
+
+  const scheduleDescriptionSave = useCallback((markdown: string) => {
+    if (!canEditRef.current) return;
+
+    const editedTask = taskRef.current;
+    if (!editedTask) return;
+
+    const timers = pendingDescriptionSavesRef.current;
+    const pending = timers.get(editedTask.id);
+    if (pending) clearTimeout(pending);
+
+    timers.set(
+      editedTask.id,
+      setTimeout(async () => {
+        timers.delete(editedTask.id);
+
+        const updateTaskFn = updateTaskRef.current;
+        if (!updateTaskFn) return;
+
+        const latestTask = taskRef.current;
+        const base = latestTask?.id === editedTask.id ? latestTask : editedTask;
+
+        try {
+          await updateTaskFn({
+            ...base,
+            description: markdown,
+          });
+        } catch (error) {
+          console.error("Failed to update description:", error);
+        }
+      }, DESCRIPTION_SAVE_DEBOUNCE_MS),
+    );
+  }, []);
 
   const editor = useEditor(
     {
@@ -754,11 +820,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         },
       },
       onUpdate: ({ editor: activeEditor }) => {
-        if (isSyncingExternalContentRef.current) return;
+        if (!canEditRef.current || isSyncingExternalContentRef.current) return;
         const markdown = formatMarkdown(activeEditor.getMarkdown());
         if (markdown === latestSyncedMarkdownRef.current) return;
         latestSyncedMarkdownRef.current = markdown;
-        debouncedUpdate(markdown);
+        scheduleDescriptionSave(markdown);
       },
     },
     [getOverlayPosition, handleAssetFileUpload, t, toShikiLanguage],
@@ -772,7 +838,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   }, [editor, shikiHighlighter]);
 
   // Toggle Tiptap's editable flag based on workspace permission. When the
-  // user can't manage tasks, the description renders as read-only: slash
+  // user can't update tasks, the description renders as read-only: slash
   // menus, paste handlers, and toolbar buttons all become no-ops because
   // the editor refuses content mutations.
   useEffect(() => {
@@ -834,7 +900,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const setLink = useCallback(
     (prefilledUrl?: string) => {
-      if (!editor) return;
+      if (!canEditRef.current || !editor) return;
       const previousUrl = editor.getAttributes("link").href as
         | string
         | undefined;
@@ -900,7 +966,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const runSlashCommand = useCallback(
     (command: SlashCommand) => {
-      if (!editor || !slashMenuRef.current) return;
+      if (!canEditRef.current || !editor || !slashMenuRef.current) return;
       command.run(editor, {
         from: slashMenuRef.current.from,
         to: slashMenuRef.current.to,
@@ -960,7 +1026,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   );
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || editor.isDestroyed) return;
     if (lastEditorRef.current !== editor) {
       hasHydratedRef.current = false;
       lastEditorRef.current = editor;
@@ -977,10 +1043,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     if (!hasHydratedRef.current) {
       isSyncingExternalContentRef.current = true;
       latestSyncedMarkdownRef.current = incomingMarkdown;
-      editor.commands.setContent(incomingMarkdown, {
-        emitUpdate: false,
-        contentType: "markdown",
-      });
+      setContentWithoutUndoStep(editor, incomingMarkdown);
+      if (isTaskChanged) {
+        resetUndoHistory(editor);
+      }
       hasHydratedRef.current = true;
       requestAnimationFrame(() => {
         isSyncingExternalContentRef.current = false;
@@ -993,10 +1059,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
     isSyncingExternalContentRef.current = true;
     latestSyncedMarkdownRef.current = incomingMarkdown;
-    editor.commands.setContent(incomingMarkdown, {
-      emitUpdate: false,
-      contentType: "markdown",
-    });
+    setContentWithoutUndoStep(editor, incomingMarkdown);
     requestAnimationFrame(() => {
       isSyncingExternalContentRef.current = false;
     });
@@ -1020,7 +1083,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
   const submitEmbedComposer = useCallback(
     (mode: "embed" | "link") => {
-      if (!editor || !embedComposer) return;
+      if (!canEditRef.current || !editor || !embedComposer) return;
       const url = normalizeUrl(embedComposer.url);
       if (!url) {
         setEmbedComposerError(t("tasks:detail.editor.embed.errors.invalidUrl"));
@@ -1173,7 +1236,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   }, [filteredSlashCommands, slashMenu]);
 
   const setCodeLanguage = (language: string | null) => {
-    if (!editor || !hoveredCodeBlock) return;
+    if (!canEdit || !editor || !hoveredCodeBlock) return;
     const { nodePos } = hoveredCodeBlock;
     const resolvedLanguage = language || "auto";
 
@@ -1271,7 +1334,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const copyHoveredCodeBlock = useCallback(async () => {
     if (!editor || !hoveredCodeBlock) return;
     const node = editor.state.doc.nodeAt(hoveredCodeBlock.nodePos);
-    if (!node || node.type.name !== "codeBlock") return;
+    if (node?.type.name !== "codeBlock") return;
 
     const content = node.textContent || "";
     if (!content) return;
@@ -1356,17 +1419,20 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         className="sr-only"
         onChange={(event) => {
           const file = event.target.files?.[0];
+          event.target.value = "";
           if (!file) return;
 
           const pendingInsert = pendingImageInsertRef.current;
           pendingImageInsertRef.current = null;
+          if (!pendingInsert || pendingInsert.taskId !== taskIdRef.current) {
+            return;
+          }
+
           void handleAssetFileUpload(
             file,
-            pendingInsert?.editor,
-            pendingInsert?.range,
+            pendingInsert.editor,
+            pendingInsert.range,
           );
-
-          event.target.value = "";
         }}
       />
       {editor && hoveredCodeBlock && (
@@ -1404,45 +1470,47 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                 : t("tasks:detail.editor.copy")}
             </span>
           </button>
-          <DropdownMenu
-            open={isCodeLanguageMenuOpen}
-            onOpenChange={setIsCodeLanguageMenuOpen}
-          >
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="kaneo-codeblock-language-trigger"
-              >
-                <span className="truncate">{activeCodeLanguageLabel}</span>
-                <ChevronDown className="size-3.5 opacity-70" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              side="bottom"
-              sideOffset={6}
-              className="max-h-72 w-48 overflow-y-auto"
+          {canEdit && (
+            <DropdownMenu
+              open={isCodeLanguageMenuOpen}
+              onOpenChange={setIsCodeLanguageMenuOpen}
             >
-              <DropdownMenuRadioGroup
-                value={hoveredCodeBlock.language}
-                onValueChange={setCodeLanguage}
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="kaneo-codeblock-language-trigger"
+                >
+                  <span className="truncate">{activeCodeLanguageLabel}</span>
+                  <ChevronDown className="size-3.5 opacity-70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                side="bottom"
+                sideOffset={6}
+                className="max-h-72 w-48 overflow-y-auto"
               >
-                <DropdownMenuRadioItem value="auto">
-                  {t("tasks:detail.editor.autoDetect")}
-                </DropdownMenuRadioItem>
-                <DropdownMenuSeparator />
-                {codeLanguages.map(({ value, label }) => (
-                  <DropdownMenuRadioItem key={value} value={value}>
-                    {label}
+                <DropdownMenuRadioGroup
+                  value={hoveredCodeBlock.language}
+                  onValueChange={setCodeLanguage}
+                >
+                  <DropdownMenuRadioItem value="auto">
+                    {t("tasks:detail.editor.autoDetect")}
                   </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <DropdownMenuSeparator />
+                  {codeLanguages.map(({ value, label }) => (
+                    <DropdownMenuRadioItem key={value} value={value}>
+                      {label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       )}
 
-      {editor && (
+      {editor && canEdit && (
         <BubbleMenu
           editor={editor}
           className="kaneo-tiptap-bubble"
@@ -1620,7 +1688,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         </BubbleMenu>
       )}
 
-      {editor && (
+      {editor && canEdit && (
         <BubbleMenu
           editor={editor}
           pluginKey="kaneo-table-bubble"
@@ -1718,7 +1786,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         </BubbleMenu>
       )}
 
-      {editor && slashMenu && (
+      {editor && canEdit && slashMenu && (
         <div
           className="kaneo-tiptap-slash-menu"
           style={{
@@ -1781,7 +1849,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         </div>
       )}
 
-      {editor && embedComposer && (
+      {editor && canEdit && embedComposer && (
         <div
           className="kaneo-embed-composer"
           style={{
@@ -1889,7 +1957,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           <Paperclip className="size-3.5" />
         </button>
       )}
-      {isDragActive && (
+      {canEdit && isDragActive && (
         <div className="kaneo-editor-drop-indicator">
           <span>{t("tasks:detail.editor.dropToUpload")}</span>
         </div>

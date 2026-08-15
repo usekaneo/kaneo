@@ -2,8 +2,8 @@ apiVersion: v2
 name: kaneo
 description: Kaneo - All you need. Nothing you don't. Open source project management that works for you.
 type: application
-version: 2.18.0
-appVersion: "2.18.0"
+version: 2.19.1
+appVersion: "2.19.1"
 keywords:
   - project-management
   - kanban
