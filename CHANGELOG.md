@@ -1,3 +1,9 @@
+## [2.19.1](https://github.com/usekaneo/kaneo/compare/v2.19.0...v2.19.1) (2026-08-15)
+
+
+### Bug Fixes
+
+* **web:** save a description to the task it was typed in ([#1600](https://github.com/usekaneo/kaneo/issues/1600)) ([b11dc07](https://github.com/usekaneo/kaneo/commit/b11dc07f15b7142b67196af8db4d8ca035e7055a))
 # [2.19.0](https://github.com/usekaneo/kaneo/compare/v2.18.0...v2.19.0) (2026-08-15)
 
 
