@@ -12,6 +12,7 @@ import {
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
+  assetTable,
   columnTable,
   externalLinkTable,
   labelTable,
@@ -173,6 +174,24 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
           .where(inArray(externalLinkTable.taskId, taskIds))
       : [];
 
+  const assetsData =
+    taskIds.length > 0
+      ? await db
+          .select({
+            id: assetTable.id,
+            taskId: assetTable.taskId,
+            filename: assetTable.filename,
+            mimeType: assetTable.mimeType,
+            size: assetTable.size,
+            kind: assetTable.kind,
+            surface: assetTable.surface,
+            createdBy: assetTable.createdBy,
+            createdAt: assetTable.createdAt,
+          })
+          .from(assetTable)
+          .where(inArray(assetTable.taskId, taskIds))
+      : [];
+
   const taskLabelsMap = new Map<
     string,
     Array<{ id: string; name: string; color: string }>
@@ -215,6 +234,29 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     });
   }
 
+  const taskAssetsMap = new Map<
+    string,
+    Array<{
+      id: string;
+      taskId: string | null;
+      filename: string;
+      mimeType: string;
+      size: number;
+      kind: string;
+      surface: string;
+      createdBy: string | null;
+      createdAt: Date;
+    }>
+  >();
+  for (const asset of assetsData) {
+    if (asset.taskId) {
+      if (!taskAssetsMap.has(asset.taskId)) {
+        taskAssetsMap.set(asset.taskId, []);
+      }
+      taskAssetsMap.get(asset.taskId)?.push(asset);
+    }
+  }
+
   const projectColumns = await db
     .select()
     .from(columnTable)
@@ -233,6 +275,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
         ...task,
         labels: taskLabelsMap.get(task.id) || [],
         externalLinks: taskExternalLinksMap.get(task.id) || [],
+        assets: taskAssetsMap.get(task.id) || [],
       })),
   }));
 
@@ -242,6 +285,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
       ...task,
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
+      assets: taskAssetsMap.get(task.id) || [],
     }));
 
   const plannedTasks = paginatedTasks
@@ -250,6 +294,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
       ...task,
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
+      assets: taskAssetsMap.get(task.id) || [],
     }));
 
   return {
