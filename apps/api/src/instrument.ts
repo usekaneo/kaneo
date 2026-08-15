@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import * as Sentry from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
-function parseSampleRate(value: string | undefined): number {
+function parseSampleRate(value: string | undefined) {
   const n = Number(value);
   return Number.isFinite(n) && n >= 0 && n <= 1 ? n : 0;
 }
