@@ -68,8 +68,9 @@ export default function TaskSubtasks({
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { data: columns = [], isLoading: isLoadingColumns } =
     useGetColumns(projectId);
-  const { canManageTasks } = useWorkspacePermission();
-  const canEdit = canManageTasks();
+  const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
+  const canEdit = canUpdateTasks();
+  const canCreate = canCreateTasks();
 
   // Map the completion checkbox to the project's actual column slugs (the API
   // validates status against columns). A subtask counts as completed when its
@@ -258,7 +259,7 @@ export default function TaskSubtasks({
   ]);
 
   const handleAddSubtask = async () => {
-    if (!newTitle.trim()) return;
+    if (!canCreate || !canEdit || !newTitle.trim()) return;
     const initialStatus = parentStatus === "planned" ? "planned" : todoSlug;
     if (!initialStatus) return;
 
@@ -337,7 +338,7 @@ export default function TaskSubtasks({
               </span>
             )}
           </div>
-          {canEdit && (
+          {canEdit && canCreate && (
             <Button
               variant="ghost"
               size="xs"
@@ -398,7 +399,7 @@ export default function TaskSubtasks({
             </AnimatePresence>
           </div>
 
-          {isAdding && (
+          {isAdding && canEdit && canCreate && (
             <div className="flex items-center gap-2 mt-2">
               <Input
                 size="sm"
