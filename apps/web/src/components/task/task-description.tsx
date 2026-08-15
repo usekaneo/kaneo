@@ -1442,7 +1442,13 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
           const pendingInsert = pendingImageInsertRef.current;
           pendingImageInsertRef.current = null;
-          if (!pendingInsert || pendingInsert.taskId !== taskIdRef.current) {
+          if (!pendingInsert) {
+            if (lastEditorRef.current) {
+              void handleAssetFileUpload(file, lastEditorRef.current);
+            }
+            return;
+          }
+          if (pendingInsert.taskId !== taskIdRef.current) {
             toast.error(t("tasks:detail.editor.upload.taskChanged"));
             return;
           }
