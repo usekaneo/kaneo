@@ -95,8 +95,8 @@ export default function TaskDetailsContent({
   );
 
   const { mutateAsync: setCustomFieldValue } = useSetCustomFieldValue();
-  const { canManageTasks } = useWorkspacePermission();
-  const canEdit = canManageTasks();
+  const { canUpdateTasks } = useWorkspacePermission();
+  const canEdit = canUpdateTasks();
 
   const [localValues, setLocalValues] = useState<Record<string, string>>({});
 
