@@ -658,7 +658,8 @@
 			"moveProjectPlaceholder": "Çalışma alanı seçin",
 			"toastMoved": "Proje başarıyla taşındı",
 			"toastMovedWithUnassigned": "Proje başarıyla taşındı. {{taskCount}} görevin ataması kaldırıldı.",
-			"toastMoveError": "Proje taşınamadı"
+			"toastMoveError": "Proje taşınamadı",
+			"moveTargetsError": "Bu projeyi hangi çalışma alanlarına taşıyabileceğiniz kontrol edilemedi. Yeniden denemek için sayfayı yenileyin."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Proje Entegrasyonları",

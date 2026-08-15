@@ -177,6 +177,59 @@ describe("API integration: moving a project between workspaces", () => {
     expect(moved.workspaceId).toBe(target.id);
   });
 
+  it("appends the moved project to the end of the target's ordering", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const target = await createTargetWorkspace();
+    await addMember(target.id, owner.user.id, "owner");
+
+    // Position 0 in the source, which is already taken in the target: keeping
+    // it would leave two projects sharing a slot.
+    const { project } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    const { project: firstInTarget } = await createProjectFixture({
+      workspaceId: target.id,
+      name: "First",
+    });
+    const { project: secondInTarget } = await createProjectFixture({
+      workspaceId: target.id,
+      name: "Second",
+    });
+    await db
+      .update(schema.projectTable)
+      .set({ position: 1 })
+      .where(eq(schema.projectTable.id, secondInTarget.id));
+
+    mockAuthenticatedSession(owner.user);
+    const { app } = createApp();
+
+    const response = await app.request(
+      `/api/project/${project.id}/move`,
+      moveRequest(target.id),
+    );
+
+    expect(response.status).toBe(200);
+
+    const [moved] = await db
+      .select()
+      .from(schema.projectTable)
+      .where(eq(schema.projectTable.id, project.id));
+    expect(moved.position).toBe(2);
+
+    const positions = await db
+      .select({
+        id: schema.projectTable.id,
+        position: schema.projectTable.position,
+      })
+      .from(schema.projectTable)
+      .where(eq(schema.projectTable.workspaceId, target.id));
+
+    expect(
+      [...positions].sort((a, b) => a.position - b.position).map((p) => p.id),
+    ).toEqual([firstInTarget.id, secondInTarget.id, project.id]);
+    expect(new Set(positions.map((p) => p.position)).size).toBe(3);
+  });
+
   it("rejects a move out of a workspace where the caller can't delete projects", async () => {
     const mover = await createWorkspaceMember({ role: "project-editor" });
     const target = await createTargetWorkspace();

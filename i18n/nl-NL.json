@@ -555,7 +555,8 @@
 			"moveProjectPlaceholder": "Selecteer werkruimte",
 			"toastMoved": "Project succesvol verplaatst",
 			"toastMovedWithUnassigned": "Project succesvol verplaatst. {{taskCount}} taak/taken zijn niet langer toegewezen.",
-			"toastMoveError": "Verplaatsen van project mislukt"
+			"toastMoveError": "Verplaatsen van project mislukt",
+			"moveTargetsError": "Kon niet controleren naar welke workspaces je dit project kunt verplaatsen. Herlaad de pagina om het opnieuw te proberen."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Projectintegraties",

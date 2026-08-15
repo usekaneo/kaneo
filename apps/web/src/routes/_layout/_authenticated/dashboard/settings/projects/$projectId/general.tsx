@@ -64,8 +64,8 @@ export const Route = createFileRoute(
 
 // Module-level so their identity stays stable across renders.
 const PROJECT_CREATE = { project: ["create"] };
-const PROJECT_UPDATE = { project: ["update"] };
-const PROJECT_DELETE = { project: ["delete"] };
+// Asked as one check: the endpoint requires both in the source workspace.
+const PROJECT_UPDATE_AND_DELETE = { project: ["update", "delete"] };
 
 type ProjectFormValues = {
   name: string;
@@ -119,6 +119,9 @@ function RouteComponent() {
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isSavingRef = useRef(false);
   const queuedSaveRef = useRef<ProjectFormValues | null>(null);
+  // The save currently in flight, so a caller that lands mid-save can await the
+  // real write instead of the queue hand-off returning immediately.
+  const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
   const lastSavedRef = useRef<NormalizedProjectValues | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
@@ -133,6 +136,9 @@ function RouteComponent() {
   const projectId = rawProjectId ?? "";
   const { data: fetchedProject } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
+  // The store is populated asynchronously from `useGetTasks`, so during a route
+  // transition it can still hold the previously viewed project.
+  const isCurrentProject = project?.id === projectId;
 
   useEffect(() => {
     if (fetchedProject) {
@@ -159,10 +165,8 @@ function RouteComponent() {
     () => moveCandidates.map((item) => item.id),
     [moveCandidates],
   );
-  const canCreateIn = useWorkspacesWithPermission(
-    moveCandidateIds,
-    PROJECT_CREATE,
-  );
+  const { allowed: canCreateIn, isError: moveTargetsFailed } =
+    useWorkspacesWithPermission(moveCandidateIds, PROJECT_CREATE);
   const moveTargets = useMemo(
     () => moveCandidates.filter((item) => canCreateIn.has(item.id)),
     [moveCandidates, canCreateIn],
@@ -175,19 +179,19 @@ function RouteComponent() {
     () => (project?.workspaceId ? [project.workspaceId] : []),
     [project?.workspaceId],
   );
-  const canUpdateSource = useWorkspacesWithPermission(
+  const { allowed: canMoveOutOfSource } = useWorkspacesWithPermission(
     sourceWorkspaceIds,
-    PROJECT_UPDATE,
-  );
-  const canDeleteSource = useWorkspacesWithPermission(
-    sourceWorkspaceIds,
-    PROJECT_DELETE,
+    PROJECT_UPDATE_AND_DELETE,
   );
   const canMoveFromSource = Boolean(
-    project?.workspaceId &&
-      canUpdateSource.has(project.workspaceId) &&
-      canDeleteSource.has(project.workspaceId),
+    project?.workspaceId && canMoveOutOfSource.has(project.workspaceId),
   );
+  // Kept visible when the target lookup failed: an empty list would otherwise
+  // read as "you have nowhere to move this", which is a different answer.
+  const canShowMove =
+    canMoveFromSource &&
+    isCurrentProject &&
+    (moveTargets.length > 0 || moveTargetsFailed);
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
   const canDelete = canDeleteProjects();
@@ -224,8 +228,8 @@ function RouteComponent() {
   }, [project, projectForm]);
 
   const saveProject = useCallback(
-    async (data: ProjectFormValues) => {
-      if (!project?.id) return;
+    async (data: ProjectFormValues): Promise<boolean> => {
+      if (!project?.id) return false;
 
       const normalizedData = normalizeProjectValues(data);
       const nameChanged = lastSavedRef.current?.name !== normalizedData.name;
@@ -236,56 +240,81 @@ function RouteComponent() {
       const hasChanges =
         nameChanged || slugChanged || descriptionChanged || iconChanged;
 
-      if (!hasChanges) return;
+      if (!hasChanges) return true;
 
       if (isSavingRef.current) {
         queuedSaveRef.current = data;
-        return;
+        // The in-flight save drains the queue before it resolves, so its
+        // outcome covers this data too. Reporting success here instead would
+        // tell the caller the edit is persisted while it is still queued.
+        return inFlightSaveRef.current ?? false;
       }
 
       isSavingRef.current = true;
 
-      try {
-        const updatePayload = {
-          id: project.id,
-          name: nameChanged ? normalizedData.name : project.name,
-          slug: slugChanged ? normalizedData.slug : project.slug,
-          description: descriptionChanged
-            ? normalizedData.description
-            : (project.description ?? ""),
-          icon: iconChanged ? normalizedData.icon : (project.icon ?? "Layout"),
-          isPublic: !!project.isPublic,
-        };
+      const runSave = async (): Promise<boolean> => {
+        let succeeded = false;
 
-        await updateProject(updatePayload);
+        try {
+          const updatePayload = {
+            id: project.id,
+            name: nameChanged ? normalizedData.name : project.name,
+            slug: slugChanged ? normalizedData.slug : project.slug,
+            description: descriptionChanged
+              ? normalizedData.description
+              : (project.description ?? ""),
+            icon: iconChanged
+              ? normalizedData.icon
+              : (project.icon ?? "Layout"),
+            isPublic: !!project.isPublic,
+          };
 
-        projectForm.reset(normalizedData, { keepDirty: false });
-        lastSavedRef.current = normalizedData;
-        queuedSaveRef.current = null;
+          await updateProject(updatePayload);
 
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ["projects"] }),
-          queryClient.invalidateQueries({
-            queryKey: ["projects", workspace?.id],
-          }),
-          queryClient.invalidateQueries({
-            queryKey: ["projects", workspace?.id, project.id],
-          }),
-        ]);
-        toast.success(t("settings:projectGeneral.toastUpdated"));
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t("settings:projectGeneral.toastUpdateError"),
-        );
-      } finally {
-        isSavingRef.current = false;
-
-        if (queuedSaveRef.current) {
-          const queuedData = queuedSaveRef.current;
+          projectForm.reset(normalizedData, { keepDirty: false });
+          lastSavedRef.current = normalizedData;
           queuedSaveRef.current = null;
-          await saveProject(queuedData);
+
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["projects"] }),
+            queryClient.invalidateQueries({
+              queryKey: ["projects", workspace?.id],
+            }),
+            queryClient.invalidateQueries({
+              queryKey: ["projects", workspace?.id, project.id],
+            }),
+          ]);
+          toast.success(t("settings:projectGeneral.toastUpdated"));
+          succeeded = true;
+        } catch (error) {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : t("settings:projectGeneral.toastUpdateError"),
+          );
+        } finally {
+          isSavingRef.current = false;
+
+          if (queuedSaveRef.current) {
+            const queuedData = queuedSaveRef.current;
+            queuedSaveRef.current = null;
+            // The queue holds newer values than this save wrote, so its
+            // outcome is the one that describes the form's current state.
+            succeeded = await saveProject(queuedData);
+          }
+        }
+
+        return succeeded;
+      };
+
+      const pendingSave = runSave();
+      inFlightSaveRef.current = pendingSave;
+
+      try {
+        return await pendingSave;
+      } finally {
+        if (inFlightSaveRef.current === pendingSave) {
+          inFlightSaveRef.current = null;
         }
       }
     },
@@ -335,49 +364,59 @@ function RouteComponent() {
     return () => subscription.unsubscribe();
   }, [projectForm, debouncedSave, canEdit]);
 
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-        debounceTimeoutRef.current = null;
-      }
-      // Flush pending edits if the user navigates away before the debounce fires.
-      void (async () => {
-        const latest = projectFormRef.current.getValues() as ProjectFormValues;
-        const normalized = normalizeProjectValues(latest);
-        const last = lastSavedRef.current;
-        const hasPendingChanges =
-          !last ||
-          last.name !== normalized.name ||
-          last.slug !== normalized.slug ||
-          last.description !== normalized.description ||
-          last.icon !== normalized.icon;
-        if (!hasPendingChanges) return;
+  // Reads through the refs so its identity stays stable: the unmount effect
+  // below depends on it while keeping an empty dependency array.
+  // Resolves false when the pending edits were not persisted: either they are
+  // invalid, or the update they triggered failed.
+  const flushPendingSave = useCallback(async () => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+      debounceTimeoutRef.current = null;
+    }
 
-        const isValid = await projectFormRef.current.trigger();
-        if (isValid) {
-          await saveProjectRef.current(latest);
-        }
-      })();
-    };
+    const latest = projectFormRef.current.getValues() as ProjectFormValues;
+    const normalized = normalizeProjectValues(latest);
+    const last = lastSavedRef.current;
+    const hasPendingChanges =
+      !last ||
+      last.name !== normalized.name ||
+      last.slug !== normalized.slug ||
+      last.description !== normalized.description ||
+      last.icon !== normalized.icon;
+    if (!hasPendingChanges) return true;
+
+    const isValid = await projectFormRef.current.trigger();
+    if (!isValid) return false;
+
+    return saveProjectRef.current(latest);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      // Flush pending edits if the user navigates away before the debounce fires.
+      void flushPendingSave();
+    };
+  }, [flushPendingSave]);
+
   const handleMoveProject = useCallback(async () => {
-    if (!project?.id || !targetWorkspaceId) return;
+    if (!isCurrentProject || !project?.id || !targetWorkspaceId) return;
+
+    // The key doubles as the ticket-id prefix, and the server checks it for
+    // collisions in the target. Moving on a debounced edit would check the
+    // stale key and then persist the new one after navigation.
+    const flushed = await flushPendingSave();
+    // The dialog has already closed, so say why nothing happened. `trigger()`
+    // has surfaced the offending field errors in the form itself.
+    if (!flushed) {
+      toast.error(t("settings:projectGeneral.toastMoveError"));
+      return;
+    }
 
     try {
       const moved = await moveProject({
         id: project.id,
         workspaceId: targetWorkspaceId,
       });
-
-      // `["projects"]` prefix-matches both the source and target listings.
-      // `["tasks", id]` backs the project store, which still carries the old
-      // workspace id that other views build links from.
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
-        queryClient.invalidateQueries({ queryKey: ["tasks", project.id] }),
-      ]);
 
       toast.success(
         moved.unassignedTaskCount > 0
@@ -399,10 +438,18 @@ function RouteComponent() {
           : t("settings:projectGeneral.toastMoveError"),
       );
     }
-  }, [project?.id, targetWorkspaceId, moveProject, queryClient, navigate, t]);
+  }, [
+    isCurrentProject,
+    project?.id,
+    targetWorkspaceId,
+    flushPendingSave,
+    moveProject,
+    navigate,
+    t,
+  ]);
 
   const handleDeleteProject = useCallback(async () => {
-    if (!project?.id) return;
+    if (!isCurrentProject || !project?.id) return;
 
     try {
       await deleteProject({ id: project.id });
@@ -421,7 +468,15 @@ function RouteComponent() {
           : t("settings:projectGeneral.toastDeleteError"),
       );
     }
-  }, [project?.id, deleteProject, queryClient, navigate, workspace?.id, t]);
+  }, [
+    isCurrentProject,
+    project?.id,
+    deleteProject,
+    queryClient,
+    navigate,
+    workspace?.id,
+    t,
+  ]);
 
   return (
     <>
@@ -654,7 +709,7 @@ function RouteComponent() {
               {project && <TasksImportExport project={project} />}
             </div>
 
-            {canMoveFromSource && moveTargets.length > 0 && (
+            {canShowMove && (
               <>
                 <Separator />
                 <div className="flex items-center justify-between">
@@ -666,43 +721,51 @@ function RouteComponent() {
                       {t("settings:projectGeneral.moveProjectDescription")}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Select
-                      value={targetWorkspaceId}
-                      onValueChange={(value) =>
-                        setTargetWorkspaceId(value ?? "")
-                      }
-                    >
-                      <SelectTrigger className="w-48 h-8 text-sm">
-                        <SelectValue
-                          placeholder={t(
-                            "settings:projectGeneral.moveProjectPlaceholder",
-                          )}
-                        >
-                          {moveTargets.find(
-                            (item) => item.id === targetWorkspaceId,
-                          )?.name ??
-                            t("settings:projectGeneral.moveProjectPlaceholder")}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {moveTargets.map((item) => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      type="button"
-                      disabled={!targetWorkspaceId || !project || isMoving}
-                      onClick={() => setIsMoveModalOpen(true)}
-                    >
-                      {t("settings:projectGeneral.moveProjectAction")}
-                    </Button>
-                  </div>
+                  {moveTargetsFailed ? (
+                    <p className="text-xs text-destructive">
+                      {t("settings:projectGeneral.moveTargetsError")}
+                    </p>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={targetWorkspaceId}
+                        onValueChange={(value) =>
+                          setTargetWorkspaceId(value ?? "")
+                        }
+                      >
+                        <SelectTrigger className="w-48 h-8 text-sm">
+                          <SelectValue
+                            placeholder={t(
+                              "settings:projectGeneral.moveProjectPlaceholder",
+                            )}
+                          >
+                            {moveTargets.find(
+                              (item) => item.id === targetWorkspaceId,
+                            )?.name ??
+                              t(
+                                "settings:projectGeneral.moveProjectPlaceholder",
+                              )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {moveTargets.map((item) => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        type="button"
+                        disabled={!targetWorkspaceId || !project || isMoving}
+                        onClick={() => setIsMoveModalOpen(true)}
+                      >
+                        {t("settings:projectGeneral.moveProjectAction")}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -736,7 +799,7 @@ function RouteComponent() {
                   className="text-destructive hover:text-destructive transition-colors"
                   type="button"
                   onClick={() => setIsDeleteModalOpen(true)}
-                  disabled={!project}
+                  disabled={!project || !isCurrentProject}
                 >
                   {t("settings:projectGeneral.deleteProject")}
                 </Button>
@@ -761,15 +824,19 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose>
-                <Button variant="outline" size="sm">
-                  {t("common:actions.cancel")}
-                </Button>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
               </AlertDialogClose>
-              <AlertDialogClose onClick={handleMoveProject} disabled={isMoving}>
-                <Button size="sm" disabled={isMoving}>
-                  {t("settings:projectGeneral.moveModalConfirm")}
-                </Button>
+              <AlertDialogClose
+                render={
+                  <Button
+                    size="sm"
+                    disabled={isMoving}
+                    onClick={handleMoveProject}
+                  />
+                }
+              >
+                {t("settings:projectGeneral.moveModalConfirm")}
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>

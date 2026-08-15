@@ -555,7 +555,8 @@
 			"moveProjectPlaceholder": "Selecciona un espacio de trabajo",
 			"toastMoved": "Proyecto movido correctamente",
 			"toastMovedWithUnassigned": "Proyecto movido correctamente. {{taskCount}} tarea(s) quedaron sin asignar.",
-			"toastMoveError": "No se pudo mover el proyecto"
+			"toastMoveError": "No se pudo mover el proyecto",
+			"moveTargetsError": "No se pudo comprobar a qué espacios de trabajo puedes mover este proyecto. Vuelve a cargar la página para intentarlo de nuevo."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integraciones del Proyecto",

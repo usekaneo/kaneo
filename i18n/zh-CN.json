@@ -820,7 +820,8 @@
 			"moveProjectPlaceholder": "选择工作区",
 			"toastMoved": "项目移动成功",
 			"toastMovedWithUnassigned": "项目移动成功。已取消分配 {{taskCount}} 个任务。",
-			"toastMoveError": "移动项目失败"
+			"toastMoveError": "移动项目失败",
+			"moveTargetsError": "无法检查你可以将此项目移动到哪些工作区。请重新加载页面后重试。"
 		},
 		"projectIntegrations": {
 			"pageTitle": "项目集成",

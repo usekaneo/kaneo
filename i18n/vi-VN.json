@@ -820,7 +820,8 @@
 			"moveProjectPlaceholder": "Chọn không gian làm việc",
 			"toastMoved": "Đã chuyển dự án thành công",
 			"toastMovedWithUnassigned": "Đã chuyển dự án thành công. {{taskCount}} công việc đã bị hủy phân công.",
-			"toastMoveError": "Không thể chuyển dự án"
+			"toastMoveError": "Không thể chuyển dự án",
+			"moveTargetsError": "Không thể kiểm tra những không gian làm việc mà bạn có thể chuyển dự án này đến. Hãy tải lại trang để thử lại."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Tích hợp dự án",

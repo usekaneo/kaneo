@@ -658,7 +658,8 @@
 			"moveProjectPlaceholder": "워크스페이스 선택",
 			"toastMoved": "프로젝트를 이동했습니다",
 			"toastMovedWithUnassigned": "프로젝트를 이동했습니다. {{taskCount}}개 작업의 할당이 해제되었습니다.",
-			"toastMoveError": "프로젝트를 이동하지 못했습니다"
+			"toastMoveError": "프로젝트를 이동하지 못했습니다",
+			"moveTargetsError": "이 프로젝트를 옮길 수 있는 워크스페이스를 확인하지 못했습니다. 페이지를 새로고침해 다시 시도하세요."
 		},
 		"projectIntegrations": {
 			"pageTitle": "프로젝트 연동",

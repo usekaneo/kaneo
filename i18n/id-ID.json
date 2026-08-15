@@ -658,7 +658,8 @@
 			"moveProjectPlaceholder": "Pilih ruang kerja",
 			"toastMoved": "Proyek berhasil dipindahkan",
 			"toastMovedWithUnassigned": "Proyek berhasil dipindahkan. {{taskCount}} tugas dilepas penugasannya.",
-			"toastMoveError": "Gagal memindahkan proyek"
+			"toastMoveError": "Gagal memindahkan proyek",
+			"moveTargetsError": "Tidak dapat memeriksa ruang kerja mana saja yang dapat menjadi tujuan pemindahan proyek ini. Muat ulang halaman untuk mencoba lagi."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrasi Proyek",

@@ -820,7 +820,8 @@
 			"moveProjectPlaceholder": "Seleziona workspace",
 			"toastMoved": "Progetto spostato con successo",
 			"toastMovedWithUnassigned": "Progetto spostato con successo. {{taskCount}} attività sono rimaste senza assegnatario.",
-			"toastMoveError": "Impossibile spostare il progetto"
+			"toastMoveError": "Impossibile spostare il progetto",
+			"moveTargetsError": "Non è stato possibile verificare in quali spazi di lavoro puoi spostare questo progetto. Ricarica la pagina per riprovare."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrazioni Progetto",

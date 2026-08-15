@@ -814,6 +814,7 @@
 			"moveProject": "Move to workspace",
 			"moveProjectDescription": "Move this project, with all of its tasks, to another workspace.",
 			"moveProjectPlaceholder": "Select workspace",
+			"moveTargetsError": "Couldn't check which workspaces you can move this project to. Reload to try again.",
 			"moveProjectAction": "Move",
 			"moveModalTitle": "Move Project?",
 			"moveModalDescription": "This will move the project \"{{name}}\" and all of its tasks to \"{{workspace}}\". Tasks assigned to people who aren't members of that workspace will be unassigned, and notification subscriptions for this project will be cleared.",

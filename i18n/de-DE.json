@@ -658,7 +658,8 @@
 			"moveProjectPlaceholder": "Workspace auswählen",
 			"toastMoved": "Projekt erfolgreich verschoben",
 			"toastMovedWithUnassigned": "Projekt erfolgreich verschoben. Bei {{taskCount}} Aufgabe(n) wurde die Zuweisung aufgehoben.",
-			"toastMoveError": "Projekt konnte nicht verschoben werden"
+			"toastMoveError": "Projekt konnte nicht verschoben werden",
+			"moveTargetsError": "Es konnte nicht geprüft werden, in welche Workspaces du dieses Projekt verschieben kannst. Lade die Seite neu, um es erneut zu versuchen."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Projektintegrationen",

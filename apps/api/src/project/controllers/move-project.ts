@@ -1,5 +1,15 @@
-import { and, eq, inArray, isNotNull, ne, notInArray, sql } from "drizzle-orm";
+import {
+  and,
+  eq,
+  inArray,
+  isNotNull,
+  max,
+  ne,
+  notInArray,
+  sql,
+} from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import createActivities from "../../activity/controllers/create-activities";
 import db from "../../database";
 import {
   assetTable,
@@ -45,6 +55,16 @@ async function moveProject(
       });
     }
 
+    // Serializes this move against creates, reorders, and other moves landing
+    // in the target: without it the key check below and the `max(position)`
+    // read further down are both read-then-write races. `createProject` and
+    // `reorderProjects` take the same lock with the same key. Only the target
+    // is locked — the source merely ends up with a gap, the same as a delete —
+    // so two moves in opposite directions can't deadlock on each other.
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(1524, hashtext(${targetWorkspaceId}))`,
+    );
+
     // The key doubles as the ticket-id prefix (KAN-12), and short-id lookup
     // resolves it per workspace with a limit of 1. Two projects sharing a key
     // in one workspace would make those ids ambiguous, so the move is refused
@@ -89,7 +109,6 @@ async function moveProject(
       .select({
         id: taskTable.id,
         userId: taskTable.userId,
-        title: taskTable.title,
       })
       .from(taskTable)
       .where(eq(taskTable.projectId, id));
@@ -115,8 +134,8 @@ async function moveProject(
         );
 
       const memberIds = new Set(targetMembers.map((member) => member.userId));
-      // Kept as whole rows rather than a count: each one needs a
-      // `task.unassigned` event afterwards, which carries the title.
+      // Kept as rows rather than a count: each one needs an activity row
+      // afterwards, keyed by task id.
       unassigned = tasks.filter(
         (task) => task.userId && !memberIds.has(task.userId),
       );
@@ -140,9 +159,20 @@ async function moveProject(
       }
     }
 
+    // The source position means nothing in the target's ordering, and keeping
+    // it would collide with whichever project already holds that slot. Append
+    // instead, matching where `createProject` puts a new project.
+    const [{ maxPosition } = { maxPosition: null }] = await tx
+      .select({ maxPosition: max(projectTable.position) })
+      .from(projectTable)
+      .where(eq(projectTable.workspaceId, targetWorkspaceId));
+
     const [movedProject] = await tx
       .update(projectTable)
-      .set({ workspaceId: targetWorkspaceId })
+      .set({
+        workspaceId: targetWorkspaceId,
+        position: maxPosition === null ? 0 : maxPosition + 1,
+      })
       .where(
         and(
           eq(projectTable.id, id),
@@ -181,17 +211,29 @@ async function moveProject(
     return { movedProject, unassignedTasks: unassigned };
   });
 
-  // Published after the transaction commits, so a rollback can't leave behind
-  // activity rows or webhook deliveries for a move that never happened. Each
-  // task gets its own event, matching how bulk assignee changes report.
-  for (const task of unassignedTasks) {
-    await publishEvent("task.unassigned", {
-      taskId: task.id,
+  // Written after the transaction commits, so a rollback can't leave behind
+  // activity for a move that never happened.
+  //
+  // Not one `task.unassigned` event per task: unlike a bulk assignee change,
+  // this set isn't a client-supplied batch but every task in the project.
+  // `publishEvent` is a synchronous emit into detached async subscribers, so a
+  // project-sized loop would fire that many activity inserts, webhook
+  // deliveries, and board broadcasts in a single tick. The history is written
+  // as chunked bulk inserts instead, and clients get one refresh.
+  if (unassignedTasks.length > 0) {
+    await createActivities(
+      unassignedTasks.map((task) => ({
+        taskId: task.id,
+        type: "unassigned",
+        userId: currentUserId,
+        content: null,
+        eventData: {},
+      })),
+    );
+
+    await publishEvent("task.bulk_unassigned", {
       projectId: id,
       userId: currentUserId,
-      oldAssignee: task.userId,
-      title: task.title,
-      type: "unassigned",
     });
   }
 
