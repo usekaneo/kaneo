@@ -1,0 +1,2125 @@
+{
+  "common": {
+    "appName": "Kaneo",
+    "actions": {
+      "cancel": "Atšaukti",
+      "close": "Uždaryti",
+      "clearAll": "Panaikinti viską",
+      "delete": "Panaikinti",
+      "deleting": "Naikinama...",
+      "markAllRead": "Pažymėti viską kaip perskaityta",
+      "remove": "Pašalinti",
+      "reset": "Atstatyti",
+      "filter": "Filtruoti",
+      "clearAllFilters": "Panaikinti visus filtrus"
+    },
+    "a11y": {
+      "toggleSidebar": "Perjungti šoninę juostą"
+    },
+    "sidebar": {
+      "title": "Šoninė juosta",
+      "mobileDescription": "Rodo mobiliąją šoninę juostą."
+    },
+    "empty": {
+      "loading": "Įkeliama..."
+    },
+    "pagination": {
+      "label": "Puslapiavimas",
+      "previous": "Ankstesnis",
+      "next": "Kitas",
+      "previousPage": "Eiti į ankstesnį puslapį",
+      "nextPage": "Eiti į kitą puslapį",
+      "morePages": "Daugiau puslapių"
+    },
+    "breadcrumb": {
+      "label": "Naršymo kelias",
+      "more": "Daugiau"
+    },
+    "language": {
+      "english": "Anglų",
+      "german": "Vokiečių",
+      "greek": "Graikų",
+      "macedonian": "Makedonų",
+      "french": "Prancūzų",
+      "spanish": "Ispanų",
+      "dutch": "Olandų",
+      "korean": "Korėjiečių",
+      "chinese": "Kinų",
+      "italian": "Italų"
+    },
+    "people": {
+      "someone": "Kažkas",
+      "unknown": "Nežinomas"
+    },
+    "error": {
+      "title": "Įvyko klaida",
+      "troubleshooting": "Trikčių šalinimo veiksmai:",
+      "tryAgain": "Bandyti dar kartą",
+      "viewDeploymentGuide": "Peržiūrėti diegimo vadovą",
+      "refreshPage": "Atnaujinti puslapį"
+    },
+    "formats": {
+      "never": "Niekada"
+    },
+    "modals": {
+      "createProject": {
+        "title": "Sukurti naują projektą",
+        "breadcrumbNew": "Sukurti naują projektą",
+        "workspaceFallback": "DARBO VIETA",
+        "description": "Sukurkite naują projektą savo darbo vietoje, nurodydami pavadinimą, raktą ir pasirinkdami piktogramą.",
+        "pickIcon": "Pasirinkti piktogramą",
+        "searchIcons": "Ieškoti piktogramų...",
+        "projectName": "Projekto pavadinimas",
+        "keyLabel": "Raktas:",
+        "keyHint": "Naudojamas bilietų ID (pvz., {{example}}-123)",
+        "createButton": "Sukurti projektą",
+        "successToast": "Projektas sėkmingai sukurtas",
+        "errorToast": "Nepavyko sukurti projekto"
+      },
+      "createWorkspace": {
+        "breadcrumbKaneo": "KANEO",
+        "title": "Sukurti naują darbo vietą",
+        "description": "Sukurkite naują darbo vietą, nurodydami savo darbo vietos pavadinimą.",
+        "namePlaceholder": "Darbo vietos pavadinimas",
+        "descriptionPlaceholder": "Pridėti aprašymą...",
+        "createButton": "Sukurti darbo vietą",
+        "successToast": "Darbo vieta sėkmingai sukurta",
+        "errorToast": "Nepavyko sukurti darbo vietos"
+      },
+      "createTask": {
+        "breadcrumbTask": "UŽDUOTIS",
+        "selectProject": "Pasirinkti projektą",
+        "title": "Nauja užduotis",
+        "description": "Sukurkite naują užduotį, nurodydami pavadinimą, aprašymą ir kitas detales.",
+        "taskTitlePlaceholder": "Užduoties pavadinimas",
+        "descriptionPlaceholder": "Pridėkite savo užduoties aprašymą...",
+        "chooseProjectForImages": "Prieš įkeldami vaizdus pasirinkite projektą.",
+        "prepareTaskError": "Nepavyko paruošti užduoties",
+        "successCreated": "Užduotis sėkmingai sukurta",
+        "successUpdated": "Užduotis sėkmingai atnaujinta",
+        "createError": "Nepavyko sukurti užduoties",
+        "priority": "Prioritetas",
+        "statusFallback": "Vykdoma",
+        "startDate": "Pradžios data",
+        "dueDate": "Termino data",
+        "clearStartDate": "Panaikinti pradžios datą",
+        "clearDueDate": "Panaikinti termino datą",
+        "assign": "Paskirti",
+        "assignUnassigned": "Nepaskirta",
+        "assignUnassignedTitle": "Nepaskirta",
+        "labels": "Etiketės",
+        "searchLabels": "Ieškoti etikečių...",
+        "noLabelsFound": "Etikečių nerasta",
+        "createLabel": "Sukurti \"{{name}}\"",
+        "chooseColor": "Pasirinkti spalvą",
+        "labelCreated": "Etiketė sukurta",
+        "labelCreateError": "Nepavyko sukurti etiketės",
+        "createMore": "Sukurti daugiau",
+        "createButton": "Sukurti užduotį",
+        "untitledTask": "Neįvardyta užduotis",
+        "labelColors": {
+          "stone": "Akmens",
+          "slate": "Skalūnas",
+          "lavender": "Levanda",
+          "sage": "Saliamas",
+          "forest": "Miškas",
+          "amber": "Gintaras",
+          "terracotta": "Terakota",
+          "rose": "Rožė",
+          "crimson": "Raudonasis"
+        }
+      }
+    }
+  },
+  "auth": {
+    "signIn": {
+      "pageTitle": "Prisijungti",
+      "title": "Sveiki grįžę",
+      "subtitle": "Įveskite savo kredencialus, kad pasiektumėte savo darbo vietą",
+      "invitationSubtitle": "Prisijunkite, kad priimtumėte kvietimą",
+      "invitationAlert": "Prisijungę galėsite priimti savo darbo vietos kvietimą.",
+      "signingIn": "Jungiama...",
+      "continueWithGoogle": "Tęsti su „Google“",
+      "continueWithGithub": "Tęsti su „GitHub“",
+      "continueWithDiscord": "Tęsti su „Discord“",
+      "continueWithOidc": "Tęsti su OIDC",
+      "lastUsed": "Paskiausiai naudota",
+      "registrationDisabled": "Vieša registracija išjungta. Naudokite kvietimą, kad sukurtumėte paskyrą.",
+      "passwordRegistrationDisabled": "Registracija slaptažodžiu išjungta. Naudokite sukonfigūruotą socialinę arba OIDC prisijungimo metodą, kad sukurtumėte paskyrą.",
+      "toggleMessage": "Neturite paskyros?",
+      "toggleLink": "Sukurti paskyrą",
+      "guestSuccess": "Prisijungta kaip svečias",
+      "guestError": "Nepavyko prisijungti kaip svečias",
+      "oidcError": "Nepavyko prisijungti naudojant OIDC",
+      "googleError": "Nepavyko prisijungti naudojant „Google“",
+      "githubError": "Nepavyko prisijungti naudojant „GitHub“",
+      "discordError": "Nepavyko prisijungti naudojant „Discord“",
+      "errors": {
+        "account_not_linked": "Šios tapatybės nepavyko susieti su esama paskyra. Prisijunkite el. paštu, kad patvirtintumėte paskyrą, tada bandykite SSO dar kartą. Jei el. pašto prisijungimas nepasiekiamas, susisiekite su administratoriumi.",
+        "oauth_code_verification_failed": "OAuth patvirtinimas nepavyko. Bandykite dar kartą.",
+        "registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registracija šiuo metu išjungta. Norint sukurti paskyrą, reikalingas galiojantis kvietimas."
+      },
+      "instanceStatusError": "Nepavyko susisiekti su serveriu. Bandykite dar kartą po akimirkos."
+    },
+    "providers": {
+      "google": "Google",
+      "discord": "Discord"
+    },
+    "forms": {
+      "or": "arba",
+      "email": "El. paštas",
+      "password": "Slaptažodis",
+      "emailPlaceholder": "man@example.com",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Rodyti slaptažodį",
+      "hidePassword": "Slėpti slaptažodį"
+    },
+    "checkEmail": {
+      "pageTitle": "Patikrinkite savo el. paštą",
+      "title": "Patikrinkite savo el. paštą",
+      "inboxMessage": "Mes išsiuntėme jums laikino prisijungimo nuorodą. Patikrinkite savo pašto dėžutę adresu <email>{{email}}</email>.",
+      "emailFallback": "jūsų el. pašto adresą",
+      "backToLogin": "Atgal į prisijungimą"
+    },
+    "signUp": {
+      "pageTitle": "Sukurti paskyrą",
+      "title": "Sukurti paskyrą",
+      "subtitleInvitation": "Sukurkite paskyrą, kad priimtumėte savo kvietimą",
+      "subtitleRegistrationDisabled": "Registracijai reikalingas kvietimas",
+      "subtitlePasswordDisabled": "Naudokite socialinę arba OIDC prisijungimo funkciją, kad sukurtumėte paskyrą",
+      "subtitleDefault": "Pradėkite naudotis savo darbo vieta",
+      "invitationAlert": "Sukūrę paskyrą, galėsite priimti savo darbo vietos kvietimą.",
+      "registrationDisabledAlert": "Registracija šiuo metu išjungta. Jei buvote pakviestas, įveskite el. pašto adresą, kuriuo gavote kvietimą, kad sukurtumėte paskyrą.",
+      "passwordDisabledAlert": "Slaptažodžiu pagrįstas paskyros kūrimas yra išjungtas. Prisijungimo puslapyje naudokite sukonfigūruotą socialinės medijos arba OIDC prisijungimo metodą.",
+      "signingIn": "Prisijungiama...",
+      "continueAsGuest": "Tęsti kaip svečias",
+      "toggleMessage": "Jau turite paskyrą?",
+      "toggleLink": "Prisijungti",
+      "instanceStatusError": "Nepavyko susisiekti su serveriu. Pabandykite dar kartą po akimirkos.",
+      "instanceAdminTitle": "Nustatyti jūsų Kaneo instanciją",
+      "instanceAdminSubtitle": "Ši paskyra taps instancijos administratoriumi su pilna prieiga."
+    },
+    "verifyOtp": {
+      "pageTitle": "Patvirtinti kodą",
+      "title": "Įveskite patvirtinimo kodą",
+      "subtitle": "Norėdami tęsti, naudokite 6 skaitmenų kodą, išsiųstą jūsų el. paštu",
+      "codeSentTo": "Kodas išsiųstas į {{email}}",
+      "verificationCodeLabel": "Patvirtinimo kodas",
+      "verifying": "Patvirtinama...",
+      "verifyAndSignIn": "Patvirtinti ir prisijungti",
+      "changeEmail": "Keisti el. paštą",
+      "resend": "Siųsti iš naujo",
+      "validation": {
+        "codeLength": "Kodas turi būti 6 skaitmenų"
+      },
+      "toast": {
+        "invalidCode": "Neteisingas patvirtinimo kodas",
+        "signedInSuccess": "Sėkmingai prisijungta!",
+        "verifyFailed": "Nepavyko patvirtinti kodo",
+        "resendFailed": "Nepavyko iš naujo nusiųsti kodo",
+        "resendSuccess": "Naujas patvirtinimo kodas išsiųstas!"
+      }
+    },
+    "otpSignIn": {
+      "sendFailed": "Nepavyko išsiųsti patvirtinimo kodo",
+      "codeSent": "Patvirtinimo kodas išsiųstas! Patikrinkite savo el. paštą.",
+      "sending": "Siunčiama...",
+      "sendVerificationCode": "Siųsti patvirtinimo kodą"
+    },
+    "signInForm": {
+      "failedSignIn": "Nepavyko prisijungti",
+      "signedInSuccess": "Sėkmingai prisijungta",
+      "signingIn": "Prisijungiama...",
+      "signIn": "Prisijungti"
+    },
+    "signUpForm": {
+      "fullName": "Vardas ir pavardė",
+      "namePlaceholder": "Jonas Jonaitis",
+      "failedSignUp": "Nepavyko sukurti paskyros",
+      "accountCreated": "Paskyra sėkmingai sukurta",
+      "passwordTooShort": "Slaptažodis per trumpas",
+      "creatingAccount": "Kuriama paskyra...",
+      "createAccount": "Sukurti paskyrą"
+    },
+    "invitation": {
+      "pageTitleAccept": "Priimti kvietimą",
+      "pageTitleError": "Kvietimo klaida",
+      "pageTitleInvalid": "Neteisingas kvietimas",
+      "loadingTitle": "Įkeliamas kvietimas...",
+      "errorTitle": "Kvietimo klaida",
+      "invalidTitle": "Neteisingas kvietimas",
+      "invitationExpired": "Kvietimas pasibaigęs",
+      "errorLoadDescription": "Nepavyko įkelti kvietimo duomenų. Kvietimas gali būti neteisingas arba pasibaigęs.",
+      "goToSignIn": "Eiti į prisijungimą",
+      "workspaceLabel": "Darbo sritis: {{workspaceName}}",
+      "joinWorkspace": "Prisijungti prie {{workspaceName}}",
+      "inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> pakvietė jus prisijungti prie savo darbo srities.",
+      "inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> pakvietė jus prisijungti prie savo darbo srities Kaneo.",
+      "createAccountOrSignIn": "Sukurkite paskyrą, kad priimtumėte šį kvietimą, arba prisijunkite, jei jau turite ją.",
+      "createAccount": "Sukurti paskyrą",
+      "accepting": "Priimama...",
+      "acceptInvitation": "Priimti kvietimą",
+      "goToDashboard": "Eiti į prietaisų skydelį",
+      "signedInAs": "Prisijungta kaip <email>{{email}}</email>",
+      "youveBeenInvited": "Jūs buvote pakviestas!",
+      "invitationFor": "Kvietimas skirtas: <email>{{email}}</email>",
+      "signIn": "Prisijungti",
+      "toast": {
+        "acceptFailed": "Nepavyko priimti kvietimo",
+        "acceptSuccess": "Kvietimas priimtas! Sveiki atvykę į komandą."
+      }
+    },
+    "onboarding": {
+      "pageTitle": "Sveiki atvykę į Kaneo",
+      "workspacePageTitle": "Sukurti darbo sritį",
+      "createWorkspaceTitle": "Sukurti darbo sritį",
+      "createWorkspaceSubtitle": "Nustatykite savo darbo sritį, kad pradėtumėte valdyti projektus",
+      "workspaceName": "Darbo srities pavadinimas",
+      "workspaceNamePlaceholder": "pvz., Acme Inc, Mano komanda",
+      "descriptionOptional": "Aprašymas (pasirinktinai)",
+      "descriptionPlaceholder": "Kuo dirba jūsų komanda?",
+      "creating": "Kuriama...",
+      "createWorkspace": "Sukurti darbo sritį",
+      "workspaceCreatedTitle": "Darbo sritis sukurta",
+      "redirectingToWorkspace": "Peradresuojama į <name>{{name}}</name>...",
+      "toast": {
+        "workspaceCreated": "Darbo sritis sėkmingai sukurta",
+        "createFailed": "Nepavyko sukurti darbo srities"
+      },
+      "validation": {
+        "workspaceNameRequired": "Darbo srities pavadinimas yra privalomas"
+      }
+    },
+    "profileSetup": {
+      "pageTitle": "Užpildyti profilį",
+      "completeTitle": "Užpildykite savo profilį",
+      "subtitle": "Norėdami pradėti, įveskite savo vardą",
+      "yourName": "Jūsų vardas",
+      "namePlaceholder": "pvz., Jonas Jonaitis",
+      "saving": "Įrašoma...",
+      "continue": "Tęsti",
+      "welcome": "Sveiki, {{name}}!",
+      "redirecting": "Peradresuojama į jūsų prietaisų skydelį...",
+      "toast": {
+        "updateSuccess": "Profilis sėkmingai atnaujintas",
+        "updateFailed": "Nepavyko atnaujinti profilio"
+      },
+      "validation": {
+        "nameRequired": "Vardas yra privalomas",
+        "nameShort": "Vardas turi būti bent 2 simbolių ilgio"
+      }
+    }
+  },
+  "settings": {
+    "account": "Paskyra",
+    "developer": "Kūrėjas",
+    "information": "Informacija",
+    "notifications": "Pranešimai",
+    "preferences": "Nuostatos",
+    "apiKeys": "API raktai",
+    "informationPage": {
+      "pageTitle": "Asmeninė informacija",
+      "title": "Asmeninė informacija",
+      "subtitle": "Tvarkykite savo asmeninius duomenis ir paskyros informaciją.",
+      "sectionTitle": "Paskyros informacija",
+      "sectionSubtitle": "Tvarkykite savo profilį ir paskyros duomenis.",
+      "profilePicture": "Profilio nuotrauka",
+      "fullName": "Vardas ir pavardė",
+      "fullNamePlaceholder": "Įveskite savo vardą",
+      "email": "El. paštas",
+      "emailPlaceholder": "Įveskite savo el. paštą",
+      "updateSuccess": "Profilis sėkmingai atnaujintas",
+      "updateError": "Nepavyko atnaujinti profilio",
+      "validation": {
+        "nameRequired": "Vardas yra privalomas",
+        "nameShort": "Vardas turi būti bent 2 simbolių ilgio",
+        "invalidEmail": "Neteisingas el. pašto adresas"
+      },
+      "avatar": {
+        "hint": "Spustelėkite savo nuotrauką, kad ją pakeistumėte arba pašalintumėte. Apkarpyta iki kvadrato ir pakeistas dydis iki 256x256.",
+        "remove": "Pašalinti avatarą",
+        "updateSuccess": "Profilio nuotrauka atnaujinta",
+        "updateError": "Nepavyko atnaujinti profilio nuotraukos",
+        "removeSuccess": "Profilio nuotrauka pašalinta",
+        "removeError": "Nepavyko pašalinti profilio nuotraukos",
+        "edit": "Pakeiskite savo profilio nuotrauką",
+        "change": "Keisti avatarą"
+      },
+      "deleteAccount": {
+        "sectionTitle": "Pavojinga zona",
+        "sectionSubtitle": "Nuolatiniai veiksmai, turintys įtakos visai jūsų paskyrai.",
+        "title": "Ištrinti paskyrą",
+        "description": "Darbo sritys, kuriose esate tik jūs, ištrinamos kartu su jūsų paskyra. Kitur jūsų užduotys lieka ir tampa nepaskirtos, o jūsų komentarai pašalinami.",
+        "modalTitle": "Ištrinti paskyrą?",
+        "modalDescription": "Tai visam laikui ištrins jūsų paskyrą ir negali būti atšaukta.",
+        "confirmLabel": "Įveskite {{email}}, kad patvirtintumėte",
+        "confirm": "Ištrinti paskyrą",
+        "success": "Jūsų paskyra buvo ištrinta",
+        "error": "Nepavyko ištrinti paskyros",
+        "sessionTooOld": "Dėl saugumo atsijunkite ir vėl prisijunkite prieš ištrindami paskyrą."
+      }
+    },
+    "notificationsPage": {
+      "pageTitle": "Pranešimai",
+      "title": "Pranešimai",
+      "subtitle": "Pasirinkite, kaip Kaneo teiks jūsų paskyros pranešimus ir kokius kanalus naudoti.",
+      "statusConnected": "Prijungtas",
+      "statusPaused": "Pristabdytas",
+      "emailTitle": "El. paštas",
+      "emailDescription": "Naudokite savo paskyros el. paštą kaip pranešimų paskirties vietą.",
+      "accountEmailLabel": "Paskyros el. paštas",
+      "accountEmailNoAddress": "Paskyros el. paštas neprieinamas",
+      "accountEmailHint": "El. pašto pristatymas visada siunčiamas į prisijungusios paskyros el. paštą.",
+      "saveChanges": "Išsaugoti pakeitimus",
+      "disconnect": "Atjungti",
+      "ntfyTitle": "ntfy",
+      "ntfyDescription": "Skelbkite paskyros pranešimus į ntfy temą.",
+      "serverUrl": "Serverio URL",
+      "topic": "Tema",
+      "token": "Žetonas",
+      "ntfyServerPlaceholder": "https://ntfy.example.com",
+      "ntfyTopicPlaceholder": "komandos-perspėjimai",
+      "ntfyTokenPlaceholder": "Pasirenkamas perdavimo žetonas",
+      "ntfyTokenHintConfigured": "Žetonas jau sukonfigūruotas ({{masked}}). Įveskite naują žetoną, kad pakeistumėte jį.",
+      "ntfyTokenHintOptional": "Pasirenkama. Pateikite žetoną, jei jūsų ntfy serveris reikalauja autentifikavimo.",
+      "connectNtfy": "Prijungti ntfy",
+      "gotifyTitle": "Gotify",
+      "gotifyDescription": "Siųskite paskyros pranešimus į savo Gotify serverį.",
+      "gotifyTokenLabel": "Programos žetonas",
+      "gotifyServerPlaceholder": "https://gotify.example.com",
+      "gotifyTokenPlaceholder": "Gotify programos žetonas",
+      "gotifyTokenHintConfigured": "Programos žetonas jau sukonfigūruotas ({{masked}}). Įveskite naują žetoną, kad pakeistumėte jį.",
+      "gotifyTokenHintRequired": "Būtina. Naudokite programos žetoną iš savo Gotify serverio.",
+      "connectGotify": "Prijungti Gotify",
+      "webhookTitle": "Pasirinktinis webhook",
+      "webhookDescription": "Siųskite paskyros pranešimus į savo galinį tašką kaip JSON.",
+      "endpointUrl": "Galutinio taško URL",
+      "signingSecret": "Pasirašymo paslaptis",
+      "webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+      "webhookSecretPlaceholder": "Pasirenkama bendra paslaptis",
+      "webhookSecretHintConfigured": "Pasirašymo paslaptis jau sukonfigūruota ({{masked}}). Įveskite naują, kad pakeistumėte ją.",
+      "webhookSecretHintOptional": "Pasirenkama. Kaneo pasirašo užklausos kūną, kai nustatoma paslaptis.",
+      "connectWebhook": "Prijungti webhook",
+      "workspaceRulesTitle": "Darbo srities pristatymo taisyklės",
+      "workspaceRulesDescription": "Pakartotinai naudokite savo globalius kanalus, tada nuspręskite, kurioms darbo sritims ir projektams leidžiama siųsti paskyros pranešimus.",
+      "workspaceCardHint": "Pasirinkite, kuriuos kanalus ši darbo sritis gali naudoti paskyros pranešimams.",
+      "workspaceEnabledLabel": "Įgalinti pranešimus {{workspaceName}}",
+      "eventPreferencesTitle": "Pranešti man apie",
+      "eventPreferencesDescription": "Pasirinkite, kurie užduočių įvykiai sukuria pranešimus programoje ir gali būti pristatyti į jūsų prijungtus kanalus.",
+      "eventTaskAssignments": "Užduočių priskyrimai",
+      "eventComments": "Komentarai ir paminėjimai",
+      "eventCommentsHint": "Apima naujus komentarus prie jums priskirtų užduočių ir tiesioginius @paminėjimus.",
+      "eventStatusChanges": "Užduočių būsenos pakeitimai",
+      "eventDueDateReminders": "Priminimai apie terminą",
+      "reminderLeadTimeLabel": "Priminti man prieš terminą",
+      "reminderLeadTimeHint": "Nuo 1 valandos iki 30 dienų anksčiau. Pranešimai apie pradelstus terminus siunčiami atskirai.",
+      "reminderLeadTimeUnitHours": "Valandos",
+      "reminderLeadTimeUnitDays": "Dienos",
+      "reminderLeadTimeInvalid": "Įveskite sveikąjį skaičių nuo 1 iki {{max}}.",
+      "saveEventPreferences": "Išsaugoti pranešimų tipus",
+      "workspaceCardLabelEmail": "El. paštas",
+      "workspaceCardLabelNtfy": "ntfy",
+      "workspaceCardLabelGotify": "Gotify",
+      "workspaceCardLabelWebhook": "Pasirinktinis webhook",
+      "emailChannelHintEnabled": "Siųsti atitinkamus darbo srities pranešimus el. paštu.",
+      "emailChannelHintDisabled": "Pirmiausia sukonfigūruokite ir įgalinkite el. paštą globaliai.",
+      "ntfyChannelHintEnabled": "Siųsti atitinkamus darbo srities pranešimus į ntfy.",
+      "ntfyChannelHintDisabled": "Pirmiausia sukonfigūruokite ir įgalinkite ntfy globaliai.",
+      "gotifyChannelHintEnabled": "Siųsti atitinkamus darbo srities pranešimus į Gotify.",
+      "gotifyChannelHintDisabled": "Pirmiausia sukonfigūruokite ir įgalinkite Gotify globaliai.",
+      "webhookChannelHintEnabled": "Siųsti atitinkamus darbo srities pranešimus į jūsų webhook.",
+      "webhookChannelHintDisabled": "Pirmiausia sukonfigūruokite ir įgalinkite webhook globaliai.",
+      "projectScope": "Projektų apimtis",
+      "projectScopeDescription": "Pagal numatytuosius nustatymus įtraukiami visi projektai. Susiaurinkite, jei ši darbo sritis turėtų siųsti pranešimus tik iš pasirinktų projektų.",
+      "allProjects": "Visi projektai",
+      "allProjectsDescription": "Pristatyti pranešimus iš kiekvieno šios darbo srities projekto.",
+      "selectedProjects": "Pasirinkti projektai",
+      "selectedProjectsDescription": "Pristatyti pranešimus tik iš pasirinktų projektų.",
+      "noProjectsInWorkspace": "Šiai darbo sričiai dar nėra prieinamų projektų.",
+      "createRule": "Sukurti taisyklę",
+      "removeRule": "Pašalinti taisyklę",
+      "toastEmailSaved": "El. pašto pranešimų nustatymai išsaugoti",
+      "toastEmailSaveFailed": "Nepavyko išsaugoti el. pašto nustatymų",
+      "toastNtfySaved": "ntfy nustatymai išsaugoti",
+      "toastNtfySaveFailed": "Nepavyko išsaugoti ntfy nustatymų",
+      "toastNtfyDisconnected": "ntfy atjungtas",
+      "toastNtfyDisconnectFailed": "Nepavyko atjungti ntfy",
+      "toastGotifySaved": "Gotify nustatymai išsaugoti",
+      "toastGotifySaveFailed": "Nepavyko išsaugoti Gotify nustatymų",
+      "toastGotifyDisconnected": "Gotify atjungtas",
+      "toastGotifyDisconnectFailed": "Nepavyko atjungti Gotify",
+      "toastWebhookSaved": "Webhook nustatymai išsaugoti",
+      "toastWebhookSaveFailed": "Nepavyko išsaugoti webhook nustatymų",
+      "toastWebhookDisconnected": "Webhook atjungtas",
+      "toastWebhookDisconnectFailed": "Nepavyko atjungti webhook",
+      "toastRuleSaved": "Išsaugota pranešimų taisyklė {{workspaceName}}",
+      "toastRuleSaveFailed": "Nepavyko išsaugoti darbo srities pranešimų taisyklės",
+      "toastRuleRemoved": "Pašalinta pranešimų taisyklė {{workspaceName}}",
+      "toastRuleRemoveFailed": "Nepavyko pašalinti darbo srities pranešimų taisyklės",
+      "toastPreferencesSaved": "Pranešimų nuostatos išsaugotos",
+      "toastPreferencesSaveFailed": "Nepavyko išsaugoti pranešimų nuostatų",
+      "toastRuleSavedGeneric": "Darbo srities pranešimų taisyklė išsaugota",
+      "toastRuleRemovedGeneric": "Darbo srities pranešimų taisyklė pašalinta"
+    },
+    "preferencesPage": {
+      "title": "Nuostatos",
+      "subtitle": "Tinkinkite savo Kaneo patirtį.",
+      "appearanceTitle": "Išvaizda",
+      "appearanceSubtitle": "Vaizdiniai nustatymai ir išdėstymo nuostatos.",
+      "theme": "Tema",
+      "themeDescription": "Pasirinkite pageidaujamą spalvų schemą",
+      "selectTheme": "Pasirinkite temą",
+      "themeLight": "Šviesi",
+      "themeDark": "Tamsi",
+      "themeSystem": "Sistema",
+      "language": "Kalba",
+      "languageDescription": "Pasirinkite pageidaujamą sąsajos kalbą",
+      "selectLanguage": "Pasirinkite kalbą",
+      "firstDayOfWeek": "Savaitės pradžios diena",
+      "firstDayOfWeekDescription": "Pasirinkite, kurią dieną prasideda kalendoriai ir savaitės intervalai",
+      "selectFirstDayOfWeek": "Pasirinkite pirmą dieną",
+      "weekStartsOnSunday": "Sekmadienis",
+      "weekStartsOnMonday": "Pirmadienis",
+      "weekStartsOnSaturday": "Šeštadienis",
+      "defaultView": "Numatytasis rodinys",
+      "defaultViewDescription": "Pasirinkite pageidaujamą užduočių rodymo režimą",
+      "selectViewMode": "Pasirinkite rodymo režimą",
+      "board": "Lenta",
+      "list": "Sąrašas",
+      "gantt": "Ganto diagrama",
+      "sidebarDefault": "Numatytoji šoninė juosta",
+      "sidebarDefaultDescription": "Paleidžiant laikyti šoninę juostą išplėstą",
+      "displayOptions": "Rodymo parinktys",
+      "displayOptionsDescription": "Pasirinkite, kokią informaciją rodyti užduočių rodiniuose",
+      "taskNumbers": "Užduočių numeriai",
+      "taskNumbersDescription": "Rodyti užduočių ID ir numerius",
+      "assignees": "Priskirtieji",
+      "assigneesDescription": "Rodyti, kam priskirtos užduotys",
+      "dueDates": "Terminai",
+      "dueDatesDescription": "Rodyti užduočių terminus",
+      "labels": "Etiketės",
+      "labelsDescription": "Rodyti užduočių etiketes ir žymas",
+      "priority": "Prioritetas",
+      "priorityDescription": "Rodyti prioritetų indikatorius"
+    },
+    "developerPage": {
+      "pageTitle": "Kūrėjo nustatymai",
+      "title": "Kūrėjo nustatymai",
+      "subtitle": "Tvarkykite savo API raktus ir kūrėjo išteklius.",
+      "apiKeysCardTitle": "API raktai",
+      "apiKeysCardDescription": "Sukurkite ir tvarkykite API raktus programinei prieigai prie Kaneo.",
+      "createApiKey": "Sukurti API raktą",
+      "unnamedKey": "Nenurodytas raktas"
+    },
+    "apiKey": {
+      "createdModal": {
+        "title": "API raktas sukurtas",
+        "description": "Jūsų API raktas „{{keyName}}“ sėkmingai sukurtas.",
+        "yourApiKey": "Jūsų API raktas",
+        "copy": "Kopijuoti",
+        "copied": "Nukopijuota",
+        "toastCopied": "API raktas nukopijuotas į mainų sritį",
+        "alertTitle": "Sėkmė! Jūsų API raktas sukurtas",
+        "alertDescription": "Nukopijuokite šį raktą dabar. Jūs jo daugiau nematysite.",
+        "done": "Atlikta",
+        "copyToContinue": "Kopijuoti raktą, kad tęstumėte"
+      },
+      "table": {
+        "loading": "Įkeliami API raktai...",
+        "empty": "Dar nėra API raktų. Sukurkite vieną, kad pradėtumėte.",
+        "columnName": "Pavadinimas",
+        "columnKey": "Raktas",
+        "columnCreated": "Sukurtas",
+        "columnExpires": "Baigiasi",
+        "columnActions": "Veiksmai",
+        "unnamedKey": "Nenurodytas raktas",
+        "expiredBadge": "Pasibaigęs {{label}}",
+        "deleteConfirmTitle": "Panaikinti API raktą?",
+        "deleteConfirmDescription": "Šio veiksmo negalima atšaukti. Tai visam laikui ištrins {{name}}.",
+        "deleteFallbackName": "šį API raktą",
+        "delete": "Panaikinti",
+        "deleting": "Naikinama...",
+        "deleteAria": "Panaikinti {{name}}",
+        "deleteAriaFallback": "API raktas",
+        "toastDeleted": "API raktas sėkmingai panaikintas",
+        "toastDeleteError": "Nepavyko panaikinti API rakto"
+      },
+      "createDialog": {
+        "title": "Sukurti API raktą",
+        "description": "Sukurkite naują API raktą, kad galėtumėte programiškai pasiekti Kaneo API.",
+        "nameLabel": "Pavadinimas",
+        "namePlaceholder": "Mano API raktas",
+        "nameDescription": "Aprašomasis šio API rakto pavadinimas",
+        "expirationLabel": "Galiojimo pabaiga",
+        "expirationPlaceholder": "Pasirinkite galiojimo pabaigą",
+        "expirationDescription": "Pasirinkite, kiek laiko šis API raktas liks galioti. „Niekada“ sukurs raktą be automatinio galiojimo pabaigos.",
+        "expiration1d": "1 diena",
+        "expiration7d": "7 dienos",
+        "expiration30d": "30 dienų",
+        "expiration90d": "90 dienų",
+        "expirationNever": "Niekada",
+        "create": "Sukurti",
+        "creating": "Kuriama...",
+        "failedCreate": "Nepavyko sukurti API rakto",
+        "validation": {
+          "nameRequired": "Pavadinimas privalomas",
+          "nameShort": "Pavadinimas turi būti bent 3 simbolių ilgio",
+          "expirationRequired": "Galiojimo pabaiga privaloma"
+        }
+      }
+    },
+    "workspaceGeneral": {
+      "pageTitle": "Bendrieji nustatymai",
+      "title": "Bendrieji nustatymai",
+      "subtitle": "Tvarkykite savo darbo vietos pavadinimą ir aprašymą.",
+      "workspaceInfoTitle": "Darbo vietos informacija",
+      "workspaceInfoSubtitle": "Konfigūruokite savo darbo vietos detales ir nuostatas.",
+      "nameLabel": "Darbo vietos pavadinimas",
+      "nameHint": "Jūsų darbo vietos pavadinimas",
+      "namePlaceholder": "Įveskite darbo vietos pavadinimą",
+      "descriptionLabel": "Aprašymas",
+      "descriptionHint": "Trumpas jūsų darbo vietos aprašymas",
+      "descriptionPlaceholder": "Įveskite darbo vietos aprašymą",
+      "dangerZone": "Pavojinga zona",
+      "dangerZoneSubtitle": "Neatšaukiami ir destruktyvūs veiksmai.",
+      "deleteWorkspace": "Panaikinti darbo vietą",
+      "deleteWorkspaceDescription": "Suplanuokite darbo vietos visam laikui panaikinti",
+      "deleteModalTitle": "Panaikinti darbo vietą?",
+      "deleteModalDescription": "Tai visam laikui panaikins darbo vietą „{{name}}“ ir visus jos duomenis. Šio veiksmo negalima atšaukti.",
+      "deleteModalConfirm": "Panaikinti darbo vietą",
+      "toastUpdated": "Darbo vieta sėkmingai atnaujinta",
+      "toastUpdateError": "Nepavyko atnaujinti darbo vietos",
+      "toastDeleted": "Darbo vieta sėkmingai panaikinta",
+      "toastDeleteError": "Nepavyko panaikinti darbo vietos",
+      "validation": {
+        "nameRequired": "Darbo vietos pavadinimas privalomas",
+        "nameShort": "Darbo vietos pavadinimas turi būti bent 2 simbolių ilgio"
+      },
+      "transferOwnership": {
+        "toastSuccess": "Nuosavybė perleista",
+        "toastError": "Nepavyko perleisti nuosavybės",
+        "title": "Perleisti nuosavybę",
+        "subtitle": "Perduokite šią darbo vietą kitam nariui. Būsite pažemintas iki administratoriaus ir prarasite tik savininko turimus gebėjimus.",
+        "pickerLabel": "Naujas savininkas",
+        "noEligibleMembers": "Pakvieskite bent vieną kitą narį, prieš galėdami perleisti nuosavybę.",
+        "pickerHint": "Jis taps vieninteliu šios darbo vietos savininku.",
+        "pickerPlaceholder": "Pasirinkite narį",
+        "button": "Perleisti",
+        "dialogTitle": "Perleisti nuosavybę?",
+        "dialogDescription": "{{name}} taps vieninteliu {{workspace}} savininku. Jūs išlaikysite administratoriaus prieigą, bet prarasite tik savininko turimus gebėjimus, pvz., panaikinti darbo vietą ar perleisti ją dar kartą.",
+        "transferring": "Perduodama...",
+        "confirm": "Perleisti nuosavybę"
+      }
+    },
+    "workspaceRoles": {
+      "pageTitle": "Rolės",
+      "title": "Rolės",
+      "subtitle": "Apibrėžkite, kokius veiksmus nariai gali atlikti {{workspaceName}}.",
+      "thisWorkspace": "šioje darbo vietoje",
+      "noAccess": "Norint tvarkyti darbo vietos roles, reikia administratoriaus arba savininko teisių.",
+      "sectionTitle": "Darbo vietos rolės",
+      "sectionSubtitle": "Redaguokite numatytąsias roles arba pridėkite pritaikytą. Nariai išlaiko jiems priskirtą vaidmens pavadinimą redagavimo metu.",
+      "newRole": "Nauja rolė",
+      "loading": "Įkeliama...",
+      "loadError": "Nepavyko įkelti rolių.",
+      "emptyTitle": "Dar nėra rolių",
+      "emptyDescription": "Numatytosios rolės čia pasirodys, kai jos bus inicijuotos šiai darbo vietai.",
+      "defaultBadge": "Numatytasis",
+      "permissionCount_one": "{{count}} leidimas",
+      "permissionCount_other": "{{count}} leidimai",
+      "nameLabel": "Pavadinimas",
+      "nameHint": "Raidžių. Negali būti pakeistas vėliau.",
+      "namePlaceholder": "pvz., peržiūrėtojas",
+      "discard": "Atsisakyti",
+      "createRole": "Sukurti vaidmenį",
+      "deleteRole": "Ištrinti vaidmenį",
+      "defaultRoleHelp": "Numatytasis vaidmuo: pavadinimas yra rezervuotas ir eilutės negalima ištrinti.",
+      "unsavedChanges": "Turite neišsaugotų pakeitimų",
+      "allChangesSaved": "Visi pakeitimai išsaugoti",
+      "saveChanges": "Išsaugoti pakeitimus",
+      "defaultRoleDescriptions": {
+        "viewer": "Gali peržiūrėti ir komentuoti užduotis.",
+        "member": "Gali kurti ir tvarkyti užduotis bei projektus.",
+        "admin": "Turi visišką prieigą prie darbo srities."
+      },
+      "resources": {
+        "project": "Projektai",
+        "task": "Užduotys",
+        "label": "Etiketės",
+        "workspace": "Darbo sritis"
+      },
+      "permissions": {
+        "project": {
+          "create": {
+            "label": "Sukurti",
+            "description": "Gali kurti naujus projektus"
+          },
+          "read": {
+            "label": "Skaityti",
+            "description": "Gali peržiūrėti projektus"
+          },
+          "update": {
+            "label": "Atnaujinti",
+            "description": "Gali redaguoti projekto nustatymus"
+          },
+          "delete": {
+            "label": "Ištrinti",
+            "description": "Gali ištrinti projektus"
+          },
+          "share": {
+            "label": "Bendrinti",
+            "description": "Gali bendrinti projektus"
+          }
+        },
+        "task": {
+          "create": {
+            "label": "Sukurti",
+            "description": "Gali kurti užduotis"
+          },
+          "read": {
+            "label": "Skaityti",
+            "description": "Gali peržiūrėti užduotis"
+          },
+          "update": {
+            "label": "Atnaujinti",
+            "description": "Gali redaguoti užduotis"
+          },
+          "delete": {
+            "label": "Ištrinti",
+            "description": "Gali ištrinti užduotis"
+          },
+          "assign": {
+            "label": "Priskirti",
+            "description": "Gali priskirti užduotis nariams"
+          }
+        },
+        "label": {
+          "create": {
+            "label": "Sukurti",
+            "description": "Gali kurti etiketes"
+          },
+          "read": {
+            "label": "Skaityti",
+            "description": "Gali peržiūrėti etiketes"
+          },
+          "update": {
+            "label": "Atnaujinti",
+            "description": "Gali redaguoti etiketes"
+          },
+          "delete": {
+            "label": "Ištrinti",
+            "description": "Gali ištrinti etiketes"
+          }
+        },
+        "workspace": {
+          "read": {
+            "label": "Skaityti",
+            "description": "Gali peržiūrėti darbo srities nustatymus"
+          },
+          "update": {
+            "label": "Atnaujinti",
+            "description": "Gali atnaujinti darbo srities nustatymus"
+          },
+          "delete": {
+            "label": "Ištrinti",
+            "description": "Gali ištrinti darbo sritį"
+          },
+          "manage_settings": {
+            "label": "Tvarkyti nustatymus",
+            "description": "Gali tvarkyti darbo srities nustatymus"
+          }
+        }
+      },
+      "validation": {
+        "nameRequired": "Reikalingas vaidmens pavadinimas",
+        "nameExists": "Toks vaidmuo jau egzistuoja",
+        "permissionRequired": "Turi būti pasirinkta bent viena teisė"
+      },
+      "toast": {
+        "created": "Vaidmuo sukurtas",
+        "createError": "Nepavyko sukurti vaidmens",
+        "updated": "Vaidmuo atnaujintas",
+        "updateError": "Nepavyko atnaujinti vaidmens",
+        "deleted": "Vaidmuo ištrintas",
+        "deleteError": "Nepavyko ištrinti vaidmens"
+      },
+      "deleteDialog": {
+        "title": "Ištrinti vaidmenį",
+        "description": "Tai visam laikui ištrins vaidmenį \"{{role}}\". Nariai, kuriems priskirtas šis vaidmuo, neteks jo teisių."
+      }
+    },
+    "workspaceLabels": {
+      "pageTitle": "Etikečių nustatymai",
+      "title": "Etiketės",
+      "subtitle": "Kurti, redaguoti ir ištrinti darbo srities lygio etiketes.",
+      "cardDescription": "Tvarkyti etiketes, kurios gali būti priskirtos užduotims.",
+      "createLabel": "Sukurti etiketę",
+      "editLabel": "Redaguoti etiketę",
+      "deleteLabel": "Ištrinti",
+      "saveLabel": "Išsaugoti",
+      "nameLabel": "Etiketės pavadinimas",
+      "namePlaceholder": "Įveskite etiketės pavadinimą",
+      "colorLabel": "Spalva",
+      "createDescription": "Sukurkite naują etiketę, kurią galima naudoti visose šios darbo srities užduotyse.",
+      "editDescription": "Atnaujinkite šios etiketės pavadinimą arba spalvą.",
+      "deleteConfirmTitle": "Ištrinti šią etiketę?",
+      "deleteConfirmDescription": "Tai visam laikui pašalins šią etiketę iš visų užduočių. Šio veiksmo negalima atšaukti.",
+      "empty": "Dar nėra etikečių. Sukurkite savo pirmąją etiketę, kad pradėtumėte.",
+      "createSuccess": "Etiketė sukurta",
+      "updateSuccess": "Etiketė atnaujinta",
+      "deleteSuccess": "Etiketė ištrinta",
+      "createError": "Nepavyko sukurti etiketės",
+      "updateError": "Nepavyko atnaujinti etiketės",
+      "deleteError": "Nepavyko ištrinti etiketės",
+      "nameRequired": "Reikalingas etiketės pavadinimas"
+    },
+    "projectGeneral": {
+      "pageTitle": "Projekto nustatymai",
+      "title": "Pagrindiniai nustatymai",
+      "subtitle": "Tvarkykite savo projekto pavadinimą, raktą, piktogramą ir aprašymą.",
+      "projectInfoTitle": "Projekto informacija",
+      "projectInfoSubtitle": "Konfigūruokite savo projekto detales ir nuostatas.",
+      "iconLabel": "Piktograma",
+      "iconHint": "Rodyti šoninėje juostoje ir projekto paviršiuose.",
+      "pickIconTitle": "Pasirinkti piktogramą",
+      "searchIconsPlaceholder": "Ieškoti piktogramų...",
+      "projectNameLabel": "Projekto pavadinimas",
+      "projectNameHint": "Jūsų projekto pavadinimas",
+      "projectNamePlaceholder": "Įveskite projekto pavadinimą",
+      "keyLabel": "Raktas",
+      "keyHint": "Naudojamas bilietų ID (pvz., {{slug}}-123)",
+      "keyPlaceholder": "PRO",
+      "descriptionLabel": "Aprašymas",
+      "descriptionHint": "Trumpas jūsų projekto aprašymas",
+      "descriptionPlaceholder": "Įveskite projekto aprašymą",
+      "dangerZone": "Pavojinga zona",
+      "dangerZoneSubtitle": "Neatšaukiami ir destruktyvūs veiksmai.",
+      "deleteProject": "Ištrinti projektą",
+      "deleteProjectDescription": "Suplanuoti projekto visam laikui ištrinti",
+      "deleteModalTitle": "Ištrinti projektą?",
+      "deleteModalDescription": "Tai visam laikui ištrins projektą \"{{name}}\" ir visus jo duomenis. Šio veiksmo negalima atšaukti.",
+      "deleteModalConfirm": "Ištrinti projektą",
+      "toastUpdated": "Projektas sėkmingai atnaujintas",
+      "toastUpdateError": "Nepavyko atnaujinti projekto",
+      "toastDeleted": "Projektas sėkmingai ištrintas",
+      "toastDeleteError": "Nepavyko ištrinti projekto",
+      "validation": {
+        "nameRequired": "Reikalingas projekto pavadinimas",
+        "keyRequired": "Reikalingas raktas",
+        "keyMax": "Raktas negali būti ilgesnis nei 8 simboliai",
+        "iconRequired": "Reikalinga piktograma"
+      },
+      "importExportTasks": "Importuoti/Eksportuoti",
+      "importExportTasksDescription": "Importuoti ir eksportuoti užduotis."
+    },
+    "projectIntegrations": {
+      "pageTitle": "Projekto integracijos",
+      "title": "Projekto integracijos",
+      "subtitle": "Sujunkite savo projektą su išoriniais įrankiais ir paslaugomis, kad supaprastintumėte savo darbo eigą.",
+      "githubSectionTitle": "GitHub integracija",
+      "githubSectionSubtitle": "Sinchronizuokite užduotis su GitHub išdavimais ir įgalinkite dvipusį sinchronizavimą.",
+      "giteaSectionTitle": "Gitea integracija",
+      "giteaSectionSubtitle": "Sinchronizuokite užduotis su savarankišku Gitea egzemplioriumi (išdavimai, PR, webhookai).",
+      "discordSectionTitle": "Discord integracija",
+      "discordSectionSubtitle": "Siųskite projekto užduočių naujinius į Discord kanalą su webhook.",
+      "genericWebhookSectionTitle": "Bendrieji Webhookai",
+      "genericWebhookSectionSubtitle": "Siųskite projekto užduočių įvykius į bet kurį HTTP galinį tašką kaip JSON.",
+      "slackSectionTitle": "Slack integracija",
+      "slackSectionSubtitle": "Siųskite projekto užduočių naujinius į Slack kanalą su gaunamuoju webhook.",
+      "telegramSectionTitle": "Telegram integracija",
+      "telegramSectionSubtitle": "Siųskite projekto užduočių naujinius į Telegram pokalbį ar temą su botu."
+    },
+    "projectVisibility": {
+      "pageTitle": "Projekto matomumas",
+      "title": "Matomumas",
+      "subtitle": "Kontroliuokite, kas gali peržiūrėti ir pasiekti jūsų projektą.",
+      "sectionTitle": "Matomumas",
+      "sectionSubtitle": "Perjungti viešą prieigą ir bendrinti viešą URL.",
+      "publicAccess": "Vieša prieiga",
+      "publicAccessHint": "Leisti bet kam su URL peržiūrėti šį projektą",
+      "publicUrl": "Viešas URL",
+      "publicUrlHint": "Bendrinkite šią nuorodą, jei projektas yra viešas",
+      "copy": "Kopijuoti",
+      "copiedToast": "Nukopijuota",
+      "toastUpdated": "Matomumas atnaujintas",
+      "toastUpdateError": "Nepavyko atnaujinti matomumo"
+    },
+    "projectWorkflow": {
+      "pageTitle": "Darbų eigos nustatymai",
+      "title": "Darbų eiga",
+      "subtitle": "Konfigūruokite lentos stulpelius ir automatizavimo taisykles šiam projektui.",
+      "columnsTitle": "Stulpeliai",
+      "columnsDescription": "Tvarkykite stulpelius, kurie rodomi jūsų lentoje. Vilkite, kad pakeistumėte tvarką. Įjunkite „Atlikta“ stulpelį, kad pažymėtumėte etapus, kurie atspindi atliktą darbą.",
+      "automationTitle": "Automatizavimo taisyklės",
+      "automationDescription": "Susiekite integracijos įvykius su stulpeliais. Kai įvyksta įvykis, susieta užduotis pereina į nurodytą stulpelį."
+    },
+    "projectSwitcher": {
+      "selectProject": "Pasirinkti projektą",
+      "noProjects": "Nėra projektų"
+    },
+    "columnEditor": {
+      "toastCreated": "Stulpelis sukurtas",
+      "toastCreateError": "Nepavyko sukurti stulpelio",
+      "toastRenamed": "Stulpelis pervadintas",
+      "toastRenameError": "Nepavyko atnaujinti stulpelio",
+      "toastFinalOn": "Stulpelis pažymėtas kaip baigtas",
+      "toastFinalOff": "Stulpelis nepažymėtas kaip baigtas",
+      "toastUpdateError": "Nepavyko atnaujinti stulpelio",
+      "toastIconUpdated": "Stulpelio piktograma atnaujinta",
+      "toastDeleted": "Stulpelis ištrintas",
+      "toastDeleteError": "Nepavyko ištrinti stulpelio",
+      "loading": "Įkeliami stulpeliai...",
+      "pickIconTitle": "Pasirinkti stulpelio piktogramą",
+      "searchIconsPlaceholder": "Ieškoti piktogramų...",
+      "doneColumnTooltip": "Laikyti tai atliktu stulpeliu",
+      "doneColumn": "Atlikta stulpelis",
+      "markDoneAria": "Pažymėti {{name}} kaip atliktą stulpelį",
+      "on": "Įjungta",
+      "off": "Išjungta",
+      "newColumnPlaceholder": "Naujas stulpelio pavadinimas...",
+      "add": "Pridėti"
+    },
+    "githubIntegration": {
+      "validation": {
+        "ownerRequired": "Reikalingas saugyklos savininkas",
+        "ownerInvalid": "Neteisingas saugyklos savininko formatas",
+        "nameRequired": "Reikalingas saugyklos pavadinimas",
+        "nameInvalid": "Neteisingas saugyklos pavadinimo formatas"
+      },
+      "toast": {
+        "installedOk": "GitHub App tinkamai įdiegtas!",
+        "installedMissingPerms": "GitHub App yra įdiegtas, bet trūksta reikiamų leidimų",
+        "needsInstallOnRepo": "GitHub App turi būti įdiegtas šioje saugykloje",
+        "repoNotFound": "Saugykla nerasta arba nepasiekiama",
+        "verifyError": "Nepavyko patikrinti GitHub diegimo",
+        "installAppFirst": "Pirmiausia įdiekite GitHub App šioje saugykloje",
+        "missingPermsDetail": "GitHub App trūksta reikiamų leidimų: {{list}}. Atnaujinkite programos leidimus.",
+        "updated": "GitHub integracija sėkmingai atnaujinta",
+        "updateError": "Nepavyko atnaujinti GitHub integracijos",
+        "removed": "GitHub integracija sėkmingai pašalinta",
+        "removeError": "Nepavyko pašalinti GitHub integracijos",
+        "issuesImported": "Problemos sėkmingai importuotos",
+        "importError": "Nepavyko importuoti problemų",
+        "commentOnEnabled": "Kaneo komentuos su užduoties nuoroda naujose problemose",
+        "commentOnDisabled": "Užduoties nuorodos komentarai naujose problemose yra išjungti",
+        "settingsUpdateError": "Nepavyko atnaujinti GitHub integracijos"
+      },
+      "connectionStatus": "Ryšio būsena",
+      "connectedActive": "Saugykla prijungta ir aktyvi",
+      "notConnectedHint": "Nėra prijungtos saugyklos",
+      "badgeConnected": "Prijungta",
+      "badgeNotConnected": "Neprisijungta",
+      "repository": "Saugykla",
+      "repositoryHint": "Prijungta GitHub saugykla",
+      "commentTaskLinkTitle": "Komentuoti Kaneo nuorodą naujose problemose",
+      "commentTaskLinkHint": "Kai įjungta, Kaneo pateikia komentarą kiekvienoje naujoje GitHub problemoje su nuoroda į užduotį.",
+      "appStatusTitle": "GitHub App būsena",
+      "appStatusHint": "Diegimo ir leidimų būsena",
+      "statusProperlyConfigured": "Tinkamai sukonfigūruota",
+      "statusMissingPermissions": "Trūksta leidimų",
+      "statusNotInstalled": "Neįdiegta",
+      "ownerLabel": "Saugyklos savininkas",
+      "ownerHint": "GitHub vartotojo vardas arba organizacija",
+      "ownerPlaceholder": "pvz., octocat",
+      "repoNameLabel": "Saugyklos pavadinimas",
+      "repoNameHint": "Saugyklos pavadinimas",
+      "repoNamePlaceholder": "pvz., mano-projektas",
+      "actionsTitle": "Veiksmai",
+      "actionsHint": "Tvarkykite savo saugyklos ryšį",
+      "browse": "Naršyti",
+      "verify": "Patvirtinti",
+      "update": "Atnaujinti",
+      "connect": "Prijungti",
+      "disconnect": "Atjungti",
+      "missingPermissionsLabel": "Trūksta leidimų:",
+      "updatePermissions": "Atnaujinti leidimus",
+      "installGithubApp": "Įdiegti GitHub App",
+      "importSectionTitle": "Importuoti GitHub problemas",
+      "importSectionHint": "Importuokite esamas problemas iš savo GitHub saugyklos kaip užduotis",
+      "importing": "Importuojama...",
+      "importIssues": "Importuoti problemas",
+      "importDisabledHint": "Užbaikite saugyklos konfigūraciją aukščiau, kad įgalintumėte importavimą"
+    },
+    "giteaIntegration": {
+      "validation": {
+        "baseUrlRequired": "Reikalingas Gitea pagrindinis URL",
+        "baseUrlInvalid": "Įveskite galiojantį URL (pvz., https://gitea.example.com)",
+        "ownerRequired": "Reikalingas saugyklos savininkas",
+        "ownerInvalid": "Neteisingas saugyklos savininko formatas",
+        "nameRequired": "Reikalingas saugyklos pavadinimas",
+        "nameInvalid": "Neteisingas saugyklos pavadinimo formatas"
+      },
+      "toast": {
+        "verifyOk": "Gitea žyma gali pasiekti šią saugyklą",
+        "verifyWarning": "Patikrinkite žymos leidimus arba saugyklos prieigą",
+        "repoNotFound": "Saugykla nerasta arba nepasiekiama",
+        "redirected": "Gitea URL buvo peradresuotas (paprastai į HTTPS). Naudokite galutinį URL tiesiogiai.",
+        "notGiteaInstance": "URL nenurodo Gitea egzemplioriaus",
+        "verifyError": "Nepavyko patikrinti Gitea prieigos",
+        "tokenRequired": "Reikalingas asmeninis prieigos žymeklis",
+        "tokenRequiredVerify": "Įveskite žymeklį, kad patvirtintumėte",
+        "verifyFirst": "Prieigos patvirtinimas nepavyko. Patikrinkite URL, žymeklį ir saugyklą",
+        "updated": "Gitea integracija išsaugota",
+        "updateError": "Nepavyko išsaugoti Gitea integracijos",
+        "removed": "Gitea integracija pašalinta",
+        "removeError": "Nepavyko pašalinti Gitea integracijos",
+        "issuesImported": "Problemos sėkmingai importuotos",
+        "importError": "Nepavyko importuoti problemų",
+        "commentOnEnabled": "Kaneo komentuos su užduoties nuoroda naujose problemose",
+        "commentOnDisabled": "Užduoties nuorodos komentarai naujose problemose yra išjungti",
+        "settingsUpdateError": "Nepavyko atnaujinti Gitea integracijos",
+        "secretCopied": "Nukopijuota",
+        "unableToCopySecret": "Nepavyksta nukopijuoti slaptojo"
+      },
+      "webhookShow": "Rodyti",
+      "webhookHide": "Slėpti",
+      "webhookCopy": "Kopijuoti",
+      "connectionStatus": "Ryšio būsena",
+      "connectedActive": "Saugykla prijungta ir aktyvi",
+      "notConnectedHint": "Nėra prijungtos Gitea saugyklos",
+      "badgeConnected": "Prijungta",
+      "badgeNotConnected": "Neprisijungta",
+      "repository": "Saugykla",
+      "repositoryHint": "Susietoji Gitea saugykla",
+      "commentTaskLinkTitle": "Komentaro Kaneo nuoroda naujose užduotyse",
+      "commentTaskLinkHint": "Kai įjungta, Kaneo įrašo komentarą prie kiekvienos naujos užduoties su nuoroda į užduotį.",
+      "webhookTitle": "Webhook",
+      "webhookHint": "Savo Gitea saugykloje pridėkite webhook su šiuo URL ir slaptažodžiu. Įjunkite push, pull request, issues, issue comments ir create (dėl etikečių).",
+      "webhookSecretLabel": "Slaptažodis (turi sutapti su Gitea webhook slaptažodžiu)",
+      "baseUrlLabel": "Gitea URL",
+      "baseUrlHint": "Pagrindinis jūsų Gitea instancijos URL",
+      "tokenLabel": "Asmeninis prieigos raktas",
+      "tokenHint": "Raktas su prieiga prie saugyklų ir užduočių",
+      "tokenPlaceholder": "Įklijuokite raktą",
+      "tokenPlaceholderUpdate": "Įklijuokite naują raktą, kad pakeistumėte",
+      "currentToken": "išsaugota",
+      "ownerLabel": "Savininkas",
+      "ownerHint": "Vartotojo arba organizacijos pavadinimas",
+      "repoNameLabel": "Saugyklos pavadinimas",
+      "repoNameHint": "Tik saugyklos pavadinimas (be savininko)",
+      "actionsTitle": "Veiksmai",
+      "actionsHint": "Patikrinti prieigą ir prisijungti",
+      "browse": "Naršyti",
+      "verify": "Patikrinti",
+      "update": "Atnaujinti",
+      "connect": "Prisijungti",
+      "disconnect": "Atsijungti",
+      "importSectionTitle": "Importuoti Gitea užduotis",
+      "importSectionHint": "Importuoti atviras užduotis ir pull requestus iš saugyklos",
+      "importing": "Importuojama…",
+      "importIssues": "Importuoti užduotis",
+      "importDisabledHint": "Patikrinkite saugyklą aukščiau, kad įgalintumėte importavimą",
+      "browseModalTitle": "Jūsų saugyklos",
+      "browseModalHint": "Saugyklos, prie kurių jūsų raktas turi prieigą",
+      "searchRepos": "Ieškoti…",
+      "browseNeedsCredentials": "Įveskite Gitea URL ir raktą, kad galėtumėte naršyti",
+      "loadingRepos": "Įkeliamos saugyklos…",
+      "retry": "Bandyti dar kartą"
+    },
+    "slackIntegration": {
+      "validation": {
+        "webhookInvalid": "Įveskite galiojantį Slack webhook URL"
+      },
+      "toast": {
+        "saved": "Slack integracija sėkmingai išsaugota",
+        "saveError": "Nepavyko išsaugoti Slack integracijos",
+        "enabled": "Slack pranešimai įjungti",
+        "disabled": "Slack pranešimai sustabdyti",
+        "updateError": "Nepavyko atnaujinti Slack integracijos",
+        "removed": "Slack integracija sėkmingai pašalinta",
+        "removeError": "Nepavyko pašalinti Slack integracijos"
+      },
+      "connectionTitle": "Slack webhook ryšys",
+      "connectionHint": "Įklijuokite Slack incoming webhook URL ir pasirinkite, kurie užduočių įvykiai turėtų būti siunčiami.",
+      "connected": "Prisijungta",
+      "paused": "Pristabdyta",
+      "webhookLabel": "Gaunamo webhook URL",
+      "webhookPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Sukurkite Slack Incoming Webhook ir įklijuokite čia sugeneruotą URL.",
+      "channelLabel": "Kanalas",
+      "channelPlaceholder": "#team-updates",
+      "channelHint": "Pasirinktinė etiketė jūsų nuorodai. Slack valdo faktinį paskirties kanalą per webhook nustatymus.",
+      "eventsTitle": "Įvykių pranešimai",
+      "eventsHint": "Pasirinkite, kurie projekto pakeitimai turėtų būti siunčiami į Slack.",
+      "events": {
+        "taskCreated": "Naujos užduotys",
+        "taskStatusChanged": "Būsenos pakeitimai",
+        "taskPriorityChanged": "Prioriteto pakeitimai",
+        "taskTitleChanged": "Pavadinimo pakeitimai",
+        "taskDescriptionChanged": "Aprašymo pakeitimai",
+        "taskCommentCreated": "Nauji komentarai"
+      },
+      "connect": "Prisijungti prie Slack",
+      "saveChanges": "Išsaugoti pakeitimus",
+      "update": "Atnaujinti Slack",
+      "disconnect": "Atsijungti"
+    },
+    "discordIntegration": {
+      "validation": {
+        "webhookInvalid": "Įveskite galiojantį Discord webhook URL"
+      },
+      "toast": {
+        "saved": "Discord integracija sėkmingai išsaugota",
+        "saveError": "Nepavyko išsaugoti Discord integracijos",
+        "enabled": "Discord pranešimai įjungti",
+        "disabled": "Discord pranešimai sustabdyti",
+        "updateError": "Nepavyko atnaujinti Discord integracijos",
+        "removed": "Discord integracija sėkmingai pašalinta",
+        "removeError": "Nepavyko pašalinti Discord integracijos"
+      },
+      "connectionTitle": "Discord webhook ryšys",
+      "connectionHint": "Įklijuokite Discord webhook URL ir pasirinkite, kurie užduočių įvykiai turėtų būti siunčiami.",
+      "connected": "Prisijungta",
+      "paused": "Pristabdyta",
+      "webhookLabel": "Webhook URL",
+      "webhookPlaceholder": "https://discord.com/api/webhooks/...",
+      "webhookHint": "Sukurkite Discord kanalo webhook ir įklijuokite čia sugeneruotą URL.",
+      "channelLabel": "Kanalas",
+      "channelPlaceholder": "#team-updates",
+      "channelHint": "Pasirinktinė etiketė jūsų nuorodai. Discord valdo faktinį paskirties kanalą per webhook nustatymus.",
+      "eventsTitle": "Įvykių pranešimai",
+      "eventsHint": "Pasirinkite, kurie projekto pakeitimai turėtų būti siunčiami į Discord.",
+      "events": {
+        "taskCreated": "Naujos užduotys",
+        "taskStatusChanged": "Būsenos pakeitimai",
+        "taskPriorityChanged": "Prioriteto pakeitimai",
+        "taskTitleChanged": "Pavadinimo pakeitimai",
+        "taskDescriptionChanged": "Aprašymo pakeitimai",
+        "taskCommentCreated": "Nauji komentarai"
+      },
+      "connect": "Prisijungti prie Discord",
+      "saveChanges": "Išsaugoti pakeitimus",
+      "update": "Atnaujinti Discord",
+      "disconnect": "Atsijungti"
+    },
+    "genericWebhookIntegration": {
+      "validation": {
+        "webhookInvalid": "Įveskite galiojantį webhook URL"
+      },
+      "toast": {
+        "saved": "Bendroji webhook integracija sėkmingai išsaugota",
+        "saveError": "Nepavyko išsaugoti bendrosios webhook integracijos",
+        "enabled": "Bendrieji webhook pranešimai įjungti",
+        "disabled": "Bendrieji webhook pranešimai sustabdyti",
+        "updateError": "Nepavyko atnaujinti bendrosios webhook integracijos",
+        "removed": "Bendroji webhook integracija sėkmingai pašalinta",
+        "removeError": "Nepavyko pašalinti bendrosios webhook integracijos"
+      },
+      "connectionTitle": "Išvykstamojo webhook ryšys",
+      "connectionHint": "Siųskite užduočių įvykius į savo galinį tašką kaip JSON. Kai konfigūruojamas slaptažodis, pridedamas pasirašytas X-Kaneo-Signature antraštė.",
+      "connected": "Prisijungta",
+      "paused": "Pristabdyta",
+      "webhookLabel": "Galutinio taško URL",
+      "webhookPlaceholder": "https://example.com/webhooks/kaneo",
+      "webhookHint": "Kaneo siunčia POST užklausas su JSON duomenimis kiekvienam įjungtam įvykiui.",
+      "secretLabel": "Pasirašymo slaptažodis",
+      "secretPlaceholder": "Pasirinktinis bendras slaptažodis",
+      "secretHint": "Pasirinktinai. Jei pateikta, Kaneo pasirašo užklausos kūną ir siunčia heksadecimale santrumpą X-Kaneo-Signature antraštėje.",
+      "secretHintConfigured": "Pasirašymo slaptažodis jau sukonfigūruotas ({{secret}}). Įveskite naują, kad pakeistumėte.",
+      "eventsTitle": "Įvykių pranešimai",
+      "eventsHint": "Pasirinkite, kurie projekto pakeitimai turėtų sukelti išvykstamuosius webhookus.",
+      "events": {
+        "taskCreated": "Naujos užduotys",
+        "taskStatusChanged": "Būsenos pakeitimai",
+        "taskPriorityChanged": "Prioriteto pakeitimai",
+        "taskTitleChanged": "Pavadinimo pakeitimai",
+        "taskDescriptionChanged": "Aprašymo pakeitimai",
+        "taskCommentCreated": "Nauji komentarai",
+        "taskDeleted": "Užduotis ištrinta",
+        "taskMoved": "Užduotis perkelta",
+        "taskDueDateChanged": "Apdailos datos pakeitimas",
+        "taskAssigneeChanged": "Priskirtasis pakeistas",
+        "taskUnassigned": "Užduotis nepaskirta",
+        "dueDateReminder": "Priminimai apie apdailos datą"
+      },
+      "reminderLeadTimeLabel": "Siųsti webhook šį skaičių valandų prieš",
+      "connect": "Prijungti webhook",
+      "saveChanges": "Išsaugoti pakeitimus",
+      "disconnect": "Atjungti"
+    },
+    "telegramIntegration": {
+      "validation": {
+        "botTokenInvalid": "Įveskite galiojantį Telegram bot token",
+        "chatIdRequired": "Pokalbio ID yra privalomas",
+        "threadIdInvalid": "Įveskite galiojantį Telegram temos gijos ID"
+      },
+      "toast": {
+        "saved": "Telegram integracija sėkmingai išsaugota",
+        "saveError": "Nepavyko išsaugoti Telegram integracijos",
+        "enabled": "Telegram pranešimai įjungti",
+        "disabled": "Telegram pranešimai sustabdyti",
+        "updateError": "Nepavyko atnaujinti Telegram integracijos",
+        "removed": "Telegram integracija sėkmingai pašalinta",
+        "removeError": "Nepavyko pašalinti Telegram integracijos"
+      },
+      "connectionTitle": "Telegram bot jungtis",
+      "connectionHint": "Naudokite Telegram bot token ir pokalbio ID, kad siųstumėte projekto užduočių naujinius į pokalbį ar temą.",
+      "connected": "Prijungtas",
+      "paused": "Pristabdytas",
+      "botTokenLabel": "Bot žetonas",
+      "botTokenPlaceholder": "123456789:AAExampleBotToken",
+      "botTokenHint": "Sukurkite bot su BotFather ir įklijuokite jo token čia.",
+      "botTokenHintConfigured": "Bot token jau sukonfigūruotas ({{token}}). Įveskite naują, kad pakeistumėte jį.",
+      "chatIdLabel": "Pokalbio ID",
+      "chatIdPlaceholder": "-1001234567890 arba @team_updates",
+      "chatIdHint": "Įveskite Telegram pokalbio ID arba kanalo vartotojo vardą, kur turėtų būti skelbiami naujiniai.",
+      "threadIdLabel": "Temos gijos ID",
+      "threadIdPlaceholder": "Neprivalomas temos ID",
+      "threadIdHint": "Neprivaloma. Naudokite tai forumo temoms Telegram grupėse.",
+      "chatLabelLabel": "Pokalbio etiketė",
+      "chatLabelPlaceholder": "Inžinerijos naujiniai",
+      "chatLabelHint": "Neprivaloma etiketė jūsų nuorodai Kaneo viduje.",
+      "eventsTitle": "Įvykių pranešimai",
+      "eventsHint": "Pasirinkite, kurie projekto pakeitimai turėtų būti skelbiami į Telegram.",
+      "events": {
+        "taskCreated": "Naujos užduotys",
+        "taskStatusChanged": "Būsenos pakeitimai",
+        "taskPriorityChanged": "Prioriteto pakeitimai",
+        "taskTitleChanged": "Pavadinimo pakeitimai",
+        "taskDescriptionChanged": "Aprašymo pakeitimai",
+        "taskCommentCreated": "Nauji komentarai"
+      },
+      "connect": "Prijungti Telegram",
+      "saveChanges": "Išsaugoti pakeitimus",
+      "disconnect": "Atjungti"
+    },
+    "repositoryBrowser": {
+      "title": "Pasirinkti saugyklą",
+      "description": "Pasirinkite saugyklą, kurioje įdiegtas jūsų GitHub App, kad įgalintumėte problemų sinchronizavimą.",
+      "searchPlaceholder": "Ieškoti saugyklų...",
+      "loadError": "Nepavyko įkelti saugyklų",
+      "tryAgain": "Bandykite dar kartą",
+      "emptyTitle": "Nėra rastų saugyklų",
+      "emptyHint": "Įdiekite GitHub App savo saugyklose, kad pamatytumėte jas čia.",
+      "installGithubApp": "Įdiegti GitHub App",
+      "noSearchMatchTitle": "Nėra saugyklų, atitinkančių jūsų paiešką",
+      "noSearchMatchHint": "Pabandykite pakoreguoti paieškos terminus arba išvalykite paiešką, kad pamatytumėte visas saugyklas.",
+      "footerSummary": "{{repoCount}} saugyklos per {{installationCount}} diegimus",
+      "manageInstallations": "Tvarkyti diegimus",
+      "updatedPrefix": "Atnaujinta",
+      "relativeJustNow": "ką tik",
+      "relativeMinutesAgo": "{{count}}m atgal",
+      "relativeHoursAgo": "{{count}}h atgal",
+      "relativeDaysAgo": "{{count}}d atgal"
+    },
+    "tasksImportExport": {
+      "exportTasks": "Eksportuoti užduotis",
+      "importTasks": "Importuoti užduotis",
+      "dialogTitle": "Importuoti užduotis",
+      "dialogDescription": "Įkelkite JSON failą, kuriame yra užduočių, kad importuotumėte į šį projektą.",
+      "expectedFormat": "Laukiama formatas:",
+      "dropHint": "Vilkite ir numeskite savo JSON failą čia",
+      "selectFile": "Pasirinkti failą",
+      "exporting": "Užduočių eksportavimas...",
+      "exportSuccess": "Užduotys sėkmingai eksportuotos",
+      "exportError": "Nepavyko eksportuoti užduočių",
+      "importing": "Užduočių importavimas...",
+      "importSuccess": "{{count}} užduočių sėkmingai importuota",
+      "importPartialError": "Nepavyko importuoti {{count}} užduočių",
+      "importError": "Nepavyko importuoti užduočių",
+      "invalidFormat": "Netinkamas importavimo failo formatas",
+      "noFileDropped": "Nėra numesto failo",
+      "notJsonFile": "Prašome įkelti JSON failą"
+    },
+    "workflowEditor": {
+      "loading": "Įkeliama...",
+      "createColumnsFirst": "Pirmiausia sukurkite stulpelius, kad sukonfigūruotumėte automatizavimo taisykles.",
+      "githubHeading": "GitHub",
+      "githubHint": "Kai įvyksta GitHub įvykis, perkelti susietą užduotį į stulpelį.",
+      "giteaHeading": "Gitea",
+      "giteaHint": "Kai įvyksta Gitea webhook įvykis, perkelti susietą užduotį į stulpelį.",
+      "selectColumnPlaceholder": "Pasirinkti stulpelį...",
+      "toastUpdated": "Darbo eigos taisyklė atnaujinta",
+      "toastError": "Nepavyko atnaujinti taisyklės",
+      "events": {
+        "branch_push": "Šakos perkėlimas",
+        "pr_opened": "PR atidarytas",
+        "pr_merged": "PR sujungtas",
+        "issue_opened": "Problema atidaryta",
+        "issue_closed": "Problema uždaryta"
+      }
+    },
+    "externalLinks": {
+      "resources": "Resursai",
+      "issue": "Problema",
+      "branch": "Šaka",
+      "merged": "Sujungta",
+      "draft": "Juodraštis",
+      "open": "Atidaryti"
+    }
+  },
+  "navigation": {
+    "commandPalette": {
+      "suggestions": "Pasiūlymai",
+      "commands": "Komandos",
+      "projects": "Projektai",
+      "search": "Paieška",
+      "members": "Nariai",
+      "createTask": "Sukurti užduotį",
+      "createProject": "Sukurti projektą",
+      "createWorkspace": "Sukurti darbo vietą",
+      "lightTheme": "Šviesi tema",
+      "darkTheme": "Tamsi tema",
+      "systemTheme": "Sistemos tema",
+      "keyboardShortcuts": "Spartieji klavišai",
+      "inputPlaceholder": "Ieškoti programų ir komandų...",
+      "empty": "Nėra rezultatų.",
+      "footer": {
+        "navigate": "Naršyti",
+        "open": "Atidaryti",
+        "close": "Uždaryti"
+      }
+    },
+    "notifications": "Pranešimai",
+    "sidebar": {
+      "overview": "Apžvalga",
+      "projects": "Projektai",
+      "members": "Nariai",
+      "invitations": "Kvietimai",
+      "more": "Daugiau",
+      "backToBoard": "Atgal į lentą"
+    },
+    "projectList": {
+      "viewProject": "Peržiūrėti projektą",
+      "shareProject": "Bendrinti projektą",
+      "projectSettings": "Projekto nustatymai",
+      "linkCopied": "Projekto nuoroda nukopijuota į iškarpinę",
+      "addProject": "Pridėti projektą",
+      "deleteConfirmTitle": "Ištrinti projektą?",
+      "deleteConfirmDescription": "Tai visam laikui pašalins projektą ir visus jo duomenis. Negalite atšaukti šio veiksmo.",
+      "deletedToast": "Projektas ištrintas",
+      "deleteProject": "Ištrinti projektą"
+    },
+    "search": {
+      "inputPlaceholder": "Ieškoti užduočių, projektų, komentarų...",
+      "minCharsHint": "Įveskite bent 3 simbolius paieškai",
+      "groups": {
+        "task": "Užduotys",
+        "project": "Projektai",
+        "workspace": "Darbo erdvės",
+        "comment": "Komentarai",
+        "activity": "Veiklos",
+        "fallback": "Rezultatai"
+      }
+    },
+    "settingsLayout": {
+      "toggleSidebar": "Perjungti šoninę juostą",
+      "back": "Atgal"
+    },
+    "userMenu": {
+      "signedOutSuccess": "Sėkmingai atsijungta",
+      "signOutFailed": "Nepavyko atsijungti",
+      "unnamedUser": "Vartotojas",
+      "settings": "Nustatymai",
+      "signingOut": "Atsijungiama...",
+      "logOut": "Atsijungti"
+    },
+    "workspaceSwitcher": {
+      "workspaces": "Darbo erdvės",
+      "switching": "Perjungimas...",
+      "addWorkspace": "Pridėti darbo erdvę",
+      "selectWorkspace": "Pasirinkti darbo erdvę"
+    },
+    "page": {
+      "projectsTitle": "Projektai",
+      "settingsTitle": "Nustatymai",
+      "backToWorkspace": "Atgal į darbo erdvę",
+      "settingsWorkspaceTab": "Darbo erdvė"
+    },
+    "projectSettings": {
+      "projectLabel": "Projektas"
+    },
+    "keyboardShortcuts": {
+      "title": "Spartieji klavišai",
+      "subtitle": "Pagreitinkite savo darbo eigą naudodami spartuosius klavišus",
+      "searchPlaceholder": "Ieškoti spartininkų...",
+      "footer": "Paspauskite <kbd>Escape</kbd>, kad uždarytumėte",
+      "categories": {
+        "general": "Pagrindiniai",
+        "create": "Sukurti",
+        "views": "Rodiniai",
+        "navigation": "Navigacija",
+        "quickSelect": "Greitas pasirinkimas (iššokančiuose languose)"
+      },
+      "items": {
+        "openCommandPalette": "Atidaryti komandų paletę",
+        "globalSearch": "Visuotinė paieška",
+        "toggleSidebar": "Perjungti šoninę juostą",
+        "showShortcuts": "Rodyti spartuosius klavišus",
+        "closeModal": "Uždaryti modalinį langą/iššokantį langą",
+        "createTask": "Sukurti užduotį",
+        "createProject": "Sukurti projektą",
+        "createWorkspace": "Sukurti darbo erdvę",
+        "boardView": "Perjungti į lentos rodinį",
+        "listView": "Perjungti į sąrašo rodinį",
+        "backlogView": "Perjungti į užduočių sąrašo rodinį",
+        "nextTask": "Kita užduotis",
+        "prevTask": "Ankstesnė užduotis",
+        "openTask": "Atidaryti pasirinktą užduotį",
+        "quickSelectNumber": "Pasirinkti parinktį pagal numerį"
+      }
+    }
+  },
+  "notifications": {
+    "title": "Pranešimai",
+    "newCount_one": "{{count}} naujas",
+    "newCount_other": "{{count}} naujas",
+    "emptyTitle": "Dar nėra pranešimų",
+    "emptySubtitle": "Čia matysite naujinius ir veiklą.",
+    "clearAll": "Išvalyti visus pranešimus",
+    "clearDialogTitle": "Išvalyti visus pranešimus?",
+    "clearDialogDescription": "Tai visam laikui pašalins visus pranešimus. Negalėsite atšaukti šio veiksmo.",
+    "shortcuts": {
+      "open": "Atidaryti pranešimus"
+    },
+    "reminderLeadTime": {
+      "minutes_one": "{{count}} minutė",
+      "minutes_other": "{{count}} minutės",
+      "hours_one": "{{count}} valanda",
+      "hours_other": "{{count}} valandos",
+      "days_one": "{{count}} diena",
+      "days_other": "{{count}} dienos"
+    },
+    "events": {
+      "task_created": {
+        "title": "Sukurta nauja užduotis",
+        "content": "Užduotis \"{{taskTitle}}\" buvo sukurta"
+      },
+      "workspace_created": {
+        "title": "Sukurta darbo erdvė",
+        "content": "Jūsų darbo erdvė \"{{workspaceName}}\" buvo sėkmingai sukurta"
+      },
+      "task_status_changed": {
+        "title": "Užduoties būsena pakeista",
+        "content": "Užduoties \"{{taskTitle}}\" būsena pakeista iš \"{{oldStatus}}\" į \"{{newStatus}}\""
+      },
+      "task_assignee_changed": {
+        "title": "Užduotis paskirta jums",
+        "content": "Jums paskirta užduotis: {{taskTitle}}"
+      },
+      "task_mention": {
+        "title": "{{mentionerName}} paminėjo jus",
+        "content": "{{mentionerName}} paminėjo jus: {{taskTitle}}"
+      },
+      "task_comment": {
+        "title": "{{commenterName}} pakomentavo jūsų užduotį",
+        "content": "Naujas komentaras prie {{taskTitle}}: {{commentPreview}}"
+      },
+      "due_date_reminder": {
+        "title": "Užduotis greitai sueina",
+        "content": "{{taskTitle}} sueina po {{leadTime}}"
+      },
+      "task_overdue": {
+        "title": "Užduotis pavėluota",
+        "content": "{{taskTitle}} viršijo terminą"
+      },
+      "time_entry_created": {
+        "title": "Laiko sekimas pradėtas",
+        "contentWithTask": "Laiko sekimas pradėtas užduočiai: {{taskTitle}}",
+        "contentWithoutTask": "Laiko sekimas pradėtas užduočiai"
+      }
+    }
+  },
+  "activity": {
+    "assignedToSelf": "paskyrė užduotį sau",
+    "unassigned": "atjungė užduotį",
+    "assignedTo": "paskyrė užduotį {{name}}",
+    "changedStatus": "pakeitė būseną iš {{from}} į {{to}}",
+    "changedPriority": "pakeitė prioritetą iš {{from}} į {{to}}",
+    "clearedDueDate": "panaikino terminą",
+    "setDueDate": "nustatė terminą į {{date}}",
+    "changedDueDate": "pakeitė terminą iš {{from}} į {{to}}",
+    "changedTitle": "pakeitė pavadinimą iš \"{{from}}\" į \"{{to}}\"",
+    "moved": "perkėlė užduotį iš \"{{from}}\" į \"{{to}}\"",
+    "created": "sukūrė šią užduotį",
+    "githubUser": "GitHub vartotojas",
+    "comment": {
+      "github": "GitHub",
+      "viewGithubProfile": "Peržiūrėti GitHub profilį",
+      "commentedOnGithub": "pakomentavo GitHub",
+      "cannotBeEmpty": "Komentaras negali būti tuščias",
+      "mustBeLoggedInToEdit": "Turite būti prisijungę, kad galėtumėte redaguoti komentarus",
+      "updated": "Komentaras atnaujintas",
+      "failedToUpdate": "Nepavyko atnaujinti komentaro",
+      "edit": "Redaguoti komentarą",
+      "editPlaceholder": "Redaguoti komentarą...",
+      "save": "Išsaugoti",
+      "added": "Komentaras pridėtas",
+      "failedToAdd": "Nepavyko pridėti komentaro",
+      "leavePlaceholder": "Palikite komentarą...",
+      "attachFile": "Pridėti failą",
+      "submitShortcut": "Pateikti komentarą",
+      "editor": {
+        "uploadsOnlyOnSavedTasks": "Failų įkėlimas galimas tik išsaugotose užduotyse.",
+        "uploadingFile": "Įkeliamas failas...",
+        "imageUploaded": "Vaizdas įkeltas",
+        "fileAttached": "Failas pridėtas",
+        "failedToUploadFile": "Nepavyko įkelti failo",
+        "enterUrl": "Įveskite URL",
+        "plaintext": "Paprastas tekstas",
+        "autoDetect": "Automatinis aptikimas",
+        "slashGroupText": "Tekstas",
+        "slashGroupLists": "Sąrašai",
+        "slashGroupInsert": "Įterpti",
+        "slashParagraph": "Tekstas",
+        "slashHeading": "Antraštė",
+        "slashBulletList": "Žymėtas sąrašas",
+        "slashTaskList": "Užduočių sąrašas",
+        "slashOrderedList": "Numeruotas sąrašas",
+        "slashQuote": "Citata",
+        "slashCodeBlock": "Kodo blokas",
+        "slashTable": "Lentelė",
+        "slashFile": "Failas",
+        "searchParagraph": "teksto pastraipa normali",
+        "searchHeading": "antraštės pavadinimas h2",
+        "searchBulletList": "sąrašo žymė nepadarytas",
+        "searchTaskList": "užduotis-atlikti-sąrašas-žymės-langelis-užduočių-sąrašas",
+        "searchOrderedList": "sąrašo tvarkingas numeruotas",
+        "searchQuote": "citatos blokas",
+        "searchCodeBlock": "kodo fragmentas",
+        "searchTable": "lentelės tinklas",
+        "searchFile": "failo priedas vaizdas nuotrauka paveikslėlis įkelti",
+        "embedErrorInvalidUrl": "Įveskite galiojantį URL",
+        "embedErrorYoutubeOnly": "Galima įterpti tik „YouTube“ nuorodas.",
+        "embedVideo": "Įterpti vaizdo įrašą",
+        "keepAsLink": "Laikyti kaip nuorodą",
+        "hintTab": "Tab",
+        "hintEsc": "Esc",
+        "pasteUrl": "Įklijuoti URL",
+        "asLink": "Kaip nuorodą",
+        "embed": "Įterpti",
+        "noCommands": "Nėra komandų",
+        "ariaCommentContent": "Komentaro turinys",
+        "ariaCommentEditor": "Komentaro redaktorius",
+        "ariaCopyCode": "Kopijuoti kodą",
+        "ariaCopied": "Nukopijuota",
+        "copy": "Kopijuoti",
+        "copied": "Nukopijuota",
+        "dropImageToUpload": "Nuleiskite vaizdą, kad įkeltumėte",
+        "previewImageAlt": "Peržiūrėti vaizdą",
+        "codeLang": {
+          "bash": "Bash",
+          "csharp": "C#",
+          "cpp": "C++",
+          "css": "CSS",
+          "go": "Golang",
+          "graphql": "GraphQL",
+          "html": "HTML",
+          "json": "JSON",
+          "java": "Java",
+          "javascript": "JavaScript",
+          "markdown": "Markdown",
+          "mermaid": "Mermaid",
+          "plaintext": "Grynas tekstas",
+          "python": "Python",
+          "rust": "Rust",
+          "sql": "SQL",
+          "swift": "Swift",
+          "typescript": "TypeScript",
+          "yaml": "YAML"
+        },
+        "table": {
+          "addColumnBefore": "Įterpti stulpelį kairėje",
+          "addColumnAfter": "Įterpti stulpelį dešinėje",
+          "deleteColumn": "Panaikinti stulpelį",
+          "addRowBefore": "Įterpti eilutę aukščiau",
+          "addRowAfter": "Įterpti eilutę žemiau",
+          "deleteRow": "Panaikinti eilutę",
+          "deleteTable": "Panaikinti lentelę"
+        },
+        "mermaid": {
+          "renderFailed": "Nepavyko atvaizduoti Mermaid diagramos"
+        }
+      }
+    }
+  },
+  "tasks": {
+    "status": {
+      "label": "Būsena",
+      "to-do": "Daryti",
+      "in-progress": "Vykdoma",
+      "in-review": "Peržiūroje",
+      "done": "Atlikta",
+      "archived": "Archyvuota",
+      "planned": "Suplanuota"
+    },
+    "priority": {
+      "label": "Prioritetas",
+      "no-priority": "Nėra prioriteto",
+      "low": "Žemas",
+      "medium": "Vidutinis",
+      "high": "Aukštas",
+      "urgent": "Skubus"
+    },
+    "boardSearchPlaceholder": "Ieškoti užduočių...",
+    "view": {
+      "board": "Lenta",
+      "list": "Sąrašas"
+    },
+    "common": {
+      "selectTask": "Pasirinkti užduotį",
+      "loadingTask": "Įkeliama užduotis...",
+      "taskNotFound": "Užduotis nerasta",
+      "taskNotFoundDescription": "Užduotis, kurios ieškote, neegzistuoja arba buvo ištrinta."
+    },
+    "detail": {
+      "subtaskOf": "Dalies užduotis",
+      "activity": "Veikla",
+      "noActivity": "Veikla nerasta",
+      "openInFullPage": "Atidaryti visame puslapyje",
+      "titlePlaceholder": "Spustelėkite, kad pridėtumėte pavadinimą",
+      "addDescription": "Pridėti aprašymą...",
+      "editor": {
+        "ariaLabel": "Užduoties aprašymo redaktorius",
+        "placeholder": "Rašykite aprašymą...",
+        "previewImage": "Peržiūrėti vaizdą",
+        "enterUrl": "Įveskite URL",
+        "autoDetect": "Automatiškai aptikti",
+        "copyCode": "Kopijuoti kodą",
+        "copy": "Kopijuoti",
+        "copied": "Nukopijuota",
+        "attachFile": "Pridėti failą",
+        "dropToUpload": "Nuleiskite vaizdą, kad įkeltumėte",
+        "checkbox": {
+          "markIncomplete": "Pažymėti užduotį kaip nebaigtą",
+          "markComplete": "Pažymėti užduotį kaip atliktą"
+        },
+        "upload": {
+          "loading": "Įkeliamas failas...",
+          "failed": "Nepavyko įkelti failo",
+          "imageSuccess": "Vaizdas įkeltas",
+          "fileSuccess": "Failas pridėtas"
+        },
+        "slash": {
+          "groups": {
+            "text": "Tekstas",
+            "lists": "Sąrašai",
+            "insert": "Įterpti"
+          },
+          "empty": "Nėra komandų",
+          "commands": {
+            "paragraph": "Tekstas",
+            "heading-2": "Antraštė",
+            "bullet-list": "Žymėtas sąrašas",
+            "task-list": "Užduočių sąrašas",
+            "ordered-list": "Numeruotas sąrašas",
+            "blockquote": "Citata",
+            "code-block": "Kodo blokas",
+            "table": "Lentelė",
+            "file": "Failas"
+          }
+        },
+        "languages": {
+          "bash": "Bash",
+          "csharp": "C#",
+          "cpp": "C++",
+          "css": "CSS",
+          "clojure": "Clojure",
+          "cypher": "Cypher",
+          "dart": "Dart",
+          "diff": "Diff",
+          "elixir": "Elixir",
+          "excel": "Excel",
+          "go": "Golang",
+          "graphql": "GraphQL",
+          "html": "HTML",
+          "haskell": "Haskell",
+          "json": "JSON",
+          "java": "Java",
+          "javascript": "JavaScript",
+          "kotlin": "Kotlin",
+          "makefile": "Makefile",
+          "markdown": "Markdown",
+          "mermaid": "Mermaid",
+          "ocaml": "OCaml",
+          "php": "PHP",
+          "perl": "Perl",
+          "plaintext": "Grynas tekstas",
+          "python": "Python",
+          "r": "R",
+          "reasonml": "ReasonML",
+          "ruby": "Ruby",
+          "rust": "Rust",
+          "sql": "SQL",
+          "swift": "Swift",
+          "toml": "TOML",
+          "terraform": "Terraform",
+          "typescript": "TypeScript",
+          "xml": "XML",
+          "yaml": "YAML"
+        },
+        "embed": {
+          "choice": {
+            "embedVideo": "Įterpti vaizdo įrašą",
+            "keepAsLink": "Laikyti kaip nuorodą"
+          },
+          "inputPlaceholder": "Įklijuoti URL",
+          "embeddedContent": "Įterptas turinys",
+          "asLink": "Kaip nuorodą",
+          "submit": "Įterpti",
+          "errors": {
+            "invalidUrl": "Įveskite tinkamą URL",
+            "onlyYoutube": "Galima įterpti tik YouTube nuorodas."
+          },
+          "onlyYoutubeInline": "Galima įterpti tik YouTube URL. Naudokite nuorodos režimą."
+        },
+        "mermaid": {
+          "renderFailed": "Nepavyko atvaizduoti Mermaid diagramos"
+        }
+      }
+    },
+    "entity": {
+      "task": "Užduotis"
+    },
+    "relations": {
+      "title": "Santykiai",
+      "tasksInProject": "Projekto užduotys",
+      "linkError": "Nepavyko susieti užduoties",
+      "empty": "Nėra susijusių užduočių",
+      "searchPlaceholder": "Ieškoti užduočių susiejimui...",
+      "noTasksFound": "Užduotys nerastos",
+      "openTask": "Atidaryti užduotį",
+      "removeRelation": "Pašalinti ryšį",
+      "related": "Susijęs",
+      "blocks": "Blokuojama",
+      "selectTask": "Pasirinkite užduotį susiejimui",
+      "types": {
+        "blocks": "blokuoja",
+        "blocked_by": "blokuojama",
+        "related": "susijusi su"
+      }
+    },
+    "subtasks": {
+      "title": "Dalies užduotys",
+      "inputPlaceholder": "Dalies užduoties pavadinimas...",
+      "addAction": "Pridėti",
+      "empty": "Dar nėra dalių užduočių",
+      "createError": "Nepavyko sukurti dalies užduoties",
+      "deleteSuccess": "Užduotis sėkmingai ištrinta",
+      "deleteError": "Nepavyko ištrinti užduoties",
+      "deleteDialogTitle": "Ištrinti užduotį?",
+      "deleteDialogDescription": "Tai visam laikui pašalins užduotį ir visus jos duomenis. Negalėsite atšaukti šio veiksmo.",
+      "deleteAction": "Ištrinti užduotį",
+      "completeAria": "Pažymėti dalies užduotį kaip atliktą"
+    },
+    "properties": {
+      "title": "Savybės",
+      "labels": "Etiketės",
+      "copyTaskLink": "Kopijuoti užduoties nuorodą",
+      "copyTaskBranch": "Kopijuoti užduoties šaką",
+      "start": "Pradžia",
+      "startDate": "Pradžios data",
+      "noDate": "Nėra datos"
+    },
+    "move": {
+      "title": "Perkelti užduotį",
+      "projectLabel": "Tikslinis projektas",
+      "projectPlaceholder": "Pasirinkite projektą",
+      "statusLabel": "Tikslinė būsena",
+      "statusHintKeep": "Šio projekto darbo eiga jau palaiko dabartinę būseną.",
+      "statusHintAdjust": "Pasirinkite būseną, kuri bus naudojama tiksliniame projekte.",
+      "action": "Perkelti užduotį",
+      "success": "Užduotis sėkmingai perkelta",
+      "error": "Nepavyko perkelti užduoties"
+    },
+    "popover": {
+      "assignee": {
+        "unassigned": "Nepriskirtas",
+        "updateError": "Nepavyko atnaujinti užduoties vykdytojo"
+      },
+      "status": {
+        "updateError": "Nepavyko atnaujinti užduoties būsenos"
+      },
+      "priority": {
+        "updateError": "Nepavyko atnaujinti užduoties prioritetų"
+      },
+      "dueDate": {
+        "updateSuccess": "Užduoties terminas sėkmingai atnaujintas",
+        "updateError": "Nepavyko atnaujinti užduoties termino",
+        "clear": "Panaikinti datą"
+      },
+      "startDate": {
+        "updateSuccess": "Užduoties pradžios data sėkmingai atnaujinta",
+        "updateError": "Nepavyko atnaujinti užduoties pradžios datos",
+        "clear": "Panaikinti pradžios datą"
+      },
+      "labels": {
+        "searchPlaceholder": "Ieškoti etikečių...",
+        "empty": "Etikečių nerasta",
+        "create": "Sukurti \"{{name}}\"",
+        "chooseColor": "Pasirinkti spalvą",
+        "addSuccess": "Etiketė pridėta",
+        "removeSuccess": "Etiketė pašalinta",
+        "updateError": "Nepavyko atnaujinti etiketės",
+        "createSuccess": "Etiketė sukurta ir pridėta",
+        "createError": "Nepavyko sukurti etiketės",
+        "colors": {
+          "stone": "Akmens",
+          "slate": "Skalūno",
+          "lavender": "Levandų",
+          "sage": "Ramunėlių",
+          "forest": "Miško",
+          "amber": "Gintaro",
+          "terracotta": "Terakotos",
+          "rose": "Rožių",
+          "crimson": "Raudonojo vyno"
+        }
+      }
+    },
+    "backlog": {
+      "pageTitle": "{{name}} darbalaukis",
+      "noTasksToMove": "Nėra suplanuotų perkelti užduočių",
+      "moveAllConfirm": "Perkelti visas {{count}} suplanuotas užduotis į „Atliktina“?",
+      "moveAllSuccess": "Perkelta {{count}} užduočių į „Atliktina“",
+      "plan": "Planuoti",
+      "moveAllTooltip": "Perkelti visas suplanuotas į „Atliktina“",
+      "moveAll": "Perkelti viską",
+      "addTask": "Pridėti užduotį",
+      "filter": "Filtruoti",
+      "addFilter": "Pridėti filtrą...",
+      "sections": {
+        "planned": "Suplanuota",
+        "archived": "Archyvuota"
+      },
+      "noTasksInSection": "Nėra {{section}} užduočių",
+      "filters": {
+        "priority": "Prioritetas: {{name}}",
+        "assignee": "Atsakingas: {{name}}",
+        "due": "Terminas: {{date}}",
+        "label": "Žyma: {{name}}",
+        "dueThisWeek": "Baigiasi šią savaitę",
+        "dueNextWeek": "Baigiasi kitą savaitę",
+        "noDueDate": "Nėra termino"
+      }
+    },
+    "sort": {
+      "label": "Rūšiuoti",
+      "by": "Rūšiuoti pagal",
+      "direction": "Kryptis",
+      "ascending": "Didėjanti",
+      "descending": "Mažėjanti",
+      "fields": {
+        "position": "Rankinis (pozicija)",
+        "createdAt": "Sukurta data",
+        "priority": "Prioritetas",
+        "dueDate": "Termino data",
+        "title": "Pavadinimas",
+        "number": "Užduoties numeris"
+      }
+    },
+    "boardFilters": {
+      "filterBy": "Filtruoti pagal",
+      "allStatuses": "Visi statusai",
+      "allPriorities": "Visi prioritetai",
+      "allAssignees": "Visi atsakingi",
+      "allDueDates": "Visos termino datos",
+      "allLabels": "Visos žymos",
+      "selectedCount": "{{count}} pasirinkta",
+      "subjects": {
+        "status": "Statusas",
+        "priority": "Prioritetas",
+        "assignee": "Atsakingas",
+        "dueDate": "Termino data",
+        "labels": "Žymos"
+      },
+      "operators": {
+        "isAnyOf": "yra bet kuris iš",
+        "includeAnyOf": "apima bet kurį iš"
+      }
+    },
+    "gantt": {
+      "pageTitle": "{{name}} – Gantt",
+      "title": "Gantt laiko juosta",
+      "searchPlaceholder": "Ieškoti suplanuotų bilietų...",
+      "hideTasks": "Slėpti užduotis",
+      "showTasks": "Rodyti užduotis",
+      "noTasks": "Nėra suplanuotų užduočių",
+      "noTasksSubtitle": "Pridėkite pradžios datą, termino datą arba abi, kad užduotys būtų įtrauktos į projekto laiko juostą.",
+      "noTasksFound": "Užduočių nerasta",
+      "noTasksMatch": "Nėra suplanuotų užduočių, atitinkančių „{{query}}“",
+      "taskHeader": "Užduotis",
+      "updateDatesError": "Nepavyko atnaujinti užduočių datų",
+      "resizeStart": "Keisti pradžios datą",
+      "resizeDue": "Keisti termino datą",
+      "taskAriaLabel": "{{title}}: atidaryti arba vilkti, kad perkeltumėte"
+    },
+    "delete": {
+      "title": "Ištrinti užduotį?",
+      "description": "Tai visam laikui pašalins užduotį ir visus jos duomenis. Šios veiksmo negalima atšaukti.",
+      "action": "Ištrinti užduotį",
+      "success": "Užduotis sėkmingai ištrinta",
+      "error": "Nepavyko ištrinti užduoties"
+    },
+    "archive": {
+      "success": "Archyvuota {{count}} užduočių"
+    },
+    "listView": {
+      "addTask": "Pridėti užduotį",
+      "archiveAllTooltip": "Archyvuoti visas užbaigtas užduotis",
+      "noTasks": "Nėra užduočių"
+    },
+    "kanban": {
+      "addTask": "Pridėti užduotį"
+    },
+    "pr": {
+      "merged": "Sujungta",
+      "draft": "Juodraštis",
+      "open": "Atidaryti",
+      "label": "Pull Request",
+      "count_one": "{{count}} PR",
+      "count_other": "{{count}} PR"
+    },
+    "assignee": {
+      "label": "Atsakingas",
+      "unassigned": "Nepriskirtas"
+    },
+    "dueDate": {
+      "label": "Termino data",
+      "clear": "Panaikinti datą",
+      "updateSuccess": "Užduoties termino data sėkmingai atnaujinta",
+      "updateError": "Nepavyko atnaujinti užduoties termino datos",
+      "clearSuccess": "Užduoties termino data panaikinta",
+      "clearError": "Nepavyko panaikinti termino datos"
+    },
+    "labels": {
+      "label": "Žymos",
+      "empty": "Nėra galimų žymų"
+    },
+    "update": {
+      "success": "Užduotis sėkmingai atnaujinta",
+      "error": "Nepavyko atnaujinti užduoties"
+    },
+    "contextMenu": {
+      "copyLink": "Kopijuoti nuorodą",
+      "copyLinkSuccess": "Užduoties nuoroda nukopijuota!"
+    },
+    "actions": {
+      "archive": "Archyvuoti",
+      "markAsPlanned": "Pažymėti kaip suplanuotą",
+      "delete": "Ištrinti..."
+    },
+    "bulk": {
+      "selectedCount": "{{count}} pasirinkta",
+      "moveToBacklog": "Perkelti į atgalinį sąrašą",
+      "moveToBacklogSuccess": "{{count}} užduočių perkelta į atgalinį sąrašą",
+      "moveToBacklogError": "Nepavyko perkelti užduočių į atgalinį sąrašą",
+      "moveToBoard": "Perkelti į lentą",
+      "moveToBoardSuccess": "{{count}} užduočių perkelta į lentą",
+      "moveToBoardError": "Nepavyko perkelti užduočių į lentą",
+      "delete": "Ištrinti užduotis",
+      "deleteConfirm": "Ištrinti {{count}} užduotis? Šios veiksmas negali būti atšauktas.",
+      "deleteSuccess": "{{count}} užduočių ištrinta",
+      "deleteError": "Nepavyko ištrinti užduočių",
+      "archive": "Archyvuoti užduotis",
+      "archiveSuccess": "{{count}} užduočių archyvuota",
+      "archiveError": "Nepavyko archyvuoti užduočių",
+      "updateSuccess": "{{count}} užduočių atnaujinta",
+      "updateError": "Nepavyko atnaujinti užduočių",
+      "assignTo": "Priskirti",
+      "assignSuccess": "{{count}} užduočių priskirta",
+      "assignError": "Nepavyko priskirti užduočių",
+      "setPriority": "Nustatyti prioritetą",
+      "updatePriorityError": "Nepavyko atnaujinti prioriteto",
+      "addLabel": "Pridėti žymą",
+      "addLabelSuccess": "Žyma pridėta prie {{count}} užduočių",
+      "addLabelError": "Nepavyko pridėti žymos",
+      "setDueDate": "Nustatyti termino datą",
+      "updateDueDateError": "Nepavyko atnaujinti termino datos",
+      "actions": "Veiksmai",
+      "searchActions": "Ieškoti veiksmų...",
+      "noActionsFound": "Veiksmų nerasta.",
+      "changeStatus": "Keisti statusą"
+    },
+    "editor": {
+      "table": {
+        "addColumnBefore": "Įterpti stulpelį kairėje",
+        "addColumnAfter": "Įterpti stulpelį dešinėje",
+        "deleteColumn": "Ištrinti stulpelį",
+        "addRowBefore": "Įterpti eilutę aukščiau",
+        "addRowAfter": "Įterpti eilutę žemiau",
+        "deleteRow": "Ištrinti eilutę",
+        "deleteTable": "Ištrinti lentelę"
+      }
+    }
+  },
+  "invitations": {
+    "email": {
+      "subject": "{{inviterName}} pakvietė jus prisijungti prie {{workspaceName}} Kaneo",
+      "preview": "Jūs esate pakviestas į {{workspaceName}} Kaneo",
+      "title": "Prisijunkite prie {{workspaceName}}",
+      "subtitle": "{{inviterName}} ({{inviterEmail}}) pakvietė jus bendradarbiauti Kaneo.",
+      "cta": "Priimti kvietimą",
+      "sameEmail": "Galite priimti su tuo pačiu el. pašto adresu, kuriuo gavote šį pranešimą.",
+      "ignore": "Jei šio el. laiško nesitikėjote, galite jį saugiai ignoruoti.",
+      "footer": "Kaneo darbo srities kvietimas"
+    },
+    "pageTitle": "Kvietimai",
+    "pendingInvitations": "Laukiami kvietimai",
+    "acceptSubtitle": "Priimkite kvietimus prisijungti prie darbo sričių",
+    "noPendingTitle": "Nėra laukiamų kvietimų",
+    "noPendingDescription": "Šiuo metu neturite jokių laukiamų darbo sričių kvietimų.",
+    "continueToSetup": "Tęsti sąranką",
+    "skipForNow": "Praleisti dabar",
+    "table": {
+      "workspace": "Darbo sritis",
+      "invitedBy": "Pakvietė",
+      "expires": "Baigiasi"
+    },
+    "toast": {
+      "acceptError": "Nepavyko priimti kvietimo",
+      "acceptSuccess": "Kvietimas priimtas! Sveiki atvykę į komandą.",
+      "rejectError": "Nepavyko atmesti kvietimo",
+      "rejectSuccess": "Kvietimas atmestas"
+    }
+  },
+  "workspace": {
+    "projects": {
+      "pageTitle": "Projektai",
+      "createProject": "Sukurti projektą",
+      "title": "Pavadinimas",
+      "progress": "Progresas",
+      "targetDate": "Tikslinė data",
+      "dueDate": "Terminas",
+      "status": "Būsena",
+      "emptyTitle": "Dar nėra projektų",
+      "emptyDescription": "Pradėkite kurdami savo pirmąjį projektą.",
+      "emptyDescriptionReadOnly": "Šioje darbo srityje dar nėra projektų. Paprašykite administratoriaus sukurti.",
+      "projectStatus": {
+        "notStarted": "Nepradėta",
+        "complete": "Užbaigta",
+        "inProgress": "Vykdoma"
+      },
+      "noDueDate": "Nėra termino",
+      "reorderHandle": "Perkelti projektą",
+      "reorderError": "Nepavyko perkelti projektų"
+    },
+    "search": {
+      "pageTitle": "Ieškoti",
+      "backToDashboard": "Atgal į prietaisų skydelį",
+      "placeholder": "Ieškoti užduočių pagal pavadinimą arba trumpą ID (pvz., DEP-23)...",
+      "hint": "Ieškoti visuose šios darbo srities projektuose. Naudokite trumpus ID, pvz., DEP-23, kad rastumėte konkrečias užduotis.",
+      "searching": "Ieškoma...",
+      "resultsFound_one": "{{count}} rezultatas rastas",
+      "resultsFound_other": "{{count}} rezultatai rasti",
+      "noResultsTitle": "Rezultatų nerasta",
+      "noResultsDescription": "Pabandykite pakoreguoti paieškos terminus arba ieškokite ko nors kito",
+      "startTitle": "Pradėti paiešką",
+      "startDescription": "Įveskite paieškos terminą, kad rastumėte užduotis visuose projektuose",
+      "quickSearchesLabel": "Greitos paieškos:",
+      "suggestionHighPriority": "Aukštas prioritetas",
+      "suggestionBug": "Klaida",
+      "suggestionFeature": "Funkcija",
+      "suggestionInProgress": "Vykdoma",
+      "suggestionCompleted": "Užbaigta"
+    },
+    "create": {
+      "pageTitle": "Sukurti darbo sritį",
+      "heading": "Sukurti naują darbo sritį",
+      "subtitle": "Darbo sritys yra bendros aplinkos, kuriose komandos gali dirbti su projektais, ciklai ir problemomis.",
+      "nameLabel": "Darbo srities pavadinimas",
+      "namePlaceholder": "Įveskite darbo srities pavadinimą",
+      "descriptionLabel": "Aprašymas (pasirinktinai)",
+      "descriptionPlaceholder": "Pridėkite aprašymą savo darbo sričiai",
+      "required": "Privaloma",
+      "creating": "Kuriama...",
+      "submit": "Sukurti darbo sritį",
+      "success": "Darbo sritis sėkmingai sukurta",
+      "error": "Nepavyko sukurti darbo srities"
+    }
+  },
+  "team": {
+    "roles": {
+      "owner": "Savininkas",
+      "admin": "Administratorius",
+      "member": "Narys",
+      "viewer": "Peržiūrėtojas"
+    },
+    "members": {
+      "pageTitle": "Nariai",
+      "inviteMember": "Pakviesti narį",
+      "you": "Jūs"
+    },
+    "invitations": {
+      "pendingBadge": "laukia",
+      "expires": "Baigiasi {{date}}",
+      "linkLabel": "Kvietimo nuoroda",
+      "copyLink": "Kopijuoti nuorodą",
+      "linkCopied": "Kvietimo nuoroda nukopijuota",
+      "copyFailed": "Nepavyko nukopijuoti automatiškai. Pasirinkite nuorodą ir paspauskite Ctrl+C."
+    },
+    "inviteModal": {
+      "title": "Pakviesti komandos narį",
+      "emailLabel": "El. paštas",
+      "emailPlaceholder": "kolega@imone.com",
+      "sendInvitation": "Siųsti kvietimą",
+      "success": "Kvietimas sėkmingai išsiųstas",
+      "error": "Nepavyko pakviesti komandos nario",
+      "createdTitle": "Kvietimas sukurtas",
+      "shareLinkDescription": "Pasidalinkite šia nuoroda su {{email}}, kad jie galėtų prisijungti prie darbo srities.",
+      "done": "Atlikta"
+    },
+    "membersTable": {
+      "emptyTitle": "Dar nėra komandos narių",
+      "emptyDescription": "Pakvieskite savo pirmąjį komandos narį, kad pradėtumėte.",
+      "columns": {
+        "name": "Vardas",
+        "role": "Vaidmuo",
+        "joined": "Prisijungė",
+        "actions": "Veiksmai"
+      },
+      "memberRolePending": "{{role}} (Laukia)",
+      "ariaCancelInvitation": "Atšaukti kvietimą",
+      "ariaInvitationActions": "Kvietimo veiksmai",
+      "ariaRemoveMember": "Pašalinti narį",
+      "removeDialogTitle": "Pašalinti komandos narį?",
+      "removeDialogDescription": "Ar tikrai norite pašalinti {{name}} iš darbo srities? Šio veiksmo negalima atšaukti.",
+      "cancelDialogTitle": "Atšaukti kvietimą?",
+      "cancelDialogDescription": "Ar tikrai norite atšaukti kvietimą {{email}}? Šio veiksmo negalima atšaukti.",
+      "removeMember": "Pašalinti narį",
+      "cancelInvitation": "Atšaukti kvietimą",
+      "removeSuccess": "Komandos narys sėkmingai pašalintas",
+      "removeError": "Nepavyko pašalinti komandos nario",
+      "cancelInviteSuccess": "Kvietimas sėkmingai atšauktas",
+      "cancelInviteError": "Nepavyko atšaukti kvietimo",
+      "roleUpdateSuccess": "Vaidmuo atnaujintas",
+      "roleUpdateError": "Nepavyko atnaujinti vaidmens"
+    }
+  },
+  "publicProject": {
+    "pageTitle": "Viešas peržiūrėjimas",
+    "badge": "Viešas",
+    "readOnly": "Tik skaityti",
+    "error": {
+      "title": "Projektas nerastas",
+      "description": "Šio projekto nėra arba jis nėra viešai prieinamas."
+    },
+    "taskCard": {
+      "viewDetailsAria": "Peržiūrėti užduoties {{title}} detales"
+    },
+    "taskDetail": {
+      "labels": "Žymos",
+      "externalLinks": "Išoriniai saitai",
+      "pullRequestFallback": "Pull Request",
+      "issueFallback": "Užduotis",
+      "prStatusMerged": "Sujungta",
+      "prStatusDraft": "Juodraštis",
+      "prStatusOpen": "Atidaryta",
+      "dueWithDate": "Terminas {{date}}",
+      "created": "Sukurta",
+      "dueDateLabel": "Terminas"
+    },
+    "theme": {
+      "switchToLight": "Perjungti į šviesųjį režimą",
+      "switchToDark": "Perjungti į tamsųjį režimą"
+    },
+    "copyUrl": {
+      "successToast": "URL nukopijuotas",
+      "errorToast": "Nepavyko nukopijuoti URL",
+      "copied": "Nukopijuota",
+      "share": "Dalintis"
+    },
+    "branding": {
+      "poweredBy": "Pagaminta naudojant"
+    }
+  }
+}
