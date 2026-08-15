@@ -65,7 +65,6 @@ import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
-import debounce from "@/lib/debounce";
 import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
 import {
   extractIssueKeyFromUrl,
@@ -118,6 +117,8 @@ type SlashMenuState = {
   left: number;
   selectedIndex: number;
 };
+
+const DESCRIPTION_SAVE_DEBOUNCE_MS = 700;
 
 function formatMarkdown(markdown: string) {
   return markdown
@@ -575,25 +576,42 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     };
   }, []);
 
-  const debouncedUpdate = useCallback(
-    debounce(async (markdown: string) => {
-      if (!canEditRef.current) return;
-
-      const currentTask = taskRef.current;
-      const updateTaskFn = updateTaskRef.current;
-      if (!currentTask || !updateTaskFn) return;
-
-      try {
-        await updateTaskFn({
-          ...currentTask,
-          description: markdown,
-        });
-      } catch (error) {
-        console.error("Failed to update description:", error);
-      }
-    }, 700),
-    [],
+  const pendingDescriptionSavesRef = useRef(
+    new Map<string, ReturnType<typeof setTimeout>>(),
   );
+
+  const scheduleDescriptionSave = useCallback((markdown: string) => {
+    if (!canEditRef.current) return;
+
+    const editedTask = taskRef.current;
+    if (!editedTask) return;
+
+    const timers = pendingDescriptionSavesRef.current;
+    const pending = timers.get(editedTask.id);
+    if (pending) clearTimeout(pending);
+
+    timers.set(
+      editedTask.id,
+      setTimeout(async () => {
+        timers.delete(editedTask.id);
+
+        const updateTaskFn = updateTaskRef.current;
+        if (!updateTaskFn) return;
+
+        const latestTask = taskRef.current;
+        const base = latestTask?.id === editedTask.id ? latestTask : editedTask;
+
+        try {
+          await updateTaskFn({
+            ...base,
+            description: markdown,
+          });
+        } catch (error) {
+          console.error("Failed to update description:", error);
+        }
+      }, DESCRIPTION_SAVE_DEBOUNCE_MS),
+    );
+  }, []);
 
   const editor = useEditor(
     {
@@ -806,7 +824,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         const markdown = formatMarkdown(activeEditor.getMarkdown());
         if (markdown === latestSyncedMarkdownRef.current) return;
         latestSyncedMarkdownRef.current = markdown;
-        debouncedUpdate(markdown);
+        scheduleDescriptionSave(markdown);
       },
     },
     [getOverlayPosition, handleAssetFileUpload, t, toShikiLanguage],
