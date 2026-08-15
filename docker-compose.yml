@@ -10,6 +10,8 @@
 # The only required environment variable is KANEO_CLIENT_URL (your public URL, without :5173).
 # AUTH_SECRET and the PostgreSQL password are auto-generated via Coolify magic variables.
 # Do NOT set KANEO_API_URL — the entrypoint derives it from KANEO_CLIENT_URL (public URL + /api).
+# The Kaneo image is pinned to a release tag so redeploys are deterministic; bump
+# KANEO_IMAGE_TAG (or the tag below) to upgrade intentionally.
 
 services:
   postgres:
@@ -28,7 +30,9 @@ services:
       retries: 5
 
   kaneo:
-    image: ghcr.io/usekaneo/kaneo:latest
+    # Pin to a specific release: the API runs database migrations on startup, so a
+    # surprise upgrade can be risky. Bump KANEO_IMAGE_TAG to upgrade intentionally.
+    image: ghcr.io/usekaneo/kaneo:${KANEO_IMAGE_TAG:-v2.18.0}
     environment:
       - KANEO_CLIENT_URL=${KANEO_CLIENT_URL:?}
       - AUTH_SECRET=${SERVICE_HEX_64_KANEO:?}

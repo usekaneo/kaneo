@@ -20,12 +20,14 @@ Kaneo ships a [Coolify-optimized Docker Compose file](https://github.com/usekane
    - `AUTH_SECRET` (auto-generated 64-character hex, editable).
    - PostgreSQL password (auto-generated, shared with both services).
    - **Do not set `KANEO_API_URL`** to `localhost` or an internal address. Leave it unset — the container derives it from `KANEO_CLIENT_URL` (`https://kaneo.example.com/api`). The browser must reach the API over the same public domain, not a host-internal URL.
+   - `KANEO_IMAGE_TAG` (optional): the Kaneo image version to deploy. It defaults to a pinned release tag; set it only to upgrade to a specific version.
 6. **Deploy**.
 
 ## What the Compose File Sets Up
 
 - **PostgreSQL 16** with a persistent volume; Kaneo waits for its health check before starting.
 - **Kaneo bundled image** (nginx + API in one container) on port `5173`.
+- **Pinned Kaneo version**: the image is pinned to a specific release tag (not `latest`) so redeploys are deterministic. Upgrade by setting `KANEO_IMAGE_TAG` to a newer release tag.
 - **`KANEO_API_URL` is derived automatically** from `KANEO_CLIENT_URL` by the container entrypoint — no extra API URL configuration needed.
 - **No host port mappings or custom networks**: Coolify's proxy handles all external traffic.
 
