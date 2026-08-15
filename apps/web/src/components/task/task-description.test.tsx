@@ -2,6 +2,8 @@ import { fireEvent, render, waitFor } from "@testing-library/react";
 import { Extension } from "@tiptap/core";
 import TaskItem from "@tiptap/extension-task-item";
 import { describe, expect, it, vi } from "vitest";
+import { toast } from "@/lib/toast";
+import { uploadTaskImage } from "@/lib/upload-task-image";
 import TaskDescription from "./task-description";
 
 const mocks = vi.hoisted(() => ({
@@ -131,5 +133,75 @@ describe("TaskDescription", () => {
 
     expect(container.textContent).toContain("parent body");
     expect(container.textContent).not.toContain("child body");
+  });
+
+  it("does not insert an upload that completes after navigating to another task", async () => {
+    mocks.tasks.set("task-a", {
+      id: "task-a",
+      description: "task a body",
+    });
+    mocks.tasks.set("task-b", {
+      id: "task-b",
+      description: "task b body",
+    });
+
+    const { container, rerender } = render(
+      <TaskDescription taskId="task-a" />,
+    );
+    await waitFor(() => {
+      expect(container.textContent).toContain("task a body");
+    });
+
+    let resolveUpload!: (asset: unknown) => void;
+    const pendingUpload = new Promise((resolve) => {
+      resolveUpload = resolve;
+    });
+    const uploadMock = vi.mocked(uploadTaskImage);
+    uploadMock.mockReturnValueOnce(
+      pendingUpload as ReturnType<typeof uploadTaskImage>,
+    );
+
+    const fileInput = container.querySelector<HTMLInputElement>(
+      'input[type="file"]',
+    );
+    expect(fileInput).not.toBeNull();
+    fireEvent.change(fileInput as HTMLInputElement, {
+      target: {
+        files: [new File(["x"], "stale.png", { type: "image/png" })],
+      },
+    });
+
+    await waitFor(() => {
+      expect(uploadMock).toHaveBeenCalledWith({
+        taskId: "task-a",
+        surface: "description",
+        file: expect.any(File),
+      });
+    });
+
+    rerender(<TaskDescription taskId="task-b" />);
+    await waitFor(() => {
+      expect(container.textContent).toContain("task b body");
+    });
+
+    resolveUpload({
+      kind: "image",
+      url: "https://example.com/stale.png",
+      alt: "stale",
+    });
+    await waitFor(() => {
+      expect(uploadMock).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      const inserted = container.querySelector('img[src*="stale.png"]');
+      expect(inserted).toBeNull();
+    });
+    expect(container.querySelector('[contenteditable="true"]')?.textContent).toBe(
+      "task b body",
+    );
+    expect(vi.mocked(toast.error)).toHaveBeenCalledWith(
+      "tasks:detail.editor.upload.taskChanged",
+    );
   });
 });
