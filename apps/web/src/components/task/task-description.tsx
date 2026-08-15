@@ -9,7 +9,7 @@ import TableRow from "@tiptap/extension-table-row";
 import TaskList from "@tiptap/extension-task-list";
 import { Markdown } from "@tiptap/markdown";
 import { Fragment, Slice } from "@tiptap/pm/model";
-import { TextSelection } from "@tiptap/pm/state";
+import { EditorState, TextSelection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
@@ -40,7 +40,14 @@ import {
   Underline as UnderlineIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { bundledLanguages, type Highlighter } from "shiki";
 import { Button } from "@/components/ui/button";
@@ -117,6 +124,31 @@ function formatMarkdown(markdown: string) {
     .replace(/\r\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/\n{2,}$/g, "\n");
+}
+
+function resetUndoHistory(editor: Editor) {
+  const { schema, plugins, doc } = editor.state;
+  editor.view.updateState(
+    EditorState.create({
+      schema,
+      plugins,
+      doc,
+    }),
+  );
+}
+
+function setContentWithoutUndoStep(editor: Editor, content: string) {
+  editor
+    .chain()
+    .command(({ tr }) => {
+      tr.setMeta("addToHistory", false);
+      return true;
+    })
+    .setContent(content, {
+      emitUpdate: false,
+      contentType: "markdown",
+    })
+    .run();
 }
 
 type EmbedComposerState = {
@@ -274,12 +306,14 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
   const taskRef = useRef(task);
+  const taskIdRef = useRef(taskId);
   const updateTaskRef = useRef(updateTaskDescription);
   const activeTaskIdRef = useRef<string | null>(null);
   const lastEditorRef = useRef<Editor | null>(null);
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
+    taskId: string;
   } | null>(null);
   const hasHydratedRef = useRef(false);
   const isSyncingExternalContentRef = useRef(false);
@@ -306,10 +340,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   } | null>(null);
   const slashMenuRef = useRef<SlashMenuState | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     taskRef.current = task;
+    taskIdRef.current = taskId;
     updateTaskRef.current = updateTaskDescription;
-  }, [task, updateTaskDescription]);
+  }, [task, taskId, updateTaskDescription]);
 
   const shikiSupportedLanguages = useMemo(
     () => new Set([...Object.keys(bundledLanguages), "text"]),
@@ -399,16 +434,23 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         return;
       }
 
+      const uploadTaskId = taskIdRef.current;
       const loadingToast = toast.loading(
         t("tasks:detail.editor.upload.loading"),
       );
 
       try {
         const uploadedAsset = await uploadTaskImage({
-          taskId,
+          taskId: uploadTaskId,
           surface: "description",
           file,
         });
+
+        if (activeEditor.isDestroyed || taskIdRef.current !== uploadTaskId) {
+          toast.dismiss(loadingToast);
+          return;
+        }
+
         insertUploadedAsset(activeEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
@@ -426,13 +468,13 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         );
       }
     },
-    [insertUploadedAsset, t, taskId],
+    [insertUploadedAsset, t],
   );
 
   const openImagePicker = useCallback(
     (activeEditor?: Editor | null, range?: SlashRange) => {
       pendingImageInsertRef.current = activeEditor
-        ? { editor: activeEditor, range }
+        ? { editor: activeEditor, range, taskId: taskIdRef.current }
         : null;
       imageInputRef.current?.click();
     },
@@ -960,7 +1002,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   );
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || editor.isDestroyed) return;
     if (lastEditorRef.current !== editor) {
       hasHydratedRef.current = false;
       lastEditorRef.current = editor;
@@ -977,10 +1019,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     if (!hasHydratedRef.current) {
       isSyncingExternalContentRef.current = true;
       latestSyncedMarkdownRef.current = incomingMarkdown;
-      editor.commands.setContent(incomingMarkdown, {
-        emitUpdate: false,
-        contentType: "markdown",
-      });
+      setContentWithoutUndoStep(editor, incomingMarkdown);
+      if (isTaskChanged) {
+        resetUndoHistory(editor);
+      }
       hasHydratedRef.current = true;
       requestAnimationFrame(() => {
         isSyncingExternalContentRef.current = false;
@@ -993,10 +1035,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
     isSyncingExternalContentRef.current = true;
     latestSyncedMarkdownRef.current = incomingMarkdown;
-    editor.commands.setContent(incomingMarkdown, {
-      emitUpdate: false,
-      contentType: "markdown",
-    });
+    setContentWithoutUndoStep(editor, incomingMarkdown);
     requestAnimationFrame(() => {
       isSyncingExternalContentRef.current = false;
     });
@@ -1271,7 +1310,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const copyHoveredCodeBlock = useCallback(async () => {
     if (!editor || !hoveredCodeBlock) return;
     const node = editor.state.doc.nodeAt(hoveredCodeBlock.nodePos);
-    if (!node || node.type.name !== "codeBlock") return;
+    if (node?.type.name !== "codeBlock") return;
 
     const content = node.textContent || "";
     if (!content) return;
@@ -1356,17 +1395,20 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         className="sr-only"
         onChange={(event) => {
           const file = event.target.files?.[0];
+          event.target.value = "";
           if (!file) return;
 
           const pendingInsert = pendingImageInsertRef.current;
           pendingImageInsertRef.current = null;
+          if (!pendingInsert || pendingInsert.taskId !== taskIdRef.current) {
+            return;
+          }
+
           void handleAssetFileUpload(
             file,
-            pendingInsert?.editor,
-            pendingInsert?.range,
+            pendingInsert.editor,
+            pendingInsert.range,
           );
-
-          event.target.value = "";
         }}
       />
       {editor && hoveredCodeBlock && (
