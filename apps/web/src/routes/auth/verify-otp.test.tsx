@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -76,7 +77,16 @@ beforeEach(() => {
   emailOtp.mockResolvedValue({ data: {}, error: null });
 });
 
-afterEach(() => {
+afterEach(async () => {
+  // input-otp schedules internal timers (0ms, 2s, 5s, 6s) for password
+  // manager detection when the input focuses. The 0ms timer can fire after
+  // vitest tears down the jsdom environment, which surfaces as an
+  // unhandled "window is not defined" error. Drain pending timers inside
+  // act() so React's pending updates flush and the timer calls complete
+  // before cleanup runs.
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
   cleanup();
   emailOtp.mockReset();
   push.mockReset();
