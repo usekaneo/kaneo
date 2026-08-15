@@ -5,11 +5,9 @@ import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { verifyApiKey } from "./verify-api-key";
 
-// ponytail: Sentry's user scope is per-process in @sentry/node. Concurrent
-// requests from different users can race the per-context user id. The proper
-// fix is to wrap each request in Sentry.runWithAsyncContext, which requires
-// wiring AsyncLocalStorage through Hono's middleware chain. Tagging here is
-// best-effort attribution; do not rely on it for cross-user filtering.
+// User is tagged on Sentry's current scope; the per-request scope is forked
+// by Sentry.withScope in the api.use("*", ...) middleware, so this only
+// affects the in-flight request.
 function attachUserToScope(userId: string) {
   Sentry.setUser({ id: userId });
 }
