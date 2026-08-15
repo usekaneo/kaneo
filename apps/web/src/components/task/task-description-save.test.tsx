@@ -83,10 +83,14 @@ function latestEditor() {
 }
 
 // Hydration parks the editor behind a flag cleared on a later animation
-// frame. An edit dispatched before that is swallowed, not saved.
+// frame. An edit dispatched before that is swallowed, not saved. Waiting on a
+// frame rather than a delay is what makes it deterministic: hydration's
+// callback is already queued, so one queued after it cannot run first.
 async function settle() {
   await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => resolve(undefined));
+    });
   });
 }
 
